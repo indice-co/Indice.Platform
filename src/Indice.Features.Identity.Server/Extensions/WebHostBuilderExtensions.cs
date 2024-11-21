@@ -31,6 +31,6 @@ public static class WebHostBuilderExtensions
     /// <param name="getCustomRoles">Function that gets the custom roles needed</param>
     public static IWebHostBuilder AddInitialUsers(this IWebHostBuilder builder, Func<IEnumerable<User>> getInitialUsers, Func<IEnumerable<Role>>? getCustomRoles = null) =>
         builder.ConfigureServices(new Action<IServiceCollection>(services =>
-            services.TryAddTransient(sp => new ExtendedIdentityDbContextSeedOptions<User, Role> { InitialUsers = getInitialUsers(), CustomRoles = getCustomRoles?.Invoke() })
+            services.TryAddTransient(sp => new ExtendedIdentityDbContextSeedOptions<User, Role> { InitialUsers = getInitialUsers(), CustomRoles = getCustomRoles?.Invoke() ?? [] })
         ));
 }

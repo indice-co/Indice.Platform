@@ -20,6 +20,8 @@ export class UserEditComponent implements OnInit, OnDestroy {
   public userId = "";
   public userName = "";
   public displayName = "";
+  public blocked: boolean = false;
+  public locked: boolean = false;
   public signInLogsEnabled = false;
 
   private _getDataSubscription: Subscription;
@@ -51,12 +53,14 @@ export class UserEditComponent implements OnInit, OnDestroy {
         (result: { user: SingleUserInfo; features: UiFeaturesInfo }) => {
           this.signInLogsEnabled = result.features.signInLogsEnabled;
 
-          const { userName, claims } = result.user;
+          const { userName, claims, blocked, isLocked } = result.user;
           const givenName = claims.find((c) => c.type === "given_name")?.value;
           const familyName = claims.find((c) => c.type === "family_name")?.value;
 
           this.userName = userName;
           this.displayName = `${givenName || ''} ${familyName || ''}`.trim();
+          this.blocked = blocked;
+          this.locked = isLocked;
         }
       );
   }

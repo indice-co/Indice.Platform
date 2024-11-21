@@ -33,12 +33,12 @@ public sealed class DictionaryEnumConverter : JsonConverterFactory
         var keyType = type.GetGenericArguments()[0];
         var valueType = type.GetGenericArguments()[1];
         var converter = (JsonConverter)Activator.CreateInstance(
-            typeof(DictionaryEnumConverterInner<,>).MakeGenericType(new Type[] { keyType, valueType }),
+            typeof(DictionaryEnumConverterInner<,>).MakeGenericType([keyType, valueType]),
             BindingFlags.Instance | BindingFlags.Public,
             binder: null,
-            args: new object[] { options },
+            args: [ options ],
             culture: null
-        );
+        )!;
         return converter;
     }
 
@@ -56,7 +56,7 @@ public sealed class DictionaryEnumConverter : JsonConverterFactory
             _valueType = typeof(TValue);
         }
 
-        public override Dictionary<TKey, TValue> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
+        public override Dictionary<TKey, TValue>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
             if (reader.TokenType != JsonTokenType.StartObject) {
                 throw new JsonException();
             }
@@ -76,7 +76,7 @@ public sealed class DictionaryEnumConverter : JsonConverterFactory
                     throw new JsonException($"Unable to convert \"{propertyName}\" to Enum \"{_keyType}\".");
                 }
                 // Get the value.
-                TValue v;
+                TValue? v;
                 if (_valueConverter != null) {
                     reader.Read();
                     v = _valueConverter.Read(ref reader, _valueType, options);
@@ -84,7 +84,7 @@ public sealed class DictionaryEnumConverter : JsonConverterFactory
                     v = JsonSerializer.Deserialize<TValue>(ref reader, options);
                 }
                 // Add to dictionary.
-                value.Add(key, v);
+                value.Add(key, v!);
             }
             throw new JsonException();
         }

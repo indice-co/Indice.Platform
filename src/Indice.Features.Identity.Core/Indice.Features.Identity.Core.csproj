@@ -12,8 +12,6 @@
     <PackageReference Include="Bogus" Version="34.0.2" />
     <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefixCore)" />
     <PackageReference Include="Indice.Extensions.Configuration.Database" Version="$(VersionPrefixCore)" />
-    <PackageReference Include="JsonSchema.Net" Version="7.2.3" />
-    <PackageReference Include="JsonSchema.Net.Generation" Version="4.5.1" />
     <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="4.0.0" />
     <PackageReference Include="UAParser" Version="3.1.47" />
   </ItemGroup>

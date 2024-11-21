@@ -5,7 +5,6 @@ using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Totp;
 using Indice.Features.Identity.Server.Options;
 using Indice.Security;
-using Indice.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -77,7 +76,12 @@ public static class RequireOtpFilterExtensions
                                 .UsingDeliveryChannel(deliveryChannel)
                                 .WithPurpose(purpose)
                         );
-                        return Results.ValidationProblem(ValidationErrors.AddError("requiresOtp", "Invalid totp"), detail: "The TOTP code could not be verified.", extensions: new Dictionary<string, object?> { ["requiresOtp"] = true });
+                        return Results.ValidationProblem(ValidationErrors.AddError("requiresOtp", "Invalid totp"), detail: "The TOTP code could not be verified.");
+                    }
+                    // TOTP is present, so try and verify the otp.
+                    var otpResult = await totpService.VerifyAsync(principal, totp, purpose);
+                    if (!otpResult.Success) {
+                        return Results.ValidationProblem(ValidationErrors.AddError("requiresOtp", "Invalid totp"), detail: "The TOTP code could not be verified.");
                     }
                     return await next(invocationContext);
                 });

@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [WIP]
+### Added
+ - Cases can now be related to other cases, the relation is based on the assigned `metadata.ExternalRelationKey`
+ - Now showing table with the related cases in the case details page
+
+## [7.39.1] - 2024-11-08
+### Fixed
+- Calling `GetAttachmentByField` while a property is filled with an empty string will no longer be problematic. 
+
 ## [7.32.1] - 2024-10-22
 ### Added
  - `hideStatuses` case type configuration to hide timeline statuses. You can set it up by setting the flag to true like this: {"backoffice":{"hideStatuses": true}}

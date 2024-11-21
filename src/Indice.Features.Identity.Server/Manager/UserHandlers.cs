@@ -526,6 +526,23 @@ internal static class UserHandlers
         return TypedResults.Ok(response);
     }
 
+    internal static async Task<Results<NoContent, NotFound>> DeleteUserDevice(
+        ExtendedUserManager<User> userManager,
+        string userId,
+        string deviceId
+    ) {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        var device = await userManager.GetDeviceByIdAsync(user, userId);
+        if (device == null) {
+            return TypedResults.NotFound();
+        }
+        await userManager.RemoveDeviceAsync(user, device);
+        return TypedResults.NoContent();
+    }
+
     internal static async Task<Ok<ResultSet<UserLoginProviderInfo>>> GetUserExternalLogins(
         ExtendedUserManager<User> userManager,
         string userId

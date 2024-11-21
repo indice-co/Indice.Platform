@@ -7,17 +7,17 @@ public class EmailMessageBuilder
     internal IList<string> Recipients { get; set; } = new List<string>();
     /// <summary>The representation of an email address in the form field.</summary>
     /// <remarks>Defaults to the configuration values <strong>Email:Sender</strong> and <strong>Email:SenderName</strong>.</remarks>
-    internal EmailSender Sender { get; set; }
+    internal EmailSender? Sender { get; set; }
     /// <summary>The subject of the message.</summary>
-    internal string Subject { get; set; }
+    internal string Subject { get; set; } = null!;
     /// <summary>The body of the message.</summary>
-    internal string Body { get; set; }
+    internal string? Body { get; set; }
     /// <summary>Optional attachments contained in the message.</summary>
     internal IList<EmailAttachment> Attachments { get; set; } = new List<EmailAttachment>();
     /// <summary>The template used to render the email.</summary>
-    internal string Template { get; set; }
+    internal string? Template { get; set; }
     /// <summary>Data that are passed to the email template.</summary>
-    internal object Data { get; set; }
+    internal object? Data { get; set; }
 }
 
 /// <summary><see cref="EmailMessageBuilder" /> extensions.</summary>
@@ -29,7 +29,7 @@ public static class EmailMessageBuilderExtensions
     /// <param name="displayName">Sender display name.</param>
     /// <returns>The builder.</returns>
     /// <remarks>Take caution. The value must be valid according to the sending domains configured with the corresponding API key.</remarks>
-    public static EmailMessageBuilder From(this EmailMessageBuilder builder, string address, string displayName = null) {
+    public static EmailMessageBuilder From(this EmailMessageBuilder builder, string address, string? displayName = null) {
         if (string.IsNullOrEmpty(address)) {
             throw new ArgumentNullException("The email address must be provided.", nameof(address));
         }
@@ -41,11 +41,11 @@ public static class EmailMessageBuilderExtensions
     /// <param name="builder">The builder.</param>
     /// <param name="recipients">The email addresses of the recipients.</param>
     /// <returns>The builder.</returns>
-    public static EmailMessageBuilder To(this EmailMessageBuilder builder, params string[] recipients) {
+    public static EmailMessageBuilder To(this EmailMessageBuilder builder, params string[]? recipients) {
         if (recipients?.Length == 0) {
             throw new ArgumentException("One or more recipients must be declared for the message.", nameof(recipients));
         }
-        foreach (var recipient in recipients.Distinct()) {
+        foreach (var recipient in recipients!.Distinct()) {
             builder.Recipients.Add(recipient);
         }
         return builder;
@@ -83,7 +83,7 @@ public static class EmailMessageBuilderExtensions
         if (attachments?.Length == 0) {
             throw new ArgumentException("One or more attachments must be declared for the message.", nameof(attachments));
         }
-        foreach (var attachment in attachments) {
+        foreach (var attachment in attachments!) {
             builder.Attachments.Add(attachment);
         }
         return builder;

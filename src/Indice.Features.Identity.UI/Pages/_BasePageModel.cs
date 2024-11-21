@@ -111,7 +111,7 @@ public abstract class BasePageModel : PageModel
         var emailService = ServiceProvider.GetRequiredService<IEmailService>();
         var localizer = ServiceProvider.GetRequiredService<IStringLocalizer<BasePageModel>>();
         await emailService.SendAsync(message =>
-            message.To(user.Email)
+            message.To(user.Email!)
                    .WithSubject(localizer["Account confirmation"])
                    .UsingTemplate("EmailRegister")
                    .WithData(new {
@@ -145,7 +145,7 @@ public abstract class BasePageModel : PageModel
         var emailService = ServiceProvider.GetRequiredService<IEmailService>();
         var localizer = ServiceProvider.GetRequiredService<IStringLocalizer<BasePageModel>>();
         await emailService.SendAsync(message =>
-            message.To(user.Email)
+            message.To(user.Email!)
                    .WithSubject(localizer["Account confirmation"])
                    .UsingTemplate("EmailConfirmYourEmail")
                    .WithData(new {

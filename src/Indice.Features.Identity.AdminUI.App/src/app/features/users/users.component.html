@@ -12,13 +12,13 @@
 </div>
 <div class="row">
     <div class="col-12">
-        <app-list-view [clientSide]="false" [columns]="columns" [rows]="rows" [count]="count" [rowsPerPage]="15" [defaultSortField]="'createDate'" [defaultSortDirection]="'Desc'" (search)="getUsers($event)" [canFilter]="true" #usersList>
+        <app-list-view [clientSide]="false" [columns]="columns | async" [rows]="rows" [count]="count" [rowsPerPage]="15" [defaultSortField]="'createDate'" [defaultSortDirection]="'Desc'" (search)="getUsers($event)" [canFilter]="true" #usersList>
         </app-list-view>
     </div>
 </div>
 <ng-template let-row="row" let-value="value" #actionsTemplate>
     <a class="icon-link text-primary" href="#" role="button" *ngIf="value" [routerLink]="value + '/details'" title="{{ canEditUser ? 'Edit' : 'View' }}">
-        <i class="material-icons align-middle">{{ canEditUser ? 'edit_outlined' : 'view_headline_outlined' }}</i>
+        <i class="material-icons align-middle">{{ canEditUser ? 'edit' : 'view_headline' }}</i>
     </a>
 </ng-template>
 <ng-template let-row="row" let-value="value" #optionalTemplate>

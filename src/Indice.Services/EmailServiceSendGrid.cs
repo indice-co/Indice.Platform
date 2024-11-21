@@ -38,7 +38,7 @@ public class EmailServiceSendGrid : IEmailService
     public IHtmlRenderingEngine HtmlRenderingEngine { get; }
 
     /// <inheritdoc/>
-    public async Task SendAsync(string[] recipients, string subject, string body, EmailAttachment[] attachments = null, EmailSender from = null) {
+    public async Task<SendReceipt> SendAsync(string[] recipients, string subject, string body, EmailAttachment[] attachments = null, EmailSender from = null) {
         var bccRecipients = string.IsNullOrEmpty(Settings.BccRecipients)
             ? null
             : (Settings.BccRecipients ?? "").Split(';', ',', StringSplitOptions.RemoveEmptyEntries).Select(x => new SendGridEmailAddress { Email = x });
@@ -80,6 +80,11 @@ public class EmailServiceSendGrid : IEmailService
             var content = await response.Content.ReadAsStringAsync();
             throw new SendGridException($"SendGrid service could not send email to recipients '{string.Join(", ", recipients)}'. Error is: '{content}'.");
         }
+        var messageId = Guid.NewGuid().ToString();
+        if (response.Headers.Contains("X-Message-ID")) {
+            messageId = response.Headers.GetValues("X-Message-ID").First();
+        }
+        return new SendReceipt(messageId, DateTimeOffset.UtcNow);
     }
 }
 

@@ -1,4 +1,6 @@
-﻿namespace Indice.Services;
+﻿using System.Diagnostics;
+
+namespace Indice.Services;
 
 /// <summary>The representation of a sender id visible in the recipients phone. i.e. INDICE. Defaults to the configuration values <strong>Sms:Sender</strong> and <strong>Sms:SenderName</strong>.</summary>
 public class SmsSender
@@ -18,7 +20,7 @@ public class SmsSender
     /// <summary>Checks for id existence.</summary>
     public bool IsEmpty => string.IsNullOrWhiteSpace(Id);
     /// <inheritdoc/>
-    public override string ToString() => IsEmpty ? base.ToString() : $"{DisplayName} <{Id}>";
+    public override string ToString() => IsEmpty ? base.ToString()! : $"{DisplayName} <{Id}>";
 }
 
 /// <summary>Exception for SMS service failure.</summary>
@@ -29,12 +31,12 @@ public class SmsServiceException : Exception
 
     /// <summary>Initializes a new instance of the <see cref="SmsServiceException"/> class with a specified error message.</summary>
     /// <param name="message">The message that describes the error.</param>
-    public SmsServiceException(string message) : base(message) { }
+    public SmsServiceException(string? message) : base(message) { }
 
     /// <summary>Initializes a new instance of the <see cref="SmsServiceException"/> class with a specified error message and a reference to the inner exception that is the cause of this exception.</summary>
     /// <param name="message">The error message that explains the reason for the exception.</param>
     /// <param name="innerException">The exception that is the cause of the current exception, or a null reference if no inner exception is specified.</param>
-    public SmsServiceException(string message, Exception innerException) : base(message, innerException) { }
+    public SmsServiceException(string? message, Exception? innerException) : base(message, innerException) { }
 }
 
 /// <summary>Settings class for configuring SMS service clients.</summary>
@@ -43,11 +45,11 @@ public class SmsServiceSettings
     /// <summary>Key in the configuration.</summary>
     public static readonly string Name = "Sms";
     /// <summary>The API key.</summary>
-    public string ApiKey { get; set; }
+    public string? ApiKey { get; set; }
     /// <summary>The default sender.</summary>
-    public string Sender { get; set; }
+    public string? Sender { get; set; }
     /// <summary>The sender display name.</summary>
-    public string SenderName { get; set; }
+    public string? SenderName { get; set; }
     /// <summary>If true then test mode should not charge any credits.</summary>
     public bool TestMode { get; set; }
     /// <summary>In case of Viber failure fall-back to SMS.</summary>
@@ -55,6 +57,32 @@ public class SmsServiceSettings
     /// <summary>The number of a seconds that a message is considered active. Defaults to 4320 seconds.</summary>
     public int Validity { get; set; } = 4320;
 }
+
+/// <summary> The send receipt object representing a send message by either the <see cref="IEmailService"/> or the <see cref="ISmsService"/>. </summary>
+[DebuggerDisplay("{ToString(),nq} ({InsertionTime,nq})")]
+public record SendReceipt
+{
+    /// <summary> Initializes a new instance of <see cref="SendReceipt"/>. </summary>
+    /// <param name="messageId"> The Id of the Message. </param>
+    /// <param name="insertionTime"> The time the Message was inserted into the Queue. </param>
+    /// <exception cref="ArgumentNullException"> <paramref name="messageId"/></exception>
+    public SendReceipt(string messageId, DateTimeOffset insertionTime) {
+        
+        MessageId = messageId ?? throw new ArgumentNullException(nameof(messageId));
+        InsertionTime = insertionTime == default ? DateTimeOffset.UtcNow : insertionTime;
+    }
+
+    /// <summary>The id of the message</summary>
+    public string MessageId { get; }
+    /// <summary>The time it was dispatched</summary>
+    public DateTimeOffset InsertionTime { get; }
+
+    /// <inheritdoc/>
+    public override string ToString() {
+        return $"msg: {MessageId ?? "(empty)"}";
+    }
+}
+
 
 /// <summary>SMS service abstraction in order support different providers.</summary>
 public interface ISmsService
@@ -68,5 +96,5 @@ public interface ISmsService
     /// <param name="subject">Message subject.</param>
     /// <param name="body">Message content.</param>
     /// <param name="sender">The sender id visible in the recipients phone. i.e. INDICE. Defaults to the configuration value <strong>sender</strong>.</param>
-    Task SendAsync(string destination, string subject, string body, SmsSender sender = null);
+    Task<SendReceipt> SendAsync(string destination, string subject, string? body, SmsSender? sender = null);
 }

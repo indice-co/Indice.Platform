@@ -17,7 +17,7 @@
 </div>
 <ng-template let-row="row" let-value="value" #actionsTemplate>
     <a class="icon-link text-primary" href="#" role="button" *ngIf="value" [routerLink]="value + '/edit'" title="{{ canEditClaimType ? 'Edit' : 'View' }}">
-        <i class="material-icons align-middle">{{ canEditClaimType ? 'edit_outlined' : 'view_headline_outlined' }}</i>
+        <i class="material-icons align-middle">{{ canEditClaimType ? 'edit' : 'view_headline' }}</i>
     </a>
 </ng-template>
 <ng-template let-row="row" let-value="value" #valueTypeTemplate>
@@ -26,7 +26,8 @@
 <ng-template let-row="row" let-value="value" #nameTemplate>
     <span>
         <span class="mr-1">{{ row.displayName }}</span>
-        <span class="badge badge-primary mr-1" [title]="row.description">{{ row.name }}</span>
-        <i *ngIf="row.reserved" title="reserved" class="material-icons align-middle text-warning">lock</i>
+        <span class="badge text-muted border boder-primary bg-light m-1" [title]="row.description">
+            {{ row.name }}
+            <i *ngIf="row.reserved" title="reserved" class="align-middle text-warning material-icons" style="font-size: 12px;">lock</i></span>
     </span>
 </ng-template>

@@ -10,7 +10,7 @@ public static class MessageEndpointExtensions
 {
 
     /// <summary>Registers the endpoints for the Media Api.</summary>
-    /// <param name="builder">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
+    /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     /// <returns>The <see cref="IEndpointRouteBuilder"/> instance for further configuration.</returns>
     public static IEndpointRouteBuilder MapMessaging(this IEndpointRouteBuilder routes) {
         // my messages / inbox api

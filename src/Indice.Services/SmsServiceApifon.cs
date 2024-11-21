@@ -40,9 +40,10 @@ public class SmsServiceApifon : ISmsService
     protected ILogger<SmsServiceApifon> Logger { get; }
 
     /// <inheritdoc/>
-    public async Task SendAsync(string destination, string subject, string body, SmsSender sender = null) {
+    public async Task<SendReceipt> SendAsync(string destination, string subject, string body, SmsSender sender = null) {
         HttpResponseMessage httpResponse;
         ApifonResponse response;
+        var messageId = Guid.NewGuid().ToString();
         var recipients = (destination ?? string.Empty).Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
         if (recipients == null) {
             throw new ArgumentNullException(nameof(recipients));
@@ -86,11 +87,17 @@ public class SmsServiceApifon : ISmsService
         }
         response = JsonSerializer.Deserialize<ApifonResponse>(responseString, GetJsonSerializerOptions());
         if (response.HasError) {
-            Logger.LogInformation("SMS Delivery failed. {responseStatus}", response.Status.Description);
-            throw new SmsServiceException($"SMS Delivery failed. {response.Status.Description}");
+            Logger.LogInformation("SMS Delivery failed. {responseStatus}. ResponseId: {responseId}", response.Status.Description, response.Id);
+            throw new SmsServiceException($"SMS Delivery failed. {response.Status.Description} responseId {response.Id}");
         } else {
             Logger.LogInformation("SMS message successfully sent: {result}", response.Results.FirstOrDefault());
         }
+        messageId = response.Id;
+        var messageIds = response.Results?.Values.SelectMany(x => x?.Select(y => y.Id))?.ToList();
+        if (messageIds?.Count > 0) {
+            messageId = string.Join(",", messageIds);
+        }
+        return new SendReceipt(messageId, DateTimeOffset.UtcNow);
     }
 
     /// <summary>Checks the implementation if supports the given <paramref name="deliveryChannel"/>.</summary>
@@ -123,7 +130,7 @@ internal class ApifonResponse
 {
     [JsonPropertyName("request_id")]
     public string Id { get; set; }
-    public Dictionary<string, ResultDetails[]> Results { get; set; }
+    public Dictionary<string, ResultDetails[]> Results { get; set; } = new Dictionary<string, ResultDetails[]>();
     [JsonPropertyName("result_info")]
     public ResultInfo Status { get; set; }
     public bool HasError => !(Status?.StatusCode >= 200 && Status?.StatusCode < 300);

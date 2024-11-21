@@ -470,7 +470,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         var stringifiedCaseData = (await GetCaseById(user, caseId, false)).DataAs<string>();
         var json = JsonDocument.Parse(stringifiedCaseData);
         bool found = json.RootElement.TryGetProperty(fieldName, out JsonElement attachmentId);
-        if (found) {
+        if (found && !string.IsNullOrEmpty(attachmentId.GetString())) {
             var attachment = await GetAttachment(caseId, attachmentId.GetGuid());
             return attachment;
         }
@@ -578,6 +578,18 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         }
 
         return timeline;
+    }
+
+    public async Task<List<CasePartial>> GetRelatedCases(ClaimsPrincipal user, Guid caseId) {
+        // Check that user role can view this case
+        var @case = await GetCaseById(user, caseId, false);
+        var result = await GetCases(user, new ListOptions<GetCasesListFilter>() {
+            Filter = new GetCasesListFilter {
+                Metadata = [new FilterClause("metadata.ExternalCorrelationKey", @case.Metadata["ExternalCorrelationKey"], FilterOperator.Eq, JsonDataType.String)]
+            }
+        });
+
+        return result.Items.OrderByDescending(x=> x.CreatedByWhen).ToList();
     }
 
     private async Task<List<FilterClause>> MapCheckpointTypeCodeToId(List<FilterClause> checkpointTypeCodeFilterClauses) {

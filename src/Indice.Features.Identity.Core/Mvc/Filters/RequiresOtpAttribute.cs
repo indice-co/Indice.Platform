@@ -31,9 +31,10 @@ public class RequiresOtpAttribute : Attribute, IAsyncActionFilter
             context.Result = new BadRequestObjectResult(problemDetails);
             return;
         }
-        // Check if user has an elevated access token and is already TOTP authenticated.
-        var isOtpAuthenticated = principal.FindFirstValue<bool>(CustomGrantTypes.Mfa) ?? false;
-        if (isOtpAuthenticated) {
+        // Check if user has an elevated access token and is already mfa authenticated.
+        var amr = principal.FindAll(JwtClaimTypes.AuthenticationMethod).Select(x => x.Value).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var isMfad = amr.Contains("mfa") || amr.Count > 1;
+        if (isMfad) {
             await next();
             return;
         }

@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Text;
+﻿using System.Text;
+using System.Text.Json;
 using IdentityModel;
 using Microsoft.AspNetCore.Authentication;
-using Newtonsoft.Json;
 
 namespace Indice.AspNetCore.Identity.Models;
 
@@ -18,7 +17,7 @@ public class DiagnosticsViewModel
             var encoded = result.Properties.Items["client_list"];
             var bytes = Base64Url.Decode(encoded);
             var value = Encoding.UTF8.GetString(bytes);
-            Clients = JsonConvert.DeserializeObject<string[]>(value);
+            Clients = JsonSerializer.Deserialize<List<string>>(value);
         }
     }
 
@@ -26,5 +25,5 @@ public class DiagnosticsViewModel
     public AuthenticateResult AuthenticateResult { get; }
 
     /// <summary>List of clients.</summary>
-    public IEnumerable<string> Clients { get; } = new List<string>();
+    public List<string> Clients { get; } = [];
 }

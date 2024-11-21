@@ -26,6 +26,13 @@
        *ngIf="value" 
        [routerLink]="value + '/edit'" 
        title="{{ canEditRole ? 'Edit' : 'View' }}">
-        <i class="material-icons align-middle">{{ canEditRole ? 'edit_outlined' : 'view_headline_outlined' }}</i>
+        <i class="material-icons align-middle">{{ canEditRole ? 'edit' : 'view_headline' }}</i>
     </a>
+</ng-template>
+<ng-template let-row="row"
+             let-value="value"
+             #keyTemplate>
+    <span class="badge text-muted border boder-primary bg-light m-1" [title]="value">
+        {{ value }}
+    </span>
 </ng-template>

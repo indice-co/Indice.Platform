@@ -100,7 +100,7 @@ public partial struct PhoneNumber : IFormattable
         if (!CountryInfo.TryGetCountryByCallingCode(callingCode, out country)) {
             throw new FormatException($"The phoneNumber supplied has a calling code that is not corralate to a known country. Code '{callingCode}'");
         }
-        return new PhoneNumber(callingCode, country.TwoLetterCode, number.Replace("-", "")
+        return new PhoneNumber(callingCode, country!.TwoLetterCode, number.Replace("-", "")
                                                                          .Replace("(", "")
                                                                          .Replace(")", "")
                                                                          .Replace(" ", ""));

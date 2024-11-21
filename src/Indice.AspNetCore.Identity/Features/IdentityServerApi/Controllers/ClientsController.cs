@@ -1,21 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Mime;
+﻿using System.Net.Mime;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
-using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.EntityFramework.Entities;
-using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Models;
+using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity.Api.Configuration;
-using Indice.AspNetCore.Identity.Api.Events;
 using Indice.AspNetCore.Identity.Api.Filters;
 using Indice.AspNetCore.Identity.Api.Models;
 using Indice.AspNetCore.Identity.Api.Security;
@@ -26,7 +20,6 @@ using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Events.Models;
-using Indice.Features.Identity.Core.Extensions;
 using Indice.Features.Identity.Core.Models;
 using Indice.Security;
 using Indice.Serialization;
@@ -325,9 +318,7 @@ internal class ClientsController : ControllerBase
             Type = request.Type,
             Value = request.Value
         };
-        client.Claims = new List<ClientClaim> {
-            claimToAdd
-        };
+        client.Claims = [claimToAdd];
         await _configurationDbContext.SaveChangesAsync();
         return Created(string.Empty, new ClaimInfo {
             Id = claimToAdd.Id,
@@ -354,7 +345,7 @@ internal class ClientsController : ControllerBase
             return NotFound();
         }
         if (client.Claims == null) {
-            client.Claims = new List<ClientClaim>();
+            client.Claims = [];
         }
         var claimToRemove = client.Claims.SingleOrDefault(x => x.Id == claimId);
         if (claimToRemove == null) {
@@ -429,11 +420,13 @@ internal class ClientsController : ControllerBase
         if (client == null) {
             return NotFound();
         }
-        client.AllowedScopes = new List<ClientScope>();
-        client.AllowedScopes.AddRange(resources.Select(x => new ClientScope {
-            ClientId = client.Id,
-            Scope = x
-        }));
+        client.AllowedScopes =
+        [
+            .. resources.Select(x => new ClientScope {
+                ClientId = client.Id,
+                Scope = x
+            }),
+        ];
         await _configurationDbContext.SaveChangesAsync();
         return NoContent();
     }
@@ -456,7 +449,7 @@ internal class ClientsController : ControllerBase
             return NotFound();
         }
         if (client.AllowedScopes == null) {
-            client.AllowedScopes = new List<ClientScope>();
+            client.AllowedScopes = [];
         }
         var resourcesToRemove = client.AllowedScopes.Where(x => resources.Contains(x.Scope)).ToList();
         if (resourcesToRemove == null) {
@@ -490,9 +483,7 @@ internal class ClientsController : ControllerBase
             GrantType = grantType,
             ClientId = client.Id
         };
-        client.AllowedGrantTypes = new List<ClientGrantType> {
-            grantTypeToAdd
-        };
+        client.AllowedGrantTypes = [grantTypeToAdd];
         await _configurationDbContext.SaveChangesAsync();
         return Ok(new GrantTypeInfo {
             Id = grantTypeToAdd.Id,
@@ -518,7 +509,7 @@ internal class ClientsController : ControllerBase
             return NotFound();
         }
         if (client.AllowedGrantTypes == null) {
-            client.AllowedGrantTypes = new List<ClientGrantType>();
+            client.AllowedGrantTypes = [];
         }
         var grantTypeToRemove = client.AllowedGrantTypes.SingleOrDefault(x => x.GrantType == grantType);
         if (grantTypeToRemove == null) {
@@ -608,7 +599,7 @@ internal class ClientsController : ControllerBase
             Type = IdentityServerConstants.SecretTypes.X509CertificateBase64,
             ClientId = client.Id
         };
-        client.ClientSecrets = new List<ClientSecret> { newSecret };
+        client.ClientSecrets = [newSecret];
         await _configurationDbContext.SaveChangesAsync();
         return CreatedAtAction(string.Empty, new SecretInfo {
             Id = newSecret.Id,
@@ -716,7 +707,7 @@ internal class ClientsController : ControllerBase
             return NotFound();
         }
         if (client.ClientSecrets == null) {
-            client.ClientSecrets = new List<ClientSecret>();
+            client.ClientSecrets = [];
         }
         var secretToRemove = client.ClientSecrets.SingleOrDefault(x => x.Id == secretId);
         if (secretToRemove == null) {
@@ -850,14 +841,10 @@ internal class ClientsController : ControllerBase
             Enabled = true
         };
         if (!string.IsNullOrEmpty(clientRequest.RedirectUri)) {
-            client.RedirectUris = new List<ClientRedirectUri> {
-                new ClientRedirectUri { RedirectUri = clientRequest.RedirectUri }
-            };
+            client.RedirectUris = [new () { RedirectUri = clientRequest.RedirectUri }];
         }
         if (!string.IsNullOrEmpty(clientRequest.PostLogoutRedirectUri)) {
-            client.PostLogoutRedirectUris = new List<ClientPostLogoutRedirectUri> {
-                new ClientPostLogoutRedirectUri { PostLogoutRedirectUri = clientRequest.PostLogoutRedirectUri }
-            };
+            client.PostLogoutRedirectUris = [new () { PostLogoutRedirectUri = clientRequest.PostLogoutRedirectUri }];
         }
         if (clientRequest.Secrets.Any()) {
             client.ClientSecrets = clientRequest.Secrets.Select(x => new ClientSecret {
@@ -873,65 +860,33 @@ internal class ClientsController : ControllerBase
         }
         switch (clientType) {
             case ClientType.SPA:
-                client.AllowedGrantTypes = new List<ClientGrantType> {
-                    new ClientGrantType {
-                        GrantType = GrantType.AuthorizationCode
-                    }
-                };
+                client.AllowedGrantTypes = [new () { GrantType = GrantType.AuthorizationCode }];
                 client.RequirePkce = true;
                 client.RequireClientSecret = false;
-                client.AllowedCorsOrigins = new List<ClientCorsOrigin> {
-                    new ClientCorsOrigin {
-                        Origin = clientRequest.ClientUri ?? authorityUri
-                    }
-                };
+                client.AllowedCorsOrigins = [new () { Origin = clientRequest.ClientUri ?? authorityUri }];
                 break;
             case ClientType.WebApp:
-                client.AllowedGrantTypes = new List<ClientGrantType> {
-                    new ClientGrantType {
-                        GrantType = GrantType.Hybrid
-                    }
-                };
+                client.AllowedGrantTypes = [new() { GrantType = GrantType.Hybrid }];
                 client.RequirePkce = true;
                 break;
             case ClientType.Native:
-                client.AllowedGrantTypes = new List<ClientGrantType> {
-                    new ClientGrantType {
-                        GrantType = GrantType.AuthorizationCode
-                    }
-                };
+                client.AllowedGrantTypes = [new() { GrantType = GrantType.AuthorizationCode }];
                 client.RequirePkce = true;
                 client.RequireClientSecret = false;
                 break;
             case ClientType.Machine:
-                client.AllowedGrantTypes = new List<ClientGrantType> {
-                    new ClientGrantType {
-                        GrantType = GrantType.ClientCredentials
-                    }
-                };
+                client.AllowedGrantTypes = [new() { GrantType = GrantType.ClientCredentials }];
                 client.RequireConsent = false;
                 break;
             case ClientType.Device:
-                client.AllowedGrantTypes = new List<ClientGrantType> {
-                    new ClientGrantType {
-                        GrantType = GrantType.DeviceFlow
-                    }
-                };
+                client.AllowedGrantTypes = [new() { GrantType = GrantType.DeviceFlow }];
                 break;
             case ClientType.SPALegacy:
-                client.AllowedGrantTypes = new List<ClientGrantType> {
-                    new ClientGrantType {
-                        GrantType = GrantType.Implicit
-                    }
-                };
+                client.AllowedGrantTypes = [new() { GrantType = GrantType.Implicit }];
                 client.RequirePkce = false;
                 client.RequireClientSecret = false;
                 client.AllowAccessTokensViaBrowser = true;
-                client.AllowedCorsOrigins = new List<ClientCorsOrigin> {
-                    new ClientCorsOrigin {
-                        Origin = clientRequest.ClientUri ?? authorityUri
-                    }
-                };
+                client.AllowedCorsOrigins = [new() { Origin = clientRequest.ClientUri ?? authorityUri }];
                 break;
             default:
                 throw new ArgumentNullException(nameof(clientType), "Cannot determine the type of the client.");
@@ -944,7 +899,7 @@ internal class ClientsController : ControllerBase
     /// <param name="client">The <see cref="Client"/></param>
     /// <param name="translations">The JSON string with the translations</param>
     private static void AddClientTranslations(Client client, string translations) {
-        client.Properties ??= new List<ClientProperty>();
+        client.Properties ??= [];
         client.Properties.Add(new ClientProperty {
             Key = ClientPropertyKeys.Translation,
             Value = translations ?? string.Empty,

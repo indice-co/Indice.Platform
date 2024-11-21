@@ -11,7 +11,7 @@ public class EmailMessage
     /// <param name="data">Data that are passed to the email template.</param>
     /// <param name="attachments">Optional attachments contained in the message.</param>
     /// <param name="sender">Optionally change the default sender.</param>
-    public EmailMessage(IList<string> recipients, string subject, string body, string template, object data, IList<EmailAttachment> attachments, EmailSender sender = null) {
+    public EmailMessage(IList<string> recipients, string subject, string? body, string? template, object? data, IList<EmailAttachment> attachments, EmailSender? sender = null) {
         Recipients = recipients ?? throw new ArgumentNullException(nameof(recipients));
         Subject = subject ?? throw new ArgumentNullException(nameof(subject));
         if (string.IsNullOrEmpty(body) && string.IsNullOrEmpty(template)) {
@@ -29,16 +29,16 @@ public class EmailMessage
     /// <summary>The subject of the message.</summary>
     internal string Subject { get; }
     /// <summary>The body of the message.</summary>
-    internal string Body { get; set; }
+    internal string? Body { get; set; }
     /// <summary>The template used to render the email.</summary>
-    internal string Template { get; }
+    internal string? Template { get; }
     /// <summary>Data that are passed to the email template.</summary>
-    internal object Data { get; }
+    internal object? Data { get; }
     /// <summary>Optional attachments contained in the message.</summary>
     internal IList<EmailAttachment> Attachments { get; set; } = new List<EmailAttachment>();
     /// <summary>The representation of an email address in the form field.</summary>
     /// <remarks>Defaults to the configuration values <strong>Email:Sender</strong> and <strong>Email:SenderName</strong>.</remarks>
-    internal EmailSender Sender { get; set; }
+    internal EmailSender? Sender { get; set; }
 }
 
 /// <summary>Models the optional attachment of an email message.</summary>
