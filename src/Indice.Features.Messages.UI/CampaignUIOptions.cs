@@ -10,6 +10,8 @@ public class CampaignUIOptions : SpaUIOptions
     public bool EnableMediaLibrary { get; set; } = false;
     /// <summary>Enables a rich text editor for Campaign content.</summary>
     public bool EnableRichTextEditor { get; set; } = false;
+    /// <summary>Enables a rich text editor for Campaign content.</summary>
+    public string ApiUrl { get; set; } = "/api";
 #endif
     /// <summary>Creates a new instance <see cref="CampaignUIOptions"/>.</summary>
     public CampaignUIOptions() {
@@ -17,6 +19,7 @@ public class CampaignUIOptions : SpaUIOptions
 #if NET7_0_OR_GREATER
             args.Add($"%({nameof(EnableMediaLibrary)})", EnableMediaLibrary.ToString());
             args.Add($"%({nameof(EnableRichTextEditor)})", EnableRichTextEditor.ToString());
+            args.Add($"%({nameof(ApiUrl)})", ApiUrl);
 #endif
         };
     }

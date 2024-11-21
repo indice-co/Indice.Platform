@@ -20,6 +20,8 @@ public class MessageEndpointOptions : CampaignOptionsBase
     public string InboxGroupName { get; set; }
     /// <summary>Group name for management controllers, used in API explorer. Default is 'messages';</summary>
     public string ManagementGroupName { get; set; } = "messages";
+    /// <summary>This is the file upload limit used by the management api when uploading attachements. Defaults to 6 MB</summary>
+    public int FileUploadLimit { get; set; } = 6 * 1024 * 1024;
 }
 
 /// <summary>Options used to configure the Messages management API feature.</summary>
@@ -36,6 +38,9 @@ public class MessageManagementOptions : CampaignOptionsBase
     public string RequiredScope { get; set; } = MessagesApi.Scope;
     /// <summary>Group name for management controllers, used in API explorer. Default is 'messages';</summary>
     public string GroupName { get; set; } = "messages";
+    /// <summary>This is the file upload limit used by the management api when uploading attachements. Defaults to 6 MB</summary>
+    public int FileUploadLimit { get; set; } = 6 * 1024 * 1024;
+
 }
 
 /// <summary>Options used to configure the Campaigns inbox API feature.</summary>
@@ -82,6 +87,6 @@ public class CampaignOptionsBase
     /// <summary>Specifies a prefix for the API endpoints.</summary>
     public string ApiPrefix {
         get => _apiPrefix;
-        set { _apiPrefix = string.IsNullOrWhiteSpace(value) ? "/" : value; }
+        set { _apiPrefix = string.IsNullOrWhiteSpace(value) ? "/" : $"/{value}".TrimStart('/'); }
     }
 }
