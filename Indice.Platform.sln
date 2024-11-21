@@ -9,6 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".misc", ".misc", "{B8EB253B
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
 		appveyor.yml = appveyor.yml
+		global.json = global.json
 		LICENSE = LICENSE
 		local-feed.ps1 = local-feed.ps1
 		NuGet.config = NuGet.config
@@ -126,7 +127,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{3244
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.EcmaScript.Tests", "test\Indice.EcmaScript.Tests\Indice.EcmaScript.Tests.csproj", "{BC1A086C-EE56-4323-BC51-F7590B2DBA1F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.AspNetCore.Builder", "src\Indice.AspNetCore.Builder\Indice.AspNetCore.Builder.csproj", "{04C0B75E-2C67-4BBA-8A80-B0936F7D06DE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Builder", "src\Indice.AspNetCore.Builder\Indice.AspNetCore.Builder.csproj", "{04C0B75E-2C67-4BBA-8A80-B0936F7D06DE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
