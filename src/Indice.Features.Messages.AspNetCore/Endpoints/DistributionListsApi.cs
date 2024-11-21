@@ -43,38 +43,46 @@ public static class DistributionListsApi
 
         group.MapGet("", DistributionListsHandlers.GetDistributionLists)
              .WithName(nameof(DistributionListsHandlers.GetDistributionLists))
-             .WithSummary("Gets the list of available campaign types.");
+             .WithSummary("Gets the list of available campaign types.")
+             .WithDescription(DistributionListsHandlers.GET_DISTRIBUTION_LISTS_DESCRIPTION);
 
         group.MapGet("{distributionListId}", DistributionListsHandlers.GetDistributionListById)
              .WithName(nameof(DistributionListsHandlers.GetDistributionListById))
-             .WithSummary("Gets a distribution list by it's unique id.");
+             .WithSummary("Gets a distribution list by it's unique id.")
+             .WithDescription(DistributionListsHandlers.GET_DISTRIBUTION_LIST_BY_ID_DESCRIPTION);
 
         group.MapPost("", DistributionListsHandlers.CreateDistributionList)
              .WithName(nameof(DistributionListsHandlers.CreateDistributionList))
              .WithSummary("Creates a new distribution list.")
+             .WithDescription(DistributionListsHandlers.CREATE_DISTRIBUTION_LIST_DESCRIPTION)
              .WithParameterValidation<CreateDistributionListRequest>();
 
         group.MapDelete("{distributionListId}", DistributionListsHandlers.DeleteDistributionList)
              .WithName(nameof(DistributionListsHandlers.DeleteDistributionList))
-             .WithSummary("Permanently deletes a distribution list.");
+             .WithSummary("Permanently deletes a distribution list.")
+             .WithDescription(DistributionListsHandlers.DELETE_DISTRIBUTION_LIST_DESCRIPTION);
 
         group.MapPut("{distributionListId}", DistributionListsHandlers.UpdateDistributionList)
              .WithName(nameof(DistributionListsHandlers.UpdateDistributionList))
              .WithSummary("Updates an existing distribution list.")
+             .WithDescription(DistributionListsHandlers.UPDATE_DISTRIBUTION_LIST_DESCRIPTION)
              .WithParameterValidation<UpdateDistributionListRequest>();
 
         group.MapGet("{distributionListId}/contacts", DistributionListsHandlers.GetDistributionListContacts)
              .WithName(nameof(DistributionListsHandlers.GetDistributionListContacts))
-             .WithSummary("Gets the contacts of a given distribution list.");
+             .WithSummary("Gets the contacts of a given distribution list.")
+             .WithDescription(DistributionListsHandlers.GET_DISTRIBUTION_LIST_CONTACTS_DESCRIPTION);
 
         group.MapPost("{distributionListId}/contacts", DistributionListsHandlers.AddContactToDistributionList)
              .WithName(nameof(DistributionListsHandlers.AddContactToDistributionList))
              .WithSummary("Adds a new or existing contact in the specified distribution list.")
+             .WithDescription(DistributionListsHandlers.ADD_CONTACT_TO_DISTRIBUTION_LIST_DESCRIPTION)
              .WithParameterValidation<CreateDistributionListContactRequest>();
 
         group.MapDelete("{distributionListId}/contacts/{contactId}", DistributionListsHandlers.RemoveContactFromDistributionList)
              .WithName(nameof(DistributionListsHandlers.RemoveContactFromDistributionList))
-             .WithSummary("Removes an existing contact from the specified distribution list.");
+             .WithSummary("Removes an existing contact from the specified distribution list.")
+             .WithDescription(DistributionListsHandlers.REMOVE_CONTACT_FROM_DISTRIBUTION_LIST_DESCRIPTION);
 
         return group;
     }
