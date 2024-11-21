@@ -1,8 +1,8 @@
 ﻿using System.Globalization;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Data.Models;
 using Indice.Features.Cases.Events;
@@ -64,6 +64,41 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         if (caseId == default) throw new ArgumentNullException(nameof(caseId));
         if (data == null) throw new ArgumentNullException(nameof(data));
         await _adminCaseMessageService.Send(caseId, user, new Message { Data = data });
+    }
+    
+    /// <summary>
+    /// Applies a patch operation to a case's data given an <see cref="Action"/>
+    /// See <see cref="JsonObject"/> for usages.
+    /// </summary>
+    /// <exception cref="ArgumentNullException"></exception>
+    public async Task PatchData(ClaimsPrincipal user, Guid caseId, Action<JsonObject> action) {
+        if (user == null) throw new ArgumentNullException(nameof(user));
+        if (caseId == default) throw new ArgumentNullException(nameof(caseId));
+        // todo: ask Dimitris if we can use that
+        var caseData = (await GetCaseById(user, caseId, false)).DataAs<JsonObject>();
+        action.Invoke(caseData);
+        await _adminCaseMessageService.Send(caseId, user, new Message { Data = caseData });
+    }
+    
+    /// <summary>
+    /// `Patch` can be any object e.g. JsonElement, JsonNode, JObject or JToken that can be (de)serialized as Json.
+    /// The serialized patch will either be interpreted as:
+    /// 1. A JsonNode to merge with the existing case data.
+    /// 2. A JsonPatch operation following on the case data. https://datatracker.ietf.org/doc/html/rfc6902#appendix-A
+    /// </summary>
+    /// <remarks>For example usages see tests.</remarks>
+    public async Task PatchData(ClaimsPrincipal user, Guid caseId, dynamic patch) {
+        if (user == null) throw new ArgumentNullException(nameof(user));
+        if (caseId == default) throw new ArgumentNullException(nameof(caseId));
+        // todo: ask Dimitris if we can use that
+        var caseData = (await GetCaseById(user, caseId, false)).DataAs<JsonNode>();
+        
+        var patchNode = ((object)patch).ToJsonNode();
+        var mergedData = patchNode.IsJsonPatch() 
+            ? caseData.ApplyJsonPatch(patchNode.AsArray()) 
+            : caseData.Merge(patchNode);
+        
+        await _adminCaseMessageService.Send(caseId, user, new Message { Data = mergedData });
     }
 
     public async Task Submit(ClaimsPrincipal user, Guid caseId) {
@@ -455,6 +490,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     public async Task<CaseAttachment> GetAttachment(Guid caseId, Guid attachmentId) {
         var attachment = await _dbContext.Attachments
             .AsNoTracking()
+            .Where(a => a.CaseId == caseId)
             .Select(db => new CaseAttachment {
                 Id = db.Id,
                 ContentType = db.ContentType,
@@ -469,11 +505,13 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     public async Task<CaseAttachment> GetAttachmentByField(ClaimsPrincipal user, Guid caseId, string fieldName) {
         var stringifiedCaseData = (await GetCaseById(user, caseId, false)).DataAs<string>();
         var json = JsonDocument.Parse(stringifiedCaseData);
-        bool found = json.RootElement.TryGetProperty(fieldName, out JsonElement attachmentId);
+        var found = json.RootElement.TryGetProperty(fieldName, out JsonElement attachmentId);
+        
         if (found && !string.IsNullOrEmpty(attachmentId.GetString())) {
             var attachment = await GetAttachment(caseId, attachmentId.GetGuid());
             return attachment;
         }
+        
         return null;
     }
 

@@ -27,6 +27,27 @@ public interface IAdminCaseService
     /// <param name="data">The case data (as defined by JSON Schema in CaseType).</param>
     /// <returns></returns>
     Task UpdateData(ClaimsPrincipal user, Guid caseId, dynamic data);
+    
+    /// <summary>
+    /// Performs a Partial Upgrade of the case data and does a json instance-schema validation of
+    /// the case type's schema (<see cref="DbCaseType.DataSchema"/>).
+    /// `Patch` can be any object e.g. JsonElement, JsonNode, JObject or JToken that can be (de)serialized as Json.
+    /// The serialized patch will either be interpreted as:
+    /// 1. A JsonNode to merge with the existing case data.
+    /// 2. A JsonPatch operation applied on the case data. https://datatracker.ietf.org/doc/html/rfc6902#appendix-A
+    /// </summary>
+    /// <param name="user">The user that will update the case.</param>
+    /// <param name="caseId">The Id of the case.</param>
+    /// <param name="patch">An object that will be merged on the current case data.</param>
+    /// <returns></returns>
+    Task PatchData(ClaimsPrincipal user, Guid caseId, dynamic patch);
+
+    /// <summary>
+    /// Applies a patch operation to a case's data given an <see cref="Action"/> on a JsonObject.
+    /// <b> This assumes data from the database can be deserialized as a JsonObject directly</b>
+    /// </summary>
+    /// <exception cref="ArgumentNullException"></exception>
+    Task PatchData(ClaimsPrincipal user, Guid caseId, Action<JsonObject> action); 
 
     /// <summary>Submit the case. Case must be in <see cref="DbCase.Draft"/> mode.</summary>
     /// <param name="user">The user that initiated the submission.</param>
