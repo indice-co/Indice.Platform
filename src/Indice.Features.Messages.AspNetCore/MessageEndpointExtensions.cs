@@ -15,6 +15,7 @@ public static class MessageEndpointExtensions
     public static IEndpointRouteBuilder MapMessaging(this IEndpointRouteBuilder routes) {
         // my messages / inbox api
         routes.MapMyMessages();
+        routes.MapTracking();
         // management
         routes.MapCampaigns();
         routes.MapContacts();
@@ -22,7 +23,6 @@ public static class MessageEndpointExtensions
         routes.MapMessageSenders();
         routes.MapMessageTypes();
         routes.MapTemplates();
-        routes.MapTracking();
         return routes;
     }
 }
