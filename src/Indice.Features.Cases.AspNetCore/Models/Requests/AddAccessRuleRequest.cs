@@ -18,20 +18,20 @@ public class AddAccessRuleRequest
 
     /// <summary>Access level for member on the resource.</summary>
     public int AccessLevel { get; set; }
+    /// <summary>
+    /// Check that the provided onjsct is valid
+    /// </summary>
+    /// <returns></returns>
+    public bool IsValid() {
 
-    public bool IsValid() => 
-            //Validate Rules
-            (
-                (RuleCaseTypeId != null && RuleCheckpointTypeId == null && RuleCaseId == null) ||
-                (RuleCaseTypeId == null && RuleCheckpointTypeId != null && RuleCaseId == null) ||
-                (RuleCaseTypeId == null && RuleCheckpointTypeId == null && RuleCaseId != null) ||
-                (RuleCaseTypeId == null && RuleCheckpointTypeId != null && RuleCaseId != null)
-            )
-            &&
-            //Validate Members
-            (
-             (!string.IsNullOrEmpty(MemberRole) && string.IsNullOrEmpty(MemberGroupId) && string.IsNullOrEmpty(MemberUserId)) ||
-             (string.IsNullOrEmpty(MemberRole) && !string.IsNullOrEmpty(MemberGroupId) && string.IsNullOrEmpty(MemberUserId)) ||
-             (string.IsNullOrEmpty(MemberRole) && string.IsNullOrEmpty(MemberGroupId) && !string.IsNullOrEmpty(MemberUserId))
-            );
+        var ruleValidation = new [] { RuleCaseTypeId.HasValue, RuleCheckpointTypeId.HasValue, RuleCaseId.HasValue }
+                               .Count(x => x) == 1;
+
+        var ruleValidationCaseCheckpoint = RuleCheckpointTypeId.HasValue && RuleCaseId.HasValue && !RuleCaseTypeId.HasValue;
+
+        var memberValidation = new [] { !string.IsNullOrEmpty(MemberRole), !string.IsNullOrEmpty(MemberGroupId), !string.IsNullOrEmpty(MemberUserId) }
+                               .Count(x => x) == 1;
+
+        return memberValidation && (ruleValidation || ruleValidationCaseCheckpoint);
+    }
 }
