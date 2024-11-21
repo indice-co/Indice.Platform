@@ -76,6 +76,15 @@ public interface IAdminCaseService
     /// <returns></returns>
     Task<IEnumerable<TimelineEntry>> GetTimeline(ClaimsPrincipal user, Guid caseId);
 
+    /// <summary>
+    /// Gets the cases that are related to the given id.
+    /// Set a value to the case's metadata with the key ExternalCorrelationKey to correlate cases.
+    /// </summary>
+    /// <param name="user">The user that creates the request.</param>
+    /// <param name="caseId">The Id of the case.</param>
+    /// <returns></returns>
+    Task<List<CasePartial>> GetRelatedCases(ClaimsPrincipal user, Guid caseId);
+
     /// <summary>Get a list of attachments by CaseId</summary>
     /// <param name="caseId"></param>
     /// <returns></returns>
