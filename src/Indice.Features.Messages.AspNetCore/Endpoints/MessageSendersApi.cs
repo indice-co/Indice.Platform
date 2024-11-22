@@ -15,13 +15,13 @@ namespace Microsoft.AspNetCore.Routing;
 /// <summary>
 /// Provides endpoints for managing message sender-related operations, including retrieving, creating, updating, and deleting message senders.
 /// </summary>
-public static class MessageSendersApi
+internal static class MessageSendersApi
 {
     /// <summary>Registers the endpoints for MessageSenders API.</summary>
     /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     public static RouteGroupBuilder MapMessageSenders(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<MessageManagementOptions>>().Value;
-        var group = routes.MapGroup(options.ApiPrefix.TrimEnd('/') + "/message-senders");
+        var group = routes.MapGroup(options.PathPrefix.TrimEnd('/') + "/message-senders");
         if (!string.IsNullOrEmpty(options.GroupName)) {
             group.WithGroupName(options.GroupName);
         }

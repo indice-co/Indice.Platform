@@ -17,13 +17,13 @@ namespace Microsoft.AspNetCore.Routing;
 /// <summary>
 /// Provides endpoints for managing message type-related operations, including retrieving, creating, updating, and deleting message types.
 /// </summary>
-public static class MessageTypesApi
+internal static class MessageTypesApi
 {
     /// <summary>Registers the endpoints for MessageTypes API.</summary>
     /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     public static RouteGroupBuilder MapMessageTypes(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<MessageManagementOptions>>().Value;
-        var group = routes.MapGroup(options.ApiPrefix.TrimEnd('/') + "/message-types");
+        var group = routes.MapGroup(options.PathPrefix.TrimEnd('/') + "/message-types");
         if (!string.IsNullOrEmpty(options.GroupName)) {
             group.WithGroupName(options.GroupName);
         }

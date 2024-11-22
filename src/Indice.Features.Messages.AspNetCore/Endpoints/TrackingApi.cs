@@ -13,13 +13,13 @@ namespace Microsoft.AspNetCore.Routing;
 /// <summary>
 /// Provides endpoints for managing tracking.
 /// </summary>
-public static class TrackingApi
+internal static class TrackingApi
 {
     /// <summary>Registers the endpoints for Tracking API.</summary>
     /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     public static RouteGroupBuilder MapTracking(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<MessageInboxOptions>>().Value;
-        var group = routes.MapGroup(options.ApiPrefix.TrimEnd('/') + "_tracking");
+        var group = routes.MapGroup(options.PathPrefix.TrimEnd('/') + "_tracking");
 
         if (!string.IsNullOrEmpty(options.GroupName)) {
             group.WithGroupName(options.GroupName);

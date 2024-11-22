@@ -168,7 +168,7 @@ public class MediaManager(
             if (dbfiles != null) {
                 var cdnUrl = await _settingService.GetSetting(MediaSetting.CDN.Key);
                 var permaLinkBaseUrl = string.IsNullOrWhiteSpace(cdnUrl?.Value)
-                    ? $"{_configuration.GetHost().TrimEnd('/')}/{_mediaApiOptions.ApiPrefix.ToString().Trim('/')}/media-root"
+                    ? $"{_configuration.GetHost().TrimEnd('/')}/{_mediaApiOptions.PathPrefix.ToString().Trim('/')}/media-root"
                     : $"{cdnUrl.Value.TrimEnd('/')}";
                 files = dbfiles.Select(f => f.ToFileDetails(permaLinkBaseUrl)).ToList();
             }
@@ -275,7 +275,7 @@ public class MediaManager(
         }
         var cdnUrl = await _settingService.GetSetting(MediaSetting.CDN.Key);
         var permaLinkBaseUrl = string.IsNullOrWhiteSpace(cdnUrl?.Value)
-                    ? $"{_configuration.GetHost().TrimEnd('/')}/{_mediaApiOptions.ApiPrefix.ToString().Trim('/')}/media-root"
+                    ? $"{_configuration.GetHost().TrimEnd('/')}/{_mediaApiOptions.PathPrefix.ToString().Trim('/')}/media-root"
                     : $"{cdnUrl.Value.TrimEnd('/')}";
         return file.ToFileDetails(permaLinkBaseUrl);
     }

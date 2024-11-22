@@ -16,13 +16,13 @@ namespace Microsoft.AspNetCore.Routing;
 /// <summary>
 /// Provides endpoints for managing distribution lists, including retrieving, creating, updating, and deleting lists, as well as managing contacts within distribution lists.
 /// </summary>
-public static class DistributionListsApi
+internal static class DistributionListsApi
 {
     /// <summary>Registers the endpoints for Contacts API.</summary>
     /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     public static RouteGroupBuilder MapDistributionLists(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<MessageManagementOptions>>().Value;
-        var group = routes.MapGroup(options.ApiPrefix.TrimEnd('/') + "/distribution-lists"); 
+        var group = routes.MapGroup(options.PathPrefix.TrimEnd('/') + "/distribution-lists"); 
         if (!string.IsNullOrEmpty(options.GroupName)) {
             group.WithGroupName(options.GroupName);
         }

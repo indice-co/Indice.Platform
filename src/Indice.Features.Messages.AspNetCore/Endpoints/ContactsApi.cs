@@ -16,13 +16,13 @@ namespace Microsoft.AspNetCore.Routing;
 /// <summary>
 /// Provides endpoints for managing contact-related operations, including retrieving, creating, and updating contacts.
 /// </summary>
-public static class ContactsApi
+internal static class ContactsApi
 {
     /// <summary>Registers the endpoints for Contacts API.</summary>
     /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     public static RouteGroupBuilder MapContacts(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<MessageManagementOptions>>().Value;
-        var group = routes.MapGroup(options.ApiPrefix.TrimEnd('/') + "/contacts");
+        var group = routes.MapGroup(options.PathPrefix.TrimEnd('/') + "/contacts");
         if (!string.IsNullOrEmpty(options.GroupName)) {
             group.WithGroupName(options.GroupName);
         }

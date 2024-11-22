@@ -10,7 +10,7 @@ namespace Indice.Features.Messages.AspNetCore.Mvc;
 internal class MessageManagementConfigureMvcOptions(IOptions<MessageManagementOptions> apiOptions) : IConfigureOptions<MvcOptions>
 {
     public void Configure(MvcOptions options) {
-        options.Conventions.Add(new ApiPrefixControllerModelConvention(ApiPrefixes.CampaignManagementEndpoints, apiOptions.Value.ApiPrefix));
+        options.Conventions.Add(new ApiPrefixControllerModelConvention(ApiPrefixes.CampaignManagementEndpoints, apiOptions.Value.PathPrefix));
         options.Conventions.Add(new ApiGroupNameControllerModelConvention(ApiGroups.CampaignManagementEndpoints, apiOptions.Value.GroupName));
         options.FormatterMappings.SetMediaTypeMappingForFormat("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         options.FormatterMappings.SetMediaTypeMappingForFormat("json", MediaTypeNames.Application.Json);
@@ -20,7 +20,7 @@ internal class MessageManagementConfigureMvcOptions(IOptions<MessageManagementOp
 internal class MessageInboxConfigureMvcOptions(IOptions<MessageInboxOptions> apiOptions) : IConfigureOptions<MvcOptions>
 {
     public void Configure(MvcOptions options) {
-        options.Conventions.Add(new ApiPrefixControllerModelConvention(ApiPrefixes.MessageInboxEndpoints, apiOptions.Value.ApiPrefix));
+        options.Conventions.Add(new ApiPrefixControllerModelConvention(ApiPrefixes.MessageInboxEndpoints, apiOptions.Value.PathPrefix));
         options.Conventions.Add(new ApiGroupNameControllerModelConvention(ApiGroups.MessageInboxEndpoints, apiOptions.Value.GroupName));
         options.FormatterMappings.SetMediaTypeMappingForFormat("json", MediaTypeNames.Application.Json);
     }

@@ -17,13 +17,13 @@ namespace Microsoft.AspNetCore.Routing;
 /// <summary>
 /// Provides endpoints for managing template-related operations, including retrieving, creating, updating, and deleting templates.
 /// </summary>
-public static class TemplatesApi
+internal static class TemplatesApi
 {
     /// <summary>Registers the endpoints for Templates API.</summary>
     /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     public static RouteGroupBuilder MapTemplates(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<MessageManagementOptions>>().Value;
-        var group = routes.MapGroup(options.ApiPrefix.TrimEnd('/') + "/templates");
+        var group = routes.MapGroup(options.PathPrefix.TrimEnd('/') + "/templates");
         if (!string.IsNullOrEmpty(options.GroupName)) {
             group.WithGroupName(options.GroupName);
         }

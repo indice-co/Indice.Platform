@@ -63,7 +63,7 @@ public class CampaignService : ICampaignService
             return default;
         }
         if (campaign.Attachment is not null) {
-            campaign.Attachment.PermaLink = $"{CampaignManagementOptions.ApiPrefix}/{campaign.Attachment.PermaLink.TrimStart('/')}";
+            campaign.Attachment.PermaLink = $"{CampaignManagementOptions.PathPrefix}/{campaign.Attachment.PermaLink.TrimStart('/')}";
         }
         return campaign;
     }

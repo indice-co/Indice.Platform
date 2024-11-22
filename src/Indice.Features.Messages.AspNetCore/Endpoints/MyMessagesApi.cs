@@ -13,13 +13,13 @@ namespace Microsoft.AspNetCore.Routing;
 /// <summary>
 /// Provides endpoints for managing user my messages-related operations, including retrieving messages, retrieving message types, marking messages as read, deleting messages, and retrieving attachments associated with messages.
 /// </summary>
-public static class MyMessagesApi
+internal static class MyMessagesApi
 {
     /// <summary>Registers the endpoints for MyMessages API.</summary>
     /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     public static RouteGroupBuilder MapMyMessages(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<MessageInboxOptions>>().Value;
-        var group = routes.MapGroup(options.ApiPrefix.TrimEnd('/') + "/my/messages");
+        var group = routes.MapGroup(options.PathPrefix.TrimEnd('/') + "/my/messages");
         if (!string.IsNullOrEmpty(options.GroupName)) { 
             group.WithGroupName(options.GroupName);
         }

@@ -29,7 +29,7 @@ public static class MessageFeatureExtensionsMvc
         configureAction?.Invoke(apiOptions);
 
         return mvcBuilder.AddMessageManagementEndpoints(options => {
-            options.ApiPrefix = apiOptions.ApiPrefix;
+            options.PathPrefix = apiOptions.PathPrefix;
             options.ConfigureDbContext = apiOptions.ConfigureDbContext;
             options.DatabaseSchema = apiOptions.DatabaseSchema;
             options.RequiredScope = apiOptions.RequiredScope;
@@ -37,7 +37,7 @@ public static class MessageFeatureExtensionsMvc
             options.GroupName = apiOptions.ManagementGroupName;
         })
         .AddMessageInboxEndpoints(options => {
-            options.ApiPrefix = apiOptions.ApiPrefix;
+            options.PathPrefix = apiOptions.PathPrefix;
             options.ConfigureDbContext = apiOptions.ConfigureDbContext;
             options.DatabaseSchema = apiOptions.DatabaseSchema;
             options.UserClaimType = apiOptions.UserClaimType;

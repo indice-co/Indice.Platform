@@ -16,6 +16,9 @@ public class CampaignUIOptions : SpaUIOptions
     public string ApiBaseUrl { get; set; } = "/api";
     /// <summary>Creates a new instance <see cref="CampaignUIOptions"/>.</summary>
     public CampaignUIOptions() {
+        ClientId = "messaging-ui";
+        Scope = "offline_access messages media";
+        DocumentTitle = "Messaging UI";
         ConfigureIndexParameters = (args) => {
 #if NET7_0_OR_GREATER
             args.Add($"%({nameof(EnableMediaLibrary)})", EnableMediaLibrary.ToString());

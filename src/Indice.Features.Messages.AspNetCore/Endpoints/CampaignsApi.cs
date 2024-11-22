@@ -19,13 +19,13 @@ namespace Microsoft.AspNetCore.Routing;
 /// Provides endpoints for managing campaign-related operations, including retrieving, creating, updating, publishing, 
 /// and deleting campaigns, as well as handling attachments and statistics.
 /// </summary>
-public static class CampaignsApi
+internal static class CampaignsApi
 {
     /// <summary>Registers the endpoints for Campaigns API.</summary>
     /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     public static RouteGroupBuilder MapCampaigns(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<MessageManagementOptions>>().Value;
-        var group = routes.MapGroup(options.ApiPrefix.TrimEnd('/') + "/campaigns");
+        var group = routes.MapGroup(options.PathPrefix.TrimEnd('/') + "/campaigns");
         if (!string.IsNullOrEmpty(options.GroupName)) {
             group.WithGroupName(options.GroupName);
         }

@@ -17,7 +17,7 @@ public class MessageEndpointOptions : CampaignOptionsBase
     /// <summary>The default scope name to be used for Messages API. Defaults to <see cref="MessagesApi.Scope"/>.</summary>
     public string RequiredScope { get; set; } = MessagesApi.Scope;
     /// <summary>Group name for inbox controllers, used in API explorer. If not set, no group is used.</summary>
-    public string InboxGroupName { get; set; }
+    public string InboxGroupName { get; set; } = "my";
     /// <summary>Group name for management controllers, used in API explorer. Default is 'messages';</summary>
     public string ManagementGroupName { get; set; } = "messages";
     /// <summary>This is the file upload limit used by the management api when uploading attachements. Defaults to 6 MB</summary>
@@ -55,14 +55,12 @@ public class MessageInboxOptions : CampaignOptionsBase
     public MessageInboxOptions() : base() { }
 
     /// <summary>Group name for inbox controllers, used in API explorer. If not set, no group is used.</summary>
-    public string GroupName { get; set; }
+    public string GroupName { get; set; } = "my";
 }
 
 /// <summary>Base class for Messages API options.</summary>
 public class CampaignOptionsBase
 {
-    private string _apiPrefix;
-
     /// <summary>Creates a new instance of <see cref="CampaignOptionsBase"/>.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <exception cref="ArgumentNullException"></exception>
@@ -85,8 +83,5 @@ public class CampaignOptionsBase
     /// <summary>Schema name used for tables. Defaults to <i>cmp</i>.</summary>
     public string DatabaseSchema { get; set; } = MessagesApi.DatabaseSchema;
     /// <summary>Specifies a prefix for the API endpoints.</summary>
-    public string ApiPrefix {
-        get => _apiPrefix;
-        set { _apiPrefix = string.IsNullOrWhiteSpace(value) ? "/" : $"/{value}".TrimStart('/'); }
-    }
+    public string PathPrefix { get; set; } = "/";
 }

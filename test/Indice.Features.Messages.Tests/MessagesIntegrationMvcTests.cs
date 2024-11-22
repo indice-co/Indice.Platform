@@ -46,7 +46,7 @@ public class MessagesIntegrationMvcTests : IAsyncLifetime
             services.AddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
             services.AddControllers()
                     .AddMessageEndpoints(options => {
-                        options.ApiPrefix = "api";
+                        options.PathPrefix = "api";
                         options.ConfigureDbContext = (serviceProvider, dbbuilder) => dbbuilder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
                         options.DatabaseSchema = "cmp";
                         options.RequiredScope = MessagesApi.Scope;

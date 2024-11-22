@@ -42,7 +42,7 @@ public class MediaLibraryTests : IAsyncLifetime
             services.AddRouting();
             services.AddMediaLibrary(options => {
                 options.AcceptableFileExtensions = ".png, .jpg, .gif, .txt";
-                options.ApiScope = Core.MessagesApi.Scope;
+                options.Scope = Core.MessagesApi.Scope;
                 options.ConfigureDbContext = (serviceProvider, dbbuilder) => dbbuilder.UseSqlServer(context.Configuration.GetConnectionString("MessagesDb"));
                 options.UseFilesLocal();
             });

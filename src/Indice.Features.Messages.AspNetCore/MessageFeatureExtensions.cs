@@ -36,7 +36,7 @@ public static class MessageFeatureExtensions
         configureAction?.Invoke(apiOptions);
 
         return services.AddMessageManagement(options => {
-            options.ApiPrefix = apiOptions.ApiPrefix;
+            options.PathPrefix = apiOptions.PathPrefix;
             options.ConfigureDbContext = apiOptions.ConfigureDbContext;
             options.DatabaseSchema = apiOptions.DatabaseSchema;
             options.RequiredScope = apiOptions.RequiredScope;
@@ -45,7 +45,7 @@ public static class MessageFeatureExtensions
             options.FileUploadLimit = apiOptions.FileUploadLimit;
         })
         .AddMessageInbox(options => {
-            options.ApiPrefix = apiOptions.ApiPrefix;
+            options.PathPrefix = apiOptions.PathPrefix;
             options.ConfigureDbContext = apiOptions.ConfigureDbContext;
             options.DatabaseSchema = apiOptions.DatabaseSchema;
             options.UserClaimType = apiOptions.UserClaimType;
@@ -68,7 +68,7 @@ public static class MessageFeatureExtensions
         services.AddCampaignCore(apiOptions);
 
         services.Configure<MessageManagementOptions>(options => {
-            options.ApiPrefix = apiOptions.ApiPrefix;
+            options.PathPrefix = apiOptions.PathPrefix;
             options.ConfigureDbContext = apiOptions.ConfigureDbContext;
             options.DatabaseSchema = apiOptions.DatabaseSchema;
             options.RequiredScope = apiOptions.RequiredScope;
@@ -106,7 +106,7 @@ public static class MessageFeatureExtensions
         services.AddCampaignCore(apiOptions);
 
         services.Configure<MessageInboxOptions>(options => {
-            options.ApiPrefix = apiOptions.ApiPrefix;
+            options.PathPrefix = apiOptions.PathPrefix;
             options.ConfigureDbContext = apiOptions.ConfigureDbContext;
             options.DatabaseSchema = apiOptions.DatabaseSchema;
             options.UserClaimType = apiOptions.UserClaimType;
@@ -160,7 +160,7 @@ public static class MessageFeatureExtensions
         services.AddEventDispatcherNoop();
         services.AddFilesNoop();
         // Register application DbContext.
-        Action<IServiceProvider, DbContextOptionsBuilder> sqlServerConfiguration = (serviceProvider, builder) => builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("MessagesDbConnection"));
+        Action<IServiceProvider, DbContextOptionsBuilder> sqlServerConfiguration = (serviceProvider, builder) => builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("MessagesDb"));
         services.AddDbContext<CampaignsDbContext>(baseOptions.ConfigureDbContext ?? sqlServerConfiguration);
         return services;
     }
