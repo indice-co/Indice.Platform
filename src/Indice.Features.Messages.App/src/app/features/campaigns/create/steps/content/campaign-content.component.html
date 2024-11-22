@@ -71,7 +71,7 @@
                     <div class="mt-1 flex rounded-sm">
                         <textarea id="campaignMetadata" name="campaignMetadata" formControlName="data" rows="6"
                             (input)="onCampaignMetadataInput($event)"
-                            placeholder="Επιπρόσθετα δεδομένα της καμπάνιας σε JSON μορφή" class="code-editor"
+                            placeholder="Επιπρόσθετα δεδομένα της καμπάνιας σε JSON μορφή" class="w-full code-editor"
                             [ngModel]="data.value">
                         </textarea>
                     </div>
@@ -164,7 +164,7 @@
                         <label for="body" class="hidden" aria-hidden="true">
                             Σώμα (*)
                         </label>
-                        <textarea [id]="'tinymce-editor-'+contentForm.controls['channel'].value" name="body" formControlName="body" class="code-editor tinymce-editor"
+                        <textarea [id]="'tinymce-editor-'+contentForm.controls['channel'].value" name="body" formControlName="body" class="w-full code-editor tinymce-editor"
                                 placeholder="Το σώμα του μηνύματος" style="height: 50vh;"
                                 (input)="onBodyInput(contentForm)">
                         </textarea>
@@ -183,7 +183,7 @@
                             Σώμα (*)
                         </label>
                         <div class="mt-1 flex rounded-sm col-span-3">
-                            <textarea [id]="'tinymce-editor-'+contentForm.controls['channel'].value" name="body" formControlName="body" class="code-editor" 
+                            <textarea [id]="'tinymce-editor-'+contentForm.controls['channel'].value" name="body" formControlName="body" class="w-full code-editor" 
                                 placeholder="Το σώμα του μηνύματος" style="height: 50vh;"
                                 (input)="onBodyInput(contentForm)">
                             </textarea>
