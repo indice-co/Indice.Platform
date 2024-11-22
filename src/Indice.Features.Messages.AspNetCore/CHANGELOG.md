@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.42.0] - 2024-10-05
+
+### Added 
+- **Minimal API Support**: Introduced support for **Minimal APIs** for projects using .NET 7 and above. This enhancement enables more concise, efficient endpoint definitions.
+  
+ You are encouraged to adopt this feature in your application. 
+
+  - **How to Use**:
+
+    To add messaging dependencies and configurations, add the methods below to your application's services:
+    ```csharp
+    builder.Services.AddMediaLibrary(/*...*/);
+    builder.Services.AddMessaging(/*...*/);
+    ```
+    To register the endpoints for the Messaging API, use the following method:
+    ```csharp
+    app.MapMessaging();
+    ```
+
+  This method provides a streamlined way to integrate the Messaging API endpoints into your Minimal API setup.
+
+
 ## [7.4.4] - 2023-10-05
 ### Added
 - Media Library support for storing files only for .Net7 projects.
