@@ -131,7 +131,8 @@
                         Θέμα (*)
                     </label>
                     <div class="mt-1 flex rounded-sm col-span-3">
-                        <input type="text" name="subject" id="subject" formControlName="subject"
+                        <input class="w-full"
+                            type="text" name="subject" id="subject" formControlName="subject"
                             placeholder="Το θέμα του μήνυματος" (input)="onSubjectInput(contentForm)">
                     </div>
                     <p *ngIf="contentForm.controls['subject'].invalid && (contentForm.controls['subject'].dirty || contentForm.controls['subject'].touched)"
