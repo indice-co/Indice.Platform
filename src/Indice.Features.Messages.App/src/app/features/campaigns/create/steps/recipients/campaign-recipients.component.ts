@@ -28,7 +28,7 @@ export class CampaignRecipientsComponent implements OnInit {
 
     public distributionLists: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
     public form!: UntypedFormGroup;
-    public apiUrl = settings.api_url;
+    public avatarOrigin = (settings.api_url || "").substring(0, 4) === "http" ? new URL(settings.api_url).origin : "/";
 
     public ngOnInit(): void {
         this._initForm();

@@ -31,6 +31,7 @@ internal class InitialClaimTypes
         new ClaimType { Id = $"{Guid.NewGuid()}", Name = BasicClaimTypes.IPAddress, DisplayName = nameof(BasicClaimTypes.IPAddress).Humanize(), Reserved = true, Required = false, UserEditable = false, ValueType = ClaimValueType.String, Description = "Represents the client's IP Address." },
         new ClaimType { Id = $"{Guid.NewGuid()}", Name = BasicClaimTypes.DeviceId, DisplayName = nameof(BasicClaimTypes.DeviceId).Humanize(), Reserved = true, Required = false, UserEditable = false, ValueType = ClaimValueType.String, Description = "The id of the device that the user used to log in." },
         new ClaimType { Id = $"{Guid.NewGuid()}", Name = BasicClaimTypes.AuthorizationDetails, DisplayName = nameof(BasicClaimTypes.AuthorizationDetails).Humanize(), Reserved = true, Required = false, UserEditable = false, ValueType = ClaimValueType.String, Description = "The authorization_details claim as described in RFC9396." }
+        new ClaimType { Id = $"{Guid.NewGuid()}", Name = BasicClaimTypes.Admin, DisplayName = nameof(BasicClaimTypes.Admin).Humanize(), Reserved = true, Required = false, UserEditable = false, ValueType = ClaimValueType.Boolean, Description = "The Admin claim is indicative of a global administrator." }
     ];
 
     /// <summary>Gets a collection of test claim types.</summary>

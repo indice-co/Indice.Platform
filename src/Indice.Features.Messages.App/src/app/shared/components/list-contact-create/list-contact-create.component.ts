@@ -22,7 +22,7 @@ export class ListContactCreateComponent implements AfterViewInit {
   public submitInProgress = false;
   public contacts: Contact[] = [];
   public isLoading: boolean = false;
-  public apiUrl = settings.api_url;
+  public avatarOrigin = (settings.api_url || "").substring(0, 4) === "http" ? new URL(settings.api_url).origin : "/";
   public get anyContactEditing() {
       return false;
   }

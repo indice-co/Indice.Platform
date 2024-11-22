@@ -77,7 +77,7 @@
                                                                <ng-container *ngFor="let index of [0,1,2,3]">
                                                                       <div *ngIf="recipients.value.length > index" class="flex-shrink-0">
                                                                              <img class="h-10 w-10 rounded-full"
-                                                                             [src]="apiUrl + '/avatar/' + recipients.value[index].fullName + '?circular=true'"
+                                                                             [src]="avatarOrigin + '/avatar/' + recipients.value[index].fullName + '?circular=true'"
                                                                              alt="">
                                                                       </div>
                                                                </ng-container>
