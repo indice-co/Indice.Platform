@@ -1,11 +1,11 @@
 <div class="mt-auto pt-1 pl-1">
-  <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4"> Σχετικές Υποθέσεις </h3>
-  <ul>
+  <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Σχετικές Υποθέσεις</h3>
+  <ul class="overflow-y-auto" style="max-height: 14rem;">
     <li *ngFor="let relatedCase of relatedCases" class="flex flex-row items-center p-1">
-      <div class="text-xs font-semibold px-2.5 py-0.5 bg-blue-100 text-blue-800 dark:bg-blue-200 dark:text-blue-800 w-32 text-center">
+      <div class="text-xs font-semibold px-2.5 py-0.5 bg-blue-100 text-blue-800 dark:bg-blue-200 dark:text-blue-800 w-25 text-center">
         {{ relatedCase.caseType?.code }}
       </div>
-      <div class="ml-2 text-xs font-semibold px-2.5 py-0.5 bg-blue-100 text-blue-800 dark:bg-blue-200 dark:text-blue-800 w-32 text-center">
+      <div class="ml-2 text-xs font-semibold px-2.5 py-0.5 bg-blue-100 text-blue-800 dark:bg-blue-200 dark:text-blue-800 w-40 text-center">
         {{ relatedCase.checkpointType?.code }}
       </div>
       <div class="flex-1">
