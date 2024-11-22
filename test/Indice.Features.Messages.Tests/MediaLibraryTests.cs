@@ -22,7 +22,7 @@ namespace Indice.Features.Messages.Tests;
 public class MediaLibraryTests : IAsyncLifetime
 {
     // Constants
-    private const string BASE_URL = "https://server";
+    private const string BASE_URL = "https://server/api/";
     // Private fields
     private readonly HttpClient _httpClient;
     private readonly ITestOutputHelper _output;
@@ -41,6 +41,7 @@ public class MediaLibraryTests : IAsyncLifetime
         builder.ConfigureServices((context, services) => {
             services.AddRouting();
             services.AddMediaLibrary(options => {
+                options.PathPrefix = "/api";IAfterTestFinished ch
                 options.AcceptableFileExtensions = ".png, .jpg, .gif, .txt";
                 options.Scope = Core.MessagesApi.Scope;
                 options.ConfigureDbContext = (serviceProvider, dbbuilder) => dbbuilder.UseSqlServer(context.Configuration.GetConnectionString("MessagesDb"));
@@ -78,13 +79,13 @@ public class MediaLibraryTests : IAsyncLifetime
         var root2folderId = await CreateFolderAction("Elmai Assets 2");
 
         // Upload the files
-        var file1 = await PostFileAsync<UploadFileResponse>(HttpMethod.Post, "/api/media/upload", Encoding.UTF8.GetBytes("This is the file contents.!"), "test file 1.txt", new NameValueCollection {
+        var file1 = await PostFileAsync<UploadFileResponse>(HttpMethod.Post, "media/upload", Encoding.UTF8.GetBytes("This is the file contents.!"), "test file 1.txt", new NameValueCollection {
                 { "FolderId", level2folderId.ToString() }
             });
-        var file2= await PostFileAsync<UploadFileResponse>(HttpMethod.Post, "/api/media/upload", Encoding.UTF8.GetBytes("This is the file contents 2.!"), "test file 2.txt", new NameValueCollection {
+        var file2= await PostFileAsync<UploadFileResponse>(HttpMethod.Post, "media/upload", Encoding.UTF8.GetBytes("This is the file contents 2.!"), "test file 2.txt", new NameValueCollection {
                 { "FolderId", level2folderId.ToString() }
             });
-        var file3 = await PostFileAsync<UploadFileResponse>(HttpMethod.Post, "/api/media/upload", Encoding.UTF8.GetBytes("This is the file contents 3.!"), "test file 3.txt", new NameValueCollection {
+        var file3 = await PostFileAsync<UploadFileResponse>(HttpMethod.Post, "media/upload", Encoding.UTF8.GetBytes("This is the file contents 3.!"), "test file 3.txt", new NameValueCollection {
                 { "FolderId", root2folderId.ToString() }
             });
 
@@ -102,7 +103,7 @@ public class MediaLibraryTests : IAsyncLifetime
         var structure = await GetFolderTreeStructure();
         var content = await GetFolderContent(level2folderId);
         Assert.Equal(2, content.Files.Count);
-        Assert.Equal("https://server/api/media-root/email-assets/fotografies/fakelos/test-file-1.txt", content.Files[0].PermaLink);
+        Assert.Equal($"{BASE_URL.TrimEnd('/')}/media-root/email-assets/fotografies/fakelos/test-file-1.txt", content.Files[0].PermaLink);
 
         var text = await DownloadFile(content.Files[0].PermaLink);
         Assert.Equal("This is the file contents.!", text);
@@ -120,7 +121,7 @@ public class MediaLibraryTests : IAsyncLifetime
 
 
     private async Task<FolderTreeStructure> GetFolderTreeStructure() {
-        var response = await _httpClient.GetAsync($"/api/media/folders/structure");
+        var response = await _httpClient.GetAsync($"media/folders/structure");
         var responseJson = await response.Content.ReadAsStringAsync();
         if (!response.IsSuccessStatusCode) {
             _output.WriteLine(responseJson);
@@ -130,7 +131,7 @@ public class MediaLibraryTests : IAsyncLifetime
         return JsonSerializer.Deserialize<FolderTreeStructure>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings());
     }
     private async Task<FolderContent> GetFolderContent(Guid? folderId) {
-        var response = await _httpClient.GetAsync($"/api/media/folders/content?folderId={folderId}");
+        var response = await _httpClient.GetAsync($"media/folders/content?folderId={folderId}");
         var responseJson = await response.Content.ReadAsStringAsync();
         if (!response.IsSuccessStatusCode) {
             _output.WriteLine(responseJson);
@@ -140,7 +141,7 @@ public class MediaLibraryTests : IAsyncLifetime
         return JsonSerializer.Deserialize<FolderContent>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings());
     }
     private async Task UpdateFolderAction(Guid folderId, string newName) {
-        var response = await _httpClient.PutAsync($"/api/media/folders/{folderId}", new StringContent(JsonSerializer.Serialize(new UpdateFolderRequest {
+        var response = await _httpClient.PutAsync($"media/folders/{folderId}", new StringContent(JsonSerializer.Serialize(new UpdateFolderRequest {
             Name = newName,
         }, JsonSerializerOptionDefaults.GetDefaultSettings()), Encoding.UTF8, "application/json"));
         var responseJson = await response.Content.ReadAsStringAsync();
@@ -152,7 +153,7 @@ public class MediaLibraryTests : IAsyncLifetime
     }
 
     private async Task<Guid> CreateFolderAction(string name, Guid? parentFolderId = null) {
-        var response = await _httpClient.PostAsync("/api/media/folders", new StringContent(JsonSerializer.Serialize(new CreateFolderRequest {
+        var response = await _httpClient.PostAsync("media/folders", new StringContent(JsonSerializer.Serialize(new CreateFolderRequest {
             Name = name,
             ParentId = parentFolderId
 

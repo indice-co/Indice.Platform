@@ -16,7 +16,7 @@ public static class FoldersApi
     /// <returns>The <see cref="IEndpointRouteBuilder"/> instance.</returns>
     internal static IEndpointRouteBuilder MapFolders(this IEndpointRouteBuilder builder) {
         var options = builder.ServiceProvider.GetService<IOptions<MediaApiOptions>>()?.Value ?? new MediaApiOptions();
-        var group = builder.MapGroup($"{options.PathPrefix}/media/folders")
+        var group = builder.MapGroup($"{options.PathPrefix.Value!.TrimEnd('/')}/media/folders")
                            .WithGroupName("media")
                            .WithTags("Folders")
                            .ProducesProblem(StatusCodes.Status401Unauthorized)

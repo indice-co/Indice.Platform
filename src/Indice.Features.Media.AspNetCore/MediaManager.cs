@@ -168,8 +168,10 @@ public class MediaManager(
             if (dbfiles != null) {
                 var cdnUrl = await _settingService.GetSetting(MediaSetting.CDN.Key);
                 var permaLinkBaseUrl = string.IsNullOrWhiteSpace(cdnUrl?.Value)
-                    ? $"{_configuration.GetHost().TrimEnd('/')}/{_mediaApiOptions.PathPrefix.ToString().Trim('/')}/media-root"
-                    : $"{cdnUrl.Value.TrimEnd('/')}";
+                    ? Path.Combine(_configuration.GetHost().TrimEnd('/'),
+                                   _mediaApiOptions.PathPrefix.ToString().Trim('/'),
+                                   "media-root").Replace('\\', '/')
+                    : cdnUrl.Value.TrimEnd('/');
                 files = dbfiles.Select(f => f.ToFileDetails(permaLinkBaseUrl)).ToList();
             }
             await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(files, serializationOptions), new DistributedCacheEntryOptions {

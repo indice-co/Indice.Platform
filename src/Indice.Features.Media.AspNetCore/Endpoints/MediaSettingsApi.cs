@@ -15,7 +15,7 @@ public static class MediaSettingsApi
     /// <returns>The <see cref="IEndpointRouteBuilder"/> instance.</returns>
     internal static IEndpointRouteBuilder MapMediaSettings(this IEndpointRouteBuilder builder) {
         var options = builder.ServiceProvider.GetService<IOptions<MediaApiOptions>>()?.Value ?? new MediaApiOptions();
-        var group = builder.MapGroup($"{options.PathPrefix}/media/settings")
+        var group = builder.MapGroup($"{options.PathPrefix.Value!.TrimEnd('/')}/media/settings")
                            .WithGroupName("media")
                            .WithTags("Settings")
                            .ProducesProblem(StatusCodes.Status401Unauthorized)
