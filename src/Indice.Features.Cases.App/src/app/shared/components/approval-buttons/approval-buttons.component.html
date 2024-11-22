@@ -24,7 +24,7 @@
             </div>
         </div>
     </ng-container>
-    <div *ngIf="!approveButtonDisabled">
+    <div *ngIf="canCommentWhenRejecting || !approveButtonDisabled">
         <label for="comment-textarea"
                class="field-label">Σχόλιο</label>
         <div class="my-2 flex rounded-sm">

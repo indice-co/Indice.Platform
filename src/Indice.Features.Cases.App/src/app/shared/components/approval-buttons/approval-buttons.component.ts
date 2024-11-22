@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { MenuOption, ToasterService, ToastType, ModalService } from '@indice/ng-components';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
+import { settings } from 'src/app/core/models/settings';
 import { Approval, ApprovalRequest, CasesApiService, RejectReason } from 'src/app/core/services/cases-api.service';
 import { CaseWarningModalComponent } from 'src/app/shared/components/case-warning-modal/case-warning-modal.component';
 
@@ -21,6 +22,7 @@ export class ApprovalButtonsComponent implements OnInit {
   public buttonsDisabled: boolean | undefined = false;
   public approveButtonDisabled: boolean | undefined = false;
   public comment: string | undefined;
+  public canCommentWhenRejecting: boolean = false;
 
   rejectionOptions$: Observable<MenuOption[]> | undefined;
   selectedRejectReason = '';
@@ -38,6 +40,8 @@ export class ApprovalButtonsComponent implements OnInit {
         map((response: RejectReason[]) => response.map(item => new MenuOption(item.value!, item.key!))),
         tap((reasons: MenuOption[]) => this.selectedRejectReason = reasons[0].value)
       );
+
+    this.setCanCommentWhenRejecting();
   }
 
   public onToggleButtonChange() {
@@ -94,4 +98,7 @@ export class ApprovalButtonsComponent implements OnInit {
       });
   }
 
+  private setCanCommentWhenRejecting() {
+    this.canCommentWhenRejecting = settings.canCommentWhenRejecting;
+  }
 }

@@ -28,7 +28,8 @@ export const environment = {
   production: false,
   dashboardTags: '',
   caseListColumns: '',
-  caseListFilters: ''
+  caseListFilters: '',
+  canCommentWhenRejecting: false
 };
 
 /*
