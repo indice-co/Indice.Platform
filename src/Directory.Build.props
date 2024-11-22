@@ -7,10 +7,10 @@
       <VersionPrefixIdentity>$(VersionPrefixBase).0</VersionPrefixIdentity>
       <VersionPrefixIdentityUI>$(VersionPrefixBase).0</VersionPrefixIdentityUI>
       <VersionPrefixCases>$(VersionPrefixBase).0</VersionPrefixCases>
-      <VersionPrefixMessages>$(VersionPrefixBase).1</VersionPrefixMessages>
+      <VersionPrefixMessages>$(VersionPrefixBase).2</VersionPrefixMessages>
       <VersionPrefixMultitenancy>$(VersionPrefixBase).0</VersionPrefixMultitenancy>
       <VersionPrefixRisk>$(VersionPrefixBase).0</VersionPrefixRisk>
-      <VersionPrefixMedia>$(VersionPrefixBase).1</VersionPrefixMedia>
+      <VersionPrefixMedia>$(VersionPrefixBase).2</VersionPrefixMedia>
       <VersionPrefixGovGr>$(VersionPrefixBase).0</VersionPrefixGovGr>
       <VersionPrefixAspNet>$(VersionPrefixBase).0</VersionPrefixAspNet>
       <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
