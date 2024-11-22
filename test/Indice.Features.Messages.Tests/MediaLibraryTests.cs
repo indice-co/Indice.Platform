@@ -41,7 +41,7 @@ public class MediaLibraryTests : IAsyncLifetime
         builder.ConfigureServices((context, services) => {
             services.AddRouting();
             services.AddMediaLibrary(options => {
-                options.PathPrefix = "/api";IAfterTestFinished ch
+                options.PathPrefix = "/api";
                 options.AcceptableFileExtensions = ".png, .jpg, .gif, .txt";
                 options.Scope = Core.MessagesApi.Scope;
                 options.ConfigureDbContext = (serviceProvider, dbbuilder) => dbbuilder.UseSqlServer(context.Configuration.GetConnectionString("MessagesDb"));
