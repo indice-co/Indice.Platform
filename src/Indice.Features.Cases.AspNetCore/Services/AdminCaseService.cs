@@ -13,6 +13,7 @@ using Indice.Features.Cases.Models;
 using Indice.Features.Cases.Models.Responses;
 using Indice.Security;
 using Indice.Types;
+using Json.Patch;
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Cases.Services;
@@ -65,40 +66,35 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         if (data == null) throw new ArgumentNullException(nameof(data));
         await _adminCaseMessageService.Send(caseId, user, new Message { Data = data });
     }
-    
+
     /// <summary>
-    /// Applies a patch operation to a case's data given an <see cref="Action"/>
-    /// See <see cref="JsonObject"/> for usages.
+    /// Patches the <see cref="DbCaseData.Data"/> with the provided JsonNode performing add, replace and remove operations
     /// </summary>
-    /// <exception cref="ArgumentNullException"></exception>
-    public async Task PatchData(ClaimsPrincipal user, Guid caseId, Action<JsonObject> action) {
+    /// <remarks>For example usages see https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API.</remarks>
+    public async Task PatchCaseData(ClaimsPrincipal user, Guid caseId, JsonNode patch) {
         if (user == null) throw new ArgumentNullException(nameof(user));
         if (caseId == default) throw new ArgumentNullException(nameof(caseId));
-        // todo: ask Dimitris if we can use that
-        var caseData = (await GetCaseById(user, caseId, false)).DataAs<JsonObject>();
-        action.Invoke(caseData);
-        await _adminCaseMessageService.Send(caseId, user, new Message { Data = caseData });
+        var caseData = (await GetCaseById(user, caseId, false)).DataAsJsonNode();
+        
+        await _adminCaseMessageService.Send(caseId, user, new Message { Data = caseData.Merge(patch) });
     }
     
     /// <summary>
-    /// `Patch` can be any object e.g. JsonElement, JsonNode, JObject or JToken that can be (de)serialized as Json.
-    /// The serialized patch will either be interpreted as:
-    /// 1. A JsonNode to merge with the existing case data.
-    /// 2. A JsonPatch operation following on the case data. https://datatracker.ietf.org/doc/html/rfc6902#appendix-A
+    /// Patches the Case Data with list of JsonPatch operations adhering to
+    /// https://datatracker.ietf.org/doc/html/rfc6902#appendix-A
     /// </summary>
-    /// <remarks>For example usages see tests.</remarks>
-    public async Task PatchData(ClaimsPrincipal user, Guid caseId, dynamic patch) {
+    /// <remarks>For example usages see https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API.</remarks>
+    public async Task PatchCaseData(ClaimsPrincipal user, Guid caseId, JsonPatch patch) {
         if (user == null) throw new ArgumentNullException(nameof(user));
         if (caseId == default) throw new ArgumentNullException(nameof(caseId));
-        // todo: ask Dimitris if we can use that
-        var caseData = (await GetCaseById(user, caseId, false)).DataAs<JsonNode>();
+        var caseData = (await GetCaseById(user, caseId, false)).DataAsJsonNode();
+
+        var patchResult = patch.Apply(caseData);
+        if (!patchResult.IsSuccess) {
+            throw new InvalidOperationException($"Could not apply JSON Patch with error: {patchResult.Error}");
+        }
         
-        var patchNode = ((object)patch).ToJsonNode();
-        var mergedData = patchNode.IsJsonPatch() 
-            ? caseData.ApplyJsonPatch(patchNode.AsArray()) 
-            : caseData.Merge(patchNode);
-        
-        await _adminCaseMessageService.Send(caseId, user, new Message { Data = mergedData });
+        await _adminCaseMessageService.Send(caseId, user, new Message { Data = patchResult.Result });
     }
 
     public async Task Submit(ClaimsPrincipal user, Guid caseId) {
@@ -160,7 +156,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                         Translations = TranslationDictionary<CheckpointTypeTranslation>.FromJson(@case.Checkpoint.CheckpointType.Translations)
                     },
                     AssignedToName = @case.AssignedTo.Name,
-                    Data = options.Filter.IncludeData ? @case.Data : null,
+                    Data = options.Filter.IncludeData ? @case.Data.Data : null,
                     AccessLevel = 111
                 });
         } else {
@@ -254,7 +250,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                              Translations = TranslationDictionary<CheckpointTypeTranslation>.FromJson(@case.Checkpoint.CheckpointType.Translations)
                          },
                          AssignedToName = @case.AssignedTo.Name,
-                         Data = options.Filter.IncludeData ? @case.Data : null,
+                         Data = options.Filter.IncludeData ? @case.Data.Data : null,
                          AccessLevel = new List<int> { caseAccess, CaseTypeAccess, CheckpointIdAccess, caseCheckpointIdAccess }.Max()
                      });
         }

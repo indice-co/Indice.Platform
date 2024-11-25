@@ -49,7 +49,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>CasesResources.resx</DependentUpon>
     </Compile>
-    <Compile Remove="Converters\NoOpJsonNamingPolicy.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="CasesResources.resx">

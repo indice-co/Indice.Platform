@@ -7,8 +7,12 @@ namespace Indice.Features.Cases.Interfaces;
 public interface ICaseMessageService
 {
     ///  <summary>
-    ///  Send a <see cref="Message"/> to case that will allow the case to do any or all of these: 1) Create checkpoint, 2) Add attachment,
-    ///  3) Add comment, 4) Reply to Comment with comment and/or attachments, 5) Flag comment as private for the customer.
+    ///  Send a <see cref="Message"/> to case that will allow the case to do any or all of these:
+    ///  1) Create checkpoint,
+    ///  2) Add attachment,
+    ///  3) Add comment,
+    ///  4) Reply to Comment with comment and/or attachments,
+    ///  5) Flag comment as private for the customer.
     /// </summary>
     ///  <param name="caseId">The Id of the case.</param>
     ///  <param name="user">The user that creates the message.</param>

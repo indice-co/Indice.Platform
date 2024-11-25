@@ -140,20 +140,6 @@ internal class AdminCasesController : ControllerBase
         return NoContent();
     }
     
-    /// <summary>
-    /// Patches the case with the business data as defined at the specific case type. <seealso cref="IAdminCaseService.PatchData"/>
-    /// </summary>
-    /// <param name="caseId">The Id of the case.</param>
-    /// <param name="patch">The patch request.</param>
-    /// <returns></returns>
-    [HttpPatch("{caseId:guid}")]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-    public async Task<IActionResult> PatchAdminCase([FromRoute] Guid caseId, [FromBody] dynamic patch) {
-        await _adminCaseService.PatchData(User, caseId,  patch);
-        return NoContent();
-    }
 
     /// <summary>Submit the case by removing the draft mode.</summary>
     /// <param name="caseId">The Id of the case.</param>

@@ -1,8 +1,10 @@
 ﻿using System.Security.Claims;
+using System.Text.Json.Nodes;
 using Indice.Features.Cases.Data.Models;
 using Indice.Features.Cases.Models;
 using Indice.Features.Cases.Models.Responses;
 using Indice.Types;
+using Json.Patch;
 
 namespace Indice.Features.Cases.Interfaces;
 
@@ -32,22 +34,24 @@ public interface IAdminCaseService
     /// Performs a Partial Upgrade of the case data and does a json instance-schema validation of
     /// the case type's schema (<see cref="DbCaseType.DataSchema"/>).
     /// `Patch` can be any object e.g. JsonElement, JsonNode, JObject or JToken that can be (de)serialized as Json.
-    /// The serialized patch will either be interpreted as:
-    /// 1. A JsonNode to merge with the existing case data.
-    /// 2. A JsonPatch operation applied on the case data. https://datatracker.ietf.org/doc/html/rfc6902#appendix-A
+    /// https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API
     /// </summary>
     /// <param name="user">The user that will update the case.</param>
     /// <param name="caseId">The Id of the case.</param>
-    /// <param name="patch">An object that will be merged on the current case data.</param>
+    /// <param name="patch">A JsonNode to merge with the existing case data.</param>
     /// <returns></returns>
-    Task PatchData(ClaimsPrincipal user, Guid caseId, dynamic patch);
-
+    Task PatchCaseData(ClaimsPrincipal user, Guid caseId, JsonNode patch);
+    
     /// <summary>
-    /// Applies a patch operation to a case's data given an <see cref="Action"/> on a JsonObject.
-    /// <b> This assumes data from the database can be deserialized as a JsonObject directly</b>
+    /// Performs a Partial Upgrade of the case data and does a json instance-schema validation of
+    /// the case type's schema (<see cref="DbCaseType.DataSchema"/>).
+    /// <remarks><see cref="JsonPatch"/></remarks>
     /// </summary>
-    /// <exception cref="ArgumentNullException"></exception>
-    Task PatchData(ClaimsPrincipal user, Guid caseId, Action<JsonObject> action); 
+    /// <param name="user"></param>
+    /// <param name="caseId"></param>
+    /// <param name="operations">https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API</param>
+    /// <returns></returns>
+    Task PatchCaseData(ClaimsPrincipal user, Guid caseId, JsonPatch operations);
 
     /// <summary>Submit the case. Case must be in <see cref="DbCase.Draft"/> mode.</summary>
     /// <param name="user">The user that initiated the submission.</param>
