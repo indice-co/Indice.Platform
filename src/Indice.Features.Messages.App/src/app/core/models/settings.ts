@@ -3,7 +3,7 @@ import { IAppSettings, IAuthSettings } from './settings.model';
 
 function createAppSettings(): IAppSettings {
     const isTemplate = environment.isTemplate;
-    let authority = '', clientId = '', host = '', api = '', culture = '', version = '', scopes = '', tenantId: string | undefined = '', path = '', enableMediaLibrary = undefined, enableRichTextEditor = undefined;
+    let authority = '', clientId = '', host = '', api = '', culture = '', version = '', scopes = '', tenantId: string | undefined = '', path = '', enableMediaLibrary = undefined;
     if (isTemplate) {
         const appRoot = document.getElementsByTagName('app-root')[0];
         authority = appRoot.getAttribute('authority') || '';
@@ -16,7 +16,6 @@ function createAppSettings(): IAppSettings {
         scopes = appRoot.getAttribute('scopes') || '';
         tenantId = appRoot.getAttribute('tenantId') || undefined;
         enableMediaLibrary = appRoot.getAttribute('enableMediaLibrary') || undefined;
-        enableRichTextEditor = appRoot.getAttribute('enableRichTextEditor') || undefined;
         if (!authority || !clientId || !host) {
             throw new Error('Please provide authority, clientId and baseAddress as properties of app-root element.');
         }
@@ -30,7 +29,6 @@ function createAppSettings(): IAppSettings {
         appRoot.attributes.removeNamedItem('tenantId');
         appRoot.attributes.removeNamedItem('api');
         appRoot.attributes.removeNamedItem('enableMediaLibrary');
-        appRoot.attributes.removeNamedItem('enableRichTextEditor');
     }
     return {
         api_url: !isTemplate ? environment.api_url : (api || [host.replace(/\/$/su, ""), 'api'].join('/')),
@@ -59,7 +57,6 @@ function createAppSettings(): IAppSettings {
         version: version || '1.0.0',
         tenantId: tenantId,
         enableMediaLibrary: enableMediaLibrary ? enableMediaLibrary === 'True' : environment.enableMediaLibrary,
-        enableRichTextEditor: enableRichTextEditor ? enableRichTextEditor === 'True': environment.enableRichTextEditor,
     };
 }
 
