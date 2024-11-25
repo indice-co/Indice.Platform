@@ -139,7 +139,6 @@ internal class AdminCasesController : ControllerBase
         await _adminCaseService.UpdateData(User, caseId, request.Data);
         return NoContent();
     }
-    
 
     /// <summary>Submit the case by removing the draft mode.</summary>
     /// <param name="caseId">The Id of the case.</param>
