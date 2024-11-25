@@ -94,7 +94,7 @@ public static class ServiceDefaultsExtensions
                 */
                 .AddService(
                     serviceName: builder.Environment.ApplicationName,
-                    serviceNamespace: Assembly.GetEntryAssembly()?.GetName().Name,
+                    serviceNamespace: GetServiceNamespace(),
                     serviceVersion: Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "1.0.0",
                     autoGenerateServiceInstanceId: true)
                 // The resource detectors will record the following metadata based on where your application is running:
@@ -112,6 +112,12 @@ public static class ServiceDefaultsExtensions
         builder.AddOpenTelemetryExporters();
 
         return builder;
+    }
+    private static string GetServiceNamespace() {
+        var namespaceArray = Assembly.GetEntryAssembly()?.GetName()?.Name?.Split(['.'], StringSplitOptions.RemoveEmptyEntries);
+        if (namespaceArray == null || namespaceArray.Length == 0)
+            return "Indice";
+        return namespaceArray[0];
     }
 
     private static IHostApplicationBuilder AddOpenTelemetryExporters(this IHostApplicationBuilder builder) {
