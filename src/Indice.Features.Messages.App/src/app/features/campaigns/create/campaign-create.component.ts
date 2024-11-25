@@ -12,8 +12,6 @@ import { CreateCampaignRequest, MessagesApiClient, Period, Hyperlink, Campaign, 
 import { CampaignAttachmentsComponent } from './steps/attachments/campaign-attachments.component';
 import { map, mergeMap } from 'rxjs/operators';
 import { of } from 'rxjs';
-// Import TinyMCE
-import tinymce from 'tinymce/tinymce';
 import { settings } from 'src/app/core/models/settings';
 
 @Component({
@@ -43,7 +41,6 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
     public templateId: string | undefined;
     public metaItems: HeaderMetaItem[] | null = [];
     public content: { [key: string]: MessageContent; } | undefined;
-    public enableRichTextEditor = settings.enableRichTextEditor;
 
     public get okLabel(): string {
         return this._stepper.currentStep?.isLast
@@ -90,10 +87,6 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
     }
 
     public onStepperStepChanged(event: StepSelectedEvent) {
-        //remove tinymce editor on stepper change
-        if (this.enableRichTextEditor && (tinymce.get("tinymce-editor-email") || tinymce.get("tinymce-editor-inbox"))) {
-            tinymce.remove();
-        }
         if (event.selectedIndex === 1) {
             if (this.templateId) {
                 this._api.getTemplateById(this.templateId).subscribe((template: Template) => {

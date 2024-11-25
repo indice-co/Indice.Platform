@@ -18,6 +18,5 @@ export const environment = {
     culture: '',
     isTemplate: true,
     production: true,
-    enableMediaLibrary: true,
-    enableRichTextEditor: true
+    enableMediaLibrary: true
 };
