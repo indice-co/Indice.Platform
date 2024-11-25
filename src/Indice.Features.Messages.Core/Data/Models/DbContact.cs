@@ -19,6 +19,10 @@ public class DbContact
     public string Email { get; set; }
     /// <summary>The phone number.</summary>
     public string PhoneNumber { get; set; }
+    /// <summary>Contact's locale.</summary>
+    public string Locale { get; set; }
+    /// <summary>Users locale.</summary>
+    public int CommunicationChannel { get; set; } = 0;
     /// <summary>Indicates when contact info were last updated.</summary>
     public DateTimeOffset UpdatedAt { get; set; }
     /// <summary>Contact - Distribution list join entity type.</summary>
