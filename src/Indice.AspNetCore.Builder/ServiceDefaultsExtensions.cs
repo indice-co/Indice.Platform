@@ -94,7 +94,7 @@ public static class ServiceDefaultsExtensions
                 */
                 .AddService(
                     serviceName: builder.Environment.ApplicationName,
-                    serviceNamespace: "neon",
+                    serviceNamespace: Assembly.GetEntryAssembly()?.GetName().Name,
                     serviceVersion: Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "1.0.0",
                     autoGenerateServiceInstanceId: true)
                 // The resource detectors will record the following metadata based on where your application is running:
