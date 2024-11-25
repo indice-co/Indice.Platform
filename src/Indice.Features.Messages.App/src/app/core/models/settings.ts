@@ -3,12 +3,13 @@ import { IAppSettings, IAuthSettings } from './settings.model';
 
 function createAppSettings(): IAppSettings {
     const isTemplate = environment.isTemplate;
-    let authority = '', clientId = '', host = '', culture = '', version = '', scopes = '', tenantId: string | undefined = '', path = '', enableMediaLibrary = undefined, enableRichTextEditor = undefined;
+    let authority = '', clientId = '', host = '', api = '', culture = '', version = '', scopes = '', tenantId: string | undefined = '', path = '', enableMediaLibrary = undefined, enableRichTextEditor = undefined;
     if (isTemplate) {
         const appRoot = document.getElementsByTagName('app-root')[0];
         authority = appRoot.getAttribute('authority') || '';
         clientId = appRoot.getAttribute('clientId') || '';
         host = appRoot.getAttribute('host') || '';
+        api = appRoot.getAttribute('api') || '';
         path = appRoot.getAttribute('path') || '';
         culture = appRoot.getAttribute('culture') || '';
         version = appRoot.getAttribute('version') || '';
@@ -27,11 +28,12 @@ function createAppSettings(): IAppSettings {
         appRoot.attributes.removeNamedItem('version');
         appRoot.attributes.removeNamedItem('scopes');
         appRoot.attributes.removeNamedItem('tenantId');
+        appRoot.attributes.removeNamedItem('api');
         appRoot.attributes.removeNamedItem('enableMediaLibrary');
         appRoot.attributes.removeNamedItem('enableRichTextEditor');
     }
     return {
-        api_url: !isTemplate ? environment.api_url : host,
+        api_url: !isTemplate ? environment.api_url : (api || [host.replace(/\/$/su, ""), 'api'].join('/')),
         auth_settings: {
             accessTokenExpiringNotificationTime: environment.auth_settings.accessTokenExpiringNotificationTime,
             authority: !isTemplate ? environment.auth_settings.authority : authority,

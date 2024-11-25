@@ -3,12 +3,12 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  api_url: 'https://localhost:2001', //'https://messaging.indice.gr',
+  api_url: 'https://messaging.indice.gr/api', //'https://localhost:2001/api',
   auth_settings: {
     accessTokenExpiringNotificationTime: 60,
     authority: 'https://my.indice.gr',
     automaticSilentRenew: true,
-    client_id: 'backoffice-ui',
+    client_id: 'messaging-ui',
     filterProtocolClaims: true,
     loadUserInfo: true,
     monitorSession: true,
@@ -16,7 +16,7 @@ export const environment = {
     redirect_uri: 'http://localhost:4200/auth-callback',
     response_type: 'code',
     revokeAccessTokenOnSignout: true,
-    scope: 'openid profile role email phone backoffice backoffice:messages',
+    scope: 'openid profile role email phone messages media',
     silent_redirect_uri: 'http://localhost:4200/auth-renew',
     useRefreshToken: true,
     prompt: 'login'

@@ -36,15 +36,16 @@ public static class MessageFeatureExtensions
         configureAction?.Invoke(apiOptions);
 
         return services.AddMessageManagement(options => {
-            options.ApiPrefix = apiOptions.ApiPrefix;
+            options.PathPrefix = apiOptions.PathPrefix;
             options.ConfigureDbContext = apiOptions.ConfigureDbContext;
             options.DatabaseSchema = apiOptions.DatabaseSchema;
             options.RequiredScope = apiOptions.RequiredScope;
             options.UserClaimType = apiOptions.UserClaimType;
             options.GroupName = apiOptions.ManagementGroupName;
+            options.FileUploadLimit = apiOptions.FileUploadLimit;
         })
         .AddMessageInbox(options => {
-            options.ApiPrefix = apiOptions.ApiPrefix;
+            options.PathPrefix = apiOptions.PathPrefix;
             options.ConfigureDbContext = apiOptions.ConfigureDbContext;
             options.DatabaseSchema = apiOptions.DatabaseSchema;
             options.UserClaimType = apiOptions.UserClaimType;
@@ -67,13 +68,14 @@ public static class MessageFeatureExtensions
         services.AddCampaignCore(apiOptions);
 
         services.Configure<MessageManagementOptions>(options => {
-            options.ApiPrefix = apiOptions.ApiPrefix;
+            options.PathPrefix = apiOptions.PathPrefix;
             options.ConfigureDbContext = apiOptions.ConfigureDbContext;
             options.DatabaseSchema = apiOptions.DatabaseSchema;
             options.RequiredScope = apiOptions.RequiredScope;
             options.UserClaimType = apiOptions.UserClaimType;
             options.RequiredScope = apiOptions.RequiredScope;
             options.GroupName = apiOptions.GroupName;
+            options.FileUploadLimit = apiOptions.FileUploadLimit;
         });
         services.AddSingleton(new DatabaseSchemaNameResolver(apiOptions.DatabaseSchema));
         // Register framework services.
@@ -104,7 +106,7 @@ public static class MessageFeatureExtensions
         services.AddCampaignCore(apiOptions);
 
         services.Configure<MessageInboxOptions>(options => {
-            options.ApiPrefix = apiOptions.ApiPrefix;
+            options.PathPrefix = apiOptions.PathPrefix;
             options.ConfigureDbContext = apiOptions.ConfigureDbContext;
             options.DatabaseSchema = apiOptions.DatabaseSchema;
             options.UserClaimType = apiOptions.UserClaimType;
@@ -140,6 +142,10 @@ public static class MessageFeatureExtensions
         services.AddValidatorsFromAssemblyContaining<CreateCampaignRequestValidator>();
         // Register framework services.
         services.AddResponseCaching();
+#if NET7_0_OR_GREATER
+        services.AddOutputCache();
+        services.AddEndpointParameterFluentValidation(typeof(UpdateMessageTypeRequestValidator).Assembly);
+#endif
         // Register custom services.
         services.TryAddTransient<ICampaignService, CampaignService>();
         services.TryAddTransient<IMessageTypeService, MessageTypeService>();
@@ -154,7 +160,7 @@ public static class MessageFeatureExtensions
         services.AddEventDispatcherNoop();
         services.AddFilesNoop();
         // Register application DbContext.
-        Action<IServiceProvider, DbContextOptionsBuilder> sqlServerConfiguration = (serviceProvider, builder) => builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("MessagesDbConnection"));
+        Action<IServiceProvider, DbContextOptionsBuilder> sqlServerConfiguration = (serviceProvider, builder) => builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("MessagesDb"));
         services.AddDbContext<CampaignsDbContext>(baseOptions.ConfigureDbContext ?? sqlServerConfiguration);
         return services;
     }

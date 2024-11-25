@@ -17,7 +17,7 @@ public static class MediaApi
     /// <returns>The <see cref="IEndpointRouteBuilder"/> instance.</returns>
     internal static IEndpointRouteBuilder MapMedia(this IEndpointRouteBuilder builder) {
         var options = builder.ServiceProvider.GetService<IOptions<MediaApiOptions>>()?.Value ?? new MediaApiOptions();
-        var group = builder.MapGroup($"{options.ApiPrefix}")
+        var group = builder.MapGroup($"{options.PathPrefix}")
                            .WithGroupName("media")
                            .WithTags("Media")
                            .ProducesProblem(StatusCodes.Status401Unauthorized)
@@ -26,7 +26,7 @@ public static class MediaApi
                            .RequireAuthorization(MediaLibraryApi.Policies.BeMediaLibraryManager)
                            .WithHandledException<BusinessException>();
 
-        var requiredScopes = options.ApiScope.Split(' ').Where(scope => !string.IsNullOrWhiteSpace(scope)).ToArray();
+        var requiredScopes = options.Scope.Split(' ').Where(scope => !string.IsNullOrWhiteSpace(scope)).ToArray();
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", requiredScopes);
 
         group.MapGet("/media-root/{*path}", MediaHandlers.DownloadFile)

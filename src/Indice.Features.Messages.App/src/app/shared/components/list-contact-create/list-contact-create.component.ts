@@ -22,7 +22,7 @@ export class ListContactCreateComponent implements AfterViewInit {
   public submitInProgress = false;
   public contacts: Contact[] = [];
   public isLoading: boolean = false;
-  public apiUrl = settings.api_url;
+  public avatarOrigin = (settings.api_url || "").substring(0, 4) === "http" ? new URL(settings.api_url).origin : "";
   public get anyContactEditing() {
       return false;
   }
@@ -31,7 +31,7 @@ export class ListContactCreateComponent implements AfterViewInit {
 public onContactsSearch(searchTerm: string | undefined): void {
     this.isLoading = true;
     this._api
-        .getContacts(undefined, undefined, undefined, undefined, 1, 10, 'email', searchTerm, true)
+      .getContacts(1, 10, 'email', searchTerm, undefined, undefined, undefined, undefined, true)
         .subscribe((contacts: ContactResultSet) => {
             this.contacts = contacts.items || [];
             this.contacts.forEach((contact: Contact, index: number) => {

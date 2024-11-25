@@ -37,12 +37,13 @@ internal class MyMessagesController(
 
     /// <summary>Gets the list of all user messages using the provided <see cref="ListOptions"/>.</summary>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+    /// <param name="filter"></param>
     /// <response code="200">OK</response>
     [HttpGet("my/messages")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ResultSet<Message>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetMessages([FromQuery] ListOptions<MessagesFilter> options) {
-        var messages = await MessageService.GetList(UserCode, options);
+    public async Task<IActionResult> GetMessages([FromQuery] ListOptions options, [FromQuery] MessagesFilter filter) {
+        var messages = await MessageService.GetList(UserCode, ListOptions.Create(options, filter));
         return Ok(messages);
     }
 

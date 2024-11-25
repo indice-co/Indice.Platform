@@ -5,7 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [7.43.1] - [TBD]
+## [WIP]
+### Added
+ - Cases can now be related to other cases, the relation is based on the assigned `metadata.ExternalRelationKey`
+ - Now showing table with the related cases in the case details page
+
+## [7.43.1] - [2024-11-25]
 ### Added
  - Add `PatchAdminCaseData` and `JsonPatchAdminCaseData` endpoints that enable merging and patching of case data. See https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API
 

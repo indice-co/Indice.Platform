@@ -22,6 +22,7 @@ public static class MessageFeatureExtensionsMvc
     /// <summary>Adds all Messages (both management and self-service) API endpoints in the MVC project.</summary>
     /// <param name="mvcBuilder">An interface for configuring MVC services.</param>
     /// <param name="configureAction">Configuration for several options of Campaigns API feature.</param>
+    [Obsolete("Use .AddMessaging() directly on the WebApplicationBuilder instead")]
     public static IMvcBuilder AddMessageEndpoints(this IMvcBuilder mvcBuilder, Action<MessageEndpointOptions> configureAction = null) {
         var services = mvcBuilder.Services;
         // Configure options.
@@ -29,7 +30,7 @@ public static class MessageFeatureExtensionsMvc
         configureAction?.Invoke(apiOptions);
 
         return mvcBuilder.AddMessageManagementEndpoints(options => {
-            options.ApiPrefix = apiOptions.ApiPrefix;
+            options.PathPrefix = apiOptions.PathPrefix;
             options.ConfigureDbContext = apiOptions.ConfigureDbContext;
             options.DatabaseSchema = apiOptions.DatabaseSchema;
             options.RequiredScope = apiOptions.RequiredScope;
@@ -37,7 +38,7 @@ public static class MessageFeatureExtensionsMvc
             options.GroupName = apiOptions.ManagementGroupName;
         })
         .AddMessageInboxEndpoints(options => {
-            options.ApiPrefix = apiOptions.ApiPrefix;
+            options.PathPrefix = apiOptions.PathPrefix;
             options.ConfigureDbContext = apiOptions.ConfigureDbContext;
             options.DatabaseSchema = apiOptions.DatabaseSchema;
             options.UserClaimType = apiOptions.UserClaimType;
@@ -48,6 +49,7 @@ public static class MessageFeatureExtensionsMvc
     /// <summary>Adds Messages management API endpoints in the MVC project.</summary>
     /// <param name="mvcBuilder">An interface for configuring MVC services.</param>
     /// <param name="configureAction">Configuration for several options of Campaigns management API feature.</param>
+    [Obsolete("Use .AddMessageManagement() directly on the WebApplicationBuilder instead")]
     public static IMvcBuilder AddMessageManagementEndpoints(this IMvcBuilder mvcBuilder, Action<MessageManagementOptions> configureAction = null) {
 
 
@@ -62,6 +64,7 @@ public static class MessageFeatureExtensionsMvc
     /// <summary>Adds Messages inbox API endpoints in the MVC project.</summary>
     /// <param name="mvcBuilder">An interface for configuring MVC services.</param>
     /// <param name="configureAction">Configuration for several options of Campaigns inbox API feature.</param>
+    [Obsolete("Use .AddMessageInbox() directly on the WebApplicationBuilder instead")]
     public static IMvcBuilder AddMessageInboxEndpoints(this IMvcBuilder mvcBuilder, Action<MessageInboxOptions> configureAction = null) {
         mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new MessageFeatureProvider(includeManagementApi: false, includeInboxApi: true)));
         var services = mvcBuilder.Services;

@@ -2,9 +2,9 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { iif, Observable, ReplaySubject, of } from 'rxjs';
-import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { filter, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { CaseDetailsService } from 'src/app/core/services/case-details.service';
-import { CaseActions, Case, CasesApiService, ActionRequest, TimelineEntry, CaseStatus, SuccessMessage } from 'src/app/core/services/cases-api.service';
+import { CaseActions, Case, CasesApiService, ActionRequest, TimelineEntry, CaseStatus, SuccessMessage, CasePartial } from 'src/app/core/services/cases-api.service';
 
 @Component({
   selector: 'app-case-detail-page',
@@ -18,6 +18,8 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
   public caseActions$ = this._caseActions.asObservable();
 
   public timelineEntries$: Observable<TimelineEntry[]> | undefined;
+
+  public relatedCases$: Observable<CasePartial[]> | undefined;
 
   public formValid: boolean = false;
   public formUnSavedChanges: boolean = false;
@@ -49,6 +51,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
       this.requestModel();
       this.getCaseActions();
       this.getTimeline();
+      this.getRelatedCases()
     });
   }
 
@@ -71,25 +74,24 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
   }
 
   public requestModel(): void {
-    this.api
+    this.model$ = this.api
       .getCaseById(this.caseId)
       .pipe(
-        switchMap(caseDetails => {
-          return iif(
+        switchMap(caseDetails =>
+          iif(
             () => caseDetails.draft === true,
-            this.getCustomerData$(caseDetails), // draft mode, we need to prefill the form with customer data (if any)
-            of(caseDetails))
-        }),
+            this.getCustomerData$(caseDetails), // In draft mode we must prefill the form data
+            of(caseDetails)
+          )
+        ),
         tap((response: Case) => {
           this.caseTypeConfig = response.caseType?.config ? JSON.parse(response.caseType?.config) : {};
           this.caseDetailsService.setCaseDetails(response);
-          // ensure that we have the correct "latest" caseDetails!
-          this.model$ = this.caseDetailsService.caseDetails$;
         }),
         takeUntil(this.componentDestroy$)
-      ).subscribe();
-
+      );
   }
+
   private getCustomerData$(caseDetails: Case): Observable<Case> {
     return this.api
       .getCustomerData(caseDetails.customerId ?? "", caseDetails.caseType?.code ?? "")
@@ -112,10 +114,10 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Event for PDF print action, 
+   * Event for PDF print action,
    * registers the state of the PDF print action
-   * @param printed 
-   * @returns 
+   * @param printed
+   * @returns
    */
   onPdfButtonClicked(printed: boolean | undefined) {
     if (printed === undefined) {
@@ -170,4 +172,11 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
     this.timelineEntries$ = this.api.getCaseTimeline(this.caseId!);
   }
 
+  private getRelatedCases(): void {
+    this.relatedCases$ = this.model$?.pipe(
+      filter(model => !!model.metadata && !!model.metadata['ExternalCorrelationKey']), // Check if ExternalCorrelationKey has value
+      switchMap(() => this.api.getRelatedCases(this.caseId)),
+      takeUntil(this.componentDestroy$)
+    );
+  }
 }

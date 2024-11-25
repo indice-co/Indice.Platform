@@ -39,7 +39,7 @@ export class CampaignsComponent extends BaseListComponent<Campaign> implements O
 
     public loadItems(): Observable<IResultSet<Campaign> | null | undefined> {
         return this._api
-            .getCampaigns(undefined, undefined, this.page, this.pageSize, this.sortdir === 'asc' ? this.sort! : this.sort + '-', this.search || undefined)
+          .getCampaigns(this.page, this.pageSize, this.sortdir === 'asc' ? this.sort! : this.sort + '-', this.search || undefined, undefined, undefined)
             .pipe(map((result: CampaignResultSet) => (result as IResultSet<Campaign>)));
     }
 
