@@ -16,8 +16,9 @@ namespace Indice.Features.Cases.Controllers;
 [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
 [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
 [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
+[ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
 [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
-[Route($"{ApiPrefixes.CasesApiTemplatePrefixPlaceholder}/manage/case-data")]
+[Route($"{ApiPrefixes.CasesApiTemplatePrefixPlaceholder}/manage/cases")]
 public class AdminCaseDataController : ControllerBase
 {
     private readonly IAdminCaseService _adminCaseService;
@@ -50,10 +51,9 @@ public class AdminCaseDataController : ControllerBase
     /// <b>If the path is found "add" works as add or replace.</b>
     /// <b>This will NOT create non existing paths, be sure to specify the full object as value on a JsonPointer that exists.</b>
     /// </param>
-    [HttpPatch("{caseId:guid}/patch-data")]
+    [HttpPatch("{caseId:guid}/data")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
     public async Task<IActionResult> PatchAdminCaseData([FromRoute] Guid caseId, [FromBody] object patch) {
         await _adminCaseService.PatchCaseData(User, caseId,  patch);
         return NoContent();
@@ -74,10 +74,9 @@ public class AdminCaseDataController : ControllerBase
     /// <b>If the path is found "add" works as add or replace.</b>
     /// <b>This will NOT create non existing paths, be sure to specify the full object as value on a JsonPointer that exists.</b>
     /// </param>
-    [HttpPatch("{caseId:guid}/json-patch-data")]
+    [HttpPatch("{caseId:guid}/data-json")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
     public async Task<IActionResult> JsonPatchAdminCaseData([FromRoute] Guid caseId, [FromBody] List<PatchJsonPathRequest> request) {
         var operations = request.Select(op => op.ToPatchOperation()).ToList();
         await _adminCaseService.PatchCaseData(User, caseId,  new JsonPatch(operations));
