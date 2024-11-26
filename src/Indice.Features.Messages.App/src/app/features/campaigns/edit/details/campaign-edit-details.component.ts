@@ -96,11 +96,14 @@ export class CampaignDetailsEditComponent implements OnInit {
         });
     }
 
+
+    public apiOrigin = (settings.api_url || "").substring(0, 4) === "http" ? new URL(settings.api_url).origin : "";
+
     public downloadAttachment() {
         if (!this.campaign?.attachment?.permaLink || !this.campaign?.attachment?.label) {
             return;
         }
-        var url = `${settings.api_url}/${this.campaign?.attachment?.permaLink}`;
+        var url = `${this.apiOrigin}/${this.campaign?.attachment?.permaLink}`;
         this._httpClient.get(url, { responseType: 'arraybuffer' })
             .subscribe((blob) => {
                 const url = window.URL.createObjectURL(new Blob([blob]));
