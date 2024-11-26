@@ -626,10 +626,11 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         var result = await GetCases(user, new ListOptions<GetCasesListFilter>() {
             Filter = new GetCasesListFilter {
                 Metadata = [new FilterClause("metadata.ExternalCorrelationKey", @case.Metadata["ExternalCorrelationKey"], FilterOperator.Eq, JsonDataType.String)]
-            }
+            },
+            Sort = $"{nameof(CasePartial.CreatedByWhen)}-"
         });
 
-        return result.Items.OrderByDescending(x=> x.CreatedByWhen).ToList();
+        return result.Items.ToList();
     }
 
     private async Task<List<FilterClause>> MapCheckpointTypeCodeToId(List<FilterClause> checkpointTypeCodeFilterClauses) {
