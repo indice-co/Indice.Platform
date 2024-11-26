@@ -119,9 +119,7 @@ public class ViberServiceApifon : ISmsService
 }
 
 internal class ApifonIMRequest : ApifonRequest {
-    public ApifonIMRequest(string from, string[] to, string message) : base(from, to, message) { 
-        
-    }
+    public ApifonIMRequest(string from, string[] to, string message) : base(from, to, message) { }
 
     [JsonPropertyName("im_channels")]
     public List<IMChannel> IMChannels { get; set; } = [];
