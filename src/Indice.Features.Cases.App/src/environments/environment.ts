@@ -28,8 +28,7 @@ export const environment = {
   production: false,
   dashboardTags: '',
   caseListColumns: '',
-  caseListFilters: '',
-  commentsEnabled: false
+  caseListFilters: ''
 };
 
 /*

@@ -3,7 +3,7 @@ import { IAppSettings, IAuthSettings } from './settings.model';
 
 function createAppSettings(): IAppSettings {
     const isTemplate = environment.isTemplate;
-    let authority: string = '', clientId: string = '', host: string = '', baseHref: string = '', culture: string = '', version: string = '', scopes = '', apiUrl = '', i18nAssets = '', dashboardTags = '', caseListColumns = '', caseListFilters = '', commentsEnabled = false;
+  let authority: string = '', clientId: string = '', host: string = '', baseHref: string = '', culture: string = '', version: string = '', scopes = '', apiUrl = '', i18nAssets = '', dashboardTags = '', caseListColumns = '', caseListFilters = '';
     if (isTemplate) {
         const appRoot = document.getElementsByTagName('app-root')[0];
         authority = appRoot.getAttribute('authority') || '';
@@ -62,8 +62,7 @@ function createAppSettings(): IAppSettings {
         version: version || '1.0.0',
         dashboardTags: !isTemplate ? environment.dashboardTags : dashboardTags,
         caseListColumns: !isTemplate ? environment.caseListColumns : caseListColumns,
-        caseListFilters: !isTemplate ? environment.caseListFilters : caseListFilters,
-        commentsEnabled: !isTemplate ? environment.commentsEnabled : commentsEnabled
+        caseListFilters: !isTemplate ? environment.caseListFilters : caseListFilters
     };
 }
 

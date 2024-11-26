@@ -23,7 +23,6 @@ export class ApprovalButtonsComponent implements OnInit {
   public buttonsDisabled: boolean | undefined = false;
   public approveButtonDisabled: boolean | undefined = false;
   public comment: string | undefined;
-  public commentsEnabled: boolean = false;
 
   rejectionOptions$: Observable<MenuOption[]> | undefined;
   selectedRejectReason = '';
@@ -41,9 +40,6 @@ export class ApprovalButtonsComponent implements OnInit {
         map((response: RejectReason[]) => response.map(item => new MenuOption(item.value!, item.key!))),
         tap((reasons: MenuOption[]) => this.selectedRejectReason = reasons[0].value)
       );
-
-    //set comments enabled from environment variables
-    this.commentsEnabled = settings.commentsEnabled;
   }
 
   public onToggleButtonChange() {
