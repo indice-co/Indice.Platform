@@ -111,7 +111,7 @@ public static class IndiceServicesServiceCollectionExtensions
         return services;
     }
 
-    /// <summary>Adds an instance of <see cref="ISmsService"/> using Apifon.</summary>
+    /// <summary>Adds an instance of <see cref="ISmsService"/> using Apifon SMS service gateway.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
@@ -124,7 +124,27 @@ public static class IndiceServicesServiceCollectionExtensions
                                         .ConfigureHttpClient(httpClient => {
                                             httpClient.BaseAddress = new Uri("https://ars.apifon.com/services/api/v1/sms/");
                                         });
-        if (options.ConfigurePrimaryHttpMessageHandler != null) {
+        if (options.ConfigurePrimaryHttpMessageHandler is not null) {
+            httpClientBuilder.ConfigurePrimaryHttpMessageHandler(options.ConfigurePrimaryHttpMessageHandler);
+        }
+        return services;
+    }
+
+    /// <summary>Adds an instance of <see cref="ISmsService"/> using Apifon IM service gateway.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <param name="configure">Configure the available options. Null to use defaults.</param>
+    public static IServiceCollection AddViberServiceApifon(this IServiceCollection services, IConfiguration configuration, Action<SmsServiceApifonOptions> configure = null) {
+        services.Configure<SmsServiceApifonSettings>(configuration.GetSection(SmsServiceSettings.Name));
+        services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
+        var options = new SmsServiceApifonOptions();
+        configure?.Invoke(options);
+        var httpClientBuilder = services
+            .AddHttpClient<ISmsService, ViberServiceApifon>()
+            .ConfigureHttpClient(httpClient => {
+                httpClient.BaseAddress = new Uri($"{ViberServiceApifon.APIFON_BASE_URL}{ViberServiceApifon.SERVICE_ENDPOINT}");
+            });
+        if (options?.ConfigurePrimaryHttpMessageHandler is not null) {
             httpClientBuilder.ConfigurePrimaryHttpMessageHandler(options.ConfigurePrimaryHttpMessageHandler);
         }
         return services;

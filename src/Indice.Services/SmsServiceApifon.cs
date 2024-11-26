@@ -152,6 +152,7 @@ internal class ApifonResponse
     {
         [JsonPropertyName("status_code")]
         public int StatusCode { get; set; }
+        [JsonPropertyName("description")]
         public string Description { get; set; }
     }
 }
