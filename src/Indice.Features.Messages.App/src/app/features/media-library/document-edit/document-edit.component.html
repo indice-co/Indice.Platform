@@ -56,6 +56,12 @@
                             </div>
                             <div class="sm:col-span-1">
                                 <dt class="text-sm font-medium text-gray-500">
+                                    Τοποθεσία
+                                </dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ file?.path }}</dd>
+                            </div>
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-gray-500">
                                     Περιγραφή
                                     <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editDescription' }"></ng-container>
                                 </dt>
@@ -68,12 +74,12 @@
                                 </dt>
                                 <dd class="mt-1 text-sm text-gray-900">{{ parentFolderName || '-' }}</dd>
                             </div>
-                            <div class="sm:col-span-1">
+                            <!--<div class="sm:col-span-1">
                                 <dt class="text-sm font-medium text-gray-500">
                                     Κατάληξη
                                 </dt>
                                 <dd class="mt-1 text-sm text-gray-900">{{ file?.fileExtension || '-' }}</dd>
-                            </div>
+                            </div>-->
                             <div class="sm:col-span-1">
                                 <dt class="text-sm font-medium text-gray-500">
                                     Τύπος

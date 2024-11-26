@@ -138,6 +138,9 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                     ReferenceNumber = @case.ReferenceNumber,
                     CustomerId = @case.Customer.CustomerId,
                     CustomerName = @case.Customer.FirstName + " " + @case.Customer.LastName, // concat like this to enable searching with "contains"
+                    CreatedById = @case.CreatedBy.Id,
+                    CreatedByName = @case.CreatedBy.Name,
+                    CreatedByEmail = @case.CreatedBy.Email,
                     CreatedByWhen = @case.CreatedBy.When,
                     CaseType = new CaseTypePartial {
                         Id = @case.CaseType.Id,
@@ -232,6 +235,9 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                          ReferenceNumber = @case.ReferenceNumber,
                          CustomerId = @case.Customer.CustomerId,
                          CustomerName = @case.Customer.FirstName + " " + @case.Customer.LastName, // concat like this to enable searching with "contains"
+                         CreatedById = @case.CreatedBy.Id,
+                         CreatedByName = @case.CreatedBy.Name,
+                         CreatedByEmail = @case.CreatedBy.Email,
                          CreatedByWhen = @case.CreatedBy.When,
                          CaseType = new CaseTypePartial {
                              Id = @case.CaseType.Id,
