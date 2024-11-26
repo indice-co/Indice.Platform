@@ -1,8 +1,8 @@
 ﻿using System.Globalization;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Data.Models;
 using Indice.Features.Cases.Events;
@@ -13,6 +13,7 @@ using Indice.Features.Cases.Models;
 using Indice.Features.Cases.Models.Responses;
 using Indice.Security;
 using Indice.Types;
+using Json.Patch;
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Cases.Services;
@@ -64,6 +65,36 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         if (caseId == default) throw new ArgumentNullException(nameof(caseId));
         if (data == null) throw new ArgumentNullException(nameof(data));
         await _adminCaseMessageService.Send(caseId, user, new Message { Data = data });
+    }
+
+    /// <summary>
+    /// Patches the <see cref="DbCaseData.Data"/> with the provided JsonNode performing add, replace and remove operations
+    /// </summary>
+    /// <remarks>For example usages see https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API.</remarks>
+    public async Task PatchCaseData(ClaimsPrincipal user, Guid caseId, JsonNode patch) {
+        if (user == null) throw new ArgumentNullException(nameof(user));
+        if (caseId == default) throw new ArgumentNullException(nameof(caseId));
+        var caseData = (await GetCaseById(user, caseId, false)).DataAsJsonNode();
+        
+        await _adminCaseMessageService.Send(caseId, user, new Message { Data = caseData.Merge(patch) });
+    }
+    
+    /// <summary>
+    /// Patches the Case Data with list of JsonPatch operations adhering to
+    /// https://datatracker.ietf.org/doc/html/rfc6902#appendix-A
+    /// </summary>
+    /// <remarks>For example usages see https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API.</remarks>
+    public async Task PatchCaseData(ClaimsPrincipal user, Guid caseId, JsonPatch patch) {
+        if (user == null) throw new ArgumentNullException(nameof(user));
+        if (caseId == default) throw new ArgumentNullException(nameof(caseId));
+        var caseData = (await GetCaseById(user, caseId, false)).DataAsJsonNode();
+
+        var patchResult = patch.Apply(caseData);
+        if (!patchResult.IsSuccess) {
+            throw new InvalidOperationException($"Could not apply JSON Patch with error: {patchResult.Error}");
+        }
+        
+        await _adminCaseMessageService.Send(caseId, user, new Message { Data = patchResult.Result });
     }
 
     public async Task Submit(ClaimsPrincipal user, Guid caseId) {
@@ -128,7 +159,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                         Translations = TranslationDictionary<CheckpointTypeTranslation>.FromJson(@case.Checkpoint.CheckpointType.Translations)
                     },
                     AssignedToName = @case.AssignedTo.Name,
-                    Data = options.Filter.IncludeData ? @case.Data : null,
+                    Data = options.Filter.IncludeData ? @case.Data.Data : null,
                     AccessLevel = 111
                 });
         } else {
@@ -225,7 +256,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                              Translations = TranslationDictionary<CheckpointTypeTranslation>.FromJson(@case.Checkpoint.CheckpointType.Translations)
                          },
                          AssignedToName = @case.AssignedTo.Name,
-                         Data = options.Filter.IncludeData ? @case.Data : null,
+                         Data = options.Filter.IncludeData ? @case.Data.Data : null,
                          AccessLevel = new List<int> { caseAccess, CaseTypeAccess, CheckpointIdAccess, caseCheckpointIdAccess }.Max()
                      });
         }
@@ -461,6 +492,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     public async Task<CaseAttachment> GetAttachment(Guid caseId, Guid attachmentId) {
         var attachment = await _dbContext.Attachments
             .AsNoTracking()
+            .Where(a => a.CaseId == caseId)
             .Select(db => new CaseAttachment {
                 Id = db.Id,
                 ContentType = db.ContentType,
@@ -475,11 +507,13 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     public async Task<CaseAttachment> GetAttachmentByField(ClaimsPrincipal user, Guid caseId, string fieldName) {
         var stringifiedCaseData = (await GetCaseById(user, caseId, false)).DataAs<string>();
         var json = JsonDocument.Parse(stringifiedCaseData);
-        bool found = json.RootElement.TryGetProperty(fieldName, out JsonElement attachmentId);
+        var found = json.RootElement.TryGetProperty(fieldName, out JsonElement attachmentId);
+        
         if (found && !string.IsNullOrEmpty(attachmentId.GetString())) {
             var attachment = await GetAttachment(caseId, attachmentId.GetGuid());
             return attachment;
         }
+        
         return null;
     }
 
