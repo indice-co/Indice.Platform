@@ -4,7 +4,7 @@
                 <div class="col-span-4">
                     <label for="distribution-list-contact-name"
                            class="field-label">Όνομα (*)</label>
-                    <lib-combobox id="distribution-list-contact-name"
+                    <lib-combobox id="distribution-list-contact-name"  autocomplete="off"
                                   [items]="contacts"
                                   [itemTemplate]="itemTemplate"
                                   [selectedItemTemplate]="selectedItemTemplate"
@@ -83,7 +83,7 @@
             <ng-container *ngIf="!item._edit">
                 <div class="flex-shrink-0">
                     <img class="h-10 w-10 rounded-full"
-                         [src]="avatarOrigin + '/avatar/' + item.fullName + '?circular=true'"
+                         [src]="avatarOrigin + '/avatar/' + item.fullName + '/?circular=true'"
                          alt="">
                 </div>
                 <div class="flex-1 min-w-0">
@@ -133,7 +133,8 @@
                                             Προσφώνηση
                                         </label>
                                         <div class="flex rounded-sm">
-                                            <input type="text"
+                                            <input class="w-full"
+                                                   type="text"
                                                    [name]="'salutation-' + item._index"
                                                    [id]="'salutation-' + item._index"
                                                    placeholder="Προσφώνηση..."
@@ -149,7 +150,8 @@
                                             Όνομα
                                         </label>
                                         <div class="flex rounded-sm">
-                                            <input type="text"
+                                            <input class="w-full"
+                                                   type="text"
                                                    [name]="'first-name-' + item._index"
                                                    [id]="'first-name-' + item._index"
                                                    placeholder="Όνομα..."
@@ -164,7 +166,8 @@
                                             Επώνυμο
                                         </label>
                                         <div class="flex rounded-sm">
-                                            <input type="text"
+                                            <input class="w-full"
+                                                   type="text"
                                                    [name]="'last-name-' + item._index"
                                                    [id]="'last-name-' + item._index"
                                                    placeholder="Επώνυμο..."
@@ -179,7 +182,8 @@
                                             Όνομα Εμφάνισης
                                         </label>
                                         <div class="flex rounded-sm">
-                                            <input type="text"
+                                            <input class="w-full"
+                                                   type="text"
                                                    [name]="'full-name-' + item._index"
                                                    [id]="'full-name-' + item._index"
                                                    placeholder="Όνομα Εμφάνισης..."
@@ -194,7 +198,8 @@
                                             Email
                                         </label>
                                         <div class="flex rounded-sm">
-                                            <input type="text"
+                                            <input class="w-full"
+                                                   type="text"
                                                    [name]="'email-' + item._index"
                                                    [id]="'email-' + item._index"
                                                    placeholder="Email..."
@@ -209,7 +214,8 @@
                                             Τηλέφωνο
                                         </label>
                                         <div class="flex rounded-sm">
-                                            <input type="text"
+                                            <input class="w-full"
+                                                   type="text"
                                                    [name]="'phone-number-' + item._index"
                                                    [id]="'phone-number-' + item._index"
                                                    placeholder="Τηλέφωνο..."

@@ -43,7 +43,7 @@ public class CampaignAttachmentService : ICampaignAttachmentService
             ContentType = fileAttachment.ContentType,
             Id = attachment.Id,
             Label = fileAttachment.Name,
-            PermaLink = $"{CampaignManagementOptions.PathPrefix}/campaigns/attachments/{(Base64Id)attachment.Guid}.{Path.GetExtension(attachment.Name).TrimStart('.')}",
+            PermaLink = $"{CampaignManagementOptions.PathPrefix.TrimEnd('/')}/campaigns/attachments/{(Base64Id)attachment.Guid}.{Path.GetExtension(attachment.Name).TrimStart('.')}",
             Size = fileAttachment.ContentLength
         };
     }

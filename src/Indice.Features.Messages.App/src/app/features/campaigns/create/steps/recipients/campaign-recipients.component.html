@@ -56,7 +56,7 @@
                                           <label for="recipientIds" class="hidden"
                                                  aria-hidden="true">Τύπος</label>
                                           <div class="mt-1 flex rounded-sm">
-                                                 <textarea id="recipientIds" name="recipientIds" rows="6"
+                                                 <textarea id="recipientIds" name="recipientIds" rows="6" class="w-full"
                                                         formControlName="recipientIds"
                                                         placeholder="Η λίστα χρηστών της καμπάνιας...&#10;κωδικός_χρήστη_1&#10;κωδικός_χρήστη_2"></textarea>
                                           </div>
@@ -77,7 +77,7 @@
                                                                <ng-container *ngFor="let index of [0,1,2,3]">
                                                                       <div *ngIf="recipients.value.length > index" class="flex-shrink-0">
                                                                              <img class="h-10 w-10 rounded-full"
-                                                                             [src]="avatarOrigin + '/avatar/' + recipients.value[index].fullName + '?circular=true'"
+                                                                             [src]="avatarOrigin + '/avatar/' + recipients.value[index].fullName + '/?circular=true'"
                                                                              alt="">
                                                                       </div>
                                                                </ng-container>

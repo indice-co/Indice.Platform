@@ -19,7 +19,7 @@ internal static class MyMessagesApi
     /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     public static RouteGroupBuilder MapMyMessages(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<MessageInboxOptions>>().Value;
-        var group = routes.MapGroup(options.PathPrefix.TrimEnd('/') + "/my/messages");
+        var group = routes.MapGroup(options.PathPrefix.Length > 1 ? options.PathPrefix.TrimEnd('/') : options.PathPrefix);
         if (!string.IsNullOrEmpty(options.GroupName)) { 
             group.WithGroupName(options.GroupName);
         }
@@ -34,46 +34,37 @@ internal static class MyMessagesApi
              .ProducesProblem(StatusCodes.Status403Forbidden)
              .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapGet(string.Empty, MyMessagesHandlers.GetMessages)
+        group.MapGet("my/messages", MyMessagesHandlers.GetMessages)
              .WithName(nameof(MyMessagesHandlers.GetMessages))
              .WithSummary("Gets the list of all user messages using the provided ListOptions.")
              .WithDescription(MyMessagesHandlers.GET_MESSAGES_DESCRIPTION);
 
-        var typesRoute = routes.MapGet("messages/types", MyMessagesHandlers.GetInboxMessageTypes)
-            .WithName(nameof(MyMessagesHandlers.GetInboxMessageTypes))
-            .WithSummary("Gets the list of available campaign types.")
-            .WithDescription(MyMessagesHandlers.GET_INBOX_MESSAGE_TYPES_DESCRIPTION)
-            .WithTags("MyMessages")
-            .RequireAuthorization(pb => pb.AddAuthenticationSchemes(MessagesApi.AuthenticationScheme)
-                                           .RequireAuthenticatedUser())
-            .WithOpenApi().AddOpenApiSecurityRequirement("oauth2");
-
-        if (!string.IsNullOrEmpty(options.GroupName)) {
-            typesRoute.WithGroupName(options.GroupName);
-        }
-
-        group.MapGet("{messageId}", MyMessagesHandlers.GetMessageById)
+        group.MapGet("my/messages/{messageId}", MyMessagesHandlers.GetMessageById)
              .WithName(nameof(MyMessagesHandlers.GetMessageById))
              .WithSummary("Gets the message with the specified ID.")
              .WithDescription(MyMessagesHandlers.GET_MESSAGE_BY_ID_DESCRIPTION);
 
-        group.MapPut("{messageId}/read", MyMessagesHandlers.MarkMessageAsRead)
+        group.MapPut("my/messages/{messageId}/read", MyMessagesHandlers.MarkMessageAsRead)
              .WithName(nameof(MyMessagesHandlers.MarkMessageAsRead))
              .WithSummary("Marks the specified message as read.")
              .WithDescription(MyMessagesHandlers.MARK_MESSAGE_AS_READ_DESCRIPTION);
 
-        group.MapDelete("{messageId}", MyMessagesHandlers.DeleteMessage)
+        group.MapDelete("my/messages/{messageId}", MyMessagesHandlers.DeleteMessage)
              .WithName(nameof(MyMessagesHandlers.DeleteMessage))
              .WithSummary("Marks the specified message as deleted.")
              .WithDescription(MyMessagesHandlers.DELETE_MESSAGE_DESCRIPTION);
 
-        group.MapGet("/attachments/{fileGuid}.{format}", MyMessagesHandlers.GetMessageAttachment)
+        group.MapGet("messages/attachments/{fileGuid}.{format}", MyMessagesHandlers.GetMessageAttachment)
              .WithName(nameof(MyMessagesHandlers.GetMessageAttachment))
              .WithSummary("Gets the attachment associated with a campaign.")
              .WithDescription(MyMessagesHandlers.GET_MESSAGE_ATTACHMENT_DESCRIPTION)
              .ExcludeFromDescription()
              .AllowAnonymous();
 
+        group.MapGet("messages/types", MyMessagesHandlers.GetInboxMessageTypes)
+            .WithName(nameof(MyMessagesHandlers.GetInboxMessageTypes))
+            .WithSummary("Gets the list of available campaign types.")
+            .WithDescription(MyMessagesHandlers.GET_INBOX_MESSAGE_TYPES_DESCRIPTION);
         return group;
     }
 

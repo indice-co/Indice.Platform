@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using Indice.Features.Cases.Data.Models;
+using System.Text.Json.Nodes;
 using Indice.Serialization;
 
 namespace Indice.Features.Cases.Models.Responses;
@@ -64,10 +64,24 @@ public class CasePartial
 
     /// <summary>Convert case data to typed version.</summary>
     public TData DataAs<TData>() {
+        if (Data is TData typedData) {
+            return typedData;
+        }
+        
         var json = JsonSerializer.Serialize(Data, JsonSerializerOptionDefaults.GetDefaultSettings());
         if (typeof(TData) == typeof(string)) {
             return json;
         }
         return JsonSerializer.Deserialize<TData>(json, JsonSerializerOptionDefaults.GetDefaultSettings());
+    }
+
+    /// <summary>Get Data as Json Node</summary>
+    /// <returns></returns>
+    public JsonNode DataAsJsonNode() {
+        if (Data is JsonElement jsonElement) {
+            return JsonSerializer.SerializeToNode(jsonElement);
+        }
+
+        return DataAs<JsonNode>();
     }
 }

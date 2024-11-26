@@ -3,8 +3,9 @@
 namespace Indice.Features.Cases.Converters;
 
 /// <summary>
-/// Properly serialize dynamic CaseData from SystemText to Newtonsoft. CaseData is using SystemText serializer to save/retrieve data from storage.
-/// <remarks>Elsa package forcing the API to user newtonsoft</remarks>
+/// Properly serialize dynamic CaseData from SystemText to Newtonsoft.
+/// CaseData is using SystemText serializer to save/retrieve data from storage.
+/// <remarks>Elsa package forcing the API to use newtonsoft</remarks>
 /// </summary>
 internal class SystemTextConverter : Newtonsoft.Json.JsonConverter<JsonElement>
 {

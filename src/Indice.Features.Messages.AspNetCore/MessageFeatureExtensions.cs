@@ -129,6 +129,12 @@ public static class MessageFeatureExtensions
             if (!enumFlagsConverterExists) {
                 options.JsonSerializerOptions.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
             }
+        }); 
+        services.PostConfigure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => {
+            var enumFlagsConverterExists = options.SerializerOptions.Converters.Any(converter => converter.GetType() == typeof(JsonStringArrayEnumFlagsConverterFactory));
+            if (!enumFlagsConverterExists) {
+                options.SerializerOptions.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
+            }
         });
         // Post configure Swagger options.
         services.PostConfigure<SwaggerGenOptions>(options => {
