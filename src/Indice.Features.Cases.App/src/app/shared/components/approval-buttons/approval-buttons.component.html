@@ -24,7 +24,7 @@
             </div>
         </div>
     </ng-container>
-    <div *ngIf="commentsEnabled || !approveButtonDisabled">
+    <div *ngIf="(caseTypeConfig?.commentsEnabled ?? true) && !approveButtonDisabled">
         <label for="comment-textarea"
                class="field-label">Σχόλιο</label>
         <div class="my-2 flex rounded-sm">
@@ -35,7 +35,7 @@
                       placeholder="Προαιρετικό σχόλιο..."></textarea>
         </div>
     </div>
-    <div>
+    <div class="pt-2">
         <button href="#"
                 class="btn-success mr-1"
                 [ngClass]="{'opacity-50 cursor-not-allowed': formValid === false || approveButtonDisabled === true || buttonsDisabled === true}"
