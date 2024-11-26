@@ -164,7 +164,7 @@ public class MediaManager(
         var files = await _cache.GetAsync<List<MediaFile>>(cacheKey, serializationOptions);
         if (files == null) {
             var dbfiles = await _fileStore.GetList(f => f.FolderId == folderId && !f.IsDeleted);
-            files = new List<MediaFile>();
+            files = [];
             if (dbfiles != null) {
                 var cdnUrl = await _settingService.GetSetting(MediaSetting.CDN.Key);
                 var permaLinkBaseUrl = string.IsNullOrWhiteSpace(cdnUrl?.Value)
