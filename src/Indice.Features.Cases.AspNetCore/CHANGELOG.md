@@ -5,10 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [WIP]
+## Unreleased
 ### Added
- - Cases can now be related to other cases, the relation is based on the assigned `metadata.ExternalRelationKey`
- - Now showing table with the related cases in the case details page
+- Add commentsEnabled option to caseTypeConfig, setting this to false allows for the comment input field to be hidden when an approver approves/rejects a case
+
+## [7.44.0] - [2024-11-26]
+### Added
+- Add `PatchAdminCaseData` and `JsonPatchAdminCaseData` endpoints that enable merging and patching of case data. See https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API
+
+### Fixed
+- `GetCases` endpoint correctly returns `DbCase.Data` instead of the complete `DbCase` when `include_data` filter is specified. This should not affect the UI.
+
+## [7.43.1] - 2024-11-25
+### Added
+- Cases can now be related to other cases, the relation is based on the assigned `metadata.ExternalRelationKey`
+- Now showing table with the related cases in the case details page
+
+### Fixed
+- Add CreatedBy Name, Id, Email on `IAdminCaseService.GetCases` method.
 
 ## [7.39.1] - 2024-11-08
 ### Fixed
