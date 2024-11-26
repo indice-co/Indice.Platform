@@ -9,7 +9,7 @@ export interface IAppSettings {
     dashboardTags: string;
     caseListColumns: string;
     caseListFilters: string;
-    canCommentWhenRejecting: boolean;
+    commentsEnabled: boolean;
 }
 
 export interface IAuthSettings {

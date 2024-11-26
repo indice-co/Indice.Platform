@@ -29,7 +29,7 @@ export const environment = {
   dashboardTags: '',
   caseListColumns: '',
   caseListFilters: '',
-  canCommentWhenRejecting: false
+  commentsEnabled: false
 };
 
 /*

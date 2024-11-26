@@ -22,7 +22,7 @@ export class ApprovalButtonsComponent implements OnInit {
   public buttonsDisabled: boolean | undefined = false;
   public approveButtonDisabled: boolean | undefined = false;
   public comment: string | undefined;
-  public canCommentWhenRejecting: boolean = false;
+  public commentsEnabled: boolean = false;
 
   rejectionOptions$: Observable<MenuOption[]> | undefined;
   selectedRejectReason = '';
@@ -41,7 +41,8 @@ export class ApprovalButtonsComponent implements OnInit {
         tap((reasons: MenuOption[]) => this.selectedRejectReason = reasons[0].value)
       );
 
-    this.setCanCommentWhenRejecting();
+    //set comments enabled from environment variables
+    this.commentsEnabled = settings.commentsEnabled;
   }
 
   public onToggleButtonChange() {
@@ -96,9 +97,5 @@ export class ApprovalButtonsComponent implements OnInit {
         this._toaster.show(ToastType.Error, 'Αποτυχία Επεξεργασίας', `Δεν κατέστη εφικτή η επεξεργασία της υπόθεσης.`, 5000);
         this.router.navigate(['/cases']);
       });
-  }
-
-  private setCanCommentWhenRejecting() {
-    this.canCommentWhenRejecting = settings.canCommentWhenRejecting;
   }
 }
