@@ -33,8 +33,12 @@ public class MediaApiOptions
     /// <summary>The File deletion policy. Defaults to <i>true</i></summary>
     public bool UseSoftDelete { get; set; } = true;
 
-    /// <summary>The acceptable file extensions. Defaults to <i>.png, .jpg, .gif</i>.</summary>
-    public string AcceptableFileExtensions { get; set; } = ".png, .jpg, .gif";
+    /// <summary>The acceptable file extensions. Defaults to <i>.png, .jpg, .gif, .webp</i>.</summary>
+    public string AcceptableFileExtensions { get; set; } = ".png, .jpg, .gif, .webp";
+
+    private readonly HashSet<int> _AllowedThumbnailSizes = [24, 32, 48, 64, 128, 192, 256, 512];
+    /// <summary>Allowed tile sizes. Only these sizes are available.</summary>
+    public ICollection<int> AllowedThumbnailSizes => _AllowedThumbnailSizes;
 
     /// <summary>The schema name to be used for media Db. Defaults to <i>media</i>.</summary>
     public string DatabaseSchema { get; set; } = "media";

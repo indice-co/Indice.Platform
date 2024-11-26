@@ -9,7 +9,7 @@ export class FileUtilitiesService {
 
   constructor() { }
 
-  public getCoverImageUrl(file: MediaFile) {
+  public getCoverImageUrl(file: MediaFile, size?: number) {
     switch (file.fileExtension) {
       case '.csv': 
         return '../../../assets/images/csv-icon.png';
@@ -22,7 +22,7 @@ export class FileUtilitiesService {
       case '.pptx': 
         return '../../../assets/images/pptx-icon.png';
       default:
-        return file.permaLink;
+        return file.permaLink + `?size=${size || ''}`;
     }
   }
 

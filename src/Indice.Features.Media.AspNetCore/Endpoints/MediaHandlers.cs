@@ -7,18 +7,29 @@ using System.Net.Mime;
 using Indice.Extensions;
 using Microsoft.Net.Http.Headers;
 using Indice.Types;
+using Microsoft.Extensions.Options;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 
 namespace Indice.Features.Media.AspNetCore.Endpoints;
 internal static class MediaHandlers
 {
-    internal static async Task<Results<FileContentHttpResult, NotFound>> DownloadFile(string path, IFileServiceFactory fileServiceFactory) {
+    internal static async Task<Results<FileContentHttpResult, ValidationProblem, NotFound>> DownloadFile(string path, int? size, IOptions<MediaApiOptions> endpointOptions, IFileServiceFactory fileServiceFactory) {
         var format = Path.GetExtension(path);
         if (format.StartsWith('.')) {
             format = format.TrimStart('.');
         }
         path = Path.Combine("media/", path.TrimStart('/'));
+        if (size > 0 && !endpointOptions.Value.AllowedThumbnailSizes.Contains(size.Value)) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError("size", $"The specified size is not in the allowed list ({string.Join(',', endpointOptions.Value.AllowedThumbnailSizes)})"));
+        }
         var fileService = fileServiceFactory.Create(KeyedServiceNames.FileServiceKey);
-        var properties = await fileService.GetPropertiesAsync(path);
+        FileProperties? properties; 
+        try { 
+            properties = await fileService.GetPropertiesAsync(path);
+        } catch (FileNotFoundServiceException) {
+            return TypedResults.NotFound();
+        }
         if (properties is null) {
             return TypedResults.NotFound();
         }
@@ -26,6 +37,20 @@ internal static class MediaHandlers
         var contentType = properties.ContentType;
         if (contentType == MediaTypeNames.Application.Octet && !string.IsNullOrEmpty(format)) {
             contentType = FileExtensions.GetMimeType($".{format}");
+        }
+        if (contentType.StartsWith("image") && size > 0) {
+            using var image = Image.Load(data, out var imageFormat);
+            // manipulate image resize to max side size.
+            var maxSide = Math.Max(image.Width, image.Height);
+            var factor = (double)size / maxSide;
+            var resizeOptions = new ResizeOptions() {
+                Size = new Size((int)(image.Width * factor), (int)(image.Height * factor)),
+            };
+            image.Mutate(i => i.Resize(resizeOptions));
+            var outputStream = new MemoryStream();
+            await image.SaveAsWebpAsync(outputStream);
+            outputStream.Seek(0, SeekOrigin.Begin);
+            return TypedResults.File(outputStream.ToArray(), "image/webp", null, false, DateTimeOffset.UtcNow, new EntityTagHeaderValue($"\"{properties.ETag!.Trim('"')}_{size}\"", true));
         }
         return TypedResults.File(data, contentType, null, false,  properties.LastModified, new EntityTagHeaderValue(properties.ETag, true));
     }

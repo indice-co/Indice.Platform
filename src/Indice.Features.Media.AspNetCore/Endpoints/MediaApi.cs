@@ -16,7 +16,7 @@ public static class MediaApi
     /// <param name="builder">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     /// <returns>The <see cref="IEndpointRouteBuilder"/> instance.</returns>
     internal static IEndpointRouteBuilder MapMedia(this IEndpointRouteBuilder builder) {
-        var options = builder.ServiceProvider.GetService<IOptions<MediaApiOptions>>()?.Value ?? new MediaApiOptions();
+        var options = builder.ServiceProvider.GetRequiredService<IOptions<MediaApiOptions>>().Value;
         var group = builder.MapGroup($"{options.PathPrefix}")
                            .WithGroupName("media")
                            .WithTags("Media")
@@ -36,6 +36,8 @@ public static class MediaApi
              .Produces(StatusCodes.Status200OK, typeof(IFormFile))
              .AllowAnonymous()
              .CacheOutput(policy => policy.Expire(TimeSpan.FromMinutes(30))
+                                          .SetVaryByQuery("Size")
+                                          .SetVaryByRouteValue("path")
                                           .SetAuthorized());
 
         group.MapGet("/media/{fileGuid}.{format}", MediaHandlers.GetFile)
