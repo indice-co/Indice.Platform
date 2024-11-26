@@ -253,7 +253,7 @@ internal class AdminCasesController : ControllerBase
     /// <response code="404">Not Found</response>
     [HttpGet("{caseId:guid}/related-cases")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Guid>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<CasePartial>))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
     public async Task<IActionResult> GetRelatedCases([FromRoute] Guid caseId) {
         var relatedCases = await _adminCaseService.GetRelatedCases(User, caseId);
