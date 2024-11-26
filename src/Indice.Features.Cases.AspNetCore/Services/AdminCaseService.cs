@@ -75,10 +75,10 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         if (user == null) throw new ArgumentNullException(nameof(user));
         if (caseId == default) throw new ArgumentNullException(nameof(caseId));
         var caseData = (await GetCaseById(user, caseId, false)).DataAsJsonNode();
-        
+
         await _adminCaseMessageService.Send(caseId, user, new Message { Data = caseData.Merge(patch) });
     }
-    
+
     /// <summary>
     /// Patches the Case Data with list of JsonPatch operations adhering to
     /// https://datatracker.ietf.org/doc/html/rfc6902#appendix-A
@@ -93,7 +93,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         if (!patchResult.IsSuccess) {
             throw new InvalidOperationException($"Could not apply JSON Patch with error: {patchResult.Error}");
         }
-        
+
         await _adminCaseMessageService.Send(caseId, user, new Message { Data = patchResult.Result });
     }
 
@@ -508,12 +508,12 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         var stringifiedCaseData = (await GetCaseById(user, caseId, false)).DataAs<string>();
         var json = JsonDocument.Parse(stringifiedCaseData);
         var found = json.RootElement.TryGetProperty(fieldName, out JsonElement attachmentId);
-        
+
         if (found && !string.IsNullOrEmpty(attachmentId.GetString())) {
             var attachment = await GetAttachment(caseId, attachmentId.GetGuid());
             return attachment;
         }
-        
+
         return null;
     }
 
@@ -630,7 +630,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             Sort = $"{nameof(CasePartial.CreatedByWhen)}-"
         });
 
-        return result.Items.ToList();
+        return result.Items.Where(x => x.Id != caseId).ToList();
     }
 
     private async Task<List<FilterClause>> MapCheckpointTypeCodeToId(List<FilterClause> checkpointTypeCodeFilterClauses) {
