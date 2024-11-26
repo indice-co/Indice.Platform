@@ -195,7 +195,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
         var caseRule = await dbContext.CaseAccessRules.FirstOrDefaultAsync();
         try {
             _ = await caseMembersService.Update(NonAdmin(), caseRule.Id, 100);
-        } catch (UnauthorizedAccessException ex) {
+        } catch (UnauthorizedAccessException) {
             Assert.True(true);
             return;
         }
@@ -235,7 +235,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
                     MemberUserId = Guid.NewGuid().ToString(),
                     RuleCaseId = @case.Id
                 });
-        } catch (UnauthorizedAccessException ex) {
+        } catch (UnauthorizedAccessException) {
             Assert.True(true);
             return;
         }
