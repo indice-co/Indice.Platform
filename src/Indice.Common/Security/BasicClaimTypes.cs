@@ -85,6 +85,9 @@ public static class BasicClaimTypes
     /// <summary>The authorization_details that carries fine-grained authorization 
     /// data in OAuth messages, as defined in <a href="https://datatracker.ietf.org/doc/html/rfc9396">rfc9396</a>.</summary>
     public const string AuthorizationDetails = "authorization_details";
+    /// <summary>User prefered channels for communication.</summary>
+    public const string CommunicationChannelPreferences = "communication_channel_preferences";
+
 
     /// <summary>All possible user related claims.</summary>
     public static readonly string[] UserClaims = {

@@ -11,4 +11,6 @@ public class DbDistributionListContact
     public Guid ContactId { get; set; }
     /// <summary>The contact navigation property.</summary>
     public DbContact Contact { get; set; }
+    /// <summary>If true user must not receive messages.</summary>
+    public bool Unsubscribed { get; set; }
 }

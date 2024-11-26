@@ -7,4 +7,6 @@ public class DbMessageType
     public Guid Id { get; set; } = Guid.NewGuid();
     /// <summary>The name of a message type.</summary>
     public string Name { get; set; }
+    /// <summary>If true the type is used for commercial campaigns else it's for System.</summary>
+    public bool IsCommercial { get; set; }
 }
