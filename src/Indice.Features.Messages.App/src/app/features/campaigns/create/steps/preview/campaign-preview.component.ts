@@ -3,27 +3,26 @@ import { AbstractControl, UntypedFormControl, UntypedFormGroup } from '@angular/
 
 import { CampaignPreview } from './campaign-preview';
 
+
+export interface IPreviewModel {
+  published: boolean;
+}
+
 @Component({
-    selector: 'app-campaign-preview',
-    templateUrl: './campaign-preview.component.html'
+  selector: 'app-campaign-preview',
+  templateUrl: './campaign-preview.component.html'
 })
 export class CampaignPreviewComponent implements OnInit {
     constructor() { }
     
     // Input & Output parameters
     @Input() public data!: CampaignPreview;
-    // Form Controls
-    public get published(): AbstractControl { return this.form.get('published')!; }
+
+    public model: IPreviewModel = { published: false };
     // Properties
     public form!: UntypedFormGroup;
 
     public ngOnInit(): void {
-        this._initForm();
     }
 
-    private _initForm(): void {
-        this.form = new UntypedFormGroup({
-            published: new UntypedFormControl(false)
-        });
-    }
 }
