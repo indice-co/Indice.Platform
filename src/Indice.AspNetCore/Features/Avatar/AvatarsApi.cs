@@ -17,7 +17,8 @@ public static class AvatarsApi
         group.WithTags("Avatar");
         group.AllowAnonymous()
               .CacheOutput(policy=> policy.Expire(TimeSpan.FromMinutes(10))
-                                          .SetAuthorized());
+                                          .SetAuthorized()
+                                          .SetVaryByRouteValue("fullname", "size", "ext", "background"));
         group.MapGet("{fullname}", AvatarsHandlers.GetAvatar1);
         group.MapGet("{fullname}.{ext:regex(jpg|png|webp)}", AvatarsHandlers.GetAvatar1);
         group.MapGet("{fullname}/{size?}", AvatarsHandlers.GetAvatar2);
