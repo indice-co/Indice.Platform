@@ -88,7 +88,7 @@ public class LockLease : ILockLease
 /// <summary>A result object representing the lock operation result on the <see cref="ILockManager"/>.</summary>
 public class LockLeaseResult
 {
-    private LockLeaseResult(ILockLease @lock, bool ok) {
+    private LockLeaseResult(ILockLease? @lock, bool ok) {
         Lock = @lock;
         Ok = ok;
     }
@@ -96,7 +96,7 @@ public class LockLeaseResult
     /// <summary>Success or fail indicator.</summary>
     public bool Ok { get; }
     /// <summary>The lock itself. It is <see cref="IDisposable"/></summary>
-    public ILockLease Lock { get; }
+    public ILockLease? Lock { get; }
 
     /// <summary>Successful <see cref="LockLeaseResult"/> factory.</summary>
     /// <param name="lock">The lock</param>
@@ -198,7 +198,7 @@ public static class ILockManagerExtensions
     /// <returns>The task that represents the asynchronous operation result for running the specified delegate.</returns>
     public static async Task ExclusiveRun(this ILockManager manager, string taskName, Func<CancellationToken, Task> task, CancellationToken cancellationToken, ExclusiveRunOptions options) {
         // Run in a while loop as long as cancellation has not been requested for the provided token.
-        CancellationTokenSource linkedTokenSource = null;
+        CancellationTokenSource? linkedTokenSource = null;
         while (!(linkedTokenSource?.IsCancellationRequested ?? false)) {
             // Try to acquire the lock.
             var lockResult = await manager.TryAcquireLock(taskName, duration: TimeSpan.FromSeconds(options.LockDuration), cancellationToken: cancellationToken);
@@ -218,7 +218,7 @@ public static class ILockManagerExtensions
                 // The leader task.
                 var leaderTask = task.Invoke(linkedTokenSource.Token);
                 // The renew lease task.
-                var renewLeaseTask = TryRenewUntilCancelled(lockResult.Lock, linkedTokenSource.Token, intervalInSeconds: (int)Math.Round((decimal)options.LockDuration * (2 / 3)));
+                var renewLeaseTask = TryRenewUntilCancelled(lockResult.Lock!, linkedTokenSource.Token, intervalInSeconds: (int)Math.Round((decimal)options.LockDuration * (2 / 3)));
                 // Wait for either of the two tasks to complete.
                 await Task.WhenAny(leaderTask, renewLeaseTask);
             }

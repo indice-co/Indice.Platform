@@ -1,6 +1,7 @@
-﻿using System;
+﻿#if NET7_0_OR_GREATER
 using System.Text;
 using System.Text.Json;
+using Indice.AspNetCore.Authorization;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Models;
@@ -22,7 +23,7 @@ using Xunit.Abstractions;
 
 namespace Indice.Features.Messages.Tests;
 
-public class MessagesIntegrationTests : IAsyncDisposable
+public class MessagesIntegrationTests : IAsyncLifetime
 {
     // Constants
     private const string BASE_URL = "https://server";
@@ -43,38 +44,35 @@ public class MessagesIntegrationTests : IAsyncDisposable
         builder.ConfigureServices(services => {
             var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
             services.AddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
-            services.AddControllers()
-                    .AddMessageEndpoints(options => {
-                        options.ApiPrefix = "api";
+            services.AddRouting();
+            services.AddMessaging(options => {
+                        options.PathPrefix = "api";
                         options.ConfigureDbContext = (serviceProvider, dbbuilder) => dbbuilder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
                         options.DatabaseSchema = "cmp";
                         options.RequiredScope = MessagesApi.Scope;
                         options.UseFilesLocal();
                         options.UseContactResolver<MockContactResolver>();
                     });
-            services.AddAuthentication(DummyAuthDefaults.AuthenticationScheme)
+            services.AddAuthentication(MockAuthenticationDefaults.AuthenticationScheme)
                     .AddJwtBearer((options) => {
-                        options.ForwardDefaultSelector = (httpContext) => DummyAuthDefaults.AuthenticationScheme;
+                        options.ForwardDefaultSelector = (httpContext) => MockAuthenticationDefaults.AuthenticationScheme;
                     })
-                    .AddDummy(() => DummyPrincipals.IndiceUser);
+                    .AddMock(() => DummyPrincipals.IndiceUser);
             _serviceProvider = services.BuildServiceProvider();
         });
         builder.Configure(app => {
             app.UseAuthentication();
             app.UseRouting();
             app.UseAuthorization();
-            app.UseEndpoints(e => e.MapControllers());
+            app.UseEndpoints(e => e.MapMessaging());
         });
         var server = new TestServer(builder);
         var handler = server.CreateHandler();
         _httpClient = new HttpClient(handler) {
             BaseAddress = new Uri(BASE_URL)
         };
-        var db = _serviceProvider.GetRequiredService<CampaignsDbContext>();
-        db.Database.EnsureCreated();
     }
 
-    #region Facts
     [Fact]
     public async Task Create_And_Retrieve_Campaign_By_Location_Header_Success() {
         //Create the Campaign
@@ -85,7 +83,7 @@ public class MessagesIntegrationTests : IAsyncDisposable
                 To = DateTimeOffset.UtcNow.AddDays(1)
             },
             Published = false,
-            RecipientIds = new List<string> { "6c9fa6dd-ede4-486b-bf91-6de18542da4a" },
+            RecipientIds = [ "6c9fa6dd-ede4-486b-bf91-6de18542da4a" ],
             Content = new MessageContentDictionary(
                 new Dictionary<MessageChannelKind, MessageContent> {
                     [MessageChannelKind.Inbox] = new MessageContent("Test Message", "Test Message Content")
@@ -205,11 +203,17 @@ public class MessagesIntegrationTests : IAsyncDisposable
         Assert.True(createTemplateResponse.IsSuccessStatusCode);
         Assert.True(getTemplateResponse.IsSuccessStatusCode);
     }
-    #endregion
 
-    public async ValueTask DisposeAsync() {
+    public async Task InitializeAsync() {
+        var db = _serviceProvider.GetRequiredService<CampaignsDbContext>();
+        await db.Database.EnsureCreatedAsync();
+    }
+
+    public async Task DisposeAsync() {
         var db = _serviceProvider.GetRequiredService<CampaignsDbContext>();
         await db.Database.EnsureDeletedAsync();
         await _serviceProvider.DisposeAsync();
     }
 }
+
+#endif

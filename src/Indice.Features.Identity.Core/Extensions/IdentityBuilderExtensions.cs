@@ -73,7 +73,7 @@ public static class IdentityBuilderExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="configure">Action used to configure the <see cref="TotpOptions"/>.</param>
     /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
-    public static IdentityBuilder AddExtendedPhoneNumberTokenProvider(this IdentityBuilder builder, IConfiguration configuration, Action<PhoneNumberTokenProviderTotpOptions> configure = null) {
+    public static IdentityBuilder AddExtendedPhoneNumberTokenProvider(this IdentityBuilder builder, IConfiguration configuration, Action<PhoneNumberTokenProviderTotpOptions>? configure = null) {
         var totpSection = configuration.GetSection(TotpOptions.Name);
         var totpPhoneSection = configuration.GetSection(PhoneNumberTokenProviderTotpOptions.Name);
         var totpOptions = new PhoneNumberTokenProviderTotpOptions {
@@ -105,7 +105,7 @@ public static class IdentityBuilderExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="configure">Action used to configure the <see cref="TotpOptions"/>.</param>
     /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
-    public static IdentityBuilder AddExtendedEmailTokenProvider(this IdentityBuilder builder, IConfiguration configuration, Action<EmailTokenProviderTotpOptions> configure = null) {
+    public static IdentityBuilder AddExtendedEmailTokenProvider(this IdentityBuilder builder, IConfiguration configuration, Action<EmailTokenProviderTotpOptions>? configure = null) {
         var totpSection = configuration.GetSection(TotpOptions.Name);
         var totpEmailSection = configuration.GetSection(EmailTokenProviderTotpOptions.Name);
         var totpOptions = new EmailTokenProviderTotpOptions {
@@ -134,7 +134,7 @@ public static class IdentityBuilderExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="configure">Action used to configure the <see cref="TotpOptions"/>.</param>
     /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
-    public static IdentityBuilder ConfigureExtendedPhoneNumberTokenProvider(this IdentityBuilder builder, IConfiguration configuration, Action<PhoneNumberTokenProviderTotpOptions> configure = null) {
+    public static IdentityBuilder ConfigureExtendedPhoneNumberTokenProvider(this IdentityBuilder builder, IConfiguration configuration, Action<PhoneNumberTokenProviderTotpOptions>? configure = null) {
         var totpSection = configuration.GetSection(PhoneNumberTokenProviderTotpOptions.Name);
         var totpOptions = new PhoneNumberTokenProviderTotpOptions {
             CodeDuration = totpSection.GetValue<int?>(nameof(PhoneNumberTokenProviderTotpOptions.CodeDuration)) ?? TotpOptionsBase.DefaultCodeDuration,
@@ -153,7 +153,7 @@ public static class IdentityBuilderExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="configure">Action used to configure the <see cref="TotpOptions"/>.</param>
     /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
-    public static IdentityBuilder ConfigureExtendedEmailTokenProvider(this IdentityBuilder builder, IConfiguration configuration, Action<EmailTokenProviderTotpOptions> configure = null) {
+    public static IdentityBuilder ConfigureExtendedEmailTokenProvider(this IdentityBuilder builder, IConfiguration configuration, Action<EmailTokenProviderTotpOptions>? configure = null) {
         var totpSection = configuration.GetSection(EmailTokenProviderTotpOptions.Name);
         var totpOptions = new EmailTokenProviderTotpOptions {
             CodeDuration = totpSection.GetValue<int?>(nameof(EmailTokenProviderTotpOptions.CodeDuration)) ?? TotpOptionsBase.DefaultCodeDuration,

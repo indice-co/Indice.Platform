@@ -15,17 +15,17 @@ public class UserDevice
     /// <summary>The primary key.</summary>
     public Guid Id { get; }
     /// <summary>Device id.</summary>
-    public string DeviceId { get; set; }
+    public string DeviceId { get; set; } = null!;
     /// <summary>The user id related to this device.</summary>
-    public string UserId { get; set; }
+    public string UserId { get; set; } = null!;
     /// <summary>Device operating system.</summary>
     public DevicePlatform Platform { get; set; }
     /// <summary>Device name.</summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
     /// <summary>Device model.</summary>
-    public string Model { get; set; }
+    public string? Model { get; set; }
     /// <summary>Device OS version.</summary>
-    public string OsVersion { get; set; }
+    public string? OsVersion { get; set; }
     /// <summary>The date this device was created.</summary>
     public DateTimeOffset DateCreated { get; set; }
     /// <summary>Gets or sets the date and time, in UTC, when the device last signed in.</summary>
@@ -33,19 +33,19 @@ public class UserDevice
     /// <summary>Flag that determines if push notifications are enabled for this device.</summary>
     public bool IsPushNotificationsEnabled { get; set; }
     /// <summary>Associated password for device (when <see cref="InteractionMode"/> is equal to <see cref="InteractionMode.Pin"/>).</summary>
-    public string Password { get; set; }
+    public string? Password { get; set; }
     /// <summary>Flag for pin support.</summary>
     public bool SupportsPinLogin => !string.IsNullOrWhiteSpace(Password);
     /// <summary>Device public key (when <see cref="InteractionMode"/> is equal to <see cref="InteractionMode.Fingerprint"/>).</summary>
-    public string PublicKey { get; set; }
+    public string? PublicKey { get; set; }
     /// <summary>Flag for fingerprint support.</summary>
     public bool SupportsFingerprintLogin => !string.IsNullOrWhiteSpace(PublicKey);
     /// <summary>Extra metadata for the device.</summary>
-    public dynamic Data { get; set; }
+    public dynamic? Data { get; set; }
     /// <summary>Platform notification service handle.</summary>
-    public string PnsHandle { get; set; }
+    public string? PnsHandle { get; set; }
     /// <summary>Device tags.</summary>
-    public string[] Tags { get; set; }
+    public string[]? Tags { get; set; }
     /// <summary>Indicates whether the device is blocked.</summary>
     public bool RequiresPassword { get; set; }
     /// <summary>Indicates whether the device is a trusted device (i.e. capable of strong customer authentication scenarios).</summary>
@@ -61,7 +61,7 @@ public class UserDevice
     /// <summary>The date until the client is remembered by the system and MFA is not asked.</summary>
     public DateTimeOffset? MfaSessionExpirationDate { get; set; }
     /// <summary>The user associated with this device.</summary>
-    public virtual User User { get; set; }
+    public virtual User? User { get; set; }
 }
 
 /// <summary>Models the way a device interacts with the identity system for trusted authorization.</summary>

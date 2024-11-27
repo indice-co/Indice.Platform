@@ -9,6 +9,7 @@ using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
+using Indice.AspNetCore.Extensions;
 using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
@@ -363,7 +364,7 @@ internal static class ClientHandlers
         }
         var newSecret = new ClientSecret {
             Description = request.Description,
-            Value = request.Value.ToSha256(),
+            Value = request.Value!.ToSha256(),
             Expiration = request.Expiration,
             Type = IdentityServerConstants.SecretTypes.SharedSecret,
             ClientId = client.Id
@@ -584,7 +585,7 @@ internal static class ClientHandlers
                 Type = IdentityServerConstants.SecretTypes.SharedSecret,
                 Description = x.Description,
                 Expiration = x.Expiration,
-                Value = x.Value.ToSha256()
+                Value = x.Value!.ToSha256()
             })
             .ToList();
         }
@@ -659,7 +660,7 @@ internal static class ClientHandlers
         return client;
     }
 
-    private static void AddClientTranslations(Client client, string translations) {
+    private static void AddClientTranslations(Client client, string? translations) {
         client.Properties ??= new List<ClientProperty>();
         client.Properties.Add(new ClientProperty {
             Key = ClientPropertyKeys.Translation,

@@ -106,13 +106,17 @@ internal class AvatarController : ControllerBase
             ModelState.AddModelError(nameof(size), "Extension is out of range of valid values. Accepts only .png and .jpg.");
             return BadRequest(ModelState);
         }
+        var contentType = ext switch {
+            "jpg" => "image/jpeg",
+            "png" => "image/png",
+            _ => "image/webp"
+        };
         var data = new MemoryStream();
-        AvatarGenerator.Generate(data, firstName, lastName, size ?? 192, ext == "jpg", background, foreground, circular);
+        AvatarGenerator.Generate(data, firstName, lastName, size ?? 192, contentType, background, foreground, circular);
         var hash = string.Empty;
         using (var md5 = MD5.Create()) {
             hash = md5.ComputeHash(Encoding.UTF8.GetBytes($"{firstName} {lastName}")).ToBase64UrlSafe();
         }
-        //var filename = $"{firstName}_{lastName}_{size ?? 192}.{ext}";
-        return File(data, ext == "jpg" ? "image/jpeg" : "image/png", DateTime.UtcNow, new EntityTagHeaderValue($"\"{hash}\""));
+        return File(data, contentType, DateTimeOffset.UtcNow, new EntityTagHeaderValue($"\"{hash}\""));
     }
 }

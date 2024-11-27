@@ -14,7 +14,7 @@ public class SlugifyPathTests
     [Theory]
     public void GreekOrUnicodeMustConvertToMeaningfull_ASCII_Test(string input, string expected) {
         
-        var output = Greeklish.Translate(input).Unidecode().ToKebabCase();
+        var output = string.Join('/', input.Split('/', '\\').Select(x => Greeklish.Translate(x).Unidecode().ToKebabCase()));
 
         Assert.Equal(expected, output);
     }

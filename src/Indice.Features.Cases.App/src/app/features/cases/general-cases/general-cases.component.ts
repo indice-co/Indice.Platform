@@ -21,9 +21,9 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
   ];
   public queryParamsHasFilter = false;
   public tableFilters = new TableFilters();
-  public tableColumns = new TableColumns();
   protected caseTypes: CaseTypePartialResultSet | undefined;
   public caseTypeTitle: string = "";
+  public columns = this.setDefaultColumns();
 
   constructor(
     protected _route: ActivatedRoute,
@@ -42,15 +42,48 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
       new MenuOption('Ημ. Υποβολής', 'createdByWhen')
     ];
     this.loadFilterSettings();
-    this.loadColumnSettings();
   }
 
   public ngOnInit(): void {
     this.initialize();
     this.createNewCaseButton();
+    this.initColumns();
+  }
+
+  protected initColumns() {
+    //default columns are already in this.columns so if environment variables is empty then return
+    if (settings.caseListColumns === '') {
+      return;
+    }
+    const defaultColumnTitles = this.columns.map(x => x.title);
+    const configColumns = settings.caseListColumns.split(',');
+
+    for (const title of defaultColumnTitles) {
+      //if environment variables do not have the already existing columns that we display then remove them
+      if (!configColumns.includes(title)) {
+        //renew column list to remove the titles that were not found
+        this.columns = this.columns.filter(x => x.title != title);
+      }
+    }
+  }
+
+  protected setDefaultColumns() {
+    return [
+      { title: 'ReferenceNumber' },
+      { title: 'CustomerId' },
+      { title: 'CustomerName' },
+      { title: 'TaxId', itemProperty: 'metadata.TaxId' },
+      { title: 'GroupId' },
+      { title: 'CaseType', itemProperty: 'caseType.title' },
+      { title: 'CheckpointType', itemProperty: 'checkpointType.title' },
+      { title: 'AssignedTo', itemProperty: 'assignedToName' },
+      { title: 'SubmitDate', itemProperty: 'createdByWhen' }
+    ];
   }
 
   public initialize(): void {
+    this.initColumns();
+
     const key = this.getFilterCacheKey();
     const storedParams = this._filterCachingService.getParams(key);
     if (storedParams) {
@@ -262,20 +295,6 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
     this.tableFilters.CheckpointTypeCodes = filters.some(filter => filter === "CheckpointTypeCodes");
   }
 
-  private loadColumnSettings(): void {
-    if (settings.caseListColumns === '') return;
-    const columns = settings.caseListColumns.split(',')
-    this.tableColumns.ReferenceNumber = columns.some(column => column === "ReferenceNumber");
-    this.tableColumns.CustomerId = columns.some(column => column === "CustomerId");
-    this.tableColumns.CustomerName = columns.some(column => column === "CustomerName");
-    this.tableColumns.TaxId = columns.some(column => column === "TaxId");
-    this.tableColumns.GroupId = columns.some(column => column === "GroupId");
-    this.tableColumns.CaseType = columns.some(column => column === "CaseType");
-    this.tableColumns.CheckpointType = columns.some(column => column === "CheckpointType");
-    this.tableColumns.AssignedTo = columns.some(column => column === "AssignedTo");
-    this.tableColumns.SubmitDate = columns.some(column => column === "SubmitDate");
-  }
-
   //TODO: make this public in Indice.Angular
   private stringifyFilters(filters: FilterClause[] | undefined) {
     return filters?.map((f: FilterClause) => {
@@ -300,16 +319,4 @@ class TableFilters {
   DateRange: boolean = true;
   CaseTypeCodes: boolean = true;
   CheckpointTypeCodes: boolean = true;
-}
-
-class TableColumns {
-  ReferenceNumber: boolean = false;
-  CustomerId: boolean = true;
-  CustomerName: boolean = true;
-  TaxId: boolean = true;
-  GroupId: boolean = true;
-  CaseType: boolean = true;
-  CheckpointType: boolean = true;
-  AssignedTo: boolean = true;
-  SubmitDate: boolean = true;
 }

@@ -5,20 +5,20 @@ import { CasesApiService, CaseTypePartialResultSet, CheckpointType, } from 'src/
 import { FilterCachingService } from 'src/app/core/services/filter-caching.service';
 import { GeneralCasesComponent } from '../general-cases/general-cases.component';
 import { CaseTypeService } from 'src/app/core/services/case-type.service';
+import { map } from 'rxjs';
 
 @Component({
   selector: 'app-case-type-specific-cases-component',
   templateUrl: '../general-cases/general-cases.component.html'
 })
 export class CaseTypeSpecificCasesComponent extends GeneralCasesComponent implements OnInit {
-
   constructor(
     protected _route: ActivatedRoute,
     protected _router: Router,
     protected _api: CasesApiService,
     protected _filterCachingService: FilterCachingService,
     protected _modalService: ModalService,
-    protected _caseTypeService: CaseTypeService
+    protected _caseTypeService: CaseTypeService,
   ) {
     super(_route, _router, _api, _filterCachingService, _modalService, _caseTypeService);
     this._route.params.subscribe(() => {
@@ -28,6 +28,24 @@ export class CaseTypeSpecificCasesComponent extends GeneralCasesComponent implem
 
   public ngOnInit(): void {
     super.ngOnInit();
+  }
+
+  protected initColumns() {
+    super.initColumns();
+
+    this._caseTypeService.getCaseType(this.getFilterCacheKey()).pipe(
+      map(caseType => {
+        //add additional columns to display in the table
+        let gridConfigColumns: ({ title: string; itemProperty?: undefined; } | { title: string; itemProperty: string; })[] | undefined = JSON.parse(caseType?.gridColumnConfig!) || []
+
+        if (gridConfigColumns != undefined && gridConfigColumns?.length > 0) {
+          this.columns = gridConfigColumns!;
+        } else {
+          this.columns = super.setDefaultColumns();
+          super.initColumns();
+        }
+      })
+    ).subscribe();
   }
 
   getOtherSearchOptions(caseTypes: CaseTypePartialResultSet): SearchOption[] | undefined {

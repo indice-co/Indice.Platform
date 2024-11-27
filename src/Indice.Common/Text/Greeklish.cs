@@ -10,9 +10,9 @@ public static class Greeklish
 {
     private class Letter
     {
-        public string Greek;
+        public string Greek = null!;
 
-        public string Greeklish;
+        public string Greeklish = null!;
 
         public bool Fivi;
 

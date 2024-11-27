@@ -164,12 +164,14 @@ public class MediaManager(
         var files = await _cache.GetAsync<List<MediaFile>>(cacheKey, serializationOptions);
         if (files == null) {
             var dbfiles = await _fileStore.GetList(f => f.FolderId == folderId && !f.IsDeleted);
-            files = new List<MediaFile>();
+            files = [];
             if (dbfiles != null) {
                 var cdnUrl = await _settingService.GetSetting(MediaSetting.CDN.Key);
                 var permaLinkBaseUrl = string.IsNullOrWhiteSpace(cdnUrl?.Value)
-                    ? $"{_configuration.GetHost().TrimEnd('/')}/{_mediaApiOptions.ApiPrefix.ToString().Trim('/')}/media-root"
-                    : $"{cdnUrl.Value.TrimEnd('/')}";
+                    ? Path.Combine(_configuration.GetHost().TrimEnd('/'),
+                                   _mediaApiOptions.PathPrefix.ToString().Trim('/'),
+                                   "media-root").Replace('\\', '/')
+                    : cdnUrl.Value.TrimEnd('/');
                 files = dbfiles.Select(f => f.ToFileDetails(permaLinkBaseUrl)).ToList();
             }
             await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(files, serializationOptions), new DistributedCacheEntryOptions {
@@ -275,7 +277,7 @@ public class MediaManager(
         }
         var cdnUrl = await _settingService.GetSetting(MediaSetting.CDN.Key);
         var permaLinkBaseUrl = string.IsNullOrWhiteSpace(cdnUrl?.Value)
-                    ? $"{_configuration.GetHost().TrimEnd('/')}/{_mediaApiOptions.ApiPrefix.ToString().Trim('/')}/media-root"
+                    ? $"{_configuration.GetHost().TrimEnd('/')}/{_mediaApiOptions.PathPrefix.ToString().Trim('/')}/media-root"
                     : $"{cdnUrl.Value.TrimEnd('/')}";
         return file.ToFileDetails(permaLinkBaseUrl);
     }

@@ -6,6 +6,7 @@ using Elsa.Persistence.EntityFramework.Core.Extensions;
 using Elsa.Retention.Contracts;
 using Elsa.Retention.Extensions;
 using Elsa.Retention.Specifications;
+using Indice.AspNetCore.Configuration;
 using Indice.AspNetCore.Mvc.ApplicationModels;
 using Indice.Features.Cases.Converters;
 using Indice.Features.Cases.Data;
@@ -22,8 +23,14 @@ using Indice.Features.Cases.Workflows.Activities;
 using Indice.Features.Cases.Workflows.Bookmarks.AwaitApproval;
 using Indice.Features.Cases.Workflows.Interfaces;
 using Indice.Features.Cases.Workflows.Services;
+using Indice.Security;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -60,13 +67,15 @@ public static class CasesApiFeatureExtensions
         services.Configure<MyCasesApiOptions>(options => {
             options.ApiPrefix = casesApiOptions.ApiPrefix;
             options.ConfigureDbContext = casesApiOptions.ConfigureDbContext;
+            options.ConfigureLimitUpload = casesApiOptions.ConfigureLimitUpload;
             options.DatabaseSchema = casesApiOptions.DatabaseSchema;
             options.ExpectedScope = casesApiOptions.ExpectedScope;
             options.UserClaimType = casesApiOptions.UserClaimType;
             options.GroupIdClaimType = casesApiOptions.GroupIdClaimType;
             options.GroupName = casesApiOptions.GroupName;
-            options.PermittedAttachmentFileExtensions = casesApiOptions.PermittedAttachmentFileExtensions ?? options.PermittedAttachmentFileExtensions;
         }).AddSingleton(casesApiOptions);
+
+        services.AddLimitUploadOptions(casesApiOptions.ConfigureLimitUpload);
 
         // Post configure MVC options.
         services.PostConfigure<MvcOptions>(options => {
@@ -107,6 +116,20 @@ public static class CasesApiFeatureExtensions
         return mvcBuilder;
     }
 
+    /// <summary>
+    /// Adds the default limit upload options for Cases API.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="configureLimitUpload"></param>
+    /// <returns></returns>
+    internal static IServiceCollection AddLimitUploadOptions(this IServiceCollection services, Action<LimitUploadOptions> configureLimitUpload = null) {
+        services.AddLimitUpload(configureLimitUpload ?? (options => {
+            options.DefaultMaxFileSizeBytes = 6 * 1024 * 1024; // 6 megabytes
+            options.DefaultAllowedFileExtensions = [".pdf", ".jpeg", ".jpg", ".tif", ".tiff"];
+        }));
+        return services;
+    }
+
     /// <summary>Add case management Api endpoints for manage cases from back-office (api/manage prefix).</summary>
     /// <param name="mvcBuilder">The <see cref="IMvcBuilder"/>.</param>
     /// <param name="configureAction">The <see cref="IConfiguration"/>.</param>
@@ -128,14 +151,16 @@ public static class CasesApiFeatureExtensions
         services.Configure<AdminCasesApiOptions>(options => {
             options.ApiPrefix = casesApiOptions.ApiPrefix;
             options.ConfigureDbContext = casesApiOptions.ConfigureDbContext;
+            options.ConfigureLimitUpload = casesApiOptions.ConfigureLimitUpload;
             options.DatabaseSchema = casesApiOptions.DatabaseSchema;
             options.ExpectedScope = casesApiOptions.ExpectedScope;
             PrincipalExtensions.Scope = casesApiOptions.ExpectedScope;
             options.UserClaimType = casesApiOptions.UserClaimType;
             options.GroupIdClaimType = casesApiOptions.GroupIdClaimType;
             options.GroupName = casesApiOptions.GroupName;
-            options.PermittedAttachmentFileExtensions = casesApiOptions.PermittedAttachmentFileExtensions ?? options.PermittedAttachmentFileExtensions;
         }).AddSingleton(casesApiOptions);
+
+        services.AddLimitUploadOptions(casesApiOptions.ConfigureLimitUpload);
 
         // Post configure MVC options.
         services.PostConfigure<MvcOptions>(options => {
@@ -156,6 +181,7 @@ public static class CasesApiFeatureExtensions
         services.AddTransient<ISchemaValidator, SchemaValidator>();
         services.AddTransient<ICaseApprovalService, CaseApprovalService>();
         services.AddTransient<INotificationSubscriptionService, NotificationSubscriptionService>();
+        services.AddTransient<IAccessRuleService, AccessRuleService>();
         services.AddSmsServiceYubotoOmni(configuration)
             .AddViberServiceYubotoOmni(configuration)
             .AddEmailServiceSparkPost(configuration)
@@ -285,4 +311,54 @@ public static class CasesApiFeatureExtensions
         services.AddScoped<CasesMessageDescriber, TDescriber>();
         return services;
     }
+
+    
+
+#nullable enable
+    internal const string WorkflowPolicy = "WorkflowPolicy";
+    /// <summary>
+    /// Adds a default security policy for Elsa Controllers and Razor Pages.
+    /// </summary>
+    /// <param name="services">The service collection</param>
+    /// <param name="configurePolicy">Override the default policy</param>
+    /// <returns>The service collection for further configuration</returns>
+    /// <remarks>Should be used in conjunction with the <strong>AddAuthentication().AddOpenIdConnect()</strong> 
+    /// because it makes use of the <seealso cref="OpenIdConnectDefaults.AuthenticationScheme"/> in order to authorize a visiting user</remarks>
+    public static IServiceCollection AddWorkflowAuthoriationPolicy(this IServiceCollection services, Action<AuthorizationPolicyBuilder>? configurePolicy = null) {
+        configurePolicy ??= policy => policy
+                .AddAuthenticationSchemes(CasesApiConstants.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme)
+                .RequireAuthenticatedUser()
+                .RequireAssertion(x => x.User.IsAdmin() || x.User.IsSystemClient());
+
+        services.AddAuthorization(authOptions => {
+            authOptions.AddPolicy(WorkflowPolicy, configurePolicy);
+        });
+
+        services.PostConfigure<MvcOptions>(options => {
+            options.Conventions.Add(new AddWorkflowAuthorizeFiltersConvention());
+        });
+
+        services.PostConfigure<RazorPagesOptions>(options => {
+            options.Conventions.Add(new AddWorkflowAuthorizeFiltersConvention());
+        });
+        return services;
+    }
+
+    internal class AddWorkflowAuthorizeFiltersConvention : IControllerModelConvention, IPageApplicationModelConvention
+    {
+        public void Apply(ControllerModel controller) {
+            // This is for ELSA API
+            if (controller.DisplayName.Contains("elsa", StringComparison.OrdinalIgnoreCase)) {
+                controller.Filters.Add(new AuthorizeFilter(WorkflowPolicy));
+            }
+        }
+
+        public void Apply(PageApplicationModel model) {
+            // This is for ELSA razor pages
+            if (model.HandlerType.Namespace!.Contains("elsa", StringComparison.OrdinalIgnoreCase)) {
+                model.Filters.Add(new AuthorizeFilter(WorkflowPolicy)); // razor pages are only elsa
+            }
+        }
+    }
+#nullable disable
 }

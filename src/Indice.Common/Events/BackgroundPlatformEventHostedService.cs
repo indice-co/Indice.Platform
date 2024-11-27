@@ -41,7 +41,7 @@ internal class BackgroundPlatformEventHostedService : BackgroundService
                 try {
                     var handleMethod = handler.GetType().GetMethod(nameof(IPlatformEventHandler<IPlatformEvent>.Handle));
                     if (handleMethod is not null) {
-                        await (Task)handleMethod.Invoke(handler, new object[] { @event, args });
+                        await (Task)handleMethod.Invoke(handler, [ @event, args ])!;
                     }
                 } catch {
                     if (args.ThrowOnError) {

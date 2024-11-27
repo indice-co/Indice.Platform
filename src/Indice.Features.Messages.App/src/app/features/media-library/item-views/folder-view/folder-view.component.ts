@@ -45,8 +45,8 @@ export class FolderViewComponent implements OnInit {
     });
   }
 
-  public getImageUrl(file: MediaFile) {
-    return this._fileUtilitiesService.getCoverImageUrl(file);
+  public getImageUrl(file: MediaFile, size?: number) {
+    return this._fileUtilitiesService.getCoverImageUrl(file, size);
   }
   public deleteFolder(folder: MediaFolder) {
     const modal = this._modalService.show(BasicModalComponent, {

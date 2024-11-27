@@ -24,8 +24,8 @@ export class DashboardComponent implements OnInit {
         this.metaItems = [
             { key: 'NG-LIB version :', icon: Icons.DateTime, text: new Date().toLocaleTimeString() }
         ];
-        const campaigns$ = this._api.getCampaigns(undefined, undefined, 1, 0, undefined, undefined);
-        const activeCampaigns$ = this._api.getCampaigns(undefined, true, 1, 0, undefined, undefined);
+      const campaigns$ = this._api.getCampaigns(1, 0, undefined, undefined, undefined, undefined);
+      const activeCampaigns$ = this._api.getCampaigns(1, 0, undefined, undefined, undefined, true);
         forkJoin([campaigns$, activeCampaigns$]).subscribe((results: [CampaignResultSet, CampaignResultSet]) => {
             this.campaignsCount = results[0].count || 0;
             this.activeCampaignsCount = results[1].count || 0;

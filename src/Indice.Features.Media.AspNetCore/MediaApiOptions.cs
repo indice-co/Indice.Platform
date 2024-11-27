@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -8,14 +7,6 @@ namespace Indice.Features.Media.AspNetCore;
 /// <summary>Options for configuring the API for media management.</summary>
 public class MediaApiOptions
 {
-    private string _apiPrefix = "/api";
-    private string _apiScope = MediaLibraryApi.Scope;
-    private string _authenticationScheme = MediaLibraryApi.AuthenticationScheme;
-    private long _maxSize = 100 * 1024 * 1024;
-    private string _acceptableFileExtensions = ".png, .jpg, .gif";
-    private bool _useSoftDelete = true;
-    private string _databaseSchema = "media";
-
     /// <summary>Creates a new instance of <see cref="MediaApiOptions"/>.</summary>
     public MediaApiOptions() { }
 
@@ -28,46 +19,29 @@ public class MediaApiOptions
     internal IServiceCollection? Services { get; set; }
 
     /// <summary>Specifies a prefix for the media API endpoints.</summary>
-    public PathString ApiPrefix {
-        get => _apiPrefix;
-        set { _apiPrefix = string.IsNullOrWhiteSpace(value) ? string.Empty : value; }
-    }
+    public PathString PathPrefix { get; set; } = "/";
 
     /// <summary>The scope name to be used for media API. Defaults to <i>media</i>.</summary>
-    public string ApiScope {
-        get => _apiScope;
-        set { _apiScope = !string.IsNullOrWhiteSpace(value) ? value : throw new ValidationException("Please specify an API scope for Media API."); }
-    }
+    public string Scope { get; set; } = MediaLibraryApi.Scope;
 
     /// <summary>The authentication scheme to be used for media API. Defaults to <i>Bearer</i>.</summary>
-    public string AuthenticationScheme {
-        get => _authenticationScheme;
-        set { _authenticationScheme = !string.IsNullOrWhiteSpace(value) ? value : throw new ValidationException("Please specify an authentication scheme for Media API."); }
-    }
+    public string AuthenticationScheme { get; set; } = MediaLibraryApi.AuthenticationScheme;
 
     /// <summary>The maximum acceptable size of the files to be uploaded. Defaults to <i>10MB</i>.</summary>
-    public long MaxFileSize {
-        get => _maxSize;
-        set { _maxSize = value; }
-    }
+    public long MaxFileSize { get; set; } = 10 * 1024 * 1024;
 
     /// <summary>The File deletion policy. Defaults to <i>true</i></summary>
-    public bool UseSoftDelete {
-        get => _useSoftDelete;
-        set { _useSoftDelete = value; }
-    }
+    public bool UseSoftDelete { get; set; } = true;
 
-    /// <summary>The acceptable file extensions. Defaults to <i>.png, .jpg, .gif</i>.</summary>
-    public string AcceptableFileExtensions {
-        get => _acceptableFileExtensions;
-        set { _acceptableFileExtensions = !string.IsNullOrWhiteSpace(value) ? value : throw new ValidationException("Please specify an the acceptable file extensions."); }
-    }
+    /// <summary>The acceptable file extensions. Defaults to <i>.png, .jpg, .gif, .webp</i>.</summary>
+    public string AcceptableFileExtensions { get; set; } = ".png, .jpg, .gif, .webp";
+
+    private readonly HashSet<int> _AllowedThumbnailSizes = [24, 32, 48, 64, 128, 192, 256, 512];
+    /// <summary>Allowed tile sizes. Only these sizes are available.</summary>
+    public ICollection<int> AllowedThumbnailSizes => _AllowedThumbnailSizes;
 
     /// <summary>The schema name to be used for media Db. Defaults to <i>media</i>.</summary>
-    public string DatabaseSchema {
-        get => _databaseSchema;
-        set { _databaseSchema = !string.IsNullOrWhiteSpace(value) ? value : throw new ValidationException("Please specify a Database schema for Media API."); }
-    }
+    public string DatabaseSchema { get; set; } = "media";
 
     /// <summary>
     /// Configuration <see cref="Action"/> for internal <see cref="DbContext"/>. 

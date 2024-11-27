@@ -1,4 +1,6 @@
-﻿namespace Indice.Extensions;
+﻿using static System.Net.Mime.MediaTypeNames;
+
+namespace Indice.Extensions;
 
 // http://stackoverflow.com/questions/1029740/get-mime-type-from-filename-extension
 /// <summary>Extensions for file types.</summary>
@@ -499,6 +501,8 @@ public static class FileExtensions
         {".wdb", "application/vnd.ms-works"},
         {".wdp", "image/vnd.ms-photo"},
         {".webarchive", "application/x-safari-webarchive"},
+        {".webm", "video/webm"},
+        {".webp", "image/webp"},
         {".webtest", "application/xml"},
         {".wiq", "application/xml"},
         {".wiz", "application/msword"},

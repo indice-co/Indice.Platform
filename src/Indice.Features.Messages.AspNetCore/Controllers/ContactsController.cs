@@ -27,12 +27,13 @@ internal class ContactsController(IContactService contactService, IContactResolv
 
     /// <summary>Gets the list of all contacts using the provided <see cref="ListOptions"/>.</summary>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+    /// <param name="filter"></param>
     /// <param name="resolve"></param>
     /// <response code="200">OK</response>
     [HttpGet]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ResultSet<Contact>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetContacts([FromQuery] ListOptions<ContactListFilter> options, [FromQuery] bool resolve) {
+    public async Task<IActionResult> GetContacts([FromQuery] ListOptions options, [FromQuery] ContactListFilter filter, [FromQuery] bool resolve) {
         ResultSet<Contact> contacts;
         if (resolve) {
             contacts = await ContactResolver.Find(new ListOptions {
@@ -42,7 +43,7 @@ internal class ContactsController(IContactService contactService, IContactResolv
                 Sort = options.Sort
             });
         } else {
-            contacts = await ContactService.GetList(options);
+            contacts = await ContactService.GetList(ListOptions.Create(options, filter));
         }
         return Ok(contacts);
     }

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Claims;
 using Indice.Features.Cases.Data;
@@ -41,7 +42,7 @@ internal class CaseTypeService : ICaseTypeService
 
     public async Task<ResultSet<CaseTypePartial>> Get(ClaimsPrincipal user, bool canCreate) {
         if (user.IsAdmin()) {
-            return await GetAdminCaseTypes();
+            return await GetAdminCaseTypes(canCreate);
         }
 
         var roleClaims = user.Claims
@@ -119,10 +120,22 @@ internal class CaseTypeService : ICaseTypeService
         if (casesWithCaseType) {
             throw new ValidationException("Case type cannot be deleted because there are cases with this type.");
         }
-        var roleCaseTypes = await _dbContext.Members.AsQueryable().Where(x => x.CaseTypeId == caseTypeId).ToListAsync();
+        var roleCaseTypes = await _dbContext.CaseAccessRules.AsQueryable().Where(x => x.RuleCaseTypeId == caseTypeId).ToListAsync();
         if (roleCaseTypes.Any()) {
-            roleCaseTypes.ForEach(x => _dbContext.Members.Remove(x));
+            roleCaseTypes.ForEach(x => _dbContext.CaseAccessRules.Remove(x));
         }
+
+        var accessRulecheckpointTypes = await (
+                                         from rule in _dbContext.CaseAccessRules
+                                         join checkpointType in _dbContext.CheckpointTypes
+                                             on rule.RuleCheckpointTypeId equals checkpointType.Id
+                                         where checkpointType.CaseTypeId == caseTypeId
+                                         select rule
+                                         ).ToListAsync();
+        if (accessRulecheckpointTypes.Any()) {
+            accessRulecheckpointTypes.ForEach(x => _dbContext.CaseAccessRules.Remove(x));
+        }
+
         var checkpointTypes = await _dbContext.CheckpointTypes.AsQueryable().Where(x => x.CaseTypeId == caseTypeId).ToListAsync();
         if (checkpointTypes.Any()) {
             checkpointTypes.ForEach(x => _dbContext.CheckpointTypes.Remove(x));
@@ -138,10 +151,16 @@ internal class CaseTypeService : ICaseTypeService
             .Include(x => x.CheckpointTypes)
             .FirstOrDefaultAsync(p => p.Id == id);
 
-        var caseTypeRoles = await _dbContext.Members.AsQueryable()
-            .Where(p => p.CaseTypeId == id)
-            .ToListAsync();
+        var caseTypeRoles = await _dbContext.CaseAccessRules
+                            .AsNoTracking()
+                            .Where(p => p.RuleCaseTypeId == id && !string.IsNullOrEmpty(p.MemberRole))
+                            .ToListAsync();
 
+        var caseCheckPointRoles = await _dbContext.CaseAccessRules
+                                .AsNoTracking()
+                                .Include(x => x.CheckpointType)
+                                .Where(p => p.CheckpointType.CaseTypeId == id && !string.IsNullOrEmpty(p.MemberRole))
+                                .ToListAsync();
         var caseType = new CaseType {
             Id = id,
             Code = dbCaseType.Code,
@@ -161,16 +180,20 @@ internal class CaseTypeService : ICaseTypeService
                 Description = checkpointType.Description,
                 Private = checkpointType.Private,
                 Status = checkpointType.Status,
-                Roles = caseTypeRoles
-                    .Where(roleCaseType => roleCaseType.CheckpointTypeId == checkpointType.Id)
-                    .Select(roleCaseType => roleCaseType.RoleName)
+                Roles =
+                caseTypeRoles.Select(roleCaseType => roleCaseType.MemberRole)
+                .Union(
+                    caseCheckPointRoles
+                    .Where(roleCaseType => roleCaseType.CheckpointType.Id == checkpointType.Id)
+                    .Select(roleCaseType => roleCaseType.MemberRole)
+                )
             }),
             IsMenuItem = dbCaseType.IsMenuItem,
             GridColumnConfig = dbCaseType.GridColumnConfig,
             GridFilterConfig = dbCaseType.GridFilterConfig,
         };
-
         return caseType;
+
     }
 
     public async Task<CaseType> Update(CaseTypeRequest caseType) {
@@ -208,11 +231,14 @@ internal class CaseTypeService : ICaseTypeService
         return await _dbContext.CaseTypes.AsQueryable().AnyAsync(c => c.Code == caseTypeCode);
     }
 
-    private async Task<ResultSet<CaseTypePartial>> GetAdminCaseTypes() {
+    private async Task<ResultSet<CaseTypePartial>> GetAdminCaseTypes(bool canCreate = false) {
         var caseTypes = await _dbContext.CaseTypes
             .AsQueryable()
                 .OrderBy(c => c.Category == null ? null : c.Category.Order)
                 .ThenBy(c => c.Order)
+                //if canCreate is true => hide case types that can't be created from an agent
+                //if canCreate is false => fetch all
+                .Where(x => canCreate ? x.CanCreateRoles != null : true)
                 .Select(c => new CaseTypePartial {
                     Id = c.Id,
                     Title = c.Title,
@@ -265,10 +291,11 @@ internal class CaseTypeService : ICaseTypeService
     }
 
     private async Task<List<Guid>> GetCaseTypeIds(List<string> roleClaims) {
-        return await _dbContext.Members
+        return await _dbContext.CaseAccessRules
                 .AsQueryable()
-                .Where(r => roleClaims.Contains(r.RoleName))
-                .Select(c => c.CaseTypeId)
+                .Where(r => r.RuleCaseTypeId.HasValue)
+                .Where(r => roleClaims.Contains(r.MemberRole))
+                .Select(c => c.RuleCaseTypeId.Value)
                 .ToListAsync();
     }
 

@@ -31,7 +31,7 @@ internal class DeviceAuthenticationRequestValidator : RequestValidatorBase<Devic
     public IUserDeviceStore UserDeviceStore { get; }
     public ExtendedUserManager<User> UserManager { get; }
 
-    public async override Task<DeviceAuthenticationRequestValidationResult> Validate(NameValueCollection parameters, string accessToken = null) {
+    public async override Task<DeviceAuthenticationRequestValidationResult> Validate(NameValueCollection parameters, string? accessToken = null) {
         Logger.LogDebug($"{nameof(DeviceAuthenticationRequestValidator)}: Started trusted device authorization request validation.");
         // Validate that the consumer specified all required parameters.
         var parametersToValidate = new[] {
@@ -65,7 +65,7 @@ internal class DeviceAuthenticationRequestValidator : RequestValidatorBase<Devic
         }
         // Validate requested scopes.
         var isOpenIdRequest = false;
-        var requestedScopes = parameters.Get(RegistrationRequestParameters.Scope).Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        var requestedScopes = parameters.Get(RegistrationRequestParameters.Scope)!.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
         if (requestedScopes.Contains(IdentityServerConstants.StandardScopes.OpenId)) {
             isOpenIdRequest = true;
         }

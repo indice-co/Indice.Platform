@@ -9,15 +9,15 @@ public class UserDeviceEventContext
     /// <summary>The primary key.</summary>
     public Guid Id { get; private set; }
     /// <summary>Device id.</summary>
-    public string DeviceId { get; private set; }
+    public string DeviceId { get; private set; } = null!;
     /// <summary>Device operating system.</summary>
     public DevicePlatform Platform { get; private set; }
     /// <summary>Device name.</summary>
-    public string Name { get; private set; }
+    public string? Name { get; private set; }
     /// <summary>Device model.</summary>
-    public string Model { get; private set; }
+    public string? Model { get; private set; }
     /// <summary>Device OS version.</summary>
-    public string OsVersion { get; private set; }
+    public string? OsVersion { get; private set; }
     /// <summary>The date this device was created.</summary>
     public DateTimeOffset DateCreated { get; private set; }
     /// <summary>Gets or sets the date and time, in UTC, when the device last signed in.</summary>
@@ -25,9 +25,9 @@ public class UserDeviceEventContext
     /// <summary>Flag that determines if push notifications are enabled for this device.</summary>
     public bool IsPushNotificationsEnabled { get; private set; }
     /// <summary>Extra metadata for the device.</summary>
-    public dynamic Data { get; private set; }
+    public dynamic? Data { get; private set; }
     /// <summary>Device tags.</summary>
-    public string[] Tags { get; private set; }
+    public string[] Tags { get; private set; } = [];
     /// <summary>Indicates whether the device is blocked.</summary>
     public bool RequiresPassword { get; private set; }
     /// <summary>Indicates whether the device is a trusted device (i.e. capable of strong customer authentication scenarios).</summary>

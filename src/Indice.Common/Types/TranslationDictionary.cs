@@ -5,7 +5,7 @@ namespace Indice.Types;
 
 /// <summary>A type that models the translation of an object.</summary>
 /// <typeparam name="T">The type of object to translate.</typeparam>
-public class TranslationDictionary<T> : Dictionary<string, T> where T : class
+public class TranslationDictionary<T> : Dictionary<string, T> where T : notnull
 {
     /// <summary>Creates a new instance of <see cref="TranslationDictionary{T}"/>.</summary>
     /// <param name="source"></param>
@@ -26,16 +26,11 @@ public class TranslationDictionary<T> : Dictionary<string, T> where T : class
     }
 
     /// <summary>Converts the current instance of <see cref="TranslationDictionary{T}"/> to it's JSON representation.</summary>
-    public string ToJson() {
-        if (this != null) {
-            return JsonSerializer.Serialize(this, JsonSerializerOptionDefaults.GetDefaultSettings());
-        }
-        return default;
-    }
+    public string ToJson() => JsonSerializer.Serialize(this, JsonSerializerOptionDefaults.GetDefaultSettings());
 
     /// <summary>Creates a <see cref="TranslationDictionary{T}"/> from it's JSON representation.</summary>
     /// <param name="json">The JSON to create the <see cref="TranslationDictionary{T}"/>.</param>
-    public static TranslationDictionary<T> FromJson(string json) {
+    public static TranslationDictionary<T>? FromJson(string json) {
         if (string.IsNullOrWhiteSpace(json)) {
             return default;
         }

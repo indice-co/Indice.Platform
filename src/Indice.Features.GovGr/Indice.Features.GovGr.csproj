@@ -17,7 +17,7 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Localization" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" />
     <PackageReference Include="System.ServiceModel.Duplex" Version="6.0.0" />
     <PackageReference Include="System.ServiceModel.Http" Version="6.0.0" />
     <PackageReference Include="System.ServiceModel.NetTcp" Version="6.0.0" />
@@ -37,7 +37,7 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Localization" Version="6.0.9" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.2" />
     <PackageReference Include="System.ServiceModel.Http" Version="6.2.0" />
     <PackageReference Include="System.ServiceModel.NetTcp" Version="6.2.0" />
     <PackageReference Include="System.ServiceModel.Duplex" Version="6.0.0" />

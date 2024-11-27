@@ -2,7 +2,7 @@
 
 /// <summary>Represents an object that contains data about a translated object. </summary>
 /// <typeparam name="T">The translated type.</typeparam>
-public class Translation<T> where T : class
+public class Translation<T> where T : notnull
 {
     /// <summary>Creates a new instance of <see cref="Translation{T}"/>.</summary>
     /// <param name="culture">The culture.</param>

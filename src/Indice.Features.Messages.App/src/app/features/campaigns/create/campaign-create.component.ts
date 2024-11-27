@@ -8,12 +8,10 @@ import { CampaignContentComponent } from './steps/content/campaign-content.compo
 import { CampaignPreview } from './steps/preview/campaign-preview';
 import { CampaignPreviewComponent } from './steps/preview/campaign-preview.component';
 import { CampaignRecipientsComponent } from './steps/recipients/campaign-recipients.component';
-import { CreateCampaignRequest, MessagesApiClient, Period, Hyperlink, Campaign, MessageContent, Template, AttachmentLink } from 'src/app/core/services/messages-api.service';
+import { CreateCampaignRequest, MessagesApiClient, Period, Hyperlink, Campaign, MessageContent, Template, AttachmentLink, CreateCampaignResult } from 'src/app/core/services/messages-api.service';
 import { CampaignAttachmentsComponent } from './steps/attachments/campaign-attachments.component';
 import { map, mergeMap } from 'rxjs/operators';
 import { of } from 'rxjs';
-// Import TinyMCE
-import tinymce from 'tinymce/tinymce';
 import { settings } from 'src/app/core/models/settings';
 
 @Component({
@@ -43,11 +41,10 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
     public templateId: string | undefined;
     public metaItems: HeaderMetaItem[] | null = [];
     public content: { [key: string]: MessageContent; } | undefined;
-    public enableRichTextEditor = settings.enableRichTextEditor;
 
     public get okLabel(): string {
         return this._stepper.currentStep?.isLast
-            ? this._previewStep.published.value === true
+            ? this._previewStep.model.published === true
                 ? 'Αποθήκευση & Δημοσίευση'
                 : 'Αποθήκευση'
             : 'Επόμενο';
@@ -75,25 +72,21 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
         const data = this._prepareDataToSubmit();
         this._api
             .createCampaign(data)
-            .pipe(mergeMap((campaign: Campaign) => {
-                return this._attachmentsStep.attachment.value && campaign.id 
-                    ? this._api.uploadCampaignAttachment(campaign.id, this._attachmentsStep.attachment.value).pipe(map(() => campaign))
-                    : of(campaign)
+            .pipe(mergeMap((result: CreateCampaignResult) => {
+                return this._attachmentsStep.attachment.value && result.campaignId 
+                  ? this._api.uploadCampaignAttachment(result.campaignId, this._attachmentsStep.attachment.value).pipe(map(() => result))
+                    : of(result)
             }))
             .subscribe({
-                next: (campaign: Campaign) => {
+              next: (campaign: CreateCampaignResult) => {
                     this.submitInProgress = false;
-                    this._router.navigate(['campaigns', campaign.id]);
-                    this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η καμπάνια με τίτλο '${campaign.title}' δημιουργήθηκε με επιτυχία.`);
+                    this._router.navigate(['campaigns', campaign.campaignId]);
+                    this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η καμπάνια με τίτλο '${data.title}' δημιουργήθηκε με επιτυχία.`);
                 }
             });
     }
 
     public onStepperStepChanged(event: StepSelectedEvent) {
-        //remove tinymce editor on stepper change
-        if (this.enableRichTextEditor && (tinymce.get("tinymce-editor-email") || tinymce.get("tinymce-editor-inbox"))) {
-            tinymce.remove();
-        }
         if (event.selectedIndex === 1) {
             if (this.templateId) {
                 this._api.getTemplateById(this.templateId).subscribe((template: Template) => {
@@ -132,7 +125,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
                 to: this._basicInfoStep.to.value ? new Date(this._basicInfoStep.to.value) : undefined
             }),
             isGlobal: this._recipientsStep.sendVia.value === 'user-base',
-            published: this._previewStep.published.value,
+            published: this._previewStep.model.published,
             title: this._basicInfoStep.title.value,
             data: JSON.parse(this._contentStep.data.value),
             mediaBaseHref: this._contentStep.additionalData.mediaBaseHref,

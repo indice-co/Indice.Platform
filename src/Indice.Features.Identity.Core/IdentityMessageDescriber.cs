@@ -22,7 +22,7 @@ public class IdentityMessageDescriber
     /// <summary>Confirm your account.</summary>
     public virtual string UpdateEmailMessageSubject => string.Format(IdentityResources.Culture, IdentityResources.EmailUpdateMessageSubject);
     /// <summary>Email verification code is {0}.</summary>
-    public virtual string UpdateEmailMessageBody<TUser>(TUser user, string token, string returnUrl) where TUser : class => string.Format(IdentityResources.Culture, IdentityResources.EmailUpdateMessageBody, token);
+    public virtual string UpdateEmailMessageBody<TUser>(TUser user, string token, string? returnUrl) where TUser : class => string.Format(IdentityResources.Culture, IdentityResources.EmailUpdateMessageBody, token);
     /// <summary>Forgot password.</summary>
     public virtual string ForgotPasswordMessageSubject => string.Format(IdentityResources.Culture, IdentityResources.ForgotPasswordMessageSubject);
     /// <summary>Email verification code is {0}.</summary>
@@ -52,7 +52,7 @@ public class IdentityMessageDescriber
     /// <summary>Message sent on message when <see cref="OtpAuthenticateExtensionGrantValidator"/> is used. Should contain the '{0}' placeholder for the generated token.</summary>
     public virtual string OtpSecuredValidatorOtpBody() => string.Format(IdentityResources.Culture, IdentityResources.OtpSecuredValidatorOtpBody, "{0}");
     /// <summary>Registration OTP code for device {0} is {1}.</summary>
-    public virtual string DeviceRegistrationCodeMessage(string deviceName, InteractionMode interactionMode) => string.Format(IdentityResources.Culture, IdentityResources.DeviceRegistrationOtpCode, deviceName, "{0}");
+    public virtual string DeviceRegistrationCodeMessage(string? deviceName, InteractionMode interactionMode) => string.Format(IdentityResources.Culture, IdentityResources.DeviceRegistrationOtpCode, deviceName, "{0}");
     /// <summary>User cannot add a device because the limit is reached.</summary>
     public virtual string MaxNumberOfDevices() => string.Format(IdentityResources.Culture, IdentityResources.MaxNumberOfDevices);
     /// <summary>User tries to set the number of allowed devices to a value greater than the allowed one.</summary>

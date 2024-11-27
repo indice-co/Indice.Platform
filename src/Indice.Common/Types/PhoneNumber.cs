@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 namespace Indice.Globalization;
@@ -8,6 +9,8 @@ namespace Indice.Globalization;
 [DebuggerDisplay("{ToString(),nq} ({TwoLetterCountryCode,nq})")]
 public partial struct PhoneNumber : IFormattable
 {
+
+    //[StringSyntax("Regex")] uncomment after .net 6 drop
     private const string RegexPatternString = @"(\+(?<CallingCode>\d+(-\d+)?) (?<Number>[\d() -]{5,15}))|(?<GreekNumber>69\d{8})|(?<GreekNumber>69\d{8})|(?<GreekNumberLand>2\d{9})|(?<InternationalNumber>((00)|\+)?\s?\d{10,15})||(?<UnidentifiedNumber>\d{5,9})";
                                                                                                                                                                                                         //^\+[0-9]{1,3}\.[0-9]{4,14}(?:x.+)?$
     private const char PlusSign = '+';
@@ -97,7 +100,7 @@ public partial struct PhoneNumber : IFormattable
         if (!CountryInfo.TryGetCountryByCallingCode(callingCode, out country)) {
             throw new FormatException($"The phoneNumber supplied has a calling code that is not corralate to a known country. Code '{callingCode}'");
         }
-        return new PhoneNumber(callingCode, country.TwoLetterCode, number.Replace("-", "")
+        return new PhoneNumber(callingCode, country!.TwoLetterCode, number.Replace("-", "")
                                                                          .Replace("(", "")
                                                                          .Replace(")", "")
                                                                          .Replace(" ", ""));

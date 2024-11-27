@@ -20,7 +20,8 @@ public class ViberYubotoOmniService : YubotoOmniServiceBase, ISmsService
     ) : base(httpClient, settings, logger) { }
 
     /// <inheritdoc />
-    public async Task SendAsync(string destination, string subject, string body, SmsSender sender = null) {
+    public async Task<SendReceipt> SendAsync(string destination, string subject, string body, SmsSender sender = null) {
+        var messageId = Guid.NewGuid().ToString();
         var phoneNumbers = GetRecipientsFromDestination(destination);
         var requestBody = SendRequest.CreateViber(phoneNumbers, sender?.Id ?? Settings.Sender ?? Settings.SenderName, body, Settings.ViberFallbackEnabled, Settings.Validity);
         var jsonData = JsonSerializer.Serialize(requestBody, GetJsonSerializerOptions());
@@ -44,6 +45,10 @@ public class ViberYubotoOmniService : YubotoOmniServiceBase, ISmsService
             throw new SmsServiceException(errorMessage);
         }
         Logger.LogInformation("SMS message successfully sent.");
+        if (response.Messages?.Count > 0) {
+            messageId = string.Join(',', response.Messages.Select(x => x.Id));
+        }
+        return new SendReceipt(messageId, DateTimeOffset.UtcNow);
     }
 
     /// <inheritdoc />

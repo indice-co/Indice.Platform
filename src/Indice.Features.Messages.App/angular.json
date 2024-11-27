@@ -31,15 +31,12 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
-              "src/assets",
-              { "glob": "**/*", "input": "node_modules/tinymce", "output": "/tinymce/" }
+              "src/assets"
             ],
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": [
-              "node_modules/tinymce/tinymce.min.js"
-            ]
+            "scripts": []
           },
           "configurations": {
             "production": {
@@ -124,15 +121,12 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
-              "src/assets",
-              { "glob": "**/*", "input": "node_modules/tinymce", "output": "/tinymce/" }
+              "src/assets"
             ],
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": [
-              "node_modules/tinymce/tinymce.min.js"
-            ]
+            "scripts": []
           }
         }
       }

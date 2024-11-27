@@ -21,7 +21,7 @@ public class ExtendedUserLoginSuccessEvent : UserLoginSuccessEvent
         string subjectId,
         string name,
         bool interactive = true,
-        string clientId = null) : base(provider, providerUserId, subjectId, name, interactive, clientId) { }
+        string? clientId = null) : base(provider, providerUserId, subjectId, name, interactive, clientId) { }
 
     /// <summary>Creates a new instance of <see cref="ExtendedUserLoginSuccessEvent"/>.</summary>
     /// <param name="username">The username.</param>
@@ -37,20 +37,20 @@ public class ExtendedUserLoginSuccessEvent : UserLoginSuccessEvent
         string subjectId,
         string name,
         bool interactive = true,
-        string clientId = null,
-        string clientName = null,
+        string? clientId = null,
+        string? clientName = null,
         SignInWarning? warning = null,
-        string[] authenticationMethods = null
+        string[]? authenticationMethods = null
     ) : base(username, subjectId, name, interactive, clientId) {
         ClientName = clientName;
         Warning = warning;
-        AuthenticationMethods = authenticationMethods;
+        AuthenticationMethods = authenticationMethods ?? [];
     }
 
     /// <summary>Describes a warning that may occur during a sign in event.</summary>
     public SignInWarning? Warning { get; }
     /// <summary>The client name.</summary>
-    public string ClientName { get; }
+    public string? ClientName { get; }
     /// <summary>List of authentication methods used.</summary>
     public string[] AuthenticationMethods { get; } = [];
 }

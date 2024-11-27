@@ -1,6 +1,10 @@
-﻿using System.Globalization;
+﻿#nullable enable
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Primitives;
 
 namespace Indice.Extensions;
 
@@ -48,31 +52,33 @@ public static partial class StringExtensions
     }
 
     /// <summary>Converts a string to kebab case.</summary>
-    /// <param name="value">The string to kebaberize.</param>
-    public static string ToKebabCase(this string value) {
+    /// <param name="input">The string to kebaberize.</param>
+    public static string ToKebabCase(this string input) {
         // Find and replace all parts that starts with one capital letter e.g. Net
-        value = WordsRegex().Replace(value, m => $"{(m.Groups["delimiter"].Success ? m.Groups["delimiter"].Value : "-")}{m.Groups["word"].Value.ToLower()}");
-        // Find and replace all parts that are all capital letter e.g. NET
-        value = WordsAllCapsRegex().Replace(value, m => $"{(m.Groups["delimiter"].Success ? m.Groups["delimiter"].Value : "-")}{m.Groups["word"].ToString().ToLower()}");
+        var value = WordsRegex().Replace(input, m => { 
+            var sb = new StringBuilder();
+            sb.Append(m.Groups["delimiter"].Success ? m.Groups["delimiter"].Value : "-"); 
+            sb.Append(m.Groups["word"].Value.ToLower());
+            return sb.ToString();
+        });
         
         // Return.
         return value.TrimStart('-');
     }
 
+
+#if NET7_0_OR_GREATER
+    [StringSyntax("Regex")]
+#endif
+    internal const string WordsRegexPattern = @"(?<delimiter>[/\\-])|(?<separator>[^A-Za-z0-9.]*)?(?<word>([A-Z]?[a-z0-9.]+)|([A-Z][A-Z0-9.]*))[^A-Za-z0-9.]*";
 #if NET7_0_OR_GREATER
     /// <summary>Match all parts of a sentence that start with one capital letter e.g. Net</summary>
-    [GeneratedRegex(@"(?<delimiter>[/\\-])?(?<word>[A-Z]?[a-z0-9.]+)[,;|\s]*")]
+    [GeneratedRegex(WordsRegexPattern)]
     private static partial Regex WordsRegex();
-    /// <summary>Match all parts of a sentence that are all capital letter e.g. NET</summary>
-    [GeneratedRegex(@"(?<delimiter>[/\\-])?(?<word>[A-Z][A-Z0-9.]*)[,;|\s]*")]
-    private static partial Regex WordsAllCapsRegex();
 #else
-    private static readonly Regex _wordsRegex = new(@"(?<delimiter>[/\\-])?(?<word>[A-Z]?[a-z0-9.]+)[,;|\s]*");
-    private static readonly Regex _wordsAllCapsRegex = new(@"(?<delimiter>[/\\-])?(?<word>[A-Z][A-Z0-9.]*)[,;|\s]*");
+    private static readonly Regex _wordsRegex = new(WordsRegexPattern);
     /// <summary>Match all parts of a sentence that start with one capital letter e.g. Net</summary>
     private static Regex WordsRegex() => _wordsRegex;
-    /// <summary>Match all parts of a sentence that are all capital letter e.g. NET</summary>
-    private static Regex WordsAllCapsRegex() => _wordsAllCapsRegex;
 #endif
 
 #if !NETSTANDARD14
@@ -90,4 +96,27 @@ public static partial class StringExtensions
         return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
     }
 #endif
+
+
+
+    /// <summary>
+    /// Creates a SHA256 hash of the specified input.
+    /// </summary>
+    /// <param name="input">The input.</param>
+    /// <param name="encoding">How to interpret the string when converting to bytes. Defaults to <see cref="ASCIIEncoding"/></param>
+    /// <returns>A hash</returns>
+    public static string ToSha256Hex(this string input, Encoding? encoding = null) => ToSha256Hex((encoding ?? Encoding.ASCII).GetBytes(input));
+
+    /// <summary>
+    /// Creates a SHA256 hash of the specified input.
+    /// </summary>
+    /// <param name="input">The input.</param>
+    /// <returns>A hash</returns>
+    public static string ToSha256Hex(this byte[] input) =>
+#if !NETSTANDARD
+        string.Join("", SHA256.HashData(input).Select(x => $"{x:x2}"));
+#else
+        string.Join("", SHA256.Create().ComputeHash(input).Select(x => $"{x:x2}"));
+#endif
 }
+#nullable disable

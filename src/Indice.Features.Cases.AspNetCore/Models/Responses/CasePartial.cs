@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using Indice.Features.Cases.Data.Models;
+using System.Text.Json.Nodes;
 using Indice.Serialization;
 
 namespace Indice.Features.Cases.Models.Responses;
@@ -28,7 +28,7 @@ public class CasePartial
 
     /// <summary>The Id of the user that created the case.</summary>
     public string CreatedById { get; set; }
-    
+
     /// <summary>The email of the user that created the case.</summary>
     public string CreatedByEmail { get; set; }
 
@@ -39,7 +39,7 @@ public class CasePartial
     public CaseTypePartial CaseType { get; set; }
 
     /// <summary>The case metadata as provided from the client or integrator.</summary>
-    public Dictionary<string,string> Metadata { get; set; }
+    public Dictionary<string, string> Metadata { get; set; }
 
     /// <summary>The Id of the group the case belongs.</summary>
     public string GroupId { get; set; }
@@ -59,12 +59,29 @@ public class CasePartial
     /// <summary>Indicate if the case is in draft mode.</summary>
     public bool Draft { get; set; }
 
+    /// <summary>Indicates the access of the user on this case. For admin Users the access level is set to default 111</summary>
+    public int AccessLevel { get; set; }
+
     /// <summary>Convert case data to typed version.</summary>
     public TData DataAs<TData>() {
+        if (Data is TData typedData) {
+            return typedData;
+        }
+        
         var json = JsonSerializer.Serialize(Data, JsonSerializerOptionDefaults.GetDefaultSettings());
         if (typeof(TData) == typeof(string)) {
             return json;
         }
         return JsonSerializer.Deserialize<TData>(json, JsonSerializerOptionDefaults.GetDefaultSettings());
+    }
+
+    /// <summary>Get Data as Json Node</summary>
+    /// <returns></returns>
+    public JsonNode DataAsJsonNode() {
+        if (Data is JsonElement jsonElement) {
+            return JsonSerializer.SerializeToNode(jsonElement);
+        }
+
+        return DataAs<JsonNode>();
     }
 }

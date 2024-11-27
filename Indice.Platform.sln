@@ -1,5 +1,5 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
+# 17
 VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNet", "src\Indice.AspNet\Indice.AspNet.csproj", "{79DC5373-B0EC-4C08-AB21-C37B0E691C82}"
@@ -9,6 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".misc", ".misc", "{B8EB253B
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
 		appveyor.yml = appveyor.yml
+		global.json = global.json
 		LICENSE = LICENSE
 		local-feed.ps1 = local-feed.ps1
 		NuGet.config = NuGet.config
@@ -125,6 +126,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{3244
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.EcmaScript.Tests", "test\Indice.EcmaScript.Tests\Indice.EcmaScript.Tests.csproj", "{BC1A086C-EE56-4323-BC51-F7590B2DBA1F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Builder", "src\Indice.AspNetCore.Builder\Indice.AspNetCore.Builder.csproj", "{04C0B75E-2C67-4BBA-8A80-B0936F7D06DE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -324,6 +327,10 @@ Global
 		{BC1A086C-EE56-4323-BC51-F7590B2DBA1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC1A086C-EE56-4323-BC51-F7590B2DBA1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC1A086C-EE56-4323-BC51-F7590B2DBA1F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04C0B75E-2C67-4BBA-8A80-B0936F7D06DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04C0B75E-2C67-4BBA-8A80-B0936F7D06DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04C0B75E-2C67-4BBA-8A80-B0936F7D06DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04C0B75E-2C67-4BBA-8A80-B0936F7D06DE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -375,6 +382,7 @@ Global
 		{51E64F18-5DED-4896-90A7-7F37794629FE} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 		{9A54D5CE-7425-48BD-9344-5C907E8FAD1D} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 		{BC1A086C-EE56-4323-BC51-F7590B2DBA1F} = {613A1373-9A47-42DD-A076-7F310D0440B9}
+		{04C0B75E-2C67-4BBA-8A80-B0936F7D06DE} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C2B9151E-8A85-444E-93A9-78264FD0FE4A}

@@ -28,10 +28,10 @@ internal class CheckpointTypeService : ICheckpointTypeService
             .Select(c => c.Value)
             .ToList();
 
-        var checkpointTypeIds = await _dbContext.Members
+        var checkpointTypeIds = await _dbContext.CaseAccessRules
             .AsQueryable()
-            .Where(r => roleClaims.Contains(r.RoleName))
-            .Select(c => c.CheckpointTypeId)
+            .Where(r => roleClaims.Contains(r.MemberRole))
+            .Select(c => c.RuleCheckpointTypeId)
             .ToListAsync();
 
         /*

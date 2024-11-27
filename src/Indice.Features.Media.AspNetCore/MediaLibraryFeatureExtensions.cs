@@ -25,11 +25,11 @@ public static class MediaLibraryFeatureExtensions
         var apiOptions = new MediaApiOptions(services);
         configureAction?.Invoke(apiOptions);
         services.Configure<MediaApiOptions>(options => {
-            options.ApiPrefix = apiOptions.ApiPrefix;
+            options.PathPrefix = apiOptions.PathPrefix;
             options.ConfigureDbContext = apiOptions.ConfigureDbContext;
             options.AuthenticationScheme = apiOptions.AuthenticationScheme;
             options.AcceptableFileExtensions = apiOptions.AcceptableFileExtensions;
-            options.ApiScope = apiOptions.ApiScope;
+            options.Scope = apiOptions.Scope;
             options.MaxFileSize = apiOptions.MaxFileSize;
             options.UseSoftDelete = apiOptions.UseSoftDelete;
         });
@@ -60,9 +60,10 @@ public static class MediaLibraryFeatureExtensions
         // Add authorization policies that are used by the IdentityServer API.
 
         // Configure authorization. It's important to register the authorization policy provider at this point.
-        services.AddAuthorization(policy => policy.AddMediaLibraryManagementPolicy(apiOptions.ApiScope))
+        services.AddAuthorization(policy => policy.AddMediaLibraryManagementPolicy(apiOptions.Scope))
                            .AddTransient<IAuthorizationHandler, BeMediaLibraryManagerHandler>();
-
+        //Resgister Output Cache
+        services.AddOutputCache();
         return services;
     }
 

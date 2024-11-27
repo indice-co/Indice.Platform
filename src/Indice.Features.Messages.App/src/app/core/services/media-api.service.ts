@@ -156,7 +156,7 @@ export class MediaApiClient implements IMediaApiClient {
      * @return OK
      */
     getFile(fileGuid: string, format: string): Observable<FileResponse> {
-        let url_ = this.baseUrl + "/api/media/{fileGuid}.{format}";
+        let url_ = this.baseUrl + "/media/{fileGuid}.{format}";
         if (fileGuid === undefined || fileGuid === null)
             throw new Error("The parameter 'fileGuid' must be defined.");
         url_ = url_.replace("{fileGuid}", encodeURIComponent("" + fileGuid));
@@ -254,7 +254,7 @@ export class MediaApiClient implements IMediaApiClient {
      * @return OK
      */
     getFileDetails(fileId: string, includeData?: boolean | undefined): Observable<MediaFile> {
-        let url_ = this.baseUrl + "/api/media/{fileId}?";
+        let url_ = this.baseUrl + "/media/{fileId}?";
         if (fileId === undefined || fileId === null)
             throw new Error("The parameter 'fileId' must be defined.");
         url_ = url_.replace("{fileId}", encodeURIComponent("" + fileId));
@@ -348,7 +348,7 @@ export class MediaApiClient implements IMediaApiClient {
      * @return No Content
      */
     updateFileMetadata(fileId: string, body: UpdateFileMetadataRequest): Observable<void> {
-        let url_ = this.baseUrl + "/api/media/{fileId}";
+        let url_ = this.baseUrl + "/media/{fileId}";
         if (fileId === undefined || fileId === null)
             throw new Error("The parameter 'fileId' must be defined.");
         url_ = url_.replace("{fileId}", encodeURIComponent("" + fileId));
@@ -431,7 +431,7 @@ export class MediaApiClient implements IMediaApiClient {
      * @return No Content
      */
     deleteFile(fileId: string): Observable<void> {
-        let url_ = this.baseUrl + "/api/media/{fileId}";
+        let url_ = this.baseUrl + "/media/{fileId}";
         if (fileId === undefined || fileId === null)
             throw new Error("The parameter 'fileId' must be defined.");
         url_ = url_.replace("{fileId}", encodeURIComponent("" + fileId));
@@ -510,7 +510,7 @@ export class MediaApiClient implements IMediaApiClient {
      * @return OK
      */
     listFolders(): Observable<MediaFolder[]> {
-        let url_ = this.baseUrl + "/api/media/folders";
+        let url_ = this.baseUrl + "/media/folders";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -597,7 +597,7 @@ export class MediaApiClient implements IMediaApiClient {
      * @return Created
      */
     createFolder(body: CreateFolderRequest): Observable<CreateFolderResponse> {
-        let url_ = this.baseUrl + "/api/media/folders";
+        let url_ = this.baseUrl + "/media/folders";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -681,7 +681,7 @@ export class MediaApiClient implements IMediaApiClient {
      * @return OK
      */
     getFolderById(folderId: string): Observable<MediaFolder> {
-        let url_ = this.baseUrl + "/api/media/folders/{folderId}";
+        let url_ = this.baseUrl + "/media/folders/{folderId}";
         if (folderId === undefined || folderId === null)
             throw new Error("The parameter 'folderId' must be defined.");
         url_ = url_.replace("{folderId}", encodeURIComponent("" + folderId));
@@ -768,7 +768,7 @@ export class MediaApiClient implements IMediaApiClient {
      * @return No Content
      */
     updateFolder(folderId: string, body: UpdateFolderRequest): Observable<void> {
-        let url_ = this.baseUrl + "/api/media/folders/{folderId}";
+        let url_ = this.baseUrl + "/media/folders/{folderId}";
         if (folderId === undefined || folderId === null)
             throw new Error("The parameter 'folderId' must be defined.");
         url_ = url_.replace("{folderId}", encodeURIComponent("" + folderId));
@@ -851,7 +851,7 @@ export class MediaApiClient implements IMediaApiClient {
      * @return No Content
      */
     deleteFolder(folderId: string): Observable<void> {
-        let url_ = this.baseUrl + "/api/media/folders/{folderId}";
+        let url_ = this.baseUrl + "/media/folders/{folderId}";
         if (folderId === undefined || folderId === null)
             throw new Error("The parameter 'folderId' must be defined.");
         url_ = url_.replace("{folderId}", encodeURIComponent("" + folderId));
@@ -933,7 +933,7 @@ export class MediaApiClient implements IMediaApiClient {
      * @return OK
      */
     getFolderContent(folderId?: string | undefined, page?: number | undefined, size?: number | undefined): Observable<FolderContent> {
-        let url_ = this.baseUrl + "/api/media/folders/content?";
+        let url_ = this.baseUrl + "/media/folders/content?";
         if (folderId === null)
             throw new Error("The parameter 'folderId' cannot be null.");
         else if (folderId !== undefined)
@@ -1029,7 +1029,7 @@ export class MediaApiClient implements IMediaApiClient {
      * @return OK
      */
     getFolderStructure(): Observable<FolderTreeStructure> {
-        let url_ = this.baseUrl + "/api/media/folders/structure";
+        let url_ = this.baseUrl + "/media/folders/structure";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -1109,7 +1109,7 @@ export class MediaApiClient implements IMediaApiClient {
      * @return OK
      */
     listMediaSettings(): Observable<MediaSetting[]> {
-        let url_ = this.baseUrl + "/api/media/settings";
+        let url_ = this.baseUrl + "/media/settings";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -1196,7 +1196,7 @@ export class MediaApiClient implements IMediaApiClient {
      * @return OK
      */
     getMediaSetting(key: string): Observable<MediaSetting> {
-        let url_ = this.baseUrl + "/api/media/settings/{key}";
+        let url_ = this.baseUrl + "/media/settings/{key}";
         if (key === undefined || key === null)
             throw new Error("The parameter 'key' must be defined.");
         url_ = url_.replace("{key}", encodeURIComponent("" + key));
@@ -1286,7 +1286,7 @@ export class MediaApiClient implements IMediaApiClient {
      * @return OK
      */
     updateMediaSetting(key: string, body: UpdateMediaSettingRequest): Observable<void> {
-        let url_ = this.baseUrl + "/api/media/settings/{key}";
+        let url_ = this.baseUrl + "/media/settings/{key}";
         if (key === undefined || key === null)
             throw new Error("The parameter 'key' must be defined.");
         url_ = url_.replace("{key}", encodeURIComponent("" + key));
@@ -1371,7 +1371,7 @@ export class MediaApiClient implements IMediaApiClient {
      * @return OK
      */
     uploadFile(folderId?: string | null | undefined, files?: FileParameter[] | undefined): Observable<UploadFileResponse> {
-        let url_ = this.baseUrl + "/api/media/upload";
+        let url_ = this.baseUrl + "/media/upload";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = new FormData();

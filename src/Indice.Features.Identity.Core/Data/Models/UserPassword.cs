@@ -11,9 +11,9 @@ public class UserPassword
     /// <summary>The primary key.</summary>
     public Guid Id { get; set; }
     /// <summary>The user id related.</summary>
-    public string UserId { get; set; }
+    public string UserId { get; set; } = null!;
     /// <summary>Password hash.</summary>
-    public string PasswordHash { get; set; }
+    public string? PasswordHash { get; set; }
     /// <summary>The date this password was created.</summary>
     public DateTimeOffset DateCreated { get; set; }
 }

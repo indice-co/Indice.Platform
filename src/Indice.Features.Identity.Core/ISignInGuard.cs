@@ -8,11 +8,11 @@ namespace Indice.Features.Identity.Core;
 public interface ISignInGuard<TUser> where TUser : User
 {
     /// <summary>A service that detects whether a login attempt is made from an impossible location.</summary>
-    public IImpossibleTravelDetector<TUser> ImpossibleTravelDetector { get; init; }
+    public IImpossibleTravelDetector<TUser>? ImpossibleTravelDetector { get; init; }
     /// <summary>Runs various rules and determines whether a login attempt is considered suspicious or not.</summary>
     /// <param name="httpContext">Encapsulates all HTTP-specific information about an individual HTTP request.</param>
     /// <param name="user">The current user.</param>
-    Task<SignInGuardResult> IsSuspiciousLogin(HttpContext httpContext, TUser user);
+    Task<SignInGuardResult> IsSuspiciousLogin(HttpContext? httpContext, TUser user);
 }
 
 /// <summary>Implementation of <see cref="ISignInGuard{TUser}"/> where no check is made.</summary>
@@ -20,10 +20,10 @@ public interface ISignInGuard<TUser> where TUser : User
 public class SignInGuardNoOp<TUser> : ISignInGuard<TUser> where TUser : User
 {
     /// <inheritdoc />
-    public IImpossibleTravelDetector<TUser> ImpossibleTravelDetector { get; init; } = null;
+    public IImpossibleTravelDetector<TUser>? ImpossibleTravelDetector { get; init; } = null;
 
     /// <inheritdoc />
-    public Task<SignInGuardResult> IsSuspiciousLogin(HttpContext httpContext, TUser user) => Task.FromResult(SignInGuardResult.Success());
+    public Task<SignInGuardResult> IsSuspiciousLogin(HttpContext? httpContext, TUser user) => Task.FromResult(SignInGuardResult.Success());
 }
 
 /// <summary></summary>

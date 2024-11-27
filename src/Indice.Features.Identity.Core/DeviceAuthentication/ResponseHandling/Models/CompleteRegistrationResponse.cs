@@ -4,7 +4,7 @@ namespace Indice.Features.Identity.Core.DeviceAuthentication.ResponseHandling;
 
 internal class CompleteRegistrationResponse
 {
-    public CompleteRegistrationResponse(Guid registrationId, IEnumerable<IdentityError> errors) {
+    public CompleteRegistrationResponse(Guid registrationId, IEnumerable<IdentityError>? errors) {
         RegistrationId = registrationId;
         Errors = errors ?? new List<IdentityError>();
     }

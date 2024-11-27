@@ -1,4 +1,6 @@
-﻿using Indice.EntityFrameworkCore;
+﻿using System.Text.Json;
+using System.Text.Json.Nodes;
+using Indice.EntityFrameworkCore;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -8,7 +10,7 @@ using Xunit;
 
 namespace Indice.Services.Tests;
 
-public class FilterClauseQueryableExtensionTests : IAsyncDisposable
+public class FilterClauseQueryableExtensionTests : IAsyncLifetime
 {
     public FilterClauseQueryableExtensionTests() {
         var inMemorySettings = new Dictionary<string, string> {
@@ -29,7 +31,6 @@ public class FilterClauseQueryableExtensionTests : IAsyncDisposable
     [Fact]
     public async Task FilterClause_Translates_ToDatabaseQuery_Test() {
         var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
-        await dbContext.SeedAsync();
         var filters = new List<FilterClause> {
             //(FilterClause)"extras.id::eq::(integer)15",
             (FilterClause)"data.displayName::contains::κων",
@@ -46,7 +47,6 @@ public class FilterClauseQueryableExtensionTests : IAsyncDisposable
     [Fact]
     public async Task ToResultset_Translates_DynamicJsonPaths_Sort_Test() {
         var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
-        await dbContext.SeedAsync();
         var query = dbContext.Dummies;
         var results = await query.ToResultSetAsync(new ListOptions { Sort = "data.displayName,name" });
         results = await query.ToResultSetAsync(new ListOptions { Sort = "data.displayName" });
@@ -61,17 +61,21 @@ public class FilterClauseQueryableExtensionTests : IAsyncDisposable
     [Fact]
     public async Task ToResultset_Translates_DynamicJsonPaths_MultiSort_Test() {
         var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
-        await dbContext.SeedAsync();
         var query = dbContext.Dummies.AsQueryable();
         var options = new ListOptions { Sort = "name-,data.displayName" };
         foreach (var sorting in options.GetSortings()) {
-            query = query.OrderBy(sorting, append:true);
+            query = query.OrderBy(sorting, append: true);
         }
         var results = await query.ToResultSetAsync(options.Page ?? 1, options.Size ?? 100);
         Assert.True(true);
     }
 
-    public async ValueTask DisposeAsync() {
+    public async Task InitializeAsync() {
+        var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
+        await dbContext.SeedAsync();
+    }
+
+    public async Task DisposeAsync() {
         var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
         await dbContext.Database.EnsureDeletedAsync();
         await ServiceProvider.DisposeAsync();
@@ -88,11 +92,19 @@ public class DummyDbContext : DbContext
         if (!await Database.EnsureCreatedAsync()) {
             return false;
         }
+#if NET7_0_OR_GREATER
+        Dummies.AddRange(
+                new Dummy { Name = "Κωνσταντίνος", Extras = new { Id = 5 }, ModernExtras = JsonSerializer.SerializeToNode(new { Id = 5 }), Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos", ["Surname"] = "Panos" }, Data = new DummyItem { DisplayName = "Κωνσταντίνος Θέρης", Enabled = true, Order = 7, BirthDate = new DateTime(1981, 01, 28), Balance = 100.0, Period = new Period { From = DateTime.Now.AddDays(-10), To = DateTime.Now.AddDays(10) } } },
+                new Dummy { Name = "Γιώργος", Extras = new { Id = 15 }, ModernExtras = JsonSerializer.SerializeToNode(new { Id = 5 }), Data = new DummyItem { DisplayName = "Γιώργος Τζάς", Enabled = false, Order = -14, BirthDate = new DateTime(1989, 10, 24), Balance = 360.23 } },
+                new Dummy { Name = "Γιάννης", Extras = new { Id = 7 }, ModernExtras = JsonSerializer.SerializeToNode(new { Id = 5 }), Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos" }, Data = new DummyItem { DisplayName = "Γιάννης Νές", Enabled = true, Order = 2, BirthDate = new DateTime(1971, 12, 1), Balance = 1260.23 } }
+            );
+#else
         Dummies.AddRange(
                 new Dummy { Name = "Κωνσταντίνος", Extras = new { Id = 5 }, Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos", ["Surname"] = "Panos" }, Data = new DummyItem { DisplayName = "Κωνσταντίνος Θέρης", Enabled = true, Order = 7, BirthDate = new DateTime(1981, 01, 28), Balance = 100.0, Period = new Period { From = DateTime.Now.AddDays(-10), To = DateTime.Now.AddDays(10) } } },
                 new Dummy { Name = "Γιώργος", Extras = new { Id = 15 }, Data = new DummyItem { DisplayName = "Γιώργος Τζάς", Enabled = false, Order = -14, BirthDate = new DateTime(1989, 10, 24), Balance = 360.23 } },
                 new Dummy { Name = "Γιάννης", Extras = new { Id = 7 }, Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos" }, Data = new DummyItem { DisplayName = "Γιάννης Νές", Enabled = true, Order = 2, BirthDate = new DateTime(1971, 12, 1), Balance = 1260.23 } }
             );
+#endif
         await SaveChangesAsync();
         return true;
     }
@@ -103,6 +115,9 @@ public class DummyDbContext : DbContext
         modelBuilder.Entity<Dummy>().HasKey(x => x.Id);
         modelBuilder.Entity<Dummy>().Property(x => x.Data).HasJsonConversion();
         modelBuilder.Entity<Dummy>().Property(x => x.Extras).HasJsonConversion();
+#if NET7_0_OR_GREATER
+        modelBuilder.Entity<Dummy>().Property(x => x.ModernExtras).HasJsonConversion();
+#endif
         modelBuilder.Entity<Dummy>().Property(x => x.Metadata).HasJsonConversion();
         modelBuilder.ApplyJsonFunctions();
         base.OnModelCreating(modelBuilder);
@@ -125,6 +140,9 @@ public class Dummy
     public Guid Id { get; set; }
     public string Name { get; set; }
     public dynamic Extras { get; set; }
+#if NET7_0_OR_GREATER
+    public JsonNode ModernExtras { get; set; }
+#endif
     public DummyItem Data { get; set; }
     public Dictionary<string, string> Metadata { get; set; }
 }

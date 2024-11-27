@@ -23,7 +23,7 @@ public class IdentityUIOptions
     /// </item>
     /// </list>
     /// </remarks>
-    public string HomePageSlogan { get; set; } = "Welcome to our Digital Services <strong>Portal</strong> of {0}";
+    public string HomePageSlogan { get; set; } = "Welcome to the {0} Digital Services <strong>Portal</strong>";
     /// <summary>An absolute URL to the <strong>terms and conditions</strong> web page. Use it when this page is located to (or shared with) an external website.</summary>
     /// <remarks>If left null the <strong>./legal/terms.md</strong> will be used. If populated it will do a redirect to this URL</remarks>
     public string? TermsUrl { get; set; }
@@ -52,6 +52,12 @@ public class IdentityUIOptions
     public bool EnableLocalLogin { get; set; } = true;
     /// <summary>RGB color to be used with avatar endpoints to render the user avatar background with initials.</summary>
     public string AvatarColorHex { get; set; } = "1abc9c";
+    /// <summary>Profile picture upload limit in bytes when uploading from /manage/profile ui</summary>
+    /// <remarks>Defaults to 5MB</remarks>
+    public int PictureUploadSizeLimit { get; set; } = 1024 * 1024 * 5;
+    /// <summary>Profile picture maximum side size in pixels of the resulting rectangle. </summary>
+    /// <remarks>Defaults to <strong>512px</strong></remarks>
+    public int PictureMaxSideSize { get; set; } = 512;
     /// <summary>RGB color to be used with email default templates for links.</summary>
     public string EmailLinkColorHex { get; set; } = "1abc9c";
     /// <summary>RGB color to be used with email default templates for links.</summary>

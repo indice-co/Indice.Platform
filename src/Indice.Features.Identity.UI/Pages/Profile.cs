@@ -1,6 +1,8 @@
+using System.Net.Http;
 using IdentityModel;
 using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
+using Indice.Extensions;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
@@ -8,9 +10,12 @@ using Indice.Globalization;
 using Indice.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 
@@ -87,9 +92,9 @@ public abstract class BaseProfileModel : BasePageModel
             return Page();
         }
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        var result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.GivenName, Input.FirstName);
+        var result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.GivenName, Input.FirstName!);
         AddModelErrors(result);
-        result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.FamilyName, Input.LastName);
+        result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.FamilyName, Input.LastName!);
         AddModelErrors(result);
         result = await UserManager.ReplaceClaimAsync(user, BasicClaimTypes.Tin, Input.Tin ?? string.Empty);
         AddModelErrors(result);
@@ -129,7 +134,8 @@ public abstract class BaseProfileModel : BasePageModel
     public virtual async Task<IActionResult> OnPostRemoveLoginAsync() {
         var user = await UserManager.GetUserAsync(User);
         if (user == null) {
-            return NotFound($"Unable to load user with ID '{UserManager.GetUserId(User)}'.");
+            TempData.Put("Alert", AlertModel.Error($"Unable to load user with ID '{UserManager.GetUserId(User)}'."));
+            return RedirectToPage("/Profile");
         }
         var result = await UserManager.RemoveLoginAsync(user, InputLoginLink.LoginProvider!, InputLoginLink.ProviderKey!);
         if (!result.Succeeded) {
@@ -137,7 +143,38 @@ public abstract class BaseProfileModel : BasePageModel
             return RedirectToPage("/Profile");
         }
         await SignInManager.RefreshSignInAsync(user);
-        TempData.Put("Alert", AlertModel.Success("The external login was removed."));
+        TempData.Put("Alert", AlertModel.Success("Profile image changed."));
+        return RedirectToPage("/Profile");
+    }
+
+
+    /// <summary>Profile page remove external login POST handler.</summary>
+    public virtual async Task<IActionResult> OnPostUploadPictureAsync(IFormFile file) {
+        var user = await UserManager.GetUserAsync(User);
+        if (user == null) {
+            TempData.Put("Alert", AlertModel.Error($"Unable to load user with ID '{UserManager.GetUserId(User)}'."));
+            return RedirectToPage("/Profile");
+        }
+        if (!(file?.Length > 0)) {
+            TempData.Put("Alert", AlertModel.Error($"file cannot be empty."));
+            return RedirectToPage("/Profile");
+        }
+        if (file?.Length > UiOptions.PictureUploadSizeLimit) {
+            TempData.Put("Alert", AlertModel.Error($"file cannot over {UiOptions.PictureUploadSizeLimit.ToFileSize()}."));
+            return RedirectToPage("/Profile");
+        }
+        var result = await UserManager.SetUserPictureAsync(user, file!.OpenReadStream(), UiOptions.PictureMaxSideSize);
+        if (!result.Succeeded) {
+            TempData.Put("Alert", AlertModel.Error(string.Join(", ", result.Errors.Select(x => x.Description))));
+            return RedirectToPage("/Profile");
+        }
+#if NET7_0_OR_GREATER
+        var cacheStore = ServiceProvider.GetService<Microsoft.AspNetCore.OutputCaching.IOutputCacheStore>();
+        if (cacheStore is not null) {
+            await cacheStore.EvictByTagAsync($"Picture|sub:{user.Id}", default);
+            await cacheStore.EvictByTagAsync($"Picture|userId:{user.Id}", default);
+        }
+#endif    
         return RedirectToPage("/Profile");
     }
 
@@ -159,6 +196,9 @@ public abstract class BaseProfileModel : BasePageModel
         }
         var userId = await UserManager.GetUserIdAsync(user);
         var externalLoginInfo = await SignInManager.GetExternalLoginInfoAsync(userId);
+        if (externalLoginInfo is null) {
+            return RedirectToPage("/Profile");
+        }
         var result = await UserManager.AddLoginAsync(user, new UserLoginInfo(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, externalLoginInfo.LoginProvider));
         if (!result.Succeeded) {
             TempData.Put("AlertProviders", AlertModel.Error(string.Join(", ", result.Errors.Select(x => x.Description))));

@@ -18,7 +18,7 @@ public class ResultSet<T>
     /// <summary>Total results count.</summary>
     public int Count { get; set; }
     /// <summary>The actual items collection. These could be less in number than the <see cref="Count"/> if the results refers to a page.</summary>
-    public T[] Items { get; set; }
+    public T[] Items { get; set; } = [];
 }
 
 /// <summary>A subclass of <see cref="ResultSet{T}"/> that provides additional information regarding the summary row for the data.</summary>
@@ -33,8 +33,8 @@ public class ResultSet<T, TSummary> : ResultSet<T>
     /// <param name="collection">The source collection or fragment/page of that.</param>
     /// <param name="totalCount">The total results count</param>
     /// <param name="summary">The summary row.</param>
-    public ResultSet(IEnumerable<T> collection, int totalCount, TSummary summary) : base(collection, totalCount) => Summary = summary;
+    public ResultSet(IEnumerable<T> collection, int totalCount, TSummary? summary) : base(collection, totalCount) => Summary = summary;
 
     /// <summary>Summary row.</summary>
-    public TSummary Summary { get; set; }
+    public TSummary? Summary { get; set; }
 }

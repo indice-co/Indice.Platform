@@ -51,12 +51,13 @@ internal class CampaignsController(
 
     /// <summary>Gets the list of all campaigns using the provided <see cref="ListOptions"/>.</summary>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+    /// <param name="filter">The filter part</param>
     /// <response code="200">OK</response>
     [HttpGet]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ResultSet<Campaign>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetCampaigns([FromQuery] ListOptions<CampaignListFilter> options) {
-        var campaigns = await CampaignService.GetList(options);
+    public async Task<IActionResult> GetCampaigns([FromQuery] ListOptions options, [FromQuery] CampaignListFilter filter) {
+        var campaigns = await CampaignService.GetList(ListOptions.Create(options, filter));
         return Ok(campaigns);
     }
 

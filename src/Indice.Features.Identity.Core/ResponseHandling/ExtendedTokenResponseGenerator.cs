@@ -35,11 +35,14 @@ public class ExtendedTokenResponseGenerator(
     ILogger<TokenResponseGenerator> logger,
     IServiceProvider serviceProvider) : TokenResponseGenerator(clock, tokenService, refreshTokenService, scopeParser, resources, clients, logger)
 {
-    private readonly IServiceProvider _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+    /// <summary>
+    /// The service provider scoped.
+    /// </summary>
+    protected IServiceProvider ServiceProvider { get; } = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
     /// <inheritdoc />
     protected override Task<TokenResponse> ProcessAuthorizationCodeRequestAsync(TokenRequestValidationResult request) {
-        var httpContext = _serviceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext;
+        var httpContext = ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext;
         var ip = httpContext.GetClientIpAddress();
         request.ValidatedRequest.Subject.AddIdentity(new(claims: [
             new(BasicClaimTypes.IPAddress, ip == IPAddress.None ? string.Empty : ip.ToString())
@@ -50,12 +53,49 @@ public class ExtendedTokenResponseGenerator(
     /// <inheritdoc />
     protected override async Task<TokenResponse> ProcessPasswordRequestAsync(TokenRequestValidationResult request) {
         var tokenResponse = await base.ProcessPasswordRequestAsync(request);
-        var config = _serviceProvider.GetService<ResourceOwnerPasswordValidatorOptions>();
+        var config = ServiceProvider.GetService<ResourceOwnerPasswordValidatorOptions>();
         if (config?.IncludeIdToken == false) {
             return tokenResponse;
         }
         if (request.ValidatedRequest.RequestedScopes.Contains(IdentityServerConstants.StandardScopes.OpenId)) {
-            Client client = null;
+            Client? client = null;
+            if (!string.IsNullOrWhiteSpace(request.ValidatedRequest.ClientId)) {
+                client = await Clients.FindEnabledClientByIdAsync(request.ValidatedRequest.ClientId);
+            }
+            if (client is null) {
+                throw new InvalidOperationException("Client does not exist anymore.");
+            }
+            var parsedScopesResult = ScopeParser.ParseScopeValues(request.ValidatedRequest.RequestedScopes);
+            var validatedResources = await Resources.CreateResourceValidationResult(parsedScopesResult);
+            var tokenRequest = new TokenCreationRequest {
+                Subject = request.ValidatedRequest.Subject,
+                ValidatedResources = validatedResources,
+                AccessTokenToHash = tokenResponse.AccessToken,
+                ValidatedRequest = request.ValidatedRequest
+            };
+            var idToken = await TokenService.CreateIdentityTokenAsync(tokenRequest);
+            var jwt = await TokenService.CreateSecurityTokenAsync(idToken);
+            tokenResponse.IdentityToken = jwt;
+        }
+        return tokenResponse;
+    }
+
+    /// <inheritdoc/>
+    protected override async Task<TokenResponse> ProcessExtensionGrantRequestAsync(TokenRequestValidationResult request) {
+        var httpContext = ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext;
+        var ip = httpContext.GetClientIpAddress();
+        request.ValidatedRequest.Subject.AddIdentity(new(claims: [
+            new(BasicClaimTypes.IPAddress, ip == IPAddress.None ? string.Empty : ip.ToString())
+        ]));
+        var tokenResponse = await base.ProcessExtensionGrantRequestAsync(request);
+
+
+        var config = ServiceProvider.GetService<ResourceOwnerPasswordValidatorOptions>();
+        if (config?.IncludeIdToken == false) {
+            return tokenResponse;
+        }
+        if (request.ValidatedRequest.RequestedScopes.Contains(IdentityServerConstants.StandardScopes.OpenId)) {
+            Client? client = null;
             if (!string.IsNullOrWhiteSpace(request.ValidatedRequest.ClientId)) {
                 client = await Clients.FindEnabledClientByIdAsync(request.ValidatedRequest.ClientId);
             }

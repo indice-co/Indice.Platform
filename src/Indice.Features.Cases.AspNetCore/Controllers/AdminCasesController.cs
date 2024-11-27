@@ -75,7 +75,8 @@ internal class AdminCasesController : ControllerBase
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="file">The file to attach.</param>
     /// <returns></returns>
-    [AllowedFileSize(6291456)] // 6 MegaBytes
+    [AllowedFileSize()]
+    [AllowedFileExtensions()]
     [Consumes("multipart/form-data")]
     [DisableRequestSizeLimit]
     [HttpPost("{caseId:guid}/attachments")]
@@ -88,16 +89,11 @@ internal class AdminCasesController : ControllerBase
             return BadRequest(new ValidationProblemDetails(ModelState));
         }
         var fileExtension = Path.GetExtension(file.FileName)?.ToLowerInvariant();
-        if (!_options.PermittedAttachmentFileExtensions.Contains(fileExtension)) {
-            return BadRequest(new ValidationProblemDetails(new Dictionary<string, string[]> {
-                { CasesApiConstants.ValidationErrorKeys.FileExtension, new[] { "File type extension is not acceptable." } }
-            }));
-        }
         var attachmentId = await _adminCaseMessageService.Send(caseId, User, new Message { File = file });
         return Ok(new CasesAttachmentLink { Id = attachmentId.GetValueOrDefault() });
     }
 
-    /// <summary>Get an Case Attachment</summary>
+    /// <summary>Get a Case Attachment</summary>
     /// <param name="caseId"></param>
     /// <param name="attachmentId"></param>
     /// <returns></returns>
@@ -107,6 +103,24 @@ internal class AdminCasesController : ControllerBase
     [Produces(typeof(IFormFile))]
     public async Task<IActionResult> GetCaseAttachment([FromRoute] Guid caseId, [FromRoute] Guid attachmentId) {
         var attachment = await _adminCaseService.GetAttachment(caseId, attachmentId);
+        if (attachment is null) {
+            return NotFound();
+        }
+        return File(attachment.Data, attachment.ContentType, attachment.Name);
+    }
+
+    /// <summary>
+    /// Get a Case Attachment by field name
+    /// </summary>
+    /// <param name="caseId"></param>
+    /// <param name="fieldName"></param>
+    /// <returns></returns>
+    [HttpGet("{caseId:guid}/attachments/{attachmentName}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IFormFile))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(void))]
+    [Produces(typeof(IFormFile))]
+    public async Task<IActionResult> GetAttachmentByField([FromRoute] Guid caseId, [FromRoute] string fieldName) {
+        var attachment = await _adminCaseService.GetAttachmentByField(User, caseId, fieldName);
         if (attachment is null) {
             return NotFound();
         }
@@ -139,7 +153,7 @@ internal class AdminCasesController : ControllerBase
         await _adminCaseService.Submit(User, caseId);
         return NoContent();
     }
-    
+
     /// <summary>Patches the metadata of a case.</summary>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="metadata">The metadata to patch.</param>
@@ -158,6 +172,22 @@ internal class AdminCasesController : ControllerBase
             return NotFound();
         }
         return Ok();
+    }
+
+    /// <summary>
+    /// Add a comment to an existing case regardless of its status and mode (draft or not).
+    /// </summary>
+    /// <param name="caseId">The Id of the case</param>
+    /// <param name="request">The message request</param>
+    /// <returns></returns>
+    [HttpPost("{caseId:guid}/comment")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(void))]
+    public async Task<IActionResult> AdminAddComment([FromRoute] Guid caseId, [FromBody] SendCommentRequest request) {
+
+        _ = await _adminCaseMessageService.Send(caseId, User, new Message { Comment = request.Comment, PrivateComment = request.PrivateComment, ReplyToCommentId = request.ReplyToCommentId });
+        return NoContent();
     }
 
 
@@ -212,6 +242,22 @@ internal class AdminCasesController : ControllerBase
     public async Task<IActionResult> GetCaseTimeline([FromRoute] Guid caseId) {
         var timeline = await _adminCaseService.GetTimeline(User, caseId);
         return Ok(timeline);
+    }
+
+    /// <summary>
+    /// Gets the cases that are related to the given id.
+    /// Set a value to the case's metadata with the key ExternalCorrelationKey to correlate cases.
+    /// </summary>
+    /// <param name="caseId">The id of the case.</param>
+    /// <response code="200">OK</response>
+    /// <response code="404">Not Found</response>
+    [HttpGet("{caseId:guid}/related-cases")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<CasePartial>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+    public async Task<IActionResult> GetRelatedCases([FromRoute] Guid caseId) {
+        var relatedCases = await _adminCaseService.GetRelatedCases(User, caseId);
+        return Ok(relatedCases);
     }
 
     /// <summary>Gets the cases actions (Approval, edit, assignments, etc) for a case Id. Actions differ based on user role.</summary>

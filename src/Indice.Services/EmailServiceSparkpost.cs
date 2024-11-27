@@ -43,7 +43,8 @@ public class EmailServiceSparkPost : IEmailService
     public IHtmlRenderingEngine HtmlRenderingEngine { get; }
 
     /// <inheritdoc/>
-    public async Task SendAsync(string[] recipients, string subject, string body, EmailAttachment[] attachments = null, EmailSender from = null) {
+    public async Task<SendReceipt> SendAsync(string[] recipients, string subject, string body, EmailAttachment[] attachments = null, EmailSender from = null) {
+        var messageId = Guid.NewGuid().ToString();
         var bccRecipients = (Settings.BccRecipients ?? "").Split(';', ',');
         var recipientAddresses = recipients.Select(recipient => new SparkPostRecipient {
             Address = new SparkPostRecipientEmailAddress {
@@ -76,7 +77,7 @@ public class EmailServiceSparkPost : IEmailService
                     Data = Convert.ToBase64String(attachment.Data)
                 });
             }
-            request.Content.Attachments = attachmentsList.ToArray();
+            request.Content.Attachments = [.. attachmentsList];
         }
         var requestJson = JsonSerializer.Serialize(request, new JsonSerializerOptions {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -85,10 +86,12 @@ public class EmailServiceSparkPost : IEmailService
         var response = await HttpClient.PostAsync("transmissions", new StringContent(requestJson, Encoding.UTF8, MediaTypeNames.Application.Json));
         if (!response.IsSuccessStatusCode) {
             var content = await response.Content.ReadAsStringAsync();
-            var message = $"SparkPost service could not send email to recipients '{string.Join(", ", recipients)}'. Error is: '{content}'.";
-            Logger.LogError(message);
-            throw new InvalidOperationException(message);
+            Logger.LogError("SparkPost service could not send email to recipients '{recipients}'. Error is: '{content}'.", string.Join(", ", recipients), content);
+            throw new EmailServiceException($"SparkPost service could not send email to recipients '{string.Join(", ", recipients)}'. Error is: '{content}'.");
         }
+        var responseJson = await response.Content.ReadAsStringAsync();
+        var sparkPostResponse = JsonSerializer.Deserialize<SparkPostTransmissionResponse>(responseJson)!;
+        return new SendReceipt(sparkPostResponse.Results?.Id ?? messageId, DateTimeOffset.UtcNow);
     }
 }
 
@@ -152,4 +155,23 @@ internal class SparkPostAttachment
     public string Type { get; set; }
     public string Data { get; set; }
 }
+
+internal class SparkPostTransmissionResponse
+{
+    [JsonPropertyName("results")]
+    public SparkPostTransmissionResults Results { get; set; } = new SparkPostTransmissionResults();
+}
+
+internal class SparkPostTransmissionResults
+{
+    [JsonPropertyName("total_rejected_recipients")]
+    public int TotalRejectedRecipients { get; set; }
+
+    [JsonPropertyName("total_accepted_recipients")]
+    public int TotalAcceptedRecipients { get; set; }
+
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = null!;
+}
+
 #endregion

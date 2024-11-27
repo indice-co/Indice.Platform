@@ -32,7 +32,7 @@ public sealed class UserPasswordLoginEventHandler : IPlatformEventHandler<UserPa
     public async Task Handle(UserPasswordLoginEvent @event, PlatformEventArgs args) {
         if (@event.Succeeded) {
             var clientId = _httpContextAccessor?.HttpContext?.GetClientIdFromReturnUrl();
-            Client client = null;
+            Client? client = null;
             if (!string.IsNullOrWhiteSpace(clientId)) {
                 client = await _clientStore.FindClientByIdAsync(clientId);
             }

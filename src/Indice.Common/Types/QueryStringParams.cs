@@ -1,7 +1,7 @@
 ﻿namespace Indice.Types;
 
 /// <summary>Custom dictionary for representing query string parameters.</summary>
-public class QueryStringParams : Dictionary<string, object>
+public class QueryStringParams : Dictionary<string, object?>
 {
     /// <summary>Constructs the <see cref="QueryStringParams"/></summary>
     public QueryStringParams() { }

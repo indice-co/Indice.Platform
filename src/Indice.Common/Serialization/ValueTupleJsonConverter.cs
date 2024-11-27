@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿#nullable disable
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Indice.Serialization;
@@ -208,3 +209,4 @@ public class ValueTupleJsonConverter<T1, T2, T3, T4, T5> : JsonConverter<ValueTu
         writer.WriteEndObject();
     }
 }
+#nullable enable
