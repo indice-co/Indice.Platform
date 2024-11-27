@@ -25,6 +25,8 @@ public class DbMessageTypeMap : IEntityTypeConfiguration<DbMessageType>
         builder.HasKey(x => x.Id);
         // Configure properties.
         builder.Property(x => x.Name).HasMaxLength(TextSizePresets.M128).IsRequired();
+        builder.Property(x => x.Commercial).HasDefaultValue(false);
+        
         // Configure indexes.
         builder.HasIndex(x => x.Name).IsUnique();
     }

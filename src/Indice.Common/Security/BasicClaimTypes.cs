@@ -86,7 +86,7 @@ public static class BasicClaimTypes
     /// data in OAuth messages, as defined in <a href="https://datatracker.ietf.org/doc/html/rfc9396">rfc9396</a>.</summary>
     public const string AuthorizationDetails = "authorization_details";
     /// <summary>User prefered channels for communication.</summary>
-    public const string CommunicationChannelPreferences = "communication_channel_preferences";
+    public const string CommunicationPreferences = "communication_preferences";
 
 
     /// <summary>All possible user related claims.</summary>

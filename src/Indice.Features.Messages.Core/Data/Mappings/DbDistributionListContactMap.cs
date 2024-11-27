@@ -22,6 +22,10 @@ public class DbDistributionListContactMap : IEntityTypeConfiguration<DbDistribut
         builder.ToTable("DistributionListContact", SchemaName);
         // Configure primary key.
         builder.HasKey(x => new { x.ContactId, x.DistributionListId });
+
+        // Configure properties.
+        builder.Property(x => x.Unsubscribed).HasDefaultValue(false);
+
         // Configure relationships.
         builder.HasOne(x => x.DistributionList).WithMany(x => x.ContactDistributionLists).HasForeignKey(x => x.DistributionListId);
         builder.HasOne(x => x.Contact).WithMany(x => x.DistributionListContacts).HasForeignKey(x => x.ContactId);
