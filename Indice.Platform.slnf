@@ -7,7 +7,6 @@
       "src\\Indice.AspNetCore.EmbeddedUI\\Indice.AspNetCore.EmbeddedUI.csproj",
       "src\\Indice.AspNetCore\\Indice.AspNetCore.csproj",      
       "src\\Indice.AspNetCore.Builder\\Indice.AspNetCore.Builder.csproj",
-      "src\\Indice.AspNet\\Indice.AspNet.csproj",
       "src\\Indice.Common\\Indice.Common.csproj",
       "src\\Indice.EntityFrameworkCore\\Indice.EntityFrameworkCore.csproj",
       "src\\Indice.Extensions.Configuration.Database\\Indice.Extensions.Configuration.Database.csproj",
