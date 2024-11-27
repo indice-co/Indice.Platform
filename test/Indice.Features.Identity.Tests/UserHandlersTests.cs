@@ -1,5 +1,4 @@
-﻿#if NET8_0_OR_GREATER
-using Indice.Events;
+﻿using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
@@ -82,4 +81,3 @@ public class UserHandlersTests : IAsyncLifetime
         }
     }
 }
-#endif

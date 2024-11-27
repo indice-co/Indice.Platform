@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Reflection;
 using Microsoft.OpenApi.Any;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Indice.AspNetCore.Swagger;
 
@@ -81,46 +83,25 @@ public static class OpenApiExtensions
         type.IsValueType || type.IsPrimitive || type.IsEnum || type == typeof(string);
 
     private static IOpenApiPrimitive GetStructValue(Type type, object value) {
-        var openValue = default(IOpenApiPrimitive);
-        if (type == typeof(DateTime?) && ((DateTime?)value).HasValue) {
-            openValue = new OpenApiDate(((DateTime?)value).Value);
-        } else if (type == typeof(DateTime) && ((DateTime)value) != default) {
-            openValue = new OpenApiDate(((DateTime)value));
-        } else if (type == typeof(DateTimeOffset) && ((DateTimeOffset)value) != default) {
-            openValue = new OpenApiDateTime((DateTimeOffset)value);
-        } else if (type == typeof(DateTimeOffset?) && ((DateTimeOffset?)value).HasValue) {
-            openValue = new OpenApiDateTime(((DateTimeOffset?)value).Value);
-        } else if (type == typeof(string)) {
-            openValue = new OpenApiString((string)value);
-        } else if (type == typeof(int) || type == typeof(int?)) {
-            openValue = new OpenApiInteger((int)value);
-        } else if (type == typeof(short) || type == typeof(short?)) {
-            openValue = new OpenApiInteger((short)value);
-        } else if (type == typeof(long) || type == typeof(long?)) {
-            openValue = new OpenApiLong((long)value);
-        } else if (type == typeof(float) || type == typeof(float?)) {
-            openValue = new OpenApiFloat((float)value);
-        } else if (type == typeof(decimal) || type == typeof(decimal?)) {
-            openValue = new OpenApiDouble((double)(decimal)value);
-        } else if (type == typeof(double) || type == typeof(double?)) {
-            openValue = new OpenApiDouble((double)value);
-        } else if (type == typeof(bool) || type == typeof(bool?)) {
-            openValue = new OpenApiBoolean((bool)value);
-        } else if (type == typeof(Guid) || type == typeof(Guid?)) {
-            openValue = new OpenApiString($"{value}");
-        } else if (type == typeof(byte) || type == typeof(byte?)) {
-            openValue = new OpenApiByte((byte)value);
-        } else if (
-#if NETSTANDARD14
-            type.GetTypeInfo().IsEnum || Nullable.GetUnderlyingType(type)?.GetTypeInfo().IsEnum == true) {
-#else
-            type.IsEnum || Nullable.GetUnderlyingType(type)?.IsEnum == true) {
-#endif
-            openValue = new OpenApiString($"{value}");
-        } else if (type.IsValueType && !type.IsPrimitive && !type.Namespace.StartsWith("System") && !type.IsEnum) {
-            openValue = new OpenApiString($"{value}");
-        }
-        return openValue;
+        return type switch {
+            { } t when t == typeof(DateTime?) && ((DateTime?)value).HasValue => new OpenApiDate(((DateTime?)value).Value),
+            { } t when t == typeof(DateTime) && ((DateTime)value) != default => new OpenApiDate((DateTime)value),
+            { } t when t == typeof(DateTimeOffset) && ((DateTimeOffset)value) != default => new OpenApiDateTime((DateTimeOffset)value),
+            { } t when t == typeof(DateTimeOffset?) && ((DateTimeOffset?)value).HasValue => new OpenApiDateTime(((DateTimeOffset?)value).Value),
+            { } t when t == typeof(string) => new OpenApiString((string)value),
+            { } t when t == typeof(int) || t == typeof(int?) => new OpenApiInteger((int)value),
+            { } t when t == typeof(short) || t == typeof(short?) => new OpenApiInteger((short)value),
+            { } t when t == typeof(long) || t == typeof(long?) => new OpenApiLong((long)value),
+            { } t when t == typeof(float) || t == typeof(float?) => new OpenApiFloat((float)value),
+            { } t when t == typeof(decimal) || t == typeof(decimal?) => new OpenApiDouble((double)(decimal)value),
+            { } t when t == typeof(double) || t == typeof(double?) => new OpenApiDouble((double)value),
+            { } t when t == typeof(bool) || t == typeof(bool?) => new OpenApiBoolean((bool)value),
+            { } t when t == typeof(Guid) || t == typeof(Guid?) => new OpenApiString($"{value}"),
+            { } t when t == typeof(byte) || t == typeof(byte?) => new OpenApiByte((byte)value),
+            { } t when t.IsEnum || Nullable.GetUnderlyingType(t)?.IsEnum == true => new OpenApiString($"{value}"),
+            { } t when t.IsValueType && !t.IsPrimitive && !t.Namespace.StartsWith("System") && !t.IsEnum => new OpenApiString($"{value}"),
+            _ => default
+        };
     }
 
     private static Type GetAnyElementType(Type type) {

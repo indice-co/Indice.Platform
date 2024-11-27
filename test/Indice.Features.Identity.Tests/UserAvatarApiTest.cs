@@ -1,6 +1,4 @@
-﻿
-#if NET8_0_OR_GREATER
-using IdentityModel;
+﻿using IdentityModel;
 using Indice.AspNetCore.Authorization;
 using Indice.Events;
 using Indice.Features.Identity.Core;
@@ -18,19 +16,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
-using System.Net.Http.Json;
 using Indice.Security;
 using IdentityServer4;
 using IdentityModel.Client;
 using IdentityServer4.Models;
 using System.Security.Claims;
-using IdentityServer4.ResponseHandling;
-using IdentityServer4.Services;
-using Indice.Features.Identity.Core.ResponseHandling;
-using Indice.Features.Identity.Core.TokenCreation;
 using TokenResponse = IdentityModel.Client.TokenResponse;
 using Microsoft.AspNetCore.HttpOverrides;
-using System;
 using System.Net.Http.Headers;
 
 namespace Indice.Features.Identity.Tests;
@@ -256,4 +248,3 @@ public class UserAvatarApiTest : IAsyncLifetime
         return Task.CompletedTask;
     }
 }
-#endif

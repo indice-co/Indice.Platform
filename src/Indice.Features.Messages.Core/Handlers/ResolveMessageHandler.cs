@@ -83,13 +83,6 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         if (!@event.Campaign.Published) {
             return;
         }
-#if NET7_0_OR_GREATER
-#else 
-        var customDataSerializationOptions = new JsonSerializerOptions {
-            Converters = { new ObjectAsPrimitiveConverter(floatFormat: ObjectAsPrimitiveConverter.FloatKind.Double, unknownNumberFormat: ObjectAsPrimitiveConverter.UnknownNumberKind.Error, objectFormat: ObjectAsPrimitiveConverter.ObjectKind.Expando) },
-            WriteIndented = true,
-        };
-#endif
         // Make substitution to message content using contact resolved data.
         var handlebars = Handlebars.Create();
         handlebars.Configuration.TextEncoder = new HtmlEncoder();
@@ -104,21 +97,12 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
                 },
                 mediaBaseHref = campaign.MediaBaseHref,
                 now = DateTimeOffset.UtcNow,
-#if NET7_0_OR_GREATER
                 contact = contact is not null
                     ? JsonSerializer.Deserialize<System.Text.Json.Nodes.JsonNode>(JsonSerializer.Serialize(contact, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings())
                     : null,
                 data = campaign.Data is not null && (campaign.Data is not string || !string.IsNullOrWhiteSpace(campaign.Data))
                     ? JsonSerializer.Deserialize<System.Text.Json.Nodes.JsonNode>(campaign.Data, JsonSerializerOptionDefaults.GetDefaultSettings())
                     : null
-#else
-                contact = contact is not null
-                    ? JsonSerializer.Deserialize<dynamic>(JsonSerializer.Serialize(contact, JsonSerializerOptionDefaults.GetDefaultSettings()), customDataSerializationOptions)
-                    : null,
-                data = campaign.Data is not null && (campaign.Data is not string || !string.IsNullOrWhiteSpace(campaign.Data))
-                    ? JsonSerializer.Deserialize<dynamic>(campaign.Data, customDataSerializationOptions)
-                    : null
-#endif
             };
             var messageContent = campaign.Content[content.Key];
             messageContent.Title = handlebars.Compile(content.Value.Title)(templateData);

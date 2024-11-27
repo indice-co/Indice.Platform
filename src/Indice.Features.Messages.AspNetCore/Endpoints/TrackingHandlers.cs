@@ -1,5 +1,4 @@
-﻿#if NET7_0_OR_GREATER
-#nullable enable
+﻿#nullable enable
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -36,4 +35,3 @@ Parameters:
 }
 
 #nullable disable
-#endif

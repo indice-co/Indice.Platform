@@ -168,13 +168,11 @@ public abstract class BaseProfileModel : BasePageModel
             TempData.Put("Alert", AlertModel.Error(string.Join(", ", result.Errors.Select(x => x.Description))));
             return RedirectToPage("/Profile");
         }
-#if NET7_0_OR_GREATER
         var cacheStore = ServiceProvider.GetService<Microsoft.AspNetCore.OutputCaching.IOutputCacheStore>();
         if (cacheStore is not null) {
             await cacheStore.EvictByTagAsync($"Picture|sub:{user.Id}", default);
             await cacheStore.EvictByTagAsync($"Picture|userId:{user.Id}", default);
-        }
-#endif    
+        } 
         return RedirectToPage("/Profile");
     }
 

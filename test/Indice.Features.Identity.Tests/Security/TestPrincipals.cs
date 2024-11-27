@@ -12,14 +12,9 @@ internal class TestPrincipals
             new Claim(JwtClaimTypes.Name, "indice"),
             new Claim(JwtClaimTypes.Role, BasicRoleNames.AdminUIUsersWriter),
             new Claim(JwtClaimTypes.Subject, "6c9fa6dd-ede4-486b-bf91-6de18542da4a"),
-#if NET7_0_OR_GREATER
-        new Claim(JwtClaimTypes.Scope, Indice.Features.Identity.Server.IdentityEndpoints.Scope),
-        new Claim(JwtClaimTypes.Scope, Indice.Features.Identity.Server.IdentityEndpoints.SubScopes.Users),
-#else
-        new Claim(JwtClaimTypes.Scope, AspNetCore.Identity.Api.Security.IdentityServerApi.Scope),
-        new Claim(JwtClaimTypes.Scope, AspNetCore.Identity.Api.Security.IdentityServerApi.SubScopes.Users),
-#endif
-        new Claim(JwtClaimTypes.Role, "Administrator"),
+            new Claim(JwtClaimTypes.Scope, Indice.Features.Identity.Server.IdentityEndpoints.Scope),
+            new Claim(JwtClaimTypes.Scope, Indice.Features.Identity.Server.IdentityEndpoints.SubScopes.Users),
+            new Claim(JwtClaimTypes.Role, "Administrator"),
         ], "Dummy", JwtClaimTypes.Name, JwtClaimTypes.Role));
 
     public static ClaimsPrincipal TestClient => new ClaimsPrincipal(new ClaimsIdentity([

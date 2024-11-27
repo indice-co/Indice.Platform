@@ -55,11 +55,7 @@ public class FileServiceInMemory : IFileService
             stream.CopyTo(ms);
             Cache[filePath] = ms.ToArray();
         }
-#if NET452
-        return Task.FromResult(0);
-#else
         return Task.CompletedTask;
-#endif
     }
 
     /// <inheritdoc />

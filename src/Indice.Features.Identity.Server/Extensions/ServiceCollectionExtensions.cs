@@ -117,9 +117,6 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         Action<DbContextOptionsBuilder>? configureConfigurationDbContext,
         Action<DbContextOptionsBuilder>? configurePersistedGrantDbContext
     ) {
-#if NET6_0
-        JsonExtensions.Serializer = o => JsonSerializer.Serialize(o);
-#endif
         services.AddTransient<ITokenResponseGenerator, ExtendedTokenResponseGenerator>();
         services.AddTransient<ITokenCreationService, ExtendedTokenCreationService>();
         var identityServerBuilder = services.AddIdentityServer(options => {

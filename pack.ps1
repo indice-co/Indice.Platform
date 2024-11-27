@@ -4,7 +4,6 @@
 dotnet pack src/Indice.AspNetCore.Authentication.Apple/Indice.AspNetCore.Authentication.Apple.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.AspNetCore.Authentication.GovGr/Indice.AspNetCore.Authentication.GovGr.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.AspNetCore.EmbeddedUI/Indice.AspNetCore.EmbeddedUI.csproj --no-restore --no-build -c Release -o ./artifacts
-dotnet pack src/Indice.AspNetCore.Identity/Indice.AspNetCore.Identity.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.AspNetCore/Indice.AspNetCore.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.AspNetCore.Builder/Indice.AspNetCore.Builder.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Common/Indice.Common.csproj --no-restore --no-build -c Release -o ./artifacts

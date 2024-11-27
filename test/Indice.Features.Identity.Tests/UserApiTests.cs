@@ -1,14 +1,10 @@
-﻿#if NET8_0_OR_GREATER
-using IdentityModel;
-using Indice.AspNetCore.Authorization;
+﻿using Indice.AspNetCore.Authorization;
 using Indice.Events;
-using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Server;
-using Indice.Features.Identity.Server.Manager;
 using Indice.Features.Identity.Tests.Security;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Builder;
@@ -19,9 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using System.Net.Http.Json;
-using Microsoft.AspNetCore.Authentication.OAuth;
 using Indice.Security;
-using IdentityServer4;
 
 namespace Indice.Features.Identity.Tests;
 public class UserApiTests : IAsyncLifetime
@@ -133,4 +127,3 @@ public class UserApiTests : IAsyncLifetime
         }
     }
 }
-#endif

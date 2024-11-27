@@ -1,7 +1,4 @@
-﻿#if NET5_0
-using System.Buffers;
-#endif
-using System.Dynamic;
+﻿using System.Dynamic;
 using System.Reflection;
 using System.Text.Json;
 

@@ -15,7 +15,6 @@ namespace Indice.AspNetCore.Http.Filters;
 /// <summary>Endpoint memory caching extensions.</summary>
 public static class CacheResourceFilterExtensions
 {
-#if NET7_0_OR_GREATER
     /// <summary>Adds the ability to cache the responses.</summary>
     /// <typeparam name="TBuilder"></typeparam>
     /// <param name="builder">Builds conventions that will be used for customization of <see cref="EndpointBuilder"/> instances.</param>
@@ -184,7 +183,6 @@ public static class CacheResourceFilterExtensions
         return keyMainPart;
     }
 
-#endif
     /// <summary>NoCache metadata that will override the cache behavior.</summary>
     private sealed record NoCacheMetadata();
 }

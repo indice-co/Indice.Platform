@@ -1,5 +1,4 @@
-﻿#if NET7_0_OR_GREATER
-using System.Reflection;
+﻿using System.Reflection;
 using Indice.AspNetCore.Http.Validation;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
@@ -164,4 +163,3 @@ public static partial class ValidationFilterExtensions
         return builder;
     }
 }
-#endif

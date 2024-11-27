@@ -1,5 +1,4 @@
-﻿#if NET7_0_OR_GREATER
-using Indice.Extensions;
+﻿using Indice.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
@@ -83,4 +82,3 @@ public static class OpenApiExtensions
     public static RouteGroupBuilder ProducesValidationProblem(this RouteGroupBuilder builder, int statusCode = 400, string contentType = null) 
         => builder.WithMetadata(new ProducesResponseTypeMetadata(statusCode, typeof(HttpValidationProblemDetails), [ contentType ?? "application/problem+json" ]));
 }
-#endif

@@ -14,15 +14,10 @@ namespace Indice.Serialization;
 /// <param name="objectFormat">The contaner format for a JSON object in CLR.</param>
 public class ObjectAsPrimitiveConverter(ObjectAsPrimitiveConverter.FloatKind floatFormat, ObjectAsPrimitiveConverter.UnknownNumberKind unknownNumberFormat, ObjectAsPrimitiveConverter.ObjectKind objectFormat) : JsonConverter<object?>
 {
-#if NET6_0_OR_GREATER
     FloatKind FloatFormat { get; init; } = floatFormat;
     UnknownNumberKind UnknownNumberFormat { get; init; } = unknownNumberFormat;
     ObjectKind ObjectFormat { get; init; } = objectFormat;
-#else
-    FloatKind FloatFormat { get; set; } = floatFormat;
-    UnknownNumberKind UnknownNumberFormat { get; set; } = unknownNumberFormat;
-    ObjectKind ObjectFormat { get; set; } = objectFormat;
-#endif
+ 
     /// <inheritdoc/>
     public ObjectAsPrimitiveConverter() : this(FloatKind.Double, UnknownNumberKind.Error, ObjectKind.Expando) { }
 

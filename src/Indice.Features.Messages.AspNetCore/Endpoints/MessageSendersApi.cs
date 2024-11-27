@@ -1,5 +1,4 @@
-﻿#if NET7_0_OR_GREATER
-#nullable enable
+﻿#nullable enable
 
 using Indice.Features.Messages.AspNetCore.Endpoints;
 using Microsoft.AspNetCore.Builder;
@@ -72,4 +71,3 @@ internal static class MessageSendersApi
 }
 
 #nullable disable
-#endif
