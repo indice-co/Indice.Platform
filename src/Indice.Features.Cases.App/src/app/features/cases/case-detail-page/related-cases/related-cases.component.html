@@ -1,24 +1,25 @@
 <div class="mt-auto pt-1 pl-1" *ngIf="relatedCases.length > 0">
-  <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Σχετικές Υποθέσεις</h3>
-  <ul class="overflow-y-auto" style="max-height: 14rem;">
-    <li *ngFor="let relatedCase of relatedCases" class="flex flex-row items-center p-1">
-      <div class="text-xs font-semibold px-2.5 py-0.5 bg-blue-100 text-blue-800 dark:bg-blue-200 dark:text-blue-800 w-25 text-center">
-        {{ relatedCase.caseType?.code }}
-      </div>
-      <div class="ml-2 text-xs font-semibold px-2.5 py-0.5 bg-blue-100 text-blue-800 dark:bg-blue-200 dark:text-blue-800 w-40 text-center">
-        {{ relatedCase.checkpointType?.code }}
-      </div>
-      <div class="flex-1">
-        <ng-container *ngIf="relatedCase.id === currentCaseId; else clickableLink">
-          <div class="ml-4">{{ relatedCase.createdByWhen | toReadableDate }}</div>
-        </ng-container>
-        <ng-template #clickableLink>
-          <a [routerLink]="['/cases', relatedCase.id, 'details']"
-             class="ml-4 text-blue-600 hover:text-blue-800 font-semibold hover:underline">
+  <div class="overflow-y-auto" style="max-height: 14rem;">
+    <table class="table-auto w-full border-collapse">
+      <tbody>
+        <tr *ngFor="let relatedCase of relatedCases" class="hover:bg-gray-50 border-b border-gray-200">
+          <td class="px-1.5 py-1 text-[16px]" style="color: #374151;">
+            {{ relatedCase.caseType?.code }}
+          </td>
+          <td class="px-1.5 py-1 text-[18px] font-bold" style="color: #374151;">
+            {{ relatedCase.checkpointType?.code }}
+          </td>
+          <td class="px-1.5 py-1 text-gray-400 dark:text-gray-500 text-sm">
             {{ relatedCase.createdByWhen | toReadableDate }}
-          </a>
-        </ng-template>
-      </div>
-    </li>
-  </ul>
+          </td>
+          <td class="px-1.5 py-1">
+            <button [routerLink]="['/cases', relatedCase.id, 'details']"
+                    class="bg-blue-600 hover:bg-blue-800 text-white px-2 py-1 rounded">
+              <i class="ms-Icon ms-Icon--SkypeArrow rotate-180"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
