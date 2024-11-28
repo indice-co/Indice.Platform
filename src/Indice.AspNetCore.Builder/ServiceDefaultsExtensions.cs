@@ -13,6 +13,7 @@ using OpenTelemetry.Exporter;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Extensions.Hosting;
 
@@ -132,9 +133,9 @@ public static class ServiceDefaultsExtensions
         //    .WithMetrics(metrics => metrics.AddPrometheusExporter());
 
         // enables the Azure Monitor exporter (requires the Azure.Monitor.OpenTelemetry.AspNetCore package)
-        else if (!string.IsNullOrEmpty(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"])) {
+        else if (builder.Configuration.GetApplicationInsightsConnectionString() is { Length: > 0 } azureMonitorConnectionString) {
             builder.Services.AddOpenTelemetry()
-                    .UseAzureMonitor();
+                    .UseAzureMonitor(options => options.ConnectionString = azureMonitorConnectionString);
         }
 
         return builder;

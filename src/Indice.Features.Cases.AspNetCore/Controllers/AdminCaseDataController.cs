@@ -55,14 +55,15 @@ public class AdminCaseDataController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> PatchAdminCaseData([FromRoute] Guid caseId, [FromBody] object patch) {
-        await _adminCaseService.PatchCaseData(User, caseId,  patch);
+        await _adminCaseService.PatchCaseData(User, caseId, patch);
         return NoContent();
     }
-    
+
     /// <summary>
     /// Update the Case Data for the specific caseId according to https://datatracker.ietf.org/doc/html/rfc6902#appendix-A
     /// Example Usage:
     /// </summary>
+    /// <param name="caseId"></param>
     /// <param name="request">
     /// <code>
     /// _casesApiClient.JsonPatchAdminCaseDataAsync(caseId, null, new PatchJsonPathRequest[] {
@@ -77,9 +78,10 @@ public class AdminCaseDataController : ControllerBase
     [HttpPatch("{caseId:guid}/data-json")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> JsonPatchAdminCaseData([FromRoute] Guid caseId, [FromBody] List<PatchJsonPathRequest> request) {
+    public async Task<IActionResult> JsonPatchAdminCaseData([FromRoute] Guid caseId,
+        [FromBody] List<PatchJsonPathRequest> request) {
         var operations = request.Select(op => op.ToPatchOperation()).ToList();
-        await _adminCaseService.PatchCaseData(User, caseId,  new JsonPatch(operations));
+        await _adminCaseService.PatchCaseData(User, caseId, new JsonPatch(operations));
         return NoContent();
     }
 }

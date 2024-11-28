@@ -52,6 +52,11 @@
   .basic-modal-accept-success {
     @apply text-green-700 bg-green-100 hover:bg-green-200 focus:ring-green-500;
   }
+
+}
+
+.toggle-button-container-inner-true {
+  opacity: 0;
 }
 
 .sr-only {

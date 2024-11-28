@@ -124,6 +124,7 @@ public interface IAdminCaseService
     /// <summary>
     /// Gets a single Case Attachment by field name
     /// </summary>
+    /// <param name="user"></param>
     /// <param name="caseId"></param>
     /// <param name="fieldName"></param>
     /// <returns></returns>

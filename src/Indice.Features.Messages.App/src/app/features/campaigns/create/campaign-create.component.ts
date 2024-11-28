@@ -44,7 +44,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
 
     public get okLabel(): string {
         return this._stepper.currentStep?.isLast
-            ? this._previewStep.published.value === true
+            ? this._previewStep.model.published === true
                 ? 'Αποθήκευση & Δημοσίευση'
                 : 'Αποθήκευση'
             : 'Επόμενο';
@@ -125,7 +125,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
                 to: this._basicInfoStep.to.value ? new Date(this._basicInfoStep.to.value) : undefined
             }),
             isGlobal: this._recipientsStep.sendVia.value === 'user-base',
-            published: this._previewStep.published.value,
+            published: this._previewStep.model.published,
             title: this._basicInfoStep.title.value,
             data: JSON.parse(this._contentStep.data.value),
             mediaBaseHref: this._contentStep.additionalData.mediaBaseHref,

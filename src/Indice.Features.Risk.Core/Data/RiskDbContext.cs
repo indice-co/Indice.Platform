@@ -26,7 +26,7 @@ public class RiskDbContext : DbContext, IAppSettingsDbContext
     /// <summary>
     /// Risk rules definitions table.
     /// </summary>
-    public DbSet<DbAppSetting> AppSettings { get; set; }
+    public DbSet<DbAppSetting> AppSettings { get; set; } = null!;
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder) {

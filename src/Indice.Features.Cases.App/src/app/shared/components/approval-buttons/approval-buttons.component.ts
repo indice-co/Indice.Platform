@@ -18,6 +18,7 @@ export class ApprovalButtonsComponent implements OnInit {
   /** conditionally show a warning modal */
   @Input() showWarningModal: boolean | undefined;
   @Input() warningModalState: any | undefined;
+  @Input() caseTypeConfig: any | undefined = {};
   public buttonsDisabled: boolean | undefined = false;
   public approveButtonDisabled: boolean | undefined = false;
   public comment: string | undefined;
@@ -93,5 +94,4 @@ export class ApprovalButtonsComponent implements OnInit {
         this.router.navigate(['/cases']);
       });
   }
-
 }
