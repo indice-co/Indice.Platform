@@ -6,8 +6,8 @@
     <VersionPrefix>$(VersionPrefixRisk)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="FluentValidation" Version="11.9.0" />
-    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.9.0" />
+    <PackageReference Include="FluentValidation" Version="11.11.0" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
     <PackageReference Include="Indice.Common" Version="$(VersionPrefixCore)" />
     <PackageReference Include="Indice.EntityFrameworkCore" Version="$(VersionPrefixCore)" />
     <PackageReference Include="Indice.Extensions.Configuration.Database" Version="$(VersionPrefixCore)" />

@@ -73,7 +73,7 @@ public class SmsTests
             ["Sms:ApiKey"] = apiKey,
             ["Sms:Token"] = token,
             ["Sms:Sender"] = sender,
-            ["Sms:SenderName"] = sender,
+            ["Sms:SenderName"] = senderName,
             ["Sms:TestMode"] = true.ToString()
         };
         var configuration = new ConfigurationBuilder()

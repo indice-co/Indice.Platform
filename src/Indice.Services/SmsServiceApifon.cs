@@ -119,14 +119,14 @@ public class SmsServiceApifon : ISmsService
 public class SmsServiceApifonOptions
 {
     /// <summary>Optional options for <see cref="HttpMessageHandler"/></summary>
-    public Func<IServiceProvider, HttpMessageHandler> ConfigurePrimaryHttpMessageHandler { get; set; }
+    public Func<IServiceProvider, HttpMessageHandler>? ConfigurePrimaryHttpMessageHandler { get; set; }
 }
 
 /// <summary>Extra settings class for configuring Apifon SMS service client. </summary>
 public class SmsServiceApifonSettings : SmsServiceSettings
 {
     /// <summary>Apifon Api token key.</summary>
-    public string Token { get; set; }
+    public string Token { get; set; } = null!;
 }
 
 internal class ApifonResponse
