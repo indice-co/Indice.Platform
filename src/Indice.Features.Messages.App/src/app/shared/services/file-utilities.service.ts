@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Exception } from 'handlebars';
 import { settings } from 'src/app/core/models/settings';
 import { MediaFile } from 'src/app/core/services/media-api.service';
 
@@ -66,6 +67,12 @@ export class FileUtilitiesService {
       document?.getSelection()?.removeAllRanges();
       document?.getSelection()?.addRange(selected);
     }
+  }
+
+  public copyFilePathToClipboard(file: MediaFile) {
+    return navigator.clipboard.writeText(file.path ?? '').catch((err) => {
+      throw err;
+    });
   }
 
   public openFileInNewTab(file: MediaFile) {

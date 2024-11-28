@@ -7,6 +7,7 @@ import { map, mergeMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { settings } from 'src/app/core/models/settings';
 import { FileUtilitiesService } from 'src/app/shared/services/file-utilities.service';
+import { ToasterService, ToastType } from '@indice/ng-components';
 
 @Component({
   selector: 'app-document-edit',
@@ -21,7 +22,8 @@ export class DocumentEditComponent implements OnInit {
         private _mediaStore: MediaLibraryStore,
         private _router: Router,
         private _changeDetector: ChangeDetectorRef,
-        private _fileUtilitiesService: FileUtilitiesService
+        private _fileUtilitiesService: FileUtilitiesService,
+        private _toaster: ToasterService
     ) { }
 
     public submitInProgress = false;
@@ -59,4 +61,15 @@ export class DocumentEditComponent implements OnInit {
     public async download() {
       await this._fileUtilitiesService.downloadFile(this.file);
     }
+
+    public copyToClipboard(file: MediaFile): void {
+      this._fileUtilitiesService.copyFilePathToClipboard(file)
+        .then(() => {
+          this._toaster.show(ToastType.Success, 'Αντιγραφή τοποθεσίας', `Η τοποθεσία '${file.path}' αντιγράφηκε με επιτυχία.`);
+        })
+        .catch((err) => {
+          this._toaster.show(ToastType.Error, 'Αποτυχία αντιγραφής', 'Η τοποθεσία δεν μπόρεσε να αντιγραφεί στο πρόχειρο.');
+        });
+    }
+    
 }
