@@ -122,7 +122,7 @@ public class AccountService(
         var isExistingBrowser = false;
         if (!string.IsNullOrWhiteSpace(deviceIdentifier.Value)) {
             var browserDevice = await _userManager.GetDeviceByIdAsync(user, deviceIdentifier.Value);
-            isExistingBrowser = browserDevice is not null;
+            isExistingBrowser = browserDevice is not null && browserDevice.MfaSessionExpirationDate > DateTimeOffset.UtcNow;
         }
         return new MfaLoginViewModel {
             AllowMfaChannelDowngrade = allowMfaChannelDowngrade,
