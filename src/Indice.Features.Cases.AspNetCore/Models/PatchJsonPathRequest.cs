@@ -7,12 +7,21 @@ namespace Indice.Features.Cases.Models;
 /// <summary>PatchJsonPathRequest</summary>
 public class PatchJsonPathRequest
 {
+    /// <summary>
+    /// Operation objects MUST have exactly one "op" member, whose value
+    /// indicates the operation to perform.  Its value MUST be one of "add",
+    /// "remove", "replace", "move", "copy", or "test"
+    /// Operation Type https://datatracker.ietf.org/doc/html/rfc6902#section-4
+    /// </summary>
     public OperationType Op { get; set; }
     
+    /// <summary>The Path on which to perform the Operation.</summary>
     public string Path { get; set; }
     
+    /// <summary>The Value of the Operation, can differ depending on the Operation</summary>
     public object Value { get; set; }
     
+    /// <summary>Only Used for Move and Copy Operations.</summary>
     public string From { get; set; }
 
     internal PatchOperation ToPatchOperation() {
