@@ -1,8 +1,9 @@
 <Project>
     <PropertyGroup Label="Assembly Common">
       <Copyright>Copyright (c) 2018 Indice</Copyright>
-      <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
-      <VersionPrefixBase>7.47</VersionPrefixBase>
+      <TargetFrameworks></TargetFrameworks>
+      <TargetFramework>net8.0</TargetFramework>
+      <VersionPrefixBase>8.0</VersionPrefixBase>
       <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
       <VersionPrefixIdentity>$(VersionPrefixBase).0</VersionPrefixIdentity>
       <VersionPrefixIdentityUI>$(VersionPrefixBase).0</VersionPrefixIdentityUI>
@@ -15,7 +16,7 @@
       <VersionPrefixAspNet>$(VersionPrefixBase).0</VersionPrefixAspNet>
       <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
       <!--<VersionSuffix>beta-01</VersionSuffix>-->
-      <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
+      <Authors>Constantinos Leftheris</Authors>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
       <LangVersion>Latest</LangVersion>
       <ImplicitUsings>enable</ImplicitUsings>

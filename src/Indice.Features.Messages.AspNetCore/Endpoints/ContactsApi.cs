@@ -1,5 +1,4 @@
-﻿#if NET7_0_OR_GREATER
-#nullable enable
+﻿#nullable enable
 
 using Indice.Features.Messages.AspNetCore.Endpoints;
 using Indice.Features.Messages.Core;
@@ -68,4 +67,3 @@ internal static class ContactsApi
 }
 
 #nullable disable
-#endif

@@ -1,5 +1,4 @@
-﻿#if NET7_0_OR_GREATER
-#nullable enable
+﻿#nullable enable
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -117,4 +116,3 @@ internal static class AvatarsHandlers
     }
 }
 #nullable disable
-#endif

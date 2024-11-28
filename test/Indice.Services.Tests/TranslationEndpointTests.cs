@@ -1,10 +1,4 @@
-﻿#if NET8_0_OR_GREATER
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
@@ -12,11 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 using Microsoft.AspNetCore.Routing;
-using System.Text.Json.Nodes;
-using Indice.AspNetCore.Views;
 using Microsoft.Extensions.Localization;
 using Indice.Services.Tests.Types;
-using System.Runtime.CompilerServices;
 
 namespace Indice.Services.Tests;
 public class TranslationEndpointTests : IAsyncLifetime
@@ -91,6 +82,3 @@ public class TranslationEndpointTests : IAsyncLifetime
         await _serviceProvider.DisposeAsync();
     }
 }
-
-
-#endif

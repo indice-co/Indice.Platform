@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Package">
-    <Authors>Thanos Panousis, Dimitris Karkanas, Christos Asvestopoulos, Hermes Krouskos</Authors>
+    <Authors>Thanos Panousis, Dimitris Karkanas</Authors>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <SpaProjectName>cases-app</SpaProjectName>
     <SpaSourceFolder>..\Indice.Features.Cases.App</SpaSourceFolder>

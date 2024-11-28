@@ -28,11 +28,7 @@ public static class ProxyDebugExtensions
     /// <remarks>Defaults to endpoint path <strong>/proxy-debug</strong></remarks>
     /// <returns></returns>
     public static IEndpointConventionBuilder MapProxyDebug(this IEndpointRouteBuilder endpoints,
-#if NET7_0_OR_GREATER
         [StringSyntax("Route")] string pattern = "/proxy-debug",
-#else
-        string pattern = "/proxy-debug", 
-#endif
         Action<DebugProxyOptions>? configure = null) {
         var options = new DebugProxyOptions();
         configure?.Invoke(options);

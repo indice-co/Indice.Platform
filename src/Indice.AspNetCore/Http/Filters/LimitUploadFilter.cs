@@ -1,5 +1,4 @@
-﻿#if NET7_0_OR_GREATER
-using Indice.Extensions;
+﻿using Indice.Extensions;
 using Microsoft.AspNetCore.Builder;
 
 namespace Microsoft.AspNetCore.Http;
@@ -51,4 +50,3 @@ public static class LimitUploadFilter
         return builder;
     }
 }
-#endif

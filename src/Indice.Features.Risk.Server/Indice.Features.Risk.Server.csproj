@@ -3,7 +3,6 @@
     <Nullable>enable</Nullable>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;Risk;RulesEngine;MinimalApis</PackageTags>
-    <TargetFrameworks>net7.0;net8.0</TargetFrameworks>
     <VersionPrefix>$(VersionPrefixRisk)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>

@@ -288,17 +288,8 @@ public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser
         return IdentityResult.Success;
     }
 
-#if NET7_0_OR_GREATER
-    [StringSyntax("Regex")]
-#endif
-    private const string Base64PicturePattern = "data:(?<ContentType>.+);base64,(?<Data>.+)";
-#if NET7_0_OR_GREATER
-    [GeneratedRegex(Base64PicturePattern)]
+    [GeneratedRegex("data:(?<ContentType>.+);base64,(?<Data>.+)")]
     private static partial Regex GetBase64PictureRegex();
-#else
-    private static readonly Regex _base64PictureRegex = new(Base64PicturePattern, RegexOptions.Compiled);
-    private static Regex GetBase64PictureRegex() => _base64PictureRegex;
-#endif
 
     /// <inheritdoc/>
     public async Task<IdentityResult> SetUserPictureAsync(TUser user, Stream inputStream, int sideSize = 256, double scale = 1, int translateX = 0, int translateY = 0, int viewPortSize = 256, CancellationToken cancellationToken = default) {

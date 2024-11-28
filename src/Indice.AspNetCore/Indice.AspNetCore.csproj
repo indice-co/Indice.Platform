@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Package">
-    <PackageTags>AspNetCore;TagHelpers;Grid;Sorting;Paging</PackageTags>
-    <PackageReleaseNotes>Update Indice.Services.</PackageReleaseNotes>
+    <PackageTags>AspNetCore;WebUtilities</PackageTags>
+    <PackageReleaseNotes></PackageReleaseNotes>
     <VersionPrefix>$(VersionPrefixCore)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
@@ -19,16 +19,6 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="7.1.0" />
     <PackageReference Include="IdentityModel" Version="7.0.0" />
     <PackageReference Include="JsonSchema.Net.Generation" Version="4.5.1" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.28" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="7.0.17" />
-    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="7.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.20" />
-    <PackageReference Include="Microsoft.OpenApi" Version="1.6.22" />
-    <PackageReference Include="MiniValidation" Version="0.9.1" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.3" />

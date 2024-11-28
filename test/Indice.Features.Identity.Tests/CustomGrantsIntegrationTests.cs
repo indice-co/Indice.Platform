@@ -617,13 +617,6 @@ public class CustomGrantsIntegrationTests
             payload.Add(group.Key, group.SelectMany(x => x.JsonValue.EnumerateArray()).ToArray());
         }
 
-#if NET6_0
-        JsonExtensions.Serializer = o => JsonSerializer.Serialize(o);
-        var serializer = JsonExtensions.Serializer;
-
-        var aa = serializer(payload);
-#endif
-
         var json = payload.SerializeToJson();
         Assert.NotNull(json);
     }

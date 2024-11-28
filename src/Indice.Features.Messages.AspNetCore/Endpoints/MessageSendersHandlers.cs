@@ -1,5 +1,4 @@
-﻿#if NET7_0_OR_GREATER
-#nullable enable
+﻿#nullable enable
 
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Http;
@@ -80,4 +79,3 @@ Parameters:
 }
 
 #nullable disable
-#endif

@@ -8,8 +8,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <VersionPrefix>$(VersionPrefixRisk)</VersionPrefix>
   </PropertyGroup>
-
-
   <ItemGroup>
     <EmbeddedResource Include="$(SpaDistFolder)\**\*" Exclude="$(SpaDistFolder)\**\index.html" />
     <EmbeddedResource Include="$(SpaProjectName)\index.html" />
