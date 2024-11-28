@@ -14,7 +14,7 @@ internal static class Mapper
         ActionLink = campaign.ActionLink,
         MediaBaseHref = campaign.MediaBaseHref,
         ActivePeriod = campaign.ActivePeriod,
-        Content = campaign.Content ?? new (),
+        Content = campaign.Content ?? new(),
         CreatedAt = campaign.CreatedAt,
         CreatedBy = campaign.CreatedBy,
         UpdatedAt = campaign.UpdatedAt,
@@ -35,7 +35,8 @@ internal static class Mapper
         Title = campaign.Title,
         Type = campaign.Type != null ? new MessageType {
             Id = campaign.Type.Id,
-            Name = campaign.Type.Name
+            Name = campaign.Type.Name,
+            Commercial = campaign.Type.Commercial
         } : null
     };
 
@@ -48,9 +49,13 @@ internal static class Mapper
         Id = contact.Id,
         LastName = contact.LastName,
         PhoneNumber = contact.PhoneNumber,
+        CommunicationPreferences = contact.CommunicationPreferences,
+        ConsentCommercial = contact.ConsentCommercial,
+        Locale = contact.Locale,
         RecipientId = contact.RecipientId,
         Salutation = contact.Salutation,
-        UpdatedAt = contact.UpdatedAt
+        UpdatedAt = contact.UpdatedAt,
+        Unsubscribed = contact.DistributionListContacts.FirstOrDefault().Unsubscribed
     };
 
     public static Contact ToContact(DbContact contact) => ProjectToContact.Compile()(contact);
@@ -105,7 +110,8 @@ internal static class Mapper
         Title = campaign.Title,
         Type = campaign.Type != null ? new MessageType {
             Id = campaign.Type.Id,
-            Name = campaign.Type.Name
+            Name = campaign.Type.Name,
+            Commercial = campaign.Type.Commercial
         } : null
     };
 
@@ -137,6 +143,9 @@ internal static class Mapper
         PhoneNumber = request.PhoneNumber,
         RecipientId = request.RecipientId,
         Salutation = request.Salutation,
+        CommunicationPreferences = request.CommunicationPreferences,
+        ConsentCommercial = request.ConsentCommercial,
+        Locale = request.Locale,
         UpdatedAt = DateTimeOffset.UtcNow
     };
     public static DbContact ToDbContact(Contact contact) => new() {
@@ -148,6 +157,9 @@ internal static class Mapper
         PhoneNumber = contact.PhoneNumber,
         RecipientId = contact.RecipientId,
         Salutation = contact.Salutation,
+        CommunicationPreferences = contact.CommunicationPreferences,
+        ConsentCommercial = contact.ConsentCommercial,
+        Locale = contact.Locale,
         UpdatedAt = DateTimeOffset.UtcNow
     };
 
@@ -159,6 +171,9 @@ internal static class Mapper
         LastName = contact.LastName,
         PhoneNumber = contact.PhoneNumber,
         RecipientId = contact.RecipientId,
+        CommunicationPreferences = contact.CommunicationPreferences,
+        ConsentCommercial = contact.ConsentCommercial,
+        Locale = contact.Locale,
         Salutation = contact.Salutation
     };
 
@@ -169,6 +184,9 @@ internal static class Mapper
         Id = Guid.NewGuid(),
         LastName = request.LastName,
         PhoneNumber = request.PhoneNumber,
+        CommunicationPreferences= request.CommunicationPreferences,
+        Locale = request.Locale,
+        ConsentCommercial= request.ConsentCommercial,
         RecipientId = request.RecipientId,
         Salutation = request.Salutation,
         UpdatedAt = DateTimeOffset.UtcNow

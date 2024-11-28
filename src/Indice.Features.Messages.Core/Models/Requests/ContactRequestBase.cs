@@ -17,4 +17,10 @@ public class ContactRequestBase
     public string Email { get; set; }
     /// <summary>The phone number.</summary>
     public string PhoneNumber { get; set; }
+    /// <summary>Contact's locale.</summary>
+    public string Locale { get; set; }
+    /// <summary>The preferred delivery channels to receive messages.</summary>
+    public ContactCommunicationChannelKind CommunicationPreferences { get; set; } = ContactCommunicationChannelKind.Any;
+    /// <summary>Indicates if user accepted conset to receive email.</summary>
+    public bool ConsentCommercial { get; set; }
 }

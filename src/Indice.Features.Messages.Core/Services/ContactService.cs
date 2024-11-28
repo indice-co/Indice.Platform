@@ -95,9 +95,11 @@ public class ContactService : IContactService
 
     /// <inheritdoc />
     public async Task<ResultSet<Contact>> GetList(ListOptions<ContactListFilter> options) {
-        var query = DbContext.Contacts.AsNoTracking();
+        var query = DbContext.Contacts
+                            .AsNoTracking();
         var filter = options.Filter;
         if (filter?.DistributionListId is not null) {
+            query = query.Include(x => x.DistributionListContacts);
             query = query.Where(x => x.DistributionListContacts.Any(y => y.DistributionListId == filter.DistributionListId.Value));
         }
         if (filter?.Email is not null) {

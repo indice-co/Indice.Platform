@@ -98,6 +98,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
                 id = campaign.Id,
                 title = campaign.Title,
                 type = campaign.Type?.Name,
+                commecial = campaign.Type?.Commercial,
                 actionLink = new {
                     href = !string.IsNullOrEmpty(campaign.ActionLink?.Href) ? $"_tracking/messages/cta/{(Base64Id)campaign.Id}" : null,
                     text = campaign.ActionLink?.Text,

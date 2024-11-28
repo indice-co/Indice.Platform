@@ -7,4 +7,7 @@ public class MessageType
     public Guid Id { get; set; }
     /// <summary>The name of a campaign type.</summary>
     public string Name { get; set; }
+
+    /// <summary>If true the type is used for commercial campaigns else it's for System.</summary>
+    public bool Commercial { get; set; }
 }
