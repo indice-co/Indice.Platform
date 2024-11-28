@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <Authors>Thanos Panousis, Dimitris Karkanas</Authors>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageTags>AspNetCore;CasesManagement;Cases</PackageTags>
+    <VersionPrefix>$(VersionPrefixCases)</VersionPrefix>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.0" />
+    <PackageReference Include="JsonPatch.Net" Version="3.1.1" />
+    <PackageReference Include="Indice.Common" Version="$(VersionPrefixCore)" />
+    <PackageReference Include="Indice.EntityFrameworkCore" Version="$(VersionPrefixCore)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Indice.Common\Indice.Common.csproj" />
+    <ProjectReference Include="..\Indice.EntityFrameworkCore\Indice.EntityFrameworkCore.csproj" />
+  </ItemGroup>
+</Project>

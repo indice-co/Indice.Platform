@@ -1,10 +1,9 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+﻿using System.Text.Json.Serialization;
 
-namespace Indice.Features.Cases.Data.Models;
+namespace Indice.Features.Cases.Core.Models;
 
 /// <summary>Define the case report tag.</summary>
-[JsonConverter(typeof(StringEnumConverter))] // unfortunately, Elsa uses Newtonsoft.Json and overwrites our Converters...
+[JsonConverter(typeof(JsonStringEnumConverter))] // unfortunately, Elsa uses Newtonsoft.Json and overwrites our Converters...
 public enum ReportTag
 {
     /// <summary>GroupedByCasetype.</summary>

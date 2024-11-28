@@ -12,10 +12,6 @@
     <!--<Version>7.23.0-beta02</Version>-->
   </PropertyGroup>
   <ItemGroup>
-    <InternalsVisibleTo Include="Indice.Features.Cases.Tests" />
-    <InternalsVisibleTo Include="Indice.Features.Cases.Server" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Elsa" Version="2.13.0" />
     <PackageReference Include="Elsa.Activities.Email" Version="2.13.0" />
     <PackageReference Include="Elsa.Activities.Http" Version="2.13.0" />
@@ -52,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Indice.Features.Cases.Tests" />
+    <InternalsVisibleTo Include="Indice.Features.Cases.Server" />
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
   </ItemGroup>
 </Project>

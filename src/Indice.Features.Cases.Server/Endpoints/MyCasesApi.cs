@@ -26,9 +26,9 @@ public static class MyCasesApi
         var allowedScopes = new[] { options.ApiScope }.Where(x => x != null).Cast<string>().ToArray();
         group.RequireAuthorization(policy => policy
              .RequireAuthenticatedUser()
-             .AddAuthenticationSchemes(CasesApiConstants.AuthenticationScheme)
+             .AddAuthenticationSchemes("Bearer")
              .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-        ).RequireAuthorization(CasesApiConstants.Policies.BeCasesUser);
+        ).RequireAuthorization("BeCasesUser");
 
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)

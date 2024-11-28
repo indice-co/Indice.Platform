@@ -1,4 +1,4 @@
-﻿namespace Indice.Features.Cases.Data.Models;
+﻿namespace Indice.Features.Cases.Core.Models;
 
 /// <summary>The priority for a case.</summary>
 public enum Priority : short
