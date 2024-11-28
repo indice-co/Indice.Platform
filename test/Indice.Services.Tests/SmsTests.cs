@@ -67,7 +67,7 @@ public class SmsTests
     }
 
     [Theory(Skip = "Sensitive Data")]
-    [InlineData("", "", "", "Indice", "Indice", "Test Subject", "Test Body")]
+    [InlineData("", "", "", "Indice", "Indice", "Test from ApifonIM", "Apifon Viber message body")]
     public async Task TestApifonIM(string apiKey, string token, string phoneNumber, string sender, string senderName, string subject, string body) {
         var inMemorySettings = new Dictionary<string, string> {
             ["Sms:ApiKey"] = apiKey,

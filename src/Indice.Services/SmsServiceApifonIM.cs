@@ -46,7 +46,6 @@ public class SmsServiceApifonIM : ISmsService
     public async Task<SendReceipt> SendAsync(string destination, string subject, string body, SmsSender sender = null) {
         HttpResponseMessage httpResponse;
         ApifonResponse response;
-        var messageId = Guid.NewGuid().ToString();
         var recipients = (destination ?? string.Empty).Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
         if (recipients == null) {
             throw new ArgumentNullException(nameof(recipients));
@@ -99,11 +98,13 @@ public class SmsServiceApifonIM : ISmsService
         } else {
             Logger.LogInformation("Viber/SMS message successfully sent: {result}", response.Results.FirstOrDefault());
         }
-        messageId = response.Id;
-        var messageIds = response.Results?.Values.SelectMany(x => x?.Select(y => y.Id))?.ToList();
-        if (messageIds?.Count > 0) {
-            messageId = string.Join(",", messageIds);
-        }
+        var messageIds = response.Results?.Values
+          .SelectMany(x => x?.Select(y => y.Id))?
+          .Where(id => !string.IsNullOrWhiteSpace(id))
+          .ToList();
+        var messageId = messageIds?.Count > 0
+            ? string.Join(",", messageIds)
+            : response.Id;
         return new SendReceipt(messageId, DateTimeOffset.UtcNow);
     }
 
@@ -127,7 +128,7 @@ internal class ApifonIMRequest : ApifonRequest {
     [JsonPropertyName("im_channels")]
     public List<IMChannel> IMChannels { get; set; } = new List<IMChannel>();
 
-    /// <summary>Serialize our concrete class into a JSON String.</summary>
+    /// <inheritdoc/>
     public override string ToJson() => JsonSerializer.Serialize(this, new JsonSerializerOptions {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
@@ -140,4 +141,7 @@ internal class IMChannel {
 
     [JsonPropertyName("text")]
     public string Text { get; set; }
+
+    [JsonPropertyName("ttl")]
+    public int SecondsUntilSmsFailover { get; set; } = 30;
 }
