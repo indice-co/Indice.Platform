@@ -9,9 +9,11 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.Services;
 
-/// <summary>Viber/SMS service implementation using the Apifon IM service gateway.</summary>
+/// <summary>
+/// Viber/SMS service implementation using the Apifon IM service gateway.
 /// https://docs.apifon.com/apireference.html#im-gateway-rest-api
-public class ViberServiceApifon : ISmsService
+/// </summary>
+public class SmsServiceApifonIM : ISmsService
 {
     /// <summary>The Apifon base URL address.</summary>
     internal static readonly string APIFON_BASE_URL = "https://ars.apifon.com";
@@ -22,13 +24,13 @@ public class ViberServiceApifon : ISmsService
     /// <summary>The <see cref="System.Net.Http.HttpClient"/>.</summary>
     protected HttpClient HttpClient { get; }
     /// <summary>Represents a type used to perform logging.</summary>
-    protected ILogger<ViberServiceApifon> Logger { get; }
+    protected ILogger<SmsServiceApifonIM> Logger { get; }
 
     /// <inheritdoc/>
-    public ViberServiceApifon(
+    public SmsServiceApifonIM(
         HttpClient httpClient,
         IOptionsSnapshot<SmsServiceApifonSettings> options,
-        ILogger<ViberServiceApifon> logger) {
+        ILogger<SmsServiceApifonIM> logger) {
         HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         Options = options?.Value ?? throw new ArgumentNullException(nameof(options));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -62,11 +64,12 @@ public class ViberServiceApifon : ISmsService
             throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(recipients));
         }
         var senderId = sender?.Id ?? Options.Sender ?? Options.SenderName;
-        var payload = new ApifonIMRequest(senderId, recipients, body);
-        payload.IMChannels.Add(new IMChannel {
-            SenderId = senderId,
-            Text = body
-        });
+        var payload = new ApifonIMRequest(senderId, recipients, body) {
+            IMChannels = [new() { 
+                SenderId = senderId,
+                Text = body
+            }]
+        };
         var signature = payload.Sign(Options.ApiKey, HttpMethod.Post.ToString(), SERVICE_ENDPOINT);
         var request = new HttpRequestMessage {
             Content = new StringContent(payload.ToJson(), Encoding.UTF8, MediaTypeNames.Application.Json),
@@ -122,7 +125,13 @@ internal class ApifonIMRequest : ApifonRequest {
     public ApifonIMRequest(string from, string[] to, string message) : base(from, to, message) { }
 
     [JsonPropertyName("im_channels")]
-    public List<IMChannel> IMChannels { get; set; } = [];
+    public List<IMChannel> IMChannels { get; set; } = new List<IMChannel>();
+
+    /// <summary>Serialize our concrete class into a JSON String.</summary>
+    public override string ToJson() => JsonSerializer.Serialize(this, new JsonSerializerOptions {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+    });
 }
 
 internal class IMChannel {

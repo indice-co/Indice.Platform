@@ -134,15 +134,15 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
-    public static IServiceCollection AddViberServiceApifon(this IServiceCollection services, IConfiguration configuration, Action<SmsServiceApifonOptions> configure = null) {
+    public static IServiceCollection AddSmsServiceApifonIM(this IServiceCollection services, IConfiguration configuration, Action<SmsServiceApifonOptions> configure = null) {
         services.Configure<SmsServiceApifonSettings>(configuration.GetSection(SmsServiceSettings.Name));
         services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
         var options = new SmsServiceApifonOptions();
         configure?.Invoke(options);
         var httpClientBuilder = services
-            .AddHttpClient<ISmsService, ViberServiceApifon>()
+            .AddHttpClient<ISmsService, SmsServiceApifonIM>()
             .ConfigureHttpClient(httpClient => {
-                httpClient.BaseAddress = new Uri($"{ViberServiceApifon.APIFON_BASE_URL}{ViberServiceApifon.SERVICE_ENDPOINT}");
+                httpClient.BaseAddress = new Uri($"{SmsServiceApifonIM.APIFON_BASE_URL}{SmsServiceApifonIM.SERVICE_ENDPOINT}");
             });
         if (options?.ConfigurePrimaryHttpMessageHandler is not null) {
             httpClientBuilder.ConfigurePrimaryHttpMessageHandler(options.ConfigurePrimaryHttpMessageHandler);

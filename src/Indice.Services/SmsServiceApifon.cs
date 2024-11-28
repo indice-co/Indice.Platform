@@ -184,7 +184,7 @@ internal class ApifonRequest
     public DateTime RequestDate { get; set; } = DateTime.Now.ToUniversalTime();
 
     /// <summary>Serialize our concrete class into a JSON String.</summary>
-    public string ToJson() => JsonSerializer.Serialize(this, new JsonSerializerOptions {
+    public virtual string ToJson() => JsonSerializer.Serialize(this, new JsonSerializerOptions {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     });
