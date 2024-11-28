@@ -1,4 +1,6 @@
-﻿using System.Net.Http.Headers;
+﻿#nullable enable
+
+using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
@@ -43,7 +45,7 @@ public class SmsServiceApifonIM : ISmsService
     }
 
     /// <inheritdoc/>
-    public async Task<SendReceipt> SendAsync(string destination, string subject, string body, SmsSender sender = null) {
+    public async Task<SendReceipt> SendAsync(string destination, string subject, string? body, SmsSender? sender = null) {
         HttpResponseMessage httpResponse;
         ApifonResponse response;
         var recipients = (destination ?? string.Empty).Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
@@ -63,13 +65,13 @@ public class SmsServiceApifonIM : ISmsService
             throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(recipients));
         }
         var senderId = sender?.Id ?? Options.Sender ?? Options.SenderName;
-        var payload = new ApifonIMRequest(senderId, recipients, body) {
+        var payload = new ApifonIMRequest(senderId!, recipients, body!) {
             IMChannels = [new() { 
                 SenderId = senderId,
                 Text = body
             }]
         };
-        var signature = payload.Sign(Options.ApiKey, HttpMethod.Post.ToString(), SERVICE_ENDPOINT);
+        var signature = payload.Sign(Options.ApiKey!, HttpMethod.Post.ToString(), SERVICE_ENDPOINT);
         var request = new HttpRequestMessage {
             Content = new StringContent(payload.ToJson(), Encoding.UTF8, MediaTypeNames.Application.Json),
             Method = HttpMethod.Post,
@@ -91,15 +93,15 @@ public class SmsServiceApifonIM : ISmsService
             Logger.LogInformation("Viber/SMS Delivery failed. {statusCode} : {responseString}", httpResponse.StatusCode, responseString);
             throw new SmsServiceException($"Viber/SMS Delivery failed. {httpResponse.StatusCode} : {responseString}");
         }
-        response = JsonSerializer.Deserialize<ApifonResponse>(responseString, GetJsonSerializerOptions());
+        response = JsonSerializer.Deserialize<ApifonResponse>(responseString, GetJsonSerializerOptions())!;
         if (response.HasError) {
-            Logger.LogInformation("Viber/SMS Delivery failed. {responseStatus}. ResponseId: {responseId}", response.Status.Description, response.Id);
-            throw new SmsServiceException($"Viber/SMS Delivery failed. {response.Status.Description} responseId {response.Id}");
+            Logger.LogInformation("Viber/SMS Delivery failed. {responseStatus}. ResponseId: {responseId}", response.Status?.Description, response.Id);
+            throw new SmsServiceException($"Viber/SMS Delivery failed. {response.Status?.Description} responseId {response.Id}");
         } else {
             Logger.LogInformation("Viber/SMS message successfully sent: {result}", response.Results.FirstOrDefault());
         }
         var messageIds = response.Results?.Values
-          .SelectMany(x => x?.Select(y => y.Id))?
+          .SelectMany(x => x?.Select(y => y.Id)!)?
           .Where(id => !string.IsNullOrWhiteSpace(id))
           .ToList();
         var messageId = messageIds?.Count > 0
@@ -126,22 +128,19 @@ internal class ApifonIMRequest : ApifonRequest {
     public ApifonIMRequest(string from, string[] to, string message) : base(from, to, message) { }
 
     [JsonPropertyName("im_channels")]
-    public List<IMChannel> IMChannels { get; set; } = new List<IMChannel>();
+    public List<IMChannel> IMChannels { get; set; } = [];
 
-    /// <inheritdoc/>
-    public override string ToJson() => JsonSerializer.Serialize(this, new JsonSerializerOptions {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-    });
+    internal class IMChannel
+    {
+        [JsonPropertyName("sender_id")]
+        public string? SenderId { get; set; }
+
+        [JsonPropertyName("text")]
+        public string? Text { get; set; }
+
+        [JsonPropertyName("ttl")]
+        public int SecondsUntilSmsFailover { get; set; } = 30;
+    }
 }
 
-internal class IMChannel {
-    [JsonPropertyName("sender_id")]
-    public string SenderId { get; set; }
-
-    [JsonPropertyName("text")]
-    public string Text { get; set; }
-
-    [JsonPropertyName("ttl")]
-    public int SecondsUntilSmsFailover { get; set; } = 30;
-}
+#nullable disable

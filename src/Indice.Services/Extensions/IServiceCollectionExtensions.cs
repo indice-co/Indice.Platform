@@ -59,8 +59,8 @@ public static class IndiceServicesServiceCollectionExtensions
         services.AddKeyedTransient<IPushNotificationService, PushNotificationServiceAzure>(serviceKey: name, implementationFactory: (serviceProvider, serviceKey) => GetPushNotificationServiceAzure(serviceProvider, configure));
         return services;
     }
-    
-    /// <summary>Adds an instance of <see cref="IEmailService"/> using SMTP settings in configuration.</summary>
+
+    /// <summary>Adds an implementation of <see cref="IEmailService"/> using SMTP settings in configuration.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static EmailServiceBuilder AddEmailServiceSmtp(this IServiceCollection services, IConfiguration configuration) {
@@ -71,7 +71,7 @@ public static class IndiceServicesServiceCollectionExtensions
         return new EmailServiceBuilder(services);
     }
 
-    /// <summary>Adds an instance of <see cref="IEmailService"/> that uses SparkPost to send emails.</summary>
+    /// <summary>Adds an implementation of <see cref="IEmailService"/> that uses SparkPost to send emails.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static EmailServiceBuilder AddEmailServiceSparkPost(this IServiceCollection services, IConfiguration configuration) {
@@ -82,7 +82,7 @@ public static class IndiceServicesServiceCollectionExtensions
         return new EmailServiceBuilder(services);
     }
 
-    /// <summary>Adds an instance of <see cref="IEmailService"/> that uses SendGrid to send emails.</summary>
+    /// <summary>Adds an implementation of <see cref="IEmailService"/> that uses SendGrid to send emails.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static EmailServiceBuilder AddEmailServiceSendGrid(this IServiceCollection services, IConfiguration configuration) {
@@ -101,7 +101,7 @@ public static class IndiceServicesServiceCollectionExtensions
         return builder.Services;
     }
 
-    /// <summary>Adds an instance of <see cref="ISmsService"/> using Yuboto.</summary>
+    /// <summary>Adds an implementation of <see cref="ISmsService"/> using Yuboto.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static IServiceCollection AddSmsServiceYuboto(this IServiceCollection services, IConfiguration configuration) {
@@ -111,7 +111,7 @@ public static class IndiceServicesServiceCollectionExtensions
         return services;
     }
 
-    /// <summary>Adds an instance of <see cref="ISmsService"/> using Apifon SMS service gateway.</summary>
+    /// <summary>Adds an implementation of <see cref="ISmsService"/> using Apifon SMS service gateway.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
@@ -130,7 +130,7 @@ public static class IndiceServicesServiceCollectionExtensions
         return services;
     }
 
-    /// <summary>Adds an instance of <see cref="ISmsService"/> using Apifon IM service gateway.</summary>
+    /// <summary>Adds an implementation of <see cref="ISmsService"/> using Apifon IM service gateway.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
@@ -150,7 +150,7 @@ public static class IndiceServicesServiceCollectionExtensions
         return services;
     }
 
-    /// <summary>Adds an instance of <see cref="ISmsService"/> using Yuboto.</summary>
+    /// <summary>Adds an implementation of <see cref="ISmsService"/> using Yuboto.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static IServiceCollection AddSmsServiceViber(this IServiceCollection services, IConfiguration configuration) {
@@ -161,7 +161,7 @@ public static class IndiceServicesServiceCollectionExtensions
         return services;
     }
 
-    /// <summary>Adds an instance of <see cref="ISmsService"/> using Yuboto Omni from sending regular SMS messages.</summary>
+    /// <summary>Adds an implementation of <see cref="ISmsService"/> using Yuboto Omni from sending regular SMS messages.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static IServiceCollection AddSmsServiceYubotoOmni(this IServiceCollection services, IConfiguration configuration) {
@@ -171,7 +171,7 @@ public static class IndiceServicesServiceCollectionExtensions
         return services;
     }
 
-    /// <summary>Adds an instance of <see cref="ISmsService"/> using Yuboto Omni for sending Viber messages.</summary>
+    /// <summary>Adds an implementation of <see cref="ISmsService"/> using Yuboto Omni for sending Viber messages.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static IServiceCollection AddViberServiceYubotoOmni(this IServiceCollection services, IConfiguration configuration) {
@@ -182,7 +182,7 @@ public static class IndiceServicesServiceCollectionExtensions
         return services;
     }
 
-    /// <summary>Adds an instance of <see cref="ISmsService"/> using KapaTEL.</summary>
+    /// <summary>Adds an implementation of <see cref="ISmsService"/> using KapaTEL.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
@@ -199,7 +199,7 @@ public static class IndiceServicesServiceCollectionExtensions
         return services;
     }
 
-    /// <summary>Adds an instance of <see cref="ISmsService"/> using Mstat.</summary>
+    /// <summary>Adds an implementation of <see cref="ISmsService"/> using Mstat.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
