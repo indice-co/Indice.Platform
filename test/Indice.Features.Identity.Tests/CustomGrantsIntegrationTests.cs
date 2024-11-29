@@ -367,12 +367,12 @@ public class CustomGrantsIntegrationTests
         var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var user = new User {
             CreateDate = DateTimeOffset.UtcNow,
-            Email = "g.manoltzas@indice.gr",
+            Email = "someone@indice.gr",
             EmailConfirmed = true,
             Id = Guid.NewGuid().ToString(),
             PhoneNumber = "69XXXXXXXX",
             PhoneNumberConfirmed = true,
-            UserName = "g.manoltzas@indice.gr"
+            UserName = "someone@indice.gr"
         };
         // 1. Create a new user.
         var result = await userManager.CreateAsync(user, password: "123abc!", validatePassword: false);
@@ -383,7 +383,7 @@ public class CustomGrantsIntegrationTests
         await userManager.AddClaimAsync(user, new Claim(BasicClaimTypes.DeveloperTotp, "123456"));
         // 2. Register a new device using biometric login.
         var deviceId = Guid.NewGuid().ToString();
-        var response = await RegisterDeviceUsingBiometric(deviceId, userName: "g.manoltzas@indice.gr");
+        var response = await RegisterDeviceUsingBiometric(deviceId, userName: "someone@indice.gr");
         if (!response.IsSuccessStatusCode) {
             Assert.Fail("Device could not be created.");
         }

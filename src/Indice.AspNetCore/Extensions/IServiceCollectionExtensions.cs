@@ -217,9 +217,9 @@ public static class ServiceCollectionExtensions
         var options = new LimitUploadOptions();
         configureAction?.Invoke(options);
         
-        services.Configure<LimitUploadOptions>(configureAction ?? (options => {
-            options.DefaultMaxFileSizeBytes = options.DefaultMaxFileSizeBytes;
-            options.DefaultAllowedFileExtensions = options.DefaultAllowedFileExtensions;
+        services.Configure(configureAction ?? (limit => {
+            limit.DefaultMaxFileSizeBytes = options.DefaultMaxFileSizeBytes;
+            limit.DefaultAllowedFileExtensions = options.DefaultAllowedFileExtensions;
         }));
 
         return services;
