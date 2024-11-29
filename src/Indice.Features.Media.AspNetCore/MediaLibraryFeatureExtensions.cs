@@ -36,6 +36,7 @@ public static class MediaLibraryFeatureExtensions
         // Register framework services.
         services.AddHttpContextAccessor();
         // Register services.
+        services.TryAddSingleton<MediaBaseHrefResolver>();
         services.TryAddTransient<IMediaFolderStore, MediaFolderStore>();
         services.TryAddTransient<IMediaFileStore, MediaFileStore>();
         services.TryAddTransient<IMediaSettingService, MediaSettingService>();
