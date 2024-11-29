@@ -19,4 +19,8 @@
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
     <ProjectReference Include="..\Indice.Common\Indice.Common.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Indice.Features.Messages.Tests"/>
+    <InternalsVisibleTo Include="Indice.Features.Messages.AspNetCore"/>
+  </ItemGroup>
 </Project>
