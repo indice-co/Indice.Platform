@@ -63,7 +63,7 @@ export class DocumentEditComponent implements OnInit {
     }
 
     public copyToClipboard(file: MediaFile): void {
-      this._fileUtilitiesService.copyFilePathToClipboard(file)
+      this._fileUtilitiesService.copyPathToClipboard(file.path)
         .then(() => {
           this._toaster.show(ToastType.Success, 'Αντιγραφή τοποθεσίας', `Η τοποθεσία '${file.path}' αντιγράφηκε με επιτυχία.`);
         })

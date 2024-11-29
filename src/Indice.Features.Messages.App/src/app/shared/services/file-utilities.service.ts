@@ -49,29 +49,10 @@ export class FileUtilitiesService {
     reader.readAsDataURL(blob)
   }))
 
-  public copyPermaLinkToClipboard(file: MediaFile) {
-    const el = document.createElement("textarea");
-    el.value = file.permaLink ?? '';
-    el.setAttribute("readonly", "");
-    el.style.position = "absolute";
-    el.style.left = "-9999px";
-    document.body.appendChild(el);
-    const selected =
-      document?.getSelection()?.rangeCount ?? 0 > 0
-        ? document?.getSelection()?.getRangeAt(0)
-        : false;
-    el.select();
-    document.execCommand("copy");
-    document.body.removeChild(el);
-    if (selected) {
-      document?.getSelection()?.removeAllRanges();
-      document?.getSelection()?.addRange(selected);
-    }
-  }
-
-  public copyFilePathToClipboard(file: MediaFile) {
-    return navigator.clipboard.writeText(file.path ?? '').catch((err) => {
-      throw err;
+  public copyPathToClipboard(path: string | undefined) {
+    return navigator.clipboard.writeText(path ?? '')
+      .catch((err) => {
+        throw err;
     });
   }
 
