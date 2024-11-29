@@ -113,9 +113,7 @@ public class SmsServiceApifonIM : ISmsService
     /// <summary>Checks the implementation if supports the given <paramref name="deliveryChannel"/>.</summary>
     /// <param name="deliveryChannel">A string representing the delivery channel. i.e 'SMS'</param>
     /// <returns></returns>
-    public bool Supports(string deliveryChannel) => 
-        "SMS".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase) || 
-        "Viber".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase);
+    public bool Supports(string deliveryChannel) => "Viber".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase);
 
     /// <summary>Get default JSON serializer options: CamelCase, ignore null values.</summary>
     protected static JsonSerializerOptions GetJsonSerializerOptions() => new JsonSerializerOptions {
