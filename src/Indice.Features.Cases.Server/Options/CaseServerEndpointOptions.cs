@@ -12,21 +12,21 @@ namespace Indice.Features.Cases.Server.Options;
 public class CaseServerEndpointOptions
 {
 
-    /// <summary>The default scope name to be used for Cases API. Defaults to <see cref="CasesApiConstants.Scope"/>.</summary>
-    public string ApiScope { get; set; } = CasesApiConstants.Scope;
+    /// <summary>The default scope name to be used for Cases API. Defaults to <strong>cases</strong>.</summary>
+    public string Scope { get; set; } = "cases";
 
-    /// <summary>Cases GroupName Api Explorer. Defaults to <see cref="CasesApiConstants.GroupName"/>.</summary>
-    public string GroupName { get; set; } = CasesApiConstants.GroupName;
+    /// <summary>Cases GroupName Api Explorer. Defaults to <strong>cases</strong>.</summary>
+    public string GroupName { get; set; } = "cases";
 
     /// <summary>Specifies a prefix for the API endpoints. Defaults to <i>api</i>.</summary>
-    public string ApiPrefix { get; set; } = "api";
+    public string PathPrefix { get; set; } = "/api";
 
     /// <summary>The claim type used to identify the user. Defaults to <i>sub</i>.</summary>
     public string UserClaimType { get; set; } = BasicClaimTypes.Subject;
 
-    /// <summary>Schema name used for tables. Defaults to <i>case</i>.</summary>
-    public string DatabaseSchema { get; set; } = CasesApiConstants.DatabaseSchema;
+    /// <summary>The claim type groupid name. Defaults to <strong>group_id</strong></summary>
+    public string GroupIdClaimType { get; set; } = "group_id";
 
-    /// <summary>The claim type groupid name</summary>
-    public string GroupIdClaimType { get; set; } = CasesApiConstants.DefaultGroupIdClaimType;
+    /// <summary>Schema name used for tables. Defaults to <i>case</i>.</summary>
+    public string DatabaseSchema { get; set; } = "case";
 }

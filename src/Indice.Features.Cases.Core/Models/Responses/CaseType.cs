@@ -7,7 +7,7 @@ public class CaseType
     public Guid Id { get; set; }
 
     /// <summary>The case type code.</summary>
-    public string Code { get; set; } = null!;
+    public string? Code { get; set; } = null!;
 
     /// <summary>The case type title.</summary>
     public string Title { get; set; } = null!;

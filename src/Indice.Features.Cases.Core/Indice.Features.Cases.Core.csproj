@@ -9,14 +9,35 @@
   </PropertyGroup>
   
   <ItemGroup>
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.6" />
     <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.0" />
     <PackageReference Include="JsonPatch.Net" Version="3.1.1" />
-    <PackageReference Include="Indice.Common" Version="$(VersionPrefixCore)" />
+    <PackageReference Include="JsonSchema.Net.Generation" Version="4.5.1" />
+    <PackageReference Include="Indice.Services" Version="$(VersionPrefixCore)" />
     <PackageReference Include="Indice.EntityFrameworkCore" Version="$(VersionPrefixCore)" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Indice.Common\Indice.Common.csproj" />
+    <ProjectReference Include="..\Indice.Services\Indice.Services.csproj" />
     <ProjectReference Include="..\Indice.EntityFrameworkCore\Indice.EntityFrameworkCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="CasesResources.Designer.cs">
+      <DependentUpon>CasesResources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="CasesResources.resx">
+      <LastGenOutput>CasesResources.Designer.cs</LastGenOutput>
+      <Generator>ResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Indice.Features.Cases.Server"/>
   </ItemGroup>
 </Project>

@@ -1,4 +1,4 @@
-using Indice.Features.Cases.Extensions;
+using Indice.Features.Cases.Core.Extensions;
 using Json.Patch;
 using Json.Pointer;
 
@@ -34,7 +34,7 @@ public class PatchJsonPathRequest
             OperationType.Remove => PatchOperation.Remove(JsonPointer.Parse(Path)),
             OperationType.Copy => PatchOperation.Copy(JsonPointer.Parse(From!), JsonPointer.Parse(Path)),
             OperationType.Test => PatchOperation.Test(JsonPointer.Parse(Path), value),
-            _ => throw new NotSupportedException($"The operation '{Op.ToString()}' is not supported. Valid operations are: 'add', 'replace', 'remove', 'copy', 'move', and 'test'.")
+            _ => throw new NotSupportedException($"The operation '{Op}' is not supported. Valid operations are: 'add', 'replace', 'remove', 'copy', 'move', and 'test'.")
         };
     }
 }

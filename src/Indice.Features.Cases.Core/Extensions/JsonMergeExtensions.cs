@@ -1,16 +1,16 @@
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Indice.Features.Cases.Core.Interfaces;
+using Indice.Features.Cases.Core.Services.Abstractions;
 
-namespace Indice.Features.Cases.Extensions;
+namespace Indice.Features.Cases.Core.Extensions;
 
 /// <summary>JsonMergeExtensions.</summary>
 public static class JsonMergeExtensions
 {
     /// <summary>Patches Case Data using a Json Serializable object.</summary>
     public static async Task PatchCaseData<TValue>(this IAdminCaseService adminCaseService, ClaimsPrincipal user, Guid caseId, TValue patch) where TValue : notnull 
-        => await adminCaseService.PatchCaseData(user, caseId, patch.ParseAsJsonNode() ?? throw new ArgumentNullException(nameof(patch),@"Patch Operation cannot be null."));
+        => await adminCaseService.PatchCaseData(user, caseId, patch.ParseAsJsonNode() ?? throw new ArgumentNullException(nameof(patch), "Patch Operation cannot be null."));
 
     /// <summary>
     /// Parses a Json Serializable object into a <see cref="JsonNode"/>.

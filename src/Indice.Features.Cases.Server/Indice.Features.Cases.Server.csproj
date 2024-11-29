@@ -13,7 +13,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
-    <ProjectReference Include="..\Indice.Feature.Cases.Core\Indice.Feature.Cases.Core.csproj" />
+    <ProjectReference Include="..\Indice.Features.Cases.Core\Indice.Features.Cases.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Indice.Features.Cases.Tests" />

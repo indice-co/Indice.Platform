@@ -1,4 +1,4 @@
-﻿using Indice.Features.Cases.Core.Interfaces;
+﻿using Indice.Features.Cases.Core.Services.Abstractions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 

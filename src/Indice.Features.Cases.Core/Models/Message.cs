@@ -19,7 +19,7 @@ public class Message
     public string? Comment { get; set; }
     
     /// <summary>The file that is attached with the checkpoint.</summary>
-    public Stream? File { get; set; }
+    public Func<Stream>? FileStreamAccessor { get; set; }
     /// <summary>The file name that is attached with the checkpoint.</summary>
     public string? FileName { get; set; }
 
