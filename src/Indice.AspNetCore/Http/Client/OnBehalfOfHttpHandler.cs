@@ -210,7 +210,7 @@ public static class OnBehalfOfHttpHandlerExtensions
     /// This uses <strong>General:Authority</strong>, <strong>General:Api:Secrets:ClientId</strong>, <strong>General:Api:Secrets:ClientSecret</strong>, <strong>General:Api:Secrets:ClientScope</strong>
     /// </param>
     /// <returns>The builder for further configuration.</returns>
-    public static IHttpClientBuilder AddOnBehlafOfTokenHandler(this IHttpClientBuilder httpClientBuilder, string tokenClientName, IConfiguration configuration) =>
+    public static IHttpClientBuilder AddOnBehalfOfTokenHandler(this IHttpClientBuilder httpClientBuilder, string tokenClientName, IConfiguration configuration) =>
         httpClientBuilder.AddOnBehalfOfTokenHandler(tokenClientName, (options) => {
             var apiSecrets = configuration.GetApiSecrets();
             options.ClientId = apiSecrets["ClientId"];
