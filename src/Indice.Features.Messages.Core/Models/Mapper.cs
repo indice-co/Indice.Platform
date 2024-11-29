@@ -55,7 +55,7 @@ internal static class Mapper
         RecipientId = contact.RecipientId,
         Salutation = contact.Salutation,
         UpdatedAt = contact.UpdatedAt,
-        Unsubscribed = contact.DistributionListContacts.FirstOrDefault().Unsubscribed
+        Unsubscribed = contact.DistributionListContacts.Any() && contact.DistributionListContacts[0].Unsubscribed
     };
 
     public static Contact ToContact(DbContact contact) => ProjectToContact.Compile()(contact);
@@ -77,7 +77,10 @@ internal static class Mapper
         FullName = request.FullName,
         LastName = request.LastName,
         PhoneNumber = request.PhoneNumber,
-        Salutation = request.Salutation
+        Salutation = request.Salutation,
+        CommunicationPreferences = request.CommunicationPreferences,
+        ConsentCommercial = request.ConsentCommercial,
+        Locale = request.Locale
     };
 
     public static Expression<Func<DbCampaign, CampaignDetails>> ProjectToCampaignDetails = campaign => new() {
@@ -200,6 +203,9 @@ internal static class Mapper
         contact.PhoneNumber = request.PhoneNumber;
         contact.RecipientId = request.RecipientId;
         contact.Salutation = request.Salutation;
+        contact.CommunicationPreferences = request.CommunicationPreferences;
+        contact.Locale = request.Locale;
+        contact.ConsentCommercial = request.ConsentCommercial;
         contact.UpdatedAt = DateTimeOffset.UtcNow;
     }
 

@@ -3918,6 +3918,10 @@ export class Contact implements IContact {
     fullName?: string | undefined;
     email?: string | undefined;
     phoneNumber?: string | undefined;
+    locale?: string | undefined;
+    communicationPreferences?: CommunicationPreferences[];
+    consentCommercial?: boolean;
+    unsubscribed?: boolean | undefined;
     updatedAt?: Date | undefined;
     readonly isAnonymous?: boolean;
 
@@ -3940,6 +3944,14 @@ export class Contact implements IContact {
             this.fullName = _data["fullName"];
             this.email = _data["email"];
             this.phoneNumber = _data["phoneNumber"];
+            this.locale = _data["locale"];
+            if (Array.isArray(_data["communicationPreferences"])) {
+                this.communicationPreferences = [] as any;
+                for (let item of _data["communicationPreferences"])
+                    this.communicationPreferences!.push(item);
+            }
+            this.consentCommercial = _data["consentCommercial"];
+            this.unsubscribed = _data["unsubscribed"];
             this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
             (<any>this).isAnonymous = _data["isAnonymous"];
         }
@@ -3962,6 +3974,14 @@ export class Contact implements IContact {
         data["fullName"] = this.fullName;
         data["email"] = this.email;
         data["phoneNumber"] = this.phoneNumber;
+        data["locale"] = this.locale;
+        if (Array.isArray(this.communicationPreferences)) {
+            data["communicationPreferences"] = [];
+            for (let item of this.communicationPreferences)
+                data["communicationPreferences"].push(item);
+        }
+        data["consentCommercial"] = this.consentCommercial;
+        data["unsubscribed"] = this.unsubscribed;
         data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
         data["isAnonymous"] = this.isAnonymous;
         return data;
@@ -3977,6 +3997,10 @@ export interface IContact {
     fullName?: string | undefined;
     email?: string | undefined;
     phoneNumber?: string | undefined;
+    locale?: string | undefined;
+    communicationPreferences?: CommunicationPreferences[];
+    consentCommercial?: boolean;
+    unsubscribed?: boolean | undefined;
     updatedAt?: Date | undefined;
     isAnonymous?: boolean;
 }
@@ -4257,6 +4281,9 @@ export class CreateContactRequest implements ICreateContactRequest {
     fullName?: string | undefined;
     email?: string | undefined;
     phoneNumber?: string | undefined;
+    locale?: string | undefined;
+    communicationPreferences?: CommunicationPreferences[];
+    consentCommercial?: boolean;
 
     constructor(data?: ICreateContactRequest) {
         if (data) {
@@ -4276,6 +4303,13 @@ export class CreateContactRequest implements ICreateContactRequest {
             this.fullName = _data["fullName"];
             this.email = _data["email"];
             this.phoneNumber = _data["phoneNumber"];
+            this.locale = _data["locale"];
+            if (Array.isArray(_data["communicationPreferences"])) {
+                this.communicationPreferences = [] as any;
+                for (let item of _data["communicationPreferences"])
+                    this.communicationPreferences!.push(item);
+            }
+            this.consentCommercial = _data["consentCommercial"];
         }
     }
 
@@ -4295,6 +4329,13 @@ export class CreateContactRequest implements ICreateContactRequest {
         data["fullName"] = this.fullName;
         data["email"] = this.email;
         data["phoneNumber"] = this.phoneNumber;
+        data["locale"] = this.locale;
+        if (Array.isArray(this.communicationPreferences)) {
+            data["communicationPreferences"] = [];
+            for (let item of this.communicationPreferences)
+                data["communicationPreferences"].push(item);
+        }
+        data["consentCommercial"] = this.consentCommercial;
         return data;
     }
 }
@@ -4307,6 +4348,9 @@ export interface ICreateContactRequest {
     fullName?: string | undefined;
     email?: string | undefined;
     phoneNumber?: string | undefined;
+    locale?: string | undefined;
+    communicationPreferences?: CommunicationPreferences[];
+    consentCommercial?: boolean;
 }
 
 export class CreateDistributionListContactRequest implements ICreateDistributionListContactRequest {
@@ -4317,6 +4361,9 @@ export class CreateDistributionListContactRequest implements ICreateDistribution
     fullName?: string;
     email?: string | undefined;
     phoneNumber?: string | undefined;
+    locale?: string | undefined;
+    communicationPreferences?: CommunicationPreferences[];
+    consentCommercial?: boolean;
     contactId?: string | undefined;
 
     constructor(data?: ICreateDistributionListContactRequest) {
@@ -4337,6 +4384,13 @@ export class CreateDistributionListContactRequest implements ICreateDistribution
             this.fullName = _data["fullName"];
             this.email = _data["email"];
             this.phoneNumber = _data["phoneNumber"];
+            this.locale = _data["locale"];
+            if (Array.isArray(_data["communicationPreferences"])) {
+                this.communicationPreferences = [] as any;
+                for (let item of _data["communicationPreferences"])
+                    this.communicationPreferences!.push(item);
+            }
+            this.consentCommercial = _data["consentCommercial"];
             this.contactId = _data["contactId"];
         }
     }
@@ -4357,6 +4411,13 @@ export class CreateDistributionListContactRequest implements ICreateDistribution
         data["fullName"] = this.fullName;
         data["email"] = this.email;
         data["phoneNumber"] = this.phoneNumber;
+        data["locale"] = this.locale;
+        if (Array.isArray(this.communicationPreferences)) {
+            data["communicationPreferences"] = [];
+            for (let item of this.communicationPreferences)
+                data["communicationPreferences"].push(item);
+        }
+        data["consentCommercial"] = this.consentCommercial;
         data["contactId"] = this.contactId;
         return data;
     }
@@ -4370,6 +4431,9 @@ export interface ICreateDistributionListContactRequest {
     fullName?: string;
     email?: string | undefined;
     phoneNumber?: string | undefined;
+    locale?: string | undefined;
+    communicationPreferences?: CommunicationPreferences[];
+    consentCommercial?: boolean;
     contactId?: string | undefined;
 }
 
@@ -4932,6 +4996,7 @@ export interface IMessageSenderResultSet {
 export class MessageType implements IMessageType {
     id?: string;
     name?: string | undefined;
+    commercial?: boolean;
 
     constructor(data?: IMessageType) {
         if (data) {
@@ -4946,6 +5011,7 @@ export class MessageType implements IMessageType {
         if (_data) {
             this.id = _data["id"];
             this.name = _data["name"];
+            this.commercial = _data["commercial"];
         }
     }
 
@@ -4960,6 +5026,7 @@ export class MessageType implements IMessageType {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["name"] = this.name;
+        data["commercial"] = this.commercial;
         return data;
     }
 }
@@ -4967,6 +5034,7 @@ export class MessageType implements IMessageType {
 export interface IMessageType {
     id?: string;
     name?: string | undefined;
+    commercial?: boolean;
 }
 
 export class MessageTypeResultSet implements IMessageTypeResultSet {
@@ -5404,6 +5472,9 @@ export class UpdateContactRequest implements IUpdateContactRequest {
     fullName?: string | undefined;
     email?: string | undefined;
     phoneNumber?: string | undefined;
+    locale?: string | undefined;
+    communicationPreferences?: CommunicationPreferences[];
+    consentCommercial?: boolean;
     distributionListId?: string | undefined;
 
     constructor(data?: IUpdateContactRequest) {
@@ -5423,6 +5494,13 @@ export class UpdateContactRequest implements IUpdateContactRequest {
             this.fullName = _data["fullName"];
             this.email = _data["email"];
             this.phoneNumber = _data["phoneNumber"];
+            this.locale = _data["locale"];
+            if (Array.isArray(_data["communicationPreferences"])) {
+                this.communicationPreferences = [] as any;
+                for (let item of _data["communicationPreferences"])
+                    this.communicationPreferences!.push(item);
+            }
+            this.consentCommercial = _data["consentCommercial"];
             this.distributionListId = _data["distributionListId"];
         }
     }
@@ -5442,6 +5520,13 @@ export class UpdateContactRequest implements IUpdateContactRequest {
         data["fullName"] = this.fullName;
         data["email"] = this.email;
         data["phoneNumber"] = this.phoneNumber;
+        data["locale"] = this.locale;
+        if (Array.isArray(this.communicationPreferences)) {
+            data["communicationPreferences"] = [];
+            for (let item of this.communicationPreferences)
+                data["communicationPreferences"].push(item);
+        }
+        data["consentCommercial"] = this.consentCommercial;
         data["distributionListId"] = this.distributionListId;
         return data;
     }
@@ -5454,6 +5539,9 @@ export interface IUpdateContactRequest {
     fullName?: string | undefined;
     email?: string | undefined;
     phoneNumber?: string | undefined;
+    locale?: string | undefined;
+    communicationPreferences?: CommunicationPreferences[];
+    consentCommercial?: boolean;
     distributionListId?: string | undefined;
 }
 
@@ -5676,6 +5764,13 @@ export enum MessageChannelKind {
 export interface FileParameter {
   data: any;
   fileName: string;
+}
+
+export enum CommunicationPreferences {
+    Any = "Any",
+    Email = "Email",
+    SMS = "SMS",
+    PushNotification = "PushNotification",
 }
 
 export class SwaggerException extends Error {

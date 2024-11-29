@@ -47,8 +47,12 @@ public class ContactResolverIdentity : IContactResolver
         queryString[nameof(ListOptions.Search)] = options.Search;
         queryString[nameof(ListOptions.Size)] = options.Size.ToString();
         queryString[nameof(ListOptions.Sort)] = options.Sort;
+        queryString.Add("expandClaims", BasicClaimTypes.ConsentCommercial);
+        queryString.Add("expandClaims", BasicClaimTypes.Locale);
+        queryString.Add("expandClaims", BasicClaimTypes.CommunicationPreferences);
+        
         if (Options.HasCustomRecipientId) {
-            queryString["expandClaims"] = Options.UserClaimType;
+            queryString.Add("expandClaims", Options.UserClaimType);
         }
         uriBuilder.Query = queryString.ToString();
         var response = await HttpClient.GetAsync($"/{uriBuilder}");

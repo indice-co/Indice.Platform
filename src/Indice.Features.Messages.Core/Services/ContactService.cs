@@ -1,4 +1,5 @@
-﻿using Indice.Features.Messages.Core.Data;
+﻿using Indice.Extensions;
+using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Exceptions;
 using Indice.Features.Messages.Core.Models;
@@ -136,6 +137,9 @@ public class ContactService : IContactService
         contact.LastName = request.LastName;
         contact.PhoneNumber = request.PhoneNumber;
         contact.Salutation = request.Salutation;
+        contact.CommunicationPreferences = request.CommunicationPreferences;
+        contact.Locale = request.Locale;
+        contact.ConsentCommercial = request.ConsentCommercial;
         contact.UpdatedAt = DateTimeOffset.UtcNow;
         await DbContext.SaveChangesAsync();
     }
