@@ -163,6 +163,8 @@ internal class ApifonResponse
 
 internal class ApifonRequest
 {
+    public ApifonRequest() { }
+
     public ApifonRequest(string from, string[] to, string message) {
         foreach (var subNumber in to) {
             Subscribers.Add(new Subscriber { To = subNumber });

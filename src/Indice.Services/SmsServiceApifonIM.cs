@@ -8,6 +8,7 @@ using System.Text.Json.Serialization;
 using Indice.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using static Indice.Services.ApifonRequest;
 
 namespace Indice.Services;
 
@@ -65,12 +66,19 @@ public class SmsServiceApifonIM : ISmsService
             throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(recipients));
         }
         var senderId = sender?.Id ?? Options.Sender ?? Options.SenderName;
-        var payload = new ApifonIMRequest(senderId!, recipients, body!) {
+        var payload = new ApifonIMRequest() {
             IMChannels = [new() { 
                 SenderId = senderId,
                 Text = body
             }]
         };
+        foreach (var number in recipients) {
+            payload.Subscribers.Add(new Subscriber { To = number });
+        }
+        if (Options.ViberFallbackEnabled) {
+            payload.Message.From = senderId!;
+            payload.Message.Text = body!;
+        }
         var signature = payload.Sign(Options.ApiKey!, HttpMethod.Post.ToString(), SERVICE_ENDPOINT);
         var request = new HttpRequestMessage {
             Content = new StringContent(payload.ToJson(), Encoding.UTF8, MediaTypeNames.Application.Json),
@@ -123,6 +131,8 @@ public class SmsServiceApifonIM : ISmsService
 }
 
 internal class ApifonIMRequest : ApifonRequest {
+    public ApifonIMRequest() { }
+
     public ApifonIMRequest(string from, string[] to, string message) : base(from, to, message) { }
 
     [JsonPropertyName("im_channels")]
