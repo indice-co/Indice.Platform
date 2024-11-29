@@ -22,10 +22,13 @@ public class MediaBaseHrefResolver
     /// <param name="linkGenerator">The link generator</param>
     /// <param name="serviceProvider">Will be used to resolve the optional service for media settings. The settings service for retrieving the CDN key value if found</param>
     public MediaBaseHrefResolver(IConfiguration configuration, LinkGenerator linkGenerator, IServiceProvider serviceProvider) {
-        Uri baseUri = new(configuration.GetHost());
-        Uri basePath = new(linkGenerator.GetPathByName(new DefaultHttpContext(), nameof(MediaHandlers.DownloadFile), values: null)!, UriKind.RelativeOrAbsolute);
+        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+        if (!Uri.TryCreate(configuration.GetHost(), UriKind.Absolute, out var baseUri)) {
+            var httpRequest = _serviceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext!.Request;
+            baseUri = new Uri($"{httpRequest.Scheme}://{httpRequest.Host}{httpRequest.PathBase}");
+        }
+        Uri basePath = new(linkGenerator.GetPathByName(new DefaultHttpContext(), nameof(MediaHandlers.DownloadFile), values: null) ?? "/api/media-root", UriKind.RelativeOrAbsolute);
         ActualBaseHref = new(baseUri, basePath);
-        _serviceProvider = serviceProvider;
     }
 
     /// <summary>

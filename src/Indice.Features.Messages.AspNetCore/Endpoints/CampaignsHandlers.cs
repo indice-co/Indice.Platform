@@ -16,12 +16,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Indice.Features.Media.AspNetCore;
-using Microsoft.Extensions.Options;
-using Microsoft.AspNetCore.Routing;
-using Indice.Features.Media.AspNetCore.Endpoints;
-using System.Net.Http;
-using Indice.Features.Media.AspNetCore.Models;
-using Indice.Features.Media.AspNetCore.Services;
 
 namespace Indice.Features.Messages.AspNetCore.Endpoints;
 
@@ -72,7 +66,6 @@ internal static class CampaignsHandlers
         IConfiguration configuration, 
         MediaBaseHrefResolver baseHrefResolver,
         CreateCampaignRequest request) {
-        Uri baseUri = new(configuration.GetHost());
         if (string.IsNullOrWhiteSpace(request.MediaBaseHref) || 
             Uri.TryCreate(request!.MediaBaseHref, UriKind.RelativeOrAbsolute, out var mediaBasePath) && !mediaBasePath.IsAbsoluteUri) {
             request.MediaBaseHref = (await baseHrefResolver.ResolveBaseHrefAsync()).ToString();
