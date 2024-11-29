@@ -30,7 +30,7 @@ public class AllowedCharactersPasswordValidatorTests
     }
 
     [Theory]
-    [InlineData("123Abc!")]
+    [InlineData("xxxxxxx")]
     [InlineData("123Abc!$")]
     [InlineData("123")]
     public async Task CheckValidPasswords(string password) {
