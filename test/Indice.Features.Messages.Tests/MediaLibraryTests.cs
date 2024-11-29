@@ -1,5 +1,4 @@
-﻿#if NET7_0_OR_GREATER
-using System.Collections.Specialized;
+﻿using System.Collections.Specialized;
 using System.Text;
 using System.Text.Json;
 using Indice.AspNetCore.Authorization;
@@ -220,4 +219,3 @@ public class MediaLibraryTests : IAsyncLifetime
         await _serviceProvider.DisposeAsync();
     }
 }
-#endif

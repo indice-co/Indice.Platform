@@ -1,5 +1,4 @@
-﻿#if NET7_0_OR_GREATER
-using System.Numerics;
+﻿using System.Numerics;
 
 namespace Indice.Types;
 
@@ -13,4 +12,3 @@ public class NumberRange<TNumberType> where TNumberType : INumber<TNumberType>
     /// <summary>Upper limit of range.</summary>
     public TNumberType? UpperLimit { get; set; }
 }
-#endif

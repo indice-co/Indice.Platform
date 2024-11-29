@@ -1,5 +1,4 @@
-﻿#if NET7_0_OR_GREATER
-#nullable enable
+﻿#nullable enable
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -47,4 +46,3 @@ public static class MessageEndpointExtensions
     }
 }
 #nullable disable
-#endif

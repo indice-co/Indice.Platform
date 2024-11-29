@@ -24,11 +24,7 @@ public static class MappingExtensions
             hashCodeExpression: obj => obj.GetHashCode(),
             snapshotExpression: obj => JsonSerializer.Deserialize<TProperty>(JsonSerializer.Serialize(obj, JsonStringValueConverter<TProperty>.SerializerOptions), JsonStringValueConverter<TProperty>.SerializerOptions)
         );
-#if NET5_0_OR_GREATER
         builder.HasConversion(new JsonStringValueConverter<TProperty>(), valueComparer);
-#else
-        builder.HasConversion(new JsonStringValueConverter<TProperty>()).Metadata.SetValueComparer(valueComparer);
-#endif
         var jsonColumns = JsonColumns.GetOrAdd(builder.Metadata.DeclaringType.ClrType, type => new HashSet<string>(StringComparer.OrdinalIgnoreCase));
         lock(jsonColumns) { 
             jsonColumns.Add(builder.Metadata.Name);

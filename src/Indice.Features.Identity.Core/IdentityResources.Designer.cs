@@ -160,6 +160,15 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Phone number is not valid &apos;{0}&apos;..
+        /// </summary>
+        internal static string InvalidPhoneNumber {
+            get {
+                return ResourceManager.GetString("InvalidPhoneNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot set max number of devices to {0}. Maximum value can be {1}..
         /// </summary>
         internal static string LargeNumberOfDevices {
@@ -408,15 +417,6 @@ namespace Indice.Features.Identity.Core {
         internal static string UserAlreadyHasPhoneNumber {
             get {
                 return ResourceManager.GetString("UserAlreadyHasPhoneNumber", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Phone number is not valid &apos;{0}&apos;..
-        /// </summary>
-        internal static string InvalidPhoneNumber {
-            get {
-                return ResourceManager.GetString("InvalidPhoneNumber", resourceCulture);
             }
         }
     }

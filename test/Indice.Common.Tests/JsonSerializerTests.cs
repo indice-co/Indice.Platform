@@ -195,25 +195,12 @@ public class JsonSerializerTests
         };
         options.Converters.Add(new JsonStringEnumConverter());
         options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-#if NET6_0_OR_GREATER
         RoundtripSerialize(new PocoValue<TimeSpan?> { Value = new TimeSpan(2, 30, 12) }, options);
         RoundtripSerialize(new PocoValue<TimeSpan> { Value = new TimeSpan(2, 30, 12) }, options);
-#else
-        Assert.ThrowsAny<Exception>(() => RoundtripSerialize(new PocoValue<TimeSpan?> { Value = new TimeSpan(2, 30, 12) }, options));
-        Assert.ThrowsAny<Exception>(() => RoundtripSerialize(new PocoValue<TimeSpan> { Value = new TimeSpan(2, 30, 12) }, options));
-#endif
-
         RoundtripSerialize(new PocoValue<TimeSpan?>(), options);
         options = new JsonSerializerOptions {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
-        options.Converters.Add(new JsonStringEnumConverter());
-        options.Converters.Add(new JsonTimeSpanConverter());
-        options.Converters.Add(new JsonNullableTimeSpanConverter());
-        options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-        RoundtripSerialize(new PocoValue<TimeSpan?> { Value = new TimeSpan(2, 30, 12) }, options);
-        RoundtripSerialize(new PocoValue<TimeSpan> { Value = new TimeSpan(2, 30, 12) }, options);
-        RoundtripSerialize(new PocoValue<TimeSpan?>(), options);
     }
 
     [Fact]

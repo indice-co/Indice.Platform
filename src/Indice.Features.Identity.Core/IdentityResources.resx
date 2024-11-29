@@ -150,6 +150,9 @@
   <data name="InsufficientNumberOfDevices" xml:space="preserve">
     <value>User must have at least 1 device.</value>
   </data>
+  <data name="InvalidPhoneNumber" xml:space="preserve">
+    <value>Phone number is not valid '{0}'.</value>
+  </data>
   <data name="LargeNumberOfDevices" xml:space="preserve">
     <value>Cannot set max number of devices to {0}. Maximum value can be {1}.</value>
   </data>

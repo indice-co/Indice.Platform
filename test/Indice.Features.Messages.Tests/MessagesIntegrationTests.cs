@@ -1,5 +1,4 @@
-﻿#if NET7_0_OR_GREATER
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using Indice.AspNetCore.Authorization;
 using Indice.Features.Messages.Core;
@@ -215,5 +214,3 @@ public class MessagesIntegrationTests : IAsyncLifetime
         await _serviceProvider.DisposeAsync();
     }
 }
-
-#endif

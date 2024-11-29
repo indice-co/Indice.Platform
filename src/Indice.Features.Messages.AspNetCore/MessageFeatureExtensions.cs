@@ -148,10 +148,8 @@ public static class MessageFeatureExtensions
         services.AddValidatorsFromAssemblyContaining<CreateCampaignRequestValidator>();
         // Register framework services.
         services.AddResponseCaching();
-#if NET7_0_OR_GREATER
         services.AddOutputCache();
         services.AddEndpointParameterFluentValidation(typeof(UpdateMessageTypeRequestValidator).Assembly);
-#endif
         // Register custom services.
         services.TryAddTransient<ICampaignService, CampaignService>();
         services.TryAddTransient<IMessageTypeService, MessageTypeService>();
@@ -220,8 +218,6 @@ public static class MessageFeatureExtensions
             options.UseCompression = true;
         });
     }
-
-#if NET7_0_OR_GREATER
 #nullable enable
     /// <summary>Adds the Media Library feature.</summary>
     /// <param name="options">Options used to configure the Media API feature.</param>
@@ -230,7 +226,7 @@ public static class MessageFeatureExtensions
         options.Services.AddMediaLibrary(configureAction);
     }
 #nullable disable
-#endif
+
     /// <summary>Configures that campaign contact information will be resolved by contacting the Identity Server instance.</summary>
     /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
     /// <param name="configure">Delegate used to configure <see cref="ContactResolverIdentity"/> service.</param>

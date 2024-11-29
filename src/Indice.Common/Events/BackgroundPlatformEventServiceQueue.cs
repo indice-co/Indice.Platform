@@ -1,5 +1,4 @@
-﻿#if !NETSTANDARD2_1
-using System.Threading.Channels;
+﻿using System.Threading.Channels;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Events;
@@ -34,4 +33,3 @@ public class BackgroundPlatformEventServiceQueueOptions
     /// <summary>The timeout milliseconds the queue waits to reach the batch size. Should be extra careful when configuring!!!</summary>
     public long DequeueTimeoutInMilliseconds { get; set; } = 1000;
 }
-#endif

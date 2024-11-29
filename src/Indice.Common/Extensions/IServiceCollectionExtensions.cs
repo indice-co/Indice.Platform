@@ -107,7 +107,6 @@ public static class IServiceCollectionExtensions
         return services;
     }
 
-#if !NETSTANDARD2_1
     /// <summary>Adds the default implementation of <see cref="IPlatformEventService"/> which processes events αsynchronously on the background.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="config">Configuration action.</param>
@@ -118,5 +117,5 @@ public static class IServiceCollectionExtensions
         services.AddHostedService<BackgroundPlatformEventHostedService>();
         return services;
     }
-#endif
+
 }
