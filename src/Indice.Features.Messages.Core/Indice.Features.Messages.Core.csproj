@@ -10,8 +10,8 @@
     <None Include="CHANGELOG.md" Pack="true" PackagePath="\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.EntityFrameworkCore" Version="$(VersionPrefixCore)" />
-    <PackageReference Include="Indice.Services" Version="$(VersionPrefixCore)" />
+    <PackageReference Include="Indice.EntityFrameworkCore" Version="$(VersionPrefixCore)-*" />
+    <PackageReference Include="Indice.Services" Version="$(VersionPrefixCore)-*" />
     <PackageReference Include="FluentValidation" Version="11.11.0" />
     <PackageReference Include="Handlebars.Net" Version="2.1.6" />
     <PackageReference Include="IdentityModel" Version="7.0.0" />
