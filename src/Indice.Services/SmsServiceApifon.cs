@@ -65,7 +65,7 @@ public class SmsServiceApifon : ISmsService
             throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(recipients));
         }
         // https://docs.apifon.com/apireference.html#sms-request
-        var payload = new ApifonRequest(sender?.Id ?? Settings.Sender ?? Settings.SenderName!, recipients, body!);
+        var payload = ApifonRequest.Create(sender?.Id ?? Settings.Sender ?? Settings.SenderName!, recipients, body!);
         var signature = payload.Sign(Settings.ApiKey!, HttpMethod.Post.ToString(), "/services/api/v1/sms/send");
         var request = new HttpRequestMessage {
             Content = new StringContent(payload.ToJson(), Encoding.UTF8, "application/json"),
@@ -163,12 +163,14 @@ internal class ApifonResponse
 
 internal class ApifonRequest
 {
-    public ApifonRequest(string from, string[] to, string message) {
+    public static ApifonRequest Create(string from, string[] to, string message) {
+        var request = new ApifonRequest();
         foreach (var subNumber in to) {
-            Subscribers.Add(new Subscriber { To = subNumber });
+            request.Subscribers.Add(new Subscriber { To = subNumber });
         }
-        Message.From = from;
-        Message.Text = message;
+        request.Message.From = from;
+        request.Message.Text = message;
+        return request;
     }
 
     [JsonPropertyName("message")]
