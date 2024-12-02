@@ -9,8 +9,8 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefixCore)" />
-    <PackageReference Include="Indice.Common" Version="$(VersionPrefixCore)" />
+    <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefixCore)-*" />
+    <PackageReference Include="Indice.Common" Version="$(VersionPrefixCore)-*" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
@@ -18,5 +18,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
     <ProjectReference Include="..\Indice.Common\Indice.Common.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Indice.Features.Messages.Tests"/>
+    <InternalsVisibleTo Include="Indice.Features.Messages.AspNetCore"/>
   </ItemGroup>
 </Project>

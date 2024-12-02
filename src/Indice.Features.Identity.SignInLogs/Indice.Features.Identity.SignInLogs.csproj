@@ -5,7 +5,7 @@
     <VersionPrefix>$(VersionPrefixIdentity)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefixIdentity)" />
+    <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefixIdentity)-*" />
     <PackageReference Include="MaxMind.GeoIP2" Version="5.2.0" />
     <PackageReference Include="Open.ChannelExtensions" Version="9.0.0" />
   </ItemGroup>

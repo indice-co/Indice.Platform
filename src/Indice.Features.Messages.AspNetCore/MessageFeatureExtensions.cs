@@ -4,6 +4,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Swagger;
 using Indice.Events;
+using Indice.Features.Media.AspNetCore;
 using Indice.Features.Messages.AspNetCore.Authorization;
 using Indice.Features.Messages.AspNetCore.Services;
 using Indice.Features.Messages.Core;
@@ -81,6 +82,7 @@ public static class MessageFeatureExtensions
         // Register framework services.
         services.AddHttpContextAccessor();
         // Register events.
+        services.TryAddSingleton<MediaBaseHrefResolver>();
         services.TryAddTransient<IPlatformEventService, DefaultPlatformEventService>();
         services.TryAddTransient<IContactService, ContactService>();
         services.TryAddTransient<ITemplateService, TemplateService>();
@@ -173,13 +175,13 @@ public static class MessageFeatureExtensions
     /// <param name="options">Options used to configure the Campaigns API feature.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static void UseFilesLocal(this CampaignOptionsBase options, Action<FileServiceLocalOptions> configure = null) =>
-        options.Services.AddFiles(options => options.AddFileSystem(KeyedServiceNames.FileServiceKey, configure));
+        options.Services.AddFiles(options => options.AddFileSystem(Indice.Features.Messages.Core.KeyedServiceNames.FileServiceKey, configure));
 
     /// <summary>Adds <see cref="IFileService"/> using Azure Blob Storage as the backing store.</summary>
     /// <param name="options">Options used to configure the Campaigns API feature.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static void UseFilesAzure(this CampaignOptionsBase options, Action<FileServiceAzureOptions> configure = null) =>
-        options.Services.AddFiles(options => options.AddAzureStorage(KeyedServiceNames.FileServiceKey, configure));
+        options.Services.AddFiles(options => options.AddAzureStorage(Indice.Features.Messages.Core.KeyedServiceNames.FileServiceKey, configure));
 
     /// <summary>Configures that campaign contact information will be resolved by contacting the Identity Server instance.</summary>
     /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
@@ -201,7 +203,7 @@ public static class MessageFeatureExtensions
     /// <param name="options">Options used to configure the Campaigns API feature.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static void UseEventDispatcherAzure(this MessageEndpointOptions options, Action<IServiceProvider, MessageEventDispatcherAzureOptions> configure = null) {
-        options.Services.AddEventDispatcherAzure(KeyedServiceNames.EventDispatcherServiceKey, (serviceProvider, options) => {
+        options.Services.AddEventDispatcherAzure(Indice.Features.Messages.Core.KeyedServiceNames.EventDispatcherServiceKey, (serviceProvider, options) => {
             var eventDispatcherOptions = new MessageEventDispatcherAzureOptions {
                 ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME),
                 Enabled = true,

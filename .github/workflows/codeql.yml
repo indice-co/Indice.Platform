@@ -40,11 +40,11 @@ jobs:
       env:
         NUGET_AUTH_TOKEN: ${{secrets.NUGET_AUTH_TOKEN}}
 
-    - name: Use Node.js 16.x
+    # Setup Node.js
+    - name: Use Node.js 20.x
       uses: actions/setup-node@v4
       with:
-        node-version: 16
-        check-latest: true
+        node-version: 20
 
     # Build the solution
     - name: NPM Install + Build Cases UI

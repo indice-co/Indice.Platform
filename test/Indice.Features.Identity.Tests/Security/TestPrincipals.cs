@@ -8,7 +8,7 @@ internal class TestPrincipals
             new Claim(JwtClaimTypes.GivenName, "Indice"),
             new Claim(JwtClaimTypes.FamilyName, "User"),
             new Claim(JwtClaimTypes.ClientId, "indice-client"),
-            new Claim(JwtClaimTypes.Email, "company@indice.gr"),
+            new Claim(JwtClaimTypes.Email, "someone@indice.gr"),
             new Claim(JwtClaimTypes.Name, "indice"),
             new Claim(JwtClaimTypes.Role, BasicRoleNames.AdminUIUsersWriter),
             new Claim(JwtClaimTypes.Subject, "6c9fa6dd-ede4-486b-bf91-6de18542da4a"),

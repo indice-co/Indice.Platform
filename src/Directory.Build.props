@@ -3,7 +3,10 @@
       <Copyright>Copyright (c) 2018 Indice</Copyright>
       <TargetFrameworks></TargetFrameworks>
       <TargetFramework>net8.0</TargetFramework>
-      <VersionPrefixBase>8.0</VersionPrefixBase>
+      
+      <VersionPrefixMajor>8</VersionPrefixMajor>
+      <VersionPrefixBase>$(VersionPrefixMajor).0</VersionPrefixBase>
+      
       <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
       <VersionPrefixIdentity>$(VersionPrefixBase).0</VersionPrefixIdentity>
       <VersionPrefixIdentityUI>$(VersionPrefixBase).0</VersionPrefixIdentityUI>
@@ -15,7 +18,8 @@
       <VersionPrefixGovGr>$(VersionPrefixBase).0</VersionPrefixGovGr>
       <VersionPrefixAspNet>$(VersionPrefixBase).0</VersionPrefixAspNet>
       <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
-      <!--<VersionSuffix>beta-01</VersionSuffix>-->
+      
+      <VersionSuffix>rc03</VersionSuffix>
       <Authors>Constantinos Leftheris</Authors>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
       <LangVersion>Latest</LangVersion>

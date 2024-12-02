@@ -39,7 +39,7 @@ using TokenResponse = IdentityModel.Client.TokenResponse;
 
 namespace Indice.Features.Identity.Tests;
 
-public class CustomGrantsIntegrationTests
+public class CustomGrantsIntegrationTests : IAsyncLifetime
 {
     #region Keys
     // https://www.scottbrady91.com/OpenSSL/Creating-RSA-Keys-using-OpenSSL
@@ -276,6 +276,14 @@ public class CustomGrantsIntegrationTests
         };
     }
 
+    public User TestUser { get; set; }
+
+    public async Task InitializeAsync() {
+        TestUser = await InitTestUserAsync();
+    }
+
+    public Task DisposeAsync() => Task.CompletedTask;
+
     #region Device Authentication Tests
     [Fact]
     public async Task Can_Register_New_Device_Using_Biometric() {
@@ -365,34 +373,18 @@ public class CustomGrantsIntegrationTests
     [Fact]
     public async Task Changing_Password_Blocks_Device() {
         var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
-        var user = new User {
-            CreateDate = DateTimeOffset.UtcNow,
-            Email = "g.manoltzas@indice.gr",
-            EmailConfirmed = true,
-            Id = Guid.NewGuid().ToString(),
-            PhoneNumber = "69XXXXXXXX",
-            PhoneNumberConfirmed = true,
-            UserName = "g.manoltzas@indice.gr"
-        };
-        // 1. Create a new user.
-        var result = await userManager.CreateAsync(user, password: "123abc!", validatePassword: false);
-        if (!result.Succeeded) {
-            Assert.Fail("User could not be created.");
-        }
-        await userManager.AddToRoleAsync(user, BasicRoleNames.Developer);
-        await userManager.AddClaimAsync(user, new Claim(BasicClaimTypes.DeveloperTotp, "123456"));
         // 2. Register a new device using biometric login.
         var deviceId = Guid.NewGuid().ToString();
-        var response = await RegisterDeviceUsingBiometric(deviceId, userName: "g.manoltzas@indice.gr");
+        var response = await RegisterDeviceUsingBiometric(deviceId, userName: "someone@indice.gr");
         if (!response.IsSuccessStatusCode) {
             Assert.Fail("Device could not be created.");
         }
         // 3. Change username. 
-        result = await userManager.SetUserNameAsync(user, "g.manoltzas_new@indice.gr");
+        var result = await userManager.SetUserNameAsync(TestUser, "someone_new@indice.gr");
         if (!result.Succeeded) {
             Assert.Fail("Failed to set new username.");
         }
-        var device = await userManager.GetDeviceByIdAsync(user, deviceId);
+        var device = await userManager.GetDeviceByIdAsync(TestUser, deviceId);
         if (device is null) {
             Assert.Fail("User device could not be found.");
         }
@@ -429,7 +421,7 @@ public class CustomGrantsIntegrationTests
         Assert.True(tokenResponse.IsError);
         Assert.True(tokenResponse.ErrorDescription == "requires_password");
         // 6. Now we login with username and password using the resource owner password grant. This should make the device usable again.
-        await LoginWithPasswordGrant("g.manoltzas_new@indice.gr", "123abc!", deviceId);
+        await LoginWithPasswordGrant("someone_new@indice.gr", "xxxxxxx", deviceId);
         // 7. Login again with fingerprint. This is expected to succeed.
         tokenResponse = await LoginWithFingerprint(responseDto.RegistrationId);
         Assert.False(tokenResponse.IsError);
@@ -630,12 +622,12 @@ public class CustomGrantsIntegrationTests
         var deviceId = Guid.NewGuid().ToString();
         await RegisterDeviceUsingBiometric(deviceId);
         // Login with password grant from a specified IP address.
-        _ = await LoginWithPasswordGrant("company@indice.gr", "123abc!", deviceId, "22.40.56.11");
+        _ = await LoginWithPasswordGrant("someone@indice.gr", "xxxxxxx", deviceId, "22.40.56.11");
         foreach (var _ in Enumerable.Range(1, 5)) {
             // Cause a delay so sign in log store can be up to date.
-            await Task.Delay(TimeSpan.FromSeconds(2));
+            await Task.Delay(TimeSpan.FromSeconds(1));
             // Each login from an impossible location should result in a bad request.
-            var tokenResponse = await LoginWithPasswordGrant("company@indice.gr", "123abc!", deviceId, "67.168.97.200");
+            var tokenResponse = await LoginWithPasswordGrant("someone@indice.gr", "xxxxxxx", deviceId, "67.168.97.200");
             Assert.True(tokenResponse.HttpStatusCode == HttpStatusCode.BadRequest);
             Assert.True(tokenResponse.AccessToken is null);
         }
@@ -643,8 +635,32 @@ public class CustomGrantsIntegrationTests
     #endregion
 
     #region Helper Methods
+    private async Task<User> InitTestUserAsync(string email = "someone@indice.gr", string password = "xxxxxxx", string developerOtp = "123456", bool isAdmin = false) {
+        var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var user = new User {
+            CreateDate = DateTimeOffset.UtcNow,
+            Email = email,
+            NormalizedEmail = email.ToUpperInvariant(),
+            EmailConfirmed = true,
+            Id = Guid.NewGuid().ToString(),
+            PhoneNumber = "69XXXXXXXX",
+            PhoneNumberConfirmed = true,
+            UserName = email,
+            NormalizedUserName = email.ToUpperInvariant(),
+            Admin = isAdmin,
+        };
+        // 1. Create a new user.
+        var result = await userManager.CreateAsync(user, password: password, validatePassword: false);
+        if (!result.Succeeded) {
+            Assert.Fail("User could not be created.");
+        }
+        await userManager.AddToRoleAsync(user, BasicRoleNames.Developer);
+        await userManager.AddClaimAsync(user, new Claim(BasicClaimTypes.DeveloperTotp, developerOtp));
+        return user;
+    }
+
     private async Task<TrustedDeviceCompleteRegistrationResultDto> RegisterDeviceUsingPinWhenAlreadySupportsBiometric() {
-        var tokenResponse = await LoginWithPasswordGrant(userName: "company@indice.gr", password: "123abc!");
+        var tokenResponse = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx");
         var codeVerifier = GenerateCodeVerifier();
         var deviceId = Guid.NewGuid().ToString();
         var challenge = await InitiateDeviceRegistrationUsingBiometric(tokenResponse.AccessToken, codeVerifier, deviceId);
@@ -671,7 +687,7 @@ public class CustomGrantsIntegrationTests
     }
 
     private async Task<string> RegisterNewDeviceUsingPin() {
-        var tokenResponse = await LoginWithPasswordGrant(userName: "company@indice.gr", password: "123abc!");
+        var tokenResponse = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx");
         var codeVerifier = GenerateCodeVerifier();
         var deviceId = Guid.NewGuid().ToString();
         var challenge = await InitiateDeviceRegistrationUsingPin(tokenResponse.AccessToken, codeVerifier, deviceId);
@@ -685,7 +701,7 @@ public class CustomGrantsIntegrationTests
     }
 
     private async Task<TrustedDeviceCompleteRegistrationResultDto> RegisterDeviceUsingFingerprintWhenAlreadySupportsPin() {
-        var tokenResponse = await LoginWithPasswordGrant(userName: "company@indice.gr", password: "123abc!");
+        var tokenResponse = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx");
         var codeVerifier = GenerateCodeVerifier();
         var deviceId = Guid.NewGuid().ToString();
         var challenge = await InitiateDeviceRegistrationUsingPin(tokenResponse.AccessToken, codeVerifier, deviceId);
@@ -714,8 +730,8 @@ public class CustomGrantsIntegrationTests
         return responseDto;
     }
 
-    private async Task<HttpResponseMessage> RegisterDeviceUsingBiometric(string deviceId, string userName = "company@indice.gr") {
-        var tokenResponse = await LoginWithPasswordGrant(userName, password: "123abc!");
+    private async Task<HttpResponseMessage> RegisterDeviceUsingBiometric(string deviceId, string userName = "someone@indice.gr") {
+        var tokenResponse = await LoginWithPasswordGrant(userName, password: "xxxxxxx");
         var codeVerifier = GenerateCodeVerifier();
         var challenge = await InitiateDeviceRegistrationUsingBiometric(tokenResponse.AccessToken, codeVerifier, deviceId);
         var response = await CompleteDeviceRegistrationUsingBiometric(tokenResponse.AccessToken, codeVerifier, deviceId, challenge);
