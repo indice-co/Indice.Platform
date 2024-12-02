@@ -66,19 +66,8 @@ public class SmsServiceApifonIM : ISmsService
             throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(recipients));
         }
         var senderId = sender?.Id ?? Options.Sender ?? Options.SenderName;
-        var payload = new ApifonIMRequest() {
-            IMChannels = [new() { 
-                SenderId = senderId,
-                Text = body
-            }]
-        };
-        foreach (var number in recipients) {
-            payload.Subscribers.Add(new Subscriber { To = number });
-        }
-        if (Options.ViberFallbackEnabled) {
-            payload.Message.From = senderId!;
-            payload.Message.Text = body!;
-        }
+
+        var payload = ApifonIMRequest.Create(senderId!, recipients, body!, Options.ViberFallbackEnabled);
         var signature = payload.Sign(Options.ApiKey!, HttpMethod.Post.ToString(), SERVICE_ENDPOINT);
         var request = new HttpRequestMessage {
             Content = new StringContent(payload.ToJson(), Encoding.UTF8, MediaTypeNames.Application.Json),
@@ -131,9 +120,21 @@ public class SmsServiceApifonIM : ISmsService
 }
 
 internal class ApifonIMRequest : ApifonRequest {
-    public ApifonIMRequest() { }
-
-    public ApifonIMRequest(string from, string[] to, string message) : base(from, to, message) { }
+    public static ApifonIMRequest Create(string from, string[] to, string message, bool viberFallbackEnabled) {
+        var request = new ApifonIMRequest();
+        foreach (var subNumber in to) {
+            request.Subscribers.Add(new Subscriber { To = subNumber });
+        }
+        request.IMChannels = [new() {
+            SenderId = from,
+            Text = message
+        }];
+        if (viberFallbackEnabled) {
+            request.Message.From = from;
+            request.Message.Text = message;
+        }
+        return request;
+    }
 
     [JsonPropertyName("im_channels")]
     public List<IMChannel> IMChannels { get; set; } = [];
