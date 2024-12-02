@@ -32,11 +32,12 @@ internal static class Mapper
         Id = campaign.Id,
         IsGlobal = campaign.IsGlobal,
         Published = campaign.Published,
+        IgnoreUserPreferences = campaign.IgnoreUserPreferences,
         Title = campaign.Title,
         Type = campaign.Type != null ? new MessageType {
             Id = campaign.Type.Id,
             Name = campaign.Type.Name,
-            Commercial = campaign.Type.Commercial
+            Classification = campaign.Type.Classification
         } : null
     };
 
@@ -109,12 +110,13 @@ internal static class Mapper
         } : null,
         Id = campaign.Id,
         Published = campaign.Published,
+        IgnoreUserPreferences = campaign.IgnoreUserPreferences,
         IsGlobal = campaign.IsGlobal,
         Title = campaign.Title,
         Type = campaign.Type != null ? new MessageType {
             Id = campaign.Type.Id,
             Name = campaign.Type.Name,
-            Commercial = campaign.Type.Commercial
+            Classification = campaign.Type.Classification
         } : null
     };
 
@@ -132,6 +134,7 @@ internal static class Mapper
         IsGlobal = request.IsGlobal,
         MessageChannelKind = Enum.Parse<MessageChannelKind>(string.Join(',', request.Content.Select(x => x.Key)), ignoreCase: true),
         Published = request.Published,
+        IgnoreUserPreferences = request.IgnoreUserPreferences ?? false,
         Title = request.Title,
         TypeId = request.TypeId,
         AttachmentId = request.AttachmentIds?.Cast<Guid?>().FirstOrDefault()
@@ -187,9 +190,9 @@ internal static class Mapper
         Id = Guid.NewGuid(),
         LastName = request.LastName,
         PhoneNumber = request.PhoneNumber,
-        CommunicationPreferences= request.CommunicationPreferences,
+        CommunicationPreferences = request.CommunicationPreferences,
         Locale = request.Locale,
-        ConsentCommercial= request.ConsentCommercial,
+        ConsentCommercial = request.ConsentCommercial,
         RecipientId = request.RecipientId,
         Salutation = request.Salutation,
         UpdatedAt = DateTimeOffset.UtcNow

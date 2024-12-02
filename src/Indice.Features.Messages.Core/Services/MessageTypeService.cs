@@ -32,7 +32,7 @@ public class MessageTypeService : IMessageTypeService
         return new MessageType {
             Id = messageType.Id,
             Name = messageType.Name,
-            Commercial = messageType.Commercial,
+            Classification = messageType.Classification,
         };
     }
 
@@ -55,7 +55,7 @@ public class MessageTypeService : IMessageTypeService
         return new MessageType {
             Id = messageType.Id,
             Name = messageType.Name,
-            Commercial = messageType.Commercial
+            Classification = messageType.Classification
         };
     }
 
@@ -68,7 +68,7 @@ public class MessageTypeService : IMessageTypeService
         return new MessageType {
             Id = messageType.Id,
             Name = messageType.Name,
-            Commercial = messageType.Commercial
+            Classification = messageType.Classification
         };
     }
 
@@ -80,7 +80,7 @@ public class MessageTypeService : IMessageTypeService
             .Select(campaignType => new MessageType {
                 Id = campaignType.Id,
                 Name = campaignType.Name,
-                Commercial = campaignType.Commercial
+                Classification = campaignType.Classification
             });
         if (!string.IsNullOrWhiteSpace(options.Search)) {
             query = query.Where(x => x.Name.ToLower().Contains(options.Search.ToLower()));

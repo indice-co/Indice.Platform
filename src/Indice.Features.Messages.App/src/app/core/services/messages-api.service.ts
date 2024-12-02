@@ -3575,6 +3575,7 @@ export class Campaign implements ICampaign {
     content?: { [key: string]: MessageContent; } | undefined;
     actionLink?: Hyperlink;
     published?: boolean;
+    ignoreUserPreferences?: boolean;
     activePeriod?: Period;
     isGlobal?: boolean;
     type?: MessageType;
@@ -3609,6 +3610,7 @@ export class Campaign implements ICampaign {
             }
             this.actionLink = _data["actionLink"] ? Hyperlink.fromJS(_data["actionLink"]) : <any>undefined;
             this.published = _data["published"];
+            this.ignoreUserPreferences = _data["ignoreUserPreferences"];
             this.activePeriod = _data["activePeriod"] ? Period.fromJS(_data["activePeriod"]) : <any>undefined;
             this.isGlobal = _data["isGlobal"];
             this.type = _data["type"] ? MessageType.fromJS(_data["type"]) : <any>undefined;
@@ -3647,6 +3649,7 @@ export class Campaign implements ICampaign {
         }
         data["actionLink"] = this.actionLink ? this.actionLink.toJSON() : <any>undefined;
         data["published"] = this.published;
+        data["ignoreUserPreferences"] = this.ignoreUserPreferences;
         data["activePeriod"] = this.activePeriod ? this.activePeriod.toJSON() : <any>undefined;
         data["isGlobal"] = this.isGlobal;
         data["type"] = this.type ? this.type.toJSON() : <any>undefined;
@@ -3672,6 +3675,7 @@ export interface ICampaign {
     content?: { [key: string]: MessageContent; } | undefined;
     actionLink?: Hyperlink;
     published?: boolean;
+    ignoreUserPreferences?: boolean;
     activePeriod?: Period;
     isGlobal?: boolean;
     type?: MessageType;
@@ -3691,6 +3695,7 @@ export class CampaignDetails implements ICampaignDetails {
     content?: { [key: string]: MessageContent; } | undefined;
     actionLink?: Hyperlink;
     published?: boolean;
+    ignoreUserPreferences?: boolean;
     activePeriod?: Period;
     isGlobal?: boolean;
     type?: MessageType;
@@ -3726,6 +3731,7 @@ export class CampaignDetails implements ICampaignDetails {
             }
             this.actionLink = _data["actionLink"] ? Hyperlink.fromJS(_data["actionLink"]) : <any>undefined;
             this.published = _data["published"];
+            this.ignoreUserPreferences = _data["ignoreUserPreferences"];
             this.activePeriod = _data["activePeriod"] ? Period.fromJS(_data["activePeriod"]) : <any>undefined;
             this.isGlobal = _data["isGlobal"];
             this.type = _data["type"] ? MessageType.fromJS(_data["type"]) : <any>undefined;
@@ -3765,6 +3771,7 @@ export class CampaignDetails implements ICampaignDetails {
         }
         data["actionLink"] = this.actionLink ? this.actionLink.toJSON() : <any>undefined;
         data["published"] = this.published;
+        data["ignoreUserPreferences"] = this.ignoreUserPreferences;
         data["activePeriod"] = this.activePeriod ? this.activePeriod.toJSON() : <any>undefined;
         data["isGlobal"] = this.isGlobal;
         data["type"] = this.type ? this.type.toJSON() : <any>undefined;
@@ -3791,6 +3798,7 @@ export interface ICampaignDetails {
     content?: { [key: string]: MessageContent; } | undefined;
     actionLink?: Hyperlink;
     published?: boolean;
+    ignoreUserPreferences?: boolean;
     activePeriod?: Period;
     isGlobal?: boolean;
     type?: MessageType;
@@ -4121,6 +4129,7 @@ export class CreateCampaignRequest implements ICreateCampaignRequest {
     messageTemplateId?: string | undefined;
     data?: any | undefined;
     published?: boolean;
+    ignoreUserPreferences?: boolean | undefined;
     recipientIds?: string[] | undefined;
     recipients?: ContactAnonymous[] | undefined;
 
@@ -4152,6 +4161,7 @@ export class CreateCampaignRequest implements ICreateCampaignRequest {
             this.messageTemplateId = _data["messageTemplateId"];
             this.data = _data["data"];
             this.published = _data["published"];
+            this.ignoreUserPreferences = _data["ignoreUserPreferences"];
             if (Array.isArray(_data["recipientIds"])) {
                 this.recipientIds = [] as any;
                 for (let item of _data["recipientIds"])
@@ -4191,6 +4201,7 @@ export class CreateCampaignRequest implements ICreateCampaignRequest {
         data["messageTemplateId"] = this.messageTemplateId;
         data["data"] = this.data;
         data["published"] = this.published;
+        data["ignoreUserPreferences"] = this.ignoreUserPreferences;
         if (Array.isArray(this.recipientIds)) {
             data["recipientIds"] = [];
             for (let item of this.recipientIds)
@@ -4217,6 +4228,7 @@ export interface ICreateCampaignRequest {
     messageTemplateId?: string | undefined;
     data?: any | undefined;
     published?: boolean;
+    ignoreUserPreferences?: boolean | undefined;
     recipientIds?: string[] | undefined;
     recipients?: ContactAnonymous[] | undefined;
 }
@@ -4555,6 +4567,7 @@ export interface ICreateMessageTypeRequest {
 
 export class CreateTemplateRequest implements ICreateTemplateRequest {
     name?: string | undefined;
+    ignoreUserPreferences?: boolean;
     content?: { [key: string]: MessageContent; } | undefined;
     data?: any | undefined;
 
@@ -4570,6 +4583,7 @@ export class CreateTemplateRequest implements ICreateTemplateRequest {
     init(_data?: any) {
         if (_data) {
             this.name = _data["name"];
+            this.ignoreUserPreferences = _data["ignoreUserPreferences"];
             if (_data["content"]) {
                 this.content = {} as any;
                 for (let key in _data["content"]) {
@@ -4591,6 +4605,7 @@ export class CreateTemplateRequest implements ICreateTemplateRequest {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name;
+        data["ignoreUserPreferences"] = this.ignoreUserPreferences;
         if (this.content) {
             data["content"] = {};
             for (let key in this.content) {
@@ -4605,6 +4620,7 @@ export class CreateTemplateRequest implements ICreateTemplateRequest {
 
 export interface ICreateTemplateRequest {
     name?: string | undefined;
+    ignoreUserPreferences?: boolean;
     content?: { [key: string]: MessageContent; } | undefined;
     data?: any | undefined;
 }
@@ -4996,7 +5012,7 @@ export interface IMessageSenderResultSet {
 export class MessageType implements IMessageType {
     id?: string;
     name?: string | undefined;
-    commercial?: boolean;
+    classification?: MessageTypeClassification;
 
     constructor(data?: IMessageType) {
         if (data) {
@@ -5011,7 +5027,7 @@ export class MessageType implements IMessageType {
         if (_data) {
             this.id = _data["id"];
             this.name = _data["name"];
-            this.commercial = _data["commercial"];
+            this.classification = _data["classification"];
         }
     }
 
@@ -5026,7 +5042,7 @@ export class MessageType implements IMessageType {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["name"] = this.name;
-        data["commercial"] = this.commercial;
+        data["classification"] = this.classification;
         return data;
     }
 }
@@ -5034,7 +5050,12 @@ export class MessageType implements IMessageType {
 export interface IMessageType {
     id?: string;
     name?: string | undefined;
-    commercial?: boolean;
+    classification?: MessageTypeClassification;
+}
+
+export enum MessageTypeClassification {
+    System = "System",
+    Commercial = "Commercial",
 }
 
 export class MessageTypeResultSet implements IMessageTypeResultSet {
@@ -5192,6 +5213,7 @@ export interface IProblemDetails {
 export class Template implements ITemplate {
     id?: string;
     name?: string | undefined;
+    ignoreUserPreferences?: boolean;
     createdBy?: string | undefined;
     createdAt?: Date;
     updatedBy?: string | undefined;
@@ -5212,6 +5234,7 @@ export class Template implements ITemplate {
         if (_data) {
             this.id = _data["id"];
             this.name = _data["name"];
+            this.ignoreUserPreferences = _data["ignoreUserPreferences"];
             this.createdBy = _data["createdBy"];
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
             this.updatedBy = _data["updatedBy"];
@@ -5238,6 +5261,7 @@ export class Template implements ITemplate {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["name"] = this.name;
+        data["ignoreUserPreferences"] = this.ignoreUserPreferences;
         data["createdBy"] = this.createdBy;
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
         data["updatedBy"] = this.updatedBy;
@@ -5257,6 +5281,7 @@ export class Template implements ITemplate {
 export interface ITemplate {
     id?: string;
     name?: string | undefined;
+    ignoreUserPreferences?: boolean;
     createdBy?: string | undefined;
     createdAt?: Date;
     updatedBy?: string | undefined;
@@ -5268,6 +5293,7 @@ export interface ITemplate {
 export class TemplateListItem implements ITemplateListItem {
     id?: string;
     name?: string | undefined;
+    ignoreUserPreferences?: boolean;
     createdBy?: string | undefined;
     createdAt?: Date;
     updatedBy?: string | undefined;
@@ -5287,6 +5313,7 @@ export class TemplateListItem implements ITemplateListItem {
         if (_data) {
             this.id = _data["id"];
             this.name = _data["name"];
+            this.ignoreUserPreferences = _data["ignoreUserPreferences"];
             this.createdBy = _data["createdBy"];
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
             this.updatedBy = _data["updatedBy"];
@@ -5310,6 +5337,7 @@ export class TemplateListItem implements ITemplateListItem {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["name"] = this.name;
+        data["ignoreUserPreferences"] = this.ignoreUserPreferences;
         data["createdBy"] = this.createdBy;
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
         data["updatedBy"] = this.updatedBy;
@@ -5326,6 +5354,7 @@ export class TemplateListItem implements ITemplateListItem {
 export interface ITemplateListItem {
     id?: string;
     name?: string | undefined;
+    ignoreUserPreferences?: boolean;
     createdBy?: string | undefined;
     createdAt?: Date;
     updatedBy?: string | undefined;
@@ -5663,6 +5692,7 @@ export interface IUpdateMessageTypeRequest {
 
 export class UpdateTemplateRequest implements IUpdateTemplateRequest {
     name?: string | undefined;
+    ignoreUserPreferences?: boolean;
     content?: { [key: string]: MessageContent; } | undefined;
     data?: any | undefined;
 
@@ -5678,6 +5708,7 @@ export class UpdateTemplateRequest implements IUpdateTemplateRequest {
     init(_data?: any) {
         if (_data) {
             this.name = _data["name"];
+            this.ignoreUserPreferences = _data["ignoreUserPreferences"];
             if (_data["content"]) {
                 this.content = {} as any;
                 for (let key in _data["content"]) {
@@ -5699,6 +5730,7 @@ export class UpdateTemplateRequest implements IUpdateTemplateRequest {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name;
+        data["ignoreUserPreferences"] = this.ignoreUserPreferences;
         if (this.content) {
             data["content"] = {};
             for (let key in this.content) {
@@ -5713,6 +5745,7 @@ export class UpdateTemplateRequest implements IUpdateTemplateRequest {
 
 export interface IUpdateTemplateRequest {
     name?: string | undefined;
+    ignoreUserPreferences?: boolean;
     content?: { [key: string]: MessageContent; } | undefined;
     data?: any | undefined;
 }

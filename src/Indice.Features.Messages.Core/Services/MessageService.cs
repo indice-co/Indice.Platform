@@ -184,7 +184,7 @@ public class MessageService : IMessageService
             Type = x.Campaign.Type != null ? new MessageType {
                 Id = x.Campaign.Type.Id,
                 Name = x.Campaign.Type.Name,
-                Commercial = x.Campaign.Type.Commercial,
+                Classification = x.Campaign.Type.Classification,
             } : null
         });
     }
