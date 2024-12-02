@@ -8,7 +8,6 @@ using System.Text.Json.Serialization;
 using Indice.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using static Indice.Services.ApifonRequest;
 
 namespace Indice.Services;
 
