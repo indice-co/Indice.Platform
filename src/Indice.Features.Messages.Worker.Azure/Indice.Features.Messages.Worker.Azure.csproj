@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Package">
+	  <Nullable>disable</Nullable>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AzureFunctions;CampaignManagement;Workers;Cloud</PackageTags>
     <VersionPrefix>$(VersionPrefixMessages)</VersionPrefix>
