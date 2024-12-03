@@ -1,4 +1,5 @@
-﻿using Indice.Features.Cases.Core.Models.Responses;
+﻿using Indice.Features.Cases.Core.Events.Abstractions;
+using Indice.Features.Cases.Core.Models.Responses;
 
 namespace Indice.Features.Cases.Core.Events;
 

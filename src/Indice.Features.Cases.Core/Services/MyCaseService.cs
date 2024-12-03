@@ -4,6 +4,7 @@ using System.Security.Claims;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Data.Models;
 using Indice.Features.Cases.Core.Events;
+using Indice.Features.Cases.Core.Events.Abstractions;
 using Indice.Features.Cases.Core.Localization;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
@@ -17,7 +18,6 @@ namespace Indice.Features.Cases.Core.Services;
 internal class MyCaseService : BaseCaseService, IMyCaseService
 {
     private const string SchemaSelector = "frontend";
-    private readonly CasesDbContext _dbContext;
     private readonly ICaseTypeService _caseTypeService;
     private readonly ICaseEventService _caseEventService;
     private readonly IMyCaseMessageService _caseMessageService;
@@ -32,7 +32,6 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         IMyCaseMessageService caseMessageService,
         IJsonTranslationService jsonTranslationService,
         CaseSharedResourceService caseSharedResourceService) : base(dbContext, options) {
-        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _caseTypeService = caseTypeService ?? throw new ArgumentNullException(nameof(caseTypeService));
         _caseEventService = caseEventService ?? throw new ArgumentNullException(nameof(caseEventService));
         _caseMessageService = caseMessageService ?? throw new ArgumentNullException(nameof(caseMessageService));
@@ -42,14 +41,14 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
 
     public async Task<CreateCaseResponse> CreateDraft(ClaimsPrincipal user,
         string caseTypeCode,
-        string groupId,
-        CustomerMeta customer,
+        string? groupId,
+        CustomerMeta? customer,
         Dictionary<string, string> metadata,
         string channel) {
         if (user is null) throw new ArgumentNullException(nameof(user));
         if (caseTypeCode == null) throw new ArgumentNullException(nameof(caseTypeCode));
 
-        var caseType = await _dbContext.CaseTypes.Where(x => x.Code == caseTypeCode).SingleAsync();
+        var caseType = await DbContext.CaseTypes.Where(x => x.Code == caseTypeCode).SingleAsync();
         var entity = await CreateDraftInternal(
             _caseMessageService,
             user,
@@ -81,7 +80,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         }
 
         @case.Draft = false;
-        await _dbContext.SaveChangesAsync();
+        await DbContext.SaveChangesAsync();
         // TODO: check mapping for event payload
         await _caseEventService.Publish(new CaseSubmittedEvent(new Case { Id = @case.Id } , @case.CaseType.Code));
     }
@@ -112,7 +111,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
 
     public async Task<ResultSet<MyCasePartial>> GetCases(ClaimsPrincipal user, ListOptions<GetMyCasesListFilter> options) {
         var userId = user.FindSubjectIdOrClientId();
-        var dbCaseQueryable = _dbContext.Cases
+        var dbCaseQueryable = DbContext.Cases
             .AsQueryable()
             .Where(p => (p.CreatedBy.Id == userId || p.Customer.UserId == userId) && p.PublicCheckpoint.CheckpointType.Status != CaseStatus.Deleted)
             .Where(options.Filter.Metadata);
@@ -186,7 +185,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         var myCasePartialQueryable = from c in dbCaseQueryable
                                      let reason = c.Approvals.OrderByDescending(a => a.CreatedBy.When).FirstOrDefault()
                                      let reasonMessage = reason != null && reason.Committed && reason.Action == Approval.Reject
-                                         ? _caseSharedResourceService.GetLocalizedHtmlString(reason.Reason)
+                                         ? _caseSharedResourceService.GetLocalizedHtmlString(reason.Reason!)
                                          : string.Empty
                                      select new MyCasePartial {
                                          Id = c.Id,
@@ -198,12 +197,12 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
                                              Code = c.PublicCheckpoint.CheckpointType.Code,
                                              Title = c.PublicCheckpoint.CheckpointType.Title,
                                              Description = c.PublicCheckpoint.CheckpointType.Description,
-                                             Translations = TranslationDictionary<CheckpointTypeTranslation>.FromJson(c.PublicCheckpoint.CheckpointType.Translations)
+                                             Translations = TranslationDictionary<CheckpointTypeTranslation>.FromJson(c.PublicCheckpoint.CheckpointType.Translations!)
                                          },
                                          Metadata = c.Metadata,
                                          Message = reasonMessage,
-                                         Translations = TranslationDictionary<MyCasePartialTranslation>.FromJson(c.CaseType.Translations),
-                                         Data = options.Filter.IncludeData ? c.Data.Data : null
+                                         Translations = TranslationDictionary<MyCasePartialTranslation>.FromJson(c.CaseType.Translations!),
+                                         Data = options.Filter!.IncludeData ? c.Data.Data : null
                                      };
         // sorting option
         if (string.IsNullOrEmpty(options.Sort)) {
@@ -216,7 +215,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             var caseIds = await dbCaseQueryable.Select(x => x.Id).ToListAsync();
 
             // For those Ids, execute a second query to filter the cases by caseData json filter
-            var caseData = await _dbContext.CaseData
+            var caseData = await DbContext.CaseData
                 .AsNoTracking()
                 .Where(options.Filter.Data)
                 .Where(x => caseIds.Contains(x.CaseId))
@@ -261,7 +260,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
     }
 
     public async Task<ResultSet<CaseTypePartial>> GetCaseTypes(ListOptions<GetMyCaseTypesListFilter> options) {
-        var caseTypesQueryable = _dbContext.CaseTypes
+        var caseTypesQueryable = DbContext.CaseTypes
             .AsQueryable();
 
         foreach (var tag in options.Filter?.CaseTypeTags ?? new List<string>()) {

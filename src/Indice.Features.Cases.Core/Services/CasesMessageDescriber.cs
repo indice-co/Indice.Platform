@@ -7,7 +7,7 @@ public class CasesMessageDescriber
     /// <param name="userName">The username of the actor.</param>
     /// <param name="email">The email of the actor.</param>
     /// <returns></returns>
-    public virtual string EditCaseComment(string userName, string email)
+    public virtual string EditCaseComment(string? userName, string? email)
         => string.Format(CasesResources.Culture, CasesResources.EditCaseComment, userName, email);
 
     /// <summary>The comment to show at timeline when an agent tries to bypass four-eyes principle.</summary>

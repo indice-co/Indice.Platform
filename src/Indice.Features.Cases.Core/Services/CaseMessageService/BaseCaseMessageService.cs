@@ -5,12 +5,13 @@ using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Data.Models;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Events;
+using Indice.Features.Cases.Core.Events.Abstractions;
 
 namespace Indice.Features.Cases.Core.Services.CaseMessageService;
 
 internal abstract class BaseCaseMessageService
 {
-    private readonly CasesDbContext _dbContext;
+    protected CasesDbContext DbContext { get; }
     private readonly ICaseEventService _caseEventService;
     private readonly ISchemaValidator _schemaValidator;
 
@@ -18,7 +19,7 @@ internal abstract class BaseCaseMessageService
         CasesDbContext dbContext,
         ICaseEventService caseEventService,
         ISchemaValidator schemaValidator) {
-        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _caseEventService = caseEventService ?? throw new ArgumentNullException(nameof(caseEventService));
         _schemaValidator = schemaValidator ?? throw new ArgumentNullException(nameof(schemaValidator));
     }
@@ -31,16 +32,16 @@ internal abstract class BaseCaseMessageService
             return attachmentId;
         }
 
-        var caseType = await _dbContext.CaseTypes.FindAsync(@case.CaseTypeId);
+        var caseType = await DbContext.CaseTypes.FindAsync(@case.CaseTypeId);
         if (caseType == null) throw new ArgumentNullException(nameof(caseType));
 
         await _caseEventService.Publish(new CaseMessageCreatedEvent(caseId, message));
 
-        var newCheckpointType = await _dbContext.CheckpointTypes
+        var newCheckpointType = await DbContext.CheckpointTypes
             .AsQueryable()
             .SingleOrDefaultAsync(x => x.Code == message.CheckpointTypeName && x.CaseTypeId == caseType.Id);
         if (message.ReplyToCommentId.HasValue) {
-            var exists = await _dbContext.Comments.AsQueryable().AnyAsync(x => x.CaseId == caseId && x.Id == message.ReplyToCommentId.Value);
+            var exists = await DbContext.Comments.AsQueryable().AnyAsync(x => x.CaseId == caseId && x.Id == message.ReplyToCommentId.Value);
             if (!exists) {
                 throw new Exception("Invalid reply to comment id. Not found on the current case.");
             }
@@ -76,7 +77,7 @@ internal abstract class BaseCaseMessageService
             message.Comment = string.IsNullOrEmpty(message.Comment) ? suffix : $"{message.Comment}. {suffix}";
         }
 
-        await _dbContext.SaveChangesAsync();
+        await DbContext.SaveChangesAsync();
         await _caseEventService.Publish(new CaseMessageSentEvent(caseId, message));
         return attachmentId;
     }
@@ -101,13 +102,13 @@ internal abstract class BaseCaseMessageService
             CreatedBy = AuditMeta.Create(user)
         };
 
-        await _dbContext.Comments.AddAsync(newComment);
+        await DbContext.Comments.AddAsync(newComment);
     }
 
     private async Task<CasesAttachmentLink> AddAttachment(ClaimsPrincipal user, DbCase @case, string? comment, string fileName, Func<Stream> fileStreamAccessor) {
         var attachment = new DbAttachment(@case.Id);
         attachment.PopulateFrom(fileName, fileStreamAccessor, saveData: true);
-        _dbContext.Attachments.Add(attachment);
+        DbContext.Attachments.Add(attachment);
         @case.Attachments.Add(attachment);
         var link = new CasesAttachmentLink {
             Id = attachment.Id,
@@ -124,12 +125,12 @@ internal abstract class BaseCaseMessageService
             AttachmentId = attachment.Id,
             Text = comment ?? $"{link.Label} {link.SizeText}"
         };
-        await _dbContext.Comments.AddAsync(commentEntity);
+        await DbContext.Comments.AddAsync(commentEntity);
         return link;
     }
 
     private async Task<DbCheckpoint> AddCheckpoint(ClaimsPrincipal user, DbCase @case, DbCheckpointType checkpointType) {
-        var checkpoint = await _dbContext.Checkpoints
+        var checkpoint = await DbContext.Checkpoints
             .Include(p => p.CheckpointType)
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.Id == @case.CheckpointId);
@@ -164,7 +165,7 @@ internal abstract class BaseCaseMessageService
 
         @case.CheckpointId = nextCheckpoint.Id;
         @case.Checkpoints.Add(nextCheckpoint);
-        await _dbContext.Checkpoints.AddAsync(nextCheckpoint);
+        await DbContext.Checkpoints.AddAsync(nextCheckpoint);
         return nextCheckpoint;
     }
 
@@ -190,6 +191,6 @@ internal abstract class BaseCaseMessageService
         }
 
         // Update checkpoint data
-        await _dbContext.CaseData.AddAsync(newDataVersion);
+        await DbContext.CaseData.AddAsync(newDataVersion);
     }
 }

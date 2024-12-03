@@ -1,9 +1,10 @@
 ﻿using System.Net.Mime;
 using Indice.AspNetCore.Filters;
-using Indice.Features.Cases.Events;
-using Indice.Features.Cases.Interfaces;
-using Indice.Features.Cases.Models;
-using Indice.Features.Cases.Models.Responses;
+using Indice.Features.Cases.Core.Events;
+using Indice.Features.Cases.Core.Events.Abstractions;
+using Indice.Features.Cases.Core.Models;
+using Indice.Features.Cases.Core.Models.Responses;
+using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -96,7 +97,7 @@ internal class MyCasesController : ControllerBase
             return BadRequest(new ValidationProblemDetails(ModelState));
         }
         var fileExtension = Path.GetExtension(file.FileName)?.ToLowerInvariant();
-        var attachmentId = await _caseMessageService.Send(caseId, User, new Message { File = file });
+        var attachmentId = await _caseMessageService.Send(caseId, User, new Message { FileName = file.FileName, FileStreamAccessor = () => file.OpenReadStream() });
         return Ok(new CasesAttachmentLink { Id = attachmentId.GetValueOrDefault() });
     }
 

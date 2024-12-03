@@ -2,7 +2,7 @@
 
 namespace Indice.Features.Cases.Core.Models;
 
-/// <summary>Define the status for the customer. It is defined at the <see cref="CheckpointType.Status"/>.</summary>
+/// <summary>Define the status for the customer. It is defined at the <strong>CheckPointType</strong> level.</summary>
 [JsonConverter(typeof(JsonStringEnumConverter))] // unfortunately, Elsa uses Newtonsoft.Json and overwrites our Converters...
 public enum CaseStatus : short
 {

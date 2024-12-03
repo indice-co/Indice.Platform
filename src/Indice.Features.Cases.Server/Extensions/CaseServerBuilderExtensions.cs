@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Indice.Features.Cases.Core.Services.NoOpServices;
+using Indice.Features.Cases.Core.Events;
+using Indice.Features.Cases.Core.Events.Abstractions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -94,9 +96,9 @@ public static class CaseServerBuilderExtensions
         // Register custom services.
         builder.Services.TryAddTransient<IMyCaseService, MyCaseService>();
         builder.Services.TryAddTransient<ICaseTypeService, CaseTypeService>();
-        builder.Services.TryAddTransient<ISchemaValidator, SchemaValidator>();
+        builder.Services.TryAddTransient<ISchemaValidator, CasesJsonSchemaValidator>();
         builder.Services.TryAddTransient<ICheckpointTypeService, CheckpointTypeService>();
-        builder.Services.TryAddTransient<ICaseTemplateService, CaseTemplateService>();
+        builder.Services.TryAddTransient<ICaseTemplateService, NoOpCaseTemplateService>();
         //builder.Services.TryAddTransient<IMyCaseMessageService, MyCaseMessageService>();
         builder.Services.TryAddTransient<IJsonTranslationService, JsonTranslationService>();
         builder.Services.TryAddSingleton<CaseSharedResourceService>(); // Add the service even if there is no resx file, so the runtime will not throw exception

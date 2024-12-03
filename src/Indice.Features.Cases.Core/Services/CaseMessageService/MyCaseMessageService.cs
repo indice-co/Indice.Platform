@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Data.Models;
+using Indice.Features.Cases.Core.Events.Abstractions;
 
 namespace Indice.Features.Cases.Core.Services.CaseMessageService;
 

@@ -7,13 +7,13 @@ public class CaseAttachment
     public Guid Id { get; set; }
 
     /// <summary>The name of the attachment.</summary>
-    public string? Name { get; set; }
+    public string? FileName { get; set; }
 
     /// <summary>The content type of the attachment.</summary>
     public string? ContentType { get; set; }
 
     /// <summary>The extension of the attachment.</summary>
-    public string? Extension { get; set; }
+    public string? FileExtension { get; set; }
 
     /// <summary>The binary data of the attachment.</summary>
     public byte[]? Data { get; set; }

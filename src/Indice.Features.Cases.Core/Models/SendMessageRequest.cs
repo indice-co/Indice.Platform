@@ -1,7 +1,7 @@
 ﻿namespace Indice.Features.Cases.Core.Models;
 
 /// <summary>The request to insert a new comment to a case.</summary>
-internal class SendCommentRequest
+public class SendCommentRequest
 {
     /// <summary>The Id of the Checkpoint the comment is replying to.</summary>
     public Guid? ReplyToCommentId { get; set; }

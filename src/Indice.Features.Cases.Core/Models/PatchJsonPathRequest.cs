@@ -24,7 +24,10 @@ public class PatchJsonPathRequest
     /// <summary>Only Used for Move and Copy Operations.</summary>
     public string? From { get; set; }
 
-    internal PatchOperation ToPatchOperation() {
+    /// <summary>Con</summary>
+    /// <returns></returns>
+    /// <exception cref="NotSupportedException"></exception>
+    public PatchOperation ToPatchOperation() {
         var value = Value?.ParseAsJsonNode();
         
         return Op switch {

@@ -6,7 +6,7 @@ using Elsa.Design;
 using Elsa.Expressions;
 using Elsa.Providers.WorkflowStorage;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Interfaces;
+using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Features.Cases.Workflows.Extensions;
 using Indice.Services;
 
@@ -37,7 +37,7 @@ internal class NotifyCustomerActivity : BaseCaseActivity
         Hint = "The subject of the notification",
         DefaultSyntax = SyntaxNames.JavaScript,
         UIHint = ActivityInputUIHints.MultiLine,
-        SupportedSyntaxes = new[] { SyntaxNames.JavaScript, SyntaxNames.Liquid, SyntaxNames.Literal }
+        SupportedSyntaxes = [SyntaxNames.JavaScript, SyntaxNames.Liquid, SyntaxNames.Literal]
     )]
     public string SubjectEN { get; set; } = string.Empty;
     [ActivityInput(
@@ -45,7 +45,7 @@ internal class NotifyCustomerActivity : BaseCaseActivity
         Hint = "The subject of the notification",
         DefaultSyntax = SyntaxNames.JavaScript,
         UIHint = ActivityInputUIHints.MultiLine,
-        SupportedSyntaxes = new[] { SyntaxNames.JavaScript, SyntaxNames.Liquid, SyntaxNames.Literal }
+        SupportedSyntaxes = [SyntaxNames.JavaScript, SyntaxNames.Liquid, SyntaxNames.Literal]
     )]
     public string SubjectEL { get; set; } = string.Empty;
     [ActivityInput(
@@ -53,7 +53,7 @@ internal class NotifyCustomerActivity : BaseCaseActivity
         Hint = "The body of the notification.",
         DefaultSyntax = SyntaxNames.Literal,
         UIHint = ActivityInputUIHints.MultiLine,
-        SupportedSyntaxes = new[] { SyntaxNames.JavaScript, SyntaxNames.Liquid, SyntaxNames.Literal }
+        SupportedSyntaxes = [SyntaxNames.JavaScript, SyntaxNames.Liquid, SyntaxNames.Literal]
     )]
     public string BodyEN { get; set; } = string.Empty;
     [ActivityInput(
@@ -61,7 +61,7 @@ internal class NotifyCustomerActivity : BaseCaseActivity
        Hint = "The body of the notification.",
        DefaultSyntax = SyntaxNames.Literal,
        UIHint = ActivityInputUIHints.MultiLine,
-       SupportedSyntaxes = new[] { SyntaxNames.JavaScript, SyntaxNames.Liquid, SyntaxNames.Literal }
+       SupportedSyntaxes = [SyntaxNames.JavaScript, SyntaxNames.Liquid, SyntaxNames.Literal]
    )]
     public string BodyEL { get; set; } = string.Empty;
     [ActivityInput(
@@ -70,13 +70,13 @@ internal class NotifyCustomerActivity : BaseCaseActivity
         Options = new[] { "SMS/Viber" /*"PushNotification", "Email"*/ },
         UIHint = ActivityInputUIHints.CheckList,
         DefaultSyntax = SyntaxNames.Json,
-        SupportedSyntaxes = new[] { SyntaxNames.Json, SyntaxNames.JavaScript },
+        SupportedSyntaxes = [SyntaxNames.Json, SyntaxNames.JavaScript],
         DefaultWorkflowStorageProvider = TransientWorkflowStorageProvider.ProviderName
     )]
     public IEnumerable<string> DeliveryChannel { get; set; } = new List<string>();
 
     [ActivityOutput]
-    public string InfoMessage { get; set; }
+    public string? InfoMessage { get; set; }
 
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         if (!DeliveryChannel.Any() || (string.IsNullOrEmpty(BodyEL) && string.IsNullOrEmpty(BodyEL))) {

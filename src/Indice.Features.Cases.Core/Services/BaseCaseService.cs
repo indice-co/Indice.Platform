@@ -13,16 +13,16 @@ namespace Indice.Features.Cases.Core.Services;
 
 internal abstract class BaseCaseService
 {
-    private readonly CasesDbContext _dbContext;
-    private readonly CasesOptions _options;
+    protected CasesDbContext DbContext { get; }
+    protected CasesOptions Options { get; }
 
     protected BaseCaseService(CasesDbContext dbContext, IOptions<CasesOptions> options) {
-        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-        _options = options.Value;
+        DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        Options = options.Value;
     }
 
     protected async Task<DbCaseType?> GetCaseTypeInternal(string caseTypeCode) {
-        return await _dbContext.CaseTypes
+        return await DbContext.CaseTypes
              .AsNoTracking()
              .FirstOrDefaultAsync(t => t.Code == caseTypeCode);
     }
@@ -52,7 +52,7 @@ internal abstract class BaseCaseService
     /// <param name="schemaKey">The schemaKey for the case type JSON schema/layout. Can be "frontend", "backoffice" or null</param>
     protected IQueryable<Case> GetCasesInternal(string userId, bool includeAttachmentData = false, string? schemaKey = null) {
         var query =
-            from c in _dbContext.Cases.AsQueryable().AsNoTracking()
+            from c in DbContext.Cases.AsQueryable().AsNoTracking()
             let isCustomer = userId == c.Customer.UserId
             select new Case {
                 Id = c.Id,
@@ -88,9 +88,9 @@ internal abstract class BaseCaseService
                 Metadata = c.Metadata,
                 Attachments = c.Attachments.Select(attachment => new CaseAttachment {
                     Id = attachment.Id,
-                    Name = attachment.Name,
+                    FileName = attachment.Name,
                     ContentType = attachment.ContentType,
-                    Extension = attachment.FileExtension,
+                    FileExtension = attachment.FileExtension,
                     Data = includeAttachmentData == true ? attachment.Data : null
                 }).ToList(),
                 Data = isCustomer ? c.PublicData.Data : c.Data.Data,
@@ -113,7 +113,7 @@ internal abstract class BaseCaseService
     /// <exception cref="Exception"></exception>
     protected async Task<DbCase> GetDbCaseForCustomer(Guid caseId, ClaimsPrincipal customer) {
         var userId = customer.FindSubjectIdOrClientId();
-        var @case = await _dbContext.Cases
+        var @case = await DbContext.Cases
             .Include(c => c.CaseType)
             .FirstOrDefaultAsync(p => p.Id == caseId && (p.CreatedBy.Id == userId || p.Customer.UserId == userId));
         if (@case == null) {
@@ -139,8 +139,8 @@ internal abstract class BaseCaseService
         ICaseMessageService caseMessageService,
         ClaimsPrincipal user,
         DbCaseType caseType,
-        string groupId,
-        CustomerMeta customer,
+        string? groupId,
+        CustomerMeta? customer,
         Dictionary<string, string> metadata,
         string channel,
         ClaimsPrincipal? assignee = null) {
@@ -155,7 +155,7 @@ internal abstract class BaseCaseService
             CaseTypeId = caseType.Id,
             Priority = Priority.Normal,
             GroupId = groupId,
-            Customer = customer,
+            Customer = customer ?? new(),
             CreatedBy = userMeta,
             Metadata = metadata,
             Draft = true,
@@ -164,13 +164,13 @@ internal abstract class BaseCaseService
         };
 
         // If enabled get a new reference number from the sequence.
-        if (_options.ReferenceNumberEnabled) {
-            entity.ReferenceNumber = await _dbContext.GetNextReferenceNumber();
+        if (Options.ReferenceNumberEnabled) {
+            entity.ReferenceNumber = await DbContext.GetNextReferenceNumber();
         }
 
         // Create entity
-        await _dbContext.AddAsync(entity);
-        await _dbContext.SaveChangesAsync();
+        await DbContext.AddAsync(entity);
+        await DbContext.SaveChangesAsync();
 
         // The first checkpoint is always "Submitted" with Draft = true
         await caseMessageService.Send(entity.Id, user, new Message { CheckpointTypeName = "Submitted" });

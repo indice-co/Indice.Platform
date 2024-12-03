@@ -3,9 +3,9 @@ using Elsa.Attributes;
 using Elsa.Design;
 using Elsa.Expressions;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Interfaces;
-using Indice.Features.Cases.Models;
-using Indice.Features.Cases.Resources;
+using Indice.Features.Cases.Core.Localization;
+using Indice.Features.Cases.Core.Models;
+using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Features.Cases.Workflows.Extensions;
 using Indice.Security;
 
@@ -23,7 +23,6 @@ namespace Indice.Features.Cases.Workflows.Activities;
 )]
 internal class AwaitApprovalActivity : BaseCaseActivity
 {
-    private readonly IAdminCaseMessageService _caseMessageService;
     private readonly ICaseApprovalService _caseApprovalService;
     private readonly CaseSharedResourceService _caseSharedResourceService;
 
@@ -32,7 +31,6 @@ internal class AwaitApprovalActivity : BaseCaseActivity
         ICaseApprovalService caseApprovalService,
         CaseSharedResourceService caseSharedResourceService)
         : base(caseMessageService) {
-        _caseMessageService = caseMessageService;
         _caseApprovalService = caseApprovalService ?? throw new ArgumentNullException(nameof(caseApprovalService));
         _caseSharedResourceService = caseSharedResourceService ?? throw new ArgumentNullException(nameof(caseSharedResourceService));
     }
@@ -42,9 +40,9 @@ internal class AwaitApprovalActivity : BaseCaseActivity
         Hint = "Admin user role that can provide approval. If left blank, all authenticated users can approve/reject.",
         UIHint = ActivityInputUIHints.SingleLine,
         DefaultSyntax = SyntaxNames.Literal,
-        SupportedSyntaxes = new[] { SyntaxNames.Literal }
+        SupportedSyntaxes = [SyntaxNames.Literal]
     )]
-    public string AllowedRole { get; set; } = string.Empty;
+    public string? AllowedRole { get; set; } = string.Empty;
 
     [ActivityInput(
         Label = "Block previous approver",
@@ -58,15 +56,15 @@ internal class AwaitApprovalActivity : BaseCaseActivity
         Options = new[] { nameof(Approval.Approve), nameof(Approval.Reject) },
         UIHint = ActivityInputUIHints.CheckList,
         DefaultSyntax = SyntaxNames.Json,
-        SupportedSyntaxes = new[] { SyntaxNames.Json, SyntaxNames.JavaScript }
+        SupportedSyntaxes = [SyntaxNames.Json, SyntaxNames.JavaScript]
     )]
     public IEnumerable<string> PublicActions { get; set; } = new List<string>();
 
     [ActivityOutput]
-    public ApprovalRequest Output { get; set; }
+    public ApprovalRequest? Output { get; set; }
 
     [ActivityOutput]
-    public string Action { get; set; }
+    public string? Action { get; set; }
 
     public override async ValueTask<bool> CanExecuteAsync(ActivityExecutionContext context) {
         var user = context.TryGetUser()!;
@@ -109,7 +107,7 @@ internal class AwaitApprovalActivity : BaseCaseActivity
 
         // Send a message to the case service regarding the approval action. If PublicActions property contains the action,
         // then make the comment public 
-        await _caseMessageService.Send(
+        await CaseMessageService.Send(
             CaseId!.Value,
             context.TryGetUser()!,
             new Message {

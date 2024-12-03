@@ -1,10 +1,11 @@
-﻿using Elsa.ActivityResults;
+﻿using System.Security.Claims;
+using Elsa.ActivityResults;
 using Elsa.Attributes;
 using Elsa.Expressions;
 using Elsa.Providers.WorkflowStorage;
 using Elsa.Services;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Interfaces;
+using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Features.Cases.Workflows.Extensions;
 
 namespace Indice.Features.Cases.Workflows.Activities;
@@ -12,14 +13,17 @@ namespace Indice.Features.Cases.Workflows.Activities;
 /// <summary>Base Activity for Cases which provides hook for automatic case error handling.</summary>
 public abstract class BaseCaseActivity : Activity
 {
-    private readonly IAdminCaseMessageService _adminCaseMessageService;
+    /// <summary>
+    /// The Admin case service
+    /// </summary>
+    protected IAdminCaseMessageService CaseMessageService { get; }
     
     /// <summary>The base activity regarding cases</summary>
     /// <param name="caseMessageService">The <see cref="IAdminCaseMessageService"/>.</param>
     /// <exception cref="ArgumentNullException"></exception>
     protected BaseCaseActivity(
         IAdminCaseMessageService caseMessageService) {
-        _adminCaseMessageService = caseMessageService ?? throw new ArgumentNullException(nameof(caseMessageService));
+        CaseMessageService = caseMessageService ?? throw new ArgumentNullException(nameof(caseMessageService));
     }
 
     /// <summary>The Id of the case.</summary>
@@ -27,7 +31,7 @@ public abstract class BaseCaseActivity : Activity
         Category = "Case Properties",
         Label = "CaseId",
         Hint = "The Id of the case. Leave it null to retrieve it from CorrelationId implicitly.",
-        SupportedSyntaxes = new[] { SyntaxNames.JavaScript, SyntaxNames.Liquid },
+        SupportedSyntaxes = [ SyntaxNames.JavaScript, SyntaxNames.Liquid ],
         DefaultWorkflowStorageProvider = TransientWorkflowStorageProvider.ProviderName
     )]
     public Guid? CaseId { get; set; } = null;
@@ -50,7 +54,7 @@ public abstract class BaseCaseActivity : Activity
         } catch (Exception exception) {
             if (HandleActivityError) {
                 var message = $"Workflow Exception with DefinitionId \"{context.WorkflowInstance.DefinitionId}\" and InstanceId \"{context.WorkflowInstance.Id}\". Original exception message \"{exception.Message}\".";
-                await _adminCaseMessageService.Send(CaseId!.Value, context.GetHttpContextUser()!, exception, message);
+                await CaseMessageService.Send(CaseId!.Value, context.GetHttpContextUser()!, exception, message);
             }
             throw;
         }
@@ -66,11 +70,10 @@ public abstract class BaseCaseActivity : Activity
     /// <param name="context"></param>
     /// <param name="exception">The exception.</param>
     /// <param name="message">The message to send as a comment.</param>
-    /// <returns></returns>
-    protected async Task LogCaseError(ActivityExecutionContext context, Exception exception, string message = null) {
+    protected async Task LogCaseError(ActivityExecutionContext context, Exception exception, string? message = null) {
         // Log to Elsa context
         context.LogOutputProperty(this, "Exception", exception);
         // Log to Case (via Comment)
-        await _adminCaseMessageService.Send(CaseId!.Value, Cases.Extensions.PrincipalExtensions.SystemUser(), exception, message);
+        await CaseMessageService.Send(CaseId!.Value, CasesClaimsPrincipalExtensions.SystemUser(), exception, message);
     }
 }

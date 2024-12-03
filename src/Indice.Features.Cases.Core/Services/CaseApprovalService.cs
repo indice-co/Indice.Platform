@@ -65,8 +65,8 @@ internal class CaseApprovalService : ICaseApprovalService
 
     
     /// <inheritdoc/>
-    public ValueTask<IEnumerable<RejectReason>> GetRejectReasons(Guid caseId) {
-        //TODO: Workflow integration
+    public ValueTask<List<RejectReason>> GetRejectReasons(Guid caseId) {
+        //TODO: Workflow integration Or copy reasons in the cases side of things so we can drive this from the cases database instead of the workflow.
         throw new NotImplementedException();
     }
 }

@@ -104,9 +104,10 @@ internal class AccessRuleService : IAccessRuleService
             MemberUserId = rule.MemberUserId
         }).ToListAsync();
     }
+
     public async Task AdminCreate(ClaimsPrincipal user, AddAccessRuleRequest accessRule) {
         // if client is systemic or admin, then bypass checks since no filtering is required.
-        var isSystemOrAdmin = ((user.HasClaim(BasicClaimTypes.Scope, _options.RequiredScope) && user.IsSystemClient()) || user.IsAdmin());
+        var isSystemOrAdmin = user.IsSystemClient() || user.IsAdmin();
         if (!isSystemOrAdmin) {
             throw new UnauthorizedAccessException("User does not have administrator rights.");
         }

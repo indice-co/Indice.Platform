@@ -1,5 +1,6 @@
 ﻿using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services.Abstractions;
+using Indice.Services;
 
 namespace Indice.Features.Cases.Core.Services;
 
@@ -7,8 +8,17 @@ namespace Indice.Features.Cases.Core.Services;
 public class CaseTemplateService : ICaseTemplateService
 {
     /// <inheritdoc />
-    public Task<string> RenderTemplateAsync(Case @case) {
-        //TODO: this is probably a host application service from the server project. and should be different according to the technology.
-        throw new NotImplementedException();
+    public CaseTemplateService(IHtmlRenderingEngine htmlRenderingEngine) {
+        HtmlRenderingEngine = htmlRenderingEngine;
+    }
+
+    /// <summary>
+    /// The html rendering engine for creating templates
+    /// </summary>
+    protected IHtmlRenderingEngine HtmlRenderingEngine { get; }
+
+    /// <inheritdoc />
+    public async Task<string> RenderTemplateAsync(Case @case) {
+        return await HtmlRenderingEngine.RenderAsync($"Cases/Pdf/{@case.CaseType.Code}", @case);
     }
 }

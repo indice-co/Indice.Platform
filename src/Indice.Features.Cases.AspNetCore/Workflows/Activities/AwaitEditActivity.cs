@@ -5,9 +5,9 @@ using Elsa.Attributes;
 using Elsa.Design;
 using Elsa.Expressions;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Interfaces;
-using Indice.Features.Cases.Models;
-using Indice.Features.Cases.Services;
+using Indice.Features.Cases.Core.Models;
+using Indice.Features.Cases.Core.Services;
+using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Features.Cases.Workflows.Extensions;
 using Indice.Security;
 
@@ -25,14 +25,12 @@ namespace Indice.Features.Cases.Workflows.Activities;
 )]
 internal class AwaitEditActivity : BaseCaseActivity
 {
-    private readonly IAdminCaseMessageService _caseMessageService;
     private readonly CasesMessageDescriber _casesMessageDescriber;
 
     public AwaitEditActivity(
         IAdminCaseMessageService caseMessageService,
         CasesMessageDescriber casesMessageDescriber)
         : base(caseMessageService) {
-        _caseMessageService = caseMessageService;
         _casesMessageDescriber = casesMessageDescriber;
     }
 
@@ -46,7 +44,7 @@ internal class AwaitEditActivity : BaseCaseActivity
     public string AllowedRole { get; set; }
 
     [ActivityOutput]
-    public object Output { get; set; }
+    public object? Output { get; set; }
 
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         return context.WorkflowExecutionContext.IsFirstPass ? await OnExecuteInternalAsync(context) : Suspend();
@@ -60,7 +58,7 @@ internal class AwaitEditActivity : BaseCaseActivity
         CaseId ??= Guid.Parse(context.CorrelationId);
         var caseData = context.Input; 
         var user = context.TryGetUser();
-        await _caseMessageService.Send(CaseId!.Value,
+        await CaseMessageService.Send(CaseId!.Value,
             context.GetHttpContextUser()!,
             new Message {
                 Data = caseData,

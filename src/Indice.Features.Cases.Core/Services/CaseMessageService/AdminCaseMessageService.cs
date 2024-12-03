@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Data.Models;
+using Indice.Features.Cases.Core.Events.Abstractions;
 using Indice.Features.Cases.Core.Exceptions;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
@@ -11,7 +12,6 @@ namespace Indice.Features.Cases.Core.Services.CaseMessageService;
 
 internal class AdminCaseMessageService : BaseCaseMessageService, IAdminCaseMessageService
 {
-    private readonly CasesDbContext _dbContext;
     private readonly ICaseAuthorizationProvider _caseAuthorization;
 
     public AdminCaseMessageService(
@@ -20,7 +20,6 @@ internal class AdminCaseMessageService : BaseCaseMessageService, IAdminCaseMessa
         ISchemaValidator schemaValidator,
         ICaseAuthorizationProvider caseAuthorization)
         : base(dbContext, caseEventService, schemaValidator) {
-        _dbContext = dbContext;
         _caseAuthorization = caseAuthorization ?? throw new ArgumentNullException(nameof(caseAuthorization));
     }
 
@@ -46,7 +45,7 @@ internal class AdminCaseMessageService : BaseCaseMessageService, IAdminCaseMessa
             throw new ArgumentException(nameof(userId));
         }
 
-        if (await _dbContext.Cases
+        if (await DbContext.Cases
                 .Include(x => x.Checkpoint)
                 .FirstOrDefaultAsync(x => x.Id == caseId) is not { } @case) {
             throw new ArgumentNullException(nameof(@case));

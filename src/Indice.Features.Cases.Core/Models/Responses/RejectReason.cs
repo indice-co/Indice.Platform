@@ -1,7 +1,7 @@
 ﻿namespace Indice.Features.Cases.Core.Models.Responses;
 
 /// <summary>The reject reason dto.</summary>
-internal class RejectReason
+public class RejectReason
 {
     /// <summary>The key of the reject reason. This key will be used in resources.</summary>
     public string? Key { get; set; }

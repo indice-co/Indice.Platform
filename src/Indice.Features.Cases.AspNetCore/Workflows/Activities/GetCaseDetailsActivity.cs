@@ -1,8 +1,9 @@
-﻿using Elsa;
+﻿using System.Security.Claims;
+using Elsa;
 using Elsa.ActivityResults;
 using Elsa.Attributes;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Interfaces;
+using Indice.Features.Cases.Core.Services.Abstractions;
 
 namespace Indice.Features.Cases.Workflows.Activities;
 
@@ -35,11 +36,11 @@ internal class GetCaseDetailsActivity : BaseCaseActivity
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
         // Run as systemic user, since this is a system activity for creating conditions at workflow
-        var systemUser = Cases.Extensions.PrincipalExtensions.SystemUser();
+        var systemUser = CasesClaimsPrincipalExtensions.SystemUser();
         var @case = await _adminCaseService.GetCaseById(systemUser, CaseId.Value, IncludeAttachmentsData);
         
         // Convert CaseData to JObject so the workflow activities can use data without parsing.
-        @case.Data = Newtonsoft.Json.Linq.JObject.Parse(@case.DataAs<string>());
+        @case.Data = Newtonsoft.Json.Linq.JObject.Parse(@case.DataAs<string?>()!);
         Output = @case;
         context.LogOutputProperty(this, nameof(Output), Output);
         return Done(Output);

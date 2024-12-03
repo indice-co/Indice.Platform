@@ -2,7 +2,7 @@
 using Elsa.ActivityResults;
 using Elsa.Attributes;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Interfaces;
+using Indice.Features.Cases.Core.Services.Abstractions;
 
 namespace Indice.Features.Cases.Workflows.Activities;
 

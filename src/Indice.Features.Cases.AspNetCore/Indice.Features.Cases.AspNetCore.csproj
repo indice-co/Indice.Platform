@@ -10,6 +10,7 @@
     <PackageTags>AspNetCore;CasesManagement;Cases</PackageTags>
     <VersionPrefix>$(VersionPrefixCases)</VersionPrefix>
     <!--<Version>7.23.0-beta02</Version>-->
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Elsa" Version="2.13.0" />
@@ -26,25 +27,13 @@
     <PackageReference Include="JsonPatch.Net" Version="3.1.1" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
     <PackageReference Include="MediatR" Version="12.2.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
     <ProjectReference Include="..\Indice.EntityFrameworkCore\Indice.EntityFrameworkCore.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="CasesResources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>CasesResources.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Update="CasesResources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>CasesResources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
+    <ProjectReference Include="..\Indice.Features.Cases.Core\Indice.Features.Cases.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Indice.Features.Cases.Tests" />

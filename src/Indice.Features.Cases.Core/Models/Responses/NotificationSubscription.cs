@@ -16,7 +16,7 @@ public class NotificationSubscription
     public string? GroupId { get; set; }
 
     /// <summary>Construct an instance from ClaimsPrincipal</summary>
-    internal static NotificationSubscription FromUser(ClaimsPrincipal user, string groupIdClaimType) {
+    public static NotificationSubscription FromUser(ClaimsPrincipal user, string groupIdClaimType) {
         var groupId = user.FindFirstValue(groupIdClaimType);
         var email = user.FindFirstValue(BasicClaimTypes.Email);
         return new NotificationSubscription {

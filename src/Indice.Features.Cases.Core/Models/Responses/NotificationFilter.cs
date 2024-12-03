@@ -16,7 +16,7 @@ public class NotificationFilter
     public Guid[] CaseTypeIds { get; set; } = Array.Empty<Guid>();
 
     /// <summary>Construct an instance from ClaimsPrincipal</summary>
-    internal static NotificationFilter FromUser(ClaimsPrincipal user, string groupIdClaimType) {
+    public static NotificationFilter FromUser(ClaimsPrincipal user, string groupIdClaimType) {
         var groupIds = user.FindAll(groupIdClaimType)
             .Select(x => x.Value).Where(x => !string.IsNullOrEmpty(x)).ToArray();
         var emails = user.FindAll(BasicClaimTypes.Email)
