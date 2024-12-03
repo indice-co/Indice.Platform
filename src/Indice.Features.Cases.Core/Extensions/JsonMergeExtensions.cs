@@ -14,8 +14,11 @@ public static class JsonMergeExtensions
     /// for <typeparamref name="TValue"/> or its serializable members.
     /// </exception>
     public static JsonNode? ParseAsJsonNode<TValue>(this TValue value) where TValue: notnull {
-        return value switch {
-            JsonNode jsonNode => jsonNode,
+        return (value, typeof(TValue).Name) switch {
+            (JsonNode jsonNode, _) => jsonNode,
+            (object jToken , "JToken") => JsonNode.Parse(jToken.ToString()!),
+            (object jObject, "JObject") => JsonNode.Parse(jObject.ToString()!),
+            (object jArray, "JArray") => JsonNode.Parse(jArray.ToString()!),
             _ => JsonSerializer.Deserialize<JsonNode>(JsonSerializer.Serialize(value)),
         };
     }
