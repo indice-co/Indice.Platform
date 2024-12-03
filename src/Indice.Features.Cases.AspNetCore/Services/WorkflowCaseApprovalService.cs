@@ -28,7 +28,7 @@ public class WorkflowCaseApprovalService : ICaseApprovalService
     }
 
     /// <inheritdoc/>
-    public Task AddApproval(Guid caseId, Guid? commentId, ClaimsPrincipal user, Approval action, string reason) =>
+    public Task AddApproval(Guid caseId, Guid? commentId, ClaimsPrincipal user, Approval action, string? reason) =>
         _inner.AddApproval(caseId, commentId, user, action, reason);
 
     /// <inheritdoc/>

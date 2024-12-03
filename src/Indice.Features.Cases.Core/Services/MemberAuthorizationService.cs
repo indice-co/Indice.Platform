@@ -29,15 +29,15 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
         _distributedCache = distributedCache ?? throw new ArgumentNullException(nameof(distributedCache));
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
+
     /// <summary>
     /// In the case of a non admin user. Apply extra Where clauses to the IQueryable based on their roles.
     /// </summary>
     /// <param name="cases"></param>
     /// <param name="user"></param>
     /// <returns></returns>
-    public async Task<IQueryable<CasePartial>> GetCaseMembership(IQueryable<CasePartial> cases, ClaimsPrincipal user) {
-        return cases;
-    }
+    public Task<IQueryable<CasePartial>> GetCaseMembership(IQueryable<CasePartial> cases, ClaimsPrincipal user) => Task.FromResult(cases);
+    
 
     /// <summary>Determines whether user can see a Case in relation to i) user's role(s) and ii) case's CaseType and CheckpointType</summary>
     /// <param name="user"></param>
@@ -60,7 +60,7 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
                 .AsQueryable()
                 .Where(x => x.RuleCaseId == @case.Id)
                 .AnyAsync(x =>
-                  roles.Contains(x.MemberRole) ||
+                  roles.Contains(x.MemberRole!) ||
                   x.MemberUserId == userId ||
                   x.MemberGroupId == @case.GroupId
                 );

@@ -26,7 +26,7 @@ public class JsonTranslationService : IJsonTranslationService
     }
 
     /// <inheritdoc />
-    public string Translate(string jsonSource, string jsonTranslations, string language) {
+    public string? Translate(string? jsonSource, string? jsonTranslations, string language) {
         if (string.IsNullOrEmpty(jsonSource) || string.IsNullOrEmpty(jsonTranslations)) {
             return jsonSource;
         }

@@ -26,7 +26,7 @@ internal class GetChannelActivity : BaseCaseActivity
     }
     
     [ActivityOutput]
-    public object Output { get; set; }
+    public object? Output { get; set; }
 
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);

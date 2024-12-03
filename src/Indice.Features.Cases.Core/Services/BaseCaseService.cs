@@ -35,7 +35,7 @@ internal abstract class BaseCaseService
     /// <param name="selectorProperty"></param>
     /// <param name="json"></param>
     /// <returns>string schema</returns>
-    protected static string GetSingleOrMultiple(string selectorProperty, string json) {
+    protected static string? GetSingleOrMultiple(string? selectorProperty, string? json) {
         if (!string.IsNullOrEmpty(selectorProperty) && !string.IsNullOrEmpty(json)) {
             using (var document = JsonDocument.Parse(json)) {
                 if (document.RootElement.ValueKind == JsonValueKind.Object && document.RootElement.TryGetProperty(selectorProperty, out var node)) {
@@ -63,8 +63,8 @@ internal abstract class BaseCaseService
                     Code = isCustomer ? c.PublicCheckpoint.CheckpointType.Code : c.Checkpoint.CheckpointType.Code,
                     Title = isCustomer ? c.PublicCheckpoint.CheckpointType.Title : c.Checkpoint.CheckpointType.Title,
                     Description = isCustomer ? c.PublicCheckpoint.CheckpointType.Description : c.Checkpoint.CheckpointType.Description,
-                    Translations = TranslationDictionary<CheckpointTypeTranslation>.FromJson(
-                        isCustomer ? c.PublicCheckpoint.CheckpointType.Translations : c.Checkpoint.CheckpointType.Translations),
+                    Translations = 
+                        isCustomer ? c.PublicCheckpoint.CheckpointType.Translations : c.Checkpoint.CheckpointType.Translations,
                 },
                 CreatedByWhen = c.CreatedBy.When,
                 CreatedById = c.CreatedBy.Id,
@@ -77,7 +77,7 @@ internal abstract class BaseCaseService
                     DataSchema = GetSingleOrMultiple(schemaKey, c.CaseType.DataSchema),
                     Layout = GetSingleOrMultiple(schemaKey, c.CaseType.Layout),
                     LayoutTranslations = c.CaseType.LayoutTranslations,
-                    Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.CaseType.Translations),
+                    Translations = c.CaseType.Translations,
                     Tags = c.CaseType.Tags,
                     Config = GetSingleOrMultiple(schemaKey, c.CaseType.Config)
                 },

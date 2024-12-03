@@ -30,7 +30,7 @@ internal class CheckpointTypeService : ICheckpointTypeService
 
         var checkpointTypeIds = await _dbContext.CaseAccessRules
             .AsQueryable()
-            .Where(r => roleClaims.Contains(r.MemberRole))
+            .Where(r => roleClaims.Contains(r.MemberRole!))
             .Select(c => c.RuleCheckpointTypeId)
             .ToListAsync();
 
@@ -74,7 +74,7 @@ internal class CheckpointTypeService : ICheckpointTypeService
                 Code = c.Code,
                 Title = c.Title,
                 Description = c.Description,
-                Translations = TranslationDictionary<CheckpointTypeTranslation>.FromJson(c.Translations)
+                Translations = c.Translations
             })
             .ToList();
 

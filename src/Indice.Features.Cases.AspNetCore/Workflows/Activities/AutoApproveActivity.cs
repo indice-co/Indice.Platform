@@ -26,7 +26,7 @@ internal class AutoApproveActivity : BaseCaseActivity
 
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
-        await _caseApprovalService.AddApproval(CaseId.Value, null, context.TryGetUser()!, Approval.Approve, null);
+        await _caseApprovalService.AddApproval(CaseId.Value, null, context.TryGetUser()!, Approval.Approve, reason:null);
         return Done();
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Linq.Expressions;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 using Indice.Events;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Data.Models;
@@ -44,9 +45,9 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         string? groupId,
         CustomerMeta? customer,
         Dictionary<string, string> metadata,
-        string channel) {
-        if (user is null) throw new ArgumentNullException(nameof(user));
-        if (caseTypeCode == null) throw new ArgumentNullException(nameof(caseTypeCode));
+        string? channel) {
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(caseTypeCode);
 
         var caseType = await DbContext.CaseTypes.Where(x => x.Code == caseTypeCode).SingleAsync();
         var entity = await CreateDraftInternal(
@@ -85,8 +86,8 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         await _platformEventService.Publish(new CaseSubmittedEvent(new Case { Id = @case.Id } , @case.CaseType.Code));
     }
 
-    public async Task<Case> GetCaseById(ClaimsPrincipal user, Guid caseId) {
-        var userId = user.FindSubjectIdOrClientId();
+    public async Task<Case?> GetCaseById(ClaimsPrincipal user, Guid caseId) {
+        var userId = user.FindSubjectIdOrClientId()!;
         var query =
             from c in GetCasesInternal(userId, includeAttachmentData: true, SchemaSelector)
             let isCustomer = userId == c.CustomerId
@@ -134,7 +135,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         }
 
         // filter ReferenceNumbers
-        if (options.Filter.ReferenceNumbers is not null) {
+        if (options.Filter!.ReferenceNumbers is not null) {
             dbCaseQueryable = dbCaseQueryable.Where(dbCase => dbCase.ReferenceNumber.HasValue && options.Filter.ReferenceNumbers.Contains(dbCase.ReferenceNumber.Value));
         }
 
@@ -197,11 +198,11 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
                                              Code = c.PublicCheckpoint.CheckpointType.Code,
                                              Title = c.PublicCheckpoint.CheckpointType.Title,
                                              Description = c.PublicCheckpoint.CheckpointType.Description,
-                                             Translations = TranslationDictionary<CheckpointTypeTranslation>.FromJson(c.PublicCheckpoint.CheckpointType.Translations!)
+                                             Translations = c.PublicCheckpoint.CheckpointType.Translations
                                          },
                                          Metadata = c.Metadata,
                                          Message = reasonMessage,
-                                         Translations = TranslationDictionary<MyCasePartialTranslation>.FromJson(c.CaseType.Translations!),
+                                         Translations = c.CaseType.Translations,
                                          Data = options.Filter!.IncludeData ? c.Data.Data : null
                                      };
         // sorting option
@@ -251,7 +252,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             LayoutTranslations = dbCaseType.LayoutTranslations,
             Title = dbCaseType.Title,
             Order = dbCaseType.Order,
-            Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(dbCaseType.Translations)
+            Translations = dbCaseType.Translations
         };
 
         caseType = TranslateCaseType(caseType, CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
@@ -277,17 +278,17 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
                 Description = dbCaseType.Description,
                 Category = dbCaseType.Category == null ? null : new Category {
                     Id = dbCaseType.Category.Id,
-                    Name = dbCaseType.Category.Name,
+                    Name = dbCaseType.Category.Name!,
                     Description = dbCaseType.Category.Description,
                     Order = dbCaseType.Category.Order,
-                    Translations = TranslationDictionary<CategoryTranslation>.FromJson(dbCaseType.Category.Translations)
+                    Translations = dbCaseType.Category.Translations
                 },
                 DataSchema = GetSingleOrMultiple(SchemaSelector, dbCaseType.DataSchema),
                 Layout = GetSingleOrMultiple(SchemaSelector, dbCaseType.Layout),
                 LayoutTranslations = dbCaseType.LayoutTranslations,
                 Code = dbCaseType.Code,
                 Order = dbCaseType.Order,
-                Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(dbCaseType.Translations)
+                Translations = dbCaseType.Translations
             })
             .ToListAsync();
         TranslateCaseTypes(caseTypes);
@@ -298,7 +299,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         for (var i = 0; i < caseTypes.Count; i++) {
             caseTypes[i] = TranslateCaseType(caseTypes[i], CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
             if (caseTypes[i].Category is not null) {
-                caseTypes[i].Category = TranslateCaseTypeCategory(caseTypes[i].Category, CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
+                caseTypes[i].Category = caseTypes[i].Category!.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, includeTranslations: true);
             }
         }
     }
@@ -309,7 +310,4 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         caseType.DataSchema = _jsonTranslationService.Translate(caseType.DataSchema, caseTypePartial.LayoutTranslations, CultureInfo.CurrentCulture.TwoLetterISOLanguageName);
         return caseType;
     }
-
-    private Category TranslateCaseTypeCategory(Category category, string culture, bool includeTranslations) =>
-    category.Translate(culture, includeTranslations);
 }

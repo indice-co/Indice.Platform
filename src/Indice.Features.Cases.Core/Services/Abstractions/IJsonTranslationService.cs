@@ -8,5 +8,5 @@ public interface IJsonTranslationService
     /// <param name="jsonTranslations">The translations in a JSON object. Must be deserialized as <see cref="Dictionary{TKey,TValue}"/>.</param>
     /// <param name="language">The language to translate into as TwoLetterISOLanguageName.</param>
     /// <returns>The JSON with the translated values as string.</returns>
-    string Translate(string jsonSource, string jsonTranslations, string language);
+    string? Translate(string? jsonSource, string? jsonTranslations, string language);
 }

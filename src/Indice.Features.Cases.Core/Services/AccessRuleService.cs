@@ -78,7 +78,7 @@ internal class AccessRuleService : IAccessRuleService
     public async Task<List<AccessRule>> GetCaseAccessRules(Guid caseId) {
         var @case = await _dbContext.Cases
         .AsNoTracking()
-        .FirstOrDefaultAsync(x => x.Id == caseId);
+        .FirstAsync(x => x.Id == caseId);
 
         var checkpoints = _dbContext.CheckpointTypes
             .AsNoTracking()

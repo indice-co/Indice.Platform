@@ -4,7 +4,6 @@ using Elsa.Activities.Http.Models;
 using Elsa.ActivityResults;
 using Elsa.Attributes;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Core.Services;
 using Indice.Features.Cases.Core.Services.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 

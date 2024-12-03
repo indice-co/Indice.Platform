@@ -1,4 +1,7 @@
-﻿namespace Indice.Features.Cases.Core.Data.Models;
+﻿using Indice.Features.Cases.Core.Models.Responses;
+using Indice.Types;
+
+namespace Indice.Features.Cases.Core.Data.Models;
 
 #pragma warning disable 1591
 public class DbCaseType
@@ -10,7 +13,7 @@ public class DbCaseType
     public string? Description { get; set; }        
     public string? DataSchema { get; set; }
     public string? Layout { get; set; }
-    public string? Translations { get; set; }
+    public TranslationDictionary<CaseTypeTranslation>? Translations { get; set; }
     public string? LayoutTranslations { get; set; }
     public string? Tags { get; set; }
     public string? Config { get; set; }

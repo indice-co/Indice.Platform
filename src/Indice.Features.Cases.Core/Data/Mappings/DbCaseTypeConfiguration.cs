@@ -30,7 +30,9 @@ internal class DbCaseTypeConfiguration : IEntityTypeConfiguration<DbCaseType>
             .HasMaxLength(TextSizePresets.M256)
             .IsRequired(false);
         builder
-            .Property(p => p.Translations);
+            .Property(p => p.Translations)
+            .HasJsonConversion()
+            .IsRequired(false);
         builder
             .Property(p => p.Layout)
             .IsRequired(false);

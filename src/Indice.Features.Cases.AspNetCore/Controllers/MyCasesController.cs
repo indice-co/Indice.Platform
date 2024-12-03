@@ -1,7 +1,7 @@
 ﻿using System.Net.Mime;
 using Indice.AspNetCore.Filters;
+using Indice.Events;
 using Indice.Features.Cases.Core.Events;
-using Indice.Features.Cases.Core.Events.Abstractions;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services.Abstractions;
@@ -28,7 +28,7 @@ internal class MyCasesController : ControllerBase
     private readonly IMyCaseService _myCaseService;
     private readonly ICaseTemplateService _caseTemplateService;
     private readonly ICasePdfService _casePdfService;
-    private readonly ICaseEventService _caseEventService;
+    private readonly IPlatformEventService _platformEventService;
     private readonly IMyCaseMessageService _caseMessageService;
     private readonly MyCasesApiOptions _options;
 
@@ -37,13 +37,13 @@ internal class MyCasesController : ControllerBase
         ICaseTemplateService caseTemplateService,
         ICasePdfService casePdfService,
         IMyCaseMessageService caseMessageService,
-        ICaseEventService caseEventService,
+        IPlatformEventService platformEventService,
         IOptions<MyCasesApiOptions> options) {
         _myCaseService = myCaseService ?? throw new ArgumentNullException(nameof(myCaseService));
         _caseTemplateService = caseTemplateService ?? throw new ArgumentNullException(nameof(caseTemplateService));
         _casePdfService = casePdfService ?? throw new ArgumentNullException(nameof(casePdfService));
         _caseMessageService = caseMessageService ?? throw new ArgumentNullException(nameof(caseMessageService));
-        _caseEventService = caseEventService ?? throw new ArgumentNullException(nameof(caseEventService));
+        _platformEventService = platformEventService ?? throw new ArgumentNullException(nameof(platformEventService));
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
 
@@ -133,9 +133,9 @@ internal class MyCasesController : ControllerBase
     [HttpGet("{caseId:guid}/download")]
     public async Task<IActionResult> DownloadMyCasePdf(Guid caseId) {
         var @case = await _myCaseService.GetCaseById(User, caseId);
-        var file = await CreatePdf(@case);
-        var fileName = $"{@case.CaseType.Code}-{DateTimeOffset.UtcNow.Date:dd-MM-yyyy}.pdf";
-        await _caseEventService.Publish(new CaseDownloadedEvent(@case, CasesApiConstants.Channels.Customer));
+        var file = await CreatePdf(@case!);
+        var fileName = $"{@case!.CaseType.Code}-{DateTimeOffset.UtcNow.Date:dd-MM-yyyy}.pdf";
+        await _platformEventService.Publish(new CaseDownloadedEvent(@case, CasesApiConstants.Channels.Customer));
         return File(file, "application/pdf", fileName);
     }
 

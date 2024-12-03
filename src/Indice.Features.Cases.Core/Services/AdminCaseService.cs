@@ -40,8 +40,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
 
     public async Task<Guid> CreateDraft(ClaimsPrincipal user,
         string caseTypeCode,
-        string groupId,
-        CustomerMeta customer,
+        string? groupId,
+        CustomerMeta? customer,
         Dictionary<string, string> metadata) {
         var caseType = await DbContext.CaseTypes.Where(x => x.Code == caseTypeCode).SingleAsync();
         var entity = await CreateDraftInternal(
@@ -146,7 +146,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                         Id = @case.CaseType.Id,
                         Code = @case.CaseType.Code,
                         Title = @case.CaseType.Title,
-                        Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(@case.CaseType.Translations)
+                        Translations = @case.CaseType.Translations
                     },
                     Metadata = @case.Metadata,
                     GroupId = @case.GroupId,
@@ -156,9 +156,9 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                         Code = @case.Checkpoint.CheckpointType.Code,
                         Title = @case.Checkpoint.CheckpointType.Title ?? @case.Checkpoint.CheckpointType.Code,
                         Description = @case.Checkpoint.CheckpointType.Description,
-                        Translations = TranslationDictionary<CheckpointTypeTranslation>.FromJson(@case.Checkpoint.CheckpointType.Translations)
+                        Translations = @case.Checkpoint.CheckpointType.Translations
                     },
-                    AssignedToName = @case.AssignedTo.Name,
+                    AssignedToName = @case.AssignedTo!.Name,
                     Data = options.Filter.IncludeData ? @case.Data.Data : null,
                     AccessLevel = 111
                 });
@@ -170,7 +170,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                      let caseAccess = DbContext.CaseAccessRules.Where(x =>
                                     x.RuleCaseId == @case.Id && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == null &&
                                     ((userId != null && x.MemberUserId == userId.ToString()) ||
-                                    (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
+                                    (userRoles.Any() && userRoles.Contains(x.MemberRole!)) ||
                                     (inputGroupId != null && x.MemberGroupId == inputGroupId))
                                     )
                                     .Select(x => x.AccessLevel)
@@ -179,21 +179,21 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                      let CaseTypeAccess = DbContext.CaseAccessRules.Where(x =>
                                      x.RuleCaseId == null && x.RuleCaseTypeId == @case.CaseTypeId && x.RuleCheckpointTypeId == null &&
                                      ((userId != null && x.MemberUserId == userId.ToString()) ||
-                                     (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
+                                     (userRoles.Any() && userRoles.Contains(x.MemberRole!)) ||
                                      (inputGroupId != null && x.MemberGroupId == inputGroupId)))
                                     .Select(x => x.AccessLevel)
                                     .FirstOrDefault()
                      let CheckpointIdAccess = DbContext.CaseAccessRules.Where(x =>
                                     x.RuleCaseId == null && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId &&
                                      ((userId != null && x.MemberUserId == userId.ToString()) ||
-                                     (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
+                                     (userRoles.Any() && userRoles.Contains(x.MemberRole!)) ||
                                      (inputGroupId != null && x.MemberGroupId == inputGroupId)))
                                     .Select(x => x.AccessLevel)
                                     .FirstOrDefault()
                      let caseCheckpointIdAccess = DbContext.CaseAccessRules.Where(x =>
                                       x.RuleCaseId == @case.Id && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId &&
                                       ((userId != null && x.MemberUserId == userId.ToString()) ||
-                                      (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
+                                      (userRoles.Any() && userRoles.Contains(x.MemberRole!)) ||
                                       (inputGroupId != null && x.MemberGroupId == inputGroupId)))
                                      .Select(x => x.AccessLevel)
                                      .FirstOrDefault()
@@ -201,21 +201,21 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                      let caseAccessCondition = DbContext.CaseAccessRules.Where(x =>
                                     x.RuleCaseId == @case.Id && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == null &&
                                       ((userId != null && x.MemberUserId == userId.ToString()) ||
-                                      (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
+                                      (userRoles.Any() && userRoles.Contains(x.MemberRole!)) ||
                                       (inputGroupId != null && x.MemberGroupId == inputGroupId)))
                                     .Select(x => x.AccessLevel)
                                     .Any()
                      let CaseTypeCondition = DbContext.CaseAccessRules.Where(x =>
                                      x.RuleCaseId == null && x.RuleCaseTypeId == @case.CaseTypeId && x.RuleCheckpointTypeId == null &&
                                      ((userId != null && x.MemberUserId == userId.ToString()) ||
-                                     (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
+                                     (userRoles.Any() && userRoles.Contains(x.MemberRole!)) ||
                                      (inputGroupId != null && x.MemberGroupId == inputGroupId)))
                                     .Select(x => x.AccessLevel)
                                     .Any()
                      let CheckpointIdACondition = DbContext.CaseAccessRules.Where(x =>
                                     x.RuleCaseId == null && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId &&
                                     ((userId != null && x.MemberUserId == userId.ToString()) ||
-                                    (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
+                                    (userRoles.Any() && userRoles.Contains(x.MemberRole!)) ||
                                     (inputGroupId != null && x.MemberGroupId == inputGroupId)))
                                     .Select(x => x.AccessLevel)
                                     .Any()
@@ -223,7 +223,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                      let caseCheckpointIdCondition = DbContext.CaseAccessRules.Where(x =>
                                     x.RuleCaseId == @case.Id && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId &&
                                   ((userId != null && x.MemberUserId == userId.ToString()) ||
-                                  (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
+                                  (userRoles.Any() && userRoles.Contains(x.MemberRole!)) ||
                                   (inputGroupId != null && x.MemberGroupId == inputGroupId)))
                                  .Select(x => x.AccessLevel)
                                  .Any()
@@ -243,7 +243,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                              Id = @case.CaseType.Id,
                              Code = @case.CaseType.Code,
                              Title = @case.CaseType.Title,
-                             Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(@case.CaseType.Translations)
+                             Translations = @case.CaseType.Translations
                          },
                          Metadata = @case.Metadata,
                          GroupId = @case.GroupId,
@@ -253,9 +253,9 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                              Code = @case.Checkpoint.CheckpointType.Code,
                              Title = @case.Checkpoint.CheckpointType.Title ?? @case.Checkpoint.CheckpointType.Code,
                              Description = @case.Checkpoint.CheckpointType.Description,
-                             Translations = TranslationDictionary<CheckpointTypeTranslation>.FromJson(@case.Checkpoint.CheckpointType.Translations)
+                             Translations = @case.Checkpoint.CheckpointType.Translations
                          },
-                         AssignedToName = @case.AssignedTo.Name,
+                         AssignedToName = @case.AssignedTo!.Name,
                          Data = options.Filter.IncludeData ? @case.Data.Data : null,
                          AccessLevel = new List<int> { caseAccess, CaseTypeAccess, CheckpointIdAccess, caseCheckpointIdAccess }.Max()
                      });
@@ -281,7 +281,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                     FilterOperator.Eq => query.Where(c => (c.ReferenceNumber ?? 0) == value),
                     FilterOperator.Neq => query.Where(c => (c.ReferenceNumber ?? 0) != value),
                     FilterOperator.Contains => query.Where(c =>
-                        c.ReferenceNumber.HasValue && c.ReferenceNumber.ToString().Contains(value.ToString())),
+                        c.ReferenceNumber.HasValue && c.ReferenceNumber.Value.ToString().Contains(value.ToString())),
                     _ => query
                 };
             }
@@ -291,9 +291,9 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         if (options.Filter.CustomerIds.Any()) {
             foreach (var customerId in options.Filter.CustomerIds) {
                 query = customerId.Operator switch {
-                    FilterOperator.Eq => query.Where(c => c.CustomerId.Equals(customerId.Value)),
-                    FilterOperator.Neq => query.Where(c => !c.CustomerId.Equals(customerId.Value)),
-                    FilterOperator.Contains => query.Where(c => c.CustomerId.Contains(customerId.Value)),
+                    FilterOperator.Eq => query.Where(c => c.CustomerId!.Equals(customerId.Value)),
+                    FilterOperator.Neq => query.Where(c => !c.CustomerId!.Equals(customerId.Value)),
+                    FilterOperator.Contains => query.Where(c => c.CustomerId!.Contains(customerId.Value)),
                     _ => query
                 };
             }
@@ -304,11 +304,11 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             foreach (var customerName in options.Filter.CustomerNames) {
                 query = customerName.Operator switch {
                     FilterOperator.Eq => query.Where(c =>
-                        c.CustomerName.ToLower().Equals(customerName.Value.ToLower())),
+                        c.CustomerName!.ToLower().Equals(customerName.Value.ToLower())),
                     FilterOperator.Neq => query.Where(c =>
-                        !c.CustomerName.ToLower().Equals(customerName.Value.ToLower())),
+                        !c.CustomerName!.ToLower().Equals(customerName.Value.ToLower())),
                     FilterOperator.Contains => query.Where(c =>
-                        c.CustomerName.ToLower().Contains(customerName.Value.ToLower())),
+                        c.CustomerName!.ToLower().Contains(customerName.Value.ToLower())),
                     _ => query
                 };
             }
@@ -389,9 +389,9 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         if (options.Filter.GroupIds.Any()) {
             foreach (var groupId in options.Filter.GroupIds) {
                 query = groupId.Operator switch {
-                    FilterOperator.Eq => query.Where(c => c.GroupId.Equals(groupId.Value)),
-                    FilterOperator.Neq => query.Where(c => !c.GroupId.Equals(groupId.Value)),
-                    FilterOperator.Contains => query.Where(c => c.GroupId.Contains(groupId.Value)),
+                    FilterOperator.Eq => query.Where(c => c.GroupId!.Equals(groupId.Value)),
+                    FilterOperator.Neq => query.Where(c => !c.GroupId!.Equals(groupId.Value)),
+                    FilterOperator.Contains => query.Where(c => c.GroupId!.Contains(groupId.Value)),
                     _ => query
                 };
             }
@@ -423,8 +423,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
 
         // translate case types
         foreach (var item in result.Items) {
-            item.CaseType = item.CaseType?.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
-            item.CheckpointType = item.CheckpointType?.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
+            item.CaseType = item.CaseType?.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true)!;
+            item.CheckpointType = item.CheckpointType?.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true)!;
         }
         return result;
     }
@@ -438,10 +438,10 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         var @case = await query.FirstOrDefaultAsync();
 
         // Check that user role can view this case at this checkpoint.
-        if (!await _memberAuthorizationProvider.IsMember(user, @case)) {
+        if (!await _memberAuthorizationProvider.IsMember(user, @case!)) {
             throw new ResourceUnauthorizedException();
         }
-        @case.CaseType = @case.CaseType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
+        @case!.CaseType = @case.CaseType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
         @case.CheckpointType = @case.CheckpointType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
         return @case;
     }
@@ -470,7 +470,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             .SingleOrDefaultAsync(x => x.Id == attachmentId);
         // TODO check this out???????
         // Check that user role can download this attachment.
-        await GetCaseById(user, attachment.CaseId, false);
+        await GetCaseById(user, attachment!.CaseId, false);
 
         return new CaseAttachment { 
             Id = attachmentId,
@@ -595,7 +595,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                         : null,
                     Private = c.Private,
                     //ReplyToComment = null,// todo reply
-                    Text = c.Text
+                    Text = c.Text!
                 }
             })
             .Concat(checkpoints.Select(c => new TimelineEntry {
@@ -607,7 +607,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                         Id = c.CheckpointType.Id,
                         Code = c.CheckpointType.Code,
                         Description = c.CheckpointType.Description,
-                        Translations = TranslationDictionary<CheckpointTypeTranslation>.FromJson(c.CheckpointType.Translations),
+                        Translations = c.CheckpointType.Translations,
                         Private = c.CheckpointType.Private,
                         Status = c.CheckpointType.Status
                     },
@@ -620,7 +620,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             .ToList();
 
         foreach (var timelineEntry in timeline.Where(x => x.Checkpoint is not null)) {
-            timelineEntry.Checkpoint.CheckpointType = timelineEntry.Checkpoint.CheckpointType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
+            timelineEntry.Checkpoint!.CheckpointType = timelineEntry.Checkpoint.CheckpointType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
         }
 
         return timeline;

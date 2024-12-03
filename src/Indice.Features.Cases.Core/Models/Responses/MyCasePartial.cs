@@ -31,7 +31,7 @@ public class MyCasePartial
     public string? Message { get; set; }
 
     /// <summary>Translations.</summary>
-    public TranslationDictionary<MyCasePartialTranslation>? Translations { get; set; }
+    public TranslationDictionary<CaseTypeTranslation>? Translations { get; set; }
 
     /// <summary>The json data of the case.</summary>
     public dynamic? Data { get; set; }
@@ -60,14 +60,4 @@ public class MyCasePartial
     }
 
     #endregion
-}
-
-/// <summary>The translation wrapper for <see cref="MyCasePartial"/> model.</summary>
-public class MyCasePartialTranslation
-{
-    /// <summary>The title of the case type.</summary>
-    public string? Title { get; set; }
-
-    /// <summary>The checkpoint type.</summary>
-    public CheckpointType? CheckpointType { get; set; }
 }

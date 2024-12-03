@@ -1,4 +1,7 @@
-﻿namespace Indice.Features.Cases.Core.Models;
+﻿using Indice.Features.Cases.Core.Models.Responses;
+using Indice.Types;
+
+namespace Indice.Features.Cases.Core.Models;
 
 /// <summary>The case type request model.</summary>
 public class CaseTypeRequest
@@ -22,7 +25,7 @@ public class CaseTypeRequest
     public string? Layout { get; set; }
 
     /// <summary>The Translation for the case type</summary>
-    public string? Translations { get; set; }
+    public TranslationDictionary<CaseTypeTranslation>? Translations { get; set; }
 
     /// <summary>The Translation for the layout</summary>
     public string? LayoutTranslations { get; set; }

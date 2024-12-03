@@ -1,7 +1,7 @@
 ﻿using System.Net.Mime;
 using Indice.AspNetCore.Filters;
+using Indice.Events;
 using Indice.Features.Cases.Core.Events;
-using Indice.Features.Cases.Core.Events.Abstractions;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services.Abstractions;
@@ -30,7 +30,7 @@ internal class AdminCasesController : ControllerBase
     private readonly ICaseActionsService _caseBookmarkService;
     private readonly IAdminCaseMessageService _adminCaseMessageService;
     private readonly ICaseApprovalService _caseApprovalService;
-    private readonly ICaseEventService _caseEventService;
+    private readonly IPlatformEventService _platformEventService;
     private readonly AdminCasesApiOptions _options;
 
     public AdminCasesController(
@@ -40,7 +40,7 @@ internal class AdminCasesController : ControllerBase
         ICaseActionsService caseBookmarkService,
         IAdminCaseMessageService adminCaseMessageService,
         ICaseApprovalService caseApprovalService,
-        ICaseEventService caseEventService,
+        IPlatformEventService platformEventService,
         IOptions<AdminCasesApiOptions> options) {
         _adminCaseService = adminCaseService ?? throw new ArgumentNullException(nameof(adminCaseService));
         _casePdfService = casePdfService ?? throw new ArgumentNullException(nameof(casePdfService));
@@ -48,7 +48,7 @@ internal class AdminCasesController : ControllerBase
         _caseBookmarkService = caseBookmarkService ?? throw new ArgumentNullException(nameof(caseBookmarkService));
         _adminCaseMessageService = adminCaseMessageService ?? throw new ArgumentNullException(nameof(adminCaseMessageService));
         _caseApprovalService = caseApprovalService ?? throw new ArgumentNullException(nameof(caseApprovalService));
-        _caseEventService = caseEventService ?? throw new ArgumentNullException(nameof(caseEventService));
+        _platformEventService = platformEventService ?? throw new ArgumentNullException(nameof(platformEventService));
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
 
@@ -107,7 +107,7 @@ internal class AdminCasesController : ControllerBase
         if (attachment is null) {
             return NotFound();
         }
-        return File(attachment.Data, attachment.ContentType, attachment.FileName);
+        return File(attachment.Data!, attachment.ContentType!, attachment.FileName!);
     }
 
     /// <summary>
@@ -125,7 +125,7 @@ internal class AdminCasesController : ControllerBase
         if (attachment is null) {
             return NotFound();
         }
-        return File(attachment.Data, attachment.ContentType, attachment.FileName);
+        return File(attachment.Data!, attachment.ContentType!, attachment.FileName!);
     }
 
     /// <summary>Update the case with the business data as defined at the specific case type. This action is allowed only for draft cases.</summary>
@@ -294,7 +294,7 @@ internal class AdminCasesController : ControllerBase
         }
         var file = await CreatePdf(@case);
         var fileName = $"{@case?.CaseType?.Code}-{DateTimeOffset.UtcNow.Date:dd-MM-yyyy}.pdf";
-        await _caseEventService.Publish(new CaseDownloadedEvent(@case!, CasesApiConstants.Channels.Agent));
+        await _platformEventService.Publish(new CaseDownloadedEvent(@case!, CasesApiConstants.Channels.Agent));
         return File(file, "application/pdf", fileName);
     }
 

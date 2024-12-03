@@ -1,4 +1,6 @@
-﻿namespace Indice.Features.Cases.Core.Models.Responses;
+﻿using Indice.Types;
+
+namespace Indice.Features.Cases.Core.Models.Responses;
 
 /// <summary>The case type details model.</summary>
 public class CaseType
@@ -22,7 +24,7 @@ public class CaseType
     public string? Layout { get; set; }
 
     /// <summary>The case type translations.</summary>
-    public string? Translations { get; set; }
+    public TranslationDictionary<CaseTypeTranslation>? Translations { get; set; }
 
     /// <summary>The layout translations.</summary>
     public string? LayoutTranslations { get; set; }

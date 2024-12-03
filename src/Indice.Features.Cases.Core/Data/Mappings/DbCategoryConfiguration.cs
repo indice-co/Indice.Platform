@@ -19,6 +19,10 @@ internal class DbCategoryConfiguration : IEntityTypeConfiguration<DbCategory>
             .Property(p => p.Description)
             .HasMaxLength(TextSizePresets.M512);
         builder
+            .Property(p => p.Translations)
+            .HasJsonConversion()
+            .IsRequired(false);
+        builder
             .Property(p => p.Order);
     }
 }

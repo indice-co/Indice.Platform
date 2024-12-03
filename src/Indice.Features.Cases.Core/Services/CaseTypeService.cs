@@ -10,6 +10,7 @@ using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Data.Models;
+using System.Text.RegularExpressions;
 
 namespace Indice.Features.Cases.Core.Services;
 
@@ -48,7 +49,7 @@ internal class CaseTypeService : ICaseTypeService
                 LayoutTranslations = x.LayoutTranslations,
                 Order = x.Order,
                 Tags = x.Tags,
-                Title = x.Title,
+                Title = x.Title!,
                 Translations = x.Translations
             })
             .FirstOrDefaultAsync();
@@ -85,10 +86,10 @@ internal class CaseTypeService : ICaseTypeService
                 Description = c.Description,
                 Category = c.Category == null ? null : new Category {
                     Id = c.Category.Id,
-                    Name = c.Category.Name,
+                    Name = c.Category.Name!,
                     Description = c.Category.Description,
                     Order = c.Category.Order,
-                    Translations = TranslationDictionary<CategoryTranslation>.FromJson(c.Category.Translations)
+                    Translations = c.Category.Translations
                 },
                 DataSchema = c.DataSchema,
                 Layout = c.Layout,
@@ -96,7 +97,7 @@ internal class CaseTypeService : ICaseTypeService
                 Order = c.Order,
                 Tags = c.Tags,
                 Config = c.Config,
-                Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.Translations),
+                Translations = c.Translations,
                 GridFilterConfig = c.GridFilterConfig,
                 GridColumnConfig = c.GridColumnConfig,
                 IsMenuItem = c.IsMenuItem,
@@ -185,12 +186,12 @@ internal class CaseTypeService : ICaseTypeService
         var caseCheckPointRoles = await _dbContext.CaseAccessRules
                                 .AsNoTracking()
                                 .Include(x => x.CheckpointType)
-                                .Where(p => p.CheckpointType.CaseTypeId == caseTypeId && !string.IsNullOrEmpty(p.MemberRole))
+                                .Where(p => p.CheckpointType!.CaseTypeId == caseTypeId && !string.IsNullOrEmpty(p.MemberRole))
                                 .ToListAsync();
         var caseType = new CaseType {
             Id = caseTypeId,
             Code = dbCaseType!.Code,
-            Title = dbCaseType.Title,
+            Title = dbCaseType.Title!,
             Description = dbCaseType.Description,
             DataSchema = dbCaseType.DataSchema,
             Layout = dbCaseType.Layout,
@@ -207,11 +208,11 @@ internal class CaseTypeService : ICaseTypeService
                 Private = checkpointType.Private,
                 Status = checkpointType.Status,
                 Roles =
-                caseTypeRoles.Select(roleCaseType => roleCaseType.MemberRole)
+                caseTypeRoles.Select(roleCaseType => roleCaseType.MemberRole!)
                 .Union(
                     caseCheckPointRoles
-                    .Where(roleCaseType => roleCaseType.CheckpointType.Id == checkpointType.Id)
-                    .Select(roleCaseType => roleCaseType.MemberRole)
+                    .Where(roleCaseType => roleCaseType.CheckpointType!.Id == checkpointType.Id)
+                    .Select(roleCaseType => roleCaseType.MemberRole!)
                 ).ToList()
             }).ToList() ?? [],
             IsMenuItem = dbCaseType.IsMenuItem,
@@ -227,7 +228,7 @@ internal class CaseTypeService : ICaseTypeService
             throw new ValidationException("Case type can not be null.");
         }
         var dbCaseType = await _dbContext.CaseTypes.FindAsync(caseType.Id);
-        if (dbCaseType.Code != caseType.Code) {
+        if (dbCaseType!.Code != caseType.Code) {
             throw new ValidationException("Case type code cannot be changed.");
         }
 
@@ -271,15 +272,15 @@ internal class CaseTypeService : ICaseTypeService
                     Description = c.Description,
                     Category = c.Category == null ? null : new Category {
                         Id = c.Category.Id,
-                        Name = c.Category.Name,
+                        Name = c.Category.Name!,
                         Description = c.Category.Description,
                         Order = c.Category.Order,
-                        Translations = TranslationDictionary<CategoryTranslation>.FromJson(c.Category.Translations)
+                        Translations = c.Category.Translations
                     },
                     Code = c.Code,
                     Tags = c.Tags,
                     Order = c.Order,
-                    Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.Translations),
+                    Translations = c.Translations,
                     GridFilterConfig = c.GridFilterConfig,
                     GridColumnConfig = c.GridColumnConfig,
                     IsMenuItem = c.IsMenuItem
@@ -293,13 +294,10 @@ internal class CaseTypeService : ICaseTypeService
         for (var i = 0; i < caseTypes.Count; i++) {
             caseTypes[i] = caseTypes[i].Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
             if (caseTypes[i].Category is not null) {
-                caseTypes[i].Category = TranslateCaseTypeCategory(caseTypes[i].Category, CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
+                caseTypes[i].Category = caseTypes[i].Category!.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, includeTranslations: true);
             }
         }
     }
-
-    private Category TranslateCaseTypeCategory(Category category, string culture, bool includeTranslations) =>
-    category.Translate(culture, includeTranslations);
 
     private async Task<List<Guid>> GetCaseTypeIdsForCaseCreation(List<string> roleClaims) {
         var caseTypeExpressions = roleClaims.Select(roleClaim => (Expression<Func<DbCaseType, bool>>)(dbCaseType => EF.Functions.Like(dbCaseType.CanCreateRoles, $"%{roleClaim}%")));
@@ -320,8 +318,8 @@ internal class CaseTypeService : ICaseTypeService
         return await _dbContext.CaseAccessRules
                 .AsQueryable()
                 .Where(r => r.RuleCaseTypeId.HasValue)
-                .Where(r => roleClaims.Contains(r.MemberRole))
-                .Select(c => c.RuleCaseTypeId.Value)
+                .Where(r => roleClaims.Contains(r.MemberRole!))
+                .Select(c => c.RuleCaseTypeId!.Value)
                 .ToListAsync();
     }
 

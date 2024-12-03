@@ -34,7 +34,7 @@ public interface IMyCaseService
     /// <summary>Get <see cref="Case"/> for a user by its Id.</summary>
     /// <param name="user">The user that creates the request.</param>
     /// <param name="caseId">The Id of the case.</param>
-    Task<Case> GetCaseById(ClaimsPrincipal user, Guid caseId);
+    Task<Case?> GetCaseById(ClaimsPrincipal user, Guid caseId);
 
     /// <summary>Get the cases of the User.</summary>
     /// <param name="user">The Id of the user to retrieve the cases.</param>

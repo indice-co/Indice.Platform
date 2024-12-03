@@ -21,5 +21,10 @@ internal class DbCheckpointTypeConfiguration : IEntityTypeConfiguration<DbCheckp
         builder
             .Property(p => p.Description)
             .HasMaxLength(TextSizePresets.M512);
+        builder
+            .Property(p => p.Translations)
+            .IsRequired(false)
+            .HasJsonConversion();
+
     }
 }

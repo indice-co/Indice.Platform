@@ -25,7 +25,7 @@ internal class GetCaseDetailsActivity : BaseCaseActivity
     }
 
     [ActivityOutput]
-    public object Output { get; set; }
+    public object? Output { get; set; }
 
     [ActivityInput(
         Label = "Include attachment binary data",

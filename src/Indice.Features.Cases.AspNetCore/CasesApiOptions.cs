@@ -1,7 +1,5 @@
 ﻿using Indice.AspNetCore.Configuration;
 using Indice.Features.Cases.Core;
-using Indice.Security;
-using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Cases;
 

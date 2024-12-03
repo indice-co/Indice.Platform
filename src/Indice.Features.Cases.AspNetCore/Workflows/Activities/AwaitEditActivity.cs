@@ -41,7 +41,7 @@ internal class AwaitEditActivity : BaseCaseActivity
         DefaultSyntax = SyntaxNames.Literal,
         SupportedSyntaxes = new[] { SyntaxNames.Literal }
     )]
-    public string AllowedRole { get; set; }
+    public string? AllowedRole { get; set; }
 
     [ActivityOutput]
     public object? Output { get; set; }
