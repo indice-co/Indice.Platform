@@ -1,7 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Indice.EntityFrameworkCore.ValueConversion;
-using Indice.Features.Cases.Extensions;
 using Newtonsoft.Json.Linq;
 
 namespace Indice.Features.Cases.Tests;

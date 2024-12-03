@@ -30,6 +30,7 @@ using Indice.Features.Cases.Services;
 using Indice.Features.Cases.Core.Events;
 using Indice.Features.Cases.Events;
 using Indice.Features.Cases.Core.Services.Abstractions;
+using Microsoft.Extensions.Hosting;
 
 namespace Indice.Features.Cases;
 
@@ -61,6 +62,7 @@ public static class CasesApiFeatureExtensions
         // Build service provider and get IConfiguration instance.
         var serviceProvider = services.BuildServiceProvider();
         var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+        var environment = serviceProvider.GetRequiredService<IHostEnvironment>();
 
         // Try add general settings.
         services.AddGeneralSettings(configuration);

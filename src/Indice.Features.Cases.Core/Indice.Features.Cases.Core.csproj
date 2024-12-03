@@ -42,5 +42,6 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="Indice.Features.Cases.Server" />
+    <InternalsVisibleTo Include="Indice.Features.Cases.Tests" />
   </ItemGroup>
 </Project>

@@ -39,7 +39,7 @@ public static class CasesFeatureExtensions
             options.ConfigureDbSeed = casesOptions.ConfigureDbSeed;
         });
 
-        var seedOptions = new CasesDbIntialDataOptions([]);
+        var seedOptions = new CasesDbIntialDataOptions([], []);
         casesOptions.ConfigureDbSeed?.Invoke(seedOptions);
 
         services.Configure<CasesDbIntialDataOptions>(options => {
@@ -83,6 +83,7 @@ public static class CasesFeatureExtensions
         // Register application DbContext.
         services.AddDbContext<CasesDbContext>(casesOptions.ConfigureDbContext ?? ((sp, builder) => builder.UseSqlServer(sp.GetRequiredService<IConfiguration>().GetConnectionString("CasesDb"))));
 
+        services.AddHostedService<CasesDbInitializerHostedService>();
         return services;
     }
 
