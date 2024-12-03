@@ -146,5 +146,5 @@ public static class AdminCaseServiceExtensions
 {
     /// <summary>Patches Case Data using a Json Serializable object.</summary>
     public static async Task PatchCaseData<TValue>(this IAdminCaseService adminCaseService, ClaimsPrincipal user, Guid caseId, TValue patch) where TValue : notnull
-        => await adminCaseService.PatchCaseData(user, caseId, patch.ParseAsJsonNode() ?? throw new ArgumentNullException(nameof(patch), "Patch Operation cannot be null."));
+        => await adminCaseService.PatchCaseData(user, caseId, patch.ToJsonNode() ?? throw new ArgumentNullException(nameof(patch), "Patch Operation cannot be null."));
 }

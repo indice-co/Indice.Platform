@@ -28,7 +28,7 @@ public class PatchJsonPathRequest
     /// <returns></returns>
     /// <exception cref="NotSupportedException"></exception>
     public PatchOperation ToPatchOperation() {
-        var value = Value?.ParseAsJsonNode();
+        var value = Value?.ToJsonNode();
         
         return Op switch {
             OperationType.Add => PatchOperation.Add(JsonPointer.Parse(Path), value),

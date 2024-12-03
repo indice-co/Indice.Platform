@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Indice.EntityFrameworkCore.ValueConversion;
+using Json.More;
 using Newtonsoft.Json.Linq;
 
 namespace Indice.Features.Cases.Tests;
@@ -18,7 +19,7 @@ public static class JsonMergeTestExtensions
         var httpClient = JsonSerializer.SerializeToNode(mergeObj);
         var wire = httpClient!.ToJsonString();
         var elsa = JToken.Parse(wire);
-        return elsa.ParseAsJsonNode() ?? throw new ArgumentNullException(nameof(mergeObj));
+        return elsa.ToJsonNode() ?? throw new ArgumentNullException(nameof(mergeObj));
     }
 
     /// <summary>Simulates data storing to the db.</summary>
