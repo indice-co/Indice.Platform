@@ -2,7 +2,6 @@
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Services.Abstractions;
-using Indice.Security;
 
 namespace Indice.Features.Cases.Core.Services;
 

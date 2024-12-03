@@ -1,6 +1,5 @@
 ﻿using System.Security.Claims;
 using System.Text.Json.Nodes;
-using Indice.Features.Cases.Core.Extensions;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Types;

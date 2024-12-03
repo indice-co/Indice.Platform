@@ -7,11 +7,11 @@ using Indice.Features.Cases.Core.Services.NoOpServices;
 using Indice.Features.Cases.Core.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Indice.Features.Cases.Core.Events.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Indice.Features.Cases.Core.Events.Handlers;
 using System.Security.Claims;
 using Indice.Features.Cases.Core;
+using Indice.Events;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -75,10 +75,10 @@ public static class CasesFeatureExtensions
         services.AddSmsServiceNoop();
 
         // Register events.
-        services.TryAddTransient<ICaseEventService, CaseEventService>();
+        services.AddDefaultPlatformEventService();
 
         // Register internal handlers
-        services.AddCaseEventHandler<CaseSubmittedEvent, StartWorkflowHandler>();
+        services.AddPlatformEventHandler<CaseSubmittedEvent, StartWorkflowHandler>();
 
         // Register application DbContext.
         services.AddDbContext<CasesDbContext>(casesOptions.ConfigureDbContext ?? ((sp, builder) => builder.UseSqlServer(sp.GetRequiredService<IConfiguration>().GetConnectionString("CasesDb"))));
@@ -125,14 +125,14 @@ public static class CasesFeatureExtensions
         return services;
     }
 
-    /// <summary>Registers an implementation of <see cref="ICaseEventHandler{TEvent}"/> for the specified event type.</summary>
+    /// <summary>Registers an implementation of <see cref="IPlatformEventHandler{TEvent}"/> for the specified event type.</summary>
     /// <typeparam name="TEvent">The type of the event to handler.</typeparam>
     /// <typeparam name="TEventHandler">The handler to user for the specified event.</typeparam>
     /// <param name="services">The services available in the application.</param>
     public static IServiceCollection AddCaseEventHandler<TEvent, TEventHandler>(this IServiceCollection services)
         where TEvent : ICaseEvent
-        where TEventHandler : class, ICaseEventHandler<TEvent> {
-        var serviceDescriptor = new ServiceDescriptor(typeof(ICaseEventHandler<TEvent>), typeof(TEventHandler), ServiceLifetime.Transient);
+        where TEventHandler : class, IPlatformEventHandler<TEvent> {
+        var serviceDescriptor = new ServiceDescriptor(typeof(IPlatformEventHandler<TEvent>), typeof(TEventHandler), ServiceLifetime.Transient);
         services.TryAddEnumerable(serviceDescriptor);
         return services;
     }

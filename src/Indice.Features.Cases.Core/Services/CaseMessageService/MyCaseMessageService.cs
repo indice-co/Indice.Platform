@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Data.Models;
-using Indice.Features.Cases.Core.Events.Abstractions;
+using Indice.Events;
 
 namespace Indice.Features.Cases.Core.Services.CaseMessageService;
 
@@ -15,9 +15,9 @@ internal class MyCaseMessageService : BaseCaseMessageService, IMyCaseMessageServ
 
     public MyCaseMessageService(
         CasesDbContext dbContext,
-        ICaseEventService caseEventService,
+        IPlatformEventService platformEventService,
         ISchemaValidator schemaValidator)
-        : base(dbContext, caseEventService, schemaValidator) {
+        : base(dbContext, platformEventService, schemaValidator) {
         _dbContext = dbContext; //TODO: this should be used and exposed by the base class
     }
     /// <inheritdoc />

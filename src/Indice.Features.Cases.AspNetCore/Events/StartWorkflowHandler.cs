@@ -1,8 +1,8 @@
 ﻿using Elsa.Models;
 using Elsa.Persistence;
 using Elsa.Services;
+using Indice.Events;
 using Indice.Features.Cases.Core.Events;
-using Indice.Features.Cases.Core.Events.Abstractions;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Workflows.Specifications;
 
@@ -13,7 +13,7 @@ namespace Indice.Features.Cases.Events;
 /// <para>The convention is that every Elsa workflow that it is created that needs to be automatically initiated by the system, the <see cref="WorkflowDefinition.Tag"/> must be present and
 /// have a valid value that matched the <see cref="CaseType.Code"/> of the application.</para>
 /// </summary>
-internal class StartWorkflowHandler : ICaseEventHandler<CaseSubmittedEvent>
+internal class StartWorkflowHandler : IPlatformEventHandler<CaseSubmittedEvent>
 {
     private readonly IWorkflowDefinitionStore _workflowDefinitionStore;
     private readonly IStartsWorkflow _startsWorkflow;
@@ -28,7 +28,8 @@ internal class StartWorkflowHandler : ICaseEventHandler<CaseSubmittedEvent>
         _workflowBlueprintMaterializer = workflowBlueprintMaterializer ?? throw new ArgumentNullException(nameof(workflowBlueprintMaterializer));
     }
 
-    public async Task Handle(CaseSubmittedEvent @event) {
+    public async Task Handle(CaseSubmittedEvent @event, PlatformEventArgs args) {
+        args.ThrowOnError = true; // notify execution to break everythig.!!! TODO: This is a code smell
         var workflowDefinitionTagSpecification = new WorkflowDefinitionTagCsvSpecification(@event.CaseTypeCode);
         var workflowDefinition = await _workflowDefinitionStore.FindAsync(workflowDefinitionTagSpecification);
         if (workflowDefinition == null) {

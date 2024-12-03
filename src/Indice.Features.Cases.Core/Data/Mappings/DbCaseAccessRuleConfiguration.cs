@@ -1,5 +1,4 @@
-﻿using System.Security.AccessControl;
-using Indice.Configuration;
+﻿using Indice.Configuration;
 using Indice.Features.Cases.Core.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;

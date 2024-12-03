@@ -5,22 +5,22 @@ using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Data.Models;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Events;
-using Indice.Features.Cases.Core.Events.Abstractions;
+using Indice.Events;
 
 namespace Indice.Features.Cases.Core.Services.CaseMessageService;
 
 internal abstract class BaseCaseMessageService
 {
     protected CasesDbContext DbContext { get; }
-    private readonly ICaseEventService _caseEventService;
+    private readonly IPlatformEventService _platformEventService;
     private readonly ISchemaValidator _schemaValidator;
 
     protected BaseCaseMessageService(
         CasesDbContext dbContext,
-        ICaseEventService caseEventService,
+        IPlatformEventService platformEventService,
         ISchemaValidator schemaValidator) {
         DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-        _caseEventService = caseEventService ?? throw new ArgumentNullException(nameof(caseEventService));
+        _platformEventService = platformEventService ?? throw new ArgumentNullException(nameof(platformEventService));
         _schemaValidator = schemaValidator ?? throw new ArgumentNullException(nameof(schemaValidator));
     }
 
@@ -35,7 +35,7 @@ internal abstract class BaseCaseMessageService
         var caseType = await DbContext.CaseTypes.FindAsync(@case.CaseTypeId);
         if (caseType == null) throw new ArgumentNullException(nameof(caseType));
 
-        await _caseEventService.Publish(new CaseMessageCreatedEvent(caseId, message));
+        await _platformEventService.Publish(new CaseMessageCreatedEvent(caseId, message));
 
         var newCheckpointType = await DbContext.CheckpointTypes
             .AsQueryable()
@@ -78,7 +78,7 @@ internal abstract class BaseCaseMessageService
         }
 
         await DbContext.SaveChangesAsync();
-        await _caseEventService.Publish(new CaseMessageSentEvent(caseId, message));
+        await _platformEventService.Publish(new CaseMessageSentEvent(caseId, message));
         return attachmentId;
     }
 

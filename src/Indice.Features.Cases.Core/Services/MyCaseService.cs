@@ -1,10 +1,10 @@
 ﻿using System.Globalization;
 using System.Linq.Expressions;
 using System.Security.Claims;
+using Indice.Events;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Data.Models;
 using Indice.Features.Cases.Core.Events;
-using Indice.Features.Cases.Core.Events.Abstractions;
 using Indice.Features.Cases.Core.Localization;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
@@ -19,7 +19,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
 {
     private const string SchemaSelector = "frontend";
     private readonly ICaseTypeService _caseTypeService;
-    private readonly ICaseEventService _caseEventService;
+    private readonly IPlatformEventService _platformEventService;
     private readonly IMyCaseMessageService _caseMessageService;
     private readonly IJsonTranslationService _jsonTranslationService;
     private readonly CaseSharedResourceService _caseSharedResourceService;
@@ -28,12 +28,12 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         CasesDbContext dbContext,
         IOptions<CasesOptions> options,
         ICaseTypeService caseTypeService,
-        ICaseEventService caseEventService,
+        IPlatformEventService platformEventService,
         IMyCaseMessageService caseMessageService,
         IJsonTranslationService jsonTranslationService,
         CaseSharedResourceService caseSharedResourceService) : base(dbContext, options) {
         _caseTypeService = caseTypeService ?? throw new ArgumentNullException(nameof(caseTypeService));
-        _caseEventService = caseEventService ?? throw new ArgumentNullException(nameof(caseEventService));
+        _platformEventService = platformEventService ?? throw new ArgumentNullException(nameof(platformEventService));
         _caseMessageService = caseMessageService ?? throw new ArgumentNullException(nameof(caseMessageService));
         _jsonTranslationService = jsonTranslationService ?? throw new ArgumentNullException(nameof(jsonTranslationService));
         _caseSharedResourceService = caseSharedResourceService;
@@ -82,7 +82,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         @case.Draft = false;
         await DbContext.SaveChangesAsync();
         // TODO: check mapping for event payload
-        await _caseEventService.Publish(new CaseSubmittedEvent(new Case { Id = @case.Id } , @case.CaseType.Code));
+        await _platformEventService.Publish(new CaseSubmittedEvent(new Case { Id = @case.Id } , @case.CaseType.Code));
     }
 
     public async Task<Case> GetCaseById(ClaimsPrincipal user, Guid caseId) {

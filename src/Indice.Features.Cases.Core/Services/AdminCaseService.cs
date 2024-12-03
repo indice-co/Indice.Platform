@@ -3,11 +3,10 @@ using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using Indice.Events;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Events;
-using Indice.Features.Cases.Core.Events.Abstractions;
 using Indice.Features.Cases.Core.Exceptions;
-using Indice.Features.Cases.Core.Extensions;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services.Abstractions;
@@ -25,18 +24,18 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     private readonly ICaseAuthorizationProvider _memberAuthorizationProvider;
     private readonly ICaseTypeService _caseTypeService;
     private readonly IAdminCaseMessageService _adminCaseMessageService;
-    private readonly ICaseEventService _caseEventService;
+    private readonly IPlatformEventService _platformEventService;
     public AdminCaseService(
         CasesDbContext dbContext,
         IOptions<CasesOptions> options,
         ICaseAuthorizationProvider memberAuthorizationProvider,
         ICaseTypeService caseTypeService,
         IAdminCaseMessageService adminCaseMessageService,
-        ICaseEventService caseEventService) : base(dbContext, options) {
+        IPlatformEventService platformEventService) : base(dbContext, options) {
         _memberAuthorizationProvider = memberAuthorizationProvider ?? throw new ArgumentNullException(nameof(memberAuthorizationProvider));
         _caseTypeService = caseTypeService ?? throw new ArgumentNullException(nameof(caseTypeService));
         _adminCaseMessageService = adminCaseMessageService ?? throw new ArgumentNullException(nameof(adminCaseMessageService));
-        _caseEventService = caseEventService ?? throw new ArgumentNullException(nameof(caseEventService));
+        _platformEventService = platformEventService ?? throw new ArgumentNullException(nameof(platformEventService));
     }
 
     public async Task<Guid> CreateDraft(ClaimsPrincipal user,
@@ -111,7 +110,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         @case.Draft = false;
         await DbContext.SaveChangesAsync();
         
-        await _caseEventService.Publish(new CaseSubmittedEvent(new Case {
+        await _platformEventService.Publish(new CaseSubmittedEvent(new Case {
              Id = @case.Id,
              // TODO: do a proper caseDb to case mapping
         }, @case.CaseType.Code));

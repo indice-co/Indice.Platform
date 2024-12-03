@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
+using Indice.Events;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Data.Models;
-using Indice.Features.Cases.Core.Events.Abstractions;
 using Indice.Features.Cases.Core.Exceptions;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
@@ -16,10 +16,10 @@ internal class AdminCaseMessageService : BaseCaseMessageService, IAdminCaseMessa
 
     public AdminCaseMessageService(
         CasesDbContext dbContext,
-        ICaseEventService caseEventService,
+        IPlatformEventService platformEventService,
         ISchemaValidator schemaValidator,
         ICaseAuthorizationProvider caseAuthorization)
-        : base(dbContext, caseEventService, schemaValidator) {
+        : base(dbContext, platformEventService, schemaValidator) {
         _caseAuthorization = caseAuthorization ?? throw new ArgumentNullException(nameof(caseAuthorization));
     }
 

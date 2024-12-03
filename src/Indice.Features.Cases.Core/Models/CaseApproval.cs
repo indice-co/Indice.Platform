@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Indice.Features.Cases.Core.Models;
+﻿namespace Indice.Features.Cases.Core.Models;
 
 /// <summary>
 /// Represent an aproval dto

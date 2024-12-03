@@ -1,16 +1,12 @@
-﻿using Indice.Features.Cases.Core.Data;
-using Indice.Features.Cases.Core.Localization;
+﻿using Indice.Features.Cases.Core.Localization;
 using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Features.Cases.Core.Services;
 using Indice.Features.Cases.Server;
 using Indice.Features.Cases.Server.Options;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Indice.Features.Cases.Core.Services.NoOpServices;
-using Indice.Features.Cases.Core.Events;
-using Indice.Features.Cases.Core.Events.Abstractions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -104,7 +100,7 @@ public static class CaseServerBuilderExtensions
         builder.Services.TryAddSingleton<CaseSharedResourceService>(); // Add the service even if there is no resx file, so the runtime will not throw exception
 
         // Register events.
-        builder.Services.AddTransient<ICaseEventService, CaseEventService>();
+        builder.Services.AddDefaultPlatformEventService();
 
         // Register internal handlers
         //builder.Services.AddCaseEventHandler<CaseSubmittedEvent, StartWorkflowHandler>();
