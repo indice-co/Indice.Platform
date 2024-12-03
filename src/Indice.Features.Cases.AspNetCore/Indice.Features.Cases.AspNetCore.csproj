@@ -1,16 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Package">
+    <Nullable>enable</Nullable>
     <Description>Indice Case Management System</Description>
     <RootNamespace>Indice.Features.Cases</RootNamespace>
     <Authors>Thanos Panousis, Dimitris Karkanas</Authors>
     <PackageReleaseNotes>
-      - Added PatchCaseMetadata to AdminCasesController, so you can now update a case's metadata. 
+      - Added PatchCaseMetadata to AdminCasesController, so you can now update a case's metadata.
       - Also added PatchCaseMetadata to the IAdminCaseService, so you can now update a case's metadata from your code.
     </PackageReleaseNotes>
     <PackageTags>AspNetCore;CasesManagement;Cases</PackageTags>
     <VersionPrefix>$(VersionPrefixCases)</VersionPrefix>
     <!--<Version>7.23.0-beta02</Version>-->
-    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Elsa" Version="2.13.0" />
