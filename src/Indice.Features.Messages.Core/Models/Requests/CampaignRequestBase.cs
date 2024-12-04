@@ -10,15 +10,19 @@ public class CampaignRequestBase
     /// <summary>The title of the campaign.</summary>
     public string Title { get; set; }
     /// <summary>The contents of the campaign.</summary>
-    public MessageContentDictionary Content { get; set; } = new MessageContentDictionary();
+    public MessageContentDictionary Content { get; set; } = new ();
     /// <summary>Defines a (call-to-action) link.</summary>
     public Hyperlink ActionLink { get; set; }
     /// <summary>Specifies the time period that a campaign is active.</summary>
     public Period ActivePeriod { get; set; }
+    /// <summary>The base href to access the media.</summary>
+    public string MediaBaseHref { get; set; }
     /// <summary>The id of the type this campaign belongs.</summary>
     public Guid? TypeId { get; set; }
     /// <summary>The id of the distribution list.</summary>
     public Guid? RecipientListId { get; set; }
+    /// <summary>The Template to be used for the new Campaign.</summary>
+    public Guid? MessageTemplateId { get; set; }
     /// <summary>Optional data for the campaign.</summary>
     public dynamic Data { get; set; }
 }

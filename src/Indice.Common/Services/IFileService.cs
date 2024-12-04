@@ -10,7 +10,7 @@ public interface IFileService
     /// <param name="filePath">The file path.</param>
     /// <param name="stream">The file content as a <see cref="Stream"/>.</param>
     /// <param name="saveOptions">Options when saving a stream through <see cref="IFileService"/>.</param>
-    Task SaveAsync(string filePath, Stream stream, FileServiceSaveOptions saveOptions);
+    Task SaveAsync(string filePath, Stream stream, FileServiceSaveOptions? saveOptions);
     /// <summary>Retrieves a file using a path.</summary>
     /// <param name="filePath">The file path.</param>
     Task<byte[]> GetAsync(string filePath);
@@ -19,11 +19,17 @@ public interface IFileService
     Task<IEnumerable<string>> SearchAsync(string path);
     /// <summary>Gets the file properties.</summary>
     /// <param name="filePath">The file path.</param>
-    Task<FileProperties> GetPropertiesAsync(string filePath);
+    Task<FileProperties?> GetPropertiesAsync(string filePath);
     /// <summary>Removes the file from storage. In case of a folder or virtual path prefix it will remove all files recursive.</summary>
     /// <param name="filePath">The file path.</param>
     /// <param name="isDirectory">Indicates that the path is a directory.</param>
     Task<bool> DeleteAsync(string filePath, bool isDirectory = false);
+    /// <summary>Will move all file instances from the location in the <paramref name="sourcePath"/> to the <paramref name="destinationPath"/></summary>
+    /// <param name="sourcePath">The source path to move. </param>
+    /// <param name="destinationPath"></param>
+    /// <remarks>If the path in source is a directory structure it will move all contents to be relocated to the destination path. If not it will move only a single file</remarks>
+    /// <returns>The task handle</returns>
+    Task MoveAsync(string sourcePath, string destinationPath);
 }
 
 /// <summary>Exception class for <see cref="IFileService"/> related exceptions.</summary>
@@ -58,21 +64,21 @@ public class FileProperties
     /// <summary>Last modified.</summary>
     public DateTimeOffset? LastModified { get; set; }
     /// <summary>Etag.</summary>
-    public string ETag { get; set; }
+    public string? ETag { get; set; }
     /// <summary>Media type (i.e. application/octet-stream).</summary>
-    public string ContentType { get; set; }
+    public string ContentType { get; set; } = "application/octet-stream";
     /// <summary>Content MD5 hash.</summary>
-    public string ContentHash { get; set; }
+    public string? ContentHash { get; set; }
     /// <summary>Size in bytes.</summary>
     public long Length { get; set; }
     /// <summary>Content language.</summary>
-    public string ContentLanguage { get; set; }
+    public string? ContentLanguage { get; set; }
     /// <summary>Content encoding.</summary>
-    public string ContentEncoding { get; set; }
+    public string? ContentEncoding { get; set; }
     /// <summary>Content disposition.</summary>
-    public string ContentDisposition { get; set; }
+    public string? ContentDisposition { get; set; }
     /// <summary>Cache control.</summary>
-    public string CacheControl { get; set; }
+    public string? CacheControl { get; set; }
 }
 
 /// <summary>Extensions for <see cref="IFileService"/>.</summary>
@@ -111,7 +117,7 @@ public static class FileServiceExtensions
     /// <param name="payload">The object to save.</param>
     /// <param name="jsonOptions">Provides options to be used with <see cref="JsonSerializer"/>.</param>
     /// <param name="saveOptions">Options when saving a stream through <see cref="IFileService"/>.</param>
-    public static async Task SaveAsync<T>(this IFileService fileService, string path, T payload, JsonSerializerOptions jsonOptions, FileServiceSaveOptions saveOptions = null) where T : class {
+    public static async Task SaveAsync<T>(this IFileService fileService, string path, T payload, JsonSerializerOptions jsonOptions, FileServiceSaveOptions? saveOptions = null) where T : class {
         saveOptions ??= new FileServiceSaveOptions();
         using (var stream = new MemoryStream()) {
             await JsonSerializer.SerializeAsync(stream, payload, jsonOptions);
@@ -128,9 +134,9 @@ public static class FileServiceExtensions
 public class FileServiceSaveOptions
 {
     /// <summary>The MIME content type of the blob.</summary>
-    public string ContentType { get; set; }
+    public string? ContentType { get; set; }
     /// <summary>Specify directives for caching mechanisms.</summary>
-    public string CacheControl { get; set; }
+    public string? CacheControl { get; set; }
 
     /// <summary>Check if options are empty.</summary>
     /// <returns></returns>

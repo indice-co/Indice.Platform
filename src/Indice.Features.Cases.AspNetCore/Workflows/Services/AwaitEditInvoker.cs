@@ -1,7 +1,7 @@
 ﻿using Elsa.Persistence;
 using Elsa.Services;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Models;
+using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Workflows.Activities;
 using Indice.Features.Cases.Workflows.Bookmarks.AwaitApproval;
 using Indice.Features.Cases.Workflows.Interfaces;
@@ -43,6 +43,6 @@ internal class AwaitEditInvoker : BaseActivityInvoker, IAwaitEditInvoker
             nameof(AwaitEditActivity),
             new AwaitApprovalBookmark(caseId.ToString(), role),
             caseId.ToString(),
-            instance.Id));
+            instance.Id)) ?? [];
     }
 }

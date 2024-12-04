@@ -22,7 +22,7 @@ export class ApiResourcesStepComponent extends StepBaseComponent<ClientWizardMod
 
     public ngOnInit(): void {
         this._wizardService.getApiResources().subscribe((resources: ApiResourceInfo[]) => {
-            this._selectedResourcesControl = this.data.form.controls.apiResources;
+            this._selectedResourcesControl = this.data.form.controls['apiResources'];
             this.availableResources = resources.filter(x => !this._selectedResourcesControl.value.includes(x.name));
             this.selectedResources = resources.filter(x => this._selectedResourcesControl.value.includes(x.name));
         });

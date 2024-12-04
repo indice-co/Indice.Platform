@@ -1,4 +1,5 @@
-﻿using Indice.Extensions;
+﻿using System.IO;
+using Indice.Extensions;
 
 namespace Indice.Services;
 
@@ -25,13 +26,7 @@ public class FileServiceLocal : IFileService
             File.Delete(filePath);
         } else {
             foreach (var directory in Directory.EnumerateDirectories(filePath)) {
-                foreach (var file in Directory.EnumerateFiles(directory)) {
-                    File.Delete(file);
-                }
-                Directory.Delete(directory);
-            }
-            foreach (var file in Directory.EnumerateFiles(filePath)) {
-                File.Delete(file);
+                Directory.Delete(directory, recursive: true);
             }
         }
         return Task.FromResult(true);
@@ -51,13 +46,8 @@ public class FileServiceLocal : IFileService
             return Task.FromResult(Enumerable.Empty<string>());
         }
         var results = new List<string>();
-        foreach (var directory in Directory.EnumerateDirectories(folderPath)) {
-            foreach (var file in Directory.EnumerateFiles(directory)) {
-                results.Add(file.Replace(BaseDirectoryPath, string.Empty));
-            }
-        }
-        foreach (var file in Directory.EnumerateFiles(folderPath)) {
-            results.Add(file.Replace(BaseDirectoryPath, string.Empty));
+        foreach (var file in Directory.EnumerateFiles(folderPath, "*.*", SearchOption.AllDirectories)) {
+            results.Add(file.Replace(BaseDirectoryPath, string.Empty).Replace('\\', '/'));
         }
         return Task.FromResult(results.AsEnumerable());
     }
@@ -87,6 +77,24 @@ public class FileServiceLocal : IFileService
         using (var fs = File.Open(filePath, FileMode.Create)) {
             await stream.CopyToAsync(fs);
         }
+    }
+
+    /// <inheritdoc />
+    public Task MoveAsync(string sourcePath, string destinationPath) {
+        sourcePath = Path.Combine(BaseDirectoryPath, sourcePath);
+        destinationPath = Path.Combine(BaseDirectoryPath, destinationPath);
+        var isDirectory = GuardExists(sourcePath, isDirectory: true, throwOnError: false);
+        var isFile = GuardExists(sourcePath, isDirectory: false, throwOnError: false);
+        if (!isDirectory && !isFile) {
+            return Task.CompletedTask;
+        }
+        if (isFile) { 
+            File.Move(sourcePath, destinationPath);
+            return Task.CompletedTask;
+        } 
+        // then it is a folder
+        Directory.Move(sourcePath, destinationPath);
+        return Task.CompletedTask;
     }
 
     private static bool GuardExists(string path, bool isDirectory = false, bool throwOnError = true) {

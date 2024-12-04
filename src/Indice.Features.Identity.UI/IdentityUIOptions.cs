@@ -23,7 +23,7 @@ public class IdentityUIOptions
     /// </item>
     /// </list>
     /// </remarks>
-    public string HomePageSlogan { get; set; } = "Welcome to our Digital Services <strong>Portal</strong> of {0}";
+    public string HomePageSlogan { get; set; } = "Welcome to the {0} Digital Services <strong>Portal</strong>";
     /// <summary>An absolute URL to the <strong>terms and conditions</strong> web page. Use it when this page is located to (or shared with) an external website.</summary>
     /// <remarks>If left null the <strong>./legal/terms.md</strong> will be used. If populated it will do a redirect to this URL</remarks>
     public string? TermsUrl { get; set; }
@@ -33,6 +33,11 @@ public class IdentityUIOptions
     /// <summary>An absolute URL to the <strong>Contact us</strong> web page. Use it when this page is located to (or shared with) an external website.</summary>
     /// <remarks>If left null the <strong>Contact Us</strong> link in the footer will disappear. If populated it will do a redirect to this URL. By default it is empty</remarks>
     public string? ContactUsUrl { get; set; }
+    /// <summary>The absolute page path (not the url) that points to a custom on boarding process start. For example <strong>/OnBoarding/Welcome</strong> would be the route pointing to a page under the physical path: <strong>/Pages/OnBoarding/Welcome.cshtml</strong></summary>
+    /// <remarks>This will replace all register links pointing to the native register page <strong>/Register</strong> but will not shut down native registration. In order to shut down registration use <seealso cref="EnableRegisterPage"/>.</remarks>
+    public string OnBoardingPage { get; set; } = "/Register";
+    /// <summary>True if <see cref="OnBoardingPage"/> is not the default. Used to determine where <strong>/register</strong> links will be pointing.</summary>
+    public bool HasCustomOnBoarding => !"/Register".Equals(OnBoardingPage);
     /// <summary>Controls whether an external Identity user will go through the associate screen or not.</summary>
     public bool AutoProvisionExternalUsers { get; set; } = true;
     /// <summary>Controls whether an external identity user be associated to an existing one using the email account.</summary>
@@ -47,6 +52,12 @@ public class IdentityUIOptions
     public bool EnableLocalLogin { get; set; } = true;
     /// <summary>RGB color to be used with avatar endpoints to render the user avatar background with initials.</summary>
     public string AvatarColorHex { get; set; } = "1abc9c";
+    /// <summary>Profile picture upload limit in bytes when uploading from /manage/profile ui</summary>
+    /// <remarks>Defaults to 5MB</remarks>
+    public int PictureUploadSizeLimit { get; set; } = 1024 * 1024 * 5;
+    /// <summary>Profile picture maximum side size in pixels of the resulting rectangle. </summary>
+    /// <remarks>Defaults to <strong>512px</strong></remarks>
+    public int PictureMaxSideSize { get; set; } = 512;
     /// <summary>RGB color to be used with email default templates for links.</summary>
     public string EmailLinkColorHex { get; set; } = "1abc9c";
     /// <summary>RGB color to be used with email default templates for links.</summary>
@@ -72,6 +83,11 @@ public class IdentityUIOptions
     public List<HomePageLink> HomepageLinks { get; } = new List<HomePageLink>() {
         new HomePageLink("Admin","~/admin", CssClass:"admin", VisibilityPredicate: user => user.IsAdmin())
     };
+    /// <summary>
+    /// Should show the Add Email page before sending the confirmation email prompt (in case of pernding confirmation login) or Confirm emai immediately.
+    /// </summary>
+    /// <remarks>Useful when user store is from a migrated database and we need to force users to add an email where an email is not present. Defaults to true.</remarks>
+    public bool ShowAddEmailPrompt { get; set; } = true;
 
     /// <summary>Adds a homepage link to the a service definition cards.</summary>
     /// <param name="displayName">The label.</param>

@@ -11,13 +11,22 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.FeatureManagement;
+using Microsoft.Identity.Client;
 
 namespace Indice.Features.Identity.Server.Manager;
 
 internal static class DashboardHandlers
 {
-    internal static Ok<ResultSet<BlogItemInfo>> GetNews(int? page, int? size) {
+    internal static async Task<Ok<ResultSet<BlogItemInfo>>> GetNews(
+        IFeatureManager featureManager, int? page, int? size) {
+
+        var rssFeatureEnabled = await featureManager.IsEnabledAsync(IdentityEndpoints.Features.RssFeed);
+        if (!rssFeatureEnabled) {
+            return TypedResults.Ok(Enumerable.Empty<BlogItemInfo>().ToResultSet());
+        }
+
         const string url = "https://www.identityserver.com/rss";
         var feedItems = new List<BlogItemInfo>();
         using (var reader = XmlReader.Create(url)) {
@@ -61,10 +70,11 @@ internal static class DashboardHandlers
         }
         // Get percentage of active users (users that have logged into the system) on a daily/weekly/monthly basis.
         var dailyActiveUsers = await userManager.Users.CountAsync(x => x.LastSignInDate >= DateTime.UtcNow.Date);
+        var yesterdayActiveUsers = await userManager.Users.CountAsync(x => x.LastSignInDate >= DateTime.UtcNow.Date.AddDays(-1) && x.LastSignInDate < DateTime.UtcNow.Date);
         var weeklyActiveUsers = await userManager.Users.CountAsync(x => x.LastSignInDate >= DateTime.UtcNow.Date.AddDays(-7));
         var monthlyActiveUsers = await userManager.Users.CountAsync(x => x.LastSignInDate >= DateTime.UtcNow.Date.AddDays(-30));
         metrics.Activity = new UsersActivityInfo {
-            Day = new SummaryStatistic(count: dailyActiveUsers, percent: Math.Round(dailyActiveUsers / (double)numberOfUsers * 100, 2)),
+            Day = new SummaryStatistic(count: dailyActiveUsers, percent: Math.Round(dailyActiveUsers / (double)numberOfUsers * 100, 2), trend: Math.Round((dailyActiveUsers - yesterdayActiveUsers) / (double)numberOfUsers * 100, 2)),
             Week = new SummaryStatistic(count: weeklyActiveUsers, percent: Math.Round(weeklyActiveUsers / (double)numberOfUsers * 100, 2)),
             Month = new SummaryStatistic(count: monthlyActiveUsers, percent: Math.Round(monthlyActiveUsers / (double)numberOfUsers * 100, 2))
         };
@@ -77,9 +87,10 @@ internal static class DashboardHandlers
         return TypedResults.Ok(metrics);
     }
 
-    internal static async Task<Ok<UiFeaturesInfo>> GetUiFeatures(IFeatureManager featureManager) =>
+    internal static async Task<Ok<UiFeaturesInfo>> GetUiFeatures(IFeatureManager featureManager, IConfiguration configuration) =>
         TypedResults.Ok(new UiFeaturesInfo {
             MetricsEnabled = await featureManager.IsEnabledAsync(IdentityServerFeatures.DashboardMetrics),
-            SignInLogsEnabled = await featureManager.IsEnabledAsync(IdentityServerFeatures.SignInLogs)
+            SignInLogsEnabled = await featureManager.IsEnabledAsync(IdentityServerFeatures.SignInLogs),
+            EmailAsUserName = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.User)}", nameof(UiFeaturesInfo.EmailAsUserName)) ?? false
         });
 }

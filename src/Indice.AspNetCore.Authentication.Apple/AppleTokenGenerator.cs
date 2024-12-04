@@ -23,11 +23,9 @@ public class AppleTokenGenerator
             privateKey = string.Join("", lines.Skip(1).Take(lines.Length - 2));
 
         }
-//#if NETCOREAPP3_1
         ecdsa?.ImportPkcs8PrivateKey(Convert.FromBase64String(privateKey), out _);
-//#else
         //ecdsa?.ImportFromPem(privateKey);
-//#endif
+
         var handler = new JsonWebTokenHandler();
         var key = new ECDsaSecurityKey(ecdsa) {
             KeyId = privateKeyId

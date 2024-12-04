@@ -13,7 +13,7 @@ public static class ActivityExecutionContextExtensions
     public static ClaimsPrincipal TryGetUser(this ActivityExecutionContext context) {
         var runAsSystemUser = context.GetVariable<bool>("RunAsSystemUser");
         return runAsSystemUser
-            ? Cases.Extensions.PrincipalExtensions.SystemUser()
+            ? CasesClaimsPrincipalExtensions.SystemUser()
             : GetHttpContextUser(context);
     }
 
@@ -22,6 +22,6 @@ public static class ActivityExecutionContextExtensions
     /// <returns></returns>
     public static ClaimsPrincipal GetHttpContextUser(this ActivityExecutionContext context) {
         var httpContextAccessor = context.GetService<IHttpContextAccessor>();
-        return httpContextAccessor.HttpContext?.User;
+        return httpContextAccessor.HttpContext?.User!;
     }
 }

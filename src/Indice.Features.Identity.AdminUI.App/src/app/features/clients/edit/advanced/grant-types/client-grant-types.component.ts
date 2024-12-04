@@ -48,7 +48,7 @@ export class ClientGrantTypesComponent implements OnInit, OnDestroy {
         if (this.canEditClient) {
             this.columns.push({ prop: 'type', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this.actionsTemplate, cellClass: 'd-flex align-items-center' });
         }
-        const clientId = this.route.parent.parent.snapshot.params.id;
+        const clientId = this.route.parent.parent.snapshot.params['id'];
         const getClient = this.clientStore.getClient(clientId);
         const getDiscoveryDocument = this.httpClient.get(`${app.settings.auth_settings.authority}/.well-known/openid-configuration`);
         this.getDataSubscription = forkJoin([getClient, getDiscoveryDocument]).pipe(map((responses: [SingleClientInfo, any]) => {

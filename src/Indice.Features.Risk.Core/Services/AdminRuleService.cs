@@ -32,8 +32,7 @@ public class AdminRuleService
     /// <returns></returns>
     public ResultSet<RiskRuleDto> GetRiskRules() {
         return _rules
-            .Select((x, index) => new RiskRuleDto {
-                Name = x.Name,
+            .Select((x, index) => new RiskRuleDto(x.Name) {
                 Description = x.Options.Description,
                 Enabled = x.Options.Enabled,
                 FriendlyName = x.Options.FriendlyName

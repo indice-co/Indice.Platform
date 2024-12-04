@@ -1,20 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <Nullable>enable</Nullable>
-    <Authors>Thanos Panousis, Dimitris Karkanas, Christos Asvestopoulos, Hermes Krouskos</Authors>
+    <Authors>Thanos Panousis, Dimitris Karkanas</Authors>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;CasesManagement;Cases</PackageTags>
     <VersionPrefix>$(VersionPrefixCases)</VersionPrefix>
-    <TargetFrameworks></TargetFrameworks>
-    <TargetFramework>net7.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Indice.Features.Cases.AspNetCore" Version="$(VersionPrefixCases)" />
+    <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefixCore)" />
+    <!--<PackageReference Include="Indice.Feature.Cases.Core" Version="$(VersionPrefixCases)" />-->
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Indice.Features.Cases.AspNetCore\Indice.Features.Cases.AspNetCore.csproj" />
+    <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
+    <ProjectReference Include="..\Indice.Features.Cases.Core\Indice.Features.Cases.Core.csproj" />
   </ItemGroup>
-
+  <ItemGroup>
+    <InternalsVisibleTo Include="Indice.Features.Cases.Tests" />
+    <InternalsVisibleTo Include="Indice.Features.Cases.Server" />
+  </ItemGroup>
 </Project>

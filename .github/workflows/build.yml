@@ -1,0 +1,105 @@
+name: "Build and Test"
+
+on:
+  workflow_dispatch:
+  
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+      # Checkout
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      #Setup .NET Core
+      - name: Setup dotnet 8.0.x
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+          source-url: https://api.nuget.org/v3/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{secrets.NUGET_AUTH_TOKEN}}
+
+      # You can test your matrix by printing the current dotnet version
+      - name: Display dotnet version
+        run: dotnet --version
+   
+      # Setup Node.js
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20    
+
+      # Npm Install and build Identity UI
+      - name: NPM Install and Build Identity UI
+        run: |
+          cd src/Indice.Features.Identity.UI
+          npm install --force
+          npm run gulp -- copy:libs
+          npm run gulp -- sass
+
+      # Npm Install Cases
+      - name: NPM Install Cases
+        run: |
+          cd src/Indice.Features.Cases.App
+          npm install
+      # Npm Install AdminUI
+      - name: NPM Install AdminUI
+        run: |
+          cd src/Indice.Features.Identity.AdminUI.App
+          npm install
+      # Npm Install Messages
+      - name: NPM Install Messages
+        run: |
+          cd src/Indice.Features.Messages.App
+          npm install
+      # Npm Install Risk App
+      - name: NPM Install Risk
+        run: |
+          cd src/Indice.Features.Risk.App
+          npm install
+      
+      #Create .nuget dir
+      - name: Create .nuget dir
+        shell: pwsh
+        run: |
+          if (!(Test-Path -Path ".\.nuget" ))
+          {
+            New-Item -ItemType "directory" -Path ".\.nuget"
+          }
+          if (!(Test-Path -Path ".\.nuget\packages" ))
+          {
+            New-Item -ItemType "directory" -Path ".\.nuget\packages"
+          }
+          
+      # BUILD
+      - name: Install dependencies
+        run: dotnet restore /nowarn:netsdk1138
+
+      - name: Dotnet build SPAs
+        run: dotnet build Indice.Platform.Ecmascript.slnf --no-restore --configuration Release
+
+      - name: Dotnet build
+        run: dotnet build Indice.Platform.slnf --no-restore --configuration Release
+      
+      # TEST 
+      - name: Test with dotnet
+        run: dotnet test --no-build --configuration Release --logger trx --results-directory "TestResults"
+      # - name: Upload dotnet test results
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: dotnet-results
+      #     path: TestResults
+      #   # Use always() to always run this step to publish test results when there are test failures
+      #   if: ${{ always() }}
+      # TEST REPORT
+      - name: Test Reporter
+        uses: dorny/test-reporter@v1.9.1
+        if: always()
+        with:
+          name: DotNET Tests
+          path: "TestResults/*.trx"                            
+          reporter: dotnet-trx
+          fail-on-error: true  

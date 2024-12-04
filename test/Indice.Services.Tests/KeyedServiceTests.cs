@@ -30,13 +30,8 @@ public class KeyedServiceTests
         Assert.IsType<FileServiceAzureStorage>(serviceB);
         Assert.IsType<FileServiceAzureStorage>(serviceC);
         var connectionString = typeof(Indice.Services.FileServiceAzureStorage).GetField("_connectionString", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-#if NET8_0_OR_GREATER
         Assert.Equal("serviceB", connectionString.GetValue(serviceB));
         Assert.Equal("serviceC", connectionString.GetValue(serviceC));
-#else
-        Assert.Equal("serviceC", connectionString.GetValue(serviceB)); // <-- Should be "serviceB"!!!!!. Although is expected behavior not to work some day we should make it be like dotnet 8 or abandon previous versions.
-        Assert.Equal("serviceC", connectionString.GetValue(serviceC));
-#endif
         Assert.Equal("serviceDefault", connectionString.GetValue(serviceDefault));
     }
 }

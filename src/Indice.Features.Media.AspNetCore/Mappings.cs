@@ -22,6 +22,7 @@ internal static class Mapper
     };
     internal static DbMediaFolder ToDbFolder(this CreateFolderCommand command) => new() {
         Name = command.Name,
+        Path = null!,
         Description = command.Description,
         ParentId = command.ParentId
     };
@@ -38,29 +39,23 @@ internal static class Mapper
         UpdatedBy = dbFolder.UpdatedBy,
         Description = dbFolder.Description,
         Name = dbFolder.Name,
+        Path = dbFolder.Path,
         ParentId = dbFolder.ParentId,
         SubFoldersCount = dbFolder.SubFolders?.Count ?? 0,
         FilesCount = dbFolder.Files?.Count ?? 0
     };
     #endregion
     #region File
-    internal static UploadFileCommand ToUploadFileCommand(this UploadFileRequest request) {
-        if (request.File is null) {
-            throw new ArgumentNullException(nameof(File));
+    internal static List<UploadFileCommand> ToUploadFileCommand(this UploadFileRequest request) {
+        if (request.Files is null) {
+            throw new ArgumentOutOfRangeException(nameof(request), "property Files is empty.");
         }
-        return new UploadFileCommand(request.File.OpenReadStream) {
-            Name = Path.GetFileName(request.File.FileName),
-            FileExtension = Path.GetExtension(request.File.FileName),
-            ContentLength = (int)request.File.Length,
-            ContentType = request.File.ContentType,
-            FolderId = request.FolderId
-        };
-        //if (File.Length > 0) {
-        //    using var inputStream = File.OpenReadStream();
-        //    using var memoryStream = new MemoryStream();
-        //    inputStream.CopyTo(memoryStream);
-        //    fileParameter.Data = memoryStream.ToArray();
-        //}
+        return request.Files.Select(file => new UploadFileCommand(
+            () => file.OpenReadStream(),
+            fileName: file.FileName,
+            contentLength: (int)file.Length,
+            contentType: file.ContentType) { FolderId = request.FolderId }
+        ).ToList();
     }
     internal static UpdateFileMetadataCommand ToUpdateFileMetadataCommand(this UpdateFileMetadataRequest request, Guid id) => new() {
         Id = id,
@@ -76,7 +71,7 @@ internal static class Mapper
         Guid = command.Guid,
         Id = command.Id,
         Name = command.Name,
-        Uri = command.Uri,
+        Path = null!,
         FolderId = command.FolderId
     };
     internal static void Update(this DbMediaFile dbFile, UpdateFileMetadataCommand command) {
@@ -84,21 +79,22 @@ internal static class Mapper
         dbFile.Description = command.Description;
         dbFile.FolderId = command.FolderId;
     }
-    internal static MediaFile ToFileDetails(this DbMediaFile dbFile, string permaLinkBaseUrl) => new() {
-        ContentLength = dbFile.ContentLength,
-        ContentType = dbFile.ContentType,
-        FileExtension = dbFile.FileExtension,
-        //Guid = dbFile.Guid,
-        Id = dbFile.Id,
-        Name = dbFile.Name,
-        Description = dbFile.Description,
-        FolderId = dbFile.FolderId,
-        Data = dbFile.Data,
-        CreatedAt = dbFile.CreatedAt,
-        UpdatedAt = dbFile.UpdatedAt,
-        CreatedBy = dbFile.CreatedBy,
-        UpdatedBy = dbFile.UpdatedBy,
-        PermaLink = $"{permaLinkBaseUrl}/{(Base64Id)dbFile.Guid}.{dbFile.FileExtension.TrimStart('.')}"
-    };
+    internal static MediaFile ToFileDetails(this DbMediaFile dbFile, string permaLinkBaseUrl) => new(
+        Id: dbFile.Id,
+        //Guid: dbFile.Guid,
+        ContentLength: dbFile.ContentLength,
+        ContentType: dbFile.ContentType,
+        FileExtension: dbFile.FileExtension,
+        Name: dbFile.Name,
+        Path: dbFile.Path,
+        Description: dbFile.Description,
+        FolderId: dbFile.FolderId,
+        Data: dbFile.Data,
+        CreatedAt: dbFile.CreatedAt,
+        UpdatedAt: dbFile.UpdatedAt,
+        CreatedBy: dbFile.CreatedBy,
+        UpdatedBy: dbFile.UpdatedBy,
+        PermaLink: Path.Combine(permaLinkBaseUrl, dbFile.Path.TrimStart('/')).Replace('\\', '/')
+    );
     #endregion
 }

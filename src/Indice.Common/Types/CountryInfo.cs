@@ -22,7 +22,7 @@ public class CountryInfo
     /// <summary>Collection of countries</summary>
     public static ICollection<CountryInfo> Countries => _countries.Values;
 
-    internal CountryInfo(string continent, string twoLetterCode, string threeLetterCode, int numericCode, string fullName, string capital, string twoLetterLanguageCode, string callingCode) {
+    internal CountryInfo(string continent, string twoLetterCode, string threeLetterCode, int numericCode, string fullName, string capital, string? twoLetterLanguageCode, string callingCode) {
         Name = fullName;
         Capital = capital;
         ContinentCode = continent;
@@ -30,7 +30,7 @@ public class CountryInfo
         ThreeLetterCode = threeLetterCode;
         NumericCode = numericCode;
         TwoLetterLanguageCode = string.IsNullOrWhiteSpace(twoLetterLanguageCode) ? null : twoLetterLanguageCode;
-        CallingCode = string.IsNullOrWhiteSpace(callingCode) ? null : callingCode;
+        CallingCode = string.IsNullOrWhiteSpace(callingCode) ? throw new ArgumentNullException(callingCode) : callingCode;
     }
 
     static CountryInfo() {
@@ -66,7 +66,7 @@ public class CountryInfo
             ["BQ"] = new CountryInfo("NA", "BQ", "BES", 535, "Bonaire, Sint Eustatius and Saba", "", "nl", "599-7") ,
             ["BA"] = new CountryInfo("EU", "BA", "BIH", 70, "Bosnia and Herzegovina", "Sarajevo", "bs,hr,sr", "387") ,
             ["BW"] = new CountryInfo("AF", "BW", "BWA", 72, "Botswana", "Gaborone", "en,tn", "267") ,
-            ["BV"] = new CountryInfo("AN", "BV", "BVT", 74, "Bouvet Island", "", "no", "47") ,
+            //["BV"] = new CountryInfo("AN", "BV", "BVT", 74, "Bouvet Island", "", "no", "47") , // collision with Norway
             ["BR"] = new CountryInfo("SA", "BR", "BRA", 76, "Brazil", "Brasilia", "pt,es", "55") ,
             ["IO"] = new CountryInfo("AS", "IO", "IOT", 86, "British Indian Ocean Territory", "Diego Garcia", "en", "246") ,
             ["VG"] = new CountryInfo("NA", "VG", "VGB", 92, "British Virgin Islands", "Road Town", "en", "1-284") ,
@@ -289,7 +289,7 @@ public class CountryInfo
             ["ZW"] = new CountryInfo("AF", "ZW", "ZWE", 716, "Zimbabwe", "Harare", "en,nd,sn", "263")
         };
         _callingCodeMap = new();
-        foreach (var callingCode in Countries.SelectMany(x => x.CallingCode.Split(',').Select(code => new { CountryTwoLetterCode = x.TwoLetterCode, Code = code }))) {
+        foreach (var callingCode in Countries.SelectMany(x => x.CallingCode!.Split(',').Select(code => new { CountryTwoLetterCode = x.TwoLetterCode, Code = code }))) {
             if (_callingCodeMap.ContainsKey(callingCode.Code)) {
                 continue;
             }
@@ -310,7 +310,7 @@ public class CountryInfo
     /// <summary>ISO three letter country code.</summary>
     public string ThreeLetterCode { get; set; }
     /// <summary>ISO three letter country code.</summary>
-    public string TwoLetterLanguageCode { get; private set; }
+    public string? TwoLetterLanguageCode { get; private set; }
     /// <summary>Numeric country code.</summary>
     public int NumericCode { get; private set; }
     /// <summary>Country Calling code.</summary>
@@ -318,10 +318,10 @@ public class CountryInfo
     /// <summary>Default Country Calling code</summary>
     public int CallingCodeDefault => string.IsNullOrWhiteSpace(CallingCode) ? -1 : int.Parse(CallingCode.Split(',').First().Replace("-", string.Empty));
     /// <summary>Culture code locale.</summary>
-    public string Locale => TwoLetterLanguageCode != null ? $"{TwoLetterLanguageCode?.Split(',')[0]}-{TwoLetterCode}" : null;
+    public string? Locale => TwoLetterLanguageCode != null ? $"{TwoLetterLanguageCode?.Split(',')[0]}-{TwoLetterCode}" : null;
 
     /// <summary>Currency Symbol if available.</summary>
-    public string GetCurrencyISO() {
+    public string? GetCurrencyISO() {
         try {
             var region = new RegionInfo(TwoLetterCode);
             return region.ISOCurrencySymbol;
@@ -387,7 +387,7 @@ public class CountryInfo
     /// <param name="callingCode">The international country code without the plus sign</param>
     /// <param name="countryInfo">Output parameter</param>
     /// <returns>True if successful</returns>
-    public static bool TryGetCountryByCallingCode(string callingCode, out CountryInfo countryInfo) {
+    public static bool TryGetCountryByCallingCode(string callingCode, out CountryInfo? countryInfo) {
         countryInfo = null;
         try {
             countryInfo = GetCountryByCallingCode(callingCode);
@@ -400,7 +400,7 @@ public class CountryInfo
     /// <summary>Try <see cref="GetCountryByNameOrCode(string)"/>.</summary>
     /// <param name="nameOrTwoLetterCode"></param>
     /// <param name="countryInfo"></param>
-    public static bool TryGetCountryByNameOrCode(string nameOrTwoLetterCode, out CountryInfo countryInfo) {
+    public static bool TryGetCountryByNameOrCode(string nameOrTwoLetterCode, out CountryInfo? countryInfo) {
         var success = true;
         countryInfo = default;
         try {

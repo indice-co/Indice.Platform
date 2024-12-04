@@ -3,9 +3,7 @@
         <h4 class="modal-title" id="modal-basic-title">
             {{ selectedUserClient?.clientName }}
         </h4>
-        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss()">
-            <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
     </div>
     <div class="modal-body">
         <div class="table-responsive">
@@ -37,7 +35,7 @@
             <hr />
             <p class="text-muted font-14">Resources & scopes accessible by client:</p>
             <h6 *ngFor="let scope of selectedUserClient?.scopes" class="d-inline-block mt-0">
-                <span class="badge badge-warning mr-1">{{ scope }}</span>
+                <span class="badge text-info border boder-info bg-light m-r-10">{{ scope }}</span>
             </h6>
         </div>
     </div>
@@ -48,5 +46,7 @@
     </div>
 </div>
 <ng-template let-row="row" let-value="value" #actionsTemplate>
-    <button class="btn btn-success" (click)="showDetails(row, content)">Details</button>
+    <a role="button" class="icon-link text-primary" (click)="showDetails(row, content)" title="Details">
+        <i class="material-icons align-middle">view_headline</i>
+    </a>
 </ng-template>

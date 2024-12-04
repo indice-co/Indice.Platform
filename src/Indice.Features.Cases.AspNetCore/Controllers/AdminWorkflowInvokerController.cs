@@ -1,9 +1,8 @@
-﻿using Indice.Features.Cases.Models;
+﻿using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Workflows.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Indice.Features.Cases.Data.Models;
 
 namespace Indice.Features.Cases.Controllers;
 

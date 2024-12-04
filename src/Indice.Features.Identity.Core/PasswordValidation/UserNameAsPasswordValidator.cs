@@ -32,7 +32,7 @@ public class UserNameAsPasswordValidator<TUser> : IPasswordValidator<TUser> wher
     public int? MaxAllowedUserNameSubset { get; }
 
     /// <inheritdoc/>
-    public Task<IdentityResult> ValidateAsync(UserManager<TUser> manager, TUser user, string password) {
+    public Task<IdentityResult> ValidateAsync(UserManager<TUser> manager, TUser user, string? password) {
         var result = IdentityResult.Success;
         // If the option is not set, then there is no need to perform any action.
         if (!MaxAllowedUserNameSubset.HasValue) {
@@ -45,7 +45,7 @@ public class UserNameAsPasswordValidator<TUser> : IPasswordValidator<TUser> wher
             throw new ArgumentNullException(nameof(password));
         }
         // If username is exactly the same with the password, then this is an error independently of the MaxAllowedUsernameSubset property.
-        if (user.UserName.Equals(password, StringComparison.InvariantCultureIgnoreCase)) {
+        if (user.UserName!.Equals(password!, StringComparison.InvariantCultureIgnoreCase)) {
             result = IdentityResult.Failed(new IdentityError {
                 Code = ErrorDescriber,
                 Description = _messageDescriber.PasswordIdenticalToUserName

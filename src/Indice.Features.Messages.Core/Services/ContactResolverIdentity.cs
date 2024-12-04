@@ -46,6 +46,9 @@ public class ContactResolverIdentity : IContactResolver
         queryString[nameof(ListOptions.Search)] = options.Search;
         queryString[nameof(ListOptions.Size)] = options.Size.ToString();
         queryString[nameof(ListOptions.Sort)] = options.Sort;
+        if (Options.HasCustomRecipientId) {
+            queryString["expandClaims"] = Options.UserClaimType;
+        }
         uriBuilder.Query = queryString.ToString();
         var response = await HttpClient.GetAsync($"/{uriBuilder}");
         response.EnsureSuccessStatusCode();
@@ -54,7 +57,7 @@ public class ContactResolverIdentity : IContactResolver
         return new ResultSet<Contact> {
             Count = identityUserList.Count,
             Items = identityUserList.Items.Select(identityUser => new Contact {
-                RecipientId = identityUser.Id,
+                RecipientId = Options.HasCustomRecipientId ? (identityUser.Claims?.FirstOrDefault()?.Value ?? identityUser.Id) : identityUser.Id,
                 Email = identityUser.Email,
                 PhoneNumber = identityUser.PhoneNumber,
                 FirstName = identityUser.FirstName,
@@ -128,6 +131,7 @@ public class ContactResolverIdentity : IContactResolver
         public string LastName { get; set; }
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
+        public IEnumerable<IdentityUserClaimResponse> Claims { get; set; } = new List<IdentityUserClaimResponse>();
     }
 
     private class IdentityUserClaimResponse

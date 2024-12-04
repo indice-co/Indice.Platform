@@ -9,41 +9,34 @@ using Indice.Serialization;
 using Indice.Features.Media.AspNetCore.Services.Hosting;
 using Microsoft.Extensions.Options;
 using Indice.Features.Media.AspNetCore.Services;
-using Indice.Configuration;
+using Microsoft.Extensions.Configuration;
+using SixLabors.ImageSharp;
+using Indice.Features.Media.AspNetCore.Data.Models;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Indice.Features.Media.AspNetCore;
 /// <summary>A manager class that helps work with the Media Library API infrastructure.</summary>
-public class MediaManager
+/// <remarks>Creates a new instance of <see cref="MediaManager"/>.</remarks>
+public class MediaManager(
+    IMediaFileStore fileStore,
+    IMediaFolderStore folderStore,
+    IMediaSettingService settingService,
+    IFileServiceFactory fileServiceFactory,
+    IDistributedCache cache,
+    IConfiguration configuration,
+    IOptions<MediaApiOptions> mediaApiOptions
+    )
 {
     private const string STRUCT_CACHE_KEY = "FOLDER_STRUCTURE";
     private const string CONTENT_CACHE_KEY = "FOLDER_CONTENT";
 
-    private readonly IMediaFileStore _fileStore;
-    private readonly IMediaFolderStore _folderStore;
-    private readonly IMediaSettingService _settingService;
-    private readonly IFileService _fileService;
-    private readonly IDistributedCache _cache;
-    private readonly MediaApiOptions _mediaApiOptions;
-    private readonly GeneralSettings _generalSettings;
-
-    /// <summary>Creates a new instance of <see cref="MediaManager"/>.</summary>
-    public MediaManager(
-        IMediaFileStore fileStore, 
-        IMediaFolderStore folderStore,
-        IMediaSettingService settingService,
-        IFileServiceFactory fileServiceFactory, 
-        IDistributedCache cache,
-        IOptions<MediaApiOptions> mediaApiOptions,
-        IOptions<GeneralSettings> generalSettings
-    ) {
-        _fileStore = fileStore ?? throw new ArgumentNullException(nameof(fileStore));
-        _folderStore = folderStore ?? throw new ArgumentNullException(nameof(folderStore));
-        _settingService = settingService ?? throw new ArgumentNullException(nameof(settingService));
-        _fileService = fileServiceFactory.Create(KeyedServiceNames.FileServiceKey) ?? throw new ArgumentNullException(nameof(fileServiceFactory));
-        _cache = cache ?? throw new ArgumentNullException(nameof(cache));
-        _mediaApiOptions = mediaApiOptions?.Value ?? throw new ArgumentNullException(nameof(mediaApiOptions));
-        _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
-    }
+    private readonly IMediaFileStore _fileStore = fileStore ?? throw new ArgumentNullException(nameof(fileStore));
+    private readonly IMediaFolderStore _folderStore = folderStore ?? throw new ArgumentNullException(nameof(folderStore));
+    private readonly IMediaSettingService _settingService = settingService ?? throw new ArgumentNullException(nameof(settingService));
+    private readonly IFileService _fileService = fileServiceFactory.Create(KeyedServiceNames.FileServiceKey) ?? throw new ArgumentNullException(nameof(fileServiceFactory));
+    private readonly IDistributedCache _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+    private readonly MediaApiOptions _mediaApiOptions = mediaApiOptions?.Value ?? throw new ArgumentNullException(nameof(mediaApiOptions));
+    private readonly IConfiguration _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
     /// <summary>Retrieves the content of a folder.</summary>
     /// <param name="folderId">The Id of the folder. Null value corresponds to Root folder.</param>
@@ -65,7 +58,7 @@ public class MediaManager
             return new FolderContent();
         }
         var pagedFolders = folderTree.GetChildren(page.Value, size.Value);
-        var pagedFoldersCount = pagedFolders.Count();
+        var pagedFoldersCount = pagedFolders.Count;
         var files = await ListFiles(folderId);
         var pagedFiles = new List<MediaFile>();
         if (pagedFoldersCount < size.Value) {
@@ -82,14 +75,16 @@ public class MediaManager
             TotalCount = files != null ? folderTree.TotalCount + files.Count : folderTree.TotalCount,
         };
     }
+
     /// <summary>Lists the all the existing folders.</summary>
     public async Task<List<MediaFolder>> ListFolders() {
         var dbFolders = await _folderStore.GetList(f => !f.IsDeleted);
         if (dbFolders == null) {
-            return new List<MediaFolder>();
+            return [];
         }
         return dbFolders.Select(f => f.ToFolder()).ToList();
     }
+
     /// <summary>Details about a folder.</summary>
     /// <param name="id">The Id of the folder.</param>
     public async Task<MediaFolder?> GetFolderById(Guid id) {
@@ -99,6 +94,7 @@ public class MediaManager
         }
         return dbFolder.ToFolder();
     }
+
     /// <summary>Retrieves a tree structure of folders.</summary>
     public async Task<FolderTreeStructure> GetFolderTreeStructure() {
         var serializationOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
@@ -113,6 +109,7 @@ public class MediaManager
         }
         return structure;
     }
+
     /// <summary>Creates a new folder.</summary>
     /// <param name="command">The command with the required details to create a new folder.</param>
     public async Task<Guid> CreateFolder(CreateFolderCommand command) {
@@ -123,26 +120,22 @@ public class MediaManager
         await _cache.RemoveAsync(cacheKey);
         return folderId;
     }
+
     /// <summary>Updates an existing folder.</summary>
     /// <param name="command">The command with the required details to update an existing folder.</param>
     public async Task UpdateFolder(UpdateFolderCommand command) {
-        var folder = await _folderStore.GetById(command.Id);
-        if (folder is null) {
-            throw MediaLibraryExceptions.FolderNotFound(command.Id);
-        }
+        var folder = await _folderStore.GetById(command.Id) ?? throw MediaLibraryExceptions.FolderNotFound(command.Id);
         folder.Update(command);
         await _folderStore.Update(folder);
         await _cache.RemoveAsync(STRUCT_CACHE_KEY);
         var cacheKey = $"{CONTENT_CACHE_KEY}_{(command.ParentId.HasValue ? command.ParentId.Value : "root")}";
         await _cache.RemoveAsync(cacheKey);
     }
+
     /// <summary>Marks an existing folder and the containing elements as deleted.</summary>
     /// <param name="id">The folder id.</param>
     public async Task DeleteFolder(Guid id) {
-        var folder = await _folderStore.GetById(id);
-        if (folder is null) {
-            throw MediaLibraryExceptions.FolderNotFound(id);
-        }
+        var folder = await _folderStore.GetById(id) ?? throw MediaLibraryExceptions.FolderNotFound(id);
         //await _folderService.Delete(id);
         var affectedFolderIds = new List<Guid>() { folder.Id };
         var structure = await GetFolderTreeStructure();
@@ -162,8 +155,8 @@ public class MediaManager
             var cacheKey = $"{CONTENT_CACHE_KEY}_{folderId}";
             await _cache.RemoveAsync(cacheKey);
         }
-        
     }
+
     /// <summary>Lists the all the existing files of a folder.</summary>
     public async Task<List<MediaFile>> ListFiles(Guid? folderId = null) {
         var cacheKey = $"{CONTENT_CACHE_KEY}_{(folderId.HasValue ? folderId.Value : "root")}";
@@ -171,12 +164,14 @@ public class MediaManager
         var files = await _cache.GetAsync<List<MediaFile>>(cacheKey, serializationOptions);
         if (files == null) {
             var dbfiles = await _fileStore.GetList(f => f.FolderId == folderId && !f.IsDeleted);
-            files = new List<MediaFile>();
+            files = [];
             if (dbfiles != null) {
                 var cdnUrl = await _settingService.GetSetting(MediaSetting.CDN.Key);
                 var permaLinkBaseUrl = string.IsNullOrWhiteSpace(cdnUrl?.Value)
-                    ? $"{_generalSettings.Host.TrimEnd('/')}/{_mediaApiOptions.ApiPrefix.ToString().Trim('/')}/media"
-                    : $"{cdnUrl.Value.TrimEnd('/')}";
+                    ? Path.Combine(_configuration.GetHost().TrimEnd('/'),
+                                   _mediaApiOptions.PathPrefix.ToString().Trim('/'),
+                                   "media-root").Replace('\\', '/')
+                    : cdnUrl.Value.TrimEnd('/');
                 files = dbfiles.Select(f => f.ToFileDetails(permaLinkBaseUrl)).ToList();
             }
             await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(files, serializationOptions), new DistributedCacheEntryOptions {
@@ -185,47 +180,47 @@ public class MediaManager
         }
         return files;
     }
-    /// <summary>Retrieves the details about a file.</summary>
-    /// <param name="id">The file id.</param>
-    /// <param name="includeData">Indicates if the details should contain the byte array of data.</param>
-    public async Task<MediaFile?> GetFileDetails(Guid id, bool? includeData) {
-        var file = await _fileStore.GetById(id);
-        if (file == null) {
-            return null;
-        }
-        if (includeData.HasValue && includeData.Value) {
-            var path = $"media/{file.Uri}";
-            var data = await _fileService.GetAsync(path);
-            if (data is null) {
-                return null;
-            }
-            file.Data = data;
-        }
-        var cdnUrl = await _settingService.GetSetting(MediaSetting.CDN.Key);
-        var permaLinkBaseUrl = string.IsNullOrWhiteSpace(cdnUrl?.Value)
-                    ? $"{_generalSettings.Host.TrimEnd('/')}/{_mediaApiOptions.ApiPrefix.ToString().Trim('/')}/media"
-                    : $"{cdnUrl.Value.TrimEnd('/')}";
-        return file.ToFileDetails(permaLinkBaseUrl);
-    }
+
     /// <summary>Uploads a file in the system.</summary>
     /// <param name="command">The command containing all the required data to upload a file.</param>
     public async Task<Guid> UploadFile(UploadFileCommand command) {
         var dbFile = Mapper.ToDbFile(command);
+        var fileId = await _fileStore.Create(dbFile);
         using (var stream = command.OpenReadStream()) {
-            await _fileService.SaveAsync($"media/{command.Uri}", stream);
+            await _fileService.SaveAsync($"media/{dbFile.Path.TrimStart('/')}", stream);
         }
         var cacheKey = $"{CONTENT_CACHE_KEY}_{(command.FolderId.HasValue ? command.FolderId.Value : "root")}";
         await _cache.RemoveAsync(cacheKey);
         await _cache.RemoveAsync(STRUCT_CACHE_KEY);
-        return await _fileStore.Create(dbFile);
+        return fileId;
     }
+
+    /// <summary>Uploads a file in the system.</summary>
+    /// <param name="commands">The command containing all the required data to upload a file.</param>
+    public async Task<List<Guid>> UploadFiles(List<UploadFileCommand> commands) {
+        var dbFiles = commands.Select(Mapper.ToDbFile).ToList();
+        var fileIds = await _fileStore.CreateMany(dbFiles);
+        var cacheKey = $"{CONTENT_CACHE_KEY}_";
+        var uploadTasks = new List<Task>();
+        for (var i = 0; i <  commands.Count; i++) {
+            var save = async () => {
+                using (var stream = commands[i].OpenReadStream()) {
+                    await _fileService.SaveAsync($"media/{dbFiles[i].Path.TrimStart('/')}", stream);
+                }
+            };
+            uploadTasks.Add(save());
+            cacheKey = $"{CONTENT_CACHE_KEY}_{(commands[i].FolderId.HasValue ? commands[i].FolderId!.Value : "root")}";
+        }
+        await Task.WhenAll(uploadTasks);
+        await _cache.RemoveAsync(cacheKey);
+        await _cache.RemoveAsync(STRUCT_CACHE_KEY);
+        return fileIds;
+    }
+
     /// <summary>Updates metadata about a file.</summary>
     /// <param name="command">The command containing all the required data to update a file.</param>
     public async Task UpdateFileMetadata(UpdateFileMetadataCommand command) {
-        var dbFile = await _fileStore.GetById(command.Id);
-        if (dbFile is null) {
-            throw MediaLibraryExceptions.FileNotFound(command.Id);
-        }
+        var dbFile = await _fileStore.GetById(command.Id) ?? throw MediaLibraryExceptions.FileNotFound(command.Id);
         if (dbFile.FolderId != command.FolderId) {
             var previousFolderCacheKy = $"{CONTENT_CACHE_KEY}_{(dbFile.FolderId.HasValue ? dbFile.FolderId.Value : "root")}";
             await _cache.RemoveAsync(previousFolderCacheKy);
@@ -236,6 +231,7 @@ public class MediaManager
         await _cache.RemoveAsync(cacheKey);
         await _cache.RemoveAsync(STRUCT_CACHE_KEY);
     }
+
     /// <summary>Marks an existing file as deleted.</summary>
     /// <param name="id">The file id.</param>
     public async Task DeleteFile(Guid id) {
@@ -249,6 +245,43 @@ public class MediaManager
         await _cache.RemoveAsync(cacheKey);
         await _cache.RemoveAsync(STRUCT_CACHE_KEY);
     }
+
+    /// <summary>Retrieves the details about a file.</summary>
+    /// <param name="path">The file location.</param>
+    /// <param name="includeData">Indicates if the details should contain the byte array of data.</param>
+    public async Task<MediaFile?> GetFileDetails(string path, bool? includeData) {
+        var file = await _fileStore.GetByPath(path);
+        return await GetFileDetailsInternal(file, includeData);
+    }
+
+
+    /// <summary>Retrieves the details about a file.</summary>
+    /// <param name="id">The file id.</param>
+    /// <param name="includeData">Indicates if the details should contain the byte array of data.</param>
+    public async Task<MediaFile?> GetFileDetails(Guid id, bool? includeData) {
+        var file = await _fileStore.GetById(id);
+        return await GetFileDetailsInternal(file, includeData);
+    }
+
+    private async Task<MediaFile?> GetFileDetailsInternal(DbMediaFile? file, bool? includeData) {
+        if (file == null) {
+            return null;
+        }
+        if (includeData.HasValue && includeData.Value) {
+            var path = $"media/{file.Path.TrimStart('/')}";
+            var data = await _fileService.GetAsync(path);
+            if (data is null) {
+                return null;
+            }
+            file.Data = data;
+        }
+        var cdnUrl = await _settingService.GetSetting(MediaSetting.CDN.Key);
+        var permaLinkBaseUrl = string.IsNullOrWhiteSpace(cdnUrl?.Value)
+                    ? $"{_configuration.GetHost().TrimEnd('/')}/{_mediaApiOptions.PathPrefix.ToString().Trim('/')}/media-root"
+                    : $"{cdnUrl.Value.TrimEnd('/')}";
+        return file.ToFileDetails(permaLinkBaseUrl);
+    }
+
     /// <summary>Deletes all files marked as deleted. Used by <see cref="FilesCleanUpHostedService"/></summary>
     internal async Task CleanUpFiles() {
         var deletedFiles = await _fileStore.GetList(f => f.IsDeleted);
@@ -256,11 +289,11 @@ public class MediaManager
             return;
         }
         foreach (var deletedFile in deletedFiles) {
-            var path = $"media/{deletedFile.Guid.ToString("N")[..2]}/{deletedFile.Guid:N}.{deletedFile.FileExtension.TrimStart('.')}";
-            await _fileService.DeleteAsync(path);
+            await _fileService.DeleteAsync(deletedFile.Path);
             await _fileStore.Delete(deletedFile.Id);
         }
     }
+
     /// <summary>Deletes all folders marked as deleted. Used by <see cref="FoldersCleanUpHostedService"/></summary>
     internal async Task CleanUpFolders() {
         var deletedFolders = await _folderStore.GetList(f => f.IsDeleted);

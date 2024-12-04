@@ -31,7 +31,7 @@ internal class CompleteRegistrationResponseGenerator : IResponseGenerator<Comple
         var device = validationResult.Device ?? new UserDevice(Guid.NewGuid()) {
             ClientType = DeviceClientType.Native,
             DateCreated = TimeProvider.GetUtcNow().UtcDateTime,
-            DeviceId = validationResult.DeviceId,
+            DeviceId = validationResult.DeviceId ?? string.Empty,
             IsPushNotificationsEnabled = false,
             Name = validationResult.DeviceName,
             Platform = validationResult.DevicePlatform,
@@ -42,18 +42,18 @@ internal class CompleteRegistrationResponseGenerator : IResponseGenerator<Comple
         IdentityResult result;
         switch (validationResult.InteractionMode) {
             case InteractionMode.Pin when validationResult.Device is null:
-                var password = DevicePasswordHasher.HashPassword(device, validationResult.Pin);
+                var password = DevicePasswordHasher.HashPassword(device, validationResult.Pin!);
                 device.Password = password;
-                result = await UserManager.CreateDeviceAsync(validationResult.User, device);
+                result = await UserManager.CreateDeviceAsync(validationResult.User!, device);
                 errors = result.Errors;
                 break;
             case InteractionMode.Pin when validationResult.Device is not null:
-                password = DevicePasswordHasher.HashPassword(device, validationResult.Pin);
+                password = DevicePasswordHasher.HashPassword(device, validationResult.Pin!);
                 await UserDeviceStore.UpdatePassword(device, password);
                 break;
             case InteractionMode.Fingerprint when validationResult.Device is null:
                 device.PublicKey = validationResult.PublicKey;
-                result = await UserManager.CreateDeviceAsync(validationResult.User, device);
+                result = await UserManager.CreateDeviceAsync(validationResult.User!, device);
                 errors = result.Errors;
                 break;
             case InteractionMode.Fingerprint when validationResult.Device is not null:

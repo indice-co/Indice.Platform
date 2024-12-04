@@ -54,7 +54,7 @@
             <time class="block mb-2 text-sm font-normal leading-none text-gray-400 dark:text-gray-500"><span
                       data-tooltip-target="tooltip-user"
                       title=" {{entry.createdBy?.email}}">
-                    {{entry.createdBy?.name}} </span> @ {{entry.timestamp
+                    {{entry.createdBy?.name}} </span> &#64; {{entry.timestamp
                 | date:'dd/MM/yy, HH:mm'}}
                 <div id="tooltip-user"
                      role="tooltip"
@@ -88,12 +88,12 @@
 
 <ng-template #publicStatus
              let-status="status">
-    <ng-container *ngIf="status !== null">
+    <ng-container *ngIf="status !== null && !hideStatuses">
         <span [ngClass]="{
             'bg-blue-100 text-blue-800 rounded dark:bg-blue-200 dark:text-blue-800': status === 'Submitted',
             'bg-yellow-100 text-yellow-800 dark:bg-yellow-200 dark:text-yellow-900': status === 'InProgress',
             'bg-green-100 text-green-800 dark:bg-green-200 dark:text-green-900': status === 'Completed',
-            'bg-red-100 text-red-800 dark:bg-red-200 dark:text-red-900': status === 'Deleted'            
+            'bg-red-100 text-red-800 dark:bg-red-200 dark:text-red-900': status === 'Deleted'
         }"
               class="ml-2 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded"
               data-tooltip-target="tooltip-public-status"

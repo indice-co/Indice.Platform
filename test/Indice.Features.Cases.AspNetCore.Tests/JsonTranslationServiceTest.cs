@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
-using Indice.Features.Cases.Interfaces;
-using Indice.Features.Cases.Services;
+using Indice.Features.Cases.Core.Services;
+using Indice.Features.Cases.Core.Services.Abstractions;
 using Microsoft.Extensions.Configuration;
 
 namespace Indice.Features.Cases.Tests;

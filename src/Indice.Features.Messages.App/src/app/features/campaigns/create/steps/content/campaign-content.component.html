@@ -21,7 +21,7 @@
                             <div class="text-base font-medium text-gray-900" aria-hidden="true">
                                 Κανάλια επικοινωνίας (*)
                             </div>
-                            <label for="campaignType" class="field-label hidden" aria-hidden="true">
+                            <label for="campaignType" class="hidden" aria-hidden="true">
                                 Κανάλια επικοινωνίας (*)
                             </label>
                             <div class="grid grid-cols-2 gap-4">
@@ -54,7 +54,7 @@
                         </fieldset>
                     </div>
                 </lib-tab>
-                <lib-tab [labelText]="channelsState[contentForm.value.channel].name"
+                <lib-tab [labelText]="getChannelState(contentForm.value.channel).name"
                     *ngFor="let contentForm of channelsContent.controls; let i = index">
                     <ng-container
                         *ngTemplateOutlet="contentTemplate; context: { $implicit: contentForm }"></ng-container>
@@ -67,13 +67,23 @@
                 <fieldset>
                     <legend class="sr-only">Μεταδεδομένα</legend>
                     <div class="text-base font-medium text-gray-900" aria-hidden="true">Μεταδεδομένα</div>
-                    <label for="campaignMetadata" class="field-label hidden" aria-hidden="true">Μεταδεδομένα</label>
+                    <label for="campaignMetadata" class="hidden" aria-hidden="true">Μεταδεδομένα</label>
                     <div class="mt-1 flex rounded-sm">
-                        <textarea id="campaignMetadata" name="campaignMetadata" formControlName="data" rows="6"
-                            (input)="onCampaignMetadataInput($event)"
-                            placeholder="Επιπρόσθετα δεδομένα της καμπάνιας σε JSON μορφή" class="code-editor"
-                            [ngModel]="data.value">
-                        </textarea>
+                      <code-editor #campaignMetadata
+                                   name="campaignMetadata"
+                                   [style.height]="'50vh'"
+                                   class="code-editor-ritch w-full"
+                                   formControlName="data"
+                                   (ngModelChange)="onCampaignMetadataInput($event)"
+                                   [theme]="'dark'"
+                                   [setup]="'basic'"
+                                   [placeholder]="'Επιπρόσθετα δεδομένα της καμπάνιας σε JSON μορφή'"
+                                   [indentWithTab]="false"
+                                   [indentUnit]="''"
+                                   [lineWrapping]="true"
+                                   [highlightWhitespace]="false"
+                                   [language]="'json'"
+                                   [languages]="languages" />
                     </div>
                     <p *ngIf="data.invalid && (data.dirty || data.touched)" class="mt-2 text-sm text-red-600">
                         <span *ngIf="data.errors && data.errors['invalidJson']">Η μορφή του JSON δεν είναι
@@ -86,8 +96,7 @@
                 <fieldset>
                     <legend class="sr-only">Δεδομένα μηνύματος</legend>
                     <div class="text-base font-medium text-gray-900" aria-hidden="true">Δεδομένα μηνύματος</div>
-                    <label for="campaignSamplePayload" class="field-label hidden" aria-hidden="true">Δεδομένα
-                        μηνύματος</label>
+                    <label for="campaignSamplePayload" class="hidden" aria-hidden="true">Δεδομένα μηνύματος</label>
                     <div class="mt-2 flex rounded-sm border">
                         <pre>
                             <code [highlight]="samplePayload | json" 
@@ -111,7 +120,7 @@
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <div class="col-span-2 sm:col-span-1">
-                    <label for="sender" class="field-label hidden" aria-hidden="true">
+                    <label for="sender" class="hidden" aria-hidden="true">
                         Αποστολέας (*)
                     </label>
                     <lib-local-drop-down-menu id="messageSender" name="messageSender" class="w-full"
@@ -128,11 +137,12 @@
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <div class="col-span-2 sm:col-span-1">
-                    <label for="subject" class="field-label hidden" aria-hidden="true">
+                    <label for="subject" class="hidden" aria-hidden="true">
                         Θέμα (*)
                     </label>
                     <div class="mt-1 flex rounded-sm col-span-3">
-                        <input type="text" name="subject" id="subject" formControlName="subject"
+                        <input class="w-full"
+                            type="text" name="subject" id="subject" formControlName="subject"
                             placeholder="Το θέμα του μήνυματος" (input)="onSubjectInput(contentForm)">
                     </div>
                     <p *ngIf="contentForm.controls['subject'].invalid && (contentForm.controls['subject'].dirty || contentForm.controls['subject'].touched)"
@@ -142,7 +152,7 @@
                     </p>
                 </div>
                 <div class="mt-1 col-span-2 sm:col-span-1 border border-dashed">
-                    <label class="field-label hidden" aria-hidden="true">
+                    <label class="hidden" aria-hidden="true">
                         Προεπισκόπηση
                     </label>
                     <div class="flex rounded-sm col-span-3">
@@ -158,59 +168,50 @@
                     Σώμα (*)
                 </div>
             </div>
-            <ng-container *ngIf="enableRichTextEditor && (contentForm.controls['channel'].value === 'email' || contentForm.controls['channel'].value === 'inbox')">
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="col-span-2">
-                        <label for="body" class="field-label hidden" aria-hidden="true">
-                            Σώμα (*)
-                        </label>
-                        <textarea [id]="'tinymce-editor-'+contentForm.controls['channel'].value" name="body" formControlName="body" class="code-editor tinymce-editor"
-                                placeholder="Το σώμα του μηνύματος" style="height: 50vh;"
-                                (input)="onBodyInput(contentForm)">
-                        </textarea>
-                        <p *ngIf="contentForm.controls['body'].invalid && (contentForm.controls['body'].dirty || contentForm.controls['body'].touched)"
-                            class="mt-2 text-sm text-red-600">
-                            <span *ngIf="contentForm.controls['body'].errors!['required']">Παρακαλώ συμπληρώστε το σώμα του
-                                μηνύματος.</span>
-                        </p>
-                    </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="col-span-2 md:col-span-1">
+                <label for="body" class="hidden" aria-hidden="true">
+                  Σώμα (*)
+                </label>
+                <code-editor [id]="'codemirror-editor-'+contentForm.controls['channel'].value"
+                              [style.height]="'50vh'"
+                              class="code-editor-ritch w-full"
+                              formControlName="body"
+                              (ngModelChange)="onBodyInputValue($event)"
+                              [theme]="'dark'"
+                              [setup]="'basic'"
+                              [placeholder]="'Το σώμα του μηνύματος'"
+                              [indentWithTab]="false"
+                              [indentUnit]="''"
+                              [lineWrapping]="true"
+                              [highlightWhitespace]="false"
+                              [language]="'html'"
+                              [languages]="languages" />
+                <p *ngIf="contentForm.controls['body'].invalid && (contentForm.controls['body'].dirty || contentForm.controls['body'].touched)"
+                    class="mt-2 text-sm text-red-600">
+                  <span *ngIf="contentForm.controls['body'].errors!['required']">
+                    Παρακαλώ συμπληρώστε το σώμα του
+                    μηνύματος.
+                  </span>
+                </p>
+              </div>
+              <div class="mt-2 col-span-2 sm:col-span-1 border border-dashed">
+                <label class="hidden" aria-hidden="true">
+                  Προεπισκόπηση
+                </label>
+                <div class="flex rounded-sm col-span-3">
+                  <iframe class="w-full" [srcdoc]="bodyPreview | safe: 'html'" style="height: 50vh;">
+                  </iframe>
                 </div>
-            </ng-container>
-            <ng-container *ngIf="!enableRichTextEditor || (contentForm.controls['channel'].value !== 'email' && contentForm.controls['channel'].value !== 'inbox')">
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="col-span-2 md:col-span-1">
-                        <label for="body" class="field-label hidden" aria-hidden="true">
-                            Σώμα (*)
-                        </label>
-                        <div class="mt-1 flex rounded-sm col-span-3">
-                            <textarea [id]="'tinymce-editor-'+contentForm.controls['channel'].value" name="body" formControlName="body" class="code-editor" 
-                                placeholder="Το σώμα του μηνύματος" style="height: 50vh;"
-                                (input)="onBodyInput(contentForm)">
-                            </textarea>
-                        </div>
-                        <p *ngIf="contentForm.controls['body'].invalid && (contentForm.controls['body'].dirty || contentForm.controls['body'].touched)"
-                            class="mt-2 text-sm text-red-600">
-                            <span *ngIf="contentForm.controls['body'].errors!['required']">Παρακαλώ συμπληρώστε το σώμα του
-                                μηνύματος.</span>
-                        </p>
-                    </div>
-                    <div class="mt-2 col-span-2 sm:col-span-1 border border-dashed">
-                        <label class="field-label hidden" aria-hidden="true">
-                            Προεπισκόπηση
-                        </label>
-                        <div class="flex rounded-sm col-span-3">
-                            <iframe class="w-full" [srcdoc]="bodyPreview | safe: 'html'" style="height: 50vh;">
-                            </iframe>
-                        </div>
-                    </div>
-                </div>
-            </ng-container>
+              </div>
+            </div>
+           
         </fieldset>
     </div>
 </ng-template>
 
-<lib-side-pane #rightPane [visible]="showSidePane">
-    <div class="side-view-layout-container h-screen">
+<lib-side-pane #rightPane>
+    <div class="side-view-layout-container">
         <div class="side-view-layout-container-inner">
             <div class="side-view-layout-header-margins">
                 <div class="side-view-layout-header-container">

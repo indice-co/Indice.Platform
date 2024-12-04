@@ -22,7 +22,7 @@
                 <span asp-validation-for="Input.Email" class="text-danger"></span>
             </div>
             <div class="row justify-items-center place-items-center">
-                <div class="@(tempData.DisableForm ? "col-span-6" : "col-span-12" ) flex flex-col">
+                <div indice-if="Model.UiOptions.ShowAddEmailPrompt" class="@(tempData.DisableForm ? "col-span-6" : "col-span-12" ) flex flex-col">
                     <button class="btn btn-primary" type="submit" disabled="@tempData.DisableForm">@Localizer["Save"]</button>
                 </div>
                 @if (tempData.DisableForm || !string.IsNullOrEmpty(tempData.NextStepUrl))

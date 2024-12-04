@@ -1,5 +1,4 @@
-﻿using Indice.Features.Cases;
-using Indice.Features.Cases.Server.Endpoints;
+﻿using Indice.Features.Cases.Server.Endpoints;
 using Indice.Features.Cases.Server.Options;
 using Indice.Security;
 using Indice.Types;
@@ -19,16 +18,16 @@ public static class MyCasesApi
     /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     public static IEndpointRouteBuilder MapMyCases(this IEndpointRouteBuilder routes) {
         CaseServerEndpointOptions options = routes.ServiceProvider.GetRequiredService<IOptions<CaseServerEndpointOptions>>().Value;
-        var group = routes.MapGroup($"{options.ApiPrefix}/my/case-types");
+        var group = routes.MapGroup($"{options.PathPrefix}/my/case-types");
         group.WithTags("MyCases");
         group.WithGroupName(options.GroupName);
         // Add security requirements, all incoming requests to this API *must* be authenticated with a valid user.
-        var allowedScopes = new[] { options.ApiScope }.Where(x => x != null).Cast<string>().ToArray();
+        var allowedScopes = new[] { options.Scope }.Where(x => x != null).Cast<string>().ToArray();
         group.RequireAuthorization(policy => policy
              .RequireAuthenticatedUser()
-             .AddAuthenticationSchemes(CasesApiConstants.AuthenticationScheme)
+             .AddAuthenticationSchemes("Bearer")
              .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-        ).RequireAuthorization(CasesApiConstants.Policies.BeCasesUser);
+        ).RequireAuthorization("BeCasesUser");
 
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)

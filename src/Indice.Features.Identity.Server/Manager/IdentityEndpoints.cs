@@ -47,6 +47,8 @@ public static partial class IdentityEndpoints
         public const string PublicRegistration = nameof(PublicRegistration);
         /// <summary>Enables API for public registration API.</summary>
         public const string DashboardMetrics = nameof(DashboardMetrics);
+        /// <summary>Enables API for public registration API.</summary>
+        public const string RssFeed = nameof(RssFeed);
     }
 
     /// <summary>Rate limiting config for Identity Server API.</summary>
@@ -59,10 +61,11 @@ public static partial class IdentityEndpoints
             "account/username-exists",
             "account/validate-password",
             "totp",
-            "account/calling-codes"
+            "account/calling-codes",
+            "my/account/picture"
         };
 
-        public static class Policies 
+        public static class Policies
         {
             public static readonly string ForgotPassword = Endpoints[0];
             public static readonly string ForgotPasswordConfirmation = Endpoints[1];
@@ -71,6 +74,8 @@ public static partial class IdentityEndpoints
             public static readonly string ValidatePassword = Endpoints[4];
             public static readonly string Totp = Endpoints[5];
             public static readonly string CallingCodes = Endpoints[6];
+            public static readonly string UploadPicture = Endpoints[7];
+            
         }
     }
 }

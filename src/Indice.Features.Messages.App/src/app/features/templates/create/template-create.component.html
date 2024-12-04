@@ -26,11 +26,12 @@
                                             Όνομα (*)
                                         </div>
                                         <label for="templateName"
-                                               class="field-label hidden">
+                                               class="hidden">
                                             Όνομα (*)
                                         </label>
                                         <div class="mt-1 flex rounded-sm">
-                                            <input type="text"
+                                            <input class="w-full"
+                                                   type="text"
                                                    id="templateName"
                                                    name="templateName"
                                                    [(ngModel)]="template.name"
@@ -46,7 +47,7 @@
                                     </fieldset>
                                 </form>
                             </div>
-                            <app-campaign-content [additionalData]="basicInfoData"
+                            <app-campaign-content [data]="basicInfoData"
                                                   [content]="content"
                                                   #templateContent>
                             </app-campaign-content>

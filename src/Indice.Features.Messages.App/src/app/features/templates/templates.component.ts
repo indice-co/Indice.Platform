@@ -31,7 +31,7 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
     public newItemLink: string | null = null;
     public full = true;
 
-    public ngOnInit(): void {
+    public override ngOnInit(): void {
         super.ngOnInit();
         this.actions.push(new RouterViewAction(Icons.Add, 'templates/add-template', null, null));
     }
@@ -62,7 +62,7 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
         });
     }
 
-    public actionHandler(action: ViewAction): void {
+    public override actionHandler(action: ViewAction): void {
         if (action.icon === Icons.Refresh) {
             this.search = '';
             this.refresh();

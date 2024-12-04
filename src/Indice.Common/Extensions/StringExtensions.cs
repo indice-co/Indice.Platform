@@ -1,11 +1,14 @@
-﻿using System.Globalization;
+﻿#nullable enable
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Indice.Extensions;
 
 /// <summary>Extensions methods on <see cref="string"/> type.</summary>
-public static class StringExtensions
+public static partial class StringExtensions
 {
     /// <summary>Gets a random string. Nice for password generation.</summary>
     /// <param name="random">Instance of <see cref="Random"/> type.</param>
@@ -48,17 +51,28 @@ public static class StringExtensions
     }
 
     /// <summary>Converts a string to kebab case.</summary>
-    /// <param name="value">The string to kebaberize.</param>
-    public static string ToKebabCase(this string value) {
+    /// <param name="input">The string to kebaberize.</param>
+    public static string ToKebabCase(this string input) {
         // Find and replace all parts that starts with one capital letter e.g. Net
-        value = Regex.Replace(value, "[A-Z][a-z]+", m => $"-{m.ToString().ToLower()}");
-        // Find and replace all parts that are all capital letter e.g. NET
-        value = Regex.Replace(value, "[A-Z]+", m => $"-{m.ToString().ToLower()}");
+        var value = WordsRegex().Replace(input, m => { 
+            var sb = new StringBuilder();
+            sb.Append(m.Groups["delimiter"].Success ? m.Groups["delimiter"].Value : "-"); 
+            sb.Append(m.Groups["word"].Value.ToLower());
+            return sb.ToString();
+        });
+        
         // Return.
         return value.TrimStart('-');
     }
 
-#if !NETSTANDARD14
+
+    [StringSyntax("Regex")]
+    internal const string WordsRegexPattern = @"(?<delimiter>[/\\-])|(?<separator>[^A-Za-z0-9.]*)?(?<word>([A-Z]?[a-z0-9.]+)|([A-Z][A-Z0-9.]*))[^A-Za-z0-9.]*";
+
+    /// <summary>Match all parts of a sentence that start with one capital letter e.g. Net</summary>
+    [GeneratedRegex(WordsRegexPattern)]
+    private static partial Regex WordsRegex();
+
     /// <summary>Removes accent but keeps encoding.</summary>
     /// <param name="input">The string to manipulate.</param>
     public static string RemoveDiacritics(this string input) {
@@ -72,5 +86,21 @@ public static class StringExtensions
         }
         return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
     }
-#endif
+
+    /// <summary>
+    /// Creates a SHA256 hash of the specified input.
+    /// </summary>
+    /// <param name="input">The input.</param>
+    /// <param name="encoding">How to interpret the string when converting to bytes. Defaults to <see cref="ASCIIEncoding"/></param>
+    /// <returns>A hash</returns>
+    public static string ToSha256Hex(this string input, Encoding? encoding = null) => ToSha256Hex((encoding ?? Encoding.ASCII).GetBytes(input));
+
+    /// <summary>
+    /// Creates a SHA256 hash of the specified input.
+    /// </summary>
+    /// <param name="input">The input.</param>
+    /// <returns>A hash</returns>
+    public static string ToSha256Hex(this byte[] input) => string.Join("", SHA256.HashData(input).Select(x => $"{x:x2}"));
+
 }
+#nullable disable

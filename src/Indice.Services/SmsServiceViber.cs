@@ -24,7 +24,7 @@ public class SmsServiceViber : ISmsService
     protected ILogger<SmsServiceYuboto> Logger { get; }
 
     /// <inheritdoc/>
-    public Task SendAsync(string destination, string subject, string body, SmsSender sender = null) => throw new NotImplementedException();
+    public Task<SendReceipt> SendAsync(string destination, string subject, string body, SmsSender sender = null) => throw new NotImplementedException();
 
     /// <inheritdoc/>
     public bool Supports(string deliveryChannel) => "Viber".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase);

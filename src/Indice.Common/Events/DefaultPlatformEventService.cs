@@ -22,14 +22,14 @@ public class DefaultPlatformEventService : IPlatformEventService
     public async Task Publish(IPlatformEvent @event) {
         using var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
         var type = typeof(IPlatformEventHandler<>).MakeGenericType(@event.GetType());
-        var handleMethod = type.GetMethod(nameof(IPlatformEventHandler<IPlatformEvent>.Handle));
+        var handleMethod = type.GetMethod(nameof(IPlatformEventHandler<IPlatformEvent>.Handle))!;
         var handlers = serviceScope.ServiceProvider.GetService(typeof(IEnumerable<>).MakeGenericType(type)) as IEnumerable;
         handlers ??= Enumerable.Empty<IPlatformEventHandler<IPlatformEvent>>();
 
         foreach (var handler in handlers) {
             var args = new PlatformEventArgs();
             try {
-                await (Task)handleMethod.Invoke(handler, [@event, args]);
+                await (Task)handleMethod.Invoke(handler, [@event, args])!;
             } catch (Exception ex) {
                 if (args.ThrowOnError) {
                     throw;

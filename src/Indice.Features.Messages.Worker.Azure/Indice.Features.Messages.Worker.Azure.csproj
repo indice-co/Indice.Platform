@@ -1,21 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Package">
+	  <Nullable>disable</Nullable>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AzureFunctions;CampaignManagement;Workers;Cloud</PackageTags>
     <VersionPrefix>$(VersionPrefixMessages)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Features.Messages.Core" Version="$(VersionPrefixMessages)" />
-    <PackageReference Include="Indice.Features.Multitenancy.Worker.Azure" Version="$(VersionPrefixMultitenancy)" />
+    <PackageReference Include="Indice.Features.Messages.Core" Version="$(VersionPrefixMessages)-*" />
+    <PackageReference Include="Indice.Features.Multitenancy.Worker.Azure" Version="$(VersionPrefixMultitenancy)-*" />
     <PackageReference Include="Indice.Services" Version="$(VersionPrefixCore)" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Core" Version="1.16.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Storage.Queues" Version="5.2.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Core" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Storage.Queues" Version="5.5.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Features.Messages.Core\Indice.Features.Messages.Core.csproj" />

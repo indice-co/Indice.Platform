@@ -25,7 +25,7 @@ export class ClaimTypeEditComponent implements OnInit {
 
     public ngOnInit(): void {
         this.canEditClaimType = this._authService.isAdminUIUsersWriter() || this._authService.isAdminUIClientsWriter();
-        this.claimType = this._route.snapshot.data.claimType;
+        this.claimType = this._route.snapshot.data['claimType'];
         this.claimValueType = this.claimType.valueType;
         for (const type in ClaimValueType) {
             if (type) {

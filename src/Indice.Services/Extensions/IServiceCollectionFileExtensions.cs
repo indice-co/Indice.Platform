@@ -5,7 +5,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
-/// <summary>Extensions on the <see cref="ServiceCollection"/> around <see cref="IFileService"/>.</summary>
+/// <summary>Extensions on the <see cref="IServiceCollection"/> around <see cref="IFileService"/>.</summary>
 public static class IServiceCollectionFileExtensions
 {
     /// <summary>Adds <see cref="IFileService"/> using Azure Blob Storage as the backing store.</summary>

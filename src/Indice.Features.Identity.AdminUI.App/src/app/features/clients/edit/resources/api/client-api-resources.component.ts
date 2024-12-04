@@ -37,7 +37,7 @@ export class ClientApiResourcesComponent implements OnInit, OnDestroy {
             { prop: 'name', name: 'Name', draggable: false, canAutoResize: true, sortable: true, resizeable: true },
             { prop: 'description', name: 'Description', draggable: false, canAutoResize: true, sortable: true, resizeable: true }
         ];
-        this.clientId = this._route.parent.parent.snapshot.params.id;
+        this.clientId = this._route.parent.parent.snapshot.params['id'];
         const getClient = this._clientStore.getClient(this.clientId);
         const getApiScopes = this._clientStore.getApiScopes();
         this._getDataSubscription = forkJoin([getClient, getApiScopes]).pipe(map((responses: [SingleClientInfo, ApiResourceInfo[]]) => {

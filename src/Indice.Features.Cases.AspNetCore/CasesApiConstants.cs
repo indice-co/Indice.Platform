@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using Indice.Features.Cases.Interfaces;
 
 namespace Indice.Features.Cases;
 
@@ -21,7 +20,7 @@ public static class CasesApiConstants
     /// <summary>Default database schema.</summary>
     public const string DatabaseSchema = "case";
 
-    /// <summary>The default language key that will be used at <see cref="IJsonTranslationService"/>.</summary>
+    /// <summary>The default language key that will be used at to translate data.</summary>
     public static string DefaultTranslationLanguage = "el";
 
     /// <summary>The default groupId claim type.</summary>
@@ -32,9 +31,6 @@ public static class CasesApiConstants
 
     /// <summary>The default name for the ReferenceNumber sequence.</summary>
     public const string ReferenceNumberSequence = "ReferenceNumberSequence";
-
-    /// <summary>The default permitted file extensions to check when uploading an attachment to an existing case.</summary>
-    public static IReadOnlyCollection<string> DefaultPermittedAttachmentFileExtensions = new HashSet<string> { ".pdf", ".jpeg", ".jpg", ".tif", ".tiff" };
 
     /// <summary>Cases API policies.</summary>
     public static class Policies

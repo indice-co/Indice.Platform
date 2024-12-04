@@ -30,7 +30,7 @@ public static class ExtendedIdentityDbContextExtensions
     /// <typeparam name="TRole">The type of role.</typeparam>
     /// <param name="dbContext">An extended <see cref="DbContext"/> for the Identity framework.</param>
     /// <param name="seedOptions">Seed options to customize initial load of users and roles</param>
-    public static void SeedInitialData<TUser, TRole>(this ExtendedIdentityDbContext<TUser, TRole> dbContext, ExtendedIdentityDbContextSeedOptions<TUser, TRole> seedOptions = null)
+    public static void SeedInitialData<TUser, TRole>(this ExtendedIdentityDbContext<TUser, TRole> dbContext, ExtendedIdentityDbContextSeedOptions<TUser, TRole>? seedOptions = null)
         where TUser : User, new()
         where TRole : Role, new() {
         if (!dbContext.Database.CanConnect()) {
@@ -57,8 +57,8 @@ public static class ExtendedIdentityDbContextExtensions
             if (seedOptions?.InitialUsers?.Any() != true ||
                 !seedOptions.InitialUsers.Any(
                     x => x.Id == adminId ||
-                    x.UserName.Equals(adminEmail, StringComparison.OrdinalIgnoreCase) ||
-                    x.Email.Equals(adminEmail, StringComparison.OrdinalIgnoreCase)
+                    x.UserName!.Equals(adminEmail, StringComparison.OrdinalIgnoreCase) ||
+                    x.Email!.Equals(adminEmail, StringComparison.OrdinalIgnoreCase)
                 )
             ) {
                 // Admin not seeded externally through initial users! Create admin now.

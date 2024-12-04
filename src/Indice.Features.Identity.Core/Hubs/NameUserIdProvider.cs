@@ -7,5 +7,5 @@ namespace Indice.Features.Identity.Core.Hubs;
 public class NameUserIdProvider : IUserIdProvider
 {
     /// <inheritdoc />
-    public string GetUserId(HubConnectionContext connection) => connection.User?.FindFirst(JwtClaimTypes.Name)?.Value;
+    public string? GetUserId(HubConnectionContext connection) => connection.User?.FindFirst(JwtClaimTypes.Name)?.Value;
 }

@@ -11,7 +11,7 @@ public class SingleUserInfo : BasicUserInfo
     /// <summary>The names of the roles that the user belongs to.</summary>
     public List<string> Roles { get; set; } = new List<string>();
     /// <summary>User metadata expressed as claims.</summary>
-    public IEnumerable<ClaimInfo> Claims { get; set; } = new List<ClaimInfo>();
+    public List<ClaimInfo> Claims { get; set; } = new List<ClaimInfo>();
 
     /// <summary>Creates a new instance of <see cref="SingleUserInfo"/> from a <see cref="User"/> object.</summary>
     /// <param name="user">The user instance.</param>
@@ -80,6 +80,8 @@ public class UserInfo : BasicUserInfo
     public string? FirstName { get; set; }
     /// <summary>User's last name.</summary>
     public string? LastName { get; set; }
+    /// <summary>User metadata expressed as claims.</summary>
+    public List<BasicClaimInfo> Claims { get; set; } = new List<BasicClaimInfo>();
 }
 
 /// <summary>Extension methods that are used to convert from <see cref="User"/> type to other DTOs.</summary>
@@ -117,7 +119,7 @@ public static class UserExtensions
             Id = x.Id,
             Type = x.ClaimType,
             Value = x.ClaimValue
-        }),
+        }).ToList(),
         CreateDate = user.CreateDate,
         Email = user.Email,
         EmailConfirmed = user.EmailConfirmed,

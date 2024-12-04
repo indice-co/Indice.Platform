@@ -29,7 +29,7 @@ public static class RedirectContextExtensions
                 default:
                     break;
             }
-            context.RedirectUri = QueryHelpers.AddQueryString(context.RedirectUri, promptKey, prompt);
+            context.RedirectUri = QueryHelpers.AddQueryString(context.RedirectUri, promptKey, prompt!);
         }
         context.Response.Redirect(context.RedirectUri);
         return Task.CompletedTask;

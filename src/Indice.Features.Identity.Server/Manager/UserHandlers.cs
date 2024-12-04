@@ -22,10 +22,11 @@ namespace Indice.Features.Identity.Server.Manager;
 
 internal static class UserHandlers
 {
-    internal static async Task<Ok<ResultSet<UserInfo>>> GetUsers(
+    internal static async Task<Results<Ok<ResultSet<UserInfo>>, ValidationProblem>> GetUsers(
         ExtendedIdentityDbContext<User, Role> dbContext,
         [AsParameters] ListOptions options,
-        [AsParameters] UserListFilter filter
+        [AsParameters] UserListFilter filter,
+        string[]? expandClaims
     ) {
         var query = dbContext.Users.AsNoTracking();
         if (filter != null) {
@@ -62,6 +63,47 @@ internal static class UserHandlers
                 LastSignInDate = user.LastSignInDate,
                 PasswordExpirationDate = user.PasswordExpirationDate
             };
+        if (expandClaims?.Length > 3) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(expandClaims), "Cannot expand more than three claim types"));
+        }
+        foreach (var claimType in expandClaims ?? []) {
+            if (string.IsNullOrWhiteSpace(claimType)) {
+                continue;
+            }
+            usersQuery =
+                from user in usersQuery
+                join ctl in dbContext.UserClaims
+                on new { user.Id, ClaimType = claimType }
+                equals new { Id = ctl.UserId, ctl.ClaimType } into ctLeft
+                from ct in ctLeft.DefaultIfEmpty()
+                select new UserInfo {
+                    Id = user.Id,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Email = user.Email,
+                    EmailConfirmed = user.EmailConfirmed,
+                    PhoneNumber = user.PhoneNumber,
+                    PhoneNumberConfirmed = user.PhoneNumberConfirmed,
+                    UserName = user.UserName,
+                    CreateDate = user.CreateDate,
+                    LockoutEnabled = user.LockoutEnabled,
+                    LockoutEnd = user.LockoutEnd,
+                    TwoFactorEnabled = user.TwoFactorEnabled,
+                    Blocked = user.Blocked,
+                    PasswordExpirationPolicy = user.PasswordExpirationPolicy,
+                    IsAdmin = user.IsAdmin,
+                    AccessFailedCount = user.AccessFailedCount,
+                    LastSignInDate = user.LastSignInDate,
+                    PasswordExpirationDate = user.PasswordExpirationDate,
+                    Claims = ct == null ? user.Claims : user.Claims.Concat(new List<BasicClaimInfo> {
+                        new() {
+                            Type = claimType,
+                            Value = ct.ClaimValue
+                        }
+                    }).ToList()
+                };
+        }
+
         if (options?.Search?.Length > 2) {
             var userSearchFilterExpression = await IdentityDbContextOptions.UserSearchFilter(dbContext, options.Search);
             usersQuery = usersQuery.Where(userSearchFilterExpression);
@@ -131,6 +173,7 @@ internal static class UserHandlers
 
     internal static async Task<Results<CreatedAtRoute<SingleUserInfo>, ValidationProblem>> CreateUser(
         ExtendedUserManager<User> userManager,
+        ExtendedIdentityDbContext<User, Role> identityDbContext,
         CreateUserRequest request
     ) {
         var user = new User {
@@ -142,9 +185,38 @@ internal static class UserHandlers
             PhoneNumber = request.PhoneNumber,
             PhoneNumberConfirmed = request.PhoneNumberConfirmed ?? false,
             TwoFactorEnabled = request.TwoFactorEnabled ?? false,
-            UserName = request.UserName
+            UserName = request.UserName,
         };
         IdentityResult? result = null;
+        var allRoles = new List<Role>();
+        if (request.Roles?.Count > 0) {
+            // check role existance.
+            allRoles = await identityDbContext.Roles.ToListAsync();
+            var unknownRoles = request.Roles.Except(allRoles.Select(x => x.Name), StringComparer.OrdinalIgnoreCase).ToList();
+            if (unknownRoles.Count > 0) {
+                return TypedResults.ValidationProblem(ValidationErrors.Create().AddError("roles", $"Invalid role(s) names: {string.Join(", ", unknownRoles.Select(x => $"'{x}'"))}"));
+            }
+            // add roles to user before sending down to user manager.
+            // avoid multiple roundtript to db this way.
+            allRoles.FindAll(r => request.Roles.Contains(r.NormalizedName, StringComparer.OrdinalIgnoreCase))
+                    .ForEach(r => user.Roles.Add(new() { UserId = user.Id, RoleId = r.Id }));
+        }
+
+        // handle claims addition
+        var claims = request.Claims?.Count > 0 ? request.Claims.Where(x => x.Type != JwtClaimTypes.GivenName &&
+                                                                           x.Type != JwtClaimTypes.FamilyName)
+                                                               .Select(x => new Claim(x.Type!, x.Value!))
+                                                               .ToList() : [];
+        if (!string.IsNullOrEmpty(request.FirstName)) {
+            claims.Add(new Claim(JwtClaimTypes.GivenName, request.FirstName));
+        }
+        if (!string.IsNullOrEmpty(request.LastName)) {
+            claims.Add(new Claim(JwtClaimTypes.FamilyName, request.LastName));
+        }
+        if (claims.Any()) {
+            claims.ForEach(c => user.Claims.Add(new() { ClaimType = c.Type, ClaimValue = c.Value, UserId = user.Id }));
+        }
+
         if (string.IsNullOrEmpty(request.Password)) {
             result = await userManager.CreateAsync(user);
         } else {
@@ -156,17 +228,10 @@ internal static class UserHandlers
         if (request.ChangePasswordAfterFirstSignIn.HasValue && request.ChangePasswordAfterFirstSignIn.Value == true) {
             await userManager.SetPasswordExpiredAsync(user, true);
         }
-        var claims = request.Claims?.Count() > 0 ? request.Claims.Select(x => new Claim(x.Type!, x.Value!)).ToList() : new List<Claim>();
-        if (!string.IsNullOrEmpty(request.FirstName)) {
-            claims.Add(new Claim(JwtClaimTypes.GivenName, request.FirstName));
-        }
-        if (!string.IsNullOrEmpty(request.LastName)) {
-            claims.Add(new Claim(JwtClaimTypes.FamilyName, request.LastName));
-        }
-        if (claims.Any()) {
-            await userManager.AddClaimsAsync(user, claims);
-        }
         var response = SingleUserInfo.FromUser(user);
+        if (request.Roles?.Count > 0) {
+            response.Roles = allRoles.FindAll(r => request.Roles.Contains(r.NormalizedName, StringComparer.OrdinalIgnoreCase)).Select(x => x.Name!).ToList();
+        }
         return TypedResults.CreatedAtRoute(response, nameof(GetUser), new { userId = user.Id });
     }
 
@@ -461,6 +526,23 @@ internal static class UserHandlers
         return TypedResults.Ok(response);
     }
 
+    internal static async Task<Results<NoContent, NotFound>> DeleteUserDevice(
+        ExtendedUserManager<User> userManager,
+        string userId,
+        string deviceId
+    ) {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        var device = await userManager.GetDeviceByIdAsync(user, userId);
+        if (device == null) {
+            return TypedResults.NotFound();
+        }
+        await userManager.RemoveDeviceAsync(user, device);
+        return TypedResults.NoContent();
+    }
+
     internal static async Task<Ok<ResultSet<UserLoginProviderInfo>>> GetUserExternalLogins(
         ExtendedUserManager<User> userManager,
         string userId
@@ -548,7 +630,7 @@ internal static class UserHandlers
         if (user == null) {
             return TypedResults.NotFound();
         }
-        var result = await userManager.ResetPasswordAsync(user, request.Password, validatePassword: !request.BypassPasswordValidation.GetValueOrDefault());
+        var result = await userManager.ResetPasswordAsync(user, request.Password!, validatePassword: !request.BypassPasswordValidation.GetValueOrDefault());
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }

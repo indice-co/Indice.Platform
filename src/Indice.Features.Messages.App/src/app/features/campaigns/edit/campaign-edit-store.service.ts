@@ -40,7 +40,8 @@ export class CampaignEditStore {
             title: campaign.title,
             typeId: campaign.type?.id,
             isGlobal: campaign.isGlobal,
-            recipientListId: campaign.distributionList?.id
+            recipientListId: campaign.distributionList?.id,
+            mediaBaseHref: campaign.mediaBaseHref
         });
         return this._api
             .updateCampaign(campaignId, body)

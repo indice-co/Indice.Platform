@@ -33,10 +33,11 @@ public class SmsServiceKapaTEL : ISmsService
     protected ILogger<SmsServiceKapaTEL> Logger { get; }
 
     /// <inheritdoc/>
-    public async Task SendAsync(string destination, string subject, string body, SmsSender sender = null) {
+    public async Task<SendReceipt> SendAsync(string destination, string subject, string body, SmsSender sender = null) {
+        var messageId = Guid.NewGuid().ToString();
         HttpResponseMessage httpResponse;
         KapaTELResponse response;
-        var recipients = (destination ?? string.Empty).Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+        var recipients = (destination ?? string.Empty).Split(new string[] { ",", ";" }, StringSplitOptions.RemoveEmptyEntries);
         if (recipients == null) {
             throw new ArgumentNullException(nameof(recipients));
         }
@@ -64,24 +65,27 @@ public class SmsServiceKapaTEL : ISmsService
         param.Add("format", "json");
         var requestUri = new Uri(QueryHelpers.AddQueryString(HttpClient.BaseAddress.ToString(), param));
         try {
-            Logger.LogInformation("The request Uri sent to KapaTEL: {0}", requestUri);
+            Logger.LogInformation("The request Uri sent to KapaTEL: {requestUri}", requestUri);
             httpResponse = await HttpClient.PostAsync(requestUri, null);
         } catch (Exception ex) {
-            Logger.LogInformation("SMS Delivery took too long: {0}", ex);
+            Logger.LogError("SMS Delivery took too long");
             throw new SmsServiceException($"SMS Delivery took too long", ex);
         }
         var responseString = await httpResponse.Content.ReadAsStringAsync();
         if (!httpResponse.IsSuccessStatusCode) {
-            Logger.LogInformation($"SMS Delivery failed. {httpResponse.StatusCode} : {responseString}");
+            Logger.LogError("SMS Delivery failed. {statusCode} : {responseString}", httpResponse.StatusCode, responseString);
             throw new SmsServiceException($"SMS Delivery failed. {httpResponse.StatusCode} : {responseString}");
         }
         response = JsonSerializer.Deserialize<KapaTELResponse>(responseString, GetJsonSerializerOptions());
         if (response.Status.Equals("error")) {
-            Logger.LogInformation($"SMS Delivery failed. {response.ErrorMessage}");
+            Logger.LogError("SMS Delivery failed. {responseError}", response.ErrorMessage);
             throw new SmsServiceException($"SMS Delivery failed. {response.ErrorMessage}");
-        } else {
-            Logger.LogInformation("SMS message successfully sent: {1}", string.Join(",", response.Messages.Select(x => $"{x.Msisdn}-{x.ErrorMessage}")));
         }
+        Logger.LogInformation("SMS message successfully sent: {messages}", string.Join(",", response.Messages.Select(x => $"{x.Msisdn}-{x.ErrorMessage}")));
+        if (response.Messages?.Count > 0) {
+            messageId = string.Join(",", response.Messages.Select(x => x.Id));
+        }
+        return new SendReceipt(messageId, DateTimeOffset.UtcNow);
     }
 
     /// <summary>Checks the implementation if supports the given <paramref name="deliveryChannel"/>.</summary>

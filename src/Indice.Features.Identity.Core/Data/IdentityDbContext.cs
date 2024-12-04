@@ -29,11 +29,11 @@ public class IdentityDbContext<TUser, TRole> : IdentityDbContext<TUser, TRole, s
     public IdentityDbContext(DbContextOptions options) : base(options) { }
 
     /// <summary>Stores all previous passwords of a user for future validation checks.</summary>
-    public DbSet<UserPassword> UserPasswordHistory { get; set; }
+    public DbSet<UserPassword> UserPasswordHistory { get; set; } = null!;
     /// <summary>Stores user devices in database.</summary>
-    public DbSet<UserDevice> UserDevices { get; set; }
+    public DbSet<UserDevice> UserDevices { get; set; } = null!;
     /// <summary>Application settings stored in the database.</summary>
-    public DbSet<DbAppSetting> AppSettings { get; set; }
+    public DbSet<DbAppSetting> AppSettings { get; set; } = null!;
 
     /// <summary>Configures schema needed for the Identity framework.</summary>
     /// <param name="builder">Class used to create and apply a set of data model conventions.</param>
@@ -48,6 +48,7 @@ public class IdentityDbContext<TUser, TRole> : IdentityDbContext<TUser, TRole, s
         builder.ApplyConfiguration(new UserMap<TUser>());
         builder.ApplyConfiguration(new UserPasswordMap<TUser>());
         builder.ApplyConfiguration(new UserDeviceMap<TUser>());
+        builder.ApplyConfiguration(new UserPictureMap<TUser>());
         builder.ApplyConfiguration(new AppSettingMap());
     }
 }

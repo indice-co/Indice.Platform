@@ -1,8 +1,12 @@
 <Project>
     <PropertyGroup Label="Assembly Common">
       <Copyright>Copyright (c) 2018 Indice</Copyright>
-      <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
-      <VersionPrefixBase>7.21</VersionPrefixBase>
+      <TargetFrameworks></TargetFrameworks>
+      <TargetFramework>net8.0</TargetFramework>
+      
+      <VersionPrefixMajor>8</VersionPrefixMajor>
+      <VersionPrefixBase>$(VersionPrefixMajor).0</VersionPrefixBase>
+      
       <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
       <VersionPrefixIdentity>$(VersionPrefixBase).0</VersionPrefixIdentity>
       <VersionPrefixIdentityUI>$(VersionPrefixBase).0</VersionPrefixIdentityUI>
@@ -11,9 +15,12 @@
       <VersionPrefixMultitenancy>$(VersionPrefixBase).0</VersionPrefixMultitenancy>
       <VersionPrefixRisk>$(VersionPrefixBase).0</VersionPrefixRisk>
       <VersionPrefixMedia>$(VersionPrefixBase).0</VersionPrefixMedia>
+      <VersionPrefixGovGr>$(VersionPrefixBase).0</VersionPrefixGovGr>
+      <VersionPrefixAspNet>$(VersionPrefixBase).0</VersionPrefixAspNet>
       <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
-      <!--<VersionSuffix>beta-01</VersionSuffix>-->
-      <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
+      
+      <VersionSuffix>rc03</VersionSuffix>
+      <Authors>Constantinos Leftheris</Authors>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
       <LangVersion>Latest</LangVersion>
       <ImplicitUsings>enable</ImplicitUsings>
@@ -25,10 +32,10 @@
       <PackageTags></PackageTags>
       <IsPackable>true</IsPackable>
       <PackageIcon>icon-310.png</PackageIcon>
-      <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
+      <PackageProjectUrl>https://github.com/indice-co/Indice.Platform</PackageProjectUrl>
       <PackageLicenseExpression>MIT</PackageLicenseExpression>
       <RepositoryType>git</RepositoryType>
-      <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>
+      <RepositoryUrl>https://github.com/indice-co/Indice.Platform</RepositoryUrl>
       <Company>Indice</Company>
       <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
       <!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->

@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -9,11 +10,15 @@ using IdentityModel;
 using IdentityModel.Client;
 using IdentityServer4;
 using IdentityServer4.Models;
+using IdentityServer4.ResponseHandling;
+using IdentityServer4.Services;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
 using Indice.Features.Identity.Core.ImpossibleTravel;
+using Indice.Features.Identity.Core.ResponseHandling;
+using Indice.Features.Identity.Core.TokenCreation;
 using Indice.Features.Identity.Tests.Models;
 using Indice.Security;
 using Indice.Serialization;
@@ -27,7 +32,6 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Xunit;
 using Xunit.Abstractions;
@@ -35,7 +39,7 @@ using TokenResponse = IdentityModel.Client.TokenResponse;
 
 namespace Indice.Features.Identity.Tests;
 
-public class CustomGrantsIntegrationTests
+public class CustomGrantsIntegrationTests : IAsyncLifetime
 {
     #region Keys
     // https://www.scottbrady91.com/OpenSSL/Creating-RSA-Keys-using-OpenSSL
@@ -154,12 +158,58 @@ public class CustomGrantsIntegrationTests
     private const string DEVICE_REGISTRATION_INITIATION_URL = $"{BASE_URL}/my/devices/register/init";
     private const string DEVICE_REGISTRATION_COMPLETE_URL = $"{BASE_URL}/my/devices/register/complete";
     private const string DEVICE_AUTHORIZATION_URL = $"{BASE_URL}/my/devices/connect/authorize";
-    private const string IDENTITY_DATABASE_NAME = "IdentityDb";
-    private const string SIGN_IN_LOG_DATABASE_NAME = "SignInLogDb";
+    private const string AUTHORIZATION_DETAILS_PAYLOAD = """
+        [
+           {
+              "type": "payment_initiation",
+              "actions": [
+                 "initiate",
+                 "status",
+                 "cancel"
+              ],
+              "locations": [
+                 "https://example.com/payments"
+              ],
+              "instructedAmount": {
+                 "currency": "EUR",
+                 "amount": "123.50"
+              },
+              "creditorName": "Merchant A",
+              "creditorAccount": {
+                 "iban": "DE02100100109307118603"
+              },
+              "remittanceInformationUnstructured": "Ref Number Merchant"
+           }
+        ]
+        """;
+    private const string AUTHORIZATION_DETAILS_PAYLOAD_OTHER = """
+        [
+            {
+              "type": "medical_record",
+              "sens": [ "HIV", "ETH", "MART" ],
+              "actions": [ "read" ],
+              "datatypes": [ "Patient", "Observation", "Appointment" ],
+              "identifier": "patient-541235",
+              "locations": [ "https://records.example.com/" ]
+             }
+        ]
+        """;
+    private const string AUTHORIZATION_DETAILS_PAYLOAD_OBJECT = """
+        {
+          "type": "medical_record",
+          "sens": [ "HIV", "ETH", "MART" ],
+          "actions": [ "read" ],
+          "datatypes": [ "Patient", "Observation", "Appointment" ],
+          "identifier": "patient-541235",
+          "locations": [ "https://records.example.com/" ]
+         }
+        """;
     // Private fields
     private readonly HttpClient _httpClient;
     private readonly ITestOutputHelper _output;
     private IServiceProvider _serviceProvider;
+    private string _identityDatabaseName = $"IdentityDb.Test_{Environment.Version.Major}_{Guid.NewGuid()}";
+    private string _signInLogDatabaseName = $"SignInLogDb.Test_{Environment.Version.Major}_{Guid.NewGuid()}";
 
     public CustomGrantsIntegrationTests(ITestOutputHelper output) {
         _output = output;
@@ -177,7 +227,7 @@ public class CustomGrantsIntegrationTests
                     .AddSmsServiceNoop()
                     .AddPushNotificationServiceNoop()
                     .AddLocalization()
-                    .AddDbContext<ExtendedIdentityDbContext<User, Role>>(builder => builder.UseInMemoryDatabase(IDENTITY_DATABASE_NAME));
+                    .AddDbContext<ExtendedIdentityDbContext<User, Role>>(builder => builder.UseInMemoryDatabase(_identityDatabaseName));
             services.AddTransient<IUserStateProvider<User>, UserStateProviderNoop>();
             services.AddIdentity<User, Role>()
                     .AddExtendedUserManager()
@@ -202,12 +252,14 @@ public class CustomGrantsIntegrationTests
             .AddDeviceAuthentication(options => options.AddUserDeviceStoreEntityFrameworkCore())
             .AddDeveloperSigningCredential(persistKey: false)
             .AddSignInLogs(options => {
-                options.UseEntityFrameworkCoreStore(dbBuilder => dbBuilder.UseInMemoryDatabase(SIGN_IN_LOG_DATABASE_NAME));
+                options.UseEntityFrameworkCoreStore(dbBuilder => dbBuilder.UseInMemoryDatabase(_signInLogDatabaseName));
                 options.Enable = true;
                 options.ImpossibleTravel.Guard = true;
                 options.ImpossibleTravel.AcceptableSpeed = 90d;
                 options.ImpossibleTravel.FlowType = ImpossibleTravelFlowType.PromptMfa;
             });
+            services.AddTransient<ITokenResponseGenerator, ExtendedTokenResponseGenerator>();
+            services.AddTransient<ITokenCreationService, ExtendedTokenCreationService>();
         });
         builder.Configure(app => {
             app.UseForwardedHeaders(new() {
@@ -223,6 +275,14 @@ public class CustomGrantsIntegrationTests
             BaseAddress = new Uri(BASE_URL)
         };
     }
+
+    public User TestUser { get; set; }
+
+    public async Task InitializeAsync() {
+        TestUser = await InitTestUserAsync();
+    }
+
+    public Task DisposeAsync() => Task.CompletedTask;
 
     #region Device Authentication Tests
     [Fact]
@@ -313,34 +373,18 @@ public class CustomGrantsIntegrationTests
     [Fact]
     public async Task Changing_Password_Blocks_Device() {
         var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
-        var user = new User {
-            CreateDate = DateTimeOffset.UtcNow,
-            Email = "g.manoltzas@indice.gr",
-            EmailConfirmed = true,
-            Id = Guid.NewGuid().ToString(),
-            PhoneNumber = "69XXXXXXXX",
-            PhoneNumberConfirmed = true,
-            UserName = "g.manoltzas@indice.gr"
-        };
-        // 1. Create a new user.
-        var result = await userManager.CreateAsync(user, password: "123abc!", validatePassword: false);
-        if (!result.Succeeded) {
-            Assert.Fail("User could not be created.");
-        }
-        await userManager.AddToRoleAsync(user, BasicRoleNames.Developer);
-        await userManager.AddClaimAsync(user, new Claim(BasicClaimTypes.DeveloperTotp, "123456"));
         // 2. Register a new device using biometric login.
         var deviceId = Guid.NewGuid().ToString();
-        var response = await RegisterDeviceUsingBiometric(deviceId, userName: "g.manoltzas@indice.gr");
+        var response = await RegisterDeviceUsingBiometric(deviceId, userName: "someone@indice.gr");
         if (!response.IsSuccessStatusCode) {
             Assert.Fail("Device could not be created.");
         }
         // 3. Change username. 
-        result = await userManager.SetUserNameAsync(user, "g.manoltzas_new@indice.gr");
+        var result = await userManager.SetUserNameAsync(TestUser, "someone_new@indice.gr");
         if (!result.Succeeded) {
             Assert.Fail("Failed to set new username.");
         }
-        var device = await userManager.GetDeviceByIdAsync(user, deviceId);
+        var device = await userManager.GetDeviceByIdAsync(TestUser, deviceId);
         if (device is null) {
             Assert.Fail("User device could not be found.");
         }
@@ -377,11 +421,198 @@ public class CustomGrantsIntegrationTests
         Assert.True(tokenResponse.IsError);
         Assert.True(tokenResponse.ErrorDescription == "requires_password");
         // 6. Now we login with username and password using the resource owner password grant. This should make the device usable again.
-        await LoginWithPasswordGrant("g.manoltzas_new@indice.gr", "123abc!", deviceId);
+        await LoginWithPasswordGrant("someone_new@indice.gr", "xxxxxxx", deviceId);
         // 7. Login again with fingerprint. This is expected to succeed.
         tokenResponse = await LoginWithFingerprint(responseDto.RegistrationId);
         Assert.False(tokenResponse.IsError);
     }
+    #endregion
+
+    #region Authorization Details Tests https://datatracker.ietf.org/doc/html/rfc9396
+
+    [Fact]
+    public async Task CreateAuthorizationDetails_JsonArray_Using4Pin() {
+        var registrationResult = await RegisterDeviceUsingPinWhenAlreadySupportsBiometric();
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            GrantType = CustomGrantTypes.DeviceAuthentication,
+            Parameters = {
+                { "registration_id", registrationResult.RegistrationId.ToString() },
+                { "pin", DEVICE_PIN },
+                { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" },
+                { "authorization_details", AUTHORIZATION_DETAILS_PAYLOAD }
+            }
+        });
+        Assert.False(tokenResponse.IsError);
+    }
+
+    [Fact]
+    public async Task CreateAuthorizationDetails_JsonObject_Using4Pin() {
+        var registrationResult = await RegisterDeviceUsingPinWhenAlreadySupportsBiometric();
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            GrantType = CustomGrantTypes.DeviceAuthentication,
+            Parameters = {
+                { "registration_id", registrationResult.RegistrationId.ToString() },
+                { "pin", DEVICE_PIN },
+                { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" },
+                { "authorization_details", AUTHORIZATION_DETAILS_PAYLOAD_OBJECT }
+            }
+        });
+        Assert.False(tokenResponse.IsError);
+    }
+
+    [Fact]
+    public async Task CreateAuthorizationDetails_InvalidPayload_Using4Pin() {
+        var registrationResult = await RegisterDeviceUsingPinWhenAlreadySupportsBiometric();
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            GrantType = CustomGrantTypes.DeviceAuthentication,
+            Parameters = {
+                { "registration_id", registrationResult.RegistrationId.ToString() },
+                { "pin", DEVICE_PIN },
+                { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" },
+                { "authorization_details", """{ "something": 123 }""" }
+            }
+        });
+        Assert.True(tokenResponse.IsError);
+        Assert.Equal("invalid_authorization_details", tokenResponse.Error);
+    }
+
+    [Fact]
+    public async Task CreateAuthorizationDetails_InvalidArrayPayload_Using4Pin() {
+        var registrationResult = await RegisterDeviceUsingPinWhenAlreadySupportsBiometric();
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            GrantType = CustomGrantTypes.DeviceAuthentication,
+            Parameters = {
+                { "registration_id", registrationResult.RegistrationId.ToString() },
+                { "pin", DEVICE_PIN },
+                { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" },
+                { "authorization_details", """[{"type": "payment_initiation"},{ "something": 123 }]""" }
+            }
+        });
+        Assert.True(tokenResponse.IsError);
+        Assert.Equal("invalid_authorization_details", tokenResponse.Error);
+    }
+
+    [Fact]
+    public async Task CreateAuthorizationDetails_UsingBiometrics() {
+        var registrationResult = await RegisterDeviceUsingFingerprintWhenAlreadySupportsPin();
+        var codeVerifier = GenerateCodeVerifier();
+        var challenge = await InitiateDeviceAuthenticationUsingFingerprint(codeVerifier, registrationResult.RegistrationId);
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var x509SigningCredentials = GetX509SigningCredentials();
+        var signature = SignMessage(challenge, x509SigningCredentials);
+        var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            GrantType = CustomGrantTypes.DeviceAuthentication,
+            Parameters = {
+                { "code", challenge },
+                { "code_signature", signature },
+                { "code_verifier", codeVerifier },
+                { "registration_id", registrationResult.RegistrationId.ToString() },
+                { "public_key", CERTIFICATE_PUBLIC_KEY },
+                { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" },
+                { "authorization_details", AUTHORIZATION_DETAILS_PAYLOAD }
+            }
+        });
+        Assert.False(tokenResponse.IsError);
+    }
+
+    [Fact]
+    public void JwtPayload_Serialize_ComplexPayload_Succeeds() {
+        var payload = new JwtPayload(
+            "my.identity.gr",
+            null,
+            null,
+            DateTime.UtcNow,
+            DateTime.UtcNow.AddSeconds(300));
+
+        List<Claim> jsonClaims = [
+            new("sub", Guid.NewGuid().ToString()),
+            new(BasicClaimTypes.AuthorizationDetails, AUTHORIZATION_DETAILS_PAYLOAD, IdentityServerConstants.ClaimValueTypes.Json),
+            new(BasicClaimTypes.AuthorizationDetails, AUTHORIZATION_DETAILS_PAYLOAD_OTHER, IdentityServerConstants.ClaimValueTypes.Json),
+            new ("address", """ { "street": "Gkazi" } """, IdentityServerConstants.ClaimValueTypes.Json),
+            new ("address", """ { "street": "Iakxou" } """, IdentityServerConstants.ClaimValueTypes.Json),
+            new ("person", """ { "id": "123", "age": 20 } """, IdentityServerConstants.ClaimValueTypes.Json),
+        ];
+
+        // the following code have been taken from "TokenCreationServiceExtended.cs"
+        var jsonTokens = jsonClaims
+            .Where(x => x.ValueType is IdentityServerConstants.ClaimValueTypes.Json)
+            .Select(x => new { x.Type, JsonValue = JsonDocument.Parse(x.Value).RootElement })
+            .ToArray();
+
+        var jsonObjects = jsonTokens.Where(x => x.JsonValue.ValueKind == JsonValueKind.Object).ToArray();
+        var jsonObjectGroups = jsonObjects.GroupBy(x => x.Type).ToArray();
+        foreach (var group in jsonObjectGroups) {
+            if (payload.ContainsKey(group.Key)) {
+                throw new Exception($"Can't add two claims where one is a JSON object and the other is not a JSON object ({group.Key})");
+            }
+
+            if (group.Skip(1).Any()) {
+                // add as array
+                payload.Add(group.Key, group.Select(x => x.JsonValue).ToArray());
+            } else {
+                // add just one
+                payload.Add(group.Key, group.First().JsonValue);
+            }
+        }
+
+        var jsonArrays = jsonTokens.Where(x => x.JsonValue.ValueKind == JsonValueKind.Array).ToArray();
+        var jsonArrayGroups = jsonArrays.GroupBy(x => x.Type).ToArray();
+
+        /*
+         * Old implementation - burned [start]
+         */
+
+        //foreach (var group in jsonArrayGroups) {
+        //    if (payload.ContainsKey(group.Key)) {
+        //        throw new Exception(
+        //            $"Can't add two claims where one is a JSON array and the other is not a JSON array ({group.Key})");
+        //    }
+
+        //    var newArr = new JsonArray();
+        //    foreach (var item in group.SelectMany(x => x.JsonValue.EnumerateArray())) {
+        //        newArr.Add(item);
+        //    }
+
+        //    // add just one array for the group/key/claim type
+        //    payload.Add(group.Key, JsonSerializer.SerializeToElement(newArr));
+        //}
+
+        /*
+         * Old implementation - burned [end]
+         */
+
+        foreach (var group in jsonArrayGroups) {
+            if (payload.ContainsKey(group.Key)) {
+                throw new Exception(
+                    $"Can't add two claims where one is a JSON array and the other is not a JSON array ({group.Key})");
+            }
+
+            payload.Add(group.Key, group.SelectMany(x => x.JsonValue.EnumerateArray()).ToArray());
+        }
+
+        var json = payload.SerializeToJson();
+        Assert.NotNull(json);
+    }
+
     #endregion
 
     #region Resource Owner Password Grant Tests
@@ -391,12 +622,12 @@ public class CustomGrantsIntegrationTests
         var deviceId = Guid.NewGuid().ToString();
         await RegisterDeviceUsingBiometric(deviceId);
         // Login with password grant from a specified IP address.
-        _ = await LoginWithPasswordGrant("company@indice.gr", "123abc!", deviceId, "22.40.56.11");
+        _ = await LoginWithPasswordGrant("someone@indice.gr", "xxxxxxx", deviceId, "22.40.56.11");
         foreach (var _ in Enumerable.Range(1, 5)) {
             // Cause a delay so sign in log store can be up to date.
-            await Task.Delay(TimeSpan.FromSeconds(2));
+            await Task.Delay(TimeSpan.FromSeconds(1));
             // Each login from an impossible location should result in a bad request.
-            var tokenResponse = await LoginWithPasswordGrant("company@indice.gr", "123abc!", deviceId, "67.168.97.200");
+            var tokenResponse = await LoginWithPasswordGrant("someone@indice.gr", "xxxxxxx", deviceId, "67.168.97.200");
             Assert.True(tokenResponse.HttpStatusCode == HttpStatusCode.BadRequest);
             Assert.True(tokenResponse.AccessToken is null);
         }
@@ -404,8 +635,32 @@ public class CustomGrantsIntegrationTests
     #endregion
 
     #region Helper Methods
+    private async Task<User> InitTestUserAsync(string email = "someone@indice.gr", string password = "xxxxxxx", string developerOtp = "123456", bool isAdmin = false) {
+        var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var user = new User {
+            CreateDate = DateTimeOffset.UtcNow,
+            Email = email,
+            NormalizedEmail = email.ToUpperInvariant(),
+            EmailConfirmed = true,
+            Id = Guid.NewGuid().ToString(),
+            PhoneNumber = "69XXXXXXXX",
+            PhoneNumberConfirmed = true,
+            UserName = email,
+            NormalizedUserName = email.ToUpperInvariant(),
+            Admin = isAdmin,
+        };
+        // 1. Create a new user.
+        var result = await userManager.CreateAsync(user, password: password, validatePassword: false);
+        if (!result.Succeeded) {
+            Assert.Fail("User could not be created.");
+        }
+        await userManager.AddToRoleAsync(user, BasicRoleNames.Developer);
+        await userManager.AddClaimAsync(user, new Claim(BasicClaimTypes.DeveloperTotp, developerOtp));
+        return user;
+    }
+
     private async Task<TrustedDeviceCompleteRegistrationResultDto> RegisterDeviceUsingPinWhenAlreadySupportsBiometric() {
-        var tokenResponse = await LoginWithPasswordGrant(userName: "company@indice.gr", password: "123abc!");
+        var tokenResponse = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx");
         var codeVerifier = GenerateCodeVerifier();
         var deviceId = Guid.NewGuid().ToString();
         var challenge = await InitiateDeviceRegistrationUsingBiometric(tokenResponse.AccessToken, codeVerifier, deviceId);
@@ -432,7 +687,7 @@ public class CustomGrantsIntegrationTests
     }
 
     private async Task<string> RegisterNewDeviceUsingPin() {
-        var tokenResponse = await LoginWithPasswordGrant(userName: "company@indice.gr", password: "123abc!");
+        var tokenResponse = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx");
         var codeVerifier = GenerateCodeVerifier();
         var deviceId = Guid.NewGuid().ToString();
         var challenge = await InitiateDeviceRegistrationUsingPin(tokenResponse.AccessToken, codeVerifier, deviceId);
@@ -446,7 +701,7 @@ public class CustomGrantsIntegrationTests
     }
 
     private async Task<TrustedDeviceCompleteRegistrationResultDto> RegisterDeviceUsingFingerprintWhenAlreadySupportsPin() {
-        var tokenResponse = await LoginWithPasswordGrant(userName: "company@indice.gr", password: "123abc!");
+        var tokenResponse = await LoginWithPasswordGrant(userName: "someone@indice.gr", password: "xxxxxxx");
         var codeVerifier = GenerateCodeVerifier();
         var deviceId = Guid.NewGuid().ToString();
         var challenge = await InitiateDeviceRegistrationUsingPin(tokenResponse.AccessToken, codeVerifier, deviceId);
@@ -475,8 +730,8 @@ public class CustomGrantsIntegrationTests
         return responseDto;
     }
 
-    private async Task<HttpResponseMessage> RegisterDeviceUsingBiometric(string deviceId, string userName = "company@indice.gr") {
-        var tokenResponse = await LoginWithPasswordGrant(userName, password: "123abc!");
+    private async Task<HttpResponseMessage> RegisterDeviceUsingBiometric(string deviceId, string userName = "someone@indice.gr") {
+        var tokenResponse = await LoginWithPasswordGrant(userName, password: "xxxxxxx");
         var codeVerifier = GenerateCodeVerifier();
         var challenge = await InitiateDeviceRegistrationUsingBiometric(tokenResponse.AccessToken, codeVerifier, deviceId);
         var response = await CompleteDeviceRegistrationUsingBiometric(tokenResponse.AccessToken, codeVerifier, deviceId, challenge);

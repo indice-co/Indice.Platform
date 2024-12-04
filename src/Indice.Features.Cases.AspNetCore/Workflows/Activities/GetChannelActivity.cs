@@ -1,8 +1,9 @@
-﻿using Elsa;
+﻿using System.Security.Claims;
+using Elsa;
 using Elsa.ActivityResults;
 using Elsa.Attributes;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Interfaces;
+using Indice.Features.Cases.Core.Services.Abstractions;
 
 namespace Indice.Features.Cases.Workflows.Activities;
 
@@ -25,12 +26,12 @@ internal class GetChannelActivity : BaseCaseActivity
     }
     
     [ActivityOutput]
-    public object Output { get; set; }
+    public object? Output { get; set; }
 
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
         // Run as systemic user, since this is a system activity for creating conditions at workflow
-        var systemUser = Cases.Extensions.PrincipalExtensions.SystemUser();
+        var systemUser = CasesClaimsPrincipalExtensions.SystemUser();
         var @case = await _adminCaseService.GetCaseById(systemUser, CaseId.Value!);
         Output = @case.Channel!;
         context.LogOutputProperty(this, nameof(Output), Output);

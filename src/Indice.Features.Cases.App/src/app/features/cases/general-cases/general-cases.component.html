@@ -1,0 +1,46 @@
+<lib-view-layout title="Υποθέσεις {{caseTypeTitle}}"
+                 [busy]="!items"
+                 [actions]="formActions"
+                 [meta-items]="metaItems"
+                 (onAction)="actionHandler($event)"
+                 (onSearch)="searchChanged($event)">
+  <div class="text-right">
+    <button class="btn-submit"
+            [ngClass]="{'opacity-50 cursor-not-allowed': !queryParamsHasFilter}"
+            [disabled]="!queryParamsHasFilter"
+            (click)="openQueryModal()">
+      Αποθήκευση Αναζήτησης</button>
+  </div>
+  <lib-list-view [items]="items"
+                 [search-options]="searchOptions"
+                 [filters]="filters"
+                 [page]="page"
+                 [page-size]="pageSize"
+                 [count]="count"
+                 [sort-options]="sortOptions"
+                 [sort]="sort"
+                 [sort-dir]="sortdir"
+                 [busy]="!items"
+                 (advancedSearchChanged)="advancedSearchChanged($event)"
+                 (pageChanged)="pageChanged($event)"
+                 (pageSizeChanged)="pageSizeChanged($event)"
+                 (sortChanged)="sortChanged($event)"
+                 (sortdirChanged)="sortdirChanged($event)">
+    <ng-container *ngFor="let column of columns">
+      <lib-list-column [title]="('cases.' + column.title[0].toLowerCase() + column.title.slice(1)) | translate">
+        <ng-template let-item>{{ item | valueFromPath: column }}</ng-template>
+      </lib-list-column>
+    </ng-container>
+    <lib-list-column>
+      <ng-template let-item>
+        <a href="#"
+           [routerLinkActive]="['nav-link-profile-active']"
+           [routerLinkActiveOptions]="{ exact: true }"
+           [routerLink]="['/cases', item.id, 'details']"
+           class="bg-dusty-orange hover:bg-dusty-orange-opacity text-white font-bold p-2 inline-flex rounded text-xs">
+          <span>{{'cases.choose' | translate}}</span>
+        </a>
+      </ng-template>
+    </lib-list-column>
+  </lib-list-view>
+</lib-view-layout>

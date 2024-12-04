@@ -1,5 +1,4 @@
-﻿#if NET7_0_OR_GREATER
-using FluentValidation;
+﻿using FluentValidation;
 using MiniValidation;
 
 namespace Indice.AspNetCore.Http.Validation;
@@ -24,4 +23,3 @@ internal class EndpointParameterFluentValidator : IEndpointParameterValidator
         return new(result.IsValid, result.ToDictionary());
     }
 }
-#endif

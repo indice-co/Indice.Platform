@@ -26,9 +26,9 @@ public static class IServiceCollectionExtensions
         return services.AddTransient<TService, TDecorator>(serviceProvider => {
             var parameters = typeof(TDecorator).GetConstructors(BindingFlags.Public | BindingFlags.Instance).First().GetParameters();
             var arguments = parameters.Select(x => x.ParameterType.Equals(typeof(TService))
-                ? serviceDescriptor.ImplementationFactory?.Invoke(serviceProvider) ?? serviceProvider.GetRequiredService(serviceDescriptor.ImplementationType)
+                ? serviceDescriptor.ImplementationFactory?.Invoke(serviceProvider) ?? serviceProvider.GetRequiredService(serviceDescriptor.ImplementationType!)
                 : serviceProvider.GetService(x.ParameterType)).ToArray();
-            return (TDecorator)Activator.CreateInstance(typeof(TDecorator), arguments);
+            return (TDecorator)Activator.CreateInstance(typeof(TDecorator), arguments)!;
         });
     }
 
@@ -107,16 +107,15 @@ public static class IServiceCollectionExtensions
         return services;
     }
 
-#if !NETSTANDARD2_1
     /// <summary>Adds the default implementation of <see cref="IPlatformEventService"/> which processes events αsynchronously on the background.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="config">Configuration action.</param>
-    public static IServiceCollection AddBackgroundPlatformEventService(this IServiceCollection services, Action<BackgroundPlatformEventServiceQueueOptions> config = null) {
-        services.AddTransient<IPlatformEventService, BackgroundPlatformEventService>();
-        services.AddSingleton<BackgroundPlatformEventServiceQueue>();
+    public static IServiceCollection AddBackgroundPlatformEventService(this IServiceCollection services, Action<BackgroundPlatformEventServiceQueueOptions>? config = null) {
+        services.TryAddTransient<IPlatformEventService, BackgroundPlatformEventService>();
+        services.TryAddSingleton<BackgroundPlatformEventServiceQueue>();
         services.Configure<BackgroundPlatformEventServiceQueueOptions>(options => config?.Invoke(options));
         services.AddHostedService<BackgroundPlatformEventHostedService>();
         return services;
     }
-#endif
+
 }

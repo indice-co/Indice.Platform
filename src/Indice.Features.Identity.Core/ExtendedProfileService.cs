@@ -24,7 +24,8 @@ public class ExtendedProfileService<TInner>(
         // TODO: We could also configure it from outside of the service.
         var claimsToIssue = new List<string>([
             BasicClaimTypes.IPAddress, 
-            BasicClaimTypes.DeviceId
+            BasicClaimTypes.DeviceId,
+            BasicClaimTypes.AuthorizationDetails
         ]);
         foreach (var claim in claimsToIssue) {
             var userClaim = context.Subject.Claims.FirstOrDefault(x => x.Type == claim);

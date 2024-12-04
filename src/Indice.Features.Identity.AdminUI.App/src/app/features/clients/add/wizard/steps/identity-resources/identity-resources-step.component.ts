@@ -22,7 +22,7 @@ export class IdentityResourcesStepComponent extends StepBaseComponent<ClientWiza
 
     public ngOnInit(): void {
         this._wizardService.getIdentityResources().subscribe((resources: IdentityResourceInfo[]) => {
-            this._selectedResourcesControl = this.data.form.controls.identityResources;
+            this._selectedResourcesControl = this.data.form.controls['identityResources'];
             this.availableResources = resources.filter(x => !this._selectedResourcesControl.value.includes(x.name));
             this.selectedResources = resources.filter(x => this._selectedResourcesControl.value.includes(x.name));
         });
@@ -44,7 +44,7 @@ export class IdentityResourcesStepComponent extends StepBaseComponent<ClientWiza
     }
 
     public isValid(): boolean {
-        const resources = this.data.form.controls.identityResources.value as Array<string>;
+        const resources = this.data.form.controls['identityResources'].value as Array<string>;
         return resources.length > 0;
     }
 }

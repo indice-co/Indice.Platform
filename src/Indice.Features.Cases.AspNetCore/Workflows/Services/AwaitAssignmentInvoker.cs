@@ -1,7 +1,7 @@
 ﻿using Elsa.Persistence;
 using Elsa.Services;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Models;
+using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Workflows.Activities;
 using Indice.Features.Cases.Workflows.Bookmarks.AwaitAssignment;
 using Indice.Features.Cases.Workflows.Interfaces;
@@ -31,7 +31,7 @@ internal class AwaitAssignmentInvoker : BaseActivityInvoker, IAwaitAssignmentInv
     protected override async Task<IEnumerable<WorkflowsQuery>> CreateWorkflowsQueries(Guid caseId, CancellationToken cancellationToken = default) {
         var instance = await GetWorkflowInstanceByCaseId(caseId, cancellationToken);
 
-        var userRoles = _httpContextAccessor.HttpContext.User
+        var userRoles = _httpContextAccessor.HttpContext!.User
             .FindAll(x => x.Type == BasicClaimTypes.Role)
             .Select(claim => claim.Value)
             .ToList();

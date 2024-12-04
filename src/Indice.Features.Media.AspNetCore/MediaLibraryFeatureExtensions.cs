@@ -1,4 +1,6 @@
 ﻿using Indice.Features.Media.AspNetCore;
+using Indice.Features.Media.AspNetCore.Authorization;
+using Indice.Features.Media.AspNetCore.Events;
 using Indice.Features.Media.AspNetCore.Services;
 using Indice.Features.Media.AspNetCore.Services.Hosting;
 using Indice.Features.Media.AspNetCore.Stores;
@@ -19,23 +21,22 @@ public static class MediaLibraryFeatureExtensions
     /// <param name="services">An interface for configuring services.</param>
     /// <param name="configureAction">Configuration for several options of Media API feature.</param>
     public static IServiceCollection AddMediaLibrary(this IServiceCollection services, Action<MediaApiOptions>? configureAction = null) {
-        // Register Default Policy Provider.
-        //services.AddSingleton<IAuthorizationPolicyProvider, MediaLibraryPolicyProvider>();
         // Configure options.
         var apiOptions = new MediaApiOptions(services);
         configureAction?.Invoke(apiOptions);
         services.Configure<MediaApiOptions>(options => {
-            options.ApiPrefix = apiOptions.ApiPrefix;
+            options.PathPrefix = apiOptions.PathPrefix;
             options.ConfigureDbContext = apiOptions.ConfigureDbContext;
             options.AuthenticationScheme = apiOptions.AuthenticationScheme;
             options.AcceptableFileExtensions = apiOptions.AcceptableFileExtensions;
-            options.ApiScope = apiOptions.ApiScope;
+            options.Scope = apiOptions.Scope;
             options.MaxFileSize = apiOptions.MaxFileSize;
             options.UseSoftDelete = apiOptions.UseSoftDelete;
         });
         // Register framework services.
         services.AddHttpContextAccessor();
         // Register services.
+        services.TryAddSingleton<MediaBaseHrefResolver>();
         services.TryAddTransient<IMediaFolderStore, MediaFolderStore>();
         services.TryAddTransient<IMediaFileStore, MediaFileStore>();
         services.TryAddTransient<IMediaSettingService, MediaSettingService>();
@@ -49,16 +50,23 @@ public static class MediaLibraryFeatureExtensions
             services.AddHostedService<FoldersCleanUpHostedService>();
             services.AddHostedService<FilesCleanUpHostedService>();
         }
+        services.AddBackgroundPlatformEventService();
+        services.AddPlatformEventHandler<FolderRenameCommand, FolderRenameCommandHandler>();
         services.AddSingleton(new DatabaseSchemaNameResolver(apiOptions.DatabaseSchema));
         // Register application DbContext.
         services.AddDbContext<MediaDbContext>(apiOptions.ConfigureDbContext ?? ((serviceProvider, builder) => builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("MediaLibraryDbConnection"))));
+
+        services.AddDistributedMemoryCache();
+        // Register Default Policy Provider.
+        // Add authorization policies that are used by the IdentityServer API.
+
+        // Configure authorization. It's important to register the authorization policy provider at this point.
+        services.AddAuthorization(policy => policy.AddMediaLibraryManagementPolicy(apiOptions.Scope))
+                           .AddTransient<IAuthorizationHandler, BeMediaLibraryManagerHandler>();
+        //Resgister Output Cache
+        services.AddOutputCache();
         return services;
     }
-
-    /// <summary>Adds <see cref="IAuthorizationPolicyProvider"/> using custom policy provider.</summary>
-    /// <param name="options">Options used to configure the Media API feature.</param>
-    public static void UsePolicyProvider<TAuthorizationPolicyProvider>(this MediaApiOptions options) where TAuthorizationPolicyProvider : IAuthorizationPolicyProvider =>
-        options.Services?.AddSingleton(typeof(IAuthorizationPolicyProvider), typeof(TAuthorizationPolicyProvider));
 
     /// <summary>Adds <see cref="IFileService"/> using local file system as the backing store.</summary>
     /// <param name="options">Options used to configure the Media API feature.</param>

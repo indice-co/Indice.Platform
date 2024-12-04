@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Package">
-    <Authors>Thanos Panousis, Dimitris Karkanas, Christos Asvestopoulos, Hermes Krouskos</Authors>
+    <Authors>Thanos Panousis, Dimitris Karkanas</Authors>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <SpaProjectName>cases-app</SpaProjectName>
     <SpaSourceFolder>..\Indice.Features.Cases.App</SpaSourceFolder>
@@ -18,22 +18,12 @@
     <EmbeddedResource Include="$(SpaProjectName)\index.html" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="$(VersionPrefixCore)" />
+    <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="$(VersionPrefixMajor).*-*" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore.EmbeddedUI\Indice.AspNetCore.EmbeddedUI.csproj" />
+    <ProjectReference Include="..\Indice.Features.Cases.App\Indice.Features.Cases.App.esproj" Condition="'$(Configuration)' == 'Debug'">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
-  <!-- Run 'npm install' command to download node modules. -->
-  <Target Name="NpmInstall" BeforeTargets="DispatchToInnerBuilds">
-    <Exec Command="npm install --force" WorkingDirectory="$(SpaSourceFolder)" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
-      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
-    </Exec>
-    <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js/npm is required to build this project. To continue, please install Node.js from https://nodejs.org/ or Visual Studio Installer, and then restart your command prompt or IDE." />
-  </Target>
-  <!-- Run 'npm run build:template' in order to build the app. -->
-  <Target Name="SpaBuild" BeforeTargets="DispatchToInnerBuilds" Condition="!Exists('$(SpaDistFolder)')">
-    <Exec Command="npm run build:template" WorkingDirectory="$(SpaSourceFolder)" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
-      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
-    </Exec>
-  </Target>
 </Project>

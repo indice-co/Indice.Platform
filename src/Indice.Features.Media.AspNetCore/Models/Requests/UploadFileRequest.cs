@@ -11,7 +11,7 @@ public class UploadFileRequest
     public Guid? FolderId { get; set; }
     /// <summary>The file to be uploaded.</summary>
     [Required]
-    public IFormFile? File { get; set; }
+    public IFormFileCollection? Files { get; set; }
 
     /// <summary> Binds the File from Form to Request property. </summary>
     /// <param name="context">The <see cref="HttpContext"/>.</param>
@@ -28,7 +28,7 @@ public class UploadFileRequest
             folderId = folderIdValue;
         }
         return new UploadFileRequest {
-            File = files[0],
+            Files = files,
             FolderId = folderId
         };
     }

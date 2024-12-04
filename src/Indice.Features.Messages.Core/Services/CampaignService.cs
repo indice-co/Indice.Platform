@@ -63,7 +63,7 @@ public class CampaignService : ICampaignService
             return default;
         }
         if (campaign.Attachment is not null) {
-            campaign.Attachment.PermaLink = $"{CampaignManagementOptions.ApiPrefix}/{campaign.Attachment.PermaLink.TrimStart('/')}";
+            campaign.Attachment.PermaLink = $"{CampaignManagementOptions.PathPrefix.TrimEnd('/')}/{campaign.Attachment.PermaLink.TrimStart('/')}";
         }
         return campaign;
     }
@@ -86,6 +86,7 @@ public class CampaignService : ICampaignService
             throw MessageExceptions.CampaignAlreadyPublished(id);
         }
         campaign.ActionLink = request.ActionLink;
+        campaign.MediaBaseHref = request.MediaBaseHref;
         campaign.ActivePeriod = request.ActivePeriod;
         campaign.Content = request.Content;
         campaign.MessageChannelKind = Enum.Parse<MessageChannelKind>(string.Join(',', request.Content.Select(x => x.Key)), ignoreCase: true);

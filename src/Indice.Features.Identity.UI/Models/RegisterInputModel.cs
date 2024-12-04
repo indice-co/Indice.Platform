@@ -32,8 +32,8 @@ public class RegisterInputModel {
     public string? ZoneInfo { get; set; }
     /// <summary> The Phone Number's Calling Code.</summary>
     public string? CallingCode { get; set; }
-
-    internal string? PhoneNumberWithCallingCode => string.IsNullOrWhiteSpace(CallingCode) ? PhoneNumber : $"{CallingCode} {PhoneNumber}";
+    /// <summary>A calculated field that holds the <see cref="PhoneNumber"/> padded with its international <seealso cref="CallingCode"/>.</summary>
+    public string? PhoneNumberWithCallingCode => string.IsNullOrWhiteSpace(CallingCode) ? PhoneNumber : $"{CallingCode} {PhoneNumber}";
 
     /// <summary>Replace claim.</summary>
     /// <param name="name">Claim name.</param>

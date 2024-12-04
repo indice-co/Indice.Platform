@@ -14,7 +14,7 @@ using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Configuration;
 
 namespace Indice.Features.Messages.AspNetCore.Controllers;
 
@@ -32,7 +32,7 @@ internal class CampaignsController(
     IContactService contactService,
     IFileServiceFactory fileServiceFactory,
     IEventDispatcherFactory eventDispatcherFactory,
-    IOptions<GeneralSettings> generalSettings,
+    IConfiguration configuration,
     IPlatformEventService eventService,
     ICampaignAttachmentService campaignAttachmentService,
     NotificationsManager notificationsManager
@@ -46,17 +46,18 @@ internal class CampaignsController(
     public IPlatformEventService EventService { get; } = eventService ?? throw new ArgumentNullException(nameof(eventService));
     public ICampaignAttachmentService CampaignAttachmentService { get; } = campaignAttachmentService ?? throw new ArgumentNullException(nameof(campaignAttachmentService));
     public NotificationsManager NotificationsManager { get; } = notificationsManager ?? throw new ArgumentNullException(nameof(notificationsManager));
-    public GeneralSettings GeneralSettings { get; } = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
+    public IConfiguration Configuration { get; } = configuration ?? throw new ArgumentNullException(nameof(configuration));
     public IEventDispatcher EventDispatcher { get; } = eventDispatcherFactory.Create(KeyedServiceNames.EventDispatcherServiceKey) ?? throw new ArgumentNullException(nameof(eventDispatcherFactory));
 
     /// <summary>Gets the list of all campaigns using the provided <see cref="ListOptions"/>.</summary>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+    /// <param name="filter">The filter part</param>
     /// <response code="200">OK</response>
     [HttpGet]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ResultSet<Campaign>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetCampaigns([FromQuery] ListOptions<CampaignListFilter> options) {
-        var campaigns = await CampaignService.GetList(options);
+    public async Task<IActionResult> GetCampaigns([FromQuery] ListOptions options, [FromQuery] CampaignListFilter filter) {
+        var campaigns = await CampaignService.GetList(ListOptions.Create(options, filter));
         return Ok(campaigns);
     }
 
@@ -133,6 +134,9 @@ internal class CampaignsController(
     [ProducesResponseType(typeof(Campaign), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateCampaign([FromBody] CreateCampaignRequest request) {
+        if (request != null && string.IsNullOrWhiteSpace(request.MediaBaseHref)) {
+            request.MediaBaseHref = Configuration.GetHost();
+        }
         var result = await NotificationsManager.CreateCampaignInternal(request, validateRules: false);
         return CreatedAtAction(nameof(GetCampaignById), new { campaignId = result.CampaignId }, result.Campaign);
     }

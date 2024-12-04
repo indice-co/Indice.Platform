@@ -12,8 +12,9 @@ internal static class Mapper
 {
     public static Expression<Func<DbCampaign, Campaign>> ProjectToCampaign = campaign => new() {
         ActionLink = campaign.ActionLink,
+        MediaBaseHref = campaign.MediaBaseHref,
         ActivePeriod = campaign.ActivePeriod,
-        Content = campaign.Content ?? new MessageContentDictionary(),
+        Content = campaign.Content ?? new (),
         CreatedAt = campaign.CreatedAt,
         CreatedBy = campaign.CreatedBy,
         UpdatedAt = campaign.UpdatedAt,
@@ -76,6 +77,7 @@ internal static class Mapper
 
     public static Expression<Func<DbCampaign, CampaignDetails>> ProjectToCampaignDetails = campaign => new() {
         ActionLink = campaign.ActionLink,
+        MediaBaseHref = campaign.MediaBaseHref,
         ActivePeriod = campaign.ActivePeriod,
         Attachment = campaign.Attachment != null ? new AttachmentLink {
             Id = campaign.Attachment.Id,
@@ -84,7 +86,7 @@ internal static class Mapper
             Size = campaign.Attachment.ContentLength,
             PermaLink = $"/campaigns/attachments/{(Base64Id)campaign.Attachment.Guid}.{Path.GetExtension(campaign.Attachment.Name).TrimStart('.')}"
         } : null,
-        Content = campaign.Content ?? new MessageContentDictionary(),
+        Content = campaign.Content ?? new(),
         CreatedAt = campaign.CreatedAt,
         CreatedBy = campaign.CreatedBy,
         UpdatedAt = campaign.UpdatedAt,
@@ -111,6 +113,7 @@ internal static class Mapper
 
     public static DbCampaign ToDbCampaign(CreateCampaignRequest request) => new() {
         ActionLink = request.ActionLink,
+        MediaBaseHref = request.MediaBaseHref,
         ActivePeriod = request.ActivePeriod,
         Content = request.Content,
         CreatedAt = DateTime.UtcNow,

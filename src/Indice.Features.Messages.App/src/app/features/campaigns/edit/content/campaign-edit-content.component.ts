@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, Inject, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ToasterService, ToastType } from '@indice/ng-components';
 
@@ -34,13 +34,21 @@ export class CampaignContentEditComponent implements OnInit {
                 this.basicInfoData.title = campaign.title;
                 this.basicInfoData.type = campaign.type?.name;
                 this.basicInfoData.actionLink = new Hyperlink({
-                    text: campaign.actionLink?.text,
-                    href: campaign.actionLink?.href
+                    text: campaign.actionLink?.text ?? "Click me",
+                    href: campaign.actionLink?.href ?? "https://www.indice.gr"
                 });
+                if (this.campaign.mediaBaseHref) {
+                    this.basicInfoData.mediaBaseHref = this.campaign.mediaBaseHref;
+                }
                 this.campaignData = campaign.data;
                 this.content = campaign.content;
             });
         }
+    }
+
+    @HostListener('document:keydown.control.s', ['$event']) onKeydownHandler(event: KeyboardEvent) {
+      event.preventDefault();
+      this.updateContent();
     }
 
     public updateContent(): void {
@@ -54,6 +62,7 @@ export class CampaignContentEditComponent implements OnInit {
                 body: item.body
             })
         }
+        this.campaign.mediaBaseHref = this._contentComponent?.additionalData?.mediaBaseHref;
         this.campaign.content = content;
         const data = this._contentComponent?.form.controls.data.value;
         this.campaign.data = data ? data : null;

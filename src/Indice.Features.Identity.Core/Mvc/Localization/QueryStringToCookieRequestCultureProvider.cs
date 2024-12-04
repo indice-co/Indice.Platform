@@ -15,7 +15,7 @@ public class QueryStringToCookieRequestCultureProvider : RequestCultureProvider
     public string QueryParameterName { get; set; } = DefaultParameterName;
 
     /// <inheritdoc />
-    public override Task<ProviderCultureResult> DetermineProviderCultureResult(HttpContext httpContext) {
+    public override Task<ProviderCultureResult?> DetermineProviderCultureResult(HttpContext httpContext) {
         if (httpContext == null) {
             throw new ArgumentNullException(nameof(httpContext));
         }
@@ -25,15 +25,10 @@ public class QueryStringToCookieRequestCultureProvider : RequestCultureProvider
             exists = queryString.TryGetValue("returnUrl", out var returnUrl);
             if (exists) {
                 var request = returnUrl.ToArray()[0];
-#if NET6_0_OR_GREATER
-                if (!Uri.TryCreate("https://example.com" + request.TrimStart('~'), new UriCreationOptions { }, out var uri)) {
+                if (!Uri.TryCreate("https://example.com" + request!.TrimStart('~'), new UriCreationOptions { }, out var uri)) {
                     return NullProviderCultureResult;
                 }
-#else
-                if (!Uri.TryCreate("https://example.com" + request.TrimStart('~'), UriKind.Absolute, out var uri)) {
-                    return NullProviderCultureResult;
-                }
-#endif
+
                 var returnUrlQueryString = QueryHelpers.ParseQuery(uri.Query);
                 var requestCulture = returnUrlQueryString.FirstOrDefault(x => x.Key == QueryParameterName).Value;
                 var cultureFromReturnUrl = requestCulture.ToString();
@@ -46,7 +41,7 @@ public class QueryStringToCookieRequestCultureProvider : RequestCultureProvider
         var providerResultCulture = ParseDefaultParameterValue(culture);
         if (!string.IsNullOrEmpty(culture.ToString())) {
             var cookie = httpContext.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName];
-            var newCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture));
+            var newCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture!));
             if (string.IsNullOrEmpty(cookie) || cookie != newCookieValue) {
                 httpContext.Response.Cookies.Append(CookieRequestCultureProvider.DefaultCookieName, newCookieValue);
             }
@@ -63,7 +58,7 @@ public class QueryStringToCookieRequestCultureProvider : RequestCultureProvider
         QueryParameterName = OidcConstants.AuthorizeRequest.UiLocales
     };
 
-    private static ProviderCultureResult ParseDefaultParameterValue(string value) {
+    private static ProviderCultureResult? ParseDefaultParameterValue(string? value) {
         if (string.IsNullOrWhiteSpace(value)) {
             return null;
         }

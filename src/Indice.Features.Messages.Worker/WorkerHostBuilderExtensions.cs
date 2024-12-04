@@ -28,7 +28,7 @@ public static class WorkerHostBuilderExtensions
     /// <param name="workerHostBuilder">A helper class to configure the worker host.</param>
     /// <param name="configure"></param>
     /// <returns>The <see cref="WorkerHostBuilder"/> used to configure the worker host.</returns>
-    public static WorkerHostBuilder AddMessageJobs(this WorkerHostBuilder workerHostBuilder, Action<MessageJobsOptions> configure = null) {
+    public static WorkerHostBuilder AddMessageJobs(this WorkerHostBuilder workerHostBuilder, Action<MessageJobsOptions>? configure = null) {
         var serviceProvider = workerHostBuilder.Services.BuildServiceProvider();
         var configuration = serviceProvider.GetRequiredService<IConfiguration>();
         var options = new MessageJobsOptions {
@@ -123,19 +123,19 @@ public static class WorkerHostBuilderExtensions
     /// <summary>Adds <see cref="IFileService"/> using local file system as the backing store.</summary>
     /// <param name="options">Options used to configure the Campaigns API feature.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
-    public static void UseFilesLocal(this MessageJobsOptions options, Action<FileServiceLocalOptions> configure = null) =>
+    public static void UseFilesLocal(this MessageJobsOptions options, Action<FileServiceLocalOptions>? configure = null) =>
         options.Services.AddFiles(options => options.AddFileSystem(KeyedServiceNames.FileServiceKey, configure));
 
     /// <summary>Adds <see cref="IFileService"/> using Azure Blob Storage as the backing store.</summary>
     /// <param name="options">Options used to configure the Campaigns API feature.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
-    public static void UseFilesAzure(this MessageJobsOptions options, Action<FileServiceAzureOptions> configure = null) =>
+    public static void UseFilesAzure(this MessageJobsOptions options, Action<FileServiceAzureOptions>? configure = null) =>
         options.Services.AddFiles(options => options.AddAzureStorage(KeyedServiceNames.FileServiceKey, configure));
 
     /// <summary>Adds an Azure specific implementation of <see cref="IPushNotificationService"/> for sending push notifications.</summary>
     /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
     /// <param name="configure">Configure the available options for push notifications. Null to use defaults.</param>
-    public static MessageJobsOptions UsePushNotificationServiceAzure(this MessageJobsOptions options, Action<IServiceProvider, PushNotificationAzureOptions> configure = null) {
+    public static MessageJobsOptions UsePushNotificationServiceAzure(this MessageJobsOptions options, Action<IServiceProvider, PushNotificationAzureOptions>? configure = null) {
         options.Services.AddPushNotificationServiceAzure(KeyedServiceNames.PushNotificationServiceKey, configure);
         return options;
     }
@@ -176,7 +176,7 @@ public static class WorkerHostBuilderExtensions
     /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
-    public static MessageJobsOptions UseSmsServiceApifon(this MessageJobsOptions options, IConfiguration configuration, Action<SmsServiceApifonOptions> configure = null) {
+    public static MessageJobsOptions UseSmsServiceApifon(this MessageJobsOptions options, IConfiguration configuration, Action<SmsServiceApifonOptions>? configure = null) {
         options.Services.AddSmsServiceApifon(configuration, configure);
         return options;
     }

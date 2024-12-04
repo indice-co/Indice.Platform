@@ -41,6 +41,7 @@ export class TemplateCreateComponent implements OnInit, AfterViewChecked {
         this.saveInProgress = true;
         const name = 'test-name';
         const formContents = this._templateContent?.form.controls.content.value;
+        const dataContents = this._templateContent?.form.controls.data.value;
         let content: { [key: string]: MessageContent; } = {};
         for (const item of formContents) {
             content[item.channel] = new MessageContent({
@@ -50,6 +51,7 @@ export class TemplateCreateComponent implements OnInit, AfterViewChecked {
             })
         }
         this.template.content = content;
+        this.template.data = JSON.parse(dataContents ?? "{}");
         this._api
             .createTemplate(new CreateTemplateRequest(this.template))
             .subscribe(_ => {

@@ -118,12 +118,9 @@
             Identity Resources
         </label>
         <div class="col-sm-10 col-form-label">
-            <h6 *ngFor="let resource of summary.identityResources"
-                class="d-inline-block mt-0">
-                <span class="badge badge-warning mr-1">
-                    {{ resource }}
-                </span>
-            </h6>
+            <span *ngFor="let resource of summary.identityResources" class="badge text-info border boder-info bg-light m-r-10">
+                {{ resource }}
+            </span>
         </div>
     </div>
     <div class="mb-3 row"
@@ -132,12 +129,9 @@
             API Resources
         </label>
         <div class="col-sm-10 col-form-label">
-            <h6 *ngFor="let resource of summary.apiResources"
-                class="d-inline-block mt-0">
-                <span class="badge badge-warning mr-1">
-                    {{ resource }}
-                </span>
-            </h6>
+            <span *ngFor="let resource of summary.apiResources" class="badge text-info border boder-info bg-light m-r-10">
+                {{ resource }}
+            </span>
         </div>
     </div>
 </form>

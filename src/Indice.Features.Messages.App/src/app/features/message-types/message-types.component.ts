@@ -31,7 +31,7 @@ export class MessageTypesComponent extends BaseListComponent<MessageType> implem
     public newItemLink: string | null = 'create-message-type';
     public full = true;
 
-    public ngOnInit(): void {
+    public override ngOnInit(): void {
         super.ngOnInit();
     }
 
@@ -61,7 +61,7 @@ export class MessageTypesComponent extends BaseListComponent<MessageType> implem
         });
     }
 
-    public actionHandler(action: ViewAction): void {
+    public override actionHandler(action: ViewAction): void {
         if (action.icon === Icons.Refresh) {
             this.search = '';
             this.refresh();

@@ -45,16 +45,18 @@ export class UserSignInLogsComponent implements OnInit {
         { prop: 'actionName', name: 'Action', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
         { prop: 'applicationName', name: 'App Name', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._optionalTemplate },
         { name: 'Status', draggable: false, canAutoResize: false, sortable: false, resizeable: false, cellTemplate: this._statusTemplate },
-        { prop: 'sessionId', name: 'Session Id', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
+        { prop: 'ipAddress', name: 'IP Address', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this.signInLogsList.keyTemplate },
         { prop: 'location', name: 'Location', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
+        { prop: 'sessionId', name: 'Session Id', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
         { prop: 'resourceId', name: 'Endpoint', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
-        { prop: 'signInType', name: 'Sign in Type', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate }
+        { prop: 'extraData.device.displayName', name: 'Device', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this.signInLogsList.keyTemplate },
+        { prop: 'signInType', name: 'Sign in Type', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this.signInLogsList.keyTemplate }
     ];
   }
 
   public getUserSignInLogs(event: SearchEvent): void {
     this.isLoading = true;
-    const userId = this._route.parent.snapshot.params.id;
+    const userId = this._route.parent.snapshot.params['id'];
     const page = event.page;
     const pageSize = event.pageSize;
     const sortField = event.sortField;

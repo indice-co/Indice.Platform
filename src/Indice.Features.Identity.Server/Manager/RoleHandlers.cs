@@ -14,7 +14,7 @@ internal static class RoleHandlers
         var query = roleManager.Roles.AsNoTracking();
         if (!string.IsNullOrEmpty(options.Search)) {
             var searchTerm = options.Search.ToLower();
-            query = query.Where(x => x.Name!.ToLower().Contains(searchTerm) || x.Description.Contains(searchTerm));
+            query = query.Where(x => x.Name!.ToLower().Contains(searchTerm) || x.Description!.Contains(searchTerm));
         }
         var roles = await query.Select(x => new RoleInfo {
             Id = x.Id,

@@ -45,8 +45,8 @@ export class FolderViewComponent implements OnInit {
     });
   }
 
-  public getImageUrl(file: MediaFile) {
-    return this._fileUtilitiesService.getCoverImageUrl(file);
+  public getImageUrl(file: MediaFile, size?: number) {
+    return this._fileUtilitiesService.getCoverImageUrl(file, size);
   }
   public deleteFolder(folder: MediaFolder) {
     const modal = this._modalService.show(BasicModalComponent, {
@@ -107,8 +107,14 @@ export class FolderViewComponent implements OnInit {
       queryParamsHandling: 'merge'
     });
   }
-  public copyToClipboard(file: MediaFile) {
-    this._fileUtilitiesService.copyPermaLinkToClipboard(file);
-    this._toaster.show(ToastType.Success, 'Αντιγραφή συνδέσμου', `Ο σύνδεσμος του αρχείου '${file.name}' αντιγράφηκε με επιτυχία.`);
+
+  public copyToClipboard(file: MediaFile): void {
+    this._fileUtilitiesService.copyPathToClipboard(file.permaLink)
+      .then(() => {
+        this._toaster.show(ToastType.Success, 'Αντιγραφή συνδέσμου', `Ο σύνδεσμος του αρχείου '${file.name}' αντιγράφηκε με επιτυχία.`);
+      })
+      .catch((err) => {
+        this._toaster.show(ToastType.Error, 'Αποτυχία αντιγραφής', 'Ο σύνδεσμος του αρχείου δεν μπόρεσε να αντιγραφεί στο πρόχειρο.');
+      });
   }
 }

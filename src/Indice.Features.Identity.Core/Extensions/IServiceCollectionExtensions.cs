@@ -52,7 +52,7 @@ public static class IServiceCollectionExtensions
     /// <param name="services"></param>
     /// <param name="configuration"></param>
     /// <param name="configure"></param>
-    public static IServiceCollection AddTotpServiceFactory(this IServiceCollection services, IConfiguration configuration, Action<TotpOptions> configure = null) {
+    public static IServiceCollection AddTotpServiceFactory(this IServiceCollection services, IConfiguration configuration, Action<TotpOptions>? configure = null) {
         var totpSection = configuration.GetSection(TotpOptions.Name);
         var totpOptions = new TotpOptions {
             CodeDuration = totpSection.GetValue<int?>(nameof(TotpOptions.CodeDuration)) ?? TotpOptionsBase.DefaultCodeDuration,

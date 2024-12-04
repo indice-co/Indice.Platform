@@ -21,15 +21,16 @@ public class FolderTree
         Node = new MediaFolder {
             Name = "",
             CreatedBy = "",
+            Path = "/"
         };
-        Children = new List<FolderTree>();
+        Children = [];
     }
     /// <summary>Constructs an <see cref="FolderTree"/>.</summary>
     /// <param name="root">The root folder.</param>
     /// <param name="folders">The folder to create the tree.</param>
     public FolderTree(MediaFolder root, IEnumerable<MediaFolder> folders) {
         Node = root ?? throw new ArgumentNullException(nameof(root));
-        Children = new List<FolderTree>();
+        Children = [];
         Build(folders);
     }
     /// <summary>Builds the Tree.</summary>
@@ -77,7 +78,7 @@ public class FolderTree
             throw new ArgumentOutOfRangeException(nameof(page));
         }
         if (IsLeaf) {
-            return new List<MediaFolder>();
+            return [];
         }
         return Children.Select(c => c.Node).Skip((page - 1) * size).Take(size).ToList();
     }

@@ -10,56 +10,60 @@ on:
 jobs:
   build:
 
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     steps:
     # Checkout
     - name: Checkout Repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     
     #Setup .NET Core
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 8.x
         source-url: https://api.nuget.org/v3/index.json
       env:
         NUGET_AUTH_TOKEN: ${{secrets.NUGET_AUTH_TOKEN}}
         
     # Setup Node.js
-    - name: Use Node.js 16.x
-      uses: actions/setup-node@v1
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v4
       with:
-        node-version: 16.13.0
-    
-    # Npm Install and build Cases UI
-    - name: NPM Install and Build Cases UI
+        node-version: 20
+  
+    # Npm Install and build Identity UI
+    - name: NPM Install and Build Identity UI
+      run: |
+        cd src/Indice.Features.Identity.UI
+        npm install --force
+        npm run gulp -- copy:libs
+        npm run gulp -- sass
+
+    # Npm Install Cases
+    - name: NPM Install Cases
       run: |
         cd src/Indice.Features.Cases.App
-        npm install --force
-        npm run build:template
-        
-    # Npm Install and build Admin UI
-    - name: NPM Install and Build Admin UI
+        npm install
+
+    # Npm Install AdminUI
+    - name: NPM Install AdminUI
       run: |
         cd src/Indice.Features.Identity.AdminUI.App
-        npm install --force
-        npm run build:template
-        
-    # Npm Install and build Messages UI
-    - name: NPM Install and Build Messages UI
+        npm install
+
+    # # Npm Install Messages
+    - name: NPM Install Messages
       run: |
         cd src/Indice.Features.Messages.App
-        npm install --force
-        npm run build:template
+        npm install
 
-    # Npm Install and build Risk UI
-    - name: NPM Install and Build Risk UI
+    # # Npm Install Risk App
+    - name: NPM Install Risk
       run: |
         cd src/Indice.Features.Risk.App
-        npm install --force
-        npm run build:template
-    
+        npm install
+
     #Create .nuget dir
     - name: Create .nuget dir
       shell: pwsh
@@ -72,9 +76,34 @@ jobs:
         {
           New-Item -ItemType "directory" -Path ".\.nuget\packages"
         }
-      
-    # Build and pack
-    - name: Build solution and generate NuGet package
+    
+    # BUILD
+    - name: Dotnet restore
+      run: dotnet restore /nowarn:netsdk1138
+
+    - name: Dotnet build SPAs
+      run: dotnet build Indice.Platform.Ecmascript.slnf --no-restore --configuration Release
+
+    - name: Dotnet build
+      run: dotnet build Indice.Platform.slnf --no-restore --configuration Release
+     
+  
+    # TEST 
+    - name: Test with dotnet
+      run: dotnet test --no-build --configuration Release --logger trx --results-directory "TestResults"
+    
+    # TEST REPORT
+    - name: Test Reporter
+      uses: dorny/test-reporter@v1.9.1
+      if: always()
+      with:
+        name: DotNET Tests
+        path: "TestResults/*.trx"                            
+        reporter: dotnet-trx
+        fail-on-error: true
+        
+    # Pack
+    - name: Generate NuGet package
       run: ./pack.ps1
 
     # Push to NuGet

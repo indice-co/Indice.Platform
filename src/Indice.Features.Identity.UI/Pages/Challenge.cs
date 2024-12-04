@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using IdentityModel;
 using IdentityServer4.Extensions;
 using IdentityServer4.Services;
@@ -73,10 +74,13 @@ public abstract class BaseChallengeModel : BasePageModel
         if (user is null) {
             return await UserNotFound(externalLoginInfo, returnUrl);
         }
-        await Events.RaiseAsync(new ExtendedUserLoginSuccessEvent(externalLoginInfo.LoginProvider, externalLoginInfo.Principal.GetSubjectId(), user.Id, user.UserName));
+        await Events.RaiseAsync(new ExtendedUserLoginSuccessEvent(externalLoginInfo.LoginProvider, externalLoginInfo.Principal.GetSubjectId(), user.Id, user.UserName!));
         // Save user tokes retrieved from external provider.
         await SignInManager.UpdateExternalAuthenticationTokensAsync(externalLoginInfo);
         var result = await SignInManager.ExternalLoginSignInAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, isPersistent: true);
+
+        await UserUpdateFromExternalInformation(user, externalLoginInfo);
+
         // Replace locale Claim only if it has a different value configured.
         var localeClaim = user.Claims.FirstOrDefault(x => x.ClaimType == JwtClaimTypes.Locale && x.ClaimValue == RequestCulture.Culture.TwoLetterISOLanguageName);
         if (localeClaim is null) {
@@ -114,6 +118,16 @@ public abstract class BaseChallengeModel : BasePageModel
             ReturnUrl = returnUrl
         });
         return RedirectToPage("/Associate");
+    }
+
+    /// <summary>This is called whenever a user is found and its the last resort to update any Roles or claims based on whet the external provider offers.</summary>
+    /// <param name="user">The <see cref="User"/> that was picked up in the system database using the external info.</param>
+    /// <param name="externalLoginInfo">Represents login information, source and externally source principal for a user record.</param>
+    /// <remarks>The base implementation is empty and serves only as an extensibility point</remarks>
+    /// <returns>A Task</returns>
+    [NonAction]
+    protected virtual Task UserUpdateFromExternalInformation(User user, ExternalLoginInfo externalLoginInfo) {
+        return Task.CompletedTask;
     }
 }
 

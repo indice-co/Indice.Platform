@@ -33,10 +33,10 @@ public class MessageService : IMessageService
     private IContactResolver ContactResolver { get; }
 
     /// <inheritdoc />
-    public async Task<ResultSet<Message>> GetList(string userCode, ListOptions<MessagesFilter> options) {
-        var userMessages = await GetUserMessagesQuery(userCode, options?.Filter).ToResultSetAsync(options);
+    public async Task<ResultSet<Message>> GetList(string recipientId, ListOptions<MessagesFilter> options) {
+        var userMessages = await GetUserMessagesQuery(recipientId, options?.Filter).ToResultSetAsync(options);
         if (userMessages?.Items != null && userMessages.Items.Any(i => i.RequiresSubstitutions)) {
-            await ApplyHandlebarsSubstitutions(userCode, userMessages);
+            await ApplyHandlebarsSubstitutions(recipientId, userMessages);
         }
         return userMessages;
     }
@@ -167,7 +167,7 @@ public class MessageService : IMessageService
             } : null,
             ActivePeriod = x.Campaign.ActivePeriod,
             AttachmentUrl = x.Campaign.Attachment != null
-                ? $"{CampaignInboxOptions.ApiPrefix}/messages/attachments/{(Base64Id)x.Campaign.Attachment.Guid}.{Path.GetExtension(x.Campaign.Attachment.Name).TrimStart('.')}"
+                ? $"{CampaignInboxOptions.PathPrefix}/messages/attachments/{(Base64Id)x.Campaign.Attachment.Guid}.{Path.GetExtension(x.Campaign.Attachment.Name).TrimStart('.')}"
                 : null,
             // TODO: Fix substitution when message is null.
             Title = x.Message != null && x.Message.Content.ContainsKey(messageChannelKindKey) 

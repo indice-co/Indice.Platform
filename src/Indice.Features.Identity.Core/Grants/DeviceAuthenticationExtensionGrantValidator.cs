@@ -1,4 +1,6 @@
 ﻿using System.Security.Claims;
+using System.Text.Json;
+using IdentityServer4;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
@@ -77,10 +79,21 @@ internal class DeviceAuthenticationExtensionGrantValidator(
         if (!string.IsNullOrWhiteSpace(device.DeviceId)) {
             claims.Add(new Claim(BasicClaimTypes.DeviceId, device.DeviceId));
         }
+        if (parameters.Get(BasicClaimTypes.AuthorizationDetails) is { } authorizationDetails) {
+            var validateAuthorizationDetails = ValidateAuthorizationDetails(authorizationDetails);
+            if (validateAuthorizationDetails.IsError) {
+                context.Result = new GrantValidationResult(TokenRequestErrors.InvalidRequest, validateAuthorizationDetails.ErrorDescription) {
+                    Error = ExtraTokenRequestErrors.InvalidAuthorizationDetails
+                };
+                return;
+            }
+
+            claims.Add(new Claim(BasicClaimTypes.AuthorizationDetails, authorizationDetails, IdentityServerConstants.ClaimValueTypes.Json));
+        }
         // If code is present we are heading towards fingerprint login.
         if (hasCode) {
             // Retrieve authorization code from the store.
-            var authorizationCode = await CodeChallengeStore.GetDeviceAuthenticationCode(code);
+            var authorizationCode = await CodeChallengeStore.GetDeviceAuthenticationCode(code!);
             if (authorizationCode == null) {
                 context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Authorization code is invalid.");
                 return;
@@ -98,16 +111,16 @@ internal class DeviceAuthenticationExtensionGrantValidator(
                 }
             }
             // Validate authorization code against code verifier given by the client.
-            var codeVerifier = parameters.Get(RegistrationRequestParameters.CodeVerifier);
-            var authorizationCodeValidationResult = await ValidateAuthorizationCode(code, authorizationCode, codeVerifier, registrationId, context.Request.Client);
+            var codeVerifier = parameters.Get(RegistrationRequestParameters.CodeVerifier)!;
+            var authorizationCodeValidationResult = await ValidateAuthorizationCode(code!, authorizationCode, codeVerifier, registrationId, context.Request.Client);
             if (authorizationCodeValidationResult.IsError) {
                 context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, authorizationCodeValidationResult.ErrorDescription);
                 return;
             }
             // Validate given public key against signature for fingerprint.
-            var publicKey = parameters.Get(RegistrationRequestParameters.PublicKey);
-            var codeSignature = parameters.Get(RegistrationRequestParameters.CodeSignature);
-            var publicKeyValidationResult = ValidateSignature(publicKey, code, codeSignature);
+            var publicKey = parameters.Get(RegistrationRequestParameters.PublicKey)!;
+            var codeSignature = parameters.Get(RegistrationRequestParameters.CodeSignature)!;
+            var publicKeyValidationResult = ValidateSignature(publicKey, code!, codeSignature);
             if (publicKeyValidationResult.IsError) {
                 context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, publicKeyValidationResult.ErrorDescription);
                 return;
@@ -118,7 +131,7 @@ internal class DeviceAuthenticationExtensionGrantValidator(
         }
         // If pin is present we are heading towards a 4-Pin login.
         if (hasPin) {
-            var result = DevicePasswordHasher.VerifyHashedPassword(device, device.Password, pin);
+            var result = DevicePasswordHasher.VerifyHashedPassword(device, device.Password!, pin!);
             if (result == PasswordVerificationResult.Failed) {
                 context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Wrong pin.");
                 return;
@@ -135,16 +148,16 @@ internal class DeviceAuthenticationExtensionGrantValidator(
     }
 
     private Task RaiseUserLoginSuccessEvent(User user, ExtensionGrantValidationContext context) => EventService.RaiseAsync(new ExtendedUserLoginSuccessEvent(
-        user.UserName,
+        user!.UserName!,
         user.Id,
-        user.UserName,
+        user!.UserName!,
         clientId: context.Request.ClientId,
         clientName: context.Request.Client.ClientName,
-        authenticationMethods: [context.Result.Subject.Identity.AuthenticationType]
+        authenticationMethods: [context.Result.Subject.Identity?.AuthenticationType!]
     ));
 
     private Task RaiseUserLoginFailureEvent(User user, ExtensionGrantValidationContext context) => EventService.RaiseAsync(new ExtendedUserLoginFailureEvent(
-        user.UserName,
+        user!.UserName!,
         "Biometric login failure.",
         clientId: context.Request.ClientId,
         subjectId: user.Id
@@ -156,7 +169,7 @@ internal class DeviceAuthenticationExtensionGrantValidator(
             return Invalid("Authorization code is invalid.");
         }
         // Validate that the current device is not trying to use an authorization code of a different device.
-        if (Guid.Parse(authorizationCode.DeviceId) != registrationId) {
+        if (Guid.Parse(authorizationCode.DeviceId!) != registrationId) {
             return Invalid("Authorization code is invalid.");
         }
         // Remove authorization code.
@@ -176,5 +189,34 @@ internal class DeviceAuthenticationExtensionGrantValidator(
             return Invalid(proofKeyParametersValidationResult.ErrorDescription);
         }
         return Success();
+    }
+
+    /// <summary>
+    /// Validate the RFC-9396 authorization_details request, that contains the property type
+    /// <list type="bullet">
+    /// <item>contains an unknown authorization details type value,</item>
+    /// <item>is an object of known type but containing unknown fields,</item>
+    /// <item>contains fields of the wrong type for the authorization details type,</item>
+    /// <item>contains fields with invalid values for the authorization details type, or</item>
+    /// <item>is missing required fields for the authorization details type</item>
+    /// </list>
+    /// </summary>
+    /// <remarks>https://datatracker.ietf.org/doc/html/rfc9396</remarks>
+    /// <returns></returns>
+    private ValidationResult ValidateAuthorizationDetails(string authorizationDetails) {
+        JsonDocument authorizationDetailsJson;
+        try {
+            authorizationDetailsJson = JsonDocument.Parse(authorizationDetails);
+        } catch (Exception) {
+            return Invalid("Authorization details is invalid. Invalid json.");
+        }
+
+        var ok = authorizationDetailsJson.RootElement.ValueKind is JsonValueKind.Object
+            ? authorizationDetailsJson.RootElement.TryGetProperty("type", out _)
+            : authorizationDetailsJson.RootElement.EnumerateArray().All(x => x.TryGetProperty("type", out _));
+
+        return ok
+            ? Success()
+            : Invalid("Authorization details is invalid. Unknown type.");
     }
 }

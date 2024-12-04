@@ -187,6 +187,10 @@ export class UserStore {
         return this._userDevices;
     }
 
+    public deleteUserDevice(userId: string, deviceId: string): Observable<void> {
+        return this._api.deleteUserDevice(userId, deviceId);
+    }
+
     public getUserExternalLogins(userId: string): Observable<UserLoginProviderInfo[]> {
         if (!this._userExternalLogins) {
             this._userExternalLogins = new AsyncSubject<UserLoginProviderInfo[]>();

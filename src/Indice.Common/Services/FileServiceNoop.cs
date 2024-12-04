@@ -10,10 +10,13 @@ public class FileServiceNoop : IFileService
     public Task<byte[]> GetAsync(string filePath) => Task.FromResult(Array.Empty<byte>());
 
     /// <inheritdoc/>
-    public Task<FileProperties> GetPropertiesAsync(string filePath) => Task.FromResult(default(FileProperties));
+    public Task<FileProperties?> GetPropertiesAsync(string filePath) => Task.FromResult(default(FileProperties));
 
     /// <inheritdoc/>
-    public Task SaveAsync(string filePath, Stream stream, FileServiceSaveOptions saveOptions) => Task.CompletedTask;
+    public Task SaveAsync(string filePath, Stream stream, FileServiceSaveOptions? saveOptions) => Task.CompletedTask;
+    
+    /// <inheritdoc/>
+    public Task MoveAsync(string sourcePath, string destinationPath) => Task.CompletedTask;
 
     /// <inheritdoc/>
     public Task<IEnumerable<string>> SearchAsync(string path) => Task.FromResult(Enumerable.Empty<string>());

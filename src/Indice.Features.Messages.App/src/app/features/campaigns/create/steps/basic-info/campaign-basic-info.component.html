@@ -8,11 +8,12 @@
                 Τίτλος (*)
             </div>
             <label for="campaignTitle"
-                   class="field-label hidden">
+                   class="hidden">
                 Τίτλος (*)
             </label>
             <div class="mt-1 flex rounded-sm">
-                <input type="text"
+                <input class="w-full"
+                       type="text"
                        name="campaignTitle"
                        id="campaignTitle"
                        formControlName="title"
@@ -33,7 +34,7 @@
                 Τύπος
             </div>
             <label for="campaignType"
-                   class="field-label hidden"
+                   class="hidden"
                    aria-hidden="true">
                 Τύπος
             </label>
@@ -58,7 +59,7 @@
                 <!-- Από -->
                 <div class="col-span-2 sm:col-span-1">
                     <label for="campaignStart"
-                           class="field-label hidden"
+                           class="hidden"
                            aria-hidden="true">
                         Ημ. Έναρξης
                     </label>
@@ -77,7 +78,7 @@
                 <!-- Έως -->
                 <div class="col-span-2 sm:col-span-1">
                     <label for="campaignEnd"
-                           class="field-label hidden"
+                           class="hidden"
                            aria-hidden="true">
                         Ημ. Λήξης
                     </label>
@@ -106,12 +107,13 @@
                 <!-- Call to action κείμενο -->
                 <div class="col-span-2 sm:col-span-1">
                     <label for="campaignClickToActionText"
-                           class="field-label hidden"
+                           class="hidden"
                            aria-hidden="true">
                         Call-to-action
                     </label>
                     <div class="mt-1 flex rounded-sm">
-                        <input type="text"
+                        <input class="w-full"
+                               type="text"
                                name="campaignClickToActionText"
                                id="campaignClickToActionText"
                                formControlName="actionLinkText"
@@ -122,12 +124,13 @@
                 <!-- Call to action σύνδεσμος -->
                 <div class="col-span-2 sm:col-span-1">
                     <label for="campaignClickToActionLink"
-                           class="field-label hidden"
+                           class="hidden"
                            aria-hidden="true">
                         Call-to-action σύνδεσμος
                     </label>
                     <div class="mt-1 flex rounded-sm">
-                        <input type="text"
+                        <input class="w-full"
+                               type="text"
                                name="campaignClickToActionLink"
                                id="campaignClickToActionLink"
                                formControlName="actionLinkHref"
@@ -178,7 +181,7 @@
                 <div class="col-span-2 sm:col-span-1"
                      [class.invisible]="needsTemplate.value === 'no'">
                     <label for="template"
-                           class="field-label hidden"
+                           class="hidden"
                            aria-hidden="true">
                         Template id
                     </label>

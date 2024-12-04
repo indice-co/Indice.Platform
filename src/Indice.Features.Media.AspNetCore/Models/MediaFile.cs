@@ -1,36 +1,24 @@
 ﻿namespace Indice.Features.Media.AspNetCore.Models;
 
-/// <summary>Models a file.</summary>
-public class MediaFile
-{
-    /// <summary>Creates a new instance of <see cref="MediaFile"/>.</summary>
-    public MediaFile() {
-    }
 
-    /// <summary>The unique id of the file.</summary>
-    public Guid Id { get; set; }
-    /// <summary>The name of the file.</summary>
-    public string Name { get; set; }
-    /// <summary>The description of the file.</summary>
-    public string? Description { get; set; }
-    /// <summary>The file extension.</summary>
-    public string FileExtension { get; set; }
-    /// <summary>The file mime type.</summary>
-    public string ContentType { get; set; }
-    /// <summary>The file size.</summary>
-    public int ContentLength { get; set; }
-    /// <summary>The file as a byte array.</summary>
-    public byte[]? Data { get; set; }
-    /// <summary>The Id of the folder containing the file.</summary>
-    public Guid? FolderId { get; set; }
-    /// <summary>The file URI.</summary>
-    public string PermaLink { get; set; }
-    /// <summary>Specifies the principal that created the entity.</summary>
-    public string CreatedBy { get; set; }
-    /// <summary>Specifies when an entity was created.</summary>
-    public DateTimeOffset CreatedAt { get; set; }
-    /// <summary>Specifies the principal that update the entity.</summary>
-    public string? UpdatedBy { get; set; }
-    /// <summary>Specifies when an entity was updated.</summary>
-    public DateTimeOffset? UpdatedAt { get; set; }
+
+
+/// <summary>Models a file.</summary>
+/// <param name="Id">The unique id of the file.</param>
+/// <param name="Name">The name of the file.</param>
+/// <param name="Path">The path to the file.</param>
+/// <param name="Description">The description of the file.</param>
+/// <param name="FileExtension">The file extension.</param>
+/// <param name="ContentType">The file mime type.</param>
+/// <param name="ContentLength">The file size.</param>
+/// <param name="Data">The file as a byte array.</param>
+/// <param name="FolderId">The Id of the folder containing the file.</param>
+/// <param name="PermaLink">The file URI.</param>
+/// <param name="CreatedBy">Specifies the principal that created the entity.</param>
+/// <param name="CreatedAt">Specifies when an entity was created.</param>
+/// <param name="UpdatedBy">Specifies the principal that update the entity.</param>
+/// <param name="UpdatedAt">Specifies when an entity was updated.</param>
+public record MediaFile(Guid Id, string Name, string Path, string? Description, string FileExtension, string ContentType, int ContentLength, byte[]? Data, Guid? FolderId, string PermaLink, string CreatedBy, DateTimeOffset CreatedAt, string? UpdatedBy, DateTimeOffset? UpdatedAt)
+{
+    
 }

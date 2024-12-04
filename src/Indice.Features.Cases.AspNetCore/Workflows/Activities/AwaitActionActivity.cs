@@ -4,8 +4,8 @@ using Elsa.Attributes;
 using Elsa.Design;
 using Elsa.Expressions;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Interfaces;
-using Indice.Features.Cases.Models;
+using Indice.Features.Cases.Core.Models;
+using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Features.Cases.Workflows.Extensions;
 
 namespace Indice.Features.Cases.Workflows.Activities;
@@ -39,9 +39,9 @@ public class AwaitActionActivity : BaseCaseActivity
         Hint = "The name of the action button to show at Cases Back-office UI.",
         UIHint = ActivityInputUIHints.SingleLine,
         DefaultSyntax = SyntaxNames.Literal,
-        SupportedSyntaxes = new[] { SyntaxNames.Literal }
+        SupportedSyntaxes = [SyntaxNames.Literal]
     )]
-    public string ActionName { get; set; }
+    public string? ActionName { get; set; }
 
     /// <summary>The label of the action button to show at Cases Back-office UI.</summary>
     [ActivityInput(
@@ -49,9 +49,9 @@ public class AwaitActionActivity : BaseCaseActivity
         Hint = "The label of the action button to show at Cases Back-office UI.",
         UIHint = ActivityInputUIHints.SingleLine,
         DefaultSyntax = SyntaxNames.Literal,
-        SupportedSyntaxes = new[] { SyntaxNames.Literal }
+        SupportedSyntaxes = [SyntaxNames.Literal]
     )]
-    public string ActionLabel { get; set; }
+    public string? ActionLabel { get; set; }
 
     /// <summary>The Default Value of the action input to show at Cases Back-office UI.</summary>
     [ActivityInput(
@@ -59,9 +59,9 @@ public class AwaitActionActivity : BaseCaseActivity
         Hint = "The Default Value of the action input to show at Cases Back-office UI.",
         UIHint = ActivityInputUIHints.SingleLine,
         DefaultSyntax = SyntaxNames.Literal,
-        SupportedSyntaxes = new[] { SyntaxNames.Literal, SyntaxNames.JavaScript }
+        SupportedSyntaxes = [SyntaxNames.Literal, SyntaxNames.JavaScript]
     )]
-    public string ActionInputDefaultValue { get; set; }
+    public string? ActionInputDefaultValue { get; set; }
 
     /// <summary>The description of the action to show at Cases Back-office UI.</summary>
     [ActivityInput(
@@ -69,9 +69,9 @@ public class AwaitActionActivity : BaseCaseActivity
         Hint = "The description of the action to show at Cases Back-office UI.",
         UIHint = ActivityInputUIHints.MultiLine,
         DefaultSyntax = SyntaxNames.Literal,
-        SupportedSyntaxes = new[] { SyntaxNames.Literal }
+        SupportedSyntaxes = [SyntaxNames.Literal]
     )]
-    public string ActionDescription { get; set; }
+    public string? ActionDescription { get; set; }
 
     /// <summary>The class of the action button to show at Cases Back-office UI.</summary>
     [ActivityInput(
@@ -79,9 +79,9 @@ public class AwaitActionActivity : BaseCaseActivity
         Hint = "The class of the action button to show at Cases Back-office UI.",
         UIHint = ActivityInputUIHints.SingleLine,
         DefaultSyntax = SyntaxNames.Literal,
-        SupportedSyntaxes = new[] { SyntaxNames.Literal }
+        SupportedSyntaxes = [SyntaxNames.Literal]
     )]
-    public string ActionClass { get; set; }
+    public string? ActionClass { get; set; }
 
     /// <summary>Determines whether at the end of the action the user will be redirected to Cases list of Back-office UI.</summary>
     [ActivityInput(
@@ -96,9 +96,9 @@ public class AwaitActionActivity : BaseCaseActivity
         Hint = "A response message that is returned if the action is completed with success.",
         UIHint = ActivityInputUIHints.MultiLine,
         DefaultSyntax = SyntaxNames.JavaScript,
-        SupportedSyntaxes = new[] { SyntaxNames.JavaScript, SyntaxNames.Liquid }
+        SupportedSyntaxes = [SyntaxNames.JavaScript, SyntaxNames.Liquid]
     )]
-    public SuccessMessage SuccessMessage { get; set; }
+    public SuccessMessage? SuccessMessage { get; set; }
 
     /// <summary>User role that can proceed to this action. If left blank, all authenticated users can proceed to this action.</summary>
     [ActivityInput(
@@ -106,9 +106,9 @@ public class AwaitActionActivity : BaseCaseActivity
         Hint = "User role that can proceed to this action. If left blank, all authenticated users can proceed to this action.",
         UIHint = ActivityInputUIHints.SingleLine,
         DefaultSyntax = SyntaxNames.Literal,
-        SupportedSyntaxes = new[] { SyntaxNames.Literal }
+        SupportedSyntaxes = [SyntaxNames.Literal]
     )]
-    public string AllowedRole { get; set; } = string.Empty;
+    public string? AllowedRole { get; set; } = string.Empty;
 
     /// <summary>Determines whether the Back-Office UI will have an input element.</summary>
     [ActivityInput(
@@ -119,7 +119,7 @@ public class AwaitActionActivity : BaseCaseActivity
 
     /// <summary>The output probably</summary>
     [ActivityOutput]
-    public object Output { get; set; }
+    public object? Output { get; set; }
 
     /// <inheritdoc />
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {

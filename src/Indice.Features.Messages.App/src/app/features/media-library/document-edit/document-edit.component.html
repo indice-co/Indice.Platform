@@ -49,10 +49,27 @@
                         <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
                             <div class="sm:col-span-1">
                                 <dt class="text-sm font-medium text-gray-500">
-                                    Τιτλος
+                                    Τίτλος
                                     <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editName' }"></ng-container>
                                 </dt>
                                 <dd class="mt-1 text-sm text-gray-900">{{ file?.name }}</dd>
+                            </div>
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-gray-500 flex items-center space-x-2">
+                                    Τοποθεσία
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         fill="none"
+                                         viewBox="0 0 24 24"
+                                         stroke-width="1.5"
+                                         stroke="currentColor"
+                                         class="h-4 w-4 cursor-pointer hover:text-gray-700 ml-0.5"
+                                         (click)="file && copyToClipboard(file)">
+                                        <path stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" />
+                                    </svg>
+                                </dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ file?.path }}</dd>
                             </div>
                             <div class="sm:col-span-1">
                                 <dt class="text-sm font-medium text-gray-500">
@@ -68,12 +85,12 @@
                                 </dt>
                                 <dd class="mt-1 text-sm text-gray-900">{{ parentFolderName || '-' }}</dd>
                             </div>
-                            <div class="sm:col-span-1">
+                            <!--<div class="sm:col-span-1">
                                 <dt class="text-sm font-medium text-gray-500">
                                     Κατάληξη
                                 </dt>
                                 <dd class="mt-1 text-sm text-gray-900">{{ file?.fileExtension || '-' }}</dd>
-                            </div>
+                            </div>-->
                             <div class="sm:col-span-1">
                                 <dt class="text-sm font-medium text-gray-500">
                                     Τύπος
@@ -87,19 +104,27 @@
                                 <dd class="mt-1 text-sm text-gray-900">{{ file?.contentLength || '-' }} B</dd>
                             </div>
                             <div class="sm:col-span-1">
-                                <dt class="text-sm font-medium text-gray-500">Δημιουργήθηκε από</dt>
+                                <dt class="text-sm font-medium text-gray-500">
+                                    Δημιουργήθηκε από
+                                </dt>
                                 <dd class="mt-1 text-sm text-gray-900">{{ file?.createdBy || '-' }}</dd>
                             </div>
                             <div class="sm:col-span-1">
-                                <dt class="text-sm font-medium text-gray-500">Δημιουργήθηκε στις</dt>
+                                <dt class="text-sm font-medium text-gray-500">
+                                    Δημιουργήθηκε στις
+                                </dt>
                                 <dd class="mt-1 text-sm text-gray-900">{{ file?.createdAt ? (file?.createdAt | date: 'medium') : '-' }}</dd>
                             </div>
                             <div class="sm:col-span-1">
-                                <dt class="text-sm font-medium text-gray-500">Τροποποιήθηκε από</dt>
+                                <dt class="text-sm font-medium text-gray-500">
+                                    Τροποποιήθηκε από
+                                </dt>
                                 <dd class="mt-1 text-sm text-gray-900">{{ file?.updatedBy || '-' }}</dd>
                             </div>
                             <div class="sm:col-span-1">
-                                <dt class="text-sm font-medium text-gray-500">Τροποποιήθηκε στις</dt>
+                                <dt class="text-sm font-medium text-gray-500">
+                                    Τροποποιήθηκε στις
+                                </dt>
                                 <dd class="mt-1 text-sm text-gray-900">{{ file?.updatedAt ? (file?.updatedAt | date: 'medium') : '-' }}</dd>
                             </div>
                         </dl>

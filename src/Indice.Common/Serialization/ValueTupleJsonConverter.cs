@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿#nullable disable
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Indice.Serialization;
@@ -30,7 +31,7 @@ public class ValueTupleJsonConverter<T1> : JsonConverter<ValueTuple<T1>>
     public override void Write(Utf8JsonWriter writer, ValueTuple<T1> value, JsonSerializerOptions options) {
         writer.WriteStartObject();
         writer.WritePropertyName("Item1");
-        JsonSerializer.Serialize<T1>(writer, value.Item1, options);
+        JsonSerializer.Serialize(writer, value.Item1, options);
         writer.WriteEndObject();
     }
 }
@@ -64,9 +65,9 @@ public class ValueTupleJsonConverter<T1, T2> : JsonConverter<ValueTuple<T1, T2>>
     public override void Write(Utf8JsonWriter writer, (T1, T2) value, JsonSerializerOptions options) {
         writer.WriteStartObject();
         writer.WritePropertyName("Item1");
-        JsonSerializer.Serialize<T1>(writer, value.Item1, options);
+        JsonSerializer.Serialize(writer, value.Item1, options);
         writer.WritePropertyName("Item2");
-        JsonSerializer.Serialize<T2>(writer, value.Item2, options);
+        JsonSerializer.Serialize(writer, value.Item2, options);
         writer.WriteEndObject();
     }
 }
@@ -103,11 +104,11 @@ public class ValueTupleJsonConverter<T1, T2, T3> : JsonConverter<ValueTuple<T1, 
     public override void Write(Utf8JsonWriter writer, (T1, T2, T3) value, JsonSerializerOptions options) {
         writer.WriteStartObject();
         writer.WritePropertyName("Item1");
-        JsonSerializer.Serialize<T1>(writer, value.Item1, options);
+        JsonSerializer.Serialize(writer, value.Item1, options);
         writer.WritePropertyName("Item2");
-        JsonSerializer.Serialize<T2>(writer, value.Item2, options);
+        JsonSerializer.Serialize(writer, value.Item2, options);
         writer.WritePropertyName("Item3");
-        JsonSerializer.Serialize<T3>(writer, value.Item3, options);
+        JsonSerializer.Serialize(writer, value.Item3, options);
         writer.WriteEndObject();
     }
 }
@@ -146,13 +147,13 @@ public class ValueTupleJsonConverter<T1, T2, T3, T4> : JsonConverter<ValueTuple<
     public override void Write(Utf8JsonWriter writer, (T1, T2, T3, T4) value, JsonSerializerOptions options) {
         writer.WriteStartObject();
         writer.WritePropertyName("Item1");
-        JsonSerializer.Serialize<T1>(writer, value.Item1, options);
+        JsonSerializer.Serialize(writer, value.Item1, options);
         writer.WritePropertyName("Item2");
-        JsonSerializer.Serialize<T2>(writer, value.Item2, options);
+        JsonSerializer.Serialize(writer, value.Item2, options);
         writer.WritePropertyName("Item3");
-        JsonSerializer.Serialize<T3>(writer, value.Item3, options);
+        JsonSerializer.Serialize(writer, value.Item3, options);
         writer.WritePropertyName("Item4");
-        JsonSerializer.Serialize<T4>(writer, value.Item4, options);
+        JsonSerializer.Serialize(writer, value.Item4, options);
         writer.WriteEndObject();
     }
 }
@@ -196,15 +197,16 @@ public class ValueTupleJsonConverter<T1, T2, T3, T4, T5> : JsonConverter<ValueTu
     public override void Write(Utf8JsonWriter writer, (T1, T2, T3, T4, T5) value, JsonSerializerOptions options) {
         writer.WriteStartObject();
         writer.WritePropertyName("Item1");
-        JsonSerializer.Serialize<T1>(writer, value.Item1, options);
+        JsonSerializer.Serialize(writer, value.Item1, options);
         writer.WritePropertyName("Item2");
-        JsonSerializer.Serialize<T2>(writer, value.Item2, options);
+        JsonSerializer.Serialize(writer, value.Item2, options);
         writer.WritePropertyName("Item3");
-        JsonSerializer.Serialize<T3>(writer, value.Item3, options);
+        JsonSerializer.Serialize(writer, value.Item3, options);
         writer.WritePropertyName("Item4");
-        JsonSerializer.Serialize<T4>(writer, value.Item4, options);
+        JsonSerializer.Serialize(writer, value.Item4, options);
         writer.WritePropertyName("Item5");
-        JsonSerializer.Serialize<T5>(writer, value.Item5, options);
+        JsonSerializer.Serialize(writer, value.Item5, options);
         writer.WriteEndObject();
     }
 }
+#nullable enable

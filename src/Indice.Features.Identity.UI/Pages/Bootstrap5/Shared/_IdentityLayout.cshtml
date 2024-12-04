@@ -2,8 +2,7 @@
 @inject IIdentityViewLocalizer Localizer
 @inject IWebHostEnvironment Environment
 @inject IConfiguration Configuration
-@inject JavaScriptSnippet JavaScriptSnippet
-@inject IOptions<ApplicationInsightsServiceOptions> AppInsightsOptions
+@inject ITelemetryJavaScriptSnippet JavaScriptSnippet
 @inject IOptions<IdentityUIOptions> UiOptions
 @inject SignInManager<User> SignInManager
 
@@ -39,7 +38,7 @@
 <body route-styles class="@authClass @UiOptions.Value.HtmlBodyBackgroundCssClass">
     <link rel="stylesheet" type="text/css" href="~/css/bootstrap.css" asp-append-version="true" />
     <link rel="stylesheet" type="text/css" href="~/css/identity.css" asp-append-version="true" />
-    <link rel="stylesheet" type="text/css" href="~/lib/font-awesome/css/font-awesome.min.css" asp-append-version="true" />
+    <link rel="stylesheet" type="text/css" href="~/lib/@@fortawesome/fontawesome-free/css/all.min.css" asp-append-version="true" />
     <partial name="_Styles" />
     @RenderSection("css", required: false)
     <partial name="_Header" />
@@ -57,7 +56,7 @@
         </main>
     </div>
     <script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js" csp-nonce="true"></script>
-    <script type="text/javascript" src="~/lib/popper.js/dist/umd/popper.min.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="~/lib/@@popperjs/core/dist/umd/popper.min.js" csp-nonce="true"></script>
     <script type="text/javascript" src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" csp-nonce="true"></script>
     <script type="text/javascript" src="~/js/site.js" csp-nonce="true" asp-append-version="true"></script>
     @RenderSection("scripts", required: false)

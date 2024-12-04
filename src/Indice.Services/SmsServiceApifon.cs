@@ -1,4 +1,7 @@
-﻿using System.Net.Http.Headers;
+﻿#nullable enable
+
+using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -40,9 +43,10 @@ public class SmsServiceApifon : ISmsService
     protected ILogger<SmsServiceApifon> Logger { get; }
 
     /// <inheritdoc/>
-    public async Task SendAsync(string destination, string subject, string body, SmsSender sender = null) {
+    public async Task<SendReceipt> SendAsync(string destination, string subject, string? body, SmsSender? sender = null) {
         HttpResponseMessage httpResponse;
         ApifonResponse response;
+        var messageId = Guid.NewGuid().ToString();
         var recipients = (destination ?? string.Empty).Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
         if (recipients == null) {
             throw new ArgumentNullException(nameof(recipients));
@@ -61,36 +65,42 @@ public class SmsServiceApifon : ISmsService
             throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(recipients));
         }
         // https://docs.apifon.com/apireference.html#sms-request
-        var payload = new ApifonRequest(sender?.Id ?? Settings.Sender ?? Settings.SenderName, recipients, body);
-        var signature = payload.Sign(Settings.ApiKey, HttpMethod.Post.ToString(), "/services/api/v1/sms/send");
+        var payload = ApifonRequest.Create(sender?.Id ?? Settings.Sender ?? Settings.SenderName!, recipients, body!);
+        var signature = payload.Sign(Settings.ApiKey!, HttpMethod.Post.ToString(), "/services/api/v1/sms/send");
         var request = new HttpRequestMessage {
             Content = new StringContent(payload.ToJson(), Encoding.UTF8, "application/json"),
             Method = HttpMethod.Post,
-            RequestUri = new Uri(HttpClient.BaseAddress, "send")
+            RequestUri = new Uri(HttpClient.BaseAddress!, "send")
         };
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         request.Headers.Add("X-ApifonWS-Date", payload.RequestDate.ToString("r"));
         request.Headers.Authorization = new AuthenticationHeaderValue("ApifonWS", $"{Settings.Token}:{signature}");
         try {
-            Logger.LogInformation("The full request sent to Apifon: {0}", JsonSerializer.Serialize(request, GetJsonSerializerOptions()));
-            Logger.LogInformation("The following payload was sent to Apifon: {0}", payload.ToJson());
+            Logger.LogInformation("The full request sent to Apifon: {requestMessage}", JsonSerializer.Serialize(request, GetJsonSerializerOptions()));
+            Logger.LogInformation("The following payload was sent to Apifon: {requestPayload}", payload.ToJson());
             httpResponse = await HttpClient.SendAsync(request);
         } catch (Exception ex) {
-            Logger.LogInformation("SMS Delivery took too long: {0}", ex);
-            throw new SmsServiceException($"SMS Delivery took too long", ex);
+            Logger.LogError("SMS Delivery took too long");
+            throw new SmsServiceException("SMS Delivery took too long", ex);
         }
         var responseString = await httpResponse.Content.ReadAsStringAsync();
         if (!httpResponse.IsSuccessStatusCode) {
-            Logger.LogInformation($"SMS Delivery failed. {httpResponse.StatusCode} : {responseString}");
+            Logger.LogInformation("SMS Delivery failed. {statusCode} : {responseString}", httpResponse.StatusCode, responseString);
             throw new SmsServiceException($"SMS Delivery failed. {httpResponse.StatusCode} : {responseString}");
         }
-        response = JsonSerializer.Deserialize<ApifonResponse>(responseString, GetJsonSerializerOptions());
+        response = JsonSerializer.Deserialize<ApifonResponse>(responseString, GetJsonSerializerOptions())!;
         if (response.HasError) {
-            Logger.LogInformation($"SMS Delivery failed. {response.Status.Description}");
-            throw new SmsServiceException($"SMS Delivery failed. {response.Status.Description}");
+            Logger.LogInformation("SMS Delivery failed. {responseStatus}. ResponseId: {responseId}", response.Status?.Description, response.Id);
+            throw new SmsServiceException($"SMS Delivery failed. {response.Status?.Description} responseId {response.Id}");
         } else {
-            Logger.LogInformation("SMS message successfully sent: {1}", response.Results.FirstOrDefault());
+            Logger.LogInformation("SMS message successfully sent: {result}", response.Results.FirstOrDefault());
         }
+        messageId = response.Id;
+        var messageIds = response.Results?.Values.SelectMany(x => x?.Select(y => y.Id)!)?.ToList();
+        if (messageIds?.Count > 0) {
+            messageId = string.Join(",", messageIds);
+        }
+        return new SendReceipt(messageId, DateTimeOffset.UtcNow);
     }
 
     /// <summary>Checks the implementation if supports the given <paramref name="deliveryChannel"/>.</summary>
@@ -109,126 +119,135 @@ public class SmsServiceApifon : ISmsService
 public class SmsServiceApifonOptions
 {
     /// <summary>Optional options for <see cref="HttpMessageHandler"/></summary>
-    public Func<IServiceProvider, HttpMessageHandler> ConfigurePrimaryHttpMessageHandler { get; set; }
+    public Func<IServiceProvider, HttpMessageHandler>? ConfigurePrimaryHttpMessageHandler { get; set; }
 }
 
 /// <summary>Extra settings class for configuring Apifon SMS service client. </summary>
 public class SmsServiceApifonSettings : SmsServiceSettings
 {
     /// <summary>Apifon Api token key.</summary>
-    public string Token { get; set; }
+    public string Token { get; set; } = null!;
 }
 
 internal class ApifonResponse
 {
     [JsonPropertyName("request_id")]
-    public string Id { get; set; }
-    public Dictionary<string, ResultDetails[]> Results { get; set; }
+    public string Id { get; set; } = null!;
+    public Dictionary<string, ResultDetails[]> Results { get; set; } = [];
     [JsonPropertyName("result_info")]
-    public ResultInfo Status { get; set; }
+    public ResultInfo? Status { get; set; }
+
     public bool HasError => !(Status?.StatusCode >= 200 && Status?.StatusCode < 300);
 
     internal class ResultDetails
     {
         [JsonPropertyName("message_id")]
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
         [JsonPropertyName("custom_id")]
-        public string CustomId { get; set; }
+        public string? CustomId { get; set; }
         public int Length { get; set; }
         [JsonPropertyName("short_url")]
-        public string ShortUrl { get; set; }
+        public string? ShortUrl { get; set; }
         [JsonPropertyName("short_code")]
-        public string ShortCode { get; set; }
+        public string? ShortCode { get; set; }
     }
 
     internal class ResultInfo
     {
         [JsonPropertyName("status_code")]
         public int StatusCode { get; set; }
-        public string Description { get; set; }
+        [JsonPropertyName("description")]
+        public string? Description { get; set; }
     }
 }
 
 internal class ApifonRequest
 {
-    public ApifonRequest(string from, string[] to, string message) {
+    public static ApifonRequest Create(string from, string[] to, string message) {
+        var request = new ApifonRequest();
         foreach (var subNumber in to) {
-            Subscribers.Add(new Subscribers { To = subNumber });
+            request.Subscribers.Add(new Subscriber { To = subNumber });
         }
-        Message.From = from;
-        Message.Text = message;
+        request.Message.From = from;
+        request.Message.Text = message;
+        return request;
     }
 
     [JsonPropertyName("message")]
-    public Message Message { get; set; } = new Message();
+    public ApifonMessage Message { get; set; } = new();
     [JsonPropertyName("subscribers")]
-    public List<Subscribers> Subscribers { get; set; } = new List<Subscribers>();
+    public List<Subscriber> Subscribers { get; set; } = [];
     /// <summary>SMS validity period. Min 30 - Max 4320 (default).</summary>
     [JsonPropertyName("tte")]
     public int? ValidityPeriod { get; set; }
     /// <summary>If set, the callback (delivery / status report) will be delivered to this URL, otherwise no callback will take place.</summary>
     [JsonPropertyName("callback_url")]
-    public string CallbackUrl { get; set; }
+    public string? CallbackUrl { get; set; }
     /// <summary>The date that the message will be sent on UTC/GMT TIMEZONE. If omitted it will be sent immediately.</summary>
     [JsonPropertyName("date")]
     public DateTime? DateToSend { get; set; }
     [JsonIgnore]
     public DateTime RequestDate { get; set; } = DateTime.Now.ToUniversalTime();
 
+    internal class ApifonMessage
+    {
+        /// <summary>
+        /// Contains the body of the SMS message to be delivered to the destination device. One can optionally specify keys within the message body that will be replaced later with values given by 
+        /// the parameters field in the SUBSCRIBERS* object. See 'parameters' in the SUBSCRIBERS* section for more information on supplying the value for these keys. Each placeholder must be specified as 
+        /// { KEY}, where KEY is a key name in the parameters list. For this feature to be used, GSM7 or UCS2 encoding must be used. In the event your text is longer than 160 characters in 7bit, 140 in 
+        /// 8bit or 70 in 16bit, Apifon will split the message into parts.
+        /// </summary>
+        [JsonPropertyName("text")]
+        public string? Text { get; set; }
+        /// <summary>
+        /// Contains the information on how the text is encoded.
+        /// The maximum number of characters you can fit into a single message depends on the encoding you are using:
+        /// 
+        /// [0]: GSM7 bit Default Alphabet(160).
+        /// Basic Latin subset of ASCII, as well as some characters of the ISO Latin 1 – 160
+        /// 
+        /// [1]: GSM 8-bit data encoding(140.
+        /// 8-bit data encoding mode treats the information as raw data.According to the standard, the alphabet for this encoding is user-specific.
+        /// 
+        /// [2]: UCS-2 (UTF-16 [16 bit]) Encoding(70).
+        /// This encoding allows use of a greater range of characters and languages.UCS-2 can represent the most commonly used Latin and eastern
+        /// characters at the cost of a greater space expense.
+        /// </summary>
+        [JsonPropertyName("dc")]
+        public string? Encoding { get; set; }
+        /// <summary>Numeric (maximum number of digits: 16) or alphanumeric characters (maximum number of characters: 11).</summary>
+        [JsonPropertyName("sender_id")]
+        public string? From { get; set; }
+    }
+
+    internal class Subscriber
+    {
+        /// <summary>Mobile number to deliver the message to. Number is in international format and is only digits between 7-15 digits long. First digit cannot be a 0.</summary>
+        [JsonPropertyName("number")]
+        public string? To { get; set; }
+        /// <summary>If your message content contains placeholders for personalized messages per destination, this field is required to populate the value for each recipient.</summary>
+        public Dictionary<string, string>? Params { get; set; }
+    }
+}
+
+internal static class ApifonSmsServiceExtensions {
     /// <summary>Serialize our concrete class into a JSON String.</summary>
-    public string ToJson() => JsonSerializer.Serialize(this, new JsonSerializerOptions {
+    public static string ToJson<TRequest>(this TRequest request, JsonSerializerOptions? options = null) 
+        where TRequest : ApifonRequest 
+            => JsonSerializer.Serialize(request, options ?? new() {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     });
 
-    public string Sign(string secretKey, string method, string uri) {
+    public static string Sign<TRequest>(this TRequest request, string secretKey, string method, string uri) where TRequest : ApifonRequest {
         var toSign = method + "\n"
             + uri + "\n"
-            + ToJson() + "\n"
-            + RequestDate.ToString("r");
+            + request.ToJson() + "\n"
+            + request.RequestDate.ToString("r");
         var encoding = new UTF8Encoding();
-        using (var hmacSha256 = new HMACSHA256(encoding.GetBytes(secretKey))) {
-            return Convert.ToBase64String(hmacSha256.ComputeHash(encoding.GetBytes(toSign)));
-        }
+        using var hmacSha256 = new HMACSHA256(encoding.GetBytes(secretKey));
+        return Convert.ToBase64String(hmacSha256.ComputeHash(encoding.GetBytes(toSign)));
     }
 }
 
-internal class Message
-{
-    /// <summary>
-    /// Contains the body of the SMS message to be delivered to the destination device. One can optionally specify keys within the message body that will be replaced later with values given by 
-    /// the parameters field in the SUBSCRIBERS* object. See 'parameters' in the SUBSCRIBERS* section for more information on supplying the value for these keys. Each placeholder must be specified as 
-    /// { KEY}, where KEY is a key name in the parameters list. For this feature to be used, GSM7 or UCS2 encoding must be used. In the event your text is longer than 160 characters in 7bit, 140 in 
-    /// 8bit or 70 in 16bit, Apifon will split the message into parts.
-    /// </summary>
-    [JsonPropertyName("text")]
-    public string Text { get; set; }
-    /// <summary>
-    /// Contains the information on how the text is encoded.
-    /// The maximum number of characters you can fit into a single message depends on the encoding you are using:
-    /// 
-    /// [0]: GSM7 bit Default Alphabet(160).
-    /// Basic Latin subset of ASCII, as well as some characters of the ISO Latin 1 – 160
-    /// 
-    /// [1]: GSM 8-bit data encoding(140.
-    /// 8-bit data encoding mode treats the information as raw data.According to the standard, the alphabet for this encoding is user-specific.
-    /// 
-    /// [2]: UCS-2 (UTF-16 [16 bit]) Encoding(70).
-    /// This encoding allows use of a greater range of characters and languages.UCS-2 can represent the most commonly used Latin and eastern
-    /// characters at the cost of a greater space expense.
-    /// </summary>
-    [JsonPropertyName("dc")]
-    public string Encoding { get; set; }
-    /// <summary>Numeric (maximum number of digits: 16) or alphanumeric characters (maximum number of characters: 11).</summary>
-    [JsonPropertyName("sender_id")]
-    public string From { get; set; }
-}
-
-internal class Subscribers
-{
-    /// <summary>Mobile number to deliver the message to. Number is in international format and is only digits between 7-15 digits long. First digit cannot be a 0.</summary>
-    [JsonPropertyName("number")]
-    public string To { get; set; }
-    /// <summary>If your message content contains placeholders for personalized messages per destination, this field is required to populate the value for each recipient.</summary>
-    public Dictionary<string, string> Params { get; set; }
-}
+#nullable disable

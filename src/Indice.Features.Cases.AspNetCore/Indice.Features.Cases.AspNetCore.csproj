@@ -1,20 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Package">
+    <Nullable>enable</Nullable>
     <Description>Indice Case Management System</Description>
     <RootNamespace>Indice.Features.Cases</RootNamespace>
-    <Authors>Thanos Panousis, Dimitris Karkanas, Christos Asvestopoulos, Hermes Krouskos</Authors>
-    <PackageReleaseNotes>Initial release for case management feature.</PackageReleaseNotes>
+    <Authors>Thanos Panousis, Dimitris Karkanas</Authors>
+    <PackageReleaseNotes>
+      - Added PatchCaseMetadata to AdminCasesController, so you can now update a case's metadata.
+      - Also added PatchCaseMetadata to the IAdminCaseService, so you can now update a case's metadata from your code.
+    </PackageReleaseNotes>
     <PackageTags>AspNetCore;CasesManagement;Cases</PackageTags>
     <VersionPrefix>$(VersionPrefixCases)</VersionPrefix>
-    <!--<Version>7.4.0</Version>-->
+    <!--<Version>7.23.0-beta02</Version>-->
   </PropertyGroup>
   <ItemGroup>
-    <InternalsVisibleTo Include="Indice.Features.Cases.Tests" />
-    <InternalsVisibleTo Include="Indice.Features.Cases.Server" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Elsa" Version="2.13.0" />
-    <PackageReference Include="Elsa.Activities.Email" Version="2.13.0" />    
+    <PackageReference Include="Elsa.Activities.Email" Version="2.13.0" />
     <PackageReference Include="Elsa.Activities.Http" Version="2.13.0" />
     <PackageReference Include="Elsa.Activities.Temporal.Quartz" Version="2.13.0" />
     <PackageReference Include="Elsa.Activities.UserTask" Version="2.13.0" />
@@ -22,35 +22,22 @@
     <PackageReference Include="Elsa.Persistence.EntityFramework.SqlServer" Version="2.13.0" />
     <PackageReference Include="Elsa.Retention" Version="2.13.0" />
     <PackageReference Include="Elsa.Server.Api" Version="2.13.0" />
-    <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefixCore)" />
-    <PackageReference Include="Indice.EntityFrameworkCore" Version="$(VersionPrefixCore)" />
-    <PackageReference Include="JsonSchema.Net" Version="4.1.1" />
+    <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefixCore)-*" />
+    <PackageReference Include="Indice.EntityFrameworkCore" Version="$(VersionPrefixCore)-*" />
+    <PackageReference Include="JsonPatch.Net" Version="3.1.1" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
     <PackageReference Include="MediatR" Version="12.2.0" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.11" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.12" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
     <ProjectReference Include="..\Indice.EntityFrameworkCore\Indice.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\Indice.Features.Cases.Core\Indice.Features.Cases.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="CasesResources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>CasesResources.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Update="CasesResources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>CasesResources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
+    <InternalsVisibleTo Include="Indice.Features.Cases.Tests" />
+    <InternalsVisibleTo Include="Indice.Features.Cases.Server" />
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
   </ItemGroup>
 </Project>

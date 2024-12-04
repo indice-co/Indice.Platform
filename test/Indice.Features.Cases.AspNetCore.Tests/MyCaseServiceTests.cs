@@ -1,15 +1,18 @@
 ﻿using System.Security.Claims;
-using Indice.Features.Cases.Data;
-using Indice.Features.Cases.Interfaces;
-using Indice.Features.Cases.Models;
-using Indice.Features.Cases.Resources;
-using Indice.Features.Cases.Services;
+using Indice.Events;
+using Indice.Features.Cases.Core;
+using Indice.Features.Cases.Core.Data;
+using Indice.Features.Cases.Core.Localization;
+using Indice.Features.Cases.Core.Models;
+using Indice.Features.Cases.Core.Services;
+using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Security;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Tests;
 
@@ -17,14 +20,17 @@ public class MyCaseServiceTests : IDisposable
 {
     public MyCaseServiceTests() {
         var inMemorySettings = new Dictionary<string, string> {
-            ["ConnectionStrings:CasesDb"] = "Server=(localdb)\\MSSQLLocalDB;Database=Indice.Features.Cases.Test;Trusted_Connection=True;MultipleActiveResultSets=true",
+            ["ConnectionStrings:CasesDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=Indice.Features.Cases.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true",
         };
         Microsoft.Extensions.Configuration.IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(inMemorySettings)
             .AddUserSecrets<MyCaseServiceTests>(optional: true)
             .Build();
         var collection = new ServiceCollection()
-            .AddDbContext<CasesDbContext>(builder => builder.UseSqlServer(configuration.GetConnectionString("CasesDb")));
+            .AddDbContext<CasesDbContext>(builder => builder.UseSqlServer(configuration.GetConnectionString("CasesDb")))
+            .Configure<CasesOptions>(options => {
+
+            });
         ServiceProvider = collection.BuildServiceProvider();
 
         // ensure created and seed here.
@@ -36,29 +42,29 @@ public class MyCaseServiceTests : IDisposable
     [Fact(Skip = "Not ready yet. Fix the seed method")]
     public async Task CaseOrderBy_DoesNot_Throw_Test() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
+        var options = ServiceProvider.GetRequiredService<IOptions<CasesOptions>>();
         if (await dbContext.Database.EnsureCreatedAsync() || !dbContext.Cases.Any()) {
             // seed here.
             await dbContext.SeedAsync();
         }
         var a = await dbContext.Cases.ToListAsync();
         var mockCaseTypeService = new Mock<ICaseTypeService>();
-        var mockCaseEventService = new Mock<ICaseEventService>();
+        var mockCaseEventService = new Mock<IPlatformEventService>();
         var mockMyCaseMessageService = new Mock<IMyCaseMessageService>();
         var mockJsonTranslationService = new Mock<IJsonTranslationService>();
         var mockResourceService = new CaseSharedResourceService(new Mock<IStringLocalizerFactory>().Object);
-        var myOptions = new MyCasesApiOptions();
-
+        
         var myCaseService = new MyCaseService(dbContext,
-            myOptions,
+            options,
             mockCaseTypeService.Object,
             mockCaseEventService.Object,
             mockMyCaseMessageService.Object,
             mockJsonTranslationService.Object,
             mockResourceService);
-        var options = new ListOptions<GetMyCasesListFilter>() { };
-        //options.AddSort(new SortByClause("checkpointcontainsDownloaded", "DESC"));
-        options.AddSort(new SortByClause("Created", "DESC"));
-        var result = await myCaseService.GetCases(User(), options);
+        var listOptions = new ListOptions<GetMyCasesListFilter>() { };
+        //listOptions.AddSort(new SortByClause("checkpointcontainsDownloaded", "DESC"));
+        listOptions.AddSort(new SortByClause("Created", "DESC"));
+        var result = await myCaseService.GetCases(User(), listOptions);
     }
 
     private static ClaimsPrincipal User() {
@@ -76,17 +82,17 @@ public class MyCaseServiceTests : IDisposable
     [Fact]
     public async Task MyCaseService_FilterData_Pagination() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
+        var myOptions = ServiceProvider.GetRequiredService<IOptions<CasesOptions>>();
         if (await dbContext.Database.EnsureCreatedAsync() || !dbContext.Cases.Any()) {
             // seed here.
             await dbContext.SeedAsync();
         }
 
         var mockCaseTypeService = new Mock<ICaseTypeService>();
-        var mockCaseEventService = new Mock<ICaseEventService>();
+        var mockCaseEventService = new Mock<IPlatformEventService>();
         var mockMyCaseMessageService = new Mock<IMyCaseMessageService>();
         var mockJsonTranslationService = new Mock<IJsonTranslationService>();
         var mockResourceService = new CaseSharedResourceService(new Mock<IStringLocalizerFactory>().Object);
-        var myOptions = new MyCasesApiOptions();
 
         var myCaseService = new MyCaseService(dbContext,
             myOptions,
@@ -95,7 +101,7 @@ public class MyCaseServiceTests : IDisposable
             mockMyCaseMessageService.Object,
             mockJsonTranslationService.Object,
             mockResourceService);
-        var options = new ListOptions<GetMyCasesListFilter>() {
+        var listOptions = new ListOptions<GetMyCasesListFilter>() {
             Page = 1,
             Size = 1,
             Filter = new GetMyCasesListFilter() {
@@ -103,7 +109,7 @@ public class MyCaseServiceTests : IDisposable
             }
         };
 
-        var result = await myCaseService.GetCases(User(), options);
+        var result = await myCaseService.GetCases(User(), listOptions);
         Assert.NotEmpty(result.Items);
     }
 

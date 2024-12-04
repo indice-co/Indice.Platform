@@ -2,18 +2,12 @@
   <PropertyGroup Label="Package">
     <PackageTags>AspNetCore;Authentication;OpenID;Apple</PackageTags>
     <PackageReleaseNotes>Handle OnRedirectToIdentityProvider for prompt parameter.</PackageReleaseNotes>
-    <VersionPrefix>$(VersionPrefixCore)</VersionPrefix>
+    <VersionPrefix>$(VersionPrefixMajor).0.0</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.0" />
-  </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="7.0.5" />
-  </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.16" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.3" />
   </ItemGroup>
 </Project>

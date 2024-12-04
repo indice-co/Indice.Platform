@@ -33,7 +33,7 @@ export class DistributionListsComponent extends BaseListComponent<DistributionLi
 
     private _isSystemGeneratedFilter = false;
 
-    public ngOnInit(): void {
+    public override ngOnInit(): void {
         super.ngOnInit();
     }
 
@@ -63,7 +63,7 @@ export class DistributionListsComponent extends BaseListComponent<DistributionLi
         });
     }
 
-    public actionHandler(action: ViewAction): void {
+    public override actionHandler(action: ViewAction): void {
         if (action.icon === Icons.Refresh) {
             this.search = '';
             this.refresh();

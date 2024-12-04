@@ -12,7 +12,7 @@ public static class ParsedScopeConfiguration
     /// <typeparam name="TScopeMetadataService">The type of provided implementation of <see cref="IParsedScopeMetadataService"/>.</typeparam>
     /// <param name="builder">The <see cref="IIdentityServerBuilder"/> builder.</param>
     /// <param name="configureAction">Configures options for <see cref="IParsedScopeMetadataService"/>.</param>
-    public static IIdentityServerBuilder AddParsedScopeMetadataEndpoint<TScopeMetadataService>(this IIdentityServerBuilder builder, Action<ParsedScopeMetadataOptions> configureAction = null)
+    public static IIdentityServerBuilder AddParsedScopeMetadataEndpoint<TScopeMetadataService>(this IIdentityServerBuilder builder, Action<ParsedScopeMetadataOptions>? configureAction = null)
         where TScopeMetadataService : class, IParsedScopeMetadataService {
         var existingService = builder.Services.Where(x => x.ServiceType == typeof(IParsedScopeMetadataService)).LastOrDefault();
         if (existingService == null) {
@@ -35,7 +35,7 @@ public static class ParsedScopeConfiguration
     /// <typeparam name="TParsedScopeNotificationService">The type of provided implementation of <see cref="IParsedScopeNotificationService"/>.</typeparam>
     /// <param name="builder">The <see cref="IIdentityServerBuilder"/> builder.</param>
     /// <param name="configureAction">Configures options for <see cref="IParsedScopeNotificationService"/>.</param>
-    public static IIdentityServerBuilder AddParsedScopeNotifications<TParsedScopeNotificationService>(this IIdentityServerBuilder builder, Action<ParsedScopeNotificationOptions> configureAction = null)
+    public static IIdentityServerBuilder AddParsedScopeNotifications<TParsedScopeNotificationService>(this IIdentityServerBuilder builder, Action<ParsedScopeNotificationOptions>? configureAction = null)
         where TParsedScopeNotificationService : class, IParsedScopeNotificationService {
         var existingService = builder.Services.Where(x => x.ServiceType == typeof(IParsedScopeNotificationService)).LastOrDefault();
         if (existingService == null) {

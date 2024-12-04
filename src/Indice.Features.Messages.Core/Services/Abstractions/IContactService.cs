@@ -45,7 +45,7 @@ public static class IContactServiceExtensions
         if (string.IsNullOrEmpty(email)) {
             throw new ArgumentNullException(nameof(email));
         }
-        var options = new ListOptions<ContactListFilter> { Size = 1 };
+        var options = new ListOptions<ContactListFilter> { Size = 1, Sort = "RecipientId-" }; // this will prefer those that have a recipient id 
         options.Filter.Email = email;
         return (await contactService.GetList(options)).Items.FirstOrDefault();
     }
@@ -58,7 +58,7 @@ public static class IContactServiceExtensions
         if (string.IsNullOrEmpty(phoneNumber)) {
             throw new ArgumentNullException(nameof(phoneNumber));
         }
-        var options = new ListOptions<ContactListFilter> { Size = 1 };
+        var options = new ListOptions<ContactListFilter> { Size = 1, Sort = "RecipientId-" }; // this will prefer those that have a recipient id 
         options.Filter.PhoneNumber = phoneNumber;
         return (await contactService.GetList(options)).Items.FirstOrDefault();
     }

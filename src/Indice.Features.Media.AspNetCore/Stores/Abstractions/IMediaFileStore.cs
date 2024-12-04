@@ -9,12 +9,18 @@ public interface IMediaFileStore
     /// <summary>Retrieves a file by Id.</summary>
     /// <param name="id">The file Id.</param>
     Task<DbMediaFile?> GetById(Guid id);
+    /// <summary>Retrieves a file by its location in the tree .</summary>
+    /// <param name="path">The files location.</param>
+    Task<DbMediaFile?> GetByPath(string path);
     /// <summary>Retrieves a a list of all files.</summary>
     /// <param name="query">The query to limit results.</param>
     Task<List<DbMediaFile>> GetList(Expression<Func<DbMediaFile, bool>>? query = null);
     /// <summary>Creates a new file.</summary>
     /// <param name="file">The file.</param>
     Task<Guid> Create(DbMediaFile file);
+    /// <summary>Bulk create new files.</summary>
+    /// <param name="files">The files.</param>
+    Task<List<Guid>> CreateMany(List<DbMediaFile> files);
     /// <summary>Updates an existing file.</summary>
     /// <param name="file">The file.</param>
     Task Update(DbMediaFile file);

@@ -1,7 +1,7 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
-@import '../node_modules/@indice/ng-components/_styles.css';
+@import '../node_modules/@indice/ng-components/_styles.scss';
 @import '~highlight.js/styles/github.css';
 
 @layer components {
@@ -52,6 +52,11 @@
   .basic-modal-accept-success {
     @apply text-green-700 bg-green-100 hover:bg-green-200 focus:ring-green-500;
   }
+
+}
+
+.toggle-button-container-inner-true {
+  opacity: 0;
 }
 
 .sr-only {
@@ -66,7 +71,7 @@
   border-width: 0
 }
 
-.code-editor {
+textarea.code-editor {
   background: #f4f4f4;
   border: 1px solid #ddd;
   border-left: 3px solid #f36d33;
@@ -82,8 +87,8 @@
   word-wrap: break-word;
 }
 
-.code-editor:focus {
-  outline:none;
+textarea.code-editor:focus {
+  outline: none;
 }
 
 .field-info {

@@ -88,21 +88,21 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "adminui-app:build"
+            "buildTarget": "adminui-app:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "adminui-app:build:production"
+              "buildTarget": "adminui-app:build:production"
             },
             "template": {
-              "browserTarget": "adminui-app:build:template"
+              "buildTarget": "adminui-app:build:template"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "adminui-app:build"
+            "buildTarget": "adminui-app:build"
           }
         },
         "test": {
@@ -140,7 +140,6 @@
       }
     }
   },
-  "defaultProject": "adminui-app",
   "cli": {
     "analytics": "d201a9dd-b639-4103-9891-dfe7ae06c018"
   }

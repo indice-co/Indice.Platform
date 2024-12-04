@@ -32,18 +32,18 @@ export class CampaignsComponent extends BaseListComponent<Campaign> implements O
     public newItemLink: string | null = null;
     public full = true;
 
-    public ngOnInit(): void {
+    public override ngOnInit(): void {
         super.ngOnInit();
         this.actions.push(new RouterViewAction(Icons.Add, 'campaigns/add-campaign', null, null));
     }
 
     public loadItems(): Observable<IResultSet<Campaign> | null | undefined> {
         return this._api
-            .getCampaigns(undefined, undefined, this.page, this.pageSize, this.sortdir === 'asc' ? this.sort! : this.sort + '-', this.search || undefined)
+          .getCampaigns(this.page, this.pageSize, this.sortdir === 'asc' ? this.sort! : this.sort + '-', this.search || undefined, undefined, undefined)
             .pipe(map((result: CampaignResultSet) => (result as IResultSet<Campaign>)));
     }
 
-    public actionHandler(action: ViewAction): void {
+    public override actionHandler(action: ViewAction): void {
         if (action.icon === Icons.Refresh) {
             this.search = '';
             this.refresh();

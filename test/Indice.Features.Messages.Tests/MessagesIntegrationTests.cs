@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
+using Indice.AspNetCore.Authorization;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Models;
@@ -21,14 +22,14 @@ using Xunit.Abstractions;
 
 namespace Indice.Features.Messages.Tests;
 
-public class MessagesIntegrationTests : IDisposable
+public class MessagesIntegrationTests : IAsyncLifetime
 {
     // Constants
     private const string BASE_URL = "https://server";
     // Private fields
     private readonly HttpClient _httpClient;
     private readonly ITestOutputHelper _output;
-    private IServiceProvider _serviceProvider;
+    private ServiceProvider _serviceProvider;
 
     public MessagesIntegrationTests(ITestOutputHelper output) {
         _output = output;
@@ -42,38 +43,35 @@ public class MessagesIntegrationTests : IDisposable
         builder.ConfigureServices(services => {
             var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
             services.AddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
-            services.AddControllers()
-                    .AddMessageEndpoints(options => {
-                        options.ApiPrefix = "api";
+            services.AddRouting();
+            services.AddMessaging(options => {
+                        options.PathPrefix = "api";
                         options.ConfigureDbContext = (serviceProvider, dbbuilder) => dbbuilder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
                         options.DatabaseSchema = "cmp";
                         options.RequiredScope = MessagesApi.Scope;
                         options.UseFilesLocal();
                         options.UseContactResolver<MockContactResolver>();
                     });
-            services.AddAuthentication(DummyAuthDefaults.AuthenticationScheme)
+            services.AddAuthentication(MockAuthenticationDefaults.AuthenticationScheme)
                     .AddJwtBearer((options) => {
-                        options.ForwardDefaultSelector = (httpContext) => DummyAuthDefaults.AuthenticationScheme;
+                        options.ForwardDefaultSelector = (httpContext) => MockAuthenticationDefaults.AuthenticationScheme;
                     })
-                    .AddDummy(() => DummyPrincipals.IndiceUser);
+                    .AddMock(() => DummyPrincipals.IndiceUser);
             _serviceProvider = services.BuildServiceProvider();
         });
         builder.Configure(app => {
             app.UseAuthentication();
             app.UseRouting();
             app.UseAuthorization();
-            app.UseEndpoints(e => e.MapControllers());
+            app.UseEndpoints(e => e.MapMessaging());
         });
         var server = new TestServer(builder);
         var handler = server.CreateHandler();
         _httpClient = new HttpClient(handler) {
             BaseAddress = new Uri(BASE_URL)
         };
-        var db = _serviceProvider.GetRequiredService<CampaignsDbContext>();
-        db.Database.EnsureCreated();
     }
 
-    #region Facts
     [Fact]
     public async Task Create_And_Retrieve_Campaign_By_Location_Header_Success() {
         //Create the Campaign
@@ -84,7 +82,7 @@ public class MessagesIntegrationTests : IDisposable
                 To = DateTimeOffset.UtcNow.AddDays(1)
             },
             Published = false,
-            RecipientIds = new List<string> { "6c9fa6dd-ede4-486b-bf91-6de18542da4a" },
+            RecipientIds = [ "6c9fa6dd-ede4-486b-bf91-6de18542da4a" ],
             Content = new MessageContentDictionary(
                 new Dictionary<MessageChannelKind, MessageContent> {
                     [MessageChannelKind.Inbox] = new MessageContent("Test Message", "Test Message Content")
@@ -119,7 +117,7 @@ public class MessagesIntegrationTests : IDisposable
                 To = DateTimeOffset.UtcNow.AddDays(1)
             },
             Published = false,
-            RecipientIds = new List<string> { "6c9fa6dd-ede4-486b-bf91-6de18542da4a" }
+            RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"]
         };
         var payload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
         var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(payload, Encoding.UTF8, "application/json"));
@@ -170,10 +168,49 @@ public class MessagesIntegrationTests : IDisposable
         Assert.NotEmpty(distributionListContacts.Items);
         Assert.Single(distributionListContacts.Items, i => i.Email == addContactRequest.Email);
     }
-    #endregion
 
-    public void Dispose() {
+    [Fact]
+    public async Task Create_And_Retrieve_Template_Success() {
+        //Create the Campaign
+        var createTemplateRequest = new CreateTemplateRequest {
+            Name = "My Welcome Email",
+            Content = new MessageContentDictionary(
+                new Dictionary<MessageChannelKind, MessageContent> {
+                    [MessageChannelKind.Email] = new MessageContent("Test Message", "Test Message Content: {{data.localization.description_key}}")
+                }
+            ),
+            Data = new {
+                localization = new {
+                    description_key = "This is a description"
+                }
+            }
+        };
+        var payload = JsonSerializer.Serialize(createTemplateRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var createTemplateResponse = await _httpClient.PostAsync("/api/templates", new StringContent(payload, Encoding.UTF8, "application/json"));
+        var createCampaignResponseJson = await createTemplateResponse.Content.ReadAsStringAsync();
+        if (!createTemplateResponse.IsSuccessStatusCode) {
+            _output.WriteLine(createCampaignResponseJson);
+        }
+
+        //Retrieve the Created Campaign
+        var getTemplateResponse = await _httpClient.GetAsync(createTemplateResponse.Headers.Location.PathAndQuery);
+        var getTemplateResponseJson = await getTemplateResponse.Content.ReadAsStringAsync();
+        if (!getTemplateResponse.IsSuccessStatusCode) {
+            _output.WriteLine(getTemplateResponseJson);
+        }
+
+        Assert.True(createTemplateResponse.IsSuccessStatusCode);
+        Assert.True(getTemplateResponse.IsSuccessStatusCode);
+    }
+
+    public async Task InitializeAsync() {
         var db = _serviceProvider.GetRequiredService<CampaignsDbContext>();
-        db.Database.EnsureDeleted();
+        await db.Database.EnsureCreatedAsync();
+    }
+
+    public async Task DisposeAsync() {
+        var db = _serviceProvider.GetRequiredService<CampaignsDbContext>();
+        await db.Database.EnsureDeletedAsync();
+        await _serviceProvider.DisposeAsync();
     }
 }

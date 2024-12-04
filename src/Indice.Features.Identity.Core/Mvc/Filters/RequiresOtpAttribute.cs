@@ -14,8 +14,6 @@ namespace Indice.Features.Identity.Core.Mvc.Filters;
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 public class RequiresOtpAttribute : Attribute, IAsyncActionFilter
 {
-    private IServiceProvider _serviceProvider;
-
     /// <summary>The default header value for capturing the TOTP code.</summary>
     public const string DEFAULT_HEADER_NAME = "X-TOTP";
     /// <summary>The name of the header that contains the TOTP code.</summary>
@@ -25,7 +23,7 @@ public class RequiresOtpAttribute : Attribute, IAsyncActionFilter
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next) {
         var httpContext = context.HttpContext;
         var principal = httpContext.User;
-        if (principal is null || !principal.Identity.IsAuthenticated) {
+        if (principal.Identity is null || !principal.Identity.IsAuthenticated) {
             var problemDetails = new ValidationProblemDetails {
                 Detail = "Principal is not present or not authenticated.",
                 Status = StatusCodes.Status400BadRequest
@@ -33,9 +31,10 @@ public class RequiresOtpAttribute : Attribute, IAsyncActionFilter
             context.Result = new BadRequestObjectResult(problemDetails);
             return;
         }
-        // Check if user has an elevated access token and is already TOTP authenticated.
-        var isOtpAuthenticated = principal.FindFirstValue<bool>(CustomGrantTypes.Mfa) ?? false;
-        if (isOtpAuthenticated) {
+        // Check if user has an elevated access token and is already mfa authenticated.
+        var amr = principal.FindAll(JwtClaimTypes.AuthenticationMethod).Select(x => x.Value).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var isMfad = amr.Contains("mfa") || amr.Count > 1;
+        if (isMfad) {
             await next();
             return;
         }
@@ -57,8 +56,7 @@ public class RequiresOtpAttribute : Attribute, IAsyncActionFilter
             context.Result = new BadRequestObjectResult(problemDetails);
             return;
         }
-        _serviceProvider = httpContext.RequestServices;
-        var totpServiceFactory = _serviceProvider.GetRequiredService<TotpServiceFactory>();
+        var totpServiceFactory = httpContext.RequestServices.GetRequiredService<TotpServiceFactory>();
         var totpService = totpServiceFactory.Create<User>();
         var totp = httpContext.Request.Headers[HeaderName].ToString();
         var purpose = GetTotpPurpose(subject, phoneNumber);
@@ -67,7 +65,7 @@ public class RequiresOtpAttribute : Attribute, IAsyncActionFilter
             var deliveryChannel = TotpDeliveryChannel.Sms;
             await totpService.SendAsync(totp =>
                 totp.ToPrincipal(principal)
-                    .WithMessage(GetTotpMessage())
+                    .WithMessage(GetTotpMessage(httpContext.RequestServices))
                     .UsingDeliveryChannel(deliveryChannel)
                     .WithPurpose(purpose)
             );
@@ -93,8 +91,8 @@ public class RequiresOtpAttribute : Attribute, IAsyncActionFilter
     }
 
     /// <summary>Constructs the TOTP message to be sent.</summary>
-    protected virtual string GetTotpMessage() {
-        var messageDescriber = _serviceProvider.GetRequiredService<IdentityMessageDescriber>();
+    protected virtual string GetTotpMessage(IServiceProvider serviceProvider) {
+        var messageDescriber = serviceProvider.GetRequiredService<IdentityMessageDescriber>();
         return messageDescriber.RequiresOtpMessage();
     }
 

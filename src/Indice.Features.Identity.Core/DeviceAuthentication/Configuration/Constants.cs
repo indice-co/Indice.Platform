@@ -1,12 +1,14 @@
 ﻿using IdentityModel;
+using Indice.Features.Identity.Core.Data.Models;
 
 namespace Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
 
 internal class Constants
 {
-    public static string DeviceAuthenticationOtpPurpose(string userId, string deviceId) => $"device-registration:{userId}:{deviceId}";
+    public static string DeviceAuthenticationOtpPurpose(string userId, string deviceId, InteractionMode interactionMode) => 
+        $"device-registration:{interactionMode}:{userId}:{deviceId}";
 
-    public static readonly string[] ProtocolClaimsFilter = {
+    public static readonly string[] ProtocolClaimsFilter = [
         JwtClaimTypes.AccessTokenHash,
         JwtClaimTypes.Audience,
         JwtClaimTypes.AuthorizedParty,
@@ -21,7 +23,7 @@ internal class Constants
         JwtClaimTypes.ReferenceTokenId,
         JwtClaimTypes.SessionId,
         JwtClaimTypes.Scope
-    };
+    ];
 }
 
 internal static class RegistrationRequestParameters
@@ -46,4 +48,5 @@ internal static class RegistrationRequestParameters
 internal static class ExtraTokenRequestErrors
 {
     public const string RequiresPassword = "requires_password";
+    public const string InvalidAuthorizationDetails = "invalid_authorization_details";
 }

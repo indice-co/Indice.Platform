@@ -33,4 +33,6 @@ public class CreateUserRequest
     public bool? TwoFactorEnabled { get; set; }
     /// <summary>Dynamic claims that have been marked as required.</summary>
     public List<BasicClaimInfo> Claims { get; set; } = new List<BasicClaimInfo>();
+    /// <summary>The names of the roles that the user will be added to.</summary>
+    public List<string>? Roles { get; set; } = new List<string>();
 }

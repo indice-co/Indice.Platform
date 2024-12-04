@@ -4,7 +4,7 @@
 public abstract class DbAuditableEntity
 {
     /// <summary>Specifies the principal that created the entity.</summary>
-    public string CreatedBy { get; set; }
+    public string CreatedBy { get; set; } = null!;
     /// <summary>Specifies when an entity was created.</summary>
     public DateTimeOffset CreatedAt { get; set; }
     /// <summary>Specifies the principal that update the entity.</summary>

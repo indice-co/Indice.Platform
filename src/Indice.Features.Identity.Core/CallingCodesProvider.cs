@@ -22,14 +22,14 @@ public class CallingCodesProvider
         var supportedCountries = new List<CallingCode>();
         foreach (var country in _supportedCountries) {
             if (CountryInfo.TryGetCountryByNameOrCode(country.TwoLetterCode, out var countryInfo)) {
-                foreach(var callingCode in countryInfo.CallingCode.Split(',')) {
+                foreach(var callingCode in countryInfo!.CallingCode.Split(',')) {
                     supportedCountries.Add(new CallingCode(callingCode, countryInfo.TwoLetterCode, countryInfo.Name, country.Pattern));
                 }
             }
         }
         if (!supportedCountries.Any()) {
             if (CountryInfo.TryGetCountryByNameOrCode("GR", out var countryInfo)) {
-                foreach (var callingCode in countryInfo.CallingCode.Split(',')) {
+                foreach (var callingCode in countryInfo!.CallingCode.Split(',')) {
                     supportedCountries.Add(new CallingCode(callingCode, countryInfo.TwoLetterCode, countryInfo.Name, string.Empty));
                 }
             }
@@ -40,17 +40,17 @@ public class CallingCodesProvider
     /// <summary>Retrieves info about a calling code.</summary>
     /// <param name="code">The calling code.</param>
     /// <returns>A <see cref="CallingCode"/> object with the required information.</returns>
-    public CallingCode GetCallingCode(string code) {
+    public CallingCode? GetCallingCode(string code) {
         if (string.IsNullOrWhiteSpace(code)) {
             return null;
         }
         if (!CountryInfo.TryGetCountryByCallingCode(code, out var countryInfo)) {
             return null;
         }
-        var configuredCountry = _supportedCountries?.FirstOrDefault(c => c.TwoLetterCode == countryInfo.TwoLetterCode);
-        if (configuredCountry == null && countryInfo.TwoLetterCode != "GR") {
+        var configuredCountry = _supportedCountries?.FirstOrDefault(c => c.TwoLetterCode == countryInfo!.TwoLetterCode);
+        if (configuredCountry == null && countryInfo!.TwoLetterCode != "GR") {
             return null;
         }
-        return new CallingCode(code, countryInfo.TwoLetterCode, countryInfo.Name, configuredCountry?.Pattern);
+        return new CallingCode(code, countryInfo!.TwoLetterCode, countryInfo.Name, configuredCountry?.Pattern);
     }
 }

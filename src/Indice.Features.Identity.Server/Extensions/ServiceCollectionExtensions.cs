@@ -7,16 +7,19 @@ using FluentValidation;
 using IdentityModel;
 using IdentityServer4.EntityFramework.Services;
 using IdentityServer4.ResponseHandling;
+using IdentityServer4.Services;
 using Indice.Configuration;
 using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.ResponseHandling;
+using Indice.Features.Identity.Core.TokenCreation;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Options;
 using Indice.Features.Identity.Server.Totp.Models;
 using Indice.Features.Identity.Server.Totp.Validators;
+using Indice.AspNetCore.Filters;
 using Indice.Security;
 using Indice.Serialization;
 using Indice.Services;
@@ -115,6 +118,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         Action<DbContextOptionsBuilder>? configurePersistedGrantDbContext
     ) {
         services.AddTransient<ITokenResponseGenerator, ExtendedTokenResponseGenerator>();
+        services.AddTransient<ITokenCreationService, ExtendedTokenCreationService>();
         var identityServerBuilder = services.AddIdentityServer(options => {
             options.IssuerUri = configuration.GetHost();
             options.Events.RaiseErrorEvents = true;
@@ -158,6 +162,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             var certificate = new X509Certificate2(Path.Combine(webHostEnvironment.ContentRootPath, configuration["IdentityServer:SigningPfxFile"] ?? string.Empty), configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
             identityServerBuilder.AddSigningCredential(certificate);
         }
+
         return identityServerBuilder;
     }
 
@@ -307,6 +312,8 @@ public static class IdentityServerEndpointServiceCollectionExtensions
                .AddLocalApi(IdentityEndpoints.AuthenticationScheme, options => {
                    options.ExpectedScope = IdentityEndpoints.Scope;
                });
+        //Add output cache
+        builder.Services.AddOutputCache();
         return builder;
     }
 

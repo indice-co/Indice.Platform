@@ -1,6 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿#nullable enable
+using Indice.AspNetCore.Configuration;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Filters;
 
@@ -8,20 +12,28 @@ namespace Indice.AspNetCore.Filters;
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 public class AllowedFileSizeAttribute : Attribute, IActionFilter
 {
-    private readonly long _sizeLimit;
+    private readonly long? _sizeLimit;
 
     /// <summary>Creates a new instance of <see cref="AllowedFileSizeAttribute"/>.</summary>
-    /// <param name="sizeLimit">The maximum allowed file size in bytes.</param>
     public AllowedFileSizeAttribute(long sizeLimit) {
         _sizeLimit = sizeLimit;
     }
 
+    /// <summary>Creates a new instance of <see cref="AllowedFileSizeAttribute"/>.</summary>
+    public AllowedFileSizeAttribute() {
+        _sizeLimit = null;
+    }
+
     /// <inheritdoc />
     public void OnActionExecuting(ActionExecutingContext context) {
+        var options = context.HttpContext.RequestServices.GetRequiredService<IOptions<LimitUploadOptions>>().Value;
+
+        var allowedFileSize = _sizeLimit ?? options.DefaultMaxFileSizeBytes;
+
         IEnumerable<IFormFile> files = context.HttpContext.Request.Form.Files;
         foreach (var file in files) {
-            if (file.Length > _sizeLimit) {
-                context.ModelState.AddModelError($"{file.FileName}", $"File size cannot exceed {_sizeLimit} bytes.");
+            if (file.Length > allowedFileSize) {
+                context.ModelState.AddModelError($"{file.FileName}", $"File size cannot exceed {allowedFileSize} bytes.");
                 context.Result = new BadRequestObjectResult(context.ModelState);
             }
         }
@@ -30,3 +42,4 @@ public class AllowedFileSizeAttribute : Attribute, IActionFilter
     /// <inheritdoc />
     public void OnActionExecuted(ActionExecutedContext context) { }
 }
+#nullable disable

@@ -11,7 +11,7 @@ public class CreateCampaignCommand
     /// <summary>The title of the campaign.</summary>
     public string Title { get; set; }
     /// <summary>The content of the campaign.</summary>
-    public Dictionary<MessageChannelKind, MessageContent> Content { get; set; } = new Dictionary<MessageChannelKind, MessageContent>();
+    public Dictionary<MessageChannelKind, MessageContent> Content { get; set; } = [];
     /// <summary>Defines a (call-to-action) link.</summary>
     public Hyperlink ActionLink { get; set; }
     /// <summary>Specifies when a campaign was created.</summary>
@@ -27,9 +27,9 @@ public class CreateCampaignCommand
     /// <summary>The distribution list of the campaign. Alternatively you can set the <see cref="RecipientIds"/> property.</summary>
     public Guid? DistributionListId { get; set; }
     /// <summary>Defines a list of user identifiers that constitutes the audience of the campaign.</summary>
-    public List<string> RecipientIds { get; set; } = new List<string>();
+    public List<string> RecipientIds { get; set; } = [];
     /// <summary>List of anonymous contacts not available through any of the existing contact resolvers. Use this list if recipient id is not known/available or the message will be fire and forget.</summary>
-    public List<ContactAnonymous> Recipients { get; set; } = new List<ContactAnonymous>();
+    public List<ContactAnonymous> Recipients { get; set; } = [];
     /// <summary>Optional data for the campaign.</summary>
     public dynamic Data { get; set; }
 }

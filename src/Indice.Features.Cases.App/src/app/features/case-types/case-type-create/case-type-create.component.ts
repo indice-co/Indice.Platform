@@ -1,6 +1,6 @@
 
 import { Component, OnInit } from '@angular/core';
-import { CaseTypesService } from '../case-types.service';
+import { CaseTypeUpdateService } from '../case-type-update.service';
 
 @Component({
   selector: 'app-case-type-create',
@@ -15,7 +15,7 @@ export class CaseTypeCreateComponent implements OnInit {
   public layout = this.caseTypesService.onLoadLayout();
   public data: any = {};
 
-  constructor(private caseTypesService: CaseTypesService) { }
+  constructor(private caseTypesService: CaseTypeUpdateService) { }
 
   ngOnInit(): void { }
 

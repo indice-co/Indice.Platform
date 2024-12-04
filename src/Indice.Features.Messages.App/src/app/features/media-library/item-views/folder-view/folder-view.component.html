@@ -40,7 +40,7 @@
     </div>
     <div *ngFor="let file of folderContent?.files" class="h-40 w-40 flex flex-col items-center justify-center cursor-pointer bg-white rounded-lg mr-5 mt-5 relative group" (click)="editFile(file)">
         <div class="h-28 w-full p-2">
-            <img class="h-full w-full object-contain" [src]="getImageUrl(file)" onerror="'../../../../assets/images/no-image-icon.png'"/>
+            <img class="h-full w-full object-contain" [src]="getImageUrl(file, 128)" onerror="'../../../../assets/images/no-image-icon.png'"/>
         </div>
         <span class="w-36 text-ellipsis overflow-hidden text-center whitespace-nowrap">{{file.name}}</span>
         

@@ -30,7 +30,7 @@ public class FileServiceInMemory : IFileService
         if (string.IsNullOrWhiteSpace(path)) {
             return Task.FromResult(Cache.Keys.AsEnumerable());
         }
-        return Task.FromResult(Cache.Keys.Where(x => x.ToLower().StartsWith(path.ToLower())));
+        return Task.FromResult(Cache.Keys.Where(x => x.ToLowerInvariant().StartsWith(path.ToLowerInvariant())));
     }
 
     /// <inheritdoc />
@@ -55,11 +55,19 @@ public class FileServiceInMemory : IFileService
             stream.CopyTo(ms);
             Cache[filePath] = ms.ToArray();
         }
-#if NET452
-        return Task.FromResult(0);
-#else
         return Task.CompletedTask;
-#endif
+    }
+
+    /// <inheritdoc />
+    public async Task MoveAsync(string sourcePath, string destinationPath) {
+        var pathsToMove = (await SearchAsync(sourcePath)).ToArray();
+        foreach (var path in pathsToMove) {
+            if (Cache.TryGetValue(path, out var result)) {
+                var newPath = path.Replace(sourcePath, destinationPath);
+                Cache.TryAdd(newPath, result);
+                Cache.Remove(path);
+            }
+        }
     }
 
     private void GuardExists(string filePath) {
