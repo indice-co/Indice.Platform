@@ -77,10 +77,12 @@ jobs:
       # BUILD
       - name: Install dependencies
         run: dotnet restore /nowarn:netsdk1138
-      - name: Clean
-        run: dotnet clean
-      - name: Build
-        run: dotnet build --no-restore --configuration Release
+
+      - name: Dotnet build SPAs
+        run: dotnet build Indice.Platform.Ecmascript.slnf --no-restore --configuration Release
+
+      - name: Dotnet build
+        run: dotnet build Indice.Platform.slnf --no-restore --configuration Release
       
       # TEST 
       - name: Test with dotnet
