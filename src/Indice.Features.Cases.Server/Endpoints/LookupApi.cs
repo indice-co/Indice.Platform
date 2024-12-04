@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Indice.Features.Cases.Server.Options;
-using Indice.Security;
+﻿using Indice.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -16,26 +10,31 @@ namespace Indice.Features.Cases.Server.Endpoints;
 /// <summary>Manage lookups for the case types.</summary>
 public static class LookupApi
 {
-        /// <summary>Maps lookup endpoint.</summary>
-        public static IEndpointRouteBuilder MapLookup(this IEndpointRouteBuilder routes) {
-            var options = routes.ServiceProvider.GetRequiredService<IOptions<CaseServerEndpointOptions>>().Value;
-            var group = routes.MapGroup($"{options.ApiPrefix}/manage/lookups");
-            group.WithTags("Lookup");
-            group.ProducesProblem(StatusCodes.Status500InternalServerError)
-                .ProducesProblem(StatusCodes.Status401Unauthorized)
-                    .ProducesProblem(StatusCodes.Status403Forbidden)
-                    .ProducesProblem(StatusCodes.Status400BadRequest);
-            group.WithGroupName(options.GroupName);
-            var allowedScopes = new[] { options.ApiScope }.Where(x => x != null).Cast<string>().ToArray();
+    /// <summary>Maps lookup endpoint.</summary>
+    public static IEndpointRouteBuilder MapLookup(this IEndpointRouteBuilder routes) {
+        var options = routes.ServiceProvider.GetRequiredService<IOptions<CaseServerOptions>>().Value;
+
+        var group = routes.MapGroup($"{options.PathPrefix.Value!.Trim('/')}/manage/lookups");
+        group.WithTags("Lookup");
+        group.WithGroupName(options.GroupName);
+
+        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
+
         group.RequireAuthorization(policy => policy
             .RequireAuthenticatedUser()
-            .AddAuthenticationSchemes(CasesApiConstants.AuthenticationScheme)
+            .AddAuthenticationSchemes("Bearer")
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
         );//.RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
-            group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
-            group.MapGet("{lookupName}", LookupHandler.GetLookup)
-                        .WithName(nameof(LookupHandler.GetLookup))
-                        .WithSummary("Get a lookup result by lookupName and options.");
-            return group;
-        }
+        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+
+        group.ProducesProblem(StatusCodes.Status500InternalServerError)
+             .ProducesProblem(StatusCodes.Status401Unauthorized)
+             .ProducesProblem(StatusCodes.Status403Forbidden);
+        
+        group.MapGet("{lookupName}", LookupHandler.GetLookup)
+             .WithName(nameof(LookupHandler.GetLookup))
+             .WithSummary("Get a lookup result by lookupName and options.");
+        
+        return group;
+    }
 }

@@ -1,49 +1,28 @@
-﻿using Indice.Features.Cases.Data.Models;
-using Indice.Features.Cases.Models;
-using Indice.Features.Cases.Workflows.Interfaces;
-using Microsoft.AspNetCore.Http;
+﻿using System.Security.Claims;
+using Indice.Features.Cases.Core.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Indice.Features.Cases.Server.Endpoints;
 internal static class AdminWorkflowInvokerHandler
 {
-    public static async Task<NoContent> SubmitApproval(Guid caseId, ApprovalRequest request, IAwaitApprovalInvoker approvalInvoker) {
-        var executedWorkflow = await approvalInvoker.ExecuteWorkflowsAsync(caseId, request);
-        if (!executedWorkflow.Any()) {
-            throw new Exception("You cannot approve or reject case at this point.");
-        }
-        return TypedResults.NoContent();
+    public static Task<NoContent> SubmitApproval(Guid caseId, ApprovalRequest request) {
+        throw new NotImplementedException();
     }
 
-    public static async Task<NoContent> AssignCase(Guid caseId, IAwaitAssignmentInvoker awaitAssignmentInvoker, IHttpContextAccessor httpContextAccessor) {
-        if (httpContextAccessor.HttpContext == null) {
-            throw new Exception("HttpContext is not available.");
-        }
+    public static Task<NoContent> AssignCase(Guid caseId, ClaimsPrincipal currentUser) {
         var input = new AwaitAssignmentInvokerInput {
             // Get the current user for self-assign
             // todo support admin assignments [in future user-story]
-            User = AuditMeta.Create(httpContextAccessor.HttpContext.User)
+            User = AuditMeta.Create(currentUser)
         };
-        var executedWorkflow = await awaitAssignmentInvoker.ExecuteWorkflowsAsync(caseId, input);
-        if (!executedWorkflow.Any()) {
-            throw new Exception("Case is already assigned.");
-        }
-        return TypedResults.NoContent();
+        throw new NotImplementedException();
     }
 
-    public static async Task<NoContent> EditCase(Guid caseId, EditCaseRequest request, IAwaitEditInvoker awaitEditInvoker) {
-        var executedWorkflow = await awaitEditInvoker.ExecuteWorkflowsAsync(caseId, request);
-        if (!executedWorkflow.Any()) {
-            throw new Exception("You cannot edit at this point.");
-        }
-        return TypedResults.NoContent();
+    public static Task<NoContent> EditCase(Guid caseId, EditCaseRequest request) {
+        throw new NotImplementedException();
     }
 
-    public static async Task<NoContent> TriggerAction(Guid caseId, ActionRequest request, IAwaitActionInvoker awaitActionInvoker) {
-        var executedWorkflow = await awaitActionInvoker.ExecuteWorkflowsAsync(caseId, request);
-        if (!executedWorkflow.Any()) {
-            throw new Exception("You cannot perform this action at this point.");
-        }
-        return TypedResults.NoContent();
+    public static Task<NoContent> TriggerAction(Guid caseId, ActionRequest request) {
+        throw new NotImplementedException();
     }
 }

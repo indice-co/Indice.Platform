@@ -1,13 +1,13 @@
-﻿using Indice.Features.Cases.Interfaces;
-using Indice.Features.Cases.Models;
-using Indice.Features.Cases.Models.Responses;
+﻿using Indice.Features.Cases.Core.Models;
+using Indice.Features.Cases.Core.Models.Responses;
+using Indice.Features.Cases.Core.Services.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Indice.Features.Cases.Server.Endpoints;
 internal static class AdminIntegrationHandler
 {
-    public static async Task<Results<Ok<IEnumerable<CustomerDetails>>, NotFound>> GetCustomers(ICustomerIntegrationService customerIntegrationService, [AsParameters] SearchCustomerCriteria criteria) {
+    public static async Task<Results<Ok<List<CustomerDetails>>, NotFound>> GetCustomers(ICustomerIntegrationService customerIntegrationService, [AsParameters] SearchCustomerCriteria criteria) {
         var customers = await customerIntegrationService.GetCustomers(criteria);
         if (customers == null) {
             return TypedResults.NotFound();

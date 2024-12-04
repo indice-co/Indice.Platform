@@ -1,7 +1,6 @@
 ﻿using System.Security.Claims;
-using Indice.Features.Cases.Data.Models;
-using Indice.Features.Cases.Interfaces;
-using Indice.Features.Cases.Models;
+using Indice.Features.Cases.Core.Models;
+using Indice.Features.Cases.Core.Services.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 

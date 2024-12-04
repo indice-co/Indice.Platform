@@ -1,21 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
-using Indice.Features.Cases.Interfaces;
-using Indice.Features.Cases.Models.Responses;
+﻿using System.Security.Claims;
+using Indice.Features.Cases.Core.Models.Responses;
+using Indice.Features.Cases.Core.Services.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
-using Open.Linq.AsyncExtensions;
 
 namespace Indice.Features.Cases.Server.Endpoints;
 internal static class AdminCheckpointTypesHandler
 {
     public static async Task<Results<Ok<List<CheckpointType>>, NotFound>> GetDistinctCheckpointTypes(ICheckpointTypeService checkpointTypeService, ClaimsPrincipal User) {
-        var distinctCheckpointTypes = await checkpointTypeService.GetDistinctCheckpointTypes(User).ToList();
+        var distinctCheckpointTypes = await checkpointTypeService.GetDistinctCheckpointTypes(User);
         if (distinctCheckpointTypes == null) {
             return TypedResults.NotFound();
         }

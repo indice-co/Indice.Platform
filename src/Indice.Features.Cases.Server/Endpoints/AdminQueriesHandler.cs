@@ -4,9 +4,9 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Indice.Features.Cases.Interfaces;
-using Indice.Features.Cases.Models;
-using Indice.Features.Cases.Models.Responses;
+using Indice.Features.Cases.Core.Models;
+using Indice.Features.Cases.Core.Models.Responses;
+using Indice.Features.Cases.Core.Services.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 
