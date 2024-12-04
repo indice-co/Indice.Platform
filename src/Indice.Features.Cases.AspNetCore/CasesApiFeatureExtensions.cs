@@ -218,8 +218,8 @@ public static class CasesApiFeatureExtensions
             });
         }
 
-        // Elsa API endpoints.
-        services.AddElsaApiEndpoints();
+        // Elsa API endpoints. - Fixes Swagger UI when commented - commented while using minimal APIs
+        //services.AddElsaApiEndpoints();
 
         // For Dashboard.
         services.AddRazorPages();
