@@ -5692,7 +5692,6 @@ export interface IUpdateMessageTypeRequest {
 
 export class UpdateTemplateRequest implements IUpdateTemplateRequest {
     name?: string | undefined;
-    ignoreUserPreferences?: boolean;
     content?: { [key: string]: MessageContent; } | undefined;
     data?: any | undefined;
 
@@ -5708,7 +5707,6 @@ export class UpdateTemplateRequest implements IUpdateTemplateRequest {
     init(_data?: any) {
         if (_data) {
             this.name = _data["name"];
-            this.ignoreUserPreferences = _data["ignoreUserPreferences"];
             if (_data["content"]) {
                 this.content = {} as any;
                 for (let key in _data["content"]) {
@@ -5730,7 +5728,6 @@ export class UpdateTemplateRequest implements IUpdateTemplateRequest {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name;
-        data["ignoreUserPreferences"] = this.ignoreUserPreferences;
         if (this.content) {
             data["content"] = {};
             for (let key in this.content) {
@@ -5745,7 +5742,6 @@ export class UpdateTemplateRequest implements IUpdateTemplateRequest {
 
 export interface IUpdateTemplateRequest {
     name?: string | undefined;
-    ignoreUserPreferences?: boolean;
     content?: { [key: string]: MessageContent; } | undefined;
     data?: any | undefined;
 }
