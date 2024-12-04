@@ -12,7 +12,7 @@ namespace Indice.Features.Cases.Core.Services.Abstractions;
 /// ICaseAuthorizationService so as not to 
 /// be a member of the list of ICaseAuthorizationServices
 /// </summary>
-internal interface ICaseAuthorizationProvider
+public interface ICaseAuthorizationProvider
 {
     /// <summary>Validates that a user is authorized against a list of <see cref="ICaseAuthorizationService"/> for a <see cref="Case"/>.</summary>
     /// <param name="user">The user.</param>

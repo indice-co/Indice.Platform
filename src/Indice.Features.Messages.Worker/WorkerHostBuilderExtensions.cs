@@ -123,13 +123,13 @@ public static class WorkerHostBuilderExtensions
     /// <summary>Adds <see cref="IFileService"/> using local file system as the backing store.</summary>
     /// <param name="options">Options used to configure the Campaigns API feature.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
-    public static void UseFilesLocal(this MessageJobsOptions options, Action<FileServiceLocalOptions> configure = null) =>
+    public static void UseFilesLocal(this MessageJobsOptions options, Action<FileServiceLocalOptions>? configure = null) =>
         options.Services.AddFiles(options => options.AddFileSystem(KeyedServiceNames.FileServiceKey, configure));
 
     /// <summary>Adds <see cref="IFileService"/> using Azure Blob Storage as the backing store.</summary>
     /// <param name="options">Options used to configure the Campaigns API feature.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
-    public static void UseFilesAzure(this MessageJobsOptions options, Action<FileServiceAzureOptions> configure = null) =>
+    public static void UseFilesAzure(this MessageJobsOptions options, Action<FileServiceAzureOptions>? configure = null) =>
         options.Services.AddFiles(options => options.AddAzureStorage(KeyedServiceNames.FileServiceKey, configure));
 
     /// <summary>Adds an Azure specific implementation of <see cref="IPushNotificationService"/> for sending push notifications.</summary>
