@@ -19,7 +19,6 @@ public static class JsonMergeExtensions
             (object jToken , "JToken") => JsonNode.Parse(jToken.ToString()!),
             (object jObject, "JObject") => JsonNode.Parse(jObject.ToString()!),
             (object jArray, "JArray") => JsonNode.Parse(jArray.ToString()!),
-            (string jsonText, _) => JsonNode.Parse(jsonText),
             _ => JsonSerializer.SerializeToNode(value, options),
         };
     }
