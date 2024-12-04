@@ -17,8 +17,6 @@ namespace Indice.Services;
 /// </summary>
 public class SmsServiceApifonIM : ISmsService
 {
-    /// <summary>The Apifon base URL address.</summary>
-    internal static readonly string APIFON_BASE_URL = "https://ars.apifon.com";
     /// <summary>The Apifon IM service gateway endpoint.</summary>
     internal static readonly string SERVICE_ENDPOINT = "/services/api/v1/im/send";
     /// <summary>The settings required to configure the service.</summary>
@@ -71,7 +69,7 @@ public class SmsServiceApifonIM : ISmsService
         var request = new HttpRequestMessage {
             Content = new StringContent(payload.ToJson(), Encoding.UTF8, MediaTypeNames.Application.Json),
             Method = HttpMethod.Post,
-            RequestUri = HttpClient.BaseAddress
+            RequestUri = new Uri($"{SmsServiceApifon.APIFON_BASE_URL}{SERVICE_ENDPOINT}")
         };
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaTypeNames.Application.Json));
         request.Headers.Add("X-ApifonWS-Date", payload.RequestDate.ToString("r"));
