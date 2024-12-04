@@ -102,7 +102,7 @@ public class TemplateService : ITemplateService
         template.Content = request.Content;
         template.Data = request.Data;
         template.UpdatedAt = DateTime.UtcNow;
-        template.IgnoreUserPreferences = request.IgnoreUserPreferences;
+        //template.IgnoreUserPreferences = request.IgnoreUserPreferences;
         await DbContext.SaveChangesAsync();
     }
 }
