@@ -5,6 +5,7 @@ using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Indice.Features.Messages.AspNetCore.Endpoints;
 
@@ -49,6 +50,27 @@ internal static class ContactsHandlers
         return TypedResults.NoContent();
     }
 
+    public static async Task<Results<NoContent, NotFound, ValidationProblem>> RefreshContact(IContactService contactService, IContactResolver contactResolver, string recipientId) {
+
+        if (string.IsNullOrWhiteSpace(recipientId))
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(recipientId), "Recipient cannot be null"));
+
+        var resolvedContact = await contactResolver.Resolve(recipientId);
+        if (resolvedContact is null) {
+            return TypedResults.NotFound();
+        }
+
+        var contact = await contactService.FindByRecipientId(recipientId);
+        if (contact is null) {
+            await contactService.Create(Mapper.ToCreateContactRequest(resolvedContact));
+            return TypedResults.NoContent();
+        }
+
+        resolvedContact.Id = contact.Id;
+        await contactService.Update(contact.Id!.Value, Mapper.ToUpdateContactRequest(resolvedContact));
+        return TypedResults.NoContent();
+    }
+
     #region Descriptions
     public static readonly string GET_CONTACTS_DESCRIPTION = @"
 Retrieves the list of all contacts using the provided ListOptions.
@@ -79,6 +101,13 @@ Parameters:
 - contactId: The unique ID of the contact to update.
 - request: The request model used to update the contact.
 ";
+    public static readonly string REFRESH_CONTACT_DESCRIPTION = @"
+Updates an existing contact in the store or adds a new contact with data from an external system.
+
+Parameters:
+- recepientId: The unique ID of the recepient.
+";
+
 
     #endregion
 }

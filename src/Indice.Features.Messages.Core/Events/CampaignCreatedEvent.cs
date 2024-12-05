@@ -14,6 +14,8 @@ public class CampaignCreatedEvent
     public MessageContentDictionary Content { get; set; } = [];
     /// <summary>Determines if a campaign is published.</summary>
     public bool Published { get; set; }
+    /// <summary>Determines if a campaign must ignore user communication preferences.</summary>
+    public bool IgnoreUserPreferences { get; set; }
     /// <summary>Specifies the time period that a campaign is active.</summary>
     public Period ActivePeriod { get; set; }
     /// <summary>Determines if campaign targets all user base.</summary>
@@ -47,6 +49,7 @@ public class CampaignCreatedEvent
         Content = campaign.Content,
         Data = campaign.Data,
         MessageChannelKind = campaign.MessageChannelKind,
+        IgnoreUserPreferences = campaign.IgnoreUserPreferences,
         DistributionListId = campaign.DistributionList?.Id,
         Id = campaign.Id,
         Title = campaign.Title,
@@ -59,4 +62,36 @@ public class CampaignCreatedEvent
         RecipientIds = recipientIds ?? [],
         Recipients = recipients ?? []
     };
+
+    /// <summary>
+    /// Resolves availble Channels according to user preferences
+    /// </summary>
+    /// <param name="contactPreferences">User contact preferences</param>
+    /// <returns></returns>
+    public MessageChannelKind ResolveAvailableChannels(ContactCommunicationChannelKind contactPreferences) {
+        if (IgnoreUserPreferences || contactPreferences == ContactCommunicationChannelKind.Any)
+            return MessageChannelKind;
+
+        MessageChannelKind messageChannelKinds = MessageChannelKind.None;
+        if (contactPreferences.HasFlag(ContactCommunicationChannelKind.PushNotification) &&
+            MessageChannelKind.HasFlag(MessageChannelKind.PushNotification)) {
+            messageChannelKinds |= MessageChannelKind.PushNotification; 
+        }
+
+        if (contactPreferences.HasFlag(ContactCommunicationChannelKind.Email) &&
+            MessageChannelKind.HasFlag(MessageChannelKind.Email)) {
+            messageChannelKinds |= MessageChannelKind.Email;
+        }
+
+        if (contactPreferences.HasFlag(ContactCommunicationChannelKind.SMS) &&
+            MessageChannelKind.HasFlag(MessageChannelKind.SMS)) {
+            messageChannelKinds |= MessageChannelKind.SMS;
+        }
+
+        //keep inbox regardless of user preferences
+        if (MessageChannelKind.HasFlag(MessageChannelKind.Inbox)) {
+            messageChannelKinds |= MessageChannelKind.Inbox;
+        }
+        return messageChannelKinds;
+    }
 }

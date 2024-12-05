@@ -27,6 +27,7 @@ public class TemplateService : ITemplateService
             Content = request.Content,
             Id = Guid.NewGuid(),
             Name = request.Name,
+            IgnoreUserPreferences = request.IgnoreUserPreferences,
             Data = request.Data,
             CreatedAt = DateTimeOffset.UtcNow,
         };
@@ -34,6 +35,7 @@ public class TemplateService : ITemplateService
         await DbContext.SaveChangesAsync();
         return new Template {
             Content = template.Content,
+            IgnoreUserPreferences = request.IgnoreUserPreferences,
             Id = template.Id,
             Name = template.Name,
             Data= template.Data,
@@ -65,6 +67,7 @@ public class TemplateService : ITemplateService
             CreatedBy = template.CreatedBy,
             Id = template.Id,
             Name = template.Name,
+            IgnoreUserPreferences = template.IgnoreUserPreferences,
             Data = template.Data
         };
     }
@@ -83,7 +86,8 @@ public class TemplateService : ITemplateService
             UpdatedBy = x.UpdatedBy,
             CreatedBy = x.CreatedBy,
             Id = x.Id,
-            Name = x.Name
+            Name = x.Name,
+            IgnoreUserPreferences = x.IgnoreUserPreferences
         });
         return new ResultSet<TemplateListItem>(templateItems, result.Count);
     }

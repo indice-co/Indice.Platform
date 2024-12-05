@@ -117,8 +117,8 @@ public static class ServiceDefaultsExtensions
     private static string GetServiceNamespace() {
         var namespaceArray = Assembly.GetEntryAssembly()?.GetName()?.Name?.Split(['.'], StringSplitOptions.RemoveEmptyEntries);
         if (namespaceArray == null || namespaceArray.Length == 0)
-            return "Indice";
-        return namespaceArray[0];
+            return "indice";
+        return namespaceArray[0].ToLower();
     }
 
     private static IHostApplicationBuilder AddOpenTelemetryExporters(this IHostApplicationBuilder builder) {

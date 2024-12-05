@@ -29,6 +29,8 @@ public class DbCampaignMap : IEntityTypeConfiguration<DbCampaign>
         builder.Property(x => x.Title).HasMaxLength(TextSizePresets.M128).IsRequired();
         builder.Property(x => x.CreatedAt).IsRequired();
         builder.Property(x => x.Published).IsRequired();
+        builder.Property(x => x.IgnoreUserPreferences).IsRequired();
+        
         builder.OwnsOne(x => x.ActivePeriod).Property(x => x.From).HasColumnName(nameof(Period.From));
         builder.OwnsOne(x => x.ActivePeriod).Property(x => x.To).HasColumnName(nameof(Period.To));
         builder.Property(x => x.IsGlobal).IsRequired();

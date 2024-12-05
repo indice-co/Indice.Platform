@@ -1,62 +1,68 @@
 <div class="bg-white shadow overflow-hidden sm:rounded-lg  mt-4">
     <div class="border-t border-gray-200">
         <dl>
-            <form [formGroup]="form">
-                <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt class="text-sm font-medium text-gray-500">Δημοσιευμένη</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                      <lib-toggle-button id="published" name="published" [(value)]="model.published" true-label="Ναι" false-label="Όχι"></lib-toggle-button>
-                    </dd>
-                </div>
-                <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt class="text-sm font-medium text-gray-500">Τίτλος</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        <b>{{ data.title }}</b>
-                    </dd>
-                </div>
-                <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt class="text-sm font-medium text-gray-500">Τύπος</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        <b>{{ data.type || '-' }}</b>
-                    </dd>
-                </div>
-                <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt class="text-sm font-medium text-gray-500">Διάρκεια</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        <span>
-                            <b>{{ data.period?.from ? (data.period?.from | date: 'medium') : '' }} - </b>
-                        </span>
-                        <span *ngIf="data.period?.to">
-                            <b>{{ data.period?.to | date: 'medium' }}</b>
-                        </span>
-                        <span *ngIf="!data.period?.to" class="text-lg">
-                            <b>∞</b>
-                        </span>
-                    </dd>
-                </div>
-                <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt class="text-sm font-medium text-gray-500">Call to action</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        <a *ngIf="data.actionLink?.text && data.actionLink?.href" target="_blank" class="text-blue-600 hover:text-blue-500" [href]="data.actionLink?.href">
-                            {{ data.actionLink?.text }}
-                        </a>
-                        <span *ngIf="data.actionLink?.text && !data.actionLink?.href">{{ data.actionLink?.text }}</span>
-                        <span *ngIf="!data.actionLink?.text && !data.actionLink?.href">-</span>
-                    </dd>
-                </div>
-                <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt class="text-sm font-medium text-gray-500">Template</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        <b>{{ data.template || '-' }}</b>
-                    </dd>
-                </div>
-                <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt class="text-sm font-medium text-gray-500">Λίστα διανομής</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        <b>{{ data.distributionList || '-' }}</b>
-                    </dd>
-                </div>
-            </form>
+          <form [formGroup]="form">
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">Δημοσιευμένη</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                <lib-toggle-button id="published" name="published" [(value)]="model.published" true-label="Ναι" false-label="Όχι"></lib-toggle-button>
+              </dd>
+            </div>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">Παράβλεψη ρυθμίσεων επικοινωνίας επαφής</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                <lib-toggle-button id="ignoreUserPreferences" name="ignoreUserPreferences" [(value)]="model.ignoreUserPreferences" true-label="Ναι" false-label="Όχι"></lib-toggle-button>
+              </dd>
+            </div>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">Τίτλος</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                <b>{{ data.title }}</b>
+              </dd>
+            </div>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">Τύπος</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                <b>{{ data.type || '-' }}</b>
+              </dd>
+            </div>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">Διάρκεια</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                <span>
+                  <b>{{ data.period?.from ? (data.period?.from | date: 'medium') : '' }} - </b>
+                </span>
+                <span *ngIf="data.period?.to">
+                  <b>{{ data.period?.to | date: 'medium' }}</b>
+                </span>
+                <span *ngIf="!data.period?.to" class="text-lg">
+                  <b>∞</b>
+                </span>
+              </dd>
+            </div>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">Call to action</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                <a *ngIf="data.actionLink?.text && data.actionLink?.href" target="_blank" class="text-blue-600 hover:text-blue-500" [href]="data.actionLink?.href">
+                  {{ data.actionLink?.text }}
+                </a>
+                <span *ngIf="data.actionLink?.text && !data.actionLink?.href">{{ data.actionLink?.text }}</span>
+                <span *ngIf="!data.actionLink?.text && !data.actionLink?.href">-</span>
+              </dd>
+            </div>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">Template</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                <b>{{ data.template || '-' }}</b>
+              </dd>
+            </div>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">Λίστα διανομής</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                <b>{{ data.distributionList || '-' }}</b>
+              </dd>
+            </div>
+          </form>
         </dl>
     </div>
 </div>

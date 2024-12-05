@@ -30,7 +30,9 @@ internal class JsonStringArrayEnumFlagsConverter<TEnum> : JsonConverter<TEnum?>
         if (reader.TokenType == JsonTokenType.Null) {
             return default;
         }
-        if (reader.TokenType != JsonTokenType.StartArray) {
+        if (reader.TokenType == JsonTokenType.String && Enum.TryParse(typeToConvert, reader.GetString()!, out var enumValue)) {
+            return (TEnum)enumValue;
+        } else if (reader.TokenType != JsonTokenType.StartArray) {
             throw new JsonException();
         }
         var enumValues = new List<string>();

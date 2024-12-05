@@ -16,6 +16,8 @@ public class DbCampaign : DbAuditableEntity
     public Hyperlink ActionLink { get; set; }
     /// <summary>Determines if a campaign is published.</summary>
     public bool Published { get; set; }
+    /// <summary>Determines if a campaign must ignore user communication preferences.</summary>
+    public bool IgnoreUserPreferences { get; set; }
     /// <summary>Specifies the time period that a campaign is active.</summary>
     public Period ActivePeriod { get; set; }
     /// <summary>Determines if campaign targets all user base.</summary>

@@ -23,6 +23,8 @@ public class TemplateBase
     public Guid Id { get; set; }
     /// <summary>The name of the template.</summary>
     public string Name { get; set; }
+    /// <summary>Determines if the taemplate to be created from this template should ignore user communication preferences.</summary>
+    public bool IgnoreUserPreferences { get; set; }
     /// <summary>Specifies the principal that created the template.</summary>
     public string CreatedBy { get; set; }
     /// <summary>Specifies when a template was created.</summary>

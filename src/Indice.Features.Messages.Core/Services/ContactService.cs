@@ -1,4 +1,5 @@
-﻿using Indice.Features.Messages.Core.Data;
+﻿using Indice.Extensions;
+using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Exceptions;
 using Indice.Features.Messages.Core.Models;
@@ -95,9 +96,11 @@ public class ContactService : IContactService
 
     /// <inheritdoc />
     public async Task<ResultSet<Contact>> GetList(ListOptions<ContactListFilter> options) {
-        var query = DbContext.Contacts.AsNoTracking();
+        var query = DbContext.Contacts
+                            .AsNoTracking();
         var filter = options.Filter;
         if (filter?.DistributionListId is not null) {
+            query = query.Include(x => x.DistributionListContacts);
             query = query.Where(x => x.DistributionListContacts.Any(y => y.DistributionListId == filter.DistributionListId.Value));
         }
         if (filter?.Email is not null) {
@@ -134,6 +137,9 @@ public class ContactService : IContactService
         contact.LastName = request.LastName;
         contact.PhoneNumber = request.PhoneNumber;
         contact.Salutation = request.Salutation;
+        contact.CommunicationPreferences = request.CommunicationPreferences;
+        contact.Locale = request.Locale;
+        contact.ConsentCommercial = request.ConsentCommercial;
         contact.UpdatedAt = DateTimeOffset.UtcNow;
         await DbContext.SaveChangesAsync();
     }
