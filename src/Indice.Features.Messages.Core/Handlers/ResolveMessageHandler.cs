@@ -117,9 +117,9 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
             Content = campaign.Content,
             RecipientId = contact.RecipientId
         });
-        
+
         var eventDispatcher = EventDispatcherFactory.Create(KeyedServiceNames.EventDispatcherServiceKey);
-        var contactChannels = CalculateMessageChannelKind(campaign.IgnoreUserPreferences, contact.CommunicationPreferences, campaign.MessageChannelKind);
+        var contactChannels = campaign.ResolveAvailableChannels(contact.CommunicationPreferences);
         if (contactChannels.HasFlag(MessageChannelKind.PushNotification)) {
             await eventDispatcher.RaiseEventAsync(SendPushNotificationEvent.FromContactResolutionEvent(@event, contact, broadcast: false, messageId: messageId),
                 options => options.WrapInEnvelope().At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendPushNotification));
@@ -134,25 +134,4 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         }
     }
 
-    private static MessageChannelKind CalculateMessageChannelKind(bool ignoreUserPreferences, ContactCommunicationChannelKind contactCommunicationPreferences, MessageChannelKind campaignMessageChannelKind) {
-        if (ignoreUserPreferences || contactCommunicationPreferences == ContactCommunicationChannelKind.Any)
-            return campaignMessageChannelKind;
-
-        List<MessageChannelKind> messageChannelKinds = new List<MessageChannelKind>();
-        if (contactCommunicationPreferences.HasFlag(ContactCommunicationChannelKind.PushNotification) &&
-            campaignMessageChannelKind.HasFlag(MessageChannelKind.PushNotification)) {
-            messageChannelKinds.Add(MessageChannelKind.PushNotification);
-        }
-
-        if (contactCommunicationPreferences.HasFlag(ContactCommunicationChannelKind.Email) &&
-            campaignMessageChannelKind.HasFlag(MessageChannelKind.Email)) {
-            messageChannelKinds.Add(MessageChannelKind.Email);
-        }
-
-        if (contactCommunicationPreferences.HasFlag(ContactCommunicationChannelKind.SMS) &&
-            campaignMessageChannelKind.HasFlag(MessageChannelKind.SMS)) {
-            messageChannelKinds.Add(MessageChannelKind.SMS);
-        }
-        return Enum.Parse<MessageChannelKind>(string.Join(',', messageChannelKinds), ignoreCase: true);
-    }
 }

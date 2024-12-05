@@ -50,14 +50,14 @@ internal static class ContactsHandlers
         return TypedResults.NoContent();
     }
 
-    public static async Task<Results<NoContent, BadRequest<ProblemDetails>>> RefreshContact(IContactService contactService, IContactResolver contactResolver, string recipientId) {
+    public static async Task<Results<NoContent, NotFound, ValidationProblem>> RefreshContact(IContactService contactService, IContactResolver contactResolver, string recipientId) {
 
-        if(string.IsNullOrWhiteSpace(recipientId))
-            return TypedResults.BadRequest(new ProblemDetails() { Detail = "recipientId cannot be empty" });
+        if (string.IsNullOrWhiteSpace(recipientId))
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(recipientId), "Recipient cannot be null"));
 
         var resolvedContact = await contactResolver.Resolve(recipientId);
         if (resolvedContact is null) {
-            return TypedResults.BadRequest(new ProblemDetails() { Detail = "Contact was not found" });
+            return TypedResults.NotFound();
         }
 
         var contact = await contactService.FindByRecipientId(recipientId);

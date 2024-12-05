@@ -62,4 +62,36 @@ public class CampaignCreatedEvent
         RecipientIds = recipientIds ?? [],
         Recipients = recipients ?? []
     };
+
+    /// <summary>
+    /// Resolves availble Channels according to user preferences
+    /// </summary>
+    /// <param name="contactPreferences">User contact preferences</param>
+    /// <returns></returns>
+    public MessageChannelKind ResolveAvailableChannels(ContactCommunicationChannelKind contactPreferences) {
+        if (IgnoreUserPreferences || contactPreferences == ContactCommunicationChannelKind.Any)
+            return MessageChannelKind;
+
+        MessageChannelKind messageChannelKinds = MessageChannelKind.None;
+        if (contactPreferences.HasFlag(ContactCommunicationChannelKind.PushNotification) &&
+            MessageChannelKind.HasFlag(MessageChannelKind.PushNotification)) {
+            messageChannelKinds |= MessageChannelKind.PushNotification; 
+        }
+
+        if (contactPreferences.HasFlag(ContactCommunicationChannelKind.Email) &&
+            MessageChannelKind.HasFlag(MessageChannelKind.Email)) {
+            messageChannelKinds |= MessageChannelKind.Email;
+        }
+
+        if (contactPreferences.HasFlag(ContactCommunicationChannelKind.SMS) &&
+            MessageChannelKind.HasFlag(MessageChannelKind.SMS)) {
+            messageChannelKinds |= MessageChannelKind.SMS;
+        }
+
+        //keep inbox regardless of user preferences
+        if (MessageChannelKind.HasFlag(MessageChannelKind.Inbox)) {
+            messageChannelKinds |= MessageChannelKind.Inbox;
+        }
+        return messageChannelKinds;
+    }
 }
