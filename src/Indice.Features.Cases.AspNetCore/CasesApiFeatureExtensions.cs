@@ -166,6 +166,7 @@ public static class CasesApiFeatureExtensions
             options.GroupIdClaimType = casesAdminOptions.GroupIdClaimType;
             options.ReferenceNumberEnabled = casesAdminOptions.ReferenceNumberEnabled;
         });
+        services.AddTransient<ICaseActionsService, WorkflowCaseActionsService>();
 
         services.AddDecorator<ICaseApprovalService, WorkflowCaseApprovalService>(); // this solves the mixed nature of the service
 
