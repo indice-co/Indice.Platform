@@ -91,7 +91,7 @@ internal class MyCasesController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CasesAttachmentLink))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(void))]
-    public async Task<IActionResult> UploadCaseAttachment([FromRoute] Guid caseId, [FromForm] IFormFile file) {
+    public async Task<IActionResult> UploadCaseAttachment([FromRoute] Guid caseId, IFormFile file) {
         if (file == null) {
             ModelState.AddModelError(nameof(file), "File is empty.");
             return BadRequest(new ValidationProblemDetails(ModelState));
