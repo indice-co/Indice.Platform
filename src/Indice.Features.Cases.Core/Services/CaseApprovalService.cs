@@ -43,6 +43,7 @@ internal class CaseApprovalService : ICaseApprovalService
         if (caseId == default) throw new ArgumentNullException(nameof(caseId));
 
         return await _dbContext.CaseApprovals
+                               .AsNoTracking()
                                .Where(p => p.CaseId == caseId && p.Committed)
                                .OrderByDescending(p => p.CreatedBy.When)
                                .Select(p => new CaseApproval {
@@ -63,7 +64,7 @@ internal class CaseApprovalService : ICaseApprovalService
         await _dbContext.SaveChangesAsync();
     }
 
-    
+
     /// <inheritdoc/>
     public ValueTask<List<RejectReason>> GetRejectReasons(Guid caseId) {
         //TODO: Workflow integration Or copy reasons in the cases side of things so we can drive this from the cases database instead of the workflow.

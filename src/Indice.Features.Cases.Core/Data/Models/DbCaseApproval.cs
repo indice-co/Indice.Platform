@@ -13,6 +13,6 @@ public class DbCaseApproval
     public bool Committed { get; set; }
     public string? Reason { get; set; }
     public virtual DbCase Case { get; set; } = null!;
-    public virtual DbComment Comment { get; set; } = null!;
+    public virtual DbComment? Comment { get; set; }
 }
 #pragma warning restore 1591

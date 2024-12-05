@@ -13,7 +13,7 @@ public class CheckpointType
     public string Code { get; set; } = null!;
 
     /// <summary>The title of the <b>checkpoint type</b>.</summary>
-    public string Title { get; set; } = null!;
+    public string? Title { get; set; }
 
     /// <summary>The description of the <b>checkpoint type</b>.</summary>
     public string? Description { get; set; }

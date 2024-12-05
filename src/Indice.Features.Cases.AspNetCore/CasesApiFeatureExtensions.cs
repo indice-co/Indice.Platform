@@ -140,7 +140,7 @@ public static class CasesApiFeatureExtensions
             options.ConfigureLimitUpload = casesAdminOptions.ConfigureLimitUpload;
         });
         services.AddLimitUploadOptions(casesAdminOptions.ConfigureLimitUpload);
-        
+
         // Post configure MVC options.
         services.PostConfigure<MvcOptions>(options => {
             options.Conventions.Add(new ApiPrefixControllerModelConvention(ApiPrefixes.CasesApiTemplatePrefixPlaceholder, casesAdminOptions.ApiPrefix ?? "api"));
@@ -220,7 +220,7 @@ public static class CasesApiFeatureExtensions
         }
 
         // Elsa API endpoints. - Fixes Swagger UI when commented - commented while using minimal APIs
-        //services.AddElsaApiEndpoints();
+        services.AddElsaApiEndpoints();
 
         // For Dashboard.
         services.AddRazorPages();
@@ -253,7 +253,7 @@ public static class CasesApiFeatureExtensions
     /// <param name="services">The service collection</param>
     /// <param name="configurePolicy">Override the default policy</param>
     /// <returns>The service collection for further configuration</returns>
-    /// <remarks>Should be used in conjunction with the <strong>AddAuthentication().AddOpenIdConnect()</strong> 
+    /// <remarks>Should be used in conjunction with the <strong>AddAuthentication().AddOpenIdConnect()</strong>
     /// because it makes use of the <seealso cref="OpenIdConnectDefaults.AuthenticationScheme"/> in order to authorize a visiting user</remarks>
     public static IServiceCollection AddWorkflowAuthoriationPolicy(this IServiceCollection services, Action<AuthorizationPolicyBuilder>? configurePolicy = null) {
         configurePolicy ??= policy => policy
