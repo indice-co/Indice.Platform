@@ -49,6 +49,18 @@ internal static class ContactsHandlers
         return TypedResults.NoContent();
     }
 
+    public static async Task<NoContent> RefreshContact(IContactService contactService, IContactResolver contactResolver, string recipientId) {
+        var contact = await contactService.FindByRecipientId(recipientId);
+        if (contact is null) {
+            contact = await contactResolver.Resolve(recipientId);
+            await contactService.Create(Mapper.ToCreateContactRequest(contact));
+            return TypedResults.NoContent();
+        }
+        contact = await contactResolver.Patch(recipientId, contact);
+        await contactService.Update(contact.Id!.Value, Mapper.ToUpdateContactRequest(contact));
+        return TypedResults.NoContent();
+    }
+
     #region Descriptions
     public static readonly string GET_CONTACTS_DESCRIPTION = @"
 Retrieves the list of all contacts using the provided ListOptions.
@@ -79,6 +91,13 @@ Parameters:
 - contactId: The unique ID of the contact to update.
 - request: The request model used to update the contact.
 ";
+    public static readonly string REFRESH_CONTACT_DESCRIPTION = @"
+Updates an existing contact in the store or adds a new contact with data from an external system.
+
+Parameters:
+- recepientId: The unique ID of the recepient.
+";
+
 
     #endregion
 }

@@ -94,8 +94,8 @@ public class ContactResolverIdentity : IContactResolver
             RecipientId = identityUser.Id,
             Email = identityUser.Email,
             PhoneNumber = identityUser.PhoneNumber,
-            FirstName = identityUser.Claims.Where(x => x.Type == BasicClaimTypes.GivenName).FirstOrDefault()?.Value,
-            LastName = identityUser.Claims.Where(x => x.Type == BasicClaimTypes.FamilyName).FirstOrDefault()?.Value,
+            FirstName = identityUser.Claims.FirstOrDefault(x => x.Type == BasicClaimTypes.GivenName)?.Value,
+            LastName = identityUser.Claims.FirstOrDefault(x => x.Type == BasicClaimTypes.FamilyName)?.Value,
             CommunicationPreferences = GetCommunicationPreferences(identityUser.Claims),
             Locale = GetLocale(identityUser.Claims),
             ConsentCommercial = GetCommercialConsent(identityUser.Claims)
@@ -125,7 +125,7 @@ public class ContactResolverIdentity : IContactResolver
         var consent = claims.FirstOrDefault(x => x.Type == BasicClaimTypes.ConsentCommercial);
         if (consent == null)
             return false;
-        return consent.Value == bool.TrueString.ToLower();
+        return consent.Value.ToLower() == bool.TrueString.ToLower();
     }
 
     private async Task<string> GetAccessToken() {
