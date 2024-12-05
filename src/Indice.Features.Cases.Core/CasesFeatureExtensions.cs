@@ -71,6 +71,9 @@ public static class CasesFeatureExtensions
         services.TryAddTransient<IMyCaseService, MyCaseService>();
         services.TryAddTransient<IMyCaseMessageService, MyCaseMessageService>();
 
+        // Workflow integration 
+        services.TryAddTransient<ICasesWorkflowManager, DefaultCasesWorkflowManager>();
+
         // register services
         services.AddSmsServiceNoop();
 
