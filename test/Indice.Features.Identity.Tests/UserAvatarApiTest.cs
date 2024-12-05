@@ -121,22 +121,22 @@ public class UserAvatarApiTest : IAsyncLifetime
         var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var user = new User {
             CreateDate = DateTimeOffset.UtcNow,
-            Email = "e.travlos@indice.gr",
+            Email = "someone@indice.gr",
             EmailConfirmed = true,
             Id = Guid.NewGuid().ToString(),
             PhoneNumber = "69XXXXXXXX",
             PhoneNumberConfirmed = true,
-            UserName = "e.travlos@indice.gr"
+            UserName = "someone@indice.gr"
         };
         // 1. Create a new user.
-        var result = await userManager.CreateAsync(user, password: "123abc!", validatePassword: false);
+        var result = await userManager.CreateAsync(user, password: "xxxxxxx", validatePassword: false);
         if (!result.Succeeded) {
             Assert.Fail("User could not be created.");
         }
         //await userManager.AddToRoleAsync(user, BasicRoleNames.Developer);
 
         using var client = new HttpClient();
-        var tokenResponse = await LoginWithPasswordGrant("e.travlos@indice.gr", "123abc!");
+        var tokenResponse = await LoginWithPasswordGrant("someone@indice.gr", "xxxxxxx");
 
         var multipartContent = new MultipartFormDataContent();
         var stream = File.OpenRead("./Images/Profile.jpg");

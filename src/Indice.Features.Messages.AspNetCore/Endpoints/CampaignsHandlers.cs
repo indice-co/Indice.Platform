@@ -15,6 +15,7 @@ using Indice.Features.Messages.Core.Events;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Indice.Features.Media.AspNetCore;
 
 namespace Indice.Features.Messages.AspNetCore.Endpoints;
 
@@ -60,9 +61,14 @@ internal static class CampaignsHandlers
         return TypedResults.Ok(statistics);
     }
 
-    public static async Task<Results<CreatedAtRoute<CreateCampaignResult>, ValidationProblem>> CreateCampaign(NotificationsManager notificationsManager, IConfiguration configuration, CreateCampaignRequest request) {
-        if (request != null && string.IsNullOrWhiteSpace(request.MediaBaseHref)) {
-            request.MediaBaseHref = configuration.GetHost();
+    public static async Task<Results<CreatedAtRoute<CreateCampaignResult>, ValidationProblem>> CreateCampaign(
+        NotificationsManager notificationsManager, 
+        IConfiguration configuration, 
+        MediaBaseHrefResolver baseHrefResolver,
+        CreateCampaignRequest request) {
+        if (string.IsNullOrWhiteSpace(request.MediaBaseHref) || 
+            Uri.TryCreate(request!.MediaBaseHref, UriKind.RelativeOrAbsolute, out var mediaBasePath) && !mediaBasePath.IsAbsoluteUri) {
+            request.MediaBaseHref = (await baseHrefResolver.ResolveBaseHrefAsync()).ToString();
         }
         var result = await notificationsManager.CreateCampaignInternal(request, validateRules: false);
         if (!result.Succeeded) {
@@ -102,7 +108,7 @@ internal static class CampaignsHandlers
     }
 
     public static async Task<Results<FileContentHttpResult, NotFound>> GetFile(IFileServiceFactory fileServiceFactory, string rootFolder, Guid fileGuid, string format) {
-        var fileService = fileServiceFactory.Create(KeyedServiceNames.FileServiceKey)
+        var fileService = fileServiceFactory.Create(Messages.Core.KeyedServiceNames.FileServiceKey)
                           ?? throw new ArgumentNullException(nameof(fileServiceFactory));
 
         if (format.StartsWith('.')) {

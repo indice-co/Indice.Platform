@@ -5,8 +5,8 @@
     <VersionPrefix>$(VersionPrefixMessages)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Features.Messages.Core" Version="$(VersionPrefixMessages)" />
-    <PackageReference Include="Indice.Hosting" Version="$(VersionPrefixCore)" />
+    <PackageReference Include="Indice.Features.Messages.Core" Version="$(VersionPrefixMessages)-*" />
+    <PackageReference Include="Indice.Hosting" Version="$(VersionPrefixCore)-*" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Features.Messages.Core\Indice.Features.Messages.Core.csproj" />

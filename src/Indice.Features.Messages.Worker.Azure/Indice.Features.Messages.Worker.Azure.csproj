@@ -5,8 +5,8 @@
     <VersionPrefix>$(VersionPrefixMessages)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Features.Messages.Core" Version="$(VersionPrefixMessages)" />
-    <PackageReference Include="Indice.Features.Multitenancy.Worker.Azure" Version="$(VersionPrefixMultitenancy)" />
+    <PackageReference Include="Indice.Features.Messages.Core" Version="$(VersionPrefixMessages)-*" />
+    <PackageReference Include="Indice.Features.Multitenancy.Worker.Azure" Version="$(VersionPrefixMultitenancy)-*" />
     <PackageReference Include="Indice.Services" Version="$(VersionPrefixCore)" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Core" Version="2.0.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Storage.Queues" Version="5.5.0" />

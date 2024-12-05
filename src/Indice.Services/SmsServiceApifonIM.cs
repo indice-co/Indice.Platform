@@ -17,8 +17,6 @@ namespace Indice.Services;
 /// </summary>
 public class SmsServiceApifonIM : ISmsService
 {
-    /// <summary>The Apifon base URL address.</summary>
-    internal static readonly string APIFON_BASE_URL = "https://ars.apifon.com";
     /// <summary>The Apifon IM service gateway endpoint.</summary>
     internal static readonly string SERVICE_ENDPOINT = "/services/api/v1/im/send";
     /// <summary>The settings required to configure the service.</summary>
@@ -65,17 +63,13 @@ public class SmsServiceApifonIM : ISmsService
             throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(recipients));
         }
         var senderId = sender?.Id ?? Options.Sender ?? Options.SenderName;
-        var payload = new ApifonIMRequest(senderId!, recipients, body!) {
-            IMChannels = [new() { 
-                SenderId = senderId,
-                Text = body
-            }]
-        };
+
+        var payload = ApifonIMRequest.Create(senderId!, recipients, body!, Options.ViberFallbackEnabled);
         var signature = payload.Sign(Options.ApiKey!, HttpMethod.Post.ToString(), SERVICE_ENDPOINT);
         var request = new HttpRequestMessage {
             Content = new StringContent(payload.ToJson(), Encoding.UTF8, MediaTypeNames.Application.Json),
             Method = HttpMethod.Post,
-            RequestUri = HttpClient.BaseAddress
+            RequestUri = new Uri($"{SmsServiceApifon.APIFON_BASE_URL}{SERVICE_ENDPOINT}")
         };
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaTypeNames.Application.Json));
         request.Headers.Add("X-ApifonWS-Date", payload.RequestDate.ToString("r"));
@@ -113,9 +107,7 @@ public class SmsServiceApifonIM : ISmsService
     /// <summary>Checks the implementation if supports the given <paramref name="deliveryChannel"/>.</summary>
     /// <param name="deliveryChannel">A string representing the delivery channel. i.e 'SMS'</param>
     /// <returns></returns>
-    public bool Supports(string deliveryChannel) => 
-        "SMS".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase) || 
-        "Viber".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase);
+    public bool Supports(string deliveryChannel) => "Viber".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase);
 
     /// <summary>Get default JSON serializer options: CamelCase, ignore null values.</summary>
     protected static JsonSerializerOptions GetJsonSerializerOptions() => new JsonSerializerOptions {
@@ -125,7 +117,21 @@ public class SmsServiceApifonIM : ISmsService
 }
 
 internal class ApifonIMRequest : ApifonRequest {
-    public ApifonIMRequest(string from, string[] to, string message) : base(from, to, message) { }
+    public static ApifonIMRequest Create(string from, string[] to, string message, bool viberFallbackEnabled) {
+        var request = new ApifonIMRequest();
+        foreach (var subNumber in to) {
+            request.Subscribers.Add(new Subscriber { To = subNumber });
+        }
+        request.IMChannels = [new() {
+            SenderId = from,
+            Text = message
+        }];
+        if (viberFallbackEnabled) {
+            request.Message.From = from;
+            request.Message.Text = message;
+        }
+        return request;
+    }
 
     [JsonPropertyName("im_channels")]
     public List<IMChannel> IMChannels { get; set; } = [];

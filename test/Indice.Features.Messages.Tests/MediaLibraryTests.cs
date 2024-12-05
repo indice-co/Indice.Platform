@@ -2,6 +2,8 @@
 using System.Text;
 using System.Text.Json;
 using Indice.AspNetCore.Authorization;
+using Indice.Features.Media.AspNetCore;
+using Indice.Features.Media.AspNetCore.Endpoints;
 using Indice.Features.Media.AspNetCore.Models;
 using Indice.Features.Media.AspNetCore.Models.Requests;
 using Indice.Features.Media.Data;
@@ -10,6 +12,8 @@ using Indice.Serialization;
 using Indice.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -106,6 +110,24 @@ public class MediaLibraryTests : IAsyncLifetime
 
         var text = await DownloadFile(content.Files[0].PermaLink);
         Assert.Equal("This is the file contents.!", text);
+    }
+    
+    [Fact]
+    public void CanResolveMediaBaseHref_From_LinkGenerator() {
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Host = new HostString("server");
+        httpContext.Request.Scheme = "https";
+        var linkGenerator = _serviceProvider.GetRequiredService<LinkGenerator>();
+        var path = linkGenerator.GetPathByRouteValues(httpContext,
+                                nameof(MediaHandlers.DownloadFile),
+                                values: null
+                           );
+        var url = linkGenerator.GetUriByName(httpContext,
+                                nameof(MediaHandlers.DownloadFile),
+                                values: null
+                           );
+        Assert.Equal("/api/media-root", path);
+        Assert.Equal("https://server/api/media-root", url);
     }
     private async Task<string> DownloadFile(string url) {
         var response = await _httpClient.GetAsync(url);

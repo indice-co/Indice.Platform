@@ -120,10 +120,7 @@ public static class IndiceServicesServiceCollectionExtensions
         services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
         var options = new SmsServiceApifonOptions();
         configure?.Invoke(options);
-        var httpClientBuilder = services.AddHttpClient<ISmsService, SmsServiceApifon>()
-                                        .ConfigureHttpClient(httpClient => {
-                                            httpClient.BaseAddress = new Uri("https://ars.apifon.com/services/api/v1/sms/");
-                                        });
+        var httpClientBuilder = services.AddHttpClient<ISmsService, SmsServiceApifon>();
         if (options.ConfigurePrimaryHttpMessageHandler is not null) {
             httpClientBuilder.ConfigurePrimaryHttpMessageHandler(options.ConfigurePrimaryHttpMessageHandler);
         }
@@ -139,11 +136,7 @@ public static class IndiceServicesServiceCollectionExtensions
         services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
         var options = new SmsServiceApifonOptions();
         configure?.Invoke(options);
-        var httpClientBuilder = services
-            .AddHttpClient<ISmsService, SmsServiceApifonIM>()
-            .ConfigureHttpClient(httpClient => {
-                httpClient.BaseAddress = new Uri($"{SmsServiceApifonIM.APIFON_BASE_URL}{SmsServiceApifonIM.SERVICE_ENDPOINT}");
-            });
+        var httpClientBuilder = services.AddHttpClient<ISmsService, SmsServiceApifonIM>();
         if (options?.ConfigurePrimaryHttpMessageHandler is not null) {
             httpClientBuilder.ConfigurePrimaryHttpMessageHandler(options.ConfigurePrimaryHttpMessageHandler);
         }

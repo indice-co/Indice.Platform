@@ -12,7 +12,6 @@ import { CreateCampaignRequest, MessagesApiClient, Period, Hyperlink, Campaign, 
 import { CampaignAttachmentsComponent } from './steps/attachments/campaign-attachments.component';
 import { map, mergeMap } from 'rxjs/operators';
 import { of } from 'rxjs';
-import { settings } from 'src/app/core/models/settings';
 
 @Component({
   selector: 'app-campaign-create',
