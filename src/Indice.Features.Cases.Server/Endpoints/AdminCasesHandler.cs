@@ -101,8 +101,8 @@ internal static class AdminCasesHandler
         return TypedResults.Ok(await caseBookmarkService.GetUserActions(User, caseId));
     }
 
-    public static async Task<Ok<List<RejectReason>>> GetCaseRejectReasons(Guid caseId, ICaseApprovalService caseApprovalService) {
-        return TypedResults.Ok(await caseApprovalService.GetRejectReasons(caseId));
+    public static async Task<Ok<List<RejectReason>>> GetCaseRejectReasons(ClaimsPrincipal currentUser, Guid caseId, ICaseApprovalService caseApprovalService) {
+        return TypedResults.Ok(await caseApprovalService.GetRejectReasons(currentUser, caseId));
     }
 
     public static async Task<Results<Ok<FileContentHttpResult>, NotFound>> DownloadCasePdf(Guid caseId,

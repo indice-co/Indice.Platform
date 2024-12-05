@@ -25,7 +25,8 @@ public interface ICaseApprovalService
     ValueTask RollbackApproval(Guid caseId);
 
     /// <summary>Get a list of rejected reasons as they have defined to the Workflow.</summary>
+    /// <param name="user">The actor.</param>
     /// <param name="caseId">The Id of the case</param>
     /// <returns>A list of <see cref="RejectReason"/></returns>
-    ValueTask<List<RejectReason>> GetRejectReasons(Guid caseId);
+    Task<List<RejectReason>> GetRejectReasons(ClaimsPrincipal user, Guid caseId);
 }

@@ -1,7 +1,6 @@
 ﻿using System.Security.Claims;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Data.Models;
-using Indice.Features.Cases.Core.Localization;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services.Abstractions;
@@ -12,16 +11,13 @@ namespace Indice.Features.Cases.Core.Services;
 internal class CaseApprovalService : ICaseApprovalService
 {
     private readonly CasesDbContext _dbContext;
-    //private readonly IWorkflowInstanceStore _workflowInstanceStore;
-    private readonly CaseSharedResourceService _caseSharedResourceService;
+    private readonly ICasesWorkflowManager _workflowManager;
 
     public CaseApprovalService(
         CasesDbContext dbContext,
-        //IWorkflowInstanceStore workflowInstanceStore,
-        CaseSharedResourceService caseSharedResourceService) {
+        ICasesWorkflowManager workflowManager) {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-        //_workflowInstanceStore = workflowInstanceStore ?? throw new ArgumentNullException(nameof(workflowInstanceStore));
-        _caseSharedResourceService = caseSharedResourceService ?? throw new ArgumentNullException(nameof(caseSharedResourceService));
+        _workflowManager = workflowManager ?? throw new ArgumentNullException(nameof(workflowManager));
     }
 
     public async Task AddApproval(Guid caseId, Guid? commentId, ClaimsPrincipal user, Approval action, string? reason) {
@@ -66,8 +62,7 @@ internal class CaseApprovalService : ICaseApprovalService
 
 
     /// <inheritdoc/>
-    public ValueTask<List<RejectReason>> GetRejectReasons(Guid caseId) {
-        //TODO: Workflow integration Or copy reasons in the cases side of things so we can drive this from the cases database instead of the workflow.
-        throw new NotImplementedException();
+    public Task<List<RejectReason>> GetRejectReasons(ClaimsPrincipal user, Guid caseId) {
+        return _workflowManager.GetApprovalRejectOptionsListAsync(user, caseId);
     }
 }

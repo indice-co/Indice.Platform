@@ -31,6 +31,7 @@ using Indice.Features.Cases.Core.Events;
 using Indice.Features.Cases.Events;
 using Indice.Features.Cases.Core.Services.Abstractions;
 using Microsoft.Extensions.Hosting;
+using Indice.Features.Cases.Core;
 
 namespace Indice.Features.Cases;
 
@@ -168,8 +169,6 @@ public static class CasesApiFeatureExtensions
         });
         services.AddTransient<ICaseActionsService, WorkflowCaseActionsService>();
 
-        services.AddDecorator<ICaseApprovalService, WorkflowCaseApprovalService>(); // this solves the mixed nature of the service
-
         return mvcBuilder;
     }
 
@@ -234,10 +233,12 @@ public static class CasesApiFeatureExtensions
         }
 
         // Register Custom Services
+        // Workflow integration 
         services.AddScoped<IAwaitApprovalInvoker, AwaitApprovalInvoker>();
         services.AddScoped<IAwaitEditInvoker, AwaitEditInvoker>();
         services.AddScoped<IAwaitAssignmentInvoker, AwaitAssignmentInvoker>();
         services.AddScoped<IAwaitActionInvoker, AwaitActionInvoker>();
+        services.AddScoped<ICasesWorkflowManager, CasesWorkflowManagerElsa>();
     }
 
     /// <summary>Add workflow services to middleware.</summary>

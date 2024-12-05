@@ -277,7 +277,7 @@ internal class AdminCasesController : ControllerBase
     [HttpGet("{caseId:guid}/reject-reasons")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<RejectReason>))]
     public async Task<IActionResult> GetCaseRejectReasons([FromRoute] Guid caseId) {
-        return Ok(await _caseApprovalService.GetRejectReasons(caseId));
+        return Ok(await _caseApprovalService.GetRejectReasons(User, caseId));
     }
 
     /// <summary>Download case in a PDF format.</summary>
