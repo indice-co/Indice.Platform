@@ -68,7 +68,10 @@ internal static class Mapper
         LastName = request.LastName,
         PhoneNumber = request.PhoneNumber,
         RecipientId = request.RecipientId,
-        Salutation = request.Salutation
+        Salutation = request.Salutation,
+        CommunicationPreferences = request.CommunicationPreferences,
+        ConsentCommercial = request.ConsentCommercial,
+        Locale = request.Locale
     };
 
     public static UpdateContactRequest ToUpdateContactRequest(Contact request, Guid? distributionListId = null) => new() {

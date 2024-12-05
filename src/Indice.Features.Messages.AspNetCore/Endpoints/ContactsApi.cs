@@ -66,7 +66,7 @@ internal static class ContactsApi
              .WithName(nameof(ContactsHandlers.RefreshContact))
              .WithSummary("Add or Updates a contact that matches the recepientId.")
              .WithDescription(ContactsHandlers.REFRESH_CONTACT_DESCRIPTION)
-             .WithParameterValidation<CreateContactRequest>();
+             .ProducesProblem(StatusCodes.Status400BadRequest);
         return group;
     }
 }

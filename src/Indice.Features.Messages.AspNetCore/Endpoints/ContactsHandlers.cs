@@ -5,6 +5,7 @@ using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Indice.Features.Messages.AspNetCore.Endpoints;
 
@@ -49,15 +50,24 @@ internal static class ContactsHandlers
         return TypedResults.NoContent();
     }
 
-    public static async Task<NoContent> RefreshContact(IContactService contactService, IContactResolver contactResolver, string recipientId) {
+    public static async Task<Results<NoContent, BadRequest<ProblemDetails>>> RefreshContact(IContactService contactService, IContactResolver contactResolver, string recipientId) {
+
+        if(string.IsNullOrWhiteSpace(recipientId))
+            return TypedResults.BadRequest(new ProblemDetails() { Detail = "recipientId cannot be empty" });
+
+        var resolvedContact = await contactResolver.Resolve(recipientId);
+        if (resolvedContact is null) {
+            return TypedResults.BadRequest(new ProblemDetails() { Detail = "Contact was not found" });
+        }
+
         var contact = await contactService.FindByRecipientId(recipientId);
         if (contact is null) {
-            contact = await contactResolver.Resolve(recipientId);
-            await contactService.Create(Mapper.ToCreateContactRequest(contact));
+            await contactService.Create(Mapper.ToCreateContactRequest(resolvedContact));
             return TypedResults.NoContent();
         }
-        contact = await contactResolver.Patch(recipientId, contact);
-        await contactService.Update(contact.Id!.Value, Mapper.ToUpdateContactRequest(contact));
+
+        resolvedContact.Id = contact.Id;
+        await contactService.Update(contact.Id!.Value, Mapper.ToUpdateContactRequest(resolvedContact));
         return TypedResults.NoContent();
     }
 
