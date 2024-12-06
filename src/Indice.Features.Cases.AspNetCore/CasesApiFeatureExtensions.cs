@@ -26,8 +26,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NodaTime;
-using Indice.Features.Cases.Core.Events;
-using Indice.Features.Cases.Events;
 using Microsoft.Extensions.Hosting;
 using Indice.Features.Cases.Core;
 
@@ -153,8 +151,6 @@ public static class CasesApiFeatureExtensions
             .AddEmailServiceSparkPost(configuration)
             .WithMvcRazorRendering();
 
-        // Register internal handlers
-        services.AddCaseEventHandler<CaseSubmittedEvent, StartWorkflowHandler>();
         // must run last in order not to override any explicit service declarations.
         services.AddCasesManagement(options => {
             options.ConfigureDbContext = casesAdminOptions.ConfigureDbContext;
