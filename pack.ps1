@@ -14,6 +14,7 @@ dotnet pack src/Indice.Features.Identity.Server/Indice.Features.Identity.Server.
 dotnet pack src/Indice.Features.Identity.Core/Indice.Features.Identity.Core.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Identity.UI/Indice.Features.Identity.UI.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Identity.SignInLogs/Indice.Features.Identity.SignInLogs.csproj --no-restore --no-build -c Release -o ./artifacts
+dotnet pack src/Indice.Features.Cases.Core/Indice.Features.Cases.Core.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Cases.AspNetCore/Indice.Features.Cases.AspNetCore.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Cases.Server/Indice.Features.Cases.Server.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Cases.UI/Indice.Features.Cases.UI.csproj --no-restore --no-build -c Release -o ./artifacts
