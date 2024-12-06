@@ -26,10 +26,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NodaTime;
-using Indice.Features.Cases.Services;
 using Indice.Features.Cases.Core.Events;
 using Indice.Features.Cases.Events;
-using Indice.Features.Cases.Core.Services.Abstractions;
 using Microsoft.Extensions.Hosting;
 using Indice.Features.Cases.Core;
 
