@@ -25,6 +25,9 @@ public class SpaUIOptions
     public bool Enabled { get; set; } = true;
     /// <summary>The base address of the application host (i.e. https://example.com).</summary>
     public string Host { get; set; }
+    /// <summary>Where is the main api that drives this ui. Defaults to <strong>/api</strong> which is the same origin. </summary>
+    /// <remarks>Can also be pointed to a an exteranl origin ei: messaging.indice.gr.</remarks>
+    public string ApiBase { get; set; } = "/api";
     /// <summary>URI to redirect to after logout.</summary>
     public string PostLogoutRedirectUri { get; set; }
     /// <summary>Called after the status code and headers have been set, but before the body has been written. This can be used to add or change the response headers.</summary>

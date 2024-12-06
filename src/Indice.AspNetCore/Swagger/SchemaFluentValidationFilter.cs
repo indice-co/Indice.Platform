@@ -61,13 +61,13 @@ public class RequestBodyFluentValidationSwaggerFilter : IRequestBodyFilter
     }
     /// <inheritdoc/>
     public void Apply(OpenApiRequestBody requestBody, RequestBodyFilterContext context) {
-        var scopedServiceProvider = _rootServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext.RequestServices;
+        using var scope = _rootServiceProvider.CreateScope();
         if (context.BodyParameterDescription is not null) {
-            AnnotateRequestBodySchemaWithValidator(scopedServiceProvider, context, context.BodyParameterDescription.Type);
+            AnnotateRequestBodySchemaWithValidator(scope.ServiceProvider, context, context.BodyParameterDescription.Type);
         } else if (context.FormParameterDescriptions?.Count() > 0) {
             foreach (var parameterDescription in context.FormParameterDescriptions) {
                 if (parameterDescription.Type is not null)
-                    AnnotateRequestBodySchemaWithValidator(scopedServiceProvider, context, parameterDescription.Type);
+                    AnnotateRequestBodySchemaWithValidator(scope.ServiceProvider, context, parameterDescription.Type);
             }
         }
     }

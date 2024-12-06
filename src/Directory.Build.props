@@ -19,7 +19,7 @@
       <VersionPrefixAspNet>$(VersionPrefixBase).0</VersionPrefixAspNet>
       <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
       
-      <VersionSuffix>rc03</VersionSuffix>
+      <VersionSuffix>rc06</VersionSuffix>
       <Authors>Constantinos Leftheris</Authors>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
       <LangVersion>Latest</LangVersion>

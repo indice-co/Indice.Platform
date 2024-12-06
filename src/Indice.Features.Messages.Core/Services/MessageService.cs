@@ -183,7 +183,8 @@ public class MessageService : IMessageService
             IsRead = x.Message != null && x.Message.IsRead,
             Type = x.Campaign.Type != null ? new MessageType {
                 Id = x.Campaign.Type.Id,
-                Name = x.Campaign.Type.Name
+                Name = x.Campaign.Type.Name,
+                Classification = x.Campaign.Type.Classification,
             } : null
         });
     }

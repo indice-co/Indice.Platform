@@ -31,7 +31,8 @@ public class MessageTypeService : IMessageTypeService
         await DbContext.SaveChangesAsync();
         return new MessageType {
             Id = messageType.Id,
-            Name = messageType.Name
+            Name = messageType.Name,
+            Classification = messageType.Classification,
         };
     }
 
@@ -53,7 +54,8 @@ public class MessageTypeService : IMessageTypeService
         }
         return new MessageType {
             Id = messageType.Id,
-            Name = messageType.Name
+            Name = messageType.Name,
+            Classification = messageType.Classification
         };
     }
 
@@ -65,7 +67,8 @@ public class MessageTypeService : IMessageTypeService
         }
         return new MessageType {
             Id = messageType.Id,
-            Name = messageType.Name
+            Name = messageType.Name,
+            Classification = messageType.Classification
         };
     }
 
@@ -76,7 +79,8 @@ public class MessageTypeService : IMessageTypeService
             .AsNoTracking()
             .Select(campaignType => new MessageType {
                 Id = campaignType.Id,
-                Name = campaignType.Name
+                Name = campaignType.Name,
+                Classification = campaignType.Classification
             });
         if (!string.IsNullOrWhiteSpace(options.Search)) {
             query = query.Where(x => x.Name.ToLower().Contains(options.Search.ToLower()));

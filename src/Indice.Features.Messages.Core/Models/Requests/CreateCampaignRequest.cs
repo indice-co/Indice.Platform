@@ -7,6 +7,8 @@ public class CreateCampaignRequest : CampaignRequestBase
 {
     /// <summary>Determines if a campaign is published.</summary>
     public bool Published { get; set; }
+    /// <summary>Determines if a campaign must ignore user communication preferences.</summary>
+    public bool? IgnoreUserPreferences { get; set; }
     /// <summary>Defines a list of user identifiers that constitutes the audience of the campaign.</summary>
     public List<string> RecipientIds { get; set; } = [];
     /// <summary>Defines a list of attachmentids already uploaded to the campaign database. These will be assiciated with the campaign.</summary>
@@ -24,8 +26,8 @@ public class CreateCampaignRequest : CampaignRequestBase
     internal IEnumerable<Contact> GetIncludedContacts() {
         if (RecipientIds is not null) {
             foreach (var item in RecipientIds) {
-                yield return new Contact { 
-                    RecipientId = item 
+                yield return new Contact {
+                    RecipientId = item
                 };
             }
         }

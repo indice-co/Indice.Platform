@@ -175,11 +175,11 @@ public class NotificationsManager(
         }
         // create the attachemtns
         if (request.Attachments.Any()) {
-            if (request.Attachments.Count > 3) { 
+            if (request.Attachments.Count > 3) {
                 return CreateCampaignResult.Fail("Too many attachments. Maximum attachent size for Notification manager is '3'");
             }
-            
-            try { 
+
+            try {
                 var createAttachmentTasks = request.Attachments.Where(x => x is not null).Select(x => CampaignAttachmentService.Create(x));
                 var attachments = await Task.WhenAll(createAttachmentTasks);
                 request.AttachmentIds = attachments.Select(x => x.Id).ToList();
@@ -193,6 +193,9 @@ public class NotificationsManager(
             if (template == null) {
                 return CreateCampaignResult.Fail($"The selected Template with Id:({request.MessageTemplateId}) does not exist");
             }
+            if (!request.IgnoreUserPreferences.HasValue) {
+                request.IgnoreUserPreferences = template.IgnoreUserPreferences;
+            }
             request.Content = template.Content;
         }
         // Create campaign in the store.
@@ -200,7 +203,7 @@ public class NotificationsManager(
         // Dispatch event that the campaign was created.
         await EventDispatcher.RaiseEventAsync(
             payload: CampaignCreatedEvent.FromCampaign(createdCampaign, request.RecipientIds, request.Recipients, isNewDistributionList),
-            configure: builder => 
+            configure: builder =>
                 builder.WrapInEnvelope()
                        .At(request.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow)
                        .WithQueueName(EventNames.CampaignCreated)

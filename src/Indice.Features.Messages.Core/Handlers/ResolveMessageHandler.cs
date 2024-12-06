@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using HandlebarsDotNet;
+using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
@@ -91,6 +92,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
                 id = campaign.Id,
                 title = campaign.Title,
                 type = campaign.Type?.Name,
+                classification = campaign.Type?.Classification,
                 actionLink = new {
                     href = !string.IsNullOrEmpty(campaign.ActionLink?.Href) ? $"_tracking/messages/cta/{(Base64Id)campaign.Id}" : null,
                     text = campaign.ActionLink?.Text,
@@ -115,18 +117,21 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
             Content = campaign.Content,
             RecipientId = contact.RecipientId
         });
+
         var eventDispatcher = EventDispatcherFactory.Create(KeyedServiceNames.EventDispatcherServiceKey);
-        if (campaign.MessageChannelKind.HasFlag(MessageChannelKind.PushNotification)) {
+        var contactChannels = campaign.ResolveAvailableChannels(contact.CommunicationPreferences);
+        if (contactChannels.HasFlag(MessageChannelKind.PushNotification)) {
             await eventDispatcher.RaiseEventAsync(SendPushNotificationEvent.FromContactResolutionEvent(@event, contact, broadcast: false, messageId: messageId),
                 options => options.WrapInEnvelope().At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendPushNotification));
         }
-        if (campaign.MessageChannelKind.HasFlag(MessageChannelKind.Email)) {
+        if (contactChannels.HasFlag(MessageChannelKind.Email)) {
             await eventDispatcher.RaiseEventAsync(SendEmailEvent.FromContactResolutionEvent(@event, contact, broadcast: false),
                 options => options.WrapInEnvelope().At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendEmail));
         }
-        if (campaign.MessageChannelKind.HasFlag(MessageChannelKind.SMS)) {
+        if (contactChannels.HasFlag(MessageChannelKind.SMS)) {
             await eventDispatcher.RaiseEventAsync(SendSmsEvent.FromContactResolutionEvent(@event, contact, broadcast: false),
                 options => options.WrapInEnvelope().At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendSms));
         }
     }
+
 }

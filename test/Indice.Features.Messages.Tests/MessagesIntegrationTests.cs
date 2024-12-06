@@ -127,6 +127,53 @@ public class MessagesIntegrationTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Create_Distribution_List_And_Add_Contacts_With_Comminication_Preferences_Success() {
+        //Create Distribution List
+        var createDistributionListRequest = new CreateDistributionListRequest {
+            Name = "Test Distribution List"
+        };
+        var createDistributionListPayload = JsonSerializer.Serialize(createDistributionListRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var createDistributionListResponse = await _httpClient.PostAsync("/api/distribution-lists", new StringContent(createDistributionListPayload, Encoding.UTF8, "application/json"));
+        var createDistributionListResponseJson = await createDistributionListResponse.Content.ReadAsStringAsync();
+        if (!createDistributionListResponse.IsSuccessStatusCode) {
+            _output.WriteLine(createDistributionListResponseJson);
+        }
+
+        //Add Contact to Distribution List
+        var addContactRequest = new CreateDistributionListContactRequest {
+            FirstName = "First Name",
+            LastName = "Last Name",
+            FullName = "Full Name",
+            Email = "test@email.gr",
+            PhoneNumber = "1234567890",
+            Salutation = "Mr",
+            CommunicationPreferences = ContactCommunicationChannelKind.Any | ContactCommunicationChannelKind.Email
+        };
+        var addContactPayload = JsonSerializer.Serialize(addContactRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var addContactResponse = await _httpClient.PostAsync($"{createDistributionListResponse.Headers.Location.PathAndQuery}/contacts", new StringContent(addContactPayload, Encoding.UTF8, "application/json"));
+        var addContactResponseJson = await addContactResponse.Content.ReadAsStringAsync();
+        if (!addContactResponse.IsSuccessStatusCode) {
+            _output.WriteLine(addContactResponseJson);
+        }
+
+        //Retrieve the Distribution List
+
+        var serializationOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
+        serializationOptions.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
+        var getDistributionListResponse = await _httpClient.GetAsync($"{createDistributionListResponse.Headers.Location.PathAndQuery}/contacts");
+        var getDistributionListResponseJson = await getDistributionListResponse.Content.ReadAsStringAsync();
+        if (!getDistributionListResponse.IsSuccessStatusCode) {
+            _output.WriteLine(getDistributionListResponseJson);
+        }
+        var distributionListContacts = JsonSerializer.Deserialize<ResultSet<Contact>>(getDistributionListResponseJson, serializationOptions);
+
+        Assert.True(createDistributionListResponse.IsSuccessStatusCode);
+        Assert.True(addContactResponse.IsSuccessStatusCode);
+        Assert.NotEmpty(distributionListContacts.Items);
+        Assert.Single(distributionListContacts.Items, i => i.Email == addContactRequest.Email);
+    }
+
+    [Fact]
     public async Task Create_Distribution_List_And_Add_Contacts_Success() {
         //Create Distribution List
         var createDistributionListRequest = new CreateDistributionListRequest {
@@ -156,12 +203,15 @@ public class MessagesIntegrationTests : IAsyncLifetime
         }
 
         //Retrieve the Distribution List
+
+        var serializationOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
+        serializationOptions.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
         var getDistributionListResponse = await _httpClient.GetAsync($"{createDistributionListResponse.Headers.Location.PathAndQuery}/contacts");
         var getDistributionListResponseJson = await getDistributionListResponse.Content.ReadAsStringAsync();
         if (!getDistributionListResponse.IsSuccessStatusCode) {
             _output.WriteLine(getDistributionListResponseJson);
         }
-        var distributionListContacts = JsonSerializer.Deserialize<ResultSet<Contact>>(getDistributionListResponseJson, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var distributionListContacts = JsonSerializer.Deserialize<ResultSet<Contact>>(getDistributionListResponseJson, serializationOptions);
 
         Assert.True(createDistributionListResponse.IsSuccessStatusCode);
         Assert.True(addContactResponse.IsSuccessStatusCode);

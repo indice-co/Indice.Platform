@@ -1,5 +1,6 @@
 ﻿using Indice.Configuration;
 using Indice.Features.Messages.Core.Data.Models;
+using Indice.Features.Messages.Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -25,6 +26,8 @@ public class DbMessageTypeMap : IEntityTypeConfiguration<DbMessageType>
         builder.HasKey(x => x.Id);
         // Configure properties.
         builder.Property(x => x.Name).HasMaxLength(TextSizePresets.M128).IsRequired();
+        builder.Property(x => x.Classification).HasDefaultValue(MessageTypeClassification.System);
+        
         // Configure indexes.
         builder.HasIndex(x => x.Name).IsUnique();
     }

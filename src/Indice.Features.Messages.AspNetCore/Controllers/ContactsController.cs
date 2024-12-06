@@ -84,4 +84,34 @@ internal class ContactsController(IContactService contactService, IContactResolv
         await ContactService.Update(contactId, request);
         return NoContent();
     }
+
+
+    /// <summary>Add or Updates a contact that matches the recepientId.</summary>
+    /// <param name="recipientId">The unique ID of the recepient to retrieve data from.</param>
+    /// <response code="204">OK</response>
+    [HttpPost("{recipientId}/refresh")]
+    [ProducesResponseType(typeof(MessageType), StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(MessageType), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateContact([FromRoute] string recipientId) {
+        if (string.IsNullOrWhiteSpace(recipientId)) {
+            ModelState.AddModelError(nameof(recipientId), "Recipient cannot be null");
+            return ValidationProblem(new ValidationProblemDetails(ModelState));
+        }
+
+        var resolvedContact = await contactResolver.Resolve(recipientId);
+        if (resolvedContact is null) {
+            return NotFound();
+        }
+
+        var contact = await contactService.FindByRecipientId(recipientId);
+        if (contact is null) {
+            await contactService.Create(Mapper.ToCreateContactRequest(resolvedContact));
+            return NoContent();
+        }
+
+        resolvedContact.Id = contact.Id;
+        await contactService.Update(contact.Id!.Value, Mapper.ToUpdateContactRequest(resolvedContact));
+        return NoContent();
+    }
 }
