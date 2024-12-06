@@ -27,7 +27,7 @@ internal class CaseActionsService : ICaseActionsService
     public async Task<CaseActions?> GetUserActions(ClaimsPrincipal user, Guid caseId) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
-        var @case = await _casesDbContext.Cases.Where(x => x.Id == caseId).FirstOrDefaultAsync();
+        var @case = await _casesDbContext.Cases.Where(x => x.Id == caseId).Select(x => new { x.Id, x.AssignedTo }).FirstOrDefaultAsync();
         if (@case == null) {
             _logger.LogError("Case n not found for caseId {caseId}", caseId);
             return new CaseActions();
