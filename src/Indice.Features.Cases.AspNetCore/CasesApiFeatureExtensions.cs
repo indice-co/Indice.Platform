@@ -167,7 +167,6 @@ public static class CasesApiFeatureExtensions
             options.GroupIdClaimType = casesAdminOptions.GroupIdClaimType;
             options.ReferenceNumberEnabled = casesAdminOptions.ReferenceNumberEnabled;
         });
-        services.AddTransient<ICaseActionsService, WorkflowCaseActionsService>();
 
         return mvcBuilder;
     }

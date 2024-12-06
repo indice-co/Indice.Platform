@@ -10,5 +10,5 @@ public interface ICaseActionsService
     /// <param name="user">The user.</param>
     /// <param name="caseId">The Id of the case.</param>
     /// <returns></returns>
-    ValueTask<CaseActions> GetUserActions(ClaimsPrincipal user, Guid caseId);
+    Task<CaseActions?> GetUserActions(ClaimsPrincipal user, Guid caseId);
 }
