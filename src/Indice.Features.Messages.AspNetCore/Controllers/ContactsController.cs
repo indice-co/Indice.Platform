@@ -89,7 +89,7 @@ internal class ContactsController(IContactService contactService, IContactResolv
     /// <summary>Add or Updates a contact that matches the recepientId.</summary>
     /// <param name="recipientId">The unique ID of the recepient to retrieve data from.</param>
     /// <response code="204">OK</response>
-    [HttpPost("{recipientId:string}/refresh")]
+    [HttpPost("{recipientId}/refresh")]
     [ProducesResponseType(typeof(MessageType), StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(MessageType), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
