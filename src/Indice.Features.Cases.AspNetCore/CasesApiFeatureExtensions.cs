@@ -66,7 +66,10 @@ public static class CasesApiFeatureExtensions
 
         // This lines resolves the CaseData dynamic deserialization from SystemText
         services.AddMvc()
-            .AddNewtonsoftJson(x => x.SerializerSettings.Converters.Add(new SystemTextConverter()));
+            .AddNewtonsoftJson(x => {
+                x.SerializerSettings.Converters.Add(new SystemTextConverter());
+                x.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
+            });
 
         // Configure options given by the consumer.
         var casesMyOptions = new MyCasesApiOptions();
@@ -224,7 +227,7 @@ public static class CasesApiFeatureExtensions
         }
 
         // Register Custom Services
-        // Workflow integration 
+        // Workflow integration
         services.AddScoped<IAwaitApprovalInvoker, AwaitApprovalInvoker>();
         services.AddScoped<IAwaitEditInvoker, AwaitEditInvoker>();
         services.AddScoped<IAwaitAssignmentInvoker, AwaitAssignmentInvoker>();

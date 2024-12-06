@@ -27,14 +27,19 @@ internal class CaseActionsService : ICaseActionsService
     public async Task<CaseActions?> GetUserActions(ClaimsPrincipal user, Guid caseId) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
-        var @case = await _casesDbContext.Cases.Where(x => x.Id == caseId).Select(x => new { x.Id, x.AssignedTo }).FirstOrDefaultAsync();
+        var @case = await _casesDbContext.Cases.Where(x => x.Id == caseId)
+                                                             .Select(x => new {
+                                                                 x.Id,
+                                                                 AssignedToId = x.AssignedTo == null ? null : x.AssignedTo.Id
+                                                             })
+                                                             .FirstOrDefaultAsync();
         if (@case == null) {
             _logger.LogError("Case n not found for caseId {caseId}", caseId);
             return null;
         }
 
-        var caseIsAssigned = @case.AssignedTo != null;
-        var isAssignedToCurrentUser = @case.AssignedTo?.Id == user.FindSubjectId();
+        var caseIsAssigned = @case.AssignedToId != null;
+        var isAssignedToCurrentUser = @case.AssignedToId == user.FindSubjectId();
         var userRoles = user
             .FindAll(claim => claim.Type == BasicClaimTypes.Role)
             .Select(claim => claim.Value)
@@ -47,6 +52,6 @@ internal class CaseActionsService : ICaseActionsService
                                                     .OrderByDescending(p => p.CreatedBy.When)
                                                     .Select(p => p.CreatedBy.Id)
                                                     .FirstOrDefaultAsync();
-        return await _workflowManager.GetAvailableActionsAsync(user, caseId, @case.AssignedTo?.Id, userRoles, lastApprovedById);
+        return await _workflowManager.GetAvailableActionsAsync(user, caseId, @case.AssignedToId, userRoles, lastApprovedById);
     }
 }
