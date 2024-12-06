@@ -8,3 +8,5 @@ paths-ignore:
   - '**/Indice.Features.Cases.App/dist/**'
   - '**/Indice.Features.Identity.AdminUI.App/dist/**'
   - '**/Indice.Features.Risk.App/dist/**'
+  - '**/obj/**'
+  - 'test/**'
