@@ -196,6 +196,9 @@ public class NotificationsManager(
             if (!request.IgnoreUserPreferences.HasValue) {
                 request.IgnoreUserPreferences = template.IgnoreUserPreferences;
             }
+            if (request.Data is null) {
+                request.Data = template.Data;
+            }
             request.Content = template.Content;
         }
         // Create campaign in the store.
