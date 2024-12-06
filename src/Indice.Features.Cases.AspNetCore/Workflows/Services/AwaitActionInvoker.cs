@@ -1,7 +1,7 @@
 ﻿using Elsa.Persistence;
 using Elsa.Services;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Models;
+using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Workflows.Activities;
 using Indice.Features.Cases.Workflows.Bookmarks.AwaitAction;
 using Indice.Features.Cases.Workflows.Interfaces;

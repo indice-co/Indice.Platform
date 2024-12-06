@@ -1,9 +1,8 @@
 ﻿using System.Net.Mime;
-using Indice.Features.Cases.Interfaces;
-using Indice.Features.Cases.Models;
-using Indice.Features.Cases.Models.Requests;
-using Indice.Features.Cases.Models.Responses;
-using Indice.Features.Cases.Services;
+using System.Security.AccessControl;
+using Indice.Features.Cases.Core.Models;
+using Indice.Features.Cases.Core.Models.Requests;
+using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

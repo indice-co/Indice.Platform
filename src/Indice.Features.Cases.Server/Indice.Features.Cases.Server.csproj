@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <Nullable>enable</Nullable>
     <Authors>Thanos Panousis, Dimitris Karkanas</Authors>
@@ -7,8 +6,17 @@
     <PackageTags>AspNetCore;CasesManagement;Cases</PackageTags>
     <VersionPrefix>$(VersionPrefixCases)</VersionPrefix>
   </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Indice.Features.Cases.AspNetCore\Indice.Features.Cases.AspNetCore.csproj" />
-  </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefixCore)-*" />
+    <PackageReference Include="Indice.Feature.Cases.Core" Version="$(VersionPrefixCases)-*" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
+    <ProjectReference Include="..\Indice.Features.Cases.Core\Indice.Features.Cases.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Indice.Features.Cases.Tests" />
+    <InternalsVisibleTo Include="Indice.Features.Cases.Server" />
+  </ItemGroup>
 </Project>

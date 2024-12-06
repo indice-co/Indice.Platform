@@ -19,9 +19,9 @@ public class HttpEndpointWithValidationBookmarkProvider : BookmarkProvider<HttpE
         var path = ToLower((await context.ReadActivityPropertyAsync(x => x.Path, cancellationToken))!);
         var methods = (await context.ReadActivityPropertyAsync(x => x.Methods, cancellationToken))?.Select(ToLower) ?? Enumerable.Empty<string>();
 
-        BookmarkResult CreateBookmark(string method) => Result(new(path, method), nameof(HttpEndpoint));
+        BookmarkResult CreateBookmark(string? method) => Result(new(path!, method), nameof(HttpEndpoint));
         return methods.Select(CreateBookmark);
     }
 
-    private static string ToLower(string s) => s?.ToLowerInvariant();
+    private static string? ToLower(string s) => s?.ToLowerInvariant();
 }

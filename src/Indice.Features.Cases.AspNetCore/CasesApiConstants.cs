@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using Indice.Features.Cases.Interfaces;
 
 namespace Indice.Features.Cases;
 
@@ -21,7 +20,7 @@ public static class CasesApiConstants
     /// <summary>Default database schema.</summary>
     public const string DatabaseSchema = "case";
 
-    /// <summary>The default language key that will be used at <see cref="IJsonTranslationService"/>.</summary>
+    /// <summary>The default language key that will be used at to translate data.</summary>
     public static string DefaultTranslationLanguage = "el";
 
     /// <summary>The default groupId claim type.</summary>
@@ -94,9 +93,12 @@ internal static class ApiGroups
 /// <summary>Constant values for Cases Api Prefixes.</summary>
 internal class ApiPrefixes
 {
+    //Using internal const string CasesApiTemplatePrefixPlaceholder = "[casesApiPrefix]";, internal const string MyCasesApiTemplatePrefixPlaceholder = "[myCasesApiPrefix]";
+    //will break the APIs
+
     /// <summary>The admin api prefix placeholder that will be replaced.</summary>
-    internal const string CasesApiTemplatePrefixPlaceholder = "[casesApiPrefix]";
+    internal const string CasesApiTemplatePrefixPlaceholder = "api";
 
     /// <summary>The my-cases api prefix placeholder that will be replaced.</summary>
-    internal const string MyCasesApiTemplatePrefixPlaceholder = "[myCasesApiPrefix]";
+    internal const string MyCasesApiTemplatePrefixPlaceholder = "api-my";
 }

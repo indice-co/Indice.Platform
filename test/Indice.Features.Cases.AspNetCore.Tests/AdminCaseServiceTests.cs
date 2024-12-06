@@ -1,13 +1,16 @@
 ﻿using System.Security.Claims;
-using Indice.Features.Cases.Data;
-using Indice.Features.Cases.Interfaces;
-using Indice.Features.Cases.Models;
-using Indice.Features.Cases.Services;
+using Indice.Events;
+using Indice.Features.Cases.Core;
+using Indice.Features.Cases.Core.Data;
+using Indice.Features.Cases.Core.Models;
+using Indice.Features.Cases.Core.Services;
+using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Security;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using NSubstitute;
 
 namespace Indice.Features.Cases.Tests;
@@ -23,7 +26,10 @@ public class AdminCaseServiceTests : IDisposable
             .AddUserSecrets<MyCaseServiceTests>(optional: true)
             .Build();
         var collection = new ServiceCollection()
-            .AddDbContext<CasesDbContext>(builder => builder.UseSqlServer(configuration.GetConnectionString("CasesDb")));
+            .AddDbContext<CasesDbContext>(builder => builder.UseSqlServer(configuration.GetConnectionString("CasesDb")))
+            .Configure<CasesOptions>(options => {
+
+            });
         ServiceProvider = collection.BuildServiceProvider();
 
         // ensure created and seed here.
@@ -34,19 +40,20 @@ public class AdminCaseServiceTests : IDisposable
     [Fact(Skip = "IQueryable throws exception, needs fixing")]
     public async Task GetCases() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
+        var options = ServiceProvider.GetRequiredService<IOptions<CasesOptions>>();
         if (await dbContext.Database.EnsureCreatedAsync() || !dbContext.Cases.Any()) {
             // seed here.
             await dbContext.SeedAsync();
         }
 
         var mockCaseTypeService = Substitute.For<ICaseTypeService>();
-        var mockCaseEventService = Substitute.For<ICaseEventService>();
+        var mockCaseEventService = Substitute.For<IPlatformEventService>();
         var mockCaseAuthorization = Substitute.For<ICaseAuthorizationProvider>();
         var mockAdminCaseMessage = Substitute.For<IAdminCaseMessageService>();
 
         var adminCaseService = new AdminCaseService(
             dbContext,
-            new AdminCasesApiOptions(),
+            options,
             mockCaseAuthorization,
             mockCaseTypeService,
             mockAdminCaseMessage,

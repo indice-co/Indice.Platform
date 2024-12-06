@@ -1,4 +1,4 @@
-﻿using Indice.Features.Cases.Models.Requests;
+﻿using Indice.Features.Cases.Core.Models.Requests;
 
 namespace Indice.Features.Messages.Tests;
 

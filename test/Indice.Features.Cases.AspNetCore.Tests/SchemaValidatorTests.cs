@@ -1,13 +1,13 @@
 ﻿using System.Text.Json;
-using Indice.Features.Cases.Interfaces;
-using Indice.Features.Cases.Services;
+using Indice.Features.Cases.Core.Services;
+using Indice.Features.Cases.Core.Services.Abstractions;
 
 namespace Indice.Features.Cases.Tests;
 
 [Trait("CaseManagement", "SchemaValidatorService")]
 public class SchemaValidatorTests
 {
-    private readonly ISchemaValidator _schemaValidator = new SchemaValidator();
+    private readonly ISchemaValidator _schemaValidator = new CasesJsonSchemaValidator();
     private const string Schema = @"{
 	    ""title"": ""Test"",
 	    ""type"": ""object"",

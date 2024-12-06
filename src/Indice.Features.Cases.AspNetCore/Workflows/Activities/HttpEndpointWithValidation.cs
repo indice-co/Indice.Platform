@@ -4,8 +4,8 @@ using Elsa.Activities.Http.Models;
 using Elsa.ActivityResults;
 using Elsa.Attributes;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Interfaces;
-using Indice.Features.Cases.Services;
+using Indice.Features.Cases.Core.Services.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Features.Cases.Workflows.Activities;
 
@@ -28,14 +28,12 @@ public class HttpEndpointWithValidation : HttpEndpoint
     /// <inheritdoc/>
     protected override IActivityExecutionResult OnResume(ActivityExecutionContext context) => ExecuteInternal(context);
     
-    private readonly ISchemaValidator _schemaValidator = new SchemaValidator();
-
     private IActivityExecutionResult ExecuteInternal(ActivityExecutionContext context) {
         Output = context.GetInput<HttpRequestModel>()!;
         context.JournalData.Add("Inbound Request", Output);
 
         //Skip validation when there is no Schema
-        if (this.Schema is null) {
+        if (Schema is null) {
             return Done();
         }
         //There is schema by the body is null
@@ -43,7 +41,8 @@ public class HttpEndpointWithValidation : HttpEndpoint
             return Outcome(CasesApiConstants.WorkflowVariables.OutcomeNames.Failed);
         }
         //Validate body with schema
-        if (!_schemaValidator.IsValid(this.Schema, Output.Body)) {
+        var schemaValidator = context.ServiceProvider.GetRequiredService<ISchemaValidator>();
+        if (!schemaValidator.IsValid(Schema, Output.Body)) {
             return Outcome(CasesApiConstants.WorkflowVariables.OutcomeNames.Failed);
         }
         return Done();

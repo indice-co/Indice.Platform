@@ -4,8 +4,8 @@ using Elsa.Attributes;
 using Elsa.Design;
 using Elsa.Providers.WorkflowStorage;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Interfaces;
-using Indice.Features.Cases.Resources;
+using Indice.Features.Cases.Core.Localization;
+using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Features.Cases.Workflows.Extensions;
 using Microsoft.Extensions.Configuration;
 
@@ -14,8 +14,7 @@ namespace Indice.Features.Cases.Workflows.Activities;
 [Activity(
     Category = "Cases - Approvals",
     DisplayName = "Get rejected reason",
-    Description =
-        "Get the rejected reason the backofficer has selected. This activity returns a dictionary with translations",
+    Description = "Get the rejected reason the backofficer has selected. This activity returns a dictionary with translations",
     Outcomes = new[] { OutcomeNames.Done }
 )]
 internal class GetRejectedReasonActivity : BaseCaseActivity
@@ -45,10 +44,10 @@ internal class GetRejectedReasonActivity : BaseCaseActivity
         UIHint = ActivityInputUIHints.RadioList,
         DefaultWorkflowStorageProvider = TransientWorkflowStorageProvider.ProviderName
     )]
-    public string Language { get; set; }
+    public string? Language { get; set; }
 
     [ActivityOutput] 
-    public string Output { get; set; }
+    public string? Output { get; set; }
 
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         var approval = await _caseApprovalService.GetLastApproval(CaseId!.Value);
@@ -67,12 +66,12 @@ internal class GetRejectedReasonActivity : BaseCaseActivity
                 break;
         }
 
-        Output = _caseSharedResourceService.GetLocalizedHtmlStringWithCulture(approval.Reason, language);
+        Output = _caseSharedResourceService.GetLocalizedHtmlStringWithCulture(approval?.Reason!, language);
         context.LogOutputProperty(this, nameof(Output), Output);
         return Outcome(OutcomeNames.Done);
     }
     
-    private string GetCustomerLanguageOrDefault(string customerCultureName) {
+    private string GetCustomerLanguageOrDefault(string? customerCultureName) {
         if (customerCultureName == null) {
             return _defaultTranslationLanguage;
         }

@@ -1,6 +1,6 @@
 ﻿using System.Net.Mime;
-using Indice.Features.Cases.Interfaces;
-using Indice.Features.Cases.Models.Responses;
+using Indice.Features.Cases.Core.Models.Responses;
+using Indice.Features.Cases.Core.Services.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

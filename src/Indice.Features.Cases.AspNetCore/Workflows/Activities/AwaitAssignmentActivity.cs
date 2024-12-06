@@ -4,8 +4,8 @@ using Elsa.Attributes;
 using Elsa.Design;
 using Elsa.Expressions;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Data.Models;
-using Indice.Features.Cases.Interfaces;
+using Indice.Features.Cases.Core.Models;
+using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Features.Cases.Workflows.Extensions;
 
 namespace Indice.Features.Cases.Workflows.Activities;
@@ -36,12 +36,12 @@ internal class AwaitAssignmentActivity : BaseCaseActivity
         Hint = "User role that can assign a case to self. If left blank, any authenticated user can assign a case to them.",
         UIHint = ActivityInputUIHints.SingleLine,
         DefaultSyntax = SyntaxNames.Literal,
-        SupportedSyntaxes = new[] { SyntaxNames.Literal }
+        SupportedSyntaxes = [SyntaxNames.Literal]
     )]
-    public string AllowedRole { get; set; }
+    public string? AllowedRole { get; set; }
 
     [ActivityOutput]
-    public AuditMeta Output { get; set; }
+    public AuditMeta? Output { get; set; }
 
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         return context.WorkflowExecutionContext.IsFirstPass ? await OnExecuteInternal(context) : Suspend();
