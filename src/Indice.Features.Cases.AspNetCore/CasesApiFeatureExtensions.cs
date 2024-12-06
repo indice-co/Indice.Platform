@@ -97,8 +97,6 @@ public static class CasesApiFeatureExtensions
         // Register framework services.
         services.AddHttpContextAccessor();
 
-        // Register internal handlers
-        services.AddCaseEventHandler<CaseSubmittedEvent, StartWorkflowHandler>();
         // must run last in order not to override any explicit service declarations.
         services.AddCasesCore(options => {
             options.ConfigureDbContext = casesMyOptions.ConfigureDbContext;

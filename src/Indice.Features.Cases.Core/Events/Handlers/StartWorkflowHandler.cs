@@ -1,5 +1,6 @@
 ﻿using Indice.Events;
 using Indice.Features.Cases.Core.Models.Responses;
+using Indice.Types;
 
 namespace Indice.Features.Cases.Core.Events.Handlers;
 
@@ -10,17 +11,18 @@ namespace Indice.Features.Cases.Core.Events.Handlers;
 /// </summary>
 internal class StartWorkflowHandler : IPlatformEventHandler<CaseSubmittedEvent>
 {
-    public StartWorkflowHandler() {
-        
+    public StartWorkflowHandler(ICasesWorkflowManager workflowManager) {
+        WorkflowManager = workflowManager;
     }
 
+    public ICasesWorkflowManager WorkflowManager { get; }
+
     /// <inheritdoc/>
-    public Task Handle(CaseSubmittedEvent @event, PlatformEventArgs args) {
-        // 1. Get workflowDefinition
-        // 2. If not found exit
-        // 3. Create blueprint
-        // 4. start workflow
-        // 5. Throw if faulted.
-        return Task.CompletedTask;
+    public async Task Handle(CaseSubmittedEvent @event, PlatformEventArgs args) {
+        args.ThrowOnError = true; // notify execution to break everythig.!!! TODO: This is a code smell
+        var result = await WorkflowManager.StartWorkflowAsync(@event.Case.Id, @event.CaseTypeCode);
+        if (!result.Success) {
+            throw new BusinessException(result.Message);
+        }
     }
 }

@@ -98,7 +98,11 @@ internal static class AdminCasesHandler
     }
 
     public static async Task<Results<Ok<CaseActions>, NotFound>> GetCaseActions(Guid caseId, ICaseActionsService caseBookmarkService, ClaimsPrincipal User) {
-        return TypedResults.Ok(await caseBookmarkService.GetUserActions(User, caseId));
+        var actions = await caseBookmarkService.GetUserActions(User, caseId);
+        if (actions is null) {
+            return TypedResults.NotFound();
+        }
+        return TypedResults.Ok(actions);
     }
 
     public static async Task<Ok<List<RejectReason>>> GetCaseRejectReasons(ClaimsPrincipal currentUser, Guid caseId, ICaseApprovalService caseApprovalService) {

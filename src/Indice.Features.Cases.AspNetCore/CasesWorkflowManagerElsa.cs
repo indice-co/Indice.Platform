@@ -16,6 +16,7 @@ using Indice.Features.Cases.Workflows.Interfaces;
 using Elsa.Models;
 using Elsa.Persistence.Specifications;
 using Indice.Features.Cases.Workflows.Bookmarks.AwaitAction;
+using Indice.Features.Cases.Workflows.Specifications;
 
 namespace Indice.Features.Cases;
 
@@ -28,8 +29,14 @@ internal class CasesWorkflowManagerElsa(
     IAwaitActionInvoker awaitActionInvoker,
     IWorkflowInstanceStore workflowInstanceStore,
     IBookmarkFinder bookmarkFinder,
+    IWorkflowDefinitionStore workflowDefinitionStore,
+    IStartsWorkflow startsWorkflow,
+    IWorkflowBlueprintMaterializer workflowBlueprintMaterializer,
     CaseSharedResourceService caseSharedResourceService) : ICasesWorkflowManager
 {
+    private readonly IWorkflowDefinitionStore _workflowDefinitionStore = workflowDefinitionStore ?? throw new ArgumentNullException(nameof(workflowDefinitionStore));
+    private readonly IStartsWorkflow _startsWorkflow = startsWorkflow ?? throw new ArgumentNullException(nameof(startsWorkflow));
+    private readonly IWorkflowBlueprintMaterializer _workflowBlueprintMaterializer = workflowBlueprintMaterializer ?? throw new ArgumentNullException(nameof(workflowBlueprintMaterializer));
     private readonly IAwaitApprovalInvoker _approvalInvoker = approvalInvoker ?? throw new ArgumentNullException(nameof(approvalInvoker));
     private readonly IAwaitAssignmentInvoker _awaitAssignmentInvoker = awaitAssignmentInvoker ?? throw new ArgumentNullException(nameof(awaitAssignmentInvoker));
     private readonly IAwaitEditInvoker _awaitEditInvoker = awaitEditInvoker ?? throw new ArgumentNullException(nameof(awaitEditInvoker));
@@ -163,6 +170,29 @@ internal class CasesWorkflowManagerElsa(
             };
     }
 
+    public async Task<CasesWorkflowResult> StartWorkflowAsync(Guid caseId, string caseTypeCode) {
+        ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
+        ArgumentException.ThrowIfNullOrWhiteSpace(caseTypeCode);
+
+        var workflowDefinitionTagSpecification = new WorkflowDefinitionTagCsvSpecification(caseTypeCode);
+        var workflowDefinition = await _workflowDefinitionStore.FindAsync(workflowDefinitionTagSpecification);
+        if (workflowDefinition == null) {
+            return new (Success: true, [], "Nothing todo. No worflow definition found");
+        }
+
+        var blueprint = await _workflowBlueprintMaterializer.CreateWorkflowBlueprintAsync(workflowDefinition);
+        var instance = await _startsWorkflow.StartWorkflowAsync(
+            blueprint,
+            null,
+            new WorkflowInput(caseId),
+            caseId.ToString());
+
+        if (instance.WorkflowInstance?.Faults is { Count: > 0 }) {
+            return new(Success: false, [], $"Workflow failed to start. {instance.WorkflowInstance?.Faults.FirstOrDefault()?.Message}");
+        }
+        return new(Success: true, []);
+    }
+
 
     /// <summary>Get the custom action blocking activities of type <see cref="AwaitActionActivity"/>.</summary>
     /// <param name="caseId">The Id of the case.</param>
@@ -212,7 +242,7 @@ internal class CasesWorkflowManagerElsa(
             Name = activityData.TryGetValue(nameof(AwaitActionActivity.ActionName), out var name) ? name as string : null,
             Label = activityData.TryGetValue(nameof(AwaitActionActivity.ActionLabel), out var label) ? label as string : null,
             Class = activityData.TryGetValue(nameof(AwaitActionActivity.ActionClass), out var @class) ? @class as string : null,
-            RedirectToList = activityData.TryGetValue(nameof(AwaitActionActivity.RedirectToList), out var redirectToList) ? redirectToList as bool ? : false,
+            RedirectToList = activityData.TryGetValue(nameof(AwaitActionActivity.RedirectToList), out var redirectToList) ? redirectToList as bool? : false,
             SuccessMessage = activityData.TryGetValue(nameof(AwaitActionActivity.SuccessMessage), out var successMessage) ? successMessage as SuccessMessage : null,
             DefaultValue = activityData.TryGetValue(nameof(AwaitActionActivity.ActionInputDefaultValue), out var defaultValue) ? defaultValue as string : null,
             Description = activityData.TryGetValue(nameof(AwaitActionActivity.ActionDescription), out var description) ? description as string : null,

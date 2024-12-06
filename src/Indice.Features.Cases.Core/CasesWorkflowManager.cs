@@ -52,6 +52,13 @@ public interface ICasesWorkflowManager
     /// <param name="lastApprovedById">Last case approver userid if any</param>
     /// <returns></returns>
     Task<CaseActions> GetAvailableActionsAsync(ClaimsPrincipal user, Guid caseId, string? assignedToId, string[] bookmarks, string? lastApprovedById = null);
+
+    /// <summary>Gets the available trigger actions for the given <paramref name="caseId"/> according to the current user and a bookmark list.</summary>
+    /// <remarks>Bookmarks are used to filter out actions depending on annotations that have been assigned on the </remarks>
+    /// <param name="caseId">The Id of the case.</param>
+    /// <param name="caseTypeCode">The case type code. Will be used as a bookmark</param>
+    /// <returns>The <see cref="CasesWorkflowResult"/> indicating success or failure of the operation</returns>
+    Task<CasesWorkflowResult> StartWorkflowAsync(Guid caseId, string caseTypeCode);
 }
 
 /// <summary>
@@ -101,6 +108,10 @@ internal class DefaultCasesWorkflowManager : ICasesWorkflowManager
     /// <inheritdoc/>
     public Task<CaseActions> GetAvailableActionsAsync(ClaimsPrincipal user, Guid caseId, string? assignedToId, string[] bookmarks, string? lastApprovedById = null) {
         return Task.FromResult(new CaseActions());
+    }
+
+    public Task<CasesWorkflowResult> StartWorkflowAsync(Guid caseId, string caseTypeCode) {
+        return Task.FromResult(new CasesWorkflowResult(Success: false, [], "Not implemented"));
     }
 }
 

@@ -30,7 +30,7 @@ internal class CaseActionsService : ICaseActionsService
         var @case = await _casesDbContext.Cases.Where(x => x.Id == caseId).Select(x => new { x.Id, x.AssignedTo }).FirstOrDefaultAsync();
         if (@case == null) {
             _logger.LogError("Case n not found for caseId {caseId}", caseId);
-            return new CaseActions();
+            return null;
         }
 
         var caseIsAssigned = @case.AssignedTo != null;

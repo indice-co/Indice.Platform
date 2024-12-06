@@ -267,6 +267,7 @@ internal class AdminCasesController : ControllerBase
     /// <response code="404">Not Found</response>
     [HttpGet("{caseId:guid}/actions")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CaseActions))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
     public async Task<IActionResult> GetCaseActions([FromRoute] Guid caseId) {
         return Ok(await _caseBookmarkService.GetUserActions(HttpContext.User, caseId));
     }
