@@ -38,6 +38,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
   public previewData = new CampaignPreview();
   public basicInfoData: any = {};
   public templateId: string | undefined;
+  public templateData: any;
   public metaItems: HeaderMetaItem[] | null = [];
   public content: { [key: string]: MessageContent; } | undefined;
 
@@ -90,6 +91,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
       if (this.templateId) {
         this._api.getTemplateById(this.templateId).subscribe((template: Template) => {
           this.content = template.content;
+          this.templateData = template.data;
         });
       }
     }

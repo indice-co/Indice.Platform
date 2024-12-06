@@ -133,6 +133,9 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
     if (changes.content?.currentValue) {
       this.channelsContent.clear();
       const contentValue = changes.content.currentValue;
+      for (const channel in this.channelsState) {
+        this.channelsState[channel].checked = false;
+      }
       let index = 0;
       for (const channel in contentValue) {
         if (Object.prototype.hasOwnProperty.call(contentValue, channel)) {
