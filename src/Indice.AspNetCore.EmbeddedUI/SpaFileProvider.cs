@@ -86,6 +86,7 @@ internal class SpaIndexFileInfo : IFileInfo
             ["%(ClientId)"] = _options.ClientId,
             ["%(DocumentTitle)"] = _options.DocumentTitle,
             ["%(Host)"] = _options.Host.TrimEnd('/'),
+            ["%(ApiBase)"] = _options.ApiBase.TrimEnd('/'),
             ["%(Path)"] = _options.Path.TrimEnd('/'),
             ["%(HeadContent)"] = _options.HeadContent,
             ["%(Culture)"] = CultureInfo.CurrentCulture.TwoLetterISOLanguageName,

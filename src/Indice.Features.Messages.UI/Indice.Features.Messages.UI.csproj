@@ -8,7 +8,6 @@
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;Campaigns;Notifications</PackageTags>
     <VersionPrefix>$(VersionPrefixMessages)</VersionPrefix>
-    <!--<Version>7.0.0-beta02</Version>-->
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
