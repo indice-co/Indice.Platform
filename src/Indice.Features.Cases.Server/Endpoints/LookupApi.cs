@@ -18,23 +18,23 @@ public static class LookupApi
         group.WithTags("Lookup");
         group.WithGroupName(options.GroupName);
 
-        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
+        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).ToArray();
 
         group.RequireAuthorization(policy => policy
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes("Bearer")
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-        );//.RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
+        ).RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized)
              .ProducesProblem(StatusCodes.Status403Forbidden);
-        
+
         group.MapGet("{lookupName}", LookupHandler.GetLookup)
              .WithName(nameof(LookupHandler.GetLookup))
              .WithSummary("Get a lookup result by lookupName and options.");
-        
+
         return group;
     }
 }

@@ -19,13 +19,13 @@ public static class AdminQueriesApi
         group.WithTags("AdminQueries");
         group.WithGroupName(options.GroupName);
 
-        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
+        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).ToArray();
 
         group.RequireAuthorization(policy => policy
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes("Bearer")
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-        );//.RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
+        ).RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
@@ -35,11 +35,11 @@ public static class AdminQueriesApi
         group.MapGet("", AdminQueriesHandler.GetQueries)
              .WithName(nameof(AdminQueriesHandler.GetQueries))
              .WithSummary("Get saved queries.");
-        
+
         group.MapPost("", AdminQueriesHandler.SaveQuery)
              .WithName(nameof(AdminQueriesHandler.SaveQuery))
              .WithSummary("Save a new query.");
-        
+
         group.MapDelete("{queryId}", AdminQueriesHandler.DeleteQuery)
              .WithName(nameof(AdminQueriesHandler.DeleteQuery))
              .WithSummary("Delete a query.");

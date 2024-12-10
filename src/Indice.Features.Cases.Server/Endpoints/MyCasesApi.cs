@@ -18,15 +18,15 @@ public static class MyCasesApi
         var options = routes.ServiceProvider.GetRequiredService<IOptions<CaseServerOptions>>().Value;
 
         var group = routes.MapGroup($"{options.PathPrefix.Value!.Trim('/')}/my/case-types");
-        
+
         group.WithTags("MyCases");
         group.WithGroupName("my");
-        
+
         // Add security requirements, all incoming requests to this API *must* be authenticated with a valid user.
         group.RequireAuthorization(policy => policy
              .RequireAuthenticatedUser()
              .AddAuthenticationSchemes("Bearer")
-        ).RequireAuthorization("BeCasesUser");
+        ).RequireAuthorization(CasesApiConstants.Policies.BeCasesUser);
 
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", []);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
