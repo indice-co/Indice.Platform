@@ -326,7 +326,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             Services = services
         };
         configureAction?.Invoke(options);
-        options.Services = null;
+        options.Services = null!;
         services.Configure<DeviceOptions>(deviceOptions => {
             deviceOptions.DefaultTotpDeliveryChannel = options.DefaultTotpDeliveryChannel;
         });

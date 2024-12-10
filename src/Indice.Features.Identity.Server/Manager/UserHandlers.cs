@@ -111,7 +111,7 @@ internal static class UserHandlers
         if (filter?.UserId?.Any() == true) {
             usersQuery = usersQuery.Where(x => filter.UserId.Contains(x.Id));
         }
-        return TypedResults.Ok(await usersQuery.ToResultSetAsync(options));
+        return TypedResults.Ok(await usersQuery.ToResultSetAsync(options!));
     }
 
     internal static async Task<Results<Ok<SingleUserInfo>, NotFound>> GetUser(

@@ -6,5 +6,5 @@ namespace Indice.Features.Multitenancy.Worker.Azure;
 public interface IFunctionContextAccessor
 {
     /// <summary>Encapsulates the information about a function execution.</summary>
-    FunctionContext FunctionContext { get; set; }
+    FunctionContext? FunctionContext { get; set; }
 }

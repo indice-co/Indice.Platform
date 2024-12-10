@@ -12,7 +12,7 @@ public interface ITenantStore<TTenant> where TTenant : Tenant
 {
     /// <summary>Gets the tenant information from storage using a unique identifier.</summary>
     /// <param name="identifier">Can be anything from a (sub)domain, name or an alias of some sort.</param>
-    Task<TTenant> GetTenantAsync(string identifier);
+    Task<TTenant?> GetTenantAsync(string identifier);
     /// <summary>Checks access on behalf of a user against the store and the tenant.</summary>
     /// <param name="tenantId">The id of the tenant.</param>
     /// <param name="userId">The id of the user.</param>

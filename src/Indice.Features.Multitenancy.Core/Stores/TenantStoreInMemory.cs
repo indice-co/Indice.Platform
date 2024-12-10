@@ -15,7 +15,7 @@ public class TenantStoreInMemory<TTenant> : ITenantStore<TTenant> where TTenant 
     public Task<int?> GetAccessLevelAsync(Guid tenantId, string userId) => Task.FromResult<int?>(2);
 
     /// <inheritdoc />
-    public Task<TTenant> GetTenantAsync(string identifier) {
+    public Task<TTenant?> GetTenantAsync(string identifier) {
         var tenant = Tenants.SingleOrDefault(tenant => tenant.Identifier == identifier);
         return Task.FromResult(tenant);
     }

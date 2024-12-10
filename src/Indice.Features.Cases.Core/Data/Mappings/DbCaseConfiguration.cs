@@ -69,7 +69,7 @@ internal class DbCaseConfiguration : IEntityTypeConfiguration<DbCase>
             .OnDelete(DeleteBehavior.NoAction);
         builder
            .Property(c => c.Metadata)
-           .HasJsonConversion();
+           .HasRequiredJsonConversion();
         builder
             .Property(c => c.Channel)
             .IsRequired()

@@ -23,7 +23,7 @@ public static class MessageFeatureExtensionsMvc
     /// <param name="mvcBuilder">An interface for configuring MVC services.</param>
     /// <param name="configureAction">Configuration for several options of Campaigns API feature.</param>
     [Obsolete("Use .AddMessaging() directly on the WebApplicationBuilder instead")]
-    public static IMvcBuilder AddMessageEndpoints(this IMvcBuilder mvcBuilder, Action<MessageEndpointOptions> configureAction = null) {
+    public static IMvcBuilder AddMessageEndpoints(this IMvcBuilder mvcBuilder, Action<MessageEndpointOptions>? configureAction = null) {
         var services = mvcBuilder.Services;
         // Configure options.
         var apiOptions = new MessageEndpointOptions(services);

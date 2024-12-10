@@ -3,7 +3,6 @@
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AzureFunctions;CampaignManagement;Workers;Cloud</PackageTags>
     <VersionPrefix>$(VersionPrefixMessages)</VersionPrefix>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Indice.Features.Messages.Core" Version="$(VersionPrefixMessages)-*" />

@@ -6,24 +6,24 @@ namespace Indice.Features.Cases.UI;
 public class CasesUIOptions : SpaUIOptions
 {
     /// <summary>The case management api url.</summary>
-    public string ApiUrl { get; set; }
+    public string? ApiUrl { get; set; }
 
     /// <summary> The html application language.</summary>
-    public string Lang { get; set; }
+    public string? Lang { get; set; }
 
     /// <summary>The absolute url to the i18n assets folder.</summary>
     /// <remarks>This folder contains translation files eg: el.json, en.json etc.</remarks>
-    public string I18nAssets { get; set; }
+    public string? I18nAssets { get; set; }
 
     /// <summary>A list containing the tags of the canvases that should be displayed in the dashboard.</summary>
     /// <remarks>If left null or empty all canvases are displayed.</remarks>
-    public List<string> DashboardTags { get; set; }
+    public List<string>? DashboardTags { get; set; }
 
     /// <summary>A list containing the property names that should be filterable in the cases table.</summary>
-    public HashSet<CaseListFilter> CaseListFilters { get; set; }
+    public HashSet<CaseListFilter>? CaseListFilters { get; set; }
 
     /// <summary>A list containing the property names that should be displayed in the cases table.</summary>
-    public HashSet<CaseListColumn> CaseListColumns { get; set; }
+    public HashSet<CaseListColumn>? CaseListColumns { get; set; }
 
     /// <summary>Creates a new instance <see cref="CasesUIOptions"/>.</summary>
     public CasesUIOptions() {

@@ -3,6 +3,7 @@
     <PackageTags>AspNetCore;WebUtilities</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
     <VersionPrefix>$(VersionPrefixCore)</VersionPrefix>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

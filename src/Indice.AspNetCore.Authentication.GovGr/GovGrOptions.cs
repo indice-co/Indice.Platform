@@ -11,19 +11,19 @@ public class GovGrOptions
     private const string FQDN_STAGE = "kyc-stage.gov.gr";
     private const string FQDN_PROD = "kyc.gov.gr";
     /// <summary>The client id.</summary>
-    public string ClientId { get; set; }
+    public string? ClientId { get; set; }
     /// <summary>The client secret.</summary>
-    public string ClientSecret { get; set; }
+    public string? ClientSecret { get; set; }
     /// <summary>The request path within the application's base path where the user-agent will be returned. The middleware will process this request when it arrives.</summary>
     public PathString? CallbackPath { get; set; }
     /// <summary>
     /// Gets or sets the authentication scheme corresponding to the middleware responsible of persisting user's identity after a successful authentication. This value typically
     /// corresponds to a cookie middleware registered in the Startup class. When omitted, <see cref="AuthenticationOptions.DefaultSignInScheme"/> is used as a fallback value.
     /// </summary>
-    public string SignInScheme { get; set; }
+    public string? SignInScheme { get; set; }
 
     /// <summary>Represents the environment. Valid options are <em>production</em>, <em>staging</em>, <em>development</em> &amp; <em>mock</em>. Defaults to <b>production</b>. </summary>
-    public string Environment { get; set; }
+    public string? Environment { get; set; }
 
     /// <summary>Default list of scopes needed to access the kyc data. <see cref="GovGrKycScopes"/></summary>
     public ICollection<string> Scopes { get; } = new List<string>() {

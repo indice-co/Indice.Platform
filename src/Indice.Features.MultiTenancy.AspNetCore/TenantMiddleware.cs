@@ -1,5 +1,6 @@
 ﻿using Indice.Features.Multitenancy.Core;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Features.Multitenancy.AspNetCore;
 
@@ -13,9 +14,9 @@ internal class TenantMiddleware<TTenant> where TTenant : Tenant
 
     public async Task Invoke(HttpContext context) {
         if (!context.Items.ContainsKey(Constants.HttpContextTenantKey)) {
-            var tenantService = context.RequestServices.GetService(typeof(TenantAccessService<TTenant>)) as TenantAccessService<TTenant>;
+            var tenantService = context.RequestServices.GetRequiredService<TenantAccessService<TTenant>>();
             context.Items.Add(Constants.HttpContextTenantKey, await tenantService.GetTenantAsync());
         }
-        await _next?.Invoke(context);
+        await _next?.Invoke(context)!;
     }
 }

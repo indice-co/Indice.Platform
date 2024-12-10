@@ -18,9 +18,9 @@ internal class RuleStoreEntityFrameworkCore : IRuleOptionsStore
         _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
-    public async Task<Dictionary<string, string>> GetRuleOptions(string ruleName) {
+    public async Task<Dictionary<string, string?>> GetRuleOptions(string ruleName) {
         if (string.IsNullOrWhiteSpace(ruleName)) {
-            return new Dictionary<string, string>();
+            return new Dictionary<string, string?>();
         }
         var results = await _context.AppSettings
             .AsNoTracking()
@@ -69,7 +69,7 @@ internal class RuleStoreEntityFrameworkCore : IRuleOptionsStore
     /// <summary>
     /// Transforms eligible events to a comma-separated list
     /// </summary>
-    private Dictionary<string, string> TransformEligibleEvents(Dictionary<string, string> dictionary) {
+    private Dictionary<string, string?> TransformEligibleEvents(Dictionary<string, string?> dictionary) {
         var keysToMerge = dictionary.Keys.Where(key => key.StartsWith(nameof(RuleOptions.EligibleEvents))).ToList();
         var eligibleEvents = string.Join(",", keysToMerge.Select(key => dictionary[key]));
         dictionary["eligibleEvents"] = eligibleEvents;

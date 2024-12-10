@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Package">
-	  <Nullable>disable</Nullable>
     <PackageTags>AspNetCore;Multitenancy</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
     <VersionPrefix>$(VersionPrefixMultitenancy)</VersionPrefix>

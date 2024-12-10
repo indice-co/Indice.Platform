@@ -9,9 +9,9 @@ public class EntityConfigurationOptions
     /// <summary>The <see cref="TimeSpan"/> to wait in between each attempt at polling the database for changes. Default is null which indicates no reloading.</summary>
     public TimeSpan? ReloadOnInterval { get; set; }
     /// <summary>Represents a set of key/value application configuration properties.</summary>
-    public IConfiguration Configuration { get; internal set; }
+    public IConfiguration Configuration { get; internal set; } = null!;
     /// <summary>Callback to configure the EF <see cref="DbContext"/>.</summary>
-    public Action<DbContextOptionsBuilder> ConfigureDbContext { get; set; }
+    public Action<DbContextOptionsBuilder>? ConfigureDbContext { get; set; }
 
     internal EFConfigurationOptionsValidationResult Validate() {
         if (ReloadOnInterval.HasValue && ReloadOnInterval.Value <= TimeSpan.Zero) {
@@ -24,7 +24,7 @@ public class EntityConfigurationOptions
 internal class EFConfigurationOptionsValidationResult
 {
     public bool Succedded { get; set; }
-    public string Error { get; set; }
+    public string? Error { get; set; }
 
     public static EFConfigurationOptionsValidationResult Success() => new() { Succedded = true };
 

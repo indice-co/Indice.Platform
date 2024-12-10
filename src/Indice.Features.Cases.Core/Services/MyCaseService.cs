@@ -115,7 +115,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         var dbCaseQueryable = DbContext.Cases
             .AsQueryable()
             .Where(p => (p.CreatedBy.Id == userId || p.Customer.UserId == userId) && p.PublicCheckpoint.CheckpointType.Status != CaseStatus.Deleted)
-            .Where(options.Filter.Metadata);
+            .Where(options.Filter.Metadata!);
 
         // We do not return draft cases as a default behaviour either when
         // IncludeDrafts does not have value or IncludeDrafts is false.

@@ -36,7 +36,7 @@ internal static class AdminRiskApiHandlers
         return TypedResults.Ok(results);
     }
 
-    internal static async Task<Results<Ok<Dictionary<string, string>>, NotFound>> GetRiskRuleOptions(
+    internal static async Task<Results<Ok<Dictionary<string, string?>>, NotFound>> GetRiskRuleOptions(
         [FromServices] AdminRuleService adminRuleService,
         string ruleName
     ) {

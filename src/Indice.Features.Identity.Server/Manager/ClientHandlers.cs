@@ -144,13 +144,13 @@ internal static class ClientHandlers
         ClaimsPrincipal currentUser,
         CreateClientRequest request) {
         if (request is null) {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]>() { [""] = new[] { "Request body cannot be null." } });
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(string.Empty, "Request body cannot be null."));
         }
         var clientIdExists = (await configurationDbContext.Clients.CountAsync(x => x.ClientId == request.ClientId)) > 0;
         if (clientIdExists) {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]>() { [nameof(request.ClientId).Camelize()] = new[] { $"Client with id '{request.ClientId}' already exists." } });
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.ClientId).Camelize(), $"Client with id '{request.ClientId}' already exists."));
         }
-        var client = CreateForType(request.ClientType, configuration.GetAuthority(), request);
+        var client = CreateForType(request.ClientType, configuration.GetAuthority()!, request);
         configurationDbContext.Clients.Add(client);
         configurationDbContext.ClientUsers.Add(new ClientUser {
             Client = client,

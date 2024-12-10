@@ -19,7 +19,7 @@ public static class ResultSetExtensionsAsync
         foreach (var sorting in options.GetSortings()) {
             source = source.OrderBy(sorting, append: true);
         }
-        return await source.ToResultSetAsync(options.Page.Value, options.Size.Value, cancellationToken);
+        return await source.ToResultSetAsync(options.Page!.Value, options.Size!.Value, cancellationToken);
     }
 
     /// <summary>Asynchronous method that materializes an <see cref="IQueryable{T}"/> <paramref name="source"/> using the <paramref name="page"/> number and <paramref name="size"/> for paging.</summary>

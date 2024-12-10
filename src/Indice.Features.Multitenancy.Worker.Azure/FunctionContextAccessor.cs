@@ -12,7 +12,7 @@ public class FunctionContextAccessor : IFunctionContextAccessor
     private static readonly AsyncLocal<FunctionContextRedirect> _currentContext = new();
 
     /// <inheritdoc />
-    public virtual FunctionContext FunctionContext {
+    public virtual FunctionContext? FunctionContext {
         get => _currentContext.Value?.HeldContext;
         set {
             var holder = _currentContext.Value;
@@ -31,6 +31,6 @@ public class FunctionContextAccessor : IFunctionContextAccessor
 
     private class FunctionContextRedirect
     {
-        public FunctionContext HeldContext;
+        public FunctionContext? HeldContext;
     }
 }
