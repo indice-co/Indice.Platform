@@ -3,7 +3,6 @@
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;CampaignManagement;</PackageTags>
     <VersionPrefix>$(VersionPrefixMessages)</VersionPrefix>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="EPPlus-LGPL" Version="4.5.3.13" />
