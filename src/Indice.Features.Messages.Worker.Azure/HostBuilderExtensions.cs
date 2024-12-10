@@ -116,7 +116,7 @@ public static class HostBuilderExtensions
     /// <summary>Adds <see cref="IFileService"/> using local file system as the backing store.</summary>
     /// <param name="options">Options used to configure the Campaigns API feature.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
-    public static MessageOptions UseFilesLocal(this MessageOptions options, Action<FileServiceLocalOptions> configure = null) {
+    public static MessageOptions UseFilesLocal(this MessageOptions options, Action<FileServiceLocalOptions>? configure = null) {
         options.Services.AddFiles(options => options.AddFileSystem(KeyedServiceNames.FileServiceKey, configure));
         return options;
     }
@@ -124,7 +124,7 @@ public static class HostBuilderExtensions
     /// <summary>Adds <see cref="IFileService"/> using Azure Blob Storage as the backing store.</summary>
     /// <param name="options">Options used to configure the Campaigns API feature.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
-    public static MessageOptions UseFilesAzure(this MessageOptions options, Action<FileServiceAzureOptions> configure = null) {
+    public static MessageOptions UseFilesAzure(this MessageOptions options, Action<FileServiceAzureOptions>? configure = null) {
         options.Services.AddFiles(options => options.AddAzureStorage(KeyedServiceNames.FileServiceKey, configure));
         return options;
     }

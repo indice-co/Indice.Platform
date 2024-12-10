@@ -29,7 +29,7 @@ public class YubotoOmniServiceBase
             HttpClient.BaseAddress = new Uri("https://services.yuboto.com/omni/v1/");
         }
         if (!HttpClient.DefaultRequestHeaders.Contains("Authorization")) {
-            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(Settings.ApiKey)));
+            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(Settings.ApiKey!)));
         }
     }
 
@@ -44,7 +44,7 @@ public class YubotoOmniServiceBase
     /// <summary>Get list of phone numbers from destination.</summary>
     /// <param name="destination"></param>
     protected string[] GetRecipientsFromDestination(string destination) {
-        var recipients = (destination ?? string.Empty).Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+        var recipients = (destination ?? string.Empty).Split([","], StringSplitOptions.RemoveEmptyEntries);
         if (recipients == null) {
             throw new ArgumentNullException(nameof(recipients));
         }
