@@ -85,7 +85,7 @@ public static class HostBuilderExtensions
     /// <summary>Adds an Azure specific implementation of <see cref="IPushNotificationService"/> for sending push notifications.</summary>
     /// <param name="options">Options used when configuring campaign Azure Functions.</param>
     /// <param name="configure">Configure the available options for push notifications. Null to use defaults.</param>
-    public static MessageOptions UsePushNotificationServiceAzure(this MessageOptions options, Action<IServiceProvider, PushNotificationAzureOptions> configure = null) {
+    public static MessageOptions UsePushNotificationServiceAzure(this MessageOptions options, Action<IServiceProvider, PushNotificationAzureOptions>? configure = null) {
         options.Services.AddPushNotificationServiceAzure(KeyedServiceNames.PushNotificationServiceKey, configure);
         return options;
     }
@@ -93,7 +93,7 @@ public static class HostBuilderExtensions
     /// <summary>Adds <see cref="IEventDispatcher"/> using Azure Storage as a queuing mechanism.</summary>
     /// <param name="options">Options used when configuring campaign Azure Functions.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
-    public static MessageOptions UseEventDispatcherAzure(this MessageOptions options, Action<IServiceProvider, MessageEventDispatcherAzureOptions> configure = null) {
+    public static MessageOptions UseEventDispatcherAzure(this MessageOptions options, Action<IServiceProvider, MessageEventDispatcherAzureOptions>? configure = null) {
         options.Services.AddEventDispatcherAzure(KeyedServiceNames.EventDispatcherServiceKey, (serviceProvider, options) => {
             var eventDispatcherOptions = new MessageEventDispatcherAzureOptions {
                 ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME),
