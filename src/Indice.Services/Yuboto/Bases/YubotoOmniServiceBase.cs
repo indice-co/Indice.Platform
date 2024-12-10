@@ -141,7 +141,7 @@ public class YubotoOmniServiceBase
         /// Use country code without + or 00.
         /// </summary>
         [JsonPropertyName("phonenumbers")]
-        public string[] PhoneNumbers { get; set; }
+        public string[] PhoneNumbers { get; set; } = [];
         /// <summary>
         /// Indicates the date you wish to send the message. If this is omitted, the message is sent instantly.
         /// Not Required
@@ -167,21 +167,21 @@ public class YubotoOmniServiceBase
         /// Not Required
         /// </summary>
         [JsonPropertyName("callbackUrl")]
-        public string CallbackUrl { get; set; }
+        public string? CallbackUrl { get; set; }
         /// <summary>
         /// User defined value that will be included in the call to the provided callback_url.
         /// Option1 and Option2 Parameters will be available for retrieve only if you pass dlr:true and a callbackUrl parameter.
         /// Not Required
         /// </summary>
         [JsonPropertyName("option1")]
-        public string Option1 { get; set; }
+        public string? Option1 { get; set; }
         /// <summary>
         /// User defined value that will be included in the call to the provided callback_url.
         /// Option1 and Option2 Parameters will be available for retrieve only if you pass dlr:true and a callbackUrl parameter.
         /// Not Required
         /// </summary>
         [JsonPropertyName("option2")]
-        public string Option2 { get; set; }
+        public string? Option2 { get; set; }
         /// <summary>
         /// This object is required if list of channels contains SMS channel.
         /// One of Sms/Viber parameters must always exists.
@@ -189,7 +189,7 @@ public class YubotoOmniServiceBase
         /// <see cref="SmsObj"/>
         /// </summary>
         [JsonPropertyName("sms")]
-        public SmsObj Sms { get; set; }
+        public SmsObj? Sms { get; set; }
         /// <summary>
         /// This object is required if a list of channels contains VIBER channel. Parameters text, buttonCaption + buttonAction and image make Viber Service Message content. 
         /// There are 4 possible combinations of Viber Service Message content: text only, image only, text + button, text + button + image.
@@ -198,7 +198,7 @@ public class YubotoOmniServiceBase
         /// <see cref="ViberObj"/>
         /// </summary>
         [JsonPropertyName("viber")]
-        public ViberObj Viber { get; set; }
+        public ViberObj? Viber { get; set; }
 
         /// <summary>The Sms Object of SendRequest.</summary>
         public class SmsObj
@@ -208,13 +208,13 @@ public class YubotoOmniServiceBase
             /// Required
             /// </summary>
             [JsonPropertyName("sender")]
-            public string Sender { get; set; }
+            public string? Sender { get; set; }
             /// <summary>
             /// The text of the message. If two factor authentication is activated TwoFa, is mandatory that ‘{pin_code}’ is included in this string. This placeholder will then be replaced with the generated pin.
             /// Required
             /// </summary>
             [JsonPropertyName("text")]
-            public string Text { get; set; }
+            public string? Text { get; set; }
             /// <summary>
             /// If the SMS is not delivered directly, this variable indicates the amount of seconds for which the message will remain active, before being rejected by the SMSC.
             /// Min Value: 30
@@ -252,7 +252,7 @@ public class YubotoOmniServiceBase
             /// <see cref="TwoFaObj"/>
             /// </summary>
             [JsonPropertyName("TwoFa")]
-            public TwoFaObj TwoFa { get; set; }
+            public TwoFaObj? TwoFa { get; set; }
         }
 
         /// <summary>The Viber Object of SendRequest</summary>
@@ -263,14 +263,14 @@ public class YubotoOmniServiceBase
             /// Required
             /// </summary>
             [JsonPropertyName("sender")]
-            public string Sender { get; set; }
+            public string? Sender { get; set; }
             /// <summary>
             /// The Viber Service Message text. Text length can be up to 1000 characters. VIBER text can be sent alone, without button or image.
             /// If two factor authentication is activated TwoFa, is mandatory that ‘{pin_code}’ is included in this string. This placeholder will then be replaced with the generated pin.
             /// Not Required
             /// </summary>
             [JsonPropertyName("text")]
-            public string Text { get; set; }
+            public string? Text { get; set; }
             /// <summary>
             /// If the Viber message is not delivered directly, this variable indicates the amount of seconds for which the message will remain active, before being rejected.
             /// Min Value: 15 
@@ -284,25 +284,25 @@ public class YubotoOmniServiceBase
             /// Required
             /// </summary>
             [JsonPropertyName("expiryText")]
-            public string ExpiryText { get; set; }
+            public string? ExpiryText { get; set; }
             /// <summary>
             /// A textual writing on the button. Maximum length is 30 characters. The VIBER button can be sent only if Viber Service Message contains text.
             /// Not Required
             /// </summary>
             [JsonPropertyName("buttonCaption")]
-            public string ButtonCaption { get; set; }
+            public string? ButtonCaption { get; set; }
             /// <summary>
             /// The link of button action.
             /// Not Required
             /// </summary>
             [JsonPropertyName("buttonAction")]
-            public string ButtonAction { get; set; }
+            public string? ButtonAction { get; set; }
             /// <summary>
             /// The URL address of image sent to end user. The VIBER image can be sent only alone or together with text and button.
             /// Not Required
             /// </summary>
             [JsonPropertyName("image")]
-            public string Image { get; set; }
+            public string? Image { get; set; }
             /// <summary>
             /// Indicates which channel has priority when it comes to omni messaging (default value is: 0).
             /// Not Reuqired
@@ -314,7 +314,7 @@ public class YubotoOmniServiceBase
             /// <see cref="TwoFaObj"/>
             /// </summary>
             [JsonPropertyName("TwoFa")]
-            public TwoFaObj TwoFa { get; set; }
+            public TwoFaObj? TwoFa { get; set; }
         }
 
         /// <summary>The Two Factor Object of ViberObj | SmsObj.</summary>
@@ -336,7 +336,7 @@ public class YubotoOmniServiceBase
             /// Required
             /// </summary>
             [JsonPropertyName("pinType")]
-            public string PinType { get; set; }
+            public string? PinType { get; set; }
             /// <summary>
             /// Whether the pin should be case sensitive.(alpha, alphanumeric) If false, the case sensitivity would not be checked when validating, 
             /// if true, code for validation needs to be entered exactly as provided.
@@ -360,10 +360,10 @@ public class YubotoOmniServiceBase
         public int ErrorCode { get; set; }
         /// <summary>The response error message. This will be null if successful.</summary>
         [JsonPropertyName("ErrorMessage")]
-        public string ErrorMessage { get; set; }
+        public string? ErrorMessage { get; set; }
         /// <summary>A list which contains the status of the messages. <see cref="MessageStatus"/>.</summary>
         [JsonPropertyName("Message")]
-        public List<MessageStatus> Messages { get; set; }
+        public List<MessageStatus> Messages { get; set; } = [];
         /// <summary>Check if the request succeded.</summary>
         public bool IsSuccess => ErrorCode == 0;
 
@@ -372,16 +372,16 @@ public class YubotoOmniServiceBase
         {
             /// <summary>The id of message status.</summary>
             [JsonPropertyName("id")]
-            public string Id { get; set; }
+            public string? Id { get; set; }
             /// <summary>The channel that the message will be send (SMS or Viber).</summary>
             [JsonPropertyName("channel")]
-            public string Channel { get; set; }
+            public string? Channel { get; set; }
             /// <summary>Refers to the phone number of the recipient of the text message.</summary>
             [JsonPropertyName("phonenumber")]
-            public string PhoneNumber { get; set; }
+            public string? PhoneNumber { get; set; }
             /// <summary>The status of the message.</summary>
             [JsonPropertyName("status")]
-            public string Status { get; set; }
+            public string? Status { get; set; }
         }
     }
     #endregion

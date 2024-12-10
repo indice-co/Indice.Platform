@@ -20,10 +20,10 @@ public class ViberYubotoOmniService : YubotoOmniServiceBase, ISmsService
     ) : base(httpClient, settings, logger) { }
 
     /// <inheritdoc />
-    public async Task<SendReceipt> SendAsync(string destination, string subject, string body, SmsSender sender = null) {
+    public async Task<SendReceipt> SendAsync(string destination, string subject, string? body, SmsSender? sender = null) {
         var messageId = Guid.NewGuid().ToString();
         var phoneNumbers = GetRecipientsFromDestination(destination);
-        var requestBody = SendRequest.CreateViber(phoneNumbers, sender?.Id ?? Settings.Sender ?? Settings.SenderName, body, Settings.ViberFallbackEnabled, Settings.Validity);
+        var requestBody = SendRequest.CreateViber(phoneNumbers, (sender?.Id ?? Settings.Sender ?? Settings.SenderName)!, body!, Settings.ViberFallbackEnabled, Settings.Validity);
         var jsonData = JsonSerializer.Serialize(requestBody, GetJsonSerializerOptions());
         Logger.LogInformation("The following payload was sent to Yuboto: {0}", jsonData);
         var data = new StringContent(jsonData, Encoding.UTF8, "application/json");
@@ -39,7 +39,7 @@ public class ViberYubotoOmniService : YubotoOmniServiceBase, ISmsService
         var responseContent = await httpResponseMessage.Content.ReadAsStringAsync();
         Logger.LogInformation("The following response was received from Yuboto: {0}", responseContent);
         var response = JsonSerializer.Deserialize<SendResponse>(responseContent);
-        if (!response.IsSuccess) {
+        if (!response!.IsSuccess) {
             var errorMessage = $"SMS Delivery failed: {response.ErrorCode} - {response.ErrorMessage}";
             Logger.LogError(errorMessage);
             throw new SmsServiceException(errorMessage);

@@ -14,42 +14,42 @@ public class ApiSettings
     /// <summary>The API verison number.</summary>
     public string DefaultVersion { get; set; } = "1";
     /// <summary>The API terms of service url.</summary>
-    public string TermsOfServiceUrl { get; set; }
+    public string? TermsOfServiceUrl { get; set; }
     /// <summary>The API licence url.</summary>
-    public LegalDocument License { get; set; }
+    public LegalDocument? License { get; set; }
     /// <summary>API contact info (e.x. developer). Will appear usualy on the swagger documentation page.</summary>
-    public ApiContact Contact { get; set; }
+    public ApiContact? Contact { get; set; }
 
     /// <summary>Searches <see cref="Scopes"/> list for the given scope name.</summary>
     /// <param name="scopeName">The scope name to look for. Must be fully qualified (e.x. facade:customers).</param>
-    public Scope GetScope(string scopeName) => Scopes?.FirstOrDefault(x => x.Name == scopeName);
+    public Scope? GetScope(string scopeName) => Scopes?.FirstOrDefault(x => x.Name == scopeName);
 
     /// <summary>Used to configure a legal document resource name and location</summary>
     public class LegalDocument
     {
         /// <summary>The name of the document.</summary>
-        public string Name { get; set; }
+        public string? Name { get; set; }
         /// <summary>The name of the document.</summary>
-        public string Url { get; set; }
+        public string? Url { get; set; }
     }
 
     /// <summary>API contact info (e.x. developer). Will appear usualy on the swagger documentation page.</summary>
     public class ApiContact
     {
         /// <summary>The name of the contact.</summary>
-        public string Name { get; set; }
+        public string? Name { get; set; }
         /// <summary>A URL to the developer portal or GitHub account/repo.</summary>
-        public string Url { get; set; }
+        public string? Url { get; set; }
         /// <summary>The contact email.</summary>
-        public string Email { get; set; }
+        public string? Email { get; set; }
     }
 
     /// <summary>ApiSettings scope entry</summary>
     public class Scope
     {
         /// <summary>The scope value (ie identity.users).</summary>
-        public string Name { get; set; }
+        public string? Name { get; set; }
         /// <summary>The scope descriptions.</summary>
-        public string Description { get; set; }
+        public string? Description { get; set; }
     }
 }

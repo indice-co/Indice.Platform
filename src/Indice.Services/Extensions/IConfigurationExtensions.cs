@@ -34,7 +34,7 @@ public static class IConfigurationExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns>Endpoints defined in appssettings.json as a <see cref="Dictionary{String, String}"/>.</returns>
     /// <remarks>Checks for the <strong>General:Endpoints</strong> option in appsettings.json file.</remarks>
-    public static Dictionary<string, string> GetEndpoints(this IConfiguration configuration) => configuration.GetSection($"{GeneralSettings.Name}:{nameof(GeneralSettings.Endpoints)}").Get<Dictionary<string, string>>();
+    public static Dictionary<string, string>? GetEndpoints(this IConfiguration configuration) => configuration.GetSection($"{GeneralSettings.Name}:{nameof(GeneralSettings.Endpoints)}").Get<Dictionary<string, string>>();
 
     /// <summary>Gets the endpoint value using the specified key.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
@@ -42,13 +42,13 @@ public static class IConfigurationExtensions
     /// <returns>The endpoint under the specified key. Endpoints are defined in appssettings.json as a <see cref="Dictionary{String, String}"/>.</returns>
     /// <remarks>Checks for the <strong>General:Endpoints</strong> option in appsettings.json file.</remarks>
     /// <exception cref="KeyNotFoundException">Throws a <see cref="KeyNotFoundException"/> if the specified key is not found.</exception>
-    public static string GetEndpoint(this IConfiguration configuration, string key) => GetEndpoints(configuration)[key];
+    public static string GetEndpoint(this IConfiguration configuration, string key) => GetEndpoints(configuration)![key];
 
     /// <summary>Tries to get the endpoint value using the specified key.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="key">The key to search for.</param>
     /// <returns>The endpoint under the specified key if the key exists, otherwise null. Endpoints are defined in appssettings.json as a <see cref="Dictionary{String, String}"/>.</returns>
-    public static string TryGetEndpoint(this IConfiguration configuration, string key) => GetEndpoints(configuration).TryGetValue(key, out var endpoint) ? endpoint : default;
+    public static string? TryGetEndpoint(this IConfiguration configuration, string key) => GetEndpoints(configuration)!.TryGetValue(key, out var endpoint) ? endpoint : default;
 
     /// <summary>Indicates whether to enable HSTS (HTTP Strict Transport Security).</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
@@ -66,7 +66,7 @@ public static class IConfigurationExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns>The proxy's IP address.</returns>
     /// <remarks>Checks for the <strong>Proxy:Ip</strong> option in appsettings.json file.</remarks>
-    public static string GetProxyIp(this IConfiguration configuration) => configuration.GetSection(ProxyOptions.Name).GetValue<string>(nameof(ProxyOptions.Ip));
+    public static string? GetProxyIp(this IConfiguration configuration) => configuration.GetSection(ProxyOptions.Name).GetValue<string>(nameof(ProxyOptions.Ip));
 
     /// <summary>Indicates whether to stop the worker host, running the background tasks.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
@@ -83,25 +83,25 @@ public static class IConfigurationExtensions
     /// <summary>Gets the Application Insights instrumentation key.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns>Checks for the <strong>ApplicationInsights:InstrumentationKey</strong> option in appsettings.json file.</returns>
-    public static string GetInstrumentationKey(this IConfiguration configuration) => configuration.GetSection("ApplicationInsights").GetValue<string>("InstrumentationKey");
+    public static string? GetInstrumentationKey(this IConfiguration configuration) => configuration.GetSection("ApplicationInsights").GetValue<string>("InstrumentationKey");
 
     /// <summary>Gets the Application Insights Connection String.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns>Checks for the <strong>ApplicationInsights:ConnectionString</strong> option in appsettings.json file.</returns>
-    public static string GetApplicationInsightsConnectionString(this IConfiguration configuration) => configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"] ?? configuration.GetSection("ApplicationInsights").GetValue<string>("ConnectionString");
+    public static string? GetApplicationInsightsConnectionString(this IConfiguration configuration) => configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"] ?? configuration.GetSection("ApplicationInsights").GetValue<string>("ConnectionString");
 
     /// <summary>A string that represents the default host name binding for this web application <see cref="GeneralSettings.Host"/>.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns>Example can be https://www.example.com</returns>
     /// <remarks>Checks for the <strong>General:Host</strong> option in appsettings.json file.</remarks>
-    public static string GetHost(this IConfiguration configuration) => configuration.GetSection(GeneralSettings.Name).GetValue<string>(nameof(GeneralSettings.Host))?.TrimEnd('/');
+    public static string? GetHost(this IConfiguration configuration) => configuration.GetSection(GeneralSettings.Name).GetValue<string>(nameof(GeneralSettings.Host))?.TrimEnd('/');
 
     /// <summary>A string that represents the default host name binding for the identity provider (aka authority) for this application <see cref="GeneralSettings.Authority"/>.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="tryInternal">Try to retrieve the internal network base address URL for the IdentityServer. Fallsback to Authority if not set. Defaults to false.</param>
     /// <returns>Example can be https://idp.example.com</returns>
     /// <remarks>Checks either the <strong>General:AuthorityInternal</strong> or <strong>General:Authority</strong> option in appsettings.json file. Depends up on the <paramref name="tryInternal"/> parameter.</remarks>
-    public static string GetAuthority(this IConfiguration configuration, bool tryInternal = false) => tryInternal 
+    public static string? GetAuthority(this IConfiguration configuration, bool tryInternal = false) => tryInternal 
         ? configuration.GetSection(GeneralSettings.Name).GetValue<string>(nameof(GeneralSettings.AuthorityInternal))?.TrimEnd('/') ?? configuration.GetSection(GeneralSettings.Name).GetValue<string>(nameof(GeneralSettings.Authority))?.TrimEnd('/')
         : configuration.GetSection(GeneralSettings.Name).GetValue<string>(nameof(GeneralSettings.Authority))?.TrimEnd('/');
 
@@ -116,31 +116,31 @@ public static class IConfigurationExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns><see cref="ApiSettings"/></returns>
     /// <remarks>Checks for the <strong>General:Api</strong> option in appsettings.json file and binds it to the <see cref="ApiSettings"/> class.</remarks>
-    public static ApiSettings GetApiSettings(this IConfiguration configuration) => configuration.GetSection($"{GeneralSettings.Name}:{nameof(GeneralSettings.Api)}").Get<ApiSettings>();
+    public static ApiSettings? GetApiSettings(this IConfiguration configuration) => configuration.GetSection($"{GeneralSettings.Name}:{nameof(GeneralSettings.Api)}").Get<ApiSettings>();
 
     /// <summary>Get an object class that represents all the configuration under the <strong>General</strong> configuration section.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns>A snapshot of the current <see cref="GeneralSettings"/></returns>
     /// <remarks>Checks for the <strong>General</strong> option in appsettings.json file and binds it to the <see cref="GeneralSettings"/> class.</remarks>
-    public static GeneralSettings GetGeneralSettings(this IConfiguration configuration) => configuration.GetSection($"{GeneralSettings.Name}").Get<GeneralSettings>();
+    public static GeneralSettings? GetGeneralSettings(this IConfiguration configuration) => configuration.GetSection($"{GeneralSettings.Name}").Get<GeneralSettings>();
     
     /// <summary>A string that represents the api resource scope.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns>The api resource name. Or in other words the api base scope</returns>
     /// <remarks>Checks for the <strong>General:Api:ResourceName</strong> option in appsettings.json file.</remarks>
-    public static string GetApiResourceName(this IConfiguration configuration) => configuration.GetSection($"{GeneralSettings.Name}:{nameof(GeneralSettings.Api)}").GetValue<string>(nameof(ApiSettings.ResourceName));
+    public static string? GetApiResourceName(this IConfiguration configuration) => configuration.GetSection($"{GeneralSettings.Name}:{nameof(GeneralSettings.Api)}").GetValue<string>(nameof(ApiSettings.ResourceName));
 
     /// <summary>A string that represents the api friendly name. This is used as the api display name in the swagger ui.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns>The api display name</returns>
     /// <remarks>Checks for the <strong>General:Api:FriendlyName</strong> option in appsettings.json file.</remarks>
-    public static string GetApiFriendlyName(this IConfiguration configuration) => configuration.GetSection($"{GeneralSettings.Name}:{nameof(GeneralSettings.Api)}").GetValue<string>(nameof(ApiSettings.FriendlyName));
+    public static string? GetApiFriendlyName(this IConfiguration configuration) => configuration.GetSection($"{GeneralSettings.Name}:{nameof(GeneralSettings.Api)}").GetValue<string>(nameof(ApiSettings.FriendlyName));
 
     /// <summary>A list of symmetric keys/secrets used by the api.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns>Secrets defined in appssettings.json as a <see cref="Dictionary{String, String}"/>.</returns>
     /// <remarks>Checks for the <strong>General:Api:Secrets</strong> option in appsettings.json file.</remarks>
-    public static Dictionary<string, string> GetApiSecrets(this IConfiguration configuration) => configuration.GetSection($"{GeneralSettings.Name}:{nameof(GeneralSettings.Api)}:{nameof(ApiSettings.Secrets)}").Get<Dictionary<string, string>>();
+    public static Dictionary<string, string>? GetApiSecrets(this IConfiguration configuration) => configuration.GetSection($"{GeneralSettings.Name}:{nameof(GeneralSettings.Api)}:{nameof(ApiSettings.Secrets)}").Get<Dictionary<string, string>>();
     
     /// <summary>Gets the api secret value using the specified key.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
@@ -148,14 +148,29 @@ public static class IConfigurationExtensions
     /// <returns>The api secret under the specified key. Api Secrets are defined in appssettings.json as a <see cref="Dictionary{String, String}"/>.</returns>
     /// <remarks>Checks for the <strong>General:Api:Secrets</strong> option in appsettings.json file.</remarks>
     /// <exception cref="KeyNotFoundException">Throws a <see cref="KeyNotFoundException"/> if the specified key is not found.</exception>
-    public static string GetApiSecret(this IConfiguration configuration, string key) => GetApiSecrets(configuration)[key];
+    public static string GetApiSecret(this IConfiguration configuration, string key) => GetApiSecrets(configuration)![key];
+
+    /// <summary>A list of symmetric keys/secrets used by the api.</summary>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <returns>Secrets defined in appssettings.json as a <see cref="Dictionary{String, String}"/>.</returns>
+    /// <remarks>Checks for the <strong>General:Api:Secrets</strong> or <strong>General:Secrets</strong> location in appsettings.json file.</remarks>
+    public static Dictionary<string, string>? GetSecrets(this IConfiguration configuration) => GetApiSecrets(configuration) ?? 
+                                                                                              configuration.GetSection($"{GeneralSettings.Name}:{nameof(ApiSettings.Secrets)}").Get<Dictionary<string, string>>();
+
+    /// <summary>Gets the secret value using the specified key.</summary>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <param name="key">The key to search for.</param>
+    /// <returns>The api secret under the specified key. Api Secrets are defined in appssettings.json as a <see cref="Dictionary{String, String}"/>.</returns>
+    /// <remarks>Checks for the <strong>General:Api:Secrets</strong> or <strong>General:Secrets</strong> location option in appsettings.json file.</remarks>
+    /// <exception cref="KeyNotFoundException">Throws a <see cref="KeyNotFoundException"/> if the specified key is not found.</exception>
+    public static string GetSecret(this IConfiguration configuration, string key) => GetSecrets(configuration)![key];
 
     /// <summary>Tries to get the signalR connection string only if valid.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="connectionString">Outputs the connection string if valid</param>
     /// <returns>The true if a valid connection string is found.</returns>
     /// <remarks>the name will be searched under the <strong>ConnenctionStrings:SignalRService</strong> option in appsettings.json file.</remarks>
-    public static bool TryGetSignalRConnectionString(this IConfiguration configuration, out ConnectionString connectionString) =>
+    public static bool TryGetSignalRConnectionString(this IConfiguration configuration, out ConnectionString? connectionString) =>
         TryGetSignalRConnectionString(configuration, "SignalRService", out connectionString);
 
     /// <summary>Tries to get the signalR connection string only if valid.</summary>
@@ -164,10 +179,14 @@ public static class IConfigurationExtensions
     /// <param name="connectionString">Outputs the connection string if valid</param>
     /// <returns>The true if a valid connection string is found.</returns>
     /// <remarks>the name will be searched under the <strong>ConnenctionStrings:connectionStringName</strong> option in appsettings.json file.</remarks>
-    public static bool TryGetSignalRConnectionString(this IConfiguration configuration, string connectionStringName, out ConnectionString connectionString) {
+    public static bool TryGetSignalRConnectionString(this IConfiguration configuration, string connectionStringName, out ConnectionString? connectionString) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionStringName);
         connectionString = null;
         var signalRConnectionString = configuration.GetConnectionString(connectionStringName);
         try {
+            if (string.IsNullOrWhiteSpace(signalRConnectionString)) {
+                return false;
+            }
             connectionString = new ConnectionString(signalRConnectionString);
             if (connectionString.ContainsKey("Endpoint")) {
                 return true;
@@ -183,10 +202,13 @@ public static class IConfigurationExtensions
     /// <param name="connectionString">Outputs the connection string if valid</param>
     /// <returns>The api secret under the specified key. Api Secrets are defined in appssettings.json as a <see cref="Dictionary{String, String}"/>.</returns>
     /// <remarks>the name will be searched under the <strong>ApplicationInsights:ConnectionString</strong> option in appsettings.json file.</remarks>
-    public static bool TryGetApplicationInsightsConnectionString(this IConfiguration configuration, out ConnectionString connectionString) {
+    public static bool TryGetApplicationInsightsConnectionString(this IConfiguration configuration, out ConnectionString? connectionString) {
         connectionString = null;
         var azureMonitorConnectionString = configuration.GetApplicationInsightsConnectionString();
         try {
+            if (string.IsNullOrWhiteSpace(azureMonitorConnectionString)) {
+                return false;
+            }
             connectionString = new ConnectionString(azureMonitorConnectionString);
             if (connectionString.ContainsKey("IngestionEndpoint")) {
                 return true;

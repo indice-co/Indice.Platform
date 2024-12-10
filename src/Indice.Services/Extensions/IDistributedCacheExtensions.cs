@@ -12,7 +12,7 @@ public static class IDistributedCacheExtensions
     /// <param name="jsonSerializerOptions">Provides options to be used with <see cref="JsonSerializer"/>.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>The item found in the cache under the specified key.</returns>
-    public static async Task<T> GetAsync<T>(this IDistributedCache cache, string cacheKey, JsonSerializerOptions jsonSerializerOptions, CancellationToken cancellationToken = default) {
+    public static async Task<T?> GetAsync<T>(this IDistributedCache cache, string cacheKey, JsonSerializerOptions jsonSerializerOptions, CancellationToken cancellationToken = default) {
         var itemJson = await cache.GetStringAsync(cacheKey, cancellationToken);
         if (!string.IsNullOrEmpty(itemJson)) {
             return JsonSerializer.Deserialize<T>(itemJson, jsonSerializerOptions);
@@ -29,7 +29,7 @@ public static class IDistributedCacheExtensions
     /// <param name="jsonSerializerOptions">Provides options to be used with <see cref="JsonSerializer"/>.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>The item found in the cache under the specified key.</returns>
-    public static async Task<T> TryGetAndSetAsync<T>(this IDistributedCache cache, string cacheKey, Func<Task<T>> getSourceAsync, DistributedCacheEntryOptions options, JsonSerializerOptions jsonSerializerOptions = null, CancellationToken cancellationToken = default) {
+    public static async Task<T?> TryGetAndSetAsync<T>(this IDistributedCache cache, string cacheKey, Func<Task<T>> getSourceAsync, DistributedCacheEntryOptions options, JsonSerializerOptions? jsonSerializerOptions = null, CancellationToken cancellationToken = default) {
         var itemJson = await cache.GetStringAsync(cacheKey, cancellationToken);
         if (!string.IsNullOrEmpty(itemJson)) {
             return JsonSerializer.Deserialize<T>(itemJson, jsonSerializerOptions);
@@ -52,7 +52,7 @@ public static class IDistributedCacheExtensions
     /// <param name="jsonSerializerOptions">Provides options to be used with <see cref="JsonSerializer"/>.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>The item found in the cache under the specified key.</returns>
-    public static async Task<T> TryGetAndSetAsync<T>(this IDistributedCache cache, string cacheKey, Func<Task<T>> getSourceAsync, TimeSpan? absoluteExpiration = null, JsonSerializerOptions jsonSerializerOptions = null, CancellationToken cancellationToken = default) =>
+    public static async Task<T?> TryGetAndSetAsync<T>(this IDistributedCache cache, string cacheKey, Func<Task<T>> getSourceAsync, TimeSpan? absoluteExpiration = null, JsonSerializerOptions? jsonSerializerOptions = null, CancellationToken cancellationToken = default) =>
         await cache.TryGetAndSetAsync(cacheKey, getSourceAsync, new DistributedCacheEntryOptions {
             AbsoluteExpiration = DateTimeOffset.UtcNow.Add(absoluteExpiration ?? TimeSpan.FromHours(1))
         }, jsonSerializerOptions, cancellationToken);
@@ -65,7 +65,7 @@ public static class IDistributedCacheExtensions
     /// <param name="options">The cache options to use when adding items to the cache.</param>
     /// <param name="jsonSerializerOptions">Provides options to be used with <see cref="JsonSerializer"/>.</param>
     /// <returns>The item found in the cache under the specified key.</returns>
-    public static T TryGetAndSet<T>(this IDistributedCache cache, string cacheKey, Func<T> getSource, DistributedCacheEntryOptions options, JsonSerializerOptions jsonSerializerOptions = null) {
+    public static T? TryGetAndSet<T>(this IDistributedCache cache, string cacheKey, Func<T> getSource, DistributedCacheEntryOptions options, JsonSerializerOptions? jsonSerializerOptions = null) {
         var itemJson = cache.GetString(cacheKey);
         if (!string.IsNullOrEmpty(itemJson)) {
             return JsonSerializer.Deserialize<T>(itemJson, jsonSerializerOptions);
@@ -87,7 +87,7 @@ public static class IDistributedCacheExtensions
     /// <param name="absoluteExpiration">The expiration timespan used to keep the item in the cache. If not provided, 1 hour is used by default.</param>
     /// <param name="jsonSerializerOptions">Provides options to be used with <see cref="JsonSerializer"/>.</param>
     /// <returns>The item found in the cache under the specified key.</returns>
-    public static T TryGetAndSet<T>(this IDistributedCache cache, string cacheKey, Func<T> getSource, TimeSpan? absoluteExpiration = null, JsonSerializerOptions jsonSerializerOptions = null) =>
+    public static T? TryGetAndSet<T>(this IDistributedCache cache, string cacheKey, Func<T> getSource, TimeSpan? absoluteExpiration = null, JsonSerializerOptions? jsonSerializerOptions = null) =>
         cache.TryGetAndSet(cacheKey, getSource, new DistributedCacheEntryOptions {
             AbsoluteExpiration = DateTimeOffset.UtcNow.Add(absoluteExpiration ?? TimeSpan.FromHours(1))
         }, jsonSerializerOptions);

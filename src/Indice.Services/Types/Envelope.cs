@@ -11,15 +11,15 @@ namespace Indice.Types;
 public abstract class EnvelopeBase
 {
     /// <summary>User information.</summary>
-    public string User { get; set; }
+    public string? User { get; set; }
     /// <summary>The user id.</summary>
-    public string UserId { get; set; }
+    public string? UserId { get; set; }
     /// <summary>The client id.</summary>
-    public string ClientId { get; set; }
+    public string? ClientId { get; set; }
     /// <summary>The tenant id.</summary>
-    public string TenantId { get; set; }
+    public string? TenantId { get; set; }
     /// <summary>The fully qualified name of the type sent.</summary>
-    public string Type { get; set; }
+    public string? Type { get; set; }
 
     /// <summary>Retrieves the principal's context.</summary>
     public virtual IPrincipal GetUserContext() {
@@ -52,13 +52,13 @@ public class Envelope<T> : EnvelopeBase
     /// <param name="user">The current principal.</param>
     /// <param name="payload">The payload to transmit.</param>
     /// <param name="tenantId">The tenant id (optional).</param>
-    public Envelope(IPrincipal user, T payload, string tenantId = null) => Populate(user, payload, tenantId);
+    public Envelope(IPrincipal user, T payload, string? tenantId = null) => Populate(user, payload, tenantId);
 
     /// <summary>The payload to transmit.</summary>
-    public T Payload { get; set; }
+    public T? Payload { get; set; }
 
-    internal Envelope<T> Populate(IPrincipal user, T payload, string tenantId) {
-        User = user?.Identity.Name;
+    internal Envelope<T> Populate(IPrincipal user, T payload, string? tenantId) {
+        User = user?.Identity?.Name;
         if (user != null) { 
             var claimsPrincipal = new ClaimsPrincipal(user);
             UserId = claimsPrincipal.FindFirst(BasicClaimTypes.Subject)?.Value;
@@ -89,7 +89,7 @@ public class Envelope : Envelope<JsonElement>
     /// <param name="user">The current principal.</param>
     /// <param name="payload">The payload to transmit.</param>
     /// <param name="tenantId">The tenant id (optional).</param>
-    public static Envelope<TPayload> Create<TPayload>(IPrincipal user, TPayload payload, string tenantId = null) => new(user, payload, tenantId);
+    public static Envelope<TPayload> Create<TPayload>(IPrincipal user, TPayload payload, string? tenantId = null) => new(user, payload, tenantId);
 
     /// <summary>Creates a new <see cref="Envelope{T}"/> given the parameters.</summary>
     /// <typeparam name="TEnvelope">The type of envelope.</typeparam>
@@ -97,6 +97,6 @@ public class Envelope : Envelope<JsonElement>
     /// <param name="user">The current principal.</param>
     /// <param name="payload">The payload to transmit.</param>
     /// <param name="tenantId">The tenant id (optional).</param>
-    public static TEnvelope Create<TEnvelope, TPayload>(IPrincipal user, TPayload payload, string tenantId = null) where TEnvelope : Envelope<TPayload>, new() =>
-        new TEnvelope().Populate(user, payload, tenantId) as TEnvelope;
+    public static TEnvelope Create<TEnvelope, TPayload>(IPrincipal user, TPayload payload, string? tenantId = null) where TEnvelope : Envelope<TPayload>, new() =>
+        (TEnvelope)new TEnvelope().Populate(user, payload, tenantId);
 }

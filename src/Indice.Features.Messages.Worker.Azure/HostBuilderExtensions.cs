@@ -26,7 +26,7 @@ public static class HostBuilderExtensions
     /// <summary>Configures services used by the queue triggers used for campaign management system.</summary>
     /// <param name="hostBuilder">A program initialization abstraction.</param>
     /// <param name="configure">Configure action for <see cref="MessageOptions"/>.</param>
-    public static IHostBuilder ConfigureMessageFunctions(this IHostBuilder hostBuilder, Action<IConfiguration, IHostEnvironment, MessageOptions> configure = null) =>
+    public static IHostBuilder ConfigureMessageFunctions(this IHostBuilder hostBuilder, Action<IConfiguration, IHostEnvironment, MessageOptions>? configure = null) =>
         hostBuilder.ConfigureServices((hostBuilderContext, services) => {
             var options = new MessageOptions {
                 Services = services
@@ -99,7 +99,7 @@ public static class HostBuilderExtensions
                 ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME),
                 Enabled = true,
                 EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
-                ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current)
+                ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!)
             };
             configure?.Invoke(serviceProvider, eventDispatcherOptions);
             options.ClaimsPrincipalSelector = eventDispatcherOptions.ClaimsPrincipalSelector;
@@ -165,16 +165,17 @@ public static class HostBuilderExtensions
     /// <param name="options">Options used when configuring messages in Azure Functions.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
-    public static MessageOptions UseSmsServiceApifon(this MessageOptions options, IConfiguration configuration, Action<SmsServiceApifonOptions> configure = null) {
+    public static MessageOptions UseSmsServiceApifon(this MessageOptions options, IConfiguration configuration, Action<SmsServiceApifonOptions>? configure = null) {
         options.Services.AddSmsServiceApifon(configuration, configure);
         return options;
     }
 
-    /// <summary>Adds an instance of <see cref="ISmsService"/> using Yuboto.</summary>
+    /// <summary>Adds an instance of <see cref="ISmsService"/> using Yuboto Omni for sending Viber messages.</summary>
     /// <param name="options">Options used when configuring messages in Azure Functions.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    public static MessageOptions UseSmsServiceViber(this MessageOptions options, IConfiguration configuration) {
-        options.Services.AddSmsServiceViber(configuration);
+    /// <param name="configure">Configure the available options. Null to use defaults.</param>
+    public static MessageOptions UseSmsServiceApifonIM(this MessageOptions options, IConfiguration configuration, Action<SmsServiceApifonOptions>? configure = null) {
+        options.Services.AddSmsServiceApifonIM(configuration, configure);
         return options;
     }
 

@@ -5,7 +5,7 @@ namespace Indice.Services;
 /// <summary>In memory <see cref="IFileService"/> implementation. Used to mock a file storage.</summary>
 public class FileServiceInMemory : IFileService
 {
-    private readonly Dictionary<string, byte[]> Cache = new();
+    private readonly Dictionary<string, byte[]?> Cache = new();
 
     /// <inheritdoc />
     public Task<bool> DeleteAsync(string filePath, bool isDirectory = false) {
@@ -22,7 +22,7 @@ public class FileServiceInMemory : IFileService
     /// <inheritdoc />
     public Task<byte[]> GetAsync(string filePath) {
         GuardExists(filePath);
-        return Task.FromResult(Cache[filePath]);
+        return Task.FromResult(Cache[filePath]!);
     }
 
     /// <inheritdoc />
@@ -34,20 +34,20 @@ public class FileServiceInMemory : IFileService
     }
 
     /// <inheritdoc />
-    public Task<FileProperties> GetPropertiesAsync(string filePath) {
+    public Task<FileProperties?> GetPropertiesAsync(string filePath) {
         GuardExists(filePath);
         var data = Cache[filePath];
         var props = new FileProperties {
-            Length = data.Length,
+            Length = data!.Length,
             LastModified = DateTime.UtcNow,
             ContentType = FileExtensions.GetMimeType(Path.GetExtension(filePath)),
             ContentDisposition = $"attachment; filename={Path.GetFileName(filePath)}",
         };
-        return Task.FromResult(props);
+        return Task.FromResult(props)!;
     }
 
     /// <inheritdoc />
-    public Task SaveAsync(string filePath, Stream stream, FileServiceSaveOptions saveOptions) {
+    public Task SaveAsync(string filePath, Stream stream, FileServiceSaveOptions? saveOptions) {
         if (!Cache.ContainsKey(filePath)) {
             Cache[filePath] = null;
         }

@@ -67,7 +67,7 @@ public class LockManagerAzure : ILockManager
 public class LockManagerAzureOptions
 {
     /// <summary>Hosting environment name.</summary>
-    public string EnvironmentName { get; set; }
+    public string? EnvironmentName { get; set; }
     /// <summary>Storage connection.</summary>
-    public string ConnectionString { get; set; }
+    public string? ConnectionString { get; set; }
 }

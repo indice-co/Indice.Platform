@@ -1,7 +1,4 @@
-﻿#nullable enable
-
-using System.Net.Http.Headers;
-using System.Runtime.CompilerServices;
+﻿using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -253,5 +250,3 @@ internal static class ApifonSmsServiceExtensions {
         return Convert.ToBase64String(hmacSha256.ComputeHash(encoding.GetBytes(toSign)));
     }
 }
-
-#nullable disable
