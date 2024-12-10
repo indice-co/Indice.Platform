@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using Indice.Features.Messages.AspNetCore.Endpoints;
+﻿using Indice.Features.Messages.AspNetCore.Endpoints;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Indice.Features.Messages.Core;
@@ -71,5 +69,3 @@ internal static class TemplatesApi
         return group;
     }
 }
-
-#nullable disable

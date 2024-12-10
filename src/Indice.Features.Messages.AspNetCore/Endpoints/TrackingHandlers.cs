@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Indice.Features.Messages.Core;
 using Indice.Types;
@@ -33,5 +31,3 @@ Parameters:
 ";
     #endregion
 }
-
-#nullable disable

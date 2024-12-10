@@ -22,7 +22,7 @@ internal class XlsxCampaignStatisticsOutputFormatter : OutputFormatter
     protected override bool CanWriteType(Type type) => typeof(CampaignStatistics).IsAssignableFrom(type) && base.CanWriteType(type);
 
     public override void WriteResponseHeaders(OutputFormatterWriteContext context) {
-        var data = (CampaignStatistics)context.Object;
+        var data = (CampaignStatistics)context.Object!;
         var response = context.HttpContext.Response;
         response.ContentType = FileExtensions.GetMimeType("xlsx");
         var contentDisposition = new ContentDispositionHeaderValue("attachment");
@@ -32,7 +32,7 @@ internal class XlsxCampaignStatisticsOutputFormatter : OutputFormatter
     }
 
     public async override Task WriteResponseBodyAsync(OutputFormatterWriteContext context) {
-        var data = (CampaignStatistics)context.Object;
+        var data = (CampaignStatistics)context.Object!;
         var httpContext = context.HttpContext;
         var user = httpContext.User;
         using (var xlPackage = new ExcelPackage()) {

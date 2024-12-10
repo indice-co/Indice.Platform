@@ -1,6 +1,5 @@
 ﻿using System.Net.Mime;
 using Indice.AspNetCore.Filters;
-using Indice.Configuration;
 using Indice.Events;
 using Indice.Features.Messages.AspNetCore.Extensions;
 using Indice.Features.Messages.Core;

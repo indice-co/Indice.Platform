@@ -125,7 +125,11 @@ public static class HostBuilderExtensions
     /// <param name="options">Options used to configure the Campaigns API feature.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static MessageOptions UseFilesAzure(this MessageOptions options, Action<FileServiceAzureOptions>? configure = null) {
-        options.Services.AddFiles(options => options.AddAzureStorage(KeyedServiceNames.FileServiceKey, configure));
+        void defaultConfigureAction(FileServiceAzureOptions options) {
+            options.ContainerName = string.IsNullOrEmpty(options.ContainerName) ? "messaging" : $"{options.ContainerName}-messaging";
+            configure?.Invoke(options);
+        }
+        options.Services.AddFiles(options => options.AddAzureStorage(KeyedServiceNames.FileServiceKey, defaultConfigureAction));
         return options;
     }
 

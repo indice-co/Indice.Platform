@@ -24,7 +24,7 @@ internal class TrackingController(
 {
     public ICampaignService CampaignService { get; } = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
     public MessageInboxOptions CampaignInboxOptions { get; } = campaignEndpointOptions?.Value ?? throw new ArgumentNullException(nameof(campaignEndpointOptions));
-    public string UserCode => User.FindFirstValue(CampaignInboxOptions.UserClaimType);
+    public string? UserCode => User.FindFirstValue(CampaignInboxOptions.UserClaimType);
 
     [AllowAnonymous]
     [HttpGet("messages/cta/{trackingCode}")]

@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using Indice.Features.Messages.AspNetCore.Endpoints;
+﻿using Indice.Features.Messages.AspNetCore.Endpoints;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Security;
@@ -70,5 +68,3 @@ internal static class ContactsApi
         return group;
     }
 }
-
-#nullable disable

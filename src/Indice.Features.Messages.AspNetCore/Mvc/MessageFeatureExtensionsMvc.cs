@@ -50,7 +50,7 @@ public static class MessageFeatureExtensionsMvc
     /// <param name="mvcBuilder">An interface for configuring MVC services.</param>
     /// <param name="configureAction">Configuration for several options of Campaigns management API feature.</param>
     [Obsolete("Use .AddMessageManagement() directly on the WebApplicationBuilder instead")]
-    public static IMvcBuilder AddMessageManagementEndpoints(this IMvcBuilder mvcBuilder, Action<MessageManagementOptions> configureAction = null) {
+    public static IMvcBuilder AddMessageManagementEndpoints(this IMvcBuilder mvcBuilder, Action<MessageManagementOptions>? configureAction = null) {
 
 
         mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new MessageFeatureProvider(includeManagementApi: true, includeInboxApi: false)));
@@ -65,7 +65,7 @@ public static class MessageFeatureExtensionsMvc
     /// <param name="mvcBuilder">An interface for configuring MVC services.</param>
     /// <param name="configureAction">Configuration for several options of Campaigns inbox API feature.</param>
     [Obsolete("Use .AddMessageInbox() directly on the WebApplicationBuilder instead")]
-    public static IMvcBuilder AddMessageInboxEndpoints(this IMvcBuilder mvcBuilder, Action<MessageInboxOptions> configureAction = null) {
+    public static IMvcBuilder AddMessageInboxEndpoints(this IMvcBuilder mvcBuilder, Action<MessageInboxOptions>? configureAction = null) {
         mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new MessageFeatureProvider(includeManagementApi: false, includeInboxApi: true)));
         var services = mvcBuilder.Services;
         // Register framework services.

@@ -31,7 +31,7 @@ public static class MessageFeatureExtensions
     /// <summary>Adds all Messages (both management and self-service) dependencies to the DI.</summary>
     /// <param name="services">The service collection.</param> 
     /// <param name="configureAction">Configuration for several options of Campaigns API feature.</param>
-    public static IServiceCollection AddMessaging(this IServiceCollection services, Action<MessageEndpointOptions> configureAction = null) {
+    public static IServiceCollection AddMessaging(this IServiceCollection services, Action<MessageEndpointOptions>? configureAction = null) {
         // Configure options.
         var apiOptions = new MessageEndpointOptions(services);
         configureAction?.Invoke(apiOptions);
@@ -57,7 +57,7 @@ public static class MessageFeatureExtensions
     /// <summary>Adds Messages management dependencies to the DI.</summary>
     /// <param name="services">The service collection.</param>
     /// <param name="configureAction">Configuration for several options of Campaigns management API feature.</param>
-    public static IServiceCollection AddMessageManagement(this IServiceCollection services, Action<MessageManagementOptions> configureAction = null) {
+    public static IServiceCollection AddMessageManagement(this IServiceCollection services, Action<MessageManagementOptions>? configureAction = null) {
         // Configure options.
         var apiOptions = new MessageManagementOptions(services);
         configureAction?.Invoke(apiOptions);
@@ -100,7 +100,7 @@ public static class MessageFeatureExtensions
     /// <summary>Adds Messages inbox API dependencies.</summary>
     /// <param name="services">The service collection.</param>
     /// <param name="configureAction">Configuration for several options of Campaigns inbox API feature.</param>
-    public static IServiceCollection AddMessageInbox(this IServiceCollection services, Action<MessageInboxOptions> configureAction = null) {
+    public static IServiceCollection AddMessageInbox(this IServiceCollection services, Action<MessageInboxOptions>? configureAction = null) {
         // Configure options.
         var apiOptions = new MessageInboxOptions(services);
         configureAction?.Invoke(apiOptions);
@@ -174,14 +174,19 @@ public static class MessageFeatureExtensions
     /// <summary>Adds <see cref="IFileService"/> using local file system as the backing store.</summary>
     /// <param name="options">Options used to configure the Campaigns API feature.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
-    public static void UseFilesLocal(this CampaignOptionsBase options, Action<FileServiceLocalOptions> configure = null) =>
+    public static void UseFilesLocal(this CampaignOptionsBase options, Action<FileServiceLocalOptions>? configure = null) =>
         options.Services.AddFiles(options => options.AddFileSystem(Indice.Features.Messages.Core.KeyedServiceNames.FileServiceKey, configure));
 
     /// <summary>Adds <see cref="IFileService"/> using Azure Blob Storage as the backing store.</summary>
     /// <param name="options">Options used to configure the Campaigns API feature.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
-    public static void UseFilesAzure(this CampaignOptionsBase options, Action<FileServiceAzureOptions> configure = null) =>
-        options.Services.AddFiles(options => options.AddAzureStorage(Indice.Features.Messages.Core.KeyedServiceNames.FileServiceKey, configure));
+    public static void UseFilesAzure(this CampaignOptionsBase options, Action<FileServiceAzureOptions>? configure = null) {
+        Action<FileServiceAzureOptions> defaultConfigureAction = (options) => {
+            options.ContainerName = string.IsNullOrEmpty(options.ContainerName) ? "messaging" : $"{options.ContainerName}-messaging";
+            configure?.Invoke(options);
+        };
+        options.Services.AddFiles(options => options.AddAzureStorage(Indice.Features.Messages.Core.KeyedServiceNames.FileServiceKey, defaultConfigureAction));
+    }
 
     /// <summary>Configures that campaign contact information will be resolved by contacting the Identity Server instance.</summary>
     /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
@@ -208,7 +213,7 @@ public static class MessageFeatureExtensions
                 ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME),
                 Enabled = true,
                 EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
-                ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current)
+                ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!)
             };
             configure?.Invoke(serviceProvider, eventDispatcherOptions);
             options.ClaimsPrincipalSelector = eventDispatcherOptions.ClaimsPrincipalSelector;
@@ -220,14 +225,13 @@ public static class MessageFeatureExtensions
             options.UseCompression = true;
         });
     }
-#nullable enable
+
     /// <summary>Adds the Media Library feature.</summary>
     /// <param name="options">Options used to configure the Media API feature.</param>
     /// <param name="configureAction">Configure the available options. Null to use defaults.</param>
     public static void UseMediaLibrary(this CampaignOptionsBase options, Action<Indice.Features.Media.AspNetCore.MediaApiOptions>? configureAction = null) {
         options.Services.AddMediaLibrary(configureAction);
     }
-#nullable disable
 
     /// <summary>Configures that campaign contact information will be resolved by contacting the Identity Server instance.</summary>
     /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
