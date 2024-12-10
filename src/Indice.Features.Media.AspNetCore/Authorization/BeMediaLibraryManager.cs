@@ -1,7 +1,6 @@
 ﻿using Indice.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Media.AspNetCore.Authorization;
 

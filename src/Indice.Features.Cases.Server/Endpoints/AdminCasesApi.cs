@@ -31,9 +31,11 @@ public static class AdminCasesApi
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized)
              .ProducesProblem(StatusCodes.Status403Forbidden);
+        
         group.MapPost("", AdminCasesHandler.CreateDraftAdminCase)
              .WithName(nameof(AdminCasesHandler.CreateDraftAdminCase))
              .WithSummary("Create a new case in draft mode.");
+
         group.MapGet("{caseId}/attachments",AdminCasesHandler.GetCaseAttachments)
             .WithName(nameof(AdminCasesHandler.GetCaseAttachments))
             .WithSummary("Get a list of Attachments for a CaseId");
@@ -75,7 +77,7 @@ public static class AdminCasesApi
             .WithName(nameof(AdminCasesHandler.GetCaseActions))
             .WithSummary("Gets the cases actions (Approval, edit, assignments, etc) for a case Id. Actions differ based on user role.");
         
-        group.MapGet("caseId/reject-reasons", AdminCasesHandler.GetCaseRejectReasons)
+        group.MapGet("{caseId}/reject-reasons", AdminCasesHandler.GetCaseRejectReasons)
             .WithName(nameof(AdminCasesHandler.GetCaseRejectReasons))
             .WithSummary("Get the reject reasons for a case.");
 
