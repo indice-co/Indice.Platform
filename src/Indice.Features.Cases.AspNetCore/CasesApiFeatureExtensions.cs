@@ -49,12 +49,11 @@ public static class CasesApiFeatureExtensions
     }
 
     /// <summary>Add case management Api endpoints for Customer (api/my prefix).</summary>
-    /// <param name="mvcBuilder">The <see cref="IMvcBuilder"/>.</param>
+    /// <param name="builder">The <see cref="IMvcBuilder"/>.</param>
     /// <param name="configureAction">The <see cref="IConfiguration"/>.</param>
-    public static IMvcBuilder AddCasesApiEndpoints(this IMvcBuilder mvcBuilder, Action<MyCasesApiOptions>? configureAction = null) {
+    public static WebApplicationBuilder AddCasesApiEndpoints(this WebApplicationBuilder builder, Action<MyCasesApiOptions>? configureAction = null) {
         // Add
-        mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new CasesApiFeatureProviderMyCases()));
-        var services = mvcBuilder.Services;
+        var services = builder.Services;
 
         // Build service provider and get IConfiguration instance.
         var serviceProvider = services.BuildServiceProvider();
@@ -63,13 +62,6 @@ public static class CasesApiFeatureExtensions
 
         // Try add general settings.
         services.AddGeneralSettings(configuration);
-
-        // This lines resolves the CaseData dynamic deserialization from SystemText
-        services.AddMvc()
-            .AddNewtonsoftJson(x => {
-                x.SerializerSettings.Converters.Add(new SystemTextConverter());
-                x.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
-            });
 
         // Configure options given by the consumer.
         var casesMyOptions = new MyCasesApiOptions();
@@ -106,17 +98,16 @@ public static class CasesApiFeatureExtensions
             options.GroupIdClaimType = casesMyOptions.GroupIdClaimType;
             options.ReferenceNumberEnabled = casesMyOptions.ReferenceNumberEnabled;
         });
-        return mvcBuilder;
+        return builder;
     }
 
 
     /// <summary>Add case management Api endpoints for manage cases from back-office (api/manage prefix).</summary>
-    /// <param name="mvcBuilder">The <see cref="IMvcBuilder"/>.</param>
+    /// <param name="builder">The <see cref="IMvcBuilder"/>.</param>
     /// <param name="configureAction">The <see cref="IConfiguration"/>.</param>
-    public static IMvcBuilder AddAdminCasesApiEndpoints(this IMvcBuilder mvcBuilder, Action<AdminCasesApiOptions>? configureAction = null) {
+    public static WebApplicationBuilder AddAdminCasesApiEndpoints(this WebApplicationBuilder builder, Action<AdminCasesApiOptions>? configureAction = null) {
         // Add
-        mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new CasesApiFeatureProviderAdminCases()));
-        var services = mvcBuilder.Services;
+        var services = builder.Services;
 
         // Build service provider and get IConfiguration instance.
         var serviceProvider = services.BuildServiceProvider();
@@ -163,7 +154,7 @@ public static class CasesApiFeatureExtensions
             options.ReferenceNumberEnabled = casesAdminOptions.ReferenceNumberEnabled;
         });
 
-        return mvcBuilder;
+        return builder;
     }
 
     /// <summary>Add workflow services to the case management.</summary>
