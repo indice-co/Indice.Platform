@@ -7,13 +7,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 namespace Indice.Features.Cases.Server.Endpoints;
 internal static class AdminCheckpointTypesHandler
 {
-    public static async Task<Results<Ok<List<CheckpointType>>, NotFound>> GetDistinctCheckpointTypes(ICheckpointTypeService checkpointTypeService, ClaimsPrincipal User) {
-        var distinctCheckpointTypes = await checkpointTypeService.GetDistinctCheckpointTypes(User);
-        if (distinctCheckpointTypes == null) {
-            return TypedResults.NotFound();
-        }
-        return TypedResults.Ok(distinctCheckpointTypes);
-    
-    }
+    public static async Task<Results<Ok<List<CheckpointType>>, NotFound>> GetDistinctCheckpointTypes(ICheckpointTypeService checkpointTypeService, ClaimsPrincipal user) =>
+        TypedResults.Ok(await checkpointTypeService.GetDistinctCheckpointTypes(user));
 }
 

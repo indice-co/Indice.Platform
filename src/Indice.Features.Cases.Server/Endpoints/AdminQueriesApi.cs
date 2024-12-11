@@ -21,26 +21,24 @@ public static class AdminQueriesApi
 
         var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).ToArray();
 
-        group.RequireAuthorization(policy => policy
-            .RequireAuthenticatedUser()
-            .AddAuthenticationSchemes("Bearer")
-            .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-        ).RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
+        group.RequireAuthorization(policy => policy.RequireClaim(BasicClaimTypes.Scope, allowedScopes))
+             .RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
-        group.ProducesProblem(StatusCodes.Status500InternalServerError)
+        group.ProducesProblem(StatusCodes.Status400BadRequest)
              .ProducesProblem(StatusCodes.Status401Unauthorized)
-             .ProducesProblem(StatusCodes.Status403Forbidden);
+             .ProducesProblem(StatusCodes.Status403Forbidden)
+             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapGet("", AdminQueriesHandler.GetQueries)
+        group.MapGet(string.Empty, AdminQueriesHandler.GetQueries)
              .WithName(nameof(AdminQueriesHandler.GetQueries))
              .WithSummary("Get saved queries.");
 
-        group.MapPost("", AdminQueriesHandler.SaveQuery)
+        group.MapPost(string.Empty, AdminQueriesHandler.SaveQuery)
              .WithName(nameof(AdminQueriesHandler.SaveQuery))
              .WithSummary("Save a new query.");
 
-        group.MapDelete("{queryId}", AdminQueriesHandler.DeleteQuery)
+        group.MapDelete("{queryId:guid}", AdminQueriesHandler.DeleteQuery)
              .WithName(nameof(AdminQueriesHandler.DeleteQuery))
              .WithSummary("Delete a query.");
 

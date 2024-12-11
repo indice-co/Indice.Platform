@@ -10,21 +10,18 @@ using Microsoft.Extensions.Options;
 namespace Indice.Features.Cases.Server.Endpoints;
 internal static class AdminNotificationsHandler
 {
-    public static async Task<Results<Ok<NotificationSubscriptionResponse>, BadRequest>> GetMySubscriptions(ClaimsPrincipal User, IOptions<CaseServerOptions> casesOptions, INotificationSubscriptionService service) {
+    public static async Task<Ok<NotificationSubscriptionResponse>> GetMySubscriptions(ClaimsPrincipal user, IOptions<CaseServerOptions> casesOptions, INotificationSubscriptionService service) {
         var options = new ListOptions<NotificationFilter> {
-            Filter = NotificationFilter.FromUser(User, casesOptions.Value.GroupIdClaimType)
+            Filter = NotificationFilter.FromUser(user, casesOptions.Value.GroupIdClaimType)
         };
         var result = await service.GetSubscriptions(options);
-        if (result == null) {
-            return TypedResults.BadRequest();
-        }
         return TypedResults.Ok(new NotificationSubscriptionResponse {
             NotificationSubscriptions = result
         });
     }
 
-    public static async Task<Results<NoContent, BadRequest>> Subscribe(NotificationSubscriptionRequest request, ClaimsPrincipal User, IOptions<CaseServerOptions> casesOptions, INotificationSubscriptionService service) {
-        await service.Subscribe(request.CaseTypeIds ?? [], NotificationSubscription.FromUser(User, casesOptions.Value.GroupIdClaimType));
+    public static async Task<NoContent> Subscribe(NotificationSubscriptionRequest request, ClaimsPrincipal user, IOptions<CaseServerOptions> casesOptions, INotificationSubscriptionService service) {
+        await service.Subscribe(request.CaseTypeIds ?? [], NotificationSubscription.FromUser(user, casesOptions.Value.GroupIdClaimType));
         return TypedResults.NoContent();
     }
 }

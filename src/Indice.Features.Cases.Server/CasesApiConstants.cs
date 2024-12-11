@@ -15,4 +15,14 @@ public static class CasesApiConstants
         /// <summary>A user must satisfy the BeCasesAdministrator authorization policy to be use the AdminCaseTypes Feature </summary>
         public const string BeCasesAdministrator = nameof(BeCasesAdministrator);
     }
+
+    /// <summary>Cases Api default channels.</summary>
+    public static class Channels
+    {
+        /// <summary>Customer channel, for the cases that have been created through MyCases interface</summary>
+        public const string Customer = nameof(Customer);
+
+        /// <summary>Agent channel, for the cases that have been created through AdminCases interface</summary>
+        public const string Agent = nameof(Agent);
+    }
 }

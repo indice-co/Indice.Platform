@@ -13,7 +13,6 @@ public static class AdminNotificationsApi
 
     /// <summary>Maps admin notifications endpoint.</summary>
     public static IEndpointRouteBuilder MapAdminNotifications(this IEndpointRouteBuilder routes) {
-
         var options = routes.ServiceProvider.GetRequiredService<IOptions<CaseServerOptions>>().Value;
 
         var group = routes.MapGroup($"{options.PathPrefix.Value!.Trim('/')}/manage/my/notifications");
@@ -21,26 +20,25 @@ public static class AdminNotificationsApi
         group.WithTags("AdminNotifications");
         group.WithGroupName(options.GroupName);
 
-        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).ToArray();
-        group.RequireAuthorization(policy => policy
-            .RequireAuthenticatedUser()
-            .AddAuthenticationSchemes("Bearer")
-            .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-        ).RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
+        var allowedScopes = new[] {
+            options.RequiredScope
+        }.Where(x => x != null).ToArray();
+        group.RequireAuthorization(policy => policy.RequireClaim(BasicClaimTypes.Scope, allowedScopes))
+            .RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
-        group.ProducesProblem(StatusCodes.Status500InternalServerError)
-             .ProducesProblem(StatusCodes.Status401Unauthorized)
-             .ProducesProblem(StatusCodes.Status403Forbidden)
-             .ProducesProblem(StatusCodes.Status400BadRequest);
+        group.ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapGet("", AdminNotificationsHandler.GetMySubscriptions)
+        group.MapGet(string.Empty, AdminNotificationsHandler.GetMySubscriptions)
             .WithName(nameof(AdminNotificationsHandler.GetMySubscriptions))
-                .WithSummary("Get the notification subscriptions for a user.");
+            .WithSummary("Get the notification subscriptions for a user.");
 
-        group.MapPost("", AdminNotificationsHandler.Subscribe)
+        group.MapPost(string.Empty, AdminNotificationsHandler.Subscribe)
             .WithName(nameof(AdminNotificationsHandler.Subscribe))
-                .WithSummary("Store user's subscription settings.");
+            .WithSummary("Store user's subscription settings.");
 
         return group;
     }

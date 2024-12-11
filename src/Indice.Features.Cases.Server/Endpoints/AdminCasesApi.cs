@@ -32,7 +32,7 @@ public static class AdminCasesApi
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapPost("", AdminCasesHandler.CreateDraftAdminCase)
+        group.MapPost(string.Empty, AdminCasesHandler.CreateDraftAdminCase)
             .WithName(nameof(AdminCasesHandler.CreateDraftAdminCase))
             .WithSummary("Create a new case in draft mode.");
 
@@ -69,7 +69,7 @@ public static class AdminCasesApi
             .WithName(nameof(AdminCasesHandler.AdminAddComment))
             .WithSummary("Add a comment to a case.");
 
-        group.MapGet("", AdminCasesHandler.GetCases)
+        group.MapGet(string.Empty, AdminCasesHandler.GetCases)
             .WithName(nameof(AdminCasesHandler.GetCases))
             .WithSummary("Gets the list of all cases using the provided.");
 

@@ -13,21 +13,16 @@ using Microsoft.AspNetCore.Http.HttpResults;
 namespace Indice.Features.Cases.Server.Endpoints;
 internal class AdminQueriesHandler
 {
-    public static async Task<Results<Ok<List<Query>>, NotFound>> GetQueries(IQueryService queryService, ClaimsPrincipal User) {
-        var queries = await queryService.GetQueries(User);
-        if (queries == null) {
-            return TypedResults.NotFound();
-        }
-        return TypedResults.Ok(queries);
-    }
+    public static async Task<Results<Ok<List<Query>>, NotFound>> GetQueries(IQueryService queryService, ClaimsPrincipal user) =>
+        TypedResults.Ok(await queryService.GetQueries(user));
 
-    public static async Task<NoContent> SaveQuery(IQueryService queryService, SaveQueryRequest request, ClaimsPrincipal User) {
-        await queryService.SaveQuery(User, request);
+    public static async Task<NoContent> SaveQuery(SaveQueryRequest request, IQueryService queryService, ClaimsPrincipal user) {
+        await queryService.SaveQuery(user, request);
         return TypedResults.NoContent();
     }
 
-    public static async Task<Results<NoContent, NotFound>> DeleteQuery(IQueryService queryService, Guid queryId, ClaimsPrincipal User) {
-        await queryService.DeleteQuery(User, queryId);
+    public static async Task<Results<NoContent, NotFound>> DeleteQuery(Guid queryId, IQueryService queryService, ClaimsPrincipal user) {
+        await queryService.DeleteQuery(user, queryId);
         return TypedResults.NoContent();
     }
 }
