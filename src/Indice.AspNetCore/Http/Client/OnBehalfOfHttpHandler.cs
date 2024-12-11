@@ -212,11 +212,11 @@ public static class OnBehalfOfHttpHandlerExtensions
     /// <returns>The builder for further configuration.</returns>
     public static IHttpClientBuilder AddOnBehalfOfTokenHandler(this IHttpClientBuilder httpClientBuilder, string tokenClientName, IConfiguration configuration) =>
         httpClientBuilder.AddOnBehalfOfTokenHandler(tokenClientName, (options) => {
-            var apiSecrets = configuration.GetApiSecrets();
+            var apiSecrets = configuration.GetApiSecrets()!;
             options.ClientId = apiSecrets["ClientId"];
             options.ClientSecret = apiSecrets["ClientSecret"];
             options.Scope = apiSecrets.ContainsKey("DelegationScope") ? apiSecrets["DelegationScope"] : apiSecrets["ClientScope"];
-            options.TokenEndpoint = $"{configuration.GetAuthority(tryInternal: true).TrimEnd('/')}/connect/token";
+            options.TokenEndpoint = $"{configuration.GetAuthority(tryInternal: true)!.TrimEnd('/')}/connect/token";
         });
 }
 #nullable disable

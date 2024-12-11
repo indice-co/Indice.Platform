@@ -77,7 +77,7 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
 
     /// <summary>Gets the list of Members</summary>
     private async Task<List<AccessRule>> GetAccessRules() {
-        return await _distributedCache.TryGetAndSetAsync(
+        return (await _distributedCache.TryGetAndSetAsync(
             cacheKey: $"{MembersCacheKey}",
             getSourceAsync: async () => await _dbContext.CaseAccessRules
                 .AsQueryable()
@@ -95,7 +95,7 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
                 .ToListAsync(),
             options: new DistributedCacheEntryOptions {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
-            });
+            }))!;
     }
 
 

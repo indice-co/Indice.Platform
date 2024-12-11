@@ -3,7 +3,6 @@
     <PackageTags>Events;Files;Emails;Sms;Push Notifications;Locking</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
     <VersionPrefix>$(VersionPrefixCore)</VersionPrefix>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Indice.Common" Version="$(VersionPrefixCore)-*" />

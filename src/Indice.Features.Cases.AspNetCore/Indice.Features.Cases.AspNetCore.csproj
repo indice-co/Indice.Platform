@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Package">
-    <Nullable>enable</Nullable>
     <Description>Indice Case Management System</Description>
     <RootNamespace>Indice.Features.Cases</RootNamespace>
     <Authors>Thanos Panousis, Dimitris Karkanas</Authors>

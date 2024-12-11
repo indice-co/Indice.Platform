@@ -4,6 +4,7 @@
     <VersionPrefix>$(VersionPrefixGovGr)</VersionPrefix>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;GovGr;HttpClient</PackageTags>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

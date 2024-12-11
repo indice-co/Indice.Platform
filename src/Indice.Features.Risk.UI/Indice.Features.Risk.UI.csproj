@@ -1,12 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup Label="Package">
-    <Nullable>enable</Nullable>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <SpaProjectName>risks-app</SpaProjectName>
     <SpaSourceFolder>..\Indice.Features.Risk.App</SpaSourceFolder>
     <SpaDistFolder>$(SpaSourceFolder)\dist</SpaDistFolder>
-    <ImplicitUsings>enable</ImplicitUsings>
     <VersionPrefix>$(VersionPrefixRisk)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>

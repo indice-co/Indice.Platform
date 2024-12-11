@@ -32,7 +32,7 @@ public static class IDistributedCacheExtensions
     public static async Task<T?> TryGetAndSetAsync<T>(this IDistributedCache cache, string cacheKey, Func<Task<T>> getSourceAsync, DistributedCacheEntryOptions options, JsonSerializerOptions? jsonSerializerOptions = null, CancellationToken cancellationToken = default) {
         var itemJson = await cache.GetStringAsync(cacheKey, cancellationToken);
         if (!string.IsNullOrEmpty(itemJson)) {
-            return JsonSerializer.Deserialize<T>(itemJson, jsonSerializerOptions);
+            return JsonSerializer.Deserialize<T>(itemJson, jsonSerializerOptions)!;
         }
         var result = await getSourceAsync();
         if (result == null) {

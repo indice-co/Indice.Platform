@@ -82,7 +82,7 @@ internal class SettingHandlers
         CreateAppSettingRequest request
     ) {
         var setting = new DbAppSetting {
-            Key = request.Key,
+            Key = request.Key!,
             Value = request.Value
         };
         dbContext.AppSettings.Add(setting);

@@ -3,6 +3,7 @@
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;AspNetIdentity;SignInLogs;</PackageTags>
     <VersionPrefix>$(VersionPrefixIdentity)</VersionPrefix>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefixIdentity)-*" />

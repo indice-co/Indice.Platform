@@ -4,7 +4,7 @@
 public class DbAppSetting
 {
     /// <summary>The key of application setting.</summary>
-    public string Key { get; set; }
+    public string Key { get; set; } = null!;
     /// <summary>The value of application setting.</summary>
-    public string Value { get; set; }
+    public string? Value { get; set; }
 }

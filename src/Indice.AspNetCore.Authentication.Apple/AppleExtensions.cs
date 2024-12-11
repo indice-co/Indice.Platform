@@ -82,7 +82,7 @@ public static class AppleExtensions
             options.Events = appleOptions.Events;
             // Custom client secret generation - secret can be re-used for up to 6 months.
             options.Events.OnAuthorizationCodeReceived = context => {
-                context.TokenEndpointRequest.ClientSecret = AppleTokenGenerator.CreateNewToken(appleOptions.TeamId, context.Options.Authority, context.Options.ClientId, appleOptions.PrivateKey, appleOptions.PrivateKeyId);
+                context.TokenEndpointRequest!.ClientSecret = AppleTokenGenerator.CreateNewToken(appleOptions.TeamId, context.Options.Authority!, context.Options.ClientId!, appleOptions.PrivateKey, appleOptions.PrivateKeyId);
                 return Task.CompletedTask;
             };
             options.Events.OnRedirectToIdentityProviderForSignOut = context => {
@@ -106,7 +106,7 @@ public static class AppleExtensions
         var userText = context.Request.Form["user"].FirstOrDefault();
         if (userText is not null) {
             var claims = ExtractClaimsFromUser(JsonSerializer.Deserialize<JsonElement>(userText));
-            var enrichedPrincipal = new ClaimsPrincipal(new ClaimsIdentity(context.Principal.Identity, claims, context.Principal.Identity.AuthenticationType, "name", "role"));
+            var enrichedPrincipal = new ClaimsPrincipal(new ClaimsIdentity(context.Principal!.Identity, claims, context.Principal!.Identity!.AuthenticationType, "name", "role"));
             context.Principal = enrichedPrincipal;
         }
         return Task.CompletedTask;
