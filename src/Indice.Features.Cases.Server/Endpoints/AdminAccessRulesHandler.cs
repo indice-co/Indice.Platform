@@ -12,13 +12,15 @@ namespace Indice.Features.Cases.Server.Endpoints;
 internal class AdminAccessRulesHandler
 {
     /// <summary>Get Access rules.</summary>
+    /// <param name="options"></param>
     /// <param name="filters">Filters to narrow down the results</param>
     /// <param name="accessRuleService"/>
-    public static async Task<Ok<ResultSet<AccessRule>>> GetAccessRules(ListOptions<GetAccessRulesListFilter> filters, IAccessRuleService accessRuleService) =>
-        TypedResults.Ok(await accessRuleService.Get(filters));
+    public static async Task<Ok<ResultSet<AccessRule>>> GetAccessRules([AsParameters] ListOptions options, [AsParameters] GetAccessRulesListFilter filters, IAccessRuleService accessRuleService) =>
+        TypedResults.Ok(await accessRuleService.Get(ListOptions.Create(options, filters)));
 
     /// <summary>Get Access rules for the specified case.</summary>
     /// <param name="caseId"></param>
+    /// <param name="accessRuleService"></param>
     public static async Task<Ok<List<AccessRule>>> GetAccessRulesForCase(Guid caseId, IAccessRuleService accessRuleService) =>
         TypedResults.Ok(await accessRuleService.GetCaseAccessRules(caseId));
 
