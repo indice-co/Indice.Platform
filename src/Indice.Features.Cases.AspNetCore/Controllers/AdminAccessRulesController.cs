@@ -19,7 +19,8 @@ namespace Indice.Features.Cases.Controllers;
 [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
 [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
 [Route($"{ApiPrefixes.CasesApiTemplatePrefixPlaceholder}/manage")]
-internal class AdminAccessRulesController : ControllerBase {
+internal class AdminAccessRulesController : ControllerBase
+{
     private readonly IAccessRuleService _accessRuleService;
 
     public AdminAccessRulesController(IAccessRuleService accessRuleService) {
@@ -106,6 +107,24 @@ internal class AdminAccessRulesController : ControllerBase {
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
     public async Task<IActionResult> DeleteAccessRules(Guid ruleId) {
         await _accessRuleService.Delete(User, ruleId);
+        return NoContent();
+    }
+
+
+    /// <summary>Replace user to the specified case with another</summary>
+    /// <param name="caseId">Case type Id</param>
+    /// <param name="request">The users for the replace</param>
+    /// <returns></returns>
+    [HttpPost("access-rules/case/{caseId:guid}/replace-user")]
+    [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeCasesManager)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
+    public async Task<IActionResult> ReplaceAccessRulesUser([FromRoute] Guid caseId, [FromBody] ReplaceCaseAccessRuleUserRequest request) {
+        var succeeded = await _accessRuleService.ReplaceUser(User, caseId, request.ExistingUserId, request.ReplacementUserId);
+        if (succeeded) {
+            return NotFound();
+        }
         return NoContent();
     }
 }

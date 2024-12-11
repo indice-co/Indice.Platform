@@ -68,4 +68,14 @@ public interface IAccessRuleService
     /// <param name="id">The Id of the rule to be deleted</param>
     /// <returns></returns>
     Task Delete(ClaimsPrincipal user, Guid id);
+
+    /// <summary>
+    /// Replaces all existing user in access rules of the specified case with the new user
+    /// </summary>
+    /// <param name="user">The user performing the action.</param>
+    /// <param name="caseId">Case id</param>
+    /// <param name="existingUserId">Existing user id</param>
+    /// <param name="newUserId">User to replace the old user</param>
+    /// <returns>true if any row were updated</returns>
+    Task<bool> ReplaceUser(ClaimsPrincipal user, Guid caseId, string existingUserId, string newUserId);
 }
