@@ -3,7 +3,6 @@
     <PackageTags>AspNetCore;WebApplicationBuilder</PackageTags>
     <PackageReleaseNotes>Create preconfigured minimal api Builder.</PackageReleaseNotes>
     <VersionPrefix>$(VersionPrefixAspNet)</VersionPrefix>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

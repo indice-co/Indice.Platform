@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using Indice.Features.Messages.Core.Models;
+﻿using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
@@ -79,5 +77,3 @@ Parameters:
 
     #endregion
 }
-
-#nullable disable

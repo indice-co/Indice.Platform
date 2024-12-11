@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using Indice.Features.Messages.AspNetCore.Endpoints;
+﻿using Indice.Features.Messages.AspNetCore.Endpoints;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -69,5 +67,3 @@ internal static class MessageSendersApi
         return group;
     }
 }
-
-#nullable disable

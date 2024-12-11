@@ -2,7 +2,6 @@
   <PropertyGroup>
     <RootNamespace>Indice</RootNamespace>
     <VersionPrefix>$(VersionPrefixCore)</VersionPrefix>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <PackageTags>AspNet;Api;Utilities</PackageTags>

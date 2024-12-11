@@ -26,7 +26,7 @@ public static class HostBuilderExtensions
     /// <summary>Configures services used by the queue triggers used for campaign management system.</summary>
     /// <param name="hostBuilder">A program initialization abstraction.</param>
     /// <param name="configure">Configure action for <see cref="MessageOptions"/>.</param>
-    public static IHostBuilder ConfigureMessageFunctions(this IHostBuilder hostBuilder, Action<IConfiguration, IHostEnvironment, MessageOptions> configure = null) =>
+    public static IHostBuilder ConfigureMessageFunctions(this IHostBuilder hostBuilder, Action<IConfiguration, IHostEnvironment, MessageOptions>? configure = null) =>
         hostBuilder.ConfigureServices((hostBuilderContext, services) => {
             var options = new MessageOptions {
                 Services = services
@@ -85,7 +85,7 @@ public static class HostBuilderExtensions
     /// <summary>Adds an Azure specific implementation of <see cref="IPushNotificationService"/> for sending push notifications.</summary>
     /// <param name="options">Options used when configuring campaign Azure Functions.</param>
     /// <param name="configure">Configure the available options for push notifications. Null to use defaults.</param>
-    public static MessageOptions UsePushNotificationServiceAzure(this MessageOptions options, Action<IServiceProvider, PushNotificationAzureOptions> configure = null) {
+    public static MessageOptions UsePushNotificationServiceAzure(this MessageOptions options, Action<IServiceProvider, PushNotificationAzureOptions>? configure = null) {
         options.Services.AddPushNotificationServiceAzure(KeyedServiceNames.PushNotificationServiceKey, configure);
         return options;
     }
@@ -93,13 +93,13 @@ public static class HostBuilderExtensions
     /// <summary>Adds <see cref="IEventDispatcher"/> using Azure Storage as a queuing mechanism.</summary>
     /// <param name="options">Options used when configuring campaign Azure Functions.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
-    public static MessageOptions UseEventDispatcherAzure(this MessageOptions options, Action<IServiceProvider, MessageEventDispatcherAzureOptions> configure = null) {
+    public static MessageOptions UseEventDispatcherAzure(this MessageOptions options, Action<IServiceProvider, MessageEventDispatcherAzureOptions>? configure = null) {
         options.Services.AddEventDispatcherAzure(KeyedServiceNames.EventDispatcherServiceKey, (serviceProvider, options) => {
             var eventDispatcherOptions = new MessageEventDispatcherAzureOptions {
                 ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME),
                 Enabled = true,
                 EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
-                ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current)
+                ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!)
             };
             configure?.Invoke(serviceProvider, eventDispatcherOptions);
             options.ClaimsPrincipalSelector = eventDispatcherOptions.ClaimsPrincipalSelector;
@@ -116,7 +116,7 @@ public static class HostBuilderExtensions
     /// <summary>Adds <see cref="IFileService"/> using local file system as the backing store.</summary>
     /// <param name="options">Options used to configure the Campaigns API feature.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
-    public static MessageOptions UseFilesLocal(this MessageOptions options, Action<FileServiceLocalOptions> configure = null) {
+    public static MessageOptions UseFilesLocal(this MessageOptions options, Action<FileServiceLocalOptions>? configure = null) {
         options.Services.AddFiles(options => options.AddFileSystem(KeyedServiceNames.FileServiceKey, configure));
         return options;
     }
@@ -124,8 +124,12 @@ public static class HostBuilderExtensions
     /// <summary>Adds <see cref="IFileService"/> using Azure Blob Storage as the backing store.</summary>
     /// <param name="options">Options used to configure the Campaigns API feature.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
-    public static MessageOptions UseFilesAzure(this MessageOptions options, Action<FileServiceAzureOptions> configure = null) {
-        options.Services.AddFiles(options => options.AddAzureStorage(KeyedServiceNames.FileServiceKey, configure));
+    public static MessageOptions UseFilesAzure(this MessageOptions options, Action<FileServiceAzureOptions>? configure = null) {
+        void defaultConfigureAction(FileServiceAzureOptions options) {
+            options.ContainerName = string.IsNullOrEmpty(options.ContainerName) ? "messaging" : $"{options.ContainerName}-messaging";
+            configure?.Invoke(options);
+        }
+        options.Services.AddFiles(options => options.AddAzureStorage(KeyedServiceNames.FileServiceKey, defaultConfigureAction));
         return options;
     }
 
@@ -165,16 +169,17 @@ public static class HostBuilderExtensions
     /// <param name="options">Options used when configuring messages in Azure Functions.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
-    public static MessageOptions UseSmsServiceApifon(this MessageOptions options, IConfiguration configuration, Action<SmsServiceApifonOptions> configure = null) {
+    public static MessageOptions UseSmsServiceApifon(this MessageOptions options, IConfiguration configuration, Action<SmsServiceApifonOptions>? configure = null) {
         options.Services.AddSmsServiceApifon(configuration, configure);
         return options;
     }
 
-    /// <summary>Adds an instance of <see cref="ISmsService"/> using Yuboto.</summary>
+    /// <summary>Adds an instance of <see cref="ISmsService"/> using Yuboto Omni for sending Viber messages.</summary>
     /// <param name="options">Options used when configuring messages in Azure Functions.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    public static MessageOptions UseSmsServiceViber(this MessageOptions options, IConfiguration configuration) {
-        options.Services.AddSmsServiceViber(configuration);
+    /// <param name="configure">Configure the available options. Null to use defaults.</param>
+    public static MessageOptions UseSmsServiceApifonIM(this MessageOptions options, IConfiguration configuration, Action<SmsServiceApifonOptions>? configure = null) {
+        options.Services.AddSmsServiceApifonIM(configuration, configure);
         return options;
     }
 

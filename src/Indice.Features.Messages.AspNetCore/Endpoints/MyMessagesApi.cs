@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Indice.Features.Messages.AspNetCore.Endpoints;
@@ -68,5 +66,3 @@ internal static class MyMessagesApi
     }
 
 }
-
-#nullable disable

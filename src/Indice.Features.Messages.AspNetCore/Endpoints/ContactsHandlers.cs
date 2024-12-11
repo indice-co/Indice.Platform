@@ -1,11 +1,9 @@
-﻿#nullable enable
-using Indice.Features.Messages.Core.Models;
+﻿using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Indice.Features.Messages.AspNetCore.Endpoints;
 
@@ -111,4 +109,3 @@ Parameters:
 
     #endregion
 }
-#nullable disable

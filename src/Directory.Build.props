@@ -19,12 +19,12 @@
       <VersionPrefixAspNet>$(VersionPrefixBase).0</VersionPrefixAspNet>
       <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
       
-      <VersionSuffix>rc08</VersionSuffix>
+      <VersionSuffix>rc09</VersionSuffix>
       <Authors>Constantinos Leftheris</Authors>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
       <LangVersion>Latest</LangVersion>
       <ImplicitUsings>enable</ImplicitUsings>
-      <Nullable>disable</Nullable>
+      <Nullable>enable</Nullable>
       <CheckEolTargetFramework>false</CheckEolTargetFramework>
     </PropertyGroup>
     <PropertyGroup Label="Package Common">

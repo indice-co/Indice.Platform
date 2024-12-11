@@ -21,13 +21,13 @@
         <a indice-if="showContactUs" href="@UIOptions.Value.ContactUsUrl" target="_blank">@Localizer["Contact us"]</a>
         <span class="hidden lg:block">•</span>
         <div class="hidden lg:block cursor-auto">
-            &copy; @Localizer[settings.Organization] @copyYear @(DateTime.Today.Year > copyYear ? $" - {DateTime.Today.Year}" : string.Empty)
+            &copy; @Localizer[settings.Organization!] @copyYear @(DateTime.Today.Year > copyYear ? $" - {DateTime.Today.Year}" : string.Empty)
         </div>
     </div>
     <div class="flex flex-row justify-between w-full py-2 px-4 lg:p-0">
         <div>
             <span class="text-white block lg:hidden ml-1 text-sm">
-                &copy; @Localizer[settings.Organization] @copyYear @(DateTime.Today.Year > copyYear ? $" - {DateTime.Today.Year}" : string.Empty)
+                &copy; @Localizer[settings.Organization!] @copyYear @(DateTime.Today.Year > copyYear ? $" - {DateTime.Today.Year}" : string.Empty)
             </span>
         </div>
         <div class="text-xs text-white sm:text-center">

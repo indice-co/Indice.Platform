@@ -33,8 +33,8 @@ internal class QueueTriggers
     ) {
         LogExecution(functionContext, EventNames.CampaignCreated);
         var originalMessage = await CompressionUtils.Decompress(message);
-        var envelope = JsonSerializer.Deserialize<Envelope<CampaignCreatedEvent>>(originalMessage, JsonSerializerOptions);
-        var payload = envelope.Payload;
+        var envelope = JsonSerializer.Deserialize<Envelope<CampaignCreatedEvent>>(originalMessage, JsonSerializerOptions)!;
+        var payload = envelope.Payload!;
         var campaignStart = payload.ActivePeriod?.From;
         // Azure queues can store a queue message with a visibility window up to 7 days. So if a campaign must start (appear on queue) after more than 7 days then we should check the campaign start date and re-enqueue the message.
         if (campaignStart > DateTimeOffset.UtcNow) {
@@ -54,9 +54,9 @@ internal class QueueTriggers
     ) {
         LogExecution(functionContext, EventNames.ResolveMessage);
         var originalMessage = await CompressionUtils.Decompress(message);
-        var envelope = JsonSerializer.Deserialize<Envelope<ResolveMessageEvent>>(originalMessage, JsonSerializerOptions);
+        var envelope = JsonSerializer.Deserialize<Envelope<ResolveMessageEvent>>(originalMessage, JsonSerializerOptions)!;
         var payload = envelope.Payload;
-        await CampaignJobHandlerFactory.CreateFor<ResolveMessageEvent>().Process(payload);
+        await CampaignJobHandlerFactory.CreateFor<ResolveMessageEvent>().Process(payload!);
     }
 
     [Function(EventNames.SendPushNotification)]
@@ -66,9 +66,9 @@ internal class QueueTriggers
     ) {
         LogExecution(functionContext, EventNames.SendPushNotification);
         var originalMessage = await CompressionUtils.Decompress(message);
-        var envelope = JsonSerializer.Deserialize<Envelope<SendPushNotificationEvent>>(originalMessage, JsonSerializerOptions);
+        var envelope = JsonSerializer.Deserialize<Envelope<SendPushNotificationEvent>>(originalMessage, JsonSerializerOptions)!;
         var payload = envelope.Payload;
-        await CampaignJobHandlerFactory.CreateFor<SendPushNotificationEvent>().Process(payload);
+        await CampaignJobHandlerFactory.CreateFor<SendPushNotificationEvent>().Process(payload!);
     }
 
     [Function(EventNames.SendEmail)]
@@ -78,9 +78,9 @@ internal class QueueTriggers
     ) {
         LogExecution(functionContext, EventNames.SendEmail);
         var originalMessage = await CompressionUtils.Decompress(message);
-        var envelope = JsonSerializer.Deserialize<Envelope<SendEmailEvent>>(originalMessage, JsonSerializerOptions);
+        var envelope = JsonSerializer.Deserialize<Envelope<SendEmailEvent>>(originalMessage, JsonSerializerOptions)!;
         var payload = envelope.Payload;
-        await CampaignJobHandlerFactory.CreateFor<SendEmailEvent>().Process(payload);
+        await CampaignJobHandlerFactory.CreateFor<SendEmailEvent>().Process(payload!);
     }
 
     [Function(EventNames.SendSms)]
@@ -90,9 +90,9 @@ internal class QueueTriggers
     ) {
         LogExecution(functionContext, EventNames.SendSms);
         var originalMessage = await CompressionUtils.Decompress(message);
-        var envelope = JsonSerializer.Deserialize<Envelope<SendSmsEvent>>(originalMessage, JsonSerializerOptions);
+        var envelope = JsonSerializer.Deserialize<Envelope<SendSmsEvent>>(originalMessage, JsonSerializerOptions)!;
         var payload = envelope.Payload;
-        await CampaignJobHandlerFactory.CreateFor<SendSmsEvent>().Process(payload);
+        await CampaignJobHandlerFactory.CreateFor<SendSmsEvent>().Process(payload!);
     }
 
     private static void LogExecution(FunctionContext functionContext, string eventName) {

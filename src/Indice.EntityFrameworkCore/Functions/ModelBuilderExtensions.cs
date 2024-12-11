@@ -29,7 +29,7 @@ public static class ModelBuilderExtensions
         if (modelBuilder is null) {
             throw new ArgumentNullException(nameof(modelBuilder));
         }
-        var functionBuilder = modelBuilder.HasDbFunction(typeof(JsonFunctions).GetMethod(nameof(JsonFunctions.JsonValue)))
+        var functionBuilder = modelBuilder.HasDbFunction(typeof(JsonFunctions).GetMethod(nameof(JsonFunctions.JsonValue))!)
                     .HasTranslation(args => {
                         return new SqlFunctionExpression("JSON_VALUE", args, nullable: true, argumentsPropagateNullability: args.Select(x => true), typeof(string), null);
                     })
@@ -45,7 +45,7 @@ public static class ModelBuilderExtensions
         if (modelBuilder is null) {
             throw new ArgumentNullException(nameof(modelBuilder));
         }
-        return modelBuilder.HasDbFunction(typeof(JsonFunctions).GetMethod(nameof(JsonFunctions.CastToDate)))
+        return modelBuilder.HasDbFunction(typeof(JsonFunctions).GetMethod(nameof(JsonFunctions.CastToDate))!)
                     .HasTranslation(args => {
                         var datetime2 = new SqlFragmentExpression("datetime2");
                         var convertArgs = new SqlExpression[] { datetime2 }.Concat(args);
@@ -61,7 +61,7 @@ public static class ModelBuilderExtensions
         if (modelBuilder is null) {
             throw new ArgumentNullException(nameof(modelBuilder));
         }
-        return modelBuilder.HasDbFunction(typeof(JsonFunctions).GetMethod(nameof(JsonFunctions.CastToDouble)))
+        return modelBuilder.HasDbFunction(typeof(JsonFunctions).GetMethod(nameof(JsonFunctions.CastToDouble))!)
                     .HasTranslation(args => {
                         var float32 = new SqlFragmentExpression("float");
                         var convertArgs = new SqlExpression[] { float32 }.Concat(args);

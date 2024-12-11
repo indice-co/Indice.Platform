@@ -33,7 +33,7 @@ internal class MyMessagesController(
     public ICampaignService CampaignService { get; } = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
     public IMessageTypeService MessageTypeService { get; } = messageTypeService ?? throw new ArgumentNullException(nameof(messageTypeService));
     public MessageInboxOptions CampaignInboxOptions { get; } = campaignEndpointOptions?.Value ?? throw new ArgumentNullException(nameof(campaignEndpointOptions));
-    public string UserCode => User.FindFirstValue(CampaignInboxOptions.UserClaimType);
+    public string? UserCode => User.FindFirstValue(CampaignInboxOptions.UserClaimType);
 
     /// <summary>Gets the list of all user messages using the provided <see cref="ListOptions"/>.</summary>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>

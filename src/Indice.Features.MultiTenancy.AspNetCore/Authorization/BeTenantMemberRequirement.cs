@@ -57,14 +57,14 @@ public class BeTenantMemberHandler<TTenant> : AuthorizationHandler<BeTenantMembe
         if (userIsAnonymous) {
             return;
         }
-        var userId = context.User.FindFirstValue(JwtClaimTypesInternal.Subject) ?? (requirement.EnableApplicationMembership ? context.User.FindFirstValue(JwtClaimTypesInternal.ClientId) : null);
+        var userId = context.User!.FindFirstValue(JwtClaimTypesInternal.Subject) ?? (requirement.EnableApplicationMembership ? context.User!.FindFirstValue(JwtClaimTypesInternal.ClientId) : null);
         if (_tenantAccessor.Tenant is null) {
             // If you cannot determine if requirement succeeded or not, please do nothing.
             return;
         }
         // Get user id/application id from the corresponding claims.
         var memberId = userId;
-        var isMember = context.User.IsSystemClient() || await CheckMembershipAsync(memberId, _tenantAccessor.Tenant.Id, requirement.Level);
+        var isMember = context.User!.IsSystemClient() || await CheckMembershipAsync(memberId!, _tenantAccessor.Tenant.Id, requirement.Level);
         // Apparently nothing else worked.
         if (!isMember) {
             _logger.LogInformation("Member {memberId} does not have role {level}.", memberId, requirement.Level);

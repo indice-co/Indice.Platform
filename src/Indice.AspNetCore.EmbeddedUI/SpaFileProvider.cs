@@ -58,7 +58,7 @@ internal class SpaIndexFileInfo : IFileInfo
     }
 
     /// <inheritdoc />
-    public string PhysicalPath => null;
+    public string? PhysicalPath => null;
     /// <inheritdoc />
     public string Name => _fileInfo.Name;
     /// <inheritdoc />
@@ -80,14 +80,14 @@ internal class SpaIndexFileInfo : IFileInfo
     }
 
     /// <summary>Creates a <see cref="Dictionary{TKey, TValue}"/> that is used to replace options in the index.html file.</summary>
-    private IDictionary<string, string> GetIndexArguments() {
-        var arguments = new Dictionary<string, string>() {
-            ["%(Authority)"] = _options.Authority.TrimEnd('/'),
+    private IDictionary<string, string?> GetIndexArguments() {
+        var arguments = new Dictionary<string, string?>() {
+            ["%(Authority)"] = _options.Authority!.TrimEnd('/'),
             ["%(ClientId)"] = _options.ClientId,
             ["%(DocumentTitle)"] = _options.DocumentTitle,
-            ["%(Host)"] = _options.Host.TrimEnd('/'),
+            ["%(Host)"] = _options.Host!.TrimEnd('/'),
             ["%(ApiBase)"] = _options.ApiBase.TrimEnd('/'),
-            ["%(Path)"] = _options.Path.TrimEnd('/'),
+            ["%(Path)"] = _options.Path!.TrimEnd('/'),
             ["%(HeadContent)"] = _options.HeadContent,
             ["%(Culture)"] = CultureInfo.CurrentCulture.TwoLetterISOLanguageName,
             ["%(ProductVersion)"] = _options.Version,

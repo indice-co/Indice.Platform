@@ -38,10 +38,10 @@ public class EmailServiceSendGrid : IEmailService
     public IHtmlRenderingEngine HtmlRenderingEngine { get; }
 
     /// <inheritdoc/>
-    public async Task<SendReceipt> SendAsync(string[] recipients, string subject, string body, EmailAttachment[] attachments = null, EmailSender from = null) {
+    public async Task<SendReceipt> SendAsync(string[] recipients, string subject, string? body, EmailAttachment[]? attachments = null, EmailSender? from = null) {
         var bccRecipients = string.IsNullOrEmpty(Settings.BccRecipients)
             ? null
-            : (Settings.BccRecipients ?? "").Split(';', ',', StringSplitOptions.RemoveEmptyEntries).Select(x => new SendGridEmailAddress { Email = x });
+            : (Settings.BccRecipients ?? "").Split(';', ',', StringSplitOptions.RemoveEmptyEntries).Select(x => new SendGridEmailAddress { Email = x }).ToList();
         var request = new SendGridRequest {
             From = new SendGridEmailAddress {
                 Email = from?.Address ?? Settings.Sender,
@@ -94,13 +94,13 @@ public class EmailServiceSendGridSettings
     /// <summary>The configuration section name.</summary>
     public const string Name = "SendGrid";
     /// <summary>The default sender address (ex. no-reply@indice.gr).</summary>
-    public string Sender { get; set; }
+    public string? Sender { get; set; }
     /// <summary>The default sender name (ex. INDICE OE)</summary>
-    public string SenderName { get; set; }
+    public string? SenderName { get; set; }
     /// <summary>Optional email addresses that are always added as blind carbon copy recipients.</summary>
-    public string BccRecipients { get; set; } = null;
+    public string? BccRecipients { get; set; }
     /// <summary>The SendGrid API key.</summary>
-    public string ApiKey { get; set; }
+    public string? ApiKey { get; set; }
     /// <summary>The SendGrid API URL (ex. https://api.sendgrid.com/v3/).</summary>
     public string Api { get; set; } = "https://api.sendgrid.com/v3/";
 }
@@ -122,40 +122,40 @@ public class SendGridException : Exception
 
 internal class SendGridRequest
 {
-    public SendGridEmailAddress From { get; set; }
-    public string Subject { get; set; }
+    public SendGridEmailAddress? From { get; set; }
+    public string? Subject { get; set; }
     [JsonPropertyName("template_id")]
-    public string TemplateId { get; set; }
-    public List<Personalizations> Personalizations { get; set; }
-    public List<SendGridAttachment> Attachments { get; set; }
-    public List<SendGridContent> Content { get; set; }
+    public string? TemplateId { get; set; }
+    public List<Personalizations>? Personalizations { get; set; }
+    public List<SendGridAttachment>? Attachments { get; set; }
+    public List<SendGridContent>? Content { get; set; }
 }
 
 internal class SendGridEmailAddress
 {
-    public string Email { get; set; }
-    public string Name { get; set; }
+    public string? Email { get; set; }
+    public string? Name { get; set; }
 }
 
 internal class SendGridAttachment
 {
     /// <summary>The Base64 encoded content of the attachment.</summary>
-    public string Content { get; set; }
+    public string? Content { get; set; }
     /// <summary>The attachment's filename.</summary>
-    public string Filename { get; set; }
+    public string? Filename { get; set; }
     /// <summary>The MIME type of the content you are attaching.</summary>
-    public string Type { get; set; }
+    public string? Type { get; set; }
     /// <summary>Allowed Values: inline, attachment</summary>
     public string Disposition { get; set; } = "attachment";
 }
 
 internal class Personalizations
 {
-    public IEnumerable<SendGridEmailAddress> To { get; set; }
-    public IEnumerable<SendGridEmailAddress> Cc { get; set; }
-    public IEnumerable<SendGridEmailAddress> Bcc { get; set; }
+    public IEnumerable<SendGridEmailAddress>? To { get; set; }
+    public IEnumerable<SendGridEmailAddress>? Cc { get; set; }
+    public IEnumerable<SendGridEmailAddress>? Bcc { get; set; }
     [JsonPropertyName("dynamic_template_data")]
-    public object TemplateData { get; set; }
+    public object? TemplateData { get; set; }
 }
 
 internal class SendGridContent
@@ -163,7 +163,7 @@ internal class SendGridContent
     /// <summary>The mime type of the content you are including in your email. For example, text/plain or text/html.</summary>
     public string Type { get; set; } = "text/html";
     /// <summary>The actual content of the specified mime type that you are including in your email.</summary>
-    public string Value { get; set; }
+    public string? Value { get; set; }
 }
 
 #endregion

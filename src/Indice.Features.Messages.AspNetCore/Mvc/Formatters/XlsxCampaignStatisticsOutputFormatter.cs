@@ -19,10 +19,10 @@ internal class XlsxCampaignStatisticsOutputFormatter : OutputFormatter
         SupportedMediaTypes.Add(new MediaTypeHeaderValue(FileExtensions.GetMimeType("xlsx")));
     }
 
-    protected override bool CanWriteType(Type type) => typeof(CampaignStatistics).IsAssignableFrom(type) && base.CanWriteType(type);
+    protected override bool CanWriteType(Type? type) => typeof(CampaignStatistics).IsAssignableFrom(type) && base.CanWriteType(type);
 
     public override void WriteResponseHeaders(OutputFormatterWriteContext context) {
-        var data = (CampaignStatistics)context.Object;
+        var data = (CampaignStatistics)context.Object!;
         var response = context.HttpContext.Response;
         response.ContentType = FileExtensions.GetMimeType("xlsx");
         var contentDisposition = new ContentDispositionHeaderValue("attachment");
@@ -32,7 +32,7 @@ internal class XlsxCampaignStatisticsOutputFormatter : OutputFormatter
     }
 
     public async override Task WriteResponseBodyAsync(OutputFormatterWriteContext context) {
-        var data = (CampaignStatistics)context.Object;
+        var data = (CampaignStatistics)context.Object!;
         var httpContext = context.HttpContext;
         var user = httpContext.User;
         using (var xlPackage = new ExcelPackage()) {
@@ -77,7 +77,7 @@ internal class XlsxCampaignStatisticsOutputFormatter : OutputFormatter
             // Protect worksheet.
             worksheet.Protection.SetPassword($"{Guid.NewGuid()}");
             // Write excel data to output stream.
-            var httpBodyControl = httpContext.Features.Get<IHttpBodyControlFeature>();
+            var httpBodyControl = httpContext.Features.Get<IHttpBodyControlFeature>()!;
             httpBodyControl.AllowSynchronousIO = true;
             xlPackage.SaveAs(context.HttpContext.Response.Body);
             await Task.CompletedTask;

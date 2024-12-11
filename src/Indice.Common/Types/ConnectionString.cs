@@ -12,11 +12,10 @@ public class ConnectionString
     /// <summary>Creates a new instance of the <see cref="ConnectionString"/> class.</summary>
     /// <param name="connectionString">The connection string.</param>
     /// <param name="delimiter">The character used to separate connection string properties.</param>
-    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="ArgumentNullException">When <paramref name="connectionString"/> is null</exception>
+    /// <exception cref="ArgumentException">When <paramref name="connectionString"/> is empty</exception>
     public ConnectionString(string connectionString, char delimiter) {
-        if (string.IsNullOrWhiteSpace(connectionString)) {
-            throw new ArgumentNullException(nameof(connectionString), "Connection string cannot be null, empty or white space.");
-        }
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
         _properties = connectionString
             .Split(delimiter)
             .Select(pair => pair.Split('='))

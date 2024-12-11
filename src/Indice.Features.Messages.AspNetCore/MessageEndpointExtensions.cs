@@ -1,7 +1,4 @@
-﻿#nullable enable
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Routing;
 
 namespace Microsoft.AspNetCore.Builder;
 /// <summary>Configuration extensions on <seealso cref="IEndpointRouteBuilder "/>.</summary>
@@ -45,4 +42,3 @@ public static class MessageEndpointExtensions
         return routes;
     }
 }
-#nullable disable

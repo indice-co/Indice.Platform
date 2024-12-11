@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
@@ -148,5 +146,3 @@ internal class ApifonIMRequest : ApifonRequest {
         public int SecondsUntilSmsFailover { get; set; } = 30;
     }
 }
-
-#nullable disable

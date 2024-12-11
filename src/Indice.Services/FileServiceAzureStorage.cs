@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-using System.IO;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
@@ -13,16 +11,16 @@ public class FileServiceAzureStorage : IFileService
 {
     /// <summary>The connection string parameter name. The setting key that will be searched inside the configuration.</summary>
     public const string CONNECTION_STRING_NAME = "StorageConnection";
-    private readonly string _containerName;
+    private readonly string? _containerName;
     private readonly string _connectionString;
 
     /// <summary>Constructs the service.</summary>
     /// <param name="connectionString">The connection string to the Azure Storage account.</param>
     /// <param name="containerName">Usually The environment name (ex. Development, Production).</param>
-    public FileServiceAzureStorage(string connectionString, string containerName) {
-        if (string.IsNullOrEmpty(connectionString)) {
-            throw new ArgumentNullException(nameof(connectionString));
-        }
+    /// <exception cref="ArgumentNullException">Then <paramref name="connectionString"/> is null</exception>
+    /// <exception cref="ArgumentException">Then <paramref name="connectionString"/> is empty</exception>
+    public FileServiceAzureStorage(string connectionString, string? containerName) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
         if (!string.IsNullOrEmpty(containerName)) {
             _containerName = Regex.Replace(containerName, @"\s+", "-").ToLowerInvariant();
         } else {
@@ -32,11 +30,11 @@ public class FileServiceAzureStorage : IFileService
     }
 
     /// <inheritdoc />
-    public async Task SaveAsync(string filePath, Stream stream, FileServiceSaveOptions saveOptions) {
+    public async Task SaveAsync(string filePath, Stream stream, FileServiceSaveOptions? saveOptions) {
         saveOptions ??= new FileServiceSaveOptions();
         filePath = filePath.TrimStart('\\', '/');
         var folder = _containerName ?? Path.GetDirectoryName(filePath);
-        var filename = _containerName == null ? filePath[folder.Length..] : filePath;
+        var filename = _containerName == null ? filePath[folder!.Length..] : filePath;
         var container = new BlobContainerClient(_connectionString, folder);
         await container.CreateIfNotExistsAsync();
         var blobClient = container.GetBlobClient(filename);
@@ -62,7 +60,7 @@ public class FileServiceAzureStorage : IFileService
     public async Task<byte[]> GetAsync(string filePath) {
         filePath = filePath.TrimStart('\\', '/');
         var folder = _containerName ?? Path.GetDirectoryName(filePath);
-        var filename = _containerName == null ? filePath.Substring(folder.Length) : filePath;
+        var filename = _containerName == null ? filePath.Substring(folder!.Length) : filePath;
         var container = new BlobContainerClient(_connectionString, folder);
         await container.CreateIfNotExistsAsync();
         var exists = await container.ExistsAsync();
@@ -90,7 +88,7 @@ public class FileServiceAzureStorage : IFileService
     public async Task<IEnumerable<string>> SearchAsync(string filePath) {
         filePath = filePath.TrimStart('\\', '/');
         var folder = _containerName ?? Path.GetDirectoryName(filePath);
-        var filename = _containerName == null ? filePath.Substring(folder.Length) : filePath;
+        var filename = _containerName == null ? filePath.Substring(folder!.Length) : filePath;
         var container = new BlobContainerClient(_connectionString, folder);
         var exists = await container.ExistsAsync();
         if (!exists) {
@@ -125,7 +123,7 @@ public class FileServiceAzureStorage : IFileService
         sourcePath = sourcePath.TrimStart('\\', '/');
         destinationPath = destinationPath.TrimStart('\\', '/');
         var sourceFolder = _containerName ?? Path.GetDirectoryName(sourcePath);
-        var sourceFilename = _containerName == null ? sourcePath.Substring(sourceFolder.Length) : sourcePath;
+        var sourceFilename = _containerName == null ? sourcePath.Substring(sourceFolder!.Length) : sourcePath;
         var sourceContainer = new BlobContainerClient(_connectionString, sourceFolder);
 
         var exists = await sourceContainer.ExistsAsync();
@@ -133,8 +131,8 @@ public class FileServiceAzureStorage : IFileService
             throw new FileNotFoundServiceException($"Container {sourceFolder} not found.");
         }
         var targetFolder = _containerName ?? Path.GetDirectoryName(destinationPath);
-        var targertFilename = _containerName == null ? destinationPath.Substring(targetFolder.Length) : destinationPath;
-        bool moveUnderTheSameContainer = sourceFolder.Equals(targetFolder, StringComparison.InvariantCultureIgnoreCase);
+        var targertFilename = _containerName == null ? destinationPath.Substring(targetFolder!.Length) : destinationPath;
+        bool moveUnderTheSameContainer = sourceFolder!.Equals(targetFolder, StringComparison.InvariantCultureIgnoreCase);
         bool isDirectory = sourcePath.EndsWith('/');
         var targetContainer = moveUnderTheSameContainer ? sourceContainer : new BlobContainerClient(_connectionString, targetFolder);
         if (!moveUnderTheSameContainer) {
@@ -165,10 +163,10 @@ public class FileServiceAzureStorage : IFileService
     // Instead of streaming the blob through your server, you could download it directly from the blob storage. http://stackoverflow.com/questions/24312527/azure-blob-storage-downloadtobytearray-vs-downloadtostream
     /// <summary>Get the file's properties (metadata).</summary>
     /// <param name="filePath">The path to the file.</param>
-    public async Task<FileProperties> GetPropertiesAsync(string filePath) {
+    public async Task<FileProperties?> GetPropertiesAsync(string filePath) {
         filePath = filePath.TrimStart('\\', '/');
         var folder = _containerName ?? Path.GetDirectoryName(filePath);
-        var filename = _containerName == null ? filePath.Substring(folder.Length) : filePath;
+        var filename = _containerName == null ? filePath.Substring(folder!.Length) : filePath;
         var container = new BlobContainerClient(_connectionString, folder);
         var exists = await container.ExistsAsync();
         if (!exists) {
@@ -198,7 +196,7 @@ public class FileServiceAzureStorage : IFileService
     public async Task<bool> DeleteAsync(string filePath, bool isDirectory = false) {
         filePath = filePath.TrimStart('\\', '/');
         var folder = _containerName ?? Path.GetDirectoryName(filePath);
-        var filename = _containerName == null ? filePath.Substring(folder.Length) : filePath;
+        var filename = _containerName == null ? filePath.Substring(folder!.Length) : filePath;
         var container = new BlobContainerClient(_connectionString, folder);
         var exists = await container.ExistsAsync();
         if (!exists) {
@@ -223,7 +221,7 @@ public class FileServiceAzureStorage : IFileService
 public class FileServiceAzureOptions
 {
     /// <summary>The connection string setting name pointing to the to the Azure Storage account.</summary>
-    public string ConnectionStringName { get; set; }
+    public string? ConnectionStringName { get; set; }
     /// <summary>Usually the environment name (ex. Development, Production).</summary>
-    public string ContainerName { get; set; }
+    public string? ContainerName { get; set; }
 }

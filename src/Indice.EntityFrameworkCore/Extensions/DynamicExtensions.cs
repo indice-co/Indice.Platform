@@ -23,7 +23,7 @@ public static class DynamicExtensions
     /// <typeparam name="TSource"></typeparam>
     /// <param name="filter"></param>
     /// <returns></returns>
-    public static Expression<Func<TSource, bool>> GetFullPredicateExpressionTree<TSource>(FilterClause filter) {
+    public static Expression<Func<TSource, bool>>? GetFullPredicateExpressionTree<TSource>(FilterClause filter) {
         var path = "$" + filter.Member[filter.Member.IndexOf('.')..];
         var member = filter.Member[..filter.Member.IndexOf('.')];
         var predicateExpression = GetPredicateExpression(filter);
@@ -31,9 +31,9 @@ public static class DynamicExtensions
         var jsonValueExpression = GetJsonValueExpression(path);
         var memberExpression = GetMemberExpression<TSource>(member);
         if (castExpression is null)
-            return (Expression<Func<TSource, bool>>)ParameterToMemberExpressionRebinder.CombineAll(memberExpression, jsonValueExpression, predicateExpression);
+            return (Expression<Func<TSource, bool>>?)ParameterToMemberExpressionRebinder.CombineAll(memberExpression, jsonValueExpression, predicateExpression);
         else
-            return (Expression<Func<TSource, bool>>)ParameterToMemberExpressionRebinder.CombineAll(memberExpression, jsonValueExpression, castExpression, predicateExpression);
+            return (Expression<Func<TSource, bool>>?)ParameterToMemberExpressionRebinder.CombineAll(memberExpression, jsonValueExpression, castExpression, predicateExpression);
     }
 
     /// <summary>
@@ -47,7 +47,7 @@ public static class DynamicExtensions
     /// </summary>
     /// <typeparam name="TSource"></typeparam>
     /// <returns></returns>
-    public static LambdaExpression GetFullMemberExpressionTree<TSource>(string memberPath, JsonDataType? dataType) {
+    public static LambdaExpression? GetFullMemberExpressionTree<TSource>(string memberPath, JsonDataType? dataType) {
         if (memberPath is null) {
             throw new ArgumentNullException(nameof(memberPath));
         }
@@ -74,7 +74,7 @@ public static class DynamicExtensions
     /// <typeparam name="TSource"></typeparam>
     /// <typeparam name="TMember"></typeparam>
     /// <returns></returns>
-    public static Expression<Func<TSource, TMember>> GetFullMemberExpressionTree<TSource, TMember>(string memberPath, JsonDataType? dataType) {
+    public static Expression<Func<TSource, TMember>>? GetFullMemberExpressionTree<TSource, TMember>(string memberPath, JsonDataType? dataType) {
         if (memberPath is null) {
             throw new ArgumentNullException(nameof(memberPath));
         }
@@ -84,9 +84,9 @@ public static class DynamicExtensions
         var jsonValueExpression = GetJsonValueExpression(path);
         var memberExpression = GetMemberExpression<TSource>(member);
         if (castExpression is null)
-            return (Expression<Func<TSource, TMember>>)ParameterToMemberExpressionRebinder.CombineAll(memberExpression, jsonValueExpression);
+            return (Expression<Func<TSource, TMember>>?)ParameterToMemberExpressionRebinder.CombineAll(memberExpression, jsonValueExpression);
         else
-            return (Expression<Func<TSource, TMember>>)ParameterToMemberExpressionRebinder.CombineAll(memberExpression, jsonValueExpression, castExpression);
+            return (Expression<Func<TSource, TMember>>?)ParameterToMemberExpressionRebinder.CombineAll(memberExpression, jsonValueExpression, castExpression);
     }
 
     /// <summary>x => x == value</summary>
@@ -179,23 +179,23 @@ public static class DynamicExtensions
                     case JsonDataType.Integer:
                         var integers = values.Select(x => int.TryParse(x, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value) ? value : (int?)null)
                             .Where(x => x.HasValue)
-                            .Select(x => x.Value)
+                            .Select(x => x!.Value)
                             .ToList();
                         predicate = (Expression<Func<int, bool>>)(x => integers.Contains(x));
                         break;
                     case JsonDataType.Number:
                         var doubles = values.Select(x => double.TryParse(x, NumberStyles.Number, CultureInfo.InvariantCulture, out var value) ? value : (double?)null)
                             .Where(x => x.HasValue)
-                            .Select(x => x.Value)
+                            .Select(x => x!.Value)
                             .ToList();
                         predicate = (Expression<Func<double, bool>>)(x => doubles.Contains(x));
                         break;
                     case JsonDataType.DateTime:
                         var dates = values.Select(x => DateTime.TryParse(x, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var value) ? value : (DateTime?)null)
                             .Where(x => x.HasValue)
-                            .Select(x => x.Value)
+                            .Select(x => x!.Value)
                             .ToList();
-                        predicate = (Expression<Func<DateTime?, bool>>)(x => dates.Contains(x.Value));
+                        predicate = (Expression<Func<DateTime?, bool>>)(x => dates.Contains(x!.Value));
                         break;
                     case JsonDataType.String:
                     default:
@@ -212,21 +212,21 @@ public static class DynamicExtensions
     /// <summary>x => Convert.ToInt32(x)</summary>
     /// <param name="dataType"></param>
     /// <returns></returns>
-    public static LambdaExpression GetCastExpression(JsonDataType dataType) {
+    public static LambdaExpression? GetCastExpression(JsonDataType dataType) {
         var argument = Expression.Parameter(typeof(string), "x");
         MethodInfo castMethod;
         switch (dataType) {
             case JsonDataType.Integer:
-                castMethod = typeof(Convert).GetMethod(nameof(Convert.ToInt32), new[] { typeof(string) });
+                castMethod = typeof(Convert).GetMethod(nameof(Convert.ToInt32), [typeof(string)])!;
                 break;
             case JsonDataType.Number:
-                castMethod = typeof(Convert).GetMethod(nameof(Convert.ToDouble), new[] { typeof(string) });
+                castMethod = typeof(Convert).GetMethod(nameof(Convert.ToDouble), [typeof(string)])!;
                 break;
             case JsonDataType.Boolean:
-                castMethod = typeof(Convert).GetMethod(nameof(Convert.ToBoolean), new[] { typeof(string) });
+                castMethod = typeof(Convert).GetMethod(nameof(Convert.ToBoolean), [typeof(string)])!;
                 break;
             case JsonDataType.DateTime:
-                castMethod = typeof(JsonFunctions).GetMethod(nameof(JsonFunctions.CastToDate), BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
+                castMethod = typeof(JsonFunctions).GetMethod(nameof(JsonFunctions.CastToDate), BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)!;
                 break;
             case JsonDataType.String:
             default:
@@ -242,7 +242,7 @@ public static class DynamicExtensions
     public static LambdaExpression GetJsonValueExpression(string memberPath) {
         var path = "$" + memberPath[memberPath.IndexOf('.')..];
         var argument = Expression.Parameter(typeof(object), "x");
-        MethodInfo jsonValueMethod = typeof(JsonFunctions).GetMethod(nameof(JsonFunctions.JsonValue), BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
+        MethodInfo jsonValueMethod = typeof(JsonFunctions).GetMethod(nameof(JsonFunctions.JsonValue), BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)!;
         var body = Expression.Call(jsonValueMethod, argument, Expression.Constant(path));
         var delegateType = typeof(Func<,>).MakeGenericType(typeof(object), typeof(string));
         return Expression.Lambda(delegateType, body, argument);
@@ -259,7 +259,7 @@ public static class DynamicExtensions
         Expression expression = argument;
         foreach (var prop in properties) {
             // Use reflection (not ComponentModel) to mirror LINQ.
-            var propertyInfo = type.GetProperty(prop, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            var propertyInfo = type.GetProperty(prop, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance)!;
             expression = Expression.Property(expression, propertyInfo);
             type = propertyInfo.PropertyType;
         }
@@ -277,11 +277,11 @@ public static class DynamicExtensions
             _memberOrMethodCallExpr = memberOrMethodCallExpr;
         }
 
-        public override Expression Visit(Expression p) {
+        public override Expression? Visit(Expression? p) {
             return base.Visit(p == _paramExpr ? _memberOrMethodCallExpr : p);
         }
 
-        public static Expression<Func<TSource, bool>> CombineMemberSelectorWithPredicate<TSource, TMember>(
+        public static Expression<Func<TSource, bool>>? CombineMemberSelectorWithPredicate<TSource, TMember>(
             LambdaExpression propertySelector,
             Expression<Func<TMember, bool>> propertyPredicate) {
             if (propertySelector.Body is not MemberExpression memberExpression) {
@@ -289,10 +289,10 @@ public static class DynamicExtensions
             }
             var expr = Expression.Lambda<Func<TSource, bool>>(propertyPredicate.Body, propertySelector.Parameters);
             var rebinder = new ParameterToMemberExpressionRebinder(propertyPredicate.Parameters[0], memberExpression);
-            return (Expression<Func<TSource, bool>>)rebinder.Visit(expr);
+            return (Expression<Func<TSource, bool>>?)rebinder.Visit(expr);
         }
 
-        public static LambdaExpression Combine(
+        public static LambdaExpression? Combine(
             LambdaExpression innerExpression,
             LambdaExpression outerExpression) {
             //Func<TSource, TOut>
@@ -301,10 +301,10 @@ public static class DynamicExtensions
             var expr = Expression.Lambda(outerExpression.Body, innerExpression.Parameters);
             if (innerExpression.Body is MemberExpression memberExpression) {
                 var rebinder = new ParameterToMemberExpressionRebinder(outerExpression.Parameters[0], memberExpression);
-                return (LambdaExpression)rebinder.Visit(expr);
+                return (LambdaExpression?)rebinder.Visit(expr);
             } else if (innerExpression.Body is MethodCallExpression methodCallExpression) {
                 var rebinder = new ParameterToMemberExpressionRebinder(outerExpression.Parameters[0], methodCallExpression);
-                return (LambdaExpression)rebinder.Visit(expr);
+                return (LambdaExpression?)rebinder.Visit(expr);
             } else {
                 throw new ArgumentException("innerExpression");
             }
@@ -312,10 +312,10 @@ public static class DynamicExtensions
 
         }
 
-        public static LambdaExpression CombineAll(params LambdaExpression[] expressionChain) {
-            LambdaExpression result = expressionChain[0];
+        public static LambdaExpression? CombineAll(params LambdaExpression[] expressionChain) {
+            LambdaExpression? result = expressionChain[0];
             foreach (var item in expressionChain.Skip(1)) {
-                result = Combine(result, item);
+                result = Combine(result!, item);
             }
             return result;
         }
