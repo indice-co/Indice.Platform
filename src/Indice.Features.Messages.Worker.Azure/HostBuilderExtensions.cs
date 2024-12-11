@@ -140,7 +140,7 @@ public static class HostBuilderExtensions
         options.Services.AddEmailServiceSmtp(configuration);
         options.Services.AddSingleton((sp) => {
             var smptSettings = sp.GetRequiredService<IOptions<EmailServiceSettings>>().Value;
-            return new Func<EmailProviderInfo>(() => new EmailProviderInfo(smptSettings.Sender, smptSettings.SenderName));
+            return new Func<EmailProviderInfo>(() => new EmailProviderInfo(smptSettings.Sender!, smptSettings.SenderName!));
         });
         return options;
     }
@@ -152,7 +152,7 @@ public static class HostBuilderExtensions
         options.Services.AddEmailServiceSparkPost(configuration);
         options.Services.AddSingleton((sp) => {
             var sparkpostSettings = sp.GetRequiredService<IOptions<EmailServiceSparkPostSettings>>().Value;
-            return new Func<EmailProviderInfo>(() => new EmailProviderInfo(sparkpostSettings.Sender, sparkpostSettings.SenderName));
+            return new Func<EmailProviderInfo>(() => new EmailProviderInfo(sparkpostSettings.Sender!, sparkpostSettings.SenderName!));
         });
         return options;
     }

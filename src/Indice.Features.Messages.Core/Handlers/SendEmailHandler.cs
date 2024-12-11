@@ -1,5 +1,4 @@
 ﻿using Indice.Features.Messages.Core.Events;
-using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Services;
@@ -38,13 +37,13 @@ public class SendEmailHandler : ICampaignJobHandler<SendEmailEvent>
         }
         await EmailService.SendAsync(builder => {
             if (sender is not null && !sender.IsEmpty) {
-                builder.From(sender.Sender, sender.DisplayName);
+                builder.From(sender.Sender!, sender.DisplayName);
             }
-            builder.To(@event.RecipientEmail)
-                   .WithSubject(@event.Title)
-                   .WithBody(@event.Body);
+            builder.To(@event.RecipientEmail!)
+                   .WithSubject(@event.Title!)
+                   .WithBody(@event.Body!);
             if (attachment is not null) {
-                builder.WithAttachments(new EmailAttachment(attachment.Name, attachment.Data));
+                builder.WithAttachments(new EmailAttachment(attachment.Name!, attachment.Data!));
             }
         });
     }

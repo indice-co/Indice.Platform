@@ -50,7 +50,7 @@ public class ContactResolverIdentity : IContactResolver
         queryString.Add("expandClaims", BasicClaimTypes.ConsentCommercial);
         queryString.Add("expandClaims", BasicClaimTypes.Locale);
         queryString.Add("expandClaims", BasicClaimTypes.CommunicationPreferences);
-        
+
         if (Options.HasCustomRecipientId) {
             queryString.Add("expandClaims", Options.UserClaimType);
         }
@@ -58,7 +58,7 @@ public class ContactResolverIdentity : IContactResolver
         var response = await HttpClient.GetAsync($"/{uriBuilder}");
         response.EnsureSuccessStatusCode();
         var responseJson = await response.Content.ReadAsStringAsync();
-        var identityUserList = JsonSerializer.Deserialize<ResultSet<IdentityUserListItemResponse>>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var identityUserList = JsonSerializer.Deserialize<ResultSet<IdentityUserListItemResponse>>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings())!;
         return new ResultSet<Contact> {
             Count = identityUserList.Count,
             Items = identityUserList.Items.Select(identityUser => new Contact {
@@ -77,19 +77,19 @@ public class ContactResolverIdentity : IContactResolver
     }
 
     /// <inheritdoc />
-    public async Task<Contact> Resolve(string id) {
-        if (string.IsNullOrWhiteSpace(id)) {
+    public async Task<Contact?> Resolve(string? recipientId) {
+        if (string.IsNullOrWhiteSpace(recipientId)) {
             return default;
         }
         var accessToken = await GetAccessToken();
         HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-        var response = await HttpClient.GetAsync($"api/users/{id}");
+        var response = await HttpClient.GetAsync($"api/users/{recipientId}");
         if (response.StatusCode == HttpStatusCode.NotFound) {
             return default;
         }
         response.EnsureSuccessStatusCode();
         var responseJson = await response.Content.ReadAsStringAsync();
-        var identityUser = JsonSerializer.Deserialize<IdentityUserSingleResponse>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var identityUser = JsonSerializer.Deserialize<IdentityUserSingleResponse>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings())!;
         var contact = new Contact {
             RecipientId = identityUser.Id,
             Email = identityUser.Email,
@@ -106,26 +106,29 @@ public class ContactResolverIdentity : IContactResolver
         return contact;
     }
 
-    private static ContactCommunicationChannelKind GetCommunicationPreferences(IEnumerable<IdentityUserClaimResponse> claims) {
-
+    private static ContactCommunicationChannelKind GetCommunicationPreferences(IEnumerable<IdentityUserClaimResponse>? claims) {
+        if (claims == null)
+            return ContactCommunicationChannelKind.Any;
         var communicationPreferences = claims.FirstOrDefault(x => x.Type == BasicClaimTypes.CommunicationPreferences);
         if (communicationPreferences == null)
             return ContactCommunicationChannelKind.Any;
-        return Enum.Parse<ContactCommunicationChannelKind>(communicationPreferences.Value, ignoreCase: true);
+        return Enum.Parse<ContactCommunicationChannelKind>(communicationPreferences.Value!, ignoreCase: true);
     }
 
-    private static string GetLocale(IEnumerable<IdentityUserClaimResponse> claims) {
+    private static string? GetLocale(IEnumerable<IdentityUserClaimResponse>? claims) {
+        if (claims == null) return null;
         var userLocale = claims.FirstOrDefault(x => x.Type == BasicClaimTypes.Locale);
         if (userLocale == null)
             return null;
         return userLocale.Value;
     }
 
-    private static bool GetCommercialConsent(IEnumerable<IdentityUserClaimResponse> claims) {
+    private static bool GetCommercialConsent(IEnumerable<IdentityUserClaimResponse>? claims) {
+        if (claims == null) return false;
         var consent = claims.FirstOrDefault(x => x.Type == BasicClaimTypes.ConsentCommercial);
-        if (consent == null)
+        if (consent == null )
             return false;
-        return consent.Value.ToLower() == bool.TrueString.ToLower();
+        return consent.Value!.Equals(bool.TrueString, StringComparison.CurrentCultureIgnoreCase);
     }
 
     private async Task<string> GetAccessToken() {
@@ -135,46 +138,26 @@ public class ContactResolverIdentity : IContactResolver
         }
         var response = await HttpClient.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest {
             Address = $"{Options.BaseAddress}connect/token",
-            ClientId = Options.ClientId,
+            ClientId = Options.ClientId!,
             ClientSecret = Options.ClientSecret,
             Scope = "identity identity:users"
         });
         if (response.IsError) {
-            throw response.Exception;
+            throw response.Exception!;
         }
         accessToken = response.AccessToken;
-        await Cache.SetStringAsync(TOKEN_CACHE_KEY, accessToken, new DistributedCacheEntryOptions {
+        await Cache.SetStringAsync(TOKEN_CACHE_KEY, accessToken!, new DistributedCacheEntryOptions {
             AbsoluteExpiration = DateTimeOffset.UtcNow.AddSeconds(response.ExpiresIn - 60)
         });
-        return accessToken;
+        return accessToken!;
     }
 
-    private class IdentityUserSingleResponse
+    private sealed record IdentityUserSingleResponse(string Id, string? Email, string? PhoneNumber, IEnumerable<IdentityUserClaimResponse> Claims);
+
+    private sealed record IdentityUserListItemResponse(string Id, string? FirstName, string? LastName, string? Email, string? PhoneNumber)
     {
-        public string Id { get; set; }
-        public string Email { get; set; }
-        public string PhoneNumber { get; set; }
-        public IEnumerable<IdentityUserClaimResponse> Claims { get; set; } = new List<IdentityUserClaimResponse>();
-
-
+        public IEnumerable<IdentityUserClaimResponse> Claims { get; set; } = [];
     }
 
-    private class IdentityUserListItemResponse
-    {
-        public string Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Email { get; set; }
-        public string PhoneNumber { get; set; }
-        public IEnumerable<IdentityUserClaimResponse> Claims { get; set; } = new List<IdentityUserClaimResponse>();
-    }
-
-    private class IdentityUserClaimResponse
-    {
-        public int Id { get; set; }
-        public string Type { get; set; }
-        public string Value { get; set; }
-    }
-
-
+    private sealed record IdentityUserClaimResponse(int Id, string? Type, string? Value);
 }

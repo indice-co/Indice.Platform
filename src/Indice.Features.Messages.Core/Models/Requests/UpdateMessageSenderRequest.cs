@@ -3,9 +3,9 @@
 public class UpdateMessageSenderRequest
 {
     /// <summary>The sender of the Email.</summary>
-    public string Sender { get; set; }
+    public string Sender { get; set; } = null!; 
     /// <summary>The display name of the sender.</summary>
-    public string DisplayName { get; set; }
+    public string? DisplayName { get; set; }
     /// <summary>Indicates that this is the default sender.</summary>
     public bool IsDefault { get; set; }
 }

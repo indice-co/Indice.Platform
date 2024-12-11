@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Indice.Features.Messages.Core.Data.Mappings;
+﻿using Indice.Features.Messages.Core.Data.Mappings;
 using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Services;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +13,7 @@ public class CampaignsDbContext : DbContext
     /// <summary>Creates a new instance of <see cref="CampaignsDbContext"/>.</summary>
     /// <param name="options">The options to be used by <see cref="CampaignsDbContext"/>.</param>
     public CampaignsDbContext(DbContextOptions<CampaignsDbContext> options) : base(options) {
-        
+
     }
 
     /// <summary>Campaign attachments table.</summary>
@@ -39,22 +38,22 @@ public class CampaignsDbContext : DbContext
     public DbSet<DbDistributionListContact> ContactDistributionLists { get; set; }
 
     /// <inheritdoc />
-    protected override void OnModelCreating(ModelBuilder builder) {
+    protected override void OnModelCreating(ModelBuilder modelBuilder) {
         var schemaName = Database.GetService<DatabaseSchemaNameResolver>().GetSchemaName();
-        builder.ApplyConfiguration(new DbAttachmentMap(schemaName));
-        builder.ApplyConfiguration(new DbCampaignMap(schemaName));
-        builder.ApplyConfiguration(new DbDistributionListContactMap(schemaName));
-        builder.ApplyConfiguration(new DbContactMap(schemaName));
-        builder.ApplyConfiguration(new DbDistributionListMap(schemaName));
-        builder.ApplyConfiguration(new DbHitMap(schemaName));
-        builder.ApplyConfiguration(new DbMessageMap(schemaName));
-        builder.ApplyConfiguration(new DbMessageTypeMap(schemaName));
-        builder.ApplyConfiguration(new DbTemplateMap(schemaName));
-        builder.ApplyConfiguration(new DbMessageSenderMap(schemaName));
+        modelBuilder.ApplyConfiguration(new DbAttachmentMap(schemaName));
+        modelBuilder.ApplyConfiguration(new DbCampaignMap(schemaName));
+        modelBuilder.ApplyConfiguration(new DbDistributionListContactMap(schemaName));
+        modelBuilder.ApplyConfiguration(new DbContactMap(schemaName));
+        modelBuilder.ApplyConfiguration(new DbDistributionListMap(schemaName));
+        modelBuilder.ApplyConfiguration(new DbHitMap(schemaName));
+        modelBuilder.ApplyConfiguration(new DbMessageMap(schemaName));
+        modelBuilder.ApplyConfiguration(new DbMessageTypeMap(schemaName));
+        modelBuilder.ApplyConfiguration(new DbTemplateMap(schemaName));
+        modelBuilder.ApplyConfiguration(new DbMessageSenderMap(schemaName));
         if (Database.IsSqlServer()) {
-            builder.Entity<DbAttachment>().Property(x => x.Data).HasColumnType("image");
+            modelBuilder.Entity<DbAttachment>().Property(x => x.Data).HasColumnType("image");
         } else if (Database.IsNpgsql()) {
-            builder.Entity<DbAttachment>().Property(x => x.Data).HasColumnType("bytea");
+            modelBuilder.Entity<DbAttachment>().Property(x => x.Data).HasColumnType("bytea");
         }
     }
 

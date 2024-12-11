@@ -26,7 +26,7 @@ public class DbTemplateMap : IEntityTypeConfiguration<DbTemplate>
         // Configure properties.
         builder.Property(x => x.Name).HasMaxLength(TextSizePresets.M256).IsRequired();
         builder.Property(x => x.IgnoreUserPreferences).IsRequired();
-        builder.Property(x => x.Content).HasJsonConversion().IsRequired();
+        builder.Property(x => x.Content).HasRequiredJsonConversion().IsRequired();
         builder.Property(x => x.Data).HasJsonConversion();
         builder.Property(x => x.CreatedBy).HasMaxLength(TextSizePresets.M128).IsRequired();
         builder.Property(x => x.UpdatedBy).HasMaxLength(TextSizePresets.M128);

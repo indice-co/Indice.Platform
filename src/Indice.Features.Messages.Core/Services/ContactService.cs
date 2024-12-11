@@ -24,7 +24,7 @@ public class ContactService : IContactService
 
     /// <inheritdoc />
     public async Task AddToDistributionList(Guid id, CreateDistributionListContactRequest request) {
-        DbContact contact;
+        DbContact? contact;
         var list = await DbContext.DistributionLists.FindAsync(id);
         if (list is null) {
             throw MessageExceptions.DistributionListNotFound(id);
@@ -86,7 +86,7 @@ public class ContactService : IContactService
     }
 
     /// <inheritdoc />
-    public async Task<Contact> GetById(Guid id) {
+    public async Task<Contact?> GetById(Guid id) {
         var contact = await DbContext.Contacts.FindAsync(id);
         if (contact is null) {
             return default;
@@ -104,13 +104,13 @@ public class ContactService : IContactService
             query = query.Where(x => x.DistributionListContacts.Any(y => y.DistributionListId == filter.DistributionListId.Value));
         }
         if (filter?.Email is not null) {
-            query = query.Where(x => x.Email.ToLower() == filter.Email.ToLower());
+            query = query.Where(x => x.Email!.ToLower() == filter.Email.ToLower());
         }
         if (filter?.PhoneNumber is not null) {
-            query = query.Where(x => x.PhoneNumber.ToLower() == filter.PhoneNumber.ToLower());
+            query = query.Where(x => x.PhoneNumber!.ToLower() == filter.PhoneNumber.ToLower());
         }
         if (filter?.RecipientId is not null) {
-            query = query.Where(x => x.RecipientId.ToLower() == filter.RecipientId.ToLower());
+            query = query.Where(x => x.RecipientId!.ToLower() == filter.RecipientId.ToLower());
         }
         return await query.Select(Mapper.ProjectToContact).ToResultSetAsync(options);
     }

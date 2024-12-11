@@ -14,7 +14,7 @@ public static class ResultSetExtensionsAsync
     /// <param name="options">The options to use for sorting and paging</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>The results in a set that contains a page set of the total available records and the total count</returns>
-    public static async Task<ResultSet<T>> ToResultSetAsync<T>(this IQueryable<T> source, ListOptions options, CancellationToken cancellationToken = default) {
+    public static async Task<ResultSet<T>> ToResultSetAsync<T>(this IQueryable<T> source, ListOptions? options, CancellationToken cancellationToken = default) {
         options ??= new ListOptions();
         foreach (var sorting in options.GetSortings()) {
             source = source.OrderBy(sorting, append: true);

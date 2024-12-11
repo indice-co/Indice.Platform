@@ -50,7 +50,7 @@ public class CampaignService : ICampaignService
     }
 
     /// <inheritdoc />
-    public async Task<CampaignDetails> GetById(Guid id) {
+    public async Task<CampaignDetails?> GetById(Guid id) {
         var campaign = await DbContext
             .Campaigns
             .AsNoTracking()
@@ -63,7 +63,7 @@ public class CampaignService : ICampaignService
             return default;
         }
         if (campaign.Attachment is not null) {
-            campaign.Attachment.PermaLink = $"{CampaignManagementOptions.PathPrefix.TrimEnd('/')}/{campaign.Attachment.PermaLink.TrimStart('/')}";
+            campaign.Attachment.PermaLink = $"{CampaignManagementOptions.PathPrefix.TrimEnd('/')}/{campaign.Attachment.PermaLink?.TrimStart('/')}";
         }
         return campaign;
     }
@@ -108,7 +108,7 @@ public class CampaignService : ICampaignService
     }
 
     /// <inheritdoc />
-    public async Task<CampaignStatistics> GetStatistics(Guid id) {
+    public async Task<CampaignStatistics?> GetStatistics(Guid id) {
         var campaign = await DbContext.Campaigns.FindAsync(id);
         if (campaign is null) {
             return default;

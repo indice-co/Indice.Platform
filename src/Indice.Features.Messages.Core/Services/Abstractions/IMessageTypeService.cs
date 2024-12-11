@@ -13,10 +13,10 @@ public interface IMessageTypeService
     /// <summary>
     /// Gets a message type by it's unique id.</summary>
     /// <param name="id">The id of the message type.</param>
-    Task<MessageType> GetById(Guid id);
+    Task<MessageType?> GetById(Guid? id);
     /// <summary>Gets a message type by it's name.</summary>
     /// <param name="name">The name of the message type.</param>
-    Task<MessageType> GetByName(string name);
+    Task<MessageType?> GetByName(string name);
     /// <summary>Creates a new contact.</summary>
     /// <param name="request">The data for the message type to create.</param>
     Task<MessageType> Create(CreateMessageTypeRequest request);

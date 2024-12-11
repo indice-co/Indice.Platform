@@ -8,7 +8,7 @@ public class DbTemplate : DbAuditableEntity
     /// <summary>The unique id of the template.</summary>
     public Guid Id { get; set; }
     /// <summary>The name of the template.</summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
     /// <summary>Determines if the taemplate to be created from this template should ignore user communication preferences.</summary>
     /// <remarks>This option can be overridden at campaign level</remarks>
     public bool IgnoreUserPreferences { get; set; }
@@ -16,5 +16,5 @@ public class DbTemplate : DbAuditableEntity
     public MessageContentDictionary Content { get; set; } = new();
     /// <summary>Sample data for the testing the template preview.</summary>
     /// <remarks>Optional</remarks>
-    public dynamic Data { get; set; }
+    public dynamic? Data { get; set; }
 }

@@ -11,5 +11,5 @@ public class ContactResolverNoop : IContactResolver
     public Task<ResultSet<Contact>> Find(ListOptions options) => Task.FromResult(new ResultSet<Contact>());
 
     /// <inheritdoc />
-    public Task<Contact> Resolve(string id) => Task.FromResult<Contact>(null);
+    public Task<Contact?> Resolve(string? recipientId) => Task.FromResult<Contact?>(null);
 }

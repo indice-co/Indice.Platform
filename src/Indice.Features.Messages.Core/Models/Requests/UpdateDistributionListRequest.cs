@@ -4,5 +4,5 @@
 public class UpdateDistributionListRequest
 {
     /// <summary>The name of the distribution list.</summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 }

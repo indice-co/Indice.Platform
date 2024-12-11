@@ -24,7 +24,7 @@ public static class MessagesApi
 }
 
 /// <summary>Constant values for Messages API queue names.</summary>
-public class EventNames
+public static class EventNames
 {
     /// <summary>Name for the event that is raised when a campaign event is published.</summary>
     public const string CampaignCreated = "campaign-created";
@@ -39,7 +39,7 @@ public class EventNames
 }
 
 /// <summary>Placeholder for prefixing Messages API endpoints.</summary>
-internal class ApiPrefixes
+internal static class ApiPrefixes
 {
     /// <summary>Management API prefix placeholder.</summary>
     public const string CampaignManagementEndpoints = "[campaignManagementEndpointsPrefix]";
@@ -47,14 +47,14 @@ internal class ApiPrefixes
     public const string MessageInboxEndpoints = "[messageInboxEndpointsPrefix]";
 }
 
-internal class ApiGroups
+internal static class ApiGroups
 {
     public const string CampaignManagementEndpoints = "[campaignManagementEndpointsGroupName]";
     public const string MessageInboxEndpoints = "[messageInboxEndpointsGroupName]";
 }
 
 /// <summary>Service keys for Messages API.</summary>
-public class KeyedServiceNames
+public static class KeyedServiceNames
 {
     /// <summary>Key service name for <see cref="IPushNotificationService"/> implementation.</summary>
     public const string PushNotificationServiceKey = "Messages:PushNotificationServiceKey";
@@ -63,5 +63,3 @@ public class KeyedServiceNames
     /// <summary>Key service name for <see cref="IEventDispatcher"/> implementation.</summary>
     public const string EventDispatcherServiceKey = "Messages:EventDispatcherServiceKey";
 }
-
-internal class ErrorMessages { }

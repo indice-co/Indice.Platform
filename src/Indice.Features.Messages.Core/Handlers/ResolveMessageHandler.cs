@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using HandlebarsDotNet;
-using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
@@ -50,8 +49,8 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
     /// <param name="event">The event model used when a contact is resolved from an external system.</param>
     public async Task Process(ResolveMessageEvent @event) {
         var campaign = @event.Campaign;
-        Contact contact = null;
-        var contactNotUpdatedAWhileNow = !@event.Contact.UpdatedAt.HasValue
+        Contact? contact = null;
+        var contactNotUpdatedAWhileNow = !@event.Contact!.UpdatedAt.HasValue
             || (DateTimeOffset.UtcNow - @event.Contact.UpdatedAt.Value) > TimeSpan.FromDays(Options.ContactRetainPeriodInDays);
         if (!@event.Contact.IsAnonymous) {
             contact = await ContactService.FindByRecipientId(@event.Contact.RecipientId);
@@ -63,9 +62,9 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         } else {
             // Anonymous contact should find by email or phone number.
             if (@event.Contact.HasEmail) {
-                contact = await ContactService.FindByEmail(@event.Contact.Email);
+                contact = await ContactService.FindByEmail(@event.Contact.Email!);
             } else if (@event.Contact.HasPhoneNumber) {
-                contact = await ContactService.FindByPhoneNumber(@event.Contact.PhoneNumber);
+                contact = await ContactService.FindByPhoneNumber(@event.Contact.PhoneNumber!);
             }
             // If found but is already anonymous try to patch with filled data.
             if (contact is not null && contact.IsAnonymous) {
@@ -78,16 +77,16 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         }
         contact ??= @event.Contact;
         if ((contactNotUpdatedAWhileNow || @event.Contact.IsEmpty) && contact.Id.HasValue) {
-            await ContactService.Update(contact.Id.Value, Mapper.ToUpdateContactRequest(contact, campaign.DistributionListId));
+            await ContactService.Update(contact.Id.Value, Mapper.ToUpdateContactRequest(contact, campaign!.DistributionListId));
         }
         // In case this is not yet published we should stop here so no messages get sent yet.
-        if (!@event.Campaign.Published) {
+        if (!@event.Campaign!.Published) {
             return;
         }
         // Make substitution to message content using contact resolved data.
         var handlebars = Handlebars.Create();
         handlebars.Configuration.TextEncoder = new HtmlEncoder();
-        foreach (var content in campaign.Content) {
+        foreach (var content in campaign!.Content) {
             dynamic templateData = new {
                 id = campaign.Id,
                 title = campaign.Title,
@@ -113,13 +112,13 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         // Persist message with merged contents.
         var messageId = await MessageService.Create(new CreateMessageRequest {
             CampaignId = campaign.Id,
-            ContactId = contact.Id,
+            ContactId = contact!.Id,
             Content = campaign.Content,
             RecipientId = contact.RecipientId
         });
 
         var eventDispatcher = EventDispatcherFactory.Create(KeyedServiceNames.EventDispatcherServiceKey);
-        var contactChannels = campaign.ResolveAvailableChannels(contact.CommunicationPreferences);
+        var contactChannels = campaign.ResolveAvailableChannels(contact!.CommunicationPreferences);
         if (contactChannels.HasFlag(MessageChannelKind.PushNotification)) {
             await eventDispatcher.RaiseEventAsync(SendPushNotificationEvent.FromContactResolutionEvent(@event, contact, broadcast: false, messageId: messageId),
                 options => options.WrapInEnvelope().At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendPushNotification));

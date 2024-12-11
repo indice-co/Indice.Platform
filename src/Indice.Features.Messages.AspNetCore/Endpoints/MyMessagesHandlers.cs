@@ -21,7 +21,7 @@ internal static class MyMessagesHandlers
         IOptions<MessageInboxOptions> campaignEndpointOptions,
         ClaimsPrincipal currentUser
     ) {
-        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType);
+        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType)!;
         var messages = await messageService.GetList(userCode, ListOptions.Create(options, filter));
 
         return TypedResults.Ok(messages); 
@@ -42,7 +42,7 @@ internal static class MyMessagesHandlers
         MessageChannelKind? channel,
         ClaimsPrincipal currentUser
     ) {
-        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType);
+        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType)!;
         var message = await messageService.GetById(messageId, userCode, channel);
         if (message is null) {
             return TypedResults.NotFound();
@@ -57,7 +57,7 @@ internal static class MyMessagesHandlers
         Guid messageId,
         ClaimsPrincipal currentUser
     ) {
-        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType);
+        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType)!;
         await messageService.MarkAsRead(messageId, userCode);
         return TypedResults.NoContent();
     }
@@ -68,7 +68,7 @@ internal static class MyMessagesHandlers
         Guid messageId,
         ClaimsPrincipal currentUser
     ) {
-        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType);
+        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType)!;
         await messageService.MarkAsDeleted(messageId, userCode);
         return TypedResults.NoContent();
     }

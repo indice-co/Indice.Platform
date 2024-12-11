@@ -14,15 +14,15 @@ public class DbAttachment
     /// <summary>The unique id of the file, for internal use.</summary>
     public Guid Guid { get; set; }
     /// <summary>The name of the file.</summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
     /// <summary>The file extension.</summary>
-    public string FileExtension { get; set; }
+    public string FileExtension { get; set; } = null!;
     /// <summary>The file mime type.</summary>
-    public string ContentType { get; set; }
+    public string ContentType { get; set; } = null!;
     /// <summary>The file size.</summary>
     public int ContentLength { get; set; }
     /// <summary>The file as a byte array.</summary>
-    public byte[] Data { get; set; }
+    public byte[]? Data { get; set; }
     /// <summary>The file URI.</summary>
-    public string Uri { get; set; }
+    public string? Uri { get; set; }
 }

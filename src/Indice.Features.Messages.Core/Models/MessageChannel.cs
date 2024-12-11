@@ -4,7 +4,7 @@
 public class MessageChannel
 {
     /// <summary></summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
     /// <summary></summary>
     public MessageChannelKind Kind { get; set; }
     /// <summary></summary>

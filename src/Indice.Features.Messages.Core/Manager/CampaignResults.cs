@@ -24,7 +24,7 @@ public class CreateCampaignResult : CampaignResult
 {
     /// <summary>The <see cref="Guid"/> of the campaign created.</summary>
     public Guid CampaignId { get; private set; }
-    internal Campaign Campaign { get; set; }
+    internal Campaign? Campaign { get; set; }
 
     internal static CreateCampaignResult Success(Guid campaignId) => new() {
         Succeeded = true,

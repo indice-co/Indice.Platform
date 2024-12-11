@@ -29,9 +29,10 @@ public class SendPushNotificationHandler(IPushNotificationServiceFactory pushNot
         var pushNotificationService = PushNotificationServiceFactory.Create(KeyedServiceNames.PushNotificationServiceKey);
         var pushBody = pushNotification.Body ?? "-";
         if (pushNotification.Broadcast) {
-            await pushNotificationService.BroadcastAsync(pushNotification.Title, pushBody, data, pushNotification.MessageType?.Name);
+            await pushNotificationService.BroadcastAsync(pushNotification.Title!, pushBody, data, pushNotification.MessageType?.Name);
         } else {
-            await pushNotificationService.SendToUserAsync(pushNotification.Title, pushBody, data, pushNotification.RecipientId, classification: pushNotification.MessageType?.Name, pushNotification.RecipientId);
+            string[]? tags = !string.IsNullOrEmpty(pushNotification.RecipientId) ? [pushNotification.RecipientId] : null;
+            await pushNotificationService.SendToUserAsync(pushNotification.Title!, pushBody, data, pushNotification.RecipientId, classification: pushNotification.MessageType?.Name, tags: tags);
         }
     }
 }

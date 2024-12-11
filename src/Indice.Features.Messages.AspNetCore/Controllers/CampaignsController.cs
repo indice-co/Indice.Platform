@@ -136,7 +136,7 @@ internal class CampaignsController(
         if (request != null && string.IsNullOrWhiteSpace(request.MediaBaseHref)) {
             request.MediaBaseHref = Configuration.GetHost();
         }
-        var result = await NotificationsManager.CreateCampaignInternal(request, validateRules: false);
+        var result = await NotificationsManager.CreateCampaignInternal(request!, validateRules: false);
         return CreatedAtAction(nameof(GetCampaignById), new { campaignId = result.CampaignId }, result.Campaign);
     }
 

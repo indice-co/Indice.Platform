@@ -15,8 +15,8 @@ public class UserNameAccessorAggregate
     }
 
     /// <summary>Resolves the username.</summary>
-    public string Resolve() {
-        string userName = null;
+    public string? Resolve() {
+        string? userName = null;
         foreach (var accessor in _userNameAccessors) {
             userName = accessor.Resolve();
             if (!string.IsNullOrWhiteSpace(userName)) {

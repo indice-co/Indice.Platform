@@ -3,7 +3,7 @@
 namespace Indice.Features.Messages.Core.Exceptions;
 
 /// <summary>Exception thrown from Campaigns API feature.</summary>
-public class MessageExceptions
+public static class MessageExceptions
 {
 
     /// <summary>Campaign already published exception.</summary>
