@@ -97,8 +97,8 @@ internal static class AdminCasesHandler
         return TypedResults.NoContent();
     }
 
-    public static async Task<Ok<ResultSet<CasePartial>>> GetCases([AsParameters] ListOptions<GetCasesListFilter> options, IAdminCaseService adminCaseService, ClaimsPrincipal user) =>
-        TypedResults.Ok(await adminCaseService.GetCases(user, options));
+    public static async Task<Ok<ResultSet<CasePartial>>> GetCases([AsParameters] ListOptions options, [AsParameters] GetCasesListFilter filter, IAdminCaseService adminCaseService, ClaimsPrincipal user) =>
+        TypedResults.Ok(await adminCaseService.GetCases(user, ListOptions.Create(options, filter)));
 
     public static async Task<Results<Ok<Case>, NotFound>> GetCaseById(Guid caseId, IAdminCaseService adminCareService, ClaimsPrincipal user) {
         var @case = await adminCareService.GetCaseById(user, caseId, false);
