@@ -20,15 +20,16 @@ internal static class AdminIntegrationApi
 
         var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).ToArray();
         group.RequireAuthorization(policy => policy
+            .RequireAuthenticatedUser()
+            .AddAuthenticationSchemes("Bearer")
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
             .RequireCasesAccess(Authorization.CasesAccessLevel.Manager)
         ).RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
-        group.ProducesProblem(StatusCodes.Status500InternalServerError)
-             .ProducesProblem(StatusCodes.Status401Unauthorized)
+        group.ProducesProblem(StatusCodes.Status401Unauthorized)
              .ProducesProblem(StatusCodes.Status403Forbidden)
-             .ProducesProblem(StatusCodes.Status400BadRequest);
+             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapGet("customers", AdminIntegrationHandler.GetCustomers)
              .WithName(nameof(AdminIntegrationHandler.GetCustomers))

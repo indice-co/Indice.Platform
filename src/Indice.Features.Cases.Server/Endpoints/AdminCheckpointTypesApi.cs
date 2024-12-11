@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Server.Endpoints;
+
 /// <summary>Manage check point types.</summary>
 internal static class AdminCheckpointTypesApi
 {
@@ -18,7 +19,9 @@ internal static class AdminCheckpointTypesApi
         group.WithTags("AdminCheckpointTypes");
         group.WithGroupName(options.GroupName);
 
-        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).ToArray();
+        var allowedScopes = new[] {
+            options.RequiredScope
+        }.Where(x => x != null).ToArray();
 
         group.RequireAuthorization(policy => policy
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
@@ -26,14 +29,13 @@ internal static class AdminCheckpointTypesApi
         ).RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
-        group.ProducesProblem(StatusCodes.Status500InternalServerError)
-             .ProducesProblem(StatusCodes.Status401Unauthorized)
-             .ProducesProblem(StatusCodes.Status403Forbidden)
-             .ProducesProblem(StatusCodes.Status400BadRequest);
+        group.ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapGet("", AdminCheckpointTypesHandler.GetDistinctCheckpointTypes)
-             .WithName(nameof(AdminCheckpointTypesHandler.GetDistinctCheckpointTypes))
-             .WithSummary("Get the distinct checkpoint types grouped by code.");
+        group.MapGet(string.Empty, AdminCheckpointTypesHandler.GetDistinctCheckpointTypes)
+            .WithName(nameof(AdminCheckpointTypesHandler.GetDistinctCheckpointTypes))
+            .WithSummary("Get the distinct checkpoint types grouped by code.");
 
         return group;
     }

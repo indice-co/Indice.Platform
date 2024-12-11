@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Indice.Features.Cases.Server.Endpoints;
+
 internal static class AdminCaseTypesHandler
 {
 
@@ -19,9 +20,8 @@ internal static class AdminCaseTypesHandler
     }
 
     public static async Task<Results<Ok<CaseType>, NotFound>> GetCaseTypeById(ICaseTypeService caseTypeService, Guid caseTypeId) {
-        var caseTypeDetails = await caseTypeService.GetCaseTypeDetailsById(caseTypeId);
-        if (caseTypeDetails == null) {
-               return TypedResults.NotFound();
+        if (await caseTypeService.GetCaseTypeDetailsById(caseTypeId) is not { } caseTypeDetails) {
+            return TypedResults.NotFound();
         }
         return TypedResults.Ok(caseTypeDetails);
     }
@@ -35,18 +35,16 @@ internal static class AdminCaseTypesHandler
     }
 
     public static async Task<Results<Ok<CaseType>, NotFound>> UpdateCaseType(ICaseTypeService caseTypeService, Guid caseTypeId, CaseTypeRequest request) {
-        request.Id = caseTypeId;
-        var caseTypeDetails = await caseTypeService.Update(request);
-        if (caseTypeDetails == null) {
-               return TypedResults.NotFound();
+        request.Id = caseTypeId; //TODO: This seems very wrong. Either the id is sent in the body or it's in the route. Not both.
+        if (await caseTypeService.Update(request) is not { } caseTypeDetails) {
+            return TypedResults.NotFound();
         }
         return TypedResults.Ok(caseTypeDetails);
     }
 
     public static async Task<Results<NoContent, NotFound>> DeleteCaseType(ICaseTypeService caseTypeService, Guid caseTypeId) {
-        var caseType = caseTypeService.Get(caseTypeId);
-        if (caseType == null) {
-               return TypedResults.NotFound();
+        if (await caseTypeService.Get(caseTypeId) is not { }) {
+            return TypedResults.NotFound();
         }
         await caseTypeService.Delete(caseTypeId);
         return TypedResults.NoContent();

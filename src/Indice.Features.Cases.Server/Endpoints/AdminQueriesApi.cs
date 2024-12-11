@@ -31,15 +31,15 @@ internal static class AdminQueriesApi
              .ProducesProblem(StatusCodes.Status401Unauthorized)
              .ProducesProblem(StatusCodes.Status403Forbidden);
 
-        group.MapGet("", AdminQueriesHandler.GetQueries)
+        group.MapGet(string.Empty, AdminQueriesHandler.GetQueries)
              .WithName(nameof(AdminQueriesHandler.GetQueries))
              .WithSummary("Get saved queries.");
 
-        group.MapPost("", AdminQueriesHandler.SaveQuery)
+        group.MapPost(string.Empty, AdminQueriesHandler.SaveQuery)
              .WithName(nameof(AdminQueriesHandler.SaveQuery))
              .WithSummary("Save a new query.");
 
-        group.MapDelete("{queryId}", AdminQueriesHandler.DeleteQuery)
+        group.MapDelete("{queryId:guid}", AdminQueriesHandler.DeleteQuery)
              .WithName(nameof(AdminQueriesHandler.DeleteQuery))
              .WithSummary("Delete a query.");
 

@@ -21,13 +21,13 @@ internal class AdminQueriesHandler
         return TypedResults.Ok(queries);
     }
 
-    public static async Task<NoContent> SaveQuery(IQueryService queryService, SaveQueryRequest request, ClaimsPrincipal currentUser) {
-        await queryService.SaveQuery(currentUser, request);
+    public static async Task<NoContent> SaveQuery(SaveQueryRequest request, IQueryService queryService, ClaimsPrincipal user) {
+        await queryService.SaveQuery(user, request);
         return TypedResults.NoContent();
     }
 
-    public static async Task<Results<NoContent, NotFound>> DeleteQuery(IQueryService queryService, Guid queryId, ClaimsPrincipal currentUser) {
-        await queryService.DeleteQuery(currentUser, queryId);
+    public static async Task<Results<NoContent, NotFound>> DeleteQuery(Guid queryId, IQueryService queryService, ClaimsPrincipal user) {
+        await queryService.DeleteQuery(user, queryId);
         return TypedResults.NoContent();
     }
 }

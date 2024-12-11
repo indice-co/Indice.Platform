@@ -18,7 +18,9 @@ internal static class AdminCaseTypesApi
         group.WithTags("AdminCaseTypes");
         group.WithGroupName(options.GroupName);
 
-        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).ToArray();
+        var allowedScopes = new[] {
+            options.RequiredScope
+        }.Where(x => x != null).ToArray();
 
         group.RequireAuthorization(policy => policy
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
@@ -26,17 +28,17 @@ internal static class AdminCaseTypesApi
         ).RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
-        group.ProducesProblem(StatusCodes.Status500InternalServerError)
-             .ProducesProblem(StatusCodes.Status401Unauthorized)
-             .ProducesProblem(StatusCodes.Status403Forbidden)
-             .ProducesProblem(StatusCodes.Status400BadRequest);
-        group.MapGet("", AdminCaseTypesHandler.GetAdminCaseTypes)
-             .WithName(nameof(AdminCaseTypesHandler.GetAdminCaseTypes))
-             .WithSummary("Get case types.");
+        group.ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+        group.MapGet(string.Empty, AdminCaseTypesHandler.GetAdminCaseTypes)
+            .WithName(nameof(AdminCaseTypesHandler.GetAdminCaseTypes))
+            .WithSummary("Get case types.");
         group.MapGet("{caseTypeId}", AdminCaseTypesHandler.GetCaseTypeById)
             .RequireAuthorization(policy => policy.RequireCasesAccess(Authorization.CasesAccessLevel.Manager))
             .WithSummary("Get a specific Case Type by Id.");
-        group.MapPost("", AdminCaseTypesHandler.CreateCaseType)
+        group.MapPost(string.Empty, AdminCaseTypesHandler.CreateCaseType)
              .WithSummary("Create new case type.")
              .RequireAuthorization(policy => policy.RequireCasesAccess(Authorization.CasesAccessLevel.Admin)); // equivalent to BeCasesAdministrator
         group.MapPut("{caseTypeId}", AdminCaseTypesHandler.UpdateCaseType)
