@@ -192,6 +192,18 @@ internal class AccessRuleService : IAccessRuleService
         await _dbContext.SaveChangesAsync();
     }
 
+    public async Task<bool> ReplaceUser(ClaimsPrincipal user, Guid caseId, string existingUserId, string newUserId) {
+        var query = _dbContext.CaseAccessRules
+            .Where(x =>
+                x.RuleCaseId == caseId &&
+                x.MemberUserId == existingUserId);
+
+        foreach (var existingAccessRule in query) {
+            existingAccessRule.MemberUserId = newUserId;
+        }
+        var updated = await _dbContext.SaveChangesAsync();
+        return updated > 0;
+    }
     private DbCaseAccessRule ToDbObject(AddAccessRuleRequest accessRule) =>
         new DbCaseAccessRule {
             Id = Guid.NewGuid(),
@@ -232,4 +244,5 @@ internal class AccessRuleService : IAccessRuleService
             MemberUserId = accessRule.MemberUserId,
             AccessLevel = accessRule.AccessLevel
         };
+
 }

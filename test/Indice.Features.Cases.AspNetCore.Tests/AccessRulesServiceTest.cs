@@ -32,8 +32,8 @@ public class AccessRulesServiceTest : IAsyncLifetime
             .AddDbContext<CasesDbContext>(builder => builder
             .UseLoggerFactory(LoggerFactory.Create(builder => builder.AddDebug()))
             .UseSqlServer(configuration.GetConnectionString("CasesDb")))
-            .Configure<CasesOptions>(options => { 
-                
+            .Configure<CasesOptions>(options => {
+
             });
         ServiceProvider = collection.BuildServiceProvider();
 
@@ -81,7 +81,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
         var caseMembersService = new AccessRuleService(dbContext, options);
         var @case = await FetchCaseForTestAsync(dbContext);
         await caseMembersService.AdminCreate(Admin(),
-            new () {
+            new() {
                 AccessLevel = 110,
                 MemberUserId = Guid.NewGuid().ToString(),
                 RuleCaseId = @case.Id
@@ -97,18 +97,18 @@ public class AccessRulesServiceTest : IAsyncLifetime
         var caseMembersService = new AccessRuleService(dbContext, options);
         var @case = await FetchCaseForTestAsync(dbContext);
         await caseMembersService.AdminCreate(Admin(),
-            new () {
+            new() {
                 AccessLevel = 0,
                 MemberUserId = Guid.NewGuid().ToString(),
                 RuleCaseId = @case.Id
             });
         await caseMembersService.AdminCreate(Admin(),
-           new () {
+           new() {
                AccessLevel = 1,
                MemberRole = BasicRoleNames.Administrator,
                RuleCaseTypeId = @case.CaseTypeId
            });
-       
+
         var rules = await caseMembersService.GetCaseAccessRules(@case.Id);
         Assert.True(rules.Count == 2);
     }
@@ -147,7 +147,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
         var caseMembersService = new AccessRuleService(dbContext, options);
         var @case = await FetchCaseForTestAsync(dbContext);
         await caseMembersService.AdminCreate(Admin(),
-            new () {
+            new() {
                 AccessLevel = 110,
                 MemberUserId = Guid.NewGuid().ToString(),
                 RuleCaseId = @case.Id
@@ -164,7 +164,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
         var caseMembersService = new AccessRuleService(dbContext, options);
         var caseType = await dbContext.CaseTypes.FirstOrDefaultAsync();
         await caseMembersService.AdminCreate(Admin(),
-            new () {
+            new() {
                 AccessLevel = 110,
                 MemberRole = BasicRoleNames.Administrator,
                 RuleCaseTypeId = caseType.Id
@@ -181,13 +181,13 @@ public class AccessRulesServiceTest : IAsyncLifetime
         var caseMembersService = new AccessRuleService(dbContext, options);
         var caseType = await dbContext.CaseTypes.FirstOrDefaultAsync();
         await caseMembersService.AdminCreate(Admin(),
-            new () {
+            new() {
                 AccessLevel = 110,
                 MemberRole = BasicRoleNames.Administrator,
                 RuleCaseTypeId = caseType.Id
             });
         var caseRule = await dbContext.CaseAccessRules.FirstOrDefaultAsync();
-        var updatedRule  = await caseMembersService.Update(Admin(), caseRule.Id, 100);
+        var updatedRule = await caseMembersService.Update(Admin(), caseRule.Id, 100);
         Assert.Equal(100, updatedRule.AccessLevel);
     }
 
@@ -198,7 +198,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
         var caseMembersService = new AccessRuleService(dbContext, options);
         var caseType = await dbContext.CaseTypes.FirstOrDefaultAsync();
         await caseMembersService.AdminCreate(Admin(),
-            new () {
+            new() {
                 AccessLevel = 110,
                 MemberRole = BasicRoleNames.Administrator,
                 RuleCaseTypeId = caseType.Id
@@ -223,7 +223,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
         var @case = await FetchCaseForTestAsync(dbContext);
 
         await caseMembersService.AdminCreate(Admin(),
-            new () {
+            new() {
                 AccessLevel = 110,
                 MemberUserId = Guid.NewGuid().ToString(),
                 RuleCaseId = @case.Id
@@ -243,7 +243,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
         var @case = await FetchCaseForTestAsync(dbContext);
         try {
             await caseMembersService.AdminCreate(NonAdmin(),
-                new () {
+                new() {
                     AccessLevel = 110,
                     MemberUserId = Guid.NewGuid().ToString(),
                     RuleCaseId = @case.Id
@@ -254,6 +254,62 @@ public class AccessRulesServiceTest : IAsyncLifetime
         }
         Assert.True(false);
     }
+
+
+    [Fact]
+    public async Task ReplaceUser_AccessRules() {
+        var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
+        var options = ServiceProvider.GetRequiredService<IOptions<CasesOptions>>();
+        var caseMembersService = new AccessRuleService(dbContext, options);
+        var @case = await FetchCaseForTestAsync(dbContext);
+        var initialUser = Guid.NewGuid().ToString();
+        var replacementUser = Guid.NewGuid().ToString();
+        await caseMembersService.AdminCreate(Admin(),
+            new() {
+                AccessLevel = 0,
+                MemberUserId = initialUser,
+                RuleCaseId = @case.Id
+            });
+        await caseMembersService.AdminCreate(Admin(),
+           new() {
+               AccessLevel = 1,
+               MemberRole = BasicRoleNames.Administrator,
+               RuleCaseTypeId = @case.CaseTypeId
+           });
+
+        var result = await caseMembersService.ReplaceUser(Admin(), @case.Id, initialUser, replacementUser);
+        Assert.True(result);
+        var rules = await caseMembersService.GetCaseAccessRules(@case.Id);
+        Assert.True(rules.Exists(x => x.MemberUserId == replacementUser));
+    }
+
+    [Fact]
+    public async Task ReplaceUser_ThatDoesNotExist_AccessRules() {
+        var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
+        var options = ServiceProvider.GetRequiredService<IOptions<CasesOptions>>();
+        var caseMembersService = new AccessRuleService(dbContext, options);
+        var @case = await FetchCaseForTestAsync(dbContext);
+        var initialUser = Guid.NewGuid().ToString();
+        var replacementUser = Guid.NewGuid().ToString();
+        await caseMembersService.AdminCreate(Admin(),
+            new() {
+                AccessLevel = 0,
+                MemberUserId = initialUser,
+                RuleCaseId = @case.Id
+            });
+        await caseMembersService.AdminCreate(Admin(),
+           new() {
+               AccessLevel = 1,
+               MemberRole = BasicRoleNames.Administrator,
+               RuleCaseTypeId = @case.CaseTypeId
+           });
+
+        var result = await caseMembersService.ReplaceUser(Admin(), @case.Id, Guid.NewGuid().ToString(), replacementUser);
+        Assert.False(result);
+        var rules = await caseMembersService.GetCaseAccessRules(@case.Id);
+        Assert.True(rules.Exists(x => x.MemberUserId == initialUser));
+    }
+
 
     public async Task InitializeAsync() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
