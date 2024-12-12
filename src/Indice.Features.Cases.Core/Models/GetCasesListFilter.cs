@@ -4,7 +4,7 @@ namespace Indice.Features.Cases.Core.Models;
 
 /// <summary>
 /// Options used to filter the list of cases.
-/// 
+///
 /// Will be used internally to filter cases further, based on authentication parameters
 /// </summary>
 public class GetCasesListFilter

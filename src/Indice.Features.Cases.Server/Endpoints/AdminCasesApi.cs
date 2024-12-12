@@ -42,6 +42,7 @@ internal static class AdminCasesApi
 
         group.MapPost("{caseId:guid}/attachments", AdminCasesHandler.UploadAdminCaseAttachment)
             .WithName(nameof(AdminCasesHandler.UploadAdminCaseAttachment))
+            .DisableAntiforgery()
             .WithSummary("Add an attachment to an existing case regardless of its status and mode (draft or not).")
             .LimitUpload(uploadlimit.DefaultMaxFileSizeBytes, string.Join(',', uploadlimit.DefaultAllowedFileExtensions));
 
