@@ -20,7 +20,7 @@ public static class WorkerHostConfiguration
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configureAction">The delegate used to configure the worker host options.</param>
     /// <returns>The <see cref="WorkerHostBuilder"/> used to configure the worker host.</returns>
-    public static WorkerHostBuilder AddWorkerHost(this IServiceCollection services, Action<WorkerHostOptions> configureAction = null) {
+    public static WorkerHostBuilder AddWorkerHost(this IServiceCollection services, Action<WorkerHostOptions>? configureAction = null) {
         var serviceProvider = services.BuildServiceProvider();
         var builderInstance = serviceProvider.GetService<WorkerHostBuilder>();
         if (builderInstance is not null) {
@@ -56,7 +56,7 @@ public static class WorkerHostConfiguration
     /// <param name="options">The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</param>
     /// <param name="configureAction">Configure the azure options.</param>
     /// <returns>The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</returns>
-    public static WorkerHostOptions UseLockManagerAzure(this WorkerHostOptions options, Action<IServiceProvider, LockManagerAzureOptions> configureAction = null) {
+    public static WorkerHostOptions UseLockManagerAzure(this WorkerHostOptions options, Action<IServiceProvider, LockManagerAzureOptions>? configureAction = null) {
         options.Services.AddLockManagerAzure(configureAction);
         return options;
     }
@@ -92,16 +92,16 @@ public static class WorkerHostConfiguration
     /// <param name="options">The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</param>
     /// <param name="configureAction">The delegate used to configure the database table that contains the background jobs.</param>
     /// <returns>The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</returns>
-    public static WorkPublisherOptions UseStoreRelational(this WorkPublisherOptions options, Action<DbContextOptionsBuilder> configureAction = null) => options.UseStoreRelational<TaskDbContext>(configureAction);
+    public static WorkPublisherOptions UseStoreRelational(this WorkPublisherOptions options, Action<DbContextOptionsBuilder>? configureAction = null) => options.UseStoreRelational<TaskDbContext>(configureAction);
 
     /// <summary>Uses the tables of a relational database in order to manage queue items.</summary>
     /// <typeparam name="TContext">The type of <see cref="DbContext"/>.</typeparam>
     /// <param name="options">The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</param>
     /// <param name="configureAction">The delegate used to configure the database table that contains the background jobs.</param>
     /// <returns>The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</returns>
-    public static WorkerHostOptions UseStoreRelational<TContext>(this WorkerHostOptions options, Action<DbContextOptionsBuilder> configureAction = null) where TContext : TaskDbContext {
+    public static WorkerHostOptions UseStoreRelational<TContext>(this WorkerHostOptions options, Action<DbContextOptionsBuilder>? configureAction = null) where TContext : TaskDbContext {
         var isDefaultContext = typeof(TContext) == typeof(TaskDbContext);
-        var connectionString = options.Services.BuildServiceProvider().GetService<IConfiguration>().GetConnectionString("WorkerDb");
+        var connectionString = options.Services.BuildServiceProvider().GetRequiredService<IConfiguration>().GetConnectionString("WorkerDb");
         void sqlServerConfiguration(DbContextOptionsBuilder builder) => builder.UseSqlServer(connectionString);
         configureAction ??= sqlServerConfiguration;
         options.Services.AddDbContext<TContext>(configureAction);
@@ -138,35 +138,35 @@ public static class WorkerHostConfiguration
     /// <param name="builder">The <see cref="TaskTriggerBuilder"/> used to configure the way that a job is triggered.</param>
     /// <param name="configureAction">The delegate used to configure the queue options.</param>
     /// <returns>The <see cref="WorkerHostBuilderForQueue"/> used to configure the worker host.</returns>
-    public static WorkerHostBuilderForQueue WithQueueTrigger<TWorkItem>(this TaskTriggerBuilder builder, Action<QueueOptions> configureAction = null) where TWorkItem : class =>
-        builder.WithQueueTrigger<TWorkItem>(builder.Options.QueueStoreType?.MakeGenericType(typeof(TWorkItem)), configureAction);
+    public static WorkerHostBuilderForQueue WithQueueTrigger<TWorkItem>(this TaskTriggerBuilder builder, Action<QueueOptions>? configureAction = null) where TWorkItem : class =>
+        builder.WithQueueTrigger<TWorkItem>(builder.Options?.QueueStoreType?.MakeGenericType(typeof(TWorkItem))!, configureAction);
 
     /// <summary>Specifies that the configured job will be triggered by an item inserted to the a queue.</summary>
     /// <param name="builder">The <see cref="TaskTriggerBuilder"/> used to configure the way that a job is triggered.</param>
     /// <param name="configureAction">The delegate used to configure the queue options.</param>
     /// <returns>The <see cref="WorkerHostBuilderForQueue"/> used to configure the worker host.</returns>
-    public static WorkerHostBuilderForQueue WithQueueTrigger<TWorkItem, TQueueStore>(this TaskTriggerBuilder builder, Action<QueueOptions> configureAction = null) where TWorkItem : class =>
+    public static WorkerHostBuilderForQueue WithQueueTrigger<TWorkItem, TQueueStore>(this TaskTriggerBuilder builder, Action<QueueOptions>? configureAction = null) where TWorkItem : class =>
         builder.WithQueueTrigger<TWorkItem>(typeof(TQueueStore), configureAction);
 
-    private static WorkerHostBuilderForQueue WithQueueTrigger<TWorkItem>(this TaskTriggerBuilder builder, Type messageQueueType, Action<QueueOptions> configureAction = null) where TWorkItem : class {
+    private static WorkerHostBuilderForQueue WithQueueTrigger<TWorkItem>(this TaskTriggerBuilder builder, Type messageQueueType, Action<QueueOptions>? configureAction = null) where TWorkItem : class {
         if (messageQueueType is null) {
             throw new ArgumentNullException(nameof(messageQueueType), $"You must provide an implementation for the backing store. Use one of the 'UseStoreXXX' methods to configure the builder.");
         }
         var options = new QueueOptions(builder.Services);
         configureAction?.Invoke(options);
-        options.Services.AddTransient(builder.JobHandlerType);
-        options.Services.AddTransient(typeof(IQueueNameResolver<TWorkItem>), serviceProvider => Activator.CreateInstance(typeof(DefaultQueueNameResolver<TWorkItem>), new object[] { options }));
+        options.Services.AddTransient(builder.JobHandlerType!);
+        options.Services.AddTransient(typeof(IQueueNameResolver<TWorkItem>), serviceProvider => Activator.CreateInstance(typeof(DefaultQueueNameResolver<TWorkItem>), [options])!);
         options.Services.AddTransient(typeof(IMessageQueue<TWorkItem>), messageQueueType);
-        var messageQueueDefaultType = builder.Options.QueueStoreType.MakeGenericType(typeof(TWorkItem));
+        var messageQueueDefaultType = builder.Options!.QueueStoreType!.MakeGenericType(typeof(TWorkItem));
         if (!messageQueueDefaultType.Equals(messageQueueType)) {
             options.Services.TryAddTransient(messageQueueDefaultType);
         }
         options.Services.AddTransient(typeof(DequeueJob<TWorkItem>));
         options.Services.AddTransient(typeof(DequeuedCleanupJob<TWorkItem>));
         options.Services.AddTransient(serviceProvider => new DequeueJobSettings(
-            jobHandlerType: builder.JobHandlerType,
+            jobHandlerType: builder.JobHandlerType!,
             workItemType: typeof(TWorkItem),
-            jobName: serviceProvider.GetService<IQueueNameResolver<TWorkItem>>().Resolve(),
+            jobName: serviceProvider.GetRequiredService<IQueueNameResolver<TWorkItem>>().Resolve(),
             pollingInterval: options.PollingInterval,
             backoffThreshold: options.MaxPollingInterval,
             cleanUpInterval: options.CleanUpInterval,
@@ -181,7 +181,7 @@ public static class WorkerHostConfiguration
     /// <param name="cronExpression">Cron expression</param>
     /// <param name="configureAction">The delegate used to configure the queue options.</param>
     /// <returns>The <see cref="WorkerHostBuilder"/> used to configure the worker host.</returns>
-    public static WorkerHostBuilder WithScheduleTrigger(this TaskTriggerBuilder builder, string cronExpression, Action<ScheduleOptions> configureAction = null) =>
+    public static WorkerHostBuilder WithScheduleTrigger(this TaskTriggerBuilder builder, string cronExpression, Action<ScheduleOptions>? configureAction = null) =>
         builder.WithScheduleTrigger<Dictionary<string, object>>(cronExpression, configureAction);
 
     /// <summary>Specifies that the configured job will be triggered by an item inserted to the a queue.</summary>
@@ -190,7 +190,7 @@ public static class WorkerHostConfiguration
     /// <param name="cronExpression">Cron expression</param>
     /// <param name="configureAction">The delegate used to configure the queue options.</param>
     /// <returns>The <see cref="WorkerHostBuilder"/> used to configure the worker host.</returns>
-    public static WorkerHostBuilder WithScheduleTrigger<TState>(this TaskTriggerBuilder builder, string cronExpression, Action<ScheduleOptions> configureAction = null) where TState : class {
+    public static WorkerHostBuilder WithScheduleTrigger<TState>(this TaskTriggerBuilder builder, string cronExpression, Action<ScheduleOptions>? configureAction = null) where TState : class {
         if (string.IsNullOrWhiteSpace(cronExpression)) {
             throw new ArgumentException($"'{nameof(cronExpression)}' cannot be null or whitespace", nameof(cronExpression));
         }
@@ -198,10 +198,10 @@ public static class WorkerHostConfiguration
             CronExpression = cronExpression
         };
         configureAction?.Invoke(options);
-        options.Services.AddTransient(builder.JobHandlerType);
-        options.Services.AddTransient(typeof(IScheduledTaskStore<TState>), builder.Options.ScheduledTaskStoreType.MakeGenericType(typeof(TState)));
-        options.Services.AddTransient(typeof(ScheduledJob<,>).MakeGenericType(builder.JobHandlerType, typeof(TState)));
-        options.Services.AddTransient(serviceProvider => new ScheduledJobSettings(builder.JobHandlerType, typeof(TState), cronExpression, options.Name, options.Group, options.Description, options.Singleton));
+        options.Services.AddTransient(builder.JobHandlerType!);
+        options.Services.AddTransient(typeof(IScheduledTaskStore<TState>), builder.Options!.ScheduledTaskStoreType!.MakeGenericType(typeof(TState)));
+        options.Services.AddTransient(typeof(ScheduledJob<,>).MakeGenericType(builder.JobHandlerType!, typeof(TState)));
+        options.Services.AddTransient(serviceProvider => new ScheduledJobSettings(builder.JobHandlerType!, typeof(TState), cronExpression, options.Name, options.Group, options.Description, options.Singleton));
         return new WorkerHostBuilder(options.Services, builder.Options);
     }
 }

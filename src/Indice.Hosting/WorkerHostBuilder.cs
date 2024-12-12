@@ -7,7 +7,7 @@ public class WorkerHostBuilder
 {
     /// <summary>Creates a new instance of <see cref="WorkerHostBuilder"/>.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-    public WorkerHostBuilder(IServiceCollection services) : this(services, null) { }
+    public WorkerHostBuilder(IServiceCollection services) : this(services, null!) { }
 
     internal WorkerHostBuilder(IServiceCollection services, WorkerHostOptions options) {
         Services = services;

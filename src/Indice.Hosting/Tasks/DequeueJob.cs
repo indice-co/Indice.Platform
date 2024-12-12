@@ -25,7 +25,7 @@ internal class DequeueJob<TWorkItem> : IJob where TWorkItem : class
         if (workItem != null) {
             jobDataMap[JobDataKeys.BackoffIndex] = 0;
             try {
-                await _taskHandlerActivator.Invoke(jobHandlerType, jobDataMap, context.CancellationToken, workItem.Value);
+                await _taskHandlerActivator.Invoke(jobHandlerType!, jobDataMap, context.CancellationToken, workItem.Value);
             } catch (Exception exception) {
                 if (workItem.DequeueCount < 5) {
                     await _workItemQueue.ReEnqueue(workItem); // Re-enqueue to retry.
