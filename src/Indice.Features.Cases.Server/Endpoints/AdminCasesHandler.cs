@@ -32,9 +32,6 @@ internal static class AdminCasesHandler
         IFormFile file,
         IAdminCaseMessageService adminCaseMessageService,
         IOptions<CasesOptions> options) {
-        if (file.Headers.ContentLength > 6291456) {
-            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(file), "File size is too big. Max file size allowed is 6MBs"));
-        }
         if (file.Length is 0) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(file), "File is empty."));
         }

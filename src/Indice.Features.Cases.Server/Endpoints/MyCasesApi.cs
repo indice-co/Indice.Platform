@@ -45,6 +45,7 @@ public static class MyCasesApi
 
         group.MapPost("{caseId:guid}/attachments", MyCasesHandler.UploadCaseAttachment)
              .WithName(nameof(MyCasesHandler.UploadCaseAttachment))
+             .DisableAntiforgery()
              .WithSummary("Add an attachment to an existing case regardless of its status and mode (draft or not).");
 
         group.MapPut("{caseId:guid}", MyCasesHandler.UpdateCase)

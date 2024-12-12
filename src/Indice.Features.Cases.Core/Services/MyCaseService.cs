@@ -129,7 +129,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             dbCaseQueryable = dbCaseQueryable.Where(p => !p.Draft);
         }
 
-        foreach (var tag in options.Filter?.CaseTypeTags ?? new List<string>()) {
+        foreach (var tag in options.Filter?.CaseTypeTags ?? []) {
             // If there are more than 1 tag, the linq will be translated into "WHERE [Tag] LIKE %tag1% AND [Tag] LIKE %tag2% ..."
             dbCaseQueryable = dbCaseQueryable.Where(dbCase => EF.Functions.Like(dbCase.CaseType.Tags, $"%{tag}%"));
         }
@@ -140,7 +140,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         }
 
         // filter Statuses
-        if (options.Filter?.Statuses is { Count: > 0 }) {
+        if (options.Filter?.Statuses is { Length: > 0 }) {
             var expressions = options.Filter.Statuses.Select(status => (Expression<Func<DbCase, bool>>)(c => c.PublicCheckpoint.CheckpointType.Status == status));
             // Aggregate the expressions with OR that resolves to SQL: dbCase.PublicCheckpoint.CheckpointType.Status == status1 OR == status2 etc
             var aggregatedExpression = expressions.Aggregate((expression, next) => {
@@ -168,7 +168,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         }
 
         // filter by Checkpoint Code
-        if (options.Filter?.Checkpoints is { Count: > 0 }) {
+        if (options.Filter?.Checkpoints is { Length: > 0 }) {
             var expressions = options.Filter.Checkpoints.Select(checkpoints => (Expression<Func<DbCase, bool>>)(c => c.PublicCheckpoint.CheckpointType.Code == checkpoints));
             // Aggregate the expressions with OR that resolves to SQL: dbCase.PublicCheckpoint.CheckpointType.Code == checkpoint1 OR == checkpoint2 etc
             var aggregatedExpression = expressions.Aggregate((expression, next) => {
@@ -179,7 +179,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         }
 
         // filter CaseTypeCodes
-        if (options.Filter?.CaseTypeCodes is { Count: > 0 }) {
+        if (options.Filter?.CaseTypeCodes is { Length: > 0 }) {
             dbCaseQueryable = dbCaseQueryable.Where(c => options.Filter.CaseTypeCodes.Contains(c.CaseType.Code));
         }
 
@@ -203,7 +203,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
                                          Metadata = c.Metadata,
                                          Message = reasonMessage,
                                          Translations = c.CaseType.Translations,
-                                         Data = options.Filter!.IncludeData ? c.Data.Data : null
+                                         Data = options.Filter!.IncludeData ?? true ? c.Data.Data : null
                                      };
         // sorting option
         if (string.IsNullOrEmpty(options.Sort)) {
@@ -211,7 +211,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         }
 
         if (options.Filter?.Data != null) {
-            // Execute the query with all the previous "my cases" filters and 
+            // Execute the query with all the previous "my cases" filters and
             // select the case Ids
             var caseIds = await dbCaseQueryable.Select(x => x.Id).ToListAsync();
 
@@ -227,7 +227,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             myCasePartialQueryable = myCasePartialQueryable.Where(x => caseData.Contains(x.Id));
         }
 
-        // Execute the query to the sql 
+        // Execute the query to the sql
         var result = await myCasePartialQueryable.ToResultSetAsync(options);
 
         // translate
@@ -264,7 +264,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         var caseTypesQueryable = DbContext.CaseTypes
             .AsQueryable();
 
-        foreach (var tag in options.Filter?.CaseTypeTags ?? new List<string>()) {
+        foreach (var tag in options.Filter?.CaseTypeTags ?? []) {
             // If there are more than 1 tag, the linq will be translated into "WHERE [Tag] LIKE %tag1% AND [Tag] LIKE %tag2% ..."
             caseTypesQueryable = caseTypesQueryable.Where(caseType => EF.Functions.Like(caseType.Tags, $"%{tag}%"));
         }

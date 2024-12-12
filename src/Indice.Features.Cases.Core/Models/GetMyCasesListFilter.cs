@@ -6,11 +6,11 @@ namespace Indice.Features.Cases.Core.Models;
 public class GetMyCasesListFilter
 {
     /// <summary>The case type tag filter.</summary>
-    public List<string>? CaseTypeTags { get; set; }
+    public string[]? CaseTypeTags { get; set; }
     /// <summary>The case status filter.</summary>
-    public List<CaseStatus>? Statuses { get; set; }
+    public CaseStatus[]? Statuses { get; set; }
     /// <summary>The case type code filter.</summary>
-    public List<string>? CaseTypeCodes { get; set; }
+    public string[]? CaseTypeCodes { get; set; }
     /// <summary>The CreatedFrom filter.</summary>
     public DateTimeOffset? CreatedFrom { get; set; }
     /// <summary>The CreatedTo filter.</summary>
@@ -20,15 +20,15 @@ public class GetMyCasesListFilter
     /// <summary>The CompletedTo filter.</summary>
     public DateTimeOffset? CompletedTo { get; set; }
     /// <summary>The Checkpoints filter.</summary>
-    public List<string>? Checkpoints { get; set; }
+    public string[]? Checkpoints { get; set; }
     /// <summary>Construct filter clauses based on case data.</summary>
-    public List<FilterClause>? Data { get; set; }
+    public FilterClause[]? Data { get; set; }
     /// <summary>Construct filter clauses based on case metadata.</summary>
-    public List<FilterClause>? Metadata { get; set; }
+    public FilterClause[]? Metadata { get; set; }
     /// <summary>Determines whether draft cases should be included in result</summary>
     public bool? IncludeDrafts { get; set; }
     /// <summary>The reference number filter.</summary>
-    public List<int>? ReferenceNumbers { get; set; }
+    public int[]? ReferenceNumbers { get; set; }
     /// <summary>Determines whether case data should be included in result.</summary>
-    public bool IncludeData { get; set; }
-} 
+    public bool? IncludeData { get; set; }
+}

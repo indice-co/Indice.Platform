@@ -57,9 +57,9 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     }
 
     public async Task UpdateData(ClaimsPrincipal user, Guid caseId, dynamic data) {
-        if (user == null) throw new ArgumentNullException(nameof(user));
+        ArgumentNullException.ThrowIfNull(user);
         if (caseId == default) throw new ArgumentNullException(nameof(caseId));
-        if (data == null) throw new ArgumentNullException(nameof(data));
+        ArgumentNullException.ThrowIfNull(data);
         await _adminCaseMessageService.Send(caseId, user, new Message { Data = data });
     }
 
@@ -109,7 +109,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
 
         @case.Draft = false;
         await DbContext.SaveChangesAsync();
-        
+
         await _platformEventService.Publish(new CaseSubmittedEvent(new Case {
              Id = @case.Id,
              // TODO: do a proper caseDb to case mapping
@@ -159,7 +159,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                         Translations = @case.Checkpoint.CheckpointType.Translations
                     },
                     AssignedToName = @case.AssignedTo!.Name,
-                    Data = options.Filter.IncludeData ? @case.Data.Data : null,
+                    Data = options.Filter.IncludeData ?? true ? @case.Data.Data : null,
                     AccessLevel = 111
                 });
         } else {
@@ -256,15 +256,15 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                              Translations = @case.Checkpoint.CheckpointType.Translations
                          },
                          AssignedToName = @case.AssignedTo!.Name,
-                         Data = options.Filter.IncludeData ? @case.Data.Data : null,
+                         Data = options.Filter.IncludeData ?? true ? @case.Data.Data : null,
                          AccessLevel = new List<int> { caseAccess, CaseTypeAccess, CheckpointIdAccess, caseCheckpointIdAccess }.Max()
                      });
         }
 
         //// TODO: not crazy about this one
-        //// if a CaseAuthorizationService down the line wants to 
+        //// if a CaseAuthorizationService down the line wants to
         //// not allow a user to see the list of case, it throws a ResourceUnauthorizedException
-        //// which we catch and return an empty resultset. 
+        //// which we catch and return an empty resultset.
         try {
             query = await _memberAuthorizationProvider.GetCaseMembership(query, user);
         } catch (ResourceUnauthorizedException) {
@@ -398,7 +398,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         }
 
         if (options.Filter.Data.Any()) {
-            // Execute the query with all the previous filters and 
+            // Execute the query with all the previous filters and
             // select the case Ids
             var caseIds = (await query.ToListAsync()).Select(x => x.Id);
 
@@ -472,7 +472,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         // Check that user role can download this attachment.
         await GetCaseById(user, attachment!.CaseId, false);
 
-        return new CaseAttachment { 
+        return new CaseAttachment {
             Id = attachmentId,
             ContentType = attachment.ContentType,
             Data = attachment.Data,
@@ -639,7 +639,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return result.Items.Where(x => x.Id != caseId).ToList();
     }
 
-    private async Task<List<FilterClause>> MapCheckpointTypeCodeToId(List<FilterClause> checkpointTypeCodeFilterClauses) {
+    private async Task<FilterClause[]> MapCheckpointTypeCodeToId(FilterClause[] checkpointTypeCodeFilterClauses) {
         var checkpointTypeCodes = checkpointTypeCodeFilterClauses.Select(f => f.Value).ToList();
         var checkpointTypeIds = new List<FilterClause>();
         var filteredCheckpointTypesList = await DbContext.CheckpointTypes
@@ -655,7 +655,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                 checkpointTypeIds.Add(newCheckpointTypeIdFilterClause);
             }
         }
-        return checkpointTypeIds;
+        return checkpointTypeIds.ToArray();
     }
 
 }

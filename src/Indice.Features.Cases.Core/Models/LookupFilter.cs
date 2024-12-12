@@ -4,5 +4,5 @@
 public class LookupFilter
 {
     /// <summary>A list of FilterTerms</summary>
-    public List<FilterTerm>? FilterTerms { get; set; }
+    public FilterTerm[] FilterTerms { get; set; } = [];
 }

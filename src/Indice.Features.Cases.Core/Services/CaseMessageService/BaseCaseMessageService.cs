@@ -28,7 +28,7 @@ internal abstract class BaseCaseMessageService
         Guid? attachmentId = null;
         var caseId = @case.Id;
         if (message == null) throw new ArgumentNullException(nameof(message));
-        if (message.FileStreamAccessor == null && message.CheckpointTypeName == null && message.Comment == null && message.Data == null) {
+        if (message.FileStreamAccessor == null && message.CheckpointTypeName == null && message.Comment == null && message.Data is null) {
             return attachmentId;
         }
 
@@ -47,7 +47,7 @@ internal abstract class BaseCaseMessageService
             }
         }
 
-        if (message.FileStreamAccessor == null && message.CheckpointTypeName == null && message.Data == null) {
+        if (message.FileStreamAccessor == null && message.CheckpointTypeName == null && message.Data is null) {
             await AddComment(user, caseId, message.Comment, message.ReplyToCommentId, message.PrivateComment);
         } else if (message.FileStreamAccessor != null && message.CheckpointTypeName == null) {
             var attachment = await AddAttachment(user, @case, message.Comment, message.FileName!, message.FileStreamAccessor!);
@@ -59,7 +59,7 @@ internal abstract class BaseCaseMessageService
                 message.PrivateComment ??= newCheckpointType!.Private;
                 await AddComment(user, caseId, message.Comment, message.ReplyToCommentId, message.PrivateComment);
             }
-        } else if (message.Data != null) {
+        } else if (message.Data is not null) {
             await AddCaseData(user, @case, message.Data);
             if (!string.IsNullOrWhiteSpace(message.Comment)) {
                 await AddComment(user, caseId, message.Comment, message.ReplyToCommentId, message.PrivateComment);
@@ -135,7 +135,7 @@ internal abstract class BaseCaseMessageService
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.Id == @case.CheckpointId);
 
-        // If the new checkpoint is the same as the last attempt, only add the comment. 
+        // If the new checkpoint is the same as the last attempt, only add the comment.
         if (checkpoint != null && checkpoint.CheckpointType.Code == checkpointType.Code) {
             return checkpoint;
         }
@@ -170,7 +170,7 @@ internal abstract class BaseCaseMessageService
     }
 
     private async Task AddCaseData(ClaimsPrincipal user, DbCase @case, dynamic data) {
-        if (data == null) throw new ArgumentNullException(nameof(data));
+        ArgumentNullException.ThrowIfNull(data);
 
         // Validate data against case type json schema, only when schema is present
         if (!string.IsNullOrEmpty(@case.CaseType.DataSchema) && !_schemaValidator.IsValid(@case.CaseType.DataSchema, data)) {
@@ -184,7 +184,7 @@ internal abstract class BaseCaseMessageService
         };
 
         @case.DataId = newDataVersion.Id;
-        
+
         // If case is mine, my changes are also publicly visible
         if (@case.CreatedBy.Id == user.FindSubjectIdOrClientId()) {
             @case.PublicDataId = newDataVersion.Id;

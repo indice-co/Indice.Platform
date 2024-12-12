@@ -8,8 +8,6 @@ using Elsa.Retention.Extensions;
 using Elsa.Retention.Specifications;
 using Indice.Security;
 using Indice.AspNetCore.Configuration;
-using Indice.AspNetCore.Mvc.ApplicationModels;
-using Indice.Features.Cases.Converters;
 using Indice.Features.Cases.Workflows.Activities;
 using Indice.Features.Cases.Workflows.Bookmarks.AwaitApproval;
 using Indice.Features.Cases.Workflows.Interfaces;
@@ -24,7 +22,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using NodaTime;
 using Microsoft.Extensions.Hosting;
 using Indice.Features.Cases.Core;
@@ -49,7 +46,7 @@ public static class CasesApiFeatureExtensions
     }
 
     /// <summary>Add case management Api endpoints for Customer (api/my prefix).</summary>
-    /// <param name="builder">The <see cref="IMvcBuilder"/>.</param>
+    /// <param name="builder">The <see cref="WebApplicationBuilder"/>.</param>
     /// <param name="configureAction">The <see cref="IConfiguration"/>.</param>
     public static WebApplicationBuilder AddCasesApiEndpoints(this WebApplicationBuilder builder, Action<MyCasesApiOptions>? configureAction = null) {
         // Add
@@ -58,7 +55,6 @@ public static class CasesApiFeatureExtensions
         // Build service provider and get IConfiguration instance.
         var serviceProvider = services.BuildServiceProvider();
         var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-        var environment = serviceProvider.GetRequiredService<IHostEnvironment>();
 
         // Try add general settings.
         services.AddGeneralSettings(configuration);
@@ -81,12 +77,6 @@ public static class CasesApiFeatureExtensions
 
         services.AddLimitUploadOptions(casesMyOptions.ConfigureLimitUpload);
 
-        // Post configure MVC options.
-        services.PostConfigure<MvcOptions>(options => {
-            options.Conventions.Add(new ApiPrefixControllerModelConvention(ApiPrefixes.MyCasesApiTemplatePrefixPlaceholder, casesMyOptions.ApiPrefix ?? "api"));
-            options.Conventions.Add(new ApiGroupNameControllerModelConvention(ApiGroups.MyCasesApiGroupNamePlaceholder, casesMyOptions.GroupName));
-        });
-
         // Register framework services.
         services.AddHttpContextAccessor();
 
@@ -103,7 +93,7 @@ public static class CasesApiFeatureExtensions
 
 
     /// <summary>Add case management Api endpoints for manage cases from back-office (api/manage prefix).</summary>
-    /// <param name="builder">The <see cref="IMvcBuilder"/>.</param>
+    /// <param name="builder">The <see cref="WebApplicationBuilder"/>.</param>
     /// <param name="configureAction">The <see cref="IConfiguration"/>.</param>
     public static WebApplicationBuilder AddAdminCasesApiEndpoints(this WebApplicationBuilder builder, Action<AdminCasesApiOptions>? configureAction = null) {
         // Add
@@ -129,12 +119,6 @@ public static class CasesApiFeatureExtensions
             options.ConfigureLimitUpload = casesAdminOptions.ConfigureLimitUpload;
         });
         services.AddLimitUploadOptions(casesAdminOptions.ConfigureLimitUpload);
-
-        // Post configure MVC options.
-        services.PostConfigure<MvcOptions>(options => {
-            options.Conventions.Add(new ApiPrefixControllerModelConvention(ApiPrefixes.CasesApiTemplatePrefixPlaceholder, casesAdminOptions.ApiPrefix ?? "api"));
-            options.Conventions.Add(new ApiGroupNameControllerModelConvention(ApiGroups.CasesApiGroupNamePlaceholder, casesAdminOptions.GroupName));
-        });
 
         // Register framework services.
         services.AddHtmlRenderingEngineRazorMvc();// used by the CasesTemplate service

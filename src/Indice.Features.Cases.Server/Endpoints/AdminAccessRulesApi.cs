@@ -11,6 +11,12 @@ namespace Indice.Features.Cases.Server.Endpoints;
 /// <summary>Cases Access rules from the administrative perspective.</summary>
 public static class AdminAccessRulesApi
 {
+
+    /// <summary>
+    /// Cases Access rules from the administrative perspective.
+    /// </summary>
+    /// <param name="routes"></param>
+    /// <returns></returns>
     public static IEndpointRouteBuilder MapAdminAccessRules(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<CaseServerOptions>>().Value;
 
@@ -57,7 +63,7 @@ public static class AdminAccessRulesApi
             .RequireAuthorization(CasesApiConstants.Policies.BeCasesAdministrator);
 
         group.MapPut("access-rules/{ruleId:guid}/{accessLevel:int}", AdminAccessRulesHandler.UpdateAccessRule)
-            .WithName(nameof(AdminAccessRulesHandler.UpdateBatchAccessRules))
+            .WithName(nameof(AdminAccessRulesHandler.UpdateAccessRule))
             .WithSummary("Update an existing Access rule.");
 
         group.MapDelete("access-rules/{ruleId:guid}", AdminAccessRulesHandler.DeleteAccessRule)
