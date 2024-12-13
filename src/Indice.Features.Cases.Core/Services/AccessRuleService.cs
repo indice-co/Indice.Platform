@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Data.Models;
@@ -113,7 +114,7 @@ internal class AccessRuleService : IAccessRuleService
         if (!accessRule.IsValid())
             throw new ValidationException("At least one resource rule must be set (RuleCaseId, RuleCheckpointTypeId, RuleCaseTypeId or RuleCaseId & RuleCheckpointTypeId) with at least one grant (MemberRole, MemberGroupId, MemberUserId).");
 
-        var entity = ToDbObject(accessRule);
+        var entity = FromModel(accessRule);
         await _dbContext.CaseAccessRules.AddAsync(entity);
         await _dbContext.SaveChangesAsync();
     }
@@ -129,7 +130,7 @@ internal class AccessRuleService : IAccessRuleService
             throw new ValidationException("At least one resource rule must be set (RuleCaseId, RuleCheckpointTypeId, RuleCaseTypeId or RuleCaseId & RuleCheckpointTypeId) with at least one grant (MemberRole, MemberGroupId, MemberUserId) for all records.");
 
         foreach (var accessRule in accessRules) {
-            await _dbContext.CaseAccessRules.AddAsync(ToDbObject(accessRule));
+            await _dbContext.CaseAccessRules.AddAsync(FromModel(accessRule));
         }
 
         await _dbContext.SaveChangesAsync();
@@ -141,7 +142,7 @@ internal class AccessRuleService : IAccessRuleService
         if (!accessRule.IsValid())
             throw new ValidationException("At lease on of the following fields must be set MemberRole, MemberGroupId, MemberUserId.");
 
-        var entity = ToDbObject(accessRule, caseId);
+        var entity = FromModel(accessRule, caseId);
         await _dbContext.CaseAccessRules.AddAsync(entity);
         await _dbContext.SaveChangesAsync();
     }
@@ -162,7 +163,7 @@ internal class AccessRuleService : IAccessRuleService
         dbAccessRule.AccessLevel = accessLevel;
         _dbContext.CaseAccessRules.Update(dbAccessRule);
         await _dbContext.SaveChangesAsync();
-        return ToDto(dbAccessRule);
+        return ToModel(dbAccessRule);
     }
 
     public async Task Batch(ClaimsPrincipal user, Guid caseId, List<AddCaseAccessRuleRequest> accessRules) {
@@ -171,7 +172,7 @@ internal class AccessRuleService : IAccessRuleService
             throw new ValidationException("At lease on of the following fields must be set MemberRole, MemberGroupId, MemberUserId for all records.");
 
         foreach (var accessRule in accessRules) {
-            await _dbContext.CaseAccessRules.AddAsync(ToDbObject(accessRule, caseId));
+            await _dbContext.CaseAccessRules.AddAsync(FromModel(accessRule, caseId));
         }
         await _dbContext.SaveChangesAsync();
     }
@@ -203,8 +204,9 @@ internal class AccessRuleService : IAccessRuleService
         var updated = await _dbContext.SaveChangesAsync();
         return updated > 0;
     }
-    private DbCaseAccessRule ToDbObject(AddAccessRuleRequest accessRule) =>
-        new DbCaseAccessRule {
+
+    private DbCaseAccessRule FromModel(AddAccessRuleRequest accessRule) =>
+        new () {
             Id = Guid.NewGuid(),
 
             RuleCaseId = accessRule.RuleCaseId,
@@ -218,8 +220,8 @@ internal class AccessRuleService : IAccessRuleService
             AccessLevel = accessRule.AccessLevel,
             CreatedDate = DateTimeOffset.Now
         };
-    private DbCaseAccessRule ToDbObject(AddCaseAccessRuleRequest accessRule, Guid caseId) =>
-       new DbCaseAccessRule {
+    private DbCaseAccessRule FromModel(AddCaseAccessRuleRequest accessRule, Guid caseId) =>
+       new () {
            Id = Guid.NewGuid(),
 
            RuleCaseId = caseId,
@@ -232,16 +234,17 @@ internal class AccessRuleService : IAccessRuleService
            AccessLevel = accessRule.AccessLevel,
            CreatedDate = DateTimeOffset.Now
        };
-    private AccessRule ToDto(DbCaseAccessRule accessRule) =>
-        new AccessRule {
-            Id = accessRule.Id,
-            RuleCaseId = accessRule.RuleCaseId,
-            RuleCheckpointTypeId = accessRule.RuleCheckpointTypeId,
-            RuleCaseTypeId = accessRule.RuleCaseTypeId,
-            MemberRole = accessRule.MemberRole,
-            MemberGroupId = accessRule.MemberGroupId,
-            MemberUserId = accessRule.MemberUserId,
-            AccessLevel = accessRule.AccessLevel
-        };
+
+    private AccessRule ToModel(DbCaseAccessRule accessRule) => ToModelExpression().Compile(false)(accessRule);
+    private Expression<Func<DbCaseAccessRule, AccessRule>> ToModelExpression() => (DbCaseAccessRule accessRule) => new AccessRule {
+        Id = accessRule.Id,
+        RuleCaseId = accessRule.RuleCaseId,
+        RuleCheckpointTypeId = accessRule.RuleCheckpointTypeId,
+        RuleCaseTypeId = accessRule.RuleCaseTypeId,
+        MemberRole = accessRule.MemberRole,
+        MemberGroupId = accessRule.MemberGroupId,
+        MemberUserId = accessRule.MemberUserId,
+        AccessLevel = accessRule.AccessLevel
+    };
 
 }
