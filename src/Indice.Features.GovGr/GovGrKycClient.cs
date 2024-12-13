@@ -35,12 +35,12 @@ internal class GovGrKycClient : IKycService
                                    _settings.IsDevelopment ? FQDN_DEMO : FQDN_PROD;
     protected Uri BaseAddress => new($"https://{BaseDomain}");
 
-    public List<ScopeDescription> GetAvailableScopes(IStringLocalizer localizer = null) => _govGrKycScopeDescriber.GetDescriptions(localizer);
+    public List<ScopeDescription> GetAvailableScopes(IStringLocalizer? localizer = null) => _govGrKycScopeDescriber.GetDescriptions(localizer);
 
     /// <summary>Get Data from eGov KYC</summary>
     public async Task<KycPayload> GetDataAsync(string code) {
         if (_settings.IsMock)
-            return JsonSerializer.Deserialize<KycPayload>(GovGrConstants.KycMockJsonString);
+            return JsonSerializer.Deserialize<KycPayload>(GovGrConstants.KycMockJsonString)!;
 
         if (code is null) { throw new ArgumentNullException(nameof(code)); }
 
@@ -54,22 +54,22 @@ internal class GovGrKycClient : IKycService
         if (!httpResponse.IsSuccessStatusCode) {
             throw new GovGrServiceException(response);
         }
-        var encodedResponse = JsonSerializer.Deserialize<KycHttpResponse>(response);
+        var encodedResponse = JsonSerializer.Deserialize<KycHttpResponse>(response)!;
         var signatureVerified = await VerifySignature(encodedResponse);
 
         if (!signatureVerified) {
             throw new Exception("Signature could not be verified.");
         }
-        var jsonString = encodedResponse.Payload.Base64UrlSafeDecode();
-        return JsonSerializer.Deserialize<KycPayload>(jsonString);
+        var jsonString = encodedResponse.Payload!.Base64UrlSafeDecode();
+        return JsonSerializer.Deserialize<KycPayload>(jsonString)!;
     }
 
     /// <summary>Verify EGovKyc's Response Signature</summary>
     private async Task<bool> VerifySignature(KycHttpResponse kycHttpResponse) {
         // Decode Protected
-        var protectedJsonString = kycHttpResponse.Protected.Base64UrlSafeDecode();
+        var protectedJsonString = kycHttpResponse.Protected!.Base64UrlSafeDecode();
         // Deserialize decoded Protected
-        var @protected = JsonSerializer.Deserialize<Protected>(protectedJsonString);
+        var @protected = JsonSerializer.Deserialize<Protected>(protectedJsonString)!;
 
         // Get the Public Key of the Certificate that was used for signing the response
         var x5uHttpResponse = await _httpClient.GetAsync(@protected.X5u);
@@ -102,14 +102,14 @@ internal class GovGrKycClient : IKycService
     private async Task<string> GetAccessToken(string code) {
         var tokenResponse = await _httpClient.RequestAuthorizationCodeTokenAsync(new AuthorizationCodeTokenRequest {
             Address = $"{BaseAddress}/oauth/token",
-            ClientId = _settings.ClientId,
+            ClientId = _settings.ClientId!,
             ClientSecret = _settings.ClientSecret,
-            RedirectUri = _settings.RedirectUri,
+            RedirectUri = _settings.RedirectUri!,
             Code = code,
         });
         if (tokenResponse.IsError) {
-            throw new GovGrServiceException(tokenResponse.Error);
+            throw new GovGrServiceException(tokenResponse.Error!);
         }
-        return tokenResponse.AccessToken;
+        return tokenResponse.AccessToken!;
     }
 }

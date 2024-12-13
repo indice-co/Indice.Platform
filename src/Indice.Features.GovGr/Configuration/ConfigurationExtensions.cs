@@ -10,7 +10,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class GovGrKycConfigurationExtensions
 {
     /// <summary>Adds GovGr Http services (kyc wallet etc.).</summary>
-    public static IServiceCollection AddGovGrClient(this IServiceCollection services, Action<GovGrOptions> configure = null) {
+    public static IServiceCollection AddGovGrClient(this IServiceCollection services, Action<GovGrOptions>? configure = null) {
         var serviceProvider = services.BuildServiceProvider();
         var configuration = serviceProvider.GetRequiredService<IConfiguration>();
         // Initialize empty options.

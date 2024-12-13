@@ -24,15 +24,15 @@ public class GovGrOptions
     public class KycOptions
     {
         /// <summary>Represents the environment. Valid options are <em>production</em>, <em>staging</em>, <em>development</em> &amp; <em>mock</em>. Defaults to <b>production</b>. </summary>
-        public string Environment { get; set; }
+        public string? Environment { get; set; }
         /// <summary>ClientId</summary>
-        public string ClientId { get; set; }
+        public string? ClientId { get; set; }
 
         /// <summary>ClientSecret</summary>
-        public string ClientSecret { get; set; }
+        public string? ClientSecret { get; set; }
 
         /// <summary>RedirectUri the callback url that ends the flow. This is different per client</summary>
-        public string RedirectUri { get; set; }
+        public string? RedirectUri { get; set; } 
 
         /// <summary>Check if in production</summary>
         public bool IsProduction => string.IsNullOrEmpty(Environment) || "Production".Equals(Environment, System.StringComparison.OrdinalIgnoreCase);
@@ -51,7 +51,7 @@ public class GovGrOptions
         /// <summary>Uses sandbox url and test data.</summary>
         public bool Sandbox { get; set; }
         /// <summary>The service token. Api key</summary>
-        public string Token { get; set; }
+        public string? Token { get; set; }
     }
 
     /// <summary>Documents settings</summary>
@@ -60,9 +60,9 @@ public class GovGrOptions
     {
 
         /// <summary>Uses sandbox url and test data.</summary>
-        public string ServiceName { get; set; }
+        public string? ServiceName { get; set; } 
         /// <summary>The service token. Api key</summary>
-        public string Token { get; set; }
+        public string? Token { get; set; } 
     }
 
     /// <summary>Business Registry settings</summary>
@@ -73,27 +73,27 @@ public class GovGrOptions
         /// <summary>BaseAddress</summary>
         public string BaseAddress { get; set; } = "https://www1.gsis.gr:443/webtax2/wsgsis/RgWsPublic/RgWsPublicPort";
         /// <summary>Username</summary>
-        public string Username { get; set; }
+        public string? Username { get; set; } 
         /// <summary>Password</summary>
-        public string Password { get; set; }
+        public string? Password { get; set; } 
         /// <summary>Callers Fiscal Code</summary>
-        public string CallersFiscalCode { get; set; }
+        public string? CallersFiscalCode { get; set; } 
     }
 
     /// <summary>Bancapp settings</summary>
     public class BancappOptions
     {
         /// <summary>Represents the environment. Valid options are <em>production</em>, <em>staging</em>, <em>development</em> &amp; <em>mock</em>.Defaults to <b>stage</b>. </summary>
-        public string Environment { get; set; }
+        public string? Environment { get; set; }
         
         /// <summary>Username. Used to authenticate to Bancapp API.</summary>
-        public string Username { get; set; }
+        public string? Username { get; set; }
         
         /// <summary>Password. Used to authenticate to Bancapp API.</summary>
-        public string Password { get; set; }
+        public string? Password { get; set; }
         
         /// <summary>The ropc-client-id. Used to authenticate to Bancapp API.</summary>
-        public string ClientId { get; set; }
+        public string? ClientId { get; set; }
 
         /// <summary>Check if in production</summary>
         public bool IsProduction => "Production".Equals(Environment, System.StringComparison.OrdinalIgnoreCase);

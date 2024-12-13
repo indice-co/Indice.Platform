@@ -12,7 +12,7 @@ public class StringKycStatusCodeConverter : JsonConverter<KycStatusCode>
         ref Utf8JsonReader reader,
         Type typeToConvert,
         JsonSerializerOptions options) =>
-            _tryParseEGovKycStatusCode(reader.GetString());
+            _tryParseEGovKycStatusCode(reader.GetString()!);
 
     /// <inheritdoc/>
     public override void Write(

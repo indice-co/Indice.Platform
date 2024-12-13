@@ -30,7 +30,7 @@ internal class GovGrBusinessRegistryClient : IBusinessRegistryService
     }
 
     private static BusinessRegistryRecord ToModel(RgWsPublicBasicRtUser user, RgWsPublicFirmActRtUserArray firms) {
-        var mainFirmActivity = firms?.Where(x => x.firmActKind == "1").FirstOrDefault();
+        var mainFirmActivity = firms?.FirstOrDefault(x => x.firmActKind == "1");
         return new BusinessRegistryRecord {
             TaxOfficeCode = user.doy,
             TaxOfficeDescription = user.doyDescr,
