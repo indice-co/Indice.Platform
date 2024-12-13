@@ -62,16 +62,7 @@ internal class AccessRuleService : IAccessRuleService
             };
         }
 
-        return query.Select(rule => new AccessRule {
-            Id = rule.Id,
-            AccessLevel = rule.AccessLevel,
-            RuleCaseId = rule.RuleCaseId,
-            RuleCaseTypeId = rule.RuleCaseTypeId,
-            RuleCheckpointTypeId = rule.RuleCheckpointTypeId,
-            MemberRole = rule.MemberRole,
-            MemberGroupId = rule.MemberGroupId,
-            MemberUserId = rule.MemberUserId
-        })
+        return query.Select(ToModelExpression())
         .ToResultSetAsync(filters);
     }
 
@@ -93,16 +84,7 @@ internal class AccessRuleService : IAccessRuleService
                 (x.RuleCaseId == null && checkpoints.Contains(x.RuleCheckpointTypeId ?? Guid.Empty))
                 );
 
-        return await query.Select(rule => new AccessRule {
-            Id = rule.Id,
-            AccessLevel = rule.AccessLevel,
-            RuleCaseId = rule.RuleCaseId,
-            RuleCaseTypeId = rule.RuleCaseTypeId,
-            RuleCheckpointTypeId = rule.RuleCheckpointTypeId,
-            MemberRole = rule.MemberRole,
-            MemberGroupId = rule.MemberGroupId,
-            MemberUserId = rule.MemberUserId
-        }).ToListAsync();
+        return await query.Select(ToModelExpression()).ToListAsync();
     }
 
     public async Task AdminCreate(ClaimsPrincipal user, AddAccessRuleRequest accessRule) {
@@ -218,7 +200,7 @@ internal class AccessRuleService : IAccessRuleService
             MemberUserId = accessRule.MemberUserId,
 
             AccessLevel = accessRule.AccessLevel,
-            CreatedDate = DateTimeOffset.Now
+            CreatedDate = DateTimeOffset.UtcNow
         };
     private DbCaseAccessRule FromModel(AddCaseAccessRuleRequest accessRule, Guid caseId) =>
        new () {
@@ -232,7 +214,7 @@ internal class AccessRuleService : IAccessRuleService
            MemberUserId = accessRule.MemberUserId,
 
            AccessLevel = accessRule.AccessLevel,
-           CreatedDate = DateTimeOffset.Now
+           CreatedDate = DateTimeOffset.UtcNow
        };
 
     private AccessRule ToModel(DbCaseAccessRule accessRule) => ToModelExpression().Compile(false)(accessRule);
