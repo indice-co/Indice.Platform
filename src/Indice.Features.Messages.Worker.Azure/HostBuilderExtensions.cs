@@ -26,12 +26,12 @@ public static class HostBuilderExtensions
     /// <summary>Configures services used by the queue triggers used for campaign management system.</summary>
     /// <param name="hostBuilder">A program initialization abstraction.</param>
     /// <param name="configure">Configure action for <see cref="MessageOptions"/>.</param>
-    public static IHostBuilder ConfigureMessageFunctions(this IHostBuilder hostBuilder, Action<IConfiguration, IHostEnvironment, MessageOptions>? configure = null) =>
+    public static IHostBuilder ConfigureMessageFunctions(this IHostBuilder hostBuilder, Action<HostBuilderContext, MessageOptions>? configure = null) =>
         hostBuilder.ConfigureServices((hostBuilderContext, services) => {
             var options = new MessageOptions {
                 Services = services
             };
-            configure?.Invoke(hostBuilderContext.Configuration, hostBuilderContext.HostingEnvironment, options);
+            configure?.Invoke(hostBuilderContext, options);
             services.AddCoreServices(options, hostBuilderContext.Configuration);
             services.AddJobHandlerServices();
             services.Configure<WorkerOptions>(options => {
