@@ -40,25 +40,25 @@ public class MessageQueueRelational<T> : IMessageQueue<T> where T : class
         command.CommandText = _queryDescriptor.Count;
         command.CommandType = CommandType.Text;
         var count = await command.ExecuteScalarAsync();
-        return (int)count;
+        return (int)count!;
     }
 
     /// <inheritdoc/>
-    public async Task<QMessage<T>> Dequeue() {
+    public async Task<QMessage<T>?> Dequeue() {
         var dbConnection = await _dbContext.Database.EnsureOpenConnectionAsync();
         await using var command = dbConnection.CreateCommand();
         command.AddParameterWithValue("@QueueName", _queueNameResolver.Resolve(), DbType.String);
         command.CommandText = _queryDescriptor.Dequeue;
         command.CommandType = CommandType.Text;
         await using var dataReader = await command.ExecuteReaderAsync();
-        DbQMessage message = null;
+        DbQMessage? message = null;
         while (dataReader.Read()) {
             message = new DbQMessage {
                 Id = dataReader.GetGuid(0),
-                QueueName = dataReader.IsDBNull(1) ? default : dataReader.GetString(1),
-                Payload = dataReader.IsDBNull(2) ? default : dataReader.GetString(2),
+                QueueName = dataReader.IsDBNull(1) ? default! : dataReader.GetString(1),
+                Payload = dataReader.IsDBNull(2) ? default! : dataReader.GetString(2),
                 Date = dataReader.GetDateTime(3),
-                RowVersion = dataReader.IsDBNull(4) ? default : dataReader.GetValue(4) as byte[],
+                RowVersion = dataReader.IsDBNull(4) ? default! : (byte[])dataReader.GetValue(4),
                 DequeueCount = dataReader.GetInt32(5),
                 State = (QMessageState)dataReader.GetInt32(6)
             };
@@ -110,14 +110,14 @@ public class MessageQueueRelational<T> : IMessageQueue<T> where T : class
     }
 
     /// <inheritdoc/>
-    public async Task<T> Peek() {
+    public async Task<T?> Peek() {
         var dbConnection = await _dbContext.Database.EnsureOpenConnectionAsync();
         await using var command = dbConnection.CreateCommand();
         command.AddParameterWithValue("@QueueName", _queueNameResolver.Resolve(), DbType.String);
         command.CommandText = _queryDescriptor.Peek;
         command.CommandType = CommandType.Text;
         await using var dataReader = await command.ExecuteReaderAsync();
-        string payload = null;
+        string? payload = null;
         while (dataReader.Read()) {
             payload = dataReader.IsDBNull(0) ? default : dataReader.GetString(2);
         }

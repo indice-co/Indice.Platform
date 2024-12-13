@@ -21,7 +21,7 @@ public class ScheduledTaskStoreEF<TState> : IScheduledTaskStore<TState> where TS
     }
 
     /// <inheritdoc/>
-    public async Task<ScheduledTask<TState>> GetById(string taskId) =>
+    public async Task<ScheduledTask<TState>?> GetById(string taskId) =>
         (await _dbContext.Tasks.AsNoTracking().Where(x => x.Id == taskId).SingleOrDefaultAsync())?.ToModel<TState>(_jsonSerializerOptions);
 
     /// <inheritdoc/>

@@ -9,13 +9,13 @@ public class TaskTriggerBuilder
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     public TaskTriggerBuilder(IServiceCollection services) : this(services, null, null) { }
 
-    internal TaskTriggerBuilder(IServiceCollection services, WorkerHostOptions options, Type jobHandlerType) {
+    internal TaskTriggerBuilder(IServiceCollection services, WorkerHostOptions? options, Type? jobHandlerType) {
         Services = services;
         JobHandlerType = jobHandlerType;
         Options = options;
     }
 
     internal IServiceCollection Services { get; }
-    internal Type JobHandlerType { get; }
-    internal WorkerHostOptions Options { get; }
+    internal Type? JobHandlerType { get; }
+    internal WorkerHostOptions? Options { get; }
 }

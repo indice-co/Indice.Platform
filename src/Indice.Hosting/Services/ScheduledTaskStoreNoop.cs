@@ -7,7 +7,7 @@ namespace Indice.Hosting.Services;
 public class ScheduledTaskStoreNoop<TState> : IScheduledTaskStore<TState> where TState : class
 {
     /// <inheritdoc/>
-    public Task<ScheduledTask<TState>> GetById(string taskId) => Task.FromResult(new ScheduledTask<TState>());
+    public Task<ScheduledTask<TState>?> GetById(string taskId) => Task.FromResult<ScheduledTask<TState>?>(new ());
 
     /// <inheritdoc/>
     public Task Save(ScheduledTask<TState> scheduledTask) => Task.CompletedTask;

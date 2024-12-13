@@ -4,7 +4,6 @@
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;CampaignManagement;Messages;Notifications</PackageTags>
     <VersionPrefix>$(VersionPrefixMessages)</VersionPrefix>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Indice.Features.Messages.AspNetCore" />

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.AspNetCore.StaticFiles;
 
@@ -30,6 +31,9 @@ public class SpaUIOptions
     public string ApiBase { get; set; } = "/api";
     /// <summary>URI to redirect to after logout.</summary>
     public string? PostLogoutRedirectUri { get; set; }
+    /// <summary>Sets a cookie named XSRF-TOKEN. The client can read this cookie and provide its value as a header attached to AJAX requests. </summary>
+    /// <remarks>For example, Angular includes built-in XSRF protection that reads a cookie named XSRF-TOKEN by default.</remarks>
+    public bool GenerateAntiforgeryTokens { get; set; }
     /// <summary>Called after the status code and headers have been set, but before the body has been written. This can be used to add or change the response headers.</summary>
     public Action<StaticFileResponseContext>? OnPrepareResponse { get; set; }
     /// <summary>Provides a way to configure extra custom parameters for the index.html page.</summary>

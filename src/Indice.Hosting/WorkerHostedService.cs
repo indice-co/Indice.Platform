@@ -30,7 +30,7 @@ internal class WorkerHostedService : IHostedService
     }
 
     /// <summary>The Quartz scheduler.</summary>
-    public IScheduler Scheduler { get; private set; }
+    public IScheduler? Scheduler { get; private set; }
 
     /// <inheritdoc />
     public async Task StartAsync(CancellationToken cancellationToken) {
@@ -104,6 +104,6 @@ internal class WorkerHostedService : IHostedService
     /// <inheritdoc />
     public async Task StopAsync(CancellationToken cancellationToken) {
         _logger.LogInformation("Queued Hosted Service is stopping.");
-        await Scheduler?.Shutdown(cancellationToken);
+        await Scheduler?.Shutdown(cancellationToken)!;
     }
 }

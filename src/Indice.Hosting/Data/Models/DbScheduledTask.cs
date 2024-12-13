@@ -7,15 +7,15 @@ namespace Indice.Hosting.Data.Models;
 public class DbScheduledTask
 {
     /// <summary>The id.</summary>
-    public string Id { get; set; }
+    public string Id { get; set; } = null!;
     /// <summary>The worker id that run the task.</summary>
-    public string WorkerId { get; set; }
+    public string? WorkerId { get; set; }
     /// <summary>Task group.</summary>
-    public string Group { get; set; }
+    public string? Group { get; set; }
     /// <summary>Task name.</summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
     /// <summary>The type name.</summary>
-    public string Type { get; set; }
+    public string Type { get; set; } = null!;
     /// <summary>The date.</summary>
     public DateTimeOffset LastExecution { get; set; }
     /// <summary>The date.</summary>
@@ -25,11 +25,11 @@ public class DbScheduledTask
     /// <summary>The status.</summary>
     public ScheduledTaskStatus Status { get; set; }
     /// <summary>The errors.</summary>
-    public string Errors { get; set; }
+    public string? Errors { get; set; }
     /// <summary>The last time an error occurred.</summary>
     public DateTimeOffset? LastErrorDate { get; set; }
     /// <summary>The payload.</summary>
-    public string Payload { get; set; }
+    public string Payload { get; set; } = null!;
     /// <summary>The status.</summary>
     public double Progress { get; set; }
     /// <summary>If this is set to false the schedule will be disabled</summary>
@@ -37,7 +37,7 @@ public class DbScheduledTask
 
     /// <summary>Generates the DTO for this <see cref="DbScheduledTask"/>.</summary>
     /// <param name="options">Provides options to be used with <see cref="JsonSerializer"/>.</param>
-    public ScheduledTask<TState> ToModel<TState>(JsonSerializerOptions options = null) where TState : class => new() {
+    public ScheduledTask<TState> ToModel<TState>(JsonSerializerOptions? options = null) where TState : class => new() {
         Id = Id,
         Description = Description,
         Group = Group,
@@ -47,14 +47,14 @@ public class DbScheduledTask
         LastExecution = LastExecution,
         NextExecution = NextExecution,
         Progress = Progress,
-        State = JsonSerializer.Deserialize<TState>(Payload, options ?? WorkerJsonOptions.GetDefaultSettings()),
+        State = JsonSerializer.Deserialize<TState>(Payload, options ?? WorkerJsonOptions.GetDefaultSettings())!,
         Status = Status,
         Type = Type,
         WorkerId = WorkerId,
         Enabled = Enabled ?? true,
     };
 
-    internal DbScheduledTask From<TState>(ScheduledTask<TState> model, JsonSerializerOptions options = null) where TState : class {
+    internal DbScheduledTask From<TState>(ScheduledTask<TState> model, JsonSerializerOptions? options = null) where TState : class {
         Id = model.Id;
         Description = model.Description;
         Group = model.Group;
