@@ -10,7 +10,7 @@ namespace Indice.Features.Cases.Server.Endpoints;
 internal static class AdminCaseTypesHandler
 {
 
-    public static async Task<Results<Ok<ResultSet<CaseTypePartial>>, NotFound>> GetAdminCaseTypes(ICaseTypeService caseTypeService, ClaimsPrincipal User, [AsParameters] bool canCreate = false) {
+    public static async Task<Results<Ok<ResultSet<CaseTypePartial>>, NotFound>> GetAdminCaseTypes(ICaseTypeService caseTypeService, ClaimsPrincipal User, bool canCreate = false) {
         var caseTypes = await caseTypeService.Get(User, canCreate);
         if (caseTypes == null) {
                return TypedResults.NotFound();

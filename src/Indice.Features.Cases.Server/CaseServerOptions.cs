@@ -17,7 +17,7 @@ public class CaseServerOptions : CasesOptions
     /// The Open API spcification for the set of endpoints registered. Different groups mean different openapi specs.
     /// </summary>
     /// <remarks>defaults to <strong>cases</strong></remarks>
-    public PathString GroupName  { get; set; } = "cases";
+    public string GroupName  { get; set; } = "manager";
 
     /// <summary>
     /// Configuration for overriding the default <see cref="LimitUploadOptions"/>

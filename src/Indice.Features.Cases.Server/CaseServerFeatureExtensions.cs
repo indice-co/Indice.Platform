@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Indice.Features.Cases.Server.Endpoints;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace Indice.Features.Cases.Server;
@@ -34,8 +36,36 @@ public static class CaseServerFeatureExtensions
             options.UserClaimType = serverOptions.UserClaimType;
             options.GroupIdClaimType = serverOptions.GroupIdClaimType;
         });
+        // must run last in order not to override any explicit service declarations.
+        builder.Services.AddCasesManagement(options => {
+            options.ConfigureDbContext = serverOptions.ConfigureDbContext;
+            options.DatabaseSchema = serverOptions.DatabaseSchema;
+            options.UserClaimType = serverOptions.UserClaimType;
+            options.GroupIdClaimType = serverOptions.GroupIdClaimType;
+            options.ReferenceNumberEnabled = serverOptions.ReferenceNumberEnabled;
+        });
         builder.Services.AddLimitUpload(serverOptions.ConfigureLimitUpload);
         return builder;
+    }
+
+    /// <summary>Adds all case server endpoints.</summary>
+    /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
+    /// <returns>The <see cref="IEndpointRouteBuilder"/> for further configuration.</returns>
+    public static IEndpointRouteBuilder MapCases(this IEndpointRouteBuilder routes) {
+        // my account
+        routes.MapMyCases();
+        // management endpoints
+        routes.MapAdminCases();
+        routes.MapAdminAttachments();
+        routes.MapAdminCaseTypes();
+        routes.MapAdminCheckpointTypes();
+        routes.MapAdminIntegration();
+        routes.MapAdminNotifications();
+        routes.MapAdminQueries();
+        routes.MapAdminReports();
+        routes.MapAdminWorkflowInvoker();
+        routes.MapLookup();
+        return routes;
     }
 }
 

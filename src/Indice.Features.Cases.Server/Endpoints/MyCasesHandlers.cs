@@ -10,8 +10,9 @@ internal static class MyCasesHandlers
 {
     public static async Task<Ok<ResultSet<CaseTypePartial>>> GetCaseTypes(
         IMyCaseService myCaseService,
-        [AsParameters] ListOptions options, [AsParameters] GetMyCaseTypesListFilter filter) {
-        var results = await myCaseService.GetCaseTypes(ListOptions.Create(options, filter));
+        [AsParameters] ListOptions options, 
+        string[]? caseTypeTags) {
+        var results = await myCaseService.GetCaseTypes(ListOptions.Create(options, new GetMyCaseTypesListFilter { CaseTypeTags = [..caseTypeTags] }));
         return TypedResults.Ok(results);
     }
     public static async Task<Ok<CaseTypePartial>> GetCaseType(

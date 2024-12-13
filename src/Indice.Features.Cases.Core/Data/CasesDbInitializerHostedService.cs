@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -10,17 +11,20 @@ namespace Indice.Features.Cases.Core.Data;
 /// </summary>
 internal class CasesDbInitializerHostedService : BackgroundService
 {
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
+    private readonly IHostEnvironment _environment;
     private readonly ILogger<CasesDbInitializerHostedService> _logger;
 
     /// <summary>
     /// Creates a new instance of <see cref="CasesDbInitializerHostedService"/>
     /// </summary>
-    /// <param name="provider">The service provider.</param>
-    /// <param name="logger"></param>
+    /// <param name="serviceScopeFactory">The service provider factory. Used to create scopes</param>
+    /// <param name="environment">The service environment</param>
+    /// <param name="logger">a logger</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public CasesDbInitializerHostedService(IServiceProvider provider, ILogger<CasesDbInitializerHostedService> logger) {
-        _serviceProvider = provider ?? throw new ArgumentNullException(nameof(provider));
+    public CasesDbInitializerHostedService(IServiceScopeFactory serviceScopeFactory, IHostEnvironment environment, ILogger<CasesDbInitializerHostedService> logger) {
+        _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
+        _environment = environment ?? throw new ArgumentNullException(nameof(environment));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -30,14 +34,17 @@ internal class CasesDbInitializerHostedService : BackgroundService
     /// <param name="stoppingToken">The cancellation token.</param>
     /// <returns></returns>
     protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
-        var hostingEnvironment = _serviceProvider.GetRequiredService<IHostEnvironment>();
-        if (!hostingEnvironment.IsDevelopment()) {
+        if (!_environment.IsDevelopment()) {
             return;
         }
         await Task.Delay(TimeSpan.FromSeconds(2));
-        using var scope = _serviceProvider.CreateAsyncScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<CasesDbContext>();
-        var seedOptions = scope.ServiceProvider.GetRequiredService<IOptions<CasesDbIntialDataOptions>>();
-        await dbContext.InitializeAsync(seedOptions);
+        try {
+            using var scope = _serviceScopeFactory.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<CasesDbContext>();
+            var seedOptions = scope.ServiceProvider.GetRequiredService<IOptions<CasesDbIntialDataOptions>>();
+            await dbContext.InitializeAsync(seedOptions);
+        } catch (Exception ex){
+            _logger.LogError(ex, "Failed to run CasesDbInitializer");
+        }
     }
 }

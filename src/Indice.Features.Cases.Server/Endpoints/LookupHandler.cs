@@ -11,10 +11,10 @@ internal static class LookupHandler
     public static async Task<Results<Ok<ResultSet<LookupItem>>, NotFound>> GetLookup(
         string lookupName, 
         [AsParameters] ListOptions options,
-        [AsParameters] LookupFilter filter, 
+        string[]? filterTerms, 
         ILookupServiceFactory lookupServiceFactory) {
         var lookupService = lookupServiceFactory.Create(lookupName);
-        var lookupItems = await lookupService.Get(ListOptions.Create(options, filter));
+        var lookupItems = await lookupService.Get(ListOptions.Create(options, new LookupFilter { FilterTerms = filterTerms?.Select(FilterTerm.Parse).ToList() }));
         if (lookupItems == null) {
             return TypedResults.NotFound();
         }
