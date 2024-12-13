@@ -24,7 +24,8 @@ public static class AdminAttachmentsApi
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes("Bearer")
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-        );//.RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
+            .RequireCasesAccess(Authorization.CasesAccessLevel.Manager) // equivalent to BeCasesManager
+        );
 
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)

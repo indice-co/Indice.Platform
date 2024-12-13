@@ -21,12 +21,13 @@ public static class MyCasesApi
         
         group.WithTags("MyCases");
         group.WithGroupName("my");
-        
+
         // Add security requirements, all incoming requests to this API *must* be authenticated with a valid user.
         group.RequireAuthorization(policy => policy
              .RequireAuthenticatedUser()
              .AddAuthenticationSchemes("Bearer")
-        ).RequireAuthorization("BeCasesUser");
+             .RequireCasesAccess()
+        );
 
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", []);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)

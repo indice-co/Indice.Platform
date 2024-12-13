@@ -25,6 +25,7 @@ public static class AdminCasesApi
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes("Bearer")
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
+            .RequireCasesAccess(Authorization.CasesAccessLevel.Manager) // equivalent to BeCasesManager
         );
 
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);

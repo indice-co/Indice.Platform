@@ -19,4 +19,10 @@ public static class BasicRoleNames
     public const string AdminUIClientsWriter = nameof(AdminUIClientsWriter);
     /// <summary>A user that can manage campaigns.</summary>
     public const string CampaignManager = nameof(CampaignManager);
+    /// <summary>A user that can manage and administer cases.</summary>
+    public const string CasesAdministrator = nameof(CasesAdministrator);
+    /// <summary>A user that can manage cases.</summary>
+    public const string CasesManager = nameof(CasesManager);
+    /// <summary>A user that can access cases.</summary>
+    public const string CasesUser = nameof(CasesUser);
 }
