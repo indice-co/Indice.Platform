@@ -29,35 +29,34 @@ internal class AccessRuleService : IAccessRuleService
         var query = _dbContext.CaseAccessRules
           .AsNoTracking();
         // also: filter CheckpointTypeIds
-        if (filters.Filter.Checkpoint.HasValue) {
-
+        if (filters.Filter.Checkpoint.HasValue && Guid.TryParse(filters.Filter.Checkpoint.Value.Value, out var checkpointTypeId)) {
             query = filters.Filter.Checkpoint.Value.Operator switch {
-                FilterOperator.Eq => query.Where(c => c.RuleCheckpointTypeId.Equals(filters.Filter.Checkpoint.Value.Value)),
-                FilterOperator.Neq => query.Where(c => !c.RuleCheckpointTypeId.Equals(filters.Filter.Checkpoint.Value.Value)),
+                FilterOperator.Eq => query.Where(c => c.RuleCheckpointTypeId == checkpointTypeId),
+                FilterOperator.Neq => query.Where(c => c.RuleCheckpointTypeId != checkpointTypeId),
                 _ => query
             };
         }
 
         if (filters.Filter.CaseType.HasValue) {
-            query = filters.Filter.CaseType.Value.Operator switch {
-                FilterOperator.Eq => query.Where(c => c.RuleCaseId.Equals(filters.Filter.CaseType.Value.Value)),
-                FilterOperator.Neq => query.Where(c => !c.RuleCaseId.Equals(filters.Filter.CaseType.Value.Value)),
+            query = (filters.Filter.CaseType.Value.Operator, Guid.TryParse(filters.Filter.CaseType.Value.Value, out var caseTypeId)) switch {
+                (FilterOperator.Eq, true) => query.Where(c => c.RuleCaseId == caseTypeId),
+                (FilterOperator.Neq, true) => query.Where(c => c.RuleCaseId != caseTypeId),
                 _ => query
             };
         }
 
         if (filters.Filter.GroupId.HasValue) {
-            query = filters.Filter.GroupId.Value.Operator switch {
-                FilterOperator.Eq => query.Where(c => c.RuleCaseId.Equals(filters.Filter.GroupId.Value.Value)),
-                FilterOperator.Neq => query.Where(c => !c.RuleCaseId.Equals(filters.Filter.GroupId.Value.Value)),
+            query = (filters.Filter.GroupId.Value.Operator, filters.Filter.GroupId.Value.Value) switch {
+                (FilterOperator.Eq, string groupId) => query.Where(c => c.MemberGroupId == groupId),
+                (FilterOperator.Neq, string groupId) => query.Where(c => c.MemberGroupId != groupId),
                 _ => query
             };
         }
 
         if (filters.Filter.Role.HasValue) {
-            query = filters.Filter.Role.Value.Operator switch {
-                FilterOperator.Eq => query.Where(c => c.RuleCaseId.Equals(filters.Filter.Role.Value.Value)),
-                FilterOperator.Neq => query.Where(c => !c.RuleCaseId.Equals(filters.Filter.Role.Value.Value)),
+            query = (filters.Filter.Role.Value.Operator, filters.Filter.Role.Value.Value) switch {
+                (FilterOperator.Eq, string role) => query.Where(c => c.MemberRole == role),
+                (FilterOperator.Neq, string role) => query.Where(c => c.MemberRole != role),
                 _ => query
             };
         }
