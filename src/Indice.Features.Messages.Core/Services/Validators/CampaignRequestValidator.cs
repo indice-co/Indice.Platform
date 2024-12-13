@@ -47,23 +47,23 @@ public class CampaignRequestValidator<TCampaignRequest> : AbstractValidator<TCam
             .When(campaign => campaign.TypeId.HasValue) // Check that TypeId is valid, when it is provided.
             .WithMessage("Specified type id is not valid.");
         RuleFor(campaign => campaign.ActivePeriod)
-            .Must(campaign => campaign.To > campaign.From)
+            .Must(campaign => campaign?.To > campaign?.From)
             .When(campaign => campaign.ActivePeriod?.From is not null && campaign.ActivePeriod?.To is not null)
             .WithMessage("Campaign should end after the start date.");
-        RuleFor(campaign => campaign.ActionLink.Text)
+        RuleFor(campaign => campaign.ActionLink!.Text)
             .MaximumLength(TextSizePresets.M128)
             .When(x => !string.IsNullOrWhiteSpace(x.ActionLink?.Text))
             .WithMessage($"Campaign action text cannot exceed {TextSizePresets.M128} characters.");
-        RuleFor(campaign => campaign.ActionLink.Href)
+        RuleFor(campaign => campaign.ActionLink!.Href)
             .MaximumLength(TextSizePresets.L1024)
             .Matches(@"^https?:\/\/\w+(\.\w+)*(:[0-9]+)?(\/.*)?$")
             .When(x => !string.IsNullOrWhiteSpace(x.ActionLink?.Href))
             .WithMessage($"Campaign action URL is not valid.");
     }
 
-    private bool BeExistingTypeId(Guid? id) => _messageTypeService.GetById(id.Value).Result is not null;
+    private bool BeExistingTypeId(Guid? id) => _messageTypeService.GetById(id).Result is not null;
 
-    private bool BeExistingDistributionListId(Guid? id) => _distributionListService.GetById(id.Value).Result is not null;
+    private bool BeExistingDistributionListId(Guid? id) => _distributionListService.GetById(id).Result is not null;
 
-    private bool BeExistingTemplateId(Guid? id) => _templateService.GetById(id.Value).Result is not null;
+    private bool BeExistingTemplateId(Guid? id) => _templateService.GetById(id).Result is not null;
 }

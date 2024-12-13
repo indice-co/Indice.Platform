@@ -4,7 +4,7 @@
 public class CreateMessageRequest
 {
     /// <summary>The id of the recipient.</summary>
-    public string RecipientId { get; set; }
+    public string? RecipientId { get; set; } 
     /// <summary>The id of the contact.</summary>
     public Guid? ContactId { get; set; }
     /// <summary>The contents of the template.</summary>

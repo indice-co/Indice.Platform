@@ -35,6 +35,6 @@ internal class TrackingController(
             return NotFound();
         }
         await CampaignService.UpdateHit(trackingCode.Id);
-        return Redirect(campaign.ActionLink.Href);
+        return Redirect(campaign.ActionLink!.Href!);
     }
 }

@@ -23,7 +23,7 @@ public class DbMessageMap : IEntityTypeConfiguration<DbMessage>
         // Configure primary keys.
         builder.HasKey(x => x.Id);
         // Configure properties.
-        builder.Property(x => x.Content).HasJsonConversion().IsRequired();
+        builder.Property(x => x.Content).HasRequiredJsonConversion().IsRequired();
         builder.Property(x => x.RecipientId).IsRequired(false);
         // Configure indexes.
         builder.HasIndex(x => x.RecipientId).IsUnique(false);

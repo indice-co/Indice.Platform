@@ -19,5 +19,5 @@ public class CreateTemplateRequestValidator : AbstractValidator<CreateTemplateRe
             });
     }
 
-    private bool BeValidChannelKind(KeyValuePair<string, MessageContent> kvp) => Enum.TryParse(typeof(MessageChannelKind), kvp.Key, ignoreCase: true, out var _);
+    private static bool BeValidChannelKind(KeyValuePair<string, MessageContent> kvp) => Enum.TryParse(typeof(MessageChannelKind), kvp.Key, ignoreCase: true, out var _);
 }

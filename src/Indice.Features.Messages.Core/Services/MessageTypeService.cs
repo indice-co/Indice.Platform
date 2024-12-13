@@ -38,16 +38,13 @@ public class MessageTypeService : IMessageTypeService
 
     /// <inheritdoc />
     public async Task Delete(Guid id) {
-        var messageType = await DbContext.MessageTypes.FindAsync(id);
-        if (messageType is null) {
-            throw MessageExceptions.MessageTypeNotFound(id);
-        }
+        var messageType = await DbContext.MessageTypes.FindAsync(id) ?? throw MessageExceptions.MessageTypeNotFound(id);
         DbContext.MessageTypes.Remove(messageType);
         await DbContext.SaveChangesAsync();
     }
 
     /// <inheritdoc />
-    public async Task<MessageType> GetById(Guid id) {
+    public async Task<MessageType?> GetById(Guid? id) {
         var messageType = await DbContext.MessageTypes.FindAsync(id);
         if (messageType is null) {
             return default;
@@ -60,7 +57,7 @@ public class MessageTypeService : IMessageTypeService
     }
 
     /// <inheritdoc />
-    public async Task<MessageType> GetByName(string name) {
+    public async Task<MessageType?> GetByName(string name) {
         var messageType = await DbContext.MessageTypes.Where(x => x.Name == name).FirstOrDefaultAsync();
         if (messageType is null) {
             return default;
@@ -83,17 +80,14 @@ public class MessageTypeService : IMessageTypeService
                 Classification = campaignType.Classification
             });
         if (!string.IsNullOrWhiteSpace(options.Search)) {
-            query = query.Where(x => x.Name.ToLower().Contains(options.Search.ToLower()));
+            query = query.Where(x => x.Name!.ToLower().Contains(options.Search.ToLower()));
         }
         return query.ToResultSetAsync(options);
     }
 
     /// <inheritdoc />
     public async Task Update(Guid id, UpdateMessageTypeRequest request) {
-        var messageType = await DbContext.MessageTypes.FindAsync(id);
-        if (messageType is null) {
-            throw MessageExceptions.MessageTypeNotFound(id);
-        }
+        var messageType = await DbContext.MessageTypes.FindAsync(id) ?? throw MessageExceptions.MessageTypeNotFound(id);
         messageType.Name = request.Name;
         await DbContext.SaveChangesAsync();
     }

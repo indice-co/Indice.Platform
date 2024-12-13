@@ -72,12 +72,12 @@ public class CampaignOptionsBase
     public CampaignOptionsBase() { }
 
     /// <summary>Specifies the contract for a collection of service descriptors.</summary>
-    public IServiceCollection Services { get; }
+    public IServiceCollection? Services { get; }
     /// <summary>
     /// Configuration <see cref="Action"/> for internal <see cref="DbContext"/>. 
     /// If not provided the underlying store defaults to SQL Server expecting the setting <i>ConnectionStrings:CampaignsDbConnection</i> to be present.
     /// </summary>
-    public Action<IServiceProvider, DbContextOptionsBuilder> ConfigureDbContext { get; set; }
+    public Action<IServiceProvider, DbContextOptionsBuilder>? ConfigureDbContext { get; set; }
     /// <summary>The claim type used to identify the user. Defaults to <i>sub</i>.</summary>
     public string UserClaimType { get; set; } = BasicClaimTypes.Subject;
     /// <summary>Schema name used for tables. Defaults to <i>cmp</i>.</summary>

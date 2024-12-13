@@ -4,7 +4,7 @@
 public class CampaignStatistics
 {
     /// <summary></summary>
-    public string Title { get; set; }
+    public string? Title { get; set; }
     /// <summary></summary>
     public int ReadCount { get; set; }
     /// <summary></summary>

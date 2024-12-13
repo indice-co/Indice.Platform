@@ -8,15 +8,15 @@ public class CampaignRequestBase
     /// <summary>Determines if campaign targets all user base. Defaults to false.</summary>
     public bool IsGlobal { get; set; }
     /// <summary>The title of the campaign.</summary>
-    public string Title { get; set; }
+    public string Title { get; set; } = null!;
     /// <summary>The contents of the campaign.</summary>
-    public MessageContentDictionary Content { get; set; } = new ();
+    public MessageContentDictionary Content { get; set; } = [];
     /// <summary>Defines a (call-to-action) link.</summary>
-    public Hyperlink ActionLink { get; set; }
+    public Hyperlink? ActionLink { get; set; }
     /// <summary>Specifies the time period that a campaign is active.</summary>
-    public Period ActivePeriod { get; set; }
+    public Period? ActivePeriod { get; set; }
     /// <summary>The base href to access the media.</summary>
-    public string MediaBaseHref { get; set; }
+    public string? MediaBaseHref { get; set; }
     /// <summary>The id of the type this campaign belongs.</summary>
     public Guid? TypeId { get; set; }
     /// <summary>The id of the distribution list.</summary>
@@ -24,5 +24,5 @@ public class CampaignRequestBase
     /// <summary>The Template to be used for the new Campaign.</summary>
     public Guid? MessageTemplateId { get; set; }
     /// <summary>Optional data for the campaign.</summary>
-    public dynamic Data { get; set; }
+    public dynamic? Data { get; set; }
 }

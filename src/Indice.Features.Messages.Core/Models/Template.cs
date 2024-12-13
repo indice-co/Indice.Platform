@@ -4,9 +4,9 @@
 public class Template : TemplateBase
 {
     /// <summary>The content of the template.</summary>
-    public MessageContentDictionary Content { get; set; } = new();
+    public MessageContentDictionary Content { get; set; } = [];
     /// <summary>Sample data for the template</summary>
-    public dynamic Data { get; set; }
+    public dynamic? Data { get; set; }
 }
 
 /// <summary>Models a template when retrieved on a list.</summary>
@@ -22,15 +22,15 @@ public class TemplateBase
     /// <summary>The unique id of the template.</summary>
     public Guid Id { get; set; }
     /// <summary>The name of the template.</summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
     /// <summary>Determines if the taemplate to be created from this template should ignore user communication preferences.</summary>
     public bool IgnoreUserPreferences { get; set; }
     /// <summary>Specifies the principal that created the template.</summary>
-    public string CreatedBy { get; set; }
+    public string? CreatedBy { get; set; }
     /// <summary>Specifies when a template was created.</summary>
     public DateTimeOffset CreatedAt { get; set; }
     /// <summary>Specifies the principal that update the template.</summary>
-    public string UpdatedBy { get; set; }
+    public string? UpdatedBy { get; set; }
     /// <summary>Specifies when a template was updated.</summary>
     public DateTimeOffset? UpdatedAt { get; set; }
 }

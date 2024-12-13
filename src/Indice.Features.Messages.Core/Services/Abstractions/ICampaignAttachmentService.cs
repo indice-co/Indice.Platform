@@ -20,5 +20,5 @@ public interface ICampaignAttachmentService
     /// <param name="campaignId"></param>
     /// <param name="attachmentId"></param>
     /// <returns></returns>
-    Task<FileAttachment> GetFile(Guid campaignId, Guid attachmentId);
+    Task<FileAttachment?> GetFile(Guid campaignId, Guid attachmentId);
 }

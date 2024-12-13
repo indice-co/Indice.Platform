@@ -4,5 +4,5 @@
 public class CreateMessageTypeRequest
 {
     /// <summary>The name of a campaign type.</summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 }

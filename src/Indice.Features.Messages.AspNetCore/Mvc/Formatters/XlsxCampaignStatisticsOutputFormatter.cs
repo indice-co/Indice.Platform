@@ -27,7 +27,7 @@ internal class XlsxCampaignStatisticsOutputFormatter : OutputFormatter
         response.ContentType = FileExtensions.GetMimeType("xlsx");
         var contentDisposition = new ContentDispositionHeaderValue("attachment");
         _utcNow = DateTime.UtcNow;
-        contentDisposition.SetHttpFileName($"{data.Title.ToLower()}_{_utcNow:yyyyMMddHHmm}.xlsx");
+        contentDisposition.SetHttpFileName($"{data.Title!.ToLower()}_{_utcNow:yyyyMMddHHmm}.xlsx");
         response.Headers.Append(HeaderNames.ContentDisposition, contentDisposition.ToString());
     }
 
@@ -67,7 +67,7 @@ internal class XlsxCampaignStatisticsOutputFormatter : OutputFormatter
             worksheet.Cells[2, 3].Value = data.DeletedCount;
             worksheet.Cells[2, 4].Value = data.CallToActionCount;
             // Create table name and apply some settings.
-            var tableName = Regex.Replace(data.Title.Unidecode(), @"[^0-9a-zA-Z ]+", string.Empty).ToLowerInvariant();
+            var tableName = Regex.Replace(data.Title!.Unidecode(), @"[^0-9a-zA-Z ]+", string.Empty).ToLowerInvariant();
             tableName = Regex.Replace(tableName, @"\s+(\w)", match => match.Groups[1].Value.ToUpperInvariant(), RegexOptions.IgnoreCase).Trim(); // We need to remove whitespaces.
             var table = worksheet.Tables.Add(worksheet.Cells[1, 1, 2, 4], tableName);
             table.TableStyle = TableStyles.Medium27;

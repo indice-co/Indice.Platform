@@ -9,17 +9,17 @@ public class SendPushNotificationEvent
     /// <summary>The id of the campaign.</summary>
     public Guid CampaignId { get; set; }
     /// <summary>The title of the message.</summary>
-    public string Title { get; set; }
+    public string? Title { get; set; }
     /// <summary>The body of the message.</summary>
-    public string Body { get; set; }
+    public string? Body { get; set; }
     /// <summary>Optional data for the campaign.</summary>
-    public dynamic Data { get; set; }
+    public dynamic? Data { get; set; }
     /// <summary>Defines if push notification is sent to all registered user devices.</summary>
     public bool Broadcast { get; set; }
     /// <summary>The id of the recipient.</summary>
-    public string RecipientId { get; set; }
+    public string? RecipientId { get; set; }
     /// <summary>The type details of the campaign.</summary>
-    public MessageType MessageType { get; set; }
+    public MessageType? MessageType { get; set; }
     /// <summary>The message Id.</summary>
     public Guid? MessageId { get; set; }
 
@@ -27,7 +27,7 @@ public class SendPushNotificationEvent
     /// <param name="campaign">Models a contact in the system as a member of a distribution list.</param>
     /// <param name="broadcast">Defines if push notification is sent to all registered user devices.</param>
     /// <param name="recipientId">The id of the recipient.</param>
-    public static SendPushNotificationEvent FromCampaignCreatedEvent(CampaignCreatedEvent campaign, bool broadcast, string recipientId = null) => new() {
+    public static SendPushNotificationEvent FromCampaignCreatedEvent(CampaignCreatedEvent campaign, bool broadcast, string? recipientId = null) => new() {
         Body = campaign.Content[nameof(MessageChannelKind.PushNotification)].Body,
         Broadcast = broadcast,
         CampaignId = campaign.Id,
@@ -43,7 +43,7 @@ public class SendPushNotificationEvent
     /// <param name="broadcast">Defines if push notification is sent to all registered user devices.</param>
     /// <param name="messageId">The id of the message.</param>
     public static SendPushNotificationEvent FromContactResolutionEvent(ResolveMessageEvent @event, Contact contact, bool broadcast, Guid? messageId = null) => new() {
-        Body = @event.Campaign.Content[nameof(MessageChannelKind.PushNotification)].Body,
+        Body = @event.Campaign!.Content[nameof(MessageChannelKind.PushNotification)].Body,
         Broadcast = broadcast,
         CampaignId = @event.Campaign.Id,
         Data = @event.Campaign.Data,

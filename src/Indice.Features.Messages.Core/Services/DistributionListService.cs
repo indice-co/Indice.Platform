@@ -22,7 +22,7 @@ public class DistributionListService : IDistributionListService
     private CampaignsDbContext DbContext { get; }
 
     /// <inheritdoc />
-    public async Task<DistributionList> Create(CreateDistributionListRequest request, IEnumerable<Contact> contacts = null) {
+    public async Task<DistributionList> Create(CreateDistributionListRequest request, IEnumerable<Contact>? contacts = null) {
         var list = new DbDistributionList {
             Id = Guid.NewGuid(),
             Name = request.Name,
@@ -42,17 +42,17 @@ public class DistributionListService : IDistributionListService
                     if (!existingContacts.ContainsKey(nameof(item.RecipientId))) {
                         existingContacts[nameof(item.RecipientId)] = await DbContext.Contacts.Where(x => recipientIds.Contains(x.RecipientId)).ToListAsync();
                     }
-                    dbContact = existingContacts[nameof(item.RecipientId)].Where(x => x.RecipientId == item.RecipientId).FirstOrDefault();
+                    dbContact = existingContacts[nameof(item.RecipientId)].FirstOrDefault(x => x.RecipientId == item.RecipientId);
                 } else if (!string.IsNullOrWhiteSpace(item.Email)) {
                     if (!existingContacts.ContainsKey(nameof(item.Email))) {
                         existingContacts[nameof(item.Email)] = await DbContext.Contacts.Where(x => emails.Contains(x.Email)).ToListAsync();
                     }
-                    dbContact = existingContacts[nameof(item.Email)].Where(x => x.Email.ToLower() == item.Email.ToLower()).FirstOrDefault();
+                    dbContact = existingContacts[nameof(item.Email)].FirstOrDefault(x => x.Email!.ToLower() == item.Email.ToLower());
                 } else if (!string.IsNullOrWhiteSpace(item.PhoneNumber)) {
                     if (!existingContacts.ContainsKey(nameof(item.PhoneNumber))) {
                         existingContacts[nameof(item.PhoneNumber)] = await DbContext.Contacts.Where(x => phones.Contains(x.PhoneNumber)).ToListAsync();
                     }
-                    dbContact = existingContacts[nameof(item.PhoneNumber)].Where(x => x.PhoneNumber.ToLower() == item.PhoneNumber.ToLower()).FirstOrDefault();
+                    dbContact = existingContacts[nameof(item.PhoneNumber)].FirstOrDefault(x => x.PhoneNumber!.ToLower() == item.PhoneNumber.ToLower());
                 }
                 if (dbContact is null) {
                     dbContact = Mapper.ToDbContact(item);
@@ -82,14 +82,14 @@ public class DistributionListService : IDistributionListService
         }
         var associatedCampaignsCount = await DbContext.Campaigns.Where(x => x.DistributionListId == list.Id).CountAsync();
         if (associatedCampaignsCount > 0) {
-            throw MessageExceptions.DistributionListAssociatedWithCampaigns(list.Name, associatedCampaignsCount);
+            throw MessageExceptions.DistributionListAssociatedWithCampaigns(list.Name!, associatedCampaignsCount);
         }
         DbContext.DistributionLists.Remove(list);
         await DbContext.SaveChangesAsync();
     }
 
     /// <inheritdoc />
-    public async Task<DistributionList> GetById(Guid id) {
+    public async Task<DistributionList?> GetById(Guid? id) {
         var list = await DbContext.DistributionLists.FindAsync(id);
         if (list is null) {
             return default;
@@ -103,7 +103,7 @@ public class DistributionListService : IDistributionListService
     }
 
     /// <inheritdoc />
-    public async Task<DistributionList> GetByName(string name) {
+    public async Task<DistributionList?> GetByName(string name) {
         var list = await DbContext.DistributionLists.SingleOrDefaultAsync(x => x.Name == name);
         if (list is null) {
             return default;
@@ -130,10 +130,10 @@ public class DistributionListService : IDistributionListService
                 Name = list.Name
             });
         if (!string.IsNullOrWhiteSpace(options.Search)) {
-            query = query.Where(x => x.Name.ToLower().Contains(options.Search.ToLower()));
+            query = query.Where(x => x.Name!.ToLower().Contains(options.Search.ToLower()));
         }
         if (filter?.IsSystemGenerated is not null) {
-            query = query.Where(x => filter.IsSystemGenerated == (x.CreatedBy.ToLower() == "system"));
+            query = query.Where(x => filter.IsSystemGenerated == (x.CreatedBy!.ToLower() == "system"));
         }
         return query.ToResultSetAsync(options);
     }

@@ -54,7 +54,7 @@ public class TemplateService : ITemplateService
     }
 
     /// <inheritdoc />
-    public async Task<Template> GetById(Guid id) {
+    public async Task<Template?> GetById(Guid? id) {
         var template = await DbContext.Templates.FindAsync(id);
         if (template is null) {
             return default;
@@ -76,7 +76,7 @@ public class TemplateService : ITemplateService
     public async Task<ResultSet<TemplateListItem>> GetList(ListOptions options) {
         var query = DbContext.Templates.AsQueryable();
         if (!string.IsNullOrWhiteSpace(options.Search)) {
-            query = query.Where(x => x.Name.ToLower().Contains(options.Search.ToLower()));
+            query = query.Where(x => x.Name!.ToLower().Contains(options.Search.ToLower()));
         }
         var result = await query.ToResultSetAsync(options);
         var templateItems = result.Items.Select(x => new TemplateListItem {

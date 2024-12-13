@@ -23,7 +23,7 @@ public class CampaignAttachmentService : ICampaignAttachmentService
         IOptions<MessageManagementOptions> campaignManagementOptions
     ) {
         DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-        FileService = fileServiceFactory.Create(KeyedServiceNames.FileServiceKey) ?? throw new ArgumentNullException(nameof(FileService));
+        FileService = fileServiceFactory.Create(KeyedServiceNames.FileServiceKey) ?? throw new ArgumentNullException(nameof(fileServiceFactory), $"Service {KeyedServiceNames.FileServiceKey} was not registered");
         CampaignManagementOptions = campaignManagementOptions?.Value ?? throw new ArgumentNullException(nameof(campaignManagementOptions));
     }
 
@@ -43,17 +43,14 @@ public class CampaignAttachmentService : ICampaignAttachmentService
             ContentType = fileAttachment.ContentType,
             Id = attachment.Id,
             Label = fileAttachment.Name,
-            PermaLink = $"{CampaignManagementOptions.PathPrefix.TrimEnd('/')}/campaigns/attachments/{(Base64Id)attachment.Guid}.{Path.GetExtension(attachment.Name).TrimStart('.')}",
+            PermaLink = $"{CampaignManagementOptions.PathPrefix.TrimEnd('/')}/campaigns/attachments/{(Base64Id)attachment.Guid}.{Path.GetExtension(attachment.Name)!.TrimStart('.')}",
             Size = fileAttachment.ContentLength
         };
     }
 
     /// <inheritdoc />
     public async Task Associate(Guid campaignId, Guid attachmentId) {
-        var campaign = await DbContext.Campaigns.FindAsync(campaignId);
-        if (campaign is null) {
-            throw MessageExceptions.CampaignNotFound(campaignId);
-        }
+        var campaign = await DbContext.Campaigns.FindAsync(campaignId) ?? throw MessageExceptions.CampaignNotFound(campaignId);
         campaign.AttachmentId = attachmentId;
         await DbContext.SaveChangesAsync();
     }
@@ -63,10 +60,8 @@ public class CampaignAttachmentService : ICampaignAttachmentService
         var dbAttachment = await DbContext
             .Attachments
             .Where(x => x.Id == attachmentId)
-            .SingleOrDefaultAsync();
-        if (dbAttachment is null) {
-            throw MessageExceptions.AttachmentNotFound(attachmentId);
-        }
+            .SingleOrDefaultAsync()
+            ?? throw MessageExceptions.AttachmentNotFound(attachmentId);
         var campaign = await DbContext.Campaigns.FindAsync(campaignId);
         if (campaign is null) {
             throw MessageExceptions.CampaignNotFound(campaignId);
@@ -75,12 +70,12 @@ public class CampaignAttachmentService : ICampaignAttachmentService
         DbContext.Attachments.Remove(dbAttachment);
         await DbContext.SaveChangesAsync();
 
-        var path = $"campaigns/{dbAttachment.Guid.ToString("N")[..2]}/{dbAttachment.Guid:N}.{dbAttachment.FileExtension.TrimStart('.')}";
+        var path = $"campaigns/{dbAttachment.Guid.ToString("N")[..2]}/{dbAttachment.Guid:N}.{dbAttachment.FileExtension?.TrimStart('.')}";
         await FileService.DeleteAsync(path);
     }
 
     /// <inheritdoc />
-    public async Task<FileAttachment> GetFile(Guid campaignId, Guid attachmentId) {
+    public async Task<FileAttachment?> GetFile(Guid campaignId, Guid attachmentId) {
         var dbAttachment = await DbContext
             .Campaigns
             .Where(x => x.Id == campaignId)
@@ -89,7 +84,7 @@ public class CampaignAttachmentService : ICampaignAttachmentService
         if (dbAttachment is null) {
             return null;
         }
-        var path = $"campaigns/{dbAttachment.Guid.ToString("N")[..2]}/{dbAttachment.Guid:N}.{dbAttachment.FileExtension.TrimStart('.')}";
+        var path = $"campaigns/{dbAttachment.Guid.ToString("N")[..2]}/{dbAttachment.Guid:N}.{dbAttachment.FileExtension?.TrimStart('.')}";
         var data = await FileService.GetAsync(path);
         if (data is null) {
             return null;
@@ -98,7 +93,7 @@ public class CampaignAttachmentService : ICampaignAttachmentService
             ContentLength = dbAttachment.ContentLength,
             ContentType = dbAttachment.ContentType,
             Data = data,
-            FileExtension = dbAttachment.FileExtension,
+            FileExtension = dbAttachment.FileExtension!,
             Guid = dbAttachment.Guid,
             Id = dbAttachment.Id,
             Name = dbAttachment.Name

@@ -6,7 +6,7 @@ public class MessageType
     /// <summary>The id of a campaign type.</summary>
     public Guid Id { get; set; }
     /// <summary>The name of a campaign type.</summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
     /// <summary>The kind of the notification allowed .</summary>
     public MessageTypeClassification Classification { get; set; }
 }

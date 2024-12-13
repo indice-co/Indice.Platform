@@ -3,6 +3,7 @@
     <PackageTags>Background Tasks;Hosting;Hosted Services</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
     <VersionPrefix>$(VersionPrefixCore)</VersionPrefix>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Indice.Services" Version="$(VersionPrefixCore)-*" />

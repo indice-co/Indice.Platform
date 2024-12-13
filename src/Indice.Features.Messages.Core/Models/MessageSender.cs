@@ -6,15 +6,15 @@ public class MessageSender
     /// <summary>Sender id.</summary>
     public Guid Id { get; set; }
     /// <summary>Sender.</summary>
-    public string Sender { get; set; }
+    public string? Sender { get; set; }
     /// <summary>Sender Name.</summary>
-    public string DisplayName { get; set; }
+    public string? DisplayName { get; set; }
     /// <summary>Specifies the principal that created the sender.</summary>
-    public string CreatedBy { get; set; }
+    public string? CreatedBy { get; set; }
     /// <summary>Specifies when a sender was created.</summary>
     public DateTimeOffset? CreatedAt { get; set; }
     /// <summary>Specifies the principal that update the sender.</summary>
-    public string UpdatedBy { get; set; }
+    public string? UpdatedBy { get; set; }
     /// <summary>Specifies when a sender was updated.</summary>
     public DateTimeOffset? UpdatedAt { get; set; }
     /// <summary>Indicates the default sender.</summary>
@@ -23,5 +23,5 @@ public class MessageSender
     public bool IsEmpty => string.IsNullOrWhiteSpace(Sender);
 
     /// <inheritdoc/>
-    public override string ToString() => IsEmpty ? base.ToString() : $"{DisplayName} <{Sender}>";
+    public override string ToString() => IsEmpty ? base.ToString()! : $"{DisplayName} <{Sender}>";
 }
