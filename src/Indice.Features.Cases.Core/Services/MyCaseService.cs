@@ -66,9 +66,9 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
     }
 
     public async Task UpdateData(ClaimsPrincipal user, Guid caseId, dynamic data) {
-        if (user == null) throw new ArgumentNullException(nameof(user));
+        ArgumentNullException.ThrowIfNull(user);
         if (caseId == default) throw new ArgumentNullException(nameof(caseId));
-        if (data == null) throw new ArgumentNullException(nameof(data));
+        ArgumentNullException.ThrowIfNull(data);
         await _caseMessageService.Send(caseId, user, new Message { Data = data });
     }
 

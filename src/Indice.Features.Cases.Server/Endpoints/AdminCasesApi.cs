@@ -27,6 +27,7 @@ public static class AdminCasesApi
             .RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
 
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+
         group.ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)

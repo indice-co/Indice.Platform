@@ -24,6 +24,8 @@ public static class AdminCaseDataApi
         group.RequireAuthorization(pb => pb.RequireClaim(BasicClaimTypes.Scope, allowedScopes))
             .RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
 
+        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+
         group.WithHandledException<ValidationException>()
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)

@@ -12,7 +12,7 @@ public class CaseServerOptions : CasesOptions
     /// <summary>
     /// The path prefix for the endpoints registered
     /// </summary>
-    public PathString PathPrefix { get; set; } = "/";
+    public PathString PathPrefix { get; set; } = "/api";
     /// <summary>
     /// The Open API spcification for the set of endpoints registered. Different groups mean different openapi specs.
     /// </summary>

@@ -128,7 +128,7 @@ internal static class AdminCasesHandler
     public static async Task<Ok<List<RejectReason>>> GetCaseRejectReasons(Guid caseId, ICaseApprovalService caseApprovalService, ClaimsPrincipal user) =>
         TypedResults.Ok(await caseApprovalService.GetRejectReasons(user, caseId));
 
-    public static async Task<Results<Ok<FileContentHttpResult>, NotFound>> DownloadCasePdf(Guid caseId,
+    public static async Task<Results<FileContentHttpResult, NotFound>> DownloadCasePdf(Guid caseId,
         ClaimsPrincipal user,
         IAdminCaseService adminCaseService,
         IPlatformEventService platformEventService,
@@ -141,7 +141,7 @@ internal static class AdminCasesHandler
         var file = await CreatePdf(@case, caseTemplateService, casePdfService);
         var fileName = $"{@case.CaseType.Code}-{DateTimeOffset.UtcNow.Date:dd-MM-yyyy}.pdf";
         await platformEventService.Publish(new CaseDownloadedEvent(@case!, CasesCoreConstants.Channels.Agent));
-        return TypedResults.Ok(TypedResults.File(file, MediaTypeNames.Application.Pdf, fileName));
+        return TypedResults.File(file, MediaTypeNames.Application.Pdf, fileName);
     }
 
     private static async Task<byte[]> CreatePdf(Case @case, ICaseTemplateService caseTemplateService, ICasePdfService casePdfService) {
