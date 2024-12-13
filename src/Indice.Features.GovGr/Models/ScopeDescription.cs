@@ -4,8 +4,8 @@
 public class ScopeDescription
 {
     /// <summary>The name of the scope.</summary>
-    public string Scope { get; set; }
+    public string? Scope { get; set; }
 
     /// <summary>The description of the scope.</summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
 }

@@ -11,7 +11,7 @@ public class GovGrServiceException : Exception
     }
 
     /// <inheritdoc/>
-    public GovGrServiceException(string message, Exception innerException) : base(message, innerException) {
+    public GovGrServiceException(string message, Exception? innerException) : base(message, innerException) {
         if (message?.Length > 1 && message[0] == '{') {
             var json = JsonSerializer.Deserialize<JsonElement>(message);
             var problemDetailsProperty = json.EnumerateObject().FirstOrDefault();
@@ -26,7 +26,7 @@ public class GovGrServiceException : Exception
     /// <summary>Http response code</summary>
     public int Code { get; }
     /// <summary>Http response</summary>
-    public string Title { get; }
+    public string? Title { get; }
     /// <summary>Http response message</summary>
-    public string Details { get; }
+    public string? Details { get; }
 }
