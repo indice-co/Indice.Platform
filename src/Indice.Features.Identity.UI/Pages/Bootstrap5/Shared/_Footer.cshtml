@@ -18,7 +18,7 @@
         &copy; @Localizer[settings.Organization!] @copyYear @(DateTime.Today.Year > copyYear ? $" - {DateTime.Today.Year}" : string.Empty)
     </div>
     <div class="links">
-        <span class="sonftware-verson">v@(version ?? "1.0.0")</span>
+        <span class="software-verson">v@(version ?? "1.0.0")</span>
         <a indice-if="!Environment.IsProduction()" href="~/.well-known/openid-configuration" target="_blank">@Localizer["Discovery"]</a>
         <a asp-page="/Privacy" target="_blank">@Localizer["Privacy"]</a>
         <a asp-page="/Terms" target="_blank">@Localizer["Terms"]</a>
