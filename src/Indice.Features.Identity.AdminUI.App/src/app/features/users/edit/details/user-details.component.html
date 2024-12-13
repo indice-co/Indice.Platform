@@ -38,7 +38,7 @@
     <app-validation-summary [problemDetails]="updateUserProblemDetails" [level]="'warning'" #validationSummary></app-validation-summary>
     <div class="alert alert-warning d-flex align-items-center justify-content-between" role="alert" *ngIf="user.isLocked && user.lockoutEnd">
         <b class="flex-fill">User is locked until {{ user.lockoutEnd | date: 'medium' }}.</b>
-        <button type="button" class="btn btn-secondary" (click)="unlockAlert.fire()">Unlock</button>
+        <button type="button" class="btn btn-secondary" (click)="unlockAlert.fire()" *ngIf="canEditUser">Unlock</button>
     </div>
     <div class="mb-3 row" *ngIf="showBypassEmailAsUserNamePolicy">
         <label for="user-bypass-email-as-username-policy" class="col-sm-2 col-form-label">Bypass EmailAsUserName policy</label>
