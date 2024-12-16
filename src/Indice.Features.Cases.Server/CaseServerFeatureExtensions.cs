@@ -1,4 +1,6 @@
-﻿using Indice.Features.Cases.Server.Endpoints;
+﻿using Indice.Features.Cases.Server.Authorization;
+using Indice.Features.Cases.Server.Endpoints;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -21,15 +23,6 @@ public static class CaseServerFeatureExtensions
         // Configure options given by the consumer.
         var serverOptions = new CaseServerOptions();
         setupAction?.Invoke(serverOptions);
-        builder.Services.Configure<CaseServerOptions>(options => {
-            options.PathPrefix = serverOptions.PathPrefix;
-            options.DatabaseSchema = serverOptions.DatabaseSchema;
-            options.RequiredScope = serverOptions.RequiredScope;
-            options.UserClaimType = serverOptions.UserClaimType;
-            options.GroupIdClaimType = serverOptions.GroupIdClaimType;
-            options.GroupName = serverOptions.GroupName;
-            options.ConfigureLimitUpload = serverOptions.ConfigureLimitUpload;
-        });
         builder.Services.AddCasesCore(options => {
             options.DatabaseSchema = serverOptions.DatabaseSchema;
             options.RequiredScope = serverOptions.RequiredScope;
@@ -44,7 +37,17 @@ public static class CaseServerFeatureExtensions
             options.GroupIdClaimType = serverOptions.GroupIdClaimType;
             options.ReferenceNumberEnabled = serverOptions.ReferenceNumberEnabled;
         });
+        builder.Services.Configure<CaseServerOptions>(options => {
+            options.PathPrefix = serverOptions.PathPrefix;
+            options.DatabaseSchema = serverOptions.DatabaseSchema;
+            options.RequiredScope = serverOptions.RequiredScope;
+            options.UserClaimType = serverOptions.UserClaimType;
+            options.GroupIdClaimType = serverOptions.GroupIdClaimType;
+            options.GroupName = serverOptions.GroupName;
+            options.ConfigureLimitUpload = serverOptions.ConfigureLimitUpload;
+        });
         builder.Services.AddLimitUpload(serverOptions.ConfigureLimitUpload);
+        builder.Services.AddTransient<IAuthorizationHandler, CasesAccessHandler>();
         return builder;
     }
 
