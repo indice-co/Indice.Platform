@@ -1,7 +1,11 @@
 ﻿using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
+using System.Text.Unicode;
 using Indice.Features.Cases.Core.Services.Abstractions;
+using Indice.Types;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Primitives;
 
@@ -36,10 +40,38 @@ public class JsonTranslationService : IJsonTranslationService
         if (language == _primaryLanguage) {
             return jsonSource;
         }
-
-        foreach (var translation in translations) {
-            jsonSource[translation.Key]!.ReplaceWith(translation.Value);
+        if (jsonSource.GetValueKind() == JsonValueKind.String) { // fix for string implicit conversions
+            jsonSource = JsonNode.Parse(jsonSource.GetValue<string>())!;
         }
-        return jsonSource;
+        var options = new JsonSerializerOptions(JsonSerializerDefaults.Web) {
+            Encoder = JavaScriptEncoder.Create(UnicodeRanges.GreekExtended, UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic),
+        };
+        options.Converters.Add(new JsonTranslatingConverter(translations));
+        return JsonNode.Parse(jsonSource.ToJsonString(options));
+    }
+
+    internal class JsonTranslatingConverter : JsonConverter<string>
+    {
+        public JsonTranslatingConverter(Dictionary<string, string> translations) {
+            Translations = translations ?? throw new ArgumentNullException(nameof(translations));
+        }
+
+        protected Dictionary<string, string> Translations { get; }
+
+        public override string? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
+            var text = reader.GetString();
+            if (text is not null && Translations.TryGetValue(text, out var value)) {
+                text = value;
+            }
+            return text;
+        }
+
+        public override void Write(Utf8JsonWriter writer, string value, JsonSerializerOptions options) {
+            if (!Translations.ContainsKey(value)) {
+                writer.WriteStringValue(value);
+                return;
+            }
+            writer.WriteStringValue(Translations[value]);
+        }
     }
 }
