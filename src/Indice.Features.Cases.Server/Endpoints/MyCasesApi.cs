@@ -22,6 +22,8 @@ public static class MyCasesApi
         group.WithTags("MyCases");
         group.WithGroupName("my");
 
+        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
+
         // Add security requirements, all incoming requests to this API *must* be authenticated with a valid user.
         group.RequireAuthorization(policy => policy
              .RequireAuthenticatedUser()
@@ -29,7 +31,7 @@ public static class MyCasesApi
              .RequireCasesAccess()
         );
 
-        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", []);
+        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized)
              .ProducesProblem(StatusCodes.Status403Forbidden);

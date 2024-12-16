@@ -26,7 +26,8 @@ public static class AdminNotificationsApi
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes("Bearer")
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-        );//.RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
+            .RequireCasesAccess(Authorization.CasesAccessLevel.Manager)
+        );
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
         
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
