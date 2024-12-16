@@ -3,23 +3,25 @@
 // The list of file replacements can be found in `angular.json`.
 
 const title = document.title;
-
+const api = 'https://localhost:2001';
+const authority = 'https://my.indice.gr';
+const self = 'http://localhost:4300';
 export const environment = {
-  api_url: 'https://localhost:44378', // cases api url
+  api_url: api, // cases api url
   auth_settings: {
     accessTokenExpiringNotificationTime: 60,
-    authority: 'https://localhost:44359', // identity api url
+    authority: authority, // identity api url
     automaticSilentRenew: true,
-    client_id: 'cases-backoffice-app',
+    client_id: 'cases-ui',
     filterProtocolClaims: true,
     loadUserInfo: true,
     monitorSession: true,
-    post_logout_redirect_uri: 'http://localhost:4300',
-    redirect_uri: 'http://localhost:4300/auth-callback',
+    post_logout_redirect_uri: self,
+    redirect_uri: `${self}/auth-callback`,
     response_type: 'code',
     revokeAccessTokenOnSignout: true,
-    scope: 'openid profile role email cases-api',
-    silent_redirect_uri: 'http://localhost:4300/auth-renew',
+    scope: 'openid profile role email cases',
+    silent_redirect_uri: `${self}/auth-renew`,
     useRefreshToken: true
   },
   culture: 'el-GR',

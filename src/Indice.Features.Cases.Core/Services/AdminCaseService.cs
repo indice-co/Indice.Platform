@@ -159,7 +159,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                         Translations = @case.Checkpoint.CheckpointType.Translations
                     },
                     AssignedToName = @case.AssignedTo!.Name,
-                    Data = options.Filter.IncludeData ? @case.Data.Data : null,
+                    Data = options.Filter.IncludeData == true ? @case.Data.Data : null,
                     AccessLevel = 111
                 });
         } else {
@@ -256,7 +256,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                              Translations = @case.Checkpoint.CheckpointType.Translations
                          },
                          AssignedToName = @case.AssignedTo!.Name,
-                         Data = options.Filter.IncludeData ? @case.Data.Data : null,
+                         Data = options.Filter.IncludeData == true ? @case.Data.Data : null,
                          AccessLevel = new List<int> { caseAccess, CaseTypeAccess, CheckpointIdAccess, caseCheckpointIdAccess }.Max()
                      });
         }
@@ -323,7 +323,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         }
 
         // filter CaseTypeCodes. You can reach this with an empty array only if you are admin/systemic user
-        if (options.Filter.CaseTypeCodes.Any()) {
+        if (options.Filter.CaseTypeCodes?.Length > 0) {
             // Create a different expression based on the filter operator
             var expressionsEq = options.Filter.CaseTypeCodes
                 .Where(x => x.Operator == FilterOperator.Eq)
@@ -639,7 +639,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return result.Items.Where(x => x.Id != caseId).ToList();
     }
 
-    private async Task<List<FilterClause>> MapCheckpointTypeCodeToId(List<FilterClause> checkpointTypeCodeFilterClauses) {
+    private async Task<FilterClause[]> MapCheckpointTypeCodeToId(FilterClause[] checkpointTypeCodeFilterClauses) {
         var checkpointTypeCodes = checkpointTypeCodeFilterClauses.Select(f => f.Value).ToList();
         var checkpointTypeIds = new List<FilterClause>();
         var filteredCheckpointTypesList = await DbContext.CheckpointTypes
@@ -655,7 +655,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                 checkpointTypeIds.Add(newCheckpointTypeIdFilterClause);
             }
         }
-        return checkpointTypeIds;
+        return [..checkpointTypeIds];
     }
 
 }
