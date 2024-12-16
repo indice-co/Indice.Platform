@@ -1,4 +1,6 @@
-﻿namespace Indice.Features.Cases.Core.Services.Abstractions;
+﻿using System.Text.Json.Nodes;
+
+namespace Indice.Features.Cases.Core.Services.Abstractions;
 
 /// <summary>Json Translation Interface</summary>
 public interface IJsonTranslationService
@@ -8,5 +10,5 @@ public interface IJsonTranslationService
     /// <param name="jsonTranslations">The translations in a JSON object. Must be deserialized as <see cref="Dictionary{TKey,TValue}"/>.</param>
     /// <param name="language">The language to translate into as TwoLetterISOLanguageName.</param>
     /// <returns>The JSON with the translated values as string.</returns>
-    string? Translate(string? jsonSource, string? jsonTranslations, string language);
+    JsonNode? Translate(JsonNode? jsonSource, Dictionary<string, string>? jsonTranslations, string language);
 }

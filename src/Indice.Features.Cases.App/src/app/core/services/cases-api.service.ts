@@ -6851,7 +6851,7 @@ export class CaseType implements ICaseType {
             this.code = _data["code"];
             this.title = _data["title"];
             this.description = _data["description"];
-            this.dataSchema = _data["dataSchema"];
+            this.dataSchema = JSON.stringify(_data["dataSchema"], undefined, 2);
             this.layout = _data["layout"];
             this.translations = _data["translations"];
             this.layoutTranslations = _data["layoutTranslations"];

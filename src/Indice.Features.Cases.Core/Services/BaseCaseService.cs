@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Data.Models;
 using Indice.Features.Cases.Core.Models;
@@ -35,12 +36,10 @@ internal abstract class BaseCaseService
     /// <param name="selectorProperty"></param>
     /// <param name="json"></param>
     /// <returns>string schema</returns>
-    protected static string? GetSingleOrMultiple(string? selectorProperty, string? json) {
-        if (!string.IsNullOrEmpty(selectorProperty) && !string.IsNullOrEmpty(json)) {
-            using (var document = JsonDocument.Parse(json)) {
-                if (document.RootElement.ValueKind == JsonValueKind.Object && document.RootElement.TryGetProperty(selectorProperty, out var node)) {
-                    return node.ToString();
-                }
+    protected static JsonNode? GetSingleOrMultiple(string? selectorProperty, JsonNode? json) {
+        if (!string.IsNullOrEmpty(selectorProperty) && json is not null) {
+            if (json.GetValueKind() == JsonValueKind.Object && json[selectorProperty!] is not null ) {
+                return json[selectorProperty!];
             }
         }
         return json;

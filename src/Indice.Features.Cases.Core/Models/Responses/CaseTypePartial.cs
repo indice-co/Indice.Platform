@@ -1,4 +1,5 @@
-﻿using Indice.Types;
+﻿using System.Text.Json.Nodes;
+using Indice.Types;
 
 namespace Indice.Features.Cases.Core.Models.Responses;
 
@@ -18,19 +19,19 @@ public class CaseTypePartial
     public string? Description { get; set; }
 
     /// <summary>The case type json schema.</summary>
-    public string? DataSchema { get; set; }
+    public JsonNode? DataSchema { get; set; }
 
     /// <summary>The layout for the data schema.</summary>
-    public string? Layout { get; set; }
+    public JsonNode? Layout { get; set; }
 
     /// <summary>The layout translations for the data schema.</summary>
-    public string? LayoutTranslations { get; set; }
+    public Dictionary<string, string>? LayoutTranslations { get; set; }
 
     /// <summary>The case type tags.</summary>
     public string? Tags { get; set; }
 
     /// <summary>The case type configuration.</summary>
-    public string? Config { get; set; }
+    public JsonNode? Config { get; set; }
 
     /// <summary>The order which the case type will be shown.</summary>
     public int? Order { get; set; }

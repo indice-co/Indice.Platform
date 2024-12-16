@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace Indice.Features.Cases.Core.Models;
@@ -8,10 +9,9 @@ public class PdfOptions
 {
     /// <summary>PdfOptions</summary>
     /// <param name="caseTypeConfig">The case Type Config.</param>
-    public PdfOptions(string? caseTypeConfig) {
-        if (!string.IsNullOrEmpty(caseTypeConfig)) {
-            var node = JsonSerializer.Deserialize<JsonNode>(caseTypeConfig)!;
-            var pdfOptions = node[nameof(PdfOptions)];
+    public PdfOptions(JsonNode? caseTypeConfig) {
+        if (caseTypeConfig is not null) {
+            var pdfOptions = caseTypeConfig[nameof(PdfOptions)];
 
             if (pdfOptions is not null) {
                 IsPortrait = pdfOptions[nameof(IsPortrait)]?.GetValue<bool?>();

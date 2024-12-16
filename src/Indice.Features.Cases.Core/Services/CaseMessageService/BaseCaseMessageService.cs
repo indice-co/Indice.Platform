@@ -173,7 +173,7 @@ internal abstract class BaseCaseMessageService
         if (data == null) throw new ArgumentNullException(nameof(data));
 
         // Validate data against case type json schema, only when schema is present
-        if (!string.IsNullOrEmpty(@case.CaseType.DataSchema) && !_schemaValidator.IsValid(@case.CaseType.DataSchema, data)) {
+        if (@case.CaseType.DataSchema is not null && !_schemaValidator.IsValid(@case.CaseType.DataSchema, (object)data)) {
             throw new Exception("Data validation error.");
         }
 
