@@ -22,7 +22,7 @@ public static class EnumerableExtensions
     /// <returns>An <see cref="IEnumerable{T}"/> whose elements are the result of the non null filter input sequence.</returns>
     public static IEnumerable<TSource> FilterOutNulls<TSource>(this IEnumerable<TSource?> source) {
         if (source is null) {
-            return Enumerable.Empty<TSource>();
+            return [];
         }
         return source.Where(x => x != null).Cast<TSource>();
     }
