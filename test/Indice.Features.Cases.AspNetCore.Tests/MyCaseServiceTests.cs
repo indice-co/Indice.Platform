@@ -64,7 +64,7 @@ public class MyCaseServiceTests : IDisposable
         var listOptions = new ListOptions<GetMyCasesListFilter>() { };
         //listOptions.AddSort(new SortByClause("checkpointcontainsDownloaded", "DESC"));
         listOptions.AddSort(new SortByClause("Created", "DESC"));
-        var result = await myCaseService.GetCases(User(), listOptions);
+        _ = await myCaseService.GetCases(User(), listOptions);
     }
 
     private static ClaimsPrincipal User() {

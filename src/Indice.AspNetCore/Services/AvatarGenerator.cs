@@ -83,10 +83,10 @@ public class AvatarGenerator
         }
         using (var image = new Image<Rgba32>(size, size)) {
             // image center.
-            var center = new PointF(image.Width / 2, image.Height / 2);
+            var center = new PointF((float)image.Width / 2, (float)image.Height / 2);
             if (circular) {
                 image.Mutate(x => x.Fill(Color.Transparent)
-                                   .Fill(accentColor.Background, new EllipsePolygon(center, image.Width / 2)));
+                                   .Fill(accentColor.Background, new EllipsePolygon(center, (float)image.Width / 2)));
             } else {
                 image.Mutate(x => x.Fill(accentColor.Background));
             }
@@ -137,7 +137,7 @@ public class AvatarColor
     /// <summary>The foreground color.</summary>
     public Rgba32 Color { get; }
 
-    private int PerceivedBrightness(Rgba32 color) => (int)Math.Sqrt((color.R * color.R * .299) + (color.G * color.G * .587) + (color.B * color.B * .114));
+    private int PerceivedBrightness(Rgba32 color) => (int)Math.Sqrt(((double)color.R * color.R * .299) + ((double)color.G * color.G * .587) + ((double)color.B *color.B * .114));
 }
 
 

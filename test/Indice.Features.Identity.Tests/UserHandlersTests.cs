@@ -48,7 +48,7 @@ public class UserHandlersTests : IAsyncLifetime
         await identityDbContext.SaveChangesAsync();
 
         // execute
-        var result = await UserHandlers.CreateUser(userManager, identityDbContext, new Server.Manager.Models.CreateUserRequest {
+        _ = await UserHandlers.CreateUser(userManager, identityDbContext, new Server.Manager.Models.CreateUserRequest {
             UserName = "john.doe@indice.gr",
             Email = "john.doe@indice.gr",
             Password = "password",
