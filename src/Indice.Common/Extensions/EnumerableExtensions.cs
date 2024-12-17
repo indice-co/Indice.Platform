@@ -14,4 +14,16 @@ public static class EnumerableExtensions
         }
         return source.SelectMany(item => selector(item).SelectManyRecursive(selector).Prepend(item));
     }
+
+
+    /// <summary>Selects alla items in an array that are not null.</summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">A sequence of values.</param>
+    /// <returns>An <see cref="IEnumerable{T}"/> whose elements are the result of the non null filter input sequence.</returns>
+    public static IEnumerable<TSource> FilterOutNulls<TSource>(this IEnumerable<TSource?> source) {
+        if (source is null) {
+            return Enumerable.Empty<TSource>();
+        }
+        return source.Where(x => x != null).Cast<TSource>();
+    }
 }
