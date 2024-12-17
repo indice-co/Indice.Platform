@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 namespace Indice.Features.Cases.Server.Endpoints;
 
 /// <summary>Manage lookups for the case types.</summary>
-public static class LookupApi
+internal static class LookupApi
 {
     /// <summary>Maps lookup endpoint.</summary>
     public static IEndpointRouteBuilder MapLookup(this IEndpointRouteBuilder routes) {

@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 namespace Indice.Features.Cases.Server.Endpoints;
 
 /// <summary>Manage queries for Back-office users.</summary>
-public static class AdminQueriesApi
+internal static class AdminQueriesApi
 {
     /// <summary>Maps admin queries endpoint.</summary>
     public static IEndpointRouteBuilder MapAdminQueries(this IEndpointRouteBuilder routes) {

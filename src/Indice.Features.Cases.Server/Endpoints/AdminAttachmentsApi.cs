@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 namespace Indice.Features.Cases.Server.Endpoints;
 
 /// <summary> Admin attachments API. </summary>
-public static class AdminAttachmentsApi
+internal static class AdminAttachmentsApi
 {
     /// <summary>Downloads Admin Attachments</summary>
     public static IEndpointRouteBuilder MapAdminAttachments(this IEndpointRouteBuilder routes) {

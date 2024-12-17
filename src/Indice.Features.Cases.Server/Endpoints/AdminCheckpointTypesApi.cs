@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Server.Endpoints;
 /// <summary>Manage check point types.</summary>
-public static class AdminCheckpointTypesApi
+internal static class AdminCheckpointTypesApi
 {
     /// <summary>Maps admin check point types endpoint.</summary>
     public static IEndpointRouteBuilder MapAdminCheckpointTypes(this IEndpointRouteBuilder routes) {

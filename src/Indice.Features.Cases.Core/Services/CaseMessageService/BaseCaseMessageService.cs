@@ -130,6 +130,7 @@ internal abstract class BaseCaseMessageService
     }
 
     private async Task<DbCheckpoint> AddCheckpoint(ClaimsPrincipal user, DbCase @case, DbCheckpointType checkpointType) {
+        ArgumentNullException.ThrowIfNull(checkpointType);
         var checkpoint = await DbContext.Checkpoints
             .Include(p => p.CheckpointType)
             .AsNoTracking()

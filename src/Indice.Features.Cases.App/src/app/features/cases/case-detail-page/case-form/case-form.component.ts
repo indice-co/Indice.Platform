@@ -93,7 +93,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
       this.showForm = false;
       this.changeDetector.detectChanges(); // enforce the instantaneous deletion of form
       // deep copy layout
-      this.copiedLayout = JSON.parse(this.case.caseType?.layout!);
+      this.copiedLayout = (typeof this.case.caseType?.layout! !== 'string') ? this.case.caseType?.layout! : JSON.parse(this.case.caseType?.layout!);
       /**
        * delete empty strings and clear potential empty objects in data
        * for ajsf (so that onChanges can work as expected - ajsf, at initialization, deletes empty objects and strings)
@@ -103,7 +103,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
       }
     }
     // extract layout from case type
-    let layout = JSON.parse(this.case.caseType?.layout!);
+    let layout = (typeof this.case.caseType?.layout! !== 'string') ? this.case.caseType?.layout! : JSON.parse(this.case.caseType?.layout!);
     // since layout is reset we need to transform it
     if (!this.formEditable) {
       this.transformLayout(layout, !this.formEditable, this.case.draft);
@@ -116,7 +116,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     this.jsonFormOptions.draft = this.case.draft;
     this.jsonFormOptions.setSchemaDefaults = this.case.draft; // use schema defaults only for draft cases!
     this.jsonFormOptions.addSubmit = this.case.draft || this.formEditable;
-    this.schema = JSON.parse(this.case.caseType?.dataSchema!);
+    this.schema = (typeof this.case.caseType?.dataSchema! !== 'string') ? this.case.caseType?.dataSchema! : JSON.parse(this.case.caseType?.dataSchema!);
     this.layout = layout;
     this.data = this.initialData;
     this.populateForm(this.data);
@@ -367,6 +367,12 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
         }
       }
     }
+  }
+
+  isObject(entity: any) {
+    return typeof entity === 'object' &&
+      !Array.isArray(entity) &&
+      entity !== null;
   }
 
 }

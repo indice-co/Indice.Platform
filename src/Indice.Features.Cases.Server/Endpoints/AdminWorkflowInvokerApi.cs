@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 namespace Indice.Features.Cases.Server.Endpoints;
 
 /// <summary>Invoking workflow activities for suspended instances.</summary>
-public static class AdminWorkflowInvokerApi
+internal static class AdminWorkflowInvokerApi
 {
     /// <summary>Maps admin workflow invoker endpoint.</summary>
     public static IEndpointRouteBuilder MapAdminWorkflowInvoker(this IEndpointRouteBuilder routes) {

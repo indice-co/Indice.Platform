@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 namespace Indice.Features.Cases.Server.Endpoints;
 
 /// <summary>Manage Notifications for Back-office users.</summary>
-public static class AdminNotificationsApi
+internal static class AdminNotificationsApi
 {
 
     /// <summary>Maps admin notifications endpoint.</summary>
