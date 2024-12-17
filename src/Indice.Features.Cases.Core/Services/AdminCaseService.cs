@@ -159,7 +159,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                         Translations = @case.Checkpoint.CheckpointType.Translations
                     },
                     AssignedToName = @case.AssignedTo!.Name,
-                    Data = options.Filter.IncludeData is true ? @case.Data.Data : null,
+                    Data = options.Filter.IncludeData == true ? @case.Data.Data : null,
                     AccessLevel = 111
                 });
         } else {

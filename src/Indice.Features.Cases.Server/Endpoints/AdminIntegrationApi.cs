@@ -18,8 +18,8 @@ internal static class AdminIntegrationApi
         group.WithTags("AdminIntegration");
         group.WithGroupName(options.GroupName);
 
-        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).ToArray();
-        group.RequireAuthorization(policy => policy
+        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
+        group.RequireAuthorization(pb => pb
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes("Bearer")
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)

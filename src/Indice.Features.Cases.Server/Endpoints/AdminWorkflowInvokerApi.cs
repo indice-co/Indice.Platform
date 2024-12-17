@@ -18,20 +18,20 @@ internal static class AdminWorkflowInvokerApi
         group.WithTags("AdminWorkflowInvoker");
         group.WithGroupName(options.GroupName);
 
-        var allowedScopes = new[] {
-            options.RequiredScope
-        }.Where(x => x != null).ToArray();
+        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
 
-        group.RequireAuthorization(policy => policy
-             .RequireCasesAccess(Authorization.CasesAccessLevel.Manager)
-             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
+        group.RequireAuthorization(pb => pb
+            .RequireAuthenticatedUser()
+            .AddAuthenticationSchemes("Bearer")
+            .RequireCasesAccess(Authorization.CasesAccessLevel.Manager)
+            .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
         ).RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
 
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
-             .ProducesProblem(StatusCodes.Status401Unauthorized)
-             .ProducesProblem(StatusCodes.Status403Forbidden);
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden);
 
         group.MapPost("cases/{caseId:guid}/approve", AdminWorkflowInvokerHandler.SubmitApproval)
             .WithName(nameof(AdminWorkflowInvokerHandler.SubmitApproval))

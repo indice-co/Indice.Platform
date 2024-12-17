@@ -20,10 +20,11 @@ internal static class AdminCasesApi
         group.WithTags("AdminCases");
         group.WithGroupName(options.GroupName);
 
-        var allowedScopes = new[] {
-            options.RequiredScope
-        }.Where(x => x != null).ToArray();
-        group.RequireAuthorization(policy => policy.RequireClaim(BasicClaimTypes.Scope, allowedScopes))
+        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
+        group.RequireAuthorization(pb => pb
+                .RequireAuthenticatedUser()
+                .AddAuthenticationSchemes("Bearer")
+                .RequireClaim(BasicClaimTypes.Scope, allowedScopes))
             .RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
 
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);

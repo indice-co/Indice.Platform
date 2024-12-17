@@ -14,7 +14,7 @@ internal static class LookupHandler
         string[]? filterTerms,
         ILookupServiceFactory lookupServiceFactory) {
         var lookupService = lookupServiceFactory.Create(lookupName);
-        var lookupItems = await lookupService.Get(ListOptions.Create(options, new LookupFilter { FilterTerms = filterTerms?.Select(FilterTerm.Parse).ToList() }));
+        var lookupItems = await lookupService.Get(ListOptions.Create(options, new LookupFilter { FilterTerms = filterTerms?.Select(FilterTerm.Parse).ToArray() ?? [] }));
         if (lookupItems == null) {
             return TypedResults.NotFound();
         }

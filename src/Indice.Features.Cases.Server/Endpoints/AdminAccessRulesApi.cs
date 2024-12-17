@@ -23,17 +23,16 @@ public static class AdminAccessRulesApi
         var group = routes.MapGroup($"{options.PathPrefix.Value!.Trim('/')}/manage");
         group.WithGroupName(options.GroupName);
 
-        var allowedScopes = new[] {
-            options.RequiredScope
-        }.Where(x => x != null).ToArray();
-        group.RequireAuthorization(pb => pb.RequireClaim(BasicClaimTypes.Scope, allowedScopes))
+        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
+        group.RequireAuthorization(pb => pb
+                .RequireAuthenticatedUser()
+                .AddAuthenticationSchemes("Bearer")
+                .RequireClaim(BasicClaimTypes.Scope, allowedScopes))
             .RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
 
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
-        group.WithHandledException<ValidationException>()
-            .ProducesProblem(StatusCodes.Status400BadRequest)
-            .ProducesProblem(StatusCodes.Status401Unauthorized)
+        group.ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 

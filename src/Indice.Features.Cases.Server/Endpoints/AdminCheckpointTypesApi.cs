@@ -19,11 +19,11 @@ internal static class AdminCheckpointTypesApi
         group.WithTags("AdminCheckpointTypes");
         group.WithGroupName(options.GroupName);
 
-        var allowedScopes = new[] {
-            options.RequiredScope
-        }.Where(x => x != null).ToArray();
+        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
 
-        group.RequireAuthorization(policy => policy
+        group.RequireAuthorization(pb => pb
+            .RequireAuthenticatedUser()
+            .AddAuthenticationSchemes("Bearer")
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
             .RequireCasesAccess(Authorization.CasesAccessLevel.Manager)
         ).RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);

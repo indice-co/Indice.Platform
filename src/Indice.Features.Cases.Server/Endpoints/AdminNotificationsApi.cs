@@ -20,8 +20,8 @@ internal static class AdminNotificationsApi
         group.WithTags("AdminNotifications");
         group.WithGroupName(options.GroupName);
 
-        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).ToArray();
-        group.RequireAuthorization(policy => policy
+        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
+        group.RequireAuthorization(pb => pb
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
             .RequireCasesAccess(Authorization.CasesAccessLevel.Manager)
         ).RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);

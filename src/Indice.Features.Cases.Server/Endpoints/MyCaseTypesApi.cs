@@ -22,7 +22,11 @@ public static class MyCaseTypesApi
         group.WithGroupName("my");
 
         // Add security requirements, all incoming requests to this API *must* be authenticated with a valid user.
-        group.RequireAuthorization(CasesApiConstants.Policies.BeCasesUser);
+        group.RequireAuthorization(policy => policy
+            .RequireAuthenticatedUser()
+            .AddAuthenticationSchemes("Bearer")
+            .RequireCasesAccess()
+        ).RequireAuthorization(CasesApiConstants.Policies.BeCasesUser);
 
         group.WithOpenApi().AddOpenApiSecurityRequirement();
         group.ProducesProblem(StatusCodes.Status500InternalServerError)

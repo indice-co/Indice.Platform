@@ -18,21 +18,23 @@ internal static class AdminReportsApi
         group.WithTags("AdminReports");
         group.WithGroupName(options.GroupName);
 
-        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).ToArray();
+        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
 
-        group.RequireAuthorization(policy => policy
-             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-             .RequireCasesAccess(Authorization.CasesAccessLevel.Manager)
+        group.RequireAuthorization(pb => pb
+            .RequireAuthenticatedUser()
+            .AddAuthenticationSchemes("Bearer")
+            .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
+            .RequireCasesAccess(Authorization.CasesAccessLevel.Manager)
         ).RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
-             .ProducesProblem(StatusCodes.Status401Unauthorized)
-             .ProducesProblem(StatusCodes.Status403Forbidden);
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden);
 
         group.MapGet(string.Empty, AdminReportsHandler.GetCaseReport)
-             .WithName(nameof(AdminReportsHandler.GetCaseReport))
-             .WithSummary("Get case report");
+            .WithName(nameof(AdminReportsHandler.GetCaseReport))
+            .WithSummary("Get case report");
 
         return group;
     }
