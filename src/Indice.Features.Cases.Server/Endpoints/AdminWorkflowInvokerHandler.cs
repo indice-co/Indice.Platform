@@ -10,7 +10,7 @@ internal static class AdminWorkflowInvokerHandler
     }
 
     public static Task<NoContent> AssignCase(Guid caseId, ClaimsPrincipal currentUser) {
-        var input = new AwaitAssignmentInvokerInput {
+        _ = new AwaitAssignmentInvokerInput {
             // Get the current user for self-assign
             // todo support admin assignments [in future user-story]
             User = AuditMeta.Create(currentUser)

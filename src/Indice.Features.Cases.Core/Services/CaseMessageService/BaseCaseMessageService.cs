@@ -27,7 +27,7 @@ internal abstract class BaseCaseMessageService
     protected async Task<Guid?> SendInternal(DbCase @case, Message message, ClaimsPrincipal user) {
         Guid? attachmentId = null;
         var caseId = @case.Id;
-        if (message == null) throw new ArgumentNullException(nameof(message));
+        ArgumentNullException.ThrowIfNull(message);
         if (message.FileStreamAccessor == null && message.CheckpointTypeName == null && message.Comment == null && message.Data == null) {
             return attachmentId;
         }
@@ -54,7 +54,7 @@ internal abstract class BaseCaseMessageService
             attachmentId = attachment.Id;
         } else if (message.FileStreamAccessor == null && message.CheckpointTypeName != null) {
             //TODO: if message has both Data and Checkpoint name, then Data does not save (check 64 line)
-            var checkpoint = await AddCheckpoint(user, @case, newCheckpointType!);
+            await AddCheckpoint(user, @case, newCheckpointType!);
             if (!string.IsNullOrWhiteSpace(message.Comment)) {
                 message.PrivateComment ??= newCheckpointType!.Private;
                 await AddComment(user, caseId, message.Comment, message.ReplyToCommentId, message.PrivateComment);

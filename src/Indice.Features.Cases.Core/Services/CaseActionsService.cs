@@ -34,12 +34,10 @@ internal class CaseActionsService : ICaseActionsService
                                                              })
                                                              .FirstOrDefaultAsync();
         if (@case == null) {
-            _logger.LogError("Case n not found for caseId {caseId}", caseId);
+            _logger.LogError("Case n not found for caseId {CaseId}", caseId);
             return null;
         }
 
-        var caseIsAssigned = @case.AssignedToId != null;
-        var isAssignedToCurrentUser = @case.AssignedToId == user.FindSubjectId();
         var userRoles = user
             .FindAll(claim => claim.Type == BasicClaimTypes.Role)
             .Select(claim => claim.Value)

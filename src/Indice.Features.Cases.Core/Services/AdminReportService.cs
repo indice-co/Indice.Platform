@@ -55,7 +55,7 @@ internal class AdminReportService : IAdminReportService
         } catch (ResourceUnauthorizedException) {
             return new List<GroupByReportResult>();
         }
-        var groupByReportResult = new List<GroupByReportResult>();
+        List<GroupByReportResult> groupByReportResult;
         var caseTypes = new ResultSet<CaseTypePartial>();
         switch (reportTag) {
             case ReportTag.GroupedByCasetype:
