@@ -67,7 +67,7 @@
       "templateDirectory": null,
       "serviceHost": null,
       "serviceSchemes": null,
-      "output": "src/app/core/services/cases-api.service.ts",
+      "output": "./cases-api.service.ts",
       "newLineBehavior": "Auto"
     }
   }
