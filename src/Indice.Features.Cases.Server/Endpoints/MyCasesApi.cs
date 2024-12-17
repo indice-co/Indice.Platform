@@ -10,7 +10,7 @@ namespace Microsoft.AspNetCore.Routing;
 /// <summary>
 /// my Cases API
 /// </summary>
-public static class MyCasesApi
+internal static class MyCasesApi
 {
     /// <summary>Case types from the customer's perspective.</summary>
     /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>

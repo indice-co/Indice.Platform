@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 namespace Indice.Features.Cases.Server.Endpoints;
 
 /// /// <summary>Cases from the administrative perspective.</summary>
-public static class AdminCasesApi
+internal static class AdminCasesApi
 {
     /// <summary>Maps admin cases endpoint.</summary>
     public static IEndpointRouteBuilder MapAdminCases(this IEndpointRouteBuilder routes) {

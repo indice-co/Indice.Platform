@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Server.Endpoints;
 /// <summary>Integration endpoints with 3rd party systems.</summary>
-public static class AdminIntegrationApi
+internal static class AdminIntegrationApi
 {
     /// <summary>Maps admin integration endpoint.</summary>
     public static IEndpointRouteBuilder MapAdminIntegration(this IEndpointRouteBuilder routes) {

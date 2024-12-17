@@ -39,11 +39,12 @@ public static class CasesFeatureExtensions
             options.ConfigureDbSeed = casesOptions.ConfigureDbSeed;
         });
 
-        var seedOptions = new CasesDbIntialDataOptions([], []);
+        var seedOptions = new CasesDbIntialDataOptions();
         casesOptions.ConfigureDbSeed?.Invoke(seedOptions);
 
         services.Configure<CasesDbIntialDataOptions>(options => {
             options.CaseTypes.AddRange(seedOptions.CaseTypes);
+            options.Cases.AddRange(seedOptions.Cases);
         });
         // Register no op services.
         services.AddLookupService<NoOpLookupService>(nameof(NoOpLookupService)); // needed for factory instantiation

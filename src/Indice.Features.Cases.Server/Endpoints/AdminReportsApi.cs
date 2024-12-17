@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 namespace Indice.Features.Cases.Server.Endpoints;
 
 /// <summary>Manage cases reports and everything related to cases for back-office users.</summary>
-public static class AdminReportsApi
+internal static class AdminReportsApi
 {
     /// <summary>Maps admin reports endpoint.</summary>
     public static IEndpointRouteBuilder MapAdminReports(this IEndpointRouteBuilder routes) {

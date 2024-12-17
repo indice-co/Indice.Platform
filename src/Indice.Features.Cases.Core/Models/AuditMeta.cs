@@ -4,7 +4,7 @@ using Indice.Security;
 namespace Indice.Features.Cases.Core.Models;
 
 /// <summary>Audit metadata related with the user principal that "did" the action.</summary>
-public class AuditMeta
+public class AuditMeta : ICloneable
 {
     /// <summary>The Id of the user.</summary>
     public string? Id { get; set; }
@@ -63,4 +63,16 @@ public class AuditMeta
         meta.When = now ?? DateTimeOffset.UtcNow;
         return meta;
     }
+
+    /// <inheritdoc/>
+    object ICloneable.Clone() => this.Clone();
+
+    /// <summary>Creates a new object that is a copy of the current instance.</summary>
+    /// <returns>A new object that is a copy of this instance.</returns>
+    public AuditMeta Clone() => new () {
+        Id = Id,
+        Name= Name,
+        Email = Email,
+        When = When,
+    };
 }
