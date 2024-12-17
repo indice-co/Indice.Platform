@@ -40,21 +40,14 @@ internal class QueryService : IQueryService
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task DeleteQuery(ClaimsPrincipal user, Guid queryId) {
-        var dbQuery = await Get(queryId);
+    public async Task<bool> DeleteQuery(ClaimsPrincipal user, Guid queryId) {
+        var dbQuery = await _dbContext.Queries.Where(x => x.Id == queryId && x.UserId != user.FindSubjectId()).FirstOrDefaultAsync();
         // someone tries to delete someone else's query!
-        if (dbQuery.UserId != user.FindSubjectId()) {
-            throw new Exception("Query is invalid.");
+        if (dbQuery is null) {
+            return false;
         }
         _dbContext.Queries.Remove(dbQuery);
         await _dbContext.SaveChangesAsync();
-    }
-
-    private async Task<DbQuery> Get(Guid queryId) {
-        if (queryId == Guid.Empty) {
-            throw new ArgumentNullException(nameof(queryId));
-        }
-        var dbQuery = await _dbContext.Queries.FindAsync(queryId);
-        return dbQuery ?? throw new Exception("Query is invalid.");
+        return true;
     }
 }

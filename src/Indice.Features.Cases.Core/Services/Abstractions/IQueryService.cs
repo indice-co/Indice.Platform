@@ -19,5 +19,5 @@ public interface IQueryService
     /// <summary>Delete a query.</summary>
     /// <param name="user">The user that saves the query.</param>
     /// <param name="queryId">The id of the query.</param>
-    Task DeleteQuery(ClaimsPrincipal user, Guid queryId);
+    Task<bool> DeleteQuery(ClaimsPrincipal user, Guid queryId);
 }

@@ -53,7 +53,7 @@ internal class AdminReportService : IAdminReportService
         try {
             query = await _memberAuthorizationProvider.GetCaseMembership(query, user);
         } catch (ResourceUnauthorizedException) {
-            return new List<GroupByReportResult>();
+            return [];
         }
         var groupByReportResult = new List<GroupByReportResult>();
         var caseTypes = new ResultSet<CaseTypePartial>();

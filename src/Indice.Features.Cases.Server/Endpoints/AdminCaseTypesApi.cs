@@ -1,11 +1,14 @@
-﻿using Indice.Security;
+﻿using Indice.Features.Cases.Server;
+using Indice.Features.Cases.Server.Authorization;
+using Indice.Features.Cases.Server.Endpoints;
+using Indice.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Indice.Features.Cases.Server.Endpoints;
+namespace Microsoft.AspNetCore.Routing;
 
 /// <summary>Case types from the administrative perspective.</summary>
 internal static class AdminCaseTypesApi
@@ -17,37 +20,34 @@ internal static class AdminCaseTypesApi
         var group = routes.MapGroup($"{options.PathPrefix.Value!.Trim('/')}/manage/case-types");
         group.WithTags("AdminCaseTypes");
         group.WithGroupName(options.GroupName);
-        
+
         var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
 
-        group.RequireAuthorization(policy => policy
+        group.RequireAuthorization(pb => pb
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes("Bearer")
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-            .RequireCasesAccess(Authorization.CasesAccessLevel.Manager)
-        );
+            .RequireCasesAccess(CasesAccessLevel.Manager)
+            );
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
-        
-        group.ProducesProblem(StatusCodes.Status500InternalServerError)
-             .ProducesProblem(StatusCodes.Status401Unauthorized)
-             .ProducesProblem(StatusCodes.Status403Forbidden)
-             .ProducesProblem(StatusCodes.Status400BadRequest);
-        group.MapGet("", AdminCaseTypesHandler.GetAdminCaseTypes)
+
+        group.ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+        group.MapGet(string.Empty, AdminCaseTypesHandler.GetAdminCaseTypes)
              .WithName(nameof(AdminCaseTypesHandler.GetAdminCaseTypes))
-             .WithSummary("Get case types.")
-             .RequireAuthorization(policy => policy.RequireCasesAccess(Authorization.CasesAccessLevel.Manager)); // equivalent to BeCasesManager
-        group.MapGet("{caseTypeId}", AdminCaseTypesHandler.GetCaseTypeById) 
-             .WithSummary("Get a specific Case Type by Id.")
-             .RequireAuthorization(policy => policy.RequireCasesAccess(Authorization.CasesAccessLevel.Admin)); // equivalent to BeCasesAdministrator
-        group.MapPost("", AdminCaseTypesHandler.CreateCaseType)
+             .WithSummary("Get case types.");
+        group.MapGet("{caseTypeId}", AdminCaseTypesHandler.GetCaseTypeById)
+             .WithSummary("Get a specific Case Type by Id.");
+        group.MapPost(string.Empty, AdminCaseTypesHandler.CreateCaseType)
              .WithSummary("Create new case type.")
-             .RequireAuthorization(policy => policy.RequireCasesAccess(Authorization.CasesAccessLevel.Admin)); // equivalent to BeCasesAdministrator
+             .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Admin)); // equivalent to BeCasesAdministrator
         group.MapPut("{caseTypeId}", AdminCaseTypesHandler.UpdateCaseType)
              .WithSummary("Update a specific Case Type.")
-             .RequireAuthorization(policy => policy.RequireCasesAccess(Authorization.CasesAccessLevel.Admin)); // equivalent to BeCasesAdministrator
+             .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Admin)); // equivalent to BeCasesAdministrator
         group.MapDelete("{caseTypeId}", AdminCaseTypesHandler.DeleteCaseType)
              .WithSummary("Delete a specific Case Type.")
-             .RequireAuthorization(policy => policy.RequireCasesAccess(Authorization.CasesAccessLevel.Admin)); // equivalent to BeCasesAdministrator
+             .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Admin)); // equivalent to BeCasesAdministrator
         return group;
     }
 }

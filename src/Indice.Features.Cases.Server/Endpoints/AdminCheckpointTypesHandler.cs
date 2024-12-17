@@ -13,7 +13,7 @@ internal static class AdminCheckpointTypesHandler
             return TypedResults.NotFound();
         }
         return TypedResults.Ok(distinctCheckpointTypes);
-    
+
     }
 }
 

@@ -4,5 +4,5 @@
 public class GetMyCaseTypesListFilter
 {
     /// <summary>The case type tag filter.</summary>
-    public List<string>? CaseTypeTags { get; set; }
+    public string[]? CaseTypeTags { get; set; }
 }

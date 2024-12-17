@@ -57,6 +57,7 @@ public static class CaseServerFeatureExtensions
     public static IEndpointRouteBuilder MapCases(this IEndpointRouteBuilder routes) {
         // my account
         routes.MapMyCases();
+        routes.MapMyCaseTypes();
         // management endpoints
         routes.MapAdminCases();
         routes.MapAdminAttachments();
@@ -68,6 +69,8 @@ public static class CaseServerFeatureExtensions
         routes.MapAdminReports();
         routes.MapAdminWorkflowInvoker();
         routes.MapLookup();
+        routes.MapAdminAccessRules();
+        routes.MapAdminCaseData();
         return routes;
     }
 }

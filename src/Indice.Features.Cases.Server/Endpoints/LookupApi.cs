@@ -1,11 +1,14 @@
-﻿using Indice.Security;
+﻿using Indice.Features.Cases.Server;
+using Indice.Features.Cases.Server.Authorization;
+using Indice.Features.Cases.Server.Endpoints;
+using Indice.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Indice.Features.Cases.Server.Endpoints;
+namespace Microsoft.AspNetCore.Routing;
 
 /// <summary>Manage lookups for the case types.</summary>
 internal static class LookupApi
@@ -24,7 +27,7 @@ internal static class LookupApi
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes("Bearer")
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-            .RequireCasesAccess(Authorization.CasesAccessLevel.Manager)
+            .RequireCasesAccess(CasesAccessLevel.Manager)
         );
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
