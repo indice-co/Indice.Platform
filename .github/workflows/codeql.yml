@@ -80,6 +80,14 @@ jobs:
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
         # Setup Node.js
+    - if: matrix.language == 'csharp'
+      name: Use .NET 8
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+        source-url: https://api.nuget.org/v3/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{secrets.NUGET_AUTH_TOKEN}}
     - name: Use Node.js 20.x
       uses: actions/setup-node@v4
       with:
@@ -95,7 +103,7 @@ jobs:
         {
           New-Item -ItemType "directory" -Path ".\.nuget\packages"
         }
-    - if: matrix.build-mode == 'manual'
+    - if: matrix.language == 'csharp'
       name: Restore Nuget packages + Build
       run: ./build.ps1
 
