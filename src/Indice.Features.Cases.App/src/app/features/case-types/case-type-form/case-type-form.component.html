@@ -1,0 +1,254 @@
+<div class="form-container">
+  <div>
+    <label class="legend px-2 font-bold">Τύπος Υπόθεσης</label>
+    <form #caseTypeForm="ngForm" novalidate autocomplete="on" (ngSubmit)="runOnSubmit()">
+      <section class="form-flex-row flex flex-wrap">
+        <div class="form-flex-item flex-auto">
+          <div class="form-group my-2 px-2 schema-form-text">
+            <label class="form-label inline-block mb-1 text-gray-700" for="code">
+              Κωδικός <strong class="text-red-500">*</strong>
+            </label>
+            <input class="form-control"
+                   type="text"
+                   name="caseTypeCode"
+                   id="code"
+                   [(ngModel)]="data.code"
+                   placeholder="O  κωδικός..."
+                   maxlength="128"
+                   required
+                   #caseTypeForm="ngModel">
+          </div>
+        </div>
+        <div class="form-flex-item flex-auto">
+          <div class="form-group my-2 px-2 schema-form-text">
+            <label class="form-label inline-block mb-1 text-gray-700" for="title">
+              Τίτλος <strong class="text-red-500">*</strong>
+            </label>
+            <input class="form-control"
+                   type="text"
+                   name="caseTypeTitle"
+                   id="title"
+                   [(ngModel)]="data.title"
+                   placeholder="Ο τίτλος της υπόθεσης..."
+                   maxlength="128"
+                   required
+                   #caseTypeForm="ngModel">
+          </div>
+        </div>
+      </section>
+      <section class="form-flex-row flex flex-wrap">
+        <div class="form-flex-item flex-1">
+          <div class="form-group my-2 px-2 schema-form-number">
+            <label class="form-label inline-block mb-1 text-gray-700" for="order">
+              Σειρά μέσα στην κατηγορία
+            </label>
+            <div>
+              <input class="form-control"
+                     type="number"
+                     name="caseTypeOrder"
+                     id="order"
+                     [(ngModel)]="data.order"
+                     #caseTypeForm="ngModel">
+            </div>
+          </div>
+        </div>
+        <div class="form-flex-item flex-1">
+          <div class="form-group my-2 px-2 schema-form-text">
+            <label class="form-label inline-block mb-1 text-gray-700" for="description">
+              Περιγραφή
+            </label>
+            <input class="form-control"
+                   type="text"
+                   name="caseTypeDescription"
+                   id="description"
+                   [(ngModel)]="data.description"
+                   placeholder="Περιγραφή..."
+                   #caseTypeForm="ngModel">
+          </div>
+        </div>
+      </section>
+      <section class="form-flex-row flex flex-wrap">
+        <div class="form-flex-item flex-auto">
+          <div class="form-group my-2 px-2">
+            <label class="form-label inline-block mb-1 text-gray-700" for="dataSchema">
+              Schema <strong class="text-red-500">*</strong>
+            </label>
+            <div>
+              <textarea class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm form-control ng-pristine ng-valid ng-touched"
+                        name="caseTypedataSchema"
+                        id="dataSchema"
+                        [ngModel]="data.dataSchema | json"
+                        (ngModelChange)="data.dataSchema=jsonParse($event)"
+                        placeholder="Json Schema..."
+                        rows="4"
+                        required
+                        #caseTypeForm="ngModel"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="form-flex-item flex-auto">
+          <div class="form-group my-2 px-2 schema-form-text">
+            <label class="form-label inline-block mb-1 text-gray-700" for="layout">
+              Layout
+            </label>
+            <textarea class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm form-control ng-pristine ng-valid ng-touched"
+                      name="caseTypeLayout"
+                      id="layout"
+                      [ngModel]="data.layout | json"
+                      (ngModelChange)="data.layout=jsonParse($event)"
+                      placeholder="Layout..."
+                      rows="4"
+                      #caseTypeForm="ngModel"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section class="form-flex-row flex flex-wrap">
+        <div class="form-flex-item flex-auto">
+          <div class="form-group my-2 px-2">
+            <label class="form-label inline-block mb-1 text-gray-700" for="translations">
+              Μετάφραση
+            </label>
+            <div>
+              <textarea class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm form-control ng-pristine ng-valid ng-touched"
+                        name="caseTypedataTranslations"
+                        id="translations"
+                        [ngModel]="data.translations | json"
+                        (ngModelChange)="data.translations=jsonParse($event)"
+                        placeholder="schema Translations..."
+                        rows="4"
+                        #caseTypeForm="ngModel"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="form-flex-item flex-auto">
+          <div class="form-group my-2 px-2 schema-form-text">
+            <label class="form-label inline-block mb-1 text-gray-700" for="layoutTranslations">
+              Μετάφραση Layout
+            </label>
+            <textarea class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm form-control ng-pristine ng-valid ng-touched"
+                      name="caseTypeLayoutTranslations"
+                      id="layoutTranslations"
+                      [ngModel]="data.layoutTranslations | json"
+                      (ngModelChange)="data.layoutTranslations=jsonParse($event)"
+                      placeholder="layout Translations..."
+                      rows="4"
+                      #caseTypeForm="ngModel"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section class="form-flex-row flex flex-wrap">
+        <div class="form-flex-item flex-auto">
+          <div class="form-group my-2 px-2">
+            <label class="form-label inline-block mb-1 text-gray-700" for="tags">
+              Ετικέτες
+            </label>
+            <div>
+              <input class="form-control"
+                     type="text"
+                     name="caseTypeTags"
+                     id="tags"
+                     [(ngModel)]="data.tags"
+                     placeholder="tag1,tag2..."
+                     #caseTypeForm="ngModel">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="form-flex-row flex flex-wrap">
+        <div class="form-flex-item flex-auto">
+          <div class="form-group my-2 px-2 schema-form-text">
+            <label class="form-label inline-block mb-1 text-gray-700" for="config">
+              Case Type Configuration
+            </label>
+            <textarea class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm form-control ng-pristine ng-valid ng-touched"
+                      name="caseTypeConfig"
+                      id="config"
+                      [ngModel]="data.config | json"
+                      (ngModelChange)="data.config=jsonParse($event)"
+                      placeholder="Config..."
+                      rows="4"
+                      #caseTypeForm="ngModel"></textarea>
+          </div>
+        </div>
+      </section>
+
+
+      <section class="form-flex-row flex flex-wrap">
+        <div class="form-flex-item flex-auto">
+          <div class="form-group my-2 px-2">
+            <label class="form-label inline-block mb-1 text-gray-700" for="canCreateRoles">
+              Επιτρεπτοί Ρόλοι για Δημιουργία υπόθεσης (csv χωρίς κενά πχ Role1,Role2)
+            </label>
+            <div>
+              <input class="form-control"
+                     type="text"
+                     name="caseTypeCanCreateRoles"
+                     id="canCreateRoles"
+                     [(ngModel)]="data.canCreateRoles"
+                     placeholder="roleA,roleB..."
+                     #caseTypeForm="ngModel">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="form-flex-row flex flex-wrap">
+        <div class="form-flex-item flex-1">
+          <div class="form-group my-2 px-2">
+            <label for="isMenuItem">
+              <input id="isMenuItem"
+                     type="checkbox"
+                     name="caseTypeIsMenuItem"
+                     [(ngModel)]="data.isMenuItem"
+                     #caseTypeForm="ngModel">
+              <span>Is menu item</span>
+            </label>
+          </div>
+        </div>
+        <div class="form-flex-item flex-1">
+          <div class="form-group my-2 px-2">
+            <label class="form-label inline-block mb-1 text-gray-700" for="gridFilterConfig">
+              Grid filter config
+            </label>
+            <div>
+              <textarea class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm form-control ng-pristine ng-valid ng-touched"
+                        name="caseTypeGridFilterConfig"
+                        id="gridFilterConfig"
+                        [ngModel]="data.gridFilterConfig | json"
+                        (ngModelChange)="data.gridFilterConfig=jsonParse($event)"
+                        placeholder="json..."
+                        rows="4"
+                        #caseTypeForm="ngModel"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="form-flex-item flex-1">
+          <div class="form-group my-2 px-2 schema-form-text">
+            <label class="form-label inline-block mb-1 text-gray-700" for="gridColumnConfig">
+              Grid column config
+            </label>
+            <textarea class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm form-control ng-pristine ng-valid ng-touched"
+                      name="caseTypeGridColumnConfig"
+                      id="gridColumnConfig"
+                      [ngModel]="data.gridColumnConfig | json"
+                      (ngModelChange)="data.gridColumnConfig=jsonParse($event)"
+                      placeholder="json..."
+                      rows="4"
+                      #caseTypeForm="ngModel"></textarea>
+          </div>
+        </div>
+      </section>
+      <div class="flex-auto">
+        <div>
+          <button class="btn-submit-form" type="submit" [disabled]="!caseTypeForm.valid">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="h-5 w-5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+            &nbsp;Αποθήκευση
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

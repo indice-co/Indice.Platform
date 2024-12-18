@@ -1,6 +1,7 @@
 
 import { Component, OnInit } from '@angular/core';
 import { CaseTypeUpdateService } from '../case-type-update.service';
+import { CaseTypeRequest } from '../../../core/services/cases-api.service';
 
 @Component({
   selector: 'app-case-type-create',
@@ -19,8 +20,8 @@ export class CaseTypeCreateComponent implements OnInit {
 
   ngOnInit(): void { }
 
-  onSubmit(event: any) {
-    this.caseTypesService.onCreateSubmit(event);
+  onSubmit(event?: any) {
+    this.caseTypesService.onCreateSubmit(event ?? this.data);
   }
 
 }

@@ -54,5 +54,13 @@ internal class DbCaseTypeConfiguration : IEntityTypeConfiguration<DbCaseType>
             .Property(p => p.CanCreateRoles)
             .HasMaxLength(TextSizePresets.M256)
             .IsRequired(false);
+        builder
+            .Property(p => p.GridFilterConfig)
+            .HasJsonConversion()
+            .IsRequired(false);
+        builder
+            .Property(p => p.GridColumnConfig)
+            .HasJsonConversion()
+            .IsRequired(false);
     }
 }

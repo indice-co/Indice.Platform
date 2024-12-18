@@ -100,8 +100,11 @@ public static class CasesDbInitalizerExtesnions
             DataSchema = JsonNode.Parse(AddressSampleSchema.Trim()),
             Layout = JsonNode.Parse("""
                 [
-                  { "key": "postOfficeBox", "title": "Post Office", "type": "string", "placeholder": "Post Office" },
-                  { "key": "extendedAddress", "title": "Address", "type": "string", "placeholder": "Address" }
+                  { "key": "postalCode", "title": "Post code", "type": "string", "placeholder": "Post code" },
+                  { "key": "postOfficeBox", "title": "PO Box", "type": "string", "placeholder": "PO Box" },
+                  { "key": "streetAddress", "title": "Street", "type": "string", "placeholder": "Address Line 1" }, 
+                  { "key": "extendedAddress", "title": "Line 2", "type": "string", "placeholder": "Line 2" },
+                  { "key": "countryName", "title": "Country", "type": "string", "placeholder": "Country" }
                 ]
                 """)
         },

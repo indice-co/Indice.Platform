@@ -22,8 +22,8 @@ public class DbCaseType
     /// <summary>The allowed Roles that can create a new Case</summary>
     public string? CanCreateRoles { get; set; }
     public bool IsMenuItem { get; set; } 
-    public string? GridFilterConfig { get; set; }
-    public string? GridColumnConfig { get; set; }
+    public JsonNode? GridFilterConfig { get; set; }
+    public JsonNode? GridColumnConfig { get; set; }
     /// <summary>Available checkpoints for this case type</summary>
     public virtual List<DbCheckpointType> CheckpointTypes { get; set; } = [];
     public virtual DbCategory? Category { get; set; }

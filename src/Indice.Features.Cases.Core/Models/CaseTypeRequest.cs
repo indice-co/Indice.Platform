@@ -23,7 +23,7 @@ public class CaseTypeRequest
     public JsonNode? DataSchema { get; set; }
 
     /// <summary>the Layout of the case type</summary>
-    public string? Layout { get; set; }
+    public JsonNode? Layout { get; set; }
 
     /// <summary>The Translation for the case type</summary>
     public TranslationDictionary<CaseTypeTranslation>? Translations { get; set; }
@@ -35,7 +35,7 @@ public class CaseTypeRequest
     public string? Tags { get; set; }
 
     /// <summary>The case type configuration.</summary>
-    public string? Config { get; set; }
+    public JsonNode? Config { get; set; }
 
     /// <summary>The allowed Roles that can create a new Case.</summary>
     public string? CanCreateRoles { get; set; }
@@ -47,8 +47,8 @@ public class CaseTypeRequest
     public bool IsMenuItem { get; set; }
 
     /// <summary>The filter configuration for the cases of the specified case type.</summary>
-    public string? GridFilterConfig { get; set; }
+    public JsonNode? GridFilterConfig { get; set; }
 
     /// <summary>The column configuration for the cases of the specified case type.</summary>
-    public string? GridColumnConfig { get; set; }
+    public JsonNode? GridColumnConfig { get; set; }
 }

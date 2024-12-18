@@ -4993,8 +4993,8 @@ export class CaseType implements ICaseType {
     config?: any | undefined;
     canCreateRoles?: string | undefined;
     isMenuItem?: boolean;
-    gridFilterConfig?: string | undefined;
-    gridColumnConfig?: string | undefined;
+    gridFilterConfig?: any | undefined;
+    gridColumnConfig?: any | undefined;
     checkpointTypes?: CheckpointTypeDetails[] | undefined;
     order?: number | undefined;
 
@@ -5103,8 +5103,8 @@ export interface ICaseType {
     config?: any | undefined;
     canCreateRoles?: string | undefined;
     isMenuItem?: boolean;
-    gridFilterConfig?: string | undefined;
-    gridColumnConfig?: string | undefined;
+    gridFilterConfig?: any | undefined;
+    gridColumnConfig?: any | undefined;
     checkpointTypes?: CheckpointTypeDetails[] | undefined;
     order?: number | undefined;
 }
@@ -5125,8 +5125,8 @@ export class CaseTypePartial implements ICaseTypePartial {
     /** A type that models the translation of an object. */
     translations?: { [key: string]: CaseTypeTranslation; } | undefined;
     isMenuItem?: boolean;
-    gridFilterConfig?: string | undefined;
-    gridColumnConfig?: string | undefined;
+    gridFilterConfig?: any | undefined;
+    gridColumnConfig?: any | undefined;
 
     constructor(data?: ICaseTypePartial) {
         if (data) {
@@ -5235,8 +5235,8 @@ export interface ICaseTypePartial {
     /** A type that models the translation of an object. */
     translations?: { [key: string]: CaseTypeTranslation; } | undefined;
     isMenuItem?: boolean;
-    gridFilterConfig?: string | undefined;
-    gridColumnConfig?: string | undefined;
+    gridFilterConfig?: any | undefined;
+    gridColumnConfig?: any | undefined;
 }
 
 /** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
@@ -5299,17 +5299,17 @@ export class CaseTypeRequest implements ICaseTypeRequest {
     title?: string | undefined;
     description?: string | undefined;
     dataSchema?: any | undefined;
-    layout?: string | undefined;
+    layout?: any | undefined;
     /** A type that models the translation of an object. */
     translations?: { [key: string]: CaseTypeTranslation; } | undefined;
     layoutTranslations?: { [key: string]: string; } | undefined;
     tags?: string | undefined;
-    config?: string | undefined;
+    config?: any | undefined;
     canCreateRoles?: string | undefined;
     order?: number | undefined;
     isMenuItem?: boolean;
-    gridFilterConfig?: string | undefined;
-    gridColumnConfig?: string | undefined;
+    gridFilterConfig?: any | undefined;
+    gridColumnConfig?: any | undefined;
 
     constructor(data?: ICaseTypeRequest) {
         if (data) {
@@ -5398,17 +5398,17 @@ export interface ICaseTypeRequest {
     title?: string | undefined;
     description?: string | undefined;
     dataSchema?: any | undefined;
-    layout?: string | undefined;
+    layout?: any | undefined;
     /** A type that models the translation of an object. */
     translations?: { [key: string]: CaseTypeTranslation; } | undefined;
     layoutTranslations?: { [key: string]: string; } | undefined;
     tags?: string | undefined;
-    config?: string | undefined;
+    config?: any | undefined;
     canCreateRoles?: string | undefined;
     order?: number | undefined;
     isMenuItem?: boolean;
-    gridFilterConfig?: string | undefined;
-    gridColumnConfig?: string | undefined;
+    gridFilterConfig?: any | undefined;
+    gridColumnConfig?: any | undefined;
 }
 
 export class CaseTypeTranslation implements ICaseTypeTranslation {

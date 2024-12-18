@@ -43,10 +43,10 @@ public class CaseType
     public bool IsMenuItem { get; set; }
 
     /// <summary>The filter configuration for the cases of the specified case type.</summary>
-    public string? GridFilterConfig { get; set; }
+    public JsonNode? GridFilterConfig { get; set; }
 
     /// <summary>The column configuration for the cases of the specified case type.</summary>
-    public string? GridColumnConfig { get; set; }
+    public JsonNode? GridColumnConfig { get; set; }
 
     /// <summary>The checkpoints for this case type.</summary>
     public List<CheckpointTypeDetails> CheckpointTypes { get; set; } = [];

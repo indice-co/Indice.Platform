@@ -2,7 +2,7 @@ import { tap, catchError } from 'rxjs/operators';
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 import { ToasterService, ToastType } from "@indice/ng-components";
-import { CasesApiService, CaseTypeRequest } from "src/app/core/services/cases-api.service";
+import { CasesApiService, CaseTypeRequest, ICaseTypeRequest } from "src/app/core/services/cases-api.service";
 import { SubmitWidgetComponent } from "src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/submit-widget/submit-widget.component";
 import { TailwindFrameworkComponent } from "src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/tailwind-framework.component";
 import { EMPTY } from 'rxjs';
@@ -267,16 +267,16 @@ export class CaseTypeUpdateService {
         }
     }
 
-    public onCreateSubmit(event: any): void {
+    public onCreateSubmit(event: ICaseTypeRequest): void {
         const request = new CaseTypeRequest({
             title: event.title,
             order: event.order,
             description: event.description,
             code: event.code,
-            dataSchema: JSON.parse(event.dataSchema),
-            layout: event?.layout,
-            translations: event?.translations,
-            layoutTranslations: event?.layoutTranslations,
+            dataSchema: typeof event.dataSchema === 'string' ? JSON.parse(event.dataSchema) : event.dataSchema ,
+            layout: typeof event.layout === 'string' ? JSON.parse(event.layout) : event.layout,
+            translations: typeof event.translations === 'string' ? JSON.parse(event.translations) : event.translations,
+            layoutTranslations: typeof event.layoutTranslations === 'string' ? JSON.parse(event.layoutTranslations) : event.layoutTranslations,
             tags: event?.tags,
             config: event?.config,
             canCreateRoles: event?.canCreateRoles,
@@ -296,17 +296,17 @@ export class CaseTypeUpdateService {
         ).subscribe();
     }
 
-    public onEditSubmit(caseTypeId: string, event: any) {
+    public onEditSubmit(caseTypeId: string, event: ICaseTypeRequest) {
         const request = new CaseTypeRequest({
             id: caseTypeId,
             title: event.title,
             order: event.order,
             description: event.description,
             code: event.code,
-            dataSchema: JSON.parse(event.dataSchema),
-            layout: event?.layout,
-            translations: event?.translations,
-            layoutTranslations: event?.layoutTranslations,
+            dataSchema: typeof event.dataSchema === 'string' ? JSON.parse(event.dataSchema) : event.dataSchema ,
+            layout: typeof event.layout === 'string' ? JSON.parse(event.layout) : event.layout,
+            translations: typeof event.translations === 'string' ? JSON.parse(event.translations) : event.translations,
+            layoutTranslations: typeof event.layoutTranslations === 'string' ? JSON.parse(event.layoutTranslations) : event.layoutTranslations,
             tags: event?.tags,
             config: event?.config,
             canCreateRoles: event?.canCreateRoles,
