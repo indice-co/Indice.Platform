@@ -44,9 +44,9 @@ jobs:
       matrix:
         include:
         - language: csharp
-          build-mode: manual
+          build-mode: none
         - language: javascript-typescript
-          build-mode: manual
+          build-mode: none
         # CodeQL supports the following values keywords for 'language': 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'swift'
         # Use `c-cpp` to analyze code written in C, C++ or both
         # Use 'java-kotlin' to analyze code written in Java, Kotlin or both
@@ -95,8 +95,7 @@ jobs:
         {
           New-Item -ItemType "directory" -Path ".\.nuget\packages"
         }
-    - if: matrix.build-mode == 'manual'
-      name: Restore Nuget packages + Build
+    - name: Restore Nuget packages + Build
       run: ./build.ps1
 
     - name: Perform CodeQL Analysis
