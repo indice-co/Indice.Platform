@@ -88,7 +88,8 @@ jobs:
         source-url: https://api.nuget.org/v3/index.json
       env:
         NUGET_AUTH_TOKEN: ${{secrets.NUGET_AUTH_TOKEN}}
-    - name: Use Node.js 20.x
+    - if: matrix.language == 'csharp'
+      name: Use Node.js 20.x
       uses: actions/setup-node@v4
       with:
         node-version: 20
