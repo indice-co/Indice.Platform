@@ -1,10 +1,11 @@
 import { buildTitleMap, isArray, JsonSchemaFormService } from "@ajsf-extended/core";
 import { ChangeDetectorRef, Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { FilterClause } from "@indice/ng-components";
 import * as _ from "lodash";
 import { Subject } from "rxjs";
 import { take, takeUntil } from "rxjs/operators";
 import { CaseDetailsService } from "src/app/core/services/case-details.service";
-import { Case, CasesApiService, FilterTerm, LookupItemResultSet } from "src/app/core/services/cases-api.service";
+import { Case, CasesApiService, LookupItemResultSet } from "src/app/core/services/cases-api.service";
 import { LookupsService } from "src/app/core/services/lookups.service";
 
 @Component({
@@ -26,7 +27,7 @@ export class LookupSelectorWidgetComponent implements OnInit, OnDestroy {
   /**
   * Holds the "constant" part of Filter Terms.
   */
-  private lookupFilterTerms: FilterTerm[] = [];
+  private lookupFilterTerms: FilterClause[] = [];
   /**
   * This widget is part of a form.
   * The form is part of a specific case.
@@ -74,7 +75,7 @@ export class LookupSelectorWidgetComponent implements OnInit, OnDestroy {
       // Create the "constant" part of Filter Terms.
       this.lookupFilterTerms = this.createFilterTerms();
       if (!this.lookupFilterFields || (this.lookupFilterFields && !_.isEmpty(this.lookupFilterFieldValues) && this.allPropertiesHaveValues(this.lookupFilterFieldValues))) {
-        const lookupFilterTerms: FilterTerm[] = this.addFilterFieldValuesToFilterTerms();
+        const lookupFilterTerms: FilterClause[] = this.addFilterFieldValuesToFilterTerms();
         // Get lookup items - notice we don't use the caching service!
         this._lookupsService.getLookup(lookupName, lookupFilterTerms).pipe(
           takeUntil(this.destroy$),
@@ -112,9 +113,10 @@ export class LookupSelectorWidgetComponent implements OnInit, OnDestroy {
               this._jsf.formGroup.value[this.controlName!] = null;
               this._jsf.formGroup.controls[this.controlName!].value = null;
               // "Re-init" lookupFilterTerms
-              const lookupFilterTerms: FilterTerm[] = this.addFilterFieldValuesToFilterTerms();
+              const lookupFilterTerms: FilterClause[] = this.addFilterFieldValuesToFilterTerms();
               // Get new lookup items
-              this._api.getLookup(lookupName, lookupFilterTerms).pipe(
+              this._api.getLookup(lookupName, undefined, undefined, undefined, undefined,
+                                  lookupFilterTerms.map(x => x.toString())).pipe(
                 takeUntil(this.destroy$)
               ).subscribe(
                 (lookUpItems: LookupItemResultSet) => {
@@ -140,19 +142,19 @@ export class LookupSelectorWidgetComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private addFilterFieldValuesToFilterTerms(): FilterTerm[] {
-    let lookupFilterTerms: FilterTerm[] = [];
+  private addFilterFieldValuesToFilterTerms(): FilterClause[] {
+    let lookupFilterTerms: FilterClause[] = [];
     lookupFilterTerms = lookupFilterTerms.concat(this.lookupFilterTerms);
     if (this.lookupFilterFields) {
       for (const key in this.lookupFilterFieldValues) {
-        lookupFilterTerms.push(new FilterTerm({ key, value: this.lookupFilterFieldValues[key] }));
+        lookupFilterTerms.push(new FilterClause(key, this.lookupFilterFieldValues[key], 'eq'));
       }
     }
     return lookupFilterTerms;
   }
 
-  private createFilterTerms(): FilterTerm[] {
-    let lookupFilterTerms: FilterTerm[] = [];
+  private createFilterTerms(): FilterClause[] {
+    let lookupFilterTerms: FilterClause[] = [];
     // Do we have parameters passed from layout configuration?
     if (this.options['lookup-filter-terms']) {
       // Deep clone the array (we don't want the options to be changed)
@@ -160,7 +162,7 @@ export class LookupSelectorWidgetComponent implements OnInit, OnDestroy {
     }
     // Notice that we always send a customerId.
     // Not really a problem: it can be ignored server-side if not needed.
-    lookupFilterTerms.push(new FilterTerm({ key: 'customerId', value: this.customerId }));
+    lookupFilterTerms.push(new FilterClause('customerId', this.customerId, 'eq'));
     return lookupFilterTerms;
   }
 

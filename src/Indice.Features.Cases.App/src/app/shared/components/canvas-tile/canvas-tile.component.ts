@@ -23,7 +23,7 @@ export class CanvasTileComponent implements OnInit {
 
   ngOnInit(): void {
     this.loading = true;
-    this._api.getCaseReport(this.canvasId).subscribe(
+    this._api.getCaseReport(this.canvasId ?? ReportTag.GroupedByCasetype).subscribe(
       (results: GroupByReportResult[]) => {
         this.createChart(results);
         this.loading = false;

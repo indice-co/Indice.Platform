@@ -131,7 +131,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
    * @param event The action Id to trigger the corresponding custom workflow action.
    */
   onCustomActionTrigger(event: { redirectToList: boolean | undefined, successMessage: SuccessMessage | undefined, id: string | undefined, value: string | undefined }) {
-    this.api.triggerAction(this.caseId, undefined, new ActionRequest({ id: event?.id, value: event?.value }))
+    this.api.triggerAction(this.caseId, new ActionRequest({ id: event?.id, value: event?.value }))
       .pipe(
         tap(() => {
           if (event.redirectToList) {

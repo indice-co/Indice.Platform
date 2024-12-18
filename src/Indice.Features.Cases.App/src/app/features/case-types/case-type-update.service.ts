@@ -284,7 +284,7 @@ export class CaseTypeUpdateService {
             gridFilterConfig: event?.gridFilterConfig,
             gridColumnConfig: event?.gridColumnConfig
         });
-        this._api.createCaseType(undefined, request).pipe(
+        this._api.createCaseType(request).pipe(
             tap(_ => {
                 this.toaster.show(ToastType.Success, "Επιτυχία", "Η δημιουργία τύπου υπόθεσης ήταν επιτυχής.")
                 this.router.navigate(['/case-types']);
@@ -314,7 +314,7 @@ export class CaseTypeUpdateService {
             gridFilterConfig: event?.gridFilterConfig,
             gridColumnConfig: event?.gridColumnConfig
         })
-        this._api.updateCaseType(caseTypeId, undefined, request).pipe(
+        this._api.updateCaseType(caseTypeId, request).pipe(
             tap(_ => {
                 this.toaster.show(ToastType.Success, "Επιτυχία!", "Η επεξεργασία του τύπου υπόθεσης ήταν επιτυχής")
             }),

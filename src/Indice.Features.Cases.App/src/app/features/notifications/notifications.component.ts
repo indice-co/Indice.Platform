@@ -47,7 +47,7 @@ export class NotificationsComponent implements OnInit {
     public onSubmit(): void {
         this.formSubmitting = true;
         const request = this.createNotificationSubscriptionRequest();
-        this._api.subscribe(undefined, request).pipe(
+        this._api.subscribe(request).pipe(
             tap(_ => {
                 this.formSubmitting = false;
                 this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Οι ρυθμίσεις σας αποθηκεύτηκαν επιτυχώς.`, 5000);

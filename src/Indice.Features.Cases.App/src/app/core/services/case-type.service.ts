@@ -18,7 +18,7 @@ export class CaseTypeService extends DataService {
   }
 
   public getCaseTypes(): Observable<CaseTypePartialResultSet> {
-    return this.getDataFromCacheOrHttp(this.key, this._api.getCaseTypes());
+    return this.getDataFromCacheOrHttp(this.key, this._api.getCaseTypesList());
   }
 
   public getCaseType(code: string): Observable<CaseTypePartial | undefined> {
@@ -44,7 +44,7 @@ export class CaseTypeService extends DataService {
   }
 
   public getCanCreateCaseTypes(): Observable<CaseTypePartialResultSet> {
-    return this.getDataFromCacheOrHttp(this.checkCreationKey, this._api.getCaseTypes(true));
+    return this.getDataFromCacheOrHttp(this.checkCreationKey, this._api.getCaseTypesList(true));
   }
 
   public getDistinctCheckpointTypes():Observable<CheckpointType[]> {

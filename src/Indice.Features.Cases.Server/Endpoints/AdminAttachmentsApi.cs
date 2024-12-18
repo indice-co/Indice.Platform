@@ -1,4 +1,5 @@
-﻿using Indice.Features.Cases.Server;
+﻿using System.Net.Mime;
+using Indice.Features.Cases.Server;
 using Indice.Features.Cases.Server.Authorization;
 using Indice.Features.Cases.Server.Endpoints;
 using Indice.Security;
@@ -37,7 +38,8 @@ internal static class AdminAttachmentsApi
 
         group.MapGet("{attachmentId}/download", AdminAttachmentsHandler.DownloadAttachment)
              .WithName(nameof(AdminAttachmentsHandler.DownloadAttachment))
-             .WithSummary("Download attachment in a PDF format for back-office users.");
+             .WithSummary("Download attachment in a PDF format for back-office users.")
+             .Produces(StatusCodes.Status200OK, typeof(IFormFile), MediaTypeNames.Application.Octet);
 
         return routes;
     }

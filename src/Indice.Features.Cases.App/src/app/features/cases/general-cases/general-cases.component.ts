@@ -97,7 +97,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
       this.queryParamsHasFilter = params['filter'] ? true : false;
     });
     forkJoin({
-      caseTypes: this._api.getCaseTypes(),
+      caseTypes: this._api.getCaseTypesList(),
       checkpointTypes: this._caseTypeService.getDistinctCheckpointTypes()
     }).pipe(take(1)).subscribe(({ caseTypes, checkpointTypes }) => {
       //TODO: this should not be needed - we assign this so its available for the async calls
@@ -196,6 +196,10 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
     });
     return this._api
       .getCases(
+        this.page,
+        this.pageSize,
+        this.sortdir === 'asc' ? this.sort! : this.sort + '-',
+        this.search || undefined,
         customerIds,
         customerNames,
         from ? new Date(from) : undefined,
@@ -206,11 +210,6 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
         filterMetadata,
         referenceNumbers,
         undefined,
-        undefined,
-        this.page,
-        this.pageSize,
-        this.sortdir === 'asc' ? this.sort! : this.sort + '-',
-        this.search || undefined,
         undefined
       )
       .pipe(

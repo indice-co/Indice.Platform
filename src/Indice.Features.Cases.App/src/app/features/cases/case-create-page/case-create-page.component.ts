@@ -34,7 +34,7 @@ export class CaseCreatePageComponent implements OnInit {
       metadata: this.customer?.metadata
     });
 
-    this.api.createDraftAdminCase(undefined, request)
+    this.api.createDraftAdminCase(request)
       .pipe(
         tap(caseId => {
           this.router.navigate([`cases/${caseId}`]);

@@ -145,7 +145,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
           path = path.substring(1);
           if (get(event, path)) { // https://lodash.com/docs/4.17.15#get
             const fileParam = { data: this._fileUploadService.files[key], fileName: this._fileUploadService.files[key].name };
-            callsDict[key] = this._api.uploadAdminCaseAttachment(this.case?.id!, undefined, fileParam);
+            callsDict[key] = this._api.uploadAdminCaseAttachment(this.case?.id!, fileParam);
           }
         }
       }
@@ -164,7 +164,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
 
               if (this.case?.draft) {
                 // finally, submit the case
-                this._api.submitAdminCase(this.case?.id!, undefined, event)
+                this._api.submitAdminCase(this.case?.id!, event)
                   .pipe(
                     tap(() => {
                       this._fileUploadService.reset();
@@ -180,7 +180,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
                   .subscribe();
               } else {
                 const editCaseRequest = new EditCaseRequest({ data: event });
-                this._api.editCase(this.case?.id!, undefined, editCaseRequest)
+                this._api.editCase(this.case?.id!, editCaseRequest)
                   .pipe(
                     tap(() => {
                       this.initialData = event; // initial data are, now, the saved data

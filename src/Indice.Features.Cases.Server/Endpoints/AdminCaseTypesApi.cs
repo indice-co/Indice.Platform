@@ -34,18 +34,22 @@ internal static class AdminCaseTypesApi
         group.ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
-        group.MapGet(string.Empty, AdminCaseTypesHandler.GetAdminCaseTypes)
-             .WithName(nameof(AdminCaseTypesHandler.GetAdminCaseTypes))
+        group.MapGet(string.Empty, AdminCaseTypesHandler.GetCaseTypesList)
+             .WithName(nameof(AdminCaseTypesHandler.GetCaseTypesList))
              .WithSummary("Get case types.");
         group.MapGet("{caseTypeId}", AdminCaseTypesHandler.GetCaseTypeById)
+             .WithName(nameof(AdminCaseTypesHandler.GetCaseTypeById))
              .WithSummary("Get a specific Case Type by Id.");
         group.MapPost(string.Empty, AdminCaseTypesHandler.CreateCaseType)
+             .WithName(nameof(AdminCaseTypesHandler.CreateCaseType))
              .WithSummary("Create new case type.")
              .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Admin)); // equivalent to BeCasesAdministrator
         group.MapPut("{caseTypeId}", AdminCaseTypesHandler.UpdateCaseType)
+             .WithName(nameof(AdminCaseTypesHandler.UpdateCaseType))
              .WithSummary("Update a specific Case Type.")
              .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Admin)); // equivalent to BeCasesAdministrator
         group.MapDelete("{caseTypeId}", AdminCaseTypesHandler.DeleteCaseType)
+             .WithName(nameof(AdminCaseTypesHandler.DeleteCaseType))
              .WithSummary("Delete a specific Case Type.")
              .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Admin)); // equivalent to BeCasesAdministrator
         return group;

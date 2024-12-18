@@ -29,7 +29,7 @@ export class QueriesModalComponent implements OnInit {
   }
 
   public saveQuery() {
-    this._api.saveQuery(undefined, new SaveQueryRequest({ friendlyName: this.friendlyName, parameters: this.queryParameters }))
+    this._api.saveQuery(new SaveQueryRequest({ friendlyName: this.friendlyName, parameters: this.queryParameters }))
       .subscribe(
         (_ => this.modal.hide())
       )

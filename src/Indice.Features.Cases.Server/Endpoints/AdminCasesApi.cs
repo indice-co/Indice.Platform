@@ -1,4 +1,5 @@
-﻿using Indice.AspNetCore.Configuration;
+﻿using System.Net.Mime;
+using Indice.AspNetCore.Configuration;
 using Indice.Features.Cases.Server;
 using Indice.Features.Cases.Server.Authorization;
 using Indice.Features.Cases.Server.Endpoints;
@@ -105,7 +106,8 @@ internal static class AdminCasesApi
 
         group.MapGet("{caseId}.pdf", AdminCasesHandler.DownloadCasePdf)
             .WithName(nameof(AdminCasesHandler.DownloadCasePdf))
-            .WithSummary("Download case in a PDF format.");
+            .WithSummary("Download case in a PDF format.")
+            .Produces(StatusCodes.Status200OK, typeof(IFormFile), MediaTypeNames.Application.Pdf);
         return group;
     }
 }

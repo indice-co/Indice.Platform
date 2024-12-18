@@ -1,4 +1,5 @@
-﻿using Indice.Features.Cases.Server;
+﻿using System.Net.Mime;
+using Indice.Features.Cases.Server;
 using Indice.Features.Cases.Server.Endpoints;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -63,7 +64,8 @@ internal static class MyCasesApi
 
         group.MapGet("{caseId}/download", MyCasesHandler.DownloadMyCasePdf)
             .WithName(nameof(MyCasesHandler.DownloadMyCasePdf))
-            .WithSummary("Download case in a PDF format.");
+            .WithSummary("Download case in a PDF format.")
+            .Produces(StatusCodes.Status200OK, typeof(IFormFile), MediaTypeNames.Application.Pdf);
 
         return routes;
     }

@@ -451,7 +451,7 @@ internal static class ClientHandlers
             return TypedResults.NotFound();
         }
         if (clientSecret.Type != IdentityServerConstants.SecretTypes.X509CertificateBase64) {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["type"] = new[] { $"A secret of type {clientSecret.Type} cannot be downloaded." } });
+            return TypedResults.ValidationProblem(ValidationErrors.AddError("type", $"A secret of type {clientSecret.Type} cannot be downloaded."));
         }
         X509Certificate2? certificate = null;
         byte[] certificateBytes;
