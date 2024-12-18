@@ -104,9 +104,13 @@ jobs:
           New-Item -ItemType "directory" -Path ".\.nuget\packages"
         }
     - if: matrix.language == 'csharp'
-      name: Restore Nuget packages + Build
-      run: ./build.ps1
+      name: Dotnet restore
+      run: dotnet restore /nowarn:netsdk1138
 
+    - if: matrix.language == 'csharp'
+      name: Dotnet build
+      run: dotnet build Indice.Platform.sln --no-restore --configuration Release
+      
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
       with:
