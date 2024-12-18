@@ -117,27 +117,27 @@ public static class CasesDbInitalizerExtesnions
     {
         "type": "object",
         "properties": {
-        "postOfficeBox": {
-            "type": "string"
-        },
-        "extendedAddress": {
-            "type": "string"
-        },
-        "streetAddress": {
-            "type": "string"
-        },
-        "locality": {
-            "type": "string"
-        },
-        "region": {
-            "type": "string"
-        },
-        "postalCode": {
-            "type": "string"
-        },
-        "countryName": {
-            "type": "string"
-        }
+            "postOfficeBox": {
+                "type": "string"
+            },
+            "extendedAddress": {
+                "type": "string"
+            },
+            "streetAddress": {
+                "type": "string"
+            },
+            "locality": {
+                "type": "string"
+            },
+            "region": {
+                "type": "string"
+            },
+            "postalCode": {
+                "type": "string"
+            },
+            "countryName": {
+                "type": "string"
+            }
         },
         "required": ["locality", "region", "countryName"],
         "dependentRequired": {

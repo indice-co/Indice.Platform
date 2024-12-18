@@ -65,11 +65,11 @@ public static class AdminAccessRulesApi
             .WithSummary("Update a batch of Access rules for a case.")
             .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Admin));
 
-        group.MapPut("access-rules/{ruleId:guid}/{accessLevel:int}", AdminAccessRulesHandler.UpdateAccessRule)
+        group.MapPut("access-rules/{ruleId}/{accessLevel:int}", AdminAccessRulesHandler.UpdateAccessRule)
             .WithName(nameof(AdminAccessRulesHandler.UpdateAccessRule))
             .WithSummary("Update an existing Access rule.");
 
-        group.MapDelete("access-rules/{ruleId:guid}", AdminAccessRulesHandler.DeleteAccessRule)
+        group.MapDelete("access-rules/{ruleId}", AdminAccessRulesHandler.DeleteAccessRule)
             .WithName(nameof(AdminAccessRulesHandler.DeleteAccessRule))
             .WithSummary("Delete an existing Access rule.");
 
