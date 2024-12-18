@@ -106,7 +106,8 @@ public static class CasesDbInitalizerExtesnions
                   { "key": "extendedAddress", "title": "Line 2", "type": "string", "placeholder": "Line 2" },
                   { "key": "countryName", "title": "Country", "type": "string", "placeholder": "Country" }
                 ]
-                """)
+                """),
+            Tags = "tagOne,tagTwo"
         },
 
     ];
