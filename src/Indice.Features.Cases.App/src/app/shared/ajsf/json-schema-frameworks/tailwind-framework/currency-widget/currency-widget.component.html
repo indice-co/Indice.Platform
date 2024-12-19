@@ -20,7 +20,6 @@
               [readonly]="options?.readonly ? 'readonly' : null"
               type="text"
               mask="separator.2"
-              (input)="updateValue($event)"
               [(ngModel)]="displayValue"
               [allowNegativeNumbers]="true"
               [thousandSeparator]="thousandSeparator">

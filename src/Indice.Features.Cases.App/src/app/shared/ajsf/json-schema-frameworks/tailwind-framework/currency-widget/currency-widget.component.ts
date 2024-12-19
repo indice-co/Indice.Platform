@@ -40,7 +40,7 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
     this.formControl.valueChanges.pipe(
       takeUntil(this.destroy$),
       map((value: string) =>
-        parseFloat(value).toLocaleString('el')
+        parseFloat(value.replace(/[.]/g, '').replace(/[,]/g, '.')).toLocaleString('el')
       ),
       tap((value: string) => {
         this.displayValue = value;
@@ -52,12 +52,5 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
     // Emit undefined to ensure type safety
     this.destroy$.next(undefined);
     this.destroy$.complete();
-  }
-
-  updateValue(event: any) {
-    // Force replace masked value input into global decimal format (eg 5.125.000,03 --> 5125000.03)
-    const controlValue = parseFloat(event.target.value.replace(/[.]/g, '').replace(/[,]/g, '.'));
-    this.displayValue = event.target.value;
-    this.jsf.updateValue(this, controlValue);
   }
 }
