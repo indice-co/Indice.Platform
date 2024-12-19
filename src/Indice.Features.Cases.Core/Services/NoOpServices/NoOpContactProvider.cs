@@ -20,7 +20,7 @@ internal class NoOpContactProvider : IContactProvider
     }
 
     public Task<ResultSet<Contact>> GetListAsync(ClaimsPrincipal user, ListOptions<ContactFilter> listOptions) => 
-        Task.FromResult(new ResultSet<Contact>([ToContact(user)], 1));
+        Task.FromResult(new ResultSet<Contact>([ToContact(user), JohnDoe], 2));
 
 
     public Task<JsonNode?> GetByReferenceAsync(ClaimsPrincipal user, string reference, string caseTypeCode) => 
@@ -34,5 +34,13 @@ internal class NoOpContactProvider : IContactProvider
         LastName = claimsPrincipal.FindFirstValue(BasicClaimTypes.FamilyName),
         GroupId = claimsPrincipal.FindFirstValue(Options.GroupIdClaimType),
         Tin = claimsPrincipal.FindFirstValue(BasicClaimTypes.Tin),
+    };
+
+    private Contact JohnDoe => new() {
+                FirstName = "John",
+                LastName = "Doe",
+                UserId = "6a4bbee1-53c9-404c-b09f-db134688df6f",
+                Reference = "0000000",
+                Tin = "999999999",
     };
 }

@@ -62,7 +62,7 @@ public static class CasesDbInitalizerExtesnions
             Owner = new ContactMeta {
                 FirstName = "John",
                 LastName = "Doe",
-                UserId = Guid.NewGuid().ToString(),
+                UserId = "6a4bbee1-53c9-404c-b09f-db134688df6f",
                 Reference = "0000000",
             }
         };
