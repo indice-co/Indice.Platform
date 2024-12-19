@@ -36,7 +36,7 @@ export class CaseTypeSpecificCasesComponent extends GeneralCasesComponent implem
     this._caseTypeService.getCaseType(this.getFilterCacheKey()).pipe(
       map(caseType => {
         //add additional columns to display in the table
-        let gridConfigColumns: ({ title: string; itemProperty?: undefined; } | { title: string; itemProperty: string; })[] | undefined = JSON.parse(caseType?.gridColumnConfig!) || []
+        let gridConfigColumns: ({ title: string; itemProperty?: undefined; } | { title: string; itemProperty: string; })[] | undefined = caseType?.gridColumnConfig! || []
 
         if (gridConfigColumns != undefined && gridConfigColumns?.length > 0) {
           this.columns = gridConfigColumns!;
@@ -51,7 +51,7 @@ export class CaseTypeSpecificCasesComponent extends GeneralCasesComponent implem
   getOtherSearchOptions(caseTypes: CaseTypePartialResultSet): SearchOption[] | undefined {
     const code = this.getFilterCacheKey();
     const caseType = caseTypes?.items?.find(x => x.code == code);
-    return JSON.parse(caseType?.gridFilterConfig!) || [];
+    return caseType?.gridFilterConfig! || [];
   }
 
   getCaseTypeCheckpoints(checkpointTypes: CheckpointType[]) {
@@ -91,7 +91,7 @@ export class CaseTypeSpecificCasesComponent extends GeneralCasesComponent implem
     const metadata: string[] = [];
     const caseType = caseTypes?.items?.find(x => x.code == code);
     if (caseType && caseType.gridFilterConfig) {
-      const gridFilterConfig = JSON.parse(caseType.gridFilterConfig);
+      const gridFilterConfig = caseType.gridFilterConfig;
       const fields: string[] = gridFilterConfig.map((config: any) => config.field);
       for (const field of fields) {
         this.filters?.filter(f => f.member === field)?.forEach(f => metadata?.push(`metadata.${this.stringifyFilterClause(f)}`));
