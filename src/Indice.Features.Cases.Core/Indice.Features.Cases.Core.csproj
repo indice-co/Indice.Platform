@@ -14,6 +14,7 @@
     <PackageReference Include="JsonSchema.Net.Generation" Version="4.5.1" />
     <PackageReference Include="Indice.Services" Version="$(VersionPrefixCore)-*" />
     <PackageReference Include="Indice.EntityFrameworkCore" Version="$(VersionPrefixCore)-*" />
+    <PackageReference Include="IdentityModel" Version="7.0.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
