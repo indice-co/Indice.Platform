@@ -12,6 +12,9 @@ using Indice.Features.Cases.Core.Events.Handlers;
 using System.Security.Claims;
 using Indice.Features.Cases.Core;
 using Indice.Events;
+using Newtonsoft.Json.Serialization;
+using Indice.Features.Messages.Core;
+using Polly;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -49,6 +52,9 @@ public static class CasesFeatureExtensions
         // Register no op services.
         services.AddLookupService<NoOpLookupService>(nameof(NoOpLookupService)); // needed for factory instantiation
         services.TryAddTransient<ICustomerIntegrationService, NoOpCustomerIntegrationService>();
+        
+
+
         services.TryAddTransient<ICasePdfService, NoOpCasePdfService>();
         services.AddHtmlRenderingEngineNoop(); // used by the CasesTemplate service
 
@@ -158,5 +164,23 @@ public static class CasesFeatureExtensions
     public static void AddLookupService<TLookupService>(this IServiceCollection services, string key)
         where TLookupService : class, ILookupService {
         services.AddKeyedTransient<ILookupService, TLookupService>(key);
+    }
+
+    /// <summary>Configures that campaign contact information will be resolved by contacting the Identity Server instance.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="configure">Delegate used to configure <see cref="CustomerIdentityResolverService"/> service.</param>
+    public static IServiceCollection UseIdentityContactResolver(this IServiceCollection services, Action<CustomerIdentityResolverOptions> configure) {
+        var serviceOptions = new CustomerIdentityResolverOptions();
+        configure.Invoke(serviceOptions);
+        services.Configure<CustomerIdentityResolverOptions>(config => {
+            config.BaseAddress = serviceOptions.BaseAddress;
+            config.ClientId = serviceOptions.ClientId;
+            config.ClientSecret = serviceOptions.ClientSecret;
+        });
+        services.AddDistributedMemoryCache();
+        services.AddHttpClient<ICustomerIntegrationService, CustomerIdentityResolverService>(httpClient => {
+            httpClient.BaseAddress = serviceOptions.BaseAddress;
+        });
+        return services;
     }
 }
