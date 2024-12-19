@@ -94,7 +94,7 @@ export interface ICasesApiService {
      * Create a new case in draft mode.
      * @return OK
      */
-    createDraftAdminCase(body: CreateDraftCaseRequest): Observable<string>;
+    createDraftAdminCase(body: CreateDraftCaseRequest): Observable<CreateCaseResponse>;
     /**
      * Gets the list of all cases using the provided.
      * @param page (optional) 
@@ -1345,7 +1345,7 @@ export class CasesApiService implements ICasesApiService {
      * Create a new case in draft mode.
      * @return OK
      */
-    createDraftAdminCase(body: CreateDraftCaseRequest): Observable<string> {
+    createDraftAdminCase(body: CreateDraftCaseRequest): Observable<CreateCaseResponse> {
         let url_ = this.baseUrl + "/api/manage/cases";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1368,14 +1368,14 @@ export class CasesApiService implements ICasesApiService {
                 try {
                     return this.processCreateDraftAdminCase(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<string>;
+                    return _observableThrow(e) as any as Observable<CreateCaseResponse>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<string>;
+                return _observableThrow(response_) as any as Observable<CreateCaseResponse>;
         }));
     }
 
-    protected processCreateDraftAdminCase(response: HttpResponseBase): Observable<string> {
+    protected processCreateDraftAdminCase(response: HttpResponseBase): Observable<CreateCaseResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1407,8 +1407,7 @@ export class CasesApiService implements ICasesApiService {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result200 = resultData200 !== undefined ? resultData200 : <any>null;
-    
+            result200 = CreateCaseResponse.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -6098,6 +6097,46 @@ export interface IContactResultSet {
     count?: number;
     /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
     items?: Contact[] | undefined;
+}
+
+export class CreateCaseResponse implements ICreateCaseResponse {
+    id?: string;
+    created?: Date;
+
+    constructor(data?: ICreateCaseResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): CreateCaseResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateCaseResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ICreateCaseResponse {
+    id?: string;
+    created?: Date;
 }
 
 export class CreateDraftCaseRequest implements ICreateDraftCaseRequest {

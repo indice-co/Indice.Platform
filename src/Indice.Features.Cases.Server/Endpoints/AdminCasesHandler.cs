@@ -1,5 +1,6 @@
 ﻿using System.Net.Mime;
 using System.Security.Claims;
+using System.Text.Json.Nodes;
 using Indice.Events;
 using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Core.Events;
@@ -16,7 +17,7 @@ namespace Indice.Features.Cases.Server.Endpoints;
 ///<summary>Cases from the administrative perspective.</summary>
 internal static class AdminCasesHandler
 {
-    public static async Task<Ok<Guid>> CreateDraftAdminCase(
+    public static async Task<Ok<CreateCaseResponse>> CreateDraftAdminCase(
         CreateDraftCaseRequest request,
         ClaimsPrincipal currentUser,
         IAdminCaseService adminCaseService) =>
@@ -67,7 +68,7 @@ internal static class AdminCasesHandler
         return TypedResults.NoContent();
     }
 
-    public static async Task<Results<NoContent, NotFound>> SubmitAdminCase(Guid caseId, dynamic data, IAdminCaseService adminCaseService, ClaimsPrincipal currentUser) {
+    public static async Task<Results<NoContent, NotFound>> SubmitAdminCase(Guid caseId, JsonNode data, IAdminCaseService adminCaseService, ClaimsPrincipal currentUser) {
         if (await adminCaseService.GetCaseById(currentUser, caseId) is not { }) {
             return TypedResults.NotFound();
         }

@@ -29,7 +29,7 @@ export class SelectCaseTypeComponent implements OnInit {
         this.selectedCaseTypeCode = this.selectedCaseTypeCode === value.code ? '' : value.code
         this.selectedCaseTypeEvent.emit(this.selectedCaseTypeCode);
         if (this.selectedCaseTypeCode) {
-            this.sidePanelTitleEvent.emit('Υποβολή Υπόθεσης - Επιλογή πελάτη');
+            this.sidePanelTitleEvent.emit('Υποβολή Υπόθεσης - Επιλογή πελάτη/επαφής');
         } else {
             this.sidePanelTitleEvent.emit('');
             this.selectedContactEvent.emit();

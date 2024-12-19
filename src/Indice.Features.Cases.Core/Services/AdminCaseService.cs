@@ -22,7 +22,6 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
 {
     private const string SchemaKey = "backoffice";
     private readonly ICaseAuthorizationProvider _memberAuthorizationProvider;
-    private readonly ICaseTypeService _caseTypeService;
     private readonly IAdminCaseMessageService _adminCaseMessageService;
     private readonly IPlatformEventService _platformEventService;
     public AdminCaseService(
@@ -33,12 +32,11 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         IAdminCaseMessageService adminCaseMessageService,
         IPlatformEventService platformEventService) : base(dbContext, options) {
         _memberAuthorizationProvider = memberAuthorizationProvider ?? throw new ArgumentNullException(nameof(memberAuthorizationProvider));
-        _caseTypeService = caseTypeService ?? throw new ArgumentNullException(nameof(caseTypeService));
         _adminCaseMessageService = adminCaseMessageService ?? throw new ArgumentNullException(nameof(adminCaseMessageService));
         _platformEventService = platformEventService ?? throw new ArgumentNullException(nameof(platformEventService));
     }
 
-    public async Task<Guid> CreateDraft(ClaimsPrincipal user,
+    public async Task<CreateCaseResponse> CreateDraft(ClaimsPrincipal user,
         string caseTypeCode,
         string? groupId,
         ContactMeta? customer,
@@ -53,13 +51,13 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             metadata,
             CasesCoreConstants.Channels.Agent,
             user);
-        return entity.Id;
+        return new() { Id = entity.Id, Created = DateTimeOffset.UtcNow };
     }
 
-    public async Task UpdateData(ClaimsPrincipal user, Guid caseId, dynamic data) {
-        if (user == null) throw new ArgumentNullException(nameof(user));
-        if (caseId == default) throw new ArgumentNullException(nameof(caseId));
-        if (data == null) throw new ArgumentNullException(nameof(data));
+    public async Task UpdateData(ClaimsPrincipal user, Guid caseId, JsonNode data) {
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
+        ArgumentNullException.ThrowIfNull(data);
         await _adminCaseMessageService.Send(caseId, user, new Message { Data = data });
     }
 
@@ -68,8 +66,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     /// </summary>
     /// <remarks>For example usages see https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API.</remarks>
     public async Task PatchCaseData(ClaimsPrincipal user, Guid caseId, JsonNode patch) {
-        if (user == null) throw new ArgumentNullException(nameof(user));
-        if (caseId == default) throw new ArgumentNullException(nameof(caseId));
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
         var caseData = (await GetCaseById(user, caseId, false)).DataAsJsonNode();
 
         await _adminCaseMessageService.Send(caseId, user, new Message { Data = caseData.Merge(patch) });
@@ -81,8 +79,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     /// </summary>
     /// <remarks>For example usages see https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API.</remarks>
     public async Task PatchCaseData(ClaimsPrincipal user, Guid caseId, JsonPatch patch) {
-        if (user == null) throw new ArgumentNullException(nameof(user));
-        if (caseId == default) throw new ArgumentNullException(nameof(caseId));
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
         var caseData = (await GetCaseById(user, caseId, false)).DataAsJsonNode();
 
         var patchResult = patch.Apply(caseData);
@@ -94,7 +92,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     }
 
     public async Task Submit(ClaimsPrincipal user, Guid caseId) {
-        if (caseId == default) throw new ArgumentNullException(nameof(caseId));
+        ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
 
         var @case = await DbContext
             .Cases

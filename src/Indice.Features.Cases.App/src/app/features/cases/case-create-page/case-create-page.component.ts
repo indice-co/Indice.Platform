@@ -36,8 +36,8 @@ export class CaseCreatePageComponent implements OnInit {
 
     this.api.createDraftAdminCase(request)
       .pipe(
-        tap(caseId => {
-          this.router.navigate([`cases/${caseId}`]);
+        tap(caseCreated => {
+            this.router.navigate([`cases/${caseCreated.id}`]);
         })
       )
       .subscribe()

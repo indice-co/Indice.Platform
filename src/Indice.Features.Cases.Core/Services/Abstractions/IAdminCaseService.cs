@@ -20,14 +20,14 @@ public interface IAdminCaseService
     /// <param name="customer">The customer metadata that initiated the case.</param>
     /// <param name="metadata">The metadata the case might have.</param>
     /// <returns></returns>
-    Task<Guid> CreateDraft(ClaimsPrincipal user, string caseTypeCode, string? groupId, ContactMeta? customer, Dictionary<string, string> metadata);
+    Task<CreateCaseResponse> CreateDraft(ClaimsPrincipal user, string caseTypeCode, string? groupId, ContactMeta? customer, Dictionary<string, string> metadata);
 
     /// <summary>Update the case with the case data and does a json instance-schema validation of the case type's schema (<see cref="CaseType.DataSchema"/>).</summary>
     /// <param name="user">The user that will update the case.</param>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="data">The case data (as defined by JSON Schema in CaseType).</param>
     /// <returns>A <see cref="Task"/> representing an asynchronous operation</returns>
-    Task UpdateData(ClaimsPrincipal user, Guid caseId, dynamic data);
+    Task UpdateData(ClaimsPrincipal user, Guid caseId, JsonNode data);
 
     /// <summary>
     /// Performs a Partial Upgrade of the case data and does a json instance-schema validation of
