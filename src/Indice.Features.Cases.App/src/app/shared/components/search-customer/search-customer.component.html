@@ -4,7 +4,7 @@
                name="searchValue"
                class="block w-full rounded-md border-0 py-1.5 pr-10 text-gray-900"
                id="searchValue"
-               placeholder="Εισάγετε αριθμό πελάτη">
+               placeholder="Εισάγετε αριθμό αναφοράς/πελάτη">
     </div>
     <div class="relative">
         <div class="absolute bottom-0">
@@ -28,30 +28,31 @@
 </div>
 <ng-container *ngIf="results$ | async as results">
     <fieldset>
-        <legend class="sr-only">Πελάτης</legend>
+        <legend class="sr-only">Επαφή</legend>
         <div class="bg-white rounded-md -space-y-px">
             <!-- Checked: "bg-gray-50 border-gray-200 z-10", Not Checked: "border-gray-200" -->
-            <label *ngFor="let customer of results; first as isFirst; last as isLast"
+            <label *ngFor="let contact of results; first as isFirst; last as isLast"
                    [ngClass]="{ 'relative border p-4 flex cursor-pointer focus:outline-none': true,  
-                             'bg-gray-50 border-gray-200 z-10': customer.selected,
-                             'focus:outline-none border-gray-200': !customer.selected, 
+                             'bg-gray-50 border-gray-200 z-10': contact.selected,
+                             'focus:outline-none border-gray-200': !contact.selected, 
                              'rounded-tl-md rounded-tr-md':isFirst,
                              'rounded-bl-md rounded-br-md': isLast}">
                 <input type="radio"
-                       [name]="'customer'+customer.item.customerId"
-                       value="customer"
-                       (change)="onSelect(customer, results)"
-                       [checked]="customer.selected"
+                       [name]="'contact'+contact.item.reference"
+                       value="contact"
+                       (change)="onSelect(contact, results)"
+                       [checked]="contact.selected"
                        class="h-4 w-4 mt-0.5 cursor-pointer shrink-0 text-gray-600 border-gray-300 focus:ring-gray-500"
                        aria-labelledby="privacy-setting-0-label"
                        aria-describedby="privacy-setting-0-description">
                 <span class="ml-3 flex flex-col">
                     <span id="privacy-setting-0-label"
-                          [class]="customer.selected ? 'block text-sm font-medium text-gray-900' : 'block text-sm font-medium'">{{
-                        customer.item.firstName }} {{ customer.item.lastName }}</span>
+                          [class]="contact.selected ? 'block text-sm font-medium text-gray-900' : 'block text-sm font-medium'">
+                        {{contact.item.firstName }} {{ contact.item.lastName }}</span>
                     <span id="privacy-setting-0-description"
-                          [class]="customer.selected ? 'block text-sm text-gray-700' : 'block text-sm'"> Αριθμός πελάτη:
-                        {{customer.item.customerId}}, ΑΦΜ: {{customer.item.metadata?.TaxId}} </span>
+                          [class]="contact.selected ? 'block text-sm text-gray-700' : 'block text-sm'">
+                        Αριθμός αναφοράς: {{contact.item.reference}} <span *ngIf="contact.item?.tin">, ΑΦΜ: {{contact.item.tin}}</span>
+                    </span>
                 </span>
             </label>
         </div>

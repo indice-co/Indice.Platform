@@ -13,13 +13,14 @@ using Indice.Types;
 using System.Web;
 using System.Text.Json.Nodes;
 using System.Security.Claims;
+using Indice.Security;
 
 namespace Indice.Features.Cases.Core.Services;
 internal class ContactProviderIdentityServer : IContactProvider
 {
 
     private HttpClient _httpClient { get; }
-    private CustomerIdentityResolverOptions _options { get; }
+    private ContactProviderIdentityOptions _options { get; }
     private IDistributedCache _cache { get; }
 
     private const string TOKEN_CACHE_KEY = "campaigns_id_contact_resolver_token";
@@ -27,7 +28,7 @@ internal class ContactProviderIdentityServer : IContactProvider
     /// <summary>Creates a new instance of <see cref="IContactProvider"/>.</summary>
     public ContactProviderIdentityServer(
         HttpClient httpClient,
-        IOptions<CustomerIdentityResolverOptions> options,
+        IOptions<ContactProviderIdentityOptions> options,
         IDistributedCache cache
     ) {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
@@ -60,7 +61,9 @@ internal class ContactProviderIdentityServer : IContactProvider
             Reference = x.Id,
             FirstName = x.FirstName,
             LastName = x.LastName,
-            Metadata = x.Claims.ToLookup(x => x.Type)
+            Email = x.Email,
+            Tin = x.Claims.Find(x => x.Type == BasicClaimTypes.Tin)?.Value,
+            Metadata = x.Claims.Where(x => x.Type != BasicClaimTypes.Tin).ToLookup(x => x.Type)
                                .ToDictionary(x => x.Key, x => string.Join(',', x))
         }).ToResultSet(identityUserList.Count);
     }

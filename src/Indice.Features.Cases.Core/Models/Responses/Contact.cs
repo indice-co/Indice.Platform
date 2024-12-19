@@ -12,6 +12,9 @@ public class Contact
     /// <summary>The external system correlation key. Can be the Id of the customer as provided by the consumer/integrator.</summary>
     public string? Reference { get; set; }
 
+    /// <summary>email address</summary>
+    public string? Email { get; set; }
+
     /// <summary>The first name of the customer.</summary>
     public string? FirstName { get; set; }
 
@@ -20,6 +23,9 @@ public class Contact
 
     /// <summary>The Id of the group the customer belongs.</summary>
     public string? GroupId { get; set; }
+
+    /// <summary>The Tax identitification number.</summary>
+    public string? Tin { get; set; }
 
     /// <summary>Any extra metadata with consumer/integrator business logic.</summary>
     public Dictionary<string, string> Metadata { get; set; } = [];

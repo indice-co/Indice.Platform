@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
-import { CasesApiService, CreateDraftCaseRequest, CustomerDetails, CustomerMeta } from 'src/app/core/services/cases-api.service';
+import { CasesApiService, CreateDraftCaseRequest, Contact, ContactMeta } from 'src/app/core/services/cases-api.service';
 
 @Component({
   selector: 'app-case-create-page',
@@ -9,7 +9,7 @@ import { CasesApiService, CreateDraftCaseRequest, CustomerDetails, CustomerMeta 
   styleUrls: ['./case-create-page.component.scss']
 })
 export class CaseCreatePageComponent implements OnInit {
-  public customer?: CustomerDetails;
+  public contact?: Contact;
   public caseTypeCode?: string;
   public title?: string;
 
@@ -24,14 +24,14 @@ export class CaseCreatePageComponent implements OnInit {
   public createDraft() {
     const request = new CreateDraftCaseRequest({
       caseTypeCode: this.caseTypeCode,
-      customer: new CustomerMeta({
-        customerId: this.customer?.customerId,
-        firstName: this.customer?.firstName,
-        lastName: this.customer?.lastName,
-        userId: this.customer?.userId
+      owner: new ContactMeta({
+        reference: this.contact?.reference,
+        firstName: this.contact?.firstName,
+        lastName: this.contact?.lastName,
+        userId: this.contact?.userId
       }),
-      groupId: this.customer?.groupId,
-      metadata: this.customer?.metadata
+      groupId: this.contact?.groupId,
+      metadata: this.contact?.metadata
     });
 
     this.api.createDraftAdminCase(request)

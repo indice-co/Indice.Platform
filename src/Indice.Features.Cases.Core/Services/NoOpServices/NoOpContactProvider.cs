@@ -28,9 +28,11 @@ internal class NoOpContactProvider : IContactProvider
 
     private Contact ToContact(ClaimsPrincipal claimsPrincipal) => new () {
         UserId = claimsPrincipal.FindSubjectId(),
+        Email = claimsPrincipal.FindFirstValue(BasicClaimTypes.Email),
         Reference = claimsPrincipal.FindFirstValue(Options.UserClaimType),
         FirstName = claimsPrincipal.FindFirstValue(BasicClaimTypes.GivenName),
         LastName = claimsPrincipal.FindFirstValue(BasicClaimTypes.FamilyName),
-        GroupId = claimsPrincipal.FindFirstValue(Options.GroupIdClaimType)
+        GroupId = claimsPrincipal.FindFirstValue(Options.GroupIdClaimType),
+        Tin = claimsPrincipal.FindFirstValue(BasicClaimTypes.Tin),
     };
 }

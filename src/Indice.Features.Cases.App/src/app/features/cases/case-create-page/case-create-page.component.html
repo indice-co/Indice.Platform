@@ -2,12 +2,12 @@
                       (ok)="createDraft()"
                       [ok-close-dialog]="true"
                       ok-label="Νέα υπόθεση"
-                      [disabled]="!(customer && caseTypeCode)">
+                      [disabled]="!(contact && caseTypeCode)">
     <form class="space-y-8 divide-y divide-gray-200 py-5">
         <app-select-case-type (selectedCaseTypeEvent)="caseTypeCode = $event"
                               (sidePanelTitleEvent)="title = $event"
-                              (selectedCustomerEvent)="customer = $event"></app-select-case-type>
-        <app-search-customer (selectedCustomerEvent)="customer = $event"
+                              (selectedContactEvent)="contact = $event"></app-select-case-type>
+        <app-search-customer (selectedContactEvent)="contact = $event"
                              [caseTypeCode]="caseTypeCode"
                              *ngIf="caseTypeCode"></app-search-customer>
     </form>

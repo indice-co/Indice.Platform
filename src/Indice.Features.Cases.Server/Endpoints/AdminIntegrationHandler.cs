@@ -1,25 +1,25 @@
-﻿using Indice.Features.Cases.Core.Models;
+﻿using System.Security.Claims;
+using System.Text.Json.Nodes;
+using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services.Abstractions;
+using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Indice.Features.Cases.Server.Endpoints;
 internal static class AdminIntegrationHandler
 {
-    public static async Task<Results<Ok<List<Contact>>, NotFound>> GetCustomers(IContactProvider customerIntegrationService, [AsParameters] ContactFilter criteria) {
-        var customers = await customerIntegrationService.SearchAsync(criteria);
-        if (customers == null) {
-            return TypedResults.NotFound();
-        }
-        return TypedResults.Ok(customers);
+    public static async Task<Results<Ok<ResultSet<Contact>>, NotFound>> GetCustomers(ClaimsPrincipal currentUser, IContactProvider customerIntegrationService, [AsParameters] ContactFilter criteria, [AsParameters] ListOptions listOptions) {
+        var contacts = await customerIntegrationService.GetListAsync(currentUser, ListOptions.Create(listOptions, criteria));
+        return TypedResults.Ok(contacts);
     }
 
-    public static async Task<Results<Ok<ContactData>, NotFound>> GetCustomerData(IContactProvider customerIntegrationService, string customerId, string caseTypeCode) {
-        var customerData = await customerIntegrationService.GetByReferenceAsync(customerId, caseTypeCode);
-        if (customerData == null) {
+    public static async Task<Results<Ok<JsonNode>, NotFound>> GetCustomerData(ClaimsPrincipal currentUser, IContactProvider customerIntegrationService, string reference, string caseTypeCode) {
+        var contactData = await customerIntegrationService.GetByReferenceAsync(currentUser, reference, caseTypeCode);
+        if (contactData == null) {
             return TypedResults.NotFound();
         }
-        return TypedResults.Ok(customerData);
+        return TypedResults.Ok(contactData);
     }
 }

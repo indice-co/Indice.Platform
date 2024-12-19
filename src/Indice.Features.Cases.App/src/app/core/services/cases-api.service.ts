@@ -231,16 +231,20 @@ export interface ICasesApiService {
     getDistinctCheckpointTypes(): Observable<CheckpointType[]>;
     /**
      * Fetch customers.
-     * @param customerId (optional) 
+     * @param reference (optional) 
      * @param caseTypeCode (optional) 
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
      * @return OK
      */
-    getCustomers(customerId?: string | undefined, caseTypeCode?: string | undefined): Observable<CustomerDetails[]>;
+    getCustomers(reference?: string | undefined, caseTypeCode?: string | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ContactResultSet>;
     /**
      * Fetch customer data for a specific case type code.
      * @return OK
      */
-    getCustomerData(customerId: string, caseTypeCode: string): Observable<CustomerData>;
+    getCustomerData(reference: string, caseTypeCode: string): Observable<any>;
     /**
      * Get a lookup result by lookupName and options.
      * @param page (optional) 
@@ -3385,20 +3389,40 @@ export class CasesApiService implements ICasesApiService {
 
     /**
      * Fetch customers.
-     * @param customerId (optional) 
+     * @param reference (optional) 
      * @param caseTypeCode (optional) 
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
      * @return OK
      */
-    getCustomers(customerId?: string | undefined, caseTypeCode?: string | undefined): Observable<CustomerDetails[]> {
+    getCustomers(reference?: string | undefined, caseTypeCode?: string | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ContactResultSet> {
         let url_ = this.baseUrl + "/api/manage/integrations/customers?";
-        if (customerId === null)
-            throw new Error("The parameter 'customerId' cannot be null.");
-        else if (customerId !== undefined)
-            url_ += "CustomerId=" + encodeURIComponent("" + customerId) + "&";
+        if (reference === null)
+            throw new Error("The parameter 'reference' cannot be null.");
+        else if (reference !== undefined)
+            url_ += "Reference=" + encodeURIComponent("" + reference) + "&";
         if (caseTypeCode === null)
             throw new Error("The parameter 'caseTypeCode' cannot be null.");
         else if (caseTypeCode !== undefined)
             url_ += "CaseTypeCode=" + encodeURIComponent("" + caseTypeCode) + "&";
+        if (page === null)
+            throw new Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (size === null)
+            throw new Error("The parameter 'size' cannot be null.");
+        else if (size !== undefined)
+            url_ += "Size=" + encodeURIComponent("" + size) + "&";
+        if (sort === null)
+            throw new Error("The parameter 'sort' cannot be null.");
+        else if (sort !== undefined)
+            url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
+        if (search === null)
+            throw new Error("The parameter 'search' cannot be null.");
+        else if (search !== undefined)
+            url_ += "Search=" + encodeURIComponent("" + search) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -3416,14 +3440,14 @@ export class CasesApiService implements ICasesApiService {
                 try {
                     return this.processGetCustomers(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<CustomerDetails[]>;
+                    return _observableThrow(e) as any as Observable<ContactResultSet>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<CustomerDetails[]>;
+                return _observableThrow(response_) as any as Observable<ContactResultSet>;
         }));
     }
 
-    protected processGetCustomers(response: HttpResponseBase): Observable<CustomerDetails[]> {
+    protected processGetCustomers(response: HttpResponseBase): Observable<ContactResultSet> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -3455,14 +3479,7 @@ export class CasesApiService implements ICasesApiService {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(CustomerDetails.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
+            result200 = ContactResultSet.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 404) {
@@ -3481,14 +3498,15 @@ export class CasesApiService implements ICasesApiService {
      * Fetch customer data for a specific case type code.
      * @return OK
      */
-    getCustomerData(customerId: string, caseTypeCode: string): Observable<CustomerData> {
-        let url_ = this.baseUrl + "/api/manage/integrations/customers/{customerId}/data/{caseTypeCode}";
-        if (customerId === undefined || customerId === null)
-            throw new Error("The parameter 'customerId' must be defined.");
-        url_ = url_.replace("{customerId}", encodeURIComponent("" + customerId));
+    getCustomerData(reference: string, caseTypeCode: string): Observable<any> {
+        let url_ = this.baseUrl + "/api/manage/integrations/customers/{customerId}/data/{caseTypeCode}?";
         if (caseTypeCode === undefined || caseTypeCode === null)
             throw new Error("The parameter 'caseTypeCode' must be defined.");
         url_ = url_.replace("{caseTypeCode}", encodeURIComponent("" + caseTypeCode));
+        if (reference === undefined || reference === null)
+            throw new Error("The parameter 'reference' must be defined and cannot be null.");
+        else
+            url_ += "reference=" + encodeURIComponent("" + reference) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -3506,14 +3524,14 @@ export class CasesApiService implements ICasesApiService {
                 try {
                     return this.processGetCustomerData(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<CustomerData>;
+                    return _observableThrow(e) as any as Observable<any>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<CustomerData>;
+                return _observableThrow(response_) as any as Observable<any>;
         }));
     }
 
-    protected processGetCustomerData(response: HttpResponseBase): Observable<CustomerData> {
+    protected processGetCustomerData(response: HttpResponseBase): Observable<any> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -3545,7 +3563,8 @@ export class CasesApiService implements ICasesApiService {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = CustomerData.fromJS(resultData200);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
             return _observableOf(result200);
             }));
         } else if (status === 404) {
@@ -5899,10 +5918,192 @@ export interface IComment {
     replyToComment?: Comment;
 }
 
+export class Contact implements IContact {
+    userId?: string | undefined;
+    reference?: string | undefined;
+    email?: string | undefined;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    groupId?: string | undefined;
+    tin?: string | undefined;
+    metadata?: { [key: string]: string; } | undefined;
+
+    constructor(data?: IContact) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userId = _data["userId"];
+            this.reference = _data["reference"];
+            this.email = _data["email"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.groupId = _data["groupId"];
+            this.tin = _data["tin"];
+            if (_data["metadata"]) {
+                this.metadata = {} as any;
+                for (let key in _data["metadata"]) {
+                    if (_data["metadata"].hasOwnProperty(key))
+                        (<any>this.metadata)![key] = _data["metadata"][key];
+                }
+            }
+        }
+    }
+
+    static fromJS(data: any): Contact {
+        data = typeof data === 'object' ? data : {};
+        let result = new Contact();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userId"] = this.userId;
+        data["reference"] = this.reference;
+        data["email"] = this.email;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["groupId"] = this.groupId;
+        data["tin"] = this.tin;
+        if (this.metadata) {
+            data["metadata"] = {};
+            for (let key in this.metadata) {
+                if (this.metadata.hasOwnProperty(key))
+                    (<any>data["metadata"])[key] = (<any>this.metadata)[key];
+            }
+        }
+        return data;
+    }
+}
+
+export interface IContact {
+    userId?: string | undefined;
+    reference?: string | undefined;
+    email?: string | undefined;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    groupId?: string | undefined;
+    tin?: string | undefined;
+    metadata?: { [key: string]: string; } | undefined;
+}
+
+export class ContactMeta implements IContactMeta {
+    userId?: string | undefined;
+    reference?: string | undefined;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    readonly fullName?: string | undefined;
+
+    constructor(data?: IContactMeta) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userId = _data["userId"];
+            this.reference = _data["reference"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            (<any>this).fullName = _data["fullName"];
+        }
+    }
+
+    static fromJS(data: any): ContactMeta {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContactMeta();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userId"] = this.userId;
+        data["reference"] = this.reference;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["fullName"] = this.fullName;
+        return data;
+    }
+}
+
+export interface IContactMeta {
+    userId?: string | undefined;
+    reference?: string | undefined;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    fullName?: string | undefined;
+}
+
+/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
+export class ContactResultSet implements IContactResultSet {
+    /** Total results count. */
+    count?: number;
+    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
+    items?: Contact[] | undefined;
+
+    constructor(data?: IContactResultSet) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(Contact.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ContactResultSet {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContactResultSet();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
+export interface IContactResultSet {
+    /** Total results count. */
+    count?: number;
+    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
+    items?: Contact[] | undefined;
+}
+
 export class CreateDraftCaseRequest implements ICreateDraftCaseRequest {
     caseTypeCode?: string | undefined;
     groupId?: string | undefined;
-    customer?: CustomerMeta;
+    owner?: ContactMeta;
     metadata?: { [key: string]: string; } | undefined;
     channel?: string | undefined;
 
@@ -5919,7 +6120,7 @@ export class CreateDraftCaseRequest implements ICreateDraftCaseRequest {
         if (_data) {
             this.caseTypeCode = _data["caseTypeCode"];
             this.groupId = _data["groupId"];
-            this.customer = _data["customer"] ? CustomerMeta.fromJS(_data["customer"]) : <any>undefined;
+            this.owner = _data["owner"] ? ContactMeta.fromJS(_data["owner"]) : <any>undefined;
             if (_data["metadata"]) {
                 this.metadata = {} as any;
                 for (let key in _data["metadata"]) {
@@ -5942,7 +6143,7 @@ export class CreateDraftCaseRequest implements ICreateDraftCaseRequest {
         data = typeof data === 'object' ? data : {};
         data["caseTypeCode"] = this.caseTypeCode;
         data["groupId"] = this.groupId;
-        data["customer"] = this.customer ? this.customer.toJSON() : <any>undefined;
+        data["owner"] = this.owner ? this.owner.toJSON() : <any>undefined;
         if (this.metadata) {
             data["metadata"] = {};
             for (let key in this.metadata) {
@@ -5958,7 +6159,7 @@ export class CreateDraftCaseRequest implements ICreateDraftCaseRequest {
 export interface ICreateDraftCaseRequest {
     caseTypeCode?: string | undefined;
     groupId?: string | undefined;
-    customer?: CustomerMeta;
+    owner?: ContactMeta;
     metadata?: { [key: string]: string; } | undefined;
     channel?: string | undefined;
 }
@@ -6029,162 +6230,6 @@ export interface ICustomCaseAction {
     description?: string | undefined;
     defaultValue?: string | undefined;
     hasInput?: boolean | undefined;
-}
-
-export class CustomerData implements ICustomerData {
-    formData?: any | undefined;
-
-    constructor(data?: ICustomerData) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.formData = _data["formData"];
-        }
-    }
-
-    static fromJS(data: any): CustomerData {
-        data = typeof data === 'object' ? data : {};
-        let result = new CustomerData();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["formData"] = this.formData;
-        return data;
-    }
-}
-
-export interface ICustomerData {
-    formData?: any | undefined;
-}
-
-export class CustomerDetails implements ICustomerDetails {
-    userId?: string | undefined;
-    customerId?: string | undefined;
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    groupId?: string | undefined;
-    metadata?: { [key: string]: string; } | undefined;
-
-    constructor(data?: ICustomerDetails) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.userId = _data["userId"];
-            this.customerId = _data["customerId"];
-            this.firstName = _data["firstName"];
-            this.lastName = _data["lastName"];
-            this.groupId = _data["groupId"];
-            if (_data["metadata"]) {
-                this.metadata = {} as any;
-                for (let key in _data["metadata"]) {
-                    if (_data["metadata"].hasOwnProperty(key))
-                        (<any>this.metadata)![key] = _data["metadata"][key];
-                }
-            }
-        }
-    }
-
-    static fromJS(data: any): CustomerDetails {
-        data = typeof data === 'object' ? data : {};
-        let result = new CustomerDetails();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["userId"] = this.userId;
-        data["customerId"] = this.customerId;
-        data["firstName"] = this.firstName;
-        data["lastName"] = this.lastName;
-        data["groupId"] = this.groupId;
-        if (this.metadata) {
-            data["metadata"] = {};
-            for (let key in this.metadata) {
-                if (this.metadata.hasOwnProperty(key))
-                    (<any>data["metadata"])[key] = (<any>this.metadata)[key];
-            }
-        }
-        return data;
-    }
-}
-
-export interface ICustomerDetails {
-    userId?: string | undefined;
-    customerId?: string | undefined;
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    groupId?: string | undefined;
-    metadata?: { [key: string]: string; } | undefined;
-}
-
-export class CustomerMeta implements ICustomerMeta {
-    userId?: string | undefined;
-    customerId?: string | undefined;
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    readonly fullName?: string | undefined;
-
-    constructor(data?: ICustomerMeta) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.userId = _data["userId"];
-            this.customerId = _data["customerId"];
-            this.firstName = _data["firstName"];
-            this.lastName = _data["lastName"];
-            (<any>this).fullName = _data["fullName"];
-        }
-    }
-
-    static fromJS(data: any): CustomerMeta {
-        data = typeof data === 'object' ? data : {};
-        let result = new CustomerMeta();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["userId"] = this.userId;
-        data["customerId"] = this.customerId;
-        data["firstName"] = this.firstName;
-        data["lastName"] = this.lastName;
-        data["fullName"] = this.fullName;
-        return data;
-    }
-}
-
-export interface ICustomerMeta {
-    userId?: string | undefined;
-    customerId?: string | undefined;
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    fullName?: string | undefined;
 }
 
 export class EditCaseRequest implements IEditCaseRequest {

@@ -12,6 +12,7 @@ using Indice.Features.Cases.Core.Events.Handlers;
 using System.Security.Claims;
 using Indice.Features.Cases.Core;
 using Indice.Events;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -26,7 +27,7 @@ public static class CasesFeatureExtensions
     /// <param name="configureAction">The optional configuration action.</param>
     public static IServiceCollection AddCasesCore(this IServiceCollection services, Action<CasesOptions>? configureAction = null) {
         // Configure options given by the consumer.
-        var casesOptions = new CasesOptions();
+        var casesOptions = new CasesOptions(services);
         configureAction?.Invoke(casesOptions);
         CasesClaimsPrincipalExtensions.Scope = casesOptions.RequiredScope;
         services.Configure<CasesOptions>(options => {
@@ -158,5 +159,19 @@ public static class CasesFeatureExtensions
     public static void AddLookupService<TLookupService>(this IServiceCollection services, string key)
         where TLookupService : class, ILookupService {
         services.AddKeyedTransient<ILookupService, TLookupService>(key);
+    }
+
+    /// <summary>
+    /// Configure the <see cref="IContactProvider"/> to use an Identity server backed implementation.
+    /// </summary>
+    /// <param name="options">The options to configure</param>
+    /// <param name="configureAction">The configure action</param>
+    public static void UseContactProviderIdentity(this CasesOptions options, Action<ContactProviderIdentityOptions> configureAction) {
+        options.Services.Configure(configureAction);
+        options.Services.AddDistributedMemoryCache();
+        options.Services.AddHttpClient<IContactProvider, ContactProviderIdentityServer>((sp, httpClient) => {
+            var providerOptions = sp.GetRequiredService<IOptions<ContactProviderIdentityOptions>>().Value;
+            httpClient.BaseAddress = providerOptions.BaseAddress;
+        });
     }
 }

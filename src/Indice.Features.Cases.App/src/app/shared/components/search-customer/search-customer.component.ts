@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { CasesApiService, CustomerDetails } from 'src/app/core/services/cases-api.service';
+import { CasesApiService, Contact } from 'src/app/core/services/cases-api.service';
 @Component({
   selector: 'app-search-customer',
   templateUrl: './search-customer.component.html',
@@ -9,10 +9,10 @@ import { CasesApiService, CustomerDetails } from 'src/app/core/services/cases-ap
 })
 export class SearchCustomerComponent {
   @Input() caseTypeCode: string | undefined;
-  @Output() selectedCustomerEvent = new EventEmitter<CustomerDetails>();
+  @Output() selectedContactEvent = new EventEmitter<Contact>();
 
   public searchValue: string | undefined
-  public results$: Observable<Selectable<CustomerDetails>[]> | undefined;
+  public results$: Observable<Selectable<Contact>[]> | undefined;
 
   constructor(public api: CasesApiService) { }
 
@@ -22,7 +22,7 @@ export class SearchCustomerComponent {
     this.results$ = this.api.getCustomers(this.searchValue, this.caseTypeCode)
       .pipe(
         map((res) => {
-          return res.map(c => new Selectable(c))
+          return res.items?.map(c => new Selectable(c)) ?? [];
         }));
   }
 
@@ -30,10 +30,10 @@ export class SearchCustomerComponent {
   // from the ng-for loop that 
   // draws customer line results
   // is emitted to parents
-  onSelect(value: Selectable<CustomerDetails>, allValues: Selectable<CustomerDetails>[]) {
+  onSelect(value: Selectable<Contact>, allValues: Selectable<Contact>[]) {
     allValues.forEach(e => { e.selected = false });
     value.selected = true;
-    this.selectedCustomerEvent.emit(value.item);
+    this.selectedContactEvent.emit(value.item);
   }
 }
 class Selectable<T> {

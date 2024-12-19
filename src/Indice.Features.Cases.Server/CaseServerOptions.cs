@@ -1,6 +1,7 @@
 ﻿using Indice.AspNetCore.Configuration;
 using Indice.Features.Cases.Core;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Features.Cases.Server;
 
@@ -9,6 +10,14 @@ namespace Indice.Features.Cases.Server;
 /// </summary>
 public class CaseServerOptions : CasesOptions
 {
+    /// <inheritdoc/>
+    public CaseServerOptions() {
+            
+    }
+
+    /// <inheritdoc/>
+    public CaseServerOptions(IServiceCollection services) : base(services) { }
+
     /// <summary>
     /// The path prefix for the endpoints registered
     /// </summary>

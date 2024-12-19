@@ -21,7 +21,7 @@ public static class CaseServerFeatureExtensions
         Action<CaseServerOptions>? setupAction = null
     ) {
         // Configure options given by the consumer.
-        var serverOptions = new CaseServerOptions();
+        var serverOptions = new CaseServerOptions(builder.Services);
         setupAction?.Invoke(serverOptions);
         builder.Services.AddCasesCore(options => {
             options.DatabaseSchema = serverOptions.DatabaseSchema;
