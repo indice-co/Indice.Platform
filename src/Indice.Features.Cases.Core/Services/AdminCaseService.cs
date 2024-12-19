@@ -136,8 +136,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                 .Select(@case => new CasePartial {
                     Id = @case.Id,
                     ReferenceNumber = @case.ReferenceNumber,
-                    CustomerId = @case.Owner.Reference,
-                    CustomerName = @case.Owner.FirstName + " " + @case.Owner.LastName, // concat like this to enable searching with "contains"
+                    OwnerId = @case.Owner.Reference,
+                    OwnerName = @case.Owner.FirstName + " " + @case.Owner.LastName, // concat like this to enable searching with "contains"
                     CreatedById = @case.CreatedBy.Id,
                     CreatedByName = @case.CreatedBy.Name,
                     CreatedByEmail = @case.CreatedBy.Email,
@@ -233,8 +233,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                      select new CasePartial {
                          Id = @case.Id,
                          ReferenceNumber = @case.ReferenceNumber,
-                         CustomerId = @case.Owner.Reference,
-                         CustomerName = @case.Owner.FirstName + " " + @case.Owner.LastName, // concat like this to enable searching with "contains"
+                         OwnerId = @case.Owner.Reference,
+                         OwnerName = @case.Owner.FirstName + " " + @case.Owner.LastName, // concat like this to enable searching with "contains"
                          CreatedById = @case.CreatedBy.Id,
                          CreatedByName = @case.CreatedBy.Name,
                          CreatedByEmail = @case.CreatedBy.Email,
@@ -288,27 +288,27 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         }
 
         // filter CustomerId
-        if (options.Filter.CustomerIds?.Length > 0) {
-            foreach (var customerId in options.Filter.CustomerIds) {
-                query = customerId.Operator switch {
-                    FilterOperator.Eq => query.Where(c => c.CustomerId!.Equals(customerId.Value)),
-                    FilterOperator.Neq => query.Where(c => !c.CustomerId!.Equals(customerId.Value)),
-                    FilterOperator.Contains => query.Where(c => c.CustomerId!.Contains(customerId.Value)),
+        if (options.Filter.OwnerIds?.Length > 0) {
+            foreach (var ownerId in options.Filter.OwnerIds) {
+                query = ownerId.Operator switch {
+                    FilterOperator.Eq => query.Where(c => c.OwnerId!.Equals(ownerId.Value)),
+                    FilterOperator.Neq => query.Where(c => !c.OwnerId!.Equals(ownerId.Value)),
+                    FilterOperator.Contains => query.Where(c => c.OwnerId!.Contains(ownerId.Value)),
                     _ => query
                 };
             }
 
         }
         // filter CustomerName
-        if (options.Filter.CustomerNames?.Length > 0) {
-            foreach (var customerName in options.Filter.CustomerNames) {
+        if (options.Filter.OwnerNames?.Length > 0) {
+            foreach (var customerName in options.Filter.OwnerNames) {
                 query = customerName.Operator switch {
                     FilterOperator.Eq => query.Where(c =>
-                        c.CustomerName!.ToLower().Equals(customerName.Value.ToLower())),
+                        c.OwnerName!.ToLower().Equals(customerName.Value.ToLower())),
                     FilterOperator.Neq => query.Where(c =>
-                        !c.CustomerName!.ToLower().Equals(customerName.Value.ToLower())),
+                        !c.OwnerName!.ToLower().Equals(customerName.Value.ToLower())),
                     FilterOperator.Contains => query.Where(c =>
-                        c.CustomerName!.ToLower().Contains(customerName.Value.ToLower())),
+                        c.OwnerName!.ToLower().Contains(customerName.Value.ToLower())),
                     _ => query
                 };
             }

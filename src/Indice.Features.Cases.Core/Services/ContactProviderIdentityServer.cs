@@ -46,10 +46,10 @@ internal class ContactProviderIdentityServer : IContactProvider
         };
         
         var queryString = HttpUtility.ParseQueryString(uriBuilder.Query);
-        queryString[nameof(ListOptions.Page)] = (listOptions.Page ?? 1).ToString();
-        if (!string.IsNullOrEmpty(listOptions.Filter.Reference ?? listOptions.Search))
-            queryString[nameof(ListOptions.Search)] = listOptions.Filter.Reference ?? listOptions.Search;
-        queryString[nameof(ListOptions.Size)] = (listOptions.Size ?? 100).ToString();
+        queryString[nameof(ListOptions.Page)] = listOptions.Page.ToString();
+        queryString[nameof(ListOptions.Search)] = listOptions.Filter.Reference ?? listOptions.Search;
+        queryString[nameof(ListOptions.Size)] = listOptions.Size.ToString();
+        queryString.Add("expandClaims", BasicClaimTypes.Tin); // will include the tax id in the results
         uriBuilder.Query = queryString.ToString();
         var response = await _httpClient.GetAsync($"/{uriBuilder}");
         response.EnsureSuccessStatusCode();
@@ -95,8 +95,10 @@ internal class ContactProviderIdentityServer : IContactProvider
             ClientSecret = _options.ClientSecret,
             Scope = "identity identity:users"
         });
-        if (response.IsError) {
+        if (response.IsError && response.Exception is not null) {
             throw response.Exception!;
+        } else if (response.IsError) {
+            throw new Exception(response.Error);
         }
         accessToken = response.AccessToken;
         await _cache.SetStringAsync(TOKEN_CACHE_KEY, accessToken!, new DistributedCacheEntryOptions {

@@ -10,10 +10,10 @@ namespace Indice.Features.Cases.Core.Models;
 public class GetCasesListFilter
 {
     /// <summary>The Id of the customer to filter.</summary>
-    public FilterClause[]? CustomerIds { get; set; } = [];
+    public FilterClause[]? OwnerIds { get; set; } = [];
 
     /// <summary>The name of the customer to filter.</summary>
-    public FilterClause[]? CustomerNames { get; set; } = [];
+    public FilterClause[]? OwnerNames { get; set; } = [];
 
     /// <summary>The created date of the case, starting from, to filter.</summary>
     public DateTimeOffset? From { get; set; }

@@ -14,14 +14,15 @@ public class CasePartial
     /// <remarks>To enable set to <see langword="true"/> the <strong>ReferenceNumberEnabled</strong> flag</remarks>
     public int? ReferenceNumber { get; set; }
 
-    /// <summary>The Id of the customer as provided from integration services (core or 3rd party).</summary>
-    public string? CustomerId { get; set; }
+    /// <summary>The Id of the customer/ or contact as provided from integration services (core or 3rd party).</summary>
+    /// <remarks>Correlation reference.</remarks>
+    public string? OwnerId { get; set; }
+
+    /// <summary>The full name of the customer.</summary>
+    public string? OwnerName { get; set; }
 
     /// <summary>The Id of the user as provided from our Identity server.</summary>
     public string? UserId { get; set; }
-
-    /// <summary>The full name of the customer.</summary>
-    public string? CustomerName { get; set; }
 
     /// <summary>The created date of the case.</summary>
     public DateTimeOffset? CreatedByWhen { get; set; }

@@ -71,7 +71,7 @@ export class LookupSelectorWidgetComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$),
       take(1) // We really only need the first emitted value of the source Observable to get customerId
     ).subscribe((caseDetails: Case) => {
-      this.customerId = caseDetails.customerId;
+      this.customerId = caseDetails.ownerId;
       // Create the "constant" part of Filter Terms.
       this.lookupFilterTerms = this.createFilterTerms();
       if (!this.lookupFilterFields || (this.lookupFilterFields && !_.isEmpty(this.lookupFilterFieldValues) && this.allPropertiesHaveValues(this.lookupFilterFieldValues))) {

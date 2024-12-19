@@ -94,10 +94,10 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
 
   private getCustomerData$(caseDetails: Case): Observable<Case> {
     return this.api
-      .getCustomerData(caseDetails.customerId ?? "", caseDetails.caseType?.code ?? "")
+      .getContactData(caseDetails.ownerId ?? "", caseDetails.caseType?.code ?? "")
       .pipe(
-        map(customerDetails => {
-          caseDetails.data = customerDetails.formData;
+        map(contactData => {
+          caseDetails.data = contactData;
           return caseDetails;
         }));
 

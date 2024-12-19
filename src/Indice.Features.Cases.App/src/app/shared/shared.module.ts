@@ -7,7 +7,7 @@ import { TailwindFrameworkComponent } from './ajsf/json-schema-frameworks/tailwi
 import { JsonSchemaFormModule } from '@ajsf-extended/core';
 import { SubmitWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/submit-widget/submit-widget.component';
 import { SelectCaseTypeComponent } from './components/select-case-type/select-case-type.component';
-import { SearchCustomerComponent } from './components/search-customer/search-customer.component';
+import { SearchContactComponent } from './components/search-contact/search-contact.component';
 import { IndiceComponentsModule } from '@indice/ng-components';
 import { SelectWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/select-widget/select-widget.component';
 import { CurrencyWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/currency-widget/currency-widget.component';
@@ -39,7 +39,7 @@ import { BeautifyBooleanPipe, ValueFromPathPipe, ToReadableDatePipe } from './pi
     PageIllustrationComponent,
     RadioButtonsListComponent,
     SelectCaseTypeComponent,
-    SearchCustomerComponent,
+    SearchContactComponent,
     CaseDetailInfoComponent,
     CaseCustomActionComponent,
     CanvasTileComponent,
@@ -92,7 +92,7 @@ import { BeautifyBooleanPipe, ValueFromPathPipe, ToReadableDatePipe } from './pi
     PageIllustrationComponent,
     RadioButtonsListComponent,
     SelectCaseTypeComponent,
-    SearchCustomerComponent,
+    SearchContactComponent,
     CaseDetailInfoComponent,
     CaseCustomActionComponent,
     CanvasTileComponent,

@@ -80,8 +80,8 @@ internal abstract class BaseCaseService
                     Tags = c.CaseType.Tags,
                     Config = GetSingleOrMultiple(schemaKey, c.CaseType.Config)
                 },
-                CustomerId = c.Owner.Reference,
-                CustomerName = c.Owner.FullName,
+                OwnerId = c.Owner.Reference,
+                OwnerName = c.Owner.FullName,
                 UserId = c.Owner.UserId,
                 GroupId = c.GroupId,
                 Metadata = c.Metadata,

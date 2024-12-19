@@ -18,10 +18,10 @@
                                                     'caseDetails.assignedTo':model?.assignedToName || ' - '}">
                             </app-case-detail-info>
 
-                            <app-case-detail-info [title]="'Στοιχεία Πελάτη'"
+                            <app-case-detail-info [title]="'Στοιχεία Πελάτη/Επαφής'"
                                                   [keyValuePairs]="{
-                                                    'caseDetails.customerId': model?.customerId,
-                                                    'caseDetails.customerName': model?.customerName,
+                                                    'caseDetails.customerId': model?.ownerId,
+                                                    'caseDetails.customerName': model?.ownerName,
                                                     'caseDetails.taxId':model?.metadata?.TaxId,
                                                     'caseDetails.groupId':model?.groupId}">
                             </app-case-detail-info>

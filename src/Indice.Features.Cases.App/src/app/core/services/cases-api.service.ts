@@ -101,8 +101,8 @@ export interface ICasesApiService {
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @param customerIds (optional) 
-     * @param customerNames (optional) 
+     * @param ownerIds (optional) 
+     * @param ownerNames (optional) 
      * @param from (optional) 
      * @param to (optional) 
      * @param caseTypeCodes (optional) 
@@ -114,7 +114,7 @@ export interface ICasesApiService {
      * @param includeData (optional) 
      * @return OK
      */
-    getCases(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, customerIds?: string[] | undefined, customerNames?: string[] | undefined, from?: Date | undefined, to?: Date | undefined, caseTypeCodes?: string[] | undefined, checkpointTypeCodes?: string[] | undefined, groupIds?: string[] | undefined, metadata?: string[] | undefined, referenceNumbers?: string[] | undefined, data?: string[] | undefined, includeData?: boolean | undefined): Observable<CasePartialResultSet>;
+    getCases(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, ownerIds?: string[] | undefined, ownerNames?: string[] | undefined, from?: Date | undefined, to?: Date | undefined, caseTypeCodes?: string[] | undefined, checkpointTypeCodes?: string[] | undefined, groupIds?: string[] | undefined, metadata?: string[] | undefined, referenceNumbers?: string[] | undefined, data?: string[] | undefined, includeData?: boolean | undefined): Observable<CasePartialResultSet>;
     /**
      * Update the case with the business data as defined at the specific case type. This action is allowed only for draft cases.
      * @return No Content
@@ -230,7 +230,7 @@ export interface ICasesApiService {
      */
     getDistinctCheckpointTypes(): Observable<CheckpointType[]>;
     /**
-     * Fetch customers.
+     * Search contacts.
      * @param reference (optional) 
      * @param caseTypeCode (optional) 
      * @param page (optional) 
@@ -239,12 +239,12 @@ export interface ICasesApiService {
      * @param search (optional) 
      * @return OK
      */
-    getCustomers(reference?: string | undefined, caseTypeCode?: string | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ContactResultSet>;
+    getContacts(reference?: string | undefined, caseTypeCode?: string | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ContactResultSet>;
     /**
-     * Fetch customer data for a specific case type code.
+     * Fetch contact data by contact.reference number for a specific case type code.
      * @return OK
      */
-    getCustomerData(reference: string, caseTypeCode: string): Observable<any>;
+    getContactData(reference: string, caseTypeCode: string): Observable<any>;
     /**
      * Get a lookup result by lookupName and options.
      * @param page (optional) 
@@ -1425,8 +1425,8 @@ export class CasesApiService implements ICasesApiService {
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @param customerIds (optional) 
-     * @param customerNames (optional) 
+     * @param ownerIds (optional) 
+     * @param ownerNames (optional) 
      * @param from (optional) 
      * @param to (optional) 
      * @param caseTypeCodes (optional) 
@@ -1438,7 +1438,7 @@ export class CasesApiService implements ICasesApiService {
      * @param includeData (optional) 
      * @return OK
      */
-    getCases(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, customerIds?: string[] | undefined, customerNames?: string[] | undefined, from?: Date | undefined, to?: Date | undefined, caseTypeCodes?: string[] | undefined, checkpointTypeCodes?: string[] | undefined, groupIds?: string[] | undefined, metadata?: string[] | undefined, referenceNumbers?: string[] | undefined, data?: string[] | undefined, includeData?: boolean | undefined): Observable<CasePartialResultSet> {
+    getCases(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, ownerIds?: string[] | undefined, ownerNames?: string[] | undefined, from?: Date | undefined, to?: Date | undefined, caseTypeCodes?: string[] | undefined, checkpointTypeCodes?: string[] | undefined, groupIds?: string[] | undefined, metadata?: string[] | undefined, referenceNumbers?: string[] | undefined, data?: string[] | undefined, includeData?: boolean | undefined): Observable<CasePartialResultSet> {
         let url_ = this.baseUrl + "/api/manage/cases?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
@@ -1456,14 +1456,14 @@ export class CasesApiService implements ICasesApiService {
             throw new Error("The parameter 'search' cannot be null.");
         else if (search !== undefined)
             url_ += "Search=" + encodeURIComponent("" + search) + "&";
-        if (customerIds === null)
-            throw new Error("The parameter 'customerIds' cannot be null.");
-        else if (customerIds !== undefined)
-            customerIds && customerIds.forEach(item => { url_ += "CustomerIds=" + encodeURIComponent("" + item) + "&"; });
-        if (customerNames === null)
-            throw new Error("The parameter 'customerNames' cannot be null.");
-        else if (customerNames !== undefined)
-            customerNames && customerNames.forEach(item => { url_ += "CustomerNames=" + encodeURIComponent("" + item) + "&"; });
+        if (ownerIds === null)
+            throw new Error("The parameter 'ownerIds' cannot be null.");
+        else if (ownerIds !== undefined)
+            ownerIds && ownerIds.forEach(item => { url_ += "OwnerIds=" + encodeURIComponent("" + item) + "&"; });
+        if (ownerNames === null)
+            throw new Error("The parameter 'ownerNames' cannot be null.");
+        else if (ownerNames !== undefined)
+            ownerNames && ownerNames.forEach(item => { url_ += "OwnerNames=" + encodeURIComponent("" + item) + "&"; });
         if (from === null)
             throw new Error("The parameter 'from' cannot be null.");
         else if (from !== undefined)
@@ -3388,7 +3388,7 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
-     * Fetch customers.
+     * Search contacts.
      * @param reference (optional) 
      * @param caseTypeCode (optional) 
      * @param page (optional) 
@@ -3397,8 +3397,8 @@ export class CasesApiService implements ICasesApiService {
      * @param search (optional) 
      * @return OK
      */
-    getCustomers(reference?: string | undefined, caseTypeCode?: string | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ContactResultSet> {
-        let url_ = this.baseUrl + "/api/manage/integrations/customers?";
+    getContacts(reference?: string | undefined, caseTypeCode?: string | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ContactResultSet> {
+        let url_ = this.baseUrl + "/api/manage/integrations/contacts?";
         if (reference === null)
             throw new Error("The parameter 'reference' cannot be null.");
         else if (reference !== undefined)
@@ -3434,11 +3434,11 @@ export class CasesApiService implements ICasesApiService {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetCustomers(response_);
+            return this.processGetContacts(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetCustomers(response_ as any);
+                    return this.processGetContacts(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<ContactResultSet>;
                 }
@@ -3447,7 +3447,7 @@ export class CasesApiService implements ICasesApiService {
         }));
     }
 
-    protected processGetCustomers(response: HttpResponseBase): Observable<ContactResultSet> {
+    protected processGetContacts(response: HttpResponseBase): Observable<ContactResultSet> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -3495,11 +3495,11 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
-     * Fetch customer data for a specific case type code.
+     * Fetch contact data by contact.reference number for a specific case type code.
      * @return OK
      */
-    getCustomerData(reference: string, caseTypeCode: string): Observable<any> {
-        let url_ = this.baseUrl + "/api/manage/integrations/customers/{customerId}/data/{caseTypeCode}?";
+    getContactData(reference: string, caseTypeCode: string): Observable<any> {
+        let url_ = this.baseUrl + "/api/manage/integrations/contacts/{referemce}/data/{caseTypeCode}?";
         if (caseTypeCode === undefined || caseTypeCode === null)
             throw new Error("The parameter 'caseTypeCode' must be defined.");
         url_ = url_.replace("{caseTypeCode}", encodeURIComponent("" + caseTypeCode));
@@ -3518,11 +3518,11 @@ export class CasesApiService implements ICasesApiService {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetCustomerData(response_);
+            return this.processGetContactData(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetCustomerData(response_ as any);
+                    return this.processGetContactData(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<any>;
                 }
@@ -3531,7 +3531,7 @@ export class CasesApiService implements ICasesApiService {
         }));
     }
 
-    protected processGetCustomerData(response: HttpResponseBase): Observable<any> {
+    protected processGetContactData(response: HttpResponseBase): Observable<any> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -4518,9 +4518,9 @@ export interface IAuditMeta {
 export class Case implements ICase {
     id?: string;
     referenceNumber?: number | undefined;
-    customerId?: string | undefined;
+    ownerId?: string | undefined;
+    ownerName?: string | undefined;
     userId?: string | undefined;
-    customerName?: string | undefined;
     createdByWhen?: Date | undefined;
     createdById?: string | undefined;
     createdByEmail?: string | undefined;
@@ -4550,9 +4550,9 @@ export class Case implements ICase {
         if (_data) {
             this.id = _data["id"];
             this.referenceNumber = _data["referenceNumber"];
-            this.customerId = _data["customerId"];
+            this.ownerId = _data["ownerId"];
+            this.ownerName = _data["ownerName"];
             this.userId = _data["userId"];
-            this.customerName = _data["customerName"];
             this.createdByWhen = _data["createdByWhen"] ? new Date(_data["createdByWhen"].toString()) : <any>undefined;
             this.createdById = _data["createdById"];
             this.createdByEmail = _data["createdByEmail"];
@@ -4596,9 +4596,9 @@ export class Case implements ICase {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["referenceNumber"] = this.referenceNumber;
-        data["customerId"] = this.customerId;
+        data["ownerId"] = this.ownerId;
+        data["ownerName"] = this.ownerName;
         data["userId"] = this.userId;
-        data["customerName"] = this.customerName;
         data["createdByWhen"] = this.createdByWhen ? this.createdByWhen.toISOString() : <any>undefined;
         data["createdById"] = this.createdById;
         data["createdByEmail"] = this.createdByEmail;
@@ -4635,9 +4635,9 @@ export class Case implements ICase {
 export interface ICase {
     id?: string;
     referenceNumber?: number | undefined;
-    customerId?: string | undefined;
+    ownerId?: string | undefined;
+    ownerName?: string | undefined;
     userId?: string | undefined;
-    customerName?: string | undefined;
     createdByWhen?: Date | undefined;
     createdById?: string | undefined;
     createdByEmail?: string | undefined;
@@ -4824,9 +4824,9 @@ export interface ICaseAttachmentResultSet {
 export class CasePartial implements ICasePartial {
     id?: string;
     referenceNumber?: number | undefined;
-    customerId?: string | undefined;
+    ownerId?: string | undefined;
+    ownerName?: string | undefined;
     userId?: string | undefined;
-    customerName?: string | undefined;
     createdByWhen?: Date | undefined;
     createdById?: string | undefined;
     createdByEmail?: string | undefined;
@@ -4854,9 +4854,9 @@ export class CasePartial implements ICasePartial {
         if (_data) {
             this.id = _data["id"];
             this.referenceNumber = _data["referenceNumber"];
-            this.customerId = _data["customerId"];
+            this.ownerId = _data["ownerId"];
+            this.ownerName = _data["ownerName"];
             this.userId = _data["userId"];
-            this.customerName = _data["customerName"];
             this.createdByWhen = _data["createdByWhen"] ? new Date(_data["createdByWhen"].toString()) : <any>undefined;
             this.createdById = _data["createdById"];
             this.createdByEmail = _data["createdByEmail"];
@@ -4890,9 +4890,9 @@ export class CasePartial implements ICasePartial {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["referenceNumber"] = this.referenceNumber;
-        data["customerId"] = this.customerId;
+        data["ownerId"] = this.ownerId;
+        data["ownerName"] = this.ownerName;
         data["userId"] = this.userId;
-        data["customerName"] = this.customerName;
         data["createdByWhen"] = this.createdByWhen ? this.createdByWhen.toISOString() : <any>undefined;
         data["createdById"] = this.createdById;
         data["createdByEmail"] = this.createdByEmail;
@@ -4919,9 +4919,9 @@ export class CasePartial implements ICasePartial {
 export interface ICasePartial {
     id?: string;
     referenceNumber?: number | undefined;
-    customerId?: string | undefined;
+    ownerId?: string | undefined;
+    ownerName?: string | undefined;
     userId?: string | undefined;
-    customerName?: string | undefined;
     createdByWhen?: Date | undefined;
     createdById?: string | undefined;
     createdByEmail?: string | undefined;

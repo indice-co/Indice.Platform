@@ -10,12 +10,12 @@ using Microsoft.AspNetCore.Http.HttpResults;
 namespace Indice.Features.Cases.Server.Endpoints;
 internal static class AdminIntegrationHandler
 {
-    public static async Task<Results<Ok<ResultSet<Contact>>, NotFound>> GetCustomers(ClaimsPrincipal currentUser, IContactProvider customerIntegrationService, [AsParameters] ContactFilter criteria, [AsParameters] ListOptions listOptions) {
+    public static async Task<Results<Ok<ResultSet<Contact>>, NotFound>> GetContacts(ClaimsPrincipal currentUser, IContactProvider customerIntegrationService, [AsParameters] ContactFilter criteria, [AsParameters] ListOptions listOptions) {
         var contacts = await customerIntegrationService.GetListAsync(currentUser, ListOptions.Create(listOptions, criteria));
         return TypedResults.Ok(contacts);
     }
 
-    public static async Task<Results<Ok<JsonNode>, NotFound>> GetCustomerData(ClaimsPrincipal currentUser, IContactProvider customerIntegrationService, string reference, string caseTypeCode) {
+    public static async Task<Results<Ok<JsonNode>, NotFound>> GetContactData(ClaimsPrincipal currentUser, IContactProvider customerIntegrationService, string reference, string caseTypeCode) {
         var contactData = await customerIntegrationService.GetByReferenceAsync(currentUser, reference, caseTypeCode);
         if (contactData == null) {
             return TypedResults.NotFound();

@@ -89,7 +89,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         var userId = user.FindSubjectIdOrClientId()!;
         var query =
             from c in GetCasesInternal(userId, includeAttachmentData: true, SchemaSelector)
-            let isCustomer = userId == c.CustomerId
+            let isCustomer = userId == c.OwnerId
             let isCreator = userId == c.CreatedById
             let isOwner = isCustomer || isCreator
             where c.Id == caseId && isOwner
