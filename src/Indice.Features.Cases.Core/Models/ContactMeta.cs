@@ -5,12 +5,13 @@
 /// The customer may create the case himself or the case could be 
 /// created on this customers behalf
 /// </summary>
-public class CustomerMeta
+public class ContactMeta
 {
     /// <summary>The related user id</summary>
     public string? UserId { get; set; }
-    /// <summary>The customer id</summary>
-    public string? CustomerId { get; set; }
+    /// <summary>Can be the customer id or something related to an external system correlation id</summary>
+    /// <remarks>In case of non external system this should be the same as the userid</remarks>
+    public string? Reference { get; set; }
     /// <summary>The first name</summary>
     public string? FirstName { get; set; }
     /// <summary>The last name</summary>
@@ -18,3 +19,4 @@ public class CustomerMeta
     /// <summary>full name</summary>
     public string? FullName => $"{FirstName} {LastName}"; // this is an unmapped EFCore property, do not use for querying
 }
+

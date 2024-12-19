@@ -18,10 +18,10 @@ namespace Indice.Features.Cases.Controllers;
 [Route($"{ApiPrefixes.CasesApiTemplatePrefixPlaceholder}/manage/integrations")]
 public class AdminIntegrationController : ControllerBase
 {
-    private readonly ICustomerIntegrationService _customerIntegrationService;
+    private readonly IContactProvider _customerIntegrationService;
 
     /// <inheritdoc/>
-    public AdminIntegrationController(ICustomerIntegrationService customerIntegrationService) {
+    public AdminIntegrationController(IContactProvider customerIntegrationService) {
         _customerIntegrationService = customerIntegrationService ?? throw new ArgumentNullException(nameof(customerIntegrationService));
     }
 
@@ -29,9 +29,9 @@ public class AdminIntegrationController : ControllerBase
     /// <param name="criteria">The customers criteria.</param>
     /// <returns></returns>
     [HttpGet("customers")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CustomerDetails>))]
-    public async Task<IActionResult> GetCustomers([FromQuery] SearchCustomerCriteria criteria) {
-        return Ok(await _customerIntegrationService.GetCustomers(criteria));
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Contact>))]
+    public async Task<IActionResult> GetCustomers([FromQuery] ContactFilter criteria) {
+        return Ok(await _customerIntegrationService.SearchAsync(criteria));
     }
 
     /// <summary>Fetch customer data for a specific case type code.</summary>
@@ -39,8 +39,8 @@ public class AdminIntegrationController : ControllerBase
     /// <param name="caseTypeCode">The case type code.</param>
     /// <returns></returns>
     [HttpGet("customers/{customerId}/data/{caseTypeCode}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerData))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ContactData))]
     public async Task<IActionResult> GetCustomerData([FromRoute] string customerId, [FromRoute] string caseTypeCode) {
-        return Ok(await _customerIntegrationService.GetCustomerData(customerId, caseTypeCode));
+        return Ok(await _customerIntegrationService.GetByReferenceAsync(customerId, caseTypeCode));
     }
 }

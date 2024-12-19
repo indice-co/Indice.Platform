@@ -41,7 +41,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     public async Task<Guid> CreateDraft(ClaimsPrincipal user,
         string caseTypeCode,
         string? groupId,
-        CustomerMeta? customer,
+        ContactMeta? customer,
         Dictionary<string, string> metadata) {
         var caseType = await DbContext.CaseTypes.Where(x => x.Code == caseTypeCode).SingleAsync();
         var entity = await CreateDraftInternal(
@@ -136,8 +136,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                 .Select(@case => new CasePartial {
                     Id = @case.Id,
                     ReferenceNumber = @case.ReferenceNumber,
-                    CustomerId = @case.Customer.CustomerId,
-                    CustomerName = @case.Customer.FirstName + " " + @case.Customer.LastName, // concat like this to enable searching with "contains"
+                    CustomerId = @case.Owner.Reference,
+                    CustomerName = @case.Owner.FirstName + " " + @case.Owner.LastName, // concat like this to enable searching with "contains"
                     CreatedById = @case.CreatedBy.Id,
                     CreatedByName = @case.CreatedBy.Name,
                     CreatedByEmail = @case.CreatedBy.Email,
@@ -233,8 +233,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                      select new CasePartial {
                          Id = @case.Id,
                          ReferenceNumber = @case.ReferenceNumber,
-                         CustomerId = @case.Customer.CustomerId,
-                         CustomerName = @case.Customer.FirstName + " " + @case.Customer.LastName, // concat like this to enable searching with "contains"
+                         CustomerId = @case.Owner.Reference,
+                         CustomerName = @case.Owner.FirstName + " " + @case.Owner.LastName, // concat like this to enable searching with "contains"
                          CreatedById = @case.CreatedBy.Id,
                          CreatedByName = @case.CreatedBy.Name,
                          CreatedByEmail = @case.CreatedBy.Email,

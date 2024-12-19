@@ -9,7 +9,7 @@ public class DbCase
     public Guid CaseTypeId { get; set; }
     public Priority Priority { get; set; }
     /// <summary>case belongs to this customer, regardless of whether he created it or not</summary>
-    public CustomerMeta Customer { get; set; } = new ();
+    public ContactMeta Owner { get; set; } = new ();
     public string? GroupId { get; set; }
     public Dictionary<string, string> Metadata { get; set; } = [];
     public Guid? PublicCheckpointId { get; set; }

@@ -7,16 +7,16 @@ using Microsoft.AspNetCore.Http.HttpResults;
 namespace Indice.Features.Cases.Server.Endpoints;
 internal static class AdminIntegrationHandler
 {
-    public static async Task<Results<Ok<List<CustomerDetails>>, NotFound>> GetCustomers(ICustomerIntegrationService customerIntegrationService, [AsParameters] SearchCustomerCriteria criteria) {
-        var customers = await customerIntegrationService.GetCustomers(criteria);
+    public static async Task<Results<Ok<List<Contact>>, NotFound>> GetCustomers(IContactProvider customerIntegrationService, [AsParameters] ContactFilter criteria) {
+        var customers = await customerIntegrationService.SearchAsync(criteria);
         if (customers == null) {
             return TypedResults.NotFound();
         }
         return TypedResults.Ok(customers);
     }
 
-    public static async Task<Results<Ok<CustomerData>, NotFound>> GetCustomerData(ICustomerIntegrationService customerIntegrationService, string customerId, string caseTypeCode) {
-        var customerData = await customerIntegrationService.GetCustomerData(customerId, caseTypeCode);
+    public static async Task<Results<Ok<ContactData>, NotFound>> GetCustomerData(IContactProvider customerIntegrationService, string customerId, string caseTypeCode) {
+        var customerData = await customerIntegrationService.GetByReferenceAsync(customerId, caseTypeCode);
         if (customerData == null) {
             return TypedResults.NotFound();
         }

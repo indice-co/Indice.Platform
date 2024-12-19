@@ -42,7 +42,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
     public async Task<CreateCaseResponse> CreateDraft(ClaimsPrincipal user,
         string caseTypeCode,
         string? groupId,
-        CustomerMeta? customer,
+        ContactMeta? customer,
         Dictionary<string, string> metadata,
         string? channel) {
         ArgumentNullException.ThrowIfNull(user);
@@ -113,7 +113,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         var userId = user.FindSubjectIdOrClientId();
         var dbCaseQueryable = DbContext.Cases
             .AsQueryable()
-            .Where(p => (p.CreatedBy.Id == userId || p.Customer.UserId == userId) && p.PublicCheckpoint.CheckpointType.Status != CaseStatus.Deleted)
+            .Where(p => (p.CreatedBy.Id == userId || p.Owner.UserId == userId) && p.PublicCheckpoint.CheckpointType.Status != CaseStatus.Deleted)
             .Where(options.Filter.Metadata!);
 
         // We do not return draft cases as a default behaviour either when

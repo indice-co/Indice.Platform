@@ -58,7 +58,7 @@ internal class AdminCasesController : ControllerBase
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Guid))]
     public async Task<IActionResult> CreateDraftAdminCase([FromBody] CreateDraftCaseRequest request) {
-        return Ok(await _adminCaseService.CreateDraft(User, request.CaseTypeCode, request.GroupId, request.Customer, request.Metadata));
+        return Ok(await _adminCaseService.CreateDraft(User, request.CaseTypeCode, request.GroupId, request.Owner, request.Metadata));
     }
 
     /// <summary>Get a list of Attachments for a CaseId</summary>

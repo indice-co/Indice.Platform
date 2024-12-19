@@ -52,7 +52,7 @@ internal abstract class BaseCaseService
     protected IQueryable<Case> GetCasesInternal(string userId, bool includeAttachmentData = false, string? schemaKey = null) {
         var query =
             from c in DbContext.Cases.AsQueryable().AsNoTracking()
-            let isCustomer = userId == c.Customer.UserId
+            let isCustomer = userId == c.Owner.UserId
             select new Case {
                 Id = c.Id,
                 ReferenceNumber = c.ReferenceNumber,
@@ -80,9 +80,9 @@ internal abstract class BaseCaseService
                     Tags = c.CaseType.Tags,
                     Config = GetSingleOrMultiple(schemaKey, c.CaseType.Config)
                 },
-                CustomerId = c.Customer.CustomerId,
-                CustomerName = c.Customer.FullName,
-                UserId = c.Customer.UserId,
+                CustomerId = c.Owner.Reference,
+                CustomerName = c.Owner.FullName,
+                UserId = c.Owner.UserId,
                 GroupId = c.GroupId,
                 Metadata = c.Metadata,
                 Attachments = c.Attachments.Select(attachment => new CaseAttachment {
@@ -114,7 +114,7 @@ internal abstract class BaseCaseService
         var userId = customer.FindSubjectIdOrClientId();
         var @case = await DbContext.Cases
             .Include(c => c.CaseType)
-            .FirstOrDefaultAsync(p => p.Id == caseId && (p.CreatedBy.Id == userId || p.Customer.UserId == userId));
+            .FirstOrDefaultAsync(p => p.Id == caseId && (p.CreatedBy.Id == userId || p.Owner.UserId == userId));
         if (@case == null) {
             throw new Exception("Case not found."); // todo  proper exception & handle from problemConfig (NotFound)
         }
@@ -139,7 +139,7 @@ internal abstract class BaseCaseService
         ClaimsPrincipal user,
         DbCaseType caseType,
         string? groupId,
-        CustomerMeta? customer,
+        ContactMeta? customer,
         Dictionary<string, string> metadata,
         string channel,
         ClaimsPrincipal? assignee = null) {
@@ -154,7 +154,7 @@ internal abstract class BaseCaseService
             CaseTypeId = caseType.Id,
             Priority = Priority.Normal,
             GroupId = groupId,
-            Customer = customer ?? new(),
+            Owner = customer ?? new(),
             CreatedBy = userMeta,
             Metadata = metadata,
             Draft = true,

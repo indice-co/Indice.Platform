@@ -76,7 +76,7 @@ internal class MyCasesController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CreateCaseResponse))]
     public async Task<IActionResult> CreateDraftCase([FromBody] CreateDraftCaseRequest request) {
-        return Ok(await _myCaseService.CreateDraft(User, request.CaseTypeCode, request.GroupId, request.Customer, request.Metadata, request.Channel));
+        return Ok(await _myCaseService.CreateDraft(User, request.CaseTypeCode, request.GroupId, request.Owner, request.Metadata, request.Channel));
     }
 
     /// <summary>Add an attachment to an existing case regardless of its status and mode (draft or not).</summary>

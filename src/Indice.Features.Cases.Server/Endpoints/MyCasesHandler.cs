@@ -40,7 +40,7 @@ internal static class MyCasesHandler
     /// <param name="myCaseService"></param>
     /// <returns></returns>
     public static async Task<Ok<CreateCaseResponse>> CreateDraftCase(CreateDraftCaseRequest request, ClaimsPrincipal user, IMyCaseService myCaseService) =>
-        TypedResults.Ok(await myCaseService.CreateDraft(user, request.CaseTypeCode, request.GroupId, request.Customer, request.Metadata, request.Channel));
+        TypedResults.Ok(await myCaseService.CreateDraft(user, request.CaseTypeCode, request.GroupId, request.Owner, request.Metadata, request.Channel));
 
     /// <summary>Add an attachment to an existing case regardless of its status and mode (draft or not).</summary>
     /// <param name="caseId">The Id of the case.</param>
