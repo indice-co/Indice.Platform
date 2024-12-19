@@ -28,11 +28,6 @@ internal class AdminCaseMessageService : BaseCaseMessageService, IAdminCaseMessa
         return await SendInternal(@case, message, user);
     }
 
-    public async Task Send(Guid caseId, ClaimsPrincipal user, Exception exception, string? message = null) {
-        var @case = await GetAdminCase(caseId, user);
-        await SendInternal(@case, user, exception, message);
-    }
-
     private async Task<DbCase> GetAdminCase(Guid caseId, ClaimsPrincipal user) {
         if (caseId == Guid.Empty) {
             throw new ArgumentException(nameof(caseId));

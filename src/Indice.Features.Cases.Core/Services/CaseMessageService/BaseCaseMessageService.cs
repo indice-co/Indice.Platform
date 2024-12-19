@@ -82,16 +82,6 @@ internal abstract class BaseCaseMessageService
         return attachmentId;
     }
 
-    protected Task SendInternal(DbCase @case, ClaimsPrincipal user, Exception exception, string? message) {
-        var comment = string.IsNullOrEmpty(message)
-            ? $"Faulted with message: {exception.Message}"
-            : $"Faulted with message: {message} and exception message: {exception.Message}";
-        return SendInternal(@case, new Message {
-            Comment = comment,
-            PrivateComment = true
-        }, user);
-    }
-
     private async Task AddComment(ClaimsPrincipal user, Guid caseId, string? text, Guid? replyToCommentId, bool? @private) {
         var newComment = new DbComment {
             IsCustomer = false, // todo decide if customer, from claims

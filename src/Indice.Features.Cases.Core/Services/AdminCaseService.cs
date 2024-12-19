@@ -128,7 +128,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         var queryCases = DbContext.Cases
             .AsNoTracking()
             .Where(c => !c.Draft) // filter out draft cases
-            .Where(options.Filter.Metadata); // filter Metadata
+            .Where(options.Filter.Metadata ?? []); // filter Metadata
 
         IQueryable<CasePartial> query;
         if (isSystemOrAdmin) {
@@ -272,7 +272,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         }
 
         // filter ReferenceNumbers
-        if (options.Filter.ReferenceNumbers.Any()) {
+        if (options.Filter.ReferenceNumbers?.Length > 0) {
             foreach (var refNumber in options.Filter.ReferenceNumbers) {
                 if (!int.TryParse(refNumber.Value, out var value)) {
                     continue;
@@ -288,7 +288,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         }
 
         // filter CustomerId
-        if (options.Filter.CustomerIds.Any()) {
+        if (options.Filter.CustomerIds?.Length > 0) {
             foreach (var customerId in options.Filter.CustomerIds) {
                 query = customerId.Operator switch {
                     FilterOperator.Eq => query.Where(c => c.CustomerId!.Equals(customerId.Value)),
@@ -300,7 +300,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
 
         }
         // filter CustomerName
-        if (options.Filter.CustomerNames.Any()) {
+        if (options.Filter.CustomerNames?.Length > 0) {
             foreach (var customerName in options.Filter.CustomerNames) {
                 query = customerName.Operator switch {
                     FilterOperator.Eq => query.Where(c =>
@@ -352,12 +352,12 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         }
 
         // if we have Filter.CheckpointTypeCodes from the client, we have to map them to the correct checkpoint types for the filter to work
-        if (options.Filter.CheckpointTypeCodes.Any()) {
+        if (options.Filter.CheckpointTypeCodes?.Length > 0) {
             options.Filter.CheckpointTypeIds = await MapCheckpointTypeCodeToId(options.Filter.CheckpointTypeCodes);
         }
 
         // also: filter CheckpointTypeIds
-        if (options.Filter.CheckpointTypeIds.Any()) {
+        if (options.Filter.CheckpointTypeIds?.Length > 0) {
             // Create a different expression based on the filter operator
             var expressionsEq = options.Filter.CheckpointTypeIds
                 .Where(x => x.Operator == FilterOperator.Eq)
@@ -386,7 +386,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         }
 
         // filter by group ID, if it is present
-        if (options.Filter.GroupIds.Any()) {
+        if (options.Filter.GroupIds?.Length > 0) {
             foreach (var groupId in options.Filter.GroupIds) {
                 query = groupId.Operator switch {
                     FilterOperator.Eq => query.Where(c => c.GroupId!.Equals(groupId.Value)),
@@ -397,7 +397,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             }
         }
 
-        if (options.Filter.Data.Any()) {
+        if (options.Filter.Data?.Length > 0) {
             // Execute the query with all the previous filters and 
             // select the case Ids
             var caseIds = (await query.ToListAsync()).Select(x => x.Id);

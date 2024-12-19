@@ -18,23 +18,23 @@ internal static class AdminCasesHandler
 {
     public static async Task<Ok<Guid>> CreateDraftAdminCase(
         CreateDraftCaseRequest request,
-        ClaimsPrincipal User,
+        ClaimsPrincipal currentUser,
         IAdminCaseService adminCaseService) =>
-        TypedResults.Ok(await adminCaseService.CreateDraft(User, request.CaseTypeCode, request.GroupId, request.Customer, request.Metadata));
+        TypedResults.Ok(await adminCaseService.CreateDraft(currentUser, request.CaseTypeCode, request.GroupId, request.Customer, request.Metadata));
 
     public static async Task<Ok<ResultSet<CaseAttachment>>> GetCaseAttachments(Guid caseId, IAdminCaseService adminCaseService) =>
         TypedResults.Ok(await adminCaseService.GetAttachments(caseId));
 
     public static async Task<Results<Ok<CasesAttachmentLink>, ValidationProblem>> UploadAdminCaseAttachment(
         Guid caseId,
-        ClaimsPrincipal user,
+        ClaimsPrincipal currentUser,
         IFormFile file,
         IAdminCaseMessageService adminCaseMessageService,
-        IOptions<CasesOptions> options) {
+        IOptions<CasesOptions> options) { 
         if (file.Length is 0) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(file), "File is empty."));
         }
-        var attachmentId = await adminCaseMessageService.Send(caseId, user, new Message {
+        var attachmentId = await adminCaseMessageService.Send(caseId, currentUser, new Message {
             FileName = file.FileName,
             FileStreamAccessor = () => file.OpenReadStream()
         });
@@ -51,41 +51,41 @@ internal static class AdminCasesHandler
         return TypedResults.File(attachment.Data!, attachment.ContentType, attachment.FileName);
     }
 
-    public static async Task<Results<FileContentHttpResult, NotFound>> GetAttachmentByField(Guid caseId, string fieldName, ClaimsPrincipal user, IAdminCaseService adminCaseService) {
-        var attachment = await adminCaseService.GetAttachmentByField(user, caseId, fieldName);
+    public static async Task<Results<FileContentHttpResult, NotFound>> GetAttachmentByField(Guid caseId, string fieldName, ClaimsPrincipal currentUser, IAdminCaseService adminCaseService) {
+        var attachment = await adminCaseService.GetAttachmentByField(currentUser, caseId, fieldName);
         if (attachment is null) {
             return TypedResults.NotFound();
         }
         return TypedResults.File(attachment.Data!, attachment.ContentType, attachment.FileName);
     }
 
-    public static async Task<Results<NoContent, NotFound>> UpdateAdminCase(Guid caseId, UpdateCaseRequest request, IAdminCaseService adminCaseService, ClaimsPrincipal user) {
-        if (await adminCaseService.GetCaseById(user, caseId) is not { }) {
+    public static async Task<Results<NoContent, NotFound>> UpdateAdminCase(Guid caseId, UpdateCaseRequest request, IAdminCaseService adminCaseService, ClaimsPrincipal currentUser) {
+        if (await adminCaseService.GetCaseById(currentUser, caseId) is not { }) {
             return TypedResults.NotFound();
         }
-        await adminCaseService.UpdateData(user, caseId, request.Data);
+        await adminCaseService.UpdateData(currentUser, caseId, request.Data);
         return TypedResults.NoContent();
     }
 
-    public static async Task<Results<NoContent, NotFound>> SubmitAdminCase(Guid caseId, dynamic data, IAdminCaseService adminCaseService, ClaimsPrincipal user) {
-        if (await adminCaseService.GetCaseById(user, caseId) is not { }) {
+    public static async Task<Results<NoContent, NotFound>> SubmitAdminCase(Guid caseId, dynamic data, IAdminCaseService adminCaseService, ClaimsPrincipal currentUser) {
+        if (await adminCaseService.GetCaseById(currentUser, caseId) is not { }) {
             return TypedResults.NotFound();
         }
-        await adminCaseService.UpdateData(user, caseId, data);
-        await adminCaseService.Submit(user, caseId);
+        await adminCaseService.UpdateData(currentUser, caseId, data);
+        await adminCaseService.Submit(currentUser, caseId);
         return TypedResults.NoContent();
     }
 
-    public static async Task<Results<NoContent, NotFound>> PatchCaseMetadata(Guid caseId, Dictionary<string, string> metadata, IAdminCaseService adminCaseService, ClaimsPrincipal user) {
-        var result = await adminCaseService.PatchCaseMetadata(caseId, user, metadata);
+    public static async Task<Results<NoContent, NotFound>> PatchCaseMetadata(Guid caseId, Dictionary<string, string> metadata, IAdminCaseService adminCaseService, ClaimsPrincipal currentUser) {
+        var result = await adminCaseService.PatchCaseMetadata(caseId, currentUser, metadata);
         if (!result) {
             return TypedResults.NotFound();
         }
         return TypedResults.NoContent();
     }
 
-    public static async Task<NoContent> AdminAddComment(Guid caseId, SendCommentRequest request, IAdminCaseMessageService adminCaseMessageService, ClaimsPrincipal user) {
-        _ = await adminCaseMessageService.Send(caseId, user, new Message {
+    public static async Task<NoContent> AdminAddComment(Guid caseId, SendCommentRequest request, IAdminCaseMessageService adminCaseMessageService, ClaimsPrincipal currentUser) {
+        _ = await adminCaseMessageService.Send(caseId, currentUser, new Message {
             Comment = request.Comment,
             PrivateComment = request.PrivateComment,
             ReplyToCommentId = request.ReplyToCommentId
@@ -93,47 +93,47 @@ internal static class AdminCasesHandler
         return TypedResults.NoContent();
     }
 
-    public static async Task<Ok<ResultSet<CasePartial>>> GetCases([AsParameters] ListOptions options, [AsParameters] GetCasesListFilter filter, IAdminCaseService adminCaseService, ClaimsPrincipal user) =>
-        TypedResults.Ok(await adminCaseService.GetCases(user, ListOptions.Create(options, filter)));
+    public static async Task<Ok<ResultSet<CasePartial>>> GetCases([AsParameters] ListOptions options, [AsParameters] GetCasesListFilter filter, IAdminCaseService adminCaseService, ClaimsPrincipal currentUser) =>
+        TypedResults.Ok(await adminCaseService.GetCases(currentUser, ListOptions.Create(options, filter)));
 
-    public static async Task<Results<Ok<Case>, NotFound>> GetCaseById(Guid caseId, IAdminCaseService adminCareService, ClaimsPrincipal user) {
-        var @case = await adminCareService.GetCaseById(user, caseId, false);
+    public static async Task<Results<Ok<Case>, NotFound>> GetCaseById(Guid caseId, IAdminCaseService adminCareService, ClaimsPrincipal currentUser) {
+        var @case = await adminCareService.GetCaseById(currentUser, caseId, false);
         return @case is not null ? TypedResults.Ok(@case) : TypedResults.NotFound();
     }
 
-    public static async Task<Results<NoContent, NotFound>> DeleteDraftCase(Guid caseId, IAdminCaseService adminCaseService, ClaimsPrincipal user) {
-        if (await adminCaseService.GetCaseById(user, caseId) is not { }) {
+    public static async Task<Results<NoContent, NotFound>> DeleteDraftCase(Guid caseId, IAdminCaseService adminCaseService, ClaimsPrincipal currentUser) {
+        if (await adminCaseService.GetCaseById(currentUser, caseId) is not { }) {
             return TypedResults.NotFound();
         }
-        await adminCaseService.DeleteDraft(user, caseId);
+        await adminCaseService.DeleteDraft(currentUser, caseId);
         return TypedResults.NoContent();
     }
 
-    public static async Task<Ok<List<TimelineEntry>>> GetCaseTimeline(Guid caseId, IAdminCaseService adminCaseService, ClaimsPrincipal user) {
-        var timeline = await adminCaseService.GetTimeline(user, caseId);
+    public static async Task<Ok<List<TimelineEntry>>> GetCaseTimeline(Guid caseId, IAdminCaseService adminCaseService, ClaimsPrincipal currentUser) {
+        var timeline = await adminCaseService.GetTimeline(currentUser, caseId);
         return TypedResults.Ok(timeline);
     }
 
-    public static async Task<Ok<List<CasePartial>>> GetRelatedCases(Guid caseId, IAdminCaseService adminCaseService, ClaimsPrincipal user) {
-        var cases = await adminCaseService.GetRelatedCases(user, caseId);
+    public static async Task<Ok<List<CasePartial>>> GetRelatedCases(Guid caseId, IAdminCaseService adminCaseService, ClaimsPrincipal currentUser) {
+        var cases = await adminCaseService.GetRelatedCases(currentUser, caseId);
         return TypedResults.Ok(cases);
     }
 
-    public static async Task<Results<Ok<CaseActions>, NotFound>> GetCaseActions(Guid caseId, ICaseActionsService caseBookmarkService, ClaimsPrincipal user) {
-        var actions = await caseBookmarkService.GetUserActions(user, caseId);
+    public static async Task<Results<Ok<CaseActions>, NotFound>> GetCaseActions(Guid caseId, ICaseActionsService caseBookmarkService, ClaimsPrincipal currentUser) {
+        var actions = await caseBookmarkService.GetUserActions(currentUser, caseId);
         return actions is null ? TypedResults.NotFound() : TypedResults.Ok(actions);
     }
 
-    public static async Task<Ok<List<RejectReason>>> GetCaseRejectReasons(Guid caseId, ICaseApprovalService caseApprovalService, ClaimsPrincipal user) =>
-        TypedResults.Ok(await caseApprovalService.GetRejectReasons(user, caseId));
+    public static async Task<Ok<List<RejectReason>>> GetCaseRejectReasons(Guid caseId, ICaseApprovalService caseApprovalService, ClaimsPrincipal currentUser) =>
+        TypedResults.Ok(await caseApprovalService.GetRejectReasons(currentUser, caseId));
 
     public static async Task<Results<FileContentHttpResult, NotFound>> DownloadCasePdf(Guid caseId,
-        ClaimsPrincipal user,
+        ClaimsPrincipal currentUser,
         IAdminCaseService adminCaseService,
         IPlatformEventService platformEventService,
         ICaseTemplateService caseTemplateService,
         ICasePdfService casePdfService) {
-        var @case = await adminCaseService.GetCaseById(user, caseId, true);
+        var @case = await adminCaseService.GetCaseById(currentUser, caseId, true);
         if (@case is null) {
             return TypedResults.NotFound();
         }

@@ -26,12 +26,6 @@ internal class MyCaseMessageService : BaseCaseMessageService, IMyCaseMessageServ
         return await SendInternal(@case, message, user);
     }
 
-    /// <inheritdoc />
-    public async Task Send(Guid caseId, ClaimsPrincipal user, Exception exception, string? message = null) {
-        var @case = await GetMyCase(caseId, user);
-        await SendInternal(@case, user, exception, message);
-    }
-
     private async Task<DbCase> GetMyCase(Guid caseId, ClaimsPrincipal user) {
         if (caseId == Guid.Empty) {
             throw new ArgumentException(nameof(caseId));
