@@ -36,7 +36,7 @@ internal class NoOpContactProvider : IContactProvider
         Tin = claimsPrincipal.FindFirstValue(BasicClaimTypes.Tin),
     };
 
-    private Contact JohnDoe => new() {
+    private static Contact JohnDoe => new() {
                 FirstName = "John",
                 LastName = "Doe",
                 UserId = "6a4bbee1-53c9-404c-b09f-db134688df6f",
