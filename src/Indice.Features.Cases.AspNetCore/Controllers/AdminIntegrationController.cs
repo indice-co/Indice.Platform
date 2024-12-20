@@ -1,6 +1,8 @@
-﻿using Indice.Features.Cases.Core.Models;
+﻿using System.Text.Json.Nodes;
+using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services.Abstractions;
+using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -27,20 +29,21 @@ public class AdminIntegrationController : ControllerBase
 
     /// <summary>Fetch customers.</summary>
     /// <param name="criteria">The customers criteria.</param>
+    /// <param name="options"></param>
     /// <returns></returns>
-    [HttpGet("customers")]
+    [HttpGet("contacts")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Contact>))]
-    public async Task<IActionResult> GetCustomers([FromQuery] ContactFilter criteria) {
-        return Ok(await _customerIntegrationService.SearchAsync(criteria));
+    public async Task<IActionResult> GetCustomers([FromQuery] ContactFilter criteria, [FromQuery] ListOptions options) {
+        return Ok(await _customerIntegrationService.GetListAsync(User, ListOptions.Create(options, criteria)));
     }
 
     /// <summary>Fetch customer data for a specific case type code.</summary>
     /// <param name="customerId">The Id of the customer to the integrator's system.</param>
     /// <param name="caseTypeCode">The case type code.</param>
     /// <returns></returns>
-    [HttpGet("customers/{customerId}/data/{caseTypeCode}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ContactData))]
+    [HttpGet("contacts/{reference}/data/{caseTypeCode}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(JsonNode))]
     public async Task<IActionResult> GetCustomerData([FromRoute] string customerId, [FromRoute] string caseTypeCode) {
-        return Ok(await _customerIntegrationService.GetByReferenceAsync(customerId, caseTypeCode));
+        return Ok(await _customerIntegrationService.GetByReferenceAsync(User, customerId, caseTypeCode));
     }
 }
