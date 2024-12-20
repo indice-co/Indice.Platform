@@ -3498,14 +3498,13 @@ export class CasesApiService implements ICasesApiService {
      * @return OK
      */
     getContactData(reference: string, caseTypeCode: string): Observable<Contact> {
-        let url_ = this.baseUrl + "/api/manage/integrations/contacts/{referemce}/data/{caseTypeCode}?";
+        let url_ = this.baseUrl + "/api/manage/integrations/contacts/{reference}/data/{caseTypeCode}";
+        if (reference === undefined || reference === null)
+            throw new Error("The parameter 'reference' must be defined.");
+        url_ = url_.replace("{reference}", encodeURIComponent("" + reference));
         if (caseTypeCode === undefined || caseTypeCode === null)
             throw new Error("The parameter 'caseTypeCode' must be defined.");
         url_ = url_.replace("{caseTypeCode}", encodeURIComponent("" + caseTypeCode));
-        if (reference === undefined || reference === null)
-            throw new Error("The parameter 'reference' must be defined and cannot be null.");
-        else
-            url_ += "reference=" + encodeURIComponent("" + reference) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
