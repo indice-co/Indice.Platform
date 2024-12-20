@@ -1,5 +1,5 @@
-
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ICaseTypeRequest } from 'src/app/core/services/cases-api.service';
 
 @Component({
   selector: 'app-case-type-form',
@@ -10,8 +10,17 @@ export class CaseTypeFormComponent implements OnInit {
 
   constructor() { }
 
-  // Input & Output parameters
-  @Input() public data: any = {};
+  private _data: ICaseTypeRequest = {};
+  
+  @Input() set data(value: ICaseTypeRequest) {
+    this._data = { 
+      ...value 
+    };
+  }
+  get data() {
+    return this._data;
+  }
+  
   @Output() public dataChange: EventEmitter<any> = new EventEmitter();
 
   runOnSubmit(): void {
@@ -22,6 +31,6 @@ export class CaseTypeFormComponent implements OnInit {
     return typeof e === 'string' ? JSON.parse(e) : e;
   }
 
-  ngOnInit(): void { }
+  ngOnInit(): void {}
 
 }
