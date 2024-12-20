@@ -34,23 +34,29 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
     this.jsf.initializeControl(this);
     // Initialize displayValue if necessary
     if (this.formControl.value) {
-      this.displayValue = parseFloat(this.formControl.value).toLocaleString('el');
+      this.displayValue = parseFloat(this.formControl.value).toString()
     }
     // Subscribe to formControl value changes in order to inform UI
     this.formControl.valueChanges.pipe(
       takeUntil(this.destroy$),
       map((value: string) =>
-        parseFloat(value.replace(/[.]/g, '').replace(/[,]/g, '.')).toLocaleString('el')
+        parseFloat(value)
       ),
       tap((value: string) => {
         this.displayValue = value;
       })
     ).subscribe();
   }
-
   ngOnDestroy() {
     // Emit undefined to ensure type safety
     this.destroy$.next(undefined);
     this.destroy$.complete();
+  }
+
+  updateValue(event: any) {
+    // Force replace masked value input into global decimal format (eg 5.125.000,03 --> 5125000.03)
+    const controlValue = parseFloat(event.target.value.replace(/[.]/g, '').replace(/[,]/g, '.'));
+    this.displayValue = event.target.value;
+    this.jsf.updateValue(this, controlValue);
   }
 }
