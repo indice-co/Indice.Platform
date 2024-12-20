@@ -19,6 +19,7 @@
               [name]="'mask' + controlName"
               [readonly]="options?.readonly ? 'readonly' : null"
               type="text"
+              (input)="updateValue($event)"
               mask="separator.2"
               [(ngModel)]="displayValue"
               [allowNegativeNumbers]="true"
