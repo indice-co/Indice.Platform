@@ -1,4 +1,6 @@
-﻿namespace Indice.Features.Cases.Core.Models.Responses;
+﻿using System.Text.Json.Nodes;
+
+namespace Indice.Features.Cases.Core.Models.Responses;
 
 /// <summary>
 /// The customer response object that contains information from the integration system. Properties that have no direct mapping to this model
@@ -15,6 +17,9 @@ public class Contact
     /// <summary>email address</summary>
     public string? Email { get; set; }
 
+    /// <summary>phone number</summary>
+    public string? PhoneNumber { get; set; }
+
     /// <summary>The first name of the customer.</summary>
     public string? FirstName { get; set; }
 
@@ -28,5 +33,10 @@ public class Contact
     public string? Tin { get; set; }
 
     /// <summary>Any extra metadata with consumer/integrator business logic.</summary>
+    /// <remarks>Used to initialize a new case instance <strong>MetaData</strong> when this contact is selected as the owner/customer</remarks>
     public Dictionary<string, string> Metadata { get; set; } = [];
+
+    /// <summary>Theis is a dynamic object that is polulated accordingly in order to populate case forms from the owner contact.</summary>
+    /// <remarks>used to initialize a new case instance <strong>Data</strong> when this contact is selected as the owner/customer</remarks>
+    public object? FormData { get; set; }
 }

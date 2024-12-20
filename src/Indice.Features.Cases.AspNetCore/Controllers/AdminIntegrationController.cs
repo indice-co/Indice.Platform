@@ -42,7 +42,7 @@ public class AdminIntegrationController : ControllerBase
     /// <param name="caseTypeCode">The case type code.</param>
     /// <returns></returns>
     [HttpGet("contacts/{reference}/data/{caseTypeCode}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(JsonNode))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Contact))]
     public async Task<IActionResult> GetCustomerData([FromRoute] string customerId, [FromRoute] string caseTypeCode) {
         return Ok(await _customerIntegrationService.GetByReferenceAsync(User, customerId, caseTypeCode));
     }

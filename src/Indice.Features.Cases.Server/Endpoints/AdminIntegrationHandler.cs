@@ -15,7 +15,7 @@ internal static class AdminIntegrationHandler
         return TypedResults.Ok(contacts);
     }
 
-    public static async Task<Results<Ok<JsonNode>, NotFound>> GetContactData(ClaimsPrincipal currentUser, IContactProvider customerIntegrationService, string reference, string caseTypeCode) {
+    public static async Task<Results<Ok<Contact>, NotFound>> GetContactData(ClaimsPrincipal currentUser, IContactProvider customerIntegrationService, string reference, string caseTypeCode) {
         var contactData = await customerIntegrationService.GetByReferenceAsync(currentUser, reference, caseTypeCode);
         if (contactData == null) {
             return TypedResults.NotFound();

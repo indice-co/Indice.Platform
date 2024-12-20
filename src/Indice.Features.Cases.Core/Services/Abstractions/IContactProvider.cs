@@ -19,5 +19,5 @@ public interface IContactProvider
     /// <param name="reference">The correlation Id to the external system. Can be the customer id or user id etc..</param>
     /// <param name="caseTypeCode">The case type code.</param>
     /// <returns>The contact data in json form or null if not found</returns>
-    Task<JsonNode?> GetByReferenceAsync(ClaimsPrincipal user, string reference, string caseTypeCode);
+    Task<Contact?> GetByReferenceAsync(ClaimsPrincipal user, string reference, string caseTypeCode);
 }

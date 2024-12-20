@@ -27,6 +27,11 @@ public class CasesOptions
     public bool ReferenceNumberEnabled { get; set; } = true;
     /// <summary>The claim type groupid name</summary>
     public string GroupIdClaimType { get; set; } = CasesCoreConstants.DefaultGroupIdClaimType;
+    /// <summary>The claim type name for the Tax Identification number</summary>
+    /// <remarks>Defaults to <strong>tin</strong></remarks>
+    public string TinClaimType { get; set; } = BasicClaimTypes.Tin;
+    /// <summary>The claim type contact correlation key. Usualy this is the claim for the customer code</summary>
+    public string ReferenceIdClaimType { get; set; } = CasesCoreConstants.DefaultReferenceIdClaimType;
 
     /// <summary>The claim type used to identify the user. Defaults to <i>sub</i>.</summary>
     public string UserClaimType { get; set; } = BasicClaimTypes.Subject;

@@ -244,7 +244,7 @@ export interface ICasesApiService {
      * Fetch contact data by contact.reference number for a specific case type code.
      * @return OK
      */
-    getContactData(reference: string, caseTypeCode: string): Observable<any>;
+    getContactData(reference: string, caseTypeCode: string): Observable<Contact>;
     /**
      * Get a lookup result by lookupName and options.
      * @param page (optional) 
@@ -3497,7 +3497,7 @@ export class CasesApiService implements ICasesApiService {
      * Fetch contact data by contact.reference number for a specific case type code.
      * @return OK
      */
-    getContactData(reference: string, caseTypeCode: string): Observable<any> {
+    getContactData(reference: string, caseTypeCode: string): Observable<Contact> {
         let url_ = this.baseUrl + "/api/manage/integrations/contacts/{referemce}/data/{caseTypeCode}?";
         if (caseTypeCode === undefined || caseTypeCode === null)
             throw new Error("The parameter 'caseTypeCode' must be defined.");
@@ -3523,14 +3523,14 @@ export class CasesApiService implements ICasesApiService {
                 try {
                     return this.processGetContactData(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<any>;
+                    return _observableThrow(e) as any as Observable<Contact>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<any>;
+                return _observableThrow(response_) as any as Observable<Contact>;
         }));
     }
 
-    protected processGetContactData(response: HttpResponseBase): Observable<any> {
+    protected processGetContactData(response: HttpResponseBase): Observable<Contact> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -3562,8 +3562,7 @@ export class CasesApiService implements ICasesApiService {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result200 = resultData200 !== undefined ? resultData200 : <any>null;
-    
+            result200 = Contact.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 404) {
@@ -5921,11 +5920,13 @@ export class Contact implements IContact {
     userId?: string | undefined;
     reference?: string | undefined;
     email?: string | undefined;
+    phoneNumber?: string | undefined;
     firstName?: string | undefined;
     lastName?: string | undefined;
     groupId?: string | undefined;
     tin?: string | undefined;
     metadata?: { [key: string]: string; } | undefined;
+    formData?: any | undefined;
 
     constructor(data?: IContact) {
         if (data) {
@@ -5941,6 +5942,7 @@ export class Contact implements IContact {
             this.userId = _data["userId"];
             this.reference = _data["reference"];
             this.email = _data["email"];
+            this.phoneNumber = _data["phoneNumber"];
             this.firstName = _data["firstName"];
             this.lastName = _data["lastName"];
             this.groupId = _data["groupId"];
@@ -5952,6 +5954,7 @@ export class Contact implements IContact {
                         (<any>this.metadata)![key] = _data["metadata"][key];
                 }
             }
+            this.formData = _data["formData"];
         }
     }
 
@@ -5967,6 +5970,7 @@ export class Contact implements IContact {
         data["userId"] = this.userId;
         data["reference"] = this.reference;
         data["email"] = this.email;
+        data["phoneNumber"] = this.phoneNumber;
         data["firstName"] = this.firstName;
         data["lastName"] = this.lastName;
         data["groupId"] = this.groupId;
@@ -5978,6 +5982,7 @@ export class Contact implements IContact {
                     (<any>data["metadata"])[key] = (<any>this.metadata)[key];
             }
         }
+        data["formData"] = this.formData;
         return data;
     }
 }
@@ -5986,11 +5991,13 @@ export interface IContact {
     userId?: string | undefined;
     reference?: string | undefined;
     email?: string | undefined;
+    phoneNumber?: string | undefined;
     firstName?: string | undefined;
     lastName?: string | undefined;
     groupId?: string | undefined;
     tin?: string | undefined;
     metadata?: { [key: string]: string; } | undefined;
+    formData?: any | undefined;
 }
 
 export class ContactMeta implements IContactMeta {

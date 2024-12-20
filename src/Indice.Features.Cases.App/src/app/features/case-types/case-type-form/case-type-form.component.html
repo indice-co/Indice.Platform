@@ -1,7 +1,7 @@
 <div class="form-container">
   <div>
     <label class="legend px-2 font-bold">Τύπος Υπόθεσης</label>
-    <form #caseTypeForm="ngForm" novalidate autocomplete="on" (ngSubmit)="runOnSubmit()">
+    <form #caseTypeForm novalidate autocomplete="on" (ngSubmit)="runOnSubmit()">
       <section class="form-flex-row flex flex-wrap">
         <div class="form-flex-item flex-auto">
           <div class="form-group my-2 px-2 schema-form-text">
@@ -15,8 +15,7 @@
                    [(ngModel)]="data.code"
                    placeholder="O  κωδικός..."
                    maxlength="128"
-                   required
-                   #caseTypeForm="ngModel">
+                   required>
           </div>
         </div>
         <div class="form-flex-item flex-auto">
@@ -31,8 +30,7 @@
                    [(ngModel)]="data.title"
                    placeholder="Ο τίτλος της υπόθεσης..."
                    maxlength="128"
-                   required
-                   #caseTypeForm="ngModel">
+                   required>
           </div>
         </div>
       </section>
