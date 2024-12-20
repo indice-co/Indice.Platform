@@ -38,7 +38,7 @@ internal static class AdminIntegrationApi
              .WithName(nameof(AdminIntegrationHandler.GetContacts))
              .WithSummary("Search contacts.");
 
-        group.MapGet("contacts/{referemce}/data/{caseTypeCode}", AdminIntegrationHandler.GetContactData)
+        group.MapGet("contacts/{reference}/data/{caseTypeCode}", AdminIntegrationHandler.GetContactData)
              .WithName(nameof(AdminIntegrationHandler.GetContactData))
              .WithSummary("Fetch contact data by contact.reference number for a specific case type code.");
 
