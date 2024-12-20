@@ -32,7 +32,7 @@ public class AdminIntegrationController : ControllerBase
     /// <param name="options"></param>
     /// <returns></returns>
     [HttpGet("contacts")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Contact>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<Contact>))]
     public async Task<IActionResult> GetCustomers([FromQuery] ContactFilter criteria, [FromQuery] ListOptions options) {
         return Ok(await _customerIntegrationService.GetListAsync(User, ListOptions.Create(options, criteria)));
     }
