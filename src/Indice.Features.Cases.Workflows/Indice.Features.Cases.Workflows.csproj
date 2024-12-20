@@ -1,7 +1,41 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    
+    <Description>Indice Case Management Workflow</Description>
+    <Authors>Constantinos Leftheris, Thanos Panousis, Dimitris Karkanas</Authors>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Elsa" Version="2.13.0" />
+    <PackageReference Include="Elsa.Activities.Email" Version="2.13.0" />
+    <PackageReference Include="Elsa.Activities.Http" Version="2.13.0" />
+    <PackageReference Include="Elsa.Activities.Temporal.Quartz" Version="2.13.0" />
+    <PackageReference Include="Elsa.Activities.UserTask" Version="2.13.0" />
+    <PackageReference Include="Elsa.Designer.Components.Web" Version="2.13.0" />
+    <PackageReference Include="Elsa.Persistence.EntityFramework.SqlServer" Version="2.13.0" />
+    <PackageReference Include="Elsa.Retention" Version="2.13.0" />
+    <PackageReference Include="Elsa.Server.Api" Version="2.13.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
+    <PackageReference Include="Indice.Common" Version="$(VersionPrefixCore)-*" />
+    <PackageReference Include="Indice.Features.Cases.Core" Version="$(VersionPrefixCases)-*" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Indice.Common\Indice.Common.csproj" />
+    <ProjectReference Include="..\Indice.Features.Cases.Core\Indice.Features.Cases.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="CasesResources.Designer.cs">
+      <DependentUpon>CasesResources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="CasesResources.resx">
+      <LastGenOutput>CasesResources.Designer.cs</LastGenOutput>
+      <Generator>ResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>
