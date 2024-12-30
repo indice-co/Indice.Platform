@@ -1,21 +1,25 @@
-﻿using Elsa.Activities.Http.Services;
+﻿using Elsa;
+using Elsa.Activities.Http.Services;
+using Elsa.Activities.UserTask.Extensions;
 using Elsa.Persistence.EntityFramework.Core.Extensions;
-using Elsa.Retention.Contracts;
 using Elsa.Retention.Extensions;
-using Elsa.Retention.Specifications;
 using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Workflows.Bookmarks.AwaitApproval;
+using Indice.Features.Cases.Workflows.Data;
 using Indice.Features.Cases.Workflows.Interfaces;
 using Indice.Features.Cases.Workflows.Services;
+using Indice.Security;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.EntityFrameworkCore;
-using System.Configuration;
-using Elsa;
 using NodaTime;
-using Elsa.Activities.UserTask.Extensions;
 
 namespace Indice.Features.Cases.Workflows;
 
@@ -110,12 +114,72 @@ public static class CasesWorkflowFeatureExtensions
 
         // Register Custom Services
         // Workflow integration
-        services.AddScoped<IAwaitApprovalInvoker, AwaitApprovalInvoker>();
-        services.AddScoped<IAwaitEditInvoker, AwaitEditInvoker>();
-        services.AddScoped<IAwaitAssignmentInvoker, AwaitAssignmentInvoker>();
-        services.AddScoped<IAwaitActionInvoker, AwaitActionInvoker>();
-        services.AddScoped<ICasesWorkflowManager, CasesWorkflowManagerElsa>();
+        services.TryAddScoped<IAwaitApprovalInvoker, AwaitApprovalInvoker>();
+        services.TryAddScoped<IAwaitEditInvoker, AwaitEditInvoker>();
+        services.TryAddScoped<IAwaitAssignmentInvoker, AwaitAssignmentInvoker>();
+        services.TryAddScoped<IAwaitActionInvoker, AwaitActionInvoker>();
+        services.TryAddScoped<ICasesWorkflowManager, CasesWorkflowManagerElsa>();
+        //
+        // TODO: Should remove dependecies to core services.
+        // Here there are missing service registrations related to
+        // accessing the CasesDbContext directly via the cases core services
+        // We should refactor the code to use a HttpClient instead of direct db access
+        // We can track down these dependencies by inspecting code inside of custom activities.
 
+        // db initializer
+        services.AddHostedService<CasesWorkflowDbInitializerHostedService>();
         return services;
+    }
+
+    /// <summary>Add workflow services to middleware.</summary>
+    /// <param name="app"></param>
+    public static void UseWorkflow(this IApplicationBuilder app) {
+        app.UseHttpActivities();
+    }
+
+    internal const string WorkflowPolicy = "WorkflowPolicy";
+    /// <summary>
+    /// Adds a default security policy for Elsa Controllers and Razor Pages.
+    /// </summary>
+    /// <param name="services">The service collection</param>
+    /// <param name="configurePolicy">Override the default policy</param>
+    /// <returns>The service collection for further configuration</returns>
+    /// <remarks>Should be used in conjunction with the <strong>AddAuthentication().AddOpenIdConnect()</strong>
+    /// because it makes use of the <strong>OpenIdConnect</strong> scheme in order to authorize a visiting user</remarks>
+    public static IServiceCollection AddWorkflowAuthoriationPolicy(this IServiceCollection services, Action<AuthorizationPolicyBuilder>? configurePolicy = null) {
+        configurePolicy ??= policy => policy
+                .AddAuthenticationSchemes("Bearer", "OpenIdConnect")
+                .RequireAuthenticatedUser()
+                .RequireAssertion(x => x.User.IsAdmin() || x.User.IsSystemClient());
+
+        services.AddAuthorization(authOptions => {
+            authOptions.AddPolicy(WorkflowPolicy, configurePolicy);
+        });
+
+        services.PostConfigure<MvcOptions>(options => {
+            options.Conventions.Add(new AddWorkflowAuthorizeFiltersConvention());
+        });
+
+        services.PostConfigure<RazorPagesOptions>(options => {
+            options.Conventions.Add(new AddWorkflowAuthorizeFiltersConvention());
+        });
+        return services;
+    }
+
+    internal class AddWorkflowAuthorizeFiltersConvention : IControllerModelConvention, IPageApplicationModelConvention
+    {
+        public void Apply(ControllerModel controller) {
+            // This is for ELSA API
+            if (controller.DisplayName.Contains("elsa", StringComparison.OrdinalIgnoreCase)) {
+                controller.Filters.Add(new AuthorizeFilter(WorkflowPolicy));
+            }
+        }
+
+        public void Apply(PageApplicationModel model) {
+            // This is for ELSA razor pages
+            if (model.HandlerType.Namespace!.Contains("elsa", StringComparison.OrdinalIgnoreCase)) {
+                model.Filters.Add(new AuthorizeFilter(WorkflowPolicy)); // razor pages are only elsa
+            }
+        }
     }
 }
