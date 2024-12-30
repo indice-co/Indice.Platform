@@ -37,7 +37,7 @@ internal class CasesWorkflowDbInitializerHostedService : BackgroundService
         if (!_environment.IsDevelopment()) {
             return;
         }
-        await Task.Delay(TimeSpan.FromSeconds(2));
+        //await Task.Delay(TimeSpan.FromSeconds(2));
         try {
             using var scope = _serviceScopeFactory.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<ElsaContext>();

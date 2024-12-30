@@ -1,9 +1,11 @@
 ﻿using Elsa;
 using Elsa.Activities.Http.Services;
 using Elsa.Activities.UserTask.Extensions;
+using Elsa.Persistence.EntityFramework.Core;
 using Elsa.Persistence.EntityFramework.Core.Extensions;
 using Elsa.Retention.Extensions;
 using Indice.Features.Cases.Core;
+using Indice.Features.Cases.Workflows;
 using Indice.Features.Cases.Workflows.Bookmarks.AwaitApproval;
 using Indice.Features.Cases.Workflows.Data;
 using Indice.Features.Cases.Workflows.Interfaces;
@@ -17,11 +19,10 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NodaTime;
 
-namespace Indice.Features.Cases.Workflows;
+namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
 /// Extension methods for configureing the CasesWorkflow Feature.
@@ -58,9 +59,11 @@ public static class CasesWorkflowFeatureExtensions
     internal static IServiceCollection AddWorkflowInternal(
         this IServiceCollection services,
         CasesWorkflowOptions casesWorkflowOptions) {
-
+        // db initializer
         var configureDatabase = casesWorkflowOptions.ConfigureDbContext ?? new Action<IServiceProvider, DbContextOptionsBuilder>((sp, ef) => ef.UseSqlServer(sp.GetRequiredService<IConfiguration>().GetConnectionString("WorkflowDb")));
-
+        services.AddHostedService<CasesWorkflowDbInitializerHostedService>();
+        services.AddDbContext<ElsaContext>(configureDatabase);
+        
         services.AddElsa(elsa => {
             elsa.UseEntityFrameworkPersistence(configureDatabase, autoRunMigrations: false)
             .AddQuartzTemporalActivities()
@@ -118,7 +121,7 @@ public static class CasesWorkflowFeatureExtensions
         services.TryAddScoped<IAwaitEditInvoker, AwaitEditInvoker>();
         services.TryAddScoped<IAwaitAssignmentInvoker, AwaitAssignmentInvoker>();
         services.TryAddScoped<IAwaitActionInvoker, AwaitActionInvoker>();
-        services.TryAddScoped<ICasesWorkflowManager, CasesWorkflowManagerElsa>();
+        services.AddScoped<ICasesWorkflowManager, CasesWorkflowManagerElsa>();
         //
         // TODO: Should remove dependecies to core services.
         // Here there are missing service registrations related to
@@ -126,14 +129,12 @@ public static class CasesWorkflowFeatureExtensions
         // We should refactor the code to use a HttpClient instead of direct db access
         // We can track down these dependencies by inspecting code inside of custom activities.
 
-        // db initializer
-        services.AddHostedService<CasesWorkflowDbInitializerHostedService>();
         return services;
     }
 
-    /// <summary>Add workflow services to middleware.</summary>
+    /// <summary>Add workflow middleware and activities to http pipeline.</summary>
     /// <param name="app"></param>
-    public static void UseWorkflow(this IApplicationBuilder app) {
+    public static void UseCasesWorkflow(this IApplicationBuilder app) {
         app.UseHttpActivities();
     }
 

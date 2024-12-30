@@ -17,9 +17,8 @@ using Elsa.Models;
 using Elsa.Persistence.Specifications;
 using Indice.Features.Cases.Workflows.Bookmarks.AwaitAction;
 using Indice.Features.Cases.Workflows.Specifications;
-using Indice.Features.Cases.Workflows;
 
-namespace Indice.Features.Cases;
+namespace Indice.Features.Cases.Workflows;
 
 /// <inheritdoc/>
 /// <inheritdoc/>
