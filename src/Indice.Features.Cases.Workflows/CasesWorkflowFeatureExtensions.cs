@@ -101,7 +101,7 @@ public static class CasesWorkflowFeatureExtensions
         }
 
         // Elsa API endpoints. - Fixes Swagger UI when commented - commented while using minimal APIs
-        services.AddElsaApiEndpoints();
+        //services.AddElsaApiEndpoints(); //this breaks the swagger UI
 
         // For Dashboard.
         services.AddRazorPages();

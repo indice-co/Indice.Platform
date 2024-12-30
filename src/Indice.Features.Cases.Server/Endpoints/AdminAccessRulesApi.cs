@@ -11,7 +11,7 @@ using Microsoft.Extensions.Options;
 namespace Microsoft.AspNetCore.Routing;
 
 /// <summary>Cases Access rules from the administrative perspective.</summary>
-public static class AdminAccessRulesApi
+internal static class AdminAccessRulesApi
 {
 
     /// <summary>

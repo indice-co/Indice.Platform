@@ -10,7 +10,7 @@ using Microsoft.Extensions.Options;
 namespace Microsoft.AspNetCore.Routing;
 
 /// <summary>Case Data administrative actions.</summary>
-public static class AdminCaseDataApi
+internal static class AdminCaseDataApi
 {
     /// <summary>Case Data administrative actions.</summary>
     public static IEndpointRouteBuilder MapAdminCaseData(this IEndpointRouteBuilder routes) {
