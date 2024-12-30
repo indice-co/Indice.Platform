@@ -106,12 +106,6 @@ public static class CasesWorkflowFeatureExtensions
 
         // Elsa API endpoints. - Fixes Swagger UI when commented - commented while using minimal APIs
         services.AddElsaApiEndpointsInternal(); //this breaks the swagger UI
-        //services.PostConfigure<MvcOptions>(options => {
-        //    options.Conventions.Add(new RemoveWorkflowFromApiExplorerConvention());
-        //});
-
-        // For Dashboard.
-        //services.AddRazorPages();
 
         // Register Indices' bookmarks
         services.AddBookmarkProvidersFrom(typeof(AwaitApprovalBookmark).Assembly);
@@ -219,12 +213,12 @@ public static class CasesWorkflowFeatureExtensions
         //    o.SubstituteApiVersionInUrl = true;
         //});
 
-        //services.AddApiVersioning(
-        //    options => {
-        //        options.ReportApiVersions = true;
-        //        options.DefaultApiVersion = ApiVersion.Default;
-        //        options.AssumeDefaultVersionWhenUnspecified = true;
-        //    });
+        services.AddApiVersioning(
+            options => {
+                options.ReportApiVersions = true;
+                options.DefaultApiVersion = ApiVersion.Default;
+                options.AssumeDefaultVersionWhenUnspecified = true;
+            });
 
         services
             .AddSingleton<ConnectionConverter>()

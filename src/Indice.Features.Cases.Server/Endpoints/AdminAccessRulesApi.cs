@@ -65,7 +65,7 @@ internal static class AdminAccessRulesApi
             .WithSummary("Update a batch of Access rules for a case.")
             .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Admin));
 
-        group.MapPut("access-rules/{ruleId}/{accessLevel:int}", AdminAccessRulesHandler.UpdateAccessRule)
+        group.MapPut("access-rules/{ruleId}/{accessLevel}", AdminAccessRulesHandler.UpdateAccessRule)
             .WithName(nameof(AdminAccessRulesHandler.UpdateAccessRule))
             .WithSummary("Update an existing Access rule.");
 
