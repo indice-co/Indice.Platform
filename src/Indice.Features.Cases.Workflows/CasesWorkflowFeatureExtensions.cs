@@ -33,6 +33,13 @@ public static class CasesWorkflowFeatureExtensions
         configureAction?.Invoke(workflowOptions);
         services.Configure<CasesWorkflowOptions>(options => {
             options.ConfigureDbContext = workflowOptions.ConfigureDbContext;
+            options.ConfigureRetentionServices = workflowOptions.ConfigureRetentionServices;
+            options.ConfigureSmtp = workflowOptions.ConfigureSmtp;
+            options.GetWorkflowAssembly = workflowOptions.GetWorkflowAssembly;
+            options.RetentionServicesEnabled = workflowOptions.RetentionServicesEnabled;
+            options.RetentionSpecificationFilter = workflowOptions.RetentionSpecificationFilter;
+            options.ServerBasePath = workflowOptions.ServerBasePath;
+            options.ServerBaseUrl = workflowOptions.ServerBaseUrl;
         });
 
         //services.TryAddTransient<CasesMessageDescriber>();
