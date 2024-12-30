@@ -4,6 +4,10 @@ using Elsa.Activities.UserTask.Extensions;
 using Elsa.Persistence.EntityFramework.Core;
 using Elsa.Persistence.EntityFramework.Core.Extensions;
 using Elsa.Retention.Extensions;
+using Elsa.Server.Api.Extensions;
+using Elsa.Server.Api.Mapping;
+using Elsa.Server.Api.Services;
+using Elsa.Server.Api;
 using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Workflows;
 using Indice.Features.Cases.Workflows.Bookmarks.AwaitApproval;
@@ -101,10 +105,13 @@ public static class CasesWorkflowFeatureExtensions
         }
 
         // Elsa API endpoints. - Fixes Swagger UI when commented - commented while using minimal APIs
-        //services.AddElsaApiEndpoints(); //this breaks the swagger UI
+        services.AddElsaApiEndpointsInternal(); //this breaks the swagger UI
+        //services.PostConfigure<MvcOptions>(options => {
+        //    options.Conventions.Add(new RemoveWorkflowFromApiExplorerConvention());
+        //});
 
         // For Dashboard.
-        services.AddRazorPages();
+        //services.AddRazorPages();
 
         // Register Indices' bookmarks
         services.AddBookmarkProvidersFrom(typeof(AwaitApprovalBookmark).Assembly);
@@ -147,7 +154,7 @@ public static class CasesWorkflowFeatureExtensions
     /// <returns>The service collection for further configuration</returns>
     /// <remarks>Should be used in conjunction with the <strong>AddAuthentication().AddOpenIdConnect()</strong>
     /// because it makes use of the <strong>OpenIdConnect</strong> scheme in order to authorize a visiting user</remarks>
-    public static IServiceCollection AddWorkflowAuthoriationPolicy(this IServiceCollection services, Action<AuthorizationPolicyBuilder>? configurePolicy = null) {
+    public static IServiceCollection AddCasesWorkflowAuthoriationPolicy(this IServiceCollection services, Action<AuthorizationPolicyBuilder>? configurePolicy = null) {
         configurePolicy ??= policy => policy
                 .AddAuthenticationSchemes("Bearer", "OpenIdConnect")
                 .RequireAuthenticatedUser()
@@ -158,6 +165,7 @@ public static class CasesWorkflowFeatureExtensions
         });
 
         services.PostConfigure<MvcOptions>(options => {
+            options.Conventions.Add(new GroupWorkflowActionsConvention());
             options.Conventions.Add(new AddWorkflowAuthorizeFiltersConvention());
         });
 
@@ -165,6 +173,18 @@ public static class CasesWorkflowFeatureExtensions
             options.Conventions.Add(new AddWorkflowAuthorizeFiltersConvention());
         });
         return services;
+    }
+
+
+    internal class GroupWorkflowActionsConvention : IControllerModelConvention
+    {
+        public void Apply(ControllerModel controller) {
+            // This is for ELSA API
+            if (controller.DisplayName.Contains("elsa", StringComparison.OrdinalIgnoreCase)) {
+                controller.ApiExplorer.IsVisible = false;
+                controller.ApiExplorer.GroupName = "workflow";
+            }
+        }
     }
 
     internal class AddWorkflowAuthorizeFiltersConvention : IControllerModelConvention, IPageApplicationModelConvention
@@ -182,5 +202,48 @@ public static class CasesWorkflowFeatureExtensions
                 model.Filters.Add(new AuthorizeFilter(WorkflowPolicy)); // razor pages are only elsa
             }
         }
+    }
+
+
+    internal static IServiceCollection AddElsaApiEndpointsInternal(this IServiceCollection services, Action<ElsaApiOptions>? configureApiOptions = default) {
+        var apiOptions = new ElsaApiOptions();
+        configureApiOptions?.Invoke(apiOptions);
+
+        var setupNewtonsoftJson = apiOptions.SetupNewtonsoftJson ?? (_ => { });
+
+        //Don't set Newtonsoft globally
+        services.AddControllers(options => {
+            //Use this conventions to set ElsaNewtonsoftJsonConvention to all controllers in Elsa.Server.Api
+            options.Conventions.Add(new ElsaNewtonsoftJsonConvention());
+            options.Conventions.Add(new GroupWorkflowActionsConvention());
+        });
+        services.AddRouting(options => { options.LowercaseUrls = true; });
+
+        //services.AddVersionedApiExplorer(o => {
+        //    o.GroupNameFormat = "'v'VVV";
+        //    o.SubstituteApiVersionInUrl = true;
+        //});
+
+        //services.AddApiVersioning(
+        //    options => {
+        //        options.ReportApiVersions = true;
+        //        options.DefaultApiVersion = ApiVersion.Default;
+        //        options.AssumeDefaultVersionWhenUnspecified = true;
+        //    });
+
+        services
+            .AddSingleton<ConnectionConverter>()
+            .AddSingleton<ActivityBlueprintConverter>()
+            .AddScoped<IWorkflowBlueprintMapper, WorkflowBlueprintMapper>()
+            .AddSingleton<IEndpointContentSerializerSettingsProvider, EndpointContentSerializerSettingsProvider>()
+            .AddAutoMapperProfile<AutoMapperProfile>()
+            .AddSignalR();
+        services.AddMvc(options =>
+        {
+            //Use this conventions to set ElsaNewtonsoftJsonConvention to all controllers in Elsa.Server.Api
+            options.Conventions.Add(new ElsaNewtonsoftJsonConvention());
+            options.Conventions.Add(new GroupWorkflowActionsConvention());
+        });
+        return services;
     }
 }
