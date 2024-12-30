@@ -205,12 +205,7 @@ public static class CasesWorkflowFeatureExtensions
     }
 
 
-    internal static IServiceCollection AddElsaApiEndpointsInternal(this IServiceCollection services, Action<ElsaApiOptions>? configureApiOptions = default) {
-        var apiOptions = new ElsaApiOptions();
-        configureApiOptions?.Invoke(apiOptions);
-
-        var setupNewtonsoftJson = apiOptions.SetupNewtonsoftJson ?? (_ => { });
-
+    internal static IServiceCollection AddElsaApiEndpointsInternal(this IServiceCollection services) {
         //Don't set Newtonsoft globally
         services.AddControllers(options => {
             //Use this conventions to set ElsaNewtonsoftJsonConvention to all controllers in Elsa.Server.Api
