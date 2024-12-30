@@ -62,7 +62,7 @@ public static class CasesWorkflowFeatureExtensions
         // db initializer
         var configureDatabase = casesWorkflowOptions.ConfigureDbContext ?? new Action<IServiceProvider, DbContextOptionsBuilder>((sp, ef) => ef.UseSqlServer(sp.GetRequiredService<IConfiguration>().GetConnectionString("WorkflowDb")));
         services.AddHostedService<CasesWorkflowDbInitializerHostedService>();
-        services.AddDbContext<ElsaContext>(configureDatabase);
+        services.AddDbContextFactory<ElsaContext>(configureDatabase);
         
         services.AddElsa(elsa => {
             elsa.UseEntityFrameworkPersistence(configureDatabase, autoRunMigrations: false)
