@@ -67,22 +67,22 @@ public static class CasesWorkflowFeatureExtensions
         var configureDatabase = casesWorkflowOptions.ConfigureDbContext ?? new Action<IServiceProvider, DbContextOptionsBuilder>((sp, ef) => ef.UseSqlServer(sp.GetRequiredService<IConfiguration>().GetConnectionString("WorkflowDb")));
         services.AddHostedService<CasesWorkflowDbInitializerHostedService>();
         services.AddDbContextFactory<ElsaContext>(configureDatabase);
-        
+
         services.AddElsa(elsa => {
             elsa.UseEntityFrameworkPersistence(configureDatabase, autoRunMigrations: false)
             .AddQuartzTemporalActivities()
             .AddHttpActivities(http => {
                 http.HttpEndpointAuthorizationHandlerFactory = ActivatorUtilities.GetServiceOrCreateInstance<AuthenticationBasedHttpEndpointAuthorizationHandler>;
-                    if (casesWorkflowOptions.ServerBaseUrl is { } baseUrl) {
-                        http.BaseUrl = new Uri(baseUrl);
-                    }
-                    if (casesWorkflowOptions.ServerBasePath is { } basePath) {
-                        http.BasePath = basePath;
-                    }
-                })
-                .AddEmailActivities(casesWorkflowOptions.ConfigureSmtp)
-                .AddUserTaskActivities()
-                .AddActivitiesFrom(typeof(CasesWorkflowOptions).Assembly);
+                if (casesWorkflowOptions.ServerBaseUrl is { } baseUrl) {
+                    http.BaseUrl = new Uri(baseUrl);
+                }
+                if (casesWorkflowOptions.ServerBasePath is { } basePath) {
+                    http.BasePath = basePath;
+                }
+            })
+            .AddEmailActivities(casesWorkflowOptions.ConfigureSmtp)
+            .AddUserTaskActivities()
+            .AddActivitiesFrom(typeof(CasesWorkflowOptions).Assembly);
 
             // Register consumer assembly
             var workflowAssembly = casesWorkflowOptions.GetWorkflowAssembly?.Invoke();
