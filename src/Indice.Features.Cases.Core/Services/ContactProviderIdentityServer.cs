@@ -111,7 +111,7 @@ internal class ContactProviderIdentityServer : IContactProvider
             GroupId = Claims.Find(x => x.Type == casesOptions.GroupIdClaimType)?.Value,
             Tin = Claims.Find(x => x.Type == casesOptions.TinClaimType)?.Value,
             Metadata = Claims.ToLookup(x => x.Type)
-                             .ToDictionary(x => x.Key, x => string.Join(',', x))
+                             .ToDictionary(x => x.Key, x => string.Join(',', x.Select(y => y.Value)))
         };
     }
 
@@ -129,7 +129,7 @@ internal class ContactProviderIdentityServer : IContactProvider
             GroupId = Claims.Find(x => x.Type == casesOptions.GroupIdClaimType)?.Value,
             Tin = Claims.Find(x => x.Type == casesOptions.TinClaimType)?.Value,
             Metadata = Claims.ToLookup(x => x.Type)
-                             .ToDictionary(x => x.Key, x => string.Join(',', x))
+                             .ToDictionary(x => x.Key, x => string.Join(',', x.Select(y => y.Value)))
         };
     }
 

@@ -28,7 +28,8 @@ export class CaseCreatePageComponent implements OnInit {
         reference: this.contact?.reference,
         firstName: this.contact?.firstName,
         lastName: this.contact?.lastName,
-        userId: this.contact?.userId
+        userId: this.contact?.userId,
+        tin: this.contact?.tin
       }),
       groupId: this.contact?.groupId,
       metadata: this.contact?.metadata

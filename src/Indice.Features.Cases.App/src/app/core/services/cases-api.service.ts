@@ -4517,6 +4517,7 @@ export class Case implements ICase {
     referenceNumber?: number | undefined;
     ownerId?: string | undefined;
     ownerName?: string | undefined;
+    ownerTin?: string | undefined;
     userId?: string | undefined;
     createdByWhen?: Date | undefined;
     createdById?: string | undefined;
@@ -4549,6 +4550,7 @@ export class Case implements ICase {
             this.referenceNumber = _data["referenceNumber"];
             this.ownerId = _data["ownerId"];
             this.ownerName = _data["ownerName"];
+            this.ownerTin = _data["ownerTin"];
             this.userId = _data["userId"];
             this.createdByWhen = _data["createdByWhen"] ? new Date(_data["createdByWhen"].toString()) : <any>undefined;
             this.createdById = _data["createdById"];
@@ -4595,6 +4597,7 @@ export class Case implements ICase {
         data["referenceNumber"] = this.referenceNumber;
         data["ownerId"] = this.ownerId;
         data["ownerName"] = this.ownerName;
+        data["ownerTin"] = this.ownerTin;
         data["userId"] = this.userId;
         data["createdByWhen"] = this.createdByWhen ? this.createdByWhen.toISOString() : <any>undefined;
         data["createdById"] = this.createdById;
@@ -4634,6 +4637,7 @@ export interface ICase {
     referenceNumber?: number | undefined;
     ownerId?: string | undefined;
     ownerName?: string | undefined;
+    ownerTin?: string | undefined;
     userId?: string | undefined;
     createdByWhen?: Date | undefined;
     createdById?: string | undefined;
@@ -4823,6 +4827,7 @@ export class CasePartial implements ICasePartial {
     referenceNumber?: number | undefined;
     ownerId?: string | undefined;
     ownerName?: string | undefined;
+    ownerTin?: string | undefined;
     userId?: string | undefined;
     createdByWhen?: Date | undefined;
     createdById?: string | undefined;
@@ -4853,6 +4858,7 @@ export class CasePartial implements ICasePartial {
             this.referenceNumber = _data["referenceNumber"];
             this.ownerId = _data["ownerId"];
             this.ownerName = _data["ownerName"];
+            this.ownerTin = _data["ownerTin"];
             this.userId = _data["userId"];
             this.createdByWhen = _data["createdByWhen"] ? new Date(_data["createdByWhen"].toString()) : <any>undefined;
             this.createdById = _data["createdById"];
@@ -4889,6 +4895,7 @@ export class CasePartial implements ICasePartial {
         data["referenceNumber"] = this.referenceNumber;
         data["ownerId"] = this.ownerId;
         data["ownerName"] = this.ownerName;
+        data["ownerTin"] = this.ownerTin;
         data["userId"] = this.userId;
         data["createdByWhen"] = this.createdByWhen ? this.createdByWhen.toISOString() : <any>undefined;
         data["createdById"] = this.createdById;
@@ -4918,6 +4925,7 @@ export interface ICasePartial {
     referenceNumber?: number | undefined;
     ownerId?: string | undefined;
     ownerName?: string | undefined;
+    ownerTin?: string | undefined;
     userId?: string | undefined;
     createdByWhen?: Date | undefined;
     createdById?: string | undefined;
@@ -6004,6 +6012,7 @@ export class ContactMeta implements IContactMeta {
     reference?: string | undefined;
     firstName?: string | undefined;
     lastName?: string | undefined;
+    tin?: string | undefined;
     readonly fullName?: string | undefined;
 
     constructor(data?: IContactMeta) {
@@ -6021,6 +6030,7 @@ export class ContactMeta implements IContactMeta {
             this.reference = _data["reference"];
             this.firstName = _data["firstName"];
             this.lastName = _data["lastName"];
+            this.tin = _data["tin"];
             (<any>this).fullName = _data["fullName"];
         }
     }
@@ -6038,6 +6048,7 @@ export class ContactMeta implements IContactMeta {
         data["reference"] = this.reference;
         data["firstName"] = this.firstName;
         data["lastName"] = this.lastName;
+        data["tin"] = this.tin;
         data["fullName"] = this.fullName;
         return data;
     }
@@ -6048,6 +6059,7 @@ export interface IContactMeta {
     reference?: string | undefined;
     firstName?: string | undefined;
     lastName?: string | undefined;
+    tin?: string | undefined;
     fullName?: string | undefined;
 }
 

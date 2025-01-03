@@ -72,7 +72,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
             { title: 'ReferenceNumber' },
             { title: 'CustomerId', itemProperty: 'ownerId' },
             { title: 'CustomerName', itemProperty: 'ownerName' },
-            { title: 'TaxId', itemProperty: 'metadata.TaxId' },
+            { title: 'TaxId', itemProperty: 'ownerTin' },
             { title: 'GroupId' },
             { title: 'CaseType', itemProperty: 'caseType.title' },
             { title: 'CheckpointType', itemProperty: 'checkpointType.title' },

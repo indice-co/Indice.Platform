@@ -38,6 +38,10 @@ internal class DbCaseConfiguration : IEntityTypeConfiguration<DbCase>
                         .HasColumnName($"{prefix}{nameof(DbCase.Owner.LastName)}")
                         .HasMaxLength(TextSizePresets.M128);
                     actionBuilder
+                        .Property(p => p.Tin)
+                        .HasColumnName($"{prefix}{nameof(DbCase.Owner.Tin)}")
+                        .HasMaxLength(TextSizePresets.S32);
+                    actionBuilder
                         .Ignore(p => p.FullName);
                 });
         builder

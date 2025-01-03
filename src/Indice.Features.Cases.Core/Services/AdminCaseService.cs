@@ -136,6 +136,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                     ReferenceNumber = @case.ReferenceNumber,
                     OwnerId = @case.Owner.Reference,
                     OwnerName = @case.Owner.FirstName + " " + @case.Owner.LastName, // concat like this to enable searching with "contains"
+                    OwnerTin = @case.Owner.Tin,
                     CreatedById = @case.CreatedBy.Id,
                     CreatedByName = @case.CreatedBy.Name,
                     CreatedByEmail = @case.CreatedBy.Email,
@@ -233,6 +234,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                          ReferenceNumber = @case.ReferenceNumber,
                          OwnerId = @case.Owner.Reference,
                          OwnerName = @case.Owner.FirstName + " " + @case.Owner.LastName, // concat like this to enable searching with "contains"
+                         OwnerTin = @case.Owner.Tin,
                          CreatedById = @case.CreatedBy.Id,
                          CreatedByName = @case.CreatedBy.Name,
                          CreatedByEmail = @case.CreatedBy.Email,

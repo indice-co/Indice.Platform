@@ -18,8 +18,11 @@ public class CasePartial
     /// <remarks>Correlation reference.</remarks>
     public string? OwnerId { get; set; }
 
-    /// <summary>The full name of the customer.</summary>
+    /// <summary>The full name of the owner/customer.</summary>
     public string? OwnerName { get; set; }
+
+    /// <summary>The Tax identification number of the owner/customer.</summary>
+    public string? OwnerTin { get; set; }
 
     /// <summary>The Id of the user as provided from our Identity server.</summary>
     public string? UserId { get; set; }
