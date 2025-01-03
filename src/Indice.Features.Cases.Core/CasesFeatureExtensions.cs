@@ -171,7 +171,8 @@ public static class CasesFeatureExtensions
         options.Services.AddDistributedMemoryCache();
         options.Services.AddHttpClient<IContactProvider, ContactProviderIdentityServer>((sp, httpClient) => {
             var providerOptions = sp.GetRequiredService<IOptions<ContactProviderIdentityOptions>>().Value;
-            httpClient.BaseAddress = providerOptions.BaseAddress;
+            var configuration = sp.GetRequiredService<IConfiguration>();
+            httpClient.BaseAddress = providerOptions.BaseAddress ?? new Uri(configuration.GetAuthority(tryInternal: true)!);
         });
     }
 }

@@ -1,4 +1,5 @@
-﻿using Indice.Features.Cases.Server;
+﻿using Indice.Features.Cases.Core.Models.Requests;
+using Indice.Features.Cases.Server;
 using Indice.Features.Cases.Server.Authorization;
 using Indice.Features.Cases.Server.Endpoints;
 using Indice.Security;
@@ -42,28 +43,17 @@ internal static class AdminAccessRulesApi
             .WithName(nameof(AdminAccessRulesHandler.GetAccessRules))
             .WithSummary("Get Access rules.");
 
-        group.MapGet("cases/{caseId}/access-rules", AdminAccessRulesHandler.GetAccessRulesForCase)
-            .WithName(nameof(AdminAccessRulesHandler.GetAccessRulesForCase))
-            .WithSummary("Get Access rules for the specified case.");
-
-        group.MapPost("access-rules/admin", AdminAccessRulesHandler.CreateAccessRuleAdmin)
-            .WithName(nameof(AdminAccessRulesHandler.CreateAccessRuleAdmin))
+        group.MapPost("access-rules", AdminAccessRulesHandler.CreateAccessRule)
+            .WithName(nameof(AdminAccessRulesHandler.CreateAccessRule))
             .WithSummary("Add a new Access rule for admin Users.")
-            .RequireAuthorization(pb => pb.RequireCasesAccess(CasesAccessLevel.Admin));
+            .RequireAuthorization(pb => pb.RequireCasesAccess(CasesAccessLevel.Admin))
+            .WithParameterValidation<AddAccessRuleRequest>();
 
-        group.MapPost("access-rules/admin/batch", AdminAccessRulesHandler.CreateBatchAccessRulesAdmin)
-            .WithName(nameof(AdminAccessRulesHandler.CreateBatchAccessRulesAdmin))
+        group.MapPost("access-rules/batch", AdminAccessRulesHandler.CreateAccessRulesBatch)
+            .WithName(nameof(AdminAccessRulesHandler.CreateAccessRulesBatch))
             .WithSummary("Add a new Access rule for admin Users.")
-            .RequireAuthorization(pb => pb.RequireCasesAccess(CasesAccessLevel.Admin));
-
-        group.MapPost("access-rules/case/{caseId}", AdminAccessRulesHandler.CreateAccessRules)
-            .WithName(nameof(AdminAccessRulesHandler.CreateAccessRules))
-            .WithSummary("Add a new Access rule for a case.");
-
-        group.MapPut("access-rules/case/{caseId}/batch", AdminAccessRulesHandler.UpdateBatchAccessRules)
-            .WithName(nameof(AdminAccessRulesHandler.UpdateBatchAccessRules))
-            .WithSummary("Update a batch of Access rules for a case.")
-            .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Admin));
+            .RequireAuthorization(pb => pb.RequireCasesAccess(CasesAccessLevel.Admin))
+            .WithParameterValidation<List<AddAccessRuleRequest>>();
 
         group.MapPut("access-rules/{ruleId}/{accessLevel}", AdminAccessRulesHandler.UpdateAccessRule)
             .WithName(nameof(AdminAccessRulesHandler.UpdateAccessRule))
@@ -72,6 +62,21 @@ internal static class AdminAccessRulesApi
         group.MapDelete("access-rules/{ruleId}", AdminAccessRulesHandler.DeleteAccessRule)
             .WithName(nameof(AdminAccessRulesHandler.DeleteAccessRule))
             .WithSummary("Delete an existing Access rule.");
+
+        group.MapGet("cases/{caseId}/access-rules", AdminAccessRulesHandler.GetCaseAccessRules)
+            .WithName(nameof(AdminAccessRulesHandler.GetCaseAccessRules))
+            .WithSummary("Get Access rules for the specified case.");
+
+        group.MapPost("cases/{caseId}/access-rules", AdminAccessRulesHandler.CreateCaseAccessRules)
+            .WithName(nameof(AdminAccessRulesHandler.CreateCaseAccessRules))
+            .WithSummary("Add a new Access rule for a case.")
+            .WithParameterValidation<AddCaseAccessRuleRequest>();
+
+        group.MapPut("cases/{caseId}/access-rules/batch", AdminAccessRulesHandler.UpdateCaseAccessRulesBatch)
+            .WithName(nameof(AdminAccessRulesHandler.UpdateCaseAccessRulesBatch))
+            .WithSummary("Update a batch of Access rules for a case.")
+            .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Admin))
+            .WithParameterValidation<List<AddCaseAccessRuleRequest>>();
 
         return routes;
     }
