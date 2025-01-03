@@ -62,5 +62,9 @@ internal class DbCaseTypeConfiguration : IEntityTypeConfiguration<DbCaseType>
             .Property(p => p.GridColumnConfig)
             .HasJsonConversion()
             .IsRequired(false);
+        builder
+           .Property(p => p.IsMenuItem)
+           .HasDefaultValue(false);
+        
     }
 }
