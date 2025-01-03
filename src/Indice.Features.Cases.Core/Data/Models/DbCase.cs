@@ -11,7 +11,7 @@ public class DbCase
     /// <summary>case belongs to this customer, regardless of whether he created it or not</summary>
     public ContactMeta Owner { get; set; } = new ();
     public string? GroupId { get; set; }
-    public Dictionary<string, string> Metadata { get; set; } = [];
+    public Dictionary<string, string>? Metadata { get; set; }
     public Guid? PublicCheckpointId { get; set; }
     public Guid? CheckpointId { get; set; }
     public Guid? PublicDataId { get; set; }
