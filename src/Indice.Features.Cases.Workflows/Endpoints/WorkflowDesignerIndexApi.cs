@@ -1,5 +1,9 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Indice.Features.Cases.Workflows;
+using Indice.Security;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.Routing;
 
@@ -14,7 +18,11 @@ public static class WorkflowDesignerIndexApi
     /// <param name="routes">The <see cref="IEndpointRouteBuilder"/>.</param>
     /// <param name="pathPrefix">The path to host the designer index page. Defaults to <strong>/workflow</strong></param>
     public static IEndpointRouteBuilder MapCasesWorkflowDesignerPage(this IEndpointRouteBuilder routes, PathString? pathPrefix = null) {
-        routes.MapGet(pathPrefix ?? "/workflow", CreateWorkflowDesignerPage());
+        var options = routes.ServiceProvider.GetRequiredService<IOptions<CasesWorkflowOptions>>().Value;
+        var uiendpoint = routes.MapGet(pathPrefix ?? "/workflow", CreateWorkflowDesignerPage());
+        if (options.RegisterAuthentication) {
+            uiendpoint.RequireAuthorization(CasesWorkflowFeatureExtensions.WorkflowPolicy);
+        }
 
         // These three catch the main routs of elsa and forward them to the host page which loads the dashboard app.
         routes.MapFallback("workflow-definitions/{**path}", CreateWorkflowDesignerPage());
