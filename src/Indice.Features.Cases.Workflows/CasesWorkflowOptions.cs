@@ -55,4 +55,14 @@ public class CasesWorkflowOptions
     public string? ServerBasePath { get; set; }
     /// <summary>Elsa server base Uri</summary>
     public string? ServerBaseUrl { get; set; }
+
+    /// <summary>Register static file middleware. Used for Disigner ui assets comming from staticweb assets dll to work</summary>
+    /// <remarks>Set to false if already registered in host assembly so that <strong>UseStaticFiles</strong> is not called twice.</remarks>
+    public bool RegisterStaticFiles { get; set; } = true;
+    /// <summary>Maps controllers in the application builder. </summary>
+    /// <remarks>Set to false if already working with controllers so <strong>MapControllers</strong> is not called twice.</remarks>
+    public bool RegisterControllers { get; set; } = true;
+    /// <summary>Adds <strong>OpenIdConnect</strong> authentication for the UI and api controllers</summary>
+    /// <remarks>Set to false to allow anonymous access.</remarks>
+    public bool RegisterAuthentication { get; set; } = true;
 }

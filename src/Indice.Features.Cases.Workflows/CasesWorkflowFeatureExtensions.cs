@@ -25,6 +25,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NodaTime;
+using Microsoft.AspNetCore.Routing;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -49,6 +50,9 @@ public static class CasesWorkflowFeatureExtensions
             options.RetentionSpecificationFilter = workflowOptions.RetentionSpecificationFilter;
             options.ServerBasePath = workflowOptions.ServerBasePath;
             options.ServerBaseUrl = workflowOptions.ServerBaseUrl;
+            options.RegisterControllers = workflowOptions.RegisterControllers;
+            options.RegisterStaticFiles = workflowOptions.RegisterStaticFiles;
+            options.RegisterAuthentication = workflowOptions.RegisterAuthentication;
         });
 
         //services.TryAddTransient<CasesMessageDescriber>();
@@ -129,14 +133,26 @@ public static class CasesWorkflowFeatureExtensions
         // accessing the CasesDbContext directly via the cases core services
         // We should refactor the code to use a HttpClient instead of direct db access
         // We can track down these dependencies by inspecting code inside of custom activities.
-
+        if (casesWorkflowOptions.RegisterAuthentication) { 
+            services.AddCasesWorkflowAuthoriationPolicy();
+        }
         return services;
     }
 
     /// <summary>Add workflow middleware and activities to http pipeline.</summary>
     /// <param name="app"></param>
-    public static void UseCasesWorkflow(this IApplicationBuilder app) {
+    public static IApplicationBuilder UseCasesWorkflow(this IApplicationBuilder app) {
+        var options = app.ApplicationServices.GetRequiredService<CasesWorkflowOptions>();
         app.UseHttpActivities();
+        if (options.RegisterStaticFiles) { 
+            app.UseStaticFiles(); // this enables razor class lib assets from workflow designer
+        }
+        var routes = (IEndpointRouteBuilder)app;
+        if (options.RegisterControllers) {
+            routes.MapControllers(); // this enables controllers from Elsa.Server.Api
+        }
+        routes.MapCasesWorkflowDesignerPage();
+        return app;
     }
 
     internal const string WorkflowPolicy = "WorkflowPolicy";
