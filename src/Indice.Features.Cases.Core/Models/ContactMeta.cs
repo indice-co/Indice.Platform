@@ -16,6 +16,8 @@ public class ContactMeta
     public string? FirstName { get; set; }
     /// <summary>The last name</summary>
     public string? LastName { get; set; }
+    /// <summary>The Tax identification number</summary>
+    public string? Tin { get; set; }
     /// <summary>full name</summary>
     public string? FullName => $"{FirstName} {LastName}"; // this is an unmapped EFCore property, do not use for querying
 }

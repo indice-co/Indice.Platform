@@ -82,6 +82,7 @@ internal abstract class BaseCaseService
                 },
                 OwnerId = c.Owner.Reference,
                 OwnerName = c.Owner.FullName,
+                OwnerTin = c.Owner.Tin,
                 UserId = c.Owner.UserId,
                 GroupId = c.GroupId,
                 Metadata = c.Metadata,
