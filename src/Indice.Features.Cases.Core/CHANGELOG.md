@@ -8,6 +8,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Added
 - Add commentsEnabled option to caseTypeConfig, setting this to false allows for the comment input field to be hidden when an approver approves/rejects a case
+- Rename columns in Case table from Customer to Owner and Addition of OwnerTin
+```sql
+EXEC sp_rename '[case].[Case].[CustomerUserId]', 'OwnerUserId', 'COLUMN';
+EXEC sp_rename '[case].[Case].[CustomerCustomerId]', 'OwnerReference', 'COLUMN';
+EXEC sp_rename '[case].[Case].[CustomerFirstName]', 'OwnerFirstName', 'COLUMN';
+EXEC sp_rename '[case].[Case].[CustomerLastName]', 'OwnerLastName', 'COLUMN';
+
+ALTER TABLE [case].[Case]
+ADD  OwnerTin NVARCHAR(32) NULL
+```
+- Initialise Column OwnerTin with TaxId from Metadata
+```sql
+--Update OwnerTin where TaxId exists in json
+UPDATE [case].[Case]
+SET [OwnerTin] = JSON_VALUE(Metadata, '$.TaxId')
+WHERE [OwnerTin] IS NULL
+AND JSON_VALUE(Metadata, '$.TaxId') IS NOT NULL
+
+
+--Update OwnerTin where taxId exists in json
+UPDATE [case].[Case]
+SET [OwnerTin] = JSON_VALUE(Metadata, '$.taxId')
+WHERE [OwnerTin] IS NULL
+AND JSON_VALUE(Metadata, '$.taxId') IS NOT NULL
+
+
+--Check records not updated
+SELECT cs.ID,[OwnerUserId]
+	  ,[OwnerTin]
+	  ,Metadata
+FROM [Chania.Cases].[case].[Case] as cs
+WHERE [OwnerTin] IS NULL
+```
 
 ## [7.44.0] - [2024-11-26]
 ### Added
