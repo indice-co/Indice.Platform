@@ -14,7 +14,19 @@ public static class WorkflowDesignerIndexApi
     /// <param name="routes">The <see cref="IEndpointRouteBuilder"/>.</param>
     /// <param name="pathPrefix">The path to host the designer index page. Defaults to <strong>/workflow</strong></param>
     public static IEndpointRouteBuilder MapCasesWorkflowDesignerPage(this IEndpointRouteBuilder routes, PathString? pathPrefix = null) {
-        routes.MapGet(pathPrefix ?? "/workflow", async context => {
+        routes.MapGet(pathPrefix ?? "/workflow", CreateWorkflowDesignerPage());
+
+
+        // These three catch the main routs of elsa and forward them to the host page which loads the dashboard app.
+        //app.MapFallbackToPage("workflow-definitions/{*path}", "/_Host");
+        //app.MapFallbackToPage("workflow-instances/{*path}", "/_Host");
+        //app.MapFallbackToPage("workflow-registry/{*path}", "/_Host");
+        routes.MapFallback(CreateWorkflowDesignerPage());
+        return routes;
+    }
+
+    private static RequestDelegate CreateWorkflowDesignerPage() {
+        return async context => {
             context.Response.ContentType = "text/html";
 
             var serverUrl = $"{context.Request.Scheme}://{context.Request.Host}";
@@ -40,10 +52,6 @@ public static class WorkflowDesignerIndexApi
 </body>
 </html>
 """);
-        }); 
-        
-        return routes;
+        };
     }
-
-
 }
