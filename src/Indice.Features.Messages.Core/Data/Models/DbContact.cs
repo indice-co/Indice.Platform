@@ -24,7 +24,7 @@ public class DbContact
     /// <summary>Contact's locale.</summary>
     public string? Locale { get; set; }
     /// <summary>The preferred delivery channels to receive messages.</summary>
-    public ContactCommunicationChannelKind CommunicationPreferences { get; set; } = ContactCommunicationChannelKind.Any;
+    public ContactChannelKind CommunicationPreferences { get; set; } = ContactChannelKind.Any;
     /// <summary>Indicates if user accepted conset to receive email.</summary>
     public bool ConsentCommercial { get; set; }
     /// <summary>Indicates when contact info were last updated.</summary>

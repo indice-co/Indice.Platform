@@ -68,22 +68,22 @@ public class CampaignCreatedEvent
     /// </summary>
     /// <param name="contactPreferences">User contact preferences</param>
     /// <returns></returns>
-    public MessageChannelKind ResolveAvailableChannels(ContactCommunicationChannelKind contactPreferences) {
-        if (IgnoreUserPreferences || contactPreferences == ContactCommunicationChannelKind.Any)
+    public MessageChannelKind ResolveAvailableChannels(ContactChannelKind contactPreferences) {
+        if (IgnoreUserPreferences || contactPreferences == ContactChannelKind.Any)
             return MessageChannelKind;
 
         MessageChannelKind messageChannelKinds = MessageChannelKind.None;
-        if (contactPreferences.HasFlag(ContactCommunicationChannelKind.PushNotification) &&
+        if (contactPreferences.HasFlag(ContactChannelKind.PushNotification) &&
             MessageChannelKind.HasFlag(MessageChannelKind.PushNotification)) {
             messageChannelKinds |= MessageChannelKind.PushNotification; 
         }
 
-        if (contactPreferences.HasFlag(ContactCommunicationChannelKind.Email) &&
+        if (contactPreferences.HasFlag(ContactChannelKind.Email) &&
             MessageChannelKind.HasFlag(MessageChannelKind.Email)) {
             messageChannelKinds |= MessageChannelKind.Email;
         }
 
-        if (contactPreferences.HasFlag(ContactCommunicationChannelKind.SMS) &&
+        if (contactPreferences.HasFlag(ContactChannelKind.SMS) &&
             MessageChannelKind.HasFlag(MessageChannelKind.SMS)) {
             messageChannelKinds |= MessageChannelKind.SMS;
         }

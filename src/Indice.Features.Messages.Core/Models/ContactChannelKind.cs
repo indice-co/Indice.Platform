@@ -1,8 +1,8 @@
 ﻿namespace Indice.Features.Messages.Core.Models;
 
-/// <summary>The delivery channel of a campaign.</summary>
+/// <summary>The delivery channel preference of a contact.</summary>
 [Flags]
-public enum ContactCommunicationChannelKind : byte
+public enum ContactChannelKind : byte
 {
     /// <summary>Use any channel available.</summary>
     Any = 0,

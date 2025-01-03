@@ -106,13 +106,13 @@ public class ContactResolverIdentity : IContactResolver
         return contact;
     }
 
-    private static ContactCommunicationChannelKind GetCommunicationPreferences(IEnumerable<IdentityUserClaimResponse>? claims) {
+    private static ContactChannelKind GetCommunicationPreferences(IEnumerable<IdentityUserClaimResponse>? claims) {
         if (claims == null)
-            return ContactCommunicationChannelKind.Any;
+            return ContactChannelKind.Any;
         var communicationPreferences = claims.FirstOrDefault(x => x.Type == BasicClaimTypes.CommunicationPreferences);
         if (communicationPreferences == null)
-            return ContactCommunicationChannelKind.Any;
-        return Enum.Parse<ContactCommunicationChannelKind>(communicationPreferences.Value!, ignoreCase: true);
+            return ContactChannelKind.Any;
+        return Enum.Parse<ContactChannelKind>(communicationPreferences.Value!, ignoreCase: true);
     }
 
     private static string? GetLocale(IEnumerable<IdentityUserClaimResponse>? claims) {
