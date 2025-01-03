@@ -52,7 +52,7 @@ public class CasesWorkflowOptions
     public IRetentionSpecificationFilter? RetentionSpecificationFilter { get; set; }
 
     /// <summary>Elsa server base path</summary>
-    public string? ServerBasePath { get; set; }
+    public string? ServerBasePath { get; set; } = "/workflow-actions";
     /// <summary>Elsa server base Uri</summary>
     public string? ServerBaseUrl { get; set; }
 
