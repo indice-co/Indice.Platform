@@ -26,6 +26,14 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using NodaTime;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Options;
+using IdentityModel;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.IdentityModel.Tokens;
+using Quartz.Util;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -35,13 +43,13 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class CasesWorkflowFeatureExtensions
 {
     /// <summary>Add case management workflow configuratiuon.</summary>
-    /// <param name="services">The <see cref="IServiceCollection"/> to configure.</param>
+    /// <param name="builder">The <see cref="IHostApplicationBuilder"/> to configure.</param>
     /// <param name="configureAction">The optional configuration action.</param>
-    public static IServiceCollection AddCasesWorkflow(this IServiceCollection services, Action<CasesWorkflowOptions>? configureAction = null) {
+    public static IHostApplicationBuilder AddCasesWorkflow(this IHostApplicationBuilder builder, Action<CasesWorkflowOptions>? configureAction = null) {
         // Configure options given by the consumer.
-        var workflowOptions = new CasesWorkflowOptions(services);
+        var workflowOptions = new CasesWorkflowOptions(builder.Services);
         configureAction?.Invoke(workflowOptions);
-        services.Configure<CasesWorkflowOptions>(options => {
+        builder.Services.Configure<CasesWorkflowOptions>(options => {
             options.ConfigureDbContext = workflowOptions.ConfigureDbContext;
             options.ConfigureRetentionServices = workflowOptions.ConfigureRetentionServices;
             options.ConfigureSmtp = workflowOptions.ConfigureSmtp;
@@ -56,23 +64,23 @@ public static class CasesWorkflowFeatureExtensions
         });
 
         //services.TryAddTransient<CasesMessageDescriber>();
-        services.AddWorkflowInternal(workflowOptions);
-        return services;
+        builder.AddWorkflowInternal(workflowOptions);
+        return builder;
     }
 
 
     /// <summary>Add workflow services to the case management.</summary>
-    /// <param name="services">The <see cref="IServiceCollection"/>.</param>
+    /// <param name="builder">The <see cref="IHostApplicationBuilder"/>.</param>
     /// <param name="casesWorkflowOptions">The configuration options.</param>
-    internal static IServiceCollection AddWorkflowInternal(
-        this IServiceCollection services,
+    internal static IHostApplicationBuilder AddWorkflowInternal(
+        this IHostApplicationBuilder builder,
         CasesWorkflowOptions casesWorkflowOptions) {
         // db initializer
         var configureDatabase = casesWorkflowOptions.ConfigureDbContext ?? new Action<IServiceProvider, DbContextOptionsBuilder>((sp, ef) => ef.UseSqlServer(sp.GetRequiredService<IConfiguration>().GetConnectionString("WorkflowDb")));
-        services.AddHostedService<CasesWorkflowDbInitializerHostedService>();
-        services.AddDbContextFactory<ElsaContext>(configureDatabase);
+        builder.Services.AddHostedService<CasesWorkflowDbInitializerHostedService>();
+        builder.Services.AddDbContextFactory<ElsaContext>(configureDatabase);
 
-        services.AddElsa(elsa => {
+        builder.Services.AddElsa(elsa => {
             elsa.UseEntityFrameworkPersistence(configureDatabase, autoRunMigrations: false)
             .AddQuartzTemporalActivities()
             .AddHttpActivities(http => {
@@ -97,7 +105,7 @@ public static class CasesWorkflowFeatureExtensions
         });
 
         if (casesWorkflowOptions.RetentionServicesEnabled) {
-            services.AddRetentionServices(options => {
+            builder.Services.AddRetentionServices(options => {
                 options.BatchSize = 100;
                 options.TimeToLive = Duration.FromDays(30);
                 options.SweepInterval = Duration.FromDays(4);
@@ -109,50 +117,38 @@ public static class CasesWorkflowFeatureExtensions
         }
 
         // Elsa API endpoints. - Fixes Swagger UI when commented - commented while using minimal APIs
-        services.AddElsaApiEndpointsInternal(); //this breaks the swagger UI
+        builder.Services.AddElsaApiEndpointsInternal(); //this breaks the swagger UI
 
         // Register Indices' bookmarks
-        services.AddBookmarkProvidersFrom(typeof(AwaitApprovalBookmark).Assembly);
+        builder.Services.AddBookmarkProvidersFrom(typeof(AwaitApprovalBookmark).Assembly);
 
         var workflowAssembly = casesWorkflowOptions.GetWorkflowAssembly?.Invoke();
         // Register bookmarks from consumer assembly
         if (workflowAssembly != null) {
-            services.AddBookmarkProvidersFrom(workflowAssembly);
+            builder.Services.AddBookmarkProvidersFrom(workflowAssembly);
         }
 
         // Register Custom Services
         // Workflow integration
-        services.TryAddScoped<IAwaitApprovalInvoker, AwaitApprovalInvoker>();
-        services.TryAddScoped<IAwaitEditInvoker, AwaitEditInvoker>();
-        services.TryAddScoped<IAwaitAssignmentInvoker, AwaitAssignmentInvoker>();
-        services.TryAddScoped<IAwaitActionInvoker, AwaitActionInvoker>();
-        services.AddScoped<ICasesWorkflowManager, CasesWorkflowManagerElsa>();
+        builder.Services.TryAddScoped<IAwaitApprovalInvoker, AwaitApprovalInvoker>();
+        builder.Services.TryAddScoped<IAwaitEditInvoker, AwaitEditInvoker>();
+        builder.Services.TryAddScoped<IAwaitAssignmentInvoker, AwaitAssignmentInvoker>();
+        builder.Services.TryAddScoped<IAwaitActionInvoker, AwaitActionInvoker>();
+        builder.Services.AddScoped<ICasesWorkflowManager, CasesWorkflowManagerElsa>();
         //
         // TODO: Should remove dependecies to core services.
         // Here there are missing service registrations related to
         // accessing the CasesDbContext directly via the cases core services
         // We should refactor the code to use a HttpClient instead of direct db access
         // We can track down these dependencies by inspecting code inside of custom activities.
-        if (casesWorkflowOptions.RegisterAuthentication) { 
-            services.AddCasesWorkflowAuthoriationPolicy();
-        }
-        return services;
-    }
 
-    /// <summary>Add workflow middleware and activities to http pipeline.</summary>
-    /// <param name="app"></param>
-    public static IApplicationBuilder UseCasesWorkflow(this IApplicationBuilder app) {
-        var options = app.ApplicationServices.GetRequiredService<IOptions<CasesWorkflowOptions>>().Value;
-        app.UseHttpActivities();
-        if (options.RegisterStaticFiles) { 
-            app.UseStaticFiles(); // this enables razor class lib assets from workflow designer
+
+        // Add authentication / authorization
+        if (casesWorkflowOptions.RegisterAuthentication) {
+            builder.Services.AddWorkflowAuthentication(builder.Configuration);
+            builder.Services.AddCasesWorkflowAuthoriationPolicy();
         }
-        var routes = (IEndpointRouteBuilder)app;
-        if (options.RegisterControllers) {
-            routes.MapControllers(); // this enables controllers from Elsa.Server.Api
-        }
-        routes.MapCasesWorkflowDesignerPage();
-        return app;
+        return builder;
     }
 
     internal const string WorkflowPolicy = "WorkflowPolicy";
@@ -183,35 +179,6 @@ public static class CasesWorkflowFeatureExtensions
             options.Conventions.Add(new AddWorkflowAuthorizeFiltersConvention());
         });
         return services;
-    }
-
-
-    internal class GroupWorkflowActionsConvention : IControllerModelConvention
-    {
-        public void Apply(ControllerModel controller) {
-            // This is for ELSA API
-            if (controller.DisplayName.Contains("elsa", StringComparison.OrdinalIgnoreCase)) {
-                controller.ApiExplorer.IsVisible = false;
-                controller.ApiExplorer.GroupName = "workflow";
-            }
-        }
-    }
-
-    internal class AddWorkflowAuthorizeFiltersConvention : IControllerModelConvention, IPageApplicationModelConvention
-    {
-        public void Apply(ControllerModel controller) {
-            // This is for ELSA API
-            if (controller.DisplayName.Contains("elsa", StringComparison.OrdinalIgnoreCase)) {
-                controller.Filters.Add(new AuthorizeFilter(WorkflowPolicy));
-            }
-        }
-
-        public void Apply(PageApplicationModel model) {
-            // This is for ELSA razor pages
-            if (model.HandlerType.Namespace!.Contains("elsa", StringComparison.OrdinalIgnoreCase)) {
-                model.Filters.Add(new AuthorizeFilter(WorkflowPolicy)); // razor pages are only elsa
-            }
-        }
     }
 
 
@@ -250,5 +217,95 @@ public static class CasesWorkflowFeatureExtensions
             options.Conventions.Add(new GroupWorkflowActionsConvention());
         });
         return services;
+    }
+
+    /// <summary>
+    /// Add Authentication via OpenIdConnect for Workflow api and dashboard.
+    /// </summary>
+    /// <param name="services">The service collection</param>
+    /// <param name="configuration">The configuration</param>
+    /// <returns>The service collection for further configuration</returns>
+    internal static IServiceCollection AddWorkflowAuthentication(this IServiceCollection services, IConfiguration configuration) {
+        // Elsa dashboard login
+        services.AddAuthentication()
+        .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options => {
+            options.ForwardChallenge = OpenIdConnectDefaults.AuthenticationScheme;
+            options.AccessDeniedPath = "/forbidden";
+        })
+        // Elsa dashboard login
+        .AddOpenIdConnect(authenticationScheme: OpenIdConnectDefaults.AuthenticationScheme, displayName: "Connect with Indice", options => {
+            var secrets = configuration.GetApiSecrets() ?? [];
+            options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            options.Authority = configuration.GetAuthority();
+            options.ClientId = "cases-ui";
+            options.ResponseType = OpenIdConnectResponseType.Code;
+            options.GetClaimsFromUserInfoEndpoint = true;
+            options.UsePkce = true;
+            options.RequireHttpsMetadata = true;
+            options.MapInboundClaims = false;
+            options.SaveTokens = true;
+            options.AccessDeniedPath = "/forbidden";
+            options.CallbackPath = "/signin-oidc";
+            options.TokenValidationParameters = new TokenValidationParameters {
+                NameClaimType = JwtClaimTypes.Name,
+                RoleClaimType = JwtClaimTypes.Role
+            };
+            options.ClaimActions.MapUniqueJsonKey(JwtClaimTypes.Role, JwtClaimTypes.Role);
+            options.ClaimActions.MapUniqueJsonKey("admin", "admin");
+            var scopes = "email openid profile role".Split(' ');
+            foreach (var scope in scopes) {
+                options.Scope.Add(scope);
+            }
+            options.Events = new OpenIdConnectEvents {
+                OnTicketReceived = context => {
+                    return Task.CompletedTask;
+                }
+            };
+        });
+        return services;
+    }
+
+    /// <summary>Add workflow middleware and activities to http pipeline.</summary>
+    /// <param name="app"></param>
+    public static IApplicationBuilder UseCasesWorkflow(this IApplicationBuilder app) {
+        var options = app.ApplicationServices.GetRequiredService<IOptions<CasesWorkflowOptions>>().Value;
+        app.UseHttpActivities();
+        if (options.RegisterStaticFiles) {
+            app.UseStaticFiles(); // this enables razor class lib assets from workflow designer
+        }
+        var routes = (IEndpointRouteBuilder)app;
+        if (options.RegisterControllers) {
+            routes.MapControllers(); // this enables controllers from Elsa.Server.Api
+        }
+        routes.MapCasesWorkflowDesignerPage();
+        return app;
+    }
+
+    internal class GroupWorkflowActionsConvention : IControllerModelConvention
+    {
+        public void Apply(ControllerModel controller) {
+            // This is for ELSA API
+            if (controller.DisplayName.Contains("elsa", StringComparison.OrdinalIgnoreCase)) {
+                controller.ApiExplorer.IsVisible = false;
+                controller.ApiExplorer.GroupName = "workflow";
+            }
+        }
+    }
+
+    internal class AddWorkflowAuthorizeFiltersConvention : IControllerModelConvention, IPageApplicationModelConvention
+    {
+        public void Apply(ControllerModel controller) {
+            // This is for ELSA API
+            if (controller.DisplayName.Contains("elsa", StringComparison.OrdinalIgnoreCase)) {
+                controller.Filters.Add(new AuthorizeFilter(WorkflowPolicy));
+            }
+        }
+
+        public void Apply(PageApplicationModel model) {
+            // This is for ELSA razor pages
+            if (model.HandlerType.Namespace!.Contains("elsa", StringComparison.OrdinalIgnoreCase)) {
+                model.Filters.Add(new AuthorizeFilter(WorkflowPolicy)); // razor pages are only elsa
+            }
+        }
     }
 }
