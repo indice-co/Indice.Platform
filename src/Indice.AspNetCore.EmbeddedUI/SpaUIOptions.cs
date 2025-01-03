@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Antiforgery;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.AspNetCore.StaticFiles;
 
@@ -40,7 +39,7 @@ public class SpaUIOptions
     public Action<Dictionary<string, string?>>? ConfigureIndexParameters { get; set; }
     /// <summary></summary>
     public Func<HttpContext, IDictionary<string, string>, string>? TenantIdAccessor { get; set; }
-    /// <summary></summary>
+    /// <summary>The prefix path to host the spa ui</summary>
     public string PathPrefix {
         get { return _pathPrefix; }
         set {

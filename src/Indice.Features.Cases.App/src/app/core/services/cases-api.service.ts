@@ -313,7 +313,7 @@ export class CasesApiService implements ICasesApiService {
      * @return OK
      */
     getAccessRules(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, role?: string | undefined, groupId?: string | undefined, checkpoint?: string | undefined, caseType?: string | undefined): Observable<AccessRuleResultSet> {
-        let url_ = this.baseUrl + "/api/manage/access-rules?";
+        let url_ = this.baseUrl + "/manage/access-rules?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
         else if (page !== undefined)
@@ -418,7 +418,7 @@ export class CasesApiService implements ICasesApiService {
      * @return No Content
      */
     deleteAccessRule(ruleId: string): Observable<void> {
-        let url_ = this.baseUrl + "/api/manage/access-rules/{ruleId}";
+        let url_ = this.baseUrl + "/manage/access-rules/{ruleId}";
         if (ruleId === undefined || ruleId === null)
             throw new Error("The parameter 'ruleId' must be defined.");
         url_ = url_.replace("{ruleId}", encodeURIComponent("" + ruleId));
@@ -490,7 +490,7 @@ export class CasesApiService implements ICasesApiService {
      * @return No Content
      */
     updateAccessRule(ruleId: string, accessLevel: number): Observable<void> {
-        let url_ = this.baseUrl + "/api/manage/access-rules/{ruleId}/{accessLevel}";
+        let url_ = this.baseUrl + "/manage/access-rules/{ruleId}/{accessLevel}";
         if (ruleId === undefined || ruleId === null)
             throw new Error("The parameter 'ruleId' must be defined.");
         url_ = url_.replace("{ruleId}", encodeURIComponent("" + ruleId));
@@ -565,7 +565,7 @@ export class CasesApiService implements ICasesApiService {
      * @return No Content
      */
     createAccessRuleAdmin(body: AddAccessRuleRequest): Observable<void> {
-        let url_ = this.baseUrl + "/api/manage/access-rules/admin";
+        let url_ = this.baseUrl + "/manage/access-rules/admin";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -638,7 +638,7 @@ export class CasesApiService implements ICasesApiService {
      * @return No Content
      */
     createBatchAccessRulesAdmin(body: AddAccessRuleRequest[]): Observable<void> {
-        let url_ = this.baseUrl + "/api/manage/access-rules/admin/batch";
+        let url_ = this.baseUrl + "/manage/access-rules/admin/batch";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -711,7 +711,7 @@ export class CasesApiService implements ICasesApiService {
      * @return No Content
      */
     createAccessRules(caseId: string, body: AddCaseAccessRuleRequest): Observable<void> {
-        let url_ = this.baseUrl + "/api/manage/access-rules/case/{caseId}";
+        let url_ = this.baseUrl + "/manage/access-rules/case/{caseId}";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
         url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
@@ -787,7 +787,7 @@ export class CasesApiService implements ICasesApiService {
      * @return No Content
      */
     updateBatchAccessRules(caseId: string, body: AddCaseAccessRuleRequest[]): Observable<void> {
-        let url_ = this.baseUrl + "/api/manage/access-rules/case/{caseId}/batch";
+        let url_ = this.baseUrl + "/manage/access-rules/case/{caseId}/batch";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
         url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
@@ -863,7 +863,7 @@ export class CasesApiService implements ICasesApiService {
      * @return OK
      */
     downloadAttachment(attachmentId: string): Observable<FileResponse> {
-        let url_ = this.baseUrl + "/api/manage/attachments/{attachmentId}/download";
+        let url_ = this.baseUrl + "/manage/attachments/{attachmentId}/download";
         if (attachmentId === undefined || attachmentId === null)
             throw new Error("The parameter 'attachmentId' must be defined.");
         url_ = url_.replace("{attachmentId}", encodeURIComponent("" + attachmentId));
@@ -948,7 +948,7 @@ export class CasesApiService implements ICasesApiService {
      * @return OK
      */
     getCaseTypesList(canCreate?: boolean | undefined): Observable<CaseTypePartialResultSet> {
-        let url_ = this.baseUrl + "/api/manage/case-types?";
+        let url_ = this.baseUrl + "/manage/case-types?";
         if (canCreate === null)
             throw new Error("The parameter 'canCreate' cannot be null.");
         else if (canCreate !== undefined)
@@ -1029,7 +1029,7 @@ export class CasesApiService implements ICasesApiService {
      * @return No Content
      */
     createCaseType(body: CaseTypeRequest): Observable<void> {
-        let url_ = this.baseUrl + "/api/manage/case-types";
+        let url_ = this.baseUrl + "/manage/case-types";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -1106,7 +1106,7 @@ export class CasesApiService implements ICasesApiService {
      * @return OK
      */
     getCaseTypeById(caseTypeId: string): Observable<CaseType> {
-        let url_ = this.baseUrl + "/api/manage/case-types/{caseTypeId}";
+        let url_ = this.baseUrl + "/manage/case-types/{caseTypeId}";
         if (caseTypeId === undefined || caseTypeId === null)
             throw new Error("The parameter 'caseTypeId' must be defined.");
         url_ = url_.replace("{caseTypeId}", encodeURIComponent("" + caseTypeId));
@@ -1186,7 +1186,7 @@ export class CasesApiService implements ICasesApiService {
      * @return OK
      */
     updateCaseType(caseTypeId: string, body: CaseTypeRequest): Observable<CaseType> {
-        let url_ = this.baseUrl + "/api/manage/case-types/{caseTypeId}";
+        let url_ = this.baseUrl + "/manage/case-types/{caseTypeId}";
         if (caseTypeId === undefined || caseTypeId === null)
             throw new Error("The parameter 'caseTypeId' must be defined.");
         url_ = url_.replace("{caseTypeId}", encodeURIComponent("" + caseTypeId));
@@ -1270,7 +1270,7 @@ export class CasesApiService implements ICasesApiService {
      * @return No Content
      */
     deleteCaseType(caseTypeId: string): Observable<void> {
-        let url_ = this.baseUrl + "/api/manage/case-types/{caseTypeId}";
+        let url_ = this.baseUrl + "/manage/case-types/{caseTypeId}";
         if (caseTypeId === undefined || caseTypeId === null)
             throw new Error("The parameter 'caseTypeId' must be defined.");
         url_ = url_.replace("{caseTypeId}", encodeURIComponent("" + caseTypeId));
@@ -1346,7 +1346,7 @@ export class CasesApiService implements ICasesApiService {
      * @return OK
      */
     createDraftAdminCase(body: CreateDraftCaseRequest): Observable<CreateCaseResponse> {
-        let url_ = this.baseUrl + "/api/manage/cases";
+        let url_ = this.baseUrl + "/manage/cases";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -1438,7 +1438,7 @@ export class CasesApiService implements ICasesApiService {
      * @return OK
      */
     getCases(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, ownerIds?: string[] | undefined, ownerNames?: string[] | undefined, from?: Date | undefined, to?: Date | undefined, caseTypeCodes?: string[] | undefined, checkpointTypeCodes?: string[] | undefined, groupIds?: string[] | undefined, metadata?: string[] | undefined, referenceNumbers?: string[] | undefined, data?: string[] | undefined, includeData?: boolean | undefined): Observable<CasePartialResultSet> {
-        let url_ = this.baseUrl + "/api/manage/cases?";
+        let url_ = this.baseUrl + "/manage/cases?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
         else if (page !== undefined)
@@ -1571,7 +1571,7 @@ export class CasesApiService implements ICasesApiService {
      * @return No Content
      */
     updateAdminCase(caseId: string, body: UpdateCaseRequest): Observable<void> {
-        let url_ = this.baseUrl + "/api/manage/cases/{caseId}";
+        let url_ = this.baseUrl + "/manage/cases/{caseId}";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
         url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
@@ -1651,7 +1651,7 @@ export class CasesApiService implements ICasesApiService {
      * @return OK
      */
     getCaseById(caseId: string): Observable<Case> {
-        let url_ = this.baseUrl + "/api/manage/cases/{caseId}";
+        let url_ = this.baseUrl + "/manage/cases/{caseId}";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
         url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
@@ -1731,7 +1731,7 @@ export class CasesApiService implements ICasesApiService {
      * @return No Content
      */
     deleteDraftCase(caseId: string): Observable<void> {
-        let url_ = this.baseUrl + "/api/manage/cases/{caseId}";
+        let url_ = this.baseUrl + "/manage/cases/{caseId}";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
         url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
@@ -1807,7 +1807,7 @@ export class CasesApiService implements ICasesApiService {
      * @return OK
      */
     downloadCasePdf(caseId: string): Observable<FileResponse> {
-        let url_ = this.baseUrl + "/api/manage/cases/{caseId}.pdf";
+        let url_ = this.baseUrl + "/manage/cases/{caseId}.pdf";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
         url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
@@ -1891,7 +1891,7 @@ export class CasesApiService implements ICasesApiService {
      * @return OK
      */
     getAccessRulesForCase(caseId: string): Observable<AccessRule[]> {
-        let url_ = this.baseUrl + "/api/manage/cases/{caseId}/access-rules";
+        let url_ = this.baseUrl + "/manage/cases/{caseId}/access-rules";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
         url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
@@ -1974,7 +1974,7 @@ export class CasesApiService implements ICasesApiService {
      * @return OK
      */
     getCaseActions(caseId: string): Observable<CaseActions> {
-        let url_ = this.baseUrl + "/api/manage/cases/{caseId}/actions";
+        let url_ = this.baseUrl + "/manage/cases/{caseId}/actions";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
         url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
@@ -2054,7 +2054,7 @@ export class CasesApiService implements ICasesApiService {
      * @return No Content
      */
     submitApproval(caseId: string, body: ApprovalRequest): Observable<void> {
-        let url_ = this.baseUrl + "/api/manage/cases/{caseId}/approve";
+        let url_ = this.baseUrl + "/manage/cases/{caseId}/approve";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
         url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
@@ -2130,7 +2130,7 @@ export class CasesApiService implements ICasesApiService {
      * @return No Content
      */
     assignCase(caseId: string): Observable<void> {
-        let url_ = this.baseUrl + "/api/manage/cases/{caseId}/assign";
+        let url_ = this.baseUrl + "/manage/cases/{caseId}/assign";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
         url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
@@ -2202,7 +2202,7 @@ export class CasesApiService implements ICasesApiService {
      * @return OK
      */
     getCaseAttachments(caseId: string): Observable<CaseAttachmentResultSet> {
-        let url_ = this.baseUrl + "/api/manage/cases/{caseId}/attachments";
+        let url_ = this.baseUrl + "/manage/cases/{caseId}/attachments";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
         url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
@@ -2279,7 +2279,7 @@ export class CasesApiService implements ICasesApiService {
      * @return OK
      */
     uploadAdminCaseAttachment(caseId: string, file?: FileParameter | undefined): Observable<CasesAttachmentLink> {
-        let url_ = this.baseUrl + "/api/manage/cases/{caseId}/attachments";
+        let url_ = this.baseUrl + "/manage/cases/{caseId}/attachments";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
         url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
@@ -2368,7 +2368,7 @@ export class CasesApiService implements ICasesApiService {
      * Get an Case Attachment
      */
     getCaseAttachment(caseId: string, attachmentId: string): Observable<void> {
-        let url_ = this.baseUrl + "/api/manage/cases/{caseId}/attachments/{attachmentId}";
+        let url_ = this.baseUrl + "/manage/cases/{caseId}/attachments/{attachmentId}";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
         url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
@@ -2442,7 +2442,7 @@ export class CasesApiService implements ICasesApiService {
      * Get a Case Attachment by field name.
      */
     getAttachmentByField(caseId: string, fieldName: string): Observable<void> {
-        let url_ = this.baseUrl + "/api/manage/cases/{caseId}/attachments/{attachmentName}?";
+        let url_ = this.baseUrl + "/manage/cases/{caseId}/attachments/{attachmentName}?";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
         url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
@@ -2518,7 +2518,7 @@ export class CasesApiService implements ICasesApiService {
      * @return No Content
      */
     adminAddComment(caseId: string, body: SendCommentRequest): Observable<void> {
-        let url_ = this.baseUrl + "/api/manage/cases/{caseId}/comment";
+        let url_ = this.baseUrl + "/manage/cases/{caseId}/comment";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
         url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
@@ -2594,7 +2594,7 @@ export class CasesApiService implements ICasesApiService {
      * @return No Content
      */
     patchAdminCaseData(caseId: string, body: any): Observable<void> {
-        let url_ = this.baseUrl + "/api/manage/cases/{caseId}/data";
+        let url_ = this.baseUrl + "/manage/cases/{caseId}/data";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
         url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
@@ -2670,7 +2670,7 @@ export class CasesApiService implements ICasesApiService {
      * @return No Content
      */
     jsonPatchAdminCaseData(caseId: string, body: PatchJsonPathRequest[]): Observable<void> {
-        let url_ = this.baseUrl + "/api/manage/cases/{caseId}/data-json";
+        let url_ = this.baseUrl + "/manage/cases/{caseId}/data-json";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
         url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
@@ -2746,7 +2746,7 @@ export class CasesApiService implements ICasesApiService {
      * @return No Content
      */
     editCase(caseId: string, body: EditCaseRequest): Observable<void> {
-        let url_ = this.baseUrl + "/api/manage/cases/{caseId}/edit";
+        let url_ = this.baseUrl + "/manage/cases/{caseId}/edit";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
         url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
@@ -2822,7 +2822,7 @@ export class CasesApiService implements ICasesApiService {
      * @return No Content
      */
     patchCaseMetadata(caseId: string, body: { [key: string]: string; }): Observable<void> {
-        let url_ = this.baseUrl + "/api/manage/cases/{caseId}/metadata";
+        let url_ = this.baseUrl + "/manage/cases/{caseId}/metadata";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
         url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
@@ -2902,7 +2902,7 @@ export class CasesApiService implements ICasesApiService {
      * @return OK
      */
     getCaseRejectReasons(caseId: string): Observable<RejectReason[]> {
-        let url_ = this.baseUrl + "/api/manage/cases/{caseId}/reject-reasons";
+        let url_ = this.baseUrl + "/manage/cases/{caseId}/reject-reasons";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
         url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
@@ -2985,7 +2985,7 @@ export class CasesApiService implements ICasesApiService {
      * @return OK
      */
     getRelatedCases(caseId: string): Observable<CasePartial[]> {
-        let url_ = this.baseUrl + "/api/manage/cases/{caseId}/related-cases";
+        let url_ = this.baseUrl + "/manage/cases/{caseId}/related-cases";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
         url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
@@ -3068,7 +3068,7 @@ export class CasesApiService implements ICasesApiService {
      * @return No Content
      */
     submitAdminCase(caseId: string, body: any): Observable<void> {
-        let url_ = this.baseUrl + "/api/manage/cases/{caseId}/submit";
+        let url_ = this.baseUrl + "/manage/cases/{caseId}/submit";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
         url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
@@ -3148,7 +3148,7 @@ export class CasesApiService implements ICasesApiService {
      * @return OK
      */
     getCaseTimeline(caseId: string): Observable<TimelineEntry[]> {
-        let url_ = this.baseUrl + "/api/manage/cases/{caseId}/timeline";
+        let url_ = this.baseUrl + "/manage/cases/{caseId}/timeline";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
         url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
@@ -3231,7 +3231,7 @@ export class CasesApiService implements ICasesApiService {
      * @return No Content
      */
     triggerAction(caseId: string, body: ActionRequest): Observable<void> {
-        let url_ = this.baseUrl + "/api/manage/cases/{caseId}/trigger-action";
+        let url_ = this.baseUrl + "/manage/cases/{caseId}/trigger-action";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
         url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
@@ -3307,7 +3307,7 @@ export class CasesApiService implements ICasesApiService {
      * @return OK
      */
     getDistinctCheckpointTypes(): Observable<CheckpointType[]> {
-        let url_ = this.baseUrl + "/api/manage/checkpoint-types";
+        let url_ = this.baseUrl + "/manage/checkpoint-types";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -3397,7 +3397,7 @@ export class CasesApiService implements ICasesApiService {
      * @return OK
      */
     getContacts(reference?: string | undefined, caseTypeCode?: string | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ContactResultSet> {
-        let url_ = this.baseUrl + "/api/manage/integrations/contacts?";
+        let url_ = this.baseUrl + "/manage/integrations/contacts?";
         if (reference === null)
             throw new Error("The parameter 'reference' cannot be null.");
         else if (reference !== undefined)
@@ -3498,7 +3498,7 @@ export class CasesApiService implements ICasesApiService {
      * @return OK
      */
     getContactData(reference: string, caseTypeCode: string): Observable<Contact> {
-        let url_ = this.baseUrl + "/api/manage/integrations/contacts/{reference}/data/{caseTypeCode}";
+        let url_ = this.baseUrl + "/manage/integrations/contacts/{reference}/data/{caseTypeCode}";
         if (reference === undefined || reference === null)
             throw new Error("The parameter 'reference' must be defined.");
         url_ = url_.replace("{reference}", encodeURIComponent("" + reference));
@@ -3586,7 +3586,7 @@ export class CasesApiService implements ICasesApiService {
      * @return OK
      */
     getLookup(lookupName: string, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, filterTerms?: string[] | undefined): Observable<LookupItemResultSet> {
-        let url_ = this.baseUrl + "/api/manage/lookups/{lookupName}?";
+        let url_ = this.baseUrl + "/manage/lookups/{lookupName}?";
         if (lookupName === undefined || lookupName === null)
             throw new Error("The parameter 'lookupName' must be defined.");
         url_ = url_.replace("{lookupName}", encodeURIComponent("" + lookupName));
@@ -3686,7 +3686,7 @@ export class CasesApiService implements ICasesApiService {
      * @return OK
      */
     getMySubscriptions(): Observable<NotificationSubscriptionResponse> {
-        let url_ = this.baseUrl + "/api/manage/my/notifications";
+        let url_ = this.baseUrl + "/manage/my/notifications";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -3763,7 +3763,7 @@ export class CasesApiService implements ICasesApiService {
      * @return No Content
      */
     subscribe(body: NotificationSubscriptionRequest): Observable<void> {
-        let url_ = this.baseUrl + "/api/manage/my/notifications";
+        let url_ = this.baseUrl + "/manage/my/notifications";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -3840,7 +3840,7 @@ export class CasesApiService implements ICasesApiService {
      * @return OK
      */
     getQueries(): Observable<Query[]> {
-        let url_ = this.baseUrl + "/api/manage/queries";
+        let url_ = this.baseUrl + "/manage/queries";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -3920,7 +3920,7 @@ export class CasesApiService implements ICasesApiService {
      * @return No Content
      */
     saveQuery(body: SaveQueryRequest): Observable<void> {
-        let url_ = this.baseUrl + "/api/manage/queries";
+        let url_ = this.baseUrl + "/manage/queries";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -3993,7 +3993,7 @@ export class CasesApiService implements ICasesApiService {
      * @return No Content
      */
     deleteQuery(queryId: string): Observable<void> {
-        let url_ = this.baseUrl + "/api/manage/queries/{queryId}";
+        let url_ = this.baseUrl + "/manage/queries/{queryId}";
         if (queryId === undefined || queryId === null)
             throw new Error("The parameter 'queryId' must be defined.");
         url_ = url_.replace("{queryId}", encodeURIComponent("" + queryId));
@@ -4069,7 +4069,7 @@ export class CasesApiService implements ICasesApiService {
      * @return OK
      */
     getCaseReport(reportTag: ReportTag): Observable<GroupByReportResult[]> {
-        let url_ = this.baseUrl + "/api/manage/reports?";
+        let url_ = this.baseUrl + "/manage/reports?";
         if (reportTag === undefined || reportTag === null)
             throw new Error("The parameter 'reportTag' must be defined and cannot be null.");
         else
