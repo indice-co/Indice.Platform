@@ -107,10 +107,10 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
 
         @case.Draft = false;
         await DbContext.SaveChangesAsync();
-        
+
         await _platformEventService.Publish(new CaseSubmittedEvent(new Case {
-             Id = @case.Id,
-             // TODO: do a proper caseDb to case mapping
+            Id = @case.Id,
+            // TODO: do a proper caseDb to case mapping
         }, @case.CaseType.Code));
     }
 
@@ -472,7 +472,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         // Check that user role can download this attachment.
         await GetCaseById(user, attachment!.CaseId, false);
 
-        return new CaseAttachment { 
+        return new CaseAttachment {
             Id = attachmentId,
             ContentType = attachment.ContentType,
             Data = attachment.Data,
@@ -531,8 +531,11 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         if (dbCase == null) {
             return false;
         }
+        if (metadata != null && metadata.Count > 0 && dbCase.Metadata == null) {
+            dbCase.Metadata = new Dictionary<string, string>();
+        }
         foreach (var keyValuePair in metadata) {
-            dbCase.Metadata[keyValuePair.Key] = keyValuePair.Value;
+            dbCase.Metadata![keyValuePair.Key] = keyValuePair.Value;
         }
         await DbContext.SaveChangesAsync();
         return true;
@@ -655,7 +658,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                 checkpointTypeIds.Add(newCheckpointTypeIdFilterClause);
             }
         }
-        return [..checkpointTypeIds];
+        return [.. checkpointTypeIds];
     }
 
 }
