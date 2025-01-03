@@ -27,6 +27,7 @@ public class CasesUIOptions : SpaUIOptions
     public CasesUIOptions() {
         ClientId = "cases-ui";
         Scope = "openid profile role email cases";
+        DocumentTitle = "Cases UI";
         ConfigureIndexParameters = args => {
             args[$"%({nameof(Lang)})"] = Lang;
             args[$"%({nameof(I18nAssets)})"] = I18nAssets;
