@@ -7,7 +7,6 @@ using Elsa.Retention.Extensions;
 using Elsa.Server.Api.Extensions;
 using Elsa.Server.Api.Mapping;
 using Elsa.Server.Api.Services;
-using Elsa.Server.Api;
 using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Workflows;
 using Indice.Features.Cases.Workflows.Bookmarks.AwaitApproval;
@@ -26,6 +25,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NodaTime;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -142,7 +142,7 @@ public static class CasesWorkflowFeatureExtensions
     /// <summary>Add workflow middleware and activities to http pipeline.</summary>
     /// <param name="app"></param>
     public static IApplicationBuilder UseCasesWorkflow(this IApplicationBuilder app) {
-        var options = app.ApplicationServices.GetRequiredService<CasesWorkflowOptions>();
+        var options = app.ApplicationServices.GetRequiredService<IOptions<CasesWorkflowOptions>>().Value;
         app.UseHttpActivities();
         if (options.RegisterStaticFiles) { 
             app.UseStaticFiles(); // this enables razor class lib assets from workflow designer

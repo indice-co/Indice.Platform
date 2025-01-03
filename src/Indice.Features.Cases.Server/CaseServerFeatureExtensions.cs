@@ -1,11 +1,11 @@
-﻿using Indice.Features.Cases.Server.Authorization;
+﻿using Indice.Features.Cases.Server;
+using Indice.Features.Cases.Server.Authorization;
 using Indice.Features.Cases.Server.Endpoints;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace Indice.Features.Cases.Server;
+namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
 /// Adds all services needed to configure Case management server.
