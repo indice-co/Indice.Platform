@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Indice.Features.Cases.Core.Models;
+using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 
 namespace Indice.Features.Cases.Server.Endpoints.Validators;
 
@@ -11,5 +12,7 @@ public class AdminCaseTypesValidator : AbstractValidator<CaseTypeRequest>
     /// <inheritdoc/>
     public AdminCaseTypesValidator() {
         RuleFor(x => x.DataSchema).NotEmpty();
+        RuleFor(x => x.Code).NotEmpty();
+        RuleFor(x => x.Title).NotEmpty();
     }
 }

@@ -1,4 +1,6 @@
-﻿using Indice.Features.Cases.Server;
+﻿using Indice.Features.Cases.Core.Models;
+using Indice.Features.Cases.Core.Models.Requests;
+using Indice.Features.Cases.Server;
 using Indice.Features.Cases.Server.Authorization;
 using Indice.Features.Cases.Server.Endpoints;
 using Indice.Security;
@@ -43,11 +45,13 @@ internal static class AdminCaseTypesApi
         group.MapPost(string.Empty, AdminCaseTypesHandler.CreateCaseType)
              .WithName(nameof(AdminCaseTypesHandler.CreateCaseType))
              .WithSummary("Create new case type.")
-             .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Admin)); // equivalent to BeCasesAdministrator
+             .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Admin)) // equivalent to BeCasesAdministrator
+            .WithParameterValidation<CaseTypeRequest>();
         group.MapPut("{caseTypeId}", AdminCaseTypesHandler.UpdateCaseType)
              .WithName(nameof(AdminCaseTypesHandler.UpdateCaseType))
              .WithSummary("Update a specific Case Type.")
-             .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Admin)); // equivalent to BeCasesAdministrator
+             .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Admin)) // equivalent to BeCasesAdministrator
+             .WithParameterValidation<CaseTypeRequest>();
         group.MapDelete("{caseTypeId}", AdminCaseTypesHandler.DeleteCaseType)
              .WithName(nameof(AdminCaseTypesHandler.DeleteCaseType))
              .WithSummary("Delete a specific Case Type.")
