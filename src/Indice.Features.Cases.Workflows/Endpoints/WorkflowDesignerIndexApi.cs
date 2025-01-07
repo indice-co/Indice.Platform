@@ -38,7 +38,9 @@ public static class WorkflowDesignerIndexApi
             routes.MapGet("/workflow-signout", async (HttpContext httpContext, IConfiguration configuration) => {
                 await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme, new AuthenticationProperties { RedirectUri = configuration.GetHost() });
                 await httpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties { RedirectUri = configuration.GetHost() });
-            }).RequireAuthorization(CasesWorkflowFeatureExtensions.WorkflowPolicy);
+            })
+            .RequireAuthorization(CasesWorkflowFeatureExtensions.WorkflowPolicy)
+            .ExcludeFromDescription();
         }
 
         return routes;
