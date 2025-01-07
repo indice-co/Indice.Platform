@@ -43,14 +43,14 @@ public static class CasesDbInitalizerExtesnions
         await dbContext.SaveChangesAsync();
     }
     private async static Task AddSampleCasesAsync(this CasesDbContext dbContext) {
-        var sampleCaseType = GetSampleCaseTypes().First();
+        var sampleCaseType = GetSampleCaseTypes()[0];
         var createdBy = new AuditMeta() {
             Id = "seed",
             Email = "system",
             Name = "system",
             When = DateTimeOffset.UtcNow,
         };
-        dbContext.CaseTypes.AddRange([sampleCaseType]);
+        dbContext.CaseTypes.Add(sampleCaseType);
 
         var sampleCase = new DbCase() {
             Id = Guid.Parse("02723481-0915-4fc3-bb21-123f2e704ca3"),
@@ -83,7 +83,7 @@ public static class CasesDbInitalizerExtesnions
         };
         var submittedCheckPoint = new DbCheckpoint {
             Id = Guid.Parse("c47f341d-ce04-40ab-b784-96eba5f79e8e"),
-            CheckpointTypeId = sampleCaseType.CheckpointTypes.First().Id,
+            CheckpointTypeId = sampleCaseType.CheckpointTypes[0].Id,
             CaseId = sampleCase.Id,
             CreatedBy = createdBy.Clone(),
         };
@@ -104,7 +104,7 @@ public static class CasesDbInitalizerExtesnions
             Code = "SampleAddress", Description = "Sample Address", Title ="Sample Address",
             CanCreateRoles = string.Join(',' , [BasicRoleNames.Administrator]),
             CheckpointTypes = GetDefaultCheckPointTypes(Guid.Parse("8a1f687c-41f9-4442-9d94-7118e1af0226")),
-            DataSchema = JsonNode.Parse(AddressSampleSchema.Trim()),
+            DataSchema = JsonNode.Parse(AddressSampleSchema.Trim())!,
             Layout = JsonNode.Parse("""
                 [
                   { "key": "postalCode", "title": "Post code", "type": "text", "placeholder": "Post code" },

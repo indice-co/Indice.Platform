@@ -11,8 +11,8 @@ public class DbCaseType
     public Guid? CategoryId { get; set; }
     public string Code { get; set; } = null!;
     public string? Title { get; set; }
-    public string? Description { get; set; }        
-    public JsonNode? DataSchema { get; set; }
+    public string? Description { get; set; }
+    public JsonNode DataSchema { get; set; } = null!;
     public JsonNode? Layout { get; set; }
     public TranslationDictionary<CaseTypeTranslation>? Translations { get; set; }
     public Dictionary<string, string>? LayoutTranslations { get; set; }
