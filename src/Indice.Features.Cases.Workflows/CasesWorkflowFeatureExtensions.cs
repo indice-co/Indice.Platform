@@ -243,7 +243,7 @@ public static class CasesWorkflowFeatureExtensions
             options.UsePkce = true;
             options.RequireHttpsMetadata = true;
             options.MapInboundClaims = false;
-            options.SaveTokens = true;
+            options.SaveTokens = false;
             options.AccessDeniedPath = "/forbidden";
             options.CallbackPath = "/signin-oidc";
             options.TokenValidationParameters = new TokenValidationParameters {
