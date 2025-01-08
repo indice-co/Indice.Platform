@@ -52,11 +52,11 @@ public class RequestResponseLoggingMiddleware
     public static Task DefaultLoggingHandler(ILogger logger, RequestProfilerModel model) {
         var statusCode = model.HttpContext.Response.StatusCode;
         if (statusCode >= 500) {
-            logger.LogError(LOG_MESSAGE_FORMAT, model.Duration, model.HostUri, model.RequestTarget, model.StatusCode, model.RequestBody, model.ResponseBody);
+            logger.LogError(LOG_MESSAGE_FORMAT, model.Duration, model.HostUri?.ReplaceLineEndings(), model.RequestTarget?.ReplaceLineEndings(), model.StatusCode, model.RequestBody?.ReplaceLineEndings(), model.ResponseBody?.ReplaceLineEndings());
         } else if (statusCode >= 400) {
-            logger.LogWarning(LOG_MESSAGE_FORMAT, model.Duration, model.HostUri, model.RequestTarget, model.StatusCode, model.RequestBody, model.ResponseBody);
+            logger.LogWarning(LOG_MESSAGE_FORMAT, model.Duration, model.HostUri?.ReplaceLineEndings(), model.RequestTarget?.ReplaceLineEndings(), model.StatusCode, model.RequestBody?.ReplaceLineEndings(), model.ResponseBody?.ReplaceLineEndings());
         } else {
-            logger.LogInformation(LOG_MESSAGE_FORMAT, model.Duration, model.HostUri, model.RequestTarget, model.StatusCode, model.RequestBody, model.ResponseBody);
+            logger.LogInformation(LOG_MESSAGE_FORMAT, model.Duration, model.HostUri?.ReplaceLineEndings(), model.RequestTarget?.ReplaceLineEndings(), model.StatusCode, model.RequestBody?.ReplaceLineEndings(), model.ResponseBody?.ReplaceLineEndings());
         }
         return Task.CompletedTask;
     }
