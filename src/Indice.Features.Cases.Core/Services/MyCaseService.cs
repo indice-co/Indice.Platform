@@ -246,7 +246,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
 
         var caseType = new CaseTypePartial {
             Code = dbCaseType.Code,
-            DataSchema = GetSingleOrMultiple(SchemaSelector, dbCaseType.DataSchema),
+            DataSchema = GetSingleOrMultiple(SchemaSelector, dbCaseType.DataSchema)!,
             Layout = GetSingleOrMultiple(SchemaSelector, dbCaseType.Layout),
             LayoutTranslations = dbCaseType.LayoutTranslations,
             Title = dbCaseType.Title,
@@ -282,7 +282,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
                     Order = dbCaseType.Category.Order,
                     Translations = dbCaseType.Category.Translations
                 },
-                DataSchema = GetSingleOrMultiple(SchemaSelector, dbCaseType.DataSchema),
+                DataSchema = GetSingleOrMultiple(SchemaSelector, dbCaseType.DataSchema)!,
                 Layout = GetSingleOrMultiple(SchemaSelector, dbCaseType.Layout),
                 LayoutTranslations = dbCaseType.LayoutTranslations,
                 Code = dbCaseType.Code,

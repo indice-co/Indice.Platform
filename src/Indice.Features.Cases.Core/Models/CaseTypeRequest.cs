@@ -20,7 +20,7 @@ public class CaseTypeRequest
     public string? Description { get; set; }
 
     /// <summary>The Data Schema of the case type</summary>
-    public JsonNode? DataSchema { get; set; }
+    public JsonNode DataSchema { get; set; } = null!;
 
     /// <summary>the Layout of the case type</summary>
     public JsonNode? Layout { get; set; }

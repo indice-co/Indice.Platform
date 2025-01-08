@@ -24,7 +24,7 @@ internal class DbCaseTypeConfiguration : IEntityTypeConfiguration<DbCaseType>
             .IsRequired();
         builder
             .Property(p => p.DataSchema)
-            .HasJsonConversion()
+            .HasRequiredJsonConversion()
             .IsRequired();
         builder
             .Property(p => p.Description)

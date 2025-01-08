@@ -19,7 +19,7 @@ public class CaseTypePartial
     public string? Description { get; set; }
 
     /// <summary>The case type json schema.</summary>
-    public JsonNode? DataSchema { get; set; }
+    public JsonNode DataSchema { get; set; } = null!;
 
     /// <summary>The layout for the data schema.</summary>
     public JsonNode? Layout { get; set; }
