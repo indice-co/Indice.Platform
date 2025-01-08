@@ -44,7 +44,7 @@ public class AntiforgeryOperationFilter : IOperationFilter
             Name = CustomHeaderNames.AntiforgeryHeaderName,
             Schema = new OpenApiSchema {
                 Type = nameof(String),
-                Default = new OpenApiString(Xsrf.GetAndStoreTokens(HttpContextAccessor.HttpContext).RequestToken)
+                Default = new OpenApiString(Xsrf.GetAndStoreTokens(HttpContextAccessor.HttpContext!).RequestToken)
             }
         });
     }

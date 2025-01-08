@@ -20,7 +20,7 @@ internal class SecurityRequirementsOperationFilter : IOperationFilter
     }
 
     public void Apply(OpenApiOperation operation, OperationFilterContext context) {
-        var authAttributes = context.MethodInfo.DeclaringType.GetCustomAttributes(true).Union(context.MethodInfo.GetCustomAttributes(true)).OfType<AuthorizeAttribute>();
+        var authAttributes = context.MethodInfo.DeclaringType!.GetCustomAttributes(true).Union(context.MethodInfo.GetCustomAttributes(true)).OfType<AuthorizeAttribute>();
         var requireScopes = authAttributes.Select(x => x.Policy);
         if (requireScopes.Any()) {
             if (!operation.Responses.ContainsKey("401")) {
@@ -43,11 +43,11 @@ internal class SecurityRequirementsOperationFilter : IOperationFilter
             var oAuthScheme = new OpenApiSecurityScheme {
                 Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = _securitySchemeName }
             };
-            operation.Security = new List<OpenApiSecurityRequirement> {
+            operation.Security = [
                 new OpenApiSecurityRequirement {
                     [oAuthScheme] = scopes.ToList()
                 }
-            };
+            ];
         }
     }
 }

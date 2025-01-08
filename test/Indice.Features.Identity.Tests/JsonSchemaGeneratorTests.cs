@@ -13,7 +13,6 @@ public class JsonSchemaGeneratorTests
         Assert.False(string.IsNullOrEmpty(json));
     }
 
-    [Json.Schema.Generation.Nullable(false)]
     public class TestClassWithConventions
     {
         [Json.Schema.Generation.Nullable(false)]

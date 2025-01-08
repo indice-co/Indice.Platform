@@ -48,7 +48,7 @@ public class ApiSettings
     public class Scope
     {
         /// <summary>The scope value (ie identity.users).</summary>
-        public string? Name { get; set; }
+        public string Name { get; set; } = null!;
         /// <summary>The scope descriptions.</summary>
         public string? Description { get; set; }
     }

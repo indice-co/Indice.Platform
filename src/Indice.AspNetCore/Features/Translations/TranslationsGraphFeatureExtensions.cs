@@ -1,5 +1,4 @@
-﻿#nullable enable
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.Extensions.DependencyInjection;
@@ -116,6 +115,3 @@ public class TranslationsGraphOptions
         return all.ToLookup(x => x.EndpointRoutePattern);
     }
 }
-
-
-#nullable disable

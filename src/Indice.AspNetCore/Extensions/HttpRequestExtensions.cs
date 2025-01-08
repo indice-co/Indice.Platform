@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Headers;
+using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 
 namespace Indice.AspNetCore.Extensions;
@@ -14,7 +15,7 @@ public static class HttpRequestExtensions
         }
         if (MediaTypeHeaderValue.TryParse(request.ContentType, out var header)) {
             // Content-Type: application/x-www-form-urlencoded; charset=utf-8
-            return header.MediaType.Equals("application/x-www-form-urlencoded", StringComparison.OrdinalIgnoreCase);
+            return header.MediaType?.Equals(MediaTypeNames.Application.FormUrlEncoded, StringComparison.OrdinalIgnoreCase) == true;
         }
         return false;
     }

@@ -18,7 +18,7 @@ public class HumanizerMetadataProvider : IDisplayMetadataProvider
         }
     }
 
-    private static bool IsTransformRequired(string propertyName, DisplayMetadata modelMetadata, IReadOnlyList<object> propertyAttributes) {
+    private static bool IsTransformRequired(string? propertyName, DisplayMetadata modelMetadata, IReadOnlyList<object> propertyAttributes) {
         if (!string.IsNullOrEmpty(modelMetadata.SimpleDisplayProperty)) {
             return false;
         }

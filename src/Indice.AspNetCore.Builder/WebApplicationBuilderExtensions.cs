@@ -54,7 +54,7 @@ public static class WebApplicationBuilderExtensions
         });
         // Configure indice services
         builder.Services.AddProblemDetails();
-        builder.Services.AddEndpointParameterFluentValidation(Assembly.GetEntryAssembly());
+        builder.Services.AddEndpointParameterFluentValidation(Assembly.GetEntryAssembly()!);
         builder.Services.AddGeneralSettings(builder.Configuration);
         return builder;
     }

@@ -9,13 +9,13 @@ namespace Microsoft.AspNetCore.Localization;
 public class RouteRequestCultureProvider : IRequestCultureProvider
 {
     /// <summary>Result that indicates that this instance of <see cref="RouteRequestCultureProvider" /> could not determine the request culture.</summary>
-    protected static readonly Task<ProviderCultureResult> NullProviderCultureResult = Task.FromResult(default(ProviderCultureResult));
+    protected static readonly Task<ProviderCultureResult?> NullProviderCultureResult = Task.FromResult(default(ProviderCultureResult));
 
     /// <summary>Route parameter key</summary>
     public string RouteParameterKey { get; set; } = "culture";
 
     /// <inheritdoc/>
-    public Task<ProviderCultureResult> DetermineProviderCultureResult(HttpContext httpContext) {
+    public Task<ProviderCultureResult?> DetermineProviderCultureResult(HttpContext httpContext) {
         if (httpContext == null) {
             throw new ArgumentNullException(nameof(httpContext));
         }
@@ -27,6 +27,6 @@ public class RouteRequestCultureProvider : IRequestCultureProvider
         }
 
         var providerResultCulture = new ProviderCultureResult(culture.ToString());
-        return Task.FromResult(providerResultCulture);
+        return Task.FromResult((ProviderCultureResult?)providerResultCulture);
     }
 }

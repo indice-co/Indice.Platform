@@ -29,26 +29,32 @@ internal static class InternalStringExtensions
         return path;
     }
 
-    /// <summary></summary>
-    /// <param name="ignoredPaths"></param>
-    /// <param name="path"></param>
-    /// <param name="queryString"></param>
-    /// <param name="httpMethod"></param>
-    /// <returns></returns>
-    public static bool IsIgnoredPath(IDictionary<string, string> ignoredPaths, string path, string queryString, string httpMethod) {
+    /// <summary>
+    /// Checks if a specified path is an ignored path based on the provided ignored paths dictionary.
+    /// </summary>
+    /// <param name="ignoredPaths">A dictionary of ignored paths with their corresponding HTTP methods.</param>
+    /// <param name="path">The path to check.</param>
+    /// <param name="queryString">The query string to append to the path.</param>
+    /// <param name="httpMethod">The HTTP method to check against the ignored paths.</param>
+    /// <returns>True if the path is an ignored path; otherwise, false.</returns>
+    public static bool IsIgnoredPath(IDictionary<string, string> ignoredPaths, string path, string queryString, string httpMethod)
+    {
         path = path + queryString;
         // Check if specified path matches exactly an ignored path.
         var isExactMatch = ignoredPaths.ContainsKey(path) && (string.IsNullOrWhiteSpace(httpMethod) || ignoredPaths[path].Split('|').Any(method => method.Equals(httpMethod, StringComparison.OrdinalIgnoreCase)));
-        if (isExactMatch) {
+        if (isExactMatch)
+        {
             return true;
         }
         // Check if specified path is a subpath of an ignored path.
         var paths = ignoredPaths.Where(p => path.StartsWith(p.Key, StringComparison.InvariantCultureIgnoreCase));
-        if (paths.Any()) {
+        if (paths.Any())
+        {
             // Order found paths in ascending order, based on size. 
             var basePath = paths.OrderBy(x => x.Key.Length).First().Key;
             var isSubPath = ignoredPaths.ContainsKey(basePath) && (ignoredPaths[basePath].Split('|').Any(method => method.Equals(httpMethod, StringComparison.OrdinalIgnoreCase)) || ignoredPaths[basePath].Equals("*"));
-            if (isSubPath) {
+            if (isSubPath)
+            {
                 return true;
             }
         }
@@ -59,26 +65,32 @@ internal static class InternalStringExtensions
             path.Key.TrimStart('/').Split('/').Length == segmentsLength &&
             (path.Value.Equals("*") || path.Value.Split('|').Any(method => method.Equals(httpMethod, StringComparison.OrdinalIgnoreCase)))
         );
-        if (!sameSizePaths.Any()) {
+        if (!sameSizePaths.Any())
+        {
             return false;
         }
         var dynamicMatchFound = false;
-        foreach (var sameSizePath in sameSizePaths) {
+        foreach (var sameSizePath in sameSizePaths)
+        {
             var matchFound = false;
             var comparingPathParts = sameSizePath.Key.TrimStart('/').Split('/');
-            for (var i = 0; i < comparingPathParts.Length; i++) {
+            for (var i = 0; i < comparingPathParts.Length; i++)
+            {
                 var currentSegment = comparingPathParts[i];
-                if (currentSegment.Equals("**")) {
+                if (currentSegment.Equals("**"))
+                {
                     continue;
                 }
-                if (!currentSegment.Equals(pathParts[i], StringComparison.OrdinalIgnoreCase)) {
+                if (!currentSegment.Equals(pathParts[i], StringComparison.OrdinalIgnoreCase))
+                {
                     matchFound = false;
                     break;
                 }
                 matchFound = true;
             }
             dynamicMatchFound = matchFound;
-            if (dynamicMatchFound) {
+            if (dynamicMatchFound)
+            {
                 break;
             }
         }

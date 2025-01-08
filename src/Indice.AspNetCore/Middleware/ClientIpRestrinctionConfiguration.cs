@@ -10,7 +10,7 @@ public static class ClientIpRestrinctionConfiguration
     /// <param name="services"></param>
     /// <param name="setupAction"></param>
     /// <returns>The service collection</returns>
-    public static IServiceCollection AddClientIpRestrinctions(this IServiceCollection services, Action<ClientIpRestrictionOptions> setupAction = null) {
+    public static IServiceCollection AddClientIpRestrinctions(this IServiceCollection services, Action<ClientIpRestrictionOptions>? setupAction = null) {
         var existingService = services.Where(x => x.ServiceType == typeof(ClientIpRestrictionOptions)).LastOrDefault();
         if (existingService == null) {
             var options = new ClientIpRestrictionOptions();

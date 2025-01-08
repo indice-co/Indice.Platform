@@ -1,5 +1,4 @@
-﻿#nullable enable
-using Indice.AspNetCore.Configuration;
+﻿using Indice.AspNetCore.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -42,4 +41,3 @@ public class AllowedFileSizeAttribute : Attribute, IActionFilter
     /// <inheritdoc />
     public void OnActionExecuted(ActionExecutedContext context) { }
 }
-#nullable disable

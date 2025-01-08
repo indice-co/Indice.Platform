@@ -75,10 +75,10 @@ public class HtmlRenderingEngineMvcRazor : IHtmlRenderingEngine
     }
 
     private static ExpandoObject ToExpandoObject(Type dataType, object value) {
-        var dictionary = new ExpandoObject() as IDictionary<string, object>;
+        IDictionary<string, object?> dictionary = new ExpandoObject();
         foreach (var property in dataType.GetProperties(BindingFlags.Public | BindingFlags.Instance)) {
             dictionary.Add(property.Name, property.GetValue(value, null));
         }
-        return dictionary as ExpandoObject;
+        return (ExpandoObject)dictionary;
     }
 }

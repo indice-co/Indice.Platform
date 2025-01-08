@@ -23,12 +23,12 @@ public class SortableTagHelper : TagHelper
 
     /// <summary>Context for view execution.</summary>
     [ViewContext]
-    public ViewContext ViewContext { get; set; }
+    public ViewContext? ViewContext { get; set; }
     /// <summary>List params used to navigate through collections.</summary>
     [HtmlAttributeName("list-options")]
-    public ListOptions Options { get; set; }
+    public ListOptions? Options { get; set; }
     /// <summary>A model expression used in for sorting the table collection.</summary>
-    public ModelExpression SortBy { get; set; }
+    public ModelExpression? SortBy { get; set; }
 
     /// <summary>Asynchronously executes the <see cref="TagHelper"/> with the given context and output.</summary>
     /// <param name="context">Contains information associated with the current HTML tag.</param>
@@ -40,11 +40,11 @@ public class SortableTagHelper : TagHelper
         if (Options == null) {
             throw new InvalidOperationException($"The {nameof(ListOptions)} must be provided.");
         }
-        var sortBy = SortBy.Metadata.PropertyName.ToLowerInvariant();
+        var sortBy = SortBy.Metadata.PropertyName!.ToLowerInvariant();
         var sortings = Options.GetSortings().ToDictionary(s => s.Path.ToLowerInvariant());
         var sortByClass = sortings.ContainsKey(sortBy) ? $"{AttributePrefix}-{sortings[sortBy].Direction.ToLower() }" : null;
         if (output.Attributes.TryGetAttribute("class", out var css)) {
-            var classesList = css.Value.ToString().Split(' ').Where(name => !name.StartsWith("sort-", StringComparison.Ordinal)).ToList();
+            var classesList = css.Value.ToString()!.Split(' ').Where(name => !name.StartsWith("sort-", StringComparison.Ordinal)).ToList();
             if (!classesList.Contains(SortableClassName)) {
                 classesList.Insert(0, SortableClassName);
             }

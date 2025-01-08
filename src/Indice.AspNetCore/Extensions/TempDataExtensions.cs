@@ -19,7 +19,7 @@ public static class TempDataExtensions
     /// <param name="tempData">Represents a set of data that persists only from one request to the next.</param>
     /// <param name="key">The key to use in the <see cref="TempDataDictionary"/>.</param>
     /// <returns>The data persisted in the <see cref="TempDataDictionary"/> under the specified key.</returns>
-    public static T Get<T>(this ITempDataDictionary tempData, string key) {
+    public static T? Get<T>(this ITempDataDictionary tempData, string key) {
         tempData.TryGetValue(key, out var @object);
         return @object == null ? default : JsonSerializer.Deserialize<T>((string)@object, JsonSerializerOptionDefaults.GetDefaultSettings());
     }
@@ -29,7 +29,7 @@ public static class TempDataExtensions
     /// <param name="tempData">Represents a set of data that persists only from one request to the next.</param>
     /// <param name="key">The key to use in the <see cref="TempDataDictionary"/>.</param>
     /// <returns>The data persisted in the <see cref="TempDataDictionary"/> under the specified key.</returns>
-    public static T Peek<T>(this ITempDataDictionary tempData, string key) {
+    public static T? Peek<T>(this ITempDataDictionary tempData, string key) {
         var item = tempData.Peek(key);
         if (item != null) {
             return JsonSerializer.Deserialize<T>((string)item, JsonSerializerOptionDefaults.GetDefaultSettings());

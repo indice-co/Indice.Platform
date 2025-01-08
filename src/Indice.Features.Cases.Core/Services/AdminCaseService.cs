@@ -532,9 +532,9 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             return false;
         }
         if (metadata != null && metadata.Count > 0 && dbCase.Metadata == null) {
-            dbCase.Metadata = new Dictionary<string, string>();
+            dbCase.Metadata = [];
         }
-        foreach (var keyValuePair in metadata) {
+        foreach (var keyValuePair in metadata!) {
             dbCase.Metadata![keyValuePair.Key] = keyValuePair.Value;
         }
         await DbContext.SaveChangesAsync();
@@ -634,7 +634,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         var @case = await GetCaseById(user, caseId, false);
         var result = await GetCases(user, new ListOptions<GetCasesListFilter>() {
             Filter = new GetCasesListFilter {
-                Metadata = [new FilterClause("metadata.ExternalCorrelationKey", @case.Metadata["ExternalCorrelationKey"], FilterOperator.Eq, JsonDataType.String)]
+                Metadata = [new FilterClause("metadata.ExternalCorrelationKey", @case.Metadata!["ExternalCorrelationKey"], FilterOperator.Eq, JsonDataType.String)]
             },
             Sort = $"{nameof(CasePartial.CreatedByWhen)}-"
         });

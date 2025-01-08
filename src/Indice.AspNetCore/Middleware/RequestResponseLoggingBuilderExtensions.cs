@@ -13,9 +13,9 @@ public static class RequestResponseLoggingBuilderExtensions
     /// <param name="contentTypes">These are the response content types that will be tracked. Others are filtered out. Whern null or empty array uses defaults application/json and text/html</param>
     /// <param name="logHandler">Pass a hander that will be used instead of the default internal logging.</param>
     /// <returns>The builder.</returns>
-    public static IApplicationBuilder UseRequestResponseLogging(this IApplicationBuilder builder, IEnumerable<string> contentTypes = null, Func<ILogger, RequestProfilerModel, Task> logHandler = null) =>
+    public static IApplicationBuilder UseRequestResponseLogging(this IApplicationBuilder builder, IEnumerable<string>? contentTypes = null, Func<ILogger, RequestProfilerModel, Task>? logHandler = null) =>
         builder.UseRequestResponseLogging((options) => {
-            options.ContentTypes = contentTypes?.Count() > 0 ? contentTypes.ToList() : new List<string> { MediaTypeNames.Application.Json, MediaTypeNames.Text.Html };
+            options.ContentTypes = contentTypes?.Count() > 0 ? contentTypes.ToList() : [ MediaTypeNames.Application.Json, MediaTypeNames.Text.Html ];
             options.LogHandler = logHandler ?? DefaultLoggingHandler;
         });
 

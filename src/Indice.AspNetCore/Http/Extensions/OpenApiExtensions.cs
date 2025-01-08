@@ -1,4 +1,5 @@
-﻿using Indice.Extensions;
+﻿using System.Net.Mime;
+using Indice.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
@@ -68,8 +69,8 @@ public static class OpenApiExtensions
     /// <param name="statusCode">The response status code.</param>
     /// <param name="contentType">The response content type. Defaults to "application/problem+json".</param>
     /// <returns>A <see cref="RouteGroupBuilder"/> that can be used to further customize the endpoint.</returns>
-    public static RouteGroupBuilder ProducesProblem(this RouteGroupBuilder builder, int statusCode, string contentType = null) => 
-        builder.WithMetadata(new ProducesResponseTypeMetadata(statusCode, typeof(ProblemDetails), [ contentType ?? "application/problem+json" ]));
+    public static RouteGroupBuilder ProducesProblem(this RouteGroupBuilder builder, int statusCode, string? contentType = null) => 
+        builder.WithMetadata(new ProducesResponseTypeMetadata(statusCode, typeof(ProblemDetails), [ contentType ?? MediaTypeNames.Application.ProblemJson ]));
 
     /// <summary>
     /// Adds an <see cref="IProducesResponseTypeMetadata"/> with a <see cref="HttpValidationProblemDetails"/> type
@@ -79,6 +80,6 @@ public static class OpenApiExtensions
     /// <param name="statusCode">The response status code. Defaults to <see cref="StatusCodes.Status400BadRequest"/>.</param>
     /// <param name="contentType">The response content type. Defaults to "application/problem+json".</param>
     /// <returns>A <see cref="RouteGroupBuilder"/> that can be used to further customize the endpoint.</returns>
-    public static RouteGroupBuilder ProducesValidationProblem(this RouteGroupBuilder builder, int statusCode = 400, string contentType = null) 
-        => builder.WithMetadata(new ProducesResponseTypeMetadata(statusCode, typeof(HttpValidationProblemDetails), [ contentType ?? "application/problem+json" ]));
+    public static RouteGroupBuilder ProducesValidationProblem(this RouteGroupBuilder builder, int statusCode = 400, string? contentType = null) 
+        => builder.WithMetadata(new ProducesResponseTypeMetadata(statusCode, typeof(HttpValidationProblemDetails), [ contentType ?? MediaTypeNames.Application.ProblemJson]));
 }

@@ -18,15 +18,15 @@ public class SortByLinkTagHelper : AnchorTagHelper
     public SortByLinkTagHelper(IHtmlGenerator generator) : base(generator) { }
 
     /// <summary>the sort by property path expression for the column we need to sort.</summary>
-    public ModelExpression SortBy { get; set; }
+    public ModelExpression? SortBy { get; set; }
 
     /// <summary>The list options passed on the current route</summary>
-    public ListOptions ListOptions { get; set; }
+    public ListOptions? ListOptions { get; set; }
 
     /// <summary>tag helper initialization.</summary>
     /// <param name="context"></param>
     public override void Init(TagHelperContext context) {
-        RouteValues = ListOptions.ToDictionary(new { sort = SortBy.Metadata.PropertyName }).AsRouteValues().ToDictionary(x => x.Key, x => x.Value); // this last thing is a problem
+        RouteValues = ListOptions!.ToDictionary(new { sort = SortBy!.Metadata.PropertyName }).AsRouteValues().ToDictionary(x => x.Key, x => x.Value); // this last thing is a problem
         base.Init(context);
     }
 
@@ -39,7 +39,7 @@ public class SortByLinkTagHelper : AnchorTagHelper
         var childContent = await output.GetChildContentAsync();
         if (childContent.IsEmptyOrWhiteSpace) {
             var spanTag = new TagBuilder("span");
-            spanTag.InnerHtml.Append(SortBy.Metadata.GetDisplayName());
+            spanTag.InnerHtml.Append(SortBy!.Metadata.GetDisplayName());
             output.Content.SetHtmlContent(spanTag);
         }
     }

@@ -8,10 +8,10 @@ public static class BearerSelector
 {
     /// <summary>Provides a forwarding func for JWT vs reference tokens (based on existence of dot in token).</summary>
     /// <param name="introspectionScheme">Scheme name of the introspection handler.</param>
-    public static Func<HttpContext, string> ForwardReferenceToken(string introspectionScheme = "introspection") {
-        string Select(HttpContext context) {
+    public static Func<HttpContext, string?> ForwardReferenceToken(string introspectionScheme = "introspection") {
+        string? Select(HttpContext context) {
             var (scheme, credential) = GetSchemeAndCredential(context);
-            if (scheme.Equals("Bearer", StringComparison.OrdinalIgnoreCase) && !credential.Contains(".")) {
+            if (scheme.Equals("Bearer", StringComparison.OrdinalIgnoreCase) && !credential.Contains('.')) {
                 return introspectionScheme;
             }
             return null;

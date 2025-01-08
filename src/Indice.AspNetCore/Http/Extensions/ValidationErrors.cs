@@ -1,6 +1,4 @@
-﻿using System.Collections;
-
-namespace Microsoft.AspNetCore.Http;
+﻿namespace Microsoft.AspNetCore.Http;
 
 /// <summary>Extension methods for model state validation.</summary>
 public static class ValidationErrors
@@ -50,11 +48,11 @@ public static class ValidationErrors
     /// </summary>
     /// <param name="errors"></param>
     /// <returns></returns>
-    public static string Detail(this IDictionary<string, string[]> errors) => errors.FirstOrDefault().Value?.FirstOrDefault();
+    public static string? Detail(this IDictionary<string, string[]> errors) => errors.FirstOrDefault().Value?.FirstOrDefault();
     /// <summary>
     /// Gets the first error code
     /// </summary>
     /// <param name="errors"></param>
     /// <returns></returns>
-    public static string Code(this IDictionary<string, string[]> errors) => errors.FirstOrDefault().Key;
+    public static string? Code(this IDictionary<string, string[]> errors) => errors.FirstOrDefault().Key;
 }

@@ -14,7 +14,7 @@ public static class SecurityHeadersBuilderExtensions
     /// <param name="builder">The application pipeline builder.</param>
     /// <param name="configurePolicy">Only use this here in case of different policy configuration (Than what whas added by <em>services.AddSecurityHeaders()</em>)</param>
     /// <returns>The input builder for further configuration.</returns>
-    public static IApplicationBuilder UseSecurityHeaders(this IApplicationBuilder builder, Action<SecurityHeadersPolicy> configurePolicy = null) {
+    public static IApplicationBuilder UseSecurityHeaders(this IApplicationBuilder builder, Action<SecurityHeadersPolicy>? configurePolicy = null) {
         var policy = builder.ApplicationServices.GetService<SecurityHeadersPolicy>();
         policy = policy is not null ? new SecurityHeadersPolicy {
             ContentSecurityPolicy = policy.ContentSecurityPolicy.Clone(),

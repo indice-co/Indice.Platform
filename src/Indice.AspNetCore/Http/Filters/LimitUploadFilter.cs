@@ -18,7 +18,7 @@ public static class LimitUploadFilter
     /// <param name="sizeLimit">The maximum allowed file size in bytes.</param>
     /// <param name="fileExtensions">Allowed file extensions as a comma or space separated string.</param>
     /// <returns>The builder.</returns>
-    public static TBuilder LimitUpload<TBuilder>(this TBuilder builder, long sizeLimit, string fileExtensions = null) where TBuilder : IEndpointConventionBuilder {
+    public static TBuilder LimitUpload<TBuilder>(this TBuilder builder, long sizeLimit, string? fileExtensions = null) where TBuilder : IEndpointConventionBuilder {
         builder.Add(endpointBuilder => {
             var allowedExtensions = fileExtensions?
                 .Split(' ', ',', ';')

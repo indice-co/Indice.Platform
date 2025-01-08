@@ -231,7 +231,7 @@ public class IdentityResourceOwnerPasswordValidator<TUser>(
             await _userManager.ResetAccessFailedCountAsync(context.User);
         }
         var subject = await _userManager.GetUserIdAsync(context.User);
-        var ip = _httpContextAccessor.HttpContext.GetClientIpAddress();
+        var ip = _httpContextAccessor.HttpContext!.GetClientIpAddress();
         var claims = new List<Claim>();
         if (ip is not null) {
             claims.Add(new Claim(BasicClaimTypes.IPAddress, ip.ToString()));

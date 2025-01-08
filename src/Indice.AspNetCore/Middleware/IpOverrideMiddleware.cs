@@ -4,7 +4,8 @@ using Microsoft.Extensions.Primitives;
 
 namespace Indice.AspNetCore.Middleware;
 
-/// <summary></summary>
+/// <summary>A middleware used to debug access from an arbitrary IP</summary>
+/// <remarks>This should only be used in test environments to debug the access from various client ips. A test scenario would be impossible travel detection.</remarks>
 public class IpOverrideMiddleware
 {
     private readonly RequestDelegate _next;
@@ -27,7 +28,7 @@ public class IpOverrideMiddleware
             if (isValidIp) {
                 if (_options.UseForwardedFor && context.Request.Headers.TryGetValue("X-Forwarded-For", out var xForwardedFor)) {
                     var ips = xForwardedFor.ToArray();
-                    ips[0] = ipAddress.ToString();
+                    ips[0] = ipAddress!.ToString();
                     context.Request.Headers["X-Forwarded-For"] = new StringValues(ips);
                 } else {
                     context.Connection.RemoteIpAddress = ipAddress;
@@ -38,11 +39,11 @@ public class IpOverrideMiddleware
     }
 }
 
-/// <summary></summary>
+/// <summary>Options for the configuring the <see cref="IpOverrideMiddleware"/></summary>
 public class IpOverrideMiddlewareOptions
 {
     /// <summary>The client IP address that is impersonated</summary>
-    public string IpAddress { get; set; }
+    public string IpAddress { get; set; } = null!;
     /// <summary>
     /// True, when behind proxy
     /// </summary>

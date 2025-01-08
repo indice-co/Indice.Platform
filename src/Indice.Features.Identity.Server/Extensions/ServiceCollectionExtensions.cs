@@ -199,14 +199,6 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         }); // Configure anti-forgery token options.
         builder.Services.Configure<ExtendedEndpointOptions>(options => builder.Configuration.GetSection(ExtendedEndpointOptions.Name).Bind(options));
         builder.Services.PostConfigure<ExtendedEndpointOptions>(options => configureAction?.Invoke(options));
-        builder.Services.Configure<CacheResourceFilterOptions>(options => builder.Configuration.GetSection(CacheResourceFilterOptions.Name).Bind(options)); // Configure options for CacheResourceFilter.
-        builder.Services.PostConfigure<CacheResourceFilterOptions>(options => {
-            var endpointOptions = new ExtendedEndpointOptions {
-                DisableCache = options.DisableCache
-            };
-            configureAction?.Invoke(endpointOptions);
-            options.DisableCache = endpointOptions.DisableCache;
-        });
         builder.Services.ConfigureHttpJsonOptions(options => {
             options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             options.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;

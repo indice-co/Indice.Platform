@@ -35,7 +35,7 @@ public class CSP : IEnumerable<string>, ICloneable
         StyleSrc = $"{Self} {UnsafeInline} fonts.googleapis.com"
     };
 
-    private readonly Dictionary<string, string> _values = new Dictionary<string, string>();
+    private readonly Dictionary<string, string> _values = [];
 
     /// <summary>Wild-card, allows any URL except data: blob: filesystem: schemes.</summary>
     public const string Wildcard = "*";
@@ -76,7 +76,7 @@ public class CSP : IEnumerable<string>, ICloneable
     /// JavaScript, Images, CSS, Fonts, AJAX requests, Frames, HTML5 Media. <br/>
     /// Not all directives fallback to default-src. See the Source List Reference for possible values.
     /// </summary>
-    public string DefaultSrc {
+    public string? DefaultSrc {
         get => GetValueOrDefault(nameof(DefaultSrc));
         set => SetValue(nameof(DefaultSrc), value);
     }
@@ -84,7 +84,7 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <em>[CSP Level 1]</em><br/>
     /// Defines valid sources of JavaScript.
     /// </summary>
-    public string ScriptSrc {
+    public string? ScriptSrc {
         get => GetValueOrDefault(nameof(ScriptSrc));
         set => SetValue(nameof(ScriptSrc), value);
     }
@@ -92,7 +92,7 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <em>[CSP Level 1]</em><br/>
     ///Defines valid sources of stylesheets or CSS.
     /// </summary>
-    public string StyleSrc {
+    public string? StyleSrc {
         get => GetValueOrDefault(nameof(StyleSrc));
         set => SetValue(nameof(StyleSrc), value);
     }
@@ -100,7 +100,7 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <em>[CSP Level 1]</em><br/>
     /// Defines valid sources of images.
     /// </summary>
-    public string ImgSrc {
+    public string? ImgSrc {
         get => GetValueOrDefault(nameof(ImgSrc));
         set => SetValue(nameof(ImgSrc), value);
     }
@@ -110,7 +110,7 @@ public class CSP : IEnumerable<string>, ICloneable
     /// Applies to XMLHttpRequest (AJAX), WebSocket, fetch(), &lt;a ping&gt; or EventSource. <br/>
     /// If not allowed the browser emulates a 400 HTTP status code.
     /// </summary>
-    public string ConnectSrc {
+    public string? ConnectSrc {
         get => GetValueOrDefault(nameof(ConnectSrc));
         set => SetValue(nameof(ConnectSrc), value);
     }
@@ -119,7 +119,7 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <em>[CSP Level 1]</em><br/>
     /// Content Security Policy regarding font sources.
     /// </summary>
-    public string FontSrc {
+    public string? FontSrc {
         get => GetValueOrDefault(nameof(FontSrc));
         set => SetValue(nameof(FontSrc), value);
     }
@@ -128,7 +128,7 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <em>[CSP Level 1]</em><br/>
     /// Specifies valid sources for the &lt;object&gt;, &lt;embed&gt;, and &lt;applet&gt; elements.
     /// </summary>
-    public string ObjectSrc {
+    public string? ObjectSrc {
         get => GetValueOrDefault(nameof(ObjectSrc));
         set => SetValue(nameof(ObjectSrc), value);
     }
@@ -137,7 +137,7 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <em>[CSP Level 1]</em><br/>
     /// Defines valid sources of audio and video, eg HTML5 &lt;audio&gt;, &lt;video&gt; elements.
     /// </summary>
-    public string MediaSrc {
+    public string? MediaSrc {
         get => GetValueOrDefault(nameof(MediaSrc));
         set => SetValue(nameof(MediaSrc), value);
     }
@@ -147,7 +147,7 @@ public class CSP : IEnumerable<string>, ICloneable
     /// Defines valid sources for loading frames. In CSP Level 2 frame-src was deprecated in favor of the child-src directive. <br/>
     /// CSP Level 3, has undeprecated frame-src and it will continue to defer to child-src if not present.
     /// </summary>
-    public string FrameSrc {
+    public string? FrameSrc {
         get => GetValueOrDefault(nameof(FrameSrc));
         set => SetValue(nameof(FrameSrc), value);
     }
@@ -160,7 +160,7 @@ public class CSP : IEnumerable<string>, ICloneable
     /// allow-forms allow-same-origin allow-scripts allow-popups, allow-modals, allow-orientation-lock, <br/>
     /// allow-pointer-lock, allow-presentation, allow-popups-to-escape-sandbox, and allow-top-navigation
     /// </summary>
-    public string Sandbox {
+    public string? Sandbox {
         get => GetValueOrDefault(nameof(Sandbox));
         set => SetValue(nameof(Sandbox), value);
     }
@@ -171,7 +171,7 @@ public class CSP : IEnumerable<string>, ICloneable
     /// You can also use Content-Security-Policy-Report-Only as the HTTP header name to instruct the browser to only send reports (does not block anything). <br/>
     /// This directive is deprecated in CSP Level 3 in favor of the report-to directive.
     /// </summary>
-    public string ReportUri {
+    public string? ReportUri {
         get => GetValueOrDefault(nameof(ReportUri));
         set => SetValue(nameof(ReportUri), value);
     }
@@ -180,7 +180,7 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <em>[CSP Level 2]</em><br/>
     /// Defines valid sources for web workers and nested browsing contexts loaded using elements such as &lt;frame&gt; and &lt;iframe&gt;
     /// </summary>
-    public string ChildSrc {
+    public string? ChildSrc {
         get => GetValueOrDefault(nameof(ChildSrc));
         set => SetValue(nameof(ChildSrc), value);
     }
@@ -189,7 +189,7 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <em>[CSP Level 2]</em><br/>
     /// Defines valid sources that can be used as an HTML &lt;form&gt; action.
     /// </summary>
-    public string FormAction {
+    public string? FormAction {
         get => GetValueOrDefault(nameof(FormAction));
         set => SetValue(nameof(FormAction), value);
     }
@@ -199,7 +199,7 @@ public class CSP : IEnumerable<string>, ICloneable
     /// Defines valid sources for embedding the resource using &lt;frame&gt; &lt;iframe&gt; &lt;object&gt; &lt;embed&gt; &lt;applet&gt;. <br/>
     /// Setting this directive to 'none' should be roughly equivalent to X-Frame-Options: DENY
     /// </summary>
-    public string FrameAncestors {
+    public string? FrameAncestors {
         get => GetValueOrDefault(nameof(FrameAncestors));
         set => SetValue(nameof(FrameAncestors), value);
     }
@@ -209,7 +209,7 @@ public class CSP : IEnumerable<string>, ICloneable
     /// Defines valid MIME types for plugins invoked via &lt;object&gt; and &lt;embed&gt;. <br/>
     /// To load an &lt;applet&gt; you must specify application/x-java-applet.
     /// </summary>
-    public string PluginTypes {
+    public string? PluginTypes {
         get => GetValueOrDefault(nameof(PluginTypes));
         set => SetValue(nameof(PluginTypes), value);
     }
@@ -218,7 +218,7 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <em>[CSP Level 2]</em><br/>
     /// Defines a set of allowed URLs which can be used in the src attribute of a HTML base tag.
     /// </summary>
-    public string BaseUri {
+    public string? BaseUri {
         get => GetValueOrDefault(nameof(BaseUri));
         set => SetValue(nameof(BaseUri), value);
     }
@@ -227,7 +227,7 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <em>[CSP Level 3]</em><br/>
     /// Defines a reporting group name defined by a Report-To HTTP response header. See the Reporting API for more info.
     /// </summary>
-    public string ReportTo {
+    public string? ReportTo {
         get => GetValueOrDefault(nameof(ReportTo));
         set => SetValue(nameof(ReportTo), value);
     }
@@ -236,7 +236,7 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <em>[CSP Level 3]</em><br/>
     /// Restricts the URLs which may be loaded as a Worker, SharedWorker or ServiceWorker.
     /// </summary>
-    public string WorkerSrc {
+    public string? WorkerSrc {
         get => GetValueOrDefault(nameof(WorkerSrc));
         set => SetValue(nameof(WorkerSrc), value);
     }
@@ -245,7 +245,7 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <em>[CSP Level 3]</em><br/>
     /// Restricts the URLs that application manifests can be loaded.
     /// </summary>
-    public string ManifestSrc {
+    public string? ManifestSrc {
         get => GetValueOrDefault(nameof(ManifestSrc));
         set => SetValue(nameof(ManifestSrc), value);
     }
@@ -254,7 +254,7 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <em>[CSP Level 3]</em><br/>
     /// Defines valid sources for request prefetch and prerendering, for example via the link tag with rel="prefetch" or rel="prerender":
     /// </summary>
-    public string PrefetchSrc {
+    public string? PrefetchSrc {
         get => GetValueOrDefault(nameof(PrefetchSrc));
         set => SetValue(nameof(PrefetchSrc), value);
     }
@@ -265,7 +265,7 @@ public class CSP : IEnumerable<string>, ICloneable
     /// a form is submitted, or window.location is invoked. <br/>
     /// If form-action is present then this directive is ignored for form submissions.
     /// </summary>
-    public string NavigateTo {
+    public string? NavigateTo {
         get => GetValueOrDefault(nameof(NavigateTo));
         set => SetValue(nameof(NavigateTo), value);
     }
@@ -451,12 +451,19 @@ public class CSP : IEnumerable<string>, ICloneable
     /// <returns></returns>
     public override string ToString() => string.Join("; ", this);
 
-    private string GetValueOrDefault(string key) => _values.ContainsKey(key) ? _values[key] : null;
+    private string? GetValueOrDefault(string key) => _values.ContainsKey(key) ? _values[key] : null;
 
-    private void SetValue(string key, string value) {
+    private void SetValue(string key, string? value) {
         if (_values.ContainsKey(key)) {
-            _values[key] = value;
+            if (value is null) {
+                _values.Remove(key);
+            } else { 
+                _values[key] = value;
+            }
         } else {
+            if (value is null) {
+                return;
+            }
             _values.Add(key, value);
         }
     }
@@ -503,7 +510,7 @@ public class CSP : IEnumerable<string>, ICloneable
     {
         /// <summary>The CSP report member.</summary>
         [JsonPropertyName("csp-report")]
-        public Report CspReport { get; set; }
+        public Report? CspReport { get; set; }
     }
 
     /// <summary>Helper object that represents a browser CSP report object.</summary>
@@ -511,30 +518,30 @@ public class CSP : IEnumerable<string>, ICloneable
     {
         /// <summary>Document uri that the error happened.</summary>
         [JsonPropertyName("document-uri")]
-        public string DocumentUri { get; set; }
+        public string? DocumentUri { get; set; }
 
         /// <summary>The referrer.</summary>
         [JsonPropertyName("referrer")]
-        public string Referrer { get; set; }
+        public string? Referrer { get; set; }
 
         /// <summary>Which directive was violated.</summary>
         [JsonPropertyName("violated-directive")]
-        public string ViolatedDirective { get; set; }
+        public string? ViolatedDirective { get; set; }
 
         /// <summary>Effective directive.</summary>
         [JsonPropertyName("effective-directive")]
-        public string EffectiveDirective { get; set; }
+        public string? EffectiveDirective { get; set; }
 
         /// <summary>Original policy.</summary>
         [JsonPropertyName("original-policy")]
-        public string OriginalPolicy { get; set; }
+        public string? OriginalPolicy { get; set; }
 
         /// <summary>The resource uri that was blocked.</summary>
         [JsonPropertyName("blocked-uri")]
-        public string BlockedUri { get; set; }
+        public string? BlockedUri { get; set; }
 
         /// <summary>Status code.</summary>
         [JsonPropertyName("status-code")]
-        public int StatusCode { get; set; }
+        public int? StatusCode { get; set; }
     }
 }

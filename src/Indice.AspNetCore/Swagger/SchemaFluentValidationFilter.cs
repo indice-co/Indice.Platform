@@ -2,7 +2,6 @@
 using FluentValidation.Internal;
 using FluentValidation.Validators;
 using Humanizer;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -25,7 +24,7 @@ public class SchemaFluentValidationFilter : ISchemaFilter
         if (context.Type == typeof(void)) {
             return;
         }
-        IValidator validator;
+        IValidator? validator;
         using (var scope = _serviceProvider.CreateScope()) {
             validator = scope.ServiceProvider.GetService(context.Type) as IValidator;
         }
@@ -77,11 +76,11 @@ public class RequestBodyFluentValidationSwaggerFilter : IRequestBodyFilter
             return;
         }
         Type validatorType = typeof(IValidator<>).MakeGenericType(parameterDescriptionType);
-        IValidator validator = services.GetService(validatorType) as IValidator;
+        IValidator? validator = services.GetService(validatorType) as IValidator;
         if (validator is not null) {
-            OpenApiSchema schema = default;
-            if (context.SchemaRepository.Schemas.ContainsKey(parameterDescriptionType.FullName)) {
-                schema = context.SchemaRepository.Schemas[parameterDescriptionType.FullName];
+            OpenApiSchema? schema = default;
+            if (context.SchemaRepository.Schemas.ContainsKey(parameterDescriptionType.FullName!)) {
+                schema = context.SchemaRepository.Schemas[parameterDescriptionType.FullName!];
             } else if (context.SchemaRepository.Schemas.ContainsKey(parameterDescriptionType.Name)) {
                 schema = context.SchemaRepository.Schemas[parameterDescriptionType.Name];
             } else {

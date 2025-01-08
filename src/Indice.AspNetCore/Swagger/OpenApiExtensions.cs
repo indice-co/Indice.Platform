@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Reflection;
 using Microsoft.OpenApi.Any;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Indice.AspNetCore.Swagger;
 
@@ -57,7 +55,7 @@ public static class OpenApiExtensions
         return result;
     }
 
-    private static IOpenApiAny ToOpenApiArray(Type type, object instance) {
+    private static IOpenApiAny? ToOpenApiArray(Type type, object instance) {
         var itemType = GetAnyElementType(type);
 
         if (itemType != null) {
@@ -82,7 +80,7 @@ public static class OpenApiExtensions
     private static bool IsPrimitive(Type type) =>
         type.IsValueType || type.IsPrimitive || type.IsEnum || type == typeof(string);
 
-    private static IOpenApiPrimitive GetStructValue(Type type, object value) {
+    private static IOpenApiPrimitive? GetStructValue(Type type, object value) {
         return type switch {
             { } t when t == typeof(DateTime?) && ((DateTime?)value).HasValue => new OpenApiDate(((DateTime?)value).Value),
             { } t when t == typeof(DateTime) && ((DateTime)value) != default => new OpenApiDate((DateTime)value),
@@ -99,12 +97,12 @@ public static class OpenApiExtensions
             { } t when t == typeof(Guid) || t == typeof(Guid?) => new OpenApiString($"{value}"),
             { } t when t == typeof(byte) || t == typeof(byte?) => new OpenApiByte((byte)value),
             { } t when t.IsEnum || Nullable.GetUnderlyingType(t)?.IsEnum == true => new OpenApiString($"{value}"),
-            { } t when t.IsValueType && !t.IsPrimitive && !t.Namespace.StartsWith("System") && !t.IsEnum => new OpenApiString($"{value}"),
+            { } t when t.IsValueType && !t.IsPrimitive && !t.Namespace!.StartsWith("System") && !t.IsEnum => new OpenApiString($"{value}"),
             _ => default
         };
     }
 
-    private static Type GetAnyElementType(Type type) {
+    private static Type? GetAnyElementType(Type type) {
         // Type is Array. Short-circuit if you expect lots of arrays.
         if (type.IsArray) {
             return type.GetElementType();

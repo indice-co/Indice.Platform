@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Net.Mime;
+using System.Reflection;
 using Indice.AspNetCore.Http.Validation;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
@@ -66,7 +67,7 @@ public static partial class ValidationFilterExtensions
                 return;
             }
             // Track the indicies of validatable parameters.
-            List<ValidationDescriptor> parametersToValidate = null;
+            List<ValidationDescriptor>? parametersToValidate = null;
             foreach (var parameter in methodInfo.GetParameters()) {
                 if (typeToValidate.Equals(parameter.ParameterType) || (otherTypesToValidate is not null && otherTypesToValidate.Contains(parameter.ParameterType))) {
                     parametersToValidate ??= [];
@@ -78,7 +79,7 @@ public static partial class ValidationFilterExtensions
                 return;
             }
             // We can respond with problem details if there's a validation error.
-            endpointBuilder.Metadata.Add(new ProducesResponseTypeMetadata(StatusCodes.Status400BadRequest, typeof(HttpValidationProblemDetails), [ "application/problem+json" ]));
+            endpointBuilder.Metadata.Add(new ProducesResponseTypeMetadata(StatusCodes.Status400BadRequest, typeof(HttpValidationProblemDetails), [ MediaTypeNames.Application.ProblemJson ]));
             endpointBuilder.FilterFactories.Add((context, next) => {
                 return new EndpointFilterDelegate(async invocationContext => {
                     var validator = invocationContext.HttpContext.RequestServices.GetRequiredService<IEndpointParameterValidator>();
@@ -86,7 +87,7 @@ public static partial class ValidationFilterExtensions
                         if (invocationContext.Arguments[descriptor.ArgumentIndex] is { } arg) {
                             var (IsValid, Errors) = await validator.TryValidateAsync(descriptor.ArgumentType, arg);
                             if (!IsValid) {
-                                return Results.ValidationProblem(Errors, detail: "Model state validation", extensions: new Dictionary<string, object>() { ["code"] = "MODEL_STATE" });
+                                return Results.ValidationProblem(Errors, detail: "Model state validation", extensions: new Dictionary<string, object?>() { ["code"] = "MODEL_STATE" });
                             }
                         }
                     }
@@ -105,7 +106,7 @@ public static partial class ValidationFilterExtensions
     /// <param name="statusCode">The HTTP status code.</param>
     /// <param name="exceptionHandler">The action to perform when the exception occurs. Can be left null for default implementation.</param>
     /// <returns>The builder.</returns>
-    public static RouteGroupBuilder WithHandledException<TException>(this RouteGroupBuilder builder, int statusCode = StatusCodes.Status400BadRequest, Func<TException, ValidationProblem> exceptionHandler = null)
+    public static RouteGroupBuilder WithHandledException<TException>(this RouteGroupBuilder builder, int statusCode = StatusCodes.Status400BadRequest, Func<TException, ValidationProblem>? exceptionHandler = null)
         where TException : Exception => WithHandledException<RouteGroupBuilder, TException>(builder, statusCode, exceptionHandler);
 
     /// <summary>Adds exception handling for the specified exception.</summary>
@@ -114,7 +115,7 @@ public static partial class ValidationFilterExtensions
     /// <param name="statusCode">The HTTP status code.</param>
     /// <param name="exceptionHandler">The action to perform when the exception occurs. Can be left null for default implementation.</param>
     /// <returns>The builder.</returns>
-    public static RouteHandlerBuilder WithHandledException<TException>(this RouteHandlerBuilder builder, int statusCode = StatusCodes.Status400BadRequest, Func<TException, ValidationProblem> exceptionHandler = null)
+    public static RouteHandlerBuilder WithHandledException<TException>(this RouteHandlerBuilder builder, int statusCode = StatusCodes.Status400BadRequest, Func<TException, ValidationProblem>? exceptionHandler = null)
         where TException : Exception => WithHandledException<RouteHandlerBuilder, TException>(builder, statusCode, exceptionHandler);
 
     /// <summary>Adds the validation of input parameters and <see cref="HttpValidationProblemDetails"/> automatic response when something is out of place.</summary>
@@ -124,7 +125,7 @@ public static partial class ValidationFilterExtensions
     /// <param name="statusCode">The HTTP status code.</param>
     /// <param name="exceptionHandler">The action to perform when the exception occurs. Can be left null for default implementation.</param>
     /// <returns>The builder.</returns>
-    public static TBuilder WithHandledException<TBuilder, TException>(this TBuilder builder, int statusCode, Func<TException, IResult> exceptionHandler = null)
+    public static TBuilder WithHandledException<TBuilder, TException>(this TBuilder builder, int statusCode, Func<TException, IResult>? exceptionHandler = null)
         where TBuilder : IEndpointConventionBuilder
         where TException : Exception {
         builder.Add(endpointBuilder => {
@@ -133,7 +134,7 @@ public static partial class ValidationFilterExtensions
                 return;
             }
             // We can respond with problem details if there's a validation error.
-            endpointBuilder.Metadata.Add(new ProducesResponseTypeMetadata(statusCode, typeof(HttpValidationProblemDetails), [ "application/problem+json" ]));
+            endpointBuilder.Metadata.Add(new ProducesResponseTypeMetadata(statusCode, typeof(HttpValidationProblemDetails), [MediaTypeNames.Application.ProblemJson]));
             endpointBuilder.FilterFactories.Add((context, next) => {
                 return new EndpointFilterDelegate(async invocationContext => {
                     try {
@@ -147,14 +148,14 @@ public static partial class ValidationFilterExtensions
                             return Results.ValidationProblem(
                                 errors: businessException.Errors,
                                 detail: exception.Message,
-                                extensions: new Dictionary<string, object>() { ["code"] = businessException.Code }
+                                extensions: new Dictionary<string, object?>() { ["code"] = businessException.Code }
                             );
                         }
 
                         return Results.Problem(
                             detail: exception.Message,
                             statusCode: statusCode,
-                            extensions: new Dictionary<string, object>() { ["code"] = typeof(TException).Name }
+                            extensions: new Dictionary<string, object?>() { ["code"] = typeof(TException).Name }
                         );
                     }
                 });

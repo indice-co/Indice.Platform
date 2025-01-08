@@ -12,19 +12,19 @@
 <div class="sign-in m-auto">
     <vc:page-heading title="@title" image-src="" />
     <partial name="_ValidationSummary" />
-    <partial name="_Alert" model="tempData.Alert" />
+    <partial name="_Alert" model="tempData?.Alert" />
     <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post">
         <div class="form-group">
             <label asp-for="Input.Email" class="sr-only">@Localizer["Email"]</label>
-            <input class="form-control" type="text" placeholder="@Localizer["Email"]" asp-for="Input.Email" disabled="@tempData.DisableForm" />
+            <input class="form-control" type="text" placeholder="@Localizer["Email"]" asp-for="Input.Email" disabled="@tempData?.DisableForm" />
             <span asp-validation-for="Input.Email" class="text-danger"></span>
         </div>
         <div class="form-group">
             <div class="form-row m-0 w-100">
-                <div indice-if="Model.UiOptions.ShowAddEmailPrompt" class="@(tempData.DisableForm ? "col-sm-6" : string.Empty) col-12 py-1">
-                    <button class="btn btn-info btn-block" type="submit" disabled="@tempData.DisableForm">@Localizer["Save"]</button>
+                <div indice-if="Model.UiOptions.ShowAddEmailPrompt" class="@(tempData?.DisableForm == true ? "col-sm-6" : string.Empty) col-12 py-1">
+                    <button class="btn btn-info btn-block" type="submit" disabled="@tempData?.DisableForm">@Localizer["Save"]</button>
                 </div>
-                @if (tempData.DisableForm || !string.IsNullOrEmpty(tempData.NextStepUrl))
+                @if (tempData?.DisableForm == true || !string.IsNullOrEmpty(tempData?.NextStepUrl))
                 {
                     <div class="col-sm-6 col-12 py-1">
                         <a class="btn btn-info btn-block" href="@tempData.NextStepUrl">@Localizer["Next"]</a>

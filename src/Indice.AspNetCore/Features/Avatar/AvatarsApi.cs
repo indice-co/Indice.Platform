@@ -1,5 +1,4 @@
-﻿#nullable enable
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,4 +28,3 @@ public static class AvatarsApi
         return routes;
     }
 }
-#nullable disable
