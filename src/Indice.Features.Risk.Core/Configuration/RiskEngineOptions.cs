@@ -19,9 +19,9 @@ public class RiskEngineOptions
     /// <summary>Contains the mapping between the risk level and the score.</summary>
     public RiskLevelRangeDictionary RiskLevelRangeMapping {
         get => RiskLevelRangeMappingInternal;
-        set => RiskLevelRangeMappingInternal = value is not null && value.Any()
+        set => RiskLevelRangeMappingInternal = value is not null && value.Count > 0
             ? new RiskLevelRangeDictionary(value.OrderBy(x => (int)x.Key).ToDictionary(kvp => kvp.Key, kvp => kvp.Value))
-            : throw new ArgumentNullException($"{RiskLevelRangeMapping} options must be configured.");
+            : throw new ArgumentNullException($"{nameof(RiskLevelRangeMapping)} options must be configured.");
     }
 
     /// <summary>Defines the <see cref="RiskAggregateScoreResolutionType"/>. If not set, defaults to <see cref="RiskAggregateScoreResolutionType.Sum"/>.</summary>
