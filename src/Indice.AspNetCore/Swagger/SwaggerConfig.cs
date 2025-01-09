@@ -128,7 +128,10 @@ public static class SwaggerConfig {
         if (scope is null) {
             title = $"{apiSettings.FriendlyName}. {scopeOrGroup}";
         }
-        return options.AddDoc(scopeOrGroup, title!, description, version, apiSettings.TermsOfServiceUrl, license, contact);
+        if (!options.SwaggerGeneratorOptions.SwaggerDocs.ContainsKey(scopeOrGroup)) { 
+            return options.AddDoc(scopeOrGroup, title!, description, version, apiSettings.TermsOfServiceUrl, license, contact);
+        }
+        return options.SwaggerGeneratorOptions.SwaggerDocs[scopeOrGroup];
     }
 
     /// <summary>Add a new Swagger document based on a sub-scope of the existing API.</summary>
