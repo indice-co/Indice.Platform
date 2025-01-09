@@ -164,7 +164,7 @@ public static class CasesWorkflowFeatureExtensions
         configurePolicy ??= policy => policy
                 .AddAuthenticationSchemes("Bearer", "OpenIdConnect")
                 .RequireAuthenticatedUser()
-                .RequireAssertion(x => x.User.IsAdmin() || x.User.IsSystemClient());
+                .RequireAssertion(x => x.User.IsAdmin() || x.User.IsSystemClient() || x.User.HasRoleClaim(BasicRoleNames.CasesAdministrator));
 
         services.AddAuthorization(authOptions => {
             authOptions.AddPolicy(WorkflowPolicy, configurePolicy);
