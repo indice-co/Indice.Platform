@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using Indice.Features.Cases.Core.Models;
-using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 
 namespace Indice.Features.Cases.Server.Endpoints.Validators;
 

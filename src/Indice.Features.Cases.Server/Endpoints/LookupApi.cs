@@ -35,8 +35,8 @@ internal static class LookupApi
              .ProducesProblem(StatusCodes.Status401Unauthorized)
              .ProducesProblem(StatusCodes.Status403Forbidden);
         
-        group.MapGet("{lookupName}", LookupHandler.GetLookup)
-             .WithName(nameof(LookupHandler.GetLookup))
+        group.MapGet("{lookupName}", LookupHandlers.GetLookup)
+             .WithName(nameof(LookupHandlers.GetLookup))
              .WithSummary("Get a lookup result by lookupName and options.");
         
         return group;

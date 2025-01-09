@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Indice.Features.Cases.Server.Endpoints;
 
-internal static class AdminCaseDataHandler
+internal static class AdminCaseDataHandlers
 {
     /// <summary>
     /// Patches the Case.Data object with an object passed in the body.

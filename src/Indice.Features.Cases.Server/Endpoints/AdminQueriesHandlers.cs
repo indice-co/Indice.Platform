@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Indice.Features.Cases.Server.Endpoints;
-internal class AdminQueriesHandler
+internal class AdminQueriesHandlers
 {
     public static async Task<Ok<List<Query>>> GetQueries(IQueryService queryService, ClaimsPrincipal currentUser) {
         var queries = await queryService.GetQueries(currentUser);

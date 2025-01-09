@@ -36,8 +36,8 @@ internal static class AdminCheckpointTypesApi
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapGet(string.Empty, AdminCheckpointTypesHandler.GetDistinctCheckpointTypes)
-            .WithName(nameof(AdminCheckpointTypesHandler.GetDistinctCheckpointTypes))
+        group.MapGet(string.Empty, AdminCheckpointTypesHandlers.GetDistinctCheckpointTypes)
+            .WithName(nameof(AdminCheckpointTypesHandlers.GetDistinctCheckpointTypes))
             .WithSummary("Get the distinct checkpoint types grouped by code.");
 
         return group;

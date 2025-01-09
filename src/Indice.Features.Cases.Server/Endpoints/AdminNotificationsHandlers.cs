@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Server.Endpoints;
-internal static class AdminNotificationsHandler
+internal static class AdminNotificationsHandlers
 {
     public static async Task<Results<Ok<NotificationSubscriptionResponse>, BadRequest>> GetMySubscriptions(ClaimsPrincipal User, IOptions<CaseServerOptions> casesOptions, INotificationSubscriptionService service) {
         var options = new ListOptions<NotificationFilter> {

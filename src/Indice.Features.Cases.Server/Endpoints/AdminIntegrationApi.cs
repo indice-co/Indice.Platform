@@ -34,12 +34,12 @@ internal static class AdminIntegrationApi
              .ProducesProblem(StatusCodes.Status403Forbidden)
              .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapGet("contacts", AdminIntegrationHandler.GetContacts)
-             .WithName(nameof(AdminIntegrationHandler.GetContacts))
+        group.MapGet("contacts", AdminIntegrationHandlers.GetContacts)
+             .WithName(nameof(AdminIntegrationHandlers.GetContacts))
              .WithSummary("Search contacts.");
 
-        group.MapGet("contacts/{reference}/data/{caseTypeCode}", AdminIntegrationHandler.GetContactData)
-             .WithName(nameof(AdminIntegrationHandler.GetContactData))
+        group.MapGet("contacts/{reference}/data/{caseTypeCode}", AdminIntegrationHandlers.GetContactData)
+             .WithName(nameof(AdminIntegrationHandlers.GetContactData))
              .WithSummary("Fetch contact data by contact.reference number for a specific case type code.");
 
         return group;

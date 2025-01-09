@@ -37,12 +37,12 @@ internal static class MyCaseTypesApi
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden);
 
-        group.MapGet(string.Empty, MyCaseTypesHandler.GetCaseTypes)
-            .WithName(nameof(MyCaseTypesHandler.GetCaseTypes))
+        group.MapGet(string.Empty, MyCaseTypesHandlers.GetCaseTypes)
+            .WithName(nameof(MyCaseTypesHandlers.GetCaseTypes))
             .WithSummary("Gets case types.");
 
-        group.MapGet("{caseTypeCode}", MyCaseTypesHandler.GetCaseType)
-            .WithName(nameof(MyCaseTypesHandler.GetCaseType))
+        group.MapGet("{caseTypeCode}", MyCaseTypesHandlers.GetCaseType)
+            .WithName(nameof(MyCaseTypesHandlers.GetCaseType))
             .WithSummary("Gets a case type by its code.");
 
         return routes;

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Indice.Features.Cases.Server.Endpoints;
 
-internal static class AdminCaseTypesHandler
+internal static class AdminCaseTypesHandlers
 {
 
     public static async Task<Results<Ok<ResultSet<CaseTypePartial>>, NotFound>> GetCaseTypesList(ICaseTypeService caseTypeService, ClaimsPrincipal User, bool canCreate = false) {

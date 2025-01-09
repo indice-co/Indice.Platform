@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Indice.Features.Cases.Server.Endpoints;
 
-internal class AdminAccessRulesHandler
+internal class AdminAccessRulesHandlers
 {
     /// <summary>Get Access rules.</summary>
     /// <param name="options"></param>

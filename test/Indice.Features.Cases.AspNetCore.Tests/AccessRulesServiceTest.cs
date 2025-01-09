@@ -48,7 +48,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
 
     private static ClaimsPrincipal Admin() {
         var claims = new List<Claim> {
-            new Claim(BasicClaimTypes.Scope, CasesApiConstants.Scope),
+            new Claim(BasicClaimTypes.Scope, CasesCoreConstants.DefaultScopeName),
             new Claim(BasicClaimTypes.Subject, "CE21AF5A-FEDD-4BD6-BAE3-B7473E8A219D"),
             new Claim(BasicClaimTypes.Email, "Case API"),
             new Claim(BasicClaimTypes.GivenName, "Case API"),
@@ -61,7 +61,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
 
     private static ClaimsPrincipal NonAdmin() {
         var claims = new List<Claim> {
-            new Claim(BasicClaimTypes.Scope, CasesApiConstants.Scope),
+            new Claim(BasicClaimTypes.Scope, CasesCoreConstants.DefaultScopeName),
             new Claim(BasicClaimTypes.Subject, "CE21AF5A-FEDD-4BD6-BAE3-B7473E8A219E"),
             new Claim(BasicClaimTypes.Email, "Case API"),
             new Claim(BasicClaimTypes.GivenName, "Case API"),

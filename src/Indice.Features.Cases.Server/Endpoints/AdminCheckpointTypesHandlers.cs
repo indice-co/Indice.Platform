@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Indice.Features.Cases.Server.Endpoints;
-internal static class AdminCheckpointTypesHandler
+internal static class AdminCheckpointTypesHandlers
 {
     public static async Task<Results<Ok<List<CheckpointType>>, NotFound>> GetDistinctCheckpointTypes(ICheckpointTypeService checkpointTypeService, ClaimsPrincipal User) {
         var distinctCheckpointTypes = await checkpointTypeService.GetDistinctCheckpointTypes(User);

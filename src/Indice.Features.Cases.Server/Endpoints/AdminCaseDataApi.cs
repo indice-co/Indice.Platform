@@ -33,12 +33,12 @@ internal static class AdminCaseDataApi
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapPatch("{caseId}/data", AdminCaseDataHandler.PatchAdminCaseData)
-            .WithName(nameof(AdminCaseDataHandler.PatchAdminCaseData))
+        group.MapPatch("{caseId}/data", AdminCaseDataHandlers.PatchAdminCaseData)
+            .WithName(nameof(AdminCaseDataHandlers.PatchAdminCaseData))
             .WithSummary("Patches the Case.Data object with an object passed in the body.");
 
-        group.MapPatch("{caseId}/data-json", AdminCaseDataHandler.JsonPatchAdminCaseData)
-            .WithName(nameof(AdminCaseDataHandler.JsonPatchAdminCaseData))
+        group.MapPatch("{caseId}/data-json", AdminCaseDataHandlers.JsonPatchAdminCaseData)
+            .WithName(nameof(AdminCaseDataHandlers.JsonPatchAdminCaseData))
             .WithSummary("Update the Case Data for the specific caseId according to https://datatracker.ietf.org/doc/html/rfc6902#appendix-A.");
 
         return routes;

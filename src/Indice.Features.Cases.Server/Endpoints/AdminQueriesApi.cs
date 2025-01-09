@@ -1,4 +1,5 @@
-﻿using Indice.Features.Cases.Server;
+﻿using Indice.Features.Cases.Core.Models;
+using Indice.Features.Cases.Server;
 using Indice.Features.Cases.Server.Authorization;
 using Indice.Features.Cases.Server.Endpoints;
 using Indice.Security;
@@ -36,16 +37,17 @@ internal static class AdminQueriesApi
              .ProducesProblem(StatusCodes.Status401Unauthorized)
              .ProducesProblem(StatusCodes.Status403Forbidden);
 
-        group.MapGet(string.Empty, AdminQueriesHandler.GetQueries)
-             .WithName(nameof(AdminQueriesHandler.GetQueries))
+        group.MapGet(string.Empty, AdminQueriesHandlers.GetQueries)
+             .WithName(nameof(AdminQueriesHandlers.GetQueries))
              .WithSummary("Get saved queries.");
 
-        group.MapPost(string.Empty, AdminQueriesHandler.SaveQuery)
-             .WithName(nameof(AdminQueriesHandler.SaveQuery))
-             .WithSummary("Save a new query.");
+        group.MapPost(string.Empty, AdminQueriesHandlers.SaveQuery)
+             .WithName(nameof(AdminQueriesHandlers.SaveQuery))
+             .WithSummary("Save a new query.")
+            .WithParameterValidation<SaveQueryRequest>();
 
-        group.MapDelete("{queryId}", AdminQueriesHandler.DeleteQuery)
-             .WithName(nameof(AdminQueriesHandler.DeleteQuery))
+        group.MapDelete("{queryId}", AdminQueriesHandlers.DeleteQuery)
+             .WithName(nameof(AdminQueriesHandlers.DeleteQuery))
              .WithSummary("Delete a query.");
 
         return group;

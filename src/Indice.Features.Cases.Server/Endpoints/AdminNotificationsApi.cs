@@ -36,12 +36,12 @@ internal static class AdminNotificationsApi
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapGet(string.Empty, AdminNotificationsHandler.GetMySubscriptions)
-            .WithName(nameof(AdminNotificationsHandler.GetMySubscriptions))
+        group.MapGet(string.Empty, AdminNotificationsHandlers.GetMySubscriptions)
+            .WithName(nameof(AdminNotificationsHandlers.GetMySubscriptions))
             .WithSummary("Get the notification subscriptions for a user.");
 
-        group.MapPost(string.Empty, AdminNotificationsHandler.Subscribe)
-            .WithName(nameof(AdminNotificationsHandler.Subscribe))
+        group.MapPost(string.Empty, AdminNotificationsHandlers.Subscribe)
+            .WithName(nameof(AdminNotificationsHandlers.Subscribe))
             .WithSummary("Store user's subscription settings.");
 
         return group;

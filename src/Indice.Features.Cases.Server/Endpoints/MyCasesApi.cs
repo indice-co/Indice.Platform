@@ -1,4 +1,5 @@
 ﻿using System.Net.Mime;
+using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Server;
 using Indice.Features.Cases.Server.Endpoints;
 using Microsoft.AspNetCore.Builder;
@@ -37,33 +38,35 @@ internal static class MyCasesApi
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden);
 
-        group.MapGet(string.Empty, MyCasesHandler.GetMyCases)
-            .WithName(nameof(MyCasesHandler.GetMyCases))
+        group.MapGet(string.Empty, MyCasesHandlers.GetMyCases)
+            .WithName(nameof(MyCasesHandlers.GetMyCases))
             .WithSummary("Get the list of the customer's cases.");
 
-        group.MapGet("{caseId}", MyCasesHandler.GetMyCaseById)
-            .WithName(nameof(MyCasesHandler.GetMyCaseById))
+        group.MapGet("{caseId}", MyCasesHandlers.GetMyCaseById)
+            .WithName(nameof(MyCasesHandlers.GetMyCaseById))
             .WithSummary("Get case details by Id.");
 
-        group.MapPost(string.Empty, MyCasesHandler.CreateDraftCase)
-            .WithName(nameof(MyCasesHandler.CreateDraftCase))
-            .WithSummary("Create a new draft case.");
+        group.MapPost(string.Empty, MyCasesHandlers.CreateDraftCase)
+            .WithName(nameof(MyCasesHandlers.CreateDraftCase))
+            .WithSummary("Create a new draft case.")
+            .WithParameterValidation<CreateDraftCaseRequest>();
 
-        group.MapPost("{caseId}/attachments", MyCasesHandler.UploadCaseAttachment)
-            .WithName(nameof(MyCasesHandler.UploadCaseAttachment))
+        group.MapPost("{caseId}/attachments", MyCasesHandlers.UploadCaseAttachment)
+            .WithName(nameof(MyCasesHandlers.UploadCaseAttachment))
             .DisableAntiforgery()
             .WithSummary("Add an attachment to an existing case regardless of its status and mode (draft or not).");
 
-        group.MapPut("{caseId}", MyCasesHandler.UpdateCase)
-            .WithName(nameof(MyCasesHandler.UpdateCase))
-            .WithSummary("Update the case with the business data as defined at the specific case type.");
+        group.MapPut("{caseId}", MyCasesHandlers.UpdateCase)
+            .WithName(nameof(MyCasesHandlers.UpdateCase))
+            .WithSummary("Update the case with the business data as defined at the specific case type.")
+            .WithParameterValidation<UpdateCaseRequest>();
 
-        group.MapPost("{caseId}/submit", MyCasesHandler.SubmitMyCase)
-            .WithName(nameof(MyCasesHandler.SubmitMyCase))
+        group.MapPost("{caseId}/submit", MyCasesHandlers.SubmitMyCase)
+            .WithName(nameof(MyCasesHandlers.SubmitMyCase))
             .WithSummary("Submit the case by removing the draft mode.");
 
-        group.MapGet("{caseId}/download", MyCasesHandler.DownloadMyCasePdf)
-            .WithName(nameof(MyCasesHandler.DownloadMyCasePdf))
+        group.MapGet("{caseId}/download", MyCasesHandlers.DownloadMyCasePdf)
+            .WithName(nameof(MyCasesHandlers.DownloadMyCasePdf))
             .WithSummary("Download case in a PDF format.")
             .Produces(StatusCodes.Status200OK, typeof(IFormFile), MediaTypeNames.Application.Pdf);
 

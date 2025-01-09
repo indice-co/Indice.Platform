@@ -38,74 +38,74 @@ internal static class AdminCasesApi
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapPost(string.Empty, AdminCasesHandler.CreateDraftAdminCase)
-            .WithName(nameof(AdminCasesHandler.CreateDraftAdminCase))
+        group.MapPost(string.Empty, AdminCasesHandlers.CreateDraftAdminCase)
+            .WithName(nameof(AdminCasesHandlers.CreateDraftAdminCase))
             .WithSummary("Create a new case in draft mode.");
 
-        group.MapGet("{caseId}/attachments", AdminCasesHandler.GetCaseAttachments)
-            .WithName(nameof(AdminCasesHandler.GetCaseAttachments))
+        group.MapGet("{caseId}/attachments", AdminCasesHandlers.GetCaseAttachments)
+            .WithName(nameof(AdminCasesHandlers.GetCaseAttachments))
             .WithSummary("Get a list of Attachments for a CaseId");
 
-        group.MapPost("{caseId}/attachments", AdminCasesHandler.UploadAdminCaseAttachment)
-            .WithName(nameof(AdminCasesHandler.UploadAdminCaseAttachment))
+        group.MapPost("{caseId}/attachments", AdminCasesHandlers.UploadAdminCaseAttachment)
+            .WithName(nameof(AdminCasesHandlers.UploadAdminCaseAttachment))
             .DisableAntiforgery()
             .WithSummary("Add an attachment to an existing case regardless of its status and mode (draft or not).")
             .LimitUpload(uploadlimit.DefaultMaxFileSizeBytes, string.Join(',', uploadlimit.DefaultAllowedFileExtensions));
 
-        group.MapGet("{caseId}/attachments/{attachmentId:guid}", AdminCasesHandler.GetCaseAttachment)
-            .WithName(nameof(AdminCasesHandler.GetCaseAttachment))
+        group.MapGet("{caseId}/attachments/{attachmentId:guid}", AdminCasesHandlers.GetCaseAttachment)
+            .WithName(nameof(AdminCasesHandlers.GetCaseAttachment))
             .WithSummary("Get an Case Attachment");
 
-        group.MapGet("{caseId}/attachments/{attachmentName}", AdminCasesHandler.GetAttachmentByField)
-            .WithName(nameof(AdminCasesHandler.GetAttachmentByField))
+        group.MapGet("{caseId}/attachments/{attachmentName}", AdminCasesHandlers.GetAttachmentByField)
+            .WithName(nameof(AdminCasesHandlers.GetAttachmentByField))
             .WithSummary("Get a Case Attachment by field name.");
 
-        group.MapPut("{caseId}", AdminCasesHandler.UpdateAdminCase)
-            .WithName(nameof(AdminCasesHandler.UpdateAdminCase))
+        group.MapPut("{caseId}", AdminCasesHandlers.UpdateAdminCase)
+            .WithName(nameof(AdminCasesHandlers.UpdateAdminCase))
             .WithSummary("Update the case with the business data as defined at the specific case type. This action is allowed only for draft cases.");
 
-        group.MapPost("{caseId}/submit", AdminCasesHandler.SubmitAdminCase)
-            .WithName(nameof(AdminCasesHandler.SubmitAdminCase))
+        group.MapPost("{caseId}/submit", AdminCasesHandlers.SubmitAdminCase)
+            .WithName(nameof(AdminCasesHandlers.SubmitAdminCase))
             .WithSummary("Submit the case by removing the draft mode.");
 
-        group.MapPatch("{caseId}/metadata", AdminCasesHandler.PatchCaseMetadata)
-            .WithName(nameof(AdminCasesHandler.PatchCaseMetadata))
+        group.MapPatch("{caseId}/metadata", AdminCasesHandlers.PatchCaseMetadata)
+            .WithName(nameof(AdminCasesHandlers.PatchCaseMetadata))
             .WithSummary("Patches the metadata of a case.");
 
-        group.MapPost("{caseId}/comment", AdminCasesHandler.AdminAddComment)
-            .WithName(nameof(AdminCasesHandler.AdminAddComment))
+        group.MapPost("{caseId}/comment", AdminCasesHandlers.AdminAddComment)
+            .WithName(nameof(AdminCasesHandlers.AdminAddComment))
             .WithSummary("Add a comment to a case.");
 
-        group.MapGet(string.Empty, AdminCasesHandler.GetCases)
-            .WithName(nameof(AdminCasesHandler.GetCases))
+        group.MapGet(string.Empty, AdminCasesHandlers.GetCases)
+            .WithName(nameof(AdminCasesHandlers.GetCases))
             .WithSummary("Gets the list of all cases using the provided.");
 
-        group.MapGet("{caseId}", AdminCasesHandler.GetCaseById)
-            .WithName(nameof(AdminCasesHandler.GetCaseById))
+        group.MapGet("{caseId}", AdminCasesHandlers.GetCaseById)
+            .WithName(nameof(AdminCasesHandlers.GetCaseById))
             .WithSummary("Gets a case with the specified id.");
 
-        group.MapDelete("{caseId}", AdminCasesHandler.DeleteDraftCase)
-            .WithName(nameof(AdminCasesHandler.DeleteDraftCase))
+        group.MapDelete("{caseId}", AdminCasesHandlers.DeleteDraftCase)
+            .WithName(nameof(AdminCasesHandlers.DeleteDraftCase))
             .WithSummary("Deletes a draft case with the specified id.");
 
-        group.MapGet("{caseId}/timeline", AdminCasesHandler.GetCaseTimeline)
-            .WithName(nameof(AdminCasesHandler.GetCaseTimeline))
+        group.MapGet("{caseId}/timeline", AdminCasesHandlers.GetCaseTimeline)
+            .WithName(nameof(AdminCasesHandlers.GetCaseTimeline))
             .WithSummary("Gets the timeline entries for a case.");
 
-        group.MapGet("{caseId}/related-cases", AdminCasesHandler.GetRelatedCases)
-            .WithName(nameof(AdminCasesHandler.GetRelatedCases))
+        group.MapGet("{caseId}/related-cases", AdminCasesHandlers.GetRelatedCases)
+            .WithName(nameof(AdminCasesHandlers.GetRelatedCases))
             .WithSummary("Gets the cases that are related to the given id.");
 
-        group.MapGet("{caseId}/actions", AdminCasesHandler.GetCaseActions)
-            .WithName(nameof(AdminCasesHandler.GetCaseActions))
+        group.MapGet("{caseId}/actions", AdminCasesHandlers.GetCaseActions)
+            .WithName(nameof(AdminCasesHandlers.GetCaseActions))
             .WithSummary("Gets the cases actions (Approval, edit, assignments, etc) for a case Id. Actions differ based on user role.");
 
-        group.MapGet("{caseId}/reject-reasons", AdminCasesHandler.GetCaseRejectReasons)
-            .WithName(nameof(AdminCasesHandler.GetCaseRejectReasons))
+        group.MapGet("{caseId}/reject-reasons", AdminCasesHandlers.GetCaseRejectReasons)
+            .WithName(nameof(AdminCasesHandlers.GetCaseRejectReasons))
             .WithSummary("Get the reject reasons for a case.");
 
-        group.MapGet("{caseId}.pdf", AdminCasesHandler.DownloadCasePdf)
-            .WithName(nameof(AdminCasesHandler.DownloadCasePdf))
+        group.MapGet("{caseId}.pdf", AdminCasesHandlers.DownloadCasePdf)
+            .WithName(nameof(AdminCasesHandlers.DownloadCasePdf))
             .WithSummary("Download case in a PDF format.")
             .Produces(StatusCodes.Status200OK, typeof(IFormFile), MediaTypeNames.Application.Pdf);
         return group;

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Indice.Features.Cases.Server.Endpoints;
-internal static class AdminIntegrationHandler
+internal static class AdminIntegrationHandlers
 {
     public static async Task<Results<Ok<ResultSet<Contact>>, NotFound>> GetContacts(ClaimsPrincipal currentUser, IContactProvider customerIntegrationService, [AsParameters] ContactFilter criteria, [AsParameters] ListOptions listOptions) {
         var contacts = await customerIntegrationService.GetListAsync(currentUser, ListOptions.Create(listOptions, criteria));

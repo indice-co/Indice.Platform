@@ -39,41 +39,41 @@ internal static class AdminAccessRulesApi
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapGet("access-rules", AdminAccessRulesHandler.GetAccessRules)
-            .WithName(nameof(AdminAccessRulesHandler.GetAccessRules))
+        group.MapGet("access-rules", AdminAccessRulesHandlers.GetAccessRules)
+            .WithName(nameof(AdminAccessRulesHandlers.GetAccessRules))
             .WithSummary("Get Access rules.");
 
-        group.MapPost("access-rules", AdminAccessRulesHandler.CreateAccessRule)
-            .WithName(nameof(AdminAccessRulesHandler.CreateAccessRule))
+        group.MapPost("access-rules", AdminAccessRulesHandlers.CreateAccessRule)
+            .WithName(nameof(AdminAccessRulesHandlers.CreateAccessRule))
             .WithSummary("Add a new Access rule for admin Users.")
             .RequireAuthorization(pb => pb.RequireCasesAccess(CasesAccessLevel.Admin))
             .WithParameterValidation<AddAccessRuleRequest>();
 
-        group.MapPost("access-rules/batch", AdminAccessRulesHandler.CreateAccessRulesBatch)
-            .WithName(nameof(AdminAccessRulesHandler.CreateAccessRulesBatch))
+        group.MapPost("access-rules/batch", AdminAccessRulesHandlers.CreateAccessRulesBatch)
+            .WithName(nameof(AdminAccessRulesHandlers.CreateAccessRulesBatch))
             .WithSummary("Add a new Access rule for admin Users.")
             .RequireAuthorization(pb => pb.RequireCasesAccess(CasesAccessLevel.Admin))
             .WithParameterValidation<List<AddAccessRuleRequest>>();
 
-        group.MapPut("access-rules/{ruleId}/{accessLevel}", AdminAccessRulesHandler.UpdateAccessRule)
-            .WithName(nameof(AdminAccessRulesHandler.UpdateAccessRule))
+        group.MapPut("access-rules/{ruleId}/{accessLevel}", AdminAccessRulesHandlers.UpdateAccessRule)
+            .WithName(nameof(AdminAccessRulesHandlers.UpdateAccessRule))
             .WithSummary("Update an existing Access rule.");
 
-        group.MapDelete("access-rules/{ruleId}", AdminAccessRulesHandler.DeleteAccessRule)
-            .WithName(nameof(AdminAccessRulesHandler.DeleteAccessRule))
+        group.MapDelete("access-rules/{ruleId}", AdminAccessRulesHandlers.DeleteAccessRule)
+            .WithName(nameof(AdminAccessRulesHandlers.DeleteAccessRule))
             .WithSummary("Delete an existing Access rule.");
 
-        group.MapGet("cases/{caseId}/access-rules", AdminAccessRulesHandler.GetCaseAccessRules)
-            .WithName(nameof(AdminAccessRulesHandler.GetCaseAccessRules))
+        group.MapGet("cases/{caseId}/access-rules", AdminAccessRulesHandlers.GetCaseAccessRules)
+            .WithName(nameof(AdminAccessRulesHandlers.GetCaseAccessRules))
             .WithSummary("Get Access rules for the specified case.");
 
-        group.MapPost("cases/{caseId}/access-rules", AdminAccessRulesHandler.CreateCaseAccessRules)
-            .WithName(nameof(AdminAccessRulesHandler.CreateCaseAccessRules))
+        group.MapPost("cases/{caseId}/access-rules", AdminAccessRulesHandlers.CreateCaseAccessRules)
+            .WithName(nameof(AdminAccessRulesHandlers.CreateCaseAccessRules))
             .WithSummary("Add a new Access rule for a case.")
             .WithParameterValidation<AddCaseAccessRuleRequest>();
 
-        group.MapPut("cases/{caseId}/access-rules/batch", AdminAccessRulesHandler.UpdateCaseAccessRulesBatch)
-            .WithName(nameof(AdminAccessRulesHandler.UpdateCaseAccessRulesBatch))
+        group.MapPut("cases/{caseId}/access-rules/batch", AdminAccessRulesHandlers.UpdateCaseAccessRulesBatch)
+            .WithName(nameof(AdminAccessRulesHandlers.UpdateCaseAccessRulesBatch))
             .WithSummary("Update a batch of Access rules for a case.")
             .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Admin))
             .WithParameterValidation<List<AddCaseAccessRuleRequest>>();

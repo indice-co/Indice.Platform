@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Indice.Features.Cases.Server.Endpoints;
-internal static class AdminWorkflowInvokerHandler
+internal static class AdminWorkflowInvokerHandlers
 {
     public static async Task<Results<NoContent, ProblemHttpResult>> SubmitApproval(Guid caseId, ApprovalRequest request, ICasesWorkflowManager workflowManager, ClaimsPrincipal currentUser) {
         var result = await workflowManager.SubmitApprovalAsync(currentUser, caseId, request);

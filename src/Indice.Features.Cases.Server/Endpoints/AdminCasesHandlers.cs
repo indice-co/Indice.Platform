@@ -15,7 +15,7 @@ using Microsoft.Extensions.Options;
 namespace Indice.Features.Cases.Server.Endpoints;
 
 ///<summary>Cases from the administrative perspective.</summary>
-internal static class AdminCasesHandler
+internal static class AdminCasesHandlers
 {
     public static async Task<Ok<CreateCaseResponse>> CreateDraftAdminCase(
         CreateDraftCaseRequest request,

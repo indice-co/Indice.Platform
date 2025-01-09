@@ -35,8 +35,8 @@ internal static class AdminReportsApi
              .ProducesProblem(StatusCodes.Status401Unauthorized)
              .ProducesProblem(StatusCodes.Status403Forbidden);
 
-        group.MapGet(string.Empty, AdminReportsHandler.GetCaseReport)
-             .WithName(nameof(AdminReportsHandler.GetCaseReport))
+        group.MapGet(string.Empty, AdminReportsHandlers.GetCaseReport)
+             .WithName(nameof(AdminReportsHandlers.GetCaseReport))
              .WithSummary("Get case report");
 
         return group;

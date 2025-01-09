@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Indice.Features.Cases.Server.Endpoints;
-internal static class LookupHandler
+internal static class LookupHandlers
 {
     public static async Task<Results<Ok<ResultSet<LookupItem>>, NotFound>> GetLookup(
         string lookupName, 

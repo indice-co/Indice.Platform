@@ -93,8 +93,6 @@ internal class AccessRuleService : IAccessRuleService
         if (!isSystemOrAdmin) {
             throw new UnauthorizedAccessException("User does not have administrator rights.");
         }
-        if (!accessRule.IsValid())
-            throw new ValidationException("At least one resource rule must be set (RuleCaseId, RuleCheckpointTypeId, RuleCaseTypeId or RuleCaseId & RuleCheckpointTypeId) with at least one grant (MemberRole, MemberGroupId, MemberUserId).");
 
         var entity = FromModel(accessRule);
         await _dbContext.CaseAccessRules.AddAsync(entity);
@@ -108,8 +106,6 @@ internal class AccessRuleService : IAccessRuleService
         if (!isSystemOrAdmin) {
             throw new UnauthorizedAccessException("User does not have administrator rights.");
         }
-        if (accessRules.Exists(x => !x.IsValid()))
-            throw new ValidationException("At least one resource rule must be set (RuleCaseId, RuleCheckpointTypeId, RuleCaseTypeId or RuleCaseId & RuleCheckpointTypeId) with at least one grant (MemberRole, MemberGroupId, MemberUserId) for all records.");
 
         foreach (var accessRule in accessRules) {
             await _dbContext.CaseAccessRules.AddAsync(FromModel(accessRule));
@@ -120,10 +116,6 @@ internal class AccessRuleService : IAccessRuleService
 
 
     public async Task Create(ClaimsPrincipal user, Guid caseId, AddCaseAccessRuleRequest accessRule) {
-
-        if (!accessRule.IsValid())
-            throw new ValidationException("At lease on of the following fields must be set MemberRole, MemberGroupId, MemberUserId.");
-
         var entity = FromModel(accessRule, caseId);
         await _dbContext.CaseAccessRules.AddAsync(entity);
         await _dbContext.SaveChangesAsync();
@@ -149,10 +141,6 @@ internal class AccessRuleService : IAccessRuleService
     }
 
     public async Task Batch(ClaimsPrincipal user, Guid caseId, List<AddCaseAccessRuleRequest> accessRules) {
-
-        if (accessRules.Exists(x => !x.IsValid()))
-            throw new ValidationException("At lease on of the following fields must be set MemberRole, MemberGroupId, MemberUserId for all records.");
-
         foreach (var accessRule in accessRules) {
             await _dbContext.CaseAccessRules.AddAsync(FromModel(accessRule, caseId));
         }
@@ -188,7 +176,7 @@ internal class AccessRuleService : IAccessRuleService
     }
 
     private DbCaseAccessRule FromModel(AddAccessRuleRequest accessRule) =>
-        new () {
+        new() {
             Id = Guid.NewGuid(),
 
             RuleCaseId = accessRule.RuleCaseId,
@@ -203,7 +191,7 @@ internal class AccessRuleService : IAccessRuleService
             CreatedDate = DateTimeOffset.UtcNow
         };
     private DbCaseAccessRule FromModel(AddCaseAccessRuleRequest accessRule, Guid caseId) =>
-       new () {
+       new() {
            Id = Guid.NewGuid(),
 
            RuleCaseId = caseId,
