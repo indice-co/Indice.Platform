@@ -120,7 +120,8 @@ public abstract class BasePageModel : PageModel
                    })
         );
         var logger = ServiceProvider.GetRequiredService<ILogger<BasePageModel>>();
-        logger.LogInformation("Sending a confirmation email to {Email} with callback URL: {CallbackUrl}.", user.Email, callbackUrl);
+        var maskedEmail = user.Email.Substring(0, 2) + "****" + user.Email.Substring(user.Email.IndexOf('@'));
+        logger.LogInformation("Sending a confirmation email to {Email} with callback URL: {CallbackUrl}.", maskedEmail, callbackUrl);
     }
 
     /// <summary>Generates a change email confirmation link and sends it to the email of the specified user.</summary>
