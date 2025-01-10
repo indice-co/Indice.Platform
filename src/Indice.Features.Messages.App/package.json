@@ -41,7 +41,7 @@
     "@angular/cli": "17.3.11",
     "@angular/compiler-cli": "17.3.12",
     "@angular/language-service": "17.3.12",
-    "@types/jasmine": "~3.6.0",
+    "@types/jasmine": "~5.1.5",
     "@types/uuid": "9.0.8",
     "@tailwindcss/aspect-ratio": "0.4.2",
     "@tailwindcss/forms": "0.5.10",
