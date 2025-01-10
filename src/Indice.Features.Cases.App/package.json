@@ -44,7 +44,7 @@
     "@tailwindcss/aspect-ratio": "0.4.2",
     "@tailwindcss/forms": "0.5.10",
     "@tailwindcss/typography": "0.5.15",
-    "tailwindcss": "3.4.15",
+    "tailwindcss": "3.4.17",
     "@types/file-saver": "^2.0.5",
     "@types/jasmine": "3.10.0",
     "@types/lodash": "^4.14.180",
