@@ -40,7 +40,7 @@
     "@angular-devkit/build-angular": "17.3.11",
     "@angular/cli": "17.3.11",
     "@angular/compiler-cli": "17.3.12",
-    "@angular/language-service": "17.3.12",
+    "@angular/language-service": "19.0.6",
     "@types/jasmine": "~3.6.0",
     "@types/uuid": "9.0.8",
     "@tailwindcss/aspect-ratio": "0.4.2",
