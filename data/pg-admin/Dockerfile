@@ -1,4 +1,4 @@
-FROM dpage/pgadmin4:4.22
+FROM dpage/pgadmin4:8.14
 
 USER root
 WORKDIR /var/lib/pgadmin/storage/indice_user_pgadmin.org
