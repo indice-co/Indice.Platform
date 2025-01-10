@@ -26,6 +26,7 @@ internal class CasesWorkflowDbInitializerHostedService : BackgroundService
     /// <param name="serviceScopeFactory">The service provider factory. Used to create scopes</param>
     /// <param name="environment">The service environment</param>
     /// <param name="logger">a logger</param>
+    /// <param name="contentSerializer">Elsas content serializer</param>
     /// <exception cref="ArgumentNullException"></exception>
     public CasesWorkflowDbInitializerHostedService(IServiceScopeFactory serviceScopeFactory, IHostEnvironment environment, ILogger<CasesWorkflowDbInitializerHostedService> logger, IContentSerializer contentSerializer) {
         _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));

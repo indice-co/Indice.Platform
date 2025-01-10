@@ -19,6 +19,7 @@ public static class CasesDbInitalizerExtesnions
     /// </summary>
     /// <param name="dbContext">The database context</param>
     /// <param name="options">Seed options</param>
+    /// <param name="contentSerializer">Elsas content serializer</param>
     /// <returns>The Task</returns>
     public async static Task InitializeAsync(this ElsaContext dbContext, IOptions<CasesWorkflowDbInitializerOptions> options, IContentSerializer contentSerializer) {
         if (await dbContext.Database.EnsureCreatedAsync()) {
@@ -31,10 +32,9 @@ public static class CasesDbInitalizerExtesnions
     /// </summary>
     /// <param name="dbContext">The database context</param>
     /// <param name="options">Seed options</param>
+    /// <param name="contentSerializer">Elsas content serializer</param>
     /// <returns></returns>
     public async static Task SeedAsync(this ElsaContext dbContext, IOptions<CasesWorkflowDbInitializerOptions> options, IContentSerializer contentSerializer) {
-
-        //await Task.CompletedTask;
         WorkflowDefinition workflowDefinition =
           new WorkflowDefinition() {
               Id = "c01fc75198184463aced98f40df7b9d8",
@@ -145,16 +145,6 @@ public static class CasesDbInitalizerExtesnions
         dbContext.WorkflowDefinitions.Add(workflowDefinition);
         var json = contentSerializer.Serialize(data);
         dbContext.Entry(workflowDefinition).Property("Data").CurrentValue = json;
-        //dbContext.Triggers.Add(new Trigger() {
-        //    Id = "7b121173cd36423ca9567ac376ebfee1",
-        //    TenantId = null,
-        //    Hash = "0bbecefa6f345863a60cf9f14aeae96b6083a89d340e9d1e7e5e607d13788cc8",
-        //    Model = "{ \"Path\":\"/hello-world\",\"Method\":\"get\"}",
-        //    ModelType = "Elsa.Activities.Http.Bookmarks.HttpEndpointBookmark, Elsa.Activities.Http",
-        //    ActivityType = "HttpEndpoint",
-        //    ActivityId = "0641c8d5-9f5d-49c5-b871-3add4bd22d3b",
-        //    WorkflowDefinitionId = "21ce61293f19428a9801f0e0d31eb415",
-        //});
         await dbContext.SaveChangesAsync();
     }
 
