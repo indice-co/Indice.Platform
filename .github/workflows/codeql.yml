@@ -94,8 +94,8 @@ jobs:
       with:
         dotnet-version: 8.0.x
         source-url: https://api.nuget.org/v3/index.json
-      env:
-        NUGET_AUTH_TOKEN: ${{secrets.NUGET_AUTH_TOKEN}}
+#      env:
+#        NUGET_AUTH_TOKEN: ${{secrets.NUGET_AUTH_TOKEN}}
     - if: matrix.language == 'csharp'
       name: Use Node.js 20.x
       uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
