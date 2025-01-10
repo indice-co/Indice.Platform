@@ -11,6 +11,7 @@ install:
 - ps: |
     Invoke-WebRequest 'https://dot.net/v1/dotnet-install.ps1' -OutFile dotnet-install.ps1
     ./dotnet-install.ps1 -Channel 8.0
+    ./dotnet-install.ps1 -Channel 9.0
     dotnet --info
 before_build:
 - ps: >-
