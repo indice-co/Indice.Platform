@@ -10,7 +10,6 @@
     <StaticWebAssetsDisableProjectBuildPropsFileGeneration>true</StaticWebAssetsDisableProjectBuildPropsFileGeneration>
     <StaticWebAssetsDisableProjectBuildMultiTargetingPropsFileGeneration>true</StaticWebAssetsDisableProjectBuildMultiTargetingPropsFileGeneration>
     <StaticWebAssetsDisableProjectBuildTransitivePropsFileGeneration>true</StaticWebAssetsDisableProjectBuildTransitivePropsFileGeneration>
-    <!--<DisableStaticWebAssetsBuildPropsFileGeneration>true</DisableStaticWebAssetsBuildPropsFileGeneration>-->
   </PropertyGroup>
   
   <ItemGroup>
