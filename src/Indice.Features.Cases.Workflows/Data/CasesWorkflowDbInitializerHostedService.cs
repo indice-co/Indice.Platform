@@ -19,7 +19,7 @@ internal class CasesWorkflowDbInitializerHostedService : BackgroundService
     private readonly IServiceScopeFactory _serviceScopeFactory;
     private readonly IHostEnvironment _environment;
     private readonly ILogger<CasesWorkflowDbInitializerHostedService> _logger;
-
+    private readonly IContentSerializer _contentSerializer;
     /// <summary>
     /// Creates a new instance of <see cref="CasesWorkflowDbInitializerHostedService"/>
     /// </summary>
@@ -27,10 +27,11 @@ internal class CasesWorkflowDbInitializerHostedService : BackgroundService
     /// <param name="environment">The service environment</param>
     /// <param name="logger">a logger</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public CasesWorkflowDbInitializerHostedService(IServiceScopeFactory serviceScopeFactory, IHostEnvironment environment, ILogger<CasesWorkflowDbInitializerHostedService> logger) {
+    public CasesWorkflowDbInitializerHostedService(IServiceScopeFactory serviceScopeFactory, IHostEnvironment environment, ILogger<CasesWorkflowDbInitializerHostedService> logger, IContentSerializer contentSerializer) {
         _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
         _environment = environment ?? throw new ArgumentNullException(nameof(environment));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _contentSerializer = contentSerializer ?? throw new ArgumentNullException(nameof(contentSerializer));
     }
 
     /// <summary>
@@ -46,7 +47,7 @@ internal class CasesWorkflowDbInitializerHostedService : BackgroundService
             using var scope = _serviceScopeFactory.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<ElsaContext>();
             var seedOptions = scope.ServiceProvider.GetRequiredService<IOptions<CasesWorkflowDbInitializerOptions>>();
-            await dbContext.InitializeAsync(seedOptions);
+            await dbContext.InitializeAsync(seedOptions, _contentSerializer);
             await Task.Delay(TimeSpan.FromSeconds(2));
             if (!await dbContext.WorkflowDefinitions.AnyAsync(x => x.Name == "HelloWorld"))
                 await SeedSampleWorkflowDefinition(scope, stoppingToken);
@@ -139,6 +140,7 @@ internal class CasesWorkflowDbInitializerHostedService : BackgroundService
         workflowDefinition.PersistenceBehavior = postedModel.PersistenceBehavior;
         workflowDefinition.TenantId = await _tenantAccessor.GetTenantIdAsync();
 
-        await _workflowPublisher.SaveDraftAsync(workflowDefinition, stoppingToken);
+        var wf = await _workflowPublisher.SaveDraftAsync(workflowDefinition, stoppingToken);
+        await _workflowPublisher.PublishAsync(wf.DefinitionId, stoppingToken);
     }
 }
