@@ -313,6 +313,21 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                 };
             }
         }
+        // filter Tax Identification Number
+        if (options.Filter.OwnerTins?.Length > 0) {
+            foreach (var ownerTin in options.Filter.OwnerTins) {
+                query = ownerTin.Operator switch {
+                    FilterOperator.Eq => query.Where(c =>
+                        c.OwnerTin!.ToLower().Equals(ownerTin.Value.ToLower())),
+                    FilterOperator.Neq => query.Where(c =>
+                        !c.OwnerTin!.ToLower().Equals(ownerTin.Value.ToLower())),
+                    FilterOperator.Contains => query.Where(c =>
+                        c.OwnerTin!.ToLower().Contains(ownerTin.Value.ToLower())),
+                    _ => query
+                };
+            }
+        }
+        
 
         if (options.Filter.From != null) {
             query = query.Where(c => c.CreatedByWhen >= options.Filter.From.Value.Date);

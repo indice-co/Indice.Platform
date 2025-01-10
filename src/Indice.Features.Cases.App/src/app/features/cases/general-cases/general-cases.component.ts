@@ -126,7 +126,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
             }
             if (this.tableFilters.TaxId) {
                 tempSearchOptions.push({
-                    field: 'TaxId', //This must be exactly the same "case-wise" with db's json property!
+                    field: 'TaxId', 
                     name: 'Α.Φ.Μ. ΠΕΛΑΤΗ',
                     dataType: 'string'
                 });
@@ -169,6 +169,8 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
         this.filters?.filter(f => f.member === 'ownerId')?.forEach(f => ownerIds.push(this.stringifyFilterClause(f)));
         let ownerNames: string[] = [];
         this.filters?.filter(f => f.member === 'ownerName')?.forEach(f => ownerNames.push(this.stringifyFilterClause(f)));
+        let ownerTins: string[] = [];
+        this.filters?.filter(f => f.member === 'TaxId')?.forEach(f => ownerTins?.push(this.stringifyFilterClause(f)));
         let referenceNumbers: string[] = [];
         this.filters?.filter(f => f.member === 'referenceNumber')?.forEach(f => referenceNumbers.push(this.stringifyFilterClause(f)));
         let groupIds: string[] = [];
@@ -180,7 +182,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
         let checkpointTypeCodes: string[] = [];
         this.filters?.filter(f => f.member === 'checkpointTypeCodes')?.forEach(f => checkpointTypeCodes?.push(this.stringifyFilterClause(f)));
         let filterMetadata: string[] = [];
-        this.filters?.filter(f => f.member === 'TaxId')?.forEach(f => filterMetadata?.push(`metadata.${this.stringifyFilterClause(f)}`));
+        
         const extraMetadataFilters = this.getExtraMetadataFilters(this.caseTypes);
         if (extraMetadataFilters) {
             filterMetadata?.push(...extraMetadataFilters)
@@ -202,6 +204,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
                 this.search || undefined,
                 ownerIds,
                 ownerNames,
+                ownerTins,
                 from ? new Date(from) : undefined,
                 to ? new Date(to) : undefined,
                 caseTypeCodes,

@@ -30,6 +30,11 @@ export interface ICasesApiService {
      */
     getAccessRules(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, role?: string | undefined, groupId?: string | undefined, checkpoint?: string | undefined, caseType?: string | undefined): Observable<AccessRuleResultSet>;
     /**
+     * Add a new Access rule for admin Users.
+     * @return No Content
+     */
+    createAccessRule(body: AddAccessRuleRequest): Observable<void>;
+    /**
      * Delete an existing Access rule.
      * @return No Content
      */
@@ -43,22 +48,7 @@ export interface ICasesApiService {
      * Add a new Access rule for admin Users.
      * @return No Content
      */
-    createAccessRuleAdmin(body: AddAccessRuleRequest): Observable<void>;
-    /**
-     * Add a new Access rule for admin Users.
-     * @return No Content
-     */
-    createBatchAccessRulesAdmin(body: AddAccessRuleRequest[]): Observable<void>;
-    /**
-     * Add a new Access rule for a case.
-     * @return No Content
-     */
-    createAccessRules(caseId: string, body: AddCaseAccessRuleRequest): Observable<void>;
-    /**
-     * Update a batch of Access rules for a case.
-     * @return No Content
-     */
-    updateBatchAccessRules(caseId: string, body: AddCaseAccessRuleRequest[]): Observable<void>;
+    createAccessRulesBatch(body: AddAccessRuleRequest[]): Observable<void>;
     /**
      * Download attachment in a PDF format for back-office users.
      * @return OK
@@ -103,6 +93,7 @@ export interface ICasesApiService {
      * @param search (optional) 
      * @param ownerIds (optional) 
      * @param ownerNames (optional) 
+     * @param ownerTins (optional) 
      * @param from (optional) 
      * @param to (optional) 
      * @param caseTypeCodes (optional) 
@@ -114,7 +105,7 @@ export interface ICasesApiService {
      * @param includeData (optional) 
      * @return OK
      */
-    getCases(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, ownerIds?: string[] | undefined, ownerNames?: string[] | undefined, from?: Date | undefined, to?: Date | undefined, caseTypeCodes?: string[] | undefined, checkpointTypeCodes?: string[] | undefined, groupIds?: string[] | undefined, metadata?: string[] | undefined, referenceNumbers?: string[] | undefined, data?: string[] | undefined, includeData?: boolean | undefined): Observable<CasePartialResultSet>;
+    getCases(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, ownerIds?: string[] | undefined, ownerNames?: string[] | undefined, ownerTins?: string[] | undefined, from?: Date | undefined, to?: Date | undefined, caseTypeCodes?: string[] | undefined, checkpointTypeCodes?: string[] | undefined, groupIds?: string[] | undefined, metadata?: string[] | undefined, referenceNumbers?: string[] | undefined, data?: string[] | undefined, includeData?: boolean | undefined): Observable<CasePartialResultSet>;
     /**
      * Update the case with the business data as defined at the specific case type. This action is allowed only for draft cases.
      * @return No Content
@@ -139,7 +130,17 @@ export interface ICasesApiService {
      * Get Access rules for the specified case.
      * @return OK
      */
-    getAccessRulesForCase(caseId: string): Observable<AccessRule[]>;
+    getCaseAccessRules(caseId: string): Observable<AccessRule[]>;
+    /**
+     * Add a new Access rule for a case.
+     * @return No Content
+     */
+    createCaseAccessRules(caseId: string, body: AddCaseAccessRuleRequest): Observable<void>;
+    /**
+     * Update a batch of Access rules for a case.
+     * @return No Content
+     */
+    updateCaseAccessRulesBatch(caseId: string, body: AddCaseAccessRuleRequest[]): Observable<void>;
     /**
      * Gets the cases actions (Approval, edit, assignments, etc) for a case Id. Actions differ based on user role.
      * @return OK
@@ -414,6 +415,86 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Add a new Access rule for admin Users.
+     * @return No Content
+     */
+    createAccessRule(body: AddAccessRuleRequest): Observable<void> {
+        let url_ = this.baseUrl + "/manage/access-rules";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreateAccessRule(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreateAccessRule(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processCreateAccessRule(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * Delete an existing Access rule.
      * @return No Content
      */
@@ -564,8 +645,8 @@ export class CasesApiService implements ICasesApiService {
      * Add a new Access rule for admin Users.
      * @return No Content
      */
-    createAccessRuleAdmin(body: AddAccessRuleRequest): Observable<void> {
-        let url_ = this.baseUrl + "/manage/access-rules/admin";
+    createAccessRulesBatch(body: AddAccessRuleRequest[]): Observable<void> {
+        let url_ = this.baseUrl + "/manage/access-rules/batch";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -580,11 +661,11 @@ export class CasesApiService implements ICasesApiService {
         };
 
         return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processCreateAccessRuleAdmin(response_);
+            return this.processCreateAccessRulesBatch(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processCreateAccessRuleAdmin(response_ as any);
+                    return this.processCreateAccessRulesBatch(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<void>;
                 }
@@ -593,7 +674,7 @@ export class CasesApiService implements ICasesApiService {
         }));
     }
 
-    protected processCreateAccessRuleAdmin(response: HttpResponseBase): Observable<void> {
+    protected processCreateAccessRulesBatch(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -625,230 +706,12 @@ export class CasesApiService implements ICasesApiService {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
             }));
-        } else if (status !== 200 && status !== 204) {
+        } else if (status === 400) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    /**
-     * Add a new Access rule for admin Users.
-     * @return No Content
-     */
-    createBatchAccessRulesAdmin(body: AddAccessRuleRequest[]): Observable<void> {
-        let url_ = this.baseUrl + "/manage/access-rules/admin/batch";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-            })
-        };
-
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processCreateBatchAccessRulesAdmin(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processCreateBatchAccessRulesAdmin(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<void>;
-        }));
-    }
-
-    protected processCreateBatchAccessRulesAdmin(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    /**
-     * Add a new Access rule for a case.
-     * @return No Content
-     */
-    createAccessRules(caseId: string, body: AddCaseAccessRuleRequest): Observable<void> {
-        let url_ = this.baseUrl + "/manage/access-rules/case/{caseId}";
-        if (caseId === undefined || caseId === null)
-            throw new Error("The parameter 'caseId' must be defined.");
-        url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-            })
-        };
-
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processCreateAccessRules(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processCreateAccessRules(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<void>;
-        }));
-    }
-
-    protected processCreateAccessRules(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    /**
-     * Update a batch of Access rules for a case.
-     * @return No Content
-     */
-    updateBatchAccessRules(caseId: string, body: AddCaseAccessRuleRequest[]): Observable<void> {
-        let url_ = this.baseUrl + "/manage/access-rules/case/{caseId}/batch";
-        if (caseId === undefined || caseId === null)
-            throw new Error("The parameter 'caseId' must be defined.");
-        url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-            })
-        };
-
-        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processUpdateBatchAccessRules(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processUpdateBatchAccessRules(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<void>;
-        }));
-    }
-
-    protected processUpdateBatchAccessRules(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -1093,6 +956,13 @@ export class CasesApiService implements ICasesApiService {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("Not Found", status, _responseText, _headers);
             }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1256,6 +1126,13 @@ export class CasesApiService implements ICasesApiService {
         } else if (status === 404) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -1426,6 +1303,7 @@ export class CasesApiService implements ICasesApiService {
      * @param search (optional) 
      * @param ownerIds (optional) 
      * @param ownerNames (optional) 
+     * @param ownerTins (optional) 
      * @param from (optional) 
      * @param to (optional) 
      * @param caseTypeCodes (optional) 
@@ -1437,7 +1315,7 @@ export class CasesApiService implements ICasesApiService {
      * @param includeData (optional) 
      * @return OK
      */
-    getCases(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, ownerIds?: string[] | undefined, ownerNames?: string[] | undefined, from?: Date | undefined, to?: Date | undefined, caseTypeCodes?: string[] | undefined, checkpointTypeCodes?: string[] | undefined, groupIds?: string[] | undefined, metadata?: string[] | undefined, referenceNumbers?: string[] | undefined, data?: string[] | undefined, includeData?: boolean | undefined): Observable<CasePartialResultSet> {
+    getCases(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, ownerIds?: string[] | undefined, ownerNames?: string[] | undefined, ownerTins?: string[] | undefined, from?: Date | undefined, to?: Date | undefined, caseTypeCodes?: string[] | undefined, checkpointTypeCodes?: string[] | undefined, groupIds?: string[] | undefined, metadata?: string[] | undefined, referenceNumbers?: string[] | undefined, data?: string[] | undefined, includeData?: boolean | undefined): Observable<CasePartialResultSet> {
         let url_ = this.baseUrl + "/manage/cases?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
@@ -1463,6 +1341,10 @@ export class CasesApiService implements ICasesApiService {
             throw new Error("The parameter 'ownerNames' cannot be null.");
         else if (ownerNames !== undefined)
             ownerNames && ownerNames.forEach(item => { url_ += "OwnerNames=" + encodeURIComponent("" + item) + "&"; });
+        if (ownerTins === null)
+            throw new Error("The parameter 'ownerTins' cannot be null.");
+        else if (ownerTins !== undefined)
+            ownerTins && ownerTins.forEach(item => { url_ += "OwnerTins=" + encodeURIComponent("" + item) + "&"; });
         if (from === null)
             throw new Error("The parameter 'from' cannot be null.");
         else if (from !== undefined)
@@ -1890,7 +1772,7 @@ export class CasesApiService implements ICasesApiService {
      * Get Access rules for the specified case.
      * @return OK
      */
-    getAccessRulesForCase(caseId: string): Observable<AccessRule[]> {
+    getCaseAccessRules(caseId: string): Observable<AccessRule[]> {
         let url_ = this.baseUrl + "/manage/cases/{caseId}/access-rules";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
@@ -1906,11 +1788,11 @@ export class CasesApiService implements ICasesApiService {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetAccessRulesForCase(response_);
+            return this.processGetCaseAccessRules(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetAccessRulesForCase(response_ as any);
+                    return this.processGetCaseAccessRules(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<AccessRule[]>;
                 }
@@ -1919,7 +1801,7 @@ export class CasesApiService implements ICasesApiService {
         }));
     }
 
-    protected processGetAccessRulesForCase(response: HttpResponseBase): Observable<AccessRule[]> {
+    protected processGetCaseAccessRules(response: HttpResponseBase): Observable<AccessRule[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1960,6 +1842,172 @@ export class CasesApiService implements ICasesApiService {
                 result200 = <any>null;
             }
             return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Add a new Access rule for a case.
+     * @return No Content
+     */
+    createCaseAccessRules(caseId: string, body: AddCaseAccessRuleRequest): Observable<void> {
+        let url_ = this.baseUrl + "/manage/cases/{caseId}/access-rules";
+        if (caseId === undefined || caseId === null)
+            throw new Error("The parameter 'caseId' must be defined.");
+        url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreateCaseAccessRules(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreateCaseAccessRules(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processCreateCaseAccessRules(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Update a batch of Access rules for a case.
+     * @return No Content
+     */
+    updateCaseAccessRulesBatch(caseId: string, body: AddCaseAccessRuleRequest[]): Observable<void> {
+        let url_ = this.baseUrl + "/manage/cases/{caseId}/access-rules/batch";
+        if (caseId === undefined || caseId === null)
+            throw new Error("The parameter 'caseId' must be defined.");
+        url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateCaseAccessRulesBatch(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateCaseAccessRulesBatch(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUpdateCaseAccessRulesBatch(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -2809,6 +2857,13 @@ export class CasesApiService implements ICasesApiService {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
             }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -3293,6 +3348,13 @@ export class CasesApiService implements ICasesApiService {
         } else if (status === 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -3979,6 +4041,13 @@ export class CasesApiService implements ICasesApiService {
         } else if (status === 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -5319,10 +5388,10 @@ export interface ICaseTypePartialResultSet {
 
 export class CaseTypeRequest implements ICaseTypeRequest {
     id?: string | undefined;
-    code?: string | undefined;
-    title?: string | undefined;
+    code?: string;
+    title?: string;
     description?: string | undefined;
-    dataSchema?: any | undefined;
+    dataSchema?: any;
     layout?: any | undefined;
     /** A type that models the translation of an object. */
     translations?: { [key: string]: CaseTypeTranslation; } | undefined;
@@ -5418,10 +5487,10 @@ export class CaseTypeRequest implements ICaseTypeRequest {
 
 export interface ICaseTypeRequest {
     id?: string | undefined;
-    code?: string | undefined;
-    title?: string | undefined;
+    code?: string;
+    title?: string;
     description?: string | undefined;
-    dataSchema?: any | undefined;
+    dataSchema?: any;
     layout?: any | undefined;
     /** A type that models the translation of an object. */
     translations?: { [key: string]: CaseTypeTranslation; } | undefined;
@@ -6158,7 +6227,7 @@ export interface ICreateCaseResponse {
 }
 
 export class CreateDraftCaseRequest implements ICreateDraftCaseRequest {
-    caseTypeCode?: string | undefined;
+    caseTypeCode?: string;
     groupId?: string | undefined;
     owner?: ContactMeta;
     metadata?: { [key: string]: string; } | undefined;
@@ -6214,7 +6283,7 @@ export class CreateDraftCaseRequest implements ICreateDraftCaseRequest {
 }
 
 export interface ICreateDraftCaseRequest {
-    caseTypeCode?: string | undefined;
+    caseTypeCode?: string;
     groupId?: string | undefined;
     owner?: ContactMeta;
     metadata?: { [key: string]: string; } | undefined;
@@ -6888,8 +6957,8 @@ export enum ReportTag {
 }
 
 export class SaveQueryRequest implements ISaveQueryRequest {
-    friendlyName?: string | undefined;
-    parameters?: string | undefined;
+    friendlyName?: string;
+    parameters?: string;
 
     constructor(data?: ISaveQueryRequest) {
         if (data) {
@@ -6923,8 +6992,8 @@ export class SaveQueryRequest implements ISaveQueryRequest {
 }
 
 export interface ISaveQueryRequest {
-    friendlyName?: string | undefined;
-    parameters?: string | undefined;
+    friendlyName?: string;
+    parameters?: string;
 }
 
 export class SendCommentRequest implements ISendCommentRequest {

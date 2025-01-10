@@ -15,6 +15,10 @@ public class GetCasesListFilter
     /// <summary>The name of the customer to filter.</summary>
     public FilterClause[]? OwnerNames { get; set; } = [];
 
+
+    /// <summary>The Tax Identification Number of the customer to filter.</summary>
+    public FilterClause[]? OwnerTins { get; set; } = [];
+
     /// <summary>The created date of the case, starting from, to filter.</summary>
     public DateTimeOffset? From { get; set; }
 
