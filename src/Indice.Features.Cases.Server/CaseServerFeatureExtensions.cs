@@ -1,6 +1,9 @@
-﻿using Indice.Features.Cases.Server;
+﻿using FluentValidation;
+using FluentValidation.AspNetCore;
+using Indice.Features.Cases.Server;
 using Indice.Features.Cases.Server.Authorization;
 using Indice.Features.Cases.Server.Endpoints;
+using Indice.Features.Cases.Server.Endpoints.Validators;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Hosting;
@@ -48,6 +51,9 @@ public static class CaseServerFeatureExtensions
         });
         builder.Services.AddLimitUpload(serverOptions.ConfigureLimitUpload);
         builder.Services.AddTransient<IAuthorizationHandler, CasesAccessHandler>();
+        builder.Services.AddFluentValidationAutoValidation()
+                       .AddValidatorsFromAssemblyContaining<AddAccessRuleRequestValidator>()
+                       .AddFluentValidationClientsideAdapters();
         return builder;
     }
 

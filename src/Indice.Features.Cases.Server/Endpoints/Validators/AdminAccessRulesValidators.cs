@@ -11,16 +11,8 @@ public class AddAccessRuleRequestValidator : AbstractValidator<AddAccessRuleRequ
     /// <inheritdoc/>
     public AddAccessRuleRequestValidator() {
 
-        // at least on of the following should be provided
-        RuleFor(x => x.MemberRole).NotEmpty().When(x => string.IsNullOrEmpty(x.MemberGroupId) && string.IsNullOrEmpty(x.MemberUserId));
-        RuleFor(x => x.MemberGroupId).NotEmpty().When(x => string.IsNullOrEmpty(x.MemberRole) && string.IsNullOrEmpty(x.MemberUserId));
-        RuleFor(x => x.MemberUserId).NotEmpty().When(x => string.IsNullOrEmpty(x.MemberRole) && string.IsNullOrEmpty(x.MemberGroupId));
-        RuleFor(x => x.MemberUserId).Must(MembersAreValid).WithMessage("Only one of the following properties must be provided: MemberRole, MemberGroupId, MemberUserId");
-
-        RuleFor(x => x.RuleCaseTypeId).NotNull().When(x => !x.RuleCheckpointTypeId.HasValue && !x.RuleCaseId.HasValue);
-        RuleFor(x => x.RuleCheckpointTypeId).NotNull().When(x => !x.RuleCaseTypeId.HasValue && !x.RuleCaseId.HasValue);
-        RuleFor(x => x.RuleCaseId).NotNull().When(x => !x.RuleCaseTypeId.HasValue && !x.RuleCheckpointTypeId.HasValue);
-        RuleFor(x => x.RuleCaseId).Must(RulesAreValid).WithMessage("At least one resource rule must be set (RuleCaseId, RuleCheckpointTypeId, RuleCaseTypeId or RuleCaseId & RuleCheckpointTypeId)");
+        RuleFor(x => x.MemberUserId).Must(MembersAreValid).WithMessage("One member property must be set. Either MemberRole or MemberGroupId or MemberUserId");
+        RuleFor(x => x.RuleCaseId).Must(RulesAreValid).WithMessage("One resource rule must be set. Either set RuleCaseId or RuleCheckpointTypeId or RuleCaseTypeId or RuleCaseId & RuleCheckpointTypeId");
     }
 
     private static bool MembersAreValid(AddAccessRuleRequest rule, string? prop) {
@@ -58,10 +50,7 @@ public class AddCaseAccessRuleRequestValidator : AbstractValidator<AddCaseAccess
 {
     /// Validates the request, so that at least one of MemberRole, MemberGroupId, MemberUserId is specified. Whitespaces are allowed.
     public AddCaseAccessRuleRequestValidator() {
-        RuleFor(x => x.MemberRole).NotEmpty().When(x => string.IsNullOrEmpty(x.MemberGroupId) && string.IsNullOrEmpty(x.MemberUserId));
-        RuleFor(x => x.MemberGroupId).NotEmpty().When(x => string.IsNullOrEmpty(x.MemberRole) && string.IsNullOrEmpty(x.MemberUserId));
-        RuleFor(x => x.MemberUserId).NotEmpty().When(x => string.IsNullOrEmpty(x.MemberRole) && string.IsNullOrEmpty(x.MemberGroupId));
-        RuleFor(x => x.MemberUserId).Must(MembersAreValid).WithMessage("Only one of the following properties must be provided: MemberRole, MemberGroupId, MemberUserId");
+        RuleFor(x => x.MemberUserId).Must(MembersAreValid).WithMessage("One member property must be set. Either MemberRole or MemberGroupId or MemberUserId");
     }
     private static bool MembersAreValid(AddCaseAccessRuleRequest rule, string? prop) {
         // "obj" is the important parameter here - it's the class instance.

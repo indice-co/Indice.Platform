@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FluentValidation;
+﻿using FluentValidation;
 using Indice.Features.Cases.Core.Models;
 
 namespace Indice.Features.Cases.Server.Endpoints.Validators;
@@ -25,7 +20,6 @@ public class ActionRequestValidator : AbstractValidator<ActionRequest>
 {
     /// <inheritdoc/>
     public ActionRequestValidator() {
-        RuleFor(x => x.Id).NotNull();
-        RuleFor(x => x.Id).NotEqual(Guid.Empty);
+        RuleFor(x => x.Id).NotEmpty();
     }
 }
