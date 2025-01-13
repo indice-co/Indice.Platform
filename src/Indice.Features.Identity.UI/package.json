@@ -6,7 +6,7 @@
     "bootstrap.v4": "npm:bootstrap@^4.6.2",
     "bootstrap.native": "5.1.2",
     "font-awesome": "4.7.0",
-    "@fortawesome/fontawesome-free": "6.6.0",
+    "@fortawesome/fontawesome-free": "6.7.2",
     "jquery": "3.7.1",
     "jquery-validation": "1.21.0",
     "jquery-validation-unobtrusive": "4.0.0",
