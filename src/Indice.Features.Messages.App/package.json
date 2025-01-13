@@ -27,7 +27,7 @@
     "@acrodata/code-editor": "0.5.0",
     "@codemirror/language-data": "^6.5.1",
     "handlebars": "4.7.8",
-    "highlight.js": "11.9.0",
+    "highlight.js": "11.11.1",
     "highlightjs-line-numbers.js": "2.9.0",
     "ngx-highlightjs": "10.0.0",
     "oidc-client-ts": "^3.1.0",
