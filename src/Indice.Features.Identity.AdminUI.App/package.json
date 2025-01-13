@@ -26,7 +26,7 @@
     "@jsonforms/core": "3.4.1",
     "@ng-bootstrap/ng-bootstrap": "16.0.0",
     "@sweetalert2/ngx-sweetalert2": "12.4.0",
-    "@swimlane/ngx-charts": "20.5.0",
+    "@swimlane/ngx-charts": "21.1.2",
     "@swimlane/ngx-datatable": "20.1.0",
     "bootstrap": "5.3.3",
     "file-saver": "2.0.5",
