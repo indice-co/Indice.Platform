@@ -271,7 +271,7 @@ public static class IndiceServicesServiceCollectionExtensions
     public static IServiceCollection AddPlatformEventHandler<TEvent, TEventHandler>(this IServiceCollection services)
         where TEvent : IPlatformEvent
         where TEventHandler : class, IPlatformEventHandler<TEvent> {
-        services.AddTransient(typeof(IPlatformEventHandler<TEvent>), typeof(TEventHandler));
+        services.TryAddTransient(typeof(IPlatformEventHandler<TEvent>), typeof(TEventHandler));
         return services;
     }
 }
