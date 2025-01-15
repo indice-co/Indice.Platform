@@ -35,21 +35,21 @@ internal static class AdminWorkflowInvokerApi
              .ProducesProblem(StatusCodes.Status403Forbidden);
 
         group.MapPost("cases/{caseId}/approve", AdminWorkflowInvokerHandlers.SubmitApproval)
-             .WithName(nameof(AdminWorkflowInvokerHandlers.SubmitApproval))
-             .WithSummary("Invoke the approval activity to approve or reject the case.");
+            .WithName(nameof(AdminWorkflowInvokerHandlers.SubmitApproval))
+            .WithSummary("Invoke the approval activity to approve or reject the case.");
 
         group.MapPost("cases/{caseId}/assign", AdminWorkflowInvokerHandlers.AssignCase)
              .WithName(nameof(AdminWorkflowInvokerHandlers.AssignCase))
              .WithSummary("Invoke the assign activity to assign the case to the caller user.");
-        
+
         group.MapPost("cases/{caseId}/edit", AdminWorkflowInvokerHandlers.EditCase)
-             .WithName(nameof(AdminWorkflowInvokerHandlers.EditCase))
-             .WithSummary("Invoke the edit activity to edit the data of the case.")
-            .WithParameterValidation<EditCaseRequest>(); 
-        
+            .WithName(nameof(AdminWorkflowInvokerHandlers.EditCase))
+            .WithSummary("Invoke the edit activity to edit the data of the case.")
+            .WithParameterValidation<EditCaseRequest>();
+
         group.MapPost("cases/{caseId}/trigger-action", AdminWorkflowInvokerHandlers.TriggerAction)
-             .WithName(nameof(AdminWorkflowInvokerHandlers.TriggerAction))
-             .WithSummary("Invoke the action activity to trigger a business action for the case.")
+            .WithName(nameof(AdminWorkflowInvokerHandlers.TriggerAction))
+            .WithSummary("Invoke the action activity to trigger a business action for the case.")
             .WithParameterValidation<ActionRequest>(); 
         
         return group;

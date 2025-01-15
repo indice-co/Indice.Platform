@@ -18,7 +18,6 @@ namespace Indice.Features.Cases.Core.Services;
 internal class MyCaseService : BaseCaseService, IMyCaseService
 {
     private const string SchemaSelector = "frontend";
-    private readonly ICaseTypeService _caseTypeService;
     private readonly IPlatformEventService _platformEventService;
     private readonly IMyCaseMessageService _caseMessageService;
     private readonly IJsonTranslationService _jsonTranslationService;
@@ -27,12 +26,10 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
     public MyCaseService(
         CasesDbContext dbContext,
         IOptions<CasesOptions> options,
-        ICaseTypeService caseTypeService,
         IPlatformEventService platformEventService,
         IMyCaseMessageService caseMessageService,
         IJsonTranslationService jsonTranslationService,
         CaseSharedResourceService caseSharedResourceService) : base(dbContext, options) {
-        _caseTypeService = caseTypeService ?? throw new ArgumentNullException(nameof(caseTypeService));
         _platformEventService = platformEventService ?? throw new ArgumentNullException(nameof(platformEventService));
         _caseMessageService = caseMessageService ?? throw new ArgumentNullException(nameof(caseMessageService));
         _jsonTranslationService = jsonTranslationService ?? throw new ArgumentNullException(nameof(jsonTranslationService));
@@ -60,7 +57,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
 
         return new CreateCaseResponse {
             Id = entity.Id,
-            Created = entity.CreatedBy!.When!.Value
+            Created = entity.CreatedBy.When!.Value
         };
     }
 
@@ -82,7 +79,15 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         @case.Draft = false;
         await DbContext.SaveChangesAsync();
         // TODO: check mapping for event payload
-        await _platformEventService.Publish(new CaseSubmittedEvent(new Case { Id = @case.Id } , @case.CaseType.Code));
+        await _platformEventService.Publish(new CaseSubmittedEvent(
+            new Case { Id = @case.Id },
+            @case.CaseType.Code,
+            new WorkflowActor {
+                Id = @case.CreatedBy.Id,
+                Email = @case.CreatedBy.Email,
+                Name = @case.CreatedBy.Name,
+                Reference = @case.Owner.Reference
+            }));
     }
 
     public async Task<Case?> GetCaseById(ClaimsPrincipal user, Guid caseId) {

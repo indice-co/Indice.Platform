@@ -24,7 +24,7 @@ public static class WorkflowDesignerIndexApi
     public static IEndpointRouteBuilder MapCasesWorkflowDesignerPage(this IEndpointRouteBuilder routes, PathString? pathPrefix = null) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<CasesWorkflowOptions>>().Value;
         var uiendpoint = routes.MapGet(pathPrefix ?? "/workflow", CreateWorkflowDesignerPage(options.RegisterAuthentication))
-                               .ExcludeFromDescription();
+            .ExcludeFromDescription();
         if (options.RegisterAuthentication) {
             uiendpoint.RequireAuthorization(CasesWorkflowFeatureExtensions.WorkflowPolicy);
         }
@@ -36,11 +36,11 @@ public static class WorkflowDesignerIndexApi
 
         if (options.RegisterAuthentication) {
             routes.MapGet("/workflow-signout", async (HttpContext httpContext, IConfiguration configuration) => {
-                await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme, new AuthenticationProperties { RedirectUri = configuration.GetHost() });
-                await httpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties { RedirectUri = configuration.GetHost() });
-            })
-            .RequireAuthorization(CasesWorkflowFeatureExtensions.WorkflowPolicy)
-            .ExcludeFromDescription();
+                    await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme, new AuthenticationProperties { RedirectUri = configuration.GetHost() });
+                    await httpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties { RedirectUri = configuration.GetHost() });
+                })
+                .RequireAuthorization(CasesWorkflowFeatureExtensions.WorkflowPolicy)
+                .ExcludeFromDescription(); // ignore metadata
         }
 
         return routes;
@@ -53,33 +53,33 @@ public static class WorkflowDesignerIndexApi
             var serverUrl = $"{context.Request.Scheme}://{context.Request.Host}";
             var displayLogout = authenticated ? string.Empty : "display:none !important";
             await context.Response.WriteAsync($"""
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Elsa Workflows</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="/_content/Elsa.Designer.Components.Web/elsa-workflows-studio/assets/images/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/_content/Elsa.Designer.Components.Web/elsa-workflows-studio/assets/images/favicon-16x16.png">
-    <link rel="stylesheet" href="/_content/Elsa.Designer.Components.Web/elsa-workflows-studio/assets/fonts/inter/inter.css">
-    <link rel="stylesheet" href="/_content/Elsa.Designer.Components.Web/elsa-workflows-studio/elsa-workflows-studio.css">
-    <script src="/_content/Elsa.Designer.Components.Web/monaco-editor/min/vs/loader.js"></script>
-    <script type="module" src="/_content/Elsa.Designer.Components.Web/elsa-workflows-studio/elsa-workflows-studio.esm.js"></script>
-</head>
-<body>
-    <div class="elsa-bg-gray-800" style="float: right; padding-right: 20px; padding-top: 14px;{displayLogout}">
-        <input class="elsa-px-8 elsa-py-1 elsa-border elsa-border-transparent elsa-rounded-md elsa-text-white elsa-bg-red-600 focus:elsa-outline-none hover:elsa-bg-red-700 active:bg-red-700"
-               style="cursor:pointer;"
-               type="button"
-               value="Logout"
-               onclick="window.location.href='/workflow-signout'" />
-    </div>
-    <elsa-studio-root server-url="{serverUrl}" monaco-lib-path="_content/Elsa.Designer.Components.Web/monaco-editor/min">
-        <elsa-studio-dashboard></elsa-studio-dashboard>
-    </elsa-studio-root>
-</body>
-</html>
-""");
+                                               <!DOCTYPE html>
+                                               <html lang="en">
+                                               <head>
+                                                   <meta charset="utf-8" />
+                                                   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                                                   <title>Elsa Workflows</title>
+                                                   <link rel="icon" type="image/png" sizes="32x32" href="/_content/Elsa.Designer.Components.Web/elsa-workflows-studio/assets/images/favicon-32x32.png">
+                                                   <link rel="icon" type="image/png" sizes="16x16" href="/_content/Elsa.Designer.Components.Web/elsa-workflows-studio/assets/images/favicon-16x16.png">
+                                                   <link rel="stylesheet" href="/_content/Elsa.Designer.Components.Web/elsa-workflows-studio/assets/fonts/inter/inter.css">
+                                                   <link rel="stylesheet" href="/_content/Elsa.Designer.Components.Web/elsa-workflows-studio/elsa-workflows-studio.css">
+                                                   <script src="/_content/Elsa.Designer.Components.Web/monaco-editor/min/vs/loader.js"></script>
+                                                   <script type="module" src="/_content/Elsa.Designer.Components.Web/elsa-workflows-studio/elsa-workflows-studio.esm.js"></script>
+                                               </head>
+                                               <body>
+                                                   <div class="elsa-bg-gray-800" style="float: right; padding-right: 20px; padding-top: 14px;{displayLogout}">
+                                                       <input class="elsa-px-8 elsa-py-1 elsa-border elsa-border-transparent elsa-rounded-md elsa-text-white elsa-bg-red-600 focus:elsa-outline-none hover:elsa-bg-red-700 active:bg-red-700"
+                                                              style="cursor:pointer;"
+                                                              type="button"
+                                                              value="Logout"
+                                                              onclick="window.location.href='/workflow-signout'" />
+                                                   </div>
+                                                   <elsa-studio-root server-url="{serverUrl}" monaco-lib-path="_content/Elsa.Designer.Components.Web/monaco-editor/min">
+                                                       <elsa-studio-dashboard></elsa-studio-dashboard>
+                                                   </elsa-studio-root>
+                                               </body>
+                                               </html>
+                                               """);
         };
     }
 }

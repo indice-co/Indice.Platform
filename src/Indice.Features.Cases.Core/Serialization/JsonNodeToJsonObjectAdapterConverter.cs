@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Nodes;
-using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+
 namespace Indice.Features.Cases.Core.Serialization;
 /// <summary>
 /// Converts a JsonNode to a JsonObject and vice versa for JSON serialization and deserialization.

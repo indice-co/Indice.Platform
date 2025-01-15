@@ -20,7 +20,7 @@ internal class StartWorkflowHandler : IPlatformEventHandler<CaseSubmittedEvent>
     /// <inheritdoc/>
     public async Task Handle(CaseSubmittedEvent @event, PlatformEventArgs args) {
         //args.ThrowOnError = true; // notify execution to break everythig.!!! TODO: This is a code smell
-        var result = await WorkflowManager.StartWorkflowAsync(@event.Case.Id, @event.CaseTypeCode);
+        var result = await WorkflowManager.StartWorkflowAsync(@event.Case.Id, @event.CaseTypeCode, @event.WorkflowActor);
         if (!result.Success) {
             throw new BusinessException(result.Message);
         }

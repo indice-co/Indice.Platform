@@ -55,400 +55,22 @@ namespace Indice.Features.Cases.Workflows.Integration
         partial void ProcessResponse(System.Net.Http.HttpClient client, System.Net.Http.HttpResponseMessage response);
 
         /// <summary>
-        /// Get Access rules.
+        /// Adds an approval to a case.
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<AccessRuleResultSet> GetAccessRulesAsync(int? page, int? size, string sort, string search, string role, string groupId, string checkpoint, string caseType)
+        public virtual System.Threading.Tasks.Task AddApprovalAsync(WorkflowAddApprovalRequest body)
         {
-            return GetAccessRulesAsync(page, size, sort, search, role, groupId, checkpoint, caseType, System.Threading.CancellationToken.None);
+            return AddApprovalAsync(body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
-        /// Get Access rules.
+        /// Adds an approval to a case.
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AccessRuleResultSet> GetAccessRulesAsync(int? page, int? size, string sort, string search, string role, string groupId, string checkpoint, string caseType, System.Threading.CancellationToken cancellationToken)
-        {
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/access-rules"
-                    urlBuilder_.Append("api/manage/access-rules");
-                    urlBuilder_.Append('?');
-                    if (page != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("Page")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(page, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    if (size != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("Size")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(size, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    if (sort != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("Sort")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(sort, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    if (search != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("Search")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(search, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    if (role != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("Role")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(role, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    if (groupId != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("GroupId")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(groupId, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    if (checkpoint != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("Checkpoint")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(checkpoint, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    if (caseType != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("CaseType")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(caseType, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    urlBuilder_.Length--;
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 200)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<AccessRuleResultSet>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            return objectResponse_.Object;
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Delete an existing Access rule.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task DeleteAccessRuleAsync(System.Guid ruleId)
-        {
-            return DeleteAccessRuleAsync(ruleId, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Delete an existing Access rule.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task DeleteAccessRuleAsync(System.Guid ruleId, System.Threading.CancellationToken cancellationToken)
-        {
-            if (ruleId == null)
-                throw new System.ArgumentNullException("ruleId");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("DELETE");
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/access-rules/{ruleId}"
-                    urlBuilder_.Append("api/manage/access-rules/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(ruleId, System.Globalization.CultureInfo.InvariantCulture)));
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 204)
-                        {
-                            return;
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Update an existing Access rule.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task UpdateAccessRuleAsync(System.Guid ruleId, int accessLevel)
-        {
-            return UpdateAccessRuleAsync(ruleId, accessLevel, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Update an existing Access rule.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task UpdateAccessRuleAsync(System.Guid ruleId, int accessLevel, System.Threading.CancellationToken cancellationToken)
-        {
-            if (ruleId == null)
-                throw new System.ArgumentNullException("ruleId");
-
-            if (accessLevel == null)
-                throw new System.ArgumentNullException("accessLevel");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "application/json");
-                    request_.Method = new System.Net.Http.HttpMethod("PUT");
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/access-rules/{ruleId}/{accessLevel}"
-                    urlBuilder_.Append("api/manage/access-rules/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(ruleId, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append('/');
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(accessLevel, System.Globalization.CultureInfo.InvariantCulture)));
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 204)
-                        {
-                            return;
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Add a new Access rule for admin Users.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task CreateAccessRuleAdminAsync(AddAccessRuleRequest body)
-        {
-            return CreateAccessRuleAdminAsync(body, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Add a new Access rule for admin Users.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task CreateAccessRuleAdminAsync(AddAccessRuleRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task AddApprovalAsync(WorkflowAddApprovalRequest body, System.Threading.CancellationToken cancellationToken)
         {
             if (body == null)
                 throw new System.ArgumentNullException("body");
@@ -467,8 +89,9 @@ namespace Indice.Features.Cases.Workflows.Integration
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "api/manage/access-rules/admin"
-                    urlBuilder_.Append("api/manage/access-rules/admin");
+                    // Operation Path: "api/manage/workflow/{caseId}/add-approval"
+                    urlBuilder_.Append("api/manage/workflow/");
+                    urlBuilder_.Append("/add-approval");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -493,37 +116,7 @@ namespace Indice.Features.Cases.Workflows.Integration
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 204)
+                        if (status_ == 200)
                         {
                             return;
                         }
@@ -548,22 +141,22 @@ namespace Indice.Features.Cases.Workflows.Integration
         }
 
         /// <summary>
-        /// Add a new Access rule for admin Users.
+        /// Adds an approval with comment to a case translating the provided comment.
         /// </summary>
-        /// <returns>No Content</returns>
+        /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task CreateBatchAccessRulesAdminAsync(System.Collections.Generic.IEnumerable<AddAccessRuleRequest> body)
+        public virtual System.Threading.Tasks.Task AddApprovalWithCommentAsync(WorkflowAddApprovalWithCommentRequest body)
         {
-            return CreateBatchAccessRulesAdminAsync(body, System.Threading.CancellationToken.None);
+            return AddApprovalWithCommentAsync(body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
-        /// Add a new Access rule for admin Users.
+        /// Adds an approval with comment to a case translating the provided comment.
         /// </summary>
-        /// <returns>No Content</returns>
+        /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task CreateBatchAccessRulesAdminAsync(System.Collections.Generic.IEnumerable<AddAccessRuleRequest> body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task AddApprovalWithCommentAsync(WorkflowAddApprovalWithCommentRequest body, System.Threading.CancellationToken cancellationToken)
         {
             if (body == null)
                 throw new System.ArgumentNullException("body");
@@ -582,8 +175,9 @@ namespace Indice.Features.Cases.Workflows.Integration
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "api/manage/access-rules/admin/batch"
-                    urlBuilder_.Append("api/manage/access-rules/admin/batch");
+                    // Operation Path: "api/manage/workflow/{caseId}/add-approval-with-comment"
+                    urlBuilder_.Append("api/manage/workflow/");
+                    urlBuilder_.Append("/add-approval-with-comment");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -608,37 +202,7 @@ namespace Indice.Features.Cases.Workflows.Integration
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 204)
+                        if (status_ == 200)
                         {
                             return;
                         }
@@ -663,22 +227,22 @@ namespace Indice.Features.Cases.Workflows.Integration
         }
 
         /// <summary>
-        /// Add a new Access rule for a case.
+        /// Assign case to a user.
         /// </summary>
-        /// <returns>No Content</returns>
+        /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task CreateAccessRulesAsync(System.Guid caseId, AddCaseAccessRuleRequest body)
+        public virtual System.Threading.Tasks.Task<AuditMeta> AssignAsync(System.Guid caseId, WorkflowActor body)
         {
-            return CreateAccessRulesAsync(caseId, body, System.Threading.CancellationToken.None);
+            return AssignAsync(caseId, body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
-        /// Add a new Access rule for a case.
+        /// Assign case to a user.
         /// </summary>
-        /// <returns>No Content</returns>
+        /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task CreateAccessRulesAsync(System.Guid caseId, AddCaseAccessRuleRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<AuditMeta> AssignAsync(System.Guid caseId, WorkflowActor body, System.Threading.CancellationToken cancellationToken)
         {
             if (caseId == null)
                 throw new System.ArgumentNullException("caseId");
@@ -697,2138 +261,12 @@ namespace Indice.Features.Cases.Workflows.Integration
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/access-rules/case/{caseId}"
-                    urlBuilder_.Append("api/manage/access-rules/case/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 204)
-                        {
-                            return;
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Update a batch of Access rules for a case.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task UpdateBatchAccessRulesAsync(System.Guid caseId, System.Collections.Generic.IEnumerable<AddCaseAccessRuleRequest> body)
-        {
-            return UpdateBatchAccessRulesAsync(caseId, body, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Update a batch of Access rules for a case.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task UpdateBatchAccessRulesAsync(System.Guid caseId, System.Collections.Generic.IEnumerable<AddCaseAccessRuleRequest> body, System.Threading.CancellationToken cancellationToken)
-        {
-            if (caseId == null)
-                throw new System.ArgumentNullException("caseId");
-
-            if (body == null)
-                throw new System.ArgumentNullException("body");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
-                    var content_ = new System.Net.Http.ByteArrayContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
-                    request_.Content = content_;
-                    request_.Method = new System.Net.Http.HttpMethod("PUT");
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/access-rules/case/{caseId}/batch"
-                    urlBuilder_.Append("api/manage/access-rules/case/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append("/batch");
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 204)
-                        {
-                            return;
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Download attachment in a PDF format for back-office users.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<FileResponse> DownloadAttachmentAsync(System.Guid attachmentId)
-        {
-            return DownloadAttachmentAsync(attachmentId, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Download attachment in a PDF format for back-office users.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FileResponse> DownloadAttachmentAsync(System.Guid attachmentId, System.Threading.CancellationToken cancellationToken)
-        {
-            if (attachmentId == null)
-                throw new System.ArgumentNullException("attachmentId");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/octet-stream"));
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/attachments/{attachmentId}/download"
-                    urlBuilder_.Append("api/manage/attachments/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(attachmentId, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append("/download");
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("Not Found", status_, responseText_, headers_, null);
-                        }
-                        else
-                        if (status_ == 200 || status_ == 206)
-                        {
-                            var responseStream_ = response_.Content == null ? System.IO.Stream.Null : await response_.Content.ReadAsStreamAsync().ConfigureAwait(false);
-                            var fileResponse_ = new FileResponse(status_, headers_, responseStream_, null, response_);
-                            disposeClient_ = false; disposeResponse_ = false; // response and client are disposed by FileResponse
-                            return fileResponse_;
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Get case types.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<CaseTypePartialResultSet> GetCaseTypesListAsync(bool? canCreate)
-        {
-            return GetCaseTypesListAsync(canCreate, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Get case types.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<CaseTypePartialResultSet> GetCaseTypesListAsync(bool? canCreate, System.Threading.CancellationToken cancellationToken)
-        {
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "api/manage/case-types"
-                    urlBuilder_.Append("api/manage/case-types");
-                    urlBuilder_.Append('?');
-                    if (canCreate != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("canCreate")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(canCreate, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    urlBuilder_.Length--;
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 200)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<CaseTypePartialResultSet>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            return objectResponse_.Object;
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("Not Found", status_, responseText_, headers_, null);
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Create new case type.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task CreateCaseTypeAsync(CaseTypeRequest body)
-        {
-            return CreateCaseTypeAsync(body, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Create new case type.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task CreateCaseTypeAsync(CaseTypeRequest body, System.Threading.CancellationToken cancellationToken)
-        {
-            if (body == null)
-                throw new System.ArgumentNullException("body");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
-                    var content_ = new System.Net.Http.ByteArrayContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
-                    request_.Content = content_;
-                    request_.Method = new System.Net.Http.HttpMethod("POST");
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/case-types"
-                    urlBuilder_.Append("api/manage/case-types");
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 204)
-                        {
-                            return;
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("Not Found", status_, responseText_, headers_, null);
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Get a specific Case Type by Id.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<CaseType> GetCaseTypeByIdAsync(System.Guid caseTypeId)
-        {
-            return GetCaseTypeByIdAsync(caseTypeId, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Get a specific Case Type by Id.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<CaseType> GetCaseTypeByIdAsync(System.Guid caseTypeId, System.Threading.CancellationToken cancellationToken)
-        {
-            if (caseTypeId == null)
-                throw new System.ArgumentNullException("caseTypeId");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/case-types/{caseTypeId}"
-                    urlBuilder_.Append("api/manage/case-types/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseTypeId, System.Globalization.CultureInfo.InvariantCulture)));
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 200)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<CaseType>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            return objectResponse_.Object;
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("Not Found", status_, responseText_, headers_, null);
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Update a specific Case Type.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<CaseType> UpdateCaseTypeAsync(System.Guid caseTypeId, CaseTypeRequest body)
-        {
-            return UpdateCaseTypeAsync(caseTypeId, body, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Update a specific Case Type.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<CaseType> UpdateCaseTypeAsync(System.Guid caseTypeId, CaseTypeRequest body, System.Threading.CancellationToken cancellationToken)
-        {
-            if (caseTypeId == null)
-                throw new System.ArgumentNullException("caseTypeId");
-
-            if (body == null)
-                throw new System.ArgumentNullException("body");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
-                    var content_ = new System.Net.Http.ByteArrayContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
-                    request_.Content = content_;
-                    request_.Method = new System.Net.Http.HttpMethod("PUT");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/case-types/{caseTypeId}"
-                    urlBuilder_.Append("api/manage/case-types/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseTypeId, System.Globalization.CultureInfo.InvariantCulture)));
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 200)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<CaseType>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            return objectResponse_.Object;
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("Not Found", status_, responseText_, headers_, null);
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Delete a specific Case Type.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task DeleteCaseTypeAsync(System.Guid caseTypeId)
-        {
-            return DeleteCaseTypeAsync(caseTypeId, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Delete a specific Case Type.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task DeleteCaseTypeAsync(System.Guid caseTypeId, System.Threading.CancellationToken cancellationToken)
-        {
-            if (caseTypeId == null)
-                throw new System.ArgumentNullException("caseTypeId");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("DELETE");
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/case-types/{caseTypeId}"
-                    urlBuilder_.Append("api/manage/case-types/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseTypeId, System.Globalization.CultureInfo.InvariantCulture)));
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 204)
-                        {
-                            return;
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("Not Found", status_, responseText_, headers_, null);
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Create a new case in draft mode.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<CreateCaseResponse> CreateDraftAdminCaseAsync(CreateDraftCaseRequest body)
-        {
-            return CreateDraftAdminCaseAsync(body, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Create a new case in draft mode.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<CreateCaseResponse> CreateDraftAdminCaseAsync(CreateDraftCaseRequest body, System.Threading.CancellationToken cancellationToken)
-        {
-            if (body == null)
-                throw new System.ArgumentNullException("body");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
-                    var content_ = new System.Net.Http.ByteArrayContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
-                    request_.Content = content_;
-                    request_.Method = new System.Net.Http.HttpMethod("POST");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/cases"
-                    urlBuilder_.Append("api/manage/cases");
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 200)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<CreateCaseResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            return objectResponse_.Object;
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Gets the list of all cases using the provided.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<CasePartialResultSet> GetCasesAsync(int? page, int? size, string sort, string search, System.Collections.Generic.IEnumerable<string> ownerIds, System.Collections.Generic.IEnumerable<string> ownerNames, System.DateTimeOffset? from, System.DateTimeOffset? to, System.Collections.Generic.IEnumerable<string> caseTypeCodes, System.Collections.Generic.IEnumerable<string> checkpointTypeCodes, System.Collections.Generic.IEnumerable<string> groupIds, System.Collections.Generic.IEnumerable<string> metadata, System.Collections.Generic.IEnumerable<string> referenceNumbers, System.Collections.Generic.IEnumerable<string> data, bool? includeData)
-        {
-            return GetCasesAsync(page, size, sort, search, ownerIds, ownerNames, from, to, caseTypeCodes, checkpointTypeCodes, groupIds, metadata, referenceNumbers, data, includeData, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Gets the list of all cases using the provided.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<CasePartialResultSet> GetCasesAsync(int? page, int? size, string sort, string search, System.Collections.Generic.IEnumerable<string> ownerIds, System.Collections.Generic.IEnumerable<string> ownerNames, System.DateTimeOffset? from, System.DateTimeOffset? to, System.Collections.Generic.IEnumerable<string> caseTypeCodes, System.Collections.Generic.IEnumerable<string> checkpointTypeCodes, System.Collections.Generic.IEnumerable<string> groupIds, System.Collections.Generic.IEnumerable<string> metadata, System.Collections.Generic.IEnumerable<string> referenceNumbers, System.Collections.Generic.IEnumerable<string> data, bool? includeData, System.Threading.CancellationToken cancellationToken)
-        {
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/cases"
-                    urlBuilder_.Append("api/manage/cases");
-                    urlBuilder_.Append('?');
-                    if (page != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("Page")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(page, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    if (size != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("Size")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(size, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    if (sort != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("Sort")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(sort, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    if (search != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("Search")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(search, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    if (ownerIds != null)
-                    {
-                        foreach (var item_ in ownerIds) { urlBuilder_.Append(System.Uri.EscapeDataString("OwnerIds")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(item_, System.Globalization.CultureInfo.InvariantCulture))).Append('&'); }
-                    }
-                    if (ownerNames != null)
-                    {
-                        foreach (var item_ in ownerNames) { urlBuilder_.Append(System.Uri.EscapeDataString("OwnerNames")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(item_, System.Globalization.CultureInfo.InvariantCulture))).Append('&'); }
-                    }
-                    if (from != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("From")).Append('=').Append(System.Uri.EscapeDataString(from.Value.ToString("s", System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    if (to != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("To")).Append('=').Append(System.Uri.EscapeDataString(to.Value.ToString("s", System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    if (caseTypeCodes != null)
-                    {
-                        foreach (var item_ in caseTypeCodes) { urlBuilder_.Append(System.Uri.EscapeDataString("CaseTypeCodes")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(item_, System.Globalization.CultureInfo.InvariantCulture))).Append('&'); }
-                    }
-                    if (checkpointTypeCodes != null)
-                    {
-                        foreach (var item_ in checkpointTypeCodes) { urlBuilder_.Append(System.Uri.EscapeDataString("CheckpointTypeCodes")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(item_, System.Globalization.CultureInfo.InvariantCulture))).Append('&'); }
-                    }
-                    if (groupIds != null)
-                    {
-                        foreach (var item_ in groupIds) { urlBuilder_.Append(System.Uri.EscapeDataString("GroupIds")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(item_, System.Globalization.CultureInfo.InvariantCulture))).Append('&'); }
-                    }
-                    if (metadata != null)
-                    {
-                        foreach (var item_ in metadata) { urlBuilder_.Append(System.Uri.EscapeDataString("Metadata")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(item_, System.Globalization.CultureInfo.InvariantCulture))).Append('&'); }
-                    }
-                    if (referenceNumbers != null)
-                    {
-                        foreach (var item_ in referenceNumbers) { urlBuilder_.Append(System.Uri.EscapeDataString("ReferenceNumbers")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(item_, System.Globalization.CultureInfo.InvariantCulture))).Append('&'); }
-                    }
-                    if (data != null)
-                    {
-                        foreach (var item_ in data) { urlBuilder_.Append(System.Uri.EscapeDataString("Data")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(item_, System.Globalization.CultureInfo.InvariantCulture))).Append('&'); }
-                    }
-                    if (includeData != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("IncludeData")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(includeData, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    urlBuilder_.Length--;
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 200)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<CasePartialResultSet>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            return objectResponse_.Object;
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Update the case with the business data as defined at the specific case type. This action is allowed only for draft cases.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task UpdateAdminCaseAsync(System.Guid caseId, UpdateCaseRequest body)
-        {
-            return UpdateAdminCaseAsync(caseId, body, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Update the case with the business data as defined at the specific case type. This action is allowed only for draft cases.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task UpdateAdminCaseAsync(System.Guid caseId, UpdateCaseRequest body, System.Threading.CancellationToken cancellationToken)
-        {
-            if (caseId == null)
-                throw new System.ArgumentNullException("caseId");
-
-            if (body == null)
-                throw new System.ArgumentNullException("body");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
-                    var content_ = new System.Net.Http.ByteArrayContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
-                    request_.Content = content_;
-                    request_.Method = new System.Net.Http.HttpMethod("PUT");
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/cases/{caseId}"
-                    urlBuilder_.Append("api/manage/cases/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 204)
-                        {
-                            return;
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("Not Found", status_, responseText_, headers_, null);
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Gets a case with the specified id.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<Case> GetCaseByIdAsync(System.Guid caseId)
-        {
-            return GetCaseByIdAsync(caseId, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Gets a case with the specified id.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<Case> GetCaseByIdAsync(System.Guid caseId, System.Threading.CancellationToken cancellationToken)
-        {
-            if (caseId == null)
-                throw new System.ArgumentNullException("caseId");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/cases/{caseId}"
-                    urlBuilder_.Append("api/manage/cases/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 200)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<Case>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            return objectResponse_.Object;
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("Not Found", status_, responseText_, headers_, null);
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Deletes a draft case with the specified id.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task DeleteDraftCaseAsync(System.Guid caseId)
-        {
-            return DeleteDraftCaseAsync(caseId, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Deletes a draft case with the specified id.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task DeleteDraftCaseAsync(System.Guid caseId, System.Threading.CancellationToken cancellationToken)
-        {
-            if (caseId == null)
-                throw new System.ArgumentNullException("caseId");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("DELETE");
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/cases/{caseId}"
-                    urlBuilder_.Append("api/manage/cases/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 204)
-                        {
-                            return;
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("Not Found", status_, responseText_, headers_, null);
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Download case in a PDF format.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<FileResponse> DownloadCasePdfAsync(System.Guid caseId)
-        {
-            return DownloadCasePdfAsync(caseId, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Download case in a PDF format.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FileResponse> DownloadCasePdfAsync(System.Guid caseId, System.Threading.CancellationToken cancellationToken)
-        {
-            if (caseId == null)
-                throw new System.ArgumentNullException("caseId");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/pdf"));
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/cases/{caseId}.pdf"
-                    urlBuilder_.Append("api/manage/cases/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append(".pdf");
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("Not Found", status_, responseText_, headers_, null);
-                        }
-                        else
-                        if (status_ == 200 || status_ == 206)
-                        {
-                            var responseStream_ = response_.Content == null ? System.IO.Stream.Null : await response_.Content.ReadAsStreamAsync().ConfigureAwait(false);
-                            var fileResponse_ = new FileResponse(status_, headers_, responseStream_, null, response_);
-                            disposeClient_ = false; disposeResponse_ = false; // response and client are disposed by FileResponse
-                            return fileResponse_;
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Get Access rules for the specified case.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccessRule>> GetAccessRulesForCaseAsync(System.Guid caseId)
-        {
-            return GetAccessRulesForCaseAsync(caseId, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Get Access rules for the specified case.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccessRule>> GetAccessRulesForCaseAsync(System.Guid caseId, System.Threading.CancellationToken cancellationToken)
-        {
-            if (caseId == null)
-                throw new System.ArgumentNullException("caseId");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/cases/{caseId}/access-rules"
-                    urlBuilder_.Append("api/manage/cases/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append("/access-rules");
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 200)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<AccessRule>>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            return objectResponse_.Object;
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Gets the cases actions (Approval, edit, assignments, etc) for a case Id. Actions differ based on user role.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<CaseActions> GetCaseActionsAsync(System.Guid caseId)
-        {
-            return GetCaseActionsAsync(caseId, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Gets the cases actions (Approval, edit, assignments, etc) for a case Id. Actions differ based on user role.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<CaseActions> GetCaseActionsAsync(System.Guid caseId, System.Threading.CancellationToken cancellationToken)
-        {
-            if (caseId == null)
-                throw new System.ArgumentNullException("caseId");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/cases/{caseId}/actions"
-                    urlBuilder_.Append("api/manage/cases/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append("/actions");
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 200)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<CaseActions>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            return objectResponse_.Object;
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("Not Found", status_, responseText_, headers_, null);
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Invoke the approval activity to approve or reject the case.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task SubmitApprovalAsync(System.Guid caseId, ApprovalRequest body)
-        {
-            return SubmitApprovalAsync(caseId, body, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Invoke the approval activity to approve or reject the case.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task SubmitApprovalAsync(System.Guid caseId, ApprovalRequest body, System.Threading.CancellationToken cancellationToken)
-        {
-            if (caseId == null)
-                throw new System.ArgumentNullException("caseId");
-
-            if (body == null)
-                throw new System.ArgumentNullException("body");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
-                    var content_ = new System.Net.Http.ByteArrayContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
-                    request_.Content = content_;
-                    request_.Method = new System.Net.Http.HttpMethod("POST");
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/cases/{caseId}/approve"
-                    urlBuilder_.Append("api/manage/cases/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append("/approve");
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 204)
-                        {
-                            return;
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Invoke the assign activity to assign the case to the caller user.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task AssignCaseAsync(System.Guid caseId)
-        {
-            return AssignCaseAsync(caseId, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Invoke the assign activity to assign the case to the caller user.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task AssignCaseAsync(System.Guid caseId, System.Threading.CancellationToken cancellationToken)
-        {
-            if (caseId == null)
-                throw new System.ArgumentNullException("caseId");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "application/json");
-                    request_.Method = new System.Net.Http.HttpMethod("POST");
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/cases/{caseId}/assign"
-                    urlBuilder_.Append("api/manage/cases/");
+                    // Operation Path: "api/manage/workflow/{caseId}/assign"
+                    urlBuilder_.Append("api/manage/workflow/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/assign");
 
@@ -2855,153 +293,9 @@ namespace Indice.Features.Cases.Workflows.Integration
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 204)
-                        {
-                            return;
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Get a list of Attachments for a CaseId
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<CaseAttachmentResultSet> GetCaseAttachmentsAsync(System.Guid caseId)
-        {
-            return GetCaseAttachmentsAsync(caseId, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Get a list of Attachments for a CaseId
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<CaseAttachmentResultSet> GetCaseAttachmentsAsync(System.Guid caseId, System.Threading.CancellationToken cancellationToken)
-        {
-            if (caseId == null)
-                throw new System.ArgumentNullException("caseId");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/cases/{caseId}/attachments"
-                    urlBuilder_.Append("api/manage/cases/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append("/attachments");
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<CaseAttachmentResultSet>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<AuditMeta>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -3029,414 +323,22 @@ namespace Indice.Features.Cases.Workflows.Integration
         }
 
         /// <summary>
-        /// Add an attachment to an existing case regardless of its status and mode (draft or not).
+        /// Remove assignment and send a message.
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<CasesAttachmentLink> UploadAdminCaseAttachmentAsync(System.Guid caseId, FileParameter file)
+        public virtual System.Threading.Tasks.Task BlockPreviousApproverAsync(System.Guid caseId, WorkflowActor body)
         {
-            return UploadAdminCaseAttachmentAsync(caseId, file, System.Threading.CancellationToken.None);
+            return BlockPreviousApproverAsync(caseId, body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
-        /// Add an attachment to an existing case regardless of its status and mode (draft or not).
+        /// Remove assignment and send a message.
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<CasesAttachmentLink> UploadAdminCaseAttachmentAsync(System.Guid caseId, FileParameter file, System.Threading.CancellationToken cancellationToken)
-        {
-            if (caseId == null)
-                throw new System.ArgumentNullException("caseId");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    var boundary_ = System.Guid.NewGuid().ToString();
-                    var content_ = new System.Net.Http.MultipartFormDataContent(boundary_);
-                    content_.Headers.Remove("Content-Type");
-                    content_.Headers.TryAddWithoutValidation("Content-Type", "multipart/form-data; boundary=" + boundary_);
-
-                    if (file == null)
-                        throw new System.ArgumentNullException("file");
-                    else
-                    {
-                        var content_file_ = new System.Net.Http.StreamContent(file.Data);
-                        if (!string.IsNullOrEmpty(file.ContentType))
-                            content_file_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(file.ContentType);
-                        content_.Add(content_file_, "file", file.FileName ?? "file");
-                    }
-                    request_.Content = content_;
-                    request_.Method = new System.Net.Http.HttpMethod("POST");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/cases/{caseId}/attachments"
-                    urlBuilder_.Append("api/manage/cases/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append("/attachments");
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 200)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<CasesAttachmentLink>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            return objectResponse_.Object;
-                        }
-                        else
-                        if (status_ == 400)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<HttpValidationProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<HttpValidationProblemDetails>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Get an Case Attachment
-        /// </summary>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task GetCaseAttachmentAsync(System.Guid caseId, System.Guid attachmentId)
-        {
-            return GetCaseAttachmentAsync(caseId, attachmentId, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Get an Case Attachment
-        /// </summary>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task GetCaseAttachmentAsync(System.Guid caseId, System.Guid attachmentId, System.Threading.CancellationToken cancellationToken)
-        {
-            if (caseId == null)
-                throw new System.ArgumentNullException("caseId");
-
-            if (attachmentId == null)
-                throw new System.ArgumentNullException("attachmentId");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/cases/{caseId}/attachments/{attachmentId}"
-                    urlBuilder_.Append("api/manage/cases/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append("/attachments/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(attachmentId, System.Globalization.CultureInfo.InvariantCulture)));
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("Not Found", status_, responseText_, headers_, null);
-                        }
-                        else
-
-                        if (status_ == 200 || status_ == 204)
-                        {
-
-                            return;
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Get a Case Attachment by field name.
-        /// </summary>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task GetAttachmentByFieldAsync(System.Guid caseId, string fieldName)
-        {
-            return GetAttachmentByFieldAsync(caseId, fieldName, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Get a Case Attachment by field name.
-        /// </summary>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task GetAttachmentByFieldAsync(System.Guid caseId, string fieldName, System.Threading.CancellationToken cancellationToken)
-        {
-            if (caseId == null)
-                throw new System.ArgumentNullException("caseId");
-
-            if (fieldName == null)
-                throw new System.ArgumentNullException("fieldName");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/cases/{caseId}/attachments/{attachmentName}"
-                    urlBuilder_.Append("api/manage/cases/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append("/attachments/");
-                    urlBuilder_.Append('?');
-                    urlBuilder_.Append(System.Uri.EscapeDataString("fieldName")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(fieldName, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    urlBuilder_.Length--;
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("Not Found", status_, responseText_, headers_, null);
-                        }
-                        else
-
-                        if (status_ == 200 || status_ == 204)
-                        {
-
-                            return;
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Add a comment to a case.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task AdminAddCommentAsync(System.Guid caseId, SendCommentRequest body)
-        {
-            return AdminAddCommentAsync(caseId, body, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Add a comment to a case.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task AdminAddCommentAsync(System.Guid caseId, SendCommentRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task BlockPreviousApproverAsync(System.Guid caseId, WorkflowActor body, System.Threading.CancellationToken cancellationToken)
         {
             if (caseId == null)
                 throw new System.ArgumentNullException("caseId");
@@ -3458,10 +360,10 @@ namespace Indice.Features.Cases.Workflows.Integration
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "api/manage/cases/{caseId}/comment"
-                    urlBuilder_.Append("api/manage/cases/");
+                    // Operation Path: "api/manage/workflow/{caseId}/block-previous-approver"
+                    urlBuilder_.Append("api/manage/workflow/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append("/comment");
+                    urlBuilder_.Append("/block-previous-approver");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -3486,37 +388,7 @@ namespace Indice.Features.Cases.Workflows.Integration
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 204)
+                        if (status_ == 200)
                         {
                             return;
                         }
@@ -3541,28 +413,25 @@ namespace Indice.Features.Cases.Workflows.Integration
         }
 
         /// <summary>
-        /// Patches the Case.Data object with an object passed in the body.
+        /// Gets last approval of a case.
         /// </summary>
-        /// <returns>No Content</returns>
+        /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task PatchAdminCaseDataAsync(System.Guid caseId, object body)
+        public virtual System.Threading.Tasks.Task<CaseApproval> LastApprovalAsync(System.Guid caseId)
         {
-            return PatchAdminCaseDataAsync(caseId, body, System.Threading.CancellationToken.None);
+            return LastApprovalAsync(caseId, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
-        /// Patches the Case.Data object with an object passed in the body.
+        /// Gets last approval of a case.
         /// </summary>
-        /// <returns>No Content</returns>
+        /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task PatchAdminCaseDataAsync(System.Guid caseId, object body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<CaseApproval> LastApprovalAsync(System.Guid caseId, System.Threading.CancellationToken cancellationToken)
         {
             if (caseId == null)
                 throw new System.ArgumentNullException("caseId");
-
-            if (body == null)
-                throw new System.ArgumentNullException("body");
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -3570,18 +439,15 @@ namespace Indice.Features.Cases.Workflows.Integration
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
-                    var content_ = new System.Net.Http.ByteArrayContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
-                    request_.Content = content_;
-                    request_.Method = new System.Net.Http.HttpMethod("PATCH");
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "api/manage/cases/{caseId}/data"
-                    urlBuilder_.Append("api/manage/cases/");
+                    // Operation Path: "api/manage/workflow/{caseId}/last-approval"
+                    urlBuilder_.Append("api/manage/workflow/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append("/data");
+                    urlBuilder_.Append("/last-approval");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -3606,39 +472,20 @@ namespace Indice.Features.Cases.Workflows.Integration
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
+                        if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<CaseApproval>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            return objectResponse_.Object;
                         }
                         else
                         if (status_ == 204)
                         {
-                            return;
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("No Content", status_, responseText_, headers_, null);
                         }
                         else
                         {
@@ -3661,28 +508,25 @@ namespace Indice.Features.Cases.Workflows.Integration
         }
 
         /// <summary>
-        /// Update the Case Data for the specific caseId according to https://datatracker.ietf.org/doc/html/rfc6902#appendix-A.
+        /// Removes the assigner of a case.
         /// </summary>
-        /// <returns>No Content</returns>
+        /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task JsonPatchAdminCaseDataAsync(System.Guid caseId, System.Collections.Generic.IEnumerable<PatchJsonPathRequest> body)
+        public virtual System.Threading.Tasks.Task RemoveAssignmentAsync(System.Guid caseId)
         {
-            return JsonPatchAdminCaseDataAsync(caseId, body, System.Threading.CancellationToken.None);
+            return RemoveAssignmentAsync(caseId, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
-        /// Update the Case Data for the specific caseId according to https://datatracker.ietf.org/doc/html/rfc6902#appendix-A.
+        /// Removes the assigner of a case.
         /// </summary>
-        /// <returns>No Content</returns>
+        /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task JsonPatchAdminCaseDataAsync(System.Guid caseId, System.Collections.Generic.IEnumerable<PatchJsonPathRequest> body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task RemoveAssignmentAsync(System.Guid caseId, System.Threading.CancellationToken cancellationToken)
         {
             if (caseId == null)
                 throw new System.ArgumentNullException("caseId");
-
-            if (body == null)
-                throw new System.ArgumentNullException("body");
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -3690,18 +534,15 @@ namespace Indice.Features.Cases.Workflows.Integration
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
-                    var content_ = new System.Net.Http.ByteArrayContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
-                    request_.Content = content_;
-                    request_.Method = new System.Net.Http.HttpMethod("PATCH");
+                    request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "application/json");
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "api/manage/cases/{caseId}/data-json"
-                    urlBuilder_.Append("api/manage/cases/");
+                    // Operation Path: "api/manage/workflow/{caseId}/remove-assignment"
+                    urlBuilder_.Append("api/manage/workflow/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append("/data-json");
+                    urlBuilder_.Append("/remove-assignment");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -3726,37 +567,7 @@ namespace Indice.Features.Cases.Workflows.Integration
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 204)
+                        if (status_ == 200)
                         {
                             return;
                         }
@@ -3781,22 +592,106 @@ namespace Indice.Features.Cases.Workflows.Integration
         }
 
         /// <summary>
-        /// Invoke the edit activity to edit the data of the case.
+        /// Rollbacks the previous approval of a case.
         /// </summary>
-        /// <returns>No Content</returns>
+        /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task EditCaseAsync(System.Guid caseId, EditCaseRequest body)
+        public virtual System.Threading.Tasks.Task RollbackApprovalAsync(System.Guid caseId)
         {
-            return EditCaseAsync(caseId, body, System.Threading.CancellationToken.None);
+            return RollbackApprovalAsync(caseId, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
-        /// Invoke the edit activity to edit the data of the case.
+        /// Rollbacks the previous approval of a case.
         /// </summary>
-        /// <returns>No Content</returns>
+        /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task EditCaseAsync(System.Guid caseId, EditCaseRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task RollbackApprovalAsync(System.Guid caseId, System.Threading.CancellationToken cancellationToken)
+        {
+            if (caseId == null)
+                throw new System.ArgumentNullException("caseId");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "application/json");
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                
+                    // Operation Path: "api/manage/workflow/{caseId}/rollback-approval"
+                    urlBuilder_.Append("api/manage/workflow/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
+                    urlBuilder_.Append("/rollback-approval");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            return;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Sends a message for a case.
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task SendMessageAsync(System.Guid caseId, WorkflowSendMessageRequest body)
+        {
+            return SendMessageAsync(caseId, body, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Sends a message for a case.
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task SendMessageAsync(System.Guid caseId, WorkflowSendMessageRequest body, System.Threading.CancellationToken cancellationToken)
         {
             if (caseId == null)
                 throw new System.ArgumentNullException("caseId");
@@ -3818,10 +713,10 @@ namespace Indice.Features.Cases.Workflows.Integration
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "api/manage/cases/{caseId}/edit"
-                    urlBuilder_.Append("api/manage/cases/");
+                    // Operation Path: "api/manage/workflow/{caseId}/send-message"
+                    urlBuilder_.Append("api/manage/workflow/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append("/edit");
+                    urlBuilder_.Append("/send-message");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -3846,1034 +741,9 @@ namespace Indice.Features.Cases.Workflows.Integration
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 204)
+                        if (status_ == 200)
                         {
                             return;
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Patches the metadata of a case.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task PatchCaseMetadataAsync(System.Guid caseId, System.Collections.Generic.IDictionary<string, string> body)
-        {
-            return PatchCaseMetadataAsync(caseId, body, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Patches the metadata of a case.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task PatchCaseMetadataAsync(System.Guid caseId, System.Collections.Generic.IDictionary<string, string> body, System.Threading.CancellationToken cancellationToken)
-        {
-            if (caseId == null)
-                throw new System.ArgumentNullException("caseId");
-
-            if (body == null)
-                throw new System.ArgumentNullException("body");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
-                    var content_ = new System.Net.Http.ByteArrayContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
-                    request_.Content = content_;
-                    request_.Method = new System.Net.Http.HttpMethod("PATCH");
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/cases/{caseId}/metadata"
-                    urlBuilder_.Append("api/manage/cases/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append("/metadata");
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 204)
-                        {
-                            return;
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("Not Found", status_, responseText_, headers_, null);
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Get the reject reasons for a case.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<RejectReason>> GetCaseRejectReasonsAsync(System.Guid caseId)
-        {
-            return GetCaseRejectReasonsAsync(caseId, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Get the reject reasons for a case.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<RejectReason>> GetCaseRejectReasonsAsync(System.Guid caseId, System.Threading.CancellationToken cancellationToken)
-        {
-            if (caseId == null)
-                throw new System.ArgumentNullException("caseId");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/cases/{caseId}/reject-reasons"
-                    urlBuilder_.Append("api/manage/cases/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append("/reject-reasons");
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 200)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<RejectReason>>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            return objectResponse_.Object;
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Gets the cases that are related to the given id.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<CasePartial>> GetRelatedCasesAsync(System.Guid caseId)
-        {
-            return GetRelatedCasesAsync(caseId, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Gets the cases that are related to the given id.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<CasePartial>> GetRelatedCasesAsync(System.Guid caseId, System.Threading.CancellationToken cancellationToken)
-        {
-            if (caseId == null)
-                throw new System.ArgumentNullException("caseId");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/cases/{caseId}/related-cases"
-                    urlBuilder_.Append("api/manage/cases/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append("/related-cases");
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 200)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<CasePartial>>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            return objectResponse_.Object;
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Submit the case by removing the draft mode.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task SubmitAdminCaseAsync(System.Guid caseId, object body)
-        {
-            return SubmitAdminCaseAsync(caseId, body, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Submit the case by removing the draft mode.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task SubmitAdminCaseAsync(System.Guid caseId, object body, System.Threading.CancellationToken cancellationToken)
-        {
-            if (caseId == null)
-                throw new System.ArgumentNullException("caseId");
-
-            if (body == null)
-                throw new System.ArgumentNullException("body");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
-                    var content_ = new System.Net.Http.ByteArrayContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
-                    request_.Content = content_;
-                    request_.Method = new System.Net.Http.HttpMethod("POST");
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/cases/{caseId}/submit"
-                    urlBuilder_.Append("api/manage/cases/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append("/submit");
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 204)
-                        {
-                            return;
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("Not Found", status_, responseText_, headers_, null);
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Gets the timeline entries for a case.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<TimelineEntry>> GetCaseTimelineAsync(System.Guid caseId)
-        {
-            return GetCaseTimelineAsync(caseId, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Gets the timeline entries for a case.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<TimelineEntry>> GetCaseTimelineAsync(System.Guid caseId, System.Threading.CancellationToken cancellationToken)
-        {
-            if (caseId == null)
-                throw new System.ArgumentNullException("caseId");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/cases/{caseId}/timeline"
-                    urlBuilder_.Append("api/manage/cases/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append("/timeline");
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 200)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<TimelineEntry>>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            return objectResponse_.Object;
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Invoke the action activity to trigger a business action for the case.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task TriggerActionAsync(System.Guid caseId, ActionRequest body)
-        {
-            return TriggerActionAsync(caseId, body, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Invoke the action activity to trigger a business action for the case.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task TriggerActionAsync(System.Guid caseId, ActionRequest body, System.Threading.CancellationToken cancellationToken)
-        {
-            if (caseId == null)
-                throw new System.ArgumentNullException("caseId");
-
-            if (body == null)
-                throw new System.ArgumentNullException("body");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
-                    var content_ = new System.Net.Http.ByteArrayContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
-                    request_.Content = content_;
-                    request_.Method = new System.Net.Http.HttpMethod("POST");
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/cases/{caseId}/trigger-action"
-                    urlBuilder_.Append("api/manage/cases/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append("/trigger-action");
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 204)
-                        {
-                            return;
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Get the distinct checkpoint types grouped by code.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<CheckpointType>> GetDistinctCheckpointTypesAsync()
-        {
-            return GetDistinctCheckpointTypesAsync(System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Get the distinct checkpoint types grouped by code.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<CheckpointType>> GetDistinctCheckpointTypesAsync(System.Threading.CancellationToken cancellationToken)
-        {
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/checkpoint-types"
-                    urlBuilder_.Append("api/manage/checkpoint-types");
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 200)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<CheckpointType>>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            return objectResponse_.Object;
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("Not Found", status_, responseText_, headers_, null);
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Search contacts.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ContactResultSet> GetContactsAsync(string reference, string caseTypeCode, int? page, int? size, string sort, string search)
-        {
-            return GetContactsAsync(reference, caseTypeCode, page, size, sort, search, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Search contacts.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ContactResultSet> GetContactsAsync(string reference, string caseTypeCode, int? page, int? size, string sort, string search, System.Threading.CancellationToken cancellationToken)
-        {
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/integrations/contacts"
-                    urlBuilder_.Append("api/manage/integrations/contacts");
-                    urlBuilder_.Append('?');
-                    if (reference != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("Reference")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(reference, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    if (caseTypeCode != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("CaseTypeCode")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(caseTypeCode, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    if (page != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("Page")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(page, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    if (size != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("Size")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(size, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    if (sort != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("Sort")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(sort, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    if (search != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("Search")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(search, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    urlBuilder_.Length--;
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 200)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ContactResultSet>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            return objectResponse_.Object;
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("Not Found", status_, responseText_, headers_, null);
                         }
                         else
                         {
@@ -4900,9 +770,9 @@ namespace Indice.Features.Cases.Workflows.Integration
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<Contact> GetContactDataAsync(string reference, string caseTypeCode)
+        public virtual System.Threading.Tasks.Task<Contact> DataAsync(string reference, string caseTypeCode)
         {
-            return GetContactDataAsync(reference, caseTypeCode, System.Threading.CancellationToken.None);
+            return DataAsync(reference, caseTypeCode, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
@@ -4911,7 +781,7 @@ namespace Indice.Features.Cases.Workflows.Integration
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<Contact> GetContactDataAsync(string reference, string caseTypeCode, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<Contact> DataAsync(string reference, string caseTypeCode, System.Threading.CancellationToken cancellationToken)
         {
             if (reference == null)
                 throw new System.ArgumentNullException("reference");
@@ -4930,8 +800,8 @@ namespace Indice.Features.Cases.Workflows.Integration
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "api/manage/integrations/contacts/{reference}/data/{caseTypeCode}"
-                    urlBuilder_.Append("api/manage/integrations/contacts/");
+                    // Operation Path: "api/manage/workflow/contacts/{reference}/data/{caseTypeCode}"
+                    urlBuilder_.Append("api/manage/workflow/contacts/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(reference, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/data/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseTypeCode, System.Globalization.CultureInfo.InvariantCulture)));
@@ -4959,36 +829,6 @@ namespace Indice.Features.Cases.Workflows.Integration
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
                         if (status_ == 200)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Contact>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -5025,25 +865,25 @@ namespace Indice.Features.Cases.Workflows.Integration
         }
 
         /// <summary>
-        /// Get a lookup result by lookupName and options.
+        /// Get workflow case.
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<LookupItemResultSet> GetLookupAsync(string lookupName, int? page, int? size, string sort, string search, System.Collections.Generic.IEnumerable<string> filterTerms)
+        public virtual System.Threading.Tasks.Task<Case> GetCaseAsync(System.Guid caseId, bool? includeAttachments)
         {
-            return GetLookupAsync(lookupName, page, size, sort, search, filterTerms, System.Threading.CancellationToken.None);
+            return GetCaseAsync(caseId, includeAttachments, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
-        /// Get a lookup result by lookupName and options.
+        /// Get workflow case.
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<LookupItemResultSet> GetLookupAsync(string lookupName, int? page, int? size, string sort, string search, System.Collections.Generic.IEnumerable<string> filterTerms, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<Case> GetCaseAsync(System.Guid caseId, bool? includeAttachments, System.Threading.CancellationToken cancellationToken)
         {
-            if (lookupName == null)
-                throw new System.ArgumentNullException("lookupName");
+            if (caseId == null)
+                throw new System.ArgumentNullException("caseId");
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -5056,29 +896,13 @@ namespace Indice.Features.Cases.Workflows.Integration
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "api/manage/lookups/{lookupName}"
-                    urlBuilder_.Append("api/manage/lookups/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(lookupName, System.Globalization.CultureInfo.InvariantCulture)));
+                    // Operation Path: "api/manage/workflow/get-case/{caseId}"
+                    urlBuilder_.Append("api/manage/workflow/get-case/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append('?');
-                    if (page != null)
+                    if (includeAttachments != null)
                     {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("Page")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(page, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    if (size != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("Size")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(size, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    if (sort != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("Sort")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(sort, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    if (search != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("Search")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(search, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    if (filterTerms != null)
-                    {
-                        foreach (var item_ in filterTerms) { urlBuilder_.Append(System.Uri.EscapeDataString("filterTerms")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(item_, System.Globalization.CultureInfo.InvariantCulture))).Append('&'); }
+                        urlBuilder_.Append(System.Uri.EscapeDataString("includeAttachments")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(includeAttachments, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
                     }
                     urlBuilder_.Length--;
 
@@ -5105,39 +929,9 @@ namespace Indice.Features.Cases.Workflows.Integration
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<LookupItemResultSet>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<Case>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -5149,714 +943,6 @@ namespace Indice.Features.Cases.Workflows.Integration
                         {
                             string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Not Found", status_, responseText_, headers_, null);
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Get the notification subscriptions for a user.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<NotificationSubscriptionResponse> GetMySubscriptionsAsync()
-        {
-            return GetMySubscriptionsAsync(System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Get the notification subscriptions for a user.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<NotificationSubscriptionResponse> GetMySubscriptionsAsync(System.Threading.CancellationToken cancellationToken)
-        {
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/my/notifications"
-                    urlBuilder_.Append("api/manage/my/notifications");
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 200)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<NotificationSubscriptionResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            return objectResponse_.Object;
-                        }
-                        else
-                        if (status_ == 400)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("Bad Request", status_, responseText_, headers_, null);
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Store user's subscription settings.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task SubscribeAsync(NotificationSubscriptionRequest body)
-        {
-            return SubscribeAsync(body, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Store user's subscription settings.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task SubscribeAsync(NotificationSubscriptionRequest body, System.Threading.CancellationToken cancellationToken)
-        {
-            if (body == null)
-                throw new System.ArgumentNullException("body");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
-                    var content_ = new System.Net.Http.ByteArrayContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
-                    request_.Content = content_;
-                    request_.Method = new System.Net.Http.HttpMethod("POST");
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/my/notifications"
-                    urlBuilder_.Append("api/manage/my/notifications");
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 204)
-                        {
-                            return;
-                        }
-                        else
-                        if (status_ == 400)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("Bad Request", status_, responseText_, headers_, null);
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Get saved queries.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Query>> GetQueriesAsync()
-        {
-            return GetQueriesAsync(System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Get saved queries.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Query>> GetQueriesAsync(System.Threading.CancellationToken cancellationToken)
-        {
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/queries"
-                    urlBuilder_.Append("api/manage/queries");
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 200)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<Query>>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            return objectResponse_.Object;
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Save a new query.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task SaveQueryAsync(SaveQueryRequest body)
-        {
-            return SaveQueryAsync(body, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Save a new query.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task SaveQueryAsync(SaveQueryRequest body, System.Threading.CancellationToken cancellationToken)
-        {
-            if (body == null)
-                throw new System.ArgumentNullException("body");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
-                    var content_ = new System.Net.Http.ByteArrayContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
-                    request_.Content = content_;
-                    request_.Method = new System.Net.Http.HttpMethod("POST");
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/queries"
-                    urlBuilder_.Append("api/manage/queries");
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 204)
-                        {
-                            return;
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Delete a query.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task DeleteQueryAsync(System.Guid queryId)
-        {
-            return DeleteQueryAsync(queryId, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Delete a query.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task DeleteQueryAsync(System.Guid queryId, System.Threading.CancellationToken cancellationToken)
-        {
-            if (queryId == null)
-                throw new System.ArgumentNullException("queryId");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("DELETE");
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/queries/{queryId}"
-                    urlBuilder_.Append("api/manage/queries/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(queryId, System.Globalization.CultureInfo.InvariantCulture)));
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 204)
-                        {
-                            return;
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("Not Found", status_, responseText_, headers_, null);
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Get case report
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<GroupByReportResult>> GetCaseReportAsync(ReportTag reportTag)
-        {
-            return GetCaseReportAsync(reportTag, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Get case report
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<GroupByReportResult>> GetCaseReportAsync(ReportTag reportTag, System.Threading.CancellationToken cancellationToken)
-        {
-            if (reportTag == null)
-                throw new System.ArgumentNullException("reportTag");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/reports"
-                    urlBuilder_.Append("api/manage/reports");
-                    urlBuilder_.Append('?');
-                    urlBuilder_.Append(System.Uri.EscapeDataString("reportTag")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(reportTag, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    urlBuilder_.Length--;
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 200)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<GroupByReportResult>>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            return objectResponse_.Object;
                         }
                         else
                         {
@@ -5988,118 +1074,6 @@ namespace Indice.Features.Cases.Workflows.Integration
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record AccessRule
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("id")]
-        public System.Guid? Id { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("ruleCaseId")]
-        public System.Guid? RuleCaseId { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("ruleCaseTypeId")]
-        public System.Guid? RuleCaseTypeId { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("ruleCheckpointTypeId")]
-        public System.Guid? RuleCheckpointTypeId { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("memberRole")]
-        public string MemberRole { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("memberGroupId")]
-        public string MemberGroupId { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("memberUserId")]
-        public string MemberUserId { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("accessLevel")]
-        public int AccessLevel { get; set; }
-
-    }
-
-    /// <summary>
-    /// Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results.
-    /// </summary>
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record AccessRuleResultSet
-    {
-        /// <summary>
-        /// Total results count.
-        /// </summary>
-
-        [System.Text.Json.Serialization.JsonPropertyName("count")]
-        public int Count { get; set; }
-
-        /// <summary>
-        /// The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page.
-        /// </summary>
-
-        [System.Text.Json.Serialization.JsonPropertyName("items")]
-        public System.Collections.Generic.ICollection<AccessRule> Items { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record ActionRequest
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("id")]
-        public System.Guid Id { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("value")]
-        public string Value { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record AddAccessRuleRequest
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("ruleCaseId")]
-        public System.Guid? RuleCaseId { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("ruleCheckpointTypeId")]
-        public System.Guid? RuleCheckpointTypeId { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("ruleCaseTypeId")]
-        public System.Guid? RuleCaseTypeId { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("memberRole")]
-        public string MemberRole { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("memberGroupId")]
-        public string MemberGroupId { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("memberUserId")]
-        public string MemberUserId { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("accessLevel")]
-        public int AccessLevel { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record AddCaseAccessRuleRequest
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("ruleCheckpointTypeId")]
-        public System.Guid? RuleCheckpointTypeId { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("memberRole")]
-        public string MemberRole { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("memberGroupId")]
-        public string MemberGroupId { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("memberUserId")]
-        public string MemberUserId { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("accessLevel")]
-        public int AccessLevel { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public enum Approval
     {
 
@@ -6112,15 +1086,66 @@ namespace Indice.Features.Cases.Workflows.Integration
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record ApprovalRequest
+    public partial record Assembly
     {
 
-        [System.Text.Json.Serialization.JsonPropertyName("action")]
-        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-        public Approval Action { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("definedTypes")]
+        public System.Collections.Generic.ICollection<TypeInfo> DefinedTypes { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("comment")]
-        public string Comment { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("exportedTypes")]
+        public System.Collections.Generic.ICollection<Type> ExportedTypes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("codeBase")]
+        [System.Obsolete]
+        public string CodeBase { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("entryPoint")]
+        public MethodInfo EntryPoint { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("fullName")]
+        public string FullName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("imageRuntimeVersion")]
+        public string ImageRuntimeVersion { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isDynamic")]
+        public bool IsDynamic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("location")]
+        public string Location { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("reflectionOnly")]
+        public bool ReflectionOnly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isCollectible")]
+        public bool IsCollectible { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFullyTrusted")]
+        public bool IsFullyTrusted { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("customAttributes")]
+        public System.Collections.Generic.ICollection<CustomAttributeData> CustomAttributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("escapedCodeBase")]
+        [System.Obsolete]
+        public string EscapedCodeBase { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("manifestModule")]
+        public Module ManifestModule { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("modules")]
+        public System.Collections.Generic.ICollection<Module> Modules { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("globalAssemblyCache")]
+        [System.Obsolete]
+        public bool GlobalAssemblyCache { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("hostContext")]
+        public long HostContext { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("securityRuleSet")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public SecurityRuleSet SecurityRuleSet { get; set; }
 
     }
 
@@ -6143,6 +1168,27 @@ namespace Indice.Features.Cases.Workflows.Integration
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum CallingConventions
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Standard")]
+        Standard = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"VarArgs")]
+        VarArgs = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Any")]
+        Any = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"HasThis")]
+        HasThis = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ExplicitThis")]
+        ExplicitThis = 4,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial record Case
     {
 
@@ -6157,6 +1203,9 @@ namespace Indice.Features.Cases.Workflows.Integration
 
         [System.Text.Json.Serialization.JsonPropertyName("ownerName")]
         public string OwnerName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("ownerTin")]
+        public string OwnerTin { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("userId")]
         public string UserId { get; set; }
@@ -6209,23 +1258,24 @@ namespace Indice.Features.Cases.Workflows.Integration
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record CaseActions
+    public partial record CaseApproval
     {
 
-        [System.Text.Json.Serialization.JsonPropertyName("hasAssignment")]
-        public bool HasAssignment { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("id")]
+        public System.Guid Id { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("hasUnassignment")]
-        public bool HasUnassignment { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("createdBy")]
+        public AuditMeta CreatedBy { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("hasEdit")]
-        public bool HasEdit { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("action")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public Approval Action { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("hasApproval")]
-        public bool HasApproval { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("committed")]
+        public bool Committed { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("customActions")]
-        public System.Collections.Generic.ICollection<CustomCaseAction> CustomActions { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("reason")]
+        public string Reason { get; set; }
 
     }
 
@@ -6250,110 +1300,6 @@ namespace Indice.Features.Cases.Workflows.Integration
 
     }
 
-    /// <summary>
-    /// Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results.
-    /// </summary>
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record CaseAttachmentResultSet
-    {
-        /// <summary>
-        /// Total results count.
-        /// </summary>
-
-        [System.Text.Json.Serialization.JsonPropertyName("count")]
-        public int Count { get; set; }
-
-        /// <summary>
-        /// The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page.
-        /// </summary>
-
-        [System.Text.Json.Serialization.JsonPropertyName("items")]
-        public System.Collections.Generic.ICollection<CaseAttachment> Items { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record CasePartial
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("id")]
-        public System.Guid Id { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("referenceNumber")]
-        public int? ReferenceNumber { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("ownerId")]
-        public string OwnerId { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("ownerName")]
-        public string OwnerName { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("userId")]
-        public string UserId { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("createdByWhen")]
-        public System.DateTimeOffset? CreatedByWhen { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("createdById")]
-        public string CreatedById { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("createdByEmail")]
-        public string CreatedByEmail { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("createdByName")]
-        public string CreatedByName { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("caseType")]
-        public CaseTypePartial CaseType { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("metadata")]
-        public System.Collections.Generic.IDictionary<string, string> Metadata { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("groupId")]
-        public string GroupId { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("checkpointType")]
-        public CheckpointType CheckpointType { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("data")]
-        public object Data { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("assignedToName")]
-        public string AssignedToName { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("channel")]
-        public string Channel { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("draft")]
-        public bool Draft { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("accessLevel")]
-        public int AccessLevel { get; set; }
-
-    }
-
-    /// <summary>
-    /// Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results.
-    /// </summary>
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record CasePartialResultSet
-    {
-        /// <summary>
-        /// Total results count.
-        /// </summary>
-
-        [System.Text.Json.Serialization.JsonPropertyName("count")]
-        public int Count { get; set; }
-
-        /// <summary>
-        /// The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page.
-        /// </summary>
-
-        [System.Text.Json.Serialization.JsonPropertyName("items")]
-        public System.Collections.Generic.ICollection<CasePartial> Items { get; set; }
-
-    }
-
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public enum CaseStatus
     {
@@ -6369,64 +1315,6 @@ namespace Indice.Features.Cases.Workflows.Integration
 
         [System.Runtime.Serialization.EnumMember(Value = @"Deleted")]
         Deleted = 3,
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record CaseType
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("id")]
-        public System.Guid Id { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("code")]
-        public string Code { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("title")]
-        public string Title { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("description")]
-        public string Description { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("dataSchema")]
-        public object DataSchema { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("layout")]
-        public object Layout { get; set; }
-
-        /// <summary>
-        /// A type that models the translation of an object.
-        /// </summary>
-
-        [System.Text.Json.Serialization.JsonPropertyName("translations")]
-        public System.Collections.Generic.IDictionary<string, CaseTypeTranslation> Translations { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("layoutTranslations")]
-        public System.Collections.Generic.IDictionary<string, string> LayoutTranslations { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("tags")]
-        public string Tags { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("config")]
-        public object Config { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("canCreateRoles")]
-        public string CanCreateRoles { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("isMenuItem")]
-        public bool IsMenuItem { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("gridFilterConfig")]
-        public object GridFilterConfig { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("gridColumnConfig")]
-        public object GridColumnConfig { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("checkpointTypes")]
-        public System.Collections.Generic.ICollection<CheckpointTypeDetails> CheckpointTypes { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("order")]
-        public int? Order { get; set; }
 
     }
 
@@ -6488,83 +1376,6 @@ namespace Indice.Features.Cases.Workflows.Integration
 
     }
 
-    /// <summary>
-    /// Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results.
-    /// </summary>
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record CaseTypePartialResultSet
-    {
-        /// <summary>
-        /// Total results count.
-        /// </summary>
-
-        [System.Text.Json.Serialization.JsonPropertyName("count")]
-        public int Count { get; set; }
-
-        /// <summary>
-        /// The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page.
-        /// </summary>
-
-        [System.Text.Json.Serialization.JsonPropertyName("items")]
-        public System.Collections.Generic.ICollection<CaseTypePartial> Items { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record CaseTypeRequest
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("id")]
-        public System.Guid? Id { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("code")]
-        public string Code { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("title")]
-        public string Title { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("description")]
-        public string Description { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("dataSchema")]
-        public object DataSchema { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("layout")]
-        public object Layout { get; set; }
-
-        /// <summary>
-        /// A type that models the translation of an object.
-        /// </summary>
-
-        [System.Text.Json.Serialization.JsonPropertyName("translations")]
-        public System.Collections.Generic.IDictionary<string, CaseTypeTranslation> Translations { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("layoutTranslations")]
-        public System.Collections.Generic.IDictionary<string, string> LayoutTranslations { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("tags")]
-        public string Tags { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("config")]
-        public object Config { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("canCreateRoles")]
-        public string CanCreateRoles { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("order")]
-        public int? Order { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("isMenuItem")]
-        public bool IsMenuItem { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("gridFilterConfig")]
-        public object GridFilterConfig { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("gridColumnConfig")]
-        public object GridColumnConfig { get; set; }
-
-    }
-
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial record CaseTypeTranslation
     {
@@ -6574,33 +1385,6 @@ namespace Indice.Features.Cases.Workflows.Integration
 
         [System.Text.Json.Serialization.JsonPropertyName("description")]
         public string Description { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record CasesAttachmentLink
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("id")]
-        public System.Guid Id { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("fileGuid")]
-        public System.Guid FileGuid { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("permaLink")]
-        public string PermaLink { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("label")]
-        public string Label { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("size")]
-        public long Size { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("sizeText")]
-        public string SizeText { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("contentType")]
-        public string ContentType { get; set; }
 
     }
 
@@ -6642,24 +1426,6 @@ namespace Indice.Features.Cases.Workflows.Integration
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record Checkpoint
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("id")]
-        public System.Guid Id { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("checkpointType")]
-        public CheckpointType CheckpointType { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("completedDate")]
-        public System.DateTimeOffset? CompletedDate { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("dueDate")]
-        public System.DateTimeOffset? DueDate { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial record CheckpointType
     {
 
@@ -6692,31 +1458,6 @@ namespace Indice.Features.Cases.Workflows.Integration
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record CheckpointTypeDetails
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("id")]
-        public System.Guid Id { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("code")]
-        public string Code { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("description")]
-        public string Description { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("status")]
-        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-        public CaseStatus Status { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("private")]
-        public bool Private { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("roles")]
-        public System.Collections.Generic.ICollection<string> Roles { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial record CheckpointTypeTranslation
     {
 
@@ -6729,26 +1470,108 @@ namespace Indice.Features.Cases.Workflows.Integration
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record Comment
+    public partial record ConstructorInfo
     {
 
-        [System.Text.Json.Serialization.JsonPropertyName("id")]
-        public System.Guid Id { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        public string Name { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("text")]
-        public string Text { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("declaringType")]
+        public Type DeclaringType { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("isCustomer")]
-        public bool? IsCustomer { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("reflectedType")]
+        public Type ReflectedType { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("private")]
-        public bool? Private { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("module")]
+        public Module Module { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("attachment")]
-        public CasesAttachmentLink Attachment { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("customAttributes")]
+        public System.Collections.Generic.ICollection<CustomAttributeData> CustomAttributes { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("replyToComment")]
-        public Comment ReplyToComment { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("isCollectible")]
+        public bool IsCollectible { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("metadataToken")]
+        public int MetadataToken { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("attributes")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MethodAttributes Attributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("methodImplementationFlags")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MethodImplAttributes MethodImplementationFlags { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("callingConvention")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public CallingConventions CallingConvention { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAbstract")]
+        public bool IsAbstract { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isConstructor")]
+        public bool IsConstructor { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFinal")]
+        public bool IsFinal { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isHideBySig")]
+        public bool IsHideBySig { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSpecialName")]
+        public bool IsSpecialName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isStatic")]
+        public bool IsStatic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isVirtual")]
+        public bool IsVirtual { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAssembly")]
+        public bool IsAssembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFamily")]
+        public bool IsFamily { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFamilyAndAssembly")]
+        public bool IsFamilyAndAssembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFamilyOrAssembly")]
+        public bool IsFamilyOrAssembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPrivate")]
+        public bool IsPrivate { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPublic")]
+        public bool IsPublic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isConstructedGenericMethod")]
+        public bool IsConstructedGenericMethod { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericMethod")]
+        public bool IsGenericMethod { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericMethodDefinition")]
+        public bool IsGenericMethodDefinition { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("containsGenericParameters")]
+        public bool ContainsGenericParameters { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("methodHandle")]
+        public RuntimeMethodHandle MethodHandle { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecurityCritical")]
+        public bool IsSecurityCritical { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecuritySafeCritical")]
+        public bool IsSecuritySafeCritical { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecurityTransparent")]
+        public bool IsSecurityTransparent { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("memberType")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MemberTypes MemberType { get; set; }
 
     }
 
@@ -6789,383 +1612,401 @@ namespace Indice.Features.Cases.Workflows.Integration
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record ContactMeta
+    public partial record CustomAttributeData
     {
 
-        [System.Text.Json.Serialization.JsonPropertyName("userId")]
-        public string UserId { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("attributeType")]
+        public Type AttributeType { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("reference")]
-        public string Reference { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("constructor")]
+        public ConstructorInfo Constructor { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("firstName")]
-        public string FirstName { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("constructorArguments")]
+        public System.Collections.Generic.ICollection<CustomAttributeTypedArgument> ConstructorArguments { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("lastName")]
-        public string LastName { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("fullName")]
-        public string FullName { get; set; }
-
-    }
-
-    /// <summary>
-    /// Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results.
-    /// </summary>
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record ContactResultSet
-    {
-        /// <summary>
-        /// Total results count.
-        /// </summary>
-
-        [System.Text.Json.Serialization.JsonPropertyName("count")]
-        public int Count { get; set; }
-
-        /// <summary>
-        /// The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page.
-        /// </summary>
-
-        [System.Text.Json.Serialization.JsonPropertyName("items")]
-        public System.Collections.Generic.ICollection<Contact> Items { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("namedArguments")]
+        public System.Collections.Generic.ICollection<CustomAttributeNamedArgument> NamedArguments { get; set; }
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record CreateCaseResponse
+    public partial record CustomAttributeNamedArgument
     {
 
-        [System.Text.Json.Serialization.JsonPropertyName("id")]
-        public System.Guid Id { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("memberInfo")]
+        public MemberInfo MemberInfo { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("created")]
-        public System.DateTimeOffset Created { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("typedValue")]
+        public CustomAttributeTypedArgument TypedValue { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("memberName")]
+        public string MemberName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isField")]
+        public bool IsField { get; set; }
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record CreateDraftCaseRequest
+    public partial record CustomAttributeTypedArgument
     {
 
-        [System.Text.Json.Serialization.JsonPropertyName("caseTypeCode")]
-        public string CaseTypeCode { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("groupId")]
-        public string GroupId { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("owner")]
-        public ContactMeta Owner { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("metadata")]
-        public System.Collections.Generic.IDictionary<string, string> Metadata { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("channel")]
-        public string Channel { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record CustomCaseAction
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("id")]
-        public string Id { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("name")]
-        public string Name { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("label")]
-        public string Label { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("class")]
-        public string Class { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("redirectToList")]
-        public bool? RedirectToList { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("successMessage")]
-        public SuccessMessage SuccessMessage { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("description")]
-        public string Description { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("defaultValue")]
-        public string DefaultValue { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("hasInput")]
-        public bool? HasInput { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record EditCaseRequest
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("data")]
-        public object Data { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record GroupByReportResult
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("count")]
-        public int Count { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("label")]
-        public string Label { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record HttpValidationProblemDetails
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("type")]
-        public string Type { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("title")]
-        public string Title { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("status")]
-        public int? Status { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("detail")]
-        public string Detail { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("instance")]
-        public string Instance { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("errors")]
-        public System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<string>> Errors { get; set; }
-
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
-
-        [System.Text.Json.Serialization.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
-        {
-            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
-            set { _additionalProperties = value; }
-        }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record LookupItem
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("name")]
-        public string Name { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("value")]
-        public string Value { get; set; }
-
-    }
-
-    /// <summary>
-    /// Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results.
-    /// </summary>
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record LookupItemResultSet
-    {
-        /// <summary>
-        /// Total results count.
-        /// </summary>
-
-        [System.Text.Json.Serialization.JsonPropertyName("count")]
-        public int Count { get; set; }
-
-        /// <summary>
-        /// The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page.
-        /// </summary>
-
-        [System.Text.Json.Serialization.JsonPropertyName("items")]
-        public System.Collections.Generic.ICollection<LookupItem> Items { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record NotificationSubscription
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("caseTypeId")]
-        public System.Guid CaseTypeId { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("email")]
-        public string Email { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("groupId")]
-        public string GroupId { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record NotificationSubscriptionRequest
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("caseTypeIds")]
-        public System.Collections.Generic.ICollection<System.Guid> CaseTypeIds { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record NotificationSubscriptionResponse
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("notificationSubscriptions")]
-        public System.Collections.Generic.ICollection<NotificationSubscription> NotificationSubscriptions { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public enum OperationType
-    {
-
-        [System.Runtime.Serialization.EnumMember(Value = @"Unknown")]
-        Unknown = 0,
-
-        [System.Runtime.Serialization.EnumMember(Value = @"Add")]
-        Add = 1,
-
-        [System.Runtime.Serialization.EnumMember(Value = @"Remove")]
-        Remove = 2,
-
-        [System.Runtime.Serialization.EnumMember(Value = @"Replace")]
-        Replace = 3,
-
-        [System.Runtime.Serialization.EnumMember(Value = @"Move")]
-        Move = 4,
-
-        [System.Runtime.Serialization.EnumMember(Value = @"Copy")]
-        Copy = 5,
-
-        [System.Runtime.Serialization.EnumMember(Value = @"Test")]
-        Test = 6,
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record PatchJsonPathRequest
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("op")]
-        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-        public OperationType Op { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("path")]
-        public string Path { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("argumentType")]
+        public Type ArgumentType { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("value")]
         public object Value { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("from")]
-        public string From { get; set; }
-
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record ProblemDetails
+    public enum EventAttributes
     {
 
-        [System.Text.Json.Serialization.JsonPropertyName("type")]
-        public string Type { get; set; }
+        [System.Runtime.Serialization.EnumMember(Value = @"None")]
+        None = 0,
 
-        [System.Text.Json.Serialization.JsonPropertyName("title")]
-        public string Title { get; set; }
+        [System.Runtime.Serialization.EnumMember(Value = @"SpecialName")]
+        SpecialName = 1,
 
-        [System.Text.Json.Serialization.JsonPropertyName("status")]
-        public int? Status { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("detail")]
-        public string Detail { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("instance")]
-        public string Instance { get; set; }
-
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
-
-        [System.Text.Json.Serialization.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
-        {
-            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
-            set { _additionalProperties = value; }
-        }
+        [System.Runtime.Serialization.EnumMember(Value = @"RTSpecialName")]
+        RTSpecialName = 2,
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record Query
+    public partial record EventInfo
     {
 
-        [System.Text.Json.Serialization.JsonPropertyName("id")]
-        public System.Guid Id { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        public string Name { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("friendlyName")]
-        public string FriendlyName { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("declaringType")]
+        public Type DeclaringType { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("parameters")]
-        public string Parameters { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("reflectedType")]
+        public Type ReflectedType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("module")]
+        public Module Module { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("customAttributes")]
+        public System.Collections.Generic.ICollection<CustomAttributeData> CustomAttributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isCollectible")]
+        public bool IsCollectible { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("metadataToken")]
+        public int MetadataToken { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("memberType")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MemberTypes MemberType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("attributes")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public EventAttributes Attributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSpecialName")]
+        public bool IsSpecialName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("addMethod")]
+        public MethodInfo AddMethod { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("removeMethod")]
+        public MethodInfo RemoveMethod { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("raiseMethod")]
+        public MethodInfo RaiseMethod { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isMulticast")]
+        public bool IsMulticast { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("eventHandlerType")]
+        public Type EventHandlerType { get; set; }
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record RejectReason
+    public enum FieldAttributes
     {
 
-        [System.Text.Json.Serialization.JsonPropertyName("key")]
-        public string Key { get; set; }
+        [System.Runtime.Serialization.EnumMember(Value = @"PrivateScope")]
+        PrivateScope = 0,
 
-        [System.Text.Json.Serialization.JsonPropertyName("value")]
-        public string Value { get; set; }
+        [System.Runtime.Serialization.EnumMember(Value = @"Private")]
+        Private = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"FamANDAssem")]
+        FamANDAssem = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Assembly")]
+        Assembly = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Family")]
+        Family = 4,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"FamORAssem")]
+        FamORAssem = 5,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Public")]
+        Public = 6,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"FieldAccessMask")]
+        FieldAccessMask = 7,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Static")]
+        Static = 8,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"InitOnly")]
+        InitOnly = 9,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Literal")]
+        Literal = 10,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NotSerialized")]
+        NotSerialized = 11,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"HasFieldRVA")]
+        HasFieldRVA = 12,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"SpecialName")]
+        SpecialName = 13,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"RTSpecialName")]
+        RTSpecialName = 14,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"HasFieldMarshal")]
+        HasFieldMarshal = 15,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"PinvokeImpl")]
+        PinvokeImpl = 16,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"HasDefault")]
+        HasDefault = 17,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ReservedMask")]
+        ReservedMask = 18,
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public enum ReportTag
+    public partial record FieldInfo
     {
 
-        [System.Runtime.Serialization.EnumMember(Value = @"GroupedByCasetype")]
-        GroupedByCasetype = 0,
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        public string Name { get; set; }
 
-        [System.Runtime.Serialization.EnumMember(Value = @"AgentGroupedByCasetype")]
-        AgentGroupedByCasetype = 1,
+        [System.Text.Json.Serialization.JsonPropertyName("declaringType")]
+        public Type DeclaringType { get; set; }
 
-        [System.Runtime.Serialization.EnumMember(Value = @"CustomerGroupedByCasetype")]
-        CustomerGroupedByCasetype = 2,
+        [System.Text.Json.Serialization.JsonPropertyName("reflectedType")]
+        public Type ReflectedType { get; set; }
 
-        [System.Runtime.Serialization.EnumMember(Value = @"GroupedByStatus")]
-        GroupedByStatus = 3,
+        [System.Text.Json.Serialization.JsonPropertyName("module")]
+        public Module Module { get; set; }
 
-        [System.Runtime.Serialization.EnumMember(Value = @"AgentGroupedByStatus")]
-        AgentGroupedByStatus = 4,
+        [System.Text.Json.Serialization.JsonPropertyName("customAttributes")]
+        public System.Collections.Generic.ICollection<CustomAttributeData> CustomAttributes { get; set; }
 
-        [System.Runtime.Serialization.EnumMember(Value = @"CustomerGroupedByStatus")]
-        CustomerGroupedByStatus = 5,
+        [System.Text.Json.Serialization.JsonPropertyName("isCollectible")]
+        public bool IsCollectible { get; set; }
 
-        [System.Runtime.Serialization.EnumMember(Value = @"GroupedByGroupId")]
-        GroupedByGroupId = 6,
+        [System.Text.Json.Serialization.JsonPropertyName("metadataToken")]
+        public int MetadataToken { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("memberType")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MemberTypes MemberType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("attributes")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public FieldAttributes Attributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("fieldType")]
+        public Type FieldType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isInitOnly")]
+        public bool IsInitOnly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isLiteral")]
+        public bool IsLiteral { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNotSerialized")]
+        [System.Obsolete]
+        public bool IsNotSerialized { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPinvokeImpl")]
+        public bool IsPinvokeImpl { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSpecialName")]
+        public bool IsSpecialName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isStatic")]
+        public bool IsStatic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAssembly")]
+        public bool IsAssembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFamily")]
+        public bool IsFamily { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFamilyAndAssembly")]
+        public bool IsFamilyAndAssembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFamilyOrAssembly")]
+        public bool IsFamilyOrAssembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPrivate")]
+        public bool IsPrivate { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPublic")]
+        public bool IsPublic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecurityCritical")]
+        public bool IsSecurityCritical { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecuritySafeCritical")]
+        public bool IsSecuritySafeCritical { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecurityTransparent")]
+        public bool IsSecurityTransparent { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("fieldHandle")]
+        public RuntimeFieldHandle FieldHandle { get; set; }
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record SaveQueryRequest
+    public enum GenericParameterAttributes
     {
 
-        [System.Text.Json.Serialization.JsonPropertyName("friendlyName")]
-        public string FriendlyName { get; set; }
+        [System.Runtime.Serialization.EnumMember(Value = @"None")]
+        None = 0,
 
-        [System.Text.Json.Serialization.JsonPropertyName("parameters")]
-        public string Parameters { get; set; }
+        [System.Runtime.Serialization.EnumMember(Value = @"Covariant")]
+        Covariant = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Contravariant")]
+        Contravariant = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"VarianceMask")]
+        VarianceMask = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ReferenceTypeConstraint")]
+        ReferenceTypeConstraint = 4,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NotNullableValueTypeConstraint")]
+        NotNullableValueTypeConstraint = 5,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"DefaultConstructorConstraint")]
+        DefaultConstructorConstraint = 6,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"SpecialConstraintMask")]
+        SpecialConstraintMask = 7,
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record SendCommentRequest
+    public partial record ICustomAttributeProvider
+    {
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record IntPtr
+    {
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum LayoutKind
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Sequential")]
+        Sequential = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Explicit")]
+        Explicit = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Auto")]
+        Auto = 2,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record MemberInfo
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("memberType")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MemberTypes MemberType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaringType")]
+        public Type DeclaringType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("reflectedType")]
+        public Type ReflectedType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("module")]
+        public Module Module { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("customAttributes")]
+        public System.Collections.Generic.ICollection<CustomAttributeData> CustomAttributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isCollectible")]
+        public bool IsCollectible { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("metadataToken")]
+        public int MetadataToken { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum MemberTypes
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Constructor")]
+        Constructor = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Event")]
+        Event = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Field")]
+        Field = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Method")]
+        Method = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Property")]
+        Property = 4,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"TypeInfo")]
+        TypeInfo = 5,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Custom")]
+        Custom = 6,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NestedType")]
+        NestedType = 7,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"All")]
+        All = 8,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record Message
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("replyToCommentId")]
         public System.Guid? ReplyToCommentId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("checkpointTypeName")]
+        public string CheckpointTypeName { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("privateComment")]
         public bool? PrivateComment { get; set; }
@@ -7173,112 +2014,1281 @@ namespace Indice.Features.Cases.Workflows.Integration
         [System.Text.Json.Serialization.JsonPropertyName("comment")]
         public string Comment { get; set; }
 
-    }
+        [System.Text.Json.Serialization.JsonPropertyName("fileStreamAccessor")]
+        public StreamFunc FileStreamAccessor { get; set; }
 
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record SuccessMessage
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("title")]
-        public string Title { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("body")]
-        public string Body { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record TimelineEntry
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("timestamp")]
-        public System.DateTimeOffset Timestamp { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("createdBy")]
-        public AuditMeta CreatedBy { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("isCheckpoint")]
-        public bool IsCheckpoint { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("checkpoint")]
-        public Checkpoint Checkpoint { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("comment")]
-        public Comment Comment { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record UpdateCaseRequest
-    {
+        [System.Text.Json.Serialization.JsonPropertyName("fileName")]
+        public string FileName { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("data")]
         public object Data { get; set; }
 
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("NSwag", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class FileParameter
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum MethodAttributes
     {
-        public FileParameter(System.IO.Stream data)
-            : this (data, null, null)
-        {
-        }
 
-        public FileParameter(System.IO.Stream data, string fileName)
-            : this (data, fileName, null)
-        {
-        }
+        [System.Runtime.Serialization.EnumMember(Value = @"PrivateScope")]
+        PrivateScope = 0,
 
-        public FileParameter(System.IO.Stream data, string fileName, string contentType)
-        {
-            Data = data;
-            FileName = fileName;
-            ContentType = contentType;
-        }
+        [System.Runtime.Serialization.EnumMember(Value = @"Private")]
+        Private = 1,
 
-        public System.IO.Stream Data { get; private set; }
+        [System.Runtime.Serialization.EnumMember(Value = @"FamANDAssem")]
+        FamANDAssem = 2,
 
-        public string FileName { get; private set; }
+        [System.Runtime.Serialization.EnumMember(Value = @"Assembly")]
+        Assembly = 3,
 
-        public string ContentType { get; private set; }
+        [System.Runtime.Serialization.EnumMember(Value = @"Family")]
+        Family = 4,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"FamORAssem")]
+        FamORAssem = 5,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Public")]
+        Public = 6,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"MemberAccessMask")]
+        MemberAccessMask = 7,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"UnmanagedExport")]
+        UnmanagedExport = 8,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Static")]
+        Static = 9,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Final")]
+        Final = 10,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Virtual")]
+        Virtual = 11,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"HideBySig")]
+        HideBySig = 12,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NewSlot")]
+        NewSlot = 13,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"CheckAccessOnOverride")]
+        CheckAccessOnOverride = 14,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Abstract")]
+        Abstract = 15,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"SpecialName")]
+        SpecialName = 16,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"RTSpecialName")]
+        RTSpecialName = 17,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"PinvokeImpl")]
+        PinvokeImpl = 18,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"HasSecurity")]
+        HasSecurity = 19,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"RequireSecObject")]
+        RequireSecObject = 20,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ReservedMask")]
+        ReservedMask = 21,
+
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("NSwag", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class FileResponse : System.IDisposable
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record MethodBase
     {
-        private System.IDisposable _client;
-        private System.IDisposable _response;
 
-        public int StatusCode { get; private set; }
+        [System.Text.Json.Serialization.JsonPropertyName("memberType")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MemberTypes MemberType { get; set; }
 
-        public System.Collections.Generic.IReadOnlyDictionary<string, System.Collections.Generic.IEnumerable<string>> Headers { get; private set; }
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        public string Name { get; set; }
 
-        public System.IO.Stream Stream { get; private set; }
+        [System.Text.Json.Serialization.JsonPropertyName("declaringType")]
+        public Type DeclaringType { get; set; }
 
-        public bool IsPartial
-        {
-            get { return StatusCode == 206; }
-        }
+        [System.Text.Json.Serialization.JsonPropertyName("reflectedType")]
+        public Type ReflectedType { get; set; }
 
-        public FileResponse(int statusCode, System.Collections.Generic.IReadOnlyDictionary<string, System.Collections.Generic.IEnumerable<string>> headers, System.IO.Stream stream, System.IDisposable client, System.IDisposable response)
-        {
-            StatusCode = statusCode;
-            Headers = headers;
-            Stream = stream;
-            _client = client;
-            _response = response;
-        }
+        [System.Text.Json.Serialization.JsonPropertyName("module")]
+        public Module Module { get; set; }
 
-        public void Dispose()
-        {
-            Stream.Dispose();
-            if (_response != null)
-                _response.Dispose();
-            if (_client != null)
-                _client.Dispose();
-        }
+        [System.Text.Json.Serialization.JsonPropertyName("customAttributes")]
+        public System.Collections.Generic.ICollection<CustomAttributeData> CustomAttributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isCollectible")]
+        public bool IsCollectible { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("metadataToken")]
+        public int MetadataToken { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("attributes")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MethodAttributes Attributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("methodImplementationFlags")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MethodImplAttributes MethodImplementationFlags { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("callingConvention")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public CallingConventions CallingConvention { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAbstract")]
+        public bool IsAbstract { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isConstructor")]
+        public bool IsConstructor { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFinal")]
+        public bool IsFinal { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isHideBySig")]
+        public bool IsHideBySig { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSpecialName")]
+        public bool IsSpecialName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isStatic")]
+        public bool IsStatic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isVirtual")]
+        public bool IsVirtual { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAssembly")]
+        public bool IsAssembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFamily")]
+        public bool IsFamily { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFamilyAndAssembly")]
+        public bool IsFamilyAndAssembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFamilyOrAssembly")]
+        public bool IsFamilyOrAssembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPrivate")]
+        public bool IsPrivate { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPublic")]
+        public bool IsPublic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isConstructedGenericMethod")]
+        public bool IsConstructedGenericMethod { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericMethod")]
+        public bool IsGenericMethod { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericMethodDefinition")]
+        public bool IsGenericMethodDefinition { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("containsGenericParameters")]
+        public bool ContainsGenericParameters { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("methodHandle")]
+        public RuntimeMethodHandle MethodHandle { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecurityCritical")]
+        public bool IsSecurityCritical { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecuritySafeCritical")]
+        public bool IsSecuritySafeCritical { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecurityTransparent")]
+        public bool IsSecurityTransparent { get; set; }
+
     }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum MethodImplAttributes
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"IL")]
+        IL = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Native")]
+        Native = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"OPTIL")]
+        OPTIL = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"CodeTypeMask")]
+        CodeTypeMask = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ManagedMask")]
+        ManagedMask = 4,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NoInlining")]
+        NoInlining = 5,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ForwardRef")]
+        ForwardRef = 6,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Synchronized")]
+        Synchronized = 7,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NoOptimization")]
+        NoOptimization = 8,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"PreserveSig")]
+        PreserveSig = 9,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"AggressiveInlining")]
+        AggressiveInlining = 10,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"AggressiveOptimization")]
+        AggressiveOptimization = 11,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"InternalCall")]
+        InternalCall = 12,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"MaxMethodImplVal")]
+        MaxMethodImplVal = 13,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record MethodInfo
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaringType")]
+        public Type DeclaringType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("reflectedType")]
+        public Type ReflectedType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("module")]
+        public Module Module { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("customAttributes")]
+        public System.Collections.Generic.ICollection<CustomAttributeData> CustomAttributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isCollectible")]
+        public bool IsCollectible { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("metadataToken")]
+        public int MetadataToken { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("attributes")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MethodAttributes Attributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("methodImplementationFlags")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MethodImplAttributes MethodImplementationFlags { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("callingConvention")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public CallingConventions CallingConvention { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAbstract")]
+        public bool IsAbstract { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isConstructor")]
+        public bool IsConstructor { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFinal")]
+        public bool IsFinal { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isHideBySig")]
+        public bool IsHideBySig { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSpecialName")]
+        public bool IsSpecialName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isStatic")]
+        public bool IsStatic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isVirtual")]
+        public bool IsVirtual { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAssembly")]
+        public bool IsAssembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFamily")]
+        public bool IsFamily { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFamilyAndAssembly")]
+        public bool IsFamilyAndAssembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFamilyOrAssembly")]
+        public bool IsFamilyOrAssembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPrivate")]
+        public bool IsPrivate { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPublic")]
+        public bool IsPublic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isConstructedGenericMethod")]
+        public bool IsConstructedGenericMethod { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericMethod")]
+        public bool IsGenericMethod { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericMethodDefinition")]
+        public bool IsGenericMethodDefinition { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("containsGenericParameters")]
+        public bool ContainsGenericParameters { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("methodHandle")]
+        public RuntimeMethodHandle MethodHandle { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecurityCritical")]
+        public bool IsSecurityCritical { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecuritySafeCritical")]
+        public bool IsSecuritySafeCritical { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecurityTransparent")]
+        public bool IsSecurityTransparent { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("memberType")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MemberTypes MemberType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("returnParameter")]
+        public ParameterInfo ReturnParameter { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("returnType")]
+        public Type ReturnType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("returnTypeCustomAttributes")]
+        public ICustomAttributeProvider ReturnTypeCustomAttributes { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record Module
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("assembly")]
+        public Assembly Assembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("fullyQualifiedName")]
+        public string FullyQualifiedName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("mdStreamVersion")]
+        public int MdStreamVersion { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("moduleVersionId")]
+        public System.Guid ModuleVersionId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("scopeName")]
+        public string ScopeName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("moduleHandle")]
+        public ModuleHandle ModuleHandle { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("customAttributes")]
+        public System.Collections.Generic.ICollection<CustomAttributeData> CustomAttributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("metadataToken")]
+        public int MetadataToken { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record ModuleHandle
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("mdStreamVersion")]
+        public int MdStreamVersion { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum ParameterAttributes
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"None")]
+        None = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"In")]
+        In = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Out")]
+        Out = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Lcid")]
+        Lcid = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Retval")]
+        Retval = 4,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Optional")]
+        Optional = 5,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"HasDefault")]
+        HasDefault = 6,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"HasFieldMarshal")]
+        HasFieldMarshal = 7,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Reserved3")]
+        Reserved3 = 8,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Reserved4")]
+        Reserved4 = 9,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ReservedMask")]
+        ReservedMask = 10,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record ParameterInfo
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("attributes")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public ParameterAttributes Attributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("member")]
+        public MemberInfo Member { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("parameterType")]
+        public Type ParameterType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("position")]
+        public int Position { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isIn")]
+        public bool IsIn { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isLcid")]
+        public bool IsLcid { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isOptional")]
+        public bool IsOptional { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isOut")]
+        public bool IsOut { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isRetval")]
+        public bool IsRetval { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("defaultValue")]
+        public object DefaultValue { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("rawDefaultValue")]
+        public object RawDefaultValue { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("hasDefaultValue")]
+        public bool HasDefaultValue { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("customAttributes")]
+        public System.Collections.Generic.ICollection<CustomAttributeData> CustomAttributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("metadataToken")]
+        public int MetadataToken { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum PropertyAttributes
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"None")]
+        None = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"SpecialName")]
+        SpecialName = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"RTSpecialName")]
+        RTSpecialName = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"HasDefault")]
+        HasDefault = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Reserved2")]
+        Reserved2 = 4,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Reserved3")]
+        Reserved3 = 5,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Reserved4")]
+        Reserved4 = 6,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ReservedMask")]
+        ReservedMask = 7,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record PropertyInfo
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaringType")]
+        public Type DeclaringType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("reflectedType")]
+        public Type ReflectedType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("module")]
+        public Module Module { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("customAttributes")]
+        public System.Collections.Generic.ICollection<CustomAttributeData> CustomAttributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isCollectible")]
+        public bool IsCollectible { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("metadataToken")]
+        public int MetadataToken { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("memberType")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MemberTypes MemberType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("propertyType")]
+        public Type PropertyType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("attributes")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public PropertyAttributes Attributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSpecialName")]
+        public bool IsSpecialName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("canRead")]
+        public bool CanRead { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("canWrite")]
+        public bool CanWrite { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("getMethod")]
+        public MethodInfo GetMethod { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("setMethod")]
+        public MethodInfo SetMethod { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record RuntimeFieldHandle
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("value")]
+        public IntPtr Value { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record RuntimeMethodHandle
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("value")]
+        public IntPtr Value { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record RuntimeTypeHandle
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("value")]
+        public IntPtr Value { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum SecurityRuleSet
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"None")]
+        None = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Level1")]
+        Level1 = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Level2")]
+        Level2 = 2,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record StreamFunc
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("target")]
+        public object Target { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("method")]
+        public MethodInfo Method { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record StructLayoutAttribute
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("typeId")]
+        public object TypeId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("value")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public LayoutKind Value { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record Type
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("customAttributes")]
+        public System.Collections.Generic.ICollection<CustomAttributeData> CustomAttributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isCollectible")]
+        public bool IsCollectible { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("metadataToken")]
+        public int MetadataToken { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isInterface")]
+        public bool IsInterface { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("memberType")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MemberTypes MemberType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("namespace")]
+        public string Namespace { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("assemblyQualifiedName")]
+        public string AssemblyQualifiedName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("fullName")]
+        public string FullName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("assembly")]
+        public Assembly Assembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("module")]
+        public Module Module { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNested")]
+        public bool IsNested { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaringType")]
+        public Type DeclaringType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaringMethod")]
+        public MethodBase DeclaringMethod { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("reflectedType")]
+        public Type ReflectedType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("underlyingSystemType")]
+        public Type UnderlyingSystemType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isTypeDefinition")]
+        public bool IsTypeDefinition { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isArray")]
+        public bool IsArray { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isByRef")]
+        public bool IsByRef { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPointer")]
+        public bool IsPointer { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isConstructedGenericType")]
+        public bool IsConstructedGenericType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericParameter")]
+        public bool IsGenericParameter { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericTypeParameter")]
+        public bool IsGenericTypeParameter { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericMethodParameter")]
+        public bool IsGenericMethodParameter { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericType")]
+        public bool IsGenericType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericTypeDefinition")]
+        public bool IsGenericTypeDefinition { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSZArray")]
+        public bool IsSZArray { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isVariableBoundArray")]
+        public bool IsVariableBoundArray { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isByRefLike")]
+        public bool IsByRefLike { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFunctionPointer")]
+        public bool IsFunctionPointer { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isUnmanagedFunctionPointer")]
+        public bool IsUnmanagedFunctionPointer { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("hasElementType")]
+        public bool HasElementType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("genericTypeArguments")]
+        public System.Collections.Generic.ICollection<Type> GenericTypeArguments { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("genericParameterPosition")]
+        public int GenericParameterPosition { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("genericParameterAttributes")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public GenericParameterAttributes GenericParameterAttributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("attributes")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public TypeAttributes Attributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAbstract")]
+        public bool IsAbstract { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isImport")]
+        public bool IsImport { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSealed")]
+        public bool IsSealed { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSpecialName")]
+        public bool IsSpecialName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isClass")]
+        public bool IsClass { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNestedAssembly")]
+        public bool IsNestedAssembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNestedFamANDAssem")]
+        public bool IsNestedFamANDAssem { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNestedFamily")]
+        public bool IsNestedFamily { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNestedFamORAssem")]
+        public bool IsNestedFamORAssem { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNestedPrivate")]
+        public bool IsNestedPrivate { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNestedPublic")]
+        public bool IsNestedPublic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNotPublic")]
+        public bool IsNotPublic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPublic")]
+        public bool IsPublic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAutoLayout")]
+        public bool IsAutoLayout { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isExplicitLayout")]
+        public bool IsExplicitLayout { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isLayoutSequential")]
+        public bool IsLayoutSequential { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAnsiClass")]
+        public bool IsAnsiClass { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAutoClass")]
+        public bool IsAutoClass { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isUnicodeClass")]
+        public bool IsUnicodeClass { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isCOMObject")]
+        public bool IsCOMObject { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isContextful")]
+        public bool IsContextful { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isEnum")]
+        public bool IsEnum { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isMarshalByRef")]
+        public bool IsMarshalByRef { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPrimitive")]
+        public bool IsPrimitive { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isValueType")]
+        public bool IsValueType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSignatureType")]
+        public bool IsSignatureType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecurityCritical")]
+        public bool IsSecurityCritical { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecuritySafeCritical")]
+        public bool IsSecuritySafeCritical { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecurityTransparent")]
+        public bool IsSecurityTransparent { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("structLayoutAttribute")]
+        public StructLayoutAttribute StructLayoutAttribute { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("typeInitializer")]
+        public ConstructorInfo TypeInitializer { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("typeHandle")]
+        public RuntimeTypeHandle TypeHandle { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("guid")]
+        public System.Guid Guid { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("baseType")]
+        public Type BaseType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSerializable")]
+        [System.Obsolete]
+        public bool IsSerializable { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("containsGenericParameters")]
+        public bool ContainsGenericParameters { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isVisible")]
+        public bool IsVisible { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum TypeAttributes
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NotPublic")]
+        NotPublic = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Public")]
+        Public = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NestedPublic")]
+        NestedPublic = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NestedPrivate")]
+        NestedPrivate = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NestedFamily")]
+        NestedFamily = 4,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NestedAssembly")]
+        NestedAssembly = 5,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NestedFamANDAssem")]
+        NestedFamANDAssem = 6,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"VisibilityMask")]
+        VisibilityMask = 7,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"SequentialLayout")]
+        SequentialLayout = 8,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ExplicitLayout")]
+        ExplicitLayout = 9,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"LayoutMask")]
+        LayoutMask = 10,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Interface")]
+        Interface = 11,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Abstract")]
+        Abstract = 12,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Sealed")]
+        Sealed = 13,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"SpecialName")]
+        SpecialName = 14,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"RTSpecialName")]
+        RTSpecialName = 15,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Import")]
+        Import = 16,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Serializable")]
+        Serializable = 17,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"WindowsRuntime")]
+        WindowsRuntime = 18,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"UnicodeClass")]
+        UnicodeClass = 19,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"AutoClass")]
+        AutoClass = 20,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"StringFormatMask")]
+        StringFormatMask = 21,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"HasSecurity")]
+        HasSecurity = 22,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ReservedMask")]
+        ReservedMask = 23,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"BeforeFieldInit")]
+        BeforeFieldInit = 24,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"CustomFormatMask")]
+        CustomFormatMask = 25,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record TypeInfo
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("customAttributes")]
+        public System.Collections.Generic.ICollection<CustomAttributeData> CustomAttributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isCollectible")]
+        public bool IsCollectible { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("metadataToken")]
+        public int MetadataToken { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isInterface")]
+        public bool IsInterface { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("memberType")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MemberTypes MemberType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("namespace")]
+        public string Namespace { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("assemblyQualifiedName")]
+        public string AssemblyQualifiedName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("fullName")]
+        public string FullName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("assembly")]
+        public Assembly Assembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("module")]
+        public Module Module { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNested")]
+        public bool IsNested { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaringType")]
+        public Type DeclaringType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaringMethod")]
+        public MethodBase DeclaringMethod { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("reflectedType")]
+        public Type ReflectedType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("underlyingSystemType")]
+        public Type UnderlyingSystemType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isTypeDefinition")]
+        public bool IsTypeDefinition { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isArray")]
+        public bool IsArray { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isByRef")]
+        public bool IsByRef { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPointer")]
+        public bool IsPointer { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isConstructedGenericType")]
+        public bool IsConstructedGenericType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericParameter")]
+        public bool IsGenericParameter { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericTypeParameter")]
+        public bool IsGenericTypeParameter { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericMethodParameter")]
+        public bool IsGenericMethodParameter { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericType")]
+        public bool IsGenericType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericTypeDefinition")]
+        public bool IsGenericTypeDefinition { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSZArray")]
+        public bool IsSZArray { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isVariableBoundArray")]
+        public bool IsVariableBoundArray { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isByRefLike")]
+        public bool IsByRefLike { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFunctionPointer")]
+        public bool IsFunctionPointer { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isUnmanagedFunctionPointer")]
+        public bool IsUnmanagedFunctionPointer { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("hasElementType")]
+        public bool HasElementType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("genericTypeArguments")]
+        public System.Collections.Generic.ICollection<Type> GenericTypeArguments { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("genericParameterPosition")]
+        public int GenericParameterPosition { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("genericParameterAttributes")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public GenericParameterAttributes GenericParameterAttributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("attributes")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public TypeAttributes Attributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAbstract")]
+        public bool IsAbstract { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isImport")]
+        public bool IsImport { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSealed")]
+        public bool IsSealed { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSpecialName")]
+        public bool IsSpecialName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isClass")]
+        public bool IsClass { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNestedAssembly")]
+        public bool IsNestedAssembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNestedFamANDAssem")]
+        public bool IsNestedFamANDAssem { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNestedFamily")]
+        public bool IsNestedFamily { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNestedFamORAssem")]
+        public bool IsNestedFamORAssem { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNestedPrivate")]
+        public bool IsNestedPrivate { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNestedPublic")]
+        public bool IsNestedPublic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNotPublic")]
+        public bool IsNotPublic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPublic")]
+        public bool IsPublic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAutoLayout")]
+        public bool IsAutoLayout { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isExplicitLayout")]
+        public bool IsExplicitLayout { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isLayoutSequential")]
+        public bool IsLayoutSequential { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAnsiClass")]
+        public bool IsAnsiClass { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAutoClass")]
+        public bool IsAutoClass { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isUnicodeClass")]
+        public bool IsUnicodeClass { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isCOMObject")]
+        public bool IsCOMObject { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isContextful")]
+        public bool IsContextful { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isEnum")]
+        public bool IsEnum { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isMarshalByRef")]
+        public bool IsMarshalByRef { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPrimitive")]
+        public bool IsPrimitive { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isValueType")]
+        public bool IsValueType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSignatureType")]
+        public bool IsSignatureType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecurityCritical")]
+        public bool IsSecurityCritical { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecuritySafeCritical")]
+        public bool IsSecuritySafeCritical { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecurityTransparent")]
+        public bool IsSecurityTransparent { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("structLayoutAttribute")]
+        public StructLayoutAttribute StructLayoutAttribute { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("typeInitializer")]
+        public ConstructorInfo TypeInitializer { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("typeHandle")]
+        public RuntimeTypeHandle TypeHandle { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("guid")]
+        public System.Guid Guid { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("baseType")]
+        public Type BaseType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSerializable")]
+        [System.Obsolete]
+        public bool IsSerializable { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("containsGenericParameters")]
+        public bool ContainsGenericParameters { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isVisible")]
+        public bool IsVisible { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("genericTypeParameters")]
+        public System.Collections.Generic.ICollection<Type> GenericTypeParameters { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaredConstructors")]
+        public System.Collections.Generic.ICollection<ConstructorInfo> DeclaredConstructors { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaredEvents")]
+        public System.Collections.Generic.ICollection<EventInfo> DeclaredEvents { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaredFields")]
+        public System.Collections.Generic.ICollection<FieldInfo> DeclaredFields { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaredMembers")]
+        public System.Collections.Generic.ICollection<MemberInfo> DeclaredMembers { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaredMethods")]
+        public System.Collections.Generic.ICollection<MethodInfo> DeclaredMethods { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaredNestedTypes")]
+        public System.Collections.Generic.ICollection<TypeInfo> DeclaredNestedTypes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaredProperties")]
+        public System.Collections.Generic.ICollection<PropertyInfo> DeclaredProperties { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("implementedInterfaces")]
+        public System.Collections.Generic.ICollection<Type> ImplementedInterfaces { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record WorkflowActor
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("id")]
+        public string Id { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("reference")]
+        public string Reference { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("email")]
+        public string Email { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record WorkflowAddApprovalRequest
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("caseId")]
+        public System.Guid CaseId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("action")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public Approval Action { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("reason")]
+        public string Reason { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("workflowActor")]
+        public WorkflowActor WorkflowActor { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record WorkflowAddApprovalWithCommentRequest
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("caseId")]
+        public System.Guid CaseId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("action")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public Approval Action { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("reason")]
+        public string Reason { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("workflowActor")]
+        public WorkflowActor WorkflowActor { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("privateComment")]
+        public bool PrivateComment { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record WorkflowSendMessageRequest
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("message")]
+        public Message Message { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("workflowActor")]
+        public WorkflowActor WorkflowActor { get; set; }
+
+    }
+
 
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]

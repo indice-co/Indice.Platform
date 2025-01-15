@@ -84,10 +84,10 @@ public interface IAdminCaseService
     Task<CaseAttachment> GetAttachmentById(ClaimsPrincipal user, Guid attachmentId);
 
     /// <summary>Assign a case to the actor that initiated this method.</summary>
-    /// <param name="user">The user that initiated the call, and will be self-assigned to the case.</param>
+    /// <param name="assignTo">The user that initiated the call, and will be self-assigned to the case.</param>
     /// <param name="caseId">The Id of the case to be assigned.</param>
     /// <returns>The <see cref="AuditMeta"/> that holds audit information</returns>
-    Task<AuditMeta> AssignCase(AuditMeta user, Guid caseId);
+    Task<AuditMeta> AssignCase(AuditMeta assignTo, Guid caseId);
 
     /// <summary>Clears the assignment for a case.</summary>
     /// <param name="caseId">The Id of the case.</param>

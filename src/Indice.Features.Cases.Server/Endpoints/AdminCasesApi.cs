@@ -6,7 +6,6 @@ using Indice.Features.Cases.Server.Endpoints;
 using Indice.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -108,6 +107,7 @@ internal static class AdminCasesApi
             .WithName(nameof(AdminCasesHandlers.DownloadCasePdf))
             .WithSummary("Download case in a PDF format.")
             .Produces(StatusCodes.Status200OK, typeof(IFormFile), MediaTypeNames.Application.Pdf);
+        
         return group;
     }
 }

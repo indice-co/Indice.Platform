@@ -20,7 +20,25 @@ public interface ICaseMessageService
     ///  <param name="user">The user that creates the message.</param>
     ///  <param name="message">The message to send.</param>
     ///  <returns></returns>
-    Task<Guid?> Send(Guid caseId, ClaimsPrincipal user, Message message);
+    Task<Guid?> Send(Guid caseId, ClaimsPrincipal user, Message message) => Send(caseId, user, message, AuditMeta.Create(user));
+    
+    ///  <summary>
+    ///  When the user that sends the message sends it on behalf of another user.
+    ///  Send a <see cref="Message"/> to case that will allow the case to do any or all of these:
+    ///  <list type="number">
+    ///  <item>Create checkpoint</item>
+    ///  <item>Add attachment</item>
+    ///  <item>Add comment</item>
+    ///  <item>Reply to Comment with comment and/or attachments</item>
+    ///  <item>Flag comment as private for the customer.</item>
+    /// </list>
+    /// </summary>
+    ///  <param name="caseId">The Id of the case.</param>
+    ///  <param name="user">The user used for membership authorization reasons.</param>
+    ///  <param name="message">The message to send.</param>
+    ///  <param name="createdBy">The user that creates the message.</param>
+    ///  <returns></returns>
+    Task<Guid?> Send(Guid caseId, ClaimsPrincipal user, Message message, AuditMeta createdBy);
 }
 
 /// <summary>Placeholder to indicate MyCase feature.</summary>

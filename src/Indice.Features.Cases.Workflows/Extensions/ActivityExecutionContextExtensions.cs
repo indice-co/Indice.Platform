@@ -1,5 +1,7 @@
 ﻿using System.Security.Claims;
 using Elsa.Services.Models;
+using Indice.Features.Cases.Workflows.Integration;
+using Indice.Features.Cases.Workflows.Models;
 using Microsoft.AspNetCore.Http;
 
 namespace Indice.Features.Cases.Workflows.Extensions;
@@ -17,6 +19,14 @@ public static class ActivityExecutionContextExtensions
             : GetHttpContextUser(context);
     }
 
+    /// <summary>Try to get the last actor from the Workflow context variable "RunAsSystemUser" or the Last Actor from the Variables.</summary>
+    public static Actor TryGetLastActor(this ActivityExecutionContext context) {
+        var runAsSystemUser = context.GetVariable<bool>("RunAsSystemUser");
+        return runAsSystemUser
+            ? Actor.Create(CasesClaimsPrincipalExtensions.SystemUser())
+            : context.GetVariable<Actor>(CasesWorkflowConstants.WorkflowVariables.Actor.Current)!;
+    }
+    
     /// <summary>Get the HttpContext User from the <see cref="IHttpContextAccessor"/> interface.</summary>
     /// <param name="context">The activity execution context.</param>
     /// <returns></returns>

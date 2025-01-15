@@ -1,12 +1,8 @@
-﻿using System.Reflection.Metadata;
-using System.Threading;
-using Elsa.Models;
+﻿using Elsa.Models;
 using Elsa.Persistence.EntityFramework.Core;
 using Elsa.Serialization;
-using Elsa.Server.Api.Helpers;
-using Elsa.Server.Api.Swagger.Examples;
 using Elsa.Services;
-using IdentityModel;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Workflows.Data;
@@ -20,11 +16,53 @@ public static class CasesDbInitalizerExtesnions
     /// <param name="dbContext">The database context</param>
     /// <param name="options">Seed options</param>
     /// <param name="contentSerializer">Elsas content serializer</param>
+    /// <param name="serviceScope"></param>
     /// <returns>The Task</returns>
-    public async static Task InitializeAsync(this ElsaContext dbContext, IOptions<CasesWorkflowDbInitializerOptions> options, IContentSerializer contentSerializer) {
+    public async static Task InitializeAsync(
+        this ElsaContext dbContext,
+        IOptions<CasesWorkflowDbInitializerOptions> options,
+        IContentSerializer contentSerializer,
+        IServiceScope serviceScope) {
         if (await dbContext.Database.EnsureCreatedAsync()) {
             await dbContext.SeedAsync(options, contentSerializer);
+            await SeedAdditionalAsync(options, contentSerializer, serviceScope);
         }
+    }
+
+    /// <summary>Seeds additional client workflows from Json.</summary>
+    public async static Task SeedAdditionalAsync(
+        IOptions<CasesWorkflowDbInitializerOptions> options,
+        IContentSerializer contentSerializer,
+        IServiceScope serviceScope
+    ) {
+        if (options.Value.WorkflowDefinitions.Count == 0) {
+            return;
+        }
+        
+        var workflowPublisher = serviceScope.ServiceProvider.GetRequiredService<IWorkflowPublisher>();
+        var tenantAccessor = serviceScope.ServiceProvider.GetRequiredService<ITenantAccessor>();
+
+        foreach (var postedModel in options.Value.WorkflowDefinitions.Select(contentSerializer.Deserialize<WorkflowDefinition>)) {
+            var workflowDefinition = await workflowPublisher.GetDraftAsync(postedModel.DefinitionId) ?? workflowPublisher.New();
+            workflowDefinition.Activities = postedModel.Activities;
+            workflowDefinition.Channel = postedModel.Channel;
+            workflowDefinition.Connections = postedModel.Connections;
+            workflowDefinition.Description = postedModel.Description;
+            workflowDefinition.Name = postedModel.Name;
+            workflowDefinition.Tag = postedModel.Tag;
+            workflowDefinition.Variables = postedModel.Variables;
+            workflowDefinition.ContextOptions = postedModel.ContextOptions;
+            workflowDefinition.CustomAttributes = postedModel.CustomAttributes;
+            workflowDefinition.DisplayName = postedModel.DisplayName;
+            workflowDefinition.IsSingleton = postedModel.IsSingleton;
+            workflowDefinition.DeleteCompletedInstances = postedModel.DeleteCompletedInstances;
+            workflowDefinition.PersistenceBehavior = postedModel.PersistenceBehavior;
+            workflowDefinition.TenantId = await tenantAccessor.GetTenantIdAsync();
+            
+            var wf = await workflowPublisher.SaveDraftAsync(workflowDefinition);
+            await workflowPublisher.PublishAsync(wf.DefinitionId);
+        }
+        
     }
 
     /// <summary>
@@ -47,6 +85,7 @@ public static class CasesDbInitalizerExtesnions
               DeleteCompletedInstances = false,
               IsPublished = true,
               IsLatest = true,
+              Tag = "SampleAddress",
               Activities = new List<ActivityDefinition>() {
                 new ActivityDefinition() {
                     ActivityId = "0641c8d5-9f5d-49c5-b871-3add4bd22d3b",

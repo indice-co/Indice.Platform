@@ -1,9 +1,11 @@
 ﻿using FluentValidation;
 using FluentValidation.AspNetCore;
+using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Server;
 using Indice.Features.Cases.Server.Authorization;
 using Indice.Features.Cases.Server.Endpoints;
 using Indice.Features.Cases.Server.Endpoints.Validators;
+using Indice.Features.Cases.Server.Integration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Hosting;
@@ -26,14 +28,9 @@ public static class CaseServerFeatureExtensions
         // Configure options given by the consumer.
         var serverOptions = new CaseServerOptions(builder.Services);
         setupAction?.Invoke(serverOptions);
-        builder.Services.AddCasesCore(options => {
-            options.DatabaseSchema = serverOptions.DatabaseSchema;
-            options.RequiredScope = serverOptions.RequiredScope;
-            options.UserClaimType = serverOptions.UserClaimType;
-            options.GroupIdClaimType = serverOptions.GroupIdClaimType;
-        });
         // must run last in order not to override any explicit service declarations.
         builder.Services.AddCasesManagement(options => {
+            options.RequiredScope = serverOptions.RequiredScope;
             options.ConfigureDbContext = serverOptions.ConfigureDbContext;
             options.DatabaseSchema = serverOptions.DatabaseSchema;
             options.UserClaimType = serverOptions.UserClaimType;
@@ -51,9 +48,12 @@ public static class CaseServerFeatureExtensions
         });
         builder.Services.AddLimitUpload(serverOptions.ConfigureLimitUpload);
         builder.Services.AddTransient<IAuthorizationHandler, CasesAccessHandler>();
+        builder.Services.AddScoped<ICasesWorkflowManager, WorkflowHttpServiceClient>();
+        builder.Services.AddTransient<IAuthorizationHandler, DefaultCasesRolesHandler>();
         builder.Services.AddFluentValidationAutoValidation()
                        .AddValidatorsFromAssemblyContaining<AddAccessRuleRequestValidator>()
                        .AddFluentValidationClientsideAdapters();
+        
         return builder;
     }
 
@@ -77,6 +77,7 @@ public static class CaseServerFeatureExtensions
         routes.MapLookup();
         routes.MapAdminAccessRules();
         routes.MapAdminCaseData();
+        routes.MapWorkflow();
         return routes;
     }
 }

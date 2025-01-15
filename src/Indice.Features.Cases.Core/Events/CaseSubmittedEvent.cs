@@ -1,4 +1,5 @@
-﻿using Indice.Features.Cases.Core.Models.Responses;
+﻿using Indice.Features.Cases.Core.Models;
+using Indice.Features.Cases.Core.Models.Responses;
 
 namespace Indice.Features.Cases.Core.Events;
 
@@ -10,12 +11,17 @@ public class CaseSubmittedEvent : ICaseEvent
 
     /// <summary>The case type code that has been submitted.</summary>
     public string CaseTypeCode { get; set; }
+    
+    /// <summary>The workflow Actor acting on the workflow.</summary>
+    public WorkflowActor WorkflowActor { get; set; }
 
     /// <summary>Construct a new <see cref="CaseSubmittedEvent"/>.</summary>
     /// <param name="case">The case that has been submitted.</param>
     /// <param name="caseTypeCode">The case type code that has been submitted.</param>
-    public CaseSubmittedEvent(Case @case, string caseTypeCode) {
+    /// <param name="workflowActor">The actor acting on the workflow.</param>
+    public CaseSubmittedEvent(Case @case, string caseTypeCode, WorkflowActor workflowActor) {
         Case = @case;
         CaseTypeCode = caseTypeCode;
+        WorkflowActor = workflowActor;
     }
 }

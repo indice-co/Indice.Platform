@@ -2,7 +2,7 @@
 using Elsa.ActivityResults;
 using Elsa.Attributes;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Core.Services.Abstractions;
+using Indice.Features.Cases.Workflows.Integration;
 
 namespace Indice.Features.Cases.Workflows.Activities;
 
@@ -12,19 +12,11 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "Remove the previous approval action.",
     Outcomes = new[] { OutcomeNames.Done }
 )]
-internal class RemovePreviousApprovalActivity : BaseCaseActivity
+internal class RemovePreviousApprovalActivity(CasesHttpClient casesHttpClient) : BaseCaseActivity(casesHttpClient)
 {
-    private readonly ICaseApprovalService _caseApprovalService;
-
-    public RemovePreviousApprovalActivity(
-        IAdminCaseMessageService caseMessageService,
-        ICaseApprovalService caseApprovalService) : base(caseMessageService) {
-        _caseApprovalService = caseApprovalService ?? throw new ArgumentNullException(nameof(caseApprovalService));
-    }
-
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
-        await _caseApprovalService.RollbackApproval(CaseId.Value);
+        await CasesClient.RollbackApprovalAsync(CaseId.Value);
         return Done();
     }
 }
