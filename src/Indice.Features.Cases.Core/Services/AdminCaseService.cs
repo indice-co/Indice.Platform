@@ -108,6 +108,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         @case.Draft = false;
         await DbContext.SaveChangesAsync();
 
+        // todo: http call on handler
         await _platformEventService.Publish(new CaseSubmittedEvent(new Case {
             Id = @case.Id,
             // TODO: do a proper caseDb to case mapping

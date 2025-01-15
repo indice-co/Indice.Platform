@@ -9,13 +9,11 @@ using Indice.Features.Cases.Core.Localization;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Workflows.Activities;
-using Indice.Features.Cases.Workflows.Bookmarks.AwaitApproval;
-using Indice.Features.Cases.Workflows.Bookmarks.AwaitAssignment;
-using Indice.Features.Cases.Workflows.Bookmarks.AwaitEdit;
 using Indice.Features.Cases.Workflows.Interfaces;
 using Elsa.Models;
 using Elsa.Persistence.Specifications;
-using Indice.Features.Cases.Workflows.Bookmarks.AwaitAction;
+using Indice.Features.Cases.Workflows.Bookmarks;
+using Indice.Features.Cases.Workflows.Models;
 using Indice.Features.Cases.Workflows.Specifications;
 
 namespace Indice.Features.Cases.Workflows;
@@ -46,20 +44,33 @@ internal class CasesWorkflowManagerElsa(
     private readonly CaseSharedResourceService _caseSharedResourceService = caseSharedResourceService ?? throw new ArgumentNullException(nameof(caseSharedResourceService));
 
     /// <inheritdoc/>
-    public async Task<CasesWorkflowResult> SubmitApprovalAsync(ClaimsPrincipal user, Guid caseId, ApprovalRequest request) {
+    public async Task<WorkflowInvocationResult> InvokeApprovalAsync(ClaimsPrincipal user, Guid caseId, ApprovalRequest request) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
-        var executedWorkflow = await _approvalInvoker.ExecuteWorkflowsAsync(caseId, request);
-        if (!executedWorkflow.Any()) {
-            return new CasesWorkflowResult(Success: false,
-                                           executedWorkflow.Select(x => new CasesCollectedWorkflow(x.WorkflowInstanceId, x.ActivityId)).ToList(),
-                                           "You cannot approve or reject case at this point.");
-        }
-        return new CasesWorkflowResult(Success: true, []);
+        // var executedWorkflow = await _approvalInvoker.ExecuteWorkflowsAsync(caseId, request);
+        // if (!executedWorkflow.Any()) {
+        //     return new CasesWorkflowResult(Success: false,
+        //                                    executedWorkflow.Select(x => new CasesCollectedWorkflow(x.WorkflowInstanceId, x.ActivityId)).ToList(),
+        //                                    "You cannot approve or reject case at this point.");
+        // }
+        return new WorkflowInvocationResult(Success: true, []);
+    }
+    
+    /// <inheritdoc/>
+    public async Task<WorkflowInvocationResult> InvokeEditAsync(ClaimsPrincipal user, Guid caseId, EditCaseRequest request) {
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
+        // var executedWorkflow = await _awaitEditInvoker.ExecuteWorkflowsAsync(caseId, request);
+        // if (!executedWorkflow.Any()) {
+        //     return new CasesWorkflowResult(Success: false,
+        //                                    executedWorkflow.Select(x => new CasesCollectedWorkflow(x.WorkflowInstanceId, x.ActivityId)).ToList(),
+        //                                    "You cannot edit at this point.");
+        // }
+        return new WorkflowInvocationResult(Success: true, []);
     }
 
     /// <inheritdoc/>
-    public async Task<CasesWorkflowResult> AssignCaseAsync(ClaimsPrincipal user, Guid caseId) {
+    public async Task<WorkflowInvocationResult> AssignCaseAsync(ClaimsPrincipal user, Guid caseId) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
         var input = new AwaitAssignmentInvokerInput {
@@ -69,37 +80,24 @@ internal class CasesWorkflowManagerElsa(
         };
         var executedWorkflow = await _awaitAssignmentInvoker.ExecuteWorkflowsAsync(caseId, input);
         if (!executedWorkflow.Any()) {
-            return new CasesWorkflowResult(Success: false,
+            return new WorkflowInvocationResult(Success: false,
                                            executedWorkflow.Select(x => new CasesCollectedWorkflow(x.WorkflowInstanceId, x.ActivityId)).ToList(),
                                            "Case is already assigned.");
         }
-        return new CasesWorkflowResult(Success: true, []);
+        return new WorkflowInvocationResult(Success: true, []);
     }
 
     /// <inheritdoc/>
-    public async Task<CasesWorkflowResult> EditCaseAsync(ClaimsPrincipal user, Guid caseId, EditCaseRequest request) {
-        ArgumentNullException.ThrowIfNull(user);
-        ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
-        var executedWorkflow = await _awaitEditInvoker.ExecuteWorkflowsAsync(caseId, request);
-        if (!executedWorkflow.Any()) {
-            return new CasesWorkflowResult(Success: false,
-                                           executedWorkflow.Select(x => new CasesCollectedWorkflow(x.WorkflowInstanceId, x.ActivityId)).ToList(),
-                                           "You cannot edit at this point.");
-        }
-        return new CasesWorkflowResult(Success: true, []);
-    }
-
-    /// <inheritdoc/>
-    public async Task<CasesWorkflowResult> TriggerActionAsync(ClaimsPrincipal user, Guid caseId, ActionRequest request) {
+    public async Task<WorkflowInvocationResult> TriggerActionAsync(ClaimsPrincipal user, Guid caseId, ActionRequest request) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
         var executedWorkflow = await _awaitActionInvoker.ExecuteWorkflowsAsync(caseId, request);
         if (!executedWorkflow.Any()) {
-            return new CasesWorkflowResult(Success: false,
+            return new WorkflowInvocationResult(Success: false,
                                            executedWorkflow.Select(x => new CasesCollectedWorkflow(x.WorkflowInstanceId, x.ActivityId)).ToList(),
                                            $"You cannot perform this action at this point.");
         }
-        return new CasesWorkflowResult(Success: true, []);
+        return new WorkflowInvocationResult(Success: true, []);
     }
 
     public async Task<List<RejectReason>> GetApprovalRejectOptionsListAsync(ClaimsPrincipal user, Guid caseId) {
@@ -118,8 +116,45 @@ internal class CasesWorkflowManagerElsa(
         return reasons.ToList();
     }
 
+    // todo: remove roles
+    public async Task<object> GetActionsByCaseId(
+        ClaimsPrincipal user,
+        Guid caseId,
+        string[] bookmarks
+    ) {
+        var assignmentBookmarks = (await bookmarkFinder.FindBookmarksAsync(
+            activityType: nameof(AwaitAssignmentActivity),
+            bookmarks: bookmarks.Select(role => new AwaitAssignmentBookmark(caseId.ToString(), role)),
+            correlationId: caseId.ToString()
+        )).Select(x => x.Bookmark as AwaitAssignmentBookmark).ToList();
+        var editBookmarks = (await bookmarkFinder.FindBookmarksAsync(
+            activityType: nameof(AwaitEditActivity),
+            bookmarks: bookmarks.Select(role => new AwaitEditBookmark(caseId.ToString(), role)),
+            correlationId: caseId.ToString()
+        )).Select(x => x.Bookmark as AwaitEditBookmark).ToList();
+        var approvalBookmarks = (await bookmarkFinder.FindBookmarksAsync(
+            activityType: nameof(AwaitApprovalActivity),
+            bookmarks: bookmarks.Select(role => new AwaitApprovalBookmark(caseId.ToString(), role)),
+            correlationId: caseId.ToString()
+        )).Select(x => x.Bookmark as AwaitApprovalBookmark).ToList();
+        var customCaseActions = await GetWorkflowCustomCaseActions(caseId, bookmarks);
+        return new AvailableActions {
+            AssignmentBookmarks = assignmentBookmarks,
+            EditBookmarks = editBookmarks,
+            ApprovalBookmarks = approvalBookmarks,
+            CustomCaseActions = customCaseActions
+        };
+    }
+
+    // todo: remove this
     /// <inheritdoc/>
-    public async Task<CaseActions> GetAvailableActionsAsync(ClaimsPrincipal user, Guid caseId, string? assignedToId, string[] bookmarks, string? lastApprovedById = null) {
+    [Obsolete("This method is obsolete. Use GetActionsByCaseId instead.")]
+    public async Task<CaseActions> GetAvailableActionsAsync(
+        ClaimsPrincipal user,
+        Guid caseId,
+        string? assignedToId,
+        string[] bookmarks,
+        string? lastApprovedById = null) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
 
@@ -153,6 +188,7 @@ internal class CasesWorkflowManagerElsa(
             // Allow approvals only when the user has the case assigned
             userCanApprove &= isAssignedToCurrentUser;
         }
+        
         var customCaseActions = await GetCustomCaseActions(caseId, bookmarks);
         return user.IsAdmin() || user.IsSystemClient()
             ? new CaseActions {
@@ -170,7 +206,7 @@ internal class CasesWorkflowManagerElsa(
             };
     }
 
-    public async Task<CasesWorkflowResult> StartWorkflowAsync(Guid caseId, string caseTypeCode) {
+    public async Task<WorkflowInvocationResult> StartWorkflowAsync(Guid caseId, string caseTypeCode) {
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
         ArgumentException.ThrowIfNullOrWhiteSpace(caseTypeCode);
 
@@ -206,7 +242,7 @@ internal class CasesWorkflowManagerElsa(
         if (instance == null) {
             return [];
         }
-        // Find all the blocking activities with type "AwaitActionActivity"
+        // Find all the current blocking activities with type "AwaitActionActivity"
         var activities = instance.BlockingActivities
             .Where(p => p.ActivityType == nameof(AwaitActionActivity))
             .Select(p => p.ActivityId)
@@ -214,10 +250,12 @@ internal class CasesWorkflowManagerElsa(
         if (activities.Count == 0) {
             return [];
         }
+        
         var actionIds = instance.ActivityData
             .Where(p => activities.Contains(p.Key))
-            .Select(p => TransformActivityData(p.Value!))
-            .Select(p => p.Id);
+            // .Select(p => TransformActivityData(p.Value!))
+            .Select(p => (string)p.Value[nameof(AwaitActionActivity.ActionId)]!);
+        
         // Get a list of bookmarks with the action id and the role.
         var bookmarks = from actionId in actionIds
                         from userRole in userRoles
@@ -244,6 +282,63 @@ internal class CasesWorkflowManagerElsa(
             Class = activityData.TryGetValue(nameof(AwaitActionActivity.ActionClass), out var @class) ? @class as string : null,
             RedirectToList = activityData.TryGetValue(nameof(AwaitActionActivity.RedirectToList), out var redirectToList) ? redirectToList as bool? : false,
             SuccessMessage = activityData.TryGetValue(nameof(AwaitActionActivity.SuccessMessage), out var successMessage) ? successMessage as SuccessMessage : null,
+            DefaultValue = activityData.TryGetValue(nameof(AwaitActionActivity.ActionInputDefaultValue), out var defaultValue) ? defaultValue as string : null,
+            Description = activityData.TryGetValue(nameof(AwaitActionActivity.ActionDescription), out var description) ? description as string : null,
+            HasInput = activityData.TryGetValue(nameof(AwaitActionActivity.ShowInput), out var hasInput) ? hasInput as bool? : false
+        };
+    }
+    
+    /// <summary>Get the custom action blocking activities of type <see cref="AwaitActionActivity"/>.</summary>
+    /// <param name="caseId">The Id of the case.</param>
+    /// <param name="userRoles">The user roles.</param>
+    /// <returns></returns>
+    private async Task<List<WorkflowCustomCaseAction>> GetWorkflowCustomCaseActions(Guid caseId, IEnumerable<string> userRoles) {
+        // Always provide an empty string as a role in order to handle "null" allowed Roles of activity input.
+        userRoles = userRoles.Concat([string.Empty]);
+        // Get workflow instance and get the activity data from the context
+        var instance = await _workflowInstanceStore.FindAsync(new CorrelationIdSpecification<WorkflowInstance>(caseId.ToString()));
+        if (instance == null) {
+            return [];
+        }
+        // Find all the current blocking activities with type "AwaitActionActivity"
+        var activities = instance.BlockingActivities
+            .Where(p => p.ActivityType == nameof(AwaitActionActivity))
+            .Select(p => p.ActivityId)
+            .ToList();
+        if (activities.Count == 0) {
+            return [];
+        }
+        
+        var actionIds = instance.ActivityData
+            .Where(p => activities.Contains(p.Key))
+            .Select(p => (string)p.Value[nameof(AwaitActionActivity.ActionId)]!);
+        
+        // Get a list of bookmarks with the action id and the role.
+        var bookmarks = from actionId in actionIds
+                        from userRole in userRoles
+                        select new AwaitActionBookmark(caseId.ToString(), userRole, actionId);
+        var actions = await _bookmarkFinder.FindBookmarksAsync(
+            activityType: nameof(AwaitActionActivity),
+            bookmarks: bookmarks,
+            correlationId: caseId.ToString()
+        );
+        var activityIds = actions.Select(p => p.ActivityId).ToList();
+        if (activityIds.Count == 0) {
+            return [];
+        }
+        return instance!.ActivityData
+            .Where(p => activityIds.Contains(p.Key))
+            .Select(p => TransformWorkflowActivityData(p.Value!)).ToList();
+    }
+    
+    private static WorkflowCustomCaseAction TransformWorkflowActivityData(IDictionary<string, object> activityData) {
+        return new WorkflowCustomCaseAction() {
+            Id = (string)activityData[nameof(AwaitActionActivity.ActionId)],
+            Name = activityData.TryGetValue(nameof(AwaitActionActivity.ActionName), out var name) ? name as string : null,
+            Label = activityData.TryGetValue(nameof(AwaitActionActivity.ActionLabel), out var label) ? label as string : null,
+            Class = activityData.TryGetValue(nameof(AwaitActionActivity.ActionClass), out var @class) ? @class as string : null,
+            RedirectToList = activityData.TryGetValue(nameof(AwaitActionActivity.RedirectToList), out var redirectToList) ? redirectToList as bool? : false,
+            SuccessMessage = activityData.TryGetValue(nameof(AwaitActionActivity.SuccessMessage), out var successMessage) ? successMessage as WorkflowSuccessMessage : null,
             DefaultValue = activityData.TryGetValue(nameof(AwaitActionActivity.ActionInputDefaultValue), out var defaultValue) ? defaultValue as string : null,
             Description = activityData.TryGetValue(nameof(AwaitActionActivity.ActionDescription), out var description) ? description as string : null,
             HasInput = activityData.TryGetValue(nameof(AwaitActionActivity.ShowInput), out var hasInput) ? hasInput as bool? : false

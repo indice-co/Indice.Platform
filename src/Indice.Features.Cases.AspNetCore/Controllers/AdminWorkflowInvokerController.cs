@@ -33,7 +33,7 @@ internal class AdminWorkflowInvokerController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
     public async Task<IActionResult> SubmitApproval(Guid caseId, [FromBody] ApprovalRequest request) {
-        var result = await _workflowManager.SubmitApprovalAsync(User, caseId, request);
+        var result = await _workflowManager.InvokeApprovalAsync(User, caseId, request);
         if (!result.Success) {
             return Problem(detail: result.Message);
         }
@@ -66,7 +66,7 @@ internal class AdminWorkflowInvokerController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
     public async Task<IActionResult> EditCase(Guid caseId, [FromBody] EditCaseRequest request) {
-        var result = await _workflowManager.EditCaseAsync(User, caseId, request);
+        var result = await _workflowManager.InvokeEditAsync(User, caseId, request);
         if (!result.Success) {
             return Problem(detail: result.Message);
         }

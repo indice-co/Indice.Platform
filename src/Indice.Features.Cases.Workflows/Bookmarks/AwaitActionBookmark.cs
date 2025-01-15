@@ -1,9 +1,26 @@
 ﻿using Elsa.Services;
-using Elsa.Services.Models;
 using Indice.Features.Cases.Workflows.Activities;
-using Indice.Features.Cases.Workflows.Services;
 
-namespace Indice.Features.Cases.Workflows.Bookmarks.AwaitAction;
+namespace Indice.Features.Cases.Workflows.Bookmarks;
+
+/// <summary>Bookmark model for <see cref="AwaitActionActivity"/>.</summary>
+internal class AwaitActionBookmark : IBookmark
+{
+    public AwaitActionBookmark(string caseId, string role, string actionId) {
+        CaseId = string.IsNullOrEmpty(caseId) ? throw new ArgumentNullException(nameof(caseId), "CaseId cannot be null or empty.") : caseId;
+        Role = role;
+        ActionId = actionId;
+    }
+
+    /// <summary>The Id of the case to create the bookmark.</summary>
+    public string CaseId { get; set; }
+
+    /// <summary>The user role that can trigger the bookmark. Can be null for all authenticated users</summary>
+    public string Role { get; set; }
+
+    /// <summary>The Id of the action that represents this bookmark.</summary>
+    public string ActionId { get; }
+}
 
 /// <summary>
 /// The Bookmark provider to be invoked when Elsa indexes workflows when they get suspended.

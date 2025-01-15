@@ -7,9 +7,7 @@ using Elsa.Retention.Extensions;
 using Elsa.Server.Api.Extensions;
 using Elsa.Server.Api.Mapping;
 using Elsa.Server.Api.Services;
-using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Workflows;
-using Indice.Features.Cases.Workflows.Bookmarks.AwaitApproval;
 using Indice.Features.Cases.Workflows.Data;
 using Indice.Features.Cases.Workflows.Interfaces;
 using Indice.Features.Cases.Workflows.Services;
@@ -27,6 +25,7 @@ using NodaTime;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Options;
 using IdentityModel;
+using Indice.Features.Cases.Workflows.Bookmarks;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -136,7 +135,7 @@ public static class CasesWorkflowFeatureExtensions
         builder.Services.TryAddScoped<IAwaitEditInvoker, AwaitEditInvoker>();
         builder.Services.TryAddScoped<IAwaitAssignmentInvoker, AwaitAssignmentInvoker>();
         builder.Services.TryAddScoped<IAwaitActionInvoker, AwaitActionInvoker>();
-        builder.Services.AddScoped<ICasesWorkflowManager, CasesWorkflowManagerElsa>();
+        // builder.Services.AddScoped<ICasesWorkflowManager, CasesWorkflowManagerElsa>();
         //
         // TODO: Should remove dependecies to core services.
         // Here there are missing service registrations related to
@@ -299,8 +298,8 @@ public static class CasesWorkflowFeatureExtensions
         public void Apply(ControllerModel controller) {
             // This is for ELSA API
             if (controller.DisplayName.Contains("elsa", StringComparison.OrdinalIgnoreCase)) {
-                controller.ApiExplorer.IsVisible = false;
-                controller.ApiExplorer.GroupName = "workflow";
+                controller.ApiExplorer.IsVisible = true;
+                controller.ApiExplorer.GroupName = "elsa";
             }
         }
     }

@@ -3,7 +3,7 @@ using Elsa.Services;
 using Elsa.Services.Models;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Workflows.Activities;
-using Indice.Features.Cases.Workflows.Bookmarks.AwaitAssignment;
+using Indice.Features.Cases.Workflows.Bookmarks;
 using Indice.Features.Cases.Workflows.Interfaces;
 using Indice.Security;
 using Microsoft.AspNetCore.Http;

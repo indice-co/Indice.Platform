@@ -46,20 +46,20 @@ internal class CasesWorkflowManagerElsa(
     private readonly CaseSharedResourceService _caseSharedResourceService = caseSharedResourceService ?? throw new ArgumentNullException(nameof(caseSharedResourceService));
 
     /// <inheritdoc/>
-    public async Task<CasesWorkflowResult> SubmitApprovalAsync(ClaimsPrincipal user, Guid caseId, ApprovalRequest request) {
+    public async Task<WorkflowInvocationResult> InvokeApprovalAsync(ClaimsPrincipal user, Guid caseId, ApprovalRequest request) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
         var executedWorkflow = await _approvalInvoker.ExecuteWorkflowsAsync(caseId, request);
         if (!executedWorkflow.Any()) {
-            return new CasesWorkflowResult(Success: false,
+            return new WorkflowInvocationResult(Success: false,
                                            executedWorkflow.Select(x => new CasesCollectedWorkflow(x.WorkflowInstanceId, x.ActivityId)).ToList(),
                                            "You cannot approve or reject case at this point.");
         }
-        return new CasesWorkflowResult(Success: true, []);
+        return new WorkflowInvocationResult(Success: true, []);
     }
 
     /// <inheritdoc/>
-    public async Task<CasesWorkflowResult> AssignCaseAsync(ClaimsPrincipal user, Guid caseId) {
+    public async Task<WorkflowInvocationResult> AssignCaseAsync(ClaimsPrincipal user, Guid caseId) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
         var input = new AwaitAssignmentInvokerInput {
@@ -69,37 +69,37 @@ internal class CasesWorkflowManagerElsa(
         };
         var executedWorkflow = await _awaitAssignmentInvoker.ExecuteWorkflowsAsync(caseId, input);
         if (!executedWorkflow.Any()) {
-            return new CasesWorkflowResult(Success: false,
+            return new WorkflowInvocationResult(Success: false,
                                            executedWorkflow.Select(x => new CasesCollectedWorkflow(x.WorkflowInstanceId, x.ActivityId)).ToList(),
                                            "Case is already assigned.");
         }
-        return new CasesWorkflowResult(Success: true, []);
+        return new WorkflowInvocationResult(Success: true, []);
     }
 
     /// <inheritdoc/>
-    public async Task<CasesWorkflowResult> EditCaseAsync(ClaimsPrincipal user, Guid caseId, EditCaseRequest request) {
+    public async Task<WorkflowInvocationResult> InvokeEditAsync(ClaimsPrincipal user, Guid caseId, EditCaseRequest request) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
         var executedWorkflow = await _awaitEditInvoker.ExecuteWorkflowsAsync(caseId, request);
         if (!executedWorkflow.Any()) {
-            return new CasesWorkflowResult(Success: false,
+            return new WorkflowInvocationResult(Success: false,
                                            executedWorkflow.Select(x => new CasesCollectedWorkflow(x.WorkflowInstanceId, x.ActivityId)).ToList(),
                                            "You cannot edit at this point.");
         }
-        return new CasesWorkflowResult(Success: true, []);
+        return new WorkflowInvocationResult(Success: true, []);
     }
 
     /// <inheritdoc/>
-    public async Task<CasesWorkflowResult> TriggerActionAsync(ClaimsPrincipal user, Guid caseId, ActionRequest request) {
+    public async Task<WorkflowInvocationResult> TriggerActionAsync(ClaimsPrincipal user, Guid caseId, ActionRequest request) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
         var executedWorkflow = await _awaitActionInvoker.ExecuteWorkflowsAsync(caseId, request);
         if (!executedWorkflow.Any()) {
-            return new CasesWorkflowResult(Success: false,
+            return new WorkflowInvocationResult(Success: false,
                                            executedWorkflow.Select(x => new CasesCollectedWorkflow(x.WorkflowInstanceId, x.ActivityId)).ToList(),
                                            $"You cannot perform this action at this point.");
         }
-        return new CasesWorkflowResult(Success: true, []);
+        return new WorkflowInvocationResult(Success: true, []);
     }
 
     public async Task<List<RejectReason>> GetApprovalRejectOptionsListAsync(ClaimsPrincipal user, Guid caseId) {
@@ -170,7 +170,7 @@ internal class CasesWorkflowManagerElsa(
             };
     }
 
-    public async Task<CasesWorkflowResult> StartWorkflowAsync(Guid caseId, string caseTypeCode) {
+    public async Task<WorkflowInvocationResult> StartWorkflowAsync(Guid caseId, string caseTypeCode) {
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
         ArgumentException.ThrowIfNullOrWhiteSpace(caseTypeCode);
 
@@ -193,7 +193,11 @@ internal class CasesWorkflowManagerElsa(
         return new(Success: true, []);
     }
 
-
+    // todo: implement this
+    public Task<object> GetActionsByCaseId(ClaimsPrincipal user, Guid caseId, string[] roles) {
+        throw new NotImplementedException();
+    }
+    
     /// <summary>Get the custom action blocking activities of type <see cref="AwaitActionActivity"/>.</summary>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="userRoles">The user roles.</param>
