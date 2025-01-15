@@ -2,7 +2,6 @@
 using System.Security.Claims;
 using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Security;
-using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Models.Responses;

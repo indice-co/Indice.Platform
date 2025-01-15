@@ -1,0 +1,2 @@
+- context.TryGetUser() on ActivityContext is not available anymore
+- Bookmark hashes will need recalculation.

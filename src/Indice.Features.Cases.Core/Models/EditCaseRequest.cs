@@ -4,5 +4,5 @@
 public class EditCaseRequest
 {
     /// <summary>The data as json.</summary>
-    public dynamic Data { get; set; } = null!;
+    public dynamic Data { get; set; } = null!; // todo: change to JsonNode
 }

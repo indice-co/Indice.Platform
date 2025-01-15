@@ -1,7 +1,7 @@
 ﻿using Elsa.Services.Models;
-using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Workflows.Activities;
-using Indice.Features.Cases.Workflows.Bookmarks.AwaitEdit;
+using Indice.Features.Cases.Workflows.Bookmarks;
+using Indice.Features.Cases.Workflows.Models;
 
 namespace Indice.Features.Cases.Workflows.Interfaces;
 
@@ -18,11 +18,11 @@ internal interface IAwaitEditInvoker
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="request">The edit request as dynamic json data.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    Task<IEnumerable<CollectedWorkflow>> DispatchWorkflowsAsync(Guid caseId, EditCaseRequest request, CancellationToken cancellationToken = default);
+    Task<IEnumerable<CollectedWorkflow>> DispatchWorkflowsAsync(Guid caseId, WorkflowEditCaseRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>Executing a workflow will execute the workflow directly before returning.</summary>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="request">The edit request as dynamic json data.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    Task<IEnumerable<CollectedWorkflow>> ExecuteWorkflowsAsync(Guid caseId, EditCaseRequest request, CancellationToken cancellationToken = default);
+    Task<IEnumerable<CollectedWorkflow>> ExecuteWorkflowsAsync(Guid caseId, WorkflowEditCaseRequest request, CancellationToken cancellationToken = default);
 }

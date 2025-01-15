@@ -1,7 +1,7 @@
 ﻿using Elsa.Services.Models;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Workflows.Activities;
-using Indice.Features.Cases.Workflows.Bookmarks.AwaitAssignment;
+using Indice.Features.Cases.Workflows.Bookmarks;
 
 namespace Indice.Features.Cases.Workflows.Interfaces;
 
