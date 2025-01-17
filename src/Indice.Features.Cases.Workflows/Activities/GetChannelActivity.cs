@@ -37,4 +37,6 @@ internal class GetChannelActivity : BaseCaseActivity
         context.LogOutputProperty(this, nameof(Output), Output);
         return Done(Output);
     }
+    
+    
 }

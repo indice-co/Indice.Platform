@@ -53,7 +53,7 @@ internal class SendMessageActivity : BaseCaseActivity
     public override async ValueTask<IActivityExecutionResult> ExecuteAsync(ActivityExecutionContext context) {
         var user = RunAsSystemUser 
             ? CasesClaimsPrincipalExtensions.SystemUser() 
-            : context.TryGetUser();
+            : context.TryGetUser(); // todo: workflows that depend on this?
 
         if (user is null || !user.Identity!.IsAuthenticated) {
             throw new Exception("User not found or not authenticated");

@@ -1,34 +1,28 @@
 ﻿using Elsa.Attributes;
 using Elsa.Services;
+using Elsa.Services.Models;
 using Indice.Features.Cases.Workflows.Activities;
+using Indice.Features.Cases.Workflows.Services;
 
 namespace Indice.Features.Cases.Workflows.Bookmarks;
 
 /// <summary>Bookmark model for <see cref="AwaitApprovalActivity"/>.</summary>
-public class AwaitApprovalBookmark : IBookmark
+public class AwaitApprovalBookmark(string caseId, string? role = null, bool blockPreviousApprover = false, IEnumerable<string>? publicActions = null) : IBookmark
 {
-    /// <summary>Creates a new instance of <see cref="AwaitApprovalBookmark"/>.</summary>
-    public AwaitApprovalBookmark(string caseId, string role, bool blockPreviousApprover = false, IEnumerable<string>? publicActions = null) {
-        CaseId = string.IsNullOrEmpty(caseId) ? throw new ArgumentNullException(nameof(caseId), "CaseId cannot be null or empty.") : caseId;
-        Role = role;
-        BlockPreviousApprover = blockPreviousApprover;
-        PublicActions = publicActions ?? new List<string>();
-    }
-
     /// <summary>The Id of the case to create the bookmark.</summary>
-    public string CaseId { get; set; }
+    public string CaseId { get; set; } = string.IsNullOrEmpty(caseId) ? throw new ArgumentNullException(nameof(caseId), "CaseId cannot be null or empty.") : caseId;
 
     /// <summary>The user role that can trigger the bookmark. Can be null for all authenticated users</summary>
     [ExcludeFromHash]
-    public string Role { get; set; }
+    public string Role { get; set; } = role ?? string.Empty;
 
     /// <summary>Block previous approver from triggering the bookmark.</summary>
     [ExcludeFromHash]
-    public bool BlockPreviousApprover { get; set; }
+    public bool BlockPreviousApprover { get; set; } = blockPreviousApprover;
     
     /// <summary>Public Actions Allowed.</summary>
     [ExcludeFromHash]
-    public IEnumerable<string> PublicActions { get; set; }
+    public IEnumerable<string> PublicActions { get; set; } = publicActions ?? new List<string>();
 }
 
 /// <summary>

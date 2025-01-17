@@ -1,5 +1,4 @@
 ﻿using Indice.Features.Cases.Core;
-using Indice.Features.Cases.Server;
 using Indice.Features.Cases.Server.Authorization;
 using Indice.Security;
 using Microsoft.AspNetCore.Authorization;

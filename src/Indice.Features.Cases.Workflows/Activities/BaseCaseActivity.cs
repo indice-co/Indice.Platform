@@ -59,6 +59,8 @@ public abstract class BaseCaseActivity : Activity
             throw;
         }
     }
+    
+    
 
     /// <summary>When this method is override and an exception occurs the case will move to a default faulted checkpoint.</summary>
     /// <returns></returns>

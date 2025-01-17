@@ -1,4 +1,3 @@
-using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Security;
 using Microsoft.AspNetCore.Authorization;
@@ -33,31 +32,31 @@ public class ApprovalHandler(
     /// <inheritdoc />
     protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, ApprovalRequirement requirement) {
         var user = context.User;
-        var allowed = true;
         
         if (context.Resource is not Guid caseId) {
             return;
         }
-        
-        // todo: check probably we should not allow system_client here
-        if (!user.IsAdmin() &&
-            !string.IsNullOrEmpty(requirement.AllowedRole) &&
-            !user.IsInRole(requirement.AllowedRole)) {
-            allowed = false;
+
+        if (user.IsAdmin() || user.IsSystemClient()) {
+            context.Succeed(requirement);
+            return;
+        }
+
+        if (string.IsNullOrEmpty(requirement.AllowedRole) || user.IsInRole(requirement.AllowedRole)) {
+            context.Succeed(requirement);
+            return;
         }
         
         // todo: move outside
-        if (!user.IsAdmin() && requirement.ShouldBlockPreviousUser) {
+        if (requirement.ShouldBlockPreviousUser) {
             var lastApproval = await caseApprovalService.GetLastApproval(caseId);
             if (user.FindSubjectId() == lastApproval?.CreatedBy.Id) {
-                allowed = false;
+                logger.LogInformation("User {userId} does not have sufficient access rights.", context.User!.FindSubjectId());
+                return;
             }
         }
         
-        if (allowed) {
-            context.Succeed(requirement);
-        } else {
-            logger.LogInformation("User {userId} does not have sufficient access rights.", context.User!.FindSubjectId());
-        }
+        context.Succeed(requirement);
+        
     }
 }

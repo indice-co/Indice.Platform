@@ -5,24 +5,21 @@ using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Cases.Server.Authorization;
 
-public class NotPreviousApproverRequirement : IAuthorizationRequirement
+public class NotSpecificUserRequirement : IAuthorizationRequirement
 {
     public bool ShouldBlockPreviousUser { get; set; }
     
-    public NotPreviousApproverRequirement() {}
-
-    public NotPreviousApproverRequirement(bool shouldBlockPreviousUser) {
+    public NotSpecificUserRequirement(bool shouldBlockPreviousUser) {
         ShouldBlockPreviousUser = shouldBlockPreviousUser;
     }
 }
 
-public class NotPreviousApproverRequirementHandler(
+public class NotSpecificUserHandler(
     ICaseApprovalService caseApprovalService,
-    ILogger<NotPreviousApproverRequirementHandler> logger) : AuthorizationHandler<NotPreviousApproverRequirement>
+    ILogger<NotSpecificUserHandler> logger) : AuthorizationHandler<NotSpecificUserRequirement>
 {
-    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, NotPreviousApproverRequirement requirement) {
+    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, NotSpecificUserRequirement requirement) {
         var user = context.User;
-        var allowed = true;
         
         if (context.Resource is not Guid caseId) {
             return;

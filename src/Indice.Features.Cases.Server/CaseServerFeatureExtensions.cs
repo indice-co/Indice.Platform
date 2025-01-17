@@ -48,20 +48,10 @@ public static class CaseServerFeatureExtensions
         });
         builder.Services.AddLimitUpload(serverOptions.ConfigureLimitUpload);
         builder.Services.AddTransient<IAuthorizationHandler, CasesAccessHandler>();
-        builder.Services.AddAuthorization(options => {
-            options.AddPolicy(CaseServerConstants.Policies.BeCasesApprover, policy => {
-                policy.Requirements.Add(new ApprovalRequirement());
-                policy.Requirements.Add(new NotPreviousApproverRequirement());
-                policy.Requirements.Add(new AdminOrInRoleRequirement());
-                policy.Requirements.Add(new CompositeRequirement());
-            });
-        });
         builder.Services.AddScoped<ICasesWorkflowManager, WorkflowHttpServiceClient>();
         builder.Services.AddTransient<IAuthorizationHandler, ApprovalHandler>();
-        builder.Services.AddTransient<IAuthorizationHandler, NotAnonymousUserHandler>();
-        builder.Services.AddTransient<IAuthorizationHandler, AdminOrInRoleHandler>();
-        builder.Services.AddTransient<IAuthorizationHandler, CompositeRequirementHandler>();
-        builder.Services.AddTransient<IAuthorizationHandler, NotPreviousApproverRequirementHandler>();
+        builder.Services.AddTransient<IAuthorizationHandler, DefaultCasesRolesHandler>();
+        builder.Services.AddTransient<IAuthorizationHandler, NotSpecificUserHandler>();
         builder.Services.AddFluentValidationAutoValidation()
                        .AddValidatorsFromAssemblyContaining<AddAccessRuleRequestValidator>()
                        .AddFluentValidationClientsideAdapters();

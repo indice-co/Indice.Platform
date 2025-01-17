@@ -211,12 +211,12 @@ internal static class WorkflowManagerHandler
         )).Select(x => x.Bookmark as AwaitAssignmentBookmark).ToList();
         var editBookmarks = (await bookmarkFinder.FindBookmarksAsync(
             activityType: nameof(AwaitEditActivity),
-            bookmarks: bookmarks.Select(role => new AwaitEditBookmark(caseId.ToString(), role)),
+            bookmarks: [new AwaitEditBookmark(caseId.ToString())],
             correlationId: caseId.ToString()
         )).Select(x => x.Bookmark as AwaitEditBookmark).ToList();
         var approvalBookmarks = (await bookmarkFinder.FindBookmarksAsync(
             activityType: nameof(AwaitApprovalActivity),
-            bookmarks: bookmarks.Select(role => new AwaitApprovalBookmark(caseId.ToString(), role)),
+            bookmarks: [new AwaitApprovalBookmark(caseId.ToString())],
             correlationId: caseId.ToString()
         )).Select(x => x.Bookmark as AwaitApprovalBookmark).ToList();
         var customCaseActions = await GetWorkflowCustomCaseActions(caseId, bookmarks, bookmarkFinder, workflowInstanceStore);

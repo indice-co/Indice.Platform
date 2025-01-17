@@ -33,23 +33,22 @@ internal static class AdminWorkflowInvokerHandlers
             .ToList();
         userRoles.Add(string.Empty);
 
-        var bookmarks = await workflowManager.GetActionsByCaseId(currentUser, caseId, userRoles.ToArray());
-        var v = bookmarks as AvailableActions;
-        var approvalBookmark = v!.ApprovalBookmarks!.FirstOrDefault();
-        if (approvalBookmark is null) {
+        var bookmarks = await workflowManager.GetActionsByCaseId(currentUser, caseId, userRoles.ToArray()) as AvailableActions;
+        var approvalBookmark = bookmarks?.ApprovalBookmarks.FirstOrDefault();
+        if (approvalBookmark is null) { // todo: check empty list
             return TypedResults.Problem(detail: "You are not authorized to access this case.");
         }
         
-        // var authorizationResult = await authorizationService.AuthorizeAsync(currentUser, caseId, new ApprovalRequirement(approvalBookmark.Role, approvalBookmark.BlockPreviousApprover));
-        var authorizationResult = await authorizationService.AuthorizeAsync(currentUser, caseId,
-            new CompositeRequirement(new IAuthorizationRequirement[] {
-                new NotAnonymousUserRequirement(),
-                new AdminOrInRoleRequirement(approvalBookmark.Role),
-                new NotPreviousApproverRequirement(approvalBookmark.BlockPreviousApprover),
-            }));
-        
+        var authorizationResult = await authorizationService.AuthorizeAsync(currentUser, caseId, new CasesRolesRequirement([approvalBookmark.Role]));
         if (!authorizationResult.Succeeded) {
             return TypedResults.Problem(detail: "You are not authorized to access this case.");
+        }
+
+        if (approvalBookmark.BlockPreviousApprover) {
+            var lastApproval = await caseApprovalService.GetLastApproval(caseId);
+            if (currentUser.FindSubjectId() == lastApproval?.CreatedBy.Id) {
+                return TypedResults.Problem(detail: "You are not authorized to access this case.");
+            }
         }
         
         // todo: move to service
