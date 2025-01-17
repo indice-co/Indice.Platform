@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>Extension methods on <see cref="AuthorizationOptions"/>.</summary>
-public static class MessagingAuthorizationExtensions
+public static class CasesAuthorizationExtensions
 {
     /// <summary>Adds Cases authorization policy according to access level.</summary>
     /// <param name="options">Provides programmatic configuration used by <see cref="IAuthorizationService"/> and <see cref="IAuthorizationPolicyProvider"/>.</param>

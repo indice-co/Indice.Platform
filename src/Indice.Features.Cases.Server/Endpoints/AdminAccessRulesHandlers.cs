@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Indice.Features.Cases.Server.Endpoints;
 
-internal class AdminAccessRulesHandlers
+internal static class AdminAccessRulesHandlers
 {
     /// <summary>Get Access rules.</summary>
     /// <param name="options"></param>
@@ -65,6 +65,19 @@ internal class AdminAccessRulesHandlers
 
     public static async Task<NoContent> UpdateCaseAccessRulesBatch(Guid caseId, List<AddCaseAccessRuleRequest> request, ClaimsPrincipal user, IAccessRuleService accessRuleService) {
         await accessRuleService.Batch(user, caseId, request);
+        return TypedResults.NoContent();
+    }
+    /// <summary>Replace user to the specified case with another</summary>
+    /// <param name="caseId">Case type Id</param>
+    /// <param name="request">The users for the replace</param>
+    /// <param name="user"></param>
+    /// <param name="accessRuleService"></param>
+    /// <returns></returns>
+    public static async Task<Results<NoContent, NotFound>> ReplaceAccessRulesUser(Guid caseId, ReplaceCaseAccessRuleUserRequest request, ClaimsPrincipal user, IAccessRuleService accessRuleService) {
+        var succeeded = await accessRuleService.ReplaceUser(user, caseId, request.ExistingUserId, request.ReplacementUserId);
+        if (succeeded) {
+            return TypedResults.NotFound();
+        }
         return TypedResults.NoContent();
     }
 }

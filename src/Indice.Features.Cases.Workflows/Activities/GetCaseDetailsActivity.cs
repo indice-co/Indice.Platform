@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using System.Text.Json;
 using Elsa;
 using Elsa.ActivityResults;
 using Elsa.Attributes;
@@ -40,8 +41,8 @@ internal class GetCaseDetailsActivity : BaseCaseActivity
         var @case = await _adminCaseService.GetCaseById(systemUser, CaseId.Value, IncludeAttachmentsData);
         
         // Convert CaseData to JObject so the workflow activities can use data without parsing.
-        @case.Data = Newtonsoft.Json.Linq.JObject.Parse(@case.DataAs<string?>()!);
-        Output = @case;
+        //@case.Data = Newtonsoft.Json.Linq.JObject.Parse(@case.DataAs<string?>()!);
+        Output = @case; 
         context.LogOutputProperty(this, nameof(Output), Output);
         return Done(Output);
     }
