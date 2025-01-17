@@ -77,6 +77,12 @@ internal static class AdminAccessRulesApi
             .WithSummary("Update a batch of Access rules for a case.")
             .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Admin))
             .WithParameterValidation<List<AddCaseAccessRuleRequest>>();
+        
+        group.MapPut("cases/{caseId}/access-rules/replace", AdminAccessRulesHandlers.ReplaceAccessRulesUser)
+            .WithName(nameof(AdminAccessRulesHandlers.ReplaceAccessRulesUser))
+            .WithSummary("Replace user to the specified case with another")
+            .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Admin))
+            .WithParameterValidation<List<AddCaseAccessRuleRequest>>();
 
         return routes;
     }
