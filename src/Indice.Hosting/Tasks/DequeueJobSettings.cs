@@ -29,6 +29,9 @@ internal class DequeueJobSettings
     public Type WorkItemType { get; }
     /// <summary>The name of the job.</summary>
     public string Name { get; set; }
+    /// <summary>The retry count for each item. If the retry count is exceeded the item is marked as poison.</summary>
+    /// <remarks>Defaults to 3.</remarks>
+    public int MaxRetryCount { get; set; } = 3;
     /// <summary>The time interval between two attempts to dequeue new items. Measured in milliseconds</summary>
     public double PollingInterval { get; set; } = 300;
     /// <summary>The maximum time interval between two attempts to dequeue new items. Measured in milliseconds</summary>
