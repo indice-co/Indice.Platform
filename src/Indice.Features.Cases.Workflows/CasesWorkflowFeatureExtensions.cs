@@ -34,6 +34,8 @@ using Microsoft.IdentityModel.Tokens;
 using Quartz.Util;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Hosting;
+using Elsa.Serialization;
+using Indice.Features.Cases.Core.Serialization;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -42,10 +44,11 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// </summary>
 public static class CasesWorkflowFeatureExtensions
 {
-    /// <summary>Add case management workflow configuratiuon.</summary>
+    /// <summary>Add case management workflow configuration.</summary>
     /// <param name="builder">The <see cref="IHostApplicationBuilder"/> to configure.</param>
     /// <param name="configureAction">The optional configuration action.</param>
     public static IHostApplicationBuilder AddCasesWorkflow(this IHostApplicationBuilder builder, Action<CasesWorkflowOptions>? configureAction = null) {
+
         // Configure options given by the consumer.
         var workflowOptions = new CasesWorkflowOptions(builder.Services);
         configureAction?.Invoke(workflowOptions);
@@ -62,11 +65,10 @@ public static class CasesWorkflowFeatureExtensions
             options.RegisterStaticFiles = workflowOptions.RegisterStaticFiles;
             options.RegisterAuthentication = workflowOptions.RegisterAuthentication;
         });
-
-        //services.TryAddTransient<CasesMessageDescriber>();
         builder.AddWorkflowInternal(workflowOptions);
         return builder;
     }
+
 
 
     /// <summary>Add workflow services to the case management.</summary>
@@ -145,7 +147,7 @@ public static class CasesWorkflowFeatureExtensions
 
         // Add authentication / authorization
         if (casesWorkflowOptions.RegisterAuthentication) {
-            builder.Services.AddWorkflowAuthentication(builder.Configuration);
+            builder.Services.AddWorkflowAuthentication(builder.Configuration, casesWorkflowOptions);
             builder.Services.AddCasesWorkflowAuthoriationPolicy();
         }
         return builder;
@@ -191,6 +193,18 @@ public static class CasesWorkflowFeatureExtensions
         });
         services.AddRouting(options => { options.LowercaseUrls = true; });
 
+        services.PostConfigure<MvcNewtonsoftJsonOptions>(options => {
+            options.SerializerSettings.Converters.Add(new JsonNodeToJsonObjectAdapterConverter());
+            options.SerializerSettings.Converters.Add(new JsonElementToJsonObjectAdapterConverter());
+        });
+        services.AddTransient(sp => {
+            return new Func<Newtonsoft.Json.JsonSerializer>(() => {
+                var settings = DefaultContentSerializer.CreateDefaultJsonSerializationSettings();
+                settings.Converters.Add(new JsonNodeToJsonObjectAdapterConverter());
+                settings.Converters.Add(new JsonElementToJsonObjectAdapterConverter());
+                return Newtonsoft.Json.JsonSerializer.Create(settings);
+            });
+        });
         //services.AddVersionedApiExplorer(o => {
         //    o.GroupNameFormat = "'v'VVV";
         //    o.SubstituteApiVersionInUrl = true;
@@ -210,8 +224,7 @@ public static class CasesWorkflowFeatureExtensions
             .AddSingleton<IEndpointContentSerializerSettingsProvider, EndpointContentSerializerSettingsProvider>()
             .AddAutoMapperProfile<AutoMapperProfile>()
             .AddSignalR();
-        services.AddMvc(options =>
-        {
+        services.AddMvc(options => {
             //Use this conventions to set ElsaNewtonsoftJsonConvention to all controllers in Elsa.Server.Api
             options.Conventions.Add(new ElsaNewtonsoftJsonConvention());
             options.Conventions.Add(new GroupWorkflowActionsConvention());
@@ -224,8 +237,9 @@ public static class CasesWorkflowFeatureExtensions
     /// </summary>
     /// <param name="services">The service collection</param>
     /// <param name="configuration">The configuration</param>
+    /// <param name="workflowOptions">Workflow configuration options</param>
     /// <returns>The service collection for further configuration</returns>
-    internal static IServiceCollection AddWorkflowAuthentication(this IServiceCollection services, IConfiguration configuration) {
+    internal static IServiceCollection AddWorkflowAuthentication(this IServiceCollection services, IConfiguration configuration, CasesWorkflowOptions workflowOptions) {
         // Elsa dashboard login
         services.AddAuthentication()
         .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options => {
@@ -234,10 +248,9 @@ public static class CasesWorkflowFeatureExtensions
         })
         // Elsa dashboard login
         .AddOpenIdConnect(authenticationScheme: OpenIdConnectDefaults.AuthenticationScheme, displayName: "Connect with Indice", options => {
-            var secrets = configuration.GetApiSecrets() ?? [];
             options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             options.Authority = configuration.GetAuthority();
-            options.ClientId = "cases-ui";
+            options.ClientId = workflowOptions.WorkflowUIClientId;
             options.ResponseType = OpenIdConnectResponseType.Code;
             options.GetClaimsFromUserInfoEndpoint = true;
             options.UsePkce = true;

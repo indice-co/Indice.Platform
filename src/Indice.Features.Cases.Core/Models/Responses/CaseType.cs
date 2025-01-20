@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Nodes;
+using Indice.Features.Cases.Core.Serialization;
 using Indice.Types;
 
 namespace Indice.Features.Cases.Core.Models.Responses;
@@ -17,11 +18,13 @@ public class CaseType
 
     /// <summary>The case type description.</summary>
     public string? Description { get; set; }
-    
+
     /// <summary>The case type json schema.</summary>
+    [Newtonsoft.Json.JsonConverter(typeof(JsonNodeToJsonObjectAdapterConverter))]
     public JsonNode DataSchema { get; set; } = null!;
 
     /// <summary>The layout for the data schema.</summary>
+    [Newtonsoft.Json.JsonConverter(typeof(JsonNodeToJsonObjectAdapterConverter))]
     public JsonNode? Layout { get; set; }
 
     /// <summary>The case type translations.</summary>
@@ -34,6 +37,7 @@ public class CaseType
     public string? Tags { get; set; }
 
     /// <summary>The case type configuration.</summary>
+    [Newtonsoft.Json.JsonConverter(typeof(JsonNodeToJsonObjectAdapterConverter))]
     public JsonNode? Config { get; set; }
 
     /// <summary>The allowed Roles that can create a new Case.</summary>
@@ -43,9 +47,11 @@ public class CaseType
     public bool IsMenuItem { get; set; }
 
     /// <summary>The filter configuration for the cases of the specified case type.</summary>
+    [Newtonsoft.Json.JsonConverter(typeof(JsonNodeToJsonObjectAdapterConverter))]
     public JsonNode? GridFilterConfig { get; set; }
 
     /// <summary>The column configuration for the cases of the specified case type.</summary>
+    [Newtonsoft.Json.JsonConverter(typeof(JsonNodeToJsonObjectAdapterConverter))]
     public JsonNode? GridColumnConfig { get; set; }
 
     /// <summary>The checkpoints for this case type.</summary>

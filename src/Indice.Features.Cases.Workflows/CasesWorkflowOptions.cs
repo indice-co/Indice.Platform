@@ -65,4 +65,8 @@ public class CasesWorkflowOptions
     /// <summary>Adds <strong>OpenIdConnect</strong> authentication for the UI and api controllers</summary>
     /// <remarks>Set to false to allow anonymous access.</remarks>
     public bool RegisterAuthentication { get; set; } = true;
+    /// <summary>
+    /// The client id of the UI client that will be used to authenticate with the server.
+    /// </summary>
+    public string WorkflowUIClientId { get; set; } = "cases-ui";
 }
