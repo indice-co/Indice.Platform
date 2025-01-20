@@ -54,7 +54,8 @@ internal class WorkerHostedService : IHostedService
                                                .ForJob(dequeueJob)
                                                .WithIdentity(name: $"{dequeueJobSchedule.Name}{TriggerNames.DequeueJobTrigger}{i}", group: JobGroups.InternalJobsGroup)
                                                .StartNow()
-                                               .WithSimpleSchedule(x => x.WithInterval(TimeSpan.FromMilliseconds(dequeueJobSchedule.PollingInterval + (dequeueJobSchedule.PollingInterval / dequeueJobSchedule.InstanceCount * (i - 1)))).RepeatForever())
+                                               .WithSimpleSchedule(x => x.WithInterval(TimeSpan.FromMilliseconds(dequeueJobSchedule.PollingInterval + (dequeueJobSchedule.PollingInterval / dequeueJobSchedule.InstanceCount * (i - 1))))
+                                                                         .RepeatForever())
                                                .Build();
                 await Scheduler.ScheduleJob(jobTrigger, cancellationToken);
             }

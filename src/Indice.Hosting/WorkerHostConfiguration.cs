@@ -29,14 +29,18 @@ public static class WorkerHostConfiguration
         var workerHostOptions = new WorkerHostOptions(services) {
             ScheduledTaskStoreType = typeof(ScheduledTaskStoreNoop<>),
             QueueStoreType = typeof(MessageQueueNoop<>),
-            LockStoreType = typeof(LockManagerNoop)
+            LockStoreType = typeof(LockManagerNoop),
+            InterruptJobsOnShutdown = false,
+            InterruptJobsOnShutdownWithWait = false
         };
         configureAction?.Invoke(workerHostOptions);
         services.AddSingleton(workerHostOptions.JsonOptions);
         // https://www.quartz-scheduler.net/documentation/quartz-3.x/configuration/reference.html
         var quartzConfiguration = new NameValueCollection {
-            { "quartz.threadPool.maxConcurrency", "100" },
-            { "quartz.threadPool.threadCount", "100" }
+            [ "quartz.threadPool.maxConcurrency"] = "100",
+            [ "quartz.threadPool.threadCount"] = "100",
+            [ StdSchedulerFactory.PropertySchedulerInterruptJobsOnShutdown ] = workerHostOptions.InterruptJobsOnShutdown.ToString().ToLower(),
+            [ StdSchedulerFactory.PropertySchedulerInterruptJobsOnShutdownWithWait ] = workerHostOptions.InterruptJobsOnShutdownWithWait.ToString().ToLower(),
         };
         services.AddSingleton<ISchedulerFactory>(serviceProvider => new StdSchedulerFactory(quartzConfiguration));
         services.AddSingleton<IJobFactory, QuartzJobFactory>();
