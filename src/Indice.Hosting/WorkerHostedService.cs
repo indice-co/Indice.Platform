@@ -45,7 +45,8 @@ internal class WorkerHostedService : IHostedService
                                            [JobDataKeys.QueueName] = dequeueJobSchedule.Name,
                                            [JobDataKeys.PollingInterval] = dequeueJobSchedule.PollingInterval,
                                            [JobDataKeys.MaxPollingInterval] = dequeueJobSchedule.MaxPollingInterval,
-                                           [JobDataKeys.JobHandlerType] = dequeueJobSchedule.JobHandlerType
+                                           [JobDataKeys.JobHandlerType] = dequeueJobSchedule.JobHandlerType,
+                                           [JobDataKeys.MaxRetryCount] = dequeueJobSchedule.MaxRetryCount
                                        } as IDictionary<string, object>))
                                        .Build();
             await Scheduler.AddJob(dequeueJob, replace: true, cancellationToken);
