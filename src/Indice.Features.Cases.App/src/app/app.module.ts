@@ -23,13 +23,15 @@ import { FormsModule } from '@angular/forms';
 import { AUTH_SETTINGS, AuthHttpInterceptor, AuthService, IndiceAuthModule } from '@indice/ng-auth';
 import { NgModule } from '@angular/core';
 import { CasesModule } from './features/cases/cases.module';
+import { LoadingBarService } from './core/services/loading-bar.service';
+import { LoadingInterceptor } from './core/services/loading-interceptor.service';
 
 @NgModule({
   declarations: [
     AppComponent,
     DashboardComponent,
     HomeComponent,
-    LogOutComponent,
+    LogOutComponent
   ],
   imports: [
     AppRoutingModule,
@@ -56,11 +58,13 @@ import { CasesModule } from './features/cases/cases.module';
     ModalService,
     AuthService,
     CasesApiService,
+    LoadingBarService,
     { provide: APP_LINKS, useFactory: (authService: AuthService, caseTypeService: CaseTypeService) => new AppLinks(authService, caseTypeService), deps: [AuthService, CaseTypeService] },
     { provide: AUTH_SETTINGS, useFactory: () => app.settings.auth_settings },
     { provide: CASES_API_BASE_URL, useFactory: () => app.settings.api_url },
     { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: AcceptLanguageHttpInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi: true },
     { provide: SHELL_CONFIG, useFactory: () => new ShellConfig() }
   ],
   bootstrap: [AppComponent]
