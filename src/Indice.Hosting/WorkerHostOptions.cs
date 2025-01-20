@@ -20,10 +20,6 @@ public class WorkerHostOptions
 
     /// <summary>Gets the <see cref="JsonSerializerOptions"/> used internally whenever a payload needs to be persisted. </summary>
     public WorkerJsonOptions JsonOptions { get; }
-    /// <summary>If set to true, the worker host will wait for all jobs to finish before shutting down. Defaults to false. </summary>
-    public bool WaitJobsToCompleteOnShutdown = false;
-    /// <summary>If set to true, the worker host will interrupt all jobs when it is shutting down. Defaults to false</summary>
-    public bool InterruptJobsOnShutdown { get; set; }
-    /// <summary>If set to true, the worker host will wait for all jobs to finish before shutting down. Defaults to false</summary>
-    public bool InterruptJobsOnShutdownWithWait { get; set; }
+    /// <summary>If set to true, the worker host will wait for all jobs to finish before shutting down. Defaults to false.</summary>
+    public bool WaitJobsToCompleteOnShutdown { get; set; }
 }
