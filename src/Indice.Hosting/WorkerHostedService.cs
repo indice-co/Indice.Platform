@@ -1,6 +1,7 @@
 ﻿using Indice.Hosting.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Quartz;
 using Quartz.Spi;
 
@@ -14,6 +15,7 @@ internal class WorkerHostedService : IHostedService
     private readonly IEnumerable<DequeueJobSettings> _dequeueJobSchedules;
     private readonly IEnumerable<ScheduledJobSettings> _scheduledJobSettings;
     private readonly IJobFactory _jobFactory;
+    private readonly WorkerHostOptions _workerHostOptions;
 
     /// <summary>Creates a new instance of <see cref="WorkerHostedService"/>.</summary>
     /// <param name="schedulerFactory">Provides a mechanism for obtaining client-usable handles to <see cref="IScheduler"/> instances.</param>
@@ -21,12 +23,14 @@ internal class WorkerHostedService : IHostedService
     /// <param name="dequeueJobSettings">Contains meta-data about the <see cref="DequeueJob{TWorkItem}"/> instances that have been configured.</param>
     /// <param name="scheduledJobSettings">Job schedule settings. Describes what to execute and when.</param>
     /// <param name="jobFactory">A JobFactory is responsible for producing instances of <see cref="IJob"/> classes.</param>
-    public WorkerHostedService(ISchedulerFactory schedulerFactory, ILogger<WorkerHostedService> logger, IEnumerable<DequeueJobSettings> dequeueJobSettings, IEnumerable<ScheduledJobSettings> scheduledJobSettings, IJobFactory jobFactory) {
+    /// <param name="workerHostOptions">The <see cref="WorkerHostOptions"/> instance.</param>
+    public WorkerHostedService(ISchedulerFactory schedulerFactory, ILogger<WorkerHostedService> logger, IEnumerable<DequeueJobSettings> dequeueJobSettings, IEnumerable<ScheduledJobSettings> scheduledJobSettings, IJobFactory jobFactory, WorkerHostOptions workerHostOptions) {
         _schedulerFactory = schedulerFactory ?? throw new ArgumentNullException(nameof(schedulerFactory));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _dequeueJobSchedules = dequeueJobSettings ?? throw new ArgumentNullException(nameof(dequeueJobSettings));
         _scheduledJobSettings = scheduledJobSettings ?? throw new ArgumentNullException(nameof(scheduledJobSettings));
         _jobFactory = jobFactory ?? throw new ArgumentNullException(nameof(jobFactory));
+        _workerHostOptions = workerHostOptions ?? throw new ArgumentNullException(nameof(workerHostOptions));
     }
 
     /// <summary>The Quartz scheduler.</summary>
@@ -106,6 +110,6 @@ internal class WorkerHostedService : IHostedService
     /// <inheritdoc />
     public async Task StopAsync(CancellationToken cancellationToken) {
         _logger.LogInformation("Queued Hosted Service is stopping.");
-        await Scheduler?.Shutdown(cancellationToken)!;
+        await Scheduler?.Shutdown(_workerHostOptions.WaitJobsToCompleteOnShutdown, cancellationToken)!;
     }
 }
