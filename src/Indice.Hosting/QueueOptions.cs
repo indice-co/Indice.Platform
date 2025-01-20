@@ -22,4 +22,6 @@ public class QueueOptions
     public int CleanUpBatchSize { get; set; } = 1000;
     /// <summary>Specifies number of concurrent instances. Defaults to one.</summary>
     public int InstanceCount { get; set; } = 1;
+    /// <summary>Specifies number of times a failed message will be retried before being moved to the poison queue.</summary>
+    public int MaxRetryCount { get; set; } = 3;
 }

@@ -31,10 +31,12 @@ public static class WorkerHostConfiguration
             QueueStoreType = typeof(MessageQueueNoop<>),
             LockStoreType = typeof(LockManagerNoop),
             InterruptJobsOnShutdown = false,
-            InterruptJobsOnShutdownWithWait = false
+            InterruptJobsOnShutdownWithWait = false,
+            WaitJobsToCompleteOnShutdown = false
         };
         configureAction?.Invoke(workerHostOptions);
         services.AddSingleton(workerHostOptions.JsonOptions);
+        services.AddSingleton(workerHostOptions);
         // https://www.quartz-scheduler.net/documentation/quartz-3.x/configuration/reference.html
         var quartzConfiguration = new NameValueCollection {
             [ "quartz.threadPool.maxConcurrency"] = "100",
@@ -175,7 +177,8 @@ public static class WorkerHostConfiguration
             backoffThreshold: options.MaxPollingInterval,
             cleanUpInterval: options.CleanUpInterval,
             cleanUpBatchSize: options.CleanUpBatchSize,
-            instanceCount: options.InstanceCount
+            instanceCount: options.InstanceCount,
+            maxRetryCount: options.MaxRetryCount
         ));
         return new WorkerHostBuilderForQueue(options.Services, builder.Options, typeof(TWorkItem));
     }

@@ -12,7 +12,8 @@ internal class DequeueJobSettings
     /// <param name="cleanUpInterval">Cleanup up the queue every interval seconds.</param>
     /// <param name="cleanUpBatchSize">Cleanup every items.</param>
     /// <param name="instanceCount">Number of concurrent instances.</param>
-    public DequeueJobSettings(Type jobHandlerType, Type workItemType, string jobName, double pollingInterval, double backoffThreshold, int cleanUpInterval, int cleanUpBatchSize, int instanceCount) {
+    /// <param name="maxRetryCount">Number of retry times for a failed message.</param>
+    public DequeueJobSettings(Type jobHandlerType, Type workItemType, string jobName, double pollingInterval, double backoffThreshold, int cleanUpInterval, int cleanUpBatchSize, int instanceCount, int maxRetryCount) {
         JobHandlerType = jobHandlerType;
         WorkItemType = workItemType;
         Name = jobName;
@@ -21,6 +22,7 @@ internal class DequeueJobSettings
         CleanupInterval = cleanUpInterval;
         CleanupBatchSize = cleanUpBatchSize;
         InstanceCount = instanceCount;
+        MaxRetryCount = maxRetryCount;
     }
 
     /// <summary>The CLR type of the job's handler.</summary>
