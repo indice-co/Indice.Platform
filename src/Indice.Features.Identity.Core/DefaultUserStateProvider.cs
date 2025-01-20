@@ -56,75 +56,54 @@ public class DefaultUserStateProvider<TUser> : IUserStateProvider<TUser> where T
     public void ClearState() => _httpContext?.Session.Clear();
 
     /* Note for future self: Never change the order of the combinations in the method below. It does matter. */
-    private async Task<UserState> GetNextStateAsync(TUser user, UserAction action) {
-        switch (CurrentState, action) {
-            case (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled && user.PhoneNumberConfirmed &&
+    private async Task<UserState> GetNextStateAsync(TUser user, UserAction action) => (CurrentState, action) switch {
+        (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == true &&
+                                                     user.PhoneNumberConfirmed == false &&
                                                      (await _httpContext!.RequestServices.GetRequiredService<IAuthenticationMethodProvider>().GetRequiredAuthenticationMethod(user))?.GetType() == typeof(SmsAuthenticationMethod) &&
-                                                     await _httpContext.RequestServices.GetRequiredService<ExtendedSignInManager<TUser>>().IsTwoFactorClientRememberedAsync(user):
-                throw new InvalidOperationException("User cannot have MFA enabled without a verified phone number.");
-            case (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == false &&
-                                                    _mfaPolicy == MfaPolicy.Enforced:
-                return UserState.RequiresMfaOnboarding;
-            case (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == true && !user.PhoneNumberConfirmed:
-                return UserState.RequiresPhoneNumberVerification;
-            case (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == true:
-                return UserState.RequiresMfa;
-            case (UserState.LoggedOut, UserAction.Login) when user.HasExpiredPassword() == true:
-                return UserState.RequiresPasswordChange;
-            case (UserState.LoggedOut, UserAction.Login) when user.EmailConfirmed == false && _requirePostSignInConfirmedEmail:
-                return UserState.RequiresEmailVerification;
-            case (UserState.LoggedOut, UserAction.Login) when user.PhoneNumberConfirmed == false && _requirePostSignInConfirmedPhoneNumber:
-                return UserState.RequiresPhoneNumberVerification;
-            case (UserState.LoggedOut, UserAction.Login):
-                return UserState.LoggedIn;
-            case (UserState.LoggedOut, UserAction.ExternalLogin) when user.HasExpiredPassword() == true:
-                return UserState.RequiresPasswordChange;
-            case (UserState.LoggedOut, UserAction.ExternalLogin) when user.EmailConfirmed == false && _requirePostSignInConfirmedEmail:
-                return UserState.RequiresEmailVerification;
-            case (UserState.LoggedOut, UserAction.ExternalLogin) when user.PhoneNumberConfirmed == false && _requirePostSignInConfirmedPhoneNumber:
-                return UserState.RequiresPhoneNumberVerification;
-            case (UserState.LoggedOut, UserAction.ExternalLogin):
-                return UserState.LoggedIn;
-            case (UserState.RequiresMfaOnboarding, UserAction.VerifiedPhoneNumber) when user.HasExpiredPassword() == true:
-                return UserState.RequiresPasswordChange;
-            case (UserState.RequiresMfaOnboarding, UserAction.VerifiedPhoneNumber) when user.EmailConfirmed == false && _requirePostSignInConfirmedEmail:
-                return UserState.RequiresEmailVerification;
-            case (UserState.RequiresMfaOnboarding, UserAction.MfaEnabled) when user.HasExpiredPassword() == true:
-                return UserState.RequiresPasswordChange;
-            case (UserState.RequiresMfaOnboarding, UserAction.MfaEnabled) when user.EmailConfirmed == false && _requirePostSignInConfirmedEmail:
-                return UserState.RequiresEmailVerification;
-            case (UserState.RequiresMfaOnboarding, UserAction.MfaEnabled):
-                return UserState.LoggedIn;
-            case (UserState.RequiresMfa, UserAction.MultiFactorAuthenticated) when user.HasExpiredPassword() == true:
-                return UserState.RequiresPasswordChange;
-            case (UserState.RequiresMfa, UserAction.MultiFactorAuthenticated) when user.EmailConfirmed == false && _requirePostSignInConfirmedEmail:
-                return UserState.RequiresEmailVerification;
-            case (UserState.RequiresMfa, UserAction.MultiFactorAuthenticated) when user.PhoneNumberConfirmed == false && _requirePostSignInConfirmedPhoneNumber:
-                return UserState.RequiresPhoneNumberVerification;
-            case (UserState.RequiresMfa, UserAction.MultiFactorAuthenticated):
-                return UserState.LoggedIn;
-            case (UserState.RequiresPhoneNumberVerification, UserAction.VerifiedPhoneNumber) when user.EmailConfirmed == false && _requirePostSignInConfirmedEmail:
-                return UserState.RequiresEmailVerification;
-            case (UserState.RequiresPhoneNumberVerification, UserAction.VerifiedPhoneNumber) when user.EmailConfirmed == true:
-                return UserState.LoggedIn;
-            case (UserState.RequiresEmailVerification, UserAction.VerifiedEmail) when user.PhoneNumberConfirmed == false && _requirePostSignInConfirmedPhoneNumber:
-                return UserState.RequiresPhoneNumberVerification;
-            case (UserState.RequiresEmailVerification, UserAction.VerifiedEmail) when user.HasExpiredPassword() == true:
-                return UserState.RequiresPasswordChange;
-            case (UserState.RequiresEmailVerification, UserAction.VerifiedEmail):
-                return UserState.LoggedIn;
-            case (UserState.RequiresPasswordChange, UserAction.PasswordChanged) when user.PhoneNumberConfirmed == false && _requirePostSignInConfirmedPhoneNumber:
-                return UserState.RequiresPhoneNumberVerification;
-            case (UserState.RequiresPasswordChange, UserAction.PasswordChanged) when user.EmailConfirmed == false && _requirePostSignInConfirmedEmail:
-                return UserState.RequiresEmailVerification;
-            case (UserState.RequiresPasswordChange, UserAction.PasswordChanged):
-                return UserState.LoggedIn;
-            case (UserState.RequiresPhoneNumberVerification, UserAction.VerifiedPhoneNumber):
-                return UserState.LoggedIn;
-            case (UserState.LoggedIn, UserAction.Logout):
-                return UserState.LoggedOut;
-            default:
-                return CurrentState;
-        }
-    }
+                                                     (await _httpContext.RequestServices.GetRequiredService<ExtendedSignInManager<TUser>>().IsTwoFactorClientRememberedAsync(user)) => throw new InvalidOperationException("User cannot have MFA enabled without a verified phone number."),
+        (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == false &&
+                                                    _mfaPolicy == MfaPolicy.Enforced => UserState.RequiresMfaOnboarding,
+        (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == true => UserState.RequiresMfa,
+        (UserState.LoggedOut, UserAction.Login) when user.HasExpiredPassword() == true => UserState.RequiresPasswordChange,
+        (UserState.LoggedOut, UserAction.Login) when user.EmailConfirmed == false &&
+                                                     _requirePostSignInConfirmedEmail => UserState.RequiresEmailVerification,
+        (UserState.LoggedOut, UserAction.Login) when user.PhoneNumberConfirmed == false && _requirePostSignInConfirmedPhoneNumber => UserState.RequiresPhoneNumberVerification,
+        (UserState.LoggedOut, UserAction.Login) => UserState.LoggedIn,
+        (UserState.LoggedOut, UserAction.ExternalLogin) when user.TwoFactorEnabled == true &&
+                                                             user.PhoneNumberConfirmed == false => throw new InvalidOperationException("User cannot have MFA enabled without a verified phone number."),
+        (UserState.LoggedOut, UserAction.ExternalLogin) when user.HasExpiredPassword() == true => UserState.RequiresPasswordChange,
+        (UserState.LoggedOut, UserAction.ExternalLogin) when user.EmailConfirmed == false &&
+                                                             _requirePostSignInConfirmedEmail => UserState.RequiresEmailVerification,
+        (UserState.LoggedOut, UserAction.ExternalLogin) when user.PhoneNumberConfirmed == false &&
+                                                             _requirePostSignInConfirmedPhoneNumber => UserState.RequiresPhoneNumberVerification,
+        (UserState.LoggedOut, UserAction.ExternalLogin) => UserState.LoggedIn,
+        (UserState.RequiresMfaOnboarding, UserAction.VerifiedPhoneNumber) when user.HasExpiredPassword() == true => UserState.RequiresPasswordChange,
+        (UserState.RequiresMfaOnboarding, UserAction.VerifiedPhoneNumber) when user.EmailConfirmed == false &&
+                                                                               _requirePostSignInConfirmedEmail => UserState.RequiresEmailVerification,
+        (UserState.RequiresMfaOnboarding, UserAction.MfaEnabled) when user.HasExpiredPassword() == true => UserState.RequiresPasswordChange,
+        (UserState.RequiresMfaOnboarding, UserAction.MfaEnabled) when user.EmailConfirmed == false &&
+                                                                      _requirePostSignInConfirmedEmail => UserState.RequiresEmailVerification,
+        (UserState.RequiresMfaOnboarding, UserAction.MfaEnabled) => UserState.LoggedIn,
+        (UserState.RequiresMfa, UserAction.MultiFactorAuthenticated) when user.HasExpiredPassword() == true => UserState.RequiresPasswordChange,
+        (UserState.RequiresMfa, UserAction.MultiFactorAuthenticated) when user.EmailConfirmed == false &&
+                                                                          _requirePostSignInConfirmedEmail => UserState.RequiresEmailVerification,
+        (UserState.RequiresMfa, UserAction.MultiFactorAuthenticated) when user.PhoneNumberConfirmed == false &&
+                                                                          _requirePostSignInConfirmedPhoneNumber => UserState.RequiresPhoneNumberVerification,
+        (UserState.RequiresMfa, UserAction.MultiFactorAuthenticated) => UserState.LoggedIn,
+        (UserState.RequiresPhoneNumberVerification, UserAction.VerifiedPhoneNumber) when user.EmailConfirmed == false &&
+                                                                                         _requirePostSignInConfirmedEmail => UserState.RequiresEmailVerification,
+        (UserState.RequiresPhoneNumberVerification, UserAction.VerifiedPhoneNumber) when user.EmailConfirmed == true => UserState.LoggedIn,
+        (UserState.RequiresEmailVerification, UserAction.VerifiedEmail) when user.PhoneNumberConfirmed == false &&
+                                                                             _requirePostSignInConfirmedPhoneNumber => UserState.RequiresPhoneNumberVerification,
+        (UserState.RequiresEmailVerification, UserAction.VerifiedEmail) when user.HasExpiredPassword() == true => UserState.RequiresPasswordChange,
+        (UserState.RequiresEmailVerification, UserAction.VerifiedEmail) => UserState.LoggedIn,
+        (UserState.RequiresPasswordChange, UserAction.PasswordChanged) when user.PhoneNumberConfirmed == false &&
+                                                                            _requirePostSignInConfirmedPhoneNumber => UserState.RequiresPhoneNumberVerification,
+        (UserState.RequiresPasswordChange, UserAction.PasswordChanged) when user.EmailConfirmed == false &&
+                                                                       _requirePostSignInConfirmedEmail => UserState.RequiresEmailVerification,
+        (UserState.RequiresPasswordChange, UserAction.PasswordChanged) => UserState.LoggedIn,
+        (UserState.RequiresPhoneNumberVerification, UserAction.VerifiedPhoneNumber) => UserState.LoggedIn,
+        (UserState.LoggedIn, UserAction.Logout) => UserState.LoggedOut,
+        _ => CurrentState
+    };
 }
