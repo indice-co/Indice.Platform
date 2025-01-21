@@ -23,7 +23,7 @@ import { FormsModule } from '@angular/forms';
 import { AUTH_SETTINGS, AuthHttpInterceptor, AuthService, IndiceAuthModule } from '@indice/ng-auth';
 import { NgModule } from '@angular/core';
 import { CasesModule } from './features/cases/cases.module';
-import { LoadingBarService } from './core/services/loading-bar.service';
+import { ProgressBarService } from './core/services/progress-bar.service';
 import { LoadingInterceptor } from './core/services/loading-interceptor.service';
 
 @NgModule({
@@ -58,7 +58,7 @@ import { LoadingInterceptor } from './core/services/loading-interceptor.service'
     ModalService,
     AuthService,
     CasesApiService,
-    LoadingBarService,
+    ProgressBarService,
     { provide: APP_LINKS, useFactory: (authService: AuthService, caseTypeService: CaseTypeService) => new AppLinks(authService, caseTypeService), deps: [AuthService, CaseTypeService] },
     { provide: AUTH_SETTINGS, useFactory: () => app.settings.auth_settings },
     { provide: CASES_API_BASE_URL, useFactory: () => app.settings.api_url },

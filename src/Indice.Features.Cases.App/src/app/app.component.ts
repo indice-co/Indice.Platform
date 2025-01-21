@@ -1,6 +1,6 @@
 import { TranslateService } from '@ngx-translate/core';
 import { Component } from '@angular/core';
-import { LoadingBarService } from './core/services/loading-bar.service';
+import { ProgressBarService } from './core/services/progress-bar.service';
 
 @Component({
   selector: 'app-root',
@@ -16,7 +16,7 @@ import { LoadingBarService } from './core/services/loading-bar.service';
 `
 })
 export class AppComponent {
-  constructor(translate: TranslateService, public loadingBarService: LoadingBarService) {
+  constructor(translate: TranslateService, public progressBarService: ProgressBarService) {
     translate.setDefaultLang('el');
   }
 }
