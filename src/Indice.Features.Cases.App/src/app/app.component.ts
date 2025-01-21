@@ -7,9 +7,9 @@ import { ProgressBarService } from './core/services/progress-bar.service';
   template: `
   <lib-progress-bar
   style="left: 0; position: fixed; width: 100%; top: 0px; z-index: 200;"
-  [busy]="(loadingBarService.busy$ | async) ?? false"
-  [value]="(loadingBarService.value$ | async) ?? 0"
-  [total]="(loadingBarService.total$ | async) ?? 100"
+  [busy]="(progressBarService.busy$ | async) ?? false"
+  [value]="(progressBarService.value$ | async) ?? 0"
+  [total]="(progressBarService.total$ | async) ?? 100"
   text="Loading...">
   </lib-progress-bar>
   <lib-shell-layout></lib-shell-layout>
