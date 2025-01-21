@@ -10,7 +10,6 @@ import { LoadingBarService } from './core/services/loading-bar.service';
   [busy]="(loadingBarService.busy$ | async) ?? false"
   [value]="(loadingBarService.value$ | async) ?? 0"
   [total]="(loadingBarService.total$ | async) ?? 100"
-  [showBarOnly]="true"
   text="Loading...">
   </lib-progress-bar>
   <lib-shell-layout></lib-shell-layout>
