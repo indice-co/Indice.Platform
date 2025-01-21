@@ -48,7 +48,9 @@ public class BatchAccessRuleRequestValidator : AbstractValidator<List<AddAccessR
 /// </summary>
 public class AddCaseAccessRuleRequestValidator : AbstractValidator<AddCaseAccessRuleRequest>
 {
+    /// <summary>
     /// Validates the request, so that at least one of MemberRole, MemberGroupId, MemberUserId is specified. Whitespaces are allowed.
+    /// </summary>
     public AddCaseAccessRuleRequestValidator() {
         RuleFor(x => x.MemberUserId).Must(MembersAreValid).WithMessage("One member property must be set. Either MemberRole or MemberGroupId or MemberUserId");
     }

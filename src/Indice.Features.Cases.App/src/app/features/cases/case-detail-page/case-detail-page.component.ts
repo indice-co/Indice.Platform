@@ -85,7 +85,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
           )
         ),
         tap((response: Case) => {
-          this.caseTypeConfig = response.caseType?.config ? JSON.parse(response.caseType?.config) : {};
+          this.caseTypeConfig = response.caseType?.config ? response.caseType?.config : {};
           this.caseDetailsService.setCaseDetails(response);
         }),
         takeUntil(this.componentDestroy$)
