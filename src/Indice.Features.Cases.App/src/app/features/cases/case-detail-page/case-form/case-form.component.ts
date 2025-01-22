@@ -270,13 +270,13 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
             return;
         }
         // case is not draft, check for editability
-        if (!viewOnlyMode) {
-            // form is editable
-            layout = this.copiedLayout;
-            this.jsonFormOptions.addSubmit = true;
-        } else {
+        if (viewOnlyMode) {
             this.addReadonlyProperties(layout);
+            return;
         }
+
+        // form is editable
+        this.jsonFormOptions.addSubmit = true;
     }
 
     private removeReadonlyProperties(layout: any): void {
@@ -296,7 +296,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     }
 
     private addReadonlyProperties(layout: any): void {
-        if (Object.keys(layout).length === 0 && layout.constructor === Object) {
+        if (!Array.isArray(layout)) {
             return;
         }
         // form is view-only -> add readonly property to all objects of layout object!
@@ -341,10 +341,10 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     private populateForm(entity: any) {
         this.lastChange = entity;
         const onInitCallbackDictionary: any = {};
-        if (Object.keys(this.layout).length === 0 && this.layout.constructor === Object) {
+        if (!Array.isArray(this.layout)) {
             return;
         }
-        if (this.layout ) {
+        if (this.layout) {
             // recursively traverse the form json
             const traverse = (item: any) => {
                 if (item.items) {

@@ -9,15 +9,7 @@ namespace Indice.Features.Cases.Core.Serialization;
 
 public class JsonNodeToJsonObjectAdapterConverter : JsonConverter<JsonNode>
 {
-    /// <summary>
-    /// Reads JSON and converts it to a JsonNode.
-    /// </summary>
-    /// <param name="reader">The JsonReader to read from.</param>
-    /// <param name="objectType">The type of the object.</param>
-    /// <param name="existingValue">The existing value of the object being read.</param>
-    /// <param name="hasExistingValue">Whether there is an existing value.</param>
-    /// <param name="serializer">The JsonSerializer instance.</param>
-    /// <returns>A JsonNode representation of the JSON data.</returns>
+    /// <inheritdoc />
     public override JsonNode? ReadJson(JsonReader reader, Type objectType, JsonNode? existingValue, bool hasExistingValue, JsonSerializer serializer) {
         try {
             if (reader.TokenType == JsonToken.Null) {
@@ -37,12 +29,7 @@ public class JsonNodeToJsonObjectAdapterConverter : JsonConverter<JsonNode>
         }
     }
 
-    /// <summary>
-    /// Writes a JsonNode to JSON.
-    /// </summary>
-    /// <param name="writer">The JsonWriter to write to.</param>
-    /// <param name="value">The JsonNode value to write.</param>
-    /// <param name="serializer">The JsonSerializer instance.</param>
+    /// <inheritdoc />
     public override void WriteJson(JsonWriter writer, JsonNode? value, JsonSerializer serializer) {
         if (value == null) {
             writer.WriteNull();
@@ -58,15 +45,7 @@ public class JsonNodeToJsonObjectAdapterConverter : JsonConverter<JsonNode>
 /// </summary>
 public class JsonNullableNodeToJsonObjectAdapterConverter : JsonConverter<JsonNode?>
 {
-    /// <summary>
-    /// Reads JSON and converts it to a JsonNode.
-    /// </summary>
-    /// <param name="reader">The JsonReader to read from.</param>
-    /// <param name="objectType">The type of the object.</param>
-    /// <param name="existingValue">The existing value of the object being read.</param>
-    /// <param name="hasExistingValue">Whether there is an existing value.</param>
-    /// <param name="serializer">The JsonSerializer instance.</param>
-    /// <returns>A JsonNode representation of the JSON data.</returns>
+    /// <inheritdoc />
     public override JsonNode? ReadJson(JsonReader reader, Type objectType, JsonNode? existingValue, bool hasExistingValue, JsonSerializer serializer) {
         if (reader.TokenType == JsonToken.Null) {
             return null;
@@ -80,12 +59,7 @@ public class JsonNullableNodeToJsonObjectAdapterConverter : JsonConverter<JsonNo
         return reader.Value!.ToString();
     }
 
-    /// <summary>
-    /// Writes a JsonNode to JSON.
-    /// </summary>
-    /// <param name="writer">The JsonWriter to write to.</param>
-    /// <param name="value">The JsonNode value to write.</param>
-    /// <param name="serializer">The JsonSerializer instance.</param>
+    /// <inheritdoc />
     public override void WriteJson(JsonWriter writer, JsonNode? value, JsonSerializer serializer) {
         if (value == null) {
             writer.WriteNull();
