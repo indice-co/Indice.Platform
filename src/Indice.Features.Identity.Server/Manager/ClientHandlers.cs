@@ -143,6 +143,10 @@ internal static class ClientHandlers
         IConfiguration configuration,
         ClaimsPrincipal currentUser,
         CreateClientRequest request) {
+        
+        if (request is null) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(string.Empty, "Request body cannot be null."));
+        }
         // sanitaze whitespace sensitive data
         request.ClientId = request.ClientId.Trim();
         request.RedirectUri = request.RedirectUri?.Trim();
@@ -150,9 +154,6 @@ internal static class ClientHandlers
         request.LogoUri = request.LogoUri?.Trim();
         request.PostLogoutRedirectUri = request.PostLogoutRedirectUri?.Trim();
 
-        if (request is null) {
-            return TypedResults.ValidationProblem(ValidationErrors.AddError(string.Empty, "Request body cannot be null."));
-        }
         var clientIdExists = (await configurationDbContext.Clients.CountAsync(x => x.ClientId == request.ClientId)) > 0;
         if (clientIdExists) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.ClientId).Camelize(), $"Client with id '{request.ClientId}' already exists."));
