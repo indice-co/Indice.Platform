@@ -28,7 +28,7 @@ internal abstract class BaseCaseMessageService
         Guid? attachmentId = null;
         var caseId = @case.Id;
         ArgumentNullException.ThrowIfNull(message);
-        if (message.FileStreamAccessor == null && message.CheckpointTypeName == null && message.Comment == null && message.Data == null) {
+        if (message.FileStreamAccessor == null && message.CheckpointTypeName == null && message.Comment == null && message.Data is null) {
             return attachmentId;
         }
 
@@ -47,7 +47,7 @@ internal abstract class BaseCaseMessageService
             }
         }
 
-        if (message.FileStreamAccessor == null && message.CheckpointTypeName == null && message.Data == null) {
+        if (message.FileStreamAccessor == null && message.CheckpointTypeName == null && message.Data is null) {
             await AddComment(user, caseId, message.Comment, message.ReplyToCommentId, message.PrivateComment);
         } else if (message.FileStreamAccessor != null && message.CheckpointTypeName == null) {
             var attachment = await AddAttachment(user, @case, message.Comment, message.FileName!, message.FileStreamAccessor!);
@@ -59,7 +59,7 @@ internal abstract class BaseCaseMessageService
                 message.PrivateComment ??= newCheckpointType!.Private;
                 await AddComment(user, caseId, message.Comment, message.ReplyToCommentId, message.PrivateComment);
             }
-        } else if (message.Data != null) {
+        } else if (message.Data is not null) {
             await AddCaseData(user, @case, message.Data);
             if (!string.IsNullOrWhiteSpace(message.Comment)) {
                 await AddComment(user, caseId, message.Comment, message.ReplyToCommentId, message.PrivateComment);
@@ -161,7 +161,7 @@ internal abstract class BaseCaseMessageService
     }
 
     private async Task AddCaseData(ClaimsPrincipal user, DbCase @case, dynamic data) {
-        if (data == null) throw new ArgumentNullException(nameof(data));
+        if (data is null) throw new ArgumentNullException(nameof(data));
 
         // Validate data against case type json schema, only when schema is present
         if (@case.CaseType.DataSchema is not null && !_schemaValidator.IsValid(@case.CaseType.DataSchema, (object)data)) {
