@@ -129,7 +129,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
       published: this._previewStep.model.published,
       ignoreUserPreferences: this._previewStep.model.ignoreUserPreferences,
       title: this._basicInfoStep.title.value,
-      data: JSON.parse(this._contentStep.data.value),
+      data:  JSON.parse(this._contentStep.data.value || '{}'),
       mediaBaseHref: this._contentStep.additionalData.mediaBaseHref,
       typeId: this._basicInfoStep.type.value?.value || undefined,
       recipientIds: this._recipientsStep.recipientIds.value ? this._recipientsStep.recipientIds.value.split('\n') : null,
