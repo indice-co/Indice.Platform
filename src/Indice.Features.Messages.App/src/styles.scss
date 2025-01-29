@@ -4,6 +4,10 @@
 @import "../node_modules/@indice/ng-components/_styles.scss";
 @import "~highlight.js/styles/github.css";
 
+:root {
+  --ng-progress-color: #ffc107; //amber
+}
+
 @layer components {
   .btn-info {
     @apply inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500;
@@ -52,10 +56,6 @@
   .basic-modal-accept-success {
     @apply text-green-700 bg-green-100 hover:bg-green-200 focus:ring-green-500;
   }
-}
-
-:root {
-  --ng-progress-color: oklch(0.666 0.179 58.318); //bg-amber-600
 }
 
 .toggle-button-container-inner-true {
