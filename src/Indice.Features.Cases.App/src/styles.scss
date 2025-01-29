@@ -7,6 +7,10 @@
 @import "~quill/dist/quill.bubble.css";
 @import "~quill/dist/quill.snow.css";
 
+:root {
+    --ng-progress-color: #ffc107; //amber
+}
+
 @layer components {
     .kpi-chart-container {
         @apply h-full w-full;
@@ -90,10 +94,6 @@
             pointer-events: none;
         }
     }
-}
-
-:root {
-    --ng-progress-color: oklch(0.666 0.179 58.318); //bg-amber-600
 }
 
 // "disableCheckbox" class is used so that ALL checkboxes of the case (booleans in schema) will be "disabled" in VIEW-ONLY mode
