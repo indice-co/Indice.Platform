@@ -24,7 +24,7 @@ export class FileUtilitiesService {
         return '../../../assets/images/pptx-icon.png';
       default: {
         if (size) {
-          return settings.api_url + '/media-root' + file.path + `?size=${size || ''}`;
+          return settings.api_url + '/media-root' + file.path + `?size=${size}`;
         }
         return file.permaLink;
       }
