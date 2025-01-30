@@ -40,6 +40,7 @@ internal class AdminWorkflowInvokerController : ControllerBase
         return NoContent();
     }
 
+    // todo: blocking activities are broken
     /// <summary>Invoke the assign activity to assign the case to the caller user.</summary>
     /// <param name="caseId">The Id of the case.</param>
     /// <returns></returns>
@@ -49,7 +50,7 @@ internal class AdminWorkflowInvokerController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
     public async Task<IActionResult> AssignCase(Guid caseId) {
-        var result = await _workflowManager.AssignCaseAsync(User, caseId);
+        var result = await _workflowManager.AssignCaseAsync(User, caseId, "Approved");
         if (!result.Success) {
             return Problem(detail: result.Message);
         }
