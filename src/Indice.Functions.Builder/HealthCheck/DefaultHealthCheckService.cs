@@ -252,13 +252,11 @@ internal class DefaultHealthCheckService : HealthCheckService
                     builder.Append("    ");
                     builder.Append(kvp.Key);
                     builder.Append(": ");
-
-                    builder.AppendLine(kvp.Value?.ToString());
+                    builder.Append(kvp.Value);
+                    builder.AppendLine();
                 }
-
                 _formatted = builder.ToString();
             }
-
             return _formatted;
         }
     }
