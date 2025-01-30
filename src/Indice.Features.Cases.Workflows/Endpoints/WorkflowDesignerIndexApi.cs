@@ -36,8 +36,8 @@ public static class WorkflowDesignerIndexApi
 
         if (options.RegisterAuthentication) {
             routes.MapGet("/workflow-signout", async (HttpContext httpContext, IConfiguration configuration) => {
-                await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme, new AuthenticationProperties { RedirectUri = configuration.GetHost() });
-                await httpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties { RedirectUri = configuration.GetHost() });
+                await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme, new AuthenticationProperties { RedirectUri = "https://localhost:2001" }); // todo: fix in different host
+                await httpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties { RedirectUri = "https://localhost:2001" }); // todo: fix in different host
             })
             .RequireAuthorization(CasesWorkflowFeatureExtensions.WorkflowPolicy)
             .ExcludeFromDescription();

@@ -23,13 +23,17 @@ public static class WorkflowManagerApi
             .WithName(nameof(WorkflowManagerHandler.StartWorkflow))
             .WithSummary("Start a workflow for a case id.");
         
+        group.MapPost("invoke/assign", WorkflowManagerHandler.InvokeAssignment)
+            .WithName(nameof(WorkflowManagerHandler.InvokeAssignment))
+            .WithSummary("Trigger an assignment activity.");
+        
         group.MapPost("invoke/approval", WorkflowManagerHandler.InvokeApproval)
             .WithName(nameof(WorkflowManagerHandler.InvokeApproval))
-            .WithSummary("Submit approval for a case id.");
+            .WithSummary("Trigger an approval activity.");
         
         group.MapPost("invoke/edit", WorkflowManagerHandler.InvokeEdit)
             .WithName(nameof(WorkflowManagerHandler.InvokeEdit))
-            .WithSummary("Edit data of a case id.");
+            .WithSummary("Trigger an edit activity.");
         
         group.MapGet("actions/{caseId}", WorkflowManagerHandler.GetActionsByCaseId)
             .WithName(nameof(WorkflowManagerHandler.GetActionsByCaseId))

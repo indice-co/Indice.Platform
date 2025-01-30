@@ -1,12 +1,15 @@
-﻿using Elsa.Services;
+﻿using Elsa.Attributes;
+using Elsa.Services;
+using Elsa.Services.Models;
 using Indice.Features.Cases.Workflows.Activities;
+using Indice.Features.Cases.Workflows.Services;
 
 namespace Indice.Features.Cases.Workflows.Bookmarks;
 
 /// <summary>Bookmark model for <see cref="AwaitActionActivity"/>.</summary>
 internal class AwaitActionBookmark : IBookmark
 {
-    public AwaitActionBookmark(string caseId, string role, string actionId) {
+    public AwaitActionBookmark(string caseId, string actionId, string? role = null) {
         CaseId = string.IsNullOrEmpty(caseId) ? throw new ArgumentNullException(nameof(caseId), "CaseId cannot be null or empty.") : caseId;
         Role = role;
         ActionId = actionId;
@@ -14,12 +17,13 @@ internal class AwaitActionBookmark : IBookmark
 
     /// <summary>The Id of the case to create the bookmark.</summary>
     public string CaseId { get; set; }
-
-    /// <summary>The user role that can trigger the bookmark. Can be null for all authenticated users</summary>
-    public string Role { get; set; }
-
+    
     /// <summary>The Id of the action that represents this bookmark.</summary>
     public string ActionId { get; }
+
+    /// <summary>The user role that can trigger the bookmark. Can be null for all authenticated users</summary>
+    [ExcludeFromHash]
+    public string? Role { get; set; }
 }
 
 /// <summary>
@@ -41,9 +45,9 @@ internal class AwaitActionBookmarkProvider : BookmarkProvider<AwaitActionBookmar
         var actionId = await context.ReadActivityPropertyAsync<AwaitActionActivity, string>(x => x.ActionId!, cancellationToken) ?? string.Empty;
         return new[] {
             // Create a bookmark for the activity's input role (or "" if left blank (that means bookmark will be triggered by an authenticated-only user))
-            Result(new AwaitActionBookmark(context.ActivityExecutionContext.CorrelationId, role, actionId)),
+            Result(new AwaitActionBookmark(context.ActivityExecutionContext.CorrelationId, actionId, role)),
             // Always create a bookmark for the administrator (also ignore blocking)
-            Result(new AwaitActionBookmark(context.ActivityExecutionContext.CorrelationId, Security.BasicRoleNames.Administrator, actionId))
+            // Result(new AwaitActionBookmark(context.ActivityExecutionContext.CorrelationId, actionId, Security.BasicRoleNames.Administrator))
         };
     }
 }

@@ -6,9 +6,9 @@ using Elsa.Design;
 using Elsa.Expressions;
 using Elsa.Providers.WorkflowStorage;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Core.Models;
-using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Features.Cases.Workflows.Extensions;
+using Indice.Features.Cases.Workflows.Integration;
+using Message = Indice.Features.Cases.Workflows.Integration.Message;
 
 namespace Indice.Features.Cases.Workflows.Activities;
 
@@ -20,12 +20,10 @@ namespace Indice.Features.Cases.Workflows.Activities;
 )]
 internal class SendMessageActivity : BaseCaseActivity
 {
-    private readonly IAdminCaseMessageService _caseMessageService;
+    private CasesHttpClient _casesClient;
 
-    public SendMessageActivity(
-        IAdminCaseMessageService caseMessageService)
-        : base(caseMessageService) {
-        _caseMessageService = caseMessageService;
+    public SendMessageActivity(CasesHttpClient casesClient) : base(casesClient) {
+        _casesClient = casesClient;
     }
 
     [ActivityInput(
@@ -51,18 +49,22 @@ internal class SendMessageActivity : BaseCaseActivity
     public object? Output { get; set; }
 
     public override async ValueTask<IActivityExecutionResult> ExecuteAsync(ActivityExecutionContext context) {
-        var user = RunAsSystemUser 
-            ? CasesClaimsPrincipalExtensions.SystemUser() 
+        var user = RunAsSystemUser
+            ? CasesClaimsPrincipalExtensions.SystemUser()
             : context.TryGetUser(); // todo: workflows that depend on this?
 
-        if (user is null || !user.Identity!.IsAuthenticated) {
-            throw new Exception("User not found or not authenticated");
-        }
+        // var user = context.TryGetCasesUser(RunAsSystemUser);
+
+        // todo: wtf
+        // if (user is null || !user.Identity!.IsAuthenticated) {
+        //     throw new Exception("User not found or not authenticated");
+        // }
 
         CaseId ??= Guid.Parse(context.CorrelationId); // Because we are not triggering base.TryExecuteAsync we need to declare it again.
 
         try {
-            await _caseMessageService.Send(CaseId.Value, user, Message);
+            await _casesClient.SendMessageAsync(CaseId.Value, Message);
+            // await _caseMessageService.Send(CaseId.Value, user, Message);
         } catch (Exception exception) {
             Output = exception.Message;
             context.LogOutputProperty(this, "Output", exception);

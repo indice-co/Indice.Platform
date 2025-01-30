@@ -1,2 +1,11 @@
-- [ ] Use Activity Data instead of bookmarks for activity input data
+- [ ] Use Activity Data instead of bookmarks for activity input data if possible, check elsa persistence behaviour
 - [ ] Find and evaluate context.TryGetUser() calls in Workflow
+- [ ] Standardize Workflow API response status code
+- [ ] BlockPreviousApproverActivity check last approval
+- [ ] Should ReplyToCommentId be used from ELSA Designer when creating Checkpoint Activity?
+- [ ] Register Workflow client_credentials to Case
+- [ ] Specification for ICaseAuthorizationService
+- [ ] Update lastActor on Blocking Activities
+- [ ] ISchemaValidator to workflow for http validation with schema
+- [ ] Prepare Migration documentation
+- [ ] Handle localization in Workflows

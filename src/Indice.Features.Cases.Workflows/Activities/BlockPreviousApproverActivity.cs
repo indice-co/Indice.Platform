@@ -2,11 +2,9 @@
 using Elsa.ActivityResults;
 using Elsa.Attributes;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Core.Models;
-using Indice.Features.Cases.Core.Services;
-using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Features.Cases.Workflows.Extensions;
-using Indice.Security;
+using Indice.Features.Cases.Workflows.Integration;
+using CaseApproval = Indice.Features.Cases.Workflows.Integration.CaseApproval;
 
 namespace Indice.Features.Cases.Workflows.Activities;
 
@@ -19,39 +17,40 @@ namespace Indice.Features.Cases.Workflows.Activities;
 )]
 internal class BlockPreviousApproverActivity : BaseCaseActivity
 {
-    private readonly ICaseApprovalService _caseApprovalService;
-    private readonly IAdminCaseService _adminCaseService;
-    private readonly CasesMessageDescriber _casesMessageDescriber;
+    private readonly CasesHttpClient _casesClient;
 
-    public BlockPreviousApproverActivity(
-        IAdminCaseMessageService caseMessageService,
-        ICaseApprovalService caseApprovalService, 
-        IAdminCaseService adminCaseService, 
-        CasesMessageDescriber casesMessageDescriber)
-        : base(caseMessageService) {
-        _caseApprovalService = caseApprovalService ?? throw new ArgumentNullException(nameof(caseApprovalService));
-        _adminCaseService = adminCaseService ?? throw new ArgumentNullException(nameof(adminCaseService));
-        _casesMessageDescriber = casesMessageDescriber ?? throw new ArgumentNullException(nameof(casesMessageDescriber));
+    public BlockPreviousApproverActivity(CasesHttpClient casesClient)
+        : base(casesClient) {
+        _casesClient = casesClient;
     }
 
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
 
-        var lastApproval = await _caseApprovalService.GetLastApproval(CaseId.Value!);
+        CaseApproval lastApproval = null;
+        // var lastApproval = await _caseApprovalService.GetLastApproval(CaseId.Value!); // todo: http or refactor
         if (lastApproval == null) {
             return Outcome(OutcomeNames.False);
         }
 
-        var user = context.TryGetUser();
-        if (user.FindSubjectId() != lastApproval.CreatedBy.Id) {
+        var casesUser = context.TryGetLastActor();
+
+        // var user = context.TryGetUser();
+        if (casesUser.Id != lastApproval.CreatedBy.Id) {
             return Outcome(OutcomeNames.False);
         }
-
-        await CaseMessageService.Send(CaseId.Value, user!, new Message {
+        
+        await _casesClient.SendMessageAsync(CaseId.Value!, new Integration.Message {
             PrivateComment = true,
-            Comment = _casesMessageDescriber.BlockPreviousApproverComment
+            Comment = "Already approved on the previous step. Self-assignment removed." // todo: we lose localization in elsa context
         });
-        await _adminCaseService.RemoveAssignment(CaseId.Value);
+
+        // await CaseMessageService.Send(CaseId.Value, user!, new Message {
+        //     PrivateComment = true,
+        //     Comment = _casesMessageDescriber.BlockPreviousApproverComment
+        // });
+        // await _casesClient.RemoveAssignmentAsync(CaseId.Value!);
+        // await _adminCaseService.RemoveAssignment(CaseId.Value); // todo: http or refactor
         return Outcome(OutcomeNames.True);
     }
 }

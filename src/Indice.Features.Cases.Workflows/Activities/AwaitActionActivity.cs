@@ -4,9 +4,7 @@ using Elsa.Attributes;
 using Elsa.Design;
 using Elsa.Expressions;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Core.Models;
-using Indice.Features.Cases.Core.Services.Abstractions;
-using Indice.Features.Cases.Workflows.Extensions;
+using Indice.Features.Cases.Workflows.Integration;
 
 namespace Indice.Features.Cases.Workflows.Activities;
 
@@ -22,11 +20,11 @@ namespace Indice.Features.Cases.Workflows.Activities;
 )]
 public class AwaitActionActivity : BaseCaseActivity
 {
-    private readonly IAdminCaseMessageService _caseMessageService;
+    private readonly CasesHttpClient _casesClient;
 
     /// <inheritdoc />
-    public AwaitActionActivity(IAdminCaseMessageService caseMessageService) : base(caseMessageService) {
-        _caseMessageService = caseMessageService;
+    public AwaitActionActivity(CasesHttpClient casesClient) : base(casesClient) {
+        _casesClient = casesClient;
     }
 
     /// <summary>The Id of the action that will trigger the activity. It's hidden from the elsa dashboard and gets a unique value automatically.</summary>
@@ -98,7 +96,7 @@ public class AwaitActionActivity : BaseCaseActivity
         DefaultSyntax = SyntaxNames.JavaScript,
         SupportedSyntaxes = [SyntaxNames.JavaScript, SyntaxNames.Liquid]
     )]
-    public SuccessMessage? SuccessMessage { get; set; }
+    public SuccessMessage? SuccessMessage { get; set; } // todo: copy
 
     /// <summary>User role that can proceed to this action. If left blank, all authenticated users can proceed to this action.</summary>
     [ActivityInput(
@@ -140,10 +138,14 @@ public class AwaitActionActivity : BaseCaseActivity
         context.LogOutputProperty(this, nameof(Output), Output);
 
         var comment = $"Action \"{ActionName}\" executed successfully";
-        await _caseMessageService.Send(CaseId.Value, context.TryGetUser()!, new Message {
+        await _casesClient.SendMessageAsync(CaseId.Value, new Integration.Message {
             Comment = string.IsNullOrEmpty(input?.Value) ? $"{comment}." : $"{comment} with value \"{Output}\".",
             PrivateComment = true
         });
+        // await _caseMessageService.Send(CaseId.Value, context.TryGetUser()!, new Message {
+        //     Comment = string.IsNullOrEmpty(input?.Value) ? $"{comment}." : $"{comment} with value \"{Output}\".",
+        //     PrivateComment = true
+        // });
 
         return Done(Output);
     }

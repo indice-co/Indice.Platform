@@ -35,7 +35,7 @@ internal class AwaitApprovalInvoker(
 
     protected override async Task<IEnumerable<WorkflowsQuery>> CreateWorkflowsQueries(
         Guid caseId, CancellationToken cancellationToken = default) {
-        // return [];
+        return []; // todo: we can remove that it should work
         var instance = await GetWorkflowInstanceByCaseId(caseId, cancellationToken);
         // var userRoles = _httpContextAccessor.HttpContext!.User
         //     .FindAll(x => x.Type == BasicClaimTypes.Role)

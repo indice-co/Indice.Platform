@@ -3,9 +3,9 @@ using Elsa.Models;
 using Elsa.Persistence;
 using Elsa.Persistence.Specifications;
 using Elsa.Services;
-using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Workflows.Activities;
 using Indice.Features.Cases.Workflows.Bookmarks;
+using Indice.Features.Cases.Workflows.Integration;
 using Indice.Features.Cases.Workflows.Interfaces;
 using Indice.Features.Cases.Workflows.Models;
 using Indice.Features.Cases.Workflows.Specifications;
@@ -19,26 +19,31 @@ internal static class WorkflowManagerHandler
     public static async Task<Results<NoContent, ProblemHttpResult>> StartWorkflow(
         Guid caseId,
         string caseTypeCode,
+        CasesUser casesUser,
         IAwaitApprovalInvoker approvalInvoker,
         IWorkflowDefinitionStore workflowDefinitionStore,
         IWorkflowBlueprintMaterializer workflowBlueprintMaterializer,
         IStartsWorkflow startsWorkflow,
         CancellationToken cancellationToken = default) {
-        ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
+        ArgumentOutOfRangeException.ThrowIfEqual(caseId, Guid.Empty);
         ArgumentException.ThrowIfNullOrWhiteSpace(caseTypeCode);
 
         var workflowDefinitionTagSpecification = new WorkflowDefinitionTagCsvSpecification(caseTypeCode);
-        var workflowDefinition = await workflowDefinitionStore.FindAsync(workflowDefinitionTagSpecification);
+        var workflowDefinition = await workflowDefinitionStore.FindAsync(workflowDefinitionTagSpecification, cancellationToken);
         if (workflowDefinition == null) {
             return TypedResults.NoContent();
         }
-
-        var blueprint = await workflowBlueprintMaterializer.CreateWorkflowBlueprintAsync(workflowDefinition);
+        
+        workflowDefinition.Variables.Set("initialActor", casesUser);
+        workflowDefinition.Variables.Set("actor", casesUser);
+        var blueprint = await workflowBlueprintMaterializer.CreateWorkflowBlueprintAsync(workflowDefinition, cancellationToken);
         var instance = await startsWorkflow.StartWorkflowAsync(
             blueprint,
             null,
             new WorkflowInput(caseId),
-            caseId.ToString());
+            caseId.ToString(), cancellationToken: cancellationToken);
+        
+        
 
         if (instance.WorkflowInstance?.Faults is { Count: > 0 }) {
             return TypedResults.Problem(detail: $"Workflow failed to start. {instance.WorkflowInstance?.Faults.FirstOrDefault()?.Message}");
@@ -50,7 +55,7 @@ internal static class WorkflowManagerHandler
         WorkflowSubmitApprovalRequest request,
         IAwaitApprovalInvoker approvalInvoker,
         CancellationToken cancellationToken = default) {
-        ArgumentOutOfRangeException.ThrowIfEqual(request.CaseId, default);
+        ArgumentOutOfRangeException.ThrowIfEqual(request.CaseId, Guid.Empty);
         var executedWorkflow = await approvalInvoker.ExecuteWorkflowsAsync(request.CaseId, request, cancellationToken);
         if (!executedWorkflow.Any()) {
             return TypedResults.Problem(detail: "You cannot approve or reject case at this point.");
@@ -65,11 +70,25 @@ internal static class WorkflowManagerHandler
         WorkflowEditCaseRequest request,
         IAwaitEditInvoker editInvoker,
         CancellationToken cancellationToken = default) {
-        ArgumentOutOfRangeException.ThrowIfEqual(request.CaseId, default);
+        ArgumentOutOfRangeException.ThrowIfEqual(request.CaseId, Guid.Empty);
         
         var executedWorkflow = await editInvoker.ExecuteWorkflowsAsync(request.CaseId, request, cancellationToken);
         if (!executedWorkflow.Any()) {
             return TypedResults.Problem(detail: "You cannot edit at this point.");
+        }
+        
+        return TypedResults.NoContent();
+    }
+    
+    public static async Task<Results<NoContent, ProblemHttpResult>> InvokeAssignment(
+        WorkflowAssignCaseRequest request,
+        IAwaitAssignmentInvoker assignmentInvoker,
+        CancellationToken cancellationToken = default) {
+        ArgumentOutOfRangeException.ThrowIfEqual(request.CaseId, Guid.Empty);
+        
+        var executedWorkflow = await assignmentInvoker.ExecuteWorkflowsAsync(request.CaseId, request, cancellationToken);
+        if (!executedWorkflow.Any()) {
+            return TypedResults.Problem(detail: "You cannot assign at this point.");
         }
         
         return TypedResults.NoContent();
@@ -86,7 +105,7 @@ internal static class WorkflowManagerHandler
         bool isAdmin,
         bool isSystemClient,
         string? lastApprovedById = null) {
-        ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
+        ArgumentOutOfRangeException.ThrowIfEqual(caseId, Guid.Empty);
 
         var caseIsAssigned = !string.IsNullOrWhiteSpace(assignedToId);
         var isAssignedToCurrentUser = caseIsAssigned && assignedToId == subjectId;
@@ -206,7 +225,7 @@ internal static class WorkflowManagerHandler
         IWorkflowInstanceStore workflowInstanceStore) {
         var assignmentBookmarks = (await bookmarkFinder.FindBookmarksAsync(
             activityType: nameof(AwaitAssignmentActivity),
-            bookmarks: bookmarks.Select(role => new AwaitAssignmentBookmark(caseId.ToString(), role)),
+            bookmarks: [new AwaitAssignmentBookmark(caseId.ToString())],
             correlationId: caseId.ToString()
         )).Select(x => x.Bookmark as AwaitAssignmentBookmark).ToList();
         var editBookmarks = (await bookmarkFinder.FindBookmarksAsync(
@@ -219,7 +238,7 @@ internal static class WorkflowManagerHandler
             bookmarks: [new AwaitApprovalBookmark(caseId.ToString())],
             correlationId: caseId.ToString()
         )).Select(x => x.Bookmark as AwaitApprovalBookmark).ToList();
-        var customCaseActions = await GetWorkflowCustomCaseActions(caseId, bookmarks, bookmarkFinder, workflowInstanceStore);
+        var customCaseActions = await GetWorkflowCustomCaseActions(caseId, bookmarkFinder, workflowInstanceStore);
         
         return new AvailableActions {
             AssignmentBookmarks = assignmentBookmarks,
@@ -232,11 +251,11 @@ internal static class WorkflowManagerHandler
     // todo: remove from here
     private static async Task<List<WorkflowCustomCaseAction>> GetWorkflowCustomCaseActions(
         Guid caseId,
-        IEnumerable<string> userRoles,
+        // IEnumerable<string> userRoles,
         IBookmarkFinder bookmarkFinder,
         IWorkflowInstanceStore workflowInstanceStore) {
         // Always provide an empty string as a role in order to handle "null" allowed Roles of activity input.
-        userRoles = userRoles.Concat([string.Empty]);
+        // userRoles = userRoles.Concat([string.Empty]);
         // Get workflow instance and get the activity data from the context
         var instance = await workflowInstanceStore.FindAsync(new CorrelationIdSpecification<WorkflowInstance>(caseId.ToString()));
         if (instance == null) {
@@ -257,8 +276,8 @@ internal static class WorkflowManagerHandler
         
         // Get a list of bookmarks with the action id and the role.
         var bookmarks = from actionId in actionIds
-                        from userRole in userRoles
-                        select new AwaitActionBookmark(caseId.ToString(), userRole, actionId);
+                        // from userRole in userRoles
+                        select new AwaitActionBookmark(caseId.ToString(), actionId);
         var actions = await bookmarkFinder.FindBookmarksAsync(
             activityType: nameof(AwaitActionActivity),
             bookmarks: bookmarks,

@@ -203,6 +203,131 @@ namespace Indice.Features.Cases.Workflows.Integration
         }
 
         /// <summary>
+        /// Add a new Access rule for admin Users.
+        /// </summary>
+        /// <returns>No Content</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task CreateAccessRuleAsync(AddAccessRuleRequest body)
+        {
+            return CreateAccessRuleAsync(body, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Add a new Access rule for admin Users.
+        /// </summary>
+        /// <returns>No Content</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task CreateAccessRuleAsync(AddAccessRuleRequest body, System.Threading.CancellationToken cancellationToken)
+        {
+            if (body == null)
+                throw new System.ArgumentNullException("body");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
+                    var content_ = new System.Net.Http.ByteArrayContent(json_);
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+                    request_.Content = content_;
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                
+                    // Operation Path: "api/manage/access-rules"
+                    urlBuilder_.Append("api/manage/access-rules");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 403)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 204)
+                        {
+                            return;
+                        }
+                        else
+                        if (status_ == 400)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<HttpValidationProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<HttpValidationProblemDetails>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
         /// Delete an existing Access rule.
         /// </summary>
         /// <returns>No Content</returns>
@@ -437,9 +562,9 @@ namespace Indice.Features.Cases.Workflows.Integration
         /// </summary>
         /// <returns>No Content</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task CreateAccessRuleAdminAsync(AddAccessRuleRequest body)
+        public virtual System.Threading.Tasks.Task CreateAccessRulesBatchAsync(System.Collections.Generic.IEnumerable<AddAccessRuleRequest> body)
         {
-            return CreateAccessRuleAdminAsync(body, System.Threading.CancellationToken.None);
+            return CreateAccessRulesBatchAsync(body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
@@ -448,7 +573,7 @@ namespace Indice.Features.Cases.Workflows.Integration
         /// </summary>
         /// <returns>No Content</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task CreateAccessRuleAdminAsync(AddAccessRuleRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task CreateAccessRulesBatchAsync(System.Collections.Generic.IEnumerable<AddAccessRuleRequest> body, System.Threading.CancellationToken cancellationToken)
         {
             if (body == null)
                 throw new System.ArgumentNullException("body");
@@ -467,8 +592,8 @@ namespace Indice.Features.Cases.Workflows.Integration
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "api/manage/access-rules/admin"
-                    urlBuilder_.Append("api/manage/access-rules/admin");
+                    // Operation Path: "api/manage/access-rules/batch"
+                    urlBuilder_.Append("api/manage/access-rules/batch");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -528,358 +653,14 @@ namespace Indice.Features.Cases.Workflows.Integration
                             return;
                         }
                         else
+                        if (status_ == 400)
                         {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Add a new Access rule for admin Users.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task CreateBatchAccessRulesAdminAsync(System.Collections.Generic.IEnumerable<AddAccessRuleRequest> body)
-        {
-            return CreateBatchAccessRulesAdminAsync(body, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Add a new Access rule for admin Users.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task CreateBatchAccessRulesAdminAsync(System.Collections.Generic.IEnumerable<AddAccessRuleRequest> body, System.Threading.CancellationToken cancellationToken)
-        {
-            if (body == null)
-                throw new System.ArgumentNullException("body");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
-                    var content_ = new System.Net.Http.ByteArrayContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
-                    request_.Content = content_;
-                    request_.Method = new System.Net.Http.HttpMethod("POST");
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/access-rules/admin/batch"
-                    urlBuilder_.Append("api/manage/access-rules/admin/batch");
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<HttpValidationProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 204)
-                        {
-                            return;
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Add a new Access rule for a case.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task CreateAccessRulesAsync(System.Guid caseId, AddCaseAccessRuleRequest body)
-        {
-            return CreateAccessRulesAsync(caseId, body, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Add a new Access rule for a case.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task CreateAccessRulesAsync(System.Guid caseId, AddCaseAccessRuleRequest body, System.Threading.CancellationToken cancellationToken)
-        {
-            if (caseId == null)
-                throw new System.ArgumentNullException("caseId");
-
-            if (body == null)
-                throw new System.ArgumentNullException("body");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
-                    var content_ = new System.Net.Http.ByteArrayContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
-                    request_.Content = content_;
-                    request_.Method = new System.Net.Http.HttpMethod("POST");
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/access-rules/case/{caseId}"
-                    urlBuilder_.Append("api/manage/access-rules/case/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 204)
-                        {
-                            return;
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Update a batch of Access rules for a case.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task UpdateBatchAccessRulesAsync(System.Guid caseId, System.Collections.Generic.IEnumerable<AddCaseAccessRuleRequest> body)
-        {
-            return UpdateBatchAccessRulesAsync(caseId, body, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Update a batch of Access rules for a case.
-        /// </summary>
-        /// <returns>No Content</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task UpdateBatchAccessRulesAsync(System.Guid caseId, System.Collections.Generic.IEnumerable<AddCaseAccessRuleRequest> body, System.Threading.CancellationToken cancellationToken)
-        {
-            if (caseId == null)
-                throw new System.ArgumentNullException("caseId");
-
-            if (body == null)
-                throw new System.ArgumentNullException("body");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
-                    var content_ = new System.Net.Http.ByteArrayContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
-                    request_.Content = content_;
-                    request_.Method = new System.Net.Http.HttpMethod("PUT");
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/access-rules/case/{caseId}/batch"
-                    urlBuilder_.Append("api/manage/access-rules/case/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append("/batch");
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 204)
-                        {
-                            return;
+                            throw new ApiException<HttpValidationProblemDetails>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         {
@@ -1252,6 +1033,16 @@ namespace Indice.Features.Cases.Workflows.Integration
                             throw new ApiException("Not Found", status_, responseText_, headers_, null);
                         }
                         else
+                        if (status_ == 400)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<HttpValidationProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<HttpValidationProblemDetails>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
                         {
                             var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
@@ -1505,6 +1296,16 @@ namespace Indice.Features.Cases.Workflows.Integration
                         {
                             string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Not Found", status_, responseText_, headers_, null);
+                        }
+                        else
+                        if (status_ == 400)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<HttpValidationProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<HttpValidationProblemDetails>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         {
@@ -1770,9 +1571,9 @@ namespace Indice.Features.Cases.Workflows.Integration
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<CasePartialResultSet> GetCasesAsync(int? page, int? size, string sort, string search, System.Collections.Generic.IEnumerable<string> ownerIds, System.Collections.Generic.IEnumerable<string> ownerNames, System.DateTimeOffset? from, System.DateTimeOffset? to, System.Collections.Generic.IEnumerable<string> caseTypeCodes, System.Collections.Generic.IEnumerable<string> checkpointTypeCodes, System.Collections.Generic.IEnumerable<string> groupIds, System.Collections.Generic.IEnumerable<string> metadata, System.Collections.Generic.IEnumerable<string> referenceNumbers, System.Collections.Generic.IEnumerable<string> data, bool? includeData)
+        public virtual System.Threading.Tasks.Task<CasePartialResultSet> GetCasesAsync(int? page, int? size, string sort, string search, System.Collections.Generic.IEnumerable<string> ownerIds, System.Collections.Generic.IEnumerable<string> ownerNames, System.Collections.Generic.IEnumerable<string> ownerTins, System.DateTimeOffset? from, System.DateTimeOffset? to, System.Collections.Generic.IEnumerable<string> caseTypeCodes, System.Collections.Generic.IEnumerable<string> checkpointTypeCodes, System.Collections.Generic.IEnumerable<string> groupIds, System.Collections.Generic.IEnumerable<string> metadata, System.Collections.Generic.IEnumerable<string> referenceNumbers, System.Collections.Generic.IEnumerable<string> data, bool? includeData)
         {
-            return GetCasesAsync(page, size, sort, search, ownerIds, ownerNames, from, to, caseTypeCodes, checkpointTypeCodes, groupIds, metadata, referenceNumbers, data, includeData, System.Threading.CancellationToken.None);
+            return GetCasesAsync(page, size, sort, search, ownerIds, ownerNames, ownerTins, from, to, caseTypeCodes, checkpointTypeCodes, groupIds, metadata, referenceNumbers, data, includeData, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
@@ -1781,7 +1582,7 @@ namespace Indice.Features.Cases.Workflows.Integration
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<CasePartialResultSet> GetCasesAsync(int? page, int? size, string sort, string search, System.Collections.Generic.IEnumerable<string> ownerIds, System.Collections.Generic.IEnumerable<string> ownerNames, System.DateTimeOffset? from, System.DateTimeOffset? to, System.Collections.Generic.IEnumerable<string> caseTypeCodes, System.Collections.Generic.IEnumerable<string> checkpointTypeCodes, System.Collections.Generic.IEnumerable<string> groupIds, System.Collections.Generic.IEnumerable<string> metadata, System.Collections.Generic.IEnumerable<string> referenceNumbers, System.Collections.Generic.IEnumerable<string> data, bool? includeData, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<CasePartialResultSet> GetCasesAsync(int? page, int? size, string sort, string search, System.Collections.Generic.IEnumerable<string> ownerIds, System.Collections.Generic.IEnumerable<string> ownerNames, System.Collections.Generic.IEnumerable<string> ownerTins, System.DateTimeOffset? from, System.DateTimeOffset? to, System.Collections.Generic.IEnumerable<string> caseTypeCodes, System.Collections.Generic.IEnumerable<string> checkpointTypeCodes, System.Collections.Generic.IEnumerable<string> groupIds, System.Collections.Generic.IEnumerable<string> metadata, System.Collections.Generic.IEnumerable<string> referenceNumbers, System.Collections.Generic.IEnumerable<string> data, bool? includeData, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -1820,6 +1621,10 @@ namespace Indice.Features.Cases.Workflows.Integration
                     if (ownerNames != null)
                     {
                         foreach (var item_ in ownerNames) { urlBuilder_.Append(System.Uri.EscapeDataString("OwnerNames")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(item_, System.Globalization.CultureInfo.InvariantCulture))).Append('&'); }
+                    }
+                    if (ownerTins != null)
+                    {
+                        foreach (var item_ in ownerTins) { urlBuilder_.Append(System.Uri.EscapeDataString("OwnerTins")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(item_, System.Globalization.CultureInfo.InvariantCulture))).Append('&'); }
                     }
                     if (from != null)
                     {
@@ -2071,9 +1876,9 @@ namespace Indice.Features.Cases.Workflows.Integration
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<Case> GetCaseByIdAsync(System.Guid caseId)
+        public virtual System.Threading.Tasks.Task<Case> GetCaseByIdAsync(System.Guid caseId, bool? includeAttachments)
         {
-            return GetCaseByIdAsync(caseId, System.Threading.CancellationToken.None);
+            return GetCaseByIdAsync(caseId, includeAttachments, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
@@ -2082,7 +1887,7 @@ namespace Indice.Features.Cases.Workflows.Integration
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<Case> GetCaseByIdAsync(System.Guid caseId, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<Case> GetCaseByIdAsync(System.Guid caseId, bool? includeAttachments, System.Threading.CancellationToken cancellationToken)
         {
             if (caseId == null)
                 throw new System.ArgumentNullException("caseId");
@@ -2101,6 +1906,12 @@ namespace Indice.Features.Cases.Workflows.Integration
                     // Operation Path: "api/manage/cases/{caseId}"
                     urlBuilder_.Append("api/manage/cases/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
+                    urlBuilder_.Append('?');
+                    if (includeAttachments != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("includeAttachments")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(includeAttachments, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -2436,9 +2247,9 @@ namespace Indice.Features.Cases.Workflows.Integration
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccessRule>> GetAccessRulesForCaseAsync(System.Guid caseId)
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccessRule>> GetCaseAccessRulesAsync(System.Guid caseId)
         {
-            return GetAccessRulesForCaseAsync(caseId, System.Threading.CancellationToken.None);
+            return GetCaseAccessRulesAsync(caseId, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
@@ -2447,7 +2258,7 @@ namespace Indice.Features.Cases.Workflows.Integration
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccessRule>> GetAccessRulesForCaseAsync(System.Guid caseId, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccessRule>> GetCaseAccessRulesAsync(System.Guid caseId, System.Threading.CancellationToken cancellationToken)
         {
             if (caseId == null)
                 throw new System.ArgumentNullException("caseId");
@@ -2529,6 +2340,392 @@ namespace Indice.Features.Cases.Workflows.Integration
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             return objectResponse_.Object;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Add a new Access rule for a case.
+        /// </summary>
+        /// <returns>No Content</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task CreateCaseAccessRulesAsync(System.Guid caseId, AddCaseAccessRuleRequest body)
+        {
+            return CreateCaseAccessRulesAsync(caseId, body, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Add a new Access rule for a case.
+        /// </summary>
+        /// <returns>No Content</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task CreateCaseAccessRulesAsync(System.Guid caseId, AddCaseAccessRuleRequest body, System.Threading.CancellationToken cancellationToken)
+        {
+            if (caseId == null)
+                throw new System.ArgumentNullException("caseId");
+
+            if (body == null)
+                throw new System.ArgumentNullException("body");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
+                    var content_ = new System.Net.Http.ByteArrayContent(json_);
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+                    request_.Content = content_;
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                
+                    // Operation Path: "api/manage/cases/{caseId}/access-rules"
+                    urlBuilder_.Append("api/manage/cases/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
+                    urlBuilder_.Append("/access-rules");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 403)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 204)
+                        {
+                            return;
+                        }
+                        else
+                        if (status_ == 400)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<HttpValidationProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<HttpValidationProblemDetails>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Update a batch of Access rules for a case.
+        /// </summary>
+        /// <returns>No Content</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task UpdateCaseAccessRulesBatchAsync(System.Guid caseId, System.Collections.Generic.IEnumerable<AddCaseAccessRuleRequest> body)
+        {
+            return UpdateCaseAccessRulesBatchAsync(caseId, body, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Update a batch of Access rules for a case.
+        /// </summary>
+        /// <returns>No Content</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task UpdateCaseAccessRulesBatchAsync(System.Guid caseId, System.Collections.Generic.IEnumerable<AddCaseAccessRuleRequest> body, System.Threading.CancellationToken cancellationToken)
+        {
+            if (caseId == null)
+                throw new System.ArgumentNullException("caseId");
+
+            if (body == null)
+                throw new System.ArgumentNullException("body");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
+                    var content_ = new System.Net.Http.ByteArrayContent(json_);
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+                    request_.Content = content_;
+                    request_.Method = new System.Net.Http.HttpMethod("PUT");
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                
+                    // Operation Path: "api/manage/cases/{caseId}/access-rules/batch"
+                    urlBuilder_.Append("api/manage/cases/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
+                    urlBuilder_.Append("/access-rules/batch");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 403)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 204)
+                        {
+                            return;
+                        }
+                        else
+                        if (status_ == 400)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<HttpValidationProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<HttpValidationProblemDetails>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Replace user to the specified case with another
+        /// </summary>
+        /// <returns>No Content</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task ReplaceAccessRulesUserAsync(System.Guid caseId, ReplaceCaseAccessRuleUserRequest body)
+        {
+            return ReplaceAccessRulesUserAsync(caseId, body, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Replace user to the specified case with another
+        /// </summary>
+        /// <returns>No Content</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task ReplaceAccessRulesUserAsync(System.Guid caseId, ReplaceCaseAccessRuleUserRequest body, System.Threading.CancellationToken cancellationToken)
+        {
+            if (caseId == null)
+                throw new System.ArgumentNullException("caseId");
+
+            if (body == null)
+                throw new System.ArgumentNullException("body");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
+                    var content_ = new System.Net.Http.ByteArrayContent(json_);
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+                    request_.Content = content_;
+                    request_.Method = new System.Net.Http.HttpMethod("PUT");
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                
+                    // Operation Path: "api/manage/cases/{caseId}/access-rules/replace"
+                    urlBuilder_.Append("api/manage/cases/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
+                    urlBuilder_.Append("/access-rules/replace");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 403)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 204)
+                        {
+                            return;
+                        }
+                        else
+                        if (status_ == 404)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("Not Found", status_, responseText_, headers_, null);
                         }
                         else
                         {
@@ -2654,6 +2851,260 @@ namespace Indice.Features.Cases.Workflows.Integration
                         {
                             string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Not Found", status_, responseText_, headers_, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Adds an approval to a case.
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task AddApprovalAsync(System.Guid caseId, System.Guid? commentId, AuditMeta body)
+        {
+            return AddApprovalAsync(caseId, commentId, body, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Adds an approval to a case.
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task AddApprovalAsync(System.Guid caseId, System.Guid? commentId, AuditMeta body, System.Threading.CancellationToken cancellationToken)
+        {
+            if (caseId == null)
+                throw new System.ArgumentNullException("caseId");
+
+            if (body == null)
+                throw new System.ArgumentNullException("body");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
+                    var content_ = new System.Net.Http.ByteArrayContent(json_);
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+                    request_.Content = content_;
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                
+                    // Operation Path: "api/manage/cases/{caseId}/add-approval"
+                    urlBuilder_.Append("api/manage/cases/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
+                    urlBuilder_.Append("/add-approval");
+                    urlBuilder_.Append('?');
+                    if (commentId != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("commentId")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(commentId, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    urlBuilder_.Length--;
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 403)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 200)
+                        {
+                            return;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Move the case to a checkpoint.
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task MoveToCheckpointAsync(System.Guid caseId, string checkpointTypeName, string comment, bool privateComment)
+        {
+            return MoveToCheckpointAsync(caseId, checkpointTypeName, comment, privateComment, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Move the case to a checkpoint.
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task MoveToCheckpointAsync(System.Guid caseId, string checkpointTypeName, string comment, bool privateComment, System.Threading.CancellationToken cancellationToken)
+        {
+            if (caseId == null)
+                throw new System.ArgumentNullException("caseId");
+
+            if (checkpointTypeName == null)
+                throw new System.ArgumentNullException("checkpointTypeName");
+
+            if (privateComment == null)
+                throw new System.ArgumentNullException("privateComment");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "application/json");
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                
+                    // Operation Path: "api/manage/cases/{caseId}/add-checkpoint"
+                    urlBuilder_.Append("api/manage/cases/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
+                    urlBuilder_.Append("/add-checkpoint");
+                    urlBuilder_.Append('?');
+                    urlBuilder_.Append(System.Uri.EscapeDataString("checkpointTypeName")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(checkpointTypeName, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    if (comment != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("comment")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(comment, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    urlBuilder_.Append(System.Uri.EscapeDataString("privateComment")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(privateComment, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    urlBuilder_.Length--;
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 403)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 200)
+                        {
+                            return;
                         }
                         else
                         {
@@ -3881,6 +4332,141 @@ namespace Indice.Features.Cases.Workflows.Integration
                             return;
                         }
                         else
+                        if (status_ == 400)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<HttpValidationProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<HttpValidationProblemDetails>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Gets last approval of a case.
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<CaseApproval> GetLastApprovalAsync(System.Guid caseId)
+        {
+            return GetLastApprovalAsync(caseId, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Gets last approval of a case.
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<CaseApproval> GetLastApprovalAsync(System.Guid caseId, System.Threading.CancellationToken cancellationToken)
+        {
+            if (caseId == null)
+                throw new System.ArgumentNullException("caseId");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                
+                    // Operation Path: "api/manage/cases/{caseId}/last-approval"
+                    urlBuilder_.Append("api/manage/cases/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
+                    urlBuilder_.Append("/last-approval");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 403)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<CaseApproval>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 204)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("No Content", status_, responseText_, headers_, null);
+                        }
+                        else
                         {
                             var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
@@ -4265,6 +4851,354 @@ namespace Indice.Features.Cases.Workflows.Integration
         }
 
         /// <summary>
+        /// Removes the assigner of a case.
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task RemoveAssignmentAsync(System.Guid caseId)
+        {
+            return RemoveAssignmentAsync(caseId, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Removes the assigner of a case.
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task RemoveAssignmentAsync(System.Guid caseId, System.Threading.CancellationToken cancellationToken)
+        {
+            if (caseId == null)
+                throw new System.ArgumentNullException("caseId");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "application/json");
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                
+                    // Operation Path: "api/manage/cases/{caseId}/remove-assignment"
+                    urlBuilder_.Append("api/manage/cases/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
+                    urlBuilder_.Append("/remove-assignment");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 403)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 200)
+                        {
+                            return;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Rollbacks the previous approval of a case.
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task RollbackApprovalAsync(System.Guid caseId)
+        {
+            return RollbackApprovalAsync(caseId, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Rollbacks the previous approval of a case.
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task RollbackApprovalAsync(System.Guid caseId, System.Threading.CancellationToken cancellationToken)
+        {
+            if (caseId == null)
+                throw new System.ArgumentNullException("caseId");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "application/json");
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                
+                    // Operation Path: "api/manage/cases/{caseId}/rollback-approval"
+                    urlBuilder_.Append("api/manage/cases/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
+                    urlBuilder_.Append("/rollback-approval");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 403)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 200)
+                        {
+                            return;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Sends a message for a case.
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task SendMessageAsync(System.Guid caseId, Message body)
+        {
+            return SendMessageAsync(caseId, body, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Sends a message for a case.
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task SendMessageAsync(System.Guid caseId, Message body, System.Threading.CancellationToken cancellationToken)
+        {
+            if (caseId == null)
+                throw new System.ArgumentNullException("caseId");
+
+            if (body == null)
+                throw new System.ArgumentNullException("body");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
+                    var content_ = new System.Net.Http.ByteArrayContent(json_);
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+                    request_.Content = content_;
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                
+                    // Operation Path: "api/manage/cases/{caseId}/send-message"
+                    urlBuilder_.Append("api/manage/cases/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
+                    urlBuilder_.Append("/send-message");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 403)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 200)
+                        {
+                            return;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
         /// Submit the case by removing the draft mode.
         /// </summary>
         /// <returns>No Content</returns>
@@ -4608,6 +5542,16 @@ namespace Indice.Features.Cases.Workflows.Integration
                         if (status_ == 204)
                         {
                             return;
+                        }
+                        else
+                        if (status_ == 400)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<HttpValidationProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<HttpValidationProblemDetails>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         {
@@ -5621,6 +6565,16 @@ namespace Indice.Features.Cases.Workflows.Integration
                             return;
                         }
                         else
+                        if (status_ == 400)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<HttpValidationProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<HttpValidationProblemDetails>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
                         {
                             var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
@@ -6125,6 +7079,70 @@ namespace Indice.Features.Cases.Workflows.Integration
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record Assembly
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("definedTypes")]
+        public System.Collections.Generic.ICollection<TypeInfo> DefinedTypes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("exportedTypes")]
+        public System.Collections.Generic.ICollection<Type> ExportedTypes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("codeBase")]
+        [System.Obsolete]
+        public string CodeBase { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("entryPoint")]
+        public MethodInfo EntryPoint { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("fullName")]
+        public string FullName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("imageRuntimeVersion")]
+        public string ImageRuntimeVersion { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isDynamic")]
+        public bool IsDynamic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("location")]
+        public string Location { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("reflectionOnly")]
+        public bool ReflectionOnly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isCollectible")]
+        public bool IsCollectible { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFullyTrusted")]
+        public bool IsFullyTrusted { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("customAttributes")]
+        public System.Collections.Generic.ICollection<CustomAttributeData> CustomAttributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("escapedCodeBase")]
+        [System.Obsolete]
+        public string EscapedCodeBase { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("manifestModule")]
+        public Module ManifestModule { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("modules")]
+        public System.Collections.Generic.ICollection<Module> Modules { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("globalAssemblyCache")]
+        [System.Obsolete]
+        public bool GlobalAssemblyCache { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("hostContext")]
+        public long HostContext { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("securityRuleSet")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public SecurityRuleSet SecurityRuleSet { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial record AuditMeta
     {
 
@@ -6143,6 +7161,27 @@ namespace Indice.Features.Cases.Workflows.Integration
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum CallingConventions
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Standard")]
+        Standard = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"VarArgs")]
+        VarArgs = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Any")]
+        Any = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"HasThis")]
+        HasThis = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ExplicitThis")]
+        ExplicitThis = 4,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial record Case
     {
 
@@ -6157,6 +7196,9 @@ namespace Indice.Features.Cases.Workflows.Integration
 
         [System.Text.Json.Serialization.JsonPropertyName("ownerName")]
         public string OwnerName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("ownerTin")]
+        public string OwnerTin { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("userId")]
         public string UserId { get; set; }
@@ -6230,6 +7272,28 @@ namespace Indice.Features.Cases.Workflows.Integration
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record CaseApproval
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("id")]
+        public System.Guid Id { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("createdBy")]
+        public AuditMeta CreatedBy { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("action")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public Approval Action { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("committed")]
+        public bool Committed { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("reason")]
+        public string Reason { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial record CaseAttachment
     {
 
@@ -6287,6 +7351,9 @@ namespace Indice.Features.Cases.Workflows.Integration
 
         [System.Text.Json.Serialization.JsonPropertyName("ownerName")]
         public string OwnerName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("ownerTin")]
+        public string OwnerTin { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("userId")]
         public string UserId { get; set; }
@@ -6753,6 +7820,112 @@ namespace Indice.Features.Cases.Workflows.Integration
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record ConstructorInfo
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaringType")]
+        public Type DeclaringType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("reflectedType")]
+        public Type ReflectedType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("module")]
+        public Module Module { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("customAttributes")]
+        public System.Collections.Generic.ICollection<CustomAttributeData> CustomAttributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isCollectible")]
+        public bool IsCollectible { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("metadataToken")]
+        public int MetadataToken { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("attributes")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MethodAttributes Attributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("methodImplementationFlags")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MethodImplAttributes MethodImplementationFlags { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("callingConvention")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public CallingConventions CallingConvention { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAbstract")]
+        public bool IsAbstract { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isConstructor")]
+        public bool IsConstructor { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFinal")]
+        public bool IsFinal { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isHideBySig")]
+        public bool IsHideBySig { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSpecialName")]
+        public bool IsSpecialName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isStatic")]
+        public bool IsStatic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isVirtual")]
+        public bool IsVirtual { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAssembly")]
+        public bool IsAssembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFamily")]
+        public bool IsFamily { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFamilyAndAssembly")]
+        public bool IsFamilyAndAssembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFamilyOrAssembly")]
+        public bool IsFamilyOrAssembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPrivate")]
+        public bool IsPrivate { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPublic")]
+        public bool IsPublic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isConstructedGenericMethod")]
+        public bool IsConstructedGenericMethod { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericMethod")]
+        public bool IsGenericMethod { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericMethodDefinition")]
+        public bool IsGenericMethodDefinition { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("containsGenericParameters")]
+        public bool ContainsGenericParameters { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("methodHandle")]
+        public RuntimeMethodHandle MethodHandle { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecurityCritical")]
+        public bool IsSecurityCritical { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecuritySafeCritical")]
+        public bool IsSecuritySafeCritical { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecurityTransparent")]
+        public bool IsSecurityTransparent { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("memberType")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MemberTypes MemberType { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial record Contact
     {
 
@@ -6803,6 +7976,9 @@ namespace Indice.Features.Cases.Workflows.Integration
 
         [System.Text.Json.Serialization.JsonPropertyName("lastName")]
         public string LastName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("tin")]
+        public string Tin { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("fullName")]
         public string FullName { get; set; }
@@ -6865,6 +8041,54 @@ namespace Indice.Features.Cases.Workflows.Integration
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record CustomAttributeData
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("attributeType")]
+        public Type AttributeType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("constructor")]
+        public ConstructorInfo Constructor { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("constructorArguments")]
+        public System.Collections.Generic.ICollection<CustomAttributeTypedArgument> ConstructorArguments { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("namedArguments")]
+        public System.Collections.Generic.ICollection<CustomAttributeNamedArgument> NamedArguments { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record CustomAttributeNamedArgument
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("memberInfo")]
+        public MemberInfo MemberInfo { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("typedValue")]
+        public CustomAttributeTypedArgument TypedValue { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("memberName")]
+        public string MemberName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isField")]
+        public bool IsField { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record CustomAttributeTypedArgument
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("argumentType")]
+        public Type ArgumentType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("value")]
+        public object Value { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial record CustomCaseAction
     {
 
@@ -6903,6 +8127,254 @@ namespace Indice.Features.Cases.Workflows.Integration
 
         [System.Text.Json.Serialization.JsonPropertyName("data")]
         public object Data { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum EventAttributes
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"None")]
+        None = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"SpecialName")]
+        SpecialName = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"RTSpecialName")]
+        RTSpecialName = 2,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record EventInfo
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaringType")]
+        public Type DeclaringType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("reflectedType")]
+        public Type ReflectedType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("module")]
+        public Module Module { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("customAttributes")]
+        public System.Collections.Generic.ICollection<CustomAttributeData> CustomAttributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isCollectible")]
+        public bool IsCollectible { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("metadataToken")]
+        public int MetadataToken { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("memberType")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MemberTypes MemberType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("attributes")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public EventAttributes Attributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSpecialName")]
+        public bool IsSpecialName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("addMethod")]
+        public MethodInfo AddMethod { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("removeMethod")]
+        public MethodInfo RemoveMethod { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("raiseMethod")]
+        public MethodInfo RaiseMethod { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isMulticast")]
+        public bool IsMulticast { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("eventHandlerType")]
+        public Type EventHandlerType { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum FieldAttributes
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"PrivateScope")]
+        PrivateScope = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Private")]
+        Private = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"FamANDAssem")]
+        FamANDAssem = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Assembly")]
+        Assembly = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Family")]
+        Family = 4,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"FamORAssem")]
+        FamORAssem = 5,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Public")]
+        Public = 6,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"FieldAccessMask")]
+        FieldAccessMask = 7,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Static")]
+        Static = 8,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"InitOnly")]
+        InitOnly = 9,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Literal")]
+        Literal = 10,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NotSerialized")]
+        NotSerialized = 11,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"HasFieldRVA")]
+        HasFieldRVA = 12,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"SpecialName")]
+        SpecialName = 13,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"RTSpecialName")]
+        RTSpecialName = 14,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"HasFieldMarshal")]
+        HasFieldMarshal = 15,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"PinvokeImpl")]
+        PinvokeImpl = 16,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"HasDefault")]
+        HasDefault = 17,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ReservedMask")]
+        ReservedMask = 18,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record FieldInfo
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaringType")]
+        public Type DeclaringType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("reflectedType")]
+        public Type ReflectedType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("module")]
+        public Module Module { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("customAttributes")]
+        public System.Collections.Generic.ICollection<CustomAttributeData> CustomAttributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isCollectible")]
+        public bool IsCollectible { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("metadataToken")]
+        public int MetadataToken { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("memberType")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MemberTypes MemberType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("attributes")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public FieldAttributes Attributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("fieldType")]
+        public Type FieldType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isInitOnly")]
+        public bool IsInitOnly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isLiteral")]
+        public bool IsLiteral { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNotSerialized")]
+        [System.Obsolete]
+        public bool IsNotSerialized { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPinvokeImpl")]
+        public bool IsPinvokeImpl { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSpecialName")]
+        public bool IsSpecialName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isStatic")]
+        public bool IsStatic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAssembly")]
+        public bool IsAssembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFamily")]
+        public bool IsFamily { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFamilyAndAssembly")]
+        public bool IsFamilyAndAssembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFamilyOrAssembly")]
+        public bool IsFamilyOrAssembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPrivate")]
+        public bool IsPrivate { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPublic")]
+        public bool IsPublic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecurityCritical")]
+        public bool IsSecurityCritical { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecuritySafeCritical")]
+        public bool IsSecuritySafeCritical { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecurityTransparent")]
+        public bool IsSecurityTransparent { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("fieldHandle")]
+        public RuntimeFieldHandle FieldHandle { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum GenericParameterAttributes
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"None")]
+        None = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Covariant")]
+        Covariant = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Contravariant")]
+        Contravariant = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"VarianceMask")]
+        VarianceMask = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ReferenceTypeConstraint")]
+        ReferenceTypeConstraint = 4,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NotNullableValueTypeConstraint")]
+        NotNullableValueTypeConstraint = 5,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"DefaultConstructorConstraint")]
+        DefaultConstructorConstraint = 6,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"SpecialConstraintMask")]
+        SpecialConstraintMask = 7,
 
     }
 
@@ -6952,6 +8424,33 @@ namespace Indice.Features.Cases.Workflows.Integration
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record ICustomAttributeProvider
+    {
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record IntPtr
+    {
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum LayoutKind
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Sequential")]
+        Sequential = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Explicit")]
+        Explicit = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Auto")]
+        Auto = 2,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial record LookupItem
     {
 
@@ -6982,6 +8481,480 @@ namespace Indice.Features.Cases.Workflows.Integration
 
         [System.Text.Json.Serialization.JsonPropertyName("items")]
         public System.Collections.Generic.ICollection<LookupItem> Items { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record MemberInfo
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("memberType")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MemberTypes MemberType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaringType")]
+        public Type DeclaringType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("reflectedType")]
+        public Type ReflectedType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("module")]
+        public Module Module { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("customAttributes")]
+        public System.Collections.Generic.ICollection<CustomAttributeData> CustomAttributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isCollectible")]
+        public bool IsCollectible { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("metadataToken")]
+        public int MetadataToken { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum MemberTypes
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Constructor")]
+        Constructor = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Event")]
+        Event = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Field")]
+        Field = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Method")]
+        Method = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Property")]
+        Property = 4,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"TypeInfo")]
+        TypeInfo = 5,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Custom")]
+        Custom = 6,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NestedType")]
+        NestedType = 7,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"All")]
+        All = 8,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record Message
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("replyToCommentId")]
+        public System.Guid? ReplyToCommentId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("checkpointTypeName")]
+        public string CheckpointTypeName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("privateComment")]
+        public bool? PrivateComment { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("comment")]
+        public string Comment { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("fileStreamAccessor")]
+        public StreamFunc FileStreamAccessor { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("fileName")]
+        public string FileName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("data")]
+        public object Data { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum MethodAttributes
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"PrivateScope")]
+        PrivateScope = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Private")]
+        Private = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"FamANDAssem")]
+        FamANDAssem = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Assembly")]
+        Assembly = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Family")]
+        Family = 4,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"FamORAssem")]
+        FamORAssem = 5,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Public")]
+        Public = 6,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"MemberAccessMask")]
+        MemberAccessMask = 7,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"UnmanagedExport")]
+        UnmanagedExport = 8,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Static")]
+        Static = 9,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Final")]
+        Final = 10,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Virtual")]
+        Virtual = 11,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"HideBySig")]
+        HideBySig = 12,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NewSlot")]
+        NewSlot = 13,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"CheckAccessOnOverride")]
+        CheckAccessOnOverride = 14,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Abstract")]
+        Abstract = 15,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"SpecialName")]
+        SpecialName = 16,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"RTSpecialName")]
+        RTSpecialName = 17,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"PinvokeImpl")]
+        PinvokeImpl = 18,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"HasSecurity")]
+        HasSecurity = 19,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"RequireSecObject")]
+        RequireSecObject = 20,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ReservedMask")]
+        ReservedMask = 21,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record MethodBase
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("memberType")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MemberTypes MemberType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaringType")]
+        public Type DeclaringType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("reflectedType")]
+        public Type ReflectedType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("module")]
+        public Module Module { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("customAttributes")]
+        public System.Collections.Generic.ICollection<CustomAttributeData> CustomAttributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isCollectible")]
+        public bool IsCollectible { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("metadataToken")]
+        public int MetadataToken { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("attributes")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MethodAttributes Attributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("methodImplementationFlags")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MethodImplAttributes MethodImplementationFlags { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("callingConvention")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public CallingConventions CallingConvention { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAbstract")]
+        public bool IsAbstract { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isConstructor")]
+        public bool IsConstructor { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFinal")]
+        public bool IsFinal { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isHideBySig")]
+        public bool IsHideBySig { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSpecialName")]
+        public bool IsSpecialName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isStatic")]
+        public bool IsStatic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isVirtual")]
+        public bool IsVirtual { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAssembly")]
+        public bool IsAssembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFamily")]
+        public bool IsFamily { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFamilyAndAssembly")]
+        public bool IsFamilyAndAssembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFamilyOrAssembly")]
+        public bool IsFamilyOrAssembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPrivate")]
+        public bool IsPrivate { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPublic")]
+        public bool IsPublic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isConstructedGenericMethod")]
+        public bool IsConstructedGenericMethod { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericMethod")]
+        public bool IsGenericMethod { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericMethodDefinition")]
+        public bool IsGenericMethodDefinition { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("containsGenericParameters")]
+        public bool ContainsGenericParameters { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("methodHandle")]
+        public RuntimeMethodHandle MethodHandle { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecurityCritical")]
+        public bool IsSecurityCritical { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecuritySafeCritical")]
+        public bool IsSecuritySafeCritical { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecurityTransparent")]
+        public bool IsSecurityTransparent { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum MethodImplAttributes
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"IL")]
+        IL = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Native")]
+        Native = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"OPTIL")]
+        OPTIL = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"CodeTypeMask")]
+        CodeTypeMask = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ManagedMask")]
+        ManagedMask = 4,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NoInlining")]
+        NoInlining = 5,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ForwardRef")]
+        ForwardRef = 6,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Synchronized")]
+        Synchronized = 7,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NoOptimization")]
+        NoOptimization = 8,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"PreserveSig")]
+        PreserveSig = 9,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"AggressiveInlining")]
+        AggressiveInlining = 10,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"AggressiveOptimization")]
+        AggressiveOptimization = 11,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"InternalCall")]
+        InternalCall = 12,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"MaxMethodImplVal")]
+        MaxMethodImplVal = 13,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record MethodInfo
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaringType")]
+        public Type DeclaringType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("reflectedType")]
+        public Type ReflectedType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("module")]
+        public Module Module { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("customAttributes")]
+        public System.Collections.Generic.ICollection<CustomAttributeData> CustomAttributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isCollectible")]
+        public bool IsCollectible { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("metadataToken")]
+        public int MetadataToken { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("attributes")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MethodAttributes Attributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("methodImplementationFlags")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MethodImplAttributes MethodImplementationFlags { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("callingConvention")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public CallingConventions CallingConvention { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAbstract")]
+        public bool IsAbstract { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isConstructor")]
+        public bool IsConstructor { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFinal")]
+        public bool IsFinal { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isHideBySig")]
+        public bool IsHideBySig { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSpecialName")]
+        public bool IsSpecialName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isStatic")]
+        public bool IsStatic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isVirtual")]
+        public bool IsVirtual { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAssembly")]
+        public bool IsAssembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFamily")]
+        public bool IsFamily { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFamilyAndAssembly")]
+        public bool IsFamilyAndAssembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFamilyOrAssembly")]
+        public bool IsFamilyOrAssembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPrivate")]
+        public bool IsPrivate { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPublic")]
+        public bool IsPublic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isConstructedGenericMethod")]
+        public bool IsConstructedGenericMethod { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericMethod")]
+        public bool IsGenericMethod { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericMethodDefinition")]
+        public bool IsGenericMethodDefinition { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("containsGenericParameters")]
+        public bool ContainsGenericParameters { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("methodHandle")]
+        public RuntimeMethodHandle MethodHandle { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecurityCritical")]
+        public bool IsSecurityCritical { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecuritySafeCritical")]
+        public bool IsSecuritySafeCritical { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecurityTransparent")]
+        public bool IsSecurityTransparent { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("memberType")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MemberTypes MemberType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("returnParameter")]
+        public ParameterInfo ReturnParameter { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("returnType")]
+        public Type ReturnType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("returnTypeCustomAttributes")]
+        public ICustomAttributeProvider ReturnTypeCustomAttributes { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record Module
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("assembly")]
+        public Assembly Assembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("fullyQualifiedName")]
+        public string FullyQualifiedName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("mdStreamVersion")]
+        public int MdStreamVersion { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("moduleVersionId")]
+        public System.Guid ModuleVersionId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("scopeName")]
+        public string ScopeName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("moduleHandle")]
+        public ModuleHandle ModuleHandle { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("customAttributes")]
+        public System.Collections.Generic.ICollection<CustomAttributeData> CustomAttributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("metadataToken")]
+        public int MetadataToken { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record ModuleHandle
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("mdStreamVersion")]
+        public int MdStreamVersion { get; set; }
 
     }
 
@@ -7046,6 +9019,97 @@ namespace Indice.Features.Cases.Workflows.Integration
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum ParameterAttributes
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"None")]
+        None = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"In")]
+        In = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Out")]
+        Out = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Lcid")]
+        Lcid = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Retval")]
+        Retval = 4,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Optional")]
+        Optional = 5,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"HasDefault")]
+        HasDefault = 6,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"HasFieldMarshal")]
+        HasFieldMarshal = 7,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Reserved3")]
+        Reserved3 = 8,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Reserved4")]
+        Reserved4 = 9,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ReservedMask")]
+        ReservedMask = 10,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record ParameterInfo
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("attributes")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public ParameterAttributes Attributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("member")]
+        public MemberInfo Member { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("parameterType")]
+        public Type ParameterType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("position")]
+        public int Position { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isIn")]
+        public bool IsIn { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isLcid")]
+        public bool IsLcid { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isOptional")]
+        public bool IsOptional { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isOut")]
+        public bool IsOut { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isRetval")]
+        public bool IsRetval { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("defaultValue")]
+        public object DefaultValue { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("rawDefaultValue")]
+        public object RawDefaultValue { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("hasDefaultValue")]
+        public bool HasDefaultValue { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("customAttributes")]
+        public System.Collections.Generic.ICollection<CustomAttributeData> CustomAttributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("metadataToken")]
+        public int MetadataToken { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial record PatchJsonPathRequest
     {
 
@@ -7095,6 +9159,89 @@ namespace Indice.Features.Cases.Workflows.Integration
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum PropertyAttributes
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"None")]
+        None = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"SpecialName")]
+        SpecialName = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"RTSpecialName")]
+        RTSpecialName = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"HasDefault")]
+        HasDefault = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Reserved2")]
+        Reserved2 = 4,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Reserved3")]
+        Reserved3 = 5,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Reserved4")]
+        Reserved4 = 6,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ReservedMask")]
+        ReservedMask = 7,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record PropertyInfo
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaringType")]
+        public Type DeclaringType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("reflectedType")]
+        public Type ReflectedType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("module")]
+        public Module Module { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("customAttributes")]
+        public System.Collections.Generic.ICollection<CustomAttributeData> CustomAttributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isCollectible")]
+        public bool IsCollectible { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("metadataToken")]
+        public int MetadataToken { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("memberType")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MemberTypes MemberType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("propertyType")]
+        public Type PropertyType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("attributes")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public PropertyAttributes Attributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSpecialName")]
+        public bool IsSpecialName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("canRead")]
+        public bool CanRead { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("canWrite")]
+        public bool CanWrite { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("getMethod")]
+        public MethodInfo GetMethod { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("setMethod")]
+        public MethodInfo SetMethod { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial record Query
     {
 
@@ -7118,6 +9265,18 @@ namespace Indice.Features.Cases.Workflows.Integration
 
         [System.Text.Json.Serialization.JsonPropertyName("value")]
         public string Value { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record ReplaceCaseAccessRuleUserRequest
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("existingUserId")]
+        public string ExistingUserId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("replacementUserId")]
+        public string ReplacementUserId { get; set; }
 
     }
 
@@ -7149,6 +9308,33 @@ namespace Indice.Features.Cases.Workflows.Integration
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record RuntimeFieldHandle
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("value")]
+        public IntPtr Value { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record RuntimeMethodHandle
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("value")]
+        public IntPtr Value { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record RuntimeTypeHandle
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("value")]
+        public IntPtr Value { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial record SaveQueryRequest
     {
 
@@ -7157,6 +9343,21 @@ namespace Indice.Features.Cases.Workflows.Integration
 
         [System.Text.Json.Serialization.JsonPropertyName("parameters")]
         public string Parameters { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum SecurityRuleSet
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"None")]
+        None = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Level1")]
+        Level1 = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Level2")]
+        Level2 = 2,
 
     }
 
@@ -7172,6 +9373,31 @@ namespace Indice.Features.Cases.Workflows.Integration
 
         [System.Text.Json.Serialization.JsonPropertyName("comment")]
         public string Comment { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record StreamFunc
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("target")]
+        public object Target { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("method")]
+        public MethodInfo Method { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record StructLayoutAttribute
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("typeId")]
+        public object TypeId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("value")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public LayoutKind Value { get; set; }
 
     }
 
@@ -7205,6 +9431,575 @@ namespace Indice.Features.Cases.Workflows.Integration
 
         [System.Text.Json.Serialization.JsonPropertyName("comment")]
         public Comment Comment { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record Type
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("customAttributes")]
+        public System.Collections.Generic.ICollection<CustomAttributeData> CustomAttributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isCollectible")]
+        public bool IsCollectible { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("metadataToken")]
+        public int MetadataToken { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isInterface")]
+        public bool IsInterface { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("memberType")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MemberTypes MemberType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("namespace")]
+        public string Namespace { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("assemblyQualifiedName")]
+        public string AssemblyQualifiedName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("fullName")]
+        public string FullName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("assembly")]
+        public Assembly Assembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("module")]
+        public Module Module { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNested")]
+        public bool IsNested { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaringType")]
+        public Type DeclaringType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaringMethod")]
+        public MethodBase DeclaringMethod { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("reflectedType")]
+        public Type ReflectedType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("underlyingSystemType")]
+        public Type UnderlyingSystemType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isTypeDefinition")]
+        public bool IsTypeDefinition { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isArray")]
+        public bool IsArray { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isByRef")]
+        public bool IsByRef { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPointer")]
+        public bool IsPointer { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isConstructedGenericType")]
+        public bool IsConstructedGenericType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericParameter")]
+        public bool IsGenericParameter { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericTypeParameter")]
+        public bool IsGenericTypeParameter { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericMethodParameter")]
+        public bool IsGenericMethodParameter { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericType")]
+        public bool IsGenericType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericTypeDefinition")]
+        public bool IsGenericTypeDefinition { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSZArray")]
+        public bool IsSZArray { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isVariableBoundArray")]
+        public bool IsVariableBoundArray { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isByRefLike")]
+        public bool IsByRefLike { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFunctionPointer")]
+        public bool IsFunctionPointer { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isUnmanagedFunctionPointer")]
+        public bool IsUnmanagedFunctionPointer { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("hasElementType")]
+        public bool HasElementType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("genericTypeArguments")]
+        public System.Collections.Generic.ICollection<Type> GenericTypeArguments { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("genericParameterPosition")]
+        public int GenericParameterPosition { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("genericParameterAttributes")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public GenericParameterAttributes GenericParameterAttributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("attributes")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public TypeAttributes Attributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAbstract")]
+        public bool IsAbstract { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isImport")]
+        public bool IsImport { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSealed")]
+        public bool IsSealed { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSpecialName")]
+        public bool IsSpecialName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isClass")]
+        public bool IsClass { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNestedAssembly")]
+        public bool IsNestedAssembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNestedFamANDAssem")]
+        public bool IsNestedFamANDAssem { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNestedFamily")]
+        public bool IsNestedFamily { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNestedFamORAssem")]
+        public bool IsNestedFamORAssem { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNestedPrivate")]
+        public bool IsNestedPrivate { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNestedPublic")]
+        public bool IsNestedPublic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNotPublic")]
+        public bool IsNotPublic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPublic")]
+        public bool IsPublic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAutoLayout")]
+        public bool IsAutoLayout { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isExplicitLayout")]
+        public bool IsExplicitLayout { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isLayoutSequential")]
+        public bool IsLayoutSequential { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAnsiClass")]
+        public bool IsAnsiClass { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAutoClass")]
+        public bool IsAutoClass { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isUnicodeClass")]
+        public bool IsUnicodeClass { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isCOMObject")]
+        public bool IsCOMObject { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isContextful")]
+        public bool IsContextful { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isEnum")]
+        public bool IsEnum { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isMarshalByRef")]
+        public bool IsMarshalByRef { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPrimitive")]
+        public bool IsPrimitive { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isValueType")]
+        public bool IsValueType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSignatureType")]
+        public bool IsSignatureType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecurityCritical")]
+        public bool IsSecurityCritical { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecuritySafeCritical")]
+        public bool IsSecuritySafeCritical { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecurityTransparent")]
+        public bool IsSecurityTransparent { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("structLayoutAttribute")]
+        public StructLayoutAttribute StructLayoutAttribute { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("typeInitializer")]
+        public ConstructorInfo TypeInitializer { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("typeHandle")]
+        public RuntimeTypeHandle TypeHandle { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("guid")]
+        public System.Guid Guid { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("baseType")]
+        public Type BaseType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSerializable")]
+        [System.Obsolete]
+        public bool IsSerializable { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("containsGenericParameters")]
+        public bool ContainsGenericParameters { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isVisible")]
+        public bool IsVisible { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum TypeAttributes
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NotPublic")]
+        NotPublic = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Public")]
+        Public = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NestedPublic")]
+        NestedPublic = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NestedPrivate")]
+        NestedPrivate = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NestedFamily")]
+        NestedFamily = 4,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NestedAssembly")]
+        NestedAssembly = 5,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NestedFamANDAssem")]
+        NestedFamANDAssem = 6,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"VisibilityMask")]
+        VisibilityMask = 7,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"SequentialLayout")]
+        SequentialLayout = 8,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ExplicitLayout")]
+        ExplicitLayout = 9,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"LayoutMask")]
+        LayoutMask = 10,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Interface")]
+        Interface = 11,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Abstract")]
+        Abstract = 12,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Sealed")]
+        Sealed = 13,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"SpecialName")]
+        SpecialName = 14,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"RTSpecialName")]
+        RTSpecialName = 15,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Import")]
+        Import = 16,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Serializable")]
+        Serializable = 17,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"WindowsRuntime")]
+        WindowsRuntime = 18,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"UnicodeClass")]
+        UnicodeClass = 19,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"AutoClass")]
+        AutoClass = 20,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"StringFormatMask")]
+        StringFormatMask = 21,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"HasSecurity")]
+        HasSecurity = 22,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ReservedMask")]
+        ReservedMask = 23,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"BeforeFieldInit")]
+        BeforeFieldInit = 24,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"CustomFormatMask")]
+        CustomFormatMask = 25,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record TypeInfo
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("customAttributes")]
+        public System.Collections.Generic.ICollection<CustomAttributeData> CustomAttributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isCollectible")]
+        public bool IsCollectible { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("metadataToken")]
+        public int MetadataToken { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isInterface")]
+        public bool IsInterface { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("memberType")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public MemberTypes MemberType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("namespace")]
+        public string Namespace { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("assemblyQualifiedName")]
+        public string AssemblyQualifiedName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("fullName")]
+        public string FullName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("assembly")]
+        public Assembly Assembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("module")]
+        public Module Module { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNested")]
+        public bool IsNested { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaringType")]
+        public Type DeclaringType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaringMethod")]
+        public MethodBase DeclaringMethod { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("reflectedType")]
+        public Type ReflectedType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("underlyingSystemType")]
+        public Type UnderlyingSystemType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isTypeDefinition")]
+        public bool IsTypeDefinition { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isArray")]
+        public bool IsArray { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isByRef")]
+        public bool IsByRef { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPointer")]
+        public bool IsPointer { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isConstructedGenericType")]
+        public bool IsConstructedGenericType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericParameter")]
+        public bool IsGenericParameter { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericTypeParameter")]
+        public bool IsGenericTypeParameter { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericMethodParameter")]
+        public bool IsGenericMethodParameter { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericType")]
+        public bool IsGenericType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isGenericTypeDefinition")]
+        public bool IsGenericTypeDefinition { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSZArray")]
+        public bool IsSZArray { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isVariableBoundArray")]
+        public bool IsVariableBoundArray { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isByRefLike")]
+        public bool IsByRefLike { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isFunctionPointer")]
+        public bool IsFunctionPointer { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isUnmanagedFunctionPointer")]
+        public bool IsUnmanagedFunctionPointer { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("hasElementType")]
+        public bool HasElementType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("genericTypeArguments")]
+        public System.Collections.Generic.ICollection<Type> GenericTypeArguments { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("genericParameterPosition")]
+        public int GenericParameterPosition { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("genericParameterAttributes")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public GenericParameterAttributes GenericParameterAttributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("attributes")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public TypeAttributes Attributes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAbstract")]
+        public bool IsAbstract { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isImport")]
+        public bool IsImport { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSealed")]
+        public bool IsSealed { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSpecialName")]
+        public bool IsSpecialName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isClass")]
+        public bool IsClass { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNestedAssembly")]
+        public bool IsNestedAssembly { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNestedFamANDAssem")]
+        public bool IsNestedFamANDAssem { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNestedFamily")]
+        public bool IsNestedFamily { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNestedFamORAssem")]
+        public bool IsNestedFamORAssem { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNestedPrivate")]
+        public bool IsNestedPrivate { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNestedPublic")]
+        public bool IsNestedPublic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isNotPublic")]
+        public bool IsNotPublic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPublic")]
+        public bool IsPublic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAutoLayout")]
+        public bool IsAutoLayout { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isExplicitLayout")]
+        public bool IsExplicitLayout { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isLayoutSequential")]
+        public bool IsLayoutSequential { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAnsiClass")]
+        public bool IsAnsiClass { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAutoClass")]
+        public bool IsAutoClass { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isUnicodeClass")]
+        public bool IsUnicodeClass { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isCOMObject")]
+        public bool IsCOMObject { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isContextful")]
+        public bool IsContextful { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isEnum")]
+        public bool IsEnum { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isMarshalByRef")]
+        public bool IsMarshalByRef { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPrimitive")]
+        public bool IsPrimitive { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isValueType")]
+        public bool IsValueType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSignatureType")]
+        public bool IsSignatureType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecurityCritical")]
+        public bool IsSecurityCritical { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecuritySafeCritical")]
+        public bool IsSecuritySafeCritical { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSecurityTransparent")]
+        public bool IsSecurityTransparent { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("structLayoutAttribute")]
+        public StructLayoutAttribute StructLayoutAttribute { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("typeInitializer")]
+        public ConstructorInfo TypeInitializer { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("typeHandle")]
+        public RuntimeTypeHandle TypeHandle { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("guid")]
+        public System.Guid Guid { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("baseType")]
+        public Type BaseType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSerializable")]
+        [System.Obsolete]
+        public bool IsSerializable { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("containsGenericParameters")]
+        public bool ContainsGenericParameters { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isVisible")]
+        public bool IsVisible { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("genericTypeParameters")]
+        public System.Collections.Generic.ICollection<Type> GenericTypeParameters { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaredConstructors")]
+        public System.Collections.Generic.ICollection<ConstructorInfo> DeclaredConstructors { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaredEvents")]
+        public System.Collections.Generic.ICollection<EventInfo> DeclaredEvents { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaredFields")]
+        public System.Collections.Generic.ICollection<FieldInfo> DeclaredFields { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaredMembers")]
+        public System.Collections.Generic.ICollection<MemberInfo> DeclaredMembers { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaredMethods")]
+        public System.Collections.Generic.ICollection<MethodInfo> DeclaredMethods { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaredNestedTypes")]
+        public System.Collections.Generic.ICollection<TypeInfo> DeclaredNestedTypes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("declaredProperties")]
+        public System.Collections.Generic.ICollection<PropertyInfo> DeclaredProperties { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("implementedInterfaces")]
+        public System.Collections.Generic.ICollection<Type> ImplementedInterfaces { get; set; }
 
     }
 

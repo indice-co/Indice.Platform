@@ -112,7 +112,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         await _platformEventService.Publish(new CaseSubmittedEvent(new Case {
             Id = @case.Id,
             // TODO: do a proper caseDb to case mapping
-        }, @case.CaseType.Code));
+        }, @case.CaseType.Code, AuditMeta.Create(user)));
     }
 
     public async Task<ResultSet<CasePartial>> GetCases(ClaimsPrincipal user, ListOptions<GetCasesListFilter> options) {
@@ -558,7 +558,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     }
 
     public async Task<AuditMeta> AssignCase(AuditMeta user, Guid caseId) {
-        if (user.Id == default || string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Name)) {
+        if (user.Id == null || string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Name)) {
             throw new ArgumentException($"{BasicClaimTypes.GivenName} or {BasicClaimTypes.FamilyName} is missing from identity claim types");
         }
         var @case = await DbContext.Cases.FindAsync(caseId);

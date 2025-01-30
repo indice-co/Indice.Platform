@@ -4,15 +4,12 @@ using Indice.Security;
 using Elsa;
 using Elsa.Persistence;
 using Elsa.Services;
-using Indice.Features.Cases.Core;
-using Indice.Features.Cases.Core.Localization;
-using Indice.Features.Cases.Core.Models;
-using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Workflows.Activities;
 using Indice.Features.Cases.Workflows.Interfaces;
 using Elsa.Models;
 using Elsa.Persistence.Specifications;
 using Indice.Features.Cases.Workflows.Bookmarks;
+using Indice.Features.Cases.Workflows.Integration;
 using Indice.Features.Cases.Workflows.Models;
 using Indice.Features.Cases.Workflows.Specifications;
 
@@ -29,8 +26,7 @@ internal class CasesWorkflowManagerElsa(
     IBookmarkFinder bookmarkFinder,
     IWorkflowDefinitionStore workflowDefinitionStore,
     IStartsWorkflow startsWorkflow,
-    IWorkflowBlueprintMaterializer workflowBlueprintMaterializer,
-    CaseSharedResourceService caseSharedResourceService) : ICasesWorkflowManager
+    IWorkflowBlueprintMaterializer workflowBlueprintMaterializer)
 {
     private readonly IWorkflowDefinitionStore _workflowDefinitionStore = workflowDefinitionStore ?? throw new ArgumentNullException(nameof(workflowDefinitionStore));
     private readonly IStartsWorkflow _startsWorkflow = startsWorkflow ?? throw new ArgumentNullException(nameof(startsWorkflow));
@@ -41,8 +37,11 @@ internal class CasesWorkflowManagerElsa(
     private readonly IAwaitActionInvoker _awaitActionInvoker = awaitActionInvoker ?? throw new ArgumentNullException(nameof(awaitActionInvoker));
     private readonly IWorkflowInstanceStore _workflowInstanceStore = workflowInstanceStore ?? throw new ArgumentNullException(nameof(workflowInstanceStore));
     private readonly IBookmarkFinder _bookmarkFinder = bookmarkFinder ?? throw new ArgumentNullException(nameof(bookmarkFinder));
-    private readonly CaseSharedResourceService _caseSharedResourceService = caseSharedResourceService ?? throw new ArgumentNullException(nameof(caseSharedResourceService));
+    public record WorkflowInvocationResult(bool Success, List<CasesCollectedWorkflow> CollectedWorkflows, string? Message = null);
+    public record CasesCollectedWorkflow(string WorkflowInstanceId, string? ActivityId);
 
+    // todo: these are all breaking
+    
     /// <inheritdoc/>
     public async Task<WorkflowInvocationResult> InvokeApprovalAsync(ClaimsPrincipal user, Guid caseId, ApprovalRequest request) {
         ArgumentNullException.ThrowIfNull(user);
@@ -70,20 +69,20 @@ internal class CasesWorkflowManagerElsa(
     }
 
     /// <inheritdoc/>
-    public async Task<WorkflowInvocationResult> AssignCaseAsync(ClaimsPrincipal user, Guid caseId) {
+    public async Task<WorkflowInvocationResult> AssignCaseAsync(ClaimsPrincipal user, Guid caseId, string outcome) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
-        var input = new AwaitAssignmentInvokerInput {
-            // Get the current user for self-assign
-            // todo support admin assignments [in future user-story]
-            User = AuditMeta.Create(user)
-        };
-        var executedWorkflow = await _awaitAssignmentInvoker.ExecuteWorkflowsAsync(caseId, input);
-        if (!executedWorkflow.Any()) {
-            return new WorkflowInvocationResult(Success: false,
-                                           executedWorkflow.Select(x => new CasesCollectedWorkflow(x.WorkflowInstanceId, x.ActivityId)).ToList(),
-                                           "Case is already assigned.");
-        }
+        // var input = new AwaitAssignmentInvokerInput {
+        //     // Get the current user for self-assign
+        //     // todo support admin assignments [in future user-story]
+        //     User = AuditMeta.Create(user)
+        // };
+        // var executedWorkflow = await _awaitAssignmentInvoker.ExecuteWorkflowsAsync(caseId, input);
+        // if (!executedWorkflow.Any()) {
+        //     return new WorkflowInvocationResult(Success: false,
+        //                                    executedWorkflow.Select(x => new CasesCollectedWorkflow(x.WorkflowInstanceId, x.ActivityId)).ToList(),
+        //                                    "Case is already assigned.");
+        // }
         return new WorkflowInvocationResult(Success: true, []);
     }
 
@@ -108,10 +107,11 @@ internal class CasesWorkflowManagerElsa(
             return [];
         }
 
+        // todo: move caseSharedResourceService out of here
         var reasonsWorkflowVariable = instance.Variables.Get<IEnumerable<string>>(CasesWorkflowConstants.WorkflowVariables.RejectReasons) ?? Enumerable.Empty<string>();
         var reasons = reasonsWorkflowVariable.Select(item => new RejectReason {
             Key = item,
-            Value = _caseSharedResourceService.GetLocalizedHtmlString(item, CultureInfo.CurrentCulture.Name).Value
+            // Value = _caseSharedResourceService.GetLocalizedHtmlString(item, CultureInfo.CurrentCulture.Name).Value
         });
         return reasons.ToList();
     }
@@ -206,7 +206,7 @@ internal class CasesWorkflowManagerElsa(
             };
     }
 
-    public async Task<WorkflowInvocationResult> StartWorkflowAsync(Guid caseId, string caseTypeCode) {
+    public async Task<WorkflowInvocationResult> StartWorkflowAsync(Guid caseId, string caseTypeCode, AuditMeta auditMeta) {
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
         ArgumentException.ThrowIfNullOrWhiteSpace(caseTypeCode);
 

@@ -5,7 +5,7 @@ using Elsa.Attributes;
 using Elsa.Design;
 using Elsa.Expressions;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Core.Services.Abstractions;
+using Indice.Features.Cases.Workflows.Integration;
 using Indice.Features.Cases.Workflows.Models;
 
 namespace Indice.Features.Cases.Workflows.Activities;
@@ -20,7 +20,7 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "Handles the edit of the data for case.",
     Outcomes = new[] { OutcomeNames.Done, CasesWorkflowConstants.WorkflowVariables.OutcomeNames.Save }
 )]
-internal class AwaitEditActivity(IAdminCaseMessageService caseMessageService) : BaseCaseActivity(caseMessageService)
+internal class AwaitEditActivity(CasesHttpClient casesClient) : BaseCaseActivity(casesClient)
 {
     [ActivityInput(
         Label = "Role",

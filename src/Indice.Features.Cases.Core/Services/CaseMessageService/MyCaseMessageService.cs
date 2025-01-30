@@ -23,7 +23,7 @@ internal class MyCaseMessageService : BaseCaseMessageService, IMyCaseMessageServ
     /// <inheritdoc />
     public async Task<Guid?> Send(Guid caseId, ClaimsPrincipal user, Message message) {
         var @case = await GetMyCase(caseId, user);
-        return await SendInternal(@case, message, user);
+        return await SendInternal(@case, message, AuditMeta.Create(user));
     }
 
     private async Task<DbCase> GetMyCase(Guid caseId, ClaimsPrincipal user) {

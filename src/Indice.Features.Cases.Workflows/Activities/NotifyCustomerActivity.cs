@@ -6,8 +6,7 @@ using Elsa.Design;
 using Elsa.Expressions;
 using Elsa.Providers.WorkflowStorage;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Core.Services.Abstractions;
-using Indice.Features.Cases.Workflows.Extensions;
+using Indice.Features.Cases.Workflows.Integration;
 using Indice.Services;
 
 namespace Indice.Features.Cases.Workflows.Activities;
@@ -20,15 +19,12 @@ namespace Indice.Features.Cases.Workflows.Activities;
 )]
 internal class NotifyCustomerActivity : BaseCaseActivity
 {
-    private readonly IAdminCaseService _adminCaseService;
+    private readonly CasesHttpClient _casesClient;
     private readonly ISmsService _smsService;
 
-    public NotifyCustomerActivity(
-        IAdminCaseMessageService caseMessageService,
-        IAdminCaseService adminCaseService,
-        ISmsService smsService)
-        : base(caseMessageService) {
-        _adminCaseService = adminCaseService ?? throw new ArgumentNullException(nameof(adminCaseService));
+    public NotifyCustomerActivity(CasesHttpClient casesClient, ISmsService smsService)
+        : base(casesClient) {
+        _casesClient = casesClient ?? throw new ArgumentNullException(nameof(casesClient));
         _smsService = smsService ?? throw new ArgumentNullException(nameof(smsService));
     }
     
@@ -84,7 +80,8 @@ internal class NotifyCustomerActivity : BaseCaseActivity
             return Outcome(OutcomeNames.Done);
         }
 
-        var @case = await _adminCaseService.GetCaseById(context.TryGetUser()!, CaseId!.Value);
+        var @case = await _casesClient.GetCaseByIdAsync(CaseId!.Value, false);
+        // var @case = await _adminCaseService.GetCaseById(context.TryGetUser()!, CaseId!.Value);
         var infoMessage = new StringBuilder();
         var subject = default(string);
         var body = default(string);
@@ -100,7 +97,7 @@ internal class NotifyCustomerActivity : BaseCaseActivity
                         var lang = @case.Metadata?["CurrentCultureName"]; // el-GR, en-US, en-GB
                         subject = lang == "el-GR" ? SubjectEL : SubjectEN;
                         body = lang == "el-GR" ? BodyEL : BodyEN;
-                        await _smsService.SendAsync(customerPhoneNumber, subject, body);
+                        await _smsService.SendAsync(customerPhoneNumber, subject, body); // todo: reference of needed
                         break;
                     }
                 default:

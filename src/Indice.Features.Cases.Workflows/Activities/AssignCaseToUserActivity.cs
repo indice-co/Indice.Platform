@@ -4,8 +4,7 @@ using Elsa.Attributes;
 using Elsa.Design;
 using Elsa.Expressions;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Core.Models;
-using Indice.Features.Cases.Core.Services.Abstractions;
+using Indice.Features.Cases.Workflows.Integration;
 
 namespace Indice.Features.Cases.Workflows.Activities;
 
@@ -18,13 +17,13 @@ namespace Indice.Features.Cases.Workflows.Activities;
 )]
 internal class AssignCaseToUserActivity : BaseCaseActivity
 {
-    private readonly IAdminCaseService _adminCaseService;
+    // private readonly IAdminCaseService _adminCaseService;
+    private readonly CasesHttpClient _casesClient;
 
-    public AssignCaseToUserActivity(
-        IAdminCaseMessageService caseMessageService,
-        IAdminCaseService adminCaseService)
-        : base(caseMessageService) {
-        _adminCaseService = adminCaseService ?? throw new ArgumentNullException(nameof(adminCaseService));
+    public AssignCaseToUserActivity(CasesHttpClient casesClient)
+        : base(casesClient) {
+        // _adminCaseService = adminCaseService ?? throw new ArgumentNullException(nameof(adminCaseService));
+        _casesClient = casesClient ?? throw new ArgumentNullException(nameof(casesClient));
     }
 
     [ActivityInput(
@@ -39,7 +38,9 @@ internal class AssignCaseToUserActivity : BaseCaseActivity
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
         try {
-            await _adminCaseService.AssignCase(User, CaseId.Value);
+            // await _casesClient.AssignCaseAsync(CaseId.Value);
+            // await _adminCaseService.AssignCase(User, CaseId.Value);
+            await _casesClient.AssignCaseAsync(CaseId.Value); //  todo: pass AuditMeta here
         } catch (Exception ex) {
             await LogCaseError(context, ex);
             return Outcome("Failed");

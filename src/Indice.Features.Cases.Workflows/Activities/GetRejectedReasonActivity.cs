@@ -4,9 +4,7 @@ using Elsa.Attributes;
 using Elsa.Design;
 using Elsa.Providers.WorkflowStorage;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Core.Localization;
-using Indice.Features.Cases.Core.Services.Abstractions;
-using Indice.Features.Cases.Workflows.Extensions;
+using Indice.Features.Cases.Workflows.Integration;
 using Microsoft.Extensions.Configuration;
 
 namespace Indice.Features.Cases.Workflows.Activities;
@@ -19,22 +17,15 @@ namespace Indice.Features.Cases.Workflows.Activities;
 )]
 internal class GetRejectedReasonActivity : BaseCaseActivity
 {
-    private readonly CaseSharedResourceService _caseSharedResourceService;
-    private readonly IAdminCaseService _adminCaseService;
-    private readonly ICaseApprovalService _caseApprovalService;
     private readonly string _defaultTranslationLanguage;
+    private CasesHttpClient _casesClient;
 
     public GetRejectedReasonActivity(
-        IAdminCaseMessageService caseMessageService,
-        CaseSharedResourceService caseSharedResourceService,
-        IAdminCaseService adminCaseService,
-        ICaseApprovalService caseApprovalService,
+        CasesHttpClient casesClient,
         IConfiguration configuration)
-        : base(caseMessageService) {
-        _caseSharedResourceService = caseSharedResourceService ?? throw new ArgumentNullException(nameof(caseSharedResourceService));
-        _adminCaseService = adminCaseService ?? throw new ArgumentNullException(nameof(adminCaseService));
-        _caseApprovalService = caseApprovalService ?? throw new ArgumentNullException(nameof(caseApprovalService));
+        : base(casesClient) {
         _defaultTranslationLanguage = configuration.GetSection("PrimaryTranslationLanguage").Value ?? CasesWorkflowConstants.DefaultTranslationLanguage;
+        _casesClient = casesClient ?? throw new ArgumentNullException(nameof(casesClient));
     }
 
     [ActivityInput(
@@ -50,24 +41,26 @@ internal class GetRejectedReasonActivity : BaseCaseActivity
     public string? Output { get; set; }
 
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
-        var approval = await _caseApprovalService.GetLastApproval(CaseId!.Value);
-        var language = string.Empty;
-
-        switch (Language) {
-            case "Customer":
-                var @case = await _adminCaseService.GetCaseById(context.TryGetUser()!, CaseId!.Value);
-                language = GetCustomerLanguageOrDefault(@case.Metadata?["CurrentCultureName"]);
-                break;
-            case "English":
-                language = "en";
-                break;
-            case "Greek":
-                language = "el";
-                break;
-        }
-
-        Output = _caseSharedResourceService.GetLocalizedHtmlStringWithCulture(approval?.Reason!, language);
-        context.LogOutputProperty(this, nameof(Output), Output);
+        // var approval = await _caseApprovalService.GetLastApproval(CaseId!.Value); // todo: http or refactor
+        // var language = string.Empty;
+        //
+        // switch (Language) {
+        //     case "Customer":
+        //         var @case = await _casesClient.GetCaseByIdAsync(CaseId.Value, false);
+        //         // var @case = await _adminCaseService.GetCaseById(context.TryGetUser()!, CaseId!.Value);
+        //         language = GetCustomerLanguageOrDefault(@case.Metadata?["CurrentCultureName"]);
+        //         break;
+        //     case "English":
+        //         language = "en";
+        //         break;
+        //     case "Greek":
+        //         language = "el";
+        //         break;
+        // }
+        //
+        // // todo: move to workflow?
+        // Output = _caseSharedResourceService.GetLocalizedHtmlStringWithCulture(approval?.Reason!, language);
+        // context.LogOutputProperty(this, nameof(Output), Output);
         return Outcome(OutcomeNames.Done);
     }
     

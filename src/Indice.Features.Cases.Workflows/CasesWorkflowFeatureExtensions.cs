@@ -30,11 +30,11 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
-using Quartz.Util;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Hosting;
 using Elsa.Serialization;
 using Indice.Features.Cases.Core.Serialization;
+using Indice.Features.Cases.Workflows.Integration;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -135,9 +135,14 @@ public static class CasesWorkflowFeatureExtensions
         builder.Services.TryAddScoped<IAwaitEditInvoker, AwaitEditInvoker>();
         builder.Services.TryAddScoped<IAwaitAssignmentInvoker, AwaitAssignmentInvoker>();
         builder.Services.TryAddScoped<IAwaitActionInvoker, AwaitActionInvoker>();
+        // builder.Services.TryAddScoped<CasesHttpClient>();
+        builder.Services.AddHttpClient<CasesHttpClient>()
+            .ConfigureHttpClient(client => {
+                client.BaseAddress = new Uri("https://localhost:2001/"); // todo: remove mock
+            });
         // builder.Services.AddScoped<ICasesWorkflowManager, CasesWorkflowManagerElsa>();
         //
-        // TODO: Should remove dependecies to core services.
+        // TODO: Should remove dependencies to core services.
         // Here there are missing service registrations related to
         // accessing the CasesDbContext directly via the cases core services
         // We should refactor the code to use a HttpClient instead of direct db access
@@ -248,7 +253,7 @@ public static class CasesWorkflowFeatureExtensions
         // Elsa dashboard login
         .AddOpenIdConnect(authenticationScheme: OpenIdConnectDefaults.AuthenticationScheme, displayName: "Connect with Indice", options => {
             options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            options.Authority = configuration.GetAuthority();
+            options.Authority = "https://localhost:2000"; // todo: fix in different host
             options.ClientId = workflowOptions.WorkflowUIClientId;
             options.ResponseType = OpenIdConnectResponseType.Code;
             options.GetClaimsFromUserInfoEndpoint = true;

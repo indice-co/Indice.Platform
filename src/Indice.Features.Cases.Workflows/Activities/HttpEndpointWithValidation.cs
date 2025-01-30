@@ -4,7 +4,6 @@ using Elsa.Activities.Http.Models;
 using Elsa.ActivityResults;
 using Elsa.Attributes;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Core.Services.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Features.Cases.Workflows.Activities;
@@ -32,19 +31,23 @@ public class HttpEndpointWithValidation : HttpEndpoint
         Output = context.GetInput<HttpRequestModel>()!;
         context.JournalData.Add("Inbound Request", Output);
 
-        //Skip validation when there is no Schema
+        // Skip validation when there is no Schema
         if (Schema is null) {
             return Done();
         }
-        //There is schema by the body is null
-        else if (Output.Body is null) {
+        
+        // There is schema but the request body is null
+        // todo: what is the purpose of empty body? use HttpEndpoint directly, this should be before L:36?
+        if (Output.Body is null) {
             return Outcome(CasesWorkflowConstants.WorkflowVariables.OutcomeNames.Failed);
         }
-        //Validate body with schema
-        var schemaValidator = context.ServiceProvider.GetRequiredService<ISchemaValidator>();
-        if (!schemaValidator.IsValid(Schema, Output.Body)) {
-            return Outcome(CasesWorkflowConstants.WorkflowVariables.OutcomeNames.Failed);
-        }
+        
+        // Validate body with schema
+        // var schemaValidator = context.ServiceProvider.GetRequiredService<ISchemaValidator>(); // todo: copy to Workflow
+        // if (!schemaValidator.IsValid(Schema, Output.Body)) {
+        //     return Outcome(CasesWorkflowConstants.WorkflowVariables.OutcomeNames.Failed);
+        // }
+        
         return Done();
     }
 }

@@ -15,6 +15,31 @@ using Microsoft.AspNetCore.Http.HttpResults;
 namespace Indice.Features.Cases.Server.Endpoints;
 internal static class AdminWorkflowInvokerHandlers
 {
+    
+    public static async Task<Results<NoContent, ProblemHttpResult>> AssignCase(
+        Guid caseId,
+        ClaimsPrincipal currentUser,
+        IAdminCaseService adminCaseService,
+        IAdminCaseMessageService caseMessageService,
+        ICasesWorkflowManager workflowManager) {
+        
+        // todo: authorization
+        
+        // todo: maybe just let's not notify the workflow if assignment did not succeed
+        var outcome = "Done";
+        try {
+            await adminCaseService.AssignCase(AuditMeta.Create(currentUser), caseId);
+        } catch (Exception ex) {
+            outcome = "Failed";
+            await caseMessageService.Send(caseId, CasesClaimsPrincipalExtensions.SystemUser(), ex);
+        }
+        
+        // todo: handle errors
+        await workflowManager.AssignCaseAsync(currentUser, caseId, outcome);
+        
+        return TypedResults.NoContent();
+    }
+    
     public static async Task<Results<NoContent, ProblemHttpResult>> SubmitApproval(
         Guid caseId,
         ApprovalRequest request,
@@ -67,14 +92,6 @@ internal static class AdminWorkflowInvokerHandlers
         //     return TypedResults.Problem(detail: result.Message);
         // }
         return TypedResults.NoContent(); 
-    }
-
-    public static async Task<Results<NoContent, ProblemHttpResult>> AssignCase(Guid caseId, ICasesWorkflowManager workflowManager, ClaimsPrincipal currentUser) {
-        var result = await workflowManager.AssignCaseAsync(currentUser, caseId);
-        if (!result.Success) {
-            return TypedResults.Problem(detail: result.Message);
-        }
-        return TypedResults.NoContent();
     }
 
     public static async Task<Results<NoContent, ProblemHttpResult>> EditCase(

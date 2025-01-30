@@ -59,7 +59,7 @@ internal class CasesWorkflowManagerElsa(
     }
 
     /// <inheritdoc/>
-    public async Task<WorkflowInvocationResult> AssignCaseAsync(ClaimsPrincipal user, Guid caseId) {
+    public async Task<WorkflowInvocationResult> AssignCaseAsync(ClaimsPrincipal user, Guid caseId, string outcome) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
         var input = new AwaitAssignmentInvokerInput {
@@ -170,7 +170,7 @@ internal class CasesWorkflowManagerElsa(
             };
     }
 
-    public async Task<WorkflowInvocationResult> StartWorkflowAsync(Guid caseId, string caseTypeCode) {
+    public async Task<WorkflowInvocationResult> StartWorkflowAsync(Guid caseId, string caseTypeCode, AuditMeta auditMeta) {
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
         ArgumentException.ThrowIfNullOrWhiteSpace(caseTypeCode);
 

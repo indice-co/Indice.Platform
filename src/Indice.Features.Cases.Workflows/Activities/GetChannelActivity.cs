@@ -1,9 +1,9 @@
-﻿using System.Security.Claims;
-using Elsa;
+﻿using Elsa;
 using Elsa.ActivityResults;
 using Elsa.Attributes;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Core.Services.Abstractions;
+using Indice.Features.Cases.Workflows.Extensions;
+using Indice.Features.Cases.Workflows.Integration;
 
 namespace Indice.Features.Cases.Workflows.Activities;
 
@@ -16,13 +16,10 @@ namespace Indice.Features.Cases.Workflows.Activities;
 )]
 internal class GetChannelActivity : BaseCaseActivity
 {
-    private readonly IAdminCaseService _adminCaseService;
+    private CasesHttpClient _casesClient;
 
-    public GetChannelActivity(
-        IAdminCaseMessageService caseMessageService, 
-        IAdminCaseService adminCaseService)
-        : base(caseMessageService) {
-        _adminCaseService = adminCaseService ?? throw new ArgumentNullException(nameof(adminCaseService));
+    public GetChannelActivity(CasesHttpClient casesClient) : base(casesClient) {
+        _casesClient = casesClient ?? throw new ArgumentNullException(nameof(casesClient));
     }
     
     [ActivityOutput]
@@ -32,7 +29,8 @@ internal class GetChannelActivity : BaseCaseActivity
         CaseId ??= Guid.Parse(context.CorrelationId);
         // Run as systemic user, since this is a system activity for creating conditions at workflow
         var systemUser = CasesClaimsPrincipalExtensions.SystemUser();
-        var @case = await _adminCaseService.GetCaseById(systemUser, CaseId.Value!);
+        var @case = await _casesClient.GetCaseByIdAsync(CaseId.Value, false);
+        // var @case = await _adminCaseService.GetCaseById(systemUser, CaseId.Value!);
         Output = @case.Channel!;
         context.LogOutputProperty(this, nameof(Output), Output);
         return Done(Output);

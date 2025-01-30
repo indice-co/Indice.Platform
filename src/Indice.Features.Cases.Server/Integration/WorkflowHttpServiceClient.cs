@@ -15,16 +15,23 @@ public class WorkflowHttpServiceClient : ICasesWorkflowManager
         httpClient.BaseAddress = new Uri("https://localhost:2001/");
         _workflowApiClient = new WorkflowHttpClient(httpClient);
     }
-    
-    public async Task<WorkflowInvocationResult> StartWorkflowAsync(Guid caseId, string caseTypeCode) {
+
+    /// <inheritdoc />
+    public async Task<WorkflowInvocationResult> StartWorkflowAsync(Guid caseId, string caseTypeCode, AuditMeta auditMeta) {
         try {
-            await _workflowApiClient.StartWorkflowAsync(caseId, caseTypeCode);
+            await _workflowApiClient.StartWorkflowAsync(caseId, caseTypeCode, new CasesUser {
+                Name = auditMeta.Name,
+                Id = auditMeta.Id,
+                Email = auditMeta.Email,
+                When = auditMeta.When
+            });
             return new WorkflowInvocationResult(Success: true, [], string.Empty);
         } catch (WorkflowApiException ex) {
             return new WorkflowInvocationResult(Success: false, [], ex.Message);
         }
     }
 
+    /// <inheritdoc />
     public async Task<WorkflowInvocationResult> InvokeApprovalAsync(ClaimsPrincipal user, Guid caseId, ApprovalRequest request) {
         try {
             // todo: remove userRoles
@@ -46,6 +53,7 @@ public class WorkflowHttpServiceClient : ICasesWorkflowManager
         }
     }
 
+    /// <inheritdoc />
     public async Task<WorkflowInvocationResult> InvokeEditAsync(ClaimsPrincipal user, Guid caseId, EditCaseRequest request) {
         try {
             await _workflowApiClient.EditAsync(new WorkflowEditCaseRequest {
@@ -58,7 +66,8 @@ public class WorkflowHttpServiceClient : ICasesWorkflowManager
             return new WorkflowInvocationResult(Success: false, [], ex.Message);
         }
     }
-    
+
+    /// <inheritdoc />
     public async Task<object> GetActionsByCaseId(ClaimsPrincipal user, Guid caseId, string[] roles) {
         try {
             // todo: remove userRoles
@@ -73,26 +82,39 @@ public class WorkflowHttpServiceClient : ICasesWorkflowManager
         }
     }
 
-    public Task<WorkflowInvocationResult> AssignCaseAsync(ClaimsPrincipal user, Guid caseId) {
-        throw new NotImplementedException();
+    /// <inheritdoc />
+    public async Task<WorkflowInvocationResult> AssignCaseAsync(ClaimsPrincipal user, Guid caseId, string outcome) {
+        try {
+            await _workflowApiClient.AssignAsync(new WorkflowAssignCaseRequest {
+                CaseId = caseId,
+                CasesUser = user.ToCasesUser(),
+                OutcomeResult = outcome
+            });
+            return new WorkflowInvocationResult(Success: true, [], string.Empty);
+        } catch (WorkflowApiException ex) {
+            return new WorkflowInvocationResult(Success: false, [], ex.Message);
+        }
     }
 
+    /// <inheritdoc />
     public Task<WorkflowInvocationResult> TriggerActionAsync(ClaimsPrincipal user, Guid caseId, ActionRequest request) {
         throw new NotImplementedException();
     }
 
+    /// <inheritdoc />
     public Task<List<RejectReason>> GetApprovalRejectOptionsListAsync(ClaimsPrincipal user, Guid caseId) {
         return Task.FromResult(new List<RejectReason>());
     }
 
     // todo: this will become obsolete
+    /// <inheritdoc />
     public async Task<CaseActions> GetAvailableActionsAsync(ClaimsPrincipal user, Guid caseId, string? assignedToId, string[] bookmarks, string? lastApprovedById = null) {
         try {
             var response = await _workflowApiClient.AvailableActionsAsync(caseId, assignedToId, bookmarks, user.FindSubjectId(), user.IsAdmin(), user.IsSystemClient(), lastApprovedById);
             return new CaseActions {
-                HasAssignment = response.HasAssignment,
+                HasAssignment = true, // todo: refactor get available actions in Workflows
                 HasApproval = response.HasApproval,
-                HasUnassignment = response.HasUnassignment,
+                HasUnassignment = false,  // todo: refactor get available actions in Workflows
                 HasEdit = response.HasEdit,
                 CustomActions = response.CustomActions?.Select(x => new CustomCaseAction {
                     Id = x?.Id,

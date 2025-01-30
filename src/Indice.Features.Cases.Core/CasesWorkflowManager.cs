@@ -21,7 +21,7 @@ public interface ICasesWorkflowManager
     /// <param name="user">The current user</param>
     /// <param name="caseId">The Id of the case.</param>
     /// <returns>The <see cref="WorkflowInvocationResult"/> indicating success or failure of the operation</returns>
-    Task<WorkflowInvocationResult> AssignCaseAsync(ClaimsPrincipal user, Guid caseId);
+    Task<WorkflowInvocationResult> AssignCaseAsync(ClaimsPrincipal user, Guid caseId, string outcome);
 
     /// <summary>Invoke the edit activity to edit the data of the case.</summary>
     /// <param name="user">The current user</param>
@@ -58,7 +58,7 @@ public interface ICasesWorkflowManager
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="caseTypeCode">The case type code. Will be used as a bookmark</param>
     /// <returns>The <see cref="WorkflowInvocationResult"/> indicating success or failure of the operation</returns>
-    Task<WorkflowInvocationResult> StartWorkflowAsync(Guid caseId, string caseTypeCode);
+    Task<WorkflowInvocationResult> StartWorkflowAsync(Guid caseId, string caseTypeCode, AuditMeta auditMeta);
 
     // todo: change object here
     Task<object> GetActionsByCaseId(ClaimsPrincipal user, Guid caseId, string[] roles);
@@ -95,7 +95,7 @@ internal class DefaultCasesWorkflowManager : ICasesWorkflowManager
     }
     
     /// <inheritdoc/>
-    public Task<WorkflowInvocationResult> AssignCaseAsync(ClaimsPrincipal user, Guid caseId) {
+    public Task<WorkflowInvocationResult> AssignCaseAsync(ClaimsPrincipal user, Guid caseId, string outcome) {
         return Task.FromResult(new WorkflowInvocationResult(Success: false, [], "Not implemented"));
     }
 
@@ -113,7 +113,7 @@ internal class DefaultCasesWorkflowManager : ICasesWorkflowManager
         return Task.FromResult(new CaseActions());
     }
 
-    public Task<WorkflowInvocationResult> StartWorkflowAsync(Guid caseId, string caseTypeCode) {
+    public Task<WorkflowInvocationResult> StartWorkflowAsync(Guid caseId, string caseTypeCode, AuditMeta auditMeta) {
         return Task.FromResult(new WorkflowInvocationResult(Success: false, [], "Not implemented"));
     }
 

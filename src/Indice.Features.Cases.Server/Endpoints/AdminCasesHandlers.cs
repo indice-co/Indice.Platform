@@ -25,6 +25,102 @@ internal static class AdminCasesHandlers
 
     public static async Task<Ok<ResultSet<CaseAttachment>>> GetCaseAttachments(Guid caseId, IAdminCaseService adminCaseService) =>
         TypedResults.Ok(await adminCaseService.GetAttachments(caseId));
+    
+    public static async Task<Ok> RollbackApproval(
+        Guid caseId,
+        ClaimsPrincipal user,
+        ICaseApprovalService caseApprovalService) {
+        await caseApprovalService.RollbackApproval(caseId);
+        return TypedResults.Ok();
+    }
+    
+    public static async Task<Results<Ok<CaseApproval>, NoContent>> GetLastApproval(
+        Guid caseId,
+        ClaimsPrincipal user,
+        ICaseApprovalService caseApprovalService) {
+        var result = await caseApprovalService.GetLastApproval(caseId);
+        return result is null ? TypedResults.NoContent() : TypedResults.Ok(result);
+    }
+    
+    public static async Task<Ok> AddApproval(
+        Guid caseId,
+        Guid? commentId,
+        AuditMeta auditMeta,
+        ClaimsPrincipal user,
+        ICaseApprovalService caseApprovalService) {
+        // todo: is there any use case to give ability to add reject?
+        await caseApprovalService.AddApproval(caseId, commentId, auditMeta, Approval.Approve, null);
+        return TypedResults.Ok();
+    }
+
+    public static async Task<Ok> MoveToCheckpoint(
+        Guid caseId,
+        string checkpointTypeName,
+        string? comment,
+        bool privateComment,
+        IAdminCaseMessageService adminCaseMessageService) {
+        var user = CasesClaimsPrincipalExtensions.SystemUser(); // todo: client_credentials, add AuditMeta
+        await adminCaseMessageService.Send(caseId, user, new Message {
+            CheckpointTypeName = checkpointTypeName,
+            Comment = comment,
+            PrivateComment = privateComment
+        });
+        
+        return TypedResults.Ok();
+    }
+    
+    public static async Task<Ok> RemoveAssignment(
+        Guid caseId,
+        ClaimsPrincipal user,
+        IAdminCaseService adminCaseService) {
+        await adminCaseService.RemoveAssignment(caseId);
+        return TypedResults.Ok();
+    }
+
+    // TODO: JSON.parse(JSON.stringify(workflowExecutionContext.CurrentScope.Variables.Data.CurrentValue.Message)) in update-cases-recurring.json
+    public static async Task<Ok> SendMessage(
+        Guid caseId,
+        Message message,
+        IAdminCaseMessageService adminCaseMessageService) {
+        var user = CasesClaimsPrincipalExtensions.SystemUser(); // todo: client_credentials, add AuditMeta
+        await adminCaseMessageService.Send(caseId, user, message);
+        return TypedResults.Ok();
+    }
+
+    public static async Task<Ok> AddComment(
+        Guid caseId,
+        string? comment,
+        string? checkpointTypeName,
+        bool privateComment,
+        ClaimsPrincipal currentUser,
+        IAdminCaseMessageService adminCaseMessageService) {
+        await adminCaseMessageService.Send(caseId, currentUser, new Message {
+            CheckpointTypeName = checkpointTypeName,
+            Comment = comment,
+            PrivateComment = privateComment
+        });
+        
+        return TypedResults.Ok(); // todo: created?
+    }
+    
+    /// <summary>Add Case Data optionally passing comment.</summary>
+    public static async Task<Ok> AddCaseData(
+        Guid caseId,
+        JsonNode data,
+        string? comment,
+        bool privateComment,
+        Guid? replyToCommentId,
+        ClaimsPrincipal currentUser,
+        IAdminCaseMessageService adminCaseMessageService) {
+        await adminCaseMessageService.Send(caseId, currentUser, new Message {
+            Data = data,
+            Comment = comment,
+            PrivateComment = privateComment,
+            ReplyToCommentId = replyToCommentId
+        });
+        
+        return TypedResults.Ok(); // todo: created?
+    }
 
     public static async Task<Results<Ok<CasesAttachmentLink>, ValidationProblem>> UploadAdminCaseAttachment(
         Guid caseId,
@@ -35,6 +131,7 @@ internal static class AdminCasesHandlers
         if (file.Length is 0) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(file), "File is empty."));
         }
+        
         var attachmentId = await adminCaseMessageService.Send(caseId, currentUser, new Message {
             FileName = file.FileName,
             FileStreamAccessor = () => file.OpenReadStream()
@@ -97,8 +194,14 @@ internal static class AdminCasesHandlers
     public static async Task<Ok<ResultSet<CasePartial>>> GetCases([AsParameters] ListOptions options, [AsParameters] GetCasesListFilter filter, IAdminCaseService adminCaseService, ClaimsPrincipal currentUser) =>
         TypedResults.Ok(await adminCaseService.GetCases(currentUser, ListOptions.Create(options, filter)));
 
-    public static async Task<Results<Ok<Case>, NotFound>> GetCaseById(Guid caseId, IAdminCaseService adminCareService, ClaimsPrincipal currentUser) {
-        var @case = await adminCareService.GetCaseById(currentUser, caseId, false);
+    // todo: breaking compatibility includeAttachments not default value, check if this is different endpoint for workflows
+    public static async Task<Results<Ok<Case>, NotFound>> GetCaseById(
+        Guid caseId,
+        IAdminCaseService adminCareService,
+        ClaimsPrincipal currentUser,
+        bool includeAttachments = false
+    ) {
+        var @case = await adminCareService.GetCaseById(currentUser, caseId, includeAttachments);
         return @case is not null ? TypedResults.Ok(@case) : TypedResults.NotFound();
     }
 

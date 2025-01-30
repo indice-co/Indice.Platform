@@ -4,9 +4,8 @@ using Elsa.Attributes;
 using Elsa.Design;
 using Elsa.Expressions;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Core.Models;
-using Indice.Features.Cases.Core.Services.Abstractions;
-using Indice.Features.Cases.Workflows.Extensions;
+using Indice.Features.Cases.Workflows.Integration;
+using Indice.Features.Cases.Workflows.Models;
 
 namespace Indice.Features.Cases.Workflows.Activities;
 
@@ -22,13 +21,10 @@ namespace Indice.Features.Cases.Workflows.Activities;
 )]
 internal class AwaitAssignmentActivity : BaseCaseActivity
 {
-    private readonly IAdminCaseService _adminCaseService;
+    private readonly CasesHttpClient _casesClient;
     
-    public AwaitAssignmentActivity(
-        IAdminCaseMessageService caseMessageService,
-        IAdminCaseService adminCaseService)
-        : base(caseMessageService) {
-        _adminCaseService = adminCaseService ?? throw new ArgumentNullException(nameof(adminCaseService));
+    public AwaitAssignmentActivity(CasesHttpClient casesClient) : base(casesClient) {
+        _casesClient = casesClient ?? throw new ArgumentNullException(nameof(casesClient));
     }
 
     [ActivityInput(
@@ -41,7 +37,7 @@ internal class AwaitAssignmentActivity : BaseCaseActivity
     public string? AllowedRole { get; set; }
 
     [ActivityOutput]
-    public AuditMeta? Output { get; set; }
+    public CasesUser? Output { get; set; }
 
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         return context.WorkflowExecutionContext.IsFirstPass ? await OnExecuteInternal(context) : Suspend();
@@ -52,16 +48,13 @@ internal class AwaitAssignmentActivity : BaseCaseActivity
     }
 
     private async Task<IActivityExecutionResult> OnExecuteInternal(ActivityExecutionContext context) {
-        CaseId ??= Guid.Parse(context.CorrelationId);
-        AuditMeta assignedTo;
-        try {
-            assignedTo = await _adminCaseService.AssignCase(AuditMeta.Create(context.GetHttpContextUser()), CaseId!.Value);
-        } catch (Exception ex) {
-            await LogCaseError(context, ex);
-            return Outcome("Failed");
-        }
+        var assignment = context.Input as WorkflowAssignCaseRequest;
 
-        Output = assignedTo;
+        if (assignment?.OutcomeResult != OutcomeNames.Done) {
+            return Outcome(CasesWorkflowConstants.WorkflowVariables.OutcomeNames.Failed);
+        }
+        
+        Output = assignment.CasesUser;
         context.LogOutputProperty(this, "Output", Output);
         return Done();
     }

@@ -3,10 +3,9 @@ using Elsa.Attributes;
 using Elsa.Design;
 using Elsa.Expressions;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Core.Models;
-using Indice.Features.Cases.Core.Services.Abstractions;
+using Indice.Features.Cases.Workflows.Integration;
 using Indice.Features.Cases.Workflows.Models;
-using Approval = Indice.Features.Cases.Core.Models.Approval;
+using Approval = Indice.Features.Cases.Workflows.Integration.Approval;
 
 namespace Indice.Features.Cases.Workflows.Activities;
 
@@ -20,7 +19,7 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "Handles the approval or rejection of a case.",
     Outcomes = new[] { nameof(Approval.Approve), nameof(Approval.Reject) }
 )]
-internal class AwaitApprovalActivity(IAdminCaseMessageService caseMessageService) : BaseCaseActivity(caseMessageService)
+internal class AwaitApprovalActivity(CasesHttpClient casesClient) : BaseCaseActivity(casesClient)
 {
     [ActivityInput(
         Label = "Role",
