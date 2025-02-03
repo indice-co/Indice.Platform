@@ -23,4 +23,8 @@ public interface ITemplateService
     /// <param name="id">The id of the template.</param>
     /// <param name="request">The request model used to update an existing template.</param>
     Task Update(Guid id, UpdateTemplateRequest request);
+    /// <summary>Updates flag Ignore User Preference to an existing template.</summary>
+    /// <param name="id">The id of the template.</param>
+    /// <param name="ignoreUserPreferences">Value for flag IgnoreUserPreferences.</param>
+    Task UpdateIgnreUserPreferences(Guid id, bool ignoreUserPreferences);
 }
