@@ -20,6 +20,10 @@ public interface IMessageService
     /// <param name="id">The id of the inbox message.</param>
     /// <param name="recipientId">The id of the recipient.</param>
     Task MarkAsRead(Guid id, string recipientId);
+    /// <summary>Marks an inbox message as unread.</summary>
+    /// <param name="id">The id of the inbox message.</param>
+    /// <param name="recipientId">The id of the recipient.</param>
+    Task MarkAsUnread(Guid id, string recipientId);
     /// <summary>Marks an inbox message as deleted.</summary>
     /// <param name="id">The id of the inbox message.</param>
     /// <param name="recipientId">The id of the recipient.</param>

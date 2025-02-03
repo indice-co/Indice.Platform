@@ -38,8 +38,8 @@ public class TemplateService : ITemplateService
             IgnoreUserPreferences = request.IgnoreUserPreferences,
             Id = template.Id,
             Name = template.Name,
-            Data= template.Data,
-            CreatedAt= template.CreatedAt,
+            Data = template.Data,
+            CreatedAt = template.CreatedAt,
         };
     }
 
@@ -101,6 +101,17 @@ public class TemplateService : ITemplateService
         template.Name = request.Name;
         template.Content = request.Content;
         template.Data = request.Data;
+        template.UpdatedAt = DateTime.UtcNow;
+        await DbContext.SaveChangesAsync();
+    }
+
+    /// <inheritdoc />
+    public async Task UpdateIgnreUserPreferences(Guid id, bool ignoreUserPreferences) {
+        var template = await DbContext.Templates.FindAsync(id);
+        if (template is null) {
+            throw MessageExceptions.TemplateNotFound(id);
+        }
+        template.IgnoreUserPreferences = ignoreUserPreferences;
         template.UpdatedAt = DateTime.UtcNow;
         await DbContext.SaveChangesAsync();
     }
