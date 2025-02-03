@@ -1,22 +1,25 @@
 ﻿using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.Metrics;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Extensions.Hosting;
 
 /// <summary>
 /// A builder for web applications and services that has all the indice defaults preconfigured. This is a decorator for the inner <seealso cref="FunctionsApplicationBuilder"/>
 /// </summary>
-public class IndiceFunctionsApplicationBuilder : IHostBuilder
+public class IndiceFunctionsApplicationBuilder : IHostApplicationBuilder
 {
-    private HostBuilder InnerBuilder { get; }
-    
+    private FunctionsApplicationBuilder InnerBuilder { get; }
+
+
 
     /// <summary>
     /// constructs the <see cref="IndiceFunctionsApplicationBuilder "/> given the inner builder.
     /// </summary>
     /// <param name="innerBuilder"></param>
-    internal IndiceFunctionsApplicationBuilder(HostBuilder innerBuilder) {
+    internal IndiceFunctionsApplicationBuilder(FunctionsApplicationBuilder innerBuilder) {
         InnerBuilder = innerBuilder;
     }
 
@@ -33,24 +36,27 @@ public class IndiceFunctionsApplicationBuilder : IHostBuilder
     /// Initializes a new instance of the <see cref="IHostBuilder"/> class with preconfigured defaults.
     /// </summary>
     /// <returns>The <see cref="IHostBuilder"/>.</returns>
-    public static IHostBuilder CreateBuilder() {
-        var builder = new HostBuilder();
+    public static IHostApplicationBuilder CreateBuilder(string[] args) {
+        var builder = FunctionsApplication.CreateBuilder(args);
         builder.ConfigureFunctionsDefaults();
         return new IndiceFunctionsApplicationBuilder(builder);
     }
 
+
+    /// <inheritdoc/>
+    public IConfigurationManager Configuration => InnerBuilder.Configuration;
+    /// <inheritdoc/>
+    public IHostEnvironment Environment => InnerBuilder.Environment;
+    /// <inheritdoc/>
+    public ILoggingBuilder Logging => InnerBuilder.Logging;
+    /// <inheritdoc/>
+    public IMetricsBuilder Metrics => InnerBuilder.Metrics;
     /// <inheritdoc/>
     public IDictionary<object, object> Properties => InnerBuilder.Properties;
     /// <inheritdoc/>
-    public IHostBuilder ConfigureAppConfiguration(Action<HostBuilderContext, IConfigurationBuilder> configureDelegate) => InnerBuilder.ConfigureAppConfiguration(configureDelegate);
+    public IServiceCollection Services => InnerBuilder.Services;
     /// <inheritdoc/>
-    public IHostBuilder ConfigureContainer<TContainerBuilder>(Action<HostBuilderContext, TContainerBuilder> configureDelegate) => InnerBuilder.ConfigureContainer(configureDelegate);
-    /// <inheritdoc/>
-    public IHostBuilder ConfigureHostConfiguration(Action<IConfigurationBuilder> configureDelegate) => InnerBuilder.ConfigureHostConfiguration(configureDelegate);
-    /// <inheritdoc/>
-    public IHostBuilder ConfigureServices(Action<HostBuilderContext, IServiceCollection> configureDelegate) => InnerBuilder.ConfigureServices(configureDelegate);
-    /// <inheritdoc/>
-    public IHostBuilder UseServiceProviderFactory<TContainerBuilder>(IServiceProviderFactory<TContainerBuilder> factory) where TContainerBuilder : notnull => InnerBuilder.UseServiceProviderFactory(factory);
-    /// <inheritdoc/>
-    public IHostBuilder UseServiceProviderFactory<TContainerBuilder>(Func<HostBuilderContext, IServiceProviderFactory<TContainerBuilder>> factory) where TContainerBuilder : notnull => InnerBuilder.UseServiceProviderFactory(factory);
+    public void ConfigureContainer<TContainerBuilder>(IServiceProviderFactory<TContainerBuilder> factory, Action<TContainerBuilder>? configure = null) where TContainerBuilder : notnull
+        => InnerBuilder.ConfigureContainer(factory, configure);
+
 }

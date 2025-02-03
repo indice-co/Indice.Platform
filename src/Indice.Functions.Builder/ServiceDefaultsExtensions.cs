@@ -13,11 +13,9 @@ public static class ServiceDefaultsExtensions
     /// </summary>
     /// <param name="builder">The builder to configure</param>
     /// <returns>The <see cref="IHostApplicationBuilder"/> for further configuration.</returns>
-    public static IHostBuilder ConfigureFunctionsDefaults(this IHostBuilder builder) {
-        builder.ConfigureServices((context, services) => {
-            services.AddWorkerServiceOpenTelemetry(context);
-            services.AddFunctionHealthChecks();
-        });
+    public static FunctionsApplicationBuilder ConfigureFunctionsDefaults(this FunctionsApplicationBuilder builder) {
+        builder.Services.AddWorkerServiceOpenTelemetry(builder.Environment);
+        builder.Services.AddFunctionHealthChecks();
         return builder;
     }
 

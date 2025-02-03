@@ -20,14 +20,13 @@ public static class OpenTelementryServiceExtentions
     /// Use OpenTelemetry with Azure Functions
     /// </summary>
     /// <remarks> article: <a href="https://learn.microsoft.com/en-us/azure/azure-functions/opentelemetry-howto?tabs=app-insights&amp;pivots=programming-language-csharp">OpenTelemetry How to</a> </remarks>
-    public static IServiceCollection AddWorkerServiceOpenTelemetry(this IServiceCollection services, HostBuilderContext context) {
-
+    public static IServiceCollection AddWorkerServiceOpenTelemetry(this IServiceCollection services, IHostEnvironment environment) {
 
         var optelBuilder = services.AddOpenTelemetry()
                                     .UseFunctionsWorkerDefaults()
                                     //When the host is configured to use OpenTelemetry, only logs and traces are exported. Host metrics aren't currently exported.
                                     /*.AddMetrics()*/
-                                    .AddTracing(context);
+                                    .AddTracing(environment);
         // Uncomment the following lines to enable the OLTP telemetry exporter.
         var useOtlpExporter = !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_ENDPOINT"));
         if (useOtlpExporter) {
@@ -54,9 +53,10 @@ public static class OpenTelementryServiceExtentions
     /// Add tracing to the OpenTelemetry builder
     /// </summary>
     /// <param name="builder">The OpenTelemetry builder.</param>
+    /// <param name="environment">Host environemt</param>
     /// <param name="context">The host builder context.</param>
     /// <returns>The updated OpenTelemetry builder.</returns>
-    private static OpenTelemetryBuilder AddTracing(this OpenTelemetryBuilder builder, HostBuilderContext context) {
+    private static OpenTelemetryBuilder AddTracing(this OpenTelemetryBuilder builder, IHostEnvironment environment) {
         builder.WithTracing(tracing => {
             tracing.AddAspNetCoreInstrumentation()
                 // Uncomment the following line to enable gRPC instrumentation (requires the OpenTelemetry.Instrumentation.GrpcNetClient package)
@@ -66,7 +66,7 @@ public static class OpenTelementryServiceExtentions
             //.AddEntityFrameworkCoreInstrumntation();
 
             tracing.ConfigureResource(resource => resource .AddService(
-                serviceName: context.HostingEnvironment.ApplicationName,
+                serviceName: environment.ApplicationName,
                 serviceNamespace: GetServiceNamespace(),
                 serviceVersion: Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "1.0.0",
                 autoGenerateServiceInstanceId: true)
