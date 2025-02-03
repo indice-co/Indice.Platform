@@ -61,6 +61,12 @@ internal static class TemplatesApi
              .WithDescription(TemplatesHandlers.UPDATE_TEMPLATE_DESCRIPTION)
              .WithParameterValidation<UpdateTemplateRequest>();
 
+        group.MapPut("{templateId}/user-preferences", TemplatesHandlers.UpdateTemplateUserPreferences)
+             .WithName(nameof(TemplatesHandlers.UpdateTemplateUserPreferences))
+             .WithSummary("Updates in an existing template user respect of user preferences flag.")
+             .WithDescription(TemplatesHandlers.UPDATE_TEMPLATE_DESCRIPTION)
+             .WithParameterValidation<UpdateTemplateRequest>();
+
         group.MapDelete("{templateId}", TemplatesHandlers.DeleteTemplate)
              .WithName(nameof(TemplatesHandlers.DeleteTemplate))
              .WithSummary("Permanently deletes a template from the store.")
