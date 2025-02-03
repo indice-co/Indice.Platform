@@ -102,6 +102,20 @@ public class MessageService : IMessageService
     }
 
     /// <inheritdoc />
+    public async Task MarkAsUnread(Guid id, string recipientId) {
+        var message = await DbContext.Messages
+            .SingleOrDefaultAsync(x => x.CampaignId == id && x.RecipientId == recipientId);
+        if (message is not null) {
+            if (!message.IsRead) {
+                throw MessageExceptions.MessageAlreadyUnread(id);
+            }
+            message.IsRead = false;
+            message.ReadDate = null;
+            await DbContext.SaveChangesAsync();
+        }
+    }
+
+    /// <inheritdoc />
     public async Task<Guid> Create(CreateMessageRequest request) {
         var dbMessage = new DbMessage {
             CampaignId = request.CampaignId,

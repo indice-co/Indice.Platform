@@ -62,6 +62,17 @@ internal static class MyMessagesHandlers
         return TypedResults.NoContent();
     }
 
+    public static async Task<NoContent> MarkMessageAsUnread(
+        IMessageService messageService,
+        IOptions<MessageInboxOptions> campaignEndpointOptions,
+        Guid messageId,
+        ClaimsPrincipal currentUser
+    ) {
+        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType)!;
+        await messageService.MarkAsUnread(messageId, userCode);
+        return TypedResults.NoContent();
+    }
+
     public static async Task<NoContent> DeleteMessage(
         IMessageService messageService,
         IOptions<MessageInboxOptions> campaignEndpointOptions,
@@ -111,7 +122,14 @@ Parameters:
 - messageId: The ID of the message.
 ";
 
-public static readonly string DELETE_MESSAGE_DESCRIPTION = @"
+public static readonly string MARK_MESSAGE_AS_UNREAD_DESCRIPTION = @"
+Marks the specified message as unread.
+
+Parameters:
+- messageId: The ID of the message.
+";
+
+    public static readonly string DELETE_MESSAGE_DESCRIPTION = @"
 Marks the specified message as deleted.
 
 Parameters:
