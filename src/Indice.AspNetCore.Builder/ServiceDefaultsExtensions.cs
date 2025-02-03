@@ -133,9 +133,9 @@ public static class ServiceDefaultsExtensions
         //    .WithMetrics(metrics => metrics.AddPrometheusExporter());
 
         // enables the Azure Monitor exporter (requires the Azure.Monitor.OpenTelemetry.AspNetCore package)
-        else if (builder.Configuration.GetApplicationInsightsConnectionString() is { Length: > 0 } azureMonitorConnectionString) {
+        if (builder.Configuration.GetApplicationInsightsConnectionString() is { Length: > 0 } azureMonitorConnectionString) {
             builder.Services.AddOpenTelemetry()
-                    .UseAzureMonitor(options => options.ConnectionString = azureMonitorConnectionString);
+                            .UseAzureMonitor(options => options.ConnectionString = azureMonitorConnectionString);
         }
 
         return builder;
