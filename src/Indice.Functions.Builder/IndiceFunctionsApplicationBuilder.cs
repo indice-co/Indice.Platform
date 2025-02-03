@@ -1,4 +1,6 @@
-﻿using Microsoft.Azure.Functions.Worker.Builder;
+﻿using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Builder;
+using Microsoft.Azure.Functions.Worker.Middleware;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.Metrics;
@@ -9,7 +11,7 @@ namespace Microsoft.Extensions.Hosting;
 /// <summary>
 /// A builder for web applications and services that has all the indice defaults preconfigured. This is a decorator for the inner <seealso cref="FunctionsApplicationBuilder"/>
 /// </summary>
-public class IndiceFunctionsApplicationBuilder : IHostApplicationBuilder
+public class IndiceFunctionsApplicationBuilder : IHostApplicationBuilder, IFunctionsWorkerApplicationBuilder
 {
     private FunctionsApplicationBuilder InnerBuilder { get; }
 
@@ -36,7 +38,7 @@ public class IndiceFunctionsApplicationBuilder : IHostApplicationBuilder
     /// Initializes a new instance of the <see cref="IHostBuilder"/> class with preconfigured defaults.
     /// </summary>
     /// <returns>The <see cref="IHostBuilder"/>.</returns>
-    public static IHostApplicationBuilder CreateBuilder(string[] args) {
+    public static IndiceFunctionsApplicationBuilder CreateBuilder(string[] args) {
         var builder = FunctionsApplication.CreateBuilder(args);
         builder.ConfigureFunctionsDefaults();
         return new IndiceFunctionsApplicationBuilder(builder);
@@ -58,5 +60,8 @@ public class IndiceFunctionsApplicationBuilder : IHostApplicationBuilder
     /// <inheritdoc/>
     public void ConfigureContainer<TContainerBuilder>(IServiceProviderFactory<TContainerBuilder> factory, Action<TContainerBuilder>? configure = null) where TContainerBuilder : notnull
         => InnerBuilder.ConfigureContainer(factory, configure);
+
+    /// <inheritdoc/>
+    public IFunctionsWorkerApplicationBuilder Use(Func<FunctionExecutionDelegate, FunctionExecutionDelegate> middleware) => InnerBuilder.Use(middleware);
 
 }
