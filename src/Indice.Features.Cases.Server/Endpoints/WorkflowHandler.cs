@@ -34,7 +34,7 @@ internal static class WorkflowHandler
         IAdminCaseService adminCareService,
         bool includeAttachments = false
     ) {
-        var currentUser = CasesClaimsPrincipalExtensions.SystemUser(); // todo: client_credentials, add AuditMeta
+        var currentUser = CasesClaimsPrincipalExtensions.SystemUser();
         var @case = await adminCareService.GetCaseById(currentUser, caseId, includeAttachments);
         return @case is not null ? TypedResults.Ok(@case) : TypedResults.NotFound();
     }
@@ -45,7 +45,7 @@ internal static class WorkflowHandler
         CaseSharedResourceService caseSharedResourceService,
         ICaseApprovalService caseApprovalService
     ) {
-        var user = CasesClaimsPrincipalExtensions.SystemUser(); // todo: client_credentials, add AuditMeta
+        var user = CasesClaimsPrincipalExtensions.SystemUser();
         await caseApprovalService.AddApproval(request.CaseId, null, user, request.Action, request.Reason, request.CasesActor.ToAuditMeta());
         return TypedResults.Ok();
     }
@@ -56,7 +56,7 @@ internal static class WorkflowHandler
         CaseSharedResourceService caseSharedResourceService,
         ICaseApprovalService caseApprovalService
     ) {
-        var user = CasesClaimsPrincipalExtensions.SystemUser(); // todo: client_credentials, add AuditMeta
+        var user = CasesClaimsPrincipalExtensions.SystemUser();
         await caseMessageService.Send(request.CaseId, user, new Message {
             Comment = caseSharedResourceService.GetLocalizedHtmlString(request.Reason ?? string.Empty).Value,
             PrivateComment = request.PrivateComment
@@ -82,12 +82,12 @@ internal static class WorkflowHandler
         return TypedResults.Ok();
     }
 
-    // TODO: JSON.parse(JSON.stringify(workflowExecutionContext.CurrentScope.Variables.Data.CurrentValue.Message)) in update-cases-recurring.json
+    // TODO: check json serialization with json from elsa JSON.parse(JSON.stringify(workflowExecutionContext.CurrentScope.Variables.Data.CurrentValue.Message)) in update-cases-recurring.json
     public static async Task<Ok> SendMessage(
         Guid caseId,
         WorkflowSendMessageRequest request,
         IAdminCaseMessageService adminCaseMessageService) {
-        var user = CasesClaimsPrincipalExtensions.SystemUser(); // todo: client_credentials, add AuditMeta
+        var user = CasesClaimsPrincipalExtensions.SystemUser();
         if (request.Message.Data is JsonElement) {
             request.Message.Data = JsonSerializer.SerializeToNode(request.Message.Data);
         }
@@ -100,7 +100,7 @@ internal static class WorkflowHandler
         IContactProvider customerIntegrationService,
         string reference,
         string caseTypeCode) {
-        var user = CasesClaimsPrincipalExtensions.SystemUser(); // todo: client_credentials, add AuditMeta
+        var user = CasesClaimsPrincipalExtensions.SystemUser();
         var contactData = await customerIntegrationService.GetByReferenceAsync(user, reference, caseTypeCode);
         if (contactData == null) {
             return TypedResults.NotFound();

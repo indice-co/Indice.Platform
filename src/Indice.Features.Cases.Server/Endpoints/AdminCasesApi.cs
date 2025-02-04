@@ -108,6 +108,6 @@ internal static class AdminCasesApi
             .WithSummary("Download case in a PDF format.")
             .Produces(StatusCodes.Status200OK, typeof(IFormFile), MediaTypeNames.Application.Pdf);
         
-        return group.AllowAnonymous();
+        return group;
     }
 }

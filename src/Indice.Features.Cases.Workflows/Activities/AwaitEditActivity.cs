@@ -23,7 +23,7 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "Handles the edit of the data for case.",
     Outcomes = new[] { OutcomeNames.Done, CustomOutcomeNames.Save }
 )]
-internal class AwaitEditActivity(CasesHttpClient casesHttpClient) : BaseCaseActivity(casesHttpClient)
+internal class AwaitEditActivity(CasesHttpClient casesHttpClient) : BaseBlockingActivity(casesHttpClient)
 {
     [ActivityInput(
         Label = "Role",
@@ -37,15 +37,7 @@ internal class AwaitEditActivity(CasesHttpClient casesHttpClient) : BaseCaseActi
     [ActivityOutput]
     public object? Output { get; set; }
 
-    public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
-        return context.WorkflowExecutionContext.IsFirstPass ? await OnExecuteInternalAsync(context) : Suspend();
-    }
-
-    protected override async ValueTask<IActivityExecutionResult> OnResumeAsync(ActivityExecutionContext context) {
-        return await OnExecuteInternalAsync(context);
-    }
-
-    private async Task<IActivityExecutionResult> OnExecuteInternalAsync(ActivityExecutionContext context) {
+    protected override async Task<IActivityExecutionResult> OnExecuteInternalAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
         var editRequest = context.Input as InvokeEditRequest;
         var caseData = editRequest!.Data;

@@ -29,9 +29,8 @@ internal class AwaitEditBookmarkProvider : BookmarkProvider<AwaitEditBookmark, A
     /// <returns></returns>
     public override async ValueTask<IEnumerable<BookmarkResult>> GetBookmarksAsync(BookmarkProviderContext<AwaitEditActivity> context, CancellationToken cancellationToken) {
         var allowedRole = await context.ReadActivityPropertyAsync<AwaitEditActivity, string>(x => x.AllowedRole!, cancellationToken) ?? string.Empty;
-        return new[] {
-            // Create a bookmark for the activity's input role (or "" if left black (that means bookmark will be triggered by an authenticated-only user))
+        return [
             Result(new AwaitEditBookmark(context.ActivityExecutionContext.CorrelationId, allowedRole))
-        };
+        ];
     }
 }

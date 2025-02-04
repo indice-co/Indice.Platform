@@ -12,7 +12,7 @@ public class CaseSubmittedEvent : ICaseEvent
     /// <summary>The case type code that has been submitted.</summary>
     public string CaseTypeCode { get; set; }
     
-    public AuditMeta AuditMeta { get; set; }
+    public AuditMeta AuditMeta { get; set; } // todo: change to workflowActor
 
     /// <summary>Construct a new <see cref="CaseSubmittedEvent"/>.</summary>
     /// <param name="case">The case that has been submitted.</param>

@@ -44,8 +44,6 @@ internal class AwaitApprovalBookmarkProvider : BookmarkProvider<AwaitApprovalBoo
         var blockPreviousApprover = await context.ReadActivityPropertyAsync<AwaitApprovalActivity, bool>(x => x.BlockPreviousApprover, cancellationToken);
         var publicActions = await context.ReadActivityPropertyAsync<AwaitApprovalActivity, IEnumerable<string>>(x => x.PublicActions, cancellationToken);
         return [
-            // Create a bookmark for the activity's input role (or "" if left blank (that means bookmark will be triggered by an authenticated-only user))
-            // pass the information 
             Result(new AwaitApprovalBookmark(context.ActivityExecutionContext.CorrelationId, allowedRole, blockPreviousApprover, publicActions))
         ];
     }

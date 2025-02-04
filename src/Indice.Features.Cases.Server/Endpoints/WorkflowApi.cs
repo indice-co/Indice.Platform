@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Server.Endpoints;
 
+// TODO: fix authorization
 internal static class WorkflowApi
 {
     public static IEndpointRouteBuilder MapWorkflow(this IEndpointRouteBuilder routes) {
@@ -63,8 +64,6 @@ internal static class WorkflowApi
         group.MapGet("contacts/{reference}/data/{caseTypeCode}", WorkflowHandler.GetContactReference)
             .WithName(nameof(WorkflowHandler.GetContactReference))
             .WithSummary("Fetch contact data by contact.reference number for a specific case type code.");
-        
-        
         
         return group;
     }

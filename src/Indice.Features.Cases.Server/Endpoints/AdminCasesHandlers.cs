@@ -187,19 +187,19 @@ internal static class AdminCasesHandlers
         }
         
         // For Approval Action:
-        // 1. User must have the specified role
-        // 2. Case must be assigned to them if already assigned
-        // 3. If BlockPreviousApprover is set, they must not be the previous approver
         if (actions?.ApprovalBookmarks is { Count: > 0 }) {
             var authorizationResult = await authorizationService.AuthorizeAsync(currentUser, caseId, new CasesRolesRequirement([actions.ApprovalBookmarks.FirstOrDefault()?.Role]));
-            if (authorizationResult.Succeeded) {
+            // 1. User must have the specified role
+            if (authorizationResult.Succeeded) { 
                 hasApproval = true;
             }
             
+            // 2. Case must be assigned to them if already assigned
             if (caseIsAssigned && !isAssignedToCurrentUser) {
                 hasApproval = false;
             }
             
+            // 3. If BlockPreviousApprover is set, they must not be the previous approver
             if (actions.ApprovalBookmarks.First().BlockPreviousApprover) {
                 var lastApproval = await caseApprovalService.GetLastApproval(caseId);
                 if (currentUser.FindSubjectId() == lastApproval?.CreatedBy.Id) {

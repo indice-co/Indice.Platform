@@ -2,6 +2,8 @@ using Indice.Features.Cases.Core.Models;
 
 namespace Indice.Features.Cases.Server.Models;
 
+// TODO: check if all these request models should be in core
+/// <summary>Cases Actor.</summary>
 public class CasesActor
 {
     /// <summary>The Id of the user.</summary>
@@ -13,7 +15,7 @@ public class CasesActor
     /// <summary>The email of the user.</summary>
     public string? Email { get; set; }
 
-    public AuditMeta ToAuditMeta() =>
+    internal AuditMeta ToAuditMeta() =>
         new() {
             Id = Id,
             Name = Name,

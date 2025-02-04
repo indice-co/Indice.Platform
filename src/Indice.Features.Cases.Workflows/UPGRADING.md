@@ -1,7 +1,5 @@
-- context.TryGetUser() on ActivityContext is not available anymore
+- context.TryGetUser() on ActivityContext is not available anymore, use context.TryGetLastActor() optionally resolving with your identity provider
 - Bookmark hashes will need recalculation.
-- AwaitAssignmentActivity will no longer log exceptions in Elsa Dashboard
-
 
 ## Integrators endpoints currently used
 Api Calls from Workflows SendMessageActivity:
@@ -16,3 +14,16 @@ Aπό custom workflows:
 - PatchCaseData
 
 NotificationSubscriptionService.GetSubscriptions() is also used.
+
+## Integrators Current needed actions
+System User, As a workflow integrator I want:
+- to know the last actor on a case the last ClaimsPrincipal that performed an action.
+- to know the last approver of a case.
+- to be able to add an approval.
+- to be able to remove an assignment for a case.
+- to be able to rollback an approval action.
+- to be able to add a comment to a case.
+- to be able to move a checkpoint of a case.
+- to be able to upload an attachment?
+- to be able to update the case data.
+- to be able to change the time of retries for an http call to cases.

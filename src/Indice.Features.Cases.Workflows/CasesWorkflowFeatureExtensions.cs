@@ -9,7 +9,6 @@ using Elsa.Server.Api.Mapping;
 using Elsa.Server.Api.Services;
 using Indice.Features.Cases.Workflows;
 using Indice.Features.Cases.Workflows.Data;
-using Indice.Features.Cases.Workflows.Interfaces;
 using Indice.Features.Cases.Workflows.Services;
 using Indice.Security;
 using Microsoft.AspNetCore.Authorization;
@@ -35,6 +34,8 @@ using Microsoft.Extensions.Hosting;
 using Elsa.Serialization;
 using Indice.Features.Cases.Core.Serialization;
 using Indice.Features.Cases.Workflows.Integration;
+using Indice.Features.Cases.Workflows.Serialization;
+using Indice.Features.Cases.Workflows.Services.Abstractions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -63,6 +64,7 @@ public static class CasesWorkflowFeatureExtensions
             options.RegisterControllers = workflowOptions.RegisterControllers;
             options.RegisterStaticFiles = workflowOptions.RegisterStaticFiles;
             options.RegisterAuthentication = workflowOptions.RegisterAuthentication;
+            options.ConfigureDbSeed = workflowOptions.ConfigureDbSeed;
         });
         builder.AddWorkflowInternal(workflowOptions);
         return builder;
@@ -78,6 +80,14 @@ public static class CasesWorkflowFeatureExtensions
         CasesWorkflowOptions casesWorkflowOptions) {
         // db initializer
         var configureDatabase = casesWorkflowOptions.ConfigureDbContext ?? new Action<IServiceProvider, DbContextOptionsBuilder>((sp, ef) => ef.UseSqlServer(sp.GetRequiredService<IConfiguration>().GetConnectionString("WorkflowDb")));
+       
+        var seedOptions = new CasesWorkflowDbInitializerOptions();
+        casesWorkflowOptions.ConfigureDbSeed?.Invoke(seedOptions);
+        
+        builder.Services.Configure<CasesWorkflowDbInitializerOptions>(opp => {
+            opp.WorkflowDefinitions.AddRange(seedOptions.WorkflowDefinitions);
+        });
+        
         builder.Services.AddHostedService<CasesWorkflowDbInitializerHostedService>();
         builder.Services.AddDbContextFactory<ElsaContext>(configureDatabase);
 
@@ -303,8 +313,8 @@ public static class CasesWorkflowFeatureExtensions
         public void Apply(ControllerModel controller) {
             // This is for ELSA API
             if (controller.DisplayName.Contains("elsa", StringComparison.OrdinalIgnoreCase)) {
-                controller.ApiExplorer.IsVisible = true;
-                controller.ApiExplorer.GroupName = "elsa";
+                controller.ApiExplorer.IsVisible = false;
+                controller.ApiExplorer.GroupName = "workflow";
             }
         }
     }

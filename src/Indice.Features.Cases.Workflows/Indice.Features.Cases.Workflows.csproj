@@ -21,7 +21,6 @@
     <PackageReference Include="MediatR" Version="12.2.0" />
     <PackageReference Include="Indice.Common" Version="$(VersionPrefixCore)-*" />
     <PackageReference Include="IdentityModel" Version="7.0.0" />
-<!--    <PackageReference Include="Indice.Services" Version="$(VersionPrefixCore)-*" />-->
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Common\Indice.Common.csproj" />
