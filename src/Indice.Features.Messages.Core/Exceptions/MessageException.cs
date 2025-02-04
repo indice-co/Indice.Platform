@@ -27,6 +27,9 @@ public static class MessageExceptions
     /// <summary>Message already read exception.</summary>
     /// <param name="id">The message id.</param>
     public static BusinessException MessageAlreadyRead(Guid id) => new($"Message with id '{id}' is already read.", nameof(MessageAlreadyRead));
+    /// <summary>Message already read exception.</summary>
+    /// <param name="id">The message id.</param>
+    public static BusinessException MessageAlreadyUnread(Guid id) => new($"Message with id '{id}' is already unread.", nameof(MessageAlreadyRead));
     /// <summary>Message already deleted exception.</summary>
     /// <param name="id">The message id.</param>
     public static BusinessException MessageAlreadyDeleted(Guid id) => new($"Message with id '{id}' is already deleted.", nameof(MessageAlreadyDeleted));

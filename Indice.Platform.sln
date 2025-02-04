@@ -130,6 +130,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Features.Cases.Core"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Features.Cases.Workflows", "src\Indice.Features.Cases.Workflows\Indice.Features.Cases.Workflows.csproj", "{E0728D94-7B08-4596-A07A-5D15DF82B17D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Functions.Builder", "src\Indice.Functions.Builder\Indice.Functions.Builder.csproj", "{1653F060-BABB-4840-B7D0-51ABD56474EC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -332,6 +334,10 @@ Global
 		{E0728D94-7B08-4596-A07A-5D15DF82B17D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E0728D94-7B08-4596-A07A-5D15DF82B17D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E0728D94-7B08-4596-A07A-5D15DF82B17D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1653F060-BABB-4840-B7D0-51ABD56474EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1653F060-BABB-4840-B7D0-51ABD56474EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1653F060-BABB-4840-B7D0-51ABD56474EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1653F060-BABB-4840-B7D0-51ABD56474EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -384,6 +390,7 @@ Global
 		{04C0B75E-2C67-4BBA-8A80-B0936F7D06DE} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 		{B386BFEF-4CA6-4C39-A081-818A34AF7B1A} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 		{E0728D94-7B08-4596-A07A-5D15DF82B17D} = {643960D9-48C5-4EA3-BED5-486CCC694947}
+		{1653F060-BABB-4840-B7D0-51ABD56474EC} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C2B9151E-8A85-444E-93A9-78264FD0FE4A}

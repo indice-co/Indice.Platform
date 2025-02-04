@@ -143,9 +143,17 @@ internal static class ClientHandlers
         IConfiguration configuration,
         ClaimsPrincipal currentUser,
         CreateClientRequest request) {
+        
         if (request is null) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(string.Empty, "Request body cannot be null."));
         }
+        // sanitaze whitespace sensitive data
+        request.ClientId = request.ClientId.Trim();
+        request.RedirectUri = request.RedirectUri?.Trim();
+        request.ClientUri = request.ClientUri?.Trim();
+        request.LogoUri = request.LogoUri?.Trim();
+        request.PostLogoutRedirectUri = request.PostLogoutRedirectUri?.Trim();
+
         var clientIdExists = (await configurationDbContext.Clients.CountAsync(x => x.ClientId == request.ClientId)) > 0;
         if (clientIdExists) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.ClientId).Camelize(), $"Client with id '{request.ClientId}' already exists."));
@@ -178,10 +186,10 @@ internal static class ClientHandlers
         client.AlwaysSendClientClaims = request.AlwaysSendClientClaims;
         client.AuthorizationCodeLifetime = request.AuthorizationCodeLifetime;
         client.BackChannelLogoutSessionRequired = request.BackChannelLogoutSessionRequired;
-        client.BackChannelLogoutUri = request.BackChannelLogoutUri;
+        client.BackChannelLogoutUri = request.BackChannelLogoutUri?.Trim();
         client.ClientClaimsPrefix = request.ClientClaimsPrefix;
         client.ClientName = request.ClientName;
-        client.ClientUri = request.ClientUri;
+        client.ClientUri = request.ClientUri?.Trim();
         client.ConsentLifetime = request.ConsentLifetime;
         client.Description = request.Description;
         client.DeviceCodeLifetime = request.DeviceCodeLifetime;
@@ -190,7 +198,7 @@ internal static class ClientHandlers
         client.FrontChannelLogoutUri = request.FrontChannelLogoutUri;
         client.IdentityTokenLifetime = request.IdentityTokenLifetime;
         client.IncludeJwtId = request.IncludeJwtId;
-        client.LogoUri = request.LogoUri;
+        client.LogoUri = request.LogoUri?.Trim();
         client.PairWiseSubjectSalt = request.PairWiseSubjectSalt;
         client.RefreshTokenExpiration = (int)request.RefreshTokenExpiration;
         client.RefreshTokenUsage = (int)request.RefreshTokenUsage;
@@ -229,9 +237,7 @@ internal static class ClientHandlers
             Type = request.Type,
             Value = request.Value
         };
-        client.Claims = new List<ClientClaim> {
-            claimToAdd
-        };
+        client.Claims = [claimToAdd];
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.Ok(new ClaimInfo {
             Id = claimToAdd.Id,
@@ -271,19 +277,19 @@ internal static class ClientHandlers
         if (request.AllowedCorsOrigins?.Count() > 0) {
             client.AllowedCorsOrigins!.AddRange(request.AllowedCorsOrigins.Select(x => new ClientCorsOrigin {
                 ClientId = client.Id,
-                Origin = x.TrimEnd('/')
+                Origin = x.Trim().TrimEnd('/')
             }));
         }
         if (request.RedirectUris?.Count() > 0) {
             client.RedirectUris!.AddRange(request.RedirectUris.Select(x => new ClientRedirectUri {
                 ClientId = client.Id,
-                RedirectUri = x
+                RedirectUri = x.Trim()
             }));
         }
         if (request.PostLogoutRedirectUris?.Count() > 0) {
             client.PostLogoutRedirectUris!.AddRange(request.PostLogoutRedirectUris.Select(x => new ClientPostLogoutRedirectUri {
                 ClientId = client.Id,
-                PostLogoutRedirectUri = x
+                PostLogoutRedirectUri = x.Trim()
             }));
         }
         await configurationDbContext.SaveChangesAsync();
@@ -295,12 +301,8 @@ internal static class ClientHandlers
         if (client == null) {
             return TypedResults.NotFound();
         }
-        resources ??= Array.Empty<string>();
-        client.AllowedScopes = new List<ClientScope>();
-        client.AllowedScopes.AddRange(resources.Select(x => new ClientScope {
-            ClientId = client.Id,
-            Scope = x
-        }));
+        resources ??= [];
+        client.AllowedScopes = [.. resources.Select(x => new ClientScope { ClientId = client.Id, Scope = x })];
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.NoContent();
     }
@@ -310,8 +312,8 @@ internal static class ClientHandlers
         if (client == null) {
             return TypedResults.NotFound();
         }
-        resources ??= Array.Empty<string>();
-        client.AllowedScopes ??= new List<ClientScope>();
+        resources ??= [];
+        client.AllowedScopes ??= [];
         var resourcesToRemove = client.AllowedScopes.Where(x => resources.Contains(x.Scope)).ToList();
         if (resourcesToRemove == null) {
             return TypedResults.NotFound();
@@ -332,9 +334,7 @@ internal static class ClientHandlers
             GrantType = grantType,
             ClientId = client.Id
         };
-        client.AllowedGrantTypes = new List<ClientGrantType> {
-            grantTypeToAdd
-        };
+        client.AllowedGrantTypes = [grantTypeToAdd];
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.Ok(new GrantTypeInfo {
             Id = grantTypeToAdd.Id,
@@ -347,7 +347,7 @@ internal static class ClientHandlers
         if (client == null) {
             return TypedResults.NotFound();
         }
-        client.AllowedGrantTypes ??= new List<ClientGrantType>();
+        client.AllowedGrantTypes ??= [];
         var grantTypeToRemove = client.AllowedGrantTypes.SingleOrDefault(x => x.GrantType == grantType);
         if (grantTypeToRemove == null) {
             return TypedResults.NotFound();
@@ -369,7 +369,7 @@ internal static class ClientHandlers
             Type = IdentityServerConstants.SecretTypes.SharedSecret,
             ClientId = client.Id
         };
-        client.ClientSecrets = new List<ClientSecret> { newSecret };
+        client.ClientSecrets = [newSecret];
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.Ok(new SecretInfo {
             Id = newSecret.Id,
@@ -382,7 +382,7 @@ internal static class ClientHandlers
 
     internal static async Task<Results<Ok<SecretInfo>, NotFound, ValidationProblem>> UploadCertificate(ExtendedConfigurationDbContext configurationDbContext, string clientId, CertificateUploadRequest request) {
         if (request?.File == null) {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["file"] = new[] { "Please upload a certificate." } });
+            return TypedResults.ValidationProblem(ValidationErrors.AddError("file", "Please upload a certificate."));
         }
         var memoryStream = new MemoryStream();
         X509Certificate2 certificate;
@@ -391,7 +391,7 @@ internal static class ClientHandlers
             var certificateBytes = memoryStream.ToArray();
             certificate = new X509Certificate2(certificateBytes, request.Password);
         } catch (CryptographicException) {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["file"] = new[] { "Uploaded certificate is not valid." } });
+            return TypedResults.ValidationProblem(ValidationErrors.AddError("file", "Uploaded certificate is not valid."));
         } finally {
             await memoryStream.DisposeAsync();
         }
@@ -406,7 +406,7 @@ internal static class ClientHandlers
             Type = IdentityServerConstants.SecretTypes.X509CertificateBase64,
             ClientId = client.Id
         };
-        client.ClientSecrets = new List<ClientSecret> { newSecret };
+        client.ClientSecrets = [newSecret];
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.Ok(new SecretInfo {
             Id = newSecret.Id,
@@ -419,7 +419,7 @@ internal static class ClientHandlers
 
     internal static async Task<Results<Ok<SecretInfoBase>, NotFound, ValidationProblem>> GetCertificateMetadata(CertificateUploadRequest request) {
         if (request?.File == null) {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["file"] = new[] { "Please upload a certificate." } });
+            return TypedResults.ValidationProblem(ValidationErrors.AddError("file", "Please upload a certificate."));
         }
         var memoryStream = new MemoryStream();
         X509Certificate2 certificate;
@@ -428,7 +428,7 @@ internal static class ClientHandlers
             var certificateBytes = memoryStream.ToArray();
             certificate = new X509Certificate2(certificateBytes, request.Password);
         } catch (CryptographicException) {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["file"] = new[] { "Uploaded certificate is not valid." } });
+            return TypedResults.ValidationProblem(ValidationErrors.AddError("file", "Uploaded certificate is not valid."));
         } finally {
             await memoryStream.DisposeAsync();
         }
@@ -503,7 +503,7 @@ internal static class ClientHandlers
             .Where(x => x.ClientId == clientId)
             .SingleOrDefaultAsync();
         if (client is null) {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { [nameof(Client.Id).Camelize()] = new[] { "Requested client does not exist." } });
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(Client.Id).Camelize(), "Requested client does not exist."));
         }
         var themeConfig = client.Properties.Where(x => x.Key == ClientPropertyKeys.ThemeConfig).FirstOrDefault();
         return TypedResults.Ok(new ClientThemeConfigResponse {
@@ -521,7 +521,7 @@ internal static class ClientHandlers
             .Where(x => x.ClientId == clientId)
             .SingleOrDefaultAsync();
         if (client is null) {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { [nameof(Client.Id).Camelize()] = new[] { "Requested client does not exist." } });
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(Client.Id).Camelize(), "Requested client does not exist."));
         }
         var themeConfig = client.Properties.Where(x => x.Key == ClientPropertyKeys.ThemeConfig).FirstOrDefault();
         var themeConfigValue = JsonSerializer.Serialize(request, JsonSerializerOptionDefaults.GetDefaultSettings());
@@ -566,21 +566,19 @@ internal static class ClientHandlers
             LogoUri = clientRequest.LogoUri,
             RequireConsent = clientRequest.RequireConsent,
             BackChannelLogoutSessionRequired = true,
-            AllowedScopes = clientRequest.IdentityResources.Union(clientRequest.ApiResources).Select(scope => new ClientScope { Scope = scope }).ToList(),
+            AllowedScopes = clientRequest.IdentityResources.Union(clientRequest.ApiResources)
+                                                           .Select(scope => new ClientScope { Scope = scope })
+                                                           .ToList(),
             EnableLocalLogin = true,
             Enabled = true
         };
         if (!string.IsNullOrEmpty(clientRequest.RedirectUri)) {
-            client.RedirectUris = new List<ClientRedirectUri> {
-                new ClientRedirectUri { RedirectUri = clientRequest.RedirectUri }
-            };
+            client.RedirectUris = [new () { RedirectUri = clientRequest.RedirectUri }];
         }
         if (!string.IsNullOrEmpty(clientRequest.PostLogoutRedirectUri)) {
-            client.PostLogoutRedirectUris = new List<ClientPostLogoutRedirectUri> {
-                new ClientPostLogoutRedirectUri { PostLogoutRedirectUri = clientRequest.PostLogoutRedirectUri }
-            };
+            client.PostLogoutRedirectUris = [new () { PostLogoutRedirectUri = clientRequest.PostLogoutRedirectUri }];
         }
-        if (clientRequest.Secrets.Any()) {
+        if (clientRequest.Secrets.Count != 0) {
             client.ClientSecrets = clientRequest.Secrets.Select(x => new ClientSecret {
                 Type = IdentityServerConstants.SecretTypes.SharedSecret,
                 Description = x.Description,
@@ -594,65 +592,33 @@ internal static class ClientHandlers
         }
         switch (clientType) {
             case ClientType.SPA:
-                client.AllowedGrantTypes = new List<ClientGrantType> {
-                    new ClientGrantType {
-                        GrantType = GrantType.AuthorizationCode
-                    }
-                };
+                client.AllowedGrantTypes = [new() { GrantType = GrantType.AuthorizationCode }];
                 client.RequirePkce = true;
                 client.RequireClientSecret = false;
-                client.AllowedCorsOrigins = new List<ClientCorsOrigin> {
-                    new ClientCorsOrigin {
-                        Origin = clientRequest.ClientUri ?? authorityUri
-                    }
-                };
+                client.AllowedCorsOrigins = [new() { Origin = clientRequest.ClientUri ?? authorityUri }];
                 break;
             case ClientType.WebApp:
-                client.AllowedGrantTypes = new List<ClientGrantType> {
-                    new ClientGrantType {
-                        GrantType = GrantType.Hybrid
-                    }
-                };
+                client.AllowedGrantTypes = [new() { GrantType = GrantType.Hybrid }];
                 client.RequirePkce = true;
                 break;
             case ClientType.Native:
-                client.AllowedGrantTypes = new List<ClientGrantType> {
-                    new ClientGrantType {
-                        GrantType = GrantType.AuthorizationCode
-                    }
-                };
+                client.AllowedGrantTypes = [new() { GrantType = GrantType.AuthorizationCode }];
                 client.RequirePkce = true;
                 client.RequireClientSecret = false;
                 break;
             case ClientType.Machine:
-                client.AllowedGrantTypes = new List<ClientGrantType> {
-                    new ClientGrantType {
-                        GrantType = GrantType.ClientCredentials
-                    }
-                };
+                client.AllowedGrantTypes = [new() { GrantType = GrantType.ClientCredentials }];
                 client.RequireConsent = false;
                 break;
             case ClientType.Device:
-                client.AllowedGrantTypes = new List<ClientGrantType> {
-                    new ClientGrantType {
-                        GrantType = GrantType.DeviceFlow
-                    }
-                };
+                client.AllowedGrantTypes = [new() { GrantType = GrantType.DeviceFlow }];
                 break;
             case ClientType.SPALegacy:
-                client.AllowedGrantTypes = new List<ClientGrantType> {
-                    new ClientGrantType {
-                        GrantType = GrantType.Implicit
-                    }
-                };
+                client.AllowedGrantTypes = [new () { GrantType = GrantType.Implicit }];
                 client.RequirePkce = false;
                 client.RequireClientSecret = false;
                 client.AllowAccessTokensViaBrowser = true;
-                client.AllowedCorsOrigins = new List<ClientCorsOrigin> {
-                    new ClientCorsOrigin {
-                        Origin = clientRequest.ClientUri ?? authorityUri
-                    }
-                };
+                client.AllowedCorsOrigins = [new () { Origin = clientRequest.ClientUri ?? authorityUri }];
                 break;
             default:
                 throw new ArgumentNullException(nameof(clientType), "Cannot determine the type of the client.");
@@ -661,7 +627,7 @@ internal static class ClientHandlers
     }
 
     private static void AddClientTranslations(Client client, string? translations) {
-        client.Properties ??= new List<ClientProperty>();
+        client.Properties ??= [];
         client.Properties.Add(new ClientProperty {
             Key = ClientPropertyKeys.Translation,
             Value = translations ?? string.Empty,

@@ -1,6 +1,6 @@
 import { LOCALE_ID, NgModule, Provider } from '@angular/core';
 import { CommonModule, DatePipe, JsonPipe, registerLocaleData } from '@angular/common';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS, withInterceptors, provideHttpClient} from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -77,6 +77,8 @@ import { ReadOnlyViewComponent } from './features/media-library/item-views/read-
 import { MediaSettingsComponent } from './features/settings/media/media-settings.component';
 import { MediaSettingEditComponent } from './features/settings/media/edit/media-setting-edit.component';
 import { CodeEditorModule } from '@acrodata/code-editor';
+import { NgProgressbar } from 'ngx-progressbar';
+import { progressInterceptor, NgProgressHttp } from 'ngx-progressbar/http';
 
 registerLocaleData(localeGreek);
 
@@ -184,8 +186,13 @@ if (app.settings.tenantId) {
     IndiceComponentsModule.forRoot(),
     ReactiveFormsModule,
     CodeEditorModule,
+    NgProgressbar,
+    NgProgressHttp
   ],
-  providers: providers,
+  providers: [
+    ...providers,
+    provideHttpClient(withInterceptors([progressInterceptor]))
+  ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}

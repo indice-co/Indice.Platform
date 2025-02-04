@@ -24,6 +24,30 @@ namespace Microsoft.Extensions.Hosting;
 public static class HostBuilderExtensions
 {
     /// <summary>Configures services used by the queue triggers used for campaign management system.</summary>
+    /// <param name="builder">A program initialization abstraction.</param>
+    /// <param name="configure">Configure action for <see cref="MessageOptions"/>.</param>
+    public static IHostApplicationBuilder AddMessageFunctions(this IHostApplicationBuilder builder, Action<MessageOptions>? configure = null) {
+        var options = new MessageOptions {
+            Services = builder.Services
+        };
+        configure?.Invoke(options);
+        builder.Services.AddCoreServices(options, builder.Configuration);
+        builder.Services.AddJobHandlerServices();
+        builder.Services.Configure<WorkerOptions>(options => {
+            options.InputConverters.RegisterAt<MessagesInputConverter>(0);
+        });
+        builder.Services.Configure<HostOptions>(hostOptions => {
+            // https://learn.microsoft.com/en-us/dotnet/core/compatibility/core-libraries/6.0/hosting-exception-handling
+            hostOptions.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
+        });
+        builder.Services.Configure<MessageWorkerOptions>(messageWorkerOptions => {
+            messageWorkerOptions.ContactRetainPeriodInDays = options.ContactRetainPeriodInDays;
+        });
+        builder.Services.AddHostedService<StartupSeedHostedService>();
+        return builder;
+    }
+
+    /// <summary>Configures services used by the queue triggers used for campaign management system.</summary>
     /// <param name="hostBuilder">A program initialization abstraction.</param>
     /// <param name="configure">Configure action for <see cref="MessageOptions"/>.</param>
     public static IHostBuilder ConfigureMessageFunctions(this IHostBuilder hostBuilder, Action<HostBuilderContext, MessageOptions>? configure = null) =>

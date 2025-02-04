@@ -1,4 +1,5 @@
-﻿using Indice.Features.Messages.Core.Data.Mappings;
+﻿using Indice.EntityFrameworkCore;
+using Indice.Features.Messages.Core.Data.Mappings;
 using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Services;
 using Microsoft.EntityFrameworkCore;
@@ -51,6 +52,7 @@ public class CampaignsDbContext : DbContext
         modelBuilder.ApplyConfiguration(new DbTemplateMap(schemaName));
         modelBuilder.ApplyConfiguration(new DbMessageSenderMap(schemaName));
         if (Database.IsSqlServer()) {
+            modelBuilder.ApplyJsonFunctions();
             modelBuilder.Entity<DbAttachment>().Property(x => x.Data).HasColumnType("image");
         } else if (Database.IsNpgsql()) {
             modelBuilder.Entity<DbAttachment>().Property(x => x.Data).HasColumnType("bytea");

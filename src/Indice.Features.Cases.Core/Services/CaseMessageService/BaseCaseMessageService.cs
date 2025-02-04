@@ -27,7 +27,7 @@ internal abstract class BaseCaseMessageService
         Guid? attachmentId = null;
         var caseId = @case.Id;
         ArgumentNullException.ThrowIfNull(message);
-        if (message.FileStreamAccessor == null && message.CheckpointTypeName == null && message.Comment == null && message.Data == null) {
+        if (message.FileStreamAccessor == null && message.CheckpointTypeName == null && message.Comment == null && message.Data is null) {
             return attachmentId;
         }
 
@@ -46,7 +46,7 @@ internal abstract class BaseCaseMessageService
             }
         }
 
-        if (message.FileStreamAccessor == null && message.CheckpointTypeName == null && message.Data == null) {
+        if (message.FileStreamAccessor == null && message.CheckpointTypeName == null && message.Data is null) {
             await AddComment(auditMeta, caseId, message.Comment, message.ReplyToCommentId, message.PrivateComment);
         } else if (message.FileStreamAccessor != null && message.CheckpointTypeName == null) {
             var attachment = await AddAttachment(auditMeta, @case, message.Comment, message.FileName!, message.FileStreamAccessor!);
@@ -58,7 +58,7 @@ internal abstract class BaseCaseMessageService
                 message.PrivateComment ??= newCheckpointType!.Private;
                 await AddComment(auditMeta, caseId, message.Comment, message.ReplyToCommentId, message.PrivateComment);
             }
-        } else if (message.Data != null) {
+        } else if (message.Data is not null) {
             await AddCaseData(auditMeta, @case, message.Data);
             if (!string.IsNullOrWhiteSpace(message.Comment)) {
                 await AddComment(auditMeta, caseId, message.Comment, message.ReplyToCommentId, message.PrivateComment);
