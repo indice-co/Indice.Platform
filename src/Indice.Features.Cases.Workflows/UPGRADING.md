@@ -3,9 +3,10 @@
 - AwaitAssignmentActivity will no longer log exceptions in Elsa Dashboard
 
 
-Api Calls from Workflows:
+## Integrators endpoints currently used
+Api Calls from Workflows SendMessageActivity:
 - Απο το designer για να προχωρήσουμε το checkpoint
-- Από τα activities για να ανεβάσουμε attachment
+- Από τα activities για να ανεβάσουμε attachment - που?
 - Από τα activities για να αλλάξουμε τα CaseData
 
 Aπό custom workflows:

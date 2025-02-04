@@ -3,11 +3,11 @@ using Indice.Security;
 
 namespace Indice.Features.Cases.Workflows.Extensions;
 
+/// <summary>CasesClaimsPrincipalExtensions</summary>
 public static class CasesClaimsPrincipalExtensions
 {
-    /// <summary>
-    /// Return a system user to be used in scenarios with no HttpContext.
-    /// </summary>
+    // todo: should we have elsa api system user?
+    /// <summary>Return a system user to be used in scenarios with no HttpContext.</summary>
     public static ClaimsPrincipal SystemUser() {
         List<Claim> claims = [
             new (BasicClaimTypes.Scope, "cases"),

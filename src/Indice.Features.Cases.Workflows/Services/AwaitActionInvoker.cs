@@ -3,8 +3,8 @@ using Elsa.Services;
 using Elsa.Services.Models;
 using Indice.Features.Cases.Workflows.Activities;
 using Indice.Features.Cases.Workflows.Bookmarks;
-using Indice.Features.Cases.Workflows.Integration;
-using Indice.Features.Cases.Workflows.Interfaces;
+using Indice.Features.Cases.Workflows.Models;
+using Indice.Features.Cases.Workflows.Services.Abstractions;
 using Indice.Security;
 using Microsoft.AspNetCore.Http;
 
@@ -23,10 +23,10 @@ internal class AwaitActionInvoker : BaseActivityInvoker, IAwaitActionInvoker
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
     }
 
-    public Task<IEnumerable<CollectedWorkflow>> DispatchWorkflowsAsync(Guid caseId, ActionRequest actionId, CancellationToken cancellationToken = default) =>
+    public Task<IEnumerable<CollectedWorkflow>> DispatchWorkflowsAsync(Guid caseId, InvokeActionRequest actionId, CancellationToken cancellationToken = default) =>
         base.DispatchWorkflowsAsync(caseId, actionId, cancellationToken);
 
-    public Task<IEnumerable<CollectedWorkflow>> ExecuteWorkflowsAsync(Guid caseId, ActionRequest actionId, CancellationToken cancellationToken = default) =>
+    public Task<IEnumerable<CollectedWorkflow>> ExecuteWorkflowsAsync(Guid caseId, InvokeActionRequest actionId, CancellationToken cancellationToken = default) =>
         base.ExecuteWorkflowsAsync(caseId, actionId, cancellationToken);
 
     protected override Task<IEnumerable<WorkflowsQuery>> CreateWorkflowsQueries(Guid caseId, CancellationToken cancellationToken = default) =>
@@ -44,11 +44,11 @@ internal class AwaitActionInvoker : BaseActivityInvoker, IAwaitActionInvoker
         // Always provide an empty string as a role in order to handle "null" allowed Roles of activity input.
         userRoles?.Add(string.Empty);
 
-        var actionInput = input as ActionRequest;
+        var actionInput = input as InvokeActionRequest;
 
         return userRoles?.Select(role => new WorkflowsQuery(
             nameof(AwaitActionActivity),
-            new AwaitActionBookmark(caseId.ToString(), role, actionInput?.Id.ToString() ?? string.Empty),
+            new AwaitActionBookmark(caseId.ToString(), actionInput?.ActionId.ToString() ?? string.Empty),
             caseId.ToString(),
             instance.Id)) ?? Enumerable.Empty<WorkflowsQuery>();
     }

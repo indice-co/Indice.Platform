@@ -12,18 +12,11 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "Remove the previous approval action.",
     Outcomes = new[] { OutcomeNames.Done }
 )]
-internal class RemovePreviousApprovalActivity : BaseCaseActivity
+internal class RemovePreviousApprovalActivity(CasesHttpClient casesHttpClient) : BaseCaseActivity(casesHttpClient)
 {
-    private readonly CasesHttpClient _casesClient;
-
-    public RemovePreviousApprovalActivity(CasesHttpClient casesClient) : base(casesClient) {
-        _casesClient = casesClient;
-    }
-
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
-        // await _casesClient.RollBackApproval(CaseId.Value);
-        // await _caseApprovalService.RollbackApproval(CaseId.Value);
+        await CasesClient.RollbackApprovalAsync(CaseId.Value);
         return Done();
     }
 }

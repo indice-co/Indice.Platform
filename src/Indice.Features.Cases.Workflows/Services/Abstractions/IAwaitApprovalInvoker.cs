@@ -3,7 +3,7 @@ using Indice.Features.Cases.Workflows.Activities;
 using Indice.Features.Cases.Workflows.Bookmarks;
 using Indice.Features.Cases.Workflows.Models;
 
-namespace Indice.Features.Cases.Workflows.Interfaces;
+namespace Indice.Features.Cases.Workflows.Services.Abstractions;
 
 /// <summary>
 /// Invoker for <see cref="AwaitApprovalBookmark"/> that triggers the continuation of a resumed <see cref="AwaitApprovalActivity"/>.
@@ -18,11 +18,11 @@ internal interface IAwaitApprovalInvoker
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="approvalRequest">The approval request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    Task<IEnumerable<CollectedWorkflow>> DispatchWorkflowsAsync(Guid caseId, WorkflowSubmitApprovalRequest approvalRequest, CancellationToken cancellationToken = default);
+    Task<IEnumerable<CollectedWorkflow>> DispatchWorkflowsAsync(Guid caseId, InvokeApprovalRequest approvalRequest, CancellationToken cancellationToken = default);
 
     /// <summary>Executing a workflow will execute the workflow directly before returning.</summary>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="approvalRequest">The approval request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    Task<IEnumerable<CollectedWorkflow>> ExecuteWorkflowsAsync(Guid caseId, WorkflowSubmitApprovalRequest approvalRequest, CancellationToken cancellationToken = default);
+    Task<IEnumerable<CollectedWorkflow>> ExecuteWorkflowsAsync(Guid caseId, InvokeApprovalRequest approvalRequest, CancellationToken cancellationToken = default);
 }

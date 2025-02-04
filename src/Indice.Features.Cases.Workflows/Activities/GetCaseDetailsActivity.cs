@@ -2,8 +2,8 @@
 using Elsa.ActivityResults;
 using Elsa.Attributes;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Workflows.Extensions;
 using Indice.Features.Cases.Workflows.Integration;
+using CustomOutcomeNames = Indice.Features.Cases.Workflows.CasesWorkflowConstants.WorkflowVariables.OutcomeNames;
 
 namespace Indice.Features.Cases.Workflows.Activities;
 
@@ -11,16 +11,10 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Category = "Cases",
     DisplayName = "Get Case Details",
     Description = "Get the details of the case.",
-    Outcomes = new[] { OutcomeNames.Done, CasesWorkflowConstants.WorkflowVariables.OutcomeNames.Failed }
+    Outcomes = new[] { OutcomeNames.Done, CustomOutcomeNames.Failed }
 )]
-internal class GetCaseDetailsActivity : BaseCaseActivity
+internal class GetCaseDetailsActivity(CasesHttpClient casesHttpClient) : BaseCaseActivity(casesHttpClient)
 {
-    private CasesHttpClient _casesClient;
-
-    public GetCaseDetailsActivity(CasesHttpClient casesClient) : base(casesClient) {
-        _casesClient = casesClient;
-    }
-
     [ActivityOutput]
     public object? Output { get; set; }
 
@@ -32,15 +26,13 @@ internal class GetCaseDetailsActivity : BaseCaseActivity
 
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
-        // Run as systemic user, since this is a system activity for creating conditions at workflow
-        var systemUser = CasesClaimsPrincipalExtensions.SystemUser();
-        // var @case = await _adminCaseService.GetCaseById(systemUser, CaseId.Value, IncludeAttachmentsData);
-        
-        var @case = await _casesClient.GetCaseByIdAsync(CaseId.Value, IncludeAttachmentsData);
+        var @case = await CasesClient.GetCaseAsync(CaseId.Value, IncludeAttachmentsData);
         
         // Convert CaseData to JObject so the workflow activities can use data without parsing.
-        //@case.Data = Newtonsoft.Json.Linq.JObject.Parse(@case.DataAs<string?>()!);
-        Output = @case; 
+        // @case.Data = Newtonsoft.Json.Linq.JObject.Parse(@case.DataAs<string?>()!); // todo: see if needed, simple activity first getCaseDetails, then set variable to check
+        Output = @case;
+
+        // context.SetVariable("tete", @case.Data);
         context.LogOutputProperty(this, nameof(Output), Output);
         return Done(Output);
     }

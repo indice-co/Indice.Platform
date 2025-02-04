@@ -23,7 +23,7 @@ internal class CaseRejectReasonsActivity : Activity
         UIHint = ActivityInputUIHints.MultiLine,
         SupportedSyntaxes = [SyntaxNames.JavaScript, SyntaxNames.Json]
     )]
-    public IEnumerable<string> RejectReasons { get; set; } = Enumerable.Empty<string>();
+    public IEnumerable<string> RejectReasons { get; set; } = [];
 
     public override ValueTask<IActivityExecutionResult> ExecuteAsync(ActivityExecutionContext context) {
         context.SetVariable(CasesWorkflowConstants.WorkflowVariables.RejectReasons, RejectReasons);

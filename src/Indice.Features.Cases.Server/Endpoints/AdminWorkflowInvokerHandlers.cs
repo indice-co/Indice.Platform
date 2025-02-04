@@ -15,29 +15,27 @@ using Microsoft.AspNetCore.Http.HttpResults;
 namespace Indice.Features.Cases.Server.Endpoints;
 internal static class AdminWorkflowInvokerHandlers
 {
-    
     public static async Task<Results<NoContent, ProblemHttpResult>> AssignCase(
         Guid caseId,
         ClaimsPrincipal currentUser,
         IAdminCaseService adminCaseService,
         IAdminCaseMessageService caseMessageService,
-        ICasesWorkflowManager workflowManager) {
-        
-        // todo: authorization
-        
-        // todo: maybe just let's not notify the workflow if assignment did not succeed
-        var outcome = "Done";
-        try {
-            await adminCaseService.AssignCase(AuditMeta.Create(currentUser), caseId);
-        } catch (Exception ex) {
-            outcome = "Failed";
-            await caseMessageService.Send(caseId, CasesClaimsPrincipalExtensions.SystemUser(), ex);
+        IAuthorizationService authorizationService,
+        ICasesWorkflowManager workflowManager
+    ) {
+        var bookmarks = await workflowManager.GetActionsByCaseId(caseId) as AvailableActions;
+        var assignmentBookmark = bookmarks?.AssignmentBookmarks.FirstOrDefault();
+        if (assignmentBookmark is null) {
+            return TypedResults.Problem(detail: "There is no valid assign action for this case.");
         }
         
-        // todo: handle errors
-        await workflowManager.AssignCaseAsync(currentUser, caseId, outcome);
+        var authorizationResult = await authorizationService.AuthorizeAsync(currentUser, caseId, new CasesRolesRequirement([assignmentBookmark.Role]));
+        if (!authorizationResult.Succeeded) {
+            return TypedResults.Problem(detail: "You are not authorized to access this case.");
+        }
         
-        return TypedResults.NoContent();
+        var result = await workflowManager.InvokeAssignmentAsync(caseId, currentUser);
+        return result.Success ? TypedResults.NoContent() : TypedResults.Problem(detail: result.Message);
     }
     
     public static async Task<Results<NoContent, ProblemHttpResult>> SubmitApproval(
@@ -49,19 +47,13 @@ internal static class AdminWorkflowInvokerHandlers
         ICaseActionsService caseActionsService,
         IAuthorizationService authorizationService,
         IAdminCaseMessageService caseMessageService,
-        CaseSharedResourceService caseSharedResourceService) {
-        
-        // todo: remove userRoles
-        var userRoles = currentUser
-            .FindAll(x => x.Type == BasicClaimTypes.Role)
-            .Select(claim => claim.Value)
-            .ToList();
-        userRoles.Add(string.Empty);
-
-        var bookmarks = await workflowManager.GetActionsByCaseId(currentUser, caseId, userRoles.ToArray()) as AvailableActions;
+        CaseSharedResourceService caseSharedResourceService
+    ) {
+        // todo: Do we need Case must be assigned to them if already assigned?
+        var bookmarks = await workflowManager.GetActionsByCaseId(caseId) as AvailableActions;
         var approvalBookmark = bookmarks?.ApprovalBookmarks.FirstOrDefault();
-        if (approvalBookmark is null) { // todo: check empty list
-            return TypedResults.Problem(detail: "You are not authorized to access this case.");
+        if (approvalBookmark is null) {
+            return TypedResults.Problem(detail: "There is no valid approval action for this case.");
         }
         
         var authorizationResult = await authorizationService.AuthorizeAsync(currentUser, caseId, new CasesRolesRequirement([approvalBookmark.Role]));
@@ -76,22 +68,8 @@ internal static class AdminWorkflowInvokerHandlers
             }
         }
         
-        // todo: move to service
-        await caseMessageService.Send(
-            caseId,
-            currentUser,
-            new Message {
-                Comment = caseSharedResourceService.GetLocalizedHtmlString(request.Comment ?? string.Empty).Value,
-                PrivateComment = !approvalBookmark.PublicActions.Contains(request.Action.ToString())
-            });
-        await caseApprovalService.AddApproval(caseId, null, currentUser, request.Action, request.Comment);
-        
-        // var result = await workflowManager.SubmitApprovalAsync(currentUser, caseId, request);
         var result = await workflowManager.InvokeApprovalAsync(currentUser, caseId, request);
-        // if (!result.Success) {
-        //     return TypedResults.Problem(detail: result.Message);
-        // }
-        return TypedResults.NoContent(); 
+        return result.Success ? TypedResults.NoContent() : TypedResults.Problem(detail: result.Message);
     }
 
     public static async Task<Results<NoContent, ProblemHttpResult>> EditCase(
@@ -100,28 +78,49 @@ internal static class AdminWorkflowInvokerHandlers
         ClaimsPrincipal currentUser,
         ICasesWorkflowManager workflowManager,
         IAdminCaseMessageService caseMessageService,
-        CasesMessageDescriber casesMessageDescriber) {
-        // var result = await workflowManager.EditCaseAsync(currentUser, caseId, request);
-        // if (!result.Success) {
-        //     return TypedResults.Problem(detail: result.Message);
-        // }
+        IAuthorizationService authorizationService,
+        CasesMessageDescriber casesMessageDescriber
+    ) {
+        // todo: Case must be assigned to them requirement?
         request.Data = JsonSerializer.SerializeToNode(request.Data);
-        await caseMessageService.Send(caseId,
-            currentUser,
-            new Message {
-                Data = request.Data,
-                Comment = casesMessageDescriber.EditCaseComment(currentUser.FindDisplayName(), currentUser.FindFirstValue(BasicClaimTypes.Email)),
-                PrivateComment = true
-            });
-        // var client = new CasesWorkflowManagerHttp();
-        // var result = await client.EditCaseAsync(currentUser, caseId, request);
-
-        var response = workflowManager.InvokeEditAsync(currentUser, caseId, request);
         
-        return TypedResults.NoContent();
+        var bookmarks = await workflowManager.GetActionsByCaseId(caseId) as AvailableActions;
+        var editBookmark = bookmarks?.EditBookmarks.FirstOrDefault();
+        if (editBookmark is null) {
+            return TypedResults.Problem(detail: "There is no valid edit action for this case.");
+        }
+        
+        var authorizationResult = await authorizationService.AuthorizeAsync(currentUser, caseId, new CasesRolesRequirement([editBookmark.Role]));
+        if (!authorizationResult.Succeeded) {
+            return TypedResults.Problem(detail: "You are not authorized to access this case.");
+        }
+
+        var result = await workflowManager.InvokeEditAsync(
+            currentUser,
+            caseId,
+            casesMessageDescriber.EditCaseComment(currentUser.FindDisplayName(), currentUser.FindFirstValue(BasicClaimTypes.Email)),
+            request);
+        return result.Success ? TypedResults.NoContent() : TypedResults.Problem(detail: result.Message);
     }
 
-    public static async Task<Results<NoContent, ProblemHttpResult>> TriggerAction(Guid caseId, ActionRequest request, ICasesWorkflowManager workflowManager, ClaimsPrincipal currentUser) {
+    public static async Task<Results<NoContent, ProblemHttpResult>> TriggerAction(
+        Guid caseId,
+        ActionRequest request,
+        ICasesWorkflowManager workflowManager,
+        IAuthorizationService authorizationService,
+        ClaimsPrincipal currentUser
+    ) {
+        var bookmarks = await workflowManager.GetActionsByCaseId(caseId) as AvailableActions;
+        var customBookmark = bookmarks?.CustomActions.FirstOrDefault();
+        if (customBookmark is null) {
+            return TypedResults.Problem(detail: "There is no valid custom action for this case.");
+        }
+        
+        var authorizationResult = await authorizationService.AuthorizeAsync(currentUser, caseId, new CasesRolesRequirement([customBookmark.AllowedRole]));
+        if (!authorizationResult.Succeeded) {
+            return TypedResults.Problem(detail: "You are not authorized to access this case.");
+        }
+        
         var result = await workflowManager.TriggerActionAsync(currentUser, caseId, request);
         if (!result.Success) {
             return TypedResults.Problem(detail: result.Message);

@@ -14,23 +14,14 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "Get the channel of the case.",
     Outcomes = new[] { OutcomeNames.Done }
 )]
-internal class GetChannelActivity : BaseCaseActivity
+internal class GetChannelActivity(CasesHttpClient casesHttpClient) : BaseCaseActivity(casesHttpClient)
 {
-    private CasesHttpClient _casesClient;
-
-    public GetChannelActivity(CasesHttpClient casesClient) : base(casesClient) {
-        _casesClient = casesClient ?? throw new ArgumentNullException(nameof(casesClient));
-    }
-    
     [ActivityOutput]
     public object? Output { get; set; }
 
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
-        // Run as systemic user, since this is a system activity for creating conditions at workflow
-        var systemUser = CasesClaimsPrincipalExtensions.SystemUser();
-        var @case = await _casesClient.GetCaseByIdAsync(CaseId.Value, false);
-        // var @case = await _adminCaseService.GetCaseById(systemUser, CaseId.Value!);
+        var @case = await CasesClient.GetCaseAsync(CaseId.Value, false);
         Output = @case.Channel!;
         context.LogOutputProperty(this, nameof(Output), Output);
         return Done(Output);

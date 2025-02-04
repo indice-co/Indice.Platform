@@ -4,6 +4,7 @@ using Elsa.Design;
 using Elsa.Expressions;
 using Elsa.Services.Models;
 using Indice.Features.Cases.Workflows.Integration;
+using Indice.Features.Cases.Workflows.Integrations;
 using Indice.Features.Cases.Workflows.Models;
 using Approval = Indice.Features.Cases.Workflows.Integration.Approval;
 
@@ -19,7 +20,7 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "Handles the approval or rejection of a case.",
     Outcomes = new[] { nameof(Approval.Approve), nameof(Approval.Reject) }
 )]
-internal class AwaitApprovalActivity(CasesHttpClient casesClient) : BaseCaseActivity(casesClient)
+internal class AwaitApprovalActivity(CasesHttpClient casesHttpClient) : BaseBlockingActivity(casesHttpClient)
 {
     [ActivityInput(
         Label = "Role",
@@ -47,41 +48,43 @@ internal class AwaitApprovalActivity(CasesHttpClient casesClient) : BaseCaseActi
     public IEnumerable<string> PublicActions { get; set; } = new List<string>();
 
     [ActivityOutput]
-    public ApprovalRequest? Output { get; set; }
+    public ApprovalOutput? Output { get; set; }
 
     [ActivityOutput]
     public string? Action { get; set; }
 
-    public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
-        // Since we are writing a blocking activity, the activity needs to tell the workflow engine that execution should pause until an ApprovalRequest is received.
-        // That will work, but only when the activity is used a blocking activity and not as a starting activity. If we used this as a starting activity,
-        // what will happen is that when an ApprovalRequest is received, the workflow will begin, but gets suspended immediately after. That's no good.
-        // Instead, what we want is for the workflow to continue to the next activity when an ApprovalRequest is received.
-        // To make that work, we need to return a SuspendResult only if this is not the first pass.If it IS the first pass, we will simply return an OutcomeResult with the "Done" outcome.
-        // https://v2.elsaworkflows.io/docs/guides/blocking-activities
-        return context.WorkflowExecutionContext.IsFirstPass ? await OnExecuteInternalAsync(context) : Suspend();
-    }
+    /// <inheritdoc />
+    protected override async Task<IActivityExecutionResult> OnExecuteInternalAsync(ActivityExecutionContext context) {
+        CaseId ??= Guid.Parse(context.CorrelationId);
+        var approval = context.Input as InvokeApprovalRequest ?? throw new ArgumentNullException(nameof(InvokeApprovalRequest));
 
-    protected override async ValueTask<IActivityExecutionResult> OnResumeAsync(ActivityExecutionContext context) {
-        // That will achieve exactly what we need: when the activity is used as a starting activity, it will return "Done" and execution of the workflow will continue.
-        // But when the activity is used as a blocking activity (i.e. not as the first activity of the workflow), the activity will suspend the workflow.           
-        // The big idea is that we should be able to trigger workflows when an ApprovalRequest is received, regardless of whether we have workflows that use this as a starting trigger
-        // or as a trigger to resume existing workflow instances.
-        return await OnExecuteInternalAsync(context);
-    }
-
-    private Task<IActivityExecutionResult> OnExecuteInternalAsync(ActivityExecutionContext context) {
-        var approval = context.Input as WorkflowSubmitApprovalRequest;
-        
-        //todo: create ApprovalOutput model, remove core dependency
-        var action = Enum.Parse<Approval>(approval!.OutputAction.ToString());
-        Output = new ApprovalRequest {
-            Action = action,
-            Comment = approval.OutputComment
+        // Set activity's output properties 
+        Output = new ApprovalOutput {
+            Action = approval.Action,
+            Comment = approval.Comment
         };
-        Action = approval!.OutputAction.ToString();
+        Action = approval.Action.ToString();
         context.LogOutputProperty(this, "Output", Output);
-
-        return Task.FromResult<IActivityExecutionResult>(Outcome(approval.OutputAction.ToString(), approval));
+        
+        await CasesClient.AddApprovalWithCommentAsync(new WorkflowAddApprovalWithCommentRequest {
+            CaseId = CaseId.Value,
+            Action = Enum.Parse<Approval>(approval.Action.ToString()),
+            Reason = approval.Comment,
+            PrivateComment = !PublicActions.Contains(approval.Action.ToString()),
+            CasesActor = approval.Actor.ToCasesActor()
+        });
+        
+        context.SetVariable(CasesWorkflowConstants.WorkflowVariables.Actor.CurrentActor, approval.Actor);
+        return Outcome(approval.Action.ToString(), approval);
     }
+}
+
+/// <summary>The Output of the Activity.</summary>
+public class ApprovalOutput
+{
+    /// <summary>Action for approval.</summary>
+    public WorkflowApproval Action { get; set; }
+    
+    /// <summary>Comment related to the action.</summary>
+    public string? Comment { get; set; }
 }

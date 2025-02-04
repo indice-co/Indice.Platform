@@ -1,4 +1,5 @@
 using Indice.Features.Cases.Workflows;
+using Indice.Features.Cases.Workflows.Endpoints;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,8 +7,10 @@ using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.Routing;
 
+/// <summary>Invoking Workflow Activities for blocked instances.</summary>
 public static class WorkflowManagerApi
 {
+    /// <summary>Invoking Workflow Activities for blocked instances.</summary>
     public static IEndpointRouteBuilder MapWorkflowManager(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<CasesWorkflowOptions>>().Value;
         var group = routes.MapGroup("/workflow-manager");
@@ -15,9 +18,6 @@ public static class WorkflowManagerApi
         group.WithTags("Workflow");
         
         // todo: add authentication
-        // group.ProducesProblem(StatusCodes.Status401Unauthorized)
-        //     .ProducesProblem(StatusCodes.Status403Forbidden)
-        //     .ProducesProblem(StatusCodes.Status500InternalServerError);
         
         group.MapPost("start-workflow", WorkflowManagerHandler.StartWorkflow)
             .WithName(nameof(WorkflowManagerHandler.StartWorkflow))
@@ -34,16 +34,19 @@ public static class WorkflowManagerApi
         group.MapPost("invoke/edit", WorkflowManagerHandler.InvokeEdit)
             .WithName(nameof(WorkflowManagerHandler.InvokeEdit))
             .WithSummary("Trigger an edit activity.");
+            
+        group.MapPost("invoke/action", WorkflowManagerHandler.InvokeAction)
+            .WithName(nameof(WorkflowManagerHandler.InvokeAction))
+            .WithSummary("Trigger a custom action activity.");
         
         group.MapGet("actions/{caseId}", WorkflowManagerHandler.GetActionsByCaseId)
             .WithName(nameof(WorkflowManagerHandler.GetActionsByCaseId))
             .WithSummary("Get all available actions for case id.");
         
-        group.MapGet("available-actions/{caseId}", WorkflowManagerHandler.GetAvailableActions)
-            .WithName(nameof(WorkflowManagerHandler.GetAvailableActions))
-            .WithSummary("Obsolete Get all available actions for case id.");
+        group.MapGet("{caseId}/reject-reasons", WorkflowManagerHandler.GetRejectReasonsByCaseId)
+            .WithName(nameof(WorkflowManagerHandler.GetRejectReasonsByCaseId))
+            .WithSummary("Get the reject reasons for a case.");
         
-
         return group;
     }
 }

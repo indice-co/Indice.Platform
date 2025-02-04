@@ -13,8 +13,17 @@ public interface ICaseApprovalService
     /// <param name="user">The actor.</param>
     /// <param name="action">The action of the actor.</param>
     /// <param name="reason">The reason of the rejection.</param>
-    Task AddApproval(Guid caseId, Guid? commentId, ClaimsPrincipal user, Approval action, string? reason) => AddApproval(caseId, commentId, AuditMeta.Create(user), action, reason);
-    Task AddApproval(Guid caseId, Guid? commentId, AuditMeta auditMeta, Approval action, string? reason);
+    Task AddApproval(Guid caseId, Guid? commentId, ClaimsPrincipal user, Approval action, string? reason) => AddApproval(caseId, commentId, user, action, reason, AuditMeta.Create(user));
+
+    /// <summary>Add an approval to a case.</summary>
+    /// <param name="caseId">The Id of the case.</param>
+    /// <param name="commentId">The Id of the comment (if any).</param>
+    /// <param name="user">The actor.</param>
+    /// <param name="action">The action of the actor.</param>
+    /// <param name="reason">The reason of the rejection.</param>
+    /// <param name="auditMeta"></param>
+    Task AddApproval(Guid caseId, Guid? commentId, ClaimsPrincipal user, Approval action, string? reason, AuditMeta auditMeta);
+
 
     /// <summary>Get the last <see cref="CaseApproval.Committed"/> approval (or null, if it does not exist) for a case.</summary>
     /// <param name="caseId">The Id of the case.</param>

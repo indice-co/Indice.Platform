@@ -1,10 +1,13 @@
 ﻿using System.Text.Json.Nodes;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-namespace Indice.Features.Cases.Core.Serialization;
 
+namespace Indice.Features.Cases.Workflows.Serialization;
+
+/// <inheritdoc />
 public class JsonNodeToJsonObjectAdapterConverter : JsonConverter<JsonNode>
 {
+    /// <inheritdoc />
     public override JsonNode? ReadJson(JsonReader reader, Type objectType, JsonNode? existingValue, bool hasExistingValue, JsonSerializer serializer) {
         try {
             if (reader.TokenType == JsonToken.Null) {
@@ -19,13 +22,14 @@ public class JsonNodeToJsonObjectAdapterConverter : JsonConverter<JsonNode>
             if (reader.TokenType == JsonToken.StartArray) {
                 return JsonNode.Parse(JArray.Load(reader).ToString());
             }
-            return reader.Value.ToString();
+            return reader.Value!.ToString();
             //return (JsonNode)JToken.Load(reader).ToString();
         } catch {
             return null;
         }
     }
 
+    /// <inheritdoc />
     public override void WriteJson(JsonWriter writer, JsonNode? value, JsonSerializer serializer) {
         if (value == null) {
             writer.WriteNull();
@@ -35,9 +39,10 @@ public class JsonNodeToJsonObjectAdapterConverter : JsonConverter<JsonNode>
     }
 }
 
-
+/// <inheritdoc />
 public class JsonNullableNodeToJsonObjectAdapterConverter : JsonConverter<JsonNode?>
 {
+    /// <inheritdoc />
     public override JsonNode? ReadJson(JsonReader reader, Type objectType, JsonNode? existingValue, bool hasExistingValue, JsonSerializer serializer) {
         if (reader.TokenType == JsonToken.Null) {
             return null;
@@ -52,10 +57,10 @@ public class JsonNullableNodeToJsonObjectAdapterConverter : JsonConverter<JsonNo
             return JsonNode.Parse(JArray.Load(reader).ToString());
         }
         
-        return reader.Value.ToString();
-        return (JsonNode)JToken.Load(reader).ToString();
+        return reader.Value!.ToString();
     }
 
+    /// <inheritdoc />
     public override void WriteJson(JsonWriter writer, JsonNode? value, JsonSerializer serializer) {
         if (value == null) {
             writer.WriteNull();

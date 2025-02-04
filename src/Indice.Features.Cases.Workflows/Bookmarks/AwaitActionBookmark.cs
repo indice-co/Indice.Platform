@@ -11,8 +11,8 @@ internal class AwaitActionBookmark : IBookmark
 {
     public AwaitActionBookmark(string caseId, string actionId, string? role = null) {
         CaseId = string.IsNullOrEmpty(caseId) ? throw new ArgumentNullException(nameof(caseId), "CaseId cannot be null or empty.") : caseId;
-        Role = role;
         ActionId = actionId;
+        Role = role;
     }
 
     /// <summary>The Id of the case to create the bookmark.</summary>

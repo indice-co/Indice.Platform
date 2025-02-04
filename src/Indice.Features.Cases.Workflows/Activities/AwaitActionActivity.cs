@@ -4,7 +4,10 @@ using Elsa.Attributes;
 using Elsa.Design;
 using Elsa.Expressions;
 using Elsa.Services.Models;
+using Indice.Features.Cases.Workflows.Extensions;
 using Indice.Features.Cases.Workflows.Integration;
+using Indice.Features.Cases.Workflows.Integrations;
+using Indice.Features.Cases.Workflows.Models;
 
 namespace Indice.Features.Cases.Workflows.Activities;
 
@@ -18,15 +21,8 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "A blocking activity that handles a custom action.",
     Outcomes = new[] { OutcomeNames.Done }
 )]
-public class AwaitActionActivity : BaseCaseActivity
+public class AwaitActionActivity(CasesHttpClient casesHttpClient) : BaseBlockingActivity(casesHttpClient)
 {
-    private readonly CasesHttpClient _casesClient;
-
-    /// <inheritdoc />
-    public AwaitActionActivity(CasesHttpClient casesClient) : base(casesClient) {
-        _casesClient = casesClient;
-    }
-
     /// <summary>The Id of the action that will trigger the activity. It's hidden from the elsa dashboard and gets a unique value automatically.</summary>
     [ActivityInput(IsBrowsable = false)]
     public string ActionId { get; set; } = Guid.NewGuid().ToString();
@@ -96,7 +92,7 @@ public class AwaitActionActivity : BaseCaseActivity
         DefaultSyntax = SyntaxNames.JavaScript,
         SupportedSyntaxes = [SyntaxNames.JavaScript, SyntaxNames.Liquid]
     )]
-    public SuccessMessage? SuccessMessage { get; set; } // todo: copy
+    public SuccessMessage? SuccessMessage { get; set; }
 
     /// <summary>User role that can proceed to this action. If left blank, all authenticated users can proceed to this action.</summary>
     [ActivityInput(
@@ -120,33 +116,25 @@ public class AwaitActionActivity : BaseCaseActivity
     public object? Output { get; set; }
 
     /// <inheritdoc />
-    public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
-        return context.WorkflowExecutionContext.IsFirstPass ? await OnExecuteInternal(context) : Suspend();
-    }
-
-    /// <inheritdoc />
-    protected override async ValueTask<IActivityExecutionResult> OnResumeAsync(ActivityExecutionContext context) {
-        return await OnExecuteInternal(context);
-    }
-
-    private async Task<IActivityExecutionResult> OnExecuteInternal(ActivityExecutionContext context) {
+    protected override async Task<IActivityExecutionResult> OnExecuteInternalAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
 
-        var input = context.Input as ActionRequest;
+        var input = context.Input as InvokeActionRequest;
 
         Output = input?.Value ?? string.Empty;
         context.LogOutputProperty(this, nameof(Output), Output);
-
+        
         var comment = $"Action \"{ActionName}\" executed successfully";
-        await _casesClient.SendMessageAsync(CaseId.Value, new Integration.Message {
-            Comment = string.IsNullOrEmpty(input?.Value) ? $"{comment}." : $"{comment} with value \"{Output}\".",
-            PrivateComment = true
-        });
-        // await _caseMessageService.Send(CaseId.Value, context.TryGetUser()!, new Message {
-        //     Comment = string.IsNullOrEmpty(input?.Value) ? $"{comment}." : $"{comment} with value \"{Output}\".",
-        //     PrivateComment = true
-        // });
 
+        await CasesClient.SendMessageAsync(CaseId.Value, new WorkflowSendMessageRequest {
+            Message = new Message {
+                Comment = string.IsNullOrEmpty(input?.Value) ? $"{comment}." : $"{comment} with value \"{Output}\".",
+                PrivateComment = true
+            },
+            CasesActor = context.TryGetLastActor().ToCasesActor()
+        });
+        
+        context.SetVariable(CasesWorkflowConstants.WorkflowVariables.Actor.CurrentActor, input!.Actor);
         return Done(Output);
     }
 }

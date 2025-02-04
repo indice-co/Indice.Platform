@@ -4,6 +4,7 @@ using Elsa.Attributes;
 using Elsa.Services.Models;
 using Indice.Features.Cases.Workflows.Extensions;
 using Indice.Features.Cases.Workflows.Integration;
+using Indice.Features.Cases.Workflows.Integrations;
 using CaseApproval = Indice.Features.Cases.Workflows.Integration.CaseApproval;
 
 namespace Indice.Features.Cases.Workflows.Activities;
@@ -15,42 +16,29 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "Block the previous approver if it is the same user and prevent from continuing the workflow.",
     Outcomes = new[] { OutcomeNames.True, OutcomeNames.False }
 )]
-internal class BlockPreviousApproverActivity : BaseCaseActivity
+internal class BlockPreviousApproverActivity(CasesHttpClient casesHttpClient) : BaseCaseActivity(casesHttpClient)
 {
-    private readonly CasesHttpClient _casesClient;
-
-    public BlockPreviousApproverActivity(CasesHttpClient casesClient)
-        : base(casesClient) {
-        _casesClient = casesClient;
-    }
-
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
 
-        CaseApproval lastApproval = null;
-        // var lastApproval = await _caseApprovalService.GetLastApproval(CaseId.Value!); // todo: http or refactor
+        var lastApproval = await CasesClient.LastApprovalAsync(CaseId.Value);
         if (lastApproval == null) {
             return Outcome(OutcomeNames.False);
         }
-
-        var casesUser = context.TryGetLastActor();
-
-        // var user = context.TryGetUser();
-        if (casesUser.Id != lastApproval.CreatedBy.Id) {
+        
+        if (context.TryGetLastActor().UserId != lastApproval.CreatedBy.Id) {
             return Outcome(OutcomeNames.False);
         }
         
-        await _casesClient.SendMessageAsync(CaseId.Value!, new Integration.Message {
-            PrivateComment = true,
-            Comment = "Already approved on the previous step. Self-assignment removed." // todo: we lose localization in elsa context
+        await CasesClient.SendMessageAsync(CaseId.Value, new WorkflowSendMessageRequest {
+            Message = new Message {
+                PrivateComment = true,
+                Comment = "Already approved on the previous step. Self-assignment removed." // todo: fix localization
+            },
+            CasesActor = context.TryGetLastActor().ToCasesActor()
         });
-
-        // await CaseMessageService.Send(CaseId.Value, user!, new Message {
-        //     PrivateComment = true,
-        //     Comment = _casesMessageDescriber.BlockPreviousApproverComment
-        // });
-        // await _casesClient.RemoveAssignmentAsync(CaseId.Value!);
-        // await _adminCaseService.RemoveAssignment(CaseId.Value); // todo: http or refactor
+        
+        await CasesClient.RemoveAssignmentAsync(CaseId.Value);
         return Outcome(OutcomeNames.True);
     }
 }

@@ -4,26 +4,17 @@ using Elsa.Expressions;
 using Elsa.Providers.WorkflowStorage;
 using Elsa.Services;
 using Elsa.Services.Models;
+using Indice.Features.Cases.Workflows.Extensions;
 using Indice.Features.Cases.Workflows.Integration;
+using Indice.Features.Cases.Workflows.Integrations;
 
 namespace Indice.Features.Cases.Workflows.Activities;
 
 /// <summary>Base Activity for Cases which provides hook for automatic case error handling.</summary>
-public abstract class BaseCaseActivity : Activity
+public abstract class BaseCaseActivity(CasesHttpClient casesClient) : Activity
 {
-    /// <summary>
-    /// The Admin case service
-    /// </summary>
-    // protected IAdminCaseMessageService CaseMessageService { get; }
-    protected CasesHttpClient CasesClient { get; }
-    
-    /// <summary>The base activity regarding cases</summary>
-    /// <param name="caseMessageService">The <see cref="IAdminCaseMessageService"/>.</param>
-    /// <exception cref="ArgumentNullException"></exception>
-    protected BaseCaseActivity(
-        CasesHttpClient casesClient) {
-        CasesClient = casesClient ?? throw new ArgumentNullException(nameof(casesClient));
-    }
+    /// <summary>The Cases Http client.</summary>
+    protected readonly CasesHttpClient CasesClient = casesClient ?? throw new ArgumentNullException(nameof(casesClient));
 
     /// <summary>The Id of the case.</summary>
     [ActivityInput(
@@ -54,13 +45,17 @@ public abstract class BaseCaseActivity : Activity
             if (HandleActivityError) {
                 var message = $"Workflow Exception with DefinitionId \"{context.WorkflowInstance.DefinitionId}\" and InstanceId \"{context.WorkflowInstance.Id}\". Original exception message \"{exception.Message}\".";
                 // await CaseMessageService.Send(CaseId!.Value, context.GetHttpContextUser()!, exception, message);
-                await CasesClient.SendMessageAsync(CaseId!.Value, new Message {
-                    Comment = string.IsNullOrEmpty(message) 
-                        ? $"Faulted with message: {exception.Message}" 
-                        : $"Faulted with message: {message} and exception message: {exception.Message}",
-                    PrivateComment = true
+                await CasesClient.SendMessageAsync(CaseId.Value, new WorkflowSendMessageRequest {
+                    Message = new Message {
+                        Comment = string.IsNullOrEmpty(message) 
+                            ? $"Faulted with message: {exception.Message}" 
+                            : $"Faulted with message: {message} and exception message: {exception.Message}",
+                        PrivateComment = true
+                    },
+                    CasesActor = context.TryGetLastActor().ToCasesActor()
                 });
             }
+            
             throw;
         }
     }
@@ -82,12 +77,14 @@ public abstract class BaseCaseActivity : Activity
         context.LogOutputProperty(this, "Exception", exception);
         // todo: simulate http failure
         // Log to Case (via Comment)
-        await CasesClient.SendMessageAsync(CaseId!.Value, new Message {
-            Comment = string.IsNullOrEmpty(message) 
-                ? $"Faulted with message: {exception.Message}" 
-                : $"Faulted with message: {message} and exception message: {exception.Message}",
-            PrivateComment = true
+        await CasesClient.SendMessageAsync(CaseId.Value, new WorkflowSendMessageRequest {
+            Message = new Message {
+                Comment = string.IsNullOrEmpty(message)
+                    ? $"Faulted with message: {exception.Message}"
+                    : $"Faulted with message: {message} and exception message: {exception.Message}",
+                PrivateComment = true
+            },
+            CasesActor = context.TryGetLastActor().ToCasesActor()
         });
-        // await CaseMessageService.Send(CaseId!.Value, CasesClaimsPrincipalExtensions.SystemUser(), exception, message);
     }
 }

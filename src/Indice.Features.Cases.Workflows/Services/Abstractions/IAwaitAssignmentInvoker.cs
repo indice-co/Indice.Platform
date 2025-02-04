@@ -3,7 +3,7 @@ using Indice.Features.Cases.Workflows.Activities;
 using Indice.Features.Cases.Workflows.Bookmarks;
 using Indice.Features.Cases.Workflows.Models;
 
-namespace Indice.Features.Cases.Workflows.Interfaces;
+namespace Indice.Features.Cases.Workflows.Services.Abstractions;
 
 /// <summary>
 /// Invoker for <see cref="AwaitAssignmentBookmark"/> that triggers the continuation of a resumed <see cref="AwaitAssignmentActivity"/>.
@@ -18,11 +18,11 @@ internal interface IAwaitAssignmentInvoker
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="input">The approval request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    Task<IEnumerable<CollectedWorkflow>> DispatchWorkflowsAsync(Guid caseId, WorkflowAssignCaseRequest input, CancellationToken cancellationToken = default);
+    Task<IEnumerable<CollectedWorkflow>> DispatchWorkflowsAsync(Guid caseId, InvokeAssignmentRequest input, CancellationToken cancellationToken = default);
 
     /// <summary>Executing a workflow will execute the workflow directly before returning.</summary>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="input">The approval request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    Task<IEnumerable<CollectedWorkflow>> ExecuteWorkflowsAsync(Guid caseId, WorkflowAssignCaseRequest input, CancellationToken cancellationToken = default);
+    Task<IEnumerable<CollectedWorkflow>> ExecuteWorkflowsAsync(Guid caseId, InvokeAssignmentRequest input, CancellationToken cancellationToken = default);
 }

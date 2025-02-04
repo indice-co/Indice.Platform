@@ -15,6 +15,7 @@
     <PackageReference Include="Elsa.Persistence.EntityFramework.SqlServer" Version="2.13.0" />
     <PackageReference Include="Elsa.Retention" Version="2.13.0" />
     <PackageReference Include="Elsa.Server.Api" Version="2.13.0" />
+    <PackageReference Include="JsonSchema.Net" Version="7.3.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.11" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
     <PackageReference Include="MediatR" Version="12.2.0" />

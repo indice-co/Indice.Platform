@@ -28,7 +28,6 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         CasesDbContext dbContext,
         IOptions<CasesOptions> options,
         ICaseAuthorizationProvider memberAuthorizationProvider,
-        ICaseTypeService caseTypeService,
         IAdminCaseMessageService adminCaseMessageService,
         IPlatformEventService platformEventService) : base(dbContext, options) {
         _memberAuthorizationProvider = memberAuthorizationProvider ?? throw new ArgumentNullException(nameof(memberAuthorizationProvider));
@@ -557,22 +556,22 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return true;
     }
 
-    public async Task<AuditMeta> AssignCase(AuditMeta user, Guid caseId) {
-        if (user.Id == null || string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Name)) {
+    public async Task<AuditMeta> AssignCase(AuditMeta userMeta, Guid caseId) {
+        if (userMeta.Id == null || string.IsNullOrEmpty(userMeta.Email) || string.IsNullOrEmpty(userMeta.Name)) {
             throw new ArgumentException($"{BasicClaimTypes.GivenName} or {BasicClaimTypes.FamilyName} is missing from identity claim types");
         }
         var @case = await DbContext.Cases.FindAsync(caseId);
         if (@case == null) {
             throw new ArgumentNullException($"No {nameof(@case)} found with that id");
         }
-        if (@case.AssignedTo != null && @case.AssignedTo.Id != user.Id) {
+        if (@case.AssignedTo != null && @case.AssignedTo.Id != userMeta.Id) {
             throw new InvalidOperationException("Case is already assigned to another user.");
         }
 
         // Apply assignment
-        @case.AssignedTo = user;
+        @case.AssignedTo = userMeta;
         await DbContext.SaveChangesAsync();
-        return user;
+        return userMeta;
     }
 
     public async Task RemoveAssignment(Guid caseId) {

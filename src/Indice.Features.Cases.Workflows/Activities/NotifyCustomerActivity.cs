@@ -17,17 +17,10 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "Notify the customer via sms/viber, PushNotification or Email, with a specific message regarding the status of the case.",
     Outcomes = new[] { OutcomeNames.Done }
 )]
-internal class NotifyCustomerActivity : BaseCaseActivity
+internal class NotifyCustomerActivity(CasesHttpClient casesHttpClient, ISmsService smsService) : BaseCaseActivity(casesHttpClient)
 {
-    private readonly CasesHttpClient _casesClient;
-    private readonly ISmsService _smsService;
+    private readonly ISmsService _smsService = smsService ?? throw new ArgumentNullException(nameof(smsService));
 
-    public NotifyCustomerActivity(CasesHttpClient casesClient, ISmsService smsService)
-        : base(casesClient) {
-        _casesClient = casesClient ?? throw new ArgumentNullException(nameof(casesClient));
-        _smsService = smsService ?? throw new ArgumentNullException(nameof(smsService));
-    }
-    
     [ActivityInput(
         Label = "Subject - EN",
         Hint = "The subject of the notification",
@@ -80,26 +73,25 @@ internal class NotifyCustomerActivity : BaseCaseActivity
             return Outcome(OutcomeNames.Done);
         }
 
-        var @case = await _casesClient.GetCaseByIdAsync(CaseId!.Value, false);
-        // var @case = await _adminCaseService.GetCaseById(context.TryGetUser()!, CaseId!.Value);
+        var @case = await CasesClient.GetCaseAsync(CaseId!.Value, null);
         var infoMessage = new StringBuilder();
         var subject = default(string);
         var body = default(string);
         foreach (var channel in DeliveryChannel) {
             switch (channel) {
                 case "SMS/Viber": {
-                        var customerPhoneNumber = @case.Metadata?["CustomerPhoneNumber"]; // this can be activity input to match different cases (eg CustomerPhoneNumber or PhoneNumber)
-                        if (string.IsNullOrEmpty(customerPhoneNumber)) {
-                            infoMessage.Append("Customer phone number is empty in case metadata. Notification will not be send.");
-                            continue;
-                        }
-                        infoMessage.Append($"Customer has been notified through \"{channel}\".");
-                        var lang = @case.Metadata?["CurrentCultureName"]; // el-GR, en-US, en-GB
-                        subject = lang == "el-GR" ? SubjectEL : SubjectEN;
-                        body = lang == "el-GR" ? BodyEL : BodyEN;
-                        await _smsService.SendAsync(customerPhoneNumber, subject, body); // todo: reference of needed
-                        break;
+                    var customerPhoneNumber = @case.Metadata?["CustomerPhoneNumber"]; // this can be activity input to match different cases (eg CustomerPhoneNumber or PhoneNumber)
+                    if (string.IsNullOrEmpty(customerPhoneNumber)) {
+                        infoMessage.Append("Customer phone number is empty in case metadata. Notification will not be send.");
+                        continue;
                     }
+                    infoMessage.Append($"Customer has been notified through \"{channel}\".");
+                    var lang = @case.Metadata?["CurrentCultureName"]; // el-GR, en-US, en-GB
+                    subject = lang == "el-GR" ? SubjectEL : SubjectEN;
+                    body = lang == "el-GR" ? BodyEL : BodyEN;
+                    await _smsService.SendAsync(customerPhoneNumber, subject, body);
+                    break;
+                }
                 default:
                     throw new ArgumentOutOfRangeException(nameof(channel), channel, "Delivery channel not found.");
             }

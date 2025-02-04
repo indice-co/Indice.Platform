@@ -59,7 +59,7 @@ internal class CasesWorkflowManagerElsa(
     }
 
     /// <inheritdoc/>
-    public async Task<WorkflowInvocationResult> AssignCaseAsync(ClaimsPrincipal user, Guid caseId, string outcome) {
+    public async Task<WorkflowInvocationResult> InvokeAssignmentAsync(Guid caseId, ClaimsPrincipal user) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
         var input = new AwaitAssignmentInvokerInput {
@@ -77,7 +77,7 @@ internal class CasesWorkflowManagerElsa(
     }
 
     /// <inheritdoc/>
-    public async Task<WorkflowInvocationResult> InvokeEditAsync(ClaimsPrincipal user, Guid caseId, EditCaseRequest request) {
+    public async Task<WorkflowInvocationResult> InvokeEditAsync(ClaimsPrincipal user, Guid caseId, string? comment, EditCaseRequest request) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
         var executedWorkflow = await _awaitEditInvoker.ExecuteWorkflowsAsync(caseId, request);
@@ -145,7 +145,7 @@ internal class CasesWorkflowManagerElsa(
         var blockPreviousApprover = approvalBookmarks.Any(p => ((AwaitApprovalBookmark)p.Bookmark).BlockPreviousApprover);
         if (blockPreviousApprover) {
             // Check if 4-eyes principle is enabled for this workflow instance
-            // First get actor of the the latest checkpoint that has not been completed
+            // First get actor of the latest checkpoint that has not been completed
             // Then check if the actor is the current user
             userCanApprove &= lastApprovedById != user.FindSubjectId();
         }
@@ -163,8 +163,8 @@ internal class CasesWorkflowManagerElsa(
                 CustomActions = customCaseActions
             }
             : new CaseActions {
-                HasApproval = userCanApprove,
                 HasAssignment = assignmentBookmarks.Any() && !caseIsAssigned,
+                HasApproval = userCanApprove,
                 HasEdit = editBookmarks.Any() && isAssignedToCurrentUser,
                 CustomActions = customCaseActions
             };
@@ -193,8 +193,7 @@ internal class CasesWorkflowManagerElsa(
         return new(Success: true, []);
     }
 
-    // todo: implement this
-    public Task<object> GetActionsByCaseId(ClaimsPrincipal user, Guid caseId, string[] roles) {
+    public Task<IWorkflowActions> GetActionsByCaseId(Guid caseId) {
         throw new NotImplementedException();
     }
     

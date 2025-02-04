@@ -1,9 +1,13 @@
 namespace Indice.Features.Cases.Workflows.Models;
 
-public class WorkflowCustomCaseAction
+/// <summary>Custom action blocking activity that will generate the corresponding component.</summary>
+public class CustomAction
 {
     /// <summary>The Id to trigger the action.</summary>
     public string Id { get; set; } = null!;
+    
+    /// <summary>The Role allowed to trigger the action.</summary>
+    public string? AllowedRole { get; set; }
 
     /// <summary>The name of the action.</summary>
     public string? Name { get; set; }
@@ -18,7 +22,7 @@ public class WorkflowCustomCaseAction
     public bool? RedirectToList { get; set; }
 
     /// <summary>A response message that is returned if the action is completed with success.</summary>
-    public WorkflowSuccessMessage? SuccessMessage { get; set; }
+    public SuccessMessage? SuccessMessage { get; set; }
 
     /// <summary>The description of the action.</summary>
     public string? Description { get; set; }
@@ -30,7 +34,8 @@ public class WorkflowCustomCaseAction
     public bool? HasInput { get; set; }
 }
 
-public class WorkflowSuccessMessage
+/// <summary>Success Message Action Model.</summary>
+public class SuccessMessage
 {
     /// <summary>The message's Title.</summary>
     public string Title { get; set; } = null!;

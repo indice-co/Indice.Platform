@@ -55,13 +55,102 @@ namespace Indice.Features.Cases.Server.Integration
         partial void ProcessResponse(System.Net.Http.HttpClient client, System.Net.Http.HttpResponseMessage response);
 
         /// <summary>
+        /// Get the reject reasons for a case.
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="WorkflowApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<string>> RejectReasonsAsync(System.Guid caseId)
+        {
+            return RejectReasonsAsync(caseId, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Get the reject reasons for a case.
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="WorkflowApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<string>> RejectReasonsAsync(System.Guid caseId, System.Threading.CancellationToken cancellationToken)
+        {
+            if (caseId == null)
+                throw new System.ArgumentNullException("caseId");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                
+                    // Operation Path: "workflow-manager/{caseId}/reject-reasons"
+                    urlBuilder_.Append("workflow-manager/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
+                    urlBuilder_.Append("/reject-reasons");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<string>>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new WorkflowApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new WorkflowApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
         /// Get all available actions for case id.
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="WorkflowApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<AvailableActions> ActionsAsync(System.Guid caseId, System.Collections.Generic.IEnumerable<string> bookmarks)
+        public virtual System.Threading.Tasks.Task<AvailableActions> ActionsAsync(System.Guid caseId)
         {
-            return ActionsAsync(caseId, bookmarks, System.Threading.CancellationToken.None);
+            return ActionsAsync(caseId, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
@@ -70,13 +159,10 @@ namespace Indice.Features.Cases.Server.Integration
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="WorkflowApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AvailableActions> ActionsAsync(System.Guid caseId, System.Collections.Generic.IEnumerable<string> bookmarks, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<AvailableActions> ActionsAsync(System.Guid caseId, System.Threading.CancellationToken cancellationToken)
         {
             if (caseId == null)
                 throw new System.ArgumentNullException("caseId");
-
-            if (bookmarks == null)
-                throw new System.ArgumentNullException("bookmarks");
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -92,9 +178,6 @@ namespace Indice.Features.Cases.Server.Integration
                     // Operation Path: "workflow-manager/actions/{caseId}"
                     urlBuilder_.Append("workflow-manager/actions/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append('?');
-                    foreach (var item_ in bookmarks) { urlBuilder_.Append(System.Uri.EscapeDataString("bookmarks")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(item_, System.Globalization.CultureInfo.InvariantCulture))).Append('&'); }
-                    urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -149,37 +232,25 @@ namespace Indice.Features.Cases.Server.Integration
         }
 
         /// <summary>
-        /// Obsolete Get all available actions for case id.
+        /// Trigger a custom action activity.
         /// </summary>
-        /// <returns>OK</returns>
+        /// <returns>No Content</returns>
         /// <exception cref="WorkflowApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<WorkflowCasesActions> AvailableActionsAsync(System.Guid caseId, string assignedToId, System.Collections.Generic.IEnumerable<string> bookmarks, string subjectId, bool isAdmin, bool isSystemClient, string lastApprovedById)
+        public virtual System.Threading.Tasks.Task ActionAsync(InvokeActionRequest body)
         {
-            return AvailableActionsAsync(caseId, assignedToId, bookmarks, subjectId, isAdmin, isSystemClient, lastApprovedById, System.Threading.CancellationToken.None);
+            return ActionAsync(body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
-        /// Obsolete Get all available actions for case id.
+        /// Trigger a custom action activity.
         /// </summary>
-        /// <returns>OK</returns>
+        /// <returns>No Content</returns>
         /// <exception cref="WorkflowApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<WorkflowCasesActions> AvailableActionsAsync(System.Guid caseId, string assignedToId, System.Collections.Generic.IEnumerable<string> bookmarks, string subjectId, bool isAdmin, bool isSystemClient, string lastApprovedById, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task ActionAsync(InvokeActionRequest body, System.Threading.CancellationToken cancellationToken)
         {
-            if (caseId == null)
-                throw new System.ArgumentNullException("caseId");
-
-            if (bookmarks == null)
-                throw new System.ArgumentNullException("bookmarks");
-
-            if (subjectId == null)
-                throw new System.ArgumentNullException("subjectId");
-
-            if (isAdmin == null)
-                throw new System.ArgumentNullException("isAdmin");
-
-            if (isSystemClient == null)
-                throw new System.ArgumentNullException("isSystemClient");
+            if (body == null)
+                throw new System.ArgumentNullException("body");
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -187,28 +258,16 @@ namespace Indice.Features.Cases.Server.Integration
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
+                    var content_ = new System.Net.Http.ByteArrayContent(json_);
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+                    request_.Content = content_;
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "workflow-manager/available-actions/{caseId}"
-                    urlBuilder_.Append("workflow-manager/available-actions/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append('?');
-                    if (assignedToId != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("assignedToId")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(assignedToId, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    foreach (var item_ in bookmarks) { urlBuilder_.Append(System.Uri.EscapeDataString("bookmarks")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(item_, System.Globalization.CultureInfo.InvariantCulture))).Append('&'); }
-                    urlBuilder_.Append(System.Uri.EscapeDataString("subjectId")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(subjectId, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    urlBuilder_.Append(System.Uri.EscapeDataString("isAdmin")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(isAdmin, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    urlBuilder_.Append(System.Uri.EscapeDataString("isSystemClient")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(isSystemClient, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    if (lastApprovedById != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("lastApprovedById")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(lastApprovedById, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    urlBuilder_.Length--;
+                    // Operation Path: "workflow-manager/invoke/action"
+                    urlBuilder_.Append("workflow-manager/invoke/action");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -233,14 +292,9 @@ namespace Indice.Features.Cases.Server.Integration
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
-                        if (status_ == 200)
+                        if (status_ == 204)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<WorkflowCasesActions>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new WorkflowApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            return objectResponse_.Object;
+                            return;
                         }
                         else
                         {
@@ -267,7 +321,7 @@ namespace Indice.Features.Cases.Server.Integration
         /// </summary>
         /// <returns>No Content</returns>
         /// <exception cref="WorkflowApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task ApprovalAsync(WorkflowSubmitApprovalRequest body)
+        public virtual System.Threading.Tasks.Task ApprovalAsync(InvokeApprovalRequest body)
         {
             return ApprovalAsync(body, System.Threading.CancellationToken.None);
         }
@@ -278,7 +332,7 @@ namespace Indice.Features.Cases.Server.Integration
         /// </summary>
         /// <returns>No Content</returns>
         /// <exception cref="WorkflowApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task ApprovalAsync(WorkflowSubmitApprovalRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task ApprovalAsync(InvokeApprovalRequest body, System.Threading.CancellationToken cancellationToken)
         {
             if (body == null)
                 throw new System.ArgumentNullException("body");
@@ -352,7 +406,7 @@ namespace Indice.Features.Cases.Server.Integration
         /// </summary>
         /// <returns>No Content</returns>
         /// <exception cref="WorkflowApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task AssignAsync(WorkflowAssignCaseRequest body)
+        public virtual System.Threading.Tasks.Task AssignAsync(InvokeAssignmentRequest body)
         {
             return AssignAsync(body, System.Threading.CancellationToken.None);
         }
@@ -363,7 +417,7 @@ namespace Indice.Features.Cases.Server.Integration
         /// </summary>
         /// <returns>No Content</returns>
         /// <exception cref="WorkflowApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task AssignAsync(WorkflowAssignCaseRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task AssignAsync(InvokeAssignmentRequest body, System.Threading.CancellationToken cancellationToken)
         {
             if (body == null)
                 throw new System.ArgumentNullException("body");
@@ -437,7 +491,7 @@ namespace Indice.Features.Cases.Server.Integration
         /// </summary>
         /// <returns>No Content</returns>
         /// <exception cref="WorkflowApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task EditAsync(WorkflowEditCaseRequest body)
+        public virtual System.Threading.Tasks.Task EditAsync(InvokeEditRequest body)
         {
             return EditAsync(body, System.Threading.CancellationToken.None);
         }
@@ -448,7 +502,7 @@ namespace Indice.Features.Cases.Server.Integration
         /// </summary>
         /// <returns>No Content</returns>
         /// <exception cref="WorkflowApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task EditAsync(WorkflowEditCaseRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task EditAsync(InvokeEditRequest body, System.Threading.CancellationToken cancellationToken)
         {
             if (body == null)
                 throw new System.ArgumentNullException("body");
@@ -522,7 +576,7 @@ namespace Indice.Features.Cases.Server.Integration
         /// </summary>
         /// <returns>No Content</returns>
         /// <exception cref="WorkflowApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task StartWorkflowAsync(System.Guid caseId, string caseTypeCode, CasesUser body)
+        public virtual System.Threading.Tasks.Task StartWorkflowAsync(System.Guid caseId, string caseTypeCode, Actor body)
         {
             return StartWorkflowAsync(caseId, caseTypeCode, body, System.Threading.CancellationToken.None);
         }
@@ -533,7 +587,7 @@ namespace Indice.Features.Cases.Server.Integration
         /// </summary>
         /// <returns>No Content</returns>
         /// <exception cref="WorkflowApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task StartWorkflowAsync(System.Guid caseId, string caseTypeCode, CasesUser body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task StartWorkflowAsync(System.Guid caseId, string caseTypeCode, Actor body, System.Threading.CancellationToken cancellationToken)
         {
             if (caseId == null)
                 throw new System.ArgumentNullException("caseId");
@@ -722,14 +776,20 @@ namespace Indice.Features.Cases.Server.Integration
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public enum Approval
+    public partial record Actor
     {
 
-        [System.Runtime.Serialization.EnumMember(Value = @"Approve")]
-        Approve = 0,
+        [System.Text.Json.Serialization.JsonPropertyName("userId")]
+        public string UserId { get; set; }
 
-        [System.Runtime.Serialization.EnumMember(Value = @"Reject")]
-        Reject = 1,
+        [System.Text.Json.Serialization.JsonPropertyName("reference")]
+        public string Reference { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("email")]
+        public string Email { get; set; }
 
     }
 
@@ -746,8 +806,8 @@ namespace Indice.Features.Cases.Server.Integration
         [System.Text.Json.Serialization.JsonPropertyName("approvalBookmarks")]
         public System.Collections.Generic.ICollection<AwaitApprovalBookmark> ApprovalBookmarks { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("customCaseActions")]
-        public System.Collections.Generic.ICollection<WorkflowCustomCaseAction> CustomCaseActions { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("customActions")]
+        public System.Collections.Generic.ICollection<CustomAction> CustomActions { get; set; }
 
     }
 
@@ -794,65 +854,14 @@ namespace Indice.Features.Cases.Server.Integration
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record CasesUser
+    public partial record CustomAction
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("id")]
         public string Id { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("name")]
-        public string Name { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("email")]
-        public string Email { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("when")]
-        public System.DateTimeOffset? When { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record WorkflowAssignCaseRequest
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("caseId")]
-        public System.Guid CaseId { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("outcomeResult")]
-        public string OutcomeResult { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("casesUser")]
-        public CasesUser CasesUser { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record WorkflowCasesActions
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("hasAssignment")]
-        public bool HasAssignment { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("hasUnassignment")]
-        public bool HasUnassignment { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("hasEdit")]
-        public bool HasEdit { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("hasApproval")]
-        public bool HasApproval { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("customActions")]
-        public System.Collections.Generic.ICollection<WorkflowCustomCaseAction> CustomActions { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record WorkflowCustomCaseAction
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("id")]
-        public string Id { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("allowedRole")]
+        public string AllowedRole { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("name")]
         public string Name { get; set; }
@@ -867,7 +876,7 @@ namespace Indice.Features.Cases.Server.Integration
         public bool? RedirectToList { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("successMessage")]
-        public WorkflowSuccessMessage SuccessMessage { get; set; }
+        public SuccessMessage SuccessMessage { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("description")]
         public string Description { get; set; }
@@ -881,7 +890,56 @@ namespace Indice.Features.Cases.Server.Integration
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record WorkflowEditCaseRequest
+    public partial record InvokeActionRequest
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("caseId")]
+        public System.Guid CaseId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("actionId")]
+        public System.Guid ActionId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("value")]
+        public string Value { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("actor")]
+        public Actor Actor { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record InvokeApprovalRequest
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("caseId")]
+        public System.Guid CaseId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("action")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public WorkflowApproval Action { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("comment")]
+        public string Comment { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("actor")]
+        public Actor Actor { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record InvokeAssignmentRequest
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("caseId")]
+        public System.Guid CaseId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("actor")]
+        public Actor Actor { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record InvokeEditRequest
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("caseId")]
@@ -890,35 +948,16 @@ namespace Indice.Features.Cases.Server.Integration
         [System.Text.Json.Serialization.JsonPropertyName("data")]
         public object Data { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("casesUser")]
-        public CasesUser CasesUser { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("comment")]
+        public string Comment { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("actor")]
+        public Actor Actor { get; set; }
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record WorkflowSubmitApprovalRequest
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("caseId")]
-        public System.Guid CaseId { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("roles")]
-        public System.Collections.Generic.ICollection<string> Roles { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("outputAction")]
-        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-        public Approval OutputAction { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("outputComment")]
-        public string OutputComment { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("casesUser")]
-        public CasesUser CasesUser { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record WorkflowSuccessMessage
+    public partial record SuccessMessage
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("title")]
@@ -926,6 +965,18 @@ namespace Indice.Features.Cases.Server.Integration
 
         [System.Text.Json.Serialization.JsonPropertyName("body")]
         public string Body { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum WorkflowApproval
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Approve")]
+        Approve = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Reject")]
+        Reject = 1,
 
     }
 

@@ -21,14 +21,15 @@ public interface ICasesWorkflowManager
     /// <param name="user">The current user</param>
     /// <param name="caseId">The Id of the case.</param>
     /// <returns>The <see cref="WorkflowInvocationResult"/> indicating success or failure of the operation</returns>
-    Task<WorkflowInvocationResult> AssignCaseAsync(ClaimsPrincipal user, Guid caseId, string outcome);
+    Task<WorkflowInvocationResult> InvokeAssignmentAsync(Guid caseId, ClaimsPrincipal user);
 
     /// <summary>Invoke the edit activity to edit the data of the case.</summary>
     /// <param name="user">The current user</param>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="request">The case data in json format.</param>
+    /// <param name="comment">The comment added.</param>
     /// <returns>The <see cref="WorkflowInvocationResult"/> indicating success or failure of the operation</returns>
-    Task<WorkflowInvocationResult> InvokeEditAsync(ClaimsPrincipal user, Guid caseId, EditCaseRequest request);
+    Task<WorkflowInvocationResult> InvokeEditAsync(ClaimsPrincipal user, Guid caseId, string? comment, EditCaseRequest request);
 
     /// <summary>Invoke the action activity to trigger a business action for the case.</summary>
     /// <param name="user">The current user</param>
@@ -60,9 +61,13 @@ public interface ICasesWorkflowManager
     /// <returns>The <see cref="WorkflowInvocationResult"/> indicating success or failure of the operation</returns>
     Task<WorkflowInvocationResult> StartWorkflowAsync(Guid caseId, string caseTypeCode, AuditMeta auditMeta);
 
-    // todo: change object here
-    Task<object> GetActionsByCaseId(ClaimsPrincipal user, Guid caseId, string[] roles);
+    /// <summary>Gets the available trigger actions for the given <paramref name="caseId"/> regardless of the current user. Authorization happens on the cases host.</summary>
+    /// <param name="caseId">The Id of the case.</param>
+    Task<IWorkflowActions> GetActionsByCaseId(Guid caseId);
 }
+
+/// <summary>/// The interface that represents the list of available actions in the workflow.</summary>
+public interface IWorkflowActions { }
 
 /// <summary>
 /// The result record that represents the outcome of a case workflow trigger.
@@ -90,12 +95,12 @@ internal class DefaultCasesWorkflowManager : ICasesWorkflowManager
     }
     
     /// <inheritdoc/>
-    public Task<WorkflowInvocationResult> InvokeEditAsync(ClaimsPrincipal user, Guid caseId, EditCaseRequest request) {
+    public Task<WorkflowInvocationResult> InvokeEditAsync(ClaimsPrincipal user, Guid caseId, string? comment, EditCaseRequest request) {
         return Task.FromResult(new WorkflowInvocationResult(Success: false, [], "Not implemented"));
     }
     
     /// <inheritdoc/>
-    public Task<WorkflowInvocationResult> AssignCaseAsync(ClaimsPrincipal user, Guid caseId, string outcome) {
+    public Task<WorkflowInvocationResult> InvokeAssignmentAsync(Guid caseId, ClaimsPrincipal user) {
         return Task.FromResult(new WorkflowInvocationResult(Success: false, [], "Not implemented"));
     }
 
@@ -117,7 +122,7 @@ internal class DefaultCasesWorkflowManager : ICasesWorkflowManager
         return Task.FromResult(new WorkflowInvocationResult(Success: false, [], "Not implemented"));
     }
 
-    public Task<object> GetActionsByCaseId(ClaimsPrincipal user, Guid caseId, string[] roles) {
+    public Task<IWorkflowActions> GetActionsByCaseId(Guid caseId) {
         throw new NotImplementedException();
     }
 }

@@ -13,18 +13,11 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "Remove the assignment of a case.",
     Outcomes = new[] { OutcomeNames.Done }
 )]
-internal class RemoveAssignmentActivity : BaseCaseActivity
+internal class RemoveAssignmentActivity(CasesHttpClient casesHttpClient) : BaseCaseActivity(casesHttpClient)
 {
-    private readonly CasesHttpClient _casesClient;
-
-    public RemoveAssignmentActivity(CasesHttpClient casesClient) : base(casesClient) {
-        _casesClient = casesClient ?? throw new ArgumentNullException(nameof(casesClient));
-    }
-
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
-        // await _casesClient.RemoveAssignmentAsync(CaseId.Value);
-        // await _adminCaseService.RemoveAssignment(CaseId!.Value);
+        await CasesClient.RemoveAssignmentAsync(CaseId.Value);
         return Done();
     }
 }

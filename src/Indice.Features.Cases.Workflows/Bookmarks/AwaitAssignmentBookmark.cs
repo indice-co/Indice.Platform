@@ -1,6 +1,7 @@
 ﻿using Elsa.Attributes;
 using Elsa.Services;
 using Indice.Features.Cases.Workflows.Activities;
+using Indice.Features.Cases.Workflows.Services;
 
 namespace Indice.Features.Cases.Workflows.Bookmarks;
 

@@ -23,12 +23,9 @@ internal class AdminCaseMessageService : BaseCaseMessageService, IAdminCaseMessa
         _caseAuthorization = caseAuthorization ?? throw new ArgumentNullException(nameof(caseAuthorization));
     }
 
-    // todo: is the user that initiated a request e.g. add a comment here the same as the user that should be persisted in cases as the initiator?
-    // todo: if the addComment is initiated from Workflow as an activity after the Approve action should this should likely be registered as the user who approved
-    // todo: 
-    public async Task<Guid?> Send(Guid caseId, ClaimsPrincipal user, Message message) {
+    public async Task<Guid?> Send(Guid caseId, ClaimsPrincipal user, Message message, AuditMeta auditMeta) {
         var @case = await GetAdminCase(caseId, user);
-        return await SendInternal(@case, message, AuditMeta.Create(user));
+        return await SendInternal(@case, message, auditMeta);
     }
 
     private async Task<DbCase> GetAdminCase(Guid caseId, ClaimsPrincipal user) {

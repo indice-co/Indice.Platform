@@ -20,7 +20,7 @@ internal class CaseApprovalService : ICaseApprovalService
         _workflowManager = workflowManager ?? throw new ArgumentNullException(nameof(workflowManager));
     }
 
-    public async Task AddApproval(Guid caseId, Guid? commentId, AuditMeta auditMeta, Approval action, string? reason) {
+    public async Task AddApproval(Guid caseId, Guid? commentId, ClaimsPrincipal user, Approval action, string? reason, AuditMeta auditMeta) {
         if (caseId == Guid.Empty) throw new ArgumentNullException(nameof(caseId));
         if (auditMeta.Id is null) throw new ArgumentNullException(nameof(auditMeta.Id));
 

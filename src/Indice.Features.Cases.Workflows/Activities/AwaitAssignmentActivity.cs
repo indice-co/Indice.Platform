@@ -5,7 +5,9 @@ using Elsa.Design;
 using Elsa.Expressions;
 using Elsa.Services.Models;
 using Indice.Features.Cases.Workflows.Integration;
+using Indice.Features.Cases.Workflows.Integrations;
 using Indice.Features.Cases.Workflows.Models;
+using CustomOutcomeNames = Indice.Features.Cases.Workflows.CasesWorkflowConstants.WorkflowVariables.OutcomeNames;
 
 namespace Indice.Features.Cases.Workflows.Activities;
 
@@ -17,16 +19,10 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Category = "Cases",
     DisplayName = "Await Assignment",
     Description = "When a user triggers this activity, they will assign the current workflow case to themselves.",
-    Outcomes = new[] { OutcomeNames.Done, CasesWorkflowConstants.WorkflowVariables.OutcomeNames.Failed }
+    Outcomes = new[] { OutcomeNames.Done, CustomOutcomeNames.Failed }
 )]
-internal class AwaitAssignmentActivity : BaseCaseActivity
+internal class AwaitAssignmentActivity(CasesHttpClient casesHttpClient) : BaseBlockingActivity(casesHttpClient)
 {
-    private readonly CasesHttpClient _casesClient;
-    
-    public AwaitAssignmentActivity(CasesHttpClient casesClient) : base(casesClient) {
-        _casesClient = casesClient ?? throw new ArgumentNullException(nameof(casesClient));
-    }
-
     [ActivityInput(
         Label = "Role",
         Hint = "User role that can assign a case to self. If left blank, any authenticated user can assign a case to them.",
@@ -37,25 +33,24 @@ internal class AwaitAssignmentActivity : BaseCaseActivity
     public string? AllowedRole { get; set; }
 
     [ActivityOutput]
-    public CasesUser? Output { get; set; }
+    public AuditMeta? Output { get; set; }
+    
+    /// <inheritdoc />
+    protected override async Task<IActivityExecutionResult> OnExecuteInternalAsync(ActivityExecutionContext context) {
+        CaseId ??= Guid.Parse(context.CorrelationId);
+        var assignment = context.Input as InvokeAssignmentRequest;
 
-    public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
-        return context.WorkflowExecutionContext.IsFirstPass ? await OnExecuteInternal(context) : Suspend();
-    }
-
-    protected override async ValueTask<IActivityExecutionResult> OnResumeAsync(ActivityExecutionContext context) {
-        return await OnExecuteInternal(context);
-    }
-
-    private async Task<IActivityExecutionResult> OnExecuteInternal(ActivityExecutionContext context) {
-        var assignment = context.Input as WorkflowAssignCaseRequest;
-
-        if (assignment?.OutcomeResult != OutcomeNames.Done) {
-            return Outcome(CasesWorkflowConstants.WorkflowVariables.OutcomeNames.Failed);
+        AuditMeta assignedTo;
+        try {
+            assignedTo = await CasesClient.AssignAsync(CaseId!.Value, assignment!.Actor.ToCasesActor());
+        } catch (Exception ex) {
+            await LogCaseError(context, ex);
+            return Outcome(CustomOutcomeNames.Failed);
         }
-        
-        Output = assignment.CasesUser;
+
+        Output = assignedTo;
         context.LogOutputProperty(this, "Output", Output);
+        context.SetVariable(CasesWorkflowConstants.WorkflowVariables.Actor.CurrentActor, assignment.Actor);
         return Done();
     }
 }

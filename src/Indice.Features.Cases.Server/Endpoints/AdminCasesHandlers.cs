@@ -3,13 +3,19 @@ using System.Security.Claims;
 using System.Text.Json.Nodes;
 using Indice.Events;
 using Indice.Features.Cases.Core;
+using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Events;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services.Abstractions;
+using Indice.Features.Cases.Server.Authorization;
+using Indice.Features.Cases.Server.Integration;
+using Indice.Security;
 using Indice.Types;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Server.Endpoints;
@@ -25,102 +31,6 @@ internal static class AdminCasesHandlers
 
     public static async Task<Ok<ResultSet<CaseAttachment>>> GetCaseAttachments(Guid caseId, IAdminCaseService adminCaseService) =>
         TypedResults.Ok(await adminCaseService.GetAttachments(caseId));
-    
-    public static async Task<Ok> RollbackApproval(
-        Guid caseId,
-        ClaimsPrincipal user,
-        ICaseApprovalService caseApprovalService) {
-        await caseApprovalService.RollbackApproval(caseId);
-        return TypedResults.Ok();
-    }
-    
-    public static async Task<Results<Ok<CaseApproval>, NoContent>> GetLastApproval(
-        Guid caseId,
-        ClaimsPrincipal user,
-        ICaseApprovalService caseApprovalService) {
-        var result = await caseApprovalService.GetLastApproval(caseId);
-        return result is null ? TypedResults.NoContent() : TypedResults.Ok(result);
-    }
-    
-    public static async Task<Ok> AddApproval(
-        Guid caseId,
-        Guid? commentId,
-        AuditMeta auditMeta,
-        ClaimsPrincipal user,
-        ICaseApprovalService caseApprovalService) {
-        // todo: is there any use case to give ability to add reject?
-        await caseApprovalService.AddApproval(caseId, commentId, auditMeta, Approval.Approve, null);
-        return TypedResults.Ok();
-    }
-
-    public static async Task<Ok> MoveToCheckpoint(
-        Guid caseId,
-        string checkpointTypeName,
-        string? comment,
-        bool privateComment,
-        IAdminCaseMessageService adminCaseMessageService) {
-        var user = CasesClaimsPrincipalExtensions.SystemUser(); // todo: client_credentials, add AuditMeta
-        await adminCaseMessageService.Send(caseId, user, new Message {
-            CheckpointTypeName = checkpointTypeName,
-            Comment = comment,
-            PrivateComment = privateComment
-        });
-        
-        return TypedResults.Ok();
-    }
-    
-    public static async Task<Ok> RemoveAssignment(
-        Guid caseId,
-        ClaimsPrincipal user,
-        IAdminCaseService adminCaseService) {
-        await adminCaseService.RemoveAssignment(caseId);
-        return TypedResults.Ok();
-    }
-
-    // TODO: JSON.parse(JSON.stringify(workflowExecutionContext.CurrentScope.Variables.Data.CurrentValue.Message)) in update-cases-recurring.json
-    public static async Task<Ok> SendMessage(
-        Guid caseId,
-        Message message,
-        IAdminCaseMessageService adminCaseMessageService) {
-        var user = CasesClaimsPrincipalExtensions.SystemUser(); // todo: client_credentials, add AuditMeta
-        await adminCaseMessageService.Send(caseId, user, message);
-        return TypedResults.Ok();
-    }
-
-    public static async Task<Ok> AddComment(
-        Guid caseId,
-        string? comment,
-        string? checkpointTypeName,
-        bool privateComment,
-        ClaimsPrincipal currentUser,
-        IAdminCaseMessageService adminCaseMessageService) {
-        await adminCaseMessageService.Send(caseId, currentUser, new Message {
-            CheckpointTypeName = checkpointTypeName,
-            Comment = comment,
-            PrivateComment = privateComment
-        });
-        
-        return TypedResults.Ok(); // todo: created?
-    }
-    
-    /// <summary>Add Case Data optionally passing comment.</summary>
-    public static async Task<Ok> AddCaseData(
-        Guid caseId,
-        JsonNode data,
-        string? comment,
-        bool privateComment,
-        Guid? replyToCommentId,
-        ClaimsPrincipal currentUser,
-        IAdminCaseMessageService adminCaseMessageService) {
-        await adminCaseMessageService.Send(caseId, currentUser, new Message {
-            Data = data,
-            Comment = comment,
-            PrivateComment = privateComment,
-            ReplyToCommentId = replyToCommentId
-        });
-        
-        return TypedResults.Ok(); // todo: created?
-    }
 
     public static async Task<Results<Ok<CasesAttachmentLink>, ValidationProblem>> UploadAdminCaseAttachment(
         Guid caseId,
@@ -194,14 +104,8 @@ internal static class AdminCasesHandlers
     public static async Task<Ok<ResultSet<CasePartial>>> GetCases([AsParameters] ListOptions options, [AsParameters] GetCasesListFilter filter, IAdminCaseService adminCaseService, ClaimsPrincipal currentUser) =>
         TypedResults.Ok(await adminCaseService.GetCases(currentUser, ListOptions.Create(options, filter)));
 
-    // todo: breaking compatibility includeAttachments not default value, check if this is different endpoint for workflows
-    public static async Task<Results<Ok<Case>, NotFound>> GetCaseById(
-        Guid caseId,
-        IAdminCaseService adminCareService,
-        ClaimsPrincipal currentUser,
-        bool includeAttachments = false
-    ) {
-        var @case = await adminCareService.GetCaseById(currentUser, caseId, includeAttachments);
+    public static async Task<Results<Ok<Case>, NotFound>> GetCaseById(Guid caseId, IAdminCaseService adminCareService, ClaimsPrincipal currentUser) {
+        var @case = await adminCareService.GetCaseById(currentUser, caseId, false);
         return @case is not null ? TypedResults.Ok(@case) : TypedResults.NotFound();
     }
 
@@ -223,9 +127,113 @@ internal static class AdminCasesHandlers
         return TypedResults.Ok(cases);
     }
 
-    public static async Task<Results<Ok<CaseActions>, NotFound>> GetCaseActions(Guid caseId, ICaseActionsService caseBookmarkService, ClaimsPrincipal currentUser) {
-        var actions = await caseBookmarkService.GetUserActions(currentUser, caseId);
-        return actions is null ? TypedResults.NotFound() : TypedResults.Ok(actions);
+    public static async Task<Results<Ok<CaseActions>, ProblemHttpResult>> GetCaseActions(
+        Guid caseId,
+        ICasesWorkflowManager workflowManager,
+        ICaseActionsService caseBookmarkService,
+        IAdminCaseService adminCaseService,
+        ICaseApprovalService caseApprovalService,
+        IAuthorizationService authorizationService,
+        CasesDbContext dbContext,
+        ClaimsPrincipal currentUser
+    ) {
+        // If user has no role, do not allow any actions
+        if (!currentUser.FindAll(c => c.Type == BasicClaimTypes.Role).Any() && !currentUser.IsSystemClient()) {
+            return TypedResults.Ok(new CaseActions());
+        }
+        
+        var @case = await dbContext.Cases.Where(x => x.Id == caseId)
+            .Select(x => new {
+                x.Id,
+                AssignedToId = x.AssignedTo == null ? null : x.AssignedTo.Id
+            })
+            .FirstOrDefaultAsync();
+        
+        if (@case == null) {
+            TypedResults.Ok();
+        }
+        
+        // Get List of Available Actions from Workflow
+        var actions = await workflowManager.GetActionsByCaseId(caseId) as AvailableActions;
+        
+        var assignedToId = @case!.AssignedToId;
+        var caseIsAssigned = !string.IsNullOrWhiteSpace(assignedToId);
+        
+        // If user is Admin, they can do everything except assign an already assigned case
+        if (currentUser.IsAdmin() || currentUser.IsSystemClient()) {
+            return TypedResults.Ok(new CaseActions {
+                HasAssignment = actions?.AssignmentBookmarks.Count != 0 && !caseIsAssigned,
+                HasApproval = actions?.ApprovalBookmarks.Count != 0,
+                HasUnassignment = caseIsAssigned,
+                HasEdit = actions?.EditBookmarks.Count != 0,
+                CustomActions = actions?.CustomActions?.Select(x => x.FromHttpCaseActions()).ToList()!
+            });
+        }
+        
+        var hasApproval = false;
+        var hasAssignment = false;
+        var hasEdit = false;
+        var hasCustom = false;
+        var isAssignedToCurrentUser = caseIsAssigned && assignedToId == currentUser.FindSubjectId();
+
+        // For Assignment Action:
+        // 1. User must have the specified role
+        // 2. Case must not be already assigned
+        if (actions?.AssignmentBookmarks is { Count: > 0 }) {
+            var authorizationResult = await authorizationService.AuthorizeAsync(currentUser, caseId, new CasesRolesRequirement([actions.AssignmentBookmarks.FirstOrDefault()?.Role]));
+            if (authorizationResult.Succeeded && !caseIsAssigned) {
+                hasAssignment = true;
+            }
+        }
+        
+        // For Approval Action:
+        // 1. User must have the specified role
+        // 2. Case must be assigned to them if already assigned
+        // 3. If BlockPreviousApprover is set, they must not be the previous approver
+        if (actions?.ApprovalBookmarks is { Count: > 0 }) {
+            var authorizationResult = await authorizationService.AuthorizeAsync(currentUser, caseId, new CasesRolesRequirement([actions.ApprovalBookmarks.FirstOrDefault()?.Role]));
+            if (authorizationResult.Succeeded) {
+                hasApproval = true;
+            }
+            
+            if (caseIsAssigned && !isAssignedToCurrentUser) {
+                hasApproval = false;
+            }
+            
+            if (actions.ApprovalBookmarks.First().BlockPreviousApprover) {
+                var lastApproval = await caseApprovalService.GetLastApproval(caseId);
+                if (currentUser.FindSubjectId() == lastApproval?.CreatedBy.Id) {
+                    hasApproval = false;
+                }
+            }
+        }
+        
+        // For Edit Action:
+        // 1. User must have the specified role
+        // 2. Case must be assigned to them
+        if (actions?.EditBookmarks is { Count: > 0 }) {
+            var authorizationResult = await authorizationService.AuthorizeAsync(currentUser, caseId, new CasesRolesRequirement([actions.EditBookmarks.FirstOrDefault()?.Role]));
+            if (authorizationResult.Succeeded && isAssignedToCurrentUser) {
+                hasEdit = true;
+            }
+        }
+
+        
+        // For Custom Action:
+        // User must have the specified role
+        if (actions?.CustomActions is { Count: > 0 }) {
+            var authorizationResult = await authorizationService.AuthorizeAsync(currentUser, caseId, new CasesRolesRequirement([actions.CustomActions.FirstOrDefault()?.AllowedRole]));
+            if (authorizationResult.Succeeded) {
+                hasCustom = true;
+            }
+        }
+        
+        return TypedResults.Ok(new CaseActions {
+            HasApproval = hasApproval,
+            HasAssignment = hasAssignment,
+            HasEdit = hasEdit,
+            CustomActions = hasCustom ? actions?.CustomActions?.Select(x => x.FromHttpCaseActions()).ToList()! : [] 
+        });
     }
 
     public static async Task<Ok<List<RejectReason>>> GetCaseRejectReasons(Guid caseId, ICaseApprovalService caseApprovalService, ClaimsPrincipal currentUser) =>

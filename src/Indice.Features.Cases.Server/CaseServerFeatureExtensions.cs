@@ -49,9 +49,7 @@ public static class CaseServerFeatureExtensions
         builder.Services.AddLimitUpload(serverOptions.ConfigureLimitUpload);
         builder.Services.AddTransient<IAuthorizationHandler, CasesAccessHandler>();
         builder.Services.AddScoped<ICasesWorkflowManager, WorkflowHttpServiceClient>();
-        builder.Services.AddTransient<IAuthorizationHandler, ApprovalHandler>();
         builder.Services.AddTransient<IAuthorizationHandler, DefaultCasesRolesHandler>();
-        builder.Services.AddTransient<IAuthorizationHandler, NotSpecificUserHandler>();
         builder.Services.AddFluentValidationAutoValidation()
                        .AddValidatorsFromAssemblyContaining<AddAccessRuleRequestValidator>()
                        .AddFluentValidationClientsideAdapters();
@@ -78,6 +76,7 @@ public static class CaseServerFeatureExtensions
         routes.MapLookup();
         routes.MapAdminAccessRules();
         routes.MapAdminCaseData();
+        routes.MapWorkflow();
         return routes;
     }
 }

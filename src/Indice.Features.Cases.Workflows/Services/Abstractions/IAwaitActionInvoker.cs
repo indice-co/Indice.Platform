@@ -1,9 +1,9 @@
 ﻿using Elsa.Services.Models;
 using Indice.Features.Cases.Workflows.Activities;
 using Indice.Features.Cases.Workflows.Bookmarks;
-using Indice.Features.Cases.Workflows.Integration;
+using Indice.Features.Cases.Workflows.Models;
 
-namespace Indice.Features.Cases.Workflows.Interfaces;
+namespace Indice.Features.Cases.Workflows.Services.Abstractions;
 
 /// <summary>
 /// Invoker for <see cref="AwaitActionBookmark"/> that triggers the continuation of a resumed <see cref="AwaitActionActivity"/>.
@@ -18,11 +18,11 @@ internal interface IAwaitActionInvoker
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="request">The action request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    Task<IEnumerable<CollectedWorkflow>> DispatchWorkflowsAsync(Guid caseId, ActionRequest request, CancellationToken cancellationToken = default);
+    Task<IEnumerable<CollectedWorkflow>> DispatchWorkflowsAsync(Guid caseId, InvokeActionRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>Executing a workflow will execute the workflow directly before returning.</summary>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="request">The action request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    Task<IEnumerable<CollectedWorkflow>> ExecuteWorkflowsAsync(Guid caseId, ActionRequest request, CancellationToken cancellationToken = default);
+    Task<IEnumerable<CollectedWorkflow>> ExecuteWorkflowsAsync(Guid caseId, InvokeActionRequest request, CancellationToken cancellationToken = default);
 }

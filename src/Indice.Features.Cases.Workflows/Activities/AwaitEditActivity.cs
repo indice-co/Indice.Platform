@@ -5,8 +5,11 @@ using Elsa.Attributes;
 using Elsa.Design;
 using Elsa.Expressions;
 using Elsa.Services.Models;
+using Indice.Features.Cases.Workflows.Extensions;
 using Indice.Features.Cases.Workflows.Integration;
+using Indice.Features.Cases.Workflows.Integrations;
 using Indice.Features.Cases.Workflows.Models;
+using CustomOutcomeNames = Indice.Features.Cases.Workflows.CasesWorkflowConstants.WorkflowVariables.OutcomeNames;
 
 namespace Indice.Features.Cases.Workflows.Activities;
 
@@ -18,9 +21,9 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Category = "Cases",
     DisplayName = "Await Edit",
     Description = "Handles the edit of the data for case.",
-    Outcomes = new[] { OutcomeNames.Done, CasesWorkflowConstants.WorkflowVariables.OutcomeNames.Save }
+    Outcomes = new[] { OutcomeNames.Done, CustomOutcomeNames.Save }
 )]
-internal class AwaitEditActivity(CasesHttpClient casesClient) : BaseCaseActivity(casesClient)
+internal class AwaitEditActivity(CasesHttpClient casesHttpClient) : BaseCaseActivity(casesHttpClient)
 {
     [ActivityInput(
         Label = "Role",
@@ -42,11 +45,22 @@ internal class AwaitEditActivity(CasesHttpClient casesClient) : BaseCaseActivity
         return await OnExecuteInternalAsync(context);
     }
 
-    // todo: when this throws we get a correct response
-    private Task<IActivityExecutionResult> OnExecuteInternalAsync(ActivityExecutionContext context) {
-        var editRequest = context.Input as WorkflowEditCaseRequest;
-        Output = Newtonsoft.Json.Linq.JObject.Parse(JsonSerializer.Serialize(editRequest!.Data));
-        context.LogOutputProperty(this, "Output", Output);
-        return Task.FromResult<IActivityExecutionResult>(Outcome("Save", Output));
+    private async Task<IActivityExecutionResult> OnExecuteInternalAsync(ActivityExecutionContext context) {
+        CaseId ??= Guid.Parse(context.CorrelationId);
+        var editRequest = context.Input as InvokeEditRequest;
+        var caseData = editRequest!.Data;
+        
+        await CasesClient.SendMessageAsync(CaseId.Value, new WorkflowSendMessageRequest {
+            Message = new Message {
+                Data = caseData,
+                Comment = editRequest.Comment,
+                PrivateComment = true
+            },
+            CasesActor = context.TryGetLastActor().ToCasesActor()});
+        
+        Output = caseData;
+        context.LogOutputProperty(this, "Output", caseData);
+        context.SetVariable(CasesWorkflowConstants.WorkflowVariables.Actor.CurrentActor, editRequest.Actor);
+        return Outcome("Save", caseData);
     }
 }

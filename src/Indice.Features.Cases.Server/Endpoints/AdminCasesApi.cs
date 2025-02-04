@@ -108,32 +108,6 @@ internal static class AdminCasesApi
             .WithSummary("Download case in a PDF format.")
             .Produces(StatusCodes.Status200OK, typeof(IFormFile), MediaTypeNames.Application.Pdf);
         
-        
-        // todo: Internal Workflow specific endpoints but not all as the user is allowed to do whatever on the activity
-        group.MapPost("{caseId}/send-message", AdminCasesHandlers.SendMessage)
-            .WithName(nameof(AdminCasesHandlers.SendMessage))
-            .WithSummary("Sends a message for a case.");
-        
-        group.MapPost("{caseId}/add-checkpoint", AdminCasesHandlers.MoveToCheckpoint)
-            .WithName(nameof(AdminCasesHandlers.MoveToCheckpoint))
-            .WithSummary("Move the case to a checkpoint.");
-        
-        group.MapPost("{caseId}/add-approval", AdminCasesHandlers.AddApproval)
-            .WithName(nameof(AdminCasesHandlers.AddApproval))
-            .WithSummary("Adds an approval to a case.");
-        
-        group.MapGet("{caseId}/last-approval", AdminCasesHandlers.GetLastApproval)
-            .WithName(nameof(AdminCasesHandlers.GetLastApproval))
-            .WithSummary("Gets last approval of a case.");
-        
-        group.MapPost("{caseId}/remove-assignment", AdminCasesHandlers.RemoveAssignment)
-            .WithName(nameof(AdminCasesHandlers.RemoveAssignment))
-            .WithSummary("Removes the assigner of a case.");
-        
-        group.MapPost("{caseId}/rollback-approval", AdminCasesHandlers.RollbackApproval)
-            .WithName(nameof(AdminCasesHandlers.RollbackApproval))
-            .WithSummary("Rollbacks the previous approval of a case.");
-        
         return group.AllowAnonymous();
     }
 }

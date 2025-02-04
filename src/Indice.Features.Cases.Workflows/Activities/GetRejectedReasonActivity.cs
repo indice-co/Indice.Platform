@@ -15,18 +15,9 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "Get the rejected reason the backofficer has selected. This activity returns a dictionary with translations",
     Outcomes = new[] { OutcomeNames.Done }
 )]
-internal class GetRejectedReasonActivity : BaseCaseActivity
+internal class GetRejectedReasonActivity(CasesHttpClient casesHttpClient, IConfiguration configuration) : BaseCaseActivity(casesHttpClient)
 {
-    private readonly string _defaultTranslationLanguage;
-    private CasesHttpClient _casesClient;
-
-    public GetRejectedReasonActivity(
-        CasesHttpClient casesClient,
-        IConfiguration configuration)
-        : base(casesClient) {
-        _defaultTranslationLanguage = configuration.GetSection("PrimaryTranslationLanguage").Value ?? CasesWorkflowConstants.DefaultTranslationLanguage;
-        _casesClient = casesClient ?? throw new ArgumentNullException(nameof(casesClient));
-    }
+    private readonly string _defaultTranslationLanguage = configuration.GetSection("PrimaryTranslationLanguage").Value ?? CasesWorkflowConstants.DefaultTranslationLanguage;
 
     [ActivityInput(
         Label = "Select Language",
@@ -41,26 +32,25 @@ internal class GetRejectedReasonActivity : BaseCaseActivity
     public string? Output { get; set; }
 
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
-        // var approval = await _caseApprovalService.GetLastApproval(CaseId!.Value); // todo: http or refactor
-        // var language = string.Empty;
-        //
-        // switch (Language) {
-        //     case "Customer":
-        //         var @case = await _casesClient.GetCaseByIdAsync(CaseId.Value, false);
-        //         // var @case = await _adminCaseService.GetCaseById(context.TryGetUser()!, CaseId!.Value);
-        //         language = GetCustomerLanguageOrDefault(@case.Metadata?["CurrentCultureName"]);
-        //         break;
-        //     case "English":
-        //         language = "en";
-        //         break;
-        //     case "Greek":
-        //         language = "el";
-        //         break;
-        // }
-        //
-        // // todo: move to workflow?
+        var approval = await CasesClient.LastApprovalAsync(CaseId!.Value);
+        var language = string.Empty;
+
+        switch (Language) {
+            case "Customer":
+                var @case = await CasesClient.GetCaseAsync(CaseId!.Value, null);
+                language = GetCustomerLanguageOrDefault(@case.Metadata?["CurrentCultureName"]);
+                break;
+            case "English":
+                language = "en";
+                break;
+            case "Greek":
+                language = "el";
+                break;
+        }
+
+        // todo: copy resource service
         // Output = _caseSharedResourceService.GetLocalizedHtmlStringWithCulture(approval?.Reason!, language);
-        // context.LogOutputProperty(this, nameof(Output), Output);
+        context.LogOutputProperty(this, nameof(Output), Output);
         return Outcome(OutcomeNames.Done);
     }
     
