@@ -13,6 +13,6 @@ jobs:
 
       - name: Dotnet build + test
         id: dotnet-build-test
-        uses: .github/workflows/composites/build-test
+        uses: ./.github/workflows/composites/build-test
     
     
