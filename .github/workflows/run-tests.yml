@@ -25,6 +25,38 @@ jobs:
       env:
         NUGET_AUTH_TOKEN: ${{secrets.NUGET_AUTH_TOKEN}}
 
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+      with:
+        node-version: 20
+ 
+    - name: NPM Install and Build Identity UI
+      run: |
+        cd src/Indice.Features.Identity.UI
+        npm install --force
+        npm run gulp -- copy:libs
+        npm run gulp -- sass
+
+    - name: NPM Install Cases
+      run: |
+        cd src/Indice.Features.Cases.App
+        npm install
+
+    - name: NPM Install AdminUI
+      run: |
+        cd src/Indice.Features.Identity.AdminUI.App
+        npm install
+
+    - name: NPM Install Messages
+      run: |
+        cd src/Indice.Features.Messages.App
+        npm install
+
+    - name: NPM Install Risk
+      run: |
+        cd src/Indice.Features.Risk.App
+        npm install
+
     - name: Create .nuget dir
       shell: pwsh
       run: |
@@ -39,6 +71,9 @@ jobs:
       
     - name: Dotnet restore
       run: dotnet restore /nowarn:netsdk1138
+
+    - name: Dotnet build SPAs
+      run: dotnet build Indice.Platform.Ecmascript.slnf --no-restore --configuration Release
 
     - name: Dotnet build
       run: dotnet build Indice.Platform.slnf --no-restore --configuration Release
