@@ -10,6 +10,6 @@ jobs:
     steps:
       - name: Dotnet build + test
         id: dotnet-build-test
-        uses: ./composites/build-test.composite.yml
+        uses: ./composites/build-test
     
     
