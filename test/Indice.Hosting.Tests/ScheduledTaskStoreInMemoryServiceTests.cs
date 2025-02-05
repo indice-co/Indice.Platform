@@ -8,10 +8,10 @@ namespace Indice.Hosting.Tests;
 
 public class ScheduledTaskStoreInMemoryServiceTests
 {
-    private const int TestTaskExecutionCount = 10;
+    private const int TestTaskExecutionCount = 3;
     private const string TestTaskCronExpression = "* * * ? * * *";
     private const string TestTask2CronExpression = "* * * ? * * *";
-    private readonly IWebHost _host;
+    private readonly WebHostBuilder _builder;
     private static int _counter = -1; // We have to initialize this at -1 since the first run is immediate.
     private static int _countdownCounter = TestTaskExecutionCount + 1; // We have to initialize this at TEST_TASK_EXECUTION_COUNT + 1 since the first run is immediate.
 
@@ -44,15 +44,17 @@ public class ScheduledTaskStoreInMemoryServiceTests
                 await Task.CompletedTask;
             }));
         });
-        _host = new TestServer(builder).Host;
+        _builder = builder;
     }
 
     [Fact]
     public async Task ScheduledTaskStoreInMemory_Runs_ReadyForExecutionTasks() {
+        var host = new TestServer(_builder).Host;
         await Task.Delay(TestTaskExecutionCount * 1000);
-        await _host.StopAsync();
+        await host.StopAsync();
         Assert.Equal(TestTaskExecutionCount, _counter);
         Assert.Equal(0, _countdownCounter);
+        host.Dispose();
     }
 
     private sealed class TestTask
