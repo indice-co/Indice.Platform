@@ -49,12 +49,12 @@ public class ScheduledTaskStoreInMemoryServiceTests
 
     [Fact]
     public async Task ScheduledTaskStoreInMemory_Runs_ReadyForExecutionTasks() {
-        var host = new TestServer(_builder).Host;
+        using var testServer = new TestServer(_builder);
+        var host = testServer.Host;
         await Task.Delay(TestTaskExecutionCount * 1000);
         await host.StopAsync();
         Assert.Equal(TestTaskExecutionCount, _counter);
         Assert.Equal(0, _countdownCounter);
-        host.Dispose();
     }
 
     private sealed class TestTask
