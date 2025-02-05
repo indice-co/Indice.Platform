@@ -7,11 +7,7 @@ jobs:
   run-dotnet-tests:
     name: .NET Tests
     runs-on: windows-latest
-    permissions:
-      security-events: write
-      packages: read
-      actions: read
-      contents: read
+    permissions: write-all
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@c95a14d0e5bab51a9f56296a4eb0e416910cd350 # v2.10.3
@@ -27,26 +23,26 @@ jobs:
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
 
-      - name: Initialize CodeQL
+      - name: Initialize CodeQL (C#)
         uses: github/codeql-action/init@48ab28a6f5dbc2a99bf1e0131198dd8f1df78169 # v3.28.0
         with:
           languages: csharp
           build-mode: manual
           config-file: ./.github/workflows/codeql/codeql-config.yml
   
-      - name: Perform CodeQL Analysis
+      - name: Perform CodeQL Analysis (C#)
         uses: github/codeql-action/analyze@48ab28a6f5dbc2a99bf1e0131198dd8f1df78169 # v3.28.0
         with:
           category: "/language:csharp"
 
-      - name: Initialize CodeQL
+      - name: Initialize CodeQL (JS/TS)
         uses: github/codeql-action/init@48ab28a6f5dbc2a99bf1e0131198dd8f1df78169 # v3.28.0
         with:
           languages: javascript-typescript
           build-mode: none
           config-file: ./.github/workflows/codeql/codeql-config.yml
     
-      - name: Perform CodeQL Analysis
+      - name: Perform CodeQL Analysis (JS/TS)
         uses: github/codeql-action/analyze@48ab28a6f5dbc2a99bf1e0131198dd8f1df78169 # v3.28.0
         with:
           category: "/language:javascript-typescript"
