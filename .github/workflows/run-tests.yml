@@ -14,5 +14,7 @@ jobs:
       - name: Dotnet build + test
         id: dotnet-build-test
         uses: ./.github/workflows/composites/build-test
+        env:
+          NUGET_AUTH_TOKEN: ${{secrets.NUGET_AUTH_TOKEN}}
     
     

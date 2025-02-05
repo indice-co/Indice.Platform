@@ -15,7 +15,7 @@ runs:
         dotnet-version: 8.x
         source-url: https://api.nuget.org/v3/index.json
       env:
-        NUGET_AUTH_TOKEN: ${{secrets.NUGET_AUTH_TOKEN}}
+        NUGET_AUTH_TOKEN: ${HELLO_WORLD_SECRET}
 
     - name: Use Node.js 20.x
       uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
@@ -23,6 +23,7 @@ runs:
         node-version: 20
  
     - name: NPM Install and Build Identity UI
+      shell: pwsh
       run: |
         cd src/Indice.Features.Identity.UI
         npm install --force
@@ -30,21 +31,25 @@ runs:
         npm run gulp -- sass
 
     - name: NPM Install Cases
+      shell: pwsh
       run: |
         cd src/Indice.Features.Cases.App
         npm install
 
     - name: NPM Install AdminUI
+      shell: pwsh
       run: |
         cd src/Indice.Features.Identity.AdminUI.App
         npm install
 
     - name: NPM Install Messages
+      shell: pwsh
       run: |
         cd src/Indice.Features.Messages.App
         npm install
 
     - name: NPM Install Risk
+      shell: pwsh
       run: |
         cd src/Indice.Features.Risk.App
         npm install
@@ -62,15 +67,19 @@ runs:
         }
       
     - name: Dotnet restore
+      shell: pwsh
       run: dotnet restore /nowarn:netsdk1138
 
     - name: Dotnet build SPAs
+      shell: pwsh
       run: dotnet build Indice.Platform.Ecmascript.slnf --no-restore --configuration Release
 
     - name: Dotnet build
+      shell: pwsh
       run: dotnet build Indice.Platform.slnf --no-restore --configuration Release
       
     - name: Test with dotnet
+      shell: pwsh
       run: dotnet test --no-build --configuration Release --logger trx --results-directory "TestResults"
     
     - name: Test Reporter
