@@ -25,6 +25,7 @@ jobs:
         run: echo "cache_key=dotnet-build-${{ github.sha }}" >> $GITHUB_ENV
 
   run-code-analysis:
+    needs: [run-dotnet-tests]
     uses: ./.github/workflows/codeql.yml
     secrets: inherit
   # run-code-analysis:
