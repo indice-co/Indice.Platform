@@ -1,10 +1,10 @@
 name: Build and test steps
 description: Composite action for executing dotnet build + test
 
-  inputs:
-    cacheKey:
-      type: string
-      required: true
+inputs:
+  cacheKey:
+    type: string
+    required: true
 
 runs:
   using: 'composite'
