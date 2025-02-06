@@ -75,13 +75,17 @@ runs:
       shell: pwsh
       run: dotnet restore /nowarn:netsdk1138
 
-    - name: Dotnet build SPAs
-      shell: pwsh
-      run: dotnet build Indice.Platform.Ecmascript.slnf --no-restore --configuration Release
+    # - name: Dotnet build SPAs
+    #   shell: pwsh
+    #   run: dotnet build Indice.Platform.Ecmascript.slnf --no-restore --configuration Release
+
+    # - name: Dotnet build
+    #   shell: pwsh
+    #   run: dotnet build Indice.Platform.slnf --no-restore --configuration Release
 
     - name: Dotnet build
       shell: pwsh
-      run: dotnet build Indice.Platform.slnf --no-restore --configuration Release
+      run: dotnet build src/Indice.Common/Indice.Common.csproj --no-restore --configuration Release
 
     - name: Cache build output
       uses: actions/cache@v4

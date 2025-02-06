@@ -12,9 +12,8 @@
 name: "CodeQL Advanced"
 
 on:
-  workflow_dispatch:
   workflow_run:
-    workflows: ["PR Automated Testing"]
+    workflows: [PR Automated Testing]
     types:
       - completed
   # push:

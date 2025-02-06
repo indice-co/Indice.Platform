@@ -24,10 +24,16 @@ jobs:
       
       - name: Upload Cache Key as an Output
         run: echo "cache_key=dotnet-build-${{ github.sha }}" >> $GITHUB_ENV
+  # run-code-analysis:
+  #   name: Code Analysis
+  #   runs-on: windows-latest
+  #   outputs:
+  #     cache-key: ${{ steps.set-cache-key.outputs.cache_key }}
+  #   steps:
 
-      # - name: Code analysis
-      #   uses: benc-uk/workflow-dispatch@v1
-      #   with:
-      #     ref: ${{ github.event.pull_request.head.ref }}
-      #     workflow: CodeQL Advanced
-      #     token: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Code analysis
+  #       uses: benc-uk/workflow-dispatch@v1
+  #       with:
+  #         ref: ${{ github.event.pull_request.head.ref }}
+  #         workflow: CodeQL Advanced
+  #         token: ${{ secrets.GITHUB_TOKEN }}
