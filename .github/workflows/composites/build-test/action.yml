@@ -1,6 +1,11 @@
 name: Build and test steps
 description: Composite action for executing dotnet build + test
 
+  inputs:
+    cacheKey:
+      type: string
+      required: true
+
 runs:
   using: 'composite'
   steps:
@@ -85,7 +90,7 @@ runs:
           ~/.nuget/packages
           **/bin
           **/obj
-        key: dotnet-build-${{ github.sha }}
+        key: ${{ inputs.cacheKey }}
       
     - name: Test with dotnet
       shell: pwsh
