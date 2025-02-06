@@ -2,7 +2,11 @@ name: Build and test steps
 description: Composite action for executing dotnet build + test
 
 inputs:
-  cacheKey:
+  dotnetCacheKey:
+    type: string
+    required: true
+
+  npmCacheKey:
     type: string
     required: true
 
@@ -24,41 +28,7 @@ runs:
       uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
       with:
         node-version: 20
-        # cache: 'npm'
-        # cache-dependency-path: '**/package-lock.json'
- 
-    # - name: NPM Install and Build Identity UI
-    #   shell: pwsh
-    #   run: |
-    #     cd src/Indice.Features.Identity.UI
-    #     npm install --force
-    #     npm run gulp -- copy:libs
-    #     npm run gulp -- sass
-
-    # - name: NPM Install Cases
-    #   shell: pwsh
-    #   run: |
-    #     cd src/Indice.Features.Cases.App
-    #     npm install
-
-    # - name: NPM Install AdminUI
-    #   shell: pwsh
-    #   run: |
-    #     cd src/Indice.Features.Identity.AdminUI.App
-    #     npm install
-
-    # - name: NPM Install Messages
-    #   shell: pwsh
-    #   run: |
-    #     cd src/Indice.Features.Messages.App
-    #     npm install
-
-    # - name: NPM Install Risk
-    #   shell: pwsh
-    #   run: |
-    #     cd src/Indice.Features.Risk.App
-    #     npm install
-
+     
     - name: Create .nuget dir
       shell: pwsh
       run: |
@@ -75,36 +45,32 @@ runs:
       shell: pwsh
       run: dotnet restore /nowarn:netsdk1138
 
-    # - name: Dotnet build SPAs
-    #   shell: pwsh
-    #   run: dotnet build Indice.Platform.Ecmascript.slnf --no-restore --configuration Release
-
-    # - name: Dotnet build
-    #   shell: pwsh
-    #   run: dotnet build Indice.Platform.slnf --no-restore --configuration Release
+    - name: Dotnet build SPAs
+      shell: pwsh
+      run: dotnet build Indice.Platform.Ecmascript.slnf --no-restore --configuration Release
 
     - name: Dotnet build
       shell: pwsh
-      run: dotnet build src/Indice.Common/Indice.Common.csproj --no-restore --configuration Release
+      run: dotnet build Indice.Platform.slnf --no-restore --configuration Release
 
-    - name: Cache build output
+    - name: Cache dotnet output
       uses: actions/cache@v4
       with:
         path: |
           ~/.nuget/packages
           **/bin
           **/obj
-        key: ${{ inputs.cacheKey }}
-      
-    # - name: Test with dotnet
-    #   shell: pwsh
-    #   run: dotnet test --no-build --configuration Release --logger trx --results-directory "TestResults"
+        key: ${{ inputs.dotnetCacheKey }}
+
+    - name: Test with dotnet
+      shell: pwsh
+      run: dotnet test --no-build --configuration Release --logger trx --results-directory "TestResults"
     
-    # - name: Test Reporter
-    #   uses: dorny/test-reporter@31a54ee7ebcacc03a09ea97a7e5465a47b84aea5 # v1.9.1
-    #   if: always()
-    #   with:
-    #     name: DotNET Tests
-    #     path: "TestResults/*.trx"                            
-    #     reporter: dotnet-trx
-    #     fail-on-error: true
+    - name: Test Reporter
+      uses: dorny/test-reporter@31a54ee7ebcacc03a09ea97a7e5465a47b84aea5 # v1.9.1
+      if: always()
+      with:
+        name: DotNET Tests
+        path: "TestResults/*.trx"                            
+        reporter: dotnet-trx
+        fail-on-error: true

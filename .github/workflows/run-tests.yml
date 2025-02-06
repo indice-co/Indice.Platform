@@ -15,7 +15,7 @@ jobs:
         id: dotnet-build-test
         uses: ./.github/workflows/composites/build-test
         with:
-          cacheKey: dotnet-build-${{ github.sha }}
+          dotnetCacheKey: dotnet-build-${{ github.sha }}
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
 
