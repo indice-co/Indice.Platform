@@ -134,7 +134,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         }
 
         // filter ReferenceNumbers
-        if (options.Filter!.ReferenceNumbers is not null) {
+        if (options.Filter?.ReferenceNumbers is { Length: > 0 }) {
             dbCaseQueryable = dbCaseQueryable.Where(dbCase => dbCase.ReferenceNumber.HasValue && options.Filter.ReferenceNumbers.Contains(dbCase.ReferenceNumber.Value));
         }
 
