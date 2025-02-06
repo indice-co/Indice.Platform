@@ -120,6 +120,14 @@ public static class WorkerHostConfiguration
         return options;
     }
 
+    /// <summary>Configures the use of an in-memory implementation for storing scheduled tasks.</summary>
+    /// <param name="options">The <see cref="WorkerHostOptions"/> to configure.</param>
+    /// <returns>The <see cref="WorkerHostOptions"/> for chaining additional configuration calls.</returns>
+    public static WorkerHostOptions UseScheduledTaskStoreInMemory(this WorkerHostOptions options) {
+        options.ScheduledTaskStoreType = typeof(ScheduledTaskStoreInMemory<>);
+        return options;
+    }
+
     /// <summary>Registers a job that will be processed by the worker host. Usually followed by a <see cref="WithQueueTrigger{TWorkItem}(TaskTriggerBuilder, Action{QueueOptions})"/> call to configure the way that a job is triggered.</summary>
     /// <typeparam name="TJobHandler">The type of the class that will handle the job. Must have a process function.</typeparam>
     /// <param name="builder">The <see cref="WorkerHostBuilder"/> used to configure the worker host.</param>
