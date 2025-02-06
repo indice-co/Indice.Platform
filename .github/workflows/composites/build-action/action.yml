@@ -36,7 +36,7 @@ runs:
         {
           New-Item -ItemType "directory" -Path ".\.nuget\packages"
         }
-        cat src/Indice.Features.MultiTenancy.AspNetCore/Indice.Features.MultiTenancy.AspNetCore.csproj
+        cat /home/runner/work/Indice.Platform/Indice.Platform/src/Indice.Features.Multitenancy.AspNetCore/Indice.Features.Multitenancy.AspNetCore.csproj
                 
     - name: Dotnet restore
       shell: pwsh
