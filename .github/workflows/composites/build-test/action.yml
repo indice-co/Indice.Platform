@@ -82,9 +82,10 @@ runs:
       uses: actions/cache@v4
       with:
         path: |
+          ~/.nuget/packages
           **/bin
           **/obj
-        key: dotnet-build-${{ runner.os }}-${{ github.sha }}
+        key: dotnet-build-${{ github.sha }}
       
     - name: Test with dotnet
       shell: pwsh

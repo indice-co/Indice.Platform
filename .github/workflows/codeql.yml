@@ -76,9 +76,10 @@ jobs:
       uses: actions/cache@v4
       with:
         path: |
+          ~/.nuget/packages
           **/bin
           **/obj
-        key: dotnet-build-${{ runner.os }}-${{ github.sha }}
+        key: dotnet-build-${{ github.sha }}
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
@@ -114,24 +115,24 @@ jobs:
       uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
       with:
         node-version: 20
-    - name: Create Nuget directory
-      shell: pwsh
-      run: |
-        if (!(Test-Path -Path ".\.nuget" ))
-        {
-          New-Item -ItemType "directory" -Path ".\.nuget"
-        }
-        if (!(Test-Path -Path ".\.nuget\packages" ))
-        {
-          New-Item -ItemType "directory" -Path ".\.nuget\packages"
-        }
-    - if: matrix.language == 'csharp'
-      name: Dotnet restore
-      run: dotnet restore /nowarn:netsdk1138
+    # - name: Create Nuget directory
+    #   shell: pwsh
+    #   run: |
+    #     if (!(Test-Path -Path ".\.nuget" ))
+    #     {
+    #       New-Item -ItemType "directory" -Path ".\.nuget"
+    #     }
+    #     if (!(Test-Path -Path ".\.nuget\packages" ))
+    #     {
+    #       New-Item -ItemType "directory" -Path ".\.nuget\packages"
+    #     }
+    # - if: matrix.language == 'csharp'
+    #   name: Dotnet restore
+    #   run: dotnet restore /nowarn:netsdk1138
 
-    - if: matrix.language == 'csharp'
-      name: Dotnet build
-      run: dotnet build Indice.Platform.sln --no-restore --configuration Release
+    # - if: matrix.language == 'csharp'
+    #   name: Dotnet build
+    #   run: dotnet build Indice.Platform.sln --no-restore --configuration Release
       
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@48ab28a6f5dbc2a99bf1e0131198dd8f1df78169 # v3.28.0

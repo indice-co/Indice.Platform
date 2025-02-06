@@ -19,7 +19,7 @@ jobs:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
           # don't do npm when a flag is on
 
-      - name: Trigger Test Workflow
+      - name: Code analysis
         uses: benc-uk/workflow-dispatch@v1
         with:
           ref: ${{ github.event.pull_request.head.ref }}
