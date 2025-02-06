@@ -11,11 +11,13 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Get changed file extensions
+      - name: Changed files
         id: changed-files
+        shell: pwsh
         run: |
-          EXTENSIONS=$(gh pr view ${{ github.event.pull_request.number }} --json files --jq '.files[].path | capture("\\.(?<ext>[^.]+)$") | .ext' | sort -u | tr '\n' ' ')
-          echo "extensions=$EXTENSIONS" >> $GITHUB_ENV
+          $files = gh pr view ${{ github.event.pull_request.number }} --json files --jq '.files[].path'
+          $extensions = $files -match '\.(\w+)$' | ForEach-Object { ($_ -split '\.')[-1] } | Sort-Object -Unique -Join ' '
+          echo "extensions=$extensions" | Out-File -FilePath $env:GITHUB_ENV -Append
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
