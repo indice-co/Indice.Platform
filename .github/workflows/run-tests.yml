@@ -14,20 +14,16 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Set Cache Key
-        id: set-cache-key
-        run: echo "cache_key=dotnet-build-${{ github.sha }}" >> $GITHUB_ENV
-
       - name: Dotnet build + test
         id: dotnet-build-test
         uses: ./.github/workflows/composites/build-test
         with:
-          cacheKey: ${{ env.cache_key }}
+          cacheKey: dotnet-build-${{ github.sha }}
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
       
       - name: Upload Cache Key as an Output
-        run: echo "cache_key=${{ env.cache_key }}" >> $GITHUB_ENV
+        run: echo "cache_key=dotnet-build-${{ github.sha }}" >> $GITHUB_ENV
 
       # - name: Code analysis
       #   uses: benc-uk/workflow-dispatch@v1
