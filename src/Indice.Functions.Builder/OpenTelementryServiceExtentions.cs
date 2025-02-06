@@ -54,7 +54,6 @@ public static class OpenTelementryServiceExtentions
     /// </summary>
     /// <param name="builder">The OpenTelemetry builder.</param>
     /// <param name="environment">Host environemt</param>
-    /// <param name="context">The host builder context.</param>
     /// <returns>The updated OpenTelemetry builder.</returns>
     private static OpenTelemetryBuilder AddTracing(this OpenTelemetryBuilder builder, IHostEnvironment environment) {
         builder.WithTracing(tracing => {
