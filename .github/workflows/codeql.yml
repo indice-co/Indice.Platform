@@ -12,11 +12,7 @@
 name: CodeQL Advanced
 
 on:
-  workflow_run:
-    workflows: [PR Automated Testing]
-    branches: [test/deleteme]
-    types:
-      - completed
+  workflow_call:
   # push:
   #   branches: [ "develop", "master" ]
   # pull_request:

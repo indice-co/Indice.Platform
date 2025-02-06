@@ -23,6 +23,10 @@ jobs:
       
       - name: Upload Cache Key as an Output
         run: echo "cache_key=dotnet-build-${{ github.sha }}" >> $GITHUB_ENV
+
+  run-code-analysis:
+    uses: ./.github/workflows/codeql.yml
+    secrets: inherit
   # run-code-analysis:
   #   name: Code Analysis
   #   runs-on: windows-latest
