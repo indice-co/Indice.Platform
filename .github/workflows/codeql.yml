@@ -9,11 +9,12 @@
 # the `language` matrix defined below to confirm you have the correct set of
 # supported CodeQL languages.
 #
-name: "CodeQL Advanced"
+name: CodeQL Advanced
 
 on:
   workflow_run:
     workflows: [PR Automated Testing]
+    branches: [test/deleteme]
     types:
       - completed
   # push:
