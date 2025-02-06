@@ -70,14 +70,6 @@ runs:
       shell: pwsh
       run: dotnet restore /nowarn:netsdk1138
 
-    - name: Cache build output
-      uses: actions/cache@v4
-      with:
-        path: |
-          **/bin
-          **/obj
-        key: dotnet-build-${{ runner.os }}-${{ github.sha }}
-
     - name: Dotnet build SPAs
       shell: pwsh
       run: dotnet build Indice.Platform.Ecmascript.slnf --no-restore --configuration Release
@@ -85,6 +77,14 @@ runs:
     - name: Dotnet build
       shell: pwsh
       run: dotnet build Indice.Platform.slnf --no-restore --configuration Release
+
+    - name: Cache build output
+      uses: actions/cache@v4
+      with:
+        path: |
+          **/bin
+          **/obj
+        key: dotnet-build-${{ runner.os }}-${{ github.sha }}
       
     - name: Test with dotnet
       shell: pwsh

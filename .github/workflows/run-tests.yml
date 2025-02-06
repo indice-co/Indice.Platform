@@ -22,6 +22,7 @@ jobs:
       - name: Trigger Test Workflow
         uses: benc-uk/workflow-dispatch@v1
         with:
+          ref: ${{ github.event.pull_request.head.ref }}
           workflow: CodeQL Advanced
           token: ${{ secrets.GITHUB_TOKEN }}
 
