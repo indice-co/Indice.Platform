@@ -25,7 +25,7 @@ public static class TotpApi
                            .ProducesProblem(StatusCodes.Status403Forbidden)
                            .ProducesProblem(StatusCodes.Status500InternalServerError)
                            .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.Totp);
-        var allowedScopes = new[] { options.ApiScope }.Where(x => x != null).Cast<string>().ToArray();
+        var allowedScopes = new[] { options.ApiScope, IdentityEndpoints.SubScopes.Clients }.Where(x => x != null).Cast<string>().ToArray();
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         // POST: /api/totp
