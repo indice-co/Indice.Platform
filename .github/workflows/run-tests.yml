@@ -25,6 +25,3 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           workflow: CodeQL Advanced
           token: ${{ secrets.GITHUB_TOKEN }}
-
-     
-    
