@@ -36,6 +36,7 @@ runs:
         {
           New-Item -ItemType "directory" -Path ".\.nuget\packages"
         }
+        tree .
       
     - name: Dotnet restore
       shell: pwsh
