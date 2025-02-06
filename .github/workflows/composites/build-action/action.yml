@@ -36,11 +36,10 @@ runs:
         {
           New-Item -ItemType "directory" -Path ".\.nuget\packages"
         }
-        ls -la ./src
       
     - name: Dotnet restore
       shell: pwsh
-      run: dotnet restore /nowarn:netsdk1138
+      run: dotnet restore Indice.Platform.sln /nowarn:netsdk1138
 
     - name: Dotnet build SPAs
       shell: pwsh
