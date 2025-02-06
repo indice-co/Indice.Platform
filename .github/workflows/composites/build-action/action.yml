@@ -1,12 +1,8 @@
-name: Build and test steps
-description: Composite action for executing dotnet build + test
+name: Build process
+description: Composite action for executing dotnet build
 
 inputs:
   dotnetCacheKey:
-    type: string
-    required: true
-
-  npmCacheKey:
     type: string
     required: true
 
@@ -62,15 +58,3 @@ runs:
           **/obj
         key: ${{ inputs.dotnetCacheKey }}
 
-    - name: Test with dotnet
-      shell: pwsh
-      run: dotnet test --no-build --configuration Release --logger trx --results-directory "TestResults"
-    
-    - name: Test Reporter
-      uses: dorny/test-reporter@31a54ee7ebcacc03a09ea97a7e5465a47b84aea5 # v1.9.1
-      if: always()
-      with:
-        name: DotNET Tests
-        path: "TestResults/*.trx"                            
-        reporter: dotnet-trx
-        fail-on-error: true
