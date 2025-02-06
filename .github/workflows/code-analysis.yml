@@ -18,6 +18,7 @@ jobs:
           $files = gh pr view ${{ github.event.pull_request.number }} --json files --jq '.files[].path'
           $extensions = $files -match '\.(\w+)$' | ForEach-Object { ($_ -split '\.')[-1] } | Sort-Object -Unique
           $extensionString = $extensions -join ' '
+          write-output $extensionString
           echo "extensions=$extensionString" | Out-File -FilePath $env:GITHUB_ENV -Append
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
