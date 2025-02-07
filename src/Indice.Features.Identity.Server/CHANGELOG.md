@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.0.0-rc16] - 2023-09-19
+If you are using otp then you need to create a subscope identity:totp under the identity resource and assign this subscope to the clients that need access to this endpoint.
+
 ## [7.4.0] - 2023-09-19
 ### Added
 - Infrastructure that can detect impossible travel logins
