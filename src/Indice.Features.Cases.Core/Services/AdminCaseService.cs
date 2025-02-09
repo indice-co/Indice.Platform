@@ -93,7 +93,9 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     public async Task Submit(ClaimsPrincipal user, Guid caseId) {
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
 
-        var @case = await DbContext.Cases.Include(c => c.CaseType)
+        var @case = await DbContext
+            .Cases
+            .Include(c => c.CaseType)
             .FirstOrDefaultAsync(c => c.Id == caseId);
         if (@case == null) {
             throw new ArgumentNullException(nameof(@case), @"Case does not exist.");

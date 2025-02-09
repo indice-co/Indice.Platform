@@ -40,7 +40,6 @@ internal class AdminWorkflowInvokerController : ControllerBase
         return NoContent();
     }
 
-    // todo: blocking activities are broken
     /// <summary>Invoke the assign activity to assign the case to the caller user.</summary>
     /// <param name="caseId">The Id of the case.</param>
     /// <returns></returns>

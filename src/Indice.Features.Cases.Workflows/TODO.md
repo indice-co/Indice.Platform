@@ -1,11 +1,10 @@
 - [ ] Register Workflow client_credentials
 - [ ] Specification for ICaseAuthorizationService
-- [ ] ISchemaValidator to workflow for http validation with schema
 - [ ] Handle localization in Workflows
-- [ ] Ability to pass Actor in Workflow Submission
-- [ ] Prepare Migration documentation
-- [ ] Standardize Workflow API response status code
 - [ ] Pass culture on actors on Workflow
+- [ ] Add authorization for all user action endpoints
+- [ ] Finalize Actor data:
+  - Currently, when starting workflow we have http context data + Owner Reference from the contact that created the draft, and when triggering a blocking activity we have http context data + claim ReferenceIdClaimType from the current user
 
 ## Acknowledgements
 Multiple blocking activities of the same kind are NOT allowed

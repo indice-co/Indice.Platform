@@ -78,7 +78,7 @@ public class WorkflowHttpServiceClient : ICasesWorkflowManager
     }
 
     /// <inheritdoc />
-    public async Task<IWorkflowActions> GetActionsByCaseId(Guid caseId) { // todo: correct return
+    public async Task<IWorkflowActions> GetActionsByCaseId(Guid caseId) {
         try {
             return await _workflowApiClient.ActionsAsync(caseId);
         } catch (WorkflowApiException) {

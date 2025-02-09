@@ -194,6 +194,7 @@ internal class CasesWorkflowManagerElsa(
         return new(Success: true, []);
     }
 
+    /// <summary>Unused in the current implementation GetAvailableActionsAsync is used instead. </summary>
     public Task<IWorkflowActions> GetActionsByCaseId(Guid caseId) {
         throw new NotImplementedException();
     }
