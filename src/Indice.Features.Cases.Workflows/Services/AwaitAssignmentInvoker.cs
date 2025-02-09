@@ -5,7 +5,6 @@ using Indice.Features.Cases.Workflows.Activities;
 using Indice.Features.Cases.Workflows.Bookmarks;
 using Indice.Features.Cases.Workflows.Models;
 using Indice.Features.Cases.Workflows.Services.Abstractions;
-using Microsoft.AspNetCore.Http;
 
 namespace Indice.Features.Cases.Workflows.Services;
 

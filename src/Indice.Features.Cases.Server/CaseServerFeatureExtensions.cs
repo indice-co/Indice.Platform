@@ -53,6 +53,7 @@ public static class CaseServerFeatureExtensions
         builder.Services.AddFluentValidationAutoValidation()
                        .AddValidatorsFromAssemblyContaining<AddAccessRuleRequestValidator>()
                        .AddFluentValidationClientsideAdapters();
+        
         return builder;
     }
 

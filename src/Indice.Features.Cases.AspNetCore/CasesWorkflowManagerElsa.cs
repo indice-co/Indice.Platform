@@ -118,6 +118,7 @@ internal class CasesWorkflowManagerElsa(
         return reasons.ToList();
     }
 
+    [Obsolete("This method is obsolete and will be removed as authentication happens on the Cases side.")]
     /// <inheritdoc/>
     public async Task<CaseActions> GetAvailableActionsAsync(ClaimsPrincipal user, Guid caseId, string? assignedToId, string[] bookmarks, string? lastApprovedById = null) {
         ArgumentNullException.ThrowIfNull(user);
@@ -170,7 +171,7 @@ internal class CasesWorkflowManagerElsa(
             };
     }
 
-    public async Task<WorkflowInvocationResult> StartWorkflowAsync(Guid caseId, string caseTypeCode, AuditMeta auditMeta) {
+    public async Task<WorkflowInvocationResult> StartWorkflowAsync(Guid caseId, string caseTypeCode, WorkflowActor workflowActor) {
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
         ArgumentException.ThrowIfNullOrWhiteSpace(caseTypeCode);
 

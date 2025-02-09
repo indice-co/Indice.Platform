@@ -9,5 +9,5 @@ public class WorkflowSendMessageRequest
     public Message Message {get;set;}
     
     /// <summary>Actor</summary>
-    public CasesActor CasesActor {get;set;}
+    public WorkflowActor WorkflowActor {get;set;}
 }

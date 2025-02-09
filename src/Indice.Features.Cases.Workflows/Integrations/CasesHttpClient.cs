@@ -89,8 +89,8 @@ namespace Indice.Features.Cases.Workflows.Integration
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "manager-workflow/{caseId}/add-approval"
-                    urlBuilder_.Append("manager-workflow/");
+                    // Operation Path: "api/manage/workflow/{caseId}/add-approval"
+                    urlBuilder_.Append("api/manage/workflow/");
                     urlBuilder_.Append("/add-approval");
 
                     PrepareRequest(client_, request_, urlBuilder_);
@@ -141,7 +141,7 @@ namespace Indice.Features.Cases.Workflows.Integration
         }
 
         /// <summary>
-        /// Adds an approval with comment to a case.
+        /// Adds an approval with comment to a case translating the provided comment.
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -152,7 +152,7 @@ namespace Indice.Features.Cases.Workflows.Integration
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
-        /// Adds an approval with comment to a case.
+        /// Adds an approval with comment to a case translating the provided comment.
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -175,8 +175,8 @@ namespace Indice.Features.Cases.Workflows.Integration
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "manager-workflow/{caseId}/add-approval-with-comment"
-                    urlBuilder_.Append("manager-workflow/");
+                    // Operation Path: "api/manage/workflow/{caseId}/add-approval-with-comment"
+                    urlBuilder_.Append("api/manage/workflow/");
                     urlBuilder_.Append("/add-approval-with-comment");
 
                     PrepareRequest(client_, request_, urlBuilder_);
@@ -231,7 +231,7 @@ namespace Indice.Features.Cases.Workflows.Integration
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<AuditMeta> AssignAsync(System.Guid caseId, CasesActor body)
+        public virtual System.Threading.Tasks.Task<AuditMeta> AssignAsync(System.Guid caseId, WorkflowActor body)
         {
             return AssignAsync(caseId, body, System.Threading.CancellationToken.None);
         }
@@ -242,7 +242,7 @@ namespace Indice.Features.Cases.Workflows.Integration
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AuditMeta> AssignAsync(System.Guid caseId, CasesActor body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<AuditMeta> AssignAsync(System.Guid caseId, WorkflowActor body, System.Threading.CancellationToken cancellationToken)
         {
             if (caseId == null)
                 throw new System.ArgumentNullException("caseId");
@@ -265,8 +265,8 @@ namespace Indice.Features.Cases.Workflows.Integration
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "manager-workflow/{caseId}/assign"
-                    urlBuilder_.Append("manager-workflow/");
+                    // Operation Path: "api/manage/workflow/{caseId}/assign"
+                    urlBuilder_.Append("api/manage/workflow/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/assign");
 
@@ -323,6 +323,96 @@ namespace Indice.Features.Cases.Workflows.Integration
         }
 
         /// <summary>
+        /// Remove assignment and send a message.
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task BlockPreviousApproverAsync(System.Guid caseId, WorkflowActor body)
+        {
+            return BlockPreviousApproverAsync(caseId, body, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Remove assignment and send a message.
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task BlockPreviousApproverAsync(System.Guid caseId, WorkflowActor body, System.Threading.CancellationToken cancellationToken)
+        {
+            if (caseId == null)
+                throw new System.ArgumentNullException("caseId");
+
+            if (body == null)
+                throw new System.ArgumentNullException("body");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
+                    var content_ = new System.Net.Http.ByteArrayContent(json_);
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+                    request_.Content = content_;
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                
+                    // Operation Path: "api/manage/workflow/{caseId}/block-previous-approver"
+                    urlBuilder_.Append("api/manage/workflow/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
+                    urlBuilder_.Append("/block-previous-approver");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            return;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
         /// Gets last approval of a case.
         /// </summary>
         /// <returns>OK</returns>
@@ -354,8 +444,8 @@ namespace Indice.Features.Cases.Workflows.Integration
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "manager-workflow/{caseId}/last-approval"
-                    urlBuilder_.Append("manager-workflow/");
+                    // Operation Path: "api/manage/workflow/{caseId}/last-approval"
+                    urlBuilder_.Append("api/manage/workflow/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/last-approval");
 
@@ -449,8 +539,8 @@ namespace Indice.Features.Cases.Workflows.Integration
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "manager-workflow/{caseId}/remove-assignment"
-                    urlBuilder_.Append("manager-workflow/");
+                    // Operation Path: "api/manage/workflow/{caseId}/remove-assignment"
+                    urlBuilder_.Append("api/manage/workflow/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/remove-assignment");
 
@@ -533,8 +623,8 @@ namespace Indice.Features.Cases.Workflows.Integration
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "manager-workflow/{caseId}/rollback-approval"
-                    urlBuilder_.Append("manager-workflow/");
+                    // Operation Path: "api/manage/workflow/{caseId}/rollback-approval"
+                    urlBuilder_.Append("api/manage/workflow/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/rollback-approval");
 
@@ -623,8 +713,8 @@ namespace Indice.Features.Cases.Workflows.Integration
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "manager-workflow/{caseId}/send-message"
-                    urlBuilder_.Append("manager-workflow/");
+                    // Operation Path: "api/manage/workflow/{caseId}/send-message"
+                    urlBuilder_.Append("api/manage/workflow/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/send-message");
 
@@ -710,8 +800,8 @@ namespace Indice.Features.Cases.Workflows.Integration
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "manager-workflow/contacts/{reference}/data/{caseTypeCode}"
-                    urlBuilder_.Append("manager-workflow/contacts/");
+                    // Operation Path: "api/manage/workflow/contacts/{reference}/data/{caseTypeCode}"
+                    urlBuilder_.Append("api/manage/workflow/contacts/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(reference, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/data/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseTypeCode, System.Globalization.CultureInfo.InvariantCulture)));
@@ -806,8 +896,8 @@ namespace Indice.Features.Cases.Workflows.Integration
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "manager-workflow/get-case/{caseId}"
-                    urlBuilder_.Append("manager-workflow/get-case/");
+                    // Operation Path: "api/manage/workflow/get-case/{caseId}"
+                    urlBuilder_.Append("api/manage/workflow/get-case/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append('?');
                     if (includeAttachments != null)
@@ -1295,21 +1385,6 @@ namespace Indice.Features.Cases.Workflows.Integration
 
         [System.Text.Json.Serialization.JsonPropertyName("description")]
         public string Description { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record CasesActor
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("id")]
-        public string Id { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("name")]
-        public string Name { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("email")]
-        public string Email { get; set; }
 
     }
 
@@ -3144,6 +3219,24 @@ namespace Indice.Features.Cases.Workflows.Integration
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record WorkflowActor
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("id")]
+        public string Id { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("reference")]
+        public string Reference { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("email")]
+        public string Email { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial record WorkflowAddApprovalRequest
     {
 
@@ -3157,8 +3250,8 @@ namespace Indice.Features.Cases.Workflows.Integration
         [System.Text.Json.Serialization.JsonPropertyName("reason")]
         public string Reason { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("casesActor")]
-        public CasesActor CasesActor { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("workflowActor")]
+        public WorkflowActor WorkflowActor { get; set; }
 
     }
 
@@ -3176,8 +3269,8 @@ namespace Indice.Features.Cases.Workflows.Integration
         [System.Text.Json.Serialization.JsonPropertyName("reason")]
         public string Reason { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("casesActor")]
-        public CasesActor CasesActor { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("workflowActor")]
+        public WorkflowActor WorkflowActor { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("privateComment")]
         public bool PrivateComment { get; set; }
@@ -3191,8 +3284,8 @@ namespace Indice.Features.Cases.Workflows.Integration
         [System.Text.Json.Serialization.JsonPropertyName("message")]
         public Message Message { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("casesActor")]
-        public CasesActor CasesActor { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("workflowActor")]
+        public WorkflowActor WorkflowActor { get; set; }
 
     }
 

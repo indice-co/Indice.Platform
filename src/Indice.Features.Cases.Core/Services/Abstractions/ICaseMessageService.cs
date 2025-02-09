@@ -36,9 +36,9 @@ public interface ICaseMessageService
     ///  <param name="caseId">The Id of the case.</param>
     ///  <param name="user">The user used for membership authorization reasons.</param>
     ///  <param name="message">The message to send.</param>
-    ///  <param name="auditMeta">The user that creates the message.</param>
+    ///  <param name="createdBy">The user that creates the message.</param>
     ///  <returns></returns>
-    Task<Guid?> Send(Guid caseId, ClaimsPrincipal user, Message message, AuditMeta auditMeta); // todo: remove when we remove case membership
+    Task<Guid?> Send(Guid caseId, ClaimsPrincipal user, Message message, AuditMeta createdBy);
 }
 
 /// <summary>Placeholder to indicate MyCase feature.</summary>

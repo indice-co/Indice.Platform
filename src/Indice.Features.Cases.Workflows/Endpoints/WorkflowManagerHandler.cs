@@ -22,7 +22,8 @@ internal static class WorkflowManagerHandler
         IWorkflowDefinitionStore workflowDefinitionStore,
         IWorkflowBlueprintMaterializer workflowBlueprintMaterializer,
         IStartsWorkflow startsWorkflow,
-        CancellationToken cancellationToken = default) {
+        CancellationToken cancellationToken = default
+    ) {
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, Guid.Empty);
         ArgumentException.ThrowIfNullOrWhiteSpace(caseTypeCode);
 
@@ -32,8 +33,8 @@ internal static class WorkflowManagerHandler
             return TypedResults.Problem(detail: $"Workflow failed to start. There is no workflow definition with the tag: {caseTypeCode}.");
         }
         
-        workflowDefinition.Variables.Set(CasesWorkflowConstants.WorkflowVariables.Actor.InitialActor, actor);
-        workflowDefinition.Variables.Set(CasesWorkflowConstants.WorkflowVariables.Actor.CurrentActor, actor);
+        workflowDefinition.Variables.Set(CasesWorkflowConstants.WorkflowVariables.Actor.Initiator, actor);
+        workflowDefinition.Variables.Set(CasesWorkflowConstants.WorkflowVariables.Actor.Current, actor);
         var blueprint = await workflowBlueprintMaterializer.CreateWorkflowBlueprintAsync(workflowDefinition, cancellationToken);
         var runWorkflowResult = await startsWorkflow.StartWorkflowAsync(
             blueprint,
@@ -50,9 +51,12 @@ internal static class WorkflowManagerHandler
     public static async Task<Results<NoContent, ProblemHttpResult>> InvokeApproval(
         InvokeApprovalRequest request,
         IAwaitApprovalInvoker approvalInvoker,
-        CancellationToken cancellationToken = default) {
+        CancellationToken cancellationToken = default
+    ) {
         ArgumentOutOfRangeException.ThrowIfEqual(request.CaseId, Guid.Empty);
-        var executedWorkflow = await approvalInvoker.DispatchWorkflowsAsync(request.CaseId, request, cancellationToken); // todo: check dispatch behaviour
+        ArgumentNullException.ThrowIfNull(request.Actor);
+        
+        var executedWorkflow = await approvalInvoker.ExecuteWorkflowsAsync(request.CaseId, request, cancellationToken); // todo: check dispatch behaviour
         if (!executedWorkflow.Any()) {
             return TypedResults.Problem(detail: "You cannot approve or reject case at this point.");
         }
@@ -63,10 +67,12 @@ internal static class WorkflowManagerHandler
     public static async Task<Results<NoContent, ProblemHttpResult>> InvokeEdit(
         InvokeEditRequest request,
         IAwaitEditInvoker editInvoker,
-        CancellationToken cancellationToken = default) {
+        CancellationToken cancellationToken = default
+    ) {
         ArgumentOutOfRangeException.ThrowIfEqual(request.CaseId, Guid.Empty);
+        ArgumentNullException.ThrowIfNull(request.Actor);
         
-        var executedWorkflow = await editInvoker.DispatchWorkflowsAsync(request.CaseId, request, cancellationToken);
+        var executedWorkflow = await editInvoker.ExecuteWorkflowsAsync(request.CaseId, request, cancellationToken);
         if (!executedWorkflow.Any()) {
             return TypedResults.Problem(detail: "You cannot edit at this point.");
         }
@@ -77,10 +83,13 @@ internal static class WorkflowManagerHandler
     public static async Task<Results<NoContent, ProblemHttpResult>> InvokeAction(
         InvokeActionRequest request,
         IAwaitActionInvoker actionInvoker,
-        CancellationToken cancellationToken = default) {
+        CancellationToken cancellationToken = default
+    ) {
         ArgumentOutOfRangeException.ThrowIfEqual(request.CaseId, Guid.Empty);
+        ArgumentNullException.ThrowIfNull(request.Actor);
+        ArgumentNullException.ThrowIfNull(request.ActionId);
         
-        var executedWorkflow = await actionInvoker.DispatchWorkflowsAsync(request.CaseId, request, cancellationToken);
+        var executedWorkflow = await actionInvoker.ExecuteWorkflowsAsync(request.CaseId, request, cancellationToken);
         if (!executedWorkflow.Any()) {
             return TypedResults.Problem(detail: "You cannot edit at this point.");
         }
@@ -91,10 +100,12 @@ internal static class WorkflowManagerHandler
     public static async Task<Results<NoContent, ProblemHttpResult>> InvokeAssignment(
         InvokeAssignmentRequest request,
         IAwaitAssignmentInvoker assignmentInvoker,
-        CancellationToken cancellationToken = default) {
+        CancellationToken cancellationToken = default
+    ) {
         ArgumentOutOfRangeException.ThrowIfEqual(request.CaseId, Guid.Empty);
+        ArgumentNullException.ThrowIfNull(request.Actor);
         
-        var executedWorkflow = await assignmentInvoker.DispatchWorkflowsAsync(request.CaseId, request, cancellationToken);
+        var executedWorkflow = await assignmentInvoker.ExecuteWorkflowsAsync(request.CaseId, request, cancellationToken);
         if (!executedWorkflow.Any()) {
             return TypedResults.Problem(detail: "You cannot assign at this point.");
         }

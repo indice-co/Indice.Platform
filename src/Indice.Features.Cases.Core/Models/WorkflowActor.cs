@@ -1,13 +1,13 @@
-using Indice.Features.Cases.Core.Models;
+namespace Indice.Features.Cases.Core.Models;
 
-namespace Indice.Features.Cases.Server.Models;
-
-// TODO: check if all these request models should be in core
-/// <summary>Cases Actor.</summary>
-public class CasesActor
+/// <summary>Represents the Workflow Actor acting on the workflow.</summary>
+public class WorkflowActor
 {
     /// <summary>The Id of the user.</summary>
     public string? Id { get; set; }
+    
+    /// <summary>Can be the customer id or something related to an external system correlation id</summary>
+    public string? Reference { get; set; }
 
     /// <summary>The name of the user.</summary>
     public string? Name { get; set; }

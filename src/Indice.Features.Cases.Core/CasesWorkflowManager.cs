@@ -58,16 +58,20 @@ public interface ICasesWorkflowManager
     /// <remarks>Bookmarks are used to filter out actions depending on annotations that have been assigned on the </remarks>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="caseTypeCode">The case type code. Will be used as a bookmark</param>
+    /// <param name="workflowActor">The actor meta starting thr workflow.</param>
     /// <returns>The <see cref="WorkflowInvocationResult"/> indicating success or failure of the operation</returns>
-    Task<WorkflowInvocationResult> StartWorkflowAsync(Guid caseId, string caseTypeCode, AuditMeta auditMeta);
+    Task<WorkflowInvocationResult> StartWorkflowAsync(Guid caseId, string caseTypeCode, WorkflowActor workflowActor);
 
     /// <summary>Gets the available trigger actions for the given <paramref name="caseId"/> regardless of the current user. Authorization happens on the cases host.</summary>
     /// <param name="caseId">The Id of the case.</param>
     Task<IWorkflowActions> GetActionsByCaseId(Guid caseId);
 }
 
-/// <summary>/// The interface that represents the list of available actions in the workflow.</summary>
+/// <summary>The interface that represents the list of available actions in the workflow.</summary>
 public interface IWorkflowActions { }
+
+/// <summary>An empty implementation of available actions.</summary>
+public class DefaultWorkflowActions  : IWorkflowActions { }
 
 /// <summary>
 /// The result record that represents the outcome of a case workflow trigger.
@@ -118,12 +122,12 @@ internal class DefaultCasesWorkflowManager : ICasesWorkflowManager
         return Task.FromResult(new CaseActions());
     }
 
-    public Task<WorkflowInvocationResult> StartWorkflowAsync(Guid caseId, string caseTypeCode, AuditMeta auditMeta) {
+    public Task<WorkflowInvocationResult> StartWorkflowAsync(Guid caseId, string caseTypeCode, WorkflowActor workflowActor) {
         return Task.FromResult(new WorkflowInvocationResult(Success: false, [], "Not implemented"));
     }
 
     public Task<IWorkflowActions> GetActionsByCaseId(Guid caseId) {
-        throw new NotImplementedException();
+        return Task.FromResult<IWorkflowActions>(new DefaultWorkflowActions());
     }
 }
 

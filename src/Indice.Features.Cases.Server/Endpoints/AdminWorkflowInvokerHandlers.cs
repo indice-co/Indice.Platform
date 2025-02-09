@@ -15,29 +15,6 @@ using Microsoft.AspNetCore.Http.HttpResults;
 namespace Indice.Features.Cases.Server.Endpoints;
 internal static class AdminWorkflowInvokerHandlers
 {
-    public static async Task<Results<NoContent, ProblemHttpResult>> AssignCase(
-        Guid caseId,
-        ClaimsPrincipal currentUser,
-        IAdminCaseService adminCaseService,
-        IAdminCaseMessageService caseMessageService,
-        IAuthorizationService authorizationService,
-        ICasesWorkflowManager workflowManager
-    ) {
-        var bookmarks = await workflowManager.GetActionsByCaseId(caseId) as AvailableActions;
-        var assignmentBookmark = bookmarks?.AssignmentBookmarks.FirstOrDefault();
-        if (assignmentBookmark is null) {
-            return TypedResults.Problem(detail: "There is no valid assign action for this case.");
-        }
-        
-        var authorizationResult = await authorizationService.AuthorizeAsync(currentUser, caseId, new CasesRolesRequirement([assignmentBookmark.Role]));
-        if (!authorizationResult.Succeeded) {
-            return TypedResults.Problem(detail: "You are not authorized to access this case.");
-        }
-        
-        var result = await workflowManager.InvokeAssignmentAsync(caseId, currentUser);
-        return result.Success ? TypedResults.NoContent() : TypedResults.Problem(detail: result.Message);
-    }
-    
     public static async Task<Results<NoContent, ProblemHttpResult>> SubmitApproval(
         Guid caseId,
         ApprovalRequest request,
@@ -71,6 +48,29 @@ internal static class AdminWorkflowInvokerHandlers
         var result = await workflowManager.InvokeApprovalAsync(currentUser, caseId, request);
         return result.Success ? TypedResults.NoContent() : TypedResults.Problem(detail: result.Message);
     }
+    
+    public static async Task<Results<NoContent, ProblemHttpResult>> AssignCase(
+        Guid caseId,
+        ClaimsPrincipal currentUser,
+        IAdminCaseService adminCaseService,
+        IAdminCaseMessageService caseMessageService,
+        IAuthorizationService authorizationService,
+        ICasesWorkflowManager workflowManager
+    ) {
+        var bookmarks = await workflowManager.GetActionsByCaseId(caseId) as AvailableActions;
+        var assignmentBookmark = bookmarks?.AssignmentBookmarks.FirstOrDefault();
+        if (assignmentBookmark is null) {
+            return TypedResults.Problem(detail: "There is no valid assign action for this case.");
+        }
+        
+        var authorizationResult = await authorizationService.AuthorizeAsync(currentUser, caseId, new CasesRolesRequirement([assignmentBookmark.Role]));
+        if (!authorizationResult.Succeeded) {
+            return TypedResults.Problem(detail: "You are not authorized to access this case.");
+        }
+        
+        var result = await workflowManager.InvokeAssignmentAsync(caseId, currentUser);
+        return result.Success ? TypedResults.NoContent() : TypedResults.Problem(detail: result.Message);
+    }
 
     public static async Task<Results<NoContent, ProblemHttpResult>> EditCase(
         Guid caseId,
@@ -81,7 +81,7 @@ internal static class AdminWorkflowInvokerHandlers
         IAuthorizationService authorizationService,
         CasesMessageDescriber casesMessageDescriber
     ) {
-        // todo: Case must be assigned to them requirement?
+        // todo: Case must be assigned to them requirement not being checked
         request.Data = JsonSerializer.SerializeToNode(request.Data);
         
         var bookmarks = await workflowManager.GetActionsByCaseId(caseId) as AvailableActions;

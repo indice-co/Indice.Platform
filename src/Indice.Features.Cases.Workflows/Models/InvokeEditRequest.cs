@@ -10,7 +10,7 @@ public class InvokeEditRequest
     public Guid CaseId { get; set; }
     
     /// <summary>The Data to edit the case with.</summary>
-    public JsonNode Data { get; set; }
+    public JsonNode? Data { get; set; }
 
     /// <summary>Comment added on the edit action.</summary>
     public string Comment { get; set; } = null!;

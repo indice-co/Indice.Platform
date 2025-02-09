@@ -15,7 +15,7 @@ public class WorkflowAddApprovalWithCommentRequest
     public string? Reason {get; set;}
     
     /// <summary>Actor responsible for this action.</summary>
-    public CasesActor CasesActor {get; set;}
+    public WorkflowActor WorkflowActor {get; set;}
     
     /// <summary>Comment Private or not.</summary>
     public bool PrivateComment {get; set;}

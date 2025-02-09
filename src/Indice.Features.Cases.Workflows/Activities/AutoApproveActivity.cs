@@ -22,7 +22,7 @@ internal class AutoApproveActivity(CasesHttpClient casesHttpClient) : BaseCaseAc
             CaseId = CaseId.Value,
             Action = Approval.Approve,
             Reason = null,
-            CasesActor = context.TryGetLastActor().ToCasesActor()
+            WorkflowActor = context.TryGetLastActor().ToCasesActor()
         });
         return Done();
     }

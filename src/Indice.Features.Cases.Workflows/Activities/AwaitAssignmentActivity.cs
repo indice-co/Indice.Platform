@@ -50,7 +50,7 @@ internal class AwaitAssignmentActivity(CasesHttpClient casesHttpClient) : BaseBl
 
         Output = assignedTo;
         context.LogOutputProperty(this, "Output", Output);
-        context.SetVariable(CasesWorkflowConstants.WorkflowVariables.Actor.CurrentActor, assignment.Actor);
+        context.SetVariable(CasesWorkflowConstants.WorkflowVariables.Actor.Current, assignment.Actor);
         return Done();
     }
 }

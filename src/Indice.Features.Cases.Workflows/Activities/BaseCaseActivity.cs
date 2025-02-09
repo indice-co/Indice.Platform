@@ -45,14 +45,14 @@ public abstract class BaseCaseActivity(CasesHttpClient casesClient) : Activity
             if (HandleActivityError) {
                 var message = $"Workflow Exception with DefinitionId \"{context.WorkflowInstance.DefinitionId}\" and InstanceId \"{context.WorkflowInstance.Id}\". Original exception message \"{exception.Message}\".";
                 // await CaseMessageService.Send(CaseId!.Value, context.GetHttpContextUser()!, exception, message);
-                await CasesClient.SendMessageAsync(CaseId.Value, new WorkflowSendMessageRequest {
+                await CasesClient.SendMessageAsync(CaseId!.Value, new WorkflowSendMessageRequest {
                     Message = new Message {
                         Comment = string.IsNullOrEmpty(message) 
                             ? $"Faulted with message: {exception.Message}" 
                             : $"Faulted with message: {message} and exception message: {exception.Message}",
                         PrivateComment = true
                     },
-                    CasesActor = context.TryGetLastActor().ToCasesActor()
+                    WorkflowActor = context.TryGetLastActor().ToCasesActor()
                 });
             }
             
@@ -75,16 +75,15 @@ public abstract class BaseCaseActivity(CasesHttpClient casesClient) : Activity
     protected async Task LogCaseError(ActivityExecutionContext context, Exception exception, string? message = null) {
         // Log to Elsa context
         context.LogOutputProperty(this, "Exception", exception);
-        // todo: simulate http failure
         // Log to Case (via Comment)
-        await CasesClient.SendMessageAsync(CaseId.Value, new WorkflowSendMessageRequest {
+        await CasesClient.SendMessageAsync(CaseId!.Value, new WorkflowSendMessageRequest {
             Message = new Message {
                 Comment = string.IsNullOrEmpty(message)
                     ? $"Faulted with message: {exception.Message}"
                     : $"Faulted with message: {message} and exception message: {exception.Message}",
                 PrivateComment = true
             },
-            CasesActor = context.TryGetLastActor().ToCasesActor()
+            WorkflowActor = context.TryGetLastActor().ToCasesActor()
         });
     }
 }

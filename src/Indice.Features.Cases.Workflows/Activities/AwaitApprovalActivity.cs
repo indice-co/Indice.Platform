@@ -56,11 +56,11 @@ internal class AwaitApprovalActivity(CasesHttpClient casesHttpClient) : BaseBloc
     /// <inheritdoc />
     protected override async Task<IActivityExecutionResult> OnExecuteInternalAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
-        var approval = context.Input as InvokeApprovalRequest ?? throw new ArgumentNullException(nameof(InvokeApprovalRequest));
+        var approval = context.Input as InvokeApprovalRequest;
 
         // Set activity's output properties 
         Output = new ApprovalOutput {
-            Action = approval.Action,
+            Action = approval!.Action,
             Comment = approval.Comment
         };
         Action = approval.Action.ToString();
@@ -71,10 +71,10 @@ internal class AwaitApprovalActivity(CasesHttpClient casesHttpClient) : BaseBloc
             Action = Enum.Parse<Approval>(approval.Action.ToString()),
             Reason = approval.Comment,
             PrivateComment = !PublicActions.Contains(approval.Action.ToString()),
-            CasesActor = approval.Actor.ToCasesActor()
+            WorkflowActor = approval.Actor.ToCasesActor()
         });
         
-        context.SetVariable(CasesWorkflowConstants.WorkflowVariables.Actor.CurrentActor, approval.Actor);
+        context.SetVariable(CasesWorkflowConstants.WorkflowVariables.Actor.Current, approval.Actor);
         return Outcome(approval.Action.ToString(), approval);
     }
 }

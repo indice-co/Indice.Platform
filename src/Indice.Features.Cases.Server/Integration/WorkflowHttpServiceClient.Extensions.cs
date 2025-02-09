@@ -7,19 +7,35 @@ using CaseSuccessMessage = Indice.Features.Cases.Core.Models.SuccessMessage;
 
 namespace Indice.Features.Cases.Server.Integration;
 
+/// <summary>Implement <see cref="IWorkflowActions"/></summary>
+public partial record AvailableActions : IWorkflowActions {}
+
+
 internal static class WorkflowHttpServiceClient_Extensions
 {
-    public static Actor ToWorkflowActor(this ClaimsPrincipal user, CasesOptions options) {
+    /// <summary>Creates a http <see cref="Actor"/> model from the current user.</summary>
+    public static Actor ToActor(this ClaimsPrincipal user, CasesOptions options) {
         var subject = user.FindFirstValue(BasicClaimTypes.Subject);
         return new Actor {
-            UserId = string.IsNullOrWhiteSpace(subject) ? user.FindFirstValue(BasicClaimTypes.ClientId) : subject,
+            Id = string.IsNullOrWhiteSpace(subject) ? user.FindFirstValue(BasicClaimTypes.ClientId) : subject,
             Reference = user.FindFirstValue(options.ReferenceIdClaimType),
             Email = string.IsNullOrWhiteSpace(subject) ? user.FindFirstValue(BasicClaimTypes.ClientId) : user.FindFirstValue(BasicClaimTypes.Email),
             Name = string.IsNullOrWhiteSpace(subject) ? CasesCoreConstants.SystemUserName : $"{user.FindFirstValue(BasicClaimTypes.GivenName)} {user.FindFirstValue(BasicClaimTypes.FamilyName)}".Trim(),
         };
     }
 
-    public static CustomCaseAction FromHttpCaseActions(this CustomAction action) {
+    /// <summary>Simple mapping from Cases <see cref="WorkflowActor"/> to http <see cref="Actor"/></summary>
+    public static Actor ToActor(this WorkflowActor actor) {
+        return new Actor {
+            Id = actor.Id,
+            Email = actor.Email,
+            Name = actor.Name,
+            Reference = actor.Reference,
+        };
+    }
+
+    /// <summary>Create <see cref="CustomCaseAction"/> from workflow <see cref="CustomAction"/></summary>
+    public static CustomCaseAction CreateFromWorkflowAction(this CustomAction action) {
         return new CustomCaseAction {
             Id = action.Id,
             Description = action.Description,
@@ -36,5 +52,3 @@ internal static class WorkflowHttpServiceClient_Extensions
         };
     }
 }
-
-public partial record AvailableActions : IWorkflowActions {}

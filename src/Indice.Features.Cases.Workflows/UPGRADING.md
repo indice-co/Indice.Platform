@@ -1,5 +1,7 @@
 - context.TryGetUser() on ActivityContext is not available anymore, use context.TryGetLastActor() optionally resolving with your identity provider
 - Bookmark hashes will need recalculation.
+- Remove `When` from activities that had `AuditMeta` as an input, this will be automatically set to the current DateTimeOffset i.e. AssignCaseToUserActivity, 
+- Case rejection reasons resources should be copied to `Workflow` as well using `WorkflowSharedResource`
 
 ## Integrators endpoints currently used
 Api Calls from Workflows SendMessageActivity:

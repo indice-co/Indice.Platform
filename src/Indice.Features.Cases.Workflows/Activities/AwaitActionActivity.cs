@@ -118,23 +118,21 @@ public class AwaitActionActivity(CasesHttpClient casesHttpClient) : BaseBlocking
     /// <inheritdoc />
     protected override async Task<IActivityExecutionResult> OnExecuteInternalAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
-
         var input = context.Input as InvokeActionRequest;
 
         Output = input?.Value ?? string.Empty;
         context.LogOutputProperty(this, nameof(Output), Output);
         
         var comment = $"Action \"{ActionName}\" executed successfully";
-
         await CasesClient.SendMessageAsync(CaseId.Value, new WorkflowSendMessageRequest {
             Message = new Message {
                 Comment = string.IsNullOrEmpty(input?.Value) ? $"{comment}." : $"{comment} with value \"{Output}\".",
                 PrivateComment = true
             },
-            CasesActor = context.TryGetLastActor().ToCasesActor()
+            WorkflowActor = context.TryGetLastActor().ToCasesActor()
         });
         
-        context.SetVariable(CasesWorkflowConstants.WorkflowVariables.Actor.CurrentActor, input!.Actor);
+        context.SetVariable(CasesWorkflowConstants.WorkflowVariables.Actor.Current, input!.Actor);
         return Done(Output);
     }
 }

@@ -26,19 +26,12 @@ internal class BlockPreviousApproverActivity(CasesHttpClient casesHttpClient) : 
             return Outcome(OutcomeNames.False);
         }
         
-        if (context.TryGetLastActor().UserId != lastApproval.CreatedBy.Id) {
+        if (context.TryGetLastActor().Id != lastApproval.CreatedBy.Id) {
             return Outcome(OutcomeNames.False);
         }
+
+        await CasesClient.BlockPreviousApproverAsync(CaseId.Value, context.TryGetLastActor().ToCasesActor());
         
-        await CasesClient.SendMessageAsync(CaseId.Value, new WorkflowSendMessageRequest {
-            Message = new Message {
-                PrivateComment = true,
-                Comment = "Already approved on the previous step. Self-assignment removed." // todo: fix localization
-            },
-            CasesActor = context.TryGetLastActor().ToCasesActor()
-        });
-        
-        await CasesClient.RemoveAssignmentAsync(CaseId.Value);
         return Outcome(OutcomeNames.True);
     }
 }

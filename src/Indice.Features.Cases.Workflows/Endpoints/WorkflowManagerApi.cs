@@ -12,12 +12,12 @@ public static class WorkflowManagerApi
 {
     /// <summary>Invoking Workflow Activities for blocked instances.</summary>
     public static IEndpointRouteBuilder MapWorkflowManager(this IEndpointRouteBuilder routes) {
-        var options = routes.ServiceProvider.GetRequiredService<IOptions<CasesWorkflowOptions>>().Value;
-        var group = routes.MapGroup("/workflow-manager");
+        // todo: do we need options.PathPrefix here?
+        var group = routes.MapGroup("/api/workflow/manage");
         group.WithGroupName("workflow");
         group.WithTags("Workflow");
-        
-        // todo: add authentication
+
+        group.RequireAuthorization(CasesWorkflowFeatureExtensions.WorkflowPolicy);
         
         group.MapPost("start-workflow", WorkflowManagerHandler.StartWorkflow)
             .WithName(nameof(WorkflowManagerHandler.StartWorkflow))
@@ -46,7 +46,8 @@ public static class WorkflowManagerApi
         group.MapGet("{caseId}/reject-reasons", WorkflowManagerHandler.GetRejectReasonsByCaseId)
             .WithName(nameof(WorkflowManagerHandler.GetRejectReasonsByCaseId))
             .WithSummary("Get the reject reasons for a case.");
-        
+
+        group.AllowAnonymous(); //todo: konstantinos
         return group;
     }
 }

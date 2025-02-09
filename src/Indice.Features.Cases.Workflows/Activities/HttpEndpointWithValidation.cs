@@ -42,7 +42,6 @@ public class HttpEndpointWithValidation : HttpEndpoint
         }
         
         // There is schema but the request body is null
-        // todo: what is the purpose of empty body? use HttpEndpoint directly, this should be before L:36?
         if (Output.Body is null) {
             return Outcome(CustomOutcomeNames.Failed);
         }

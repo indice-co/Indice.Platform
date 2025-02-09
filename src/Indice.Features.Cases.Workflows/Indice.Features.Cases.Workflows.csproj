@@ -20,10 +20,12 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
     <PackageReference Include="MediatR" Version="12.2.0" />
     <PackageReference Include="Indice.Common" Version="$(VersionPrefixCore)-*" />
+    <PackageReference Include="Indice.Services" Version="$(VersionPrefixCore)-*" />
     <PackageReference Include="IdentityModel" Version="7.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Common\Indice.Common.csproj" />
+    <ProjectReference Include="..\Indice.Services\Indice.Services.csproj" />
   </ItemGroup>
 
   <ItemGroup>

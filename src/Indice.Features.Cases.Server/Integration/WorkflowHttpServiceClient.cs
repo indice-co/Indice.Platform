@@ -4,38 +4,32 @@ using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Core.Localization;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Server.Integration;
 
+/// <inheritdoc />
 public class WorkflowHttpServiceClient : ICasesWorkflowManager
 {
     private readonly WorkflowHttpClient _workflowApiClient;
     private readonly CasesOptions _casesOptions;
     private readonly CaseSharedResourceService _caseSharedResourceService;
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public WorkflowHttpServiceClient(IHttpClientFactory factory, IOptions<CasesOptions> caseOptions, CaseSharedResourceService caseSharedResourceService) {
+    
+    /// <summary>WorkflowHttpServiceClient Constructor</summary>
+    public WorkflowHttpServiceClient(IHttpClientFactory factory, IConfiguration configuration, IOptions<CasesOptions> caseOptions, CaseSharedResourceService caseSharedResourceService) {
         var httpClient = factory.CreateClient(nameof(WorkflowHttpServiceClient)) ?? throw new ArgumentNullException(nameof(WorkflowHttpServiceClient));
-        httpClient.BaseAddress = new Uri("https://localhost:2001/"); // todo: from config
+        httpClient.BaseAddress = new Uri(configuration.GetHost() ?? throw new ArgumentNullException(nameof(configuration)));
         _workflowApiClient = new WorkflowHttpClient(httpClient);
         _casesOptions = caseOptions.Value ?? throw new ArgumentNullException(nameof(caseOptions));
         _caseSharedResourceService = caseSharedResourceService ?? throw new ArgumentNullException(nameof(caseSharedResourceService));
     }
 
-    // todo: problem details
     /// <inheritdoc />
-    public async Task<WorkflowInvocationResult> StartWorkflowAsync(Guid caseId, string caseTypeCode, AuditMeta auditMeta) {
+    public async Task<WorkflowInvocationResult> StartWorkflowAsync(Guid caseId, string caseTypeCode, WorkflowActor workflowActor) {
         try {
-            // todo: pass reference id
-            await _workflowApiClient.StartWorkflowAsync(caseId, caseTypeCode, new Actor {
-                Name = auditMeta.Name,
-                UserId = auditMeta.Id,
-                Email = auditMeta.Email,
-            });
-            return new WorkflowInvocationResult(Success: true, [], string.Empty);
+            await _workflowApiClient.StartWorkflowAsync(caseId, caseTypeCode, workflowActor.ToActor());
+            return new WorkflowInvocationResult(Success: true, []);
         } catch (WorkflowApiException ex) {
             return new WorkflowInvocationResult(Success: false, [], ex.Message);
         }
@@ -46,9 +40,9 @@ public class WorkflowHttpServiceClient : ICasesWorkflowManager
         try {
             await _workflowApiClient.AssignAsync(new InvokeAssignmentRequest {
                 CaseId = caseId,
-                Actor = user.ToWorkflowActor(_casesOptions),
+                Actor = user.ToActor(_casesOptions),
             });
-            return new WorkflowInvocationResult(Success: true, [], string.Empty);
+            return new WorkflowInvocationResult(Success: true, []);
         } catch (WorkflowApiException ex) {
             return new WorkflowInvocationResult(Success: false, [], ex.Message);
         }
@@ -61,9 +55,9 @@ public class WorkflowHttpServiceClient : ICasesWorkflowManager
                 CaseId = caseId,
                 Action = Enum.Parse<WorkflowApproval>(request.Action.ToString()),
                 Comment = request.Comment,
-                Actor = user.ToWorkflowActor(_casesOptions)
+                Actor = user.ToActor(_casesOptions)
             });
-            return new WorkflowInvocationResult(true, [], string.Empty);
+            return new WorkflowInvocationResult(true, []);
         } catch (WorkflowApiException ex) {
             return new WorkflowInvocationResult(Success: false, [], ex.Message);
         }
@@ -75,9 +69,9 @@ public class WorkflowHttpServiceClient : ICasesWorkflowManager
             await _workflowApiClient.EditAsync(new InvokeEditRequest {
                 CaseId = caseId,
                 Data = request.Data,
-                Actor = user.ToWorkflowActor(_casesOptions),
+                Actor = user.ToActor(_casesOptions),
             });
-            return new WorkflowInvocationResult(Success: true, [], string.Empty);
+            return new WorkflowInvocationResult(Success: true, []);
         } catch (WorkflowApiException ex) {
             return new WorkflowInvocationResult(Success: false, [], ex.Message);
         }
@@ -87,7 +81,7 @@ public class WorkflowHttpServiceClient : ICasesWorkflowManager
     public async Task<IWorkflowActions> GetActionsByCaseId(Guid caseId) { // todo: correct return
         try {
             return await _workflowApiClient.ActionsAsync(caseId);
-        } catch (WorkflowApiException ex) {
+        } catch (WorkflowApiException) {
             return new AvailableActions();
         }
     }
@@ -99,9 +93,9 @@ public class WorkflowHttpServiceClient : ICasesWorkflowManager
                 CaseId = caseId,
                 ActionId = request.Id,
                 Value = request.Value,
-                Actor = user.ToWorkflowActor(_casesOptions)
+                Actor = user.ToActor(_casesOptions)
             });
-            return new WorkflowInvocationResult(Success: true, [], string.Empty);
+            return new WorkflowInvocationResult(Success: true, []);
         } catch (WorkflowApiException ex) {
             return new WorkflowInvocationResult(Success: false, [], ex.Message);
         }
@@ -115,12 +109,13 @@ public class WorkflowHttpServiceClient : ICasesWorkflowManager
                 Key = reason,
                 Value = _caseSharedResourceService.GetLocalizedHtmlString(reason, CultureInfo.CurrentCulture.Name).Value
             }).ToList();
-        } catch (WorkflowApiException ex) {
+        } catch (WorkflowApiException) {
             return [];
         }
     }
 
-    // todo: this will become obsolete
+
+    [Obsolete("This method is obsolete and will be removed in a future version.")]
     /// <inheritdoc />
     public async Task<CaseActions> GetAvailableActionsAsync(ClaimsPrincipal user, Guid caseId, string? assignedToId, string[] bookmarks, string? lastApprovedById = null) {
         throw new NotImplementedException();

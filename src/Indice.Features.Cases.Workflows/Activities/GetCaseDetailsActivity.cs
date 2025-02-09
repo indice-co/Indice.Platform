@@ -32,7 +32,6 @@ internal class GetCaseDetailsActivity(CasesHttpClient casesHttpClient) : BaseCas
         // @case.Data = Newtonsoft.Json.Linq.JObject.Parse(@case.DataAs<string?>()!); // todo: see if needed, simple activity first getCaseDetails, then set variable to check
         Output = @case;
 
-        // context.SetVariable("tete", @case.Data);
         context.LogOutputProperty(this, nameof(Output), Output);
         return Done(Output);
     }

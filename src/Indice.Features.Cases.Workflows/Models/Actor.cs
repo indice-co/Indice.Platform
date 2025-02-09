@@ -13,10 +13,10 @@ namespace Indice.Features.Cases.Workflows.Models;
 public sealed record Actor
 {
     /// <summary>The Id of the user.</summary>
-    public string? UserId { get; set; } // httpcontext user id subject
+    public string? Id { get; set; }
     
     /// <summary>Can be the customer id or something related to an external system correlation id</summary>
-    public string? Reference { get; set; } // contact 
+    public string? Reference { get; set; }
 
     /// <summary>The name of the user.</summary>
     public string? Name { get; set; }
@@ -40,7 +40,7 @@ public sealed record Actor
          */
 
         var subject = user.FindFirstValue(BasicClaimTypes.Subject);
-        meta.UserId = string.IsNullOrWhiteSpace(subject)
+        meta.Id = string.IsNullOrWhiteSpace(subject)
             ? user.FindFirstValue(BasicClaimTypes.ClientId)
             : subject;
         meta.Email = string.IsNullOrWhiteSpace(subject)

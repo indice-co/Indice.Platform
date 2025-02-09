@@ -5,10 +5,12 @@ namespace Indice.Features.Cases.Workflows.Integrations;
 
 internal static class CasesHttpClient_Extensions
 {
-    public static CasesActor ToCasesActor(this Actor actor) =>
+    /// <summary>Simple mapping from Workflow <see cref="Actor"/> to <see cref="CasesActor"/></summary>
+    public static WorkflowActor ToCasesActor(this Actor actor) =>
         new() {
-            Id = actor.UserId,
+            Id = actor.Id,
             Email = actor.Email,
-            Name = actor.Name
+            Name = actor.Name,
+            Reference = actor.Reference
         };
 }

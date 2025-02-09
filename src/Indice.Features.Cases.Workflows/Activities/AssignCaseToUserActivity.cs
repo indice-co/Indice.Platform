@@ -25,12 +25,11 @@ internal class AssignCaseToUserActivity(CasesHttpClient casesHttpClient) : BaseC
         DefaultSyntax = SyntaxNames.JavaScript,
         SupportedSyntaxes = [SyntaxNames.JavaScript]
     )]
-    public CasesActor User { get; set; } = new();
+    public WorkflowActor User { get; set; } = new();
 
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
         try {
-            // await _adminCaseService.AssignCase(User, CaseId.Value);
             await CasesClient.AssignAsync(CaseId.Value, User);
         } catch (Exception ex) {
             await LogCaseError(context, ex);

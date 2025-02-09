@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using Elsa;
+﻿using Elsa;
 using Elsa.ActivityResults;
 using Elsa.Attributes;
 using Elsa.Design;
@@ -48,11 +47,11 @@ internal class AwaitEditActivity(CasesHttpClient casesHttpClient) : BaseBlocking
                 Comment = editRequest.Comment,
                 PrivateComment = true
             },
-            CasesActor = context.TryGetLastActor().ToCasesActor()});
+            WorkflowActor = context.TryGetLastActor().ToCasesActor()});
         
         Output = caseData;
         context.LogOutputProperty(this, "Output", caseData);
-        context.SetVariable(CasesWorkflowConstants.WorkflowVariables.Actor.CurrentActor, editRequest.Actor);
+        context.SetVariable(CasesWorkflowConstants.WorkflowVariables.Actor.Current, editRequest.Actor);
         return Outcome("Save", caseData);
     }
 }

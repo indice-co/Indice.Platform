@@ -5,6 +5,7 @@ using Elsa.Design;
 using Elsa.Providers.WorkflowStorage;
 using Elsa.Services.Models;
 using Indice.Features.Cases.Workflows.Integration;
+using Indice.Features.Cases.Workflows.Localization;
 using Microsoft.Extensions.Configuration;
 
 namespace Indice.Features.Cases.Workflows.Activities;
@@ -15,7 +16,10 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "Get the rejected reason the backofficer has selected. This activity returns a dictionary with translations",
     Outcomes = new[] { OutcomeNames.Done }
 )]
-internal class GetRejectedReasonActivity(CasesHttpClient casesHttpClient, IConfiguration configuration) : BaseCaseActivity(casesHttpClient)
+internal class GetRejectedReasonActivity(
+    CasesHttpClient casesHttpClient,
+    IConfiguration configuration,
+    WorkflowSharedResourceService workflowSharedResourceService) : BaseCaseActivity(casesHttpClient)
 {
     private readonly string _defaultTranslationLanguage = configuration.GetSection("PrimaryTranslationLanguage").Value ?? CasesWorkflowConstants.DefaultTranslationLanguage;
 
@@ -48,8 +52,7 @@ internal class GetRejectedReasonActivity(CasesHttpClient casesHttpClient, IConfi
                 break;
         }
 
-        // todo: copy resource service
-        // Output = _caseSharedResourceService.GetLocalizedHtmlStringWithCulture(approval?.Reason!, language);
+        Output = workflowSharedResourceService.GetLocalizedHtmlStringWithCulture(approval?.Reason!, language);
         context.LogOutputProperty(this, nameof(Output), Output);
         return Outcome(OutcomeNames.Done);
     }

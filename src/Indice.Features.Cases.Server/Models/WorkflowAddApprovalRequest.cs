@@ -15,5 +15,5 @@ public class WorkflowAddApprovalRequest
     public string? Reason {get; set;}
     
     /// <summary>Actor responsible for this action.</summary>
-    public CasesActor CasesActor {get; set;}
+    public WorkflowActor WorkflowActor {get; set;}
 }

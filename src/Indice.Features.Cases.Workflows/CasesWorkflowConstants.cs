@@ -35,9 +35,9 @@ internal static class CasesWorkflowConstants
         public static class Actor
         {
             /// <summary>The Actor that initiated the workflow.</summary>
-            public const string InitialActor = nameof(InitialActor);
+            public const string Initiator = nameof(Initiator);
             /// <summary>The current Actor aka last actor acting on the workflow.</summary>
-            public const string CurrentActor = nameof(CurrentActor);
+            public const string Current = nameof(Current);
         }
     }
 

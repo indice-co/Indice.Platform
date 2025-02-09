@@ -5,6 +5,7 @@
 - [ ] Ability to pass Actor in Workflow Submission
 - [ ] Prepare Migration documentation
 - [ ] Standardize Workflow API response status code
+- [ ] Pass culture on actors on Workflow
 
 ## Acknowledgements
 Multiple blocking activities of the same kind are NOT allowed

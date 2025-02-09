@@ -22,6 +22,7 @@ public class CasesRolesRequirement : IAuthorizationRequirement
 /// <summary> </summary>
 public class DefaultCasesRolesHandler(ILogger<DefaultCasesRolesHandler> logger) : AuthorizationHandler<CasesRolesRequirement>
 {
+    /// <inheritdoc />
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, CasesRolesRequirement requirement) {
         var user = context.User;
         if (user.IsAdmin() || user.IsSystemClient()) {

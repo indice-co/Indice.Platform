@@ -32,8 +32,10 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Hosting;
 using Elsa.Serialization;
+using IdentityModel.Client;
 using Indice.Features.Cases.Core.Serialization;
 using Indice.Features.Cases.Workflows.Integration;
+using Indice.Features.Cases.Workflows.Localization;
 using Indice.Features.Cases.Workflows.Serialization;
 using Indice.Features.Cases.Workflows.Services.Abstractions;
 
@@ -140,15 +142,18 @@ public static class CasesWorkflowFeatureExtensions
         }
 
         // Register Custom Services
+        builder.Services.TryAddTransient<WorkflowSharedResourceService>(); // Add the service even if there is no resx file, so the runtime will not throw exception
         // Workflow integration
         builder.Services.TryAddScoped<IAwaitApprovalInvoker, AwaitApprovalInvoker>();
         builder.Services.TryAddScoped<IAwaitEditInvoker, AwaitEditInvoker>();
         builder.Services.TryAddScoped<IAwaitAssignmentInvoker, AwaitAssignmentInvoker>();
         builder.Services.TryAddScoped<IAwaitActionInvoker, AwaitActionInvoker>();
-        // builder.Services.TryAddScoped<CasesHttpClient>();
+        builder.Services.AddTransient<LocalTokenProvider>();
         builder.Services.AddHttpClient<CasesHttpClient>()
-            .ConfigureHttpClient(client => {
-                client.BaseAddress = new Uri("https://localhost:2001/"); // todo: remove mock
+            .ConfigureHttpClient((sp, client) => {
+                client.BaseAddress = new Uri(builder.Configuration.GetHost()!);
+                var tokenProvider = sp.GetRequiredService<LocalTokenProvider>();
+                client.SetBearerToken(tokenProvider.GetBearerToken());
             });
         // builder.Services.AddScoped<ICasesWorkflowManager, CasesWorkflowManagerElsa>();
         //
@@ -263,7 +268,7 @@ public static class CasesWorkflowFeatureExtensions
         // Elsa dashboard login
         .AddOpenIdConnect(authenticationScheme: OpenIdConnectDefaults.AuthenticationScheme, displayName: "Connect with Indice", options => {
             options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            options.Authority = "https://localhost:2000"; // todo: fix in different host
+            options.Authority = configuration.GetAuthority();
             options.ClientId = workflowOptions.WorkflowUIClientId;
             options.ResponseType = OpenIdConnectResponseType.Code;
             options.GetClaimsFromUserInfoEndpoint = true;
@@ -314,7 +319,7 @@ public static class CasesWorkflowFeatureExtensions
             // This is for ELSA API
             if (controller.DisplayName.Contains("elsa", StringComparison.OrdinalIgnoreCase)) {
                 controller.ApiExplorer.IsVisible = false;
-                controller.ApiExplorer.GroupName = "workflow";
+                controller.ApiExplorer.GroupName = "workflow-designer";
             }
         }
     }

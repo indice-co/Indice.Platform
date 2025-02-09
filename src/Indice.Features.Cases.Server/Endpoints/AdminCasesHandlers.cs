@@ -127,15 +127,15 @@ internal static class AdminCasesHandlers
         return TypedResults.Ok(cases);
     }
 
-    public static async Task<Results<Ok<CaseActions>, ProblemHttpResult>> GetCaseActions(
+    public static async Task<Results<Ok<CaseActions>, NotFound>> GetCaseActions(
         Guid caseId,
+        ClaimsPrincipal currentUser,
         ICasesWorkflowManager workflowManager,
         ICaseActionsService caseBookmarkService,
         IAdminCaseService adminCaseService,
         ICaseApprovalService caseApprovalService,
         IAuthorizationService authorizationService,
-        CasesDbContext dbContext,
-        ClaimsPrincipal currentUser
+        CasesDbContext dbContext
     ) {
         // If user has no role, do not allow any actions
         if (!currentUser.FindAll(c => c.Type == BasicClaimTypes.Role).Any() && !currentUser.IsSystemClient()) {
@@ -155,6 +155,9 @@ internal static class AdminCasesHandlers
         
         // Get List of Available Actions from Workflow
         var actions = await workflowManager.GetActionsByCaseId(caseId) as AvailableActions;
+        if (actions is null) {
+            return TypedResults.NotFound();
+        }
         
         var assignedToId = @case!.AssignedToId;
         var caseIsAssigned = !string.IsNullOrWhiteSpace(assignedToId);
@@ -162,11 +165,11 @@ internal static class AdminCasesHandlers
         // If user is Admin, they can do everything except assign an already assigned case
         if (currentUser.IsAdmin() || currentUser.IsSystemClient()) {
             return TypedResults.Ok(new CaseActions {
-                HasAssignment = actions?.AssignmentBookmarks.Count != 0 && !caseIsAssigned,
-                HasApproval = actions?.ApprovalBookmarks.Count != 0,
+                HasAssignment = actions.AssignmentBookmarks.Count != 0 && !caseIsAssigned,
+                HasApproval = actions.ApprovalBookmarks.Count != 0,
                 HasUnassignment = caseIsAssigned,
-                HasEdit = actions?.EditBookmarks.Count != 0,
-                CustomActions = actions?.CustomActions?.Select(x => x.FromHttpCaseActions()).ToList()!
+                HasEdit = actions.EditBookmarks.Count != 0,
+                CustomActions = actions.CustomActions?.Select(x => x.CreateFromWorkflowAction()).ToList()!
             });
         }
         
@@ -179,7 +182,7 @@ internal static class AdminCasesHandlers
         // For Assignment Action:
         // 1. User must have the specified role
         // 2. Case must not be already assigned
-        if (actions?.AssignmentBookmarks is { Count: > 0 }) {
+        if (actions.AssignmentBookmarks is { Count: > 0 }) {
             var authorizationResult = await authorizationService.AuthorizeAsync(currentUser, caseId, new CasesRolesRequirement([actions.AssignmentBookmarks.FirstOrDefault()?.Role]));
             if (authorizationResult.Succeeded && !caseIsAssigned) {
                 hasAssignment = true;
@@ -187,7 +190,7 @@ internal static class AdminCasesHandlers
         }
         
         // For Approval Action:
-        if (actions?.ApprovalBookmarks is { Count: > 0 }) {
+        if (actions.ApprovalBookmarks is { Count: > 0 }) {
             var authorizationResult = await authorizationService.AuthorizeAsync(currentUser, caseId, new CasesRolesRequirement([actions.ApprovalBookmarks.FirstOrDefault()?.Role]));
             // 1. User must have the specified role
             if (authorizationResult.Succeeded) { 
@@ -211,7 +214,7 @@ internal static class AdminCasesHandlers
         // For Edit Action:
         // 1. User must have the specified role
         // 2. Case must be assigned to them
-        if (actions?.EditBookmarks is { Count: > 0 }) {
+        if (actions.EditBookmarks is { Count: > 0 }) {
             var authorizationResult = await authorizationService.AuthorizeAsync(currentUser, caseId, new CasesRolesRequirement([actions.EditBookmarks.FirstOrDefault()?.Role]));
             if (authorizationResult.Succeeded && isAssignedToCurrentUser) {
                 hasEdit = true;
@@ -221,7 +224,7 @@ internal static class AdminCasesHandlers
         
         // For Custom Action:
         // User must have the specified role
-        if (actions?.CustomActions is { Count: > 0 }) {
+        if (actions.CustomActions is { Count: > 0 }) {
             var authorizationResult = await authorizationService.AuthorizeAsync(currentUser, caseId, new CasesRolesRequirement([actions.CustomActions.FirstOrDefault()?.AllowedRole]));
             if (authorizationResult.Succeeded) {
                 hasCustom = true;
@@ -232,7 +235,7 @@ internal static class AdminCasesHandlers
             HasApproval = hasApproval,
             HasAssignment = hasAssignment,
             HasEdit = hasEdit,
-            CustomActions = hasCustom ? actions?.CustomActions?.Select(x => x.FromHttpCaseActions()).ToList()! : [] 
+            CustomActions = hasCustom ? actions.CustomActions?.Select(x => x.CreateFromWorkflowAction()).ToList()! : [] 
         });
     }
 
@@ -251,7 +254,7 @@ internal static class AdminCasesHandlers
         }
         var file = await CreatePdf(@case, caseTemplateService, casePdfService);
         var fileName = $"{@case.CaseType.Code}-{DateTimeOffset.UtcNow.Date:dd-MM-yyyy}.pdf";
-        await platformEventService.Publish(new CaseDownloadedEvent(@case!, CasesCoreConstants.Channels.Agent));
+        await platformEventService.Publish(new CaseDownloadedEvent(@case, CasesCoreConstants.Channels.Agent));
         return TypedResults.File(file, MediaTypeNames.Application.Pdf, fileName);
     }
 

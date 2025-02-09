@@ -48,7 +48,7 @@ internal class SendMessageActivity(CasesHttpClient casesHttpClient) : BaseCaseAc
         try {
             await CasesClient.SendMessageAsync(CaseId.Value, new WorkflowSendMessageRequest {
                 Message = Message,
-                CasesActor = context.TryGetLastActor().ToCasesActor()
+                WorkflowActor = context.TryGetLastActor().ToCasesActor()
             });
         } catch (Exception exception) {
             Output = exception.Message;
