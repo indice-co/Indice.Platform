@@ -56,7 +56,7 @@ internal static class WorkflowManagerHandler
         ArgumentOutOfRangeException.ThrowIfEqual(request.CaseId, Guid.Empty);
         ArgumentNullException.ThrowIfNull(request.Actor);
         
-        var executedWorkflow = await approvalInvoker.ExecuteWorkflowsAsync(request.CaseId, request, cancellationToken); // todo: check dispatch behaviour
+        var executedWorkflow = await approvalInvoker.ExecuteWorkflowsAsync(request.CaseId, request, cancellationToken);
         if (!executedWorkflow.Any()) {
             return TypedResults.Problem(detail: "You cannot approve or reject case at this point.");
         }

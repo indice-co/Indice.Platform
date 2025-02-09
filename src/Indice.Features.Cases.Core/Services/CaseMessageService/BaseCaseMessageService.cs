@@ -176,7 +176,6 @@ internal abstract class BaseCaseMessageService
 
         @case.DataId = newDataVersion.Id;
         
-        // todo: is this only for MyCases? check here auditMeta.Id change, is this ok?
         // If case is mine, my changes are also publicly visible
         if (@case.CreatedBy.Id == createdBy.Id) {
             @case.PublicDataId = newDataVersion.Id;

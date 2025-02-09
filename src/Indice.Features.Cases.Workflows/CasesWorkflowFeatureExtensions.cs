@@ -155,14 +155,6 @@ public static class CasesWorkflowFeatureExtensions
                 var tokenProvider = sp.GetRequiredService<LocalTokenProvider>();
                 client.SetBearerToken(tokenProvider.GetBearerToken());
             });
-        // builder.Services.AddScoped<ICasesWorkflowManager, CasesWorkflowManagerElsa>();
-        //
-        // TODO: Should remove dependencies to core services.
-        // Here there are missing service registrations related to
-        // accessing the CasesDbContext directly via the cases core services
-        // We should refactor the code to use a HttpClient instead of direct db access
-        // We can track down these dependencies by inspecting code inside of custom activities.
-
 
         // Add authentication / authorization
         if (casesWorkflowOptions.RegisterAuthentication) {
