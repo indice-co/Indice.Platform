@@ -36,6 +36,12 @@ jobs:
         run: |
           echo "Build TS"
 
+      - name: Conditional Step (if .cs files changed)
+        if: contains(env.extensions, 'yml') 
+        shell: pwsh
+        run: |
+          echo "yaml changed"
+
   #     - name: Dotnet build
   #       id: dotnet-build
   #       uses: ./.github/workflows/composites/build-action
