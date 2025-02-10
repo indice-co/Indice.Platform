@@ -15,56 +15,41 @@ jobs:
         id: changed-files
         shell: pwsh
         run: |
-          $latestCommit = git rev-parse HEAD
-          $files = git diff-tree --no-commit-id --name-only -r $latestCommit
+          $files = gh pr view ${{ github.event.pull_request.number }} --json files --jq '.files[].path'
           $extensions = $files -match '\.(\w+)$' | ForEach-Object { ($_ -split '\.')[-1] } | Sort-Object -Unique
           $extensionString = $extensions -join ' '
-          echo "$extensionString"
           echo "extensions=$extensionString" | Out-File -FilePath $env:GITHUB_ENV -Append
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Conditional Step (if .cs files changed)
+      - name: Dotnet build
         if: contains(env.extensions, 'sln') || contains(env.extensions, 'csproj') || contains(env.extensions, 'cs') || contains(env.extensions, 'props')
-        shell: pwsh
-        run: |
-          echo "Build dotnet"
+        id: dotnet-build
+        uses: ./.github/workflows/composites/build-action
+        with:
+          dotnetCacheKey: dotnet-build-${{ github.sha }}
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
 
-      - name: Conditional Step (if .cs files changed)
-        if: contains(env.extensions, 'ts') || contains(env.extensions, 'js')
-        shell: pwsh
-        run: |
-          echo "Build TS"
+  run-dotnet-tests:
+    needs: [run-build]
+    if: contains(needs.run-build.outputs.extensions, 'sln') || contains(needs.run-build.outputs.extensions, 'csproj') || contains(needs.run-build.outputs.extensions, 'cs') || contains(needs.run-build.outputs.extensions, 'props')
+    name: .NET Tests
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Conditional Step (if .cs files changed)
-        if: contains(env.extensions, 'yml') 
-        shell: pwsh
-        run: |
-          echo "yaml changed"
+      - name: Dotnet test
+        id: dotnet-test
+        uses: ./.github/workflows/composites/test-action
+        with:
+          dotnetCacheKey: dotnet-build-${{ github.sha }}
 
-  #     - name: Dotnet build
-  #       id: dotnet-build
-  #       uses: ./.github/workflows/composites/build-action
-  #       with:
-  #         dotnetCacheKey: dotnet-build-${{ github.sha }}
-  #       env:
-  #         NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
-
-  # run-dotnet-tests:
-  #   needs: [run-build]
-  #   name: .NET Tests
-  #   runs-on: windows-latest
-  #   steps:
-  #     - name: Checkout Repository
-  #       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-  #     - name: Dotnet test
-  #       id: dotnet-test
-  #       uses: ./.github/workflows/composites/test-action
-  #       with:
-  #         dotnetCacheKey: dotnet-build-${{ github.sha }}
-
-  # run-code-analysis:
-  #   needs: [run-build]
-  #   uses: ./.github/workflows/codeql.yml
-  #   secrets: inherit
+  run-code-analysis:
+    needs: [run-build]
+    uses: ./.github/workflows/codeql.yml
+    secrets: inherit
+    with:
+      dotnetScan: ${{ contains(needs.run-build.outputs.extensions, 'sln') || contains(needs.run-build.outputs.extensions, 'csproj') || contains(needs.run-build.outputs.extensions, 'cs') || contains(needs.run-build.outputs.extensions, 'props')}}
+      javascriptScan: ${{ contains(needs.run-build.outputs.extensions, 'ts') || contains(needs.run-build.outputs.extensions, 'js')}}
