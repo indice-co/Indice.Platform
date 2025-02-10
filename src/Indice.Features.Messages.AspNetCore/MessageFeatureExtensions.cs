@@ -5,6 +5,7 @@ using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Swagger;
 using Indice.Events;
 using Indice.Features.Media.AspNetCore;
+using Indice.Features.Media.AspNetCore.Services.Hosting;
 using Indice.Features.Messages.AspNetCore.Authorization;
 using Indice.Features.Messages.AspNetCore.Services;
 using Indice.Features.Messages.Core;
@@ -168,6 +169,7 @@ public static class MessageFeatureExtensions
         // Register application DbContext.
         Action<IServiceProvider, DbContextOptionsBuilder> sqlServerConfiguration = (serviceProvider, builder) => builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("MessagesDb"));
         services.AddDbContext<CampaignsDbContext>(baseOptions.ConfigureDbContext ?? sqlServerConfiguration);
+        services.AddHostedService<DbInitializerHostedService>();
         return services;
     }
 

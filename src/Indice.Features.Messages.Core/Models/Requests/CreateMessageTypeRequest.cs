@@ -5,4 +5,6 @@ public class CreateMessageTypeRequest
 {
     /// <summary>The name of a campaign type.</summary>
     public string Name { get; set; } = null!;
+    /// <summary>The alias of the campaign type.</summary>
+    public string? Alias { get; set; }
 }

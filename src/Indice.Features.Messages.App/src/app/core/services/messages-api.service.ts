@@ -4707,6 +4707,7 @@ export interface ICreateMessageSenderRequest {
 
 export class CreateMessageTypeRequest implements ICreateMessageTypeRequest {
     name?: string;
+    alias?: string | undefined;
 
     constructor(data?: ICreateMessageTypeRequest) {
         if (data) {
@@ -4720,6 +4721,7 @@ export class CreateMessageTypeRequest implements ICreateMessageTypeRequest {
     init(_data?: any) {
         if (_data) {
             this.name = _data["name"];
+            this.alias = _data["alias"];
         }
     }
 
@@ -4733,16 +4735,19 @@ export class CreateMessageTypeRequest implements ICreateMessageTypeRequest {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name;
+        data["alias"] = this.alias;
         return data;
     }
 }
 
 export interface ICreateMessageTypeRequest {
     name?: string;
+    alias?: string | undefined;
 }
 
 export class CreateTemplateRequest implements ICreateTemplateRequest {
-    name?: string | undefined;
+    name?: string;
+    alias?: string | undefined;
     ignoreUserPreferences?: boolean;
     content?: { [key: string]: MessageContent; } | undefined;
     data?: any | undefined;
@@ -4759,6 +4764,7 @@ export class CreateTemplateRequest implements ICreateTemplateRequest {
     init(_data?: any) {
         if (_data) {
             this.name = _data["name"];
+            this.alias = _data["alias"];
             this.ignoreUserPreferences = _data["ignoreUserPreferences"];
             if (_data["content"]) {
                 this.content = {} as any;
@@ -4781,6 +4787,7 @@ export class CreateTemplateRequest implements ICreateTemplateRequest {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name;
+        data["alias"] = this.alias;
         data["ignoreUserPreferences"] = this.ignoreUserPreferences;
         if (this.content) {
             data["content"] = {};
@@ -4795,7 +4802,8 @@ export class CreateTemplateRequest implements ICreateTemplateRequest {
 }
 
 export interface ICreateTemplateRequest {
-    name?: string | undefined;
+    name?: string;
+    alias?: string | undefined;
     ignoreUserPreferences?: boolean;
     content?: { [key: string]: MessageContent; } | undefined;
     data?: any | undefined;
@@ -5188,6 +5196,7 @@ export interface IMessageSenderResultSet {
 export class MessageType implements IMessageType {
     id?: string;
     name?: string | undefined;
+    alias?: string | undefined;
     classification?: MessageTypeClassification;
 
     constructor(data?: IMessageType) {
@@ -5203,6 +5212,7 @@ export class MessageType implements IMessageType {
         if (_data) {
             this.id = _data["id"];
             this.name = _data["name"];
+            this.alias = _data["alias"];
             this.classification = _data["classification"];
         }
     }
@@ -5218,6 +5228,7 @@ export class MessageType implements IMessageType {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["name"] = this.name;
+        data["alias"] = this.alias;
         data["classification"] = this.classification;
         return data;
     }
@@ -5226,6 +5237,7 @@ export class MessageType implements IMessageType {
 export interface IMessageType {
     id?: string;
     name?: string | undefined;
+    alias?: string | undefined;
     classification?: MessageTypeClassification;
 }
 
@@ -5389,6 +5401,7 @@ export interface IProblemDetails {
 export class Template implements ITemplate {
     id?: string;
     name?: string | undefined;
+    alias?: string | undefined;
     ignoreUserPreferences?: boolean;
     createdBy?: string | undefined;
     createdAt?: Date;
@@ -5410,6 +5423,7 @@ export class Template implements ITemplate {
         if (_data) {
             this.id = _data["id"];
             this.name = _data["name"];
+            this.alias = _data["alias"];
             this.ignoreUserPreferences = _data["ignoreUserPreferences"];
             this.createdBy = _data["createdBy"];
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
@@ -5437,6 +5451,7 @@ export class Template implements ITemplate {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["name"] = this.name;
+        data["alias"] = this.alias;
         data["ignoreUserPreferences"] = this.ignoreUserPreferences;
         data["createdBy"] = this.createdBy;
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
@@ -5457,6 +5472,7 @@ export class Template implements ITemplate {
 export interface ITemplate {
     id?: string;
     name?: string | undefined;
+    alias?: string | undefined;
     ignoreUserPreferences?: boolean;
     createdBy?: string | undefined;
     createdAt?: Date;
@@ -5469,6 +5485,7 @@ export interface ITemplate {
 export class TemplateListItem implements ITemplateListItem {
     id?: string;
     name?: string | undefined;
+    alias?: string | undefined;
     ignoreUserPreferences?: boolean;
     createdBy?: string | undefined;
     createdAt?: Date;
@@ -5489,6 +5506,7 @@ export class TemplateListItem implements ITemplateListItem {
         if (_data) {
             this.id = _data["id"];
             this.name = _data["name"];
+            this.alias = _data["alias"];
             this.ignoreUserPreferences = _data["ignoreUserPreferences"];
             this.createdBy = _data["createdBy"];
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
@@ -5513,6 +5531,7 @@ export class TemplateListItem implements ITemplateListItem {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["name"] = this.name;
+        data["alias"] = this.alias;
         data["ignoreUserPreferences"] = this.ignoreUserPreferences;
         data["createdBy"] = this.createdBy;
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
@@ -5530,6 +5549,7 @@ export class TemplateListItem implements ITemplateListItem {
 export interface ITemplateListItem {
     id?: string;
     name?: string | undefined;
+    alias?: string | undefined;
     ignoreUserPreferences?: boolean;
     createdBy?: string | undefined;
     createdAt?: Date;
@@ -5832,6 +5852,7 @@ export interface IUpdateMessageSenderRequest {
 
 export class UpdateMessageTypeRequest implements IUpdateMessageTypeRequest {
     name?: string;
+    alias?: string | undefined;
 
     constructor(data?: IUpdateMessageTypeRequest) {
         if (data) {
@@ -5845,6 +5866,7 @@ export class UpdateMessageTypeRequest implements IUpdateMessageTypeRequest {
     init(_data?: any) {
         if (_data) {
             this.name = _data["name"];
+            this.alias = _data["alias"];
         }
     }
 
@@ -5858,16 +5880,19 @@ export class UpdateMessageTypeRequest implements IUpdateMessageTypeRequest {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name;
+        data["alias"] = this.alias;
         return data;
     }
 }
 
 export interface IUpdateMessageTypeRequest {
     name?: string;
+    alias?: string | undefined;
 }
 
 export class UpdateTemplateRequest implements IUpdateTemplateRequest {
     name?: string | undefined;
+    alias?: string | undefined;
     content?: { [key: string]: MessageContent; } | undefined;
     data?: any | undefined;
 
@@ -5883,6 +5908,7 @@ export class UpdateTemplateRequest implements IUpdateTemplateRequest {
     init(_data?: any) {
         if (_data) {
             this.name = _data["name"];
+            this.alias = _data["alias"];
             if (_data["content"]) {
                 this.content = {} as any;
                 for (let key in _data["content"]) {
@@ -5904,6 +5930,7 @@ export class UpdateTemplateRequest implements IUpdateTemplateRequest {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name;
+        data["alias"] = this.alias;
         if (this.content) {
             data["content"] = {};
             for (let key in this.content) {
@@ -5918,6 +5945,7 @@ export class UpdateTemplateRequest implements IUpdateTemplateRequest {
 
 export interface IUpdateTemplateRequest {
     name?: string | undefined;
+    alias?: string | undefined;
     content?: { [key: string]: MessageContent; } | undefined;
     data?: any | undefined;
 }

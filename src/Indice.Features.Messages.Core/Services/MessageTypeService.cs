@@ -25,13 +25,15 @@ public class MessageTypeService : IMessageTypeService
     public async Task<MessageType> Create(CreateMessageTypeRequest request) {
         var messageType = new DbMessageType {
             Id = Guid.NewGuid(),
-            Name = request.Name
+            Name = request.Name.Trim(),
+            Alias = string.IsNullOrWhiteSpace(request.Alias) ? null : request.Alias.Trim()
         };
         DbContext.MessageTypes.Add(messageType);
         await DbContext.SaveChangesAsync();
         return new MessageType {
             Id = messageType.Id,
             Name = messageType.Name,
+            Alias = messageType.Alias,
             Classification = messageType.Classification,
         };
     }
@@ -44,27 +46,34 @@ public class MessageTypeService : IMessageTypeService
     }
 
     /// <inheritdoc />
-    public async Task<MessageType?> GetById(Guid? id) {
-        var messageType = await DbContext.MessageTypes.FindAsync(id);
+    public async Task<MessageType?> GetById(GuidOrAlias? id) {
+        DbMessageType? messageType = null;
+        if (id.HasValue && id.Value.IsGuid) {
+            messageType = await DbContext.MessageTypes.FindAsync(id.Value.Uuid);
+        } else if (id.HasValue) {
+            messageType = await DbContext.MessageTypes.Where(x => x.Alias == id.Value.Value).FirstOrDefaultAsync();
+        }
         if (messageType is null) {
             return default;
         }
         return new MessageType {
             Id = messageType.Id,
             Name = messageType.Name,
+            Alias = messageType.Alias,
             Classification = messageType.Classification
         };
     }
 
     /// <inheritdoc />
     public async Task<MessageType?> GetByName(string name) {
-        var messageType = await DbContext.MessageTypes.Where(x => x.Name == name).FirstOrDefaultAsync();
+        var messageType = await DbContext.MessageTypes.Where(x => x.Name == name.Trim()).FirstOrDefaultAsync();
         if (messageType is null) {
             return default;
         }
         return new MessageType {
             Id = messageType.Id,
             Name = messageType.Name,
+            Alias = messageType.Alias,
             Classification = messageType.Classification
         };
     }
@@ -77,10 +86,14 @@ public class MessageTypeService : IMessageTypeService
             .Select(campaignType => new MessageType {
                 Id = campaignType.Id,
                 Name = campaignType.Name,
+                Alias = campaignType.Alias,
                 Classification = campaignType.Classification
             });
-        if (!string.IsNullOrWhiteSpace(options.Search)) {
-            query = query.Where(x => x.Name!.ToLower().Contains(options.Search.ToLower()));
+        if (!string.IsNullOrWhiteSpace(options.Search) && options.Search.Length > 2) {
+            query = query.Where(x =>
+            x.Name!.ToLower().Contains(options.Search.ToLower()) ||
+            x.Alias!.ToLower().Contains(options.Search.ToLower())
+            );
         }
         return query.ToResultSetAsync(options);
     }
@@ -89,6 +102,13 @@ public class MessageTypeService : IMessageTypeService
     public async Task Update(Guid id, UpdateMessageTypeRequest request) {
         var messageType = await DbContext.MessageTypes.FindAsync(id) ?? throw MessageExceptions.MessageTypeNotFound(id);
         messageType.Name = request.Name;
+        messageType.Alias = string.IsNullOrWhiteSpace(request.Alias) ? null : request.Alias.Trim();
+        if (!string.IsNullOrWhiteSpace(messageType.Alias)) {
+            var existingAlias = await GetById((GuidOrAlias)messageType.Alias);
+            if (existingAlias != null && existingAlias.Id != id) {
+                throw MessageExceptions.MessageTypeAliasExists(messageType.Alias);
+            }
+        }
         await DbContext.SaveChangesAsync();
     }
 }

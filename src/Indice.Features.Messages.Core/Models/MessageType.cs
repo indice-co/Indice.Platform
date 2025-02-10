@@ -7,6 +7,8 @@ public class MessageType
     public Guid Id { get; set; }
     /// <summary>The name of a campaign type.</summary>
     public string? Name { get; set; }
+    /// <summary>The alias of a campaign type.</summary>
+    public string? Alias { get; set; }
     /// <summary>The kind of the notification allowed .</summary>
     public MessageTypeClassification Classification { get; set; }
 }

@@ -12,7 +12,7 @@ public interface ITemplateService
     Task<Template> Create(CreateTemplateRequest request);
     /// <summary>Gets a template by it's unique id.</summary>
     /// <param name="id">The id of the template.</param>
-    Task<Template?> GetById(Guid? id);
+    Task<Template?> GetById(GuidOrAlias? id);
     /// <summary>Gets a list of all available templates.</summary>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
     Task<ResultSet<TemplateListItem>> GetList(ListOptions options);
@@ -27,4 +27,8 @@ public interface ITemplateService
     /// <param name="id">The id of the template.</param>
     /// <param name="ignoreUserPreferences">Value for flag IgnoreUserPreferences.</param>
     Task UpdateIgnreUserPreferences(Guid id, bool ignoreUserPreferences);
+
+    /// <summary>Checks if a template with the provided name exists</summary>
+    /// <param name="name">The name of the template.</param>
+    Task<bool> ExistsByName(string name);
 }

@@ -36,6 +36,7 @@
            [(ngModel)]="model.name"
            placeholder="Το όνομα του προτύπου..."
            required
+           maxlength="256"
            #templateName="ngModel">
   </div>
   <p *ngIf="templateName.invalid && (templateName.dirty || templateName.touched)"
@@ -44,6 +45,24 @@
     <span *ngIf="templateName.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο τίτλο.</span>
   </p>
   <p class="field-info col-span-3">Η ονομασία η οποία θα εμφανίζεται για την καμπάνια.</p>
+  <label for="templateAlias"
+         class="field-label">
+    Alias
+  </label>
+  <div class="mt-1 flex rounded-sm">
+    <input class="w-full"
+           type="text"
+           name="templateAlias"
+           id="templateAlias"
+           [(ngModel)]="model.alias"
+           placeholder="Το alias του προτύπου..."
+           maxlength="64"
+           #templateAlias="ngModel">
+  </div>
+  <p *ngIf="templateAlias.invalid && (templateAlias.dirty || templateAlias.touched)"
+     class="mt-2 text-sm text-red-600">
+    <span *ngIf="templateAlias.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο alias.</span>
+  </p>
 </ng-template>
 
 
