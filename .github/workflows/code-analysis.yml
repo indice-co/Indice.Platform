@@ -19,6 +19,7 @@ jobs:
           $files = git diff-tree --no-commit-id --name-only -r $latestCommit
           $extensions = $files -match '\.(\w+)$' | ForEach-Object { ($_ -split '\.')[-1] } | Sort-Object -Unique
           $extensionString = $extensions -join ' '
+          echo "$extensionString"
           echo "extensions=$extensionString" | Out-File -FilePath $env:GITHUB_ENV -Append
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
