@@ -48,4 +48,3 @@ jobs:
     needs: [run-build]
     uses: ./.github/workflows/codeql.yml
     secrets: inherit
-
