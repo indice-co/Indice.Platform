@@ -15,7 +15,8 @@ jobs:
         id: changed-files
         shell: pwsh
         run: |
-          $files = gh pr view ${{ github.event.pull_request.number }} --json files --jq '.files[].path'
+          $latestCommit = git rev-parse HEAD
+          $files = git diff-tree --no-commit-id --name-only -r $latestCommit
           $extensions = $files -match '\.(\w+)$' | ForEach-Object { ($_ -split '\.')[-1] } | Sort-Object -Unique
           $extensionString = $extensions -join ' '
           echo "extensions=$extensionString" | Out-File -FilePath $env:GITHUB_ENV -Append
