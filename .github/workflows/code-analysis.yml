@@ -26,17 +26,21 @@ jobs:
           $jsFiles = ($extensions | Where-Object { $jsExts -contains $_ }) ? 'true' : 'false'
           echo "dotnetFilesChanged=$dotnetFiles" | Out-File -FilePath $env:GITHUB_ENV -Append
           echo "javascriptFilesChanged=$jsFiles" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "::set-output name=dotnetFilesChanged::$dotnetFiles"
+          echo "::set-output name=javascriptFilesChanged::$jsFiles"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  test-env:
+    runs-on: windows-latest
+    needs: [run-build]
+    steps:
       - name: Test echo
         id: testEcho
         shell: pwsh
         run: |
-          Write-Output "DOTNET CHANGED: $env:dotnetFilesChanged"
-          Write-Output "JS CHANGED: $env:javascriptFilesChanged"
-
-          
+          echo "dotnetFilesChanged: ${{ needs.run-build.outputs.dotnetFilesChanged }}"
+          echo "javascriptFilesChanged: ${{ needs.run-build.outputs.javascriptFilesChanged }}"
 
       # - name: Dotnet build
       #   if: contains(env.ex, 'sln') || contains(env.extensions, 'csproj') || contains(env.extensions, 'cs') || contains(env.extensions, 'props')
