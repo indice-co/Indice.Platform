@@ -54,6 +54,7 @@ import { TemplateDetailsEditRightpaneComponent } from './features/templates/edit
 import { TemplateEditComponent } from './features/templates/edit/template-edit.component';
 import { TemplatesComponent } from './features/templates/templates.component';
 import { FileUploadComponent } from './shared/components/file-upload/file-upload.component';
+import { MultiFileUploadComponent } from './shared/components/multi-file-upload/multi-file-upload.component';
 import { CampaignAttachmentsComponent } from './features/campaigns/create/steps/attachments/campaign-attachments.component';
 import { CampaignAttachmentsEditRightpaneComponent } from './features/campaigns/edit/details/rightpane/campaign-edit-attachments-rightpane.component';
 import * as app from 'src/app/core/models/settings';
@@ -153,6 +154,7 @@ if (app.settings.tenantId) {
     ListContactCreateComponent,
     HttpStatusComponent,
     FileUploadComponent,
+    MultiFileUploadComponent,
     CampaignAttachmentsComponent,
     CampaignAttachmentsEditRightpaneComponent,
     SettingsComponent,

@@ -9,77 +9,75 @@ export class FileUploadComponent implements OnInit {
     @Input() maxSize?: number;
     @Input() accept: string = '';
     @Input() extendedView: boolean = false;
-    @Input() existingFiles: IAttachment[] = [];
-    @Output() filesChange = new EventEmitter<IAttachment[]>();
+    @Input() existingFile: IAttachment | undefined;
+    @Output() fileChange = new EventEmitter<IAttachment | undefined>();
 
     public sizeLimitReached: boolean = false;
     public maxSizeText?: string;
-    public files: IAttachment[] = [];
+    public file?: IAttachment;
 
     constructor() { }
 
     ngOnInit(): void {
-        if (this.existingFiles.length) {
-            this.files = [...this.existingFiles];
+        if (this.existingFile) {
+            this.file = JSON.parse(JSON.stringify(this.existingFile))
         }
-
         if (this.maxSize) {
-            this.maxSizeText = `${(this.maxSize / 1024 / 1024).toFixed(1)} MB`;
+            this.maxSizeText = `${Math.round((this.maxSize / 1024 / 1024) * 10) / 10} MB`
         }
     }
 
-    public clickElement(): void {
+    public clickElement() {
         this.sizeLimitReached = false;
+        this._fileInput?.nativeElement?.focus();
         this._fileInput?.nativeElement?.click();
     }
 
-    public onFilesAdded(): void {
-        const inputFiles = this._fileInput?.nativeElement.files;
-        if (!inputFiles) {
+    public onFilesAdded() {
+        if (this._fileInput?.nativeElement.files == null) {
+            return;
+        }
+        if (this.maxSize && this._fileInput?.nativeElement.files[0].size > this.maxSize) {
+            this.sizeLimitReached = true;
             return;
         }
 
-        const newFiles: IAttachment[] = [];
-        for (let i = 0; i < inputFiles.length; i++) {
-            const uploadedFile = inputFiles[i];
-
-            if (this.maxSize && uploadedFile.size > this.maxSize) {
-                this.sizeLimitReached = true;
-                continue;
+        const reader = new FileReader();
+        reader.onloadend = (evt) => {
+            if (this._fileInput?.nativeElement?.files == null) {
+                return;
             }
-
-            const attachment: IAttachment = {
+            let uploadedFile = this._fileInput?.nativeElement?.files[0];
+            this.file = <IAttachment>{
                 title: uploadedFile.name,
                 data: uploadedFile,
-                contentType: uploadedFile.type || 'unknown',
+                contentType: uploadedFile.type ? uploadedFile.type : 'unknown',
                 size: uploadedFile.size,
-                sizeText: `${(uploadedFile.size / 1024).toFixed(1)} KB`
+                sizeText: `${Math.round((uploadedFile.size / 1024) * 10) / 10} KB`
             };
+            this.fileChange.emit(this.file);
+        };
+        reader.readAsDataURL(this._fileInput?.nativeElement?.files[0]);
+    }
 
-            newFiles.push(attachment);
+    public removeFile() {
+        if (this._fileInput?.nativeElement?.files == null) {
+            return;
         }
-
-        this.files = [...this.files, ...newFiles];
-        this.filesChange.emit(this.files);
-
-        this.resetFileInput();
+        this._fileInput.nativeElement.value = null;
+        this.file = undefined;
+        this.fileChange.emit(this.file);
     }
 
-    public removeFile(index: number): void {
-        this.files.splice(index, 1);
-        this.filesChange.emit(this.files);
-    }
-
-    public reset(): void {
-        this.files = [...this.existingFiles];
-        this.resetFileInput();
-        this.filesChange.emit(this.files);
-    }
-
-    private resetFileInput(): void {
-        if (this._fileInput?.nativeElement) {
-            this._fileInput.nativeElement.value = null;
+    public reset() {
+        if (!this.existingFile) {
+            if (this._fileInput?.nativeElement) {
+                this._fileInput.nativeElement.value = null;
+            }
+            this.file = undefined;
+            return;
         }
+        this.file = JSON.parse(JSON.stringify(this.existingFile));
     }
 }
 

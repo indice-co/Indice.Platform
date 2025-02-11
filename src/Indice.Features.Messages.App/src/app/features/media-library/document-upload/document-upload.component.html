@@ -14,7 +14,7 @@
                         Τα επισυναπτόμενα αρχεία χρησιμοποιούνται μόνο εφόσον επιλεγεί ως κανάλι επικοινωνίας <strong>Inbox</strong> ή <strong>Email</strong>.
                     </span>
                     <div class="mt-10" *ngIf="!isLoading">
-                        <app-file-upload #fileUploadComponent [extendedView]="true" [maxSize]="6*1024*1024" (fileChange)="onFileChange($event)"></app-file-upload>
+                      <app-multi-file-upload #fileUploadComponent [extendedView]="true" [maxSize]="6*1024*1024" (filesChange)="onFileChange($event)"></app-multi-file-upload>
                     </div>
                 </div>
             </div>
