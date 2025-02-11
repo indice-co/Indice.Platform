@@ -1,4 +1,4 @@
-name: Pull Request Automation
+name: Branch protection
 
 on:
   pull_request:
