@@ -37,7 +37,7 @@ public class CreateTemplateRequestValidator : AbstractValidator<CreateTemplateRe
             .WithMessage($"Maximum length for alias is {TextSizePresets.S64} characters.")
             .MustAsync(async (alias, ct) => {
                 var aliasIsEmpty = string.IsNullOrWhiteSpace(alias);
-                var aliasExists = (!string.IsNullOrWhiteSpace(alias) && (await templateService.GetById((GuidOrAlias)alias)) is null);
+                var aliasExists = !string.IsNullOrWhiteSpace(alias) && (await templateService.GetById((GuidOrAlias)alias)) is null;
                 return aliasIsEmpty || aliasExists;
             })
             .WithMessage(x => $"There is already a template with the same alias '{x.Alias}'.");

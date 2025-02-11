@@ -69,7 +69,9 @@ public struct GuidOrAlias
         try {
             GuidOrAlias = Parse(base64);
             return true;
-        } catch {
+        } catch (FormatException) {
+            return false;
+        } catch (ArgumentNullException) {
             return false;
         }
     }

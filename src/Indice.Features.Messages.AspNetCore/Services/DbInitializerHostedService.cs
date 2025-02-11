@@ -1,4 +1,4 @@
-﻿﻿using Indice.Features.Media.Data;
+﻿using Indice.Features.Media.Data;
 using Indice.Features.Messages.Core.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -40,12 +40,17 @@ internal class DbInitializerHostedService : BackgroundService
         if (!_environment.IsDevelopment()) {
             return;
         }
+
         try {
             using var scope = _serviceScopeFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<CampaignsDbContext>();
             await context.Database.EnsureCreatedAsync();
+        } catch (DbUpdateException ex) {
+            _logger.LogError(ex, "DbInitializerHostedService Database update failed for CampaignsDbContext");
+        } catch (InvalidOperationException ex) {
+            _logger.LogError(ex, "DbInitializerHostedService Invalid operation in CampaignsDbContext");
         } catch (Exception ex) {
-            _logger.LogError(ex, "Failed to run CampaignsDbContext");
+            _logger.LogError(ex, "DbInitializerHostedService An unexpected error occurred in CampaignsDbContext");
         }
 
         try {
@@ -54,8 +59,12 @@ internal class DbInitializerHostedService : BackgroundService
             await context.Database.MigrateAsync();
             RelationalDatabaseCreator databaseCreator = (RelationalDatabaseCreator)context.Database.GetService<IDatabaseCreator>();
             await databaseCreator.CreateTablesAsync();
+        } catch (DbUpdateException ex) {
+            _logger.LogError(ex, "DbInitializerHostedService. Database update failed for MediaDbContext");
+        } catch (InvalidOperationException ex) {
+            _logger.LogError(ex, "DbInitializerHostedService. Invalid operation in MediaDbContext");
         } catch (Exception ex) {
-            _logger.LogError(ex, "Failed to run MediaDbContext");
+            _logger.LogError(ex, "DbInitializerHostedService. An unexpected error occurred in MediaDbContext");
         }
     }
 }
