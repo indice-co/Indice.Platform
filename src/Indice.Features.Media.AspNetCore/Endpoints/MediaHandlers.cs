@@ -38,7 +38,9 @@ internal static class MediaHandlers
         if (contentType == MediaTypeNames.Application.Octet && !string.IsNullOrEmpty(format)) {
             contentType = FileExtensions.GetMimeType($".{format}");
         }
-        if (contentType.StartsWith("image") && size > 0) {
+        if (contentType.StartsWith("image", StringComparison.OrdinalIgnoreCase) &&
+            !contentType.Equals(MediaTypeNames.Image.Svg, StringComparison.OrdinalIgnoreCase)
+            && size > 0) {
             using var image = Image.Load(data, out var imageFormat);
             // manipulate image resize to max side size.
             var maxSide = Math.Max(image.Width, image.Height);
