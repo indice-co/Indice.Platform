@@ -26,8 +26,8 @@ jobs:
           $jsFiles = ($extensions | Where-Object { $jsExts -contains $_ }) ? 'true' : 'false'
           echo "dotnetFilesChanged=$dotnetFiles" | Out-File -FilePath $env:GITHUB_ENV -Append
           echo "javascriptFilesChanged=$jsFiles" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo "::set-output name=dotnetFilesChanged::$dotnetFiles"
-          echo "::set-output name=javascriptFilesChanged::$jsFiles"
+          echo "echo "dotnetFilesChanged=$dotnetFiles" >>$GITHUB_OUTPUT"
+          echo "echo "javascriptFilesChanged=$jsFiles" >>$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
