@@ -57,10 +57,10 @@ public class TemplateService : ITemplateService
 
     /// <inheritdoc />
     public async Task<Template?> GetById(GuidOrAlias? id) {
-        if (id is null) {
+        if (id is null || id.Value == null) {
             return default;
         }
-        DbTemplate? template = id.Value.IsGuid ? 
+        DbTemplate? template = id.Value.IsGuid ?
             await DbContext.Templates.FindAsync(id.Value.Uuid) :
             await DbContext.Templates.FirstOrDefaultAsync(x => x.Alias == id.Value.Value);
 

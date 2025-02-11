@@ -49,8 +49,6 @@ internal class DbInitializerHostedService : BackgroundService
             _logger.LogError(ex, "DbInitializerHostedService Database update failed for CampaignsDbContext");
         } catch (InvalidOperationException ex) {
             _logger.LogError(ex, "DbInitializerHostedService Invalid operation in CampaignsDbContext");
-        } catch (Exception ex) {
-            _logger.LogError(ex, "DbInitializerHostedService An unexpected error occurred in CampaignsDbContext");
         }
 
         try {
@@ -63,8 +61,6 @@ internal class DbInitializerHostedService : BackgroundService
             _logger.LogError(ex, "DbInitializerHostedService. Database update failed for MediaDbContext");
         } catch (InvalidOperationException ex) {
             _logger.LogError(ex, "DbInitializerHostedService. Invalid operation in MediaDbContext");
-        } catch (Exception ex) {
-            _logger.LogError(ex, "DbInitializerHostedService. An unexpected error occurred in MediaDbContext");
-        }
+        } 
     }
 }
