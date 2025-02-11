@@ -129,7 +129,7 @@ public class DistributionListService : IDistributionListService
                 Id = list.Id,
                 Name = list.Name
             });
-        if (!string.IsNullOrWhiteSpace(options.Search)) {
+        if (!string.IsNullOrWhiteSpace(options.Search) && options.Search.Length > 2) {
             query = query.Where(x => x.Name!.ToLower().Contains(options.Search.ToLower()));
         }
         if (filter?.IsSystemGenerated is not null) {

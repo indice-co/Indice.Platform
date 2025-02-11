@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ToasterService, ToastType } from '@indice/ng-components';
-import { Subscription } from 'rxjs';
+import { EMPTY, Subscription, catchError } from 'rxjs';
 
 import { Template } from 'src/app/core/services/messages-api.service';
 import { TemplateEditStore } from '../../template-edit-store.service';
@@ -53,6 +53,11 @@ export class TemplateDetailsEditRightpaneComponent implements OnInit, AfterViewI
     if (this.action == 'editUserPreference') {
       this._updateTemplateSubscription = this._templateStore
         .updateUserPreference(this._templateId, this.model)
+        .pipe(
+          catchError((error: any) => {
+            this.submitInProgress = false;
+            return EMPTY;
+          }))
         .subscribe({
           next: () => {
             this.submitInProgress = false;
@@ -63,6 +68,11 @@ export class TemplateDetailsEditRightpaneComponent implements OnInit, AfterViewI
     } else {
       this._updateTemplateSubscription = this._templateStore
         .updateTemplate(this._templateId, this.model)
+        .pipe(
+          catchError((error: any) => {
+            this.submitInProgress = false;
+            return EMPTY;
+          }))
         .subscribe({
           next: () => {
             this.submitInProgress = false;

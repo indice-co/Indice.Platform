@@ -3,6 +3,7 @@ using Indice.Configuration;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
+using Indice.Types;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Features.Messages.Core.Services.Validators;
@@ -61,9 +62,9 @@ public class CampaignRequestValidator<TCampaignRequest> : AbstractValidator<TCam
             .WithMessage($"Campaign action URL is not valid.");
     }
 
-    private bool BeExistingTypeId(Guid? id) => _messageTypeService.GetById(id).Result is not null;
+    private bool BeExistingTypeId(GuidOrAlias? id) => _messageTypeService.GetById(id).Result is not null;
 
     private bool BeExistingDistributionListId(Guid? id) => _distributionListService.GetById(id).Result is not null;
 
-    private bool BeExistingTemplateId(Guid? id) => _templateService.GetById(id).Result is not null;
+    private bool BeExistingTemplateId(GuidOrAlias? id) => _templateService.GetById(id).Result is not null;
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
-import { AsyncSubject, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { AsyncSubject,  Observable } from 'rxjs';
+import {  map } from 'rxjs/operators';
 import { MessagesApiClient, Template, UpdateTemplateRequest, UpdateTemplateUserPreferencesRequest } from 'src/app/core/services/messages-api.service';
 
 @Injectable({
@@ -34,6 +34,7 @@ export class TemplateEditStore {
   public updateTemplate(templateId: string, template: Template): Observable<void> {
     const body = new UpdateTemplateRequest({
       name: template.name,
+      alias: template.alias,
       content: template.content,
       data: template.data
     });

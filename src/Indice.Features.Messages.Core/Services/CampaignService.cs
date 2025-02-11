@@ -36,7 +36,7 @@ public class CampaignService : ICampaignService
                 .Include(x => x.DistributionList)
                 .AsNoTracking()
                 .Select(Mapper.ProjectToCampaign);
-        if (!string.IsNullOrEmpty(options.Search)) {
+        if (!string.IsNullOrEmpty(options.Search) && options.Search.Length > 2) {
             var searchTerm = options.Search.Trim();
             query = query.Where(x => x.Title != null && x.Title.Contains(searchTerm));
         }

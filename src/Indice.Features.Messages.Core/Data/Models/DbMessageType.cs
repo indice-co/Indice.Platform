@@ -9,7 +9,9 @@ public class DbMessageType
     public Guid Id { get; set; } = Guid.NewGuid();
     /// <summary>The name of a message type.</summary>
     public string Name { get; set; } = null!;
-
+    /// <summary>The alias of the message type.</summary>
+    /// <remarks>Optional, but if set then the value must be Unique</remarks>
+    public string? Alias { get; set; }
     /// <summary>The kind of the notification allowed .</summary>
     public MessageTypeClassification Classification { get; set; }
 }
