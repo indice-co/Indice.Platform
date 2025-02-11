@@ -52,12 +52,10 @@ public class MessageTypeService : IMessageTypeService
             return default;
         }
 
-        DbMessageType? messageType = null;
-        if (id.Value.IsGuid) {
-            messageType = await DbContext.MessageTypes.FindAsync(id.Value.Uuid);
-        } else {
-            messageType = await DbContext.MessageTypes.FirstOrDefaultAsync(x => x.Alias == id.Value.Value);
-        }
+        DbMessageType? messageType = id.Value.IsGuid ? 
+            await DbContext.MessageTypes.FindAsync(id.Value.Uuid) :
+            await DbContext.MessageTypes.FirstOrDefaultAsync(x => x.Alias == id.Value.Value);
+
         if (messageType is null) {
             return default;
         }

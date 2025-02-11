@@ -57,13 +57,13 @@ public class TemplateService : ITemplateService
 
     /// <inheritdoc />
     public async Task<Template?> GetById(GuidOrAlias? id) {
-        DbTemplate? template = null;
-        if (id.HasValue && id.Value.IsGuid) {
-            template = await DbContext.Templates.FindAsync(id.Value.Uuid);
-        } else if (id.HasValue) {
-            template = await DbContext.Templates.FirstOrDefaultAsync(x => x.Alias == id.Value.Value);
+        if (id is null) {
+            return default;
         }
-        
+        DbTemplate? template = id.Value.IsGuid ? 
+            await DbContext.Templates.FindAsync(id.Value.Uuid) :
+            await DbContext.Templates.FirstOrDefaultAsync(x => x.Alias == id.Value.Value);
+
         if (template is null) {
             return default;
         }
@@ -85,9 +85,9 @@ public class TemplateService : ITemplateService
     public async Task<ResultSet<TemplateListItem>> GetList(ListOptions options) {
         var query = DbContext.Templates.AsQueryable();
         if (!string.IsNullOrWhiteSpace(options.Search) && options.Search.Length > 2) {
-            query = query.Where(x => 
+            query = query.Where(x =>
             x.Name!.ToLower().Contains(options.Search.ToLower()) ||
-            x.Alias!.ToLower().Contains(options.Search.ToLower()) 
+            x.Alias!.ToLower().Contains(options.Search.ToLower())
             );
         }
         var result = await query.ToResultSetAsync(options);
