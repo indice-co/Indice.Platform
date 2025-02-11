@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { catchError, EMPTY, tap } from 'rxjs';
-import { CreateMessageTypeRequest, MessagesApiClient, MessageType } from 'src/app/core/services/messages-api.service';
+import { CreateMessageTypeRequest, MessagesApiClient, MessageType, MessageTypeClassification } from 'src/app/core/services/messages-api.service';
 
 @Component({
   selector: 'app-message-type-create',
@@ -20,7 +20,8 @@ export class MessageTypeCreateComponent implements OnInit, AfterViewInit {
   ) { }
 
   public submitInProgress = false;
-  public model = new CreateMessageTypeRequest({ name: '', alias: undefined });
+  public model = new CreateMessageTypeRequest({ name: '', alias: undefined, classification: MessageTypeClassification.System });
+  public classifications = Object.values(MessageTypeClassification);
 
   public ngOnInit(): void { }
 

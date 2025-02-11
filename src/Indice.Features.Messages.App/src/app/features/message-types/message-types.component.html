@@ -16,13 +16,14 @@
                  (pageSizeChanged)="pageSizeChanged($event)"
                  (sortChanged)="sortChanged($event)"
                  (sortdirChanged)="sortdirChanged($event)">
-    <lib-list-column title="ΟΝΟΜΑ"
-                     [full-width]="true">
+    <lib-list-column title="ΟΝΟΜΑ" [full-width]="true">
       <ng-template let-item>{{ item.name }}</ng-template>
     </lib-list-column>
-    <lib-list-column title="ALIAS"
-                     [full-width]="true">
+    <lib-list-column title="ALIAS"  [full-width]="true">
       <ng-template let-item>{{ item.alias}}</ng-template>
+    </lib-list-column>
+    <lib-list-column title="ΚΑΤΗΓΟΡΙΑ">
+      <ng-template let-item>{{ item.classification}}</ng-template>
     </lib-list-column>
     <lib-list-column title="ΕΝΕΡΓΕΙΕΣ">
       <ng-template let-item>
@@ -30,7 +31,7 @@
            [routerLinkActive]="['']"
            [routerLinkActiveOptions]="{ exact: true }"
            [routerLink]="['', { outlets: { rightpane: ['edit-message-type', item.id] } }]"
-           class="nav-link-profile inline-flex items-center justify-center px-4 py-2 font-medium rounded-md sm:text-sm">
+           class="inline-flex items-center justify-center px-4 py-2 font-medium rounded-md sm:text-sm">
           <svg xmlns="http://www.w3.org/2000/svg"
                class="h-5 w-5"
                viewBox="0 0 20 20"

@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { catchError, EMPTY, Subscription } from 'rxjs';
-import { MessagesApiClient, MessageType, UpdateMessageTypeRequest } from 'src/app/core/services/messages-api.service';
+import { MessagesApiClient, MessageType, MessageTypeClassification, UpdateMessageTypeRequest } from 'src/app/core/services/messages-api.service';
 
 @Component({
   selector: 'app-message-type-edit',
@@ -24,7 +24,8 @@ export class MessageTypeEditComponent implements OnInit, AfterViewInit, OnDestro
 
   @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
   public submitInProgress = false;
-  public model = new UpdateMessageTypeRequest({ name: '', alias: undefined });
+  public model = new UpdateMessageTypeRequest({ name: '', alias: undefined, classification: MessageTypeClassification.System });
+  public classifications = Object.values(MessageTypeClassification);
 
   public ngOnInit(): void {
     this._messageTypeId = this._activatedRoute.snapshot.params['messageTypeId'];
@@ -33,6 +34,7 @@ export class MessageTypeEditComponent implements OnInit, AfterViewInit, OnDestro
       .subscribe((messageType: MessageType) => {
         this.model.name = messageType.name;
         this.model.alias = messageType.alias;
+        this.model.classification = messageType.classification;
       });
   }
 

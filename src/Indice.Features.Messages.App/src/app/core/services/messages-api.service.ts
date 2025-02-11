@@ -4708,6 +4708,7 @@ export interface ICreateMessageSenderRequest {
 export class CreateMessageTypeRequest implements ICreateMessageTypeRequest {
     name?: string;
     alias?: string | undefined;
+    classification?: MessageTypeClassification;
 
     constructor(data?: ICreateMessageTypeRequest) {
         if (data) {
@@ -4722,6 +4723,7 @@ export class CreateMessageTypeRequest implements ICreateMessageTypeRequest {
         if (_data) {
             this.name = _data["name"];
             this.alias = _data["alias"];
+            this.classification = _data["classification"];
         }
     }
 
@@ -4736,6 +4738,7 @@ export class CreateMessageTypeRequest implements ICreateMessageTypeRequest {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name;
         data["alias"] = this.alias;
+        data["classification"] = this.classification;
         return data;
     }
 }
@@ -4743,6 +4746,7 @@ export class CreateMessageTypeRequest implements ICreateMessageTypeRequest {
 export interface ICreateMessageTypeRequest {
     name?: string;
     alias?: string | undefined;
+    classification?: MessageTypeClassification;
 }
 
 export class CreateTemplateRequest implements ICreateTemplateRequest {
@@ -5853,6 +5857,7 @@ export interface IUpdateMessageSenderRequest {
 export class UpdateMessageTypeRequest implements IUpdateMessageTypeRequest {
     name?: string;
     alias?: string | undefined;
+    classification?: MessageTypeClassification;
 
     constructor(data?: IUpdateMessageTypeRequest) {
         if (data) {
@@ -5867,6 +5872,7 @@ export class UpdateMessageTypeRequest implements IUpdateMessageTypeRequest {
         if (_data) {
             this.name = _data["name"];
             this.alias = _data["alias"];
+            this.classification = _data["classification"];
         }
     }
 
@@ -5881,6 +5887,7 @@ export class UpdateMessageTypeRequest implements IUpdateMessageTypeRequest {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name;
         data["alias"] = this.alias;
+        data["classification"] = this.classification;
         return data;
     }
 }
@@ -5888,6 +5895,7 @@ export class UpdateMessageTypeRequest implements IUpdateMessageTypeRequest {
 export interface IUpdateMessageTypeRequest {
     name?: string;
     alias?: string | undefined;
+    classification?: MessageTypeClassification;
 }
 
 export class UpdateTemplateRequest implements IUpdateTemplateRequest {

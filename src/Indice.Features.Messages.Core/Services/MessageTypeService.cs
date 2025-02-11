@@ -26,7 +26,8 @@ public class MessageTypeService : IMessageTypeService
         var messageType = new DbMessageType {
             Id = Guid.NewGuid(),
             Name = request.Name.Trim(),
-            Alias = string.IsNullOrWhiteSpace(request.Alias) ? null : request.Alias.Trim()
+            Alias = string.IsNullOrWhiteSpace(request.Alias) ? null : request.Alias.Trim(),
+            Classification = request.Classification
         };
         DbContext.MessageTypes.Add(messageType);
         await DbContext.SaveChangesAsync();
@@ -102,6 +103,7 @@ public class MessageTypeService : IMessageTypeService
     public async Task Update(Guid id, UpdateMessageTypeRequest request) {
         var messageType = await DbContext.MessageTypes.FindAsync(id) ?? throw MessageExceptions.MessageTypeNotFound(id);
         messageType.Name = request.Name;
+        messageType.Classification = request.Classification;
         messageType.Alias = string.IsNullOrWhiteSpace(request.Alias) ? null : request.Alias.Trim();
         if (!string.IsNullOrWhiteSpace(messageType.Alias)) {
             var existingAlias = await GetById((GuidOrAlias)messageType.Alias);
