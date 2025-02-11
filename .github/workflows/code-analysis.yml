@@ -25,7 +25,15 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Test echo
+        if: contains(env.extensions, 'sln')
         id: testEcho
+        shell: pwsh
+        run: |
+          Write-Output "Changed file extensions: $env:extensions"
+
+      - name: Test echo not
+        if: contains(env.extensions, 'cs')
+        id: testEcho2
         shell: pwsh
         run: |
           Write-Output "Changed file extensions: $env:extensions"
