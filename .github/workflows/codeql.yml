@@ -108,8 +108,6 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@9e8d0789d4a0fa9ceb6b1738f7e269594bdd67f0 # v3.28.9
         with:
-          languages: ''
+          languages: 'go'
           config-file: ./.github/workflows/codeql/codeql-config.yml
         
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@9e8d0789d4a0fa9ceb6b1738f7e269594bdd67f0 # v3.28.9
