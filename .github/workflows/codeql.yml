@@ -18,7 +18,7 @@ jobs:
         id: changedFiles
         shell: pwsh
         run: |
-          $files = git diff --name-only HEAD^1 HEAD
+          $files = git diff --name-only ${{ github.event.before }} ${{ github.sha }}
           $extensions = $files | ForEach-Object { ($_ -match '\.(\w+)$') ? ($_ -split '\.')[-1].ToLower() : $null } | Where-Object { $_ } | Sort-Object -Unique
           $dotnetExts = @('sln', 'csproj', 'cs', 'props')
           $jsExts = @('js', 'ts', 'css', 'html')
