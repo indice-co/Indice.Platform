@@ -18,9 +18,9 @@ jobs:
         id: changedFiles
         shell: pwsh
         run: |
-          $files = gh pr view ${{ github.event.pull_request.number }} --json files --jq '.files[].path'
-          $extensions = $files -match '\.(\w+)$' | ForEach-Object { ($_ -split '\.')[-1].ToLower() } | Sort-Object -Unique
-          $dotnetExts = @('sln', 'csproj', 'cs', 'props')
+          $files = git diff --name-only HEAD^1 HEAD
+          $extensions = $files | ForEach-Object { ($_ -match '\.(\w+)$') ? ($_ -split '\.')[-1].ToLower() : $null } | Where-Object { $_ } | Sort-Object -Unique
+          $dotnetExts = @('sln', 'csproj', 'cs', 'props', yml)
           $jsExts = @('js', 'ts', 'css', 'html')
           $dotnetFiles = ($extensions | Where-Object { $dotnetExts -contains $_ }) ? 'true' : 'false'
           $jsFiles = ($extensions | Where-Object { $jsExts -contains $_ }) ? 'true' : 'false'
