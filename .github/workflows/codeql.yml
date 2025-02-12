@@ -25,9 +25,8 @@ jobs:
           $dotnetFiles = ($extensions | Where-Object { $dotnetExts -contains $_ }) ? 'true' : 'false'
           $jsFiles = ($extensions | Where-Object { $jsExts -contains $_ }) ? 'true' : 'false'
           echo "dotnetFilesChanged=$dotnetFiles" | Out-File -FilePath $env:GITHUB_ENV -Append
-          # echo "javascriptFilesChanged=$jsFiles" | Out-File -FilePath $env:GITHUB_ENV -Append
           echo "dotnetFilesChanged=$dotnetFiles" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-          echo "javascriptFilesChanged='true'" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          echo "javascriptFilesChanged=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
