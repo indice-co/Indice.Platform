@@ -18,7 +18,15 @@ jobs:
         id: changedFiles
         shell: pwsh
         run: |
-          $files = git diff --name-only ${{ github.event.before }} ${{ github.sha }}
+          if ($env:GITHUB_EVENT_NAME -eq 'pull_request') {
+              $files = git diff --name-only origin/${{ github.base_ref }}
+          } else {
+              if (${{ github.event.before }} -ne '0000000000000000000000000000000000000000') {
+                  $files = git diff --name-only ${{ github.event.before }} ${{ github.sha }}
+              } else {
+                  $files = git ls-tree --name-only -r ${{ github.sha }}
+              }
+          }
           $extensions = $files | ForEach-Object { ($_ -match '\.(\w+)$') ? ($_ -split '\.')[-1].ToLower() : $null } | Where-Object { $_ } | Sort-Object -Unique
           $dotnetExts = @('sln', 'csproj', 'cs', 'props')
           $jsExts = @('js', 'ts', 'css', 'html')
