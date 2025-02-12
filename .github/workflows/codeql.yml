@@ -25,9 +25,9 @@ jobs:
           $dotnetFiles = ($extensions | Where-Object { $dotnetExts -contains $_ }) ? 'true' : 'false'
           $jsFiles = ($extensions | Where-Object { $jsExts -contains $_ }) ? 'true' : 'false'
           echo "dotnetFilesChanged=$dotnetFiles" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo "javascriptFilesChanged=$jsFiles" | Out-File -FilePath $env:GITHUB_ENV -Append
+          # echo "javascriptFilesChanged=$jsFiles" | Out-File -FilePath $env:GITHUB_ENV -Append
           echo "dotnetFilesChanged=$dotnetFiles" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-          echo "javascriptFilesChanged=$jsFiles" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          echo "javascriptFilesChanged='true'" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -81,6 +81,7 @@ jobs:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
 
   run-codeql-javascript:
+    if: needs.get-changed-files.outputs.javascriptFilesChanged == 'true'
     needs: [get-changed-files, run-build]
     name: CodeQL (JavaScript)
     runs-on: windows-latest
