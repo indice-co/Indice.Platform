@@ -1,7 +1,7 @@
 name: Branch protection
 
 on:
-  push:
+  pull_request:
 
 jobs:
   get-changed-files:
@@ -18,16 +18,16 @@ jobs:
         id: changedFiles
         shell: pwsh
         run: |
-          # $files = gh pr view ${{ github.event.pull_request.number }} --json files --jq '.files[].path'
-          # $extensions = $files -match '\.(\w+)$' | ForEach-Object { ($_ -split '\.')[-1].ToLower() } | Sort-Object -Unique
-          # $dotnetExts = @('sln', 'csproj', 'cs', 'props')
-          # $jsExts = @('js', 'ts', 'css', 'html')
-          # $dotnetFiles = ($extensions | Where-Object { $dotnetExts -contains $_ }) ? 'true' : 'false'
-          # $jsFiles = ($extensions | Where-Object { $jsExts -contains $_ }) ? 'true' : 'false'
-          # echo "dotnetFilesChanged=$dotnetFiles" | Out-File -FilePath $env:GITHUB_ENV -Append
-          # echo "javascriptFilesChanged=$jsFiles" | Out-File -FilePath $env:GITHUB_ENV -Append
-          # echo "dotnetFilesChanged=$dotnetFiles" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-          # echo "javascriptFilesChanged=$jsFiles" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          $files = gh pr view ${{ github.event.pull_request.number }} --json files --jq '.files[].path'
+          $extensions = $files -match '\.(\w+)$' | ForEach-Object { ($_ -split '\.')[-1].ToLower() } | Sort-Object -Unique
+          $dotnetExts = @('sln', 'csproj', 'cs', 'props')
+          $jsExts = @('js', 'ts', 'css', 'html')
+          $dotnetFiles = ($extensions | Where-Object { $dotnetExts -contains $_ }) ? 'true' : 'false'
+          $jsFiles = ($extensions | Where-Object { $jsExts -contains $_ }) ? 'true' : 'false'
+          echo "dotnetFilesChanged=$dotnetFiles" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "javascriptFilesChanged=$jsFiles" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "dotnetFilesChanged=$dotnetFiles" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          echo "javascriptFilesChanged=$jsFiles" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
