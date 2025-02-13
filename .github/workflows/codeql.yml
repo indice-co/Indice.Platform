@@ -61,7 +61,7 @@ jobs:
           dotnetCacheKey: dotnet-build-${{ github.sha }}
 
   run-codeql-csharp:
-    if: needs.get-changed-files.outputs.dotnetFilesChanged == 'true'
+    if: always()
     needs: [get-changed-files, run-build]
     name: CodeQL (C#)
     runs-on: windows-latest
