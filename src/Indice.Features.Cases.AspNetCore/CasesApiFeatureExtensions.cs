@@ -161,6 +161,10 @@ public static class CasesApiFeatureExtensions
             options.UserClaimType = casesAdminOptions.UserClaimType;
             options.GroupIdClaimType = casesAdminOptions.GroupIdClaimType;
             options.ReferenceNumberEnabled = casesAdminOptions.ReferenceNumberEnabled;
+            
+            options.RequiredScope = casesAdminOptions.RequiredScope;
+            options.TinClaimType = casesAdminOptions.TinClaimType;
+            options.ReferenceIdClaimType = casesAdminOptions.ReferenceIdClaimType;
         });
 
         return mvcBuilder;
