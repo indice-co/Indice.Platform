@@ -4190,6 +4190,7 @@ export interface IContact {
 }
 
 export class ContactAnonymous implements IContactAnonymous {
+    recipientId?: string | undefined;
     salutation?: string | undefined;
     firstName?: string | undefined;
     lastName?: string | undefined;
@@ -4208,6 +4209,7 @@ export class ContactAnonymous implements IContactAnonymous {
 
     init(_data?: any) {
         if (_data) {
+            this.recipientId = _data["recipientId"];
             this.salutation = _data["salutation"];
             this.firstName = _data["firstName"];
             this.lastName = _data["lastName"];
@@ -4226,6 +4228,7 @@ export class ContactAnonymous implements IContactAnonymous {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["recipientId"] = this.recipientId;
         data["salutation"] = this.salutation;
         data["firstName"] = this.firstName;
         data["lastName"] = this.lastName;
@@ -4237,6 +4240,7 @@ export class ContactAnonymous implements IContactAnonymous {
 }
 
 export interface IContactAnonymous {
+    recipientId?: string | undefined;
     salutation?: string | undefined;
     firstName?: string | undefined;
     lastName?: string | undefined;
@@ -5695,6 +5699,7 @@ export interface IUpdateCampaignRequest {
 }
 
 export class UpdateContactRequest implements IUpdateContactRequest {
+    recipientId?: string | undefined;
     salutation?: string | undefined;
     firstName?: string | undefined;
     lastName?: string | undefined;
@@ -5717,6 +5722,7 @@ export class UpdateContactRequest implements IUpdateContactRequest {
 
     init(_data?: any) {
         if (_data) {
+            this.recipientId = _data["recipientId"];
             this.salutation = _data["salutation"];
             this.firstName = _data["firstName"];
             this.lastName = _data["lastName"];
@@ -5743,6 +5749,7 @@ export class UpdateContactRequest implements IUpdateContactRequest {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["recipientId"] = this.recipientId;
         data["salutation"] = this.salutation;
         data["firstName"] = this.firstName;
         data["lastName"] = this.lastName;
@@ -5762,6 +5769,7 @@ export class UpdateContactRequest implements IUpdateContactRequest {
 }
 
 export interface IUpdateContactRequest {
+    recipientId?: string | undefined;
     salutation?: string | undefined;
     firstName?: string | undefined;
     lastName?: string | undefined;

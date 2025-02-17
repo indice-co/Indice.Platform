@@ -3,6 +3,9 @@
 /// <summary>An anonymous contact not originating from any the existing connected resolvers.</summary>
 public class ContactAnonymous
 {
+    /// <summary>The recipient correlation code.</summary>
+    public string? RecipientId { get; set; }
+
     /// <summary>Contact salutation (Mr, Mrs etc).</summary>
     public string? Salutation { get; set; }
     /// <summary>The first name.</summary>
@@ -23,6 +26,7 @@ public class ContactAnonymous
         FullName = FullName,
         LastName = LastName,
         PhoneNumber = PhoneNumber,
-        Salutation = Salutation
+        Salutation = Salutation,
+        RecipientId = RecipientId 
     };
 }

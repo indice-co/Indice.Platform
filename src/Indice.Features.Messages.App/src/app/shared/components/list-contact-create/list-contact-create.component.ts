@@ -70,7 +70,8 @@ public onAddNewContact(searchTerm: string): void {
         contact.lastName = searchTerm.slice(contact.firstName.length).trim();
     }
     (<any>contact)._edit = true;
-    this.contactsCombobox.selectedItems.unshift(contact);
+  this.contactsCombobox.selectedItems.unshift(contact);
+  this.contactsCombobox.busy = true;
 }
 
 public submit(): void {

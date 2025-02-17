@@ -1,5 +1,6 @@
 ﻿using Indice.Features.Media.Data;
 using Indice.Features.Messages.Core.Data;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -57,6 +58,8 @@ internal class DbInitializerHostedService : BackgroundService
             await context.Database.MigrateAsync();
             RelationalDatabaseCreator databaseCreator = (RelationalDatabaseCreator)context.Database.GetService<IDatabaseCreator>();
             await databaseCreator.CreateTablesAsync();
+        } catch (SqlException ex) {
+            _logger.LogError(ex, "DbInitializerHostedService. Database update failed for MediaDbContext");
         } catch (DbUpdateException ex) {
             _logger.LogError(ex, "DbInitializerHostedService. Database update failed for MediaDbContext");
         } catch (InvalidOperationException ex) {
