@@ -214,7 +214,7 @@ internal class DefaultHealthCheckService : HealthCheckService
 
         public HealthCheckDataLogValue(string name, IReadOnlyDictionary<string, object> values) {
             _name = name;
-            _values = values.ToList();
+            _values = [.. values];
 
             // We add the name as a kvp so that you can filter by health check name in the logs.
             // This is the same parameter name used in the other logs.
@@ -280,7 +280,7 @@ internal struct ValueStopwatch
     /// <summary>
     /// Returns true if this instance is running or false otherwise.
     /// </summary>
-    public bool IsRunning => value > 0;
+    public readonly bool IsRunning => value > 0;
 
     /// <summary>
     /// Returns the elapsed time.
