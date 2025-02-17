@@ -125,105 +125,120 @@
                         <form #contactForm="ngForm"
                               (ngSubmit)="submit()">
                             <div class="px-4 space-y-2 pb-4">
-                                <div class="grid grid-cols-4 gap-1">
-                                    <!-- Προσφώνηση -->
-                                    <div class="col-span-4">
-                                        <label [for]="'salutation-' + item._index"
-                                               class="field-label">
-                                            Προσφώνηση
-                                        </label>
-                                        <div class="flex rounded-sm">
-                                            <input class="w-full"
-                                                   type="text"
-                                                   [name]="'salutation-' + item._index"
-                                                   [id]="'salutation-' + item._index"
-                                                   placeholder="Προσφώνηση..."
-                                                   [(ngModel)]="item.salutation"
-                                                   #salutation="ngModel">
-                                        </div>
-                                        <p class="field-info col-span-3">Η προσφώνηση (π.χ κύριε ή κ.).</p>
-                                    </div>
-                                    <!-- Όνομα -->
-                                    <div class="col-span-4">
-                                        <label [for]="'first-name-' + item._index"
-                                               class="field-label">
-                                            Όνομα
-                                        </label>
-                                        <div class="flex rounded-sm">
-                                            <input class="w-full"
-                                                   type="text"
-                                                   [name]="'first-name-' + item._index"
-                                                   [id]="'first-name-' + item._index"
-                                                   placeholder="Όνομα..."
-                                                   [(ngModel)]="item.firstName"
-                                                   #firstName="ngModel">
-                                        </div>
-                                    </div>
-                                    <!-- Επώνυμο -->
-                                    <div class="col-span-4">
-                                        <label [for]="'last-name-' + item._index"
-                                               class="field-label">
-                                            Επώνυμο
-                                        </label>
-                                        <div class="flex rounded-sm">
-                                            <input class="w-full"
-                                                   type="text"
-                                                   [name]="'last-name-' + item._index"
-                                                   [id]="'last-name-' + item._index"
-                                                   placeholder="Επώνυμο..."
-                                                   [(ngModel)]="item.lastName"
-                                                   #lastName="ngModel">
-                                        </div>
-                                    </div>
-                                    <!-- Όνομα Εμφάνισης -->
-                                    <div class="col-span-4">
-                                        <label [for]="'full-name-' + item._index"
-                                               class="field-label">
-                                            Όνομα Εμφάνισης
-                                        </label>
-                                        <div class="flex rounded-sm">
-                                            <input class="w-full"
-                                                   type="text"
-                                                   [name]="'full-name-' + item._index"
-                                                   [id]="'full-name-' + item._index"
-                                                   placeholder="Όνομα Εμφάνισης..."
-                                                   [(ngModel)]="item.fullName"
-                                                   #fullName="ngModel">
-                                        </div>
-                                    </div>
-                                    <!-- Email -->
-                                    <div class="col-span-4">
-                                        <label [for]="'email-' + item._index"
-                                               class="field-label">
-                                            Email
-                                        </label>
-                                        <div class="flex rounded-sm">
-                                            <input class="w-full"
-                                                   type="text"
-                                                   [name]="'email-' + item._index"
-                                                   [id]="'email-' + item._index"
-                                                   placeholder="Email..."
-                                                   [(ngModel)]="item.email"
-                                                   #email="ngModel">
-                                        </div>
-                                    </div>
-                                    <!-- Email -->
-                                    <div class="col-span-4">
-                                        <label [for]="'phone-number-' + item._index"
-                                               class="field-label">
-                                            Τηλέφωνο
-                                        </label>
-                                        <div class="flex rounded-sm">
-                                            <input class="w-full"
-                                                   type="text"
-                                                   [name]="'phone-number-' + item._index"
-                                                   [id]="'phone-number-' + item._index"
-                                                   placeholder="Τηλέφωνο..."
-                                                   [(ngModel)]="item.phoneNumber"
-                                                   #phoneNumber="ngModel">
-                                        </div>
-                                    </div>
+                              <div class="grid grid-cols-4 gap-1">
+                                <!-- Προσφώνηση -->
+                                <div class="col-span-4">
+                                  <label [for]="'salutation-' + item._index"
+                                         class="field-label">
+                                    Προσφώνηση
+                                  </label>
+                                  <div class="flex rounded-sm">
+                                    <input class="w-full"
+                                           type="text"
+                                           [name]="'salutation-' + item._index"
+                                           [id]="'salutation-' + item._index"
+                                           placeholder="Προσφώνηση..."
+                                           [(ngModel)]="item.salutation"
+                                           #salutation="ngModel">
+                                  </div>
+                                  <p class="field-info col-span-3">Η προσφώνηση (π.χ κύριε ή κ.).</p>
                                 </div>
+                                <!-- Όνομα -->
+                                <div class="col-span-4">
+                                  <label [for]="'first-name-' + item._index"
+                                         class="field-label">
+                                    Όνομα
+                                  </label>
+                                  <div class="flex rounded-sm">
+                                    <input class="w-full"
+                                           type="text"
+                                           [name]="'first-name-' + item._index"
+                                           [id]="'first-name-' + item._index"
+                                           placeholder="Όνομα..."
+                                           [(ngModel)]="item.firstName"
+                                           #firstName="ngModel">
+                                  </div>
+                                </div>
+                                <!-- Επώνυμο -->
+                                <div class="col-span-4">
+                                  <label [for]="'last-name-' + item._index"
+                                         class="field-label">
+                                    Επώνυμο
+                                  </label>
+                                  <div class="flex rounded-sm">
+                                    <input class="w-full"
+                                           type="text"
+                                           [name]="'last-name-' + item._index"
+                                           [id]="'last-name-' + item._index"
+                                           placeholder="Επώνυμο..."
+                                           [(ngModel)]="item.lastName"
+                                           #lastName="ngModel">
+                                  </div>
+                                </div>
+                                <!-- Όνομα Εμφάνισης -->
+                                <div class="col-span-4">
+                                  <label [for]="'full-name-' + item._index"
+                                         class="field-label">
+                                    Όνομα Εμφάνισης
+                                  </label>
+                                  <div class="flex rounded-sm">
+                                    <input class="w-full"
+                                           type="text"
+                                           [name]="'full-name-' + item._index"
+                                           [id]="'full-name-' + item._index"
+                                           placeholder="Όνομα Εμφάνισης..."
+                                           [(ngModel)]="item.fullName"
+                                           #fullName="ngModel">
+                                  </div>
+                                </div>
+                                <!-- Email -->
+                                <div class="col-span-4">
+                                  <label [for]="'email-' + item._index"
+                                         class="field-label">
+                                    Email
+                                  </label>
+                                  <div class="flex rounded-sm">
+                                    <input class="w-full"
+                                           type="text"
+                                           [name]="'email-' + item._index"
+                                           [id]="'email-' + item._index"
+                                           placeholder="Email..."
+                                           [(ngModel)]="item.email"
+                                           #email="ngModel">
+                                  </div>
+                                </div>
+                                <!-- Email -->
+                                <div class="col-span-4">
+                                  <label [for]="'phone-number-' + item._index"
+                                         class="field-label">
+                                    Τηλέφωνο
+                                  </label>
+                                  <div class="flex rounded-sm">
+                                    <input class="w-full"
+                                           type="text"
+                                           [name]="'phone-number-' + item._index"
+                                           [id]="'phone-number-' + item._index"
+                                           placeholder="Τηλέφωνο..."
+                                           [(ngModel)]="item.phoneNumber"
+                                           #phoneNumber="ngModel">
+                                  </div>
+                                </div><!-- Email -->
+                                <div class="col-span-4">
+                                    <label [for]="'recepient-id-' + item._index"
+                                           class="field-label">
+                                        Κωδικός επαφής
+                                    </label>
+                                  <div class="flex rounded-sm">
+                                    <input class="w-full"
+                                           type="text"
+                                           [name]="'recepient-id-' + item._index"
+                                           [id]="'recepient-id-' + item._index"
+                                           placeholder="Κωδικός επαφής..."
+                                           [(ngModel)]="item.recipientId"
+                                           #recipientId="ngModel">
+                                  </div>
+                                </div>
+                              </div>
                                 <button type="submit"
                                         [style.visibility]="'hidden'"
                                         #submitBtn>
