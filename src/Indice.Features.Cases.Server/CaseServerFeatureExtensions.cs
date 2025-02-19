@@ -27,15 +27,18 @@ public static class CaseServerFeatureExtensions
         var serverOptions = new CaseServerOptions(builder.Services);
         setupAction?.Invoke(serverOptions);
         builder.Services.AddCasesCore(options => {
+            options.ConfigureDbContext = serverOptions.ConfigureDbContext;
             options.DatabaseSchema = serverOptions.DatabaseSchema;
             options.RequiredScope = serverOptions.RequiredScope;
             options.UserClaimType = serverOptions.UserClaimType;
             options.GroupIdClaimType = serverOptions.GroupIdClaimType;
+            options.ReferenceNumberEnabled = serverOptions.ReferenceNumberEnabled;
         });
         // must run last in order not to override any explicit service declarations.
         builder.Services.AddCasesManagement(options => {
             options.ConfigureDbContext = serverOptions.ConfigureDbContext;
             options.DatabaseSchema = serverOptions.DatabaseSchema;
+            options.RequiredScope = serverOptions.RequiredScope;
             options.UserClaimType = serverOptions.UserClaimType;
             options.GroupIdClaimType = serverOptions.GroupIdClaimType;
             options.ReferenceNumberEnabled = serverOptions.ReferenceNumberEnabled;
