@@ -46,7 +46,7 @@ public static class MediaLibraryFeatureExtensions
         services.TryAddScoped<IFileServiceFactory, DefaultFileServiceFactory>(); // registers default fileservice factory plus no op fileservice
         // Register validators
         services.AddEndpointParameterFluentValidation(typeof(MediaLibraryApi).Assembly);
-        if (!apiOptions.UseSoftDelete) {
+        if (apiOptions.UseSoftDelete) {
             services.AddHostedService<FoldersCleanUpHostedService>();
             services.AddHostedService<FilesCleanUpHostedService>();
         }

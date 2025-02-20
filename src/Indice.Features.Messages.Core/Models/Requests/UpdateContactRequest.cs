@@ -3,6 +3,8 @@
 /// <summary>The request model used to update an existing contact.</summary>
 public class UpdateContactRequest
 {
+    /// <summary>The recipient correlation code.</summary>
+    public string? RecipientId { get; set; }
     /// <summary>Contact salutation (Mr, Mrs etc).</summary>
     public string? Salutation { get; set; }
     /// <summary>The first name.</summary>

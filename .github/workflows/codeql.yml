@@ -4,38 +4,10 @@ on:
   pull_request:
 
 jobs:
-  get-changed-files:
-    name: Check changed files
-    runs-on: windows-latest
-    outputs:
-      dotnetFilesChanged: ${{ steps.changedFiles.outputs.dotnetFilesChanged }}
-      javascriptFilesChanged: ${{ steps.changedFiles.outputs.javascriptFilesChanged }}
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Get changed files
-        id: changedFiles
-        shell: pwsh
-        run: |
-          $files = gh pr view ${{ github.event.pull_request.number }} --json files --jq '.files[].path'
-          $extensions = $files -match '\.(\w+)$' | ForEach-Object { ($_ -split '\.')[-1].ToLower() } | Sort-Object -Unique
-          $dotnetExts = @('sln', 'csproj', 'cs', 'props')
-          $jsExts = @('js', 'ts', 'css', 'html')
-          $dotnetFiles = ($extensions | Where-Object { $dotnetExts -contains $_ }) ? 'true' : 'false'
-          $jsFiles = ($extensions | Where-Object { $jsExts -contains $_ }) ? 'true' : 'false'
-          echo "dotnetFilesChanged=$dotnetFiles" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo "javascriptFilesChanged=$jsFiles" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo "dotnetFilesChanged=$dotnetFiles" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-          echo "javascriptFilesChanged=$jsFiles" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   run-build:
     name: .NET Build
-    if: needs.get-changed-files.outputs.dotnetFilesChanged == 'true'
+    if: always()
     runs-on: windows-latest
-    needs: [get-changed-files]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -49,8 +21,8 @@ jobs:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
 
   run-dotnet-tests:
-    needs: [get-changed-files, run-build]
-    if: needs.get-changed-files.outputs.dotnetFilesChanged == 'true'
+    needs: [run-build]
+    if: always()
     name: .NET Tests
     runs-on: windows-latest
     steps:
@@ -64,8 +36,8 @@ jobs:
           dotnetCacheKey: dotnet-build-${{ github.sha }}
 
   run-codeql-csharp:
-    if: needs.get-changed-files.outputs.dotnetFilesChanged == 'true'
-    needs: [get-changed-files, run-build]
+    if: always()
+    needs: [run-build]
     name: CodeQL (C#)
     runs-on: windows-latest
     steps:
@@ -81,8 +53,8 @@ jobs:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
 
   run-codeql-javascript:
-    if: needs.get-changed-files.outputs.javascriptFilesChanged == 'true'
-    needs: [get-changed-files, run-build]
+    if: always()
+    needs: [run-build]
     name: CodeQL (JavaScript)
     runs-on: windows-latest
     steps:
@@ -96,3 +68,4 @@ jobs:
           dotnetCacheKey: dotnet-build-${{ github.sha }}
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
+        
