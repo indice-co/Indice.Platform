@@ -9,6 +9,9 @@ public class DbTemplate : DbAuditableEntity
     public Guid Id { get; set; }
     /// <summary>The name of the template.</summary>
     public string Name { get; set; } = null!;
+    /// <summary>The alias of the message type.</summary>
+    /// <remarks>Optional, but if set then the value must be Unique</remarks>
+    public string? Alias { get; set; }
     /// <summary>Determines if the taemplate to be created from this template should ignore user communication preferences.</summary>
     /// <remarks>This option can be overridden at campaign level</remarks>
     public bool IgnoreUserPreferences { get; set; }

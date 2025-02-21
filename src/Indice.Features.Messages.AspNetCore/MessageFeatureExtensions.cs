@@ -5,6 +5,7 @@ using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Swagger;
 using Indice.Events;
 using Indice.Features.Media.AspNetCore;
+using Indice.Features.Media.AspNetCore.Services.Hosting;
 using Indice.Features.Messages.AspNetCore.Authorization;
 using Indice.Features.Messages.AspNetCore.Services;
 using Indice.Features.Messages.Core;
@@ -168,6 +169,7 @@ public static class MessageFeatureExtensions
         // Register application DbContext.
         Action<IServiceProvider, DbContextOptionsBuilder> sqlServerConfiguration = (serviceProvider, builder) => builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("MessagesDb"));
         services.AddDbContext<CampaignsDbContext>(baseOptions.ConfigureDbContext ?? sqlServerConfiguration);
+        services.AddHostedService<DbInitializerHostedService>();
         return services;
     }
 
@@ -241,6 +243,28 @@ public static class MessageFeatureExtensions
             options.TenantIdSelector = eventDispatcherOptions.TenantIdSelector;
             options.UseCompression = true;
         });
+    }
+
+    /// <summary>Adds <see cref="IEventDispatcher"/> using Azure Storage as a queuing mechanism.</summary>
+    /// <param name="options">Options used to configure the Campaigns API feature.</param>
+    /// <param name="configure">Configure the available options. Null to use defaults.</param>
+    public static void UseEventDispatcherAzureServiceBus(this MessageEndpointOptions options, Action<IServiceProvider, MessageEventDispatcherAzureOptions>? configure = null) {
+        options.Services!.AddEventDispatcherAzureServiceBus(Indice.Features.Messages.Core.KeyedServiceNames.EventDispatcherServiceKey,
+            (serviceProvider, options) => {
+                var eventDispatcherOptions = new MessageEventDispatcherAzureOptions {
+                    ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME),
+                    Enabled = true,
+                    EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
+                    ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!)
+                };
+                configure?.Invoke(serviceProvider, eventDispatcherOptions);
+                options.ClaimsPrincipalSelector = eventDispatcherOptions.ClaimsPrincipalSelector;
+                options.ConnectionString = eventDispatcherOptions.ConnectionString;
+                options.Enabled = eventDispatcherOptions.Enabled;
+                options.EnvironmentName = eventDispatcherOptions.EnvironmentName;
+                options.TenantIdSelector = eventDispatcherOptions.TenantIdSelector;
+                options.UseCompression = false;
+            });
     }
 
     /// <summary>Adds the Media Library feature.</summary>

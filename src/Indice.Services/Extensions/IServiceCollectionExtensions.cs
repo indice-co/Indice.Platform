@@ -1,10 +1,11 @@
 ﻿using System.Collections;
-using System.Reflection;
 using System.Security.Claims;
+using Azure.Messaging.ServiceBus;
 using Indice.Configuration;
 using Indice.Events;
 using Indice.Services;
 using Indice.Services.Yuboto;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -233,6 +234,44 @@ public static class IndiceServicesServiceCollectionExtensions
     public static IServiceCollection AddEventDispatcherAzure(this IServiceCollection services, string name, Action<IServiceProvider, EventDispatcherAzureOptions>? configure = null) {
         services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
         return services.AddKeyedTransient<IEventDispatcher, EventDispatcherAzure>(serviceKey: name, implementationFactory: (serviceProvider, serviceKey) => GetEventDispatcherAzure(serviceProvider, configure));
+    }
+
+    /// <summary>The factory that creates the default instance and configuration for <see cref="EventDispatcherAzure"/>.</summary>
+    private static readonly Func<object?, IServiceProvider, Action<IServiceProvider, EventDispatcherAzureServiceBusOptions>?, EventDispatcherAzureServiceBus> GetEventDispatcherAzureServiceBus = (serviceKey, serviceProvider, configure) => {
+        var options = new EventDispatcherAzureServiceBusOptions {
+            ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME),
+            Enabled = true,
+            EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
+            ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!)
+        };
+        configure?.Invoke(serviceProvider, options);
+        return new EventDispatcherAzureServiceBus(
+            serviceKey is null ? serviceProvider.GetRequiredService<ServiceBusClient>() : serviceProvider.GetRequiredKeyedService<ServiceBusClient>(serviceKey),
+            options.EnvironmentName,
+            options.Enabled,
+            options.UseCompression,
+            options.ClaimsPrincipalSelector,
+            options.TenantIdSelector!
+        );
+    };
+
+    /// <summary>Adds <see cref="IEventDispatcher"/> using Azure ServiceBus as a queuing mechanism.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="configure">Configure the available options. Null to use defaults.</param>
+    public static IServiceCollection AddEventDispatcherAzureServiceBus(this IServiceCollection services, Action<IServiceProvider, EventDispatcherAzureServiceBusOptions>? configure = null) {
+        services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
+        services.TryAddSingleton(serviceProvider => new ServiceBusClient(connectionString: serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME)!));
+        return services.AddTransient<IEventDispatcher, EventDispatcherAzureServiceBus>(serviceProvider => GetEventDispatcherAzureServiceBus(null, serviceProvider, configure));
+    }
+
+    /// <summary>Adds <see cref="IEventDispatcher"/> using Azure ServiceBus as a queuing mechanism.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="name">The key under which the specified implementation is registered.</param>
+    /// <param name="configure">Configure the available options. Null to use defaults.</param>
+    public static IServiceCollection AddEventDispatcherAzureServiceBus(this IServiceCollection services, string name, Action<IServiceProvider, EventDispatcherAzureServiceBusOptions>? configure = null) {
+        services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
+        services.TryAddKeyedSingleton(serviceKey: name, (serviceProvider, serviceKey) => new ServiceBusClient(connectionString: serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME)!));
+        return services.AddKeyedTransient<IEventDispatcher, EventDispatcherAzureServiceBus>(serviceKey: name, implementationFactory: (serviceProvider, serviceKey) => GetEventDispatcherAzureServiceBus(name, serviceProvider, configure));
     }
 
     /// <summary>Adds <see cref="IEventDispatcher"/> using an in-memory <seealso cref="Queue"/> as a backing store.</summary>

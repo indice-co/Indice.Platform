@@ -17,12 +17,12 @@ public class CampaignRequestBase
     public Period? ActivePeriod { get; set; }
     /// <summary>The base href to access the media.</summary>
     public string? MediaBaseHref { get; set; }
-    /// <summary>The id of the type this campaign belongs.</summary>
-    public Guid? TypeId { get; set; }
+    /// <summary>The id of the type or the Alias this campaign belongs.</summary>
+    public GuidOrAlias? TypeId { get; set; }
     /// <summary>The id of the distribution list.</summary>
     public Guid? RecipientListId { get; set; }
-    /// <summary>The Template to be used for the new Campaign.</summary>
-    public Guid? MessageTemplateId { get; set; }
+    /// <summary>The Template id or the Alias  to be used for the new Campaign.</summary>
+    public GuidOrAlias? MessageTemplateId { get; set; }
     /// <summary>Optional data for the campaign.</summary>
     public dynamic? Data { get; set; }
 }

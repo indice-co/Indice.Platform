@@ -4,9 +4,11 @@ using Indice.Security;
 using Indice.Serialization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
+using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
 using System.Text.Json;
@@ -53,7 +55,16 @@ public static class WebApplicationBuilderExtensions
             options.SerializerOptions.Converters.Add(new TypeConverterJsonAdapterFactory());
         });
         // Configure indice services
-        builder.Services.AddProblemDetails();
+        builder.Services.AddProblemDetails(options =>
+        {
+            options.CustomizeProblemDetails = context =>
+            {
+                context.ProblemDetails.Instance = $"{context.HttpContext.Request.Method} {context.HttpContext.Request.Path}";
+                context.ProblemDetails.Extensions.TryAdd("requestId", context.HttpContext.TraceIdentifier);
+                Activity? activity = context.HttpContext.Features.Get<IHttpActivityFeature>()?.Activity;
+                context.ProblemDetails.Extensions.TryAdd("traceId", activity?.Id);
+            };
+        });
         builder.Services.AddEndpointParameterFluentValidation(Assembly.GetEntryAssembly()!);
         builder.Services.AddGeneralSettings(builder.Configuration);
         return builder;

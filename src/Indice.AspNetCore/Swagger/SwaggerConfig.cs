@@ -352,6 +352,7 @@ public static class SwaggerConfig
         options.MapType<FilterClause>(() => new OpenApiSchema { Type = "string" });
         options.MapType<GeoPoint>(() => new OpenApiSchema { Type = "string" });
         options.MapType<Base64Id>(() => new OpenApiSchema { Type = "string" });
+        options.MapType<GuidOrAlias>(() => new OpenApiSchema { Type = "string" });
         options.MapType<Base64Host>(() => new OpenApiSchema { Type = "string" });
         options.CustomOperationIds(x => (x.ActionDescriptor as ControllerActionDescriptor)?.ActionName);
     }

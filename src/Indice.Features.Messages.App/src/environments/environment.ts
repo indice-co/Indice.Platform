@@ -6,7 +6,7 @@ export const environment = {
   api_url: 'https://localhost:2001/api',  //'https://messaging.indice.gr/api',
   auth_settings: {
     accessTokenExpiringNotificationTime: 60,
-    authority: 'https://localhost:2000',
+    authority: 'https://my.indice.gr',
     automaticSilentRenew: true,
     client_id: 'messaging-ui',
     filterProtocolClaims: true,

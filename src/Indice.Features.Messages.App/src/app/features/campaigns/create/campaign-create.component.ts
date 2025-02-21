@@ -8,10 +8,10 @@ import { CampaignContentComponent } from './steps/content/campaign-content.compo
 import { CampaignPreview } from './steps/preview/campaign-preview';
 import { CampaignPreviewComponent } from './steps/preview/campaign-preview.component';
 import { CampaignRecipientsComponent } from './steps/recipients/campaign-recipients.component';
-import { CreateCampaignRequest, MessagesApiClient, Period, Hyperlink, Campaign, MessageContent, Template, AttachmentLink, CreateCampaignResult } from 'src/app/core/services/messages-api.service';
+import { CreateCampaignRequest, MessagesApiClient, Period, Hyperlink, MessageContent, Template, CreateCampaignResult } from 'src/app/core/services/messages-api.service';
 import { CampaignAttachmentsComponent } from './steps/attachments/campaign-attachments.component';
-import { map, mergeMap } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { catchError, map, mergeMap } from 'rxjs/operators';
+import { EMPTY, of } from 'rxjs';
 
 @Component({
   selector: 'app-campaign-create',
@@ -72,7 +72,12 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
     const data = this._prepareDataToSubmit();
     this._api
       .createCampaign(data)
-      .pipe(mergeMap((result: CreateCampaignResult) => {
+      .pipe(
+        catchError((error: any) => {
+          this.submitInProgress = false;
+          return EMPTY;
+        }),
+        mergeMap((result: CreateCampaignResult) => {
         return this._attachmentsStep.attachment.value && result.campaignId
           ? this._api.uploadCampaignAttachment(result.campaignId, this._attachmentsStep.attachment.value).pipe(map(() => result))
           : of(result)

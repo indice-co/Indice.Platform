@@ -42,13 +42,13 @@ public class FilesCleanUpHostedService : BackgroundService
                         var mediaManager = serviceScope.ServiceProvider.GetRequiredService<MediaManager>();
                         await mediaManager.CleanUpFiles();
                     } catch (Exception exception) {
-                        _logger.LogError("Exception while removing expired logs: {Exception}", exception.Message);
+                        _logger.LogError(exception, "Exception while removing expired logs: {Exception}", exception.Message);
                     }
                 } catch (TaskCanceledException exception) {
-                    _logger.LogDebug("{ServiceName} was canceled. {Exception}", nameof(FilesCleanUpHostedService), exception.Message);
+                    _logger.LogDebug(exception, "{ServiceName} was canceled. {Exception}", nameof(FilesCleanUpHostedService), exception.Message);
                     break;
                 } catch (Exception exception) {
-                    _logger.LogDebug("An exception was thrown during {ServiceName} execution. {Exception}", nameof(FilesCleanUpHostedService), exception.Message);
+                    _logger.LogDebug(exception, "An exception was thrown during {ServiceName} execution. {Exception}", nameof(FilesCleanUpHostedService), exception.Message);
                     break;
                 }
             }

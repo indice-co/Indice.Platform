@@ -37,6 +37,7 @@ internal static class Mapper
         Type = campaign.Type != null ? new MessageType {
             Id = campaign.Type.Id,
             Name = campaign.Type.Name,
+            Alias = campaign.Type.Alias,
             Classification = campaign.Type.Classification
         } : null
     };
@@ -119,6 +120,7 @@ internal static class Mapper
         Type = campaign.Type != null ? new MessageType {
             Id = campaign.Type.Id,
             Name = campaign.Type.Name,
+            Alias = campaign.Type.Alias,
             Classification = campaign.Type.Classification
         } : null
     };

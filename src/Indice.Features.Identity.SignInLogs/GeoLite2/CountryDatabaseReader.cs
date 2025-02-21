@@ -2,7 +2,9 @@
 
 namespace Indice.Features.Identity.SignInLogs.GeoLite2;
 
-/// <summary></summary>
+/// <summary>
+/// A reader implementation for the GeoLite2 Country database.
+/// </summary>
 public sealed class CountryDatabaseReader : DatabaseReader
 {
     /// <summary></summary>

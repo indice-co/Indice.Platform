@@ -56,7 +56,7 @@ public class NotificationsManager(
             if (isGuid) {
                 typeId = typeGuid;
             } else {
-                var messageType = await GetMessageTypeByName(type);
+                var messageType = await GetMessageType(type);
                 if (messageType is null) {
                     return CreateCampaignResult.Fail("Specified type id is not valid.");
                 }
@@ -199,6 +199,13 @@ public class NotificationsManager(
             request.Data ??= template.Data;
             request.Content = template.Content;
         }
+        if (request.TypeId.HasValue) {
+            var messageType = await MessageTypeService.GetById(request.TypeId.Value);
+            if (messageType is null) {
+                return CreateCampaignResult.Fail("Specified type id is not valid.");
+            }
+            request.TypeId = messageType.Id;
+        }
         // Create campaign in the store.
         var createdCampaign = await CampaignService.Create(request);
         // Dispatch event that the campaign was created.
@@ -231,8 +238,13 @@ public class NotificationsManager(
     }
 
     /// <summary>Retrieves the campaign type with the specified name.</summary>
-    /// <param name="name">The name of the campaign type to look for.</param>
-    public Task<MessageType?> GetMessageTypeByName(string name) => MessageTypeService.GetByName(name);
+    /// <param name="name">The name or the alias of the campaign type to look for.</param>
+    public Task<MessageType?> GetMessageType(string name) {
+        var messageType = MessageTypeService.GetById((GuidOrAlias)name);
+        if (messageType != null) return messageType;
+        return MessageTypeService.GetByName(name);
+    }
+
 
     /// <summary>Gets a list of all available templates.</summary>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
