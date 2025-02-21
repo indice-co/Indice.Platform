@@ -56,7 +56,7 @@ public class EventDispatcherAzureServiceBus : IEventDispatcher
         }
         var sender = _serviceBusClient.CreateSender(queueName);
         var user = actingPrincipal ?? _claimsPrincipalSelector?.Invoke();
-        var payloadBytes = Array.Empty<byte>();
+        var payloadBytes;
         var contentType = MediaTypeNames.Application.Octet;
         // Special cases string, byte[] or stream.
         // if already in binary format mark it so it does not go through compression (twice)
