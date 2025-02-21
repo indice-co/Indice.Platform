@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Duende.AccessTokenManagement" Version="3.2.0" />
     <PackageReference Include="Elsa" Version="2.13.0" />
     <PackageReference Include="Elsa.Activities.Email" Version="2.13.0" />
     <PackageReference Include="Elsa.Activities.Http" Version="2.13.0" />

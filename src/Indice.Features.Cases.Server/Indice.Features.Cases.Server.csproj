@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Duende.AccessTokenManagement" Version="3.2.0" />
     <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefixCore)-*" />
     <PackageReference Include="Indice.Features.Cases.Core" Version="$(VersionPrefixCases)-*" />
   </ItemGroup>

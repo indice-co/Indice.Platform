@@ -17,10 +17,15 @@ public class WorkflowHttpServiceClient : ICasesWorkflowManager
     private readonly CaseSharedResourceService _caseSharedResourceService;
     
     /// <summary>WorkflowHttpServiceClient Constructor</summary>
-    public WorkflowHttpServiceClient(IHttpClientFactory factory, IConfiguration configuration, IOptions<CasesOptions> caseOptions, CaseSharedResourceService caseSharedResourceService) {
-        var httpClient = factory.CreateClient(nameof(WorkflowHttpServiceClient)) ?? throw new ArgumentNullException(nameof(WorkflowHttpServiceClient));
-        httpClient.BaseAddress = new Uri(configuration.GetHost() ?? throw new ArgumentNullException(nameof(configuration)));
-        _workflowApiClient = new WorkflowHttpClient(httpClient);
+    public WorkflowHttpServiceClient(
+        WorkflowHttpClient workflowApiClient,
+        IConfiguration configuration,
+        IOptions<CasesOptions> caseOptions,
+        CaseSharedResourceService caseSharedResourceService) {
+        // var httpClient = factory.CreateClient(nameof(WorkflowHttpServiceClient)) ?? throw new ArgumentNullException(nameof(WorkflowHttpServiceClient));
+        // httpClient.BaseAddress = new Uri(configuration.GetHost() ?? throw new ArgumentNullException(nameof(configuration)));
+        // _workflowApiClient = new WorkflowHttpClient(httpClient);
+        _workflowApiClient = workflowApiClient ?? throw new ArgumentNullException(nameof(workflowApiClient));
         _casesOptions = caseOptions.Value ?? throw new ArgumentNullException(nameof(caseOptions));
         _caseSharedResourceService = caseSharedResourceService ?? throw new ArgumentNullException(nameof(caseSharedResourceService));
     }

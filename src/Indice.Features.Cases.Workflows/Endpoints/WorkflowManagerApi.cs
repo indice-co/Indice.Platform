@@ -13,7 +13,9 @@ public static class WorkflowManagerApi
     /// <summary>Invoking Workflow Activities for blocked instances.</summary>
     public static IEndpointRouteBuilder MapWorkflowManager(this IEndpointRouteBuilder routes) {
         // todo: do we need options.PathPrefix here?
-        var group = routes.MapGroup("/api/workflow/manage");
+        var options = routes.ServiceProvider.GetRequiredService<IOptions<CasesWorkflowOptions>>().Value;
+
+        var group = routes.MapGroup($"{options.ServerBasePath}/api");
         group.WithGroupName("workflow");
         group.WithTags("Workflow");
 
@@ -47,7 +49,7 @@ public static class WorkflowManagerApi
             .WithName(nameof(WorkflowManagerHandler.GetRejectReasonsByCaseId))
             .WithSummary("Get the reject reasons for a case.");
 
-        group.AllowAnonymous(); //todo: konstantinos
+        group.AllowAnonymous();
         return group;
     }
 }

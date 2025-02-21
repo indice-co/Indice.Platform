@@ -1,4 +1,5 @@
-﻿using Elsa.Services;
+﻿using Elsa.Attributes;
+using Elsa.Services;
 using Indice.Features.Cases.Workflows.Activities;
 using Indice.Features.Cases.Workflows.Services;
 
@@ -11,7 +12,7 @@ public class AwaitAssignmentBookmark : IBookmark
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="role">The role to create the bookmark for.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public AwaitAssignmentBookmark(string caseId, string role) {
+    public AwaitAssignmentBookmark(string caseId, string? role = null) {
         Role = role;
         CaseId = string.IsNullOrEmpty(caseId) ? throw new ArgumentNullException(nameof(caseId), "CaseId cannot be null or empty.") : caseId;
     }
@@ -20,6 +21,7 @@ public class AwaitAssignmentBookmark : IBookmark
     public string CaseId { get; set; }
 
     /// <summary>The user role that can trigger the bookmark. Can be null for all authenticated users</summary>
+    [ExcludeFromHash]
     public string Role { get; set; }
 }
 

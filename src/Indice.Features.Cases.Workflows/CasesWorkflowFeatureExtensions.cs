@@ -148,13 +148,16 @@ public static class CasesWorkflowFeatureExtensions
         builder.Services.TryAddScoped<IAwaitEditInvoker, AwaitEditInvoker>();
         builder.Services.TryAddScoped<IAwaitAssignmentInvoker, AwaitAssignmentInvoker>();
         builder.Services.TryAddScoped<IAwaitActionInvoker, AwaitActionInvoker>();
-        builder.Services.AddTransient<LocalTokenProvider>();
-        builder.Services.AddHttpClient<CasesHttpClient>()
-            .ConfigureHttpClient((sp, client) => {
-                client.BaseAddress = new Uri(builder.Configuration.GetHost()!);
-                var tokenProvider = sp.GetRequiredService<LocalTokenProvider>();
-                client.SetBearerToken(tokenProvider.GetBearerToken());
-            });
+        builder.Services.AddClientCredentialsTokenManagement().AddClient("workflow", options => {
+            options.TokenEndpoint = builder.Configuration.GetAuthority(tryInternal: true) + "/connect/token";
+            options.ClientId = builder.Configuration.GetApiSecret("ClientId");
+            options.ClientSecret = builder.Configuration.GetApiSecret("ClientSecret");
+            options.Scope = builder.Configuration.GetApiResourceName();
+        });
+        builder.Services.AddHttpClient<CasesHttpClient>(httpClient => {
+                httpClient.BaseAddress = new(builder.Configuration.GetHost()!);
+            })
+            .AddClientCredentialsTokenHandler("cases");
 
         // Add authentication / authorization
         if (casesWorkflowOptions.RegisterAuthentication) {

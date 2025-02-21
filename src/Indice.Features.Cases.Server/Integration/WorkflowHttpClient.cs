@@ -86,8 +86,8 @@ namespace Indice.Features.Cases.Server.Integration
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "api/workflow/manage/{caseId}/reject-reasons"
-                    urlBuilder_.Append("api/workflow/manage/");
+                    // Operation Path: "workflow-actions/api/{caseId}/reject-reasons"
+                    urlBuilder_.Append("workflow-actions/api/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/reject-reasons");
 
@@ -175,8 +175,8 @@ namespace Indice.Features.Cases.Server.Integration
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "api/workflow/manage/actions/{caseId}"
-                    urlBuilder_.Append("api/workflow/manage/actions/");
+                    // Operation Path: "workflow-actions/api/actions/{caseId}"
+                    urlBuilder_.Append("workflow-actions/api/actions/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
 
                     PrepareRequest(client_, request_, urlBuilder_);
@@ -266,8 +266,8 @@ namespace Indice.Features.Cases.Server.Integration
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "api/workflow/manage/invoke/action"
-                    urlBuilder_.Append("api/workflow/manage/invoke/action");
+                    // Operation Path: "workflow-actions/api/invoke/action"
+                    urlBuilder_.Append("workflow-actions/api/invoke/action");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -351,8 +351,8 @@ namespace Indice.Features.Cases.Server.Integration
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "api/workflow/manage/invoke/approval"
-                    urlBuilder_.Append("api/workflow/manage/invoke/approval");
+                    // Operation Path: "workflow-actions/api/invoke/approval"
+                    urlBuilder_.Append("workflow-actions/api/invoke/approval");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -436,8 +436,8 @@ namespace Indice.Features.Cases.Server.Integration
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "api/workflow/manage/invoke/assign"
-                    urlBuilder_.Append("api/workflow/manage/invoke/assign");
+                    // Operation Path: "workflow-actions/api/invoke/assign"
+                    urlBuilder_.Append("workflow-actions/api/invoke/assign");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -521,8 +521,8 @@ namespace Indice.Features.Cases.Server.Integration
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "api/workflow/manage/invoke/edit"
-                    urlBuilder_.Append("api/workflow/manage/invoke/edit");
+                    // Operation Path: "workflow-actions/api/invoke/edit"
+                    urlBuilder_.Append("workflow-actions/api/invoke/edit");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -612,8 +612,8 @@ namespace Indice.Features.Cases.Server.Integration
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "api/workflow/manage/start-workflow"
-                    urlBuilder_.Append("api/workflow/manage/start-workflow");
+                    // Operation Path: "workflow-actions/api/start-workflow"
+                    urlBuilder_.Append("workflow-actions/api/start-workflow");
                     urlBuilder_.Append('?');
                     urlBuilder_.Append(System.Uri.EscapeDataString("caseId")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
                     urlBuilder_.Append(System.Uri.EscapeDataString("caseTypeCode")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(caseTypeCode, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
