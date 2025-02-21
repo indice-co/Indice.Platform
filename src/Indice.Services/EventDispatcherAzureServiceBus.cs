@@ -78,7 +78,7 @@ public class EventDispatcherAzureServiceBus : IEventDispatcher
                     ? JsonSerializer.Serialize(Envelope.Create(user!, payload, _tenantIdSelector()), _jsonSerializerOptions)
                     : JsonSerializer.Serialize(payload, _jsonSerializerOptions);
                 payloadBytes = Encoding.UTF8.GetBytes(jsonPayload);
-                contentType = MediaTypeNames.Application.Json;
+                contentType = $"{MediaTypeNames.Application.Json}; charset=utf-8";
                 break;
         }
         var maxTimeSpan = TimeSpan.FromDays(5);
