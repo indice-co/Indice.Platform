@@ -17,11 +17,12 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Import GPG Key
+        shell: pwsh
         run: |
           echo "test content" >> test-file.txt
           echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
           gpg --detach-sign --armor --batch --yes --pinentry-mode=loopback --passphrase "${{ secrets.GPG_PASSPHRASE }}" --local-user ${{ secrets.GPG_KEY_ID }} test-file.txt
-          ls -la
+          Get-ChildItem -Force
           cat test-file.txt
 
   #     - name: Dotnet build
