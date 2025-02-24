@@ -20,7 +20,7 @@ jobs:
         run: |
           echo "test content" >> test-file.txt
           echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
-          gpg --detach-sign --armor --batch --yes --passphrase "${{ secrets.GPG_PASSPHRASE }}" --local-user ${{ secrets.GPG_KEY_ID }} test-file.txt
+          gpg --detach-sign --armor --batch --yes --pinentry-mode=loopback --passphrase "${{ secrets.GPG_PASSPHRASE }}" --local-user ${{ secrets.GPG_KEY_ID }} test-file.txt
           cat test-file.txt
 
       # - name: Dotnet build
