@@ -122,7 +122,7 @@ jobs:
     - name: Sign nuget packages
       shell: pwsh
       run: |
-        dotnet nuget sign '**/Indice*.nupkg' --certificate-path ./signing-certificate.pfx --certificate-password ${{ secrets.PFX_SECRET }}
+        dotnet nuget sign '**/Indice*.nupkg' --certificate-path ./signing-certificate.pfx --certificate-password ${{ secrets.PFX_SECRET }} --timestamper http://timestamp.test
 
     # Push to NuGet
     - name: Push nuget packages
