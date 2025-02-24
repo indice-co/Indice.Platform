@@ -1,5 +1,8 @@
 name: "Publish to NuGet"
 
+permissions:
+  contents: read
+
 on:
   workflow_dispatch:
   # push:
