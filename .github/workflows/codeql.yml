@@ -6,6 +6,7 @@ permissions:
 on:
   pull_request:
   push:
+    branches: [ develop ]
 
 jobs:
   run-build:
