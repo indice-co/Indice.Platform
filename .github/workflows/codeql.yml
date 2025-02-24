@@ -20,9 +20,8 @@ jobs:
         run: |
           echo "test content" >> test-file.txt
           echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
-          echo "allow-preset-passphrase" >> ~/.gnupg/gpg-agent.conf
-          echo "${{ secrets.GPG_PASSPHRASE }}" | gpg --passphrase-fd 0 --batch --pinentry-mode loopback --preset-passphrase ${{ secrets.GPG_KEY_ID }}
           gpg --detach-sign --armor --batch --yes --passphrase "${{ secrets.GPG_PASSPHRASE }}" --local-user ${{ secrets.GPG_KEY_ID }} test-file.txt
+          cat test-file.txt
 
       # - name: Dotnet build
       #   id: dotnet-build
