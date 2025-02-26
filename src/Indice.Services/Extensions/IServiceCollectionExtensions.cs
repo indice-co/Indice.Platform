@@ -260,7 +260,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static IServiceCollection AddEventDispatcherAzureServiceBus(this IServiceCollection services, Action<IServiceProvider, EventDispatcherAzureServiceBusOptions>? configure = null) {
         services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
-        services.TryAddSingleton(serviceProvider => new ServiceBusClient(connectionString: serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME)!));
+        services.TryAddSingleton(serviceProvider => new ServiceBusClient(connectionString: serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME)!));
         return services.AddTransient<IEventDispatcher, EventDispatcherAzureServiceBus>(serviceProvider => GetEventDispatcherAzureServiceBus(null, serviceProvider, configure));
     }
 
@@ -270,7 +270,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static IServiceCollection AddEventDispatcherAzureServiceBus(this IServiceCollection services, string name, Action<IServiceProvider, EventDispatcherAzureServiceBusOptions>? configure = null) {
         services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
-        services.TryAddKeyedSingleton(serviceKey: name, (serviceProvider, serviceKey) => new ServiceBusClient(connectionString: serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME)!));
+        services.TryAddKeyedSingleton(serviceKey: name, (serviceProvider, serviceKey) => new ServiceBusClient(connectionString: serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME)!));
         return services.AddKeyedTransient<IEventDispatcher, EventDispatcherAzureServiceBus>(serviceKey: name, implementationFactory: (serviceProvider, serviceKey) => GetEventDispatcherAzureServiceBus(name, serviceProvider, configure));
     }
 
