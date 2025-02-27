@@ -2,6 +2,8 @@ name: "Publish to NuGet"
 
 permissions:
   contents: read
+  actions: read
+  checks: write
 
 on:
   workflow_dispatch:
