@@ -252,7 +252,7 @@ public static class MessageFeatureExtensions
         options.Services!.AddEventDispatcherAzureServiceBus(Indice.Features.Messages.Core.KeyedServiceNames.EventDispatcherServiceKey,
             (serviceProvider, options) => {
                 var eventDispatcherOptions = new MessageEventDispatcherAzureOptions {
-                    ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME),
+                    ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME),
                     Enabled = true,
                     EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
                     ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!)

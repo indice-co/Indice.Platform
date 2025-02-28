@@ -6,6 +6,7 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Azure.Messaging.ServiceBus;
+using Azure.Messaging.ServiceBus.Administration;
 using Indice.Extensions;
 using Indice.Serialization;
 using Indice.Types;
@@ -20,6 +21,7 @@ public class EventDispatcherAzureServiceBus : IEventDispatcher
     public const string CONNECTION_STRING_NAME = "ServiceBusConnection";
     private readonly string _environmentName;
     private readonly ServiceBusClient _serviceBusClient;
+    private readonly ServiceBusAdministrationClient _serviceBusAdministrationClient;
     private readonly bool _enabled;
     private readonly bool _useCompression;
     private readonly Func<ClaimsPrincipal> _claimsPrincipalSelector;
@@ -33,7 +35,14 @@ public class EventDispatcherAzureServiceBus : IEventDispatcher
     /// <param name="useCompression">When selected, applies Brotli compression algorithm in the queue message payload. Defaults to false.</param>
     /// <param name="claimsPrincipalSelector">Provides a way to access the current <see cref="ClaimsPrincipal"/> inside a service.</param>
     /// <param name="tenantIdSelector">Provides a way to access the current tenant id if any.</param>
-    public EventDispatcherAzureServiceBus(ServiceBusClient serviceBusClient, string environmentName, bool enabled, bool useCompression, Func<ClaimsPrincipal> claimsPrincipalSelector, Func<string> tenantIdSelector) {
+    /// <param name="serviceBusAdministrationClient"></param>
+    public EventDispatcherAzureServiceBus(ServiceBusClient serviceBusClient, 
+        ServiceBusAdministrationClient serviceBusAdministrationClient, 
+        string environmentName, 
+        bool enabled, 
+        bool useCompression, 
+        Func<ClaimsPrincipal> claimsPrincipalSelector, 
+        Func<string> tenantIdSelector) {
         _environmentName = Regex.Replace(environmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
         _serviceBusClient = serviceBusClient;
         _enabled = enabled;
@@ -41,6 +50,7 @@ public class EventDispatcherAzureServiceBus : IEventDispatcher
         _claimsPrincipalSelector = claimsPrincipalSelector ?? throw new ArgumentNullException(nameof(claimsPrincipalSelector));
         _tenantIdSelector = tenantIdSelector ?? new Func<string?>(() => null);
         _jsonSerializerOptions = JsonSerializerOptionDefaults.GetDefaultSettings(JavaScriptEncoder.UnsafeRelaxedJsonEscaping);
+        _serviceBusAdministrationClient = serviceBusAdministrationClient;
     }
 
     /// <inheritdoc/>
@@ -54,6 +64,7 @@ public class EventDispatcherAzureServiceBus : IEventDispatcher
         if (prependEnvironmentInQueueName) {
             queueName = $"{_environmentName}-{queueName}";
         }
+        await CreateQueueIfNotExists(queueName);
         var sender = _serviceBusClient.CreateSender(queueName);
         var user = actingPrincipal ?? _claimsPrincipalSelector?.Invoke();
         byte[] payloadBytes;
@@ -63,7 +74,7 @@ public class EventDispatcherAzureServiceBus : IEventDispatcher
         var isBinary = false;
         switch (payload) {
             case string text: payloadBytes = Encoding.UTF8.GetBytes(text); contentType = $"{MediaTypeNames.Text.Plain}; charset=utf-8"; break;
-            case byte[] bytes: payloadBytes = bytes; isBinary = true;  break;
+            case byte[] bytes: payloadBytes = bytes; isBinary = true; break;
             case ReadOnlyMemory<byte> memory: payloadBytes = memory.ToArray(); isBinary = true; break;
             case Stream stream:
                 await using (var memoryStream = new MemoryStream()) {
@@ -84,11 +95,21 @@ public class EventDispatcherAzureServiceBus : IEventDispatcher
         var maxTimeSpan = TimeSpan.FromDays(5);
         visibilityTimeout = visibilityTimeout.HasValue && visibilityTimeout.Value > maxTimeSpan ? maxTimeSpan : visibilityTimeout;
 
-        var message = (_useCompression && !isBinary) ? new ServiceBusMessage(new BinaryData(await CompressionUtils.Compress(payloadBytes))) 
+        var message = (_useCompression && !isBinary) ? new ServiceBusMessage(new BinaryData(await CompressionUtils.Compress(payloadBytes)))
                                                      : new ServiceBusMessage(new BinaryData(payloadBytes));
         message.ScheduledEnqueueTime = DateTimeOffset.UtcNow.Add(visibilityTimeout ?? TimeSpan.Zero);
         message.ContentType = contentType;
         await sender.SendMessageAsync(message);
+    }
+
+    private async Task CreateQueueIfNotExists(string queueName) {
+        // Check if the queue exists, create it if not
+        if (!await _serviceBusAdministrationClient.QueueExistsAsync(queueName)) {
+            await _serviceBusAdministrationClient.CreateQueueAsync(new CreateQueueOptions(queueName) {
+                DefaultMessageTimeToLive = TimeSpan.FromDays(7),
+                MaxDeliveryCount = 5,
+            });
+        }
     }
 }
 

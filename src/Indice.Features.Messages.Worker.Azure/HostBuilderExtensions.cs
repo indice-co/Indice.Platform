@@ -137,6 +137,29 @@ public static class HostBuilderExtensions
         return options;
     }
 
+    /// <summary>Adds <see cref="IEventDispatcher"/> using Azure Storage as a queuing mechanism.</summary>
+    /// <param name="options">Options used to configure the Campaigns API feature.</param>
+    /// <param name="configure">Configure the available options. Null to use defaults.</param>
+    public static MessageOptions UseEventDispatcherAzureServiceBus(this MessageOptions options, Action<IServiceProvider, MessageEventDispatcherAzureOptions>? configure = null) {
+        options.Services!.AddEventDispatcherAzureServiceBus(Indice.Features.Messages.Core.KeyedServiceNames.EventDispatcherServiceKey,
+            (serviceProvider, options) => {
+                var eventDispatcherOptions = new MessageEventDispatcherAzureOptions {
+                    ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME),
+                    Enabled = true,
+                    EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
+                    ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!)
+                };
+                configure?.Invoke(serviceProvider, eventDispatcherOptions);
+                options.ClaimsPrincipalSelector = eventDispatcherOptions.ClaimsPrincipalSelector;
+                options.ConnectionString = eventDispatcherOptions.ConnectionString;
+                options.Enabled = eventDispatcherOptions.Enabled;
+                options.EnvironmentName = eventDispatcherOptions.EnvironmentName;
+                options.TenantIdSelector = eventDispatcherOptions.TenantIdSelector;
+                options.UseCompression = false;
+            });
+        return options;
+    }
+
     /// <summary>Adds <see cref="IFileService"/> using local file system as the backing store.</summary>
     /// <param name="options">Options used to configure the Campaigns API feature.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
