@@ -116,6 +116,16 @@ jobs:
     - name: Generate NuGet package
       run: ./pack.ps1
 
+    - name: Get signing PFX certificate
+      shell: pwsh
+      run: |
+        [IO.File]::WriteAllBytes("./signing-certificate.pfx", [Convert]::FromBase64String("${{ secrets.PFX_CERTIFICATE }}"))
+
+    - name: Sign nuget packages
+      shell: pwsh
+      run: |
+        dotnet nuget sign '**/Indice*.nupkg' --certificate-path ./signing-certificate.pfx --certificate-password ${{ secrets.PFX_SECRET }} --timestamper http://timestamp.digicert.com/
+
     # Push to NuGet
-    - name: Push generated package to GitHub registry
+    - name: Push nuget packages
       run: dotnet nuget push '**/Indice*.nupkg' --skip-duplicate -k ${{ secrets.NUGET_AUTH_TOKEN }}
