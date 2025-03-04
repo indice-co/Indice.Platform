@@ -93,9 +93,6 @@ internal static class AdminWorkflowHandler
         ClaimsPrincipal currentUser,
         IAdminCaseMessageService adminCaseMessageService
     ) {
-        if (request.Message.Data is JsonElement) { // todo: fix that
-            request.Message.Data = JsonSerializer.SerializeToNode(request.Message.Data);
-        }
         await adminCaseMessageService.Send(caseId, currentUser, request.Message, request.WorkflowActor.ToAuditMeta());
         return TypedResults.Ok();
     }

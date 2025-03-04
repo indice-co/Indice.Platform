@@ -21,7 +21,7 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "When a user triggers this activity, they will assign the current workflow case to themselves.",
     Outcomes = new[] { OutcomeNames.Done, CustomOutcomeNames.Failed }
 )]
-internal class AwaitAssignmentActivity(CasesHttpClient casesHttpClient) : BaseBlockingActivity(casesHttpClient)
+ public class AwaitAssignmentActivity(CasesHttpClient casesHttpClient) : BaseBlockingActivity(casesHttpClient)
 {
     [ActivityInput(
         Label = "Role",

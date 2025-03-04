@@ -22,7 +22,7 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "Handles the edit of the data for case.",
     Outcomes = new[] { OutcomeNames.Done, CustomOutcomeNames.Save }
 )]
-internal class AwaitEditActivity(CasesHttpClient casesHttpClient) : BaseBlockingActivity(casesHttpClient)
+public class AwaitEditActivity(CasesHttpClient casesHttpClient) : BaseBlockingActivity(casesHttpClient)
 {
     [ActivityInput(
         Label = "Role",

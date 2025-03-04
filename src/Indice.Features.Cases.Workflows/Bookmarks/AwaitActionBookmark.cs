@@ -7,7 +7,7 @@ using Indice.Features.Cases.Workflows.Services;
 namespace Indice.Features.Cases.Workflows.Bookmarks;
 
 /// <summary>Bookmark model for <see cref="AwaitActionActivity"/>.</summary>
-internal class AwaitActionBookmark : IBookmark
+public class AwaitActionBookmark : IBookmark
 {
     public AwaitActionBookmark(string caseId, string actionId, string? role = null) {
         CaseId = string.IsNullOrEmpty(caseId) ? throw new ArgumentNullException(nameof(caseId), "CaseId cannot be null or empty.") : caseId;

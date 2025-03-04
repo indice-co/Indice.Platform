@@ -20,7 +20,7 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "Handles the approval or rejection of a case.",
     Outcomes = new[] { nameof(Approval.Approve), nameof(Approval.Reject) }
 )]
-internal class AwaitApprovalActivity(CasesHttpClient casesHttpClient) : BaseBlockingActivity(casesHttpClient)
+public class AwaitApprovalActivity(CasesHttpClient casesHttpClient) : BaseBlockingActivity(casesHttpClient)
 {
     [ActivityInput(
         Label = "Role",

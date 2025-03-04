@@ -24,7 +24,8 @@ public static class ActivityExecutionContextExtensions
         var runAsSystemUser = context.GetVariable<bool>("RunAsSystemUser");
         return runAsSystemUser
             ? Actor.Create(CasesClaimsPrincipalExtensions.SystemUser())
-            : context.GetVariable<Actor>(CasesWorkflowConstants.WorkflowVariables.Actor.Current)!;
+            : context.GetVariable<Actor>(CasesWorkflowConstants.WorkflowVariables.Actor.Current) 
+              ?? Actor.Create(CasesClaimsPrincipalExtensions.SystemUser());
     }
     
     /// <summary>Get the HttpContext User from the <see cref="IHttpContextAccessor"/> interface.</summary>

@@ -40,6 +40,9 @@ namespace Indice.Features.Cases.Workflows.Integration
         private static System.Text.Json.JsonSerializerOptions CreateSerializerSettings()
         {
             var settings = new System.Text.Json.JsonSerializerOptions();
+            var converters = new System.Text.Json.Serialization.JsonConverter[] { new Indice.Features.Cases.Workflows.Serialization.JTokenToJsonNodeConverter() };
+            foreach(var converter in converters)
+                settings.Converters.Add(converter);
             UpdateJsonSerializerSettings(settings);
             return settings;
         }

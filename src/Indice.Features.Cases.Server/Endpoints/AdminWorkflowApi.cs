@@ -19,7 +19,6 @@ internal static class AdminWorkflowApi
         var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
         group.RequireAuthorization(policy => policy
             .RequireAuthenticatedUser()
-            .AddAuthenticationSchemes("LocalBearer")
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
             .RequireCasesAccess(Authorization.CasesAccessLevel.Admin)
         );
@@ -63,6 +62,8 @@ internal static class AdminWorkflowApi
         group.MapGet("contacts/{reference}/data/{caseTypeCode}", AdminWorkflowHandler.GetContactReference)
             .WithName(nameof(AdminWorkflowHandler.GetContactReference))
             .WithSummary("Fetch contact data by contact.reference number for a specific case type code.");
+        
+        // todo: add patchCaseData, patchMetadata
         
         return group;
     }

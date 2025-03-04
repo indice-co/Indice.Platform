@@ -29,8 +29,7 @@ internal class SendMessageActivity(CasesHttpClient casesHttpClient) : BaseCaseAc
         DefaultWorkflowStorageProvider = TransientWorkflowStorageProvider.ProviderName
     )]
     public Message Message { get; set; } = null!;
-
-
+    
     [ActivityInput(
         Label = nameof(RunAsSystemUser),
         Hint = "Select this option if you want to override the user context and log the message as system user. This is useful to override Membership Authorization for checkpoint movements.",
@@ -47,7 +46,7 @@ internal class SendMessageActivity(CasesHttpClient casesHttpClient) : BaseCaseAc
 
         try {
             await CasesClient.SendMessageAsync(CaseId.Value, new WorkflowSendMessageRequest {
-                Message = Message,
+                Message = Message, // Message.Data is JToken here from Jint or Liquid, it is implicitly serialized on the http client
                 WorkflowActor = context.TryGetLastActor().ToCasesActor()
             });
         } catch (Exception exception) {

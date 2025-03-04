@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Indice.Features.Cases.Core.Serialization;
+namespace Indice.Features.Cases.Workflows.Serialization;
 
 /// <inheritdoc />
 public class JsonElementToJsonObjectAdapterConverter : JsonConverter<System.Text.Json.JsonElement>

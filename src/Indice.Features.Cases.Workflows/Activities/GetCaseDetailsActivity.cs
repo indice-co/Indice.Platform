@@ -1,8 +1,10 @@
-﻿using Elsa;
+﻿using System.Text.Json;
+using Elsa;
 using Elsa.ActivityResults;
 using Elsa.Attributes;
 using Elsa.Services.Models;
 using Indice.Features.Cases.Workflows.Integration;
+using Indice.Serialization;
 using CustomOutcomeNames = Indice.Features.Cases.Workflows.CasesWorkflowConstants.WorkflowVariables.OutcomeNames;
 
 namespace Indice.Features.Cases.Workflows.Activities;
@@ -28,8 +30,8 @@ internal class GetCaseDetailsActivity(CasesHttpClient casesHttpClient) : BaseCas
         CaseId ??= Guid.Parse(context.CorrelationId);
         var @case = await CasesClient.GetCaseAsync(CaseId.Value, IncludeAttachmentsData);
         
-        // Convert CaseData to JObject so the workflow activities can use data without parsing.
-        // @case.Data = Newtonsoft.Json.Linq.JObject.Parse(@case.DataAs<string?>()!); // todo: see if needed, simple activity first getCaseDetails, then set variable to check
+        // When trying to access Output object from another activity, we need NewtonSoft for Jint and Liquid evaluators to correctly operate on the data
+        @case.Data = Newtonsoft.Json.Linq.JObject.Parse(JsonSerializer.Serialize(@case.Data, JsonSerializerOptionDefaults.GetDefaultSettings()));
         Output = @case;
 
         context.LogOutputProperty(this, nameof(Output), Output);

@@ -1,5 +1,5 @@
-using System.Text.Json;
 using System.Text.Json.Nodes;
+using Indice.Features.Cases.Workflows.Serialization;
 
 namespace Indice.Features.Cases.Workflows.Models;
 
@@ -10,6 +10,7 @@ public class InvokeEditRequest
     public Guid CaseId { get; set; }
     
     /// <summary>The Data to edit the case with.</summary>
+    [Newtonsoft.Json.JsonConverter(typeof(JsonNodeToJsonObjectAdapterConverter))]
     public JsonNode? Data { get; set; }
 
     /// <summary>Comment added on the edit action.</summary>

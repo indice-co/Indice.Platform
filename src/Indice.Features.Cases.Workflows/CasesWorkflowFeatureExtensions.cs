@@ -32,8 +32,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Hosting;
 using Elsa.Serialization;
-using IdentityModel.Client;
-using Indice.Features.Cases.Core.Serialization;
 using Indice.Features.Cases.Workflows.Integration;
 using Indice.Features.Cases.Workflows.Localization;
 using Indice.Features.Cases.Workflows.Serialization;

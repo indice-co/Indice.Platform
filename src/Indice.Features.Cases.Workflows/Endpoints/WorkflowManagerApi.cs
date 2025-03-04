@@ -12,15 +12,14 @@ public static class WorkflowManagerApi
 {
     /// <summary>Invoking Workflow Activities for blocked instances.</summary>
     public static IEndpointRouteBuilder MapWorkflowManager(this IEndpointRouteBuilder routes) {
-        // todo: do we need options.PathPrefix here?
         var options = routes.ServiceProvider.GetRequiredService<IOptions<CasesWorkflowOptions>>().Value;
 
-        var group = routes.MapGroup($"{options.ServerBasePath}/api");
+        var group = routes.MapGroup($"api{options.ServerBasePath}");
         group.WithGroupName("workflow");
         group.WithTags("Workflow");
 
         group.RequireAuthorization(CasesWorkflowFeatureExtensions.WorkflowPolicy);
-        
+
         group.MapPost("start-workflow", WorkflowManagerHandler.StartWorkflow)
             .WithName(nameof(WorkflowManagerHandler.StartWorkflow))
             .WithSummary("Start a workflow for a case id.");
