@@ -54,8 +54,8 @@ public class ScheduledTaskStoreInMemoryServiceTests
         var delayTimeInMiliseconds = Math.Max(0, TestTaskExecutionCount - 1) * 1000;
         await Task.Delay(delayTimeInMiliseconds);
         await host.StopAsync();
-        Assert.True(TestTaskExecutionCount >= _counter); // at least 3 times execution
-        Assert.True(_countdownCounter <= 0); // at least 3 times execution
+        Assert.True(_counter >= TestTaskExecutionCount, userMessage: $"Test run Count expected to be at least '{TestTaskExecutionCount}' but was actually '{_counter}' -  at least {TestTaskExecutionCount} times execution");
+        Assert.True(_countdownCounter <= 0, userMessage: $"Countdown was expected to be less than or equal to zero but was actually '{_countdownCounter}' - at least {TestTaskExecutionCount} times execution");
     }
 
     private sealed class TestTask
