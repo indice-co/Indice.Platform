@@ -9,7 +9,7 @@ namespace Indice.EntityFrameworkCore.ValueConversion;
 public class JsonStringValueConverter<T> : ValueConverter<T, string?>
 {
     /// <summary>Serialization options for the <see cref="JsonStringValueConverter{T}"/>. </summary>
-    public static readonly JsonSerializerOptions SerializerOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
+    public static readonly JsonSerializerOptions SerializerOptions = JsonSerializerOptionDefaults.GetDefaultSettings(System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping);
 
     /// <inheritdoc/>
     public JsonStringValueConverter() : base(
