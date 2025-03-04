@@ -177,7 +177,7 @@
                               [style.height]="'50vh'"
                               class="code-editor-ritch w-full"
                               formControlName="body"
-                              (ngModelChange)="onBodyInputValue($event)"
+                              (ngModelChange)="onBodyInputValue($event, contentForm.controls['channel'].value)"
                               [theme]="'dark'"
                               [setup]="'basic'"
                               [placeholder]="'Το σώμα του μηνύματος'"
