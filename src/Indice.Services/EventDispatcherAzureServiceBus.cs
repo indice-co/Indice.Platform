@@ -1,4 +1,5 @@
-﻿using System.IO.Compression;
+﻿using System.Collections.Concurrent;
+using System.IO.Compression;
 using System.Net.Mime;
 using System.Security.Claims;
 using System.Text;
@@ -25,6 +26,7 @@ public class EventDispatcherAzureServiceBus : IEventDispatcher
     private readonly Func<ClaimsPrincipal> _claimsPrincipalSelector;
     private readonly Func<string?> _tenantIdSelector;
     private readonly JsonSerializerOptions _jsonSerializerOptions;
+    private readonly ConcurrentDictionary<string, ServiceBusSender> _senders = new();
 
     /// <summary>Create a new <see cref="EventDispatcherAzureServiceBus"/> instance.</summary>
     /// <param name="serviceBusClient"></param>
@@ -54,7 +56,7 @@ public class EventDispatcherAzureServiceBus : IEventDispatcher
         if (prependEnvironmentInQueueName) {
             queueName = $"{_environmentName}-{queueName}";
         }
-        var sender = _serviceBusClient.CreateSender(queueName);
+        var sender = _senders.GetOrAdd(queueName, _serviceBusClient.CreateSender);
         var user = actingPrincipal ?? _claimsPrincipalSelector?.Invoke();
         byte[] payloadBytes;
         var contentType = MediaTypeNames.Application.Octet;
