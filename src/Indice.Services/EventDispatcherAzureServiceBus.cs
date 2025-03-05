@@ -100,10 +100,8 @@ public class EventDispatcherAzureServiceBus : IEventDispatcher
     }
 
     private ServiceBusSender CreateSender(string queueName) {
-        if (_serviceBusAdministrationClient != null) {
-            if (_serviceBusAdministrationClient.QueueExistsAsync(queueName).Result) {
-                _serviceBusAdministrationClient.CreateQueueAsync(queueName).Wait();
-            }
+        if (_serviceBusAdministrationClient != null && _serviceBusAdministrationClient.QueueExistsAsync(queueName).Result) {
+            _serviceBusAdministrationClient.CreateQueueAsync(queueName).Wait();
         }
         return _serviceBusClient.CreateSender(queueName);
     }
