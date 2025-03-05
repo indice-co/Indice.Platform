@@ -8,6 +8,7 @@ using Indice.Services;
 using Indice.Types;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Messages.Worker.Azure;
 
@@ -17,12 +18,14 @@ internal class ServiceBusTriggers
 
     public ServiceBusTriggers(
         MessageJobHandlerFactory campaignJobHandlerFactory,
-        IEventDispatcherFactory eventDispatcherFactory
+        IEventDispatcherFactory eventDispatcherFactory,
+        IOptions<EventDispatcherAzureServiceBusOptions> options
     ) {
         CampaignJobHandlerFactory = campaignJobHandlerFactory ?? throw new ArgumentNullException(nameof(campaignJobHandlerFactory));
         EventDispatcherFactory = eventDispatcherFactory ?? throw new ArgumentNullException(nameof(eventDispatcherFactory));
+        _options = options.Value;
     }
-
+    private readonly EventDispatcherAzureServiceBusOptions _options;
     private MessageJobHandlerFactory CampaignJobHandlerFactory { get; }
     private IEventDispatcherFactory EventDispatcherFactory { get; }
 
@@ -32,8 +35,7 @@ internal class ServiceBusTriggers
         FunctionContext functionContext
     ) {
         LogExecution(functionContext, EventNames.CampaignCreated);
-        //var originalMessage = await CompressionUtils.Decompress(message);
-        var envelope = JsonSerializer.Deserialize<Envelope<CampaignCreatedEvent>>(message, JsonSerializerOptions)!;
+        var envelope = JsonSerializer.Deserialize<Envelope<CampaignCreatedEvent>>(await ReadMessageAsync(message),  JsonSerializerOptions)!;
         var payload = envelope.Payload!;
         var campaignStart = payload.ActivePeriod?.From;
         // Azure queues can store a queue message with a visibility window up to 7 days. So if a campaign must start (appear on queue) after more than 7 days then we should check the campaign start date and re-enqueue the message.
@@ -53,8 +55,7 @@ internal class ServiceBusTriggers
         FunctionContext functionContext
     ) {
         LogExecution(functionContext, EventNames.ResolveMessage);
-        //var originalMessage = await CompressionUtils.Decompress(message);
-        var envelope = JsonSerializer.Deserialize<Envelope<ResolveMessageEvent>>(message, JsonSerializerOptions)!;
+        var envelope = JsonSerializer.Deserialize<Envelope<ResolveMessageEvent>>(await ReadMessageAsync(message),  JsonSerializerOptions)!;
         var payload = envelope.Payload;
         await CampaignJobHandlerFactory.CreateFor<ResolveMessageEvent>().Process(payload!);
     }
@@ -65,8 +66,7 @@ internal class ServiceBusTriggers
         FunctionContext functionContext
     ) {
         LogExecution(functionContext, EventNames.SendPushNotification);
-        //var originalMessage = await CompressionUtils.Decompress(message);
-        var envelope = JsonSerializer.Deserialize<Envelope<SendPushNotificationEvent>>(message, JsonSerializerOptions)!;
+        var envelope = JsonSerializer.Deserialize<Envelope<SendPushNotificationEvent>>(await ReadMessageAsync(message),  JsonSerializerOptions)!;
         var payload = envelope.Payload;
         await CampaignJobHandlerFactory.CreateFor<SendPushNotificationEvent>().Process(payload!);
     }
@@ -77,8 +77,7 @@ internal class ServiceBusTriggers
         FunctionContext functionContext
     ) {
         LogExecution(functionContext, EventNames.SendEmail);
-        //var originalMessage = await CompressionUtils.Decompress(message);
-        var envelope = JsonSerializer.Deserialize<Envelope<SendEmailEvent>>(message, JsonSerializerOptions)!;
+        var envelope = JsonSerializer.Deserialize<Envelope<SendEmailEvent>>(await ReadMessageAsync(message),  JsonSerializerOptions)!;
         var payload = envelope.Payload;
         await CampaignJobHandlerFactory.CreateFor<SendEmailEvent>().Process(payload!);
     }
@@ -89,12 +88,16 @@ internal class ServiceBusTriggers
         FunctionContext functionContext
     ) {
         LogExecution(functionContext, EventNames.SendSms);
-        //var originalMessage = await CompressionUtils.Decompress(message);
-        var envelope = JsonSerializer.Deserialize<Envelope<SendSmsEvent>>(message, JsonSerializerOptions)!;
+        var envelope = JsonSerializer.Deserialize<Envelope<SendSmsEvent>>(await ReadMessageAsync(message),  JsonSerializerOptions)!;
         var payload = envelope.Payload;
         await CampaignJobHandlerFactory.CreateFor<SendSmsEvent>().Process(payload!);
     }
-
+    private async Task<byte[]> ReadMessageAsync(byte[] message) {
+        if (_options.UseCompression) { 
+            return await CompressionUtils.Decompress(message);
+        }
+        return message;
+    }
     private static void LogExecution(FunctionContext functionContext, string eventName) {
         var logger = functionContext.GetLogger(eventName);
         logger.LogInformation("Function '{FunctionName}' was triggered.", eventName);
