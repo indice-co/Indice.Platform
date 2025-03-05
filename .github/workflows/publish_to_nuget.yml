@@ -83,5 +83,5 @@ jobs:
       run: ./pack.ps1
 
     # Push to NuGet
-    # - name: Push nuget packages
-    #   run: dotnet nuget push '**/Indice*.nupkg' --skip-duplicate -k ${{ secrets.NUGET_AUTH_TOKEN }}
+    - name: Push nuget packages
+      run: dotnet nuget push '**/Indice*.nupkg' --skip-duplicate -k ${{ secrets.NUGET_AUTH_TOKEN }}
