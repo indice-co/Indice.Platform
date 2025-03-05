@@ -6,7 +6,6 @@ using Indice.Configuration;
 using Indice.Events;
 using Indice.Services;
 using Indice.Services.Yuboto;
-using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -247,8 +246,8 @@ public static class IndiceServicesServiceCollectionExtensions
         };
         configure?.Invoke(serviceProvider, options);
         return new EventDispatcherAzureServiceBus(
-            serviceKey is null ? serviceProvider.GetRequiredService<ServiceBusClient>() : serviceProvider.GetRequiredKeyedService<ServiceBusClient>(serviceKey),
-            serviceKey is null ? serviceProvider.GetRequiredService<ServiceBusAdministrationClient>() : serviceProvider.GetRequiredKeyedService<ServiceBusAdministrationClient>(serviceKey+".admin"),
+            new ServiceBusClient(connectionString: options.ConnectionString),
+            options.CreateQueueIfNotExists ? new ServiceBusAdministrationClient(connectionString: options.ConnectionString) : null,
             options.EnvironmentName,
             options.Enabled,
             options.UseCompression,
@@ -262,9 +261,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static IServiceCollection AddEventDispatcherAzureServiceBus(this IServiceCollection services, Action<IServiceProvider, EventDispatcherAzureServiceBusOptions>? configure = null) {
         services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
-        services.TryAddSingleton(serviceProvider => new ServiceBusClient(connectionString: serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME)!));
-        services.TryAddSingleton(serviceProvider => new ServiceBusAdministrationClient(connectionString: serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME)!));
-        return services.AddTransient<IEventDispatcher, EventDispatcherAzureServiceBus>(serviceProvider => GetEventDispatcherAzureServiceBus(null, serviceProvider, configure));
+        return services.AddSingleton<IEventDispatcher, EventDispatcherAzureServiceBus>(serviceProvider => GetEventDispatcherAzureServiceBus(null, serviceProvider, configure));
     }
 
     /// <summary>Adds <see cref="IEventDispatcher"/> using Azure ServiceBus as a queuing mechanism.</summary>
@@ -273,10 +270,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static IServiceCollection AddEventDispatcherAzureServiceBus(this IServiceCollection services, string name, Action<IServiceProvider, EventDispatcherAzureServiceBusOptions>? configure = null) {
         services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
-        services.TryAddKeyedSingleton(serviceKey: name, (serviceProvider, serviceKey) => new ServiceBusClient(connectionString: serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME)!));
-        services.TryAddKeyedSingleton(serviceKey: name + ".admin", (serviceProvider, serviceKey) => new ServiceBusAdministrationClient(connectionString: serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME)!));
-
-        return services.AddKeyedTransient<IEventDispatcher, EventDispatcherAzureServiceBus>(serviceKey: name, implementationFactory: (serviceProvider, serviceKey) => GetEventDispatcherAzureServiceBus(name, serviceProvider, configure));
+        return services.AddKeyedSingleton<IEventDispatcher, EventDispatcherAzureServiceBus>(serviceKey: name, implementationFactory: (serviceProvider, serviceKey) => GetEventDispatcherAzureServiceBus(name, serviceProvider, configure));
     }
 
     /// <summary>Adds <see cref="IEventDispatcher"/> using an in-memory <seealso cref="Queue"/> as a backing store.</summary>

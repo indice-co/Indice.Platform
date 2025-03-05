@@ -1,4 +1,5 @@
-﻿using System.IO.Compression;
+﻿using System.Collections.Concurrent;
+using System.IO.Compression;
 using System.Net.Mime;
 using System.Security.Claims;
 using System.Text;
@@ -10,7 +11,9 @@ using Azure.Messaging.ServiceBus.Administration;
 using Indice.Extensions;
 using Indice.Serialization;
 using Indice.Types;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Services;
 
@@ -21,30 +24,26 @@ public class EventDispatcherAzureServiceBus : IEventDispatcher
     public const string CONNECTION_STRING_NAME = "ServiceBusConnection";
     private readonly string _environmentName;
     private readonly ServiceBusClient _serviceBusClient;
-    private readonly ServiceBusAdministrationClient _serviceBusAdministrationClient;
+    private readonly ServiceBusAdministrationClient? _serviceBusAdministrationClient;
     private readonly bool _enabled;
     private readonly bool _useCompression;
     private readonly Func<ClaimsPrincipal> _claimsPrincipalSelector;
     private readonly Func<string?> _tenantIdSelector;
     private readonly JsonSerializerOptions _jsonSerializerOptions;
+    private readonly ConcurrentDictionary<string, ServiceBusSender> _senders = new();
 
     /// <summary>Create a new <see cref="EventDispatcherAzureServiceBus"/> instance.</summary>
     /// <param name="serviceBusClient"></param>
+    /// <param name="serviceBusAdministrationClient"></param>
     /// <param name="environmentName">The environment name to use. Defaults to 'Production'.</param>
     /// <param name="enabled">Provides a way to enable/disable event dispatching at will. Defaults to true.</param>
     /// <param name="useCompression">When selected, applies Brotli compression algorithm in the queue message payload. Defaults to false.</param>
     /// <param name="claimsPrincipalSelector">Provides a way to access the current <see cref="ClaimsPrincipal"/> inside a service.</param>
     /// <param name="tenantIdSelector">Provides a way to access the current tenant id if any.</param>
-    /// <param name="serviceBusAdministrationClient"></param>
-    public EventDispatcherAzureServiceBus(ServiceBusClient serviceBusClient, 
-        ServiceBusAdministrationClient serviceBusAdministrationClient, 
-        string environmentName, 
-        bool enabled, 
-        bool useCompression, 
-        Func<ClaimsPrincipal> claimsPrincipalSelector, 
-        Func<string> tenantIdSelector) {
+    public EventDispatcherAzureServiceBus(ServiceBusClient serviceBusClient, ServiceBusAdministrationClient? serviceBusAdministrationClient, string environmentName, bool enabled, bool useCompression, Func<ClaimsPrincipal> claimsPrincipalSelector, Func<string> tenantIdSelector) {
         _environmentName = Regex.Replace(environmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
         _serviceBusClient = serviceBusClient;
+        _serviceBusAdministrationClient = serviceBusAdministrationClient;
         _enabled = enabled;
         _useCompression = useCompression;
         _claimsPrincipalSelector = claimsPrincipalSelector ?? throw new ArgumentNullException(nameof(claimsPrincipalSelector));
@@ -64,8 +63,7 @@ public class EventDispatcherAzureServiceBus : IEventDispatcher
         if (prependEnvironmentInQueueName) {
             queueName = $"{_environmentName}-{queueName}";
         }
-        await CreateQueueIfNotExists(queueName);
-        var sender = _serviceBusClient.CreateSender(queueName);
+        var sender = _senders.GetOrAdd(queueName, CreateSender);
         var user = actingPrincipal ?? _claimsPrincipalSelector?.Invoke();
         byte[] payloadBytes;
         var contentType = MediaTypeNames.Application.Octet;
@@ -102,14 +100,11 @@ public class EventDispatcherAzureServiceBus : IEventDispatcher
         await sender.SendMessageAsync(message);
     }
 
-    private async Task CreateQueueIfNotExists(string queueName) {
-        // Check if the queue exists, create it if not
-        if (!await _serviceBusAdministrationClient.QueueExistsAsync(queueName)) {
-            await _serviceBusAdministrationClient.CreateQueueAsync(new CreateQueueOptions(queueName) {
-                DefaultMessageTimeToLive = TimeSpan.FromDays(7),
-                MaxDeliveryCount = 5,
-            });
+    private ServiceBusSender CreateSender(string queueName) {
+        if (_serviceBusAdministrationClient != null && _serviceBusAdministrationClient.QueueExistsAsync(queueName).Result) {
+            _serviceBusAdministrationClient.CreateQueueAsync(queueName).Wait();
         }
+        return _serviceBusClient.CreateSender(queueName);
     }
 }
 
@@ -128,5 +123,39 @@ public class EventDispatcherAzureServiceBusOptions
     /// <summary>A function that retrieves the current tenant id by any means possible. This is optional.</summary>
     public Func<string>? TenantIdSelector { get; set; }
     /// <summary>When selected, applies Brotli compression algorithm in the queue message payload. Defaults to false.</summary>
-    public bool UseCompression { get; set; }
+    /// <remarks>Defaults to false.</remarks>
+    public bool UseCompression { get; set; } = false;
+    /// <summary>Will try to ensure a topic/queue is created using the Administration client</summary>
+    /// <remarks>Defaults to false.</remarks>
+    public bool CreateQueueIfNotExists { get; set; } = false;
+}
+
+/// <summary>Configures the default settings using the <see cref="IHostEnvironment"/> and <seealso cref="Microsoft.Extensions.Configuration.IConfiguration"/></summary>
+public class ConfigureEventDispatcherAzureServiceBusOptions : IConfigureOptions<EventDispatcherAzureServiceBusOptions>, IPostConfigureOptions<EventDispatcherAzureServiceBusOptions>
+{
+    private readonly IHostEnvironment _hostEnvironment;
+    private readonly IConfiguration _configuration;
+
+    /// <summary>
+    /// Creates a new instance of <see cref="ConfigureEventDispatcherAzureServiceBusOptions"/>.
+    /// </summary>
+    /// <param name="hostEnvironment">The hosting environment</param>
+    /// <param name="configuration">The configuration</param>
+    public ConfigureEventDispatcherAzureServiceBusOptions(IHostEnvironment hostEnvironment, IConfiguration configuration) {
+        _hostEnvironment = hostEnvironment ?? throw new ArgumentNullException(nameof(hostEnvironment));
+        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+    }
+
+    /// <inheritdoc />
+    public void Configure(EventDispatcherAzureServiceBusOptions options) {
+        options.ConnectionString = _configuration.GetConnectionString(EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME);
+        options.EnvironmentName = _hostEnvironment.EnvironmentName;
+        options.ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!);
+        options.Enabled = true;
+    }
+
+    /// <inheritdoc />
+    public void PostConfigure(string? name, EventDispatcherAzureServiceBusOptions options) {
+        throw new NotImplementedException();
+    }
 }

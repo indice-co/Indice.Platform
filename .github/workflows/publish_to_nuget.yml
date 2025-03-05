@@ -2,8 +2,6 @@ name: "Publish to NuGet"
 
 permissions:
   contents: read
-  actions: read
-  checks: write
 
 on:
   workflow_dispatch:
@@ -14,9 +12,10 @@ on:
 
 jobs:
   build:
-
+    permissions:
+      actions: read
+      checks: write
     runs-on: windows-2022
-
     steps:
     # Checkout
     - name: Harden Runner
@@ -42,38 +41,6 @@ jobs:
       with:
         node-version: 20
   
-    # Npm Install and build Identity UI
-    - name: NPM Install and Build Identity UI
-      run: |
-        cd src/Indice.Features.Identity.UI
-        npm install --force
-        npm run gulp -- copy:libs
-        npm run gulp -- sass
-
-    # Npm Install Cases
-    - name: NPM Install Cases
-      run: |
-        cd src/Indice.Features.Cases.App
-        npm install
-
-    # Npm Install AdminUI
-    - name: NPM Install AdminUI
-      run: |
-        cd src/Indice.Features.Identity.AdminUI.App
-        npm install
-
-    # # Npm Install Messages
-    - name: NPM Install Messages
-      run: |
-        cd src/Indice.Features.Messages.App
-        npm install
-
-    # # Npm Install Risk App
-    - name: NPM Install Risk
-      run: |
-        cd src/Indice.Features.Risk.App
-        npm install
-
     #Create .nuget dir
     - name: Create .nuget dir
       shell: pwsh
@@ -97,7 +64,6 @@ jobs:
     - name: Dotnet build
       run: dotnet build Indice.Platform.slnf --no-restore --configuration Release
      
-  
     # TEST 
     - name: Test with dotnet
       run: dotnet test --no-build --configuration Release --logger trx --results-directory "TestResults"
@@ -117,5 +83,5 @@ jobs:
       run: ./pack.ps1
 
     # Push to NuGet
-    - name: Push generated package to GitHub registry
+    - name: Push nuget packages
       run: dotnet nuget push '**/Indice*.nupkg' --skip-duplicate -k ${{ secrets.NUGET_AUTH_TOKEN }}
