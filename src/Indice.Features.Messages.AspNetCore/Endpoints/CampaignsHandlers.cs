@@ -32,9 +32,10 @@ internal static class CampaignsHandlers
         return TypedResults.Ok(campaign);
     }
 
-    public static async Task<NoContent> PublishCampaign(ICampaignService campaignService, IEventDispatcher eventDispatcher, Guid campaignId) {
+    public static async Task<NoContent> PublishCampaign(ICampaignService campaignService, IEventDispatcherFactory eventDispatcherFactory, Guid campaignId) {
         var publishedCampaign = await campaignService.Publish(campaignId);
 
+        var eventDispatcher = eventDispatcherFactory.Create(Core.KeyedServiceNames.EventDispatcherServiceKey);
         await eventDispatcher.RaiseEventAsync(
             CampaignCreatedEvent.FromCampaign(publishedCampaign),
             builder => builder.WrapInEnvelope().WithQueueName(EventNames.CampaignCreated)
