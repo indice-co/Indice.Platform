@@ -525,6 +525,9 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         if (dbCase == null) {
             return false;
         }
+
+        dbCase.Metadata ??= new Dictionary<string, string>();
+
         foreach (var keyValuePair in metadata) {
             dbCase.Metadata[keyValuePair.Key] = keyValuePair.Value;
         }
