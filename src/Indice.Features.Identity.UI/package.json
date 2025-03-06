@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@fingerprintjs/fingerprintjs": "4.5.1",
+    "@fingerprintjs/fingerprintjs": "4.6.1",
     "@microsoft/signalr": "8.0.7",
     "bootstrap": "5.3.3",
     "bootstrap.v4": "npm:bootstrap@^4.6.2",
