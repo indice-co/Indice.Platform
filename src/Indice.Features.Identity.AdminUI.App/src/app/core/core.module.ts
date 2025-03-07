@@ -18,7 +18,6 @@ import { CoreRoutingModule } from './core-routing.module';
 import { IDENTITY_API_BASE_URL } from './services/identity-api.service';
 import { LayoutModule } from '../layout/layout.module';
 import * as app from './models/settings';
-import { Bootstrap4FrameworkModule } from '@ajsf/bootstrap4';
 
 @NgModule({
     declarations: [
@@ -34,8 +33,7 @@ import { Bootstrap4FrameworkModule } from '@ajsf/bootstrap4';
         CoreRoutingModule,
         LayoutModule,
         SweetAlert2Module.forRoot(),
-        BrowserAnimationsModule,
-        Bootstrap4FrameworkModule
+        BrowserAnimationsModule
     ],
     exports: [
         CoreRoutingModule

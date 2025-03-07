@@ -25,17 +25,18 @@ public static class MediaLibraryFeatureExtensions
         var apiOptions = new MediaApiOptions(services);
         configureAction?.Invoke(apiOptions);
         services.Configure<MediaApiOptions>(options => {
-            options.ApiPrefix = apiOptions.ApiPrefix;
+            options.PathPrefix = apiOptions.PathPrefix;
             options.ConfigureDbContext = apiOptions.ConfigureDbContext;
             options.AuthenticationScheme = apiOptions.AuthenticationScheme;
             options.AcceptableFileExtensions = apiOptions.AcceptableFileExtensions;
-            options.ApiScope = apiOptions.ApiScope;
+            options.Scope = apiOptions.Scope;
             options.MaxFileSize = apiOptions.MaxFileSize;
             options.UseSoftDelete = apiOptions.UseSoftDelete;
         });
         // Register framework services.
         services.AddHttpContextAccessor();
         // Register services.
+        services.TryAddSingleton<MediaBaseHrefResolver>();
         services.TryAddTransient<IMediaFolderStore, MediaFolderStore>();
         services.TryAddTransient<IMediaFileStore, MediaFileStore>();
         services.TryAddTransient<IMediaSettingService, MediaSettingService>();
@@ -45,7 +46,7 @@ public static class MediaLibraryFeatureExtensions
         services.TryAddScoped<IFileServiceFactory, DefaultFileServiceFactory>(); // registers default fileservice factory plus no op fileservice
         // Register validators
         services.AddEndpointParameterFluentValidation(typeof(MediaLibraryApi).Assembly);
-        if (!apiOptions.UseSoftDelete) {
+        if (apiOptions.UseSoftDelete) {
             services.AddHostedService<FoldersCleanUpHostedService>();
             services.AddHostedService<FilesCleanUpHostedService>();
         }
@@ -60,9 +61,10 @@ public static class MediaLibraryFeatureExtensions
         // Add authorization policies that are used by the IdentityServer API.
 
         // Configure authorization. It's important to register the authorization policy provider at this point.
-        services.AddAuthorization(policy => policy.AddMediaLibraryManagementPolicy(apiOptions.ApiScope))
+        services.AddAuthorization(policy => policy.AddMediaLibraryManagementPolicy(apiOptions.Scope))
                            .AddTransient<IAuthorizationHandler, BeMediaLibraryManagerHandler>();
-
+        //Resgister Output Cache
+        services.AddOutputCache();
         return services;
     }
 
@@ -75,6 +77,11 @@ public static class MediaLibraryFeatureExtensions
     /// <summary>Adds <see cref="IFileService"/> using Azure Blob Storage as the backing store.</summary>
     /// <param name="options">Options used to configure the Media API feature.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
-    public static void UseFilesAzure(this MediaApiOptions options, Action<FileServiceAzureOptions>? configure = null) =>
-        options.Services.AddFiles(options => options.AddAzureStorage(KeyedServiceNames.FileServiceKey, configure));
+    public static void UseFilesAzure(this MediaApiOptions options, Action<FileServiceAzureOptions>? configure = null) {
+        Action<FileServiceAzureOptions> defaultConfigureAction = (options) => {
+            options.ContainerName = string.IsNullOrEmpty(options.ContainerName) ? "messaging-media" : $"{options.ContainerName}-messaging-media";
+            configure?.Invoke(options);
+        };
+        options.Services.AddFiles(options => options.AddAzureStorage(KeyedServiceNames.FileServiceKey, defaultConfigureAction));
+    }
 }

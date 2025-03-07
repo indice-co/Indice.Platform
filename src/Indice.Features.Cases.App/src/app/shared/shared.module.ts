@@ -3,12 +3,11 @@ import { HttpClientModule } from '@angular/common/http';
 import { ApprovalButtonsComponent } from './components/approval-buttons/approval-buttons.component';
 import { PageIllustrationComponent } from './components/page-illustration/page-illustration.component';
 import { RadioButtonsListComponent } from './components/radio-buttons-list/radio-buttons-list.component';
-import { BeautifyBooleanPipe } from './pipes.services';
 import { TailwindFrameworkComponent } from './ajsf/json-schema-frameworks/tailwind-framework/tailwind-framework.component';
 import { JsonSchemaFormModule } from '@ajsf-extended/core';
 import { SubmitWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/submit-widget/submit-widget.component';
 import { SelectCaseTypeComponent } from './components/select-case-type/select-case-type.component';
-import { SearchCustomerComponent } from './components/search-customer/search-customer.component';
+import { SearchContactComponent } from './components/search-contact/search-contact.component';
 import { IndiceComponentsModule } from '@indice/ng-components';
 import { SelectWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/select-widget/select-widget.component';
 import { CurrencyWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/currency-widget/currency-widget.component';
@@ -31,7 +30,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
 import { QuillModule } from 'ngx-quill';
 import { NgxMaskDirective, NgxMaskPipe, provideNgxMask } from 'ngx-mask';
-import { ValueFromPathPipe } from './pipes.services';
+import { BeautifyBooleanPipe, ValueFromPathPipe, ToReadableDatePipe } from './pipes.services';
 
 @NgModule({
   declarations: [
@@ -40,7 +39,7 @@ import { ValueFromPathPipe } from './pipes.services';
     PageIllustrationComponent,
     RadioButtonsListComponent,
     SelectCaseTypeComponent,
-    SearchCustomerComponent,
+    SearchContactComponent,
     CaseDetailInfoComponent,
     CaseCustomActionComponent,
     CanvasTileComponent,
@@ -62,7 +61,8 @@ import { ValueFromPathPipe } from './pipes.services';
     LabelOnlyWidgetComponent,
     // pipes
     BeautifyBooleanPipe,
-    ValueFromPathPipe
+    ValueFromPathPipe,
+    ToReadableDatePipe
   ],
   imports: [
     CommonModule,
@@ -92,7 +92,7 @@ import { ValueFromPathPipe } from './pipes.services';
     PageIllustrationComponent,
     RadioButtonsListComponent,
     SelectCaseTypeComponent,
-    SearchCustomerComponent,
+    SearchContactComponent,
     CaseDetailInfoComponent,
     CaseCustomActionComponent,
     CanvasTileComponent,
@@ -101,7 +101,8 @@ import { ValueFromPathPipe } from './pipes.services';
     // pipes
     BeautifyBooleanPipe,
     TranslateModule,
-    ValueFromPathPipe
+    ValueFromPathPipe,
+    ToReadableDatePipe
   ],
   providers: [
     provideNgxMask()

@@ -9,8 +9,9 @@
                     <div class="col-span-4">
                         <label for="folderName" class="field-label">Όνομα (*)</label>
                         <div class="flex rounded-sm">
-                            <input type="text" name="folderName" id="folderName" [(ngModel)]="model.name"
-                                placeholder="Το όνομα του φακέλου..." maxlength="128" required #folderName="ngModel">
+                            <input class="w-full"
+                                   type="text" name="folderName" id="folderName" [(ngModel)]="model.name"
+                                   placeholder="Το όνομα του φακέλου..." maxlength="128" required #folderName="ngModel">
                         </div>
                         <p *ngIf="folderName.invalid && (folderName.dirty || folderName.touched)"
                             class="mt-2 text-sm text-red-600">
@@ -25,7 +26,8 @@
                     <div class="col-span-4">
                         <label for="folderDescription" class="field-label">Περιγραφή</label>
                         <div class="flex rounded-sm">
-                            <input type="text" name="folderDescription" id="folderDescription"
+                            <input class="w-full"
+                                   type="text" name="folderDescription" id="folderDescription"
                                 [(ngModel)]="model.description" placeholder="Η περιγραφή του φακέλου..." maxlength="512"
                                 #folderDescription="ngModel">
                         </div>

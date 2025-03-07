@@ -1,0 +1,30 @@
+﻿using Indice.Configuration;
+using Indice.Features.Cases.Core.Data.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace Indice.Features.Cases.Core.Data.Mappings;
+
+internal class DbCheckpointTypeConfiguration : IEntityTypeConfiguration<DbCheckpointType>
+{
+    public void Configure(EntityTypeBuilder<DbCheckpointType> builder) {
+        builder
+            .ToTable("CheckpointType");
+        builder
+            .HasKey(p => p.Id);
+        builder
+            .HasIndex(p => new { p.CaseTypeId, p.Code });
+        builder
+            .Property(p => p.Code)
+            .HasMaxLength(TextSizePresets.M256)
+            .IsRequired();
+        builder
+            .Property(p => p.Description)
+            .HasMaxLength(TextSizePresets.M512);
+        builder
+            .Property(p => p.Translations)
+            .IsRequired(false)
+            .HasJsonConversion();
+
+    }
+}

@@ -40,3 +40,14 @@ export class ValueFromPathPipe implements PipeTransform {
     return givenObject;
   }
 }
+
+@Pipe({
+  name: 'toReadableDate',
+  pure: true
+})
+export class ToReadableDatePipe implements PipeTransform {
+  transform(value: any): string {
+    return new Date(value).toLocaleString('en-GB');
+  }
+}
+

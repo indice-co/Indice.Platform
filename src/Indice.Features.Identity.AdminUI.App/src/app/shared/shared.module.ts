@@ -14,6 +14,7 @@ import { ValidationSummaryComponent } from './components/validation-summary/vali
 import { WizardStepDirective } from './components/step-base/wizard-step.directive';
 import { FormReadonlyDirective } from './directives/form-readonly.directive';
 import { TranslateInputComponent } from './components/translate-input/translate-input.component';
+import { ImgUserPictureDirective } from './directives/user-picture.directive';
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 
 @NgModule({
@@ -25,7 +26,8 @@ import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
         ValidationSummaryComponent,
         RouterLinkMatchDirective,
         WizardStepDirective,
-        FormReadonlyDirective
+        FormReadonlyDirective,
+        ImgUserPictureDirective
     ],
     imports: [
         CommonModule,
@@ -44,7 +46,8 @@ import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
         ValidationSummaryComponent,
         RouterLinkMatchDirective,
         WizardStepDirective,
-        FormReadonlyDirective
+        FormReadonlyDirective,
+        ImgUserPictureDirective
     ],
     providers: [
         NgbDatepickerConfig,

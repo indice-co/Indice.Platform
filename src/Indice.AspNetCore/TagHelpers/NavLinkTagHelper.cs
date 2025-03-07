@@ -34,9 +34,9 @@ public class NavLinkTagHelper : AnchorTagHelper
     }
 
     private bool ShouldBeActive() {
-        string currentArea = ViewContext.RouteData.Values["Area"]?.ToString();
-        string currentController = ViewContext.RouteData.Values["Controller"]?.ToString();
-        string currentAction = ViewContext.RouteData.Values["Action"]?.ToString();
+        var currentArea = ViewContext.RouteData.Values["Area"]?.ToString();
+        var currentController = ViewContext.RouteData.Values["Controller"]?.ToString();
+        var currentAction = ViewContext.RouteData.Values["Action"]?.ToString();
         bool res;
         if (!string.IsNullOrWhiteSpace(Area) && !string.IsNullOrWhiteSpace(Controller) && !string.IsNullOrWhiteSpace(Action))
             res = string.Equals(Area, currentArea, StringComparison.OrdinalIgnoreCase) && string.Equals(Controller, currentController, StringComparison.OrdinalIgnoreCase) && string.Equals(Action, currentAction, StringComparison.OrdinalIgnoreCase);
@@ -56,7 +56,7 @@ public class NavLinkTagHelper : AnchorTagHelper
         if (classAttr == null) {
             classAttr = new TagHelperAttribute("class", "active");
             output.Attributes.Add(classAttr);
-        } else if (classAttr.Value == null || classAttr.Value.ToString().IndexOf("active", StringComparison.Ordinal) < 0) {
+        } else if (classAttr.Value == null || classAttr.Value.ToString()!.IndexOf("active", StringComparison.Ordinal) < 0) {
             output.Attributes.SetAttribute("class", classAttr.Value == null
                 ? "active"
                 : classAttr.Value + " active");

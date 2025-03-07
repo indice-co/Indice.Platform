@@ -1,0 +1,92 @@
+<div class="profilepic" (click)="openModal()">
+  <img
+    class="profilepic__image img-fluid rounded-circle"
+    [userPicture]="userId"
+    [displayName]="displayName"
+    [version]="fileVersion"
+    size="256"
+    alt="profile picture"
+  />
+  <div class="profilepic__content">
+    <i class="material-icons profilepic__icon">photo_camera</i>
+  </div>
+</div>
+
+<ng-template let-modal #modalContent>
+  <div class="modal-body text-center">
+    <div
+      #container
+      class="cropcontainer"
+      (wheel)="onMouseWheel($event)"
+      (mousedown)="onDragStart($event)"
+      (mousemove)="onDrag($event)"
+      (mouseup)="onDragEnd()"
+      (touchstart)="onDragStart($event)"
+      (touchmove)="onDrag($event)"
+      (touchend)="onDragEnd()"
+    >
+      <div class="profilepiceditor" [class.draggable]="isInteractionEnabled">
+        <img
+          #pic
+          id="pic"
+          class="profilepiceditor__image"
+          [class.dragging]="dragCoords"
+          [userPicture]="userId"
+          [displayName]="displayName"
+          [version]="fileVersion"
+          size="256"
+          alt="profile picture"
+        />
+        <div class="profilepiceditor__overlay" [class.hidden]="!isOverlayShown">
+          Drag image to reposition
+        </div>
+      </div>
+      <i
+        *ngIf="!isInteractionEnabled"
+        class="material-icons cropcontainer__icon text-danger"
+        (click)="delete()"
+      >
+        delete
+      </i>
+    </div>
+    <div *ngIf="isInteractionEnabled">
+      <label for="zoom-level" class="form-label">Zoom in/out</label>
+      <input
+        type="range"
+        class="form-range"
+        id="zoom-level"
+        [min]="minScale"
+        [max]="maxScale"
+        [step]="step"
+        [disabled]="maxScale === 1"
+        [(ngModel)]="scale"
+        (input)="onScale(scale)"
+      />
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-outline-secondary me-auto" (click)="closeModal()">
+      Cancel
+    </button>
+    <label for="user-profile-picture" class="btn btn-icon btn-outline-primary">
+      <i class="material-icons">camera_alt</i> Select picture
+      <input
+        #fileInput
+        type="file"
+        accept="image/*"
+        id="user-profile-picture"
+        (change)="onFileSelected($event)"
+        class="d-none"
+      />
+    </label>
+    <button
+      *ngIf="isInteractionEnabled"
+      type="button"
+      class="btn btn-icon btn-outline-primary"
+      (click)="crop()"
+      [disabled]="isLoading"
+    >
+      <i class="material-icons">check</i> Save
+    </button>
+  </div>
+</ng-template>

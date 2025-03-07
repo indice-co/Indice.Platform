@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { ValidationProblemDetails } from '../core/services/messages-api.service';
+import { HttpValidationProblemDetails } from '../core/services/messages-api.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +20,7 @@ export class UtilitiesService {
     }
   }
 
-  public getValidationErrors(problemDetails: ValidationProblemDetails): string[] {
+  public getValidationErrors(problemDetails: HttpValidationProblemDetails): string[] {
     const errors = this._getValidationErrors(problemDetails);
     if (errors.length === 0 && problemDetails.title) {
       return new Array<string>(1).fill(problemDetails.title);
@@ -37,7 +37,7 @@ export class UtilitiesService {
     });
   }
 
-  private _getValidationErrors(problemDetails: ValidationProblemDetails): string[] {
+  private _getValidationErrors(problemDetails: HttpValidationProblemDetails): string[] {
     const errorMessages: string[] = [];
     const errors = problemDetails && problemDetails.errors;
     for (const property in errors) {

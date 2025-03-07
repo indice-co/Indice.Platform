@@ -14,26 +14,26 @@ public static class ListOptionsExtensions
     /// <typeparam name="TReplacements"></typeparam>
     /// <param name="options"></param>
     /// <param name="replacements"></param>
-    public static IDictionary<string, object> ToDictionary<TReplacements>(this ListOptions options, TReplacements replacements) where TReplacements : class {
+    public static IDictionary<string, object?> ToDictionary<TReplacements>(this ListOptions options, TReplacements replacements) where TReplacements : class {
         if (null == replacements) {
             throw new ArgumentNullException(nameof(replacements));
         }
-        var overrides = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase).Merge(replacements, typeof(TReplacements));
+        var overrides = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase).Merge(replacements, typeof(TReplacements));
         var sortings = options.GetSortings();
         var sortKey = nameof(options.Sort).ToLower();
         if (overrides.ContainsKey(sortKey)) {
-            var sort = overrides[sortKey].ToString();
+            var sort = overrides[sortKey]!.ToString();
             if (sortings.Any(s => s.Path.Equals(sort))) {
-                overrides[sortKey] = sortings.Select(s => s.Path.Equals(sort) ? s.NextState() : s).Where(s => s.HasValue).Select(s => s.Value).ToUriString();
+                overrides[sortKey] = sortings.Select(s => s.Path.Equals(sort) ? s.NextState() : s).Where(s => s.HasValue).Select(s => s!.Value).ToUriString();
             } else {
-                overrides[sortKey] = sortings.Union(new[] { SortByClause.Parse(sort) }).ToUriString();
+                overrides[sortKey] = sortings.Union([SortByClause.Parse(sort!)]).ToUriString();
             }
         }
         return options.ToDictionary().Merge(overrides, null);
     }
 
     /// <summary>Merge a <paramref name="dictionary"/> of route data with the values found inside the <paramref name="instance"/>.</summary>
-    public static IDictionary<string, object> Merge(this IDictionary<string, object> dictionary, object instance, Type type = null, string prefix = null) {
+    public static IDictionary<string, object?> Merge(this IDictionary<string, object?> dictionary, object? instance, Type? type = null, string? prefix = null) {
         if (instance is IDictionary<string, object> other) {
             foreach (var keyValue in other) {
                 if (dictionary.ContainsKey(keyValue.Key)) {
@@ -47,7 +47,7 @@ public static class ListOptionsExtensions
             return dictionary.Merge(options.ToDictionary());
         }
         type ??= instance?.GetType();
-        foreach (var property in type.GetRuntimeProperties()) {
+        foreach (var property in type!.GetRuntimeProperties()) {
             var value = property.GetValue(instance);
             if (value is ListOptions options) {
                 dictionary.Merge(options.ToDictionary());
@@ -107,25 +107,25 @@ public static class ListOptionsExtensions
 
     /// <summary>Converts an object dictionary of route values to a collection of text key value pairs.</summary>
     /// <param name="values"></param>
-    public static IEnumerable<KeyValuePair<string, string>> AsRouteValues(this IDictionary<string, object> values) {
+    public static IEnumerable<KeyValuePair<string, string?>> AsRouteValues(this IDictionary<string, object?> values) {
         return values.SelectMany(kv => {
             if (kv.Value == null) {
-                return null;
+                return null!;
             }
             if (kv.Value.GetType().IsArray) {
                 if (kv.Key.ToLowerInvariant() == nameof(ListOptions.Sort).ToLowerInvariant()) {
-                    return new[] { new KeyValuePair<string, string>(kv.Key, string.Join(",", (IList)kv.Value)) };
+                    return [new KeyValuePair<string, string?>(kv.Key, string.Join(",", (IList)kv.Value))];
                 }
-                return ((IList)kv.Value).Cast<object>().Select(x => new KeyValuePair<string, string>(kv.Key, x?.ToString()));
+                return ((IList)kv.Value).Cast<object>().Select(x => new KeyValuePair<string, string?>(kv.Key, x?.ToString()));
             }
-            return new[] { new KeyValuePair<string, string>(kv.Key, kv.Value.ToString()) };
+            return [new KeyValuePair<string, string?>(kv.Key, kv.Value.ToString())];
         });
     }
 
     /// <summary>Serialize the dictionary as a url forms encoded payload.</summary>
     /// <param name="values"></param>
     /// <returns></returns>
-    public static string ToFormUrlEncodedString(this IDictionary<string, object> values) {
+    public static string ToFormUrlEncodedString(this IDictionary<string, object?> values) {
         var parameters = values.AsRouteValues();
         return string.Join("&", parameters.Select(kv => $"{kv.Key}={kv.Value}"));
     }

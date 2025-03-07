@@ -13,6 +13,7 @@ export class ShellConfig implements IShellConfig {
     public showLangsOnHeader = true;
     public showNotifications = false;
     public showUserNameOnHeader = true;
+    public showPictureOnHeader = true;
 }
 
 export const CommonAppShellConfig: IShellConfig = {
@@ -25,5 +26,6 @@ export const CommonAppShellConfig: IShellConfig = {
     showFooter: false,
     showHeader: false,
     showLangsOnHeader: true,
-    showUserNameOnHeader: false
+    showUserNameOnHeader: false,
+    showPictureOnHeader: true
 };

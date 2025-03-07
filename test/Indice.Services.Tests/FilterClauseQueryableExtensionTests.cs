@@ -1,4 +1,6 @@
-﻿using Indice.EntityFrameworkCore;
+﻿using System.Text.Json;
+using System.Text.Json.Nodes;
+using Indice.EntityFrameworkCore;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -91,9 +93,9 @@ public class DummyDbContext : DbContext
             return false;
         }
         Dummies.AddRange(
-                new Dummy { Name = "Κωνσταντίνος", Extras = new { Id = 5 }, Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos", ["Surname"] = "Panos" }, Data = new DummyItem { DisplayName = "Κωνσταντίνος Θέρης", Enabled = true, Order = 7, BirthDate = new DateTime(1981, 01, 28), Balance = 100.0, Period = new Period { From = DateTime.Now.AddDays(-10), To = DateTime.Now.AddDays(10) } } },
-                new Dummy { Name = "Γιώργος", Extras = new { Id = 15 }, Data = new DummyItem { DisplayName = "Γιώργος Τζάς", Enabled = false, Order = -14, BirthDate = new DateTime(1989, 10, 24), Balance = 360.23 } },
-                new Dummy { Name = "Γιάννης", Extras = new { Id = 7 }, Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos" }, Data = new DummyItem { DisplayName = "Γιάννης Νές", Enabled = true, Order = 2, BirthDate = new DateTime(1971, 12, 1), Balance = 1260.23 } }
+                new Dummy { Name = "Κωνσταντίνος", Extras = new { Id = 5 }, ModernExtras = JsonSerializer.SerializeToNode(new { Id = 5 }), Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos", ["Surname"] = "Panos" }, Data = new DummyItem { DisplayName = "Κωνσταντίνος Θέρης", Enabled = true, Order = 7, BirthDate = new DateTime(1981, 01, 28), Balance = 100.0, Period = new Period { From = DateTime.Now.AddDays(-10), To = DateTime.Now.AddDays(10) } } },
+                new Dummy { Name = "Γιώργος", Extras = new { Id = 15 }, ModernExtras = JsonSerializer.SerializeToNode(new { Id = 5 }), Data = new DummyItem { DisplayName = "Γιώργος Τζάς", Enabled = false, Order = -14, BirthDate = new DateTime(1989, 10, 24), Balance = 360.23 } },
+                new Dummy { Name = "Γιάννης", Extras = new { Id = 7 }, ModernExtras = JsonSerializer.SerializeToNode(new { Id = 5 }), Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos" }, Data = new DummyItem { DisplayName = "Γιάννης Νές", Enabled = true, Order = 2, BirthDate = new DateTime(1971, 12, 1), Balance = 1260.23 } }
             );
         await SaveChangesAsync();
         return true;
@@ -105,6 +107,7 @@ public class DummyDbContext : DbContext
         modelBuilder.Entity<Dummy>().HasKey(x => x.Id);
         modelBuilder.Entity<Dummy>().Property(x => x.Data).HasJsonConversion();
         modelBuilder.Entity<Dummy>().Property(x => x.Extras).HasJsonConversion();
+        modelBuilder.Entity<Dummy>().Property(x => x.ModernExtras).HasJsonConversion();
         modelBuilder.Entity<Dummy>().Property(x => x.Metadata).HasJsonConversion();
         modelBuilder.ApplyJsonFunctions();
         base.OnModelCreating(modelBuilder);
@@ -127,6 +130,7 @@ public class Dummy
     public Guid Id { get; set; }
     public string Name { get; set; }
     public dynamic Extras { get; set; }
+    public JsonNode ModernExtras { get; set; }
     public DummyItem Data { get; set; }
     public Dictionary<string, string> Metadata { get; set; }
 }

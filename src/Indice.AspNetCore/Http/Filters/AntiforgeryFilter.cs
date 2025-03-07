@@ -1,5 +1,4 @@
-﻿#if NET7_0_OR_GREATER
-using Microsoft.AspNetCore.Antiforgery;
+﻿using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,4 +25,3 @@ public static class AntiforgeryExtensions
         });
     }
 }
-#endif

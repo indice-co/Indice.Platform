@@ -14,10 +14,12 @@ public class WorkerHostOptions
     }
 
     internal IServiceCollection Services { get; }
-    internal Type QueueStoreType { get; set; }
-    internal Type ScheduledTaskStoreType { get; set; }
-    internal Type LockStoreType { get; set; }
+    internal Type? QueueStoreType { get; set; }
+    internal Type? ScheduledTaskStoreType { get; set; }
+    internal Type? LockStoreType { get; set; }
 
     /// <summary>Gets the <see cref="JsonSerializerOptions"/> used internally whenever a payload needs to be persisted. </summary>
     public WorkerJsonOptions JsonOptions { get; }
+    /// <summary>If set to true, the worker host will wait for all jobs to finish before shutting down. Defaults to false.</summary>
+    public bool WaitJobsToCompleteOnShutdown { get; set; }
 }

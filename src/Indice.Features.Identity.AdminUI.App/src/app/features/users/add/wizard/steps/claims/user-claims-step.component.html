@@ -1,0 +1,80 @@
+<div class="row g-3">
+  <div class="col">
+    <label class="visually-hidden" for="claims-select"> Claim </label>
+    <select
+      class="form-control form-select"
+      id="claims-select"
+      name="claims-select"
+      [ngModel]="selectedClaimName"
+      (ngModelChange)="claimSelected($event)"
+      required
+      #claim="ngModel"
+    >
+      <option value="" disabled>Please select a claim</option>
+      <option *ngFor="let claim of claims" [value]="claim.name">
+        {{ claim.displayName || claim.name }}
+      </option>
+    </select>
+  </div>
+  <div class="col">
+    <label class="visually-hidden" for="claim-value"> Value </label>
+    <app-dynamic-input
+      id="claim-value"
+      name="claim-value"
+      [pattern]="selectedClaimRule"
+      [(ngModel)]="selectedClaimValue"
+      [modelType]="selectedClaimValueType"
+      [placeholder]="'Please provide a value...'"
+      required
+      #value="ngModel"
+    >
+    </app-dynamic-input>
+  </div>
+  <div class="col-md-1 text-end">
+    <button
+      type="submit"
+      class="btn btn-danger waves-effect waves-light m-r-5"
+      (click)="addClaim()"
+      [disabled]="!selectedClaimName || !selectedClaimValue"
+    >
+      Add
+    </button>
+  </div>
+</div>
+<div class="row mt-3 mb-3">
+  <div class="col-12">
+    <app-list-view
+      [clientSide]="true"
+      [rowsPerPage]="10"
+      [canFilter]="false"
+      [columns]="columns"
+      [rows]="rows"
+      [defaultSortField]="'type'"
+      [defaultSortDirection]="'Asc'"
+      #userClaimsList
+    >
+    </app-list-view>
+  </div>
+</div>
+<ng-template let-row="row" let-value="value" #actionsTemplate>
+  <button
+    class="btn btn-danger"
+    role="button"
+    [swal]="{
+      title: 'Delete?',
+      text:
+        'Claim \'' +
+        row?.type +
+        '\' will be deleted permanently. This action cannot be reversed.',
+      showCancelButton: true
+    }"
+    (confirm)="deleteClaim(row)"
+  >
+    Delete
+  </button>
+</ng-template>
+<ng-template let-row="row" let-value="value" #nameTemplate>
+  <span>
+    {{ row.displayName ? row.displayName : row.type }}
+  </span>
+</ng-template>

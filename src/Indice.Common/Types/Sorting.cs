@@ -58,7 +58,7 @@ public struct SortByClause
     /// <summary>Indicates whether this instance and a specified object are equal. </summary>
     /// <param name="obj">The object to compare with the current instance.</param>
     /// <returns></returns>
-    public override bool Equals(object obj) {
+    public override bool Equals(object? obj) {
         if (obj != null && obj is SortByClause) {
             var other = ((SortByClause)obj);
             return other.Path == Path &&
@@ -125,7 +125,7 @@ public class SortByClauseTypeConverter : TypeConverter
     /// <param name="context"></param>
     /// <param name="sourceType"></param>
     /// <returns></returns>
-    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
+    public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType) {
         if (sourceType == typeof(string)) {
             return true;
         }
@@ -138,7 +138,7 @@ public class SortByClauseTypeConverter : TypeConverter
     /// <param name="culture"></param>
     /// <param name="value"></param>
     /// <returns></returns>
-    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
+    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) {
         if (value is string) {
             return SortByClause.Parse((string)value);
         }
@@ -152,9 +152,9 @@ public class SortByClauseTypeConverter : TypeConverter
     /// <param name="value"></param>
     /// <param name="destinationType"></param>
     /// <returns></returns>
-    public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType) {
+    public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType) {
         if (destinationType == typeof(string)) {
-            return ((SortByClause)value).ToString();
+            return ((SortByClause)value!).ToString();
         }
 
         return base.ConvertTo(context, culture, value, destinationType);

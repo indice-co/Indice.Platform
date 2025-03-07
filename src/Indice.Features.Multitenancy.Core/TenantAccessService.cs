@@ -16,15 +16,15 @@ public class TenantAccessService<TTenant> where TTenant : Tenant
     }
 
     /// <summary>Gets the current tenant.</summary>
-    public async Task<TTenant> GetTenantAsync() {
-        string tenantIdentifier = null;
+    public async Task<TTenant?> GetTenantAsync() {
+        string? tenantIdentifier = null;
         foreach (var strategy in _tenantResolutionStrategies) {
             tenantIdentifier = await strategy.GetTenantIdentifierAsync();
             if (tenantIdentifier is not null) {
                 break;
             }
         }
-        return await _tenantStore.GetTenantAsync(tenantIdentifier);
+        return await _tenantStore.GetTenantAsync(tenantIdentifier!);
     }
 }
 

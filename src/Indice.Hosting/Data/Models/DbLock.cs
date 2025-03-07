@@ -6,7 +6,7 @@ public class DbLock
     /// <summary>The id.</summary>
     public Guid Id { get; set; }
     /// <summary>The subject of the lock.</summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
     /// <summary>Lock lease expiration date.</summary>
     public DateTime ExpirationDate { get; set; }
     /// <summary>Lock lease duration. Used in order to renew an existing lease.</summary>

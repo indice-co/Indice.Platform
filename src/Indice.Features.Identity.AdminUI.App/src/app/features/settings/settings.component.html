@@ -29,16 +29,20 @@
 <ng-template let-row="row"
              let-value="value"
              #actionsTemplate>
-    <a class="btn btn-success"
-       href="#"
-       role="button"
-       *ngIf="!row.reserved"
-       [routerLink]="value + '/edit'">
-        Edit
+    
+    <a class="icon-link text-primary" 
+        href="#" 
+        role="button" 
+        [routerLink]="value + '/edit'" 
+        title="Edit">
+        <i class="material-icons align-middle">edit</i>
     </a>
-    <span *ngIf="row.reserved"
-          class="badge badge-warning">
-        system reserved
+</ng-template>
+<ng-template let-row="row"
+             let-value="value"
+             #keyTemplate>
+    <span class="badge text-muted border boder-primary bg-light m-1" [title]="value">
+        {{ value }}
     </span>
 </ng-template>
 <ng-template let-row="row"

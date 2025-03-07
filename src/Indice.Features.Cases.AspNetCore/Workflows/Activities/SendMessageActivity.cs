@@ -1,12 +1,13 @@
-﻿using Elsa;
+﻿using System.Security.Claims;
+using Elsa;
 using Elsa.ActivityResults;
 using Elsa.Attributes;
 using Elsa.Design;
 using Elsa.Expressions;
 using Elsa.Providers.WorkflowStorage;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Interfaces;
-using Indice.Features.Cases.Models;
+using Indice.Features.Cases.Core.Models;
+using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Features.Cases.Workflows.Extensions;
 
 namespace Indice.Features.Cases.Workflows.Activities;
@@ -30,11 +31,11 @@ internal class SendMessageActivity : BaseCaseActivity
     [ActivityInput(
         Label = "Message",
         Hint = "The message to send to the case service.",
-        SupportedSyntaxes = new[] { SyntaxNames.JavaScript, SyntaxNames.Liquid },
+        SupportedSyntaxes = [SyntaxNames.JavaScript, SyntaxNames.Liquid],
         UIHint = ActivityInputUIHints.MultiLine,
         DefaultWorkflowStorageProvider = TransientWorkflowStorageProvider.ProviderName
     )]
-    public Message Message { get; set; }
+    public Message Message { get; set; } = null!;
 
 
     [ActivityInput(
@@ -47,11 +48,11 @@ internal class SendMessageActivity : BaseCaseActivity
     public bool RunAsSystemUser { get; set; } = false;
 
     [ActivityOutput]
-    public object Output { get; set; }
+    public object? Output { get; set; }
 
     public override async ValueTask<IActivityExecutionResult> ExecuteAsync(ActivityExecutionContext context) {
         var user = RunAsSystemUser 
-            ? Cases.Extensions.PrincipalExtensions.SystemUser() 
+            ? CasesClaimsPrincipalExtensions.SystemUser() 
             : context.TryGetUser();
 
         if (user is null || !user.Identity!.IsAuthenticated) {

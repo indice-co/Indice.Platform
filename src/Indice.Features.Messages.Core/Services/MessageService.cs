@@ -1,6 +1,7 @@
 ﻿using System.Dynamic;
 using System.Text.Json;
 using HandlebarsDotNet;
+using Indice.EntityFrameworkCore.Functions;
 using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Exceptions;
@@ -33,8 +34,8 @@ public class MessageService : IMessageService
     private IContactResolver ContactResolver { get; }
 
     /// <inheritdoc />
-    public async Task<ResultSet<Message>> GetList(string recipientId, ListOptions<MessagesFilter> options) {
-        var userMessages = await GetUserMessagesQuery(recipientId, options?.Filter).ToResultSetAsync(options);
+    public async Task<ResultSet<Message>?> GetList(string recipientId, ListOptions<MessagesFilter>? options) {
+        var userMessages = await GetUserMessagesQuery(recipientId, options?.Filter, options?.Search).ToResultSetAsync(options);
         if (userMessages?.Items != null && userMessages.Items.Any(i => i.RequiresSubstitutions)) {
             await ApplyHandlebarsSubstitutions(recipientId, userMessages);
         }
@@ -42,7 +43,7 @@ public class MessageService : IMessageService
     }
 
     /// <inheritdoc />
-    public async Task<Message> GetById(Guid id, string recipientId, MessageChannelKind? channel = MessageChannelKind.Inbox) {
+    public async Task<Message?> GetById(Guid id, string recipientId, MessageChannelKind? channel = MessageChannelKind.Inbox) {
         var userMessage = await GetUserMessagesQuery(recipientId, new MessagesFilter { MessageChannelKind = channel }).SingleOrDefaultAsync(x => x.Id == id);
         if (userMessage?.RequiresSubstitutions == true && channel == MessageChannelKind.Inbox) {
             await ApplyHandlebarsSubstitutions(recipientId, userMessage);
@@ -61,18 +62,15 @@ public class MessageService : IMessageService
             message.IsDeleted = true;
             message.DeleteDate = DateTime.UtcNow;
         } else {
-            var dbCampaign = await DbContext.Campaigns.FirstOrDefaultAsync(c => c.Id == id);
-            if (dbCampaign is null) {
-                throw MessageExceptions.MessageNotFound(id);
-            }
+            var dbCampaign = await DbContext.Campaigns.FirstOrDefaultAsync(c => c.Id == id) ?? throw MessageExceptions.MessageNotFound(id);
             var dbMessage = new DbMessage {
                 CampaignId = id,
                 DeleteDate = DateTime.UtcNow,
                 Id = Guid.NewGuid(),
                 IsDeleted = true,
-                RecipientId = recipientId
+                RecipientId = recipientId,
+                Content = await GetMessageContent(recipientId, dbCampaign)
             };
-            dbMessage.Content = await GetMessageContent(recipientId, dbCampaign);
             DbContext.Messages.Add(dbMessage);
         }
         await DbContext.SaveChangesAsync();
@@ -89,21 +87,32 @@ public class MessageService : IMessageService
             message.IsRead = true;
             message.ReadDate = DateTime.UtcNow;
         } else {
-            var dbCampaign = await DbContext.Campaigns.FirstOrDefaultAsync(c => c.Id == id);
-            if (dbCampaign is null) {
-                throw MessageExceptions.MessageNotFound(id);
-            }
+            var dbCampaign = await DbContext.Campaigns.FirstOrDefaultAsync(c => c.Id == id) ?? throw MessageExceptions.MessageNotFound(id);
             var dbMessage = new DbMessage {
                 CampaignId = id,
                 Id = Guid.NewGuid(),
                 IsRead = true,
                 ReadDate = DateTime.UtcNow,
-                RecipientId = recipientId
+                RecipientId = recipientId,
+                Content = await GetMessageContent(recipientId, dbCampaign)
             };
-            dbMessage.Content = await GetMessageContent(recipientId, dbCampaign);
             DbContext.Messages.Add(dbMessage);
         }
         await DbContext.SaveChangesAsync();
+    }
+
+    /// <inheritdoc />
+    public async Task MarkAsUnread(Guid id, string recipientId) {
+        var message = await DbContext.Messages
+            .SingleOrDefaultAsync(x => x.CampaignId == id && x.RecipientId == recipientId);
+        if (message is not null) {
+            if (!message.IsRead) {
+                throw MessageExceptions.MessageAlreadyUnread(id);
+            }
+            message.IsRead = false;
+            message.ReadDate = null;
+            await DbContext.SaveChangesAsync();
+        }
     }
 
     /// <inheritdoc />
@@ -121,7 +130,7 @@ public class MessageService : IMessageService
         return dbMessage.Id;
     }
 
-    private IQueryable<Message> GetUserMessagesQuery(string recipientId, MessagesFilter filter = null) {
+    private IQueryable<Message> GetUserMessagesQuery(string recipientId, MessagesFilter? filter = null, string? searchTerm = null) {
         var query = DbContext
             .Campaigns
             .AsNoTracking()
@@ -138,26 +147,35 @@ public class MessageService : IMessageService
         var messageChannelKind = MessageChannelKind.Inbox;
         if (filter is not null) {
             if (filter.ShowExpired.HasValue) {
-                query = query.Where(x => !x.Campaign.ActivePeriod.To.HasValue || x.Campaign.ActivePeriod.To.Value >= DateTime.UtcNow);
+                query = query.Where(x => !x.Campaign.ActivePeriod!.To.HasValue || x.Campaign.ActivePeriod.To.Value >= DateTime.UtcNow);
             }
-            if (filter.TypeId.Length > 0) {
+            if (filter.TypeId?.Length > 0) {
                 query = query.Where(x => x.Campaign.Type != null && filter.TypeId.Contains(x.Campaign.Type.Id));
             }
             if (filter.ActiveFrom.HasValue) {
-                query = query.Where(x => (x.Campaign.ActivePeriod.From ?? DateTimeOffset.MaxValue) > filter.ActiveFrom.Value);
+                query = query.Where(x => (x.Campaign.ActivePeriod!.From ?? DateTimeOffset.MaxValue) > filter.ActiveFrom.Value);
             }
             if (filter.ActiveTo.HasValue) {
-                query = query.Where(x => (x.Campaign.ActivePeriod.To ?? DateTimeOffset.MinValue) < filter.ActiveTo.Value);
+                query = query.Where(x => (x.Campaign.ActivePeriod!.To ?? DateTimeOffset.MinValue) < filter.ActiveTo.Value);
             }
             if (filter.IsRead.HasValue) {
-                query = query.Where(x => ((bool?)x.Message.IsRead ?? false) == filter.IsRead);
+                query = query.Where(x => ((bool?)x.Message!.IsRead ?? false) == filter.IsRead);
             }
             if (filter.MessageChannelKind.HasValue && filter.MessageChannelKind != MessageChannelKind.None) {
                 messageChannelKind = filter.MessageChannelKind.Value;
             }
         }
         query = query.Where(x => x.Campaign.MessageChannelKind.HasFlag(messageChannelKind));
-        var messageChannelKindKey = messageChannelKind.ToString();
+        var channelKindKey = messageChannelKind.ToString();
+        //Free text Search
+        searchTerm = searchTerm?.Trim();
+
+        if (searchTerm?.Length > 2) {
+            query = DbContext.Database.IsSqlServer() ?
+             query.Where(x => JsonFunctions.JsonValue(x.Message.Content, $"$.{channelKindKey.ToLower()}.title").Contains(searchTerm)) :
+             query.Where(x => x.Campaign.Title.Contains(searchTerm));
+        }
+
         return query.Select(x => new Message {
             ActionLink = x.Campaign.ActionLink != null ? new Hyperlink {
                 Text = x.Campaign.ActionLink.Text,
@@ -167,23 +185,24 @@ public class MessageService : IMessageService
             } : null,
             ActivePeriod = x.Campaign.ActivePeriod,
             AttachmentUrl = x.Campaign.Attachment != null
-                ? $"{CampaignInboxOptions.ApiPrefix}/messages/attachments/{(Base64Id)x.Campaign.Attachment.Guid}.{Path.GetExtension(x.Campaign.Attachment.Name).TrimStart('.')}"
+                ? $"{CampaignInboxOptions.PathPrefix}/messages/attachments/{(Base64Id)x.Campaign.Attachment.Guid}.{Path.GetExtension(x.Campaign.Attachment.Name)!.TrimStart('.')}"
                 : null,
             // TODO: Fix substitution when message is null.
-            Title = x.Message != null && x.Message.Content.ContainsKey(messageChannelKindKey) 
-                ? x.Message.Content[messageChannelKindKey].Title 
-                : x.Campaign != null && x.Campaign.Content.ContainsKey(messageChannelKindKey) ? x.Campaign.Content[messageChannelKindKey].Title : string.Empty,
-            Content = x.Message != null && x.Message.Content.ContainsKey(messageChannelKindKey) 
-                ? x.Message.Content[messageChannelKindKey].Body 
-                : x.Campaign != null && x.Campaign.Content.ContainsKey(messageChannelKindKey) ? x.Campaign.Content[messageChannelKindKey].Body : string.Empty,
-            CreatedAt = x.Campaign.CreatedAt,
+            Title = x.Message != null && x.Message.Content.ContainsKey(channelKindKey)
+                ? x.Message.Content[channelKindKey].Title
+                : x.Campaign != null && x.Campaign.Content.ContainsKey(channelKindKey) ? x.Campaign.Content[channelKindKey].Title : string.Empty,
+            Content = x.Message != null && x.Message.Content.ContainsKey(channelKindKey)
+                ? x.Message.Content[channelKindKey].Body
+                : x.Campaign != null && x.Campaign.Content.ContainsKey(channelKindKey) ? x.Campaign.Content[channelKindKey].Body : string.Empty,
+            CreatedAt = x.Campaign!.CreatedAt,
             RequiresSubstitutions = x.Message == null,
             CampaignData = x.Campaign.Data,
             Id = x.Campaign.Id,
             IsRead = x.Message != null && x.Message.IsRead,
             Type = x.Campaign.Type != null ? new MessageType {
                 Id = x.Campaign.Type.Id,
-                Name = x.Campaign.Type.Name
+                Name = x.Campaign.Type.Name,
+                Classification = x.Campaign.Type.Classification,
             } : null
         });
     }

@@ -37,7 +37,7 @@ public class PushNotificationServiceAzure : IPushNotificationService
     private PushNotificationAzureOptions PushNotificationAzureOptions { get; }
 
     /// <inheritdoc/>
-    public async Task Register(string deviceId, string pnsHandle, DevicePlatform devicePlatform, IList<PushNotificationTag> tags) {
+    public async Task Register(string deviceId, string? pnsHandle, DevicePlatform devicePlatform, IList<PushNotificationTag> tags) {
         if (string.IsNullOrEmpty(deviceId)) {
             throw new ArgumentNullException(nameof(deviceId));
         }
@@ -54,13 +54,17 @@ public class PushNotificationServiceAzure : IPushNotificationService
             case DevicePlatform.iOS:
                 installationRequest.Platform = NotificationPlatform.Apns;
                 installationRequest.Templates.Add("DefaultMessage", new InstallationTemplate {
-                    Body = PushNotificationAzureOptions.SilentNotifications ?? false ? PushNotificationServiceAzureTemplates.Silent.IOS : PushNotificationServiceAzureTemplates.Generic.IOS
+                    Body = PushNotificationAzureOptions.SilentNotifications ?? false
+                        ? PushNotificationServiceAzureTemplates.Silent.IOS
+                        : PushNotificationServiceAzureTemplates.Generic.IOS
                 });
                 break;
             case DevicePlatform.Android:
-                installationRequest.Platform = NotificationPlatform.Fcm;
+                installationRequest.Platform = NotificationPlatform.FcmV1;
                 installationRequest.Templates.Add("DefaultMessage", new InstallationTemplate {
-                    Body = PushNotificationAzureOptions.SilentNotifications ?? true ? PushNotificationServiceAzureTemplates.Silent.ANDROID : PushNotificationServiceAzureTemplates.Generic.ANDROID
+                    Body = PushNotificationAzureOptions.SilentNotifications ?? true 
+                        ? PushNotificationServiceAzureTemplates.Silent.ANDROID 
+                        : PushNotificationServiceAzureTemplates.Generic.ANDROID
                 });
                 break;
             default:
@@ -80,7 +84,7 @@ public class PushNotificationServiceAzure : IPushNotificationService
     }
 
     /// <inheritdoc/>
-    public async Task SendAsync(string title, string body, IList<PushNotificationTag> tags, string data = null, string classification = null) {
+    public async Task SendAsync(string title, string? body, IList<PushNotificationTag>? tags, string? data = null, string? classification = null) {
         if (string.IsNullOrEmpty(title)) {
             throw new ArgumentNullException(nameof(title));
         }
@@ -114,17 +118,17 @@ public class PushNotificationServiceAzure : IPushNotificationService
 /// <summary>Push notification service options.</summary>
 public class PushNotificationAzureOptions
 {
-    internal IServiceCollection Services { get; set; }
+    internal IServiceCollection Services { get; set; } = null!;
     /// <summary>The section name in application settings.</summary>
     public const string Name = "PushNotifications";
     /// <summary>The connection string to the push notification account.</summary>
-    public string ConnectionString { get; set; }
+    public string? ConnectionString { get; set; }
     /// <summary>Notifications hub name, if any.</summary>
-    public string NotificationHubPath { get; set; }
+    public string? NotificationHubPath { get; set; }
     /// <summary>Specifies whether the notification is handled by the operating system.</summary>
     public bool? SilentNotifications { get; set; }
     /// <summary>Gets or sets HTTP message handler.</summary>
-    public HttpClientHandler MessageHandler { get; set; }
+    public HttpClientHandler? MessageHandler { get; set; }
 }
 
 /// <summary>Generic and silent push notification templates for Android and iOS.</summary>
@@ -134,59 +138,76 @@ public class PushNotificationServiceAzureTemplates
     public class Generic
     {
         /// <summary>iOS generic template.</summary>
-        public const string IOS = @"{
-                ""aps"":{
-                    ""alert"": ""$(message)"", 
-                    ""category"": ""$(classification)""
+        public const string IOS = """
+            {
+                "aps":{
+                    "alert": {
+                        "title": "$(message)",
+            			"body": "$(body)"
+                    }, 
+                    "category": "$(classification)"
                 }, 
-                ""payload"":{
-                    ""message"": ""$(message)"", 
-                    ""data"": ""$(data)"", 
-                    ""category"": ""$(classification)""
+                "payload":{
+                    "message": "$(message)", 
+                    "data": "$(data)", 
+                    "category": "$(classification)"
                 }
-            }";
+            }
+            """;
 
         /// <summary>Android generic template.</summary>
-        public const string ANDROID = @"{
-                ""notification"":{
-                    ""title"": ""$(message)"",
-                    ""body"": ""$(body)""
-                },
-                ""data"":{
-                    ""message"": ""$(message)"", 
-                    ""data"": ""$(data)"", 
-                    ""category"": ""$(classification)""
-                }
-            }";
+        public const string ANDROID = """
+            {
+            	"message": {
+            		"notification": {
+            			"title": "$(message)",
+            			"body": "$(body)",
+            		},
+            		"data": {
+            			"message": "$(message)",
+            			"data": "$(data)",
+            			"category": "$(classification)",
+                        "body": "$(body)"
+            		}
+            	}
+            }
+            """;
     }
 
     /// <summary>Silent templates.</summary>
     public class Silent
     {
         /// <summary>iOS silent template.</summary>
-        public const string IOS = @"{
-                ""aps"":{, 
-                    ""category"": ""$(classification)"",
-                    ""content-available"": 1,
-                    ""apns-priority"": 5,
-                    ""sound"": """",
-                    ""badge"": 0
-                },
-                ""message"": ""$(message)"",
-                ""payload"":{
-                    ""message"": ""$(message)"", 
-                    ""data"": ""$(data)"", 
-                    ""category"": ""$(classification)""
+        public const string IOS = """
+            {
+                "aps": { 
+                    "category": "$(classification)",
+                    "content-available": 1,
+                    "apns-priority": 5,
+                    "sound": "",
+                    "badge": 0
+                },              
+                "payload":{
+                    "message": "$(message)", 
+                    "data": "$(data)", 
+                    "category": "$(classification)",
+                    "body": "$(body)"
                 }
-            }";
+            }
+            """;
 
         /// <summary>Android silent template.</summary>
-        public const string ANDROID = @"{
-                ""data"":{
-                    ""message"": ""$(message)"", 
-                    ""data"": ""$(data)"", 
-                    ""category"": ""$(classification)""
-                }
-            }";
+        public const string ANDROID = """
+            {
+            	"message": {
+            		"data": {
+            			"message": "$(message)",
+            			"data": "$(data)",
+            			"category": "$(classification)",
+                        "body": "$(body)"
+            		}
+            	}
+            }
+            """;
     }
 }

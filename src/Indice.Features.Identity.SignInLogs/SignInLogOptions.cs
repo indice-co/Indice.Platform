@@ -58,14 +58,8 @@ public class SignInLogOptions
 /// <summary>Options regarding log cleanup.</summary>
 public class LogCleanupOptions
 {
-    #if NET6_0
-    /// <summary>The number of log items to delete on each cleanup iteration. Defaults to <i>250</i>.</summary>
-    public ushort BatchSize { get; set; } = 1000;
-    #endif
-    #if NET7_0_OR_GREATER
     /// <summary>The number of log items to delete on each cleanup iteration. Defaults to <i>1000</i>. Maximum allowed values before lock escalation.</summary>
     public ushort BatchSize { get; set; } = 4000;
-    #endif
     /// <summary>The number of seconds to wait between to consecutive cleanup executions. Defaults to <i>3600 seconds</i> (1 hour).</summary>
     public ushort IntervalSeconds { get; set; } = 3600;
     /// <summary>Determines whether log cleanup is enabled. Defaults to <i>true</i>.</summary>

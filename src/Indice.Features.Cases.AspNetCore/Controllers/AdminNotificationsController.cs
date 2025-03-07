@@ -1,6 +1,6 @@
-﻿using Indice.Features.Cases.Interfaces;
-using Indice.Features.Cases.Models.Requests;
-using Indice.Features.Cases.Models.Responses;
+﻿using Indice.Features.Cases.Core.Models.Requests;
+using Indice.Features.Cases.Core.Models.Responses;
+using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -49,7 +49,11 @@ internal class AdminNotificationsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Subscribe(NotificationSubscriptionRequest request) {
-        await _service.Subscribe(request.CaseTypeIds, NotificationSubscription.FromUser(User, _casesApiOptions.GroupIdClaimType));
+        if ((request.CaseTypeIds?.Count > 0)) {
+            ModelState.AddModelError(nameof(request.CaseTypeIds), "At least one CaseTypeId is required in order to subscribe");
+            return BadRequest(ModelState);
+        }
+        await _service.Subscribe(request.CaseTypeIds!, NotificationSubscription.FromUser(User, _casesApiOptions.GroupIdClaimType));
         return NoContent();
     }
 }

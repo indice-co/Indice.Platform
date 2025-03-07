@@ -39,11 +39,7 @@ public static class DateTimeExtensions
     /// <param name="timeZoneId">The Windows time zone id.</param>
     /// <param name="kind">Specify the kind of date you get.</param>
     public static DateTime Shift(this DateTime dateTime, string timeZoneId, DateTimeKind kind = DateTimeKind.Unspecified) {
-#if NET6_0_OR_GREATER
         var zone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
-#else
-        var zone = TimeZoneConverter.TZConvert.GetTimeZoneInfo(timeZoneId);
-#endif
         var utc = dateTime.ToUniversalTime();
         var local = DateTime.SpecifyKind(utc.Add(zone.GetUtcOffset(utc)), kind);
         return local;
@@ -53,13 +49,7 @@ public static class DateTimeExtensions
     /// <param name="dateTime">The source <see cref="DateTime"/></param>
     /// <param name="timeZoneId">The Windows time zone id.</param>
     public static DateTimeOffset ToDateTimeOffset(this DateTime dateTime, string timeZoneId) {
-
-        // todo: Dotnet standard timezone converter
-#if NET6_0_OR_GREATER
         var zone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
-#else
-        var zone = TimeZoneConverter.TZConvert.GetTimeZoneInfo(timeZoneId);
-#endif
         var utc = dateTime.ToUniversalTime();
         var offset = zone.GetUtcOffset(utc);
         var local = DateTime.SpecifyKind(utc.Add(offset), DateTimeKind.Unspecified);

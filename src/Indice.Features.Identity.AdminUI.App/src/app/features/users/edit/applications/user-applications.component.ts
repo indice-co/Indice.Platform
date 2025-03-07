@@ -6,12 +6,14 @@ import { TableColumn } from '@swimlane/ngx-datatable';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { UserClientInfo } from 'src/app/core/services/identity-api.service';
 import { UserStore } from '../user-store.service';
+import { ListViewComponent } from 'src/app/shared/components/list-view/list-view.component';
 
 @Component({
     selector: 'app-user-applications',
     templateUrl: './user-applications.component.html'
 })
 export class UserApplicationsComponent implements OnInit, OnDestroy {
+    @ViewChild('userApplicationsList', { static: true }) public _userApplicationsList: ListViewComponent;
     @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
     private _getDataSubscription: Subscription;
 
@@ -27,7 +29,7 @@ export class UserApplicationsComponent implements OnInit, OnDestroy {
 
     public ngOnInit(): void {
         this.columns = [
-            { prop: 'clientId', name: 'App Id', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
+            { prop: 'clientId', name: 'App Id', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._userApplicationsList.keyTemplate },
             { prop: 'clientName', name: 'App Name', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
             { prop: 'description', name: 'Description', draggable: false, canAutoResize: true, sortable: false, resizeable: false },
             { prop: 'id', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' }

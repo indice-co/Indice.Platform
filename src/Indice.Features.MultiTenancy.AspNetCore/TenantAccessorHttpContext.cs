@@ -16,5 +16,5 @@ public class TenantAccessorHttpContext<TTenant> : ITenantAccessor<TTenant> where
     }
 
     /// <inheritdoc/>
-    public TTenant Tenant => _httpContextAccessor.HttpContext.GetTenant<TTenant>();
+    public TTenant? Tenant => _httpContextAccessor.HttpContext?.GetTenant<TTenant>();
 }

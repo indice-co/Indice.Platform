@@ -9,7 +9,7 @@ namespace Indice.Services;
 /// <remarks>This returns different objects for Windows and Linux.</remarks>
 public class SystemZoneInfoProvider : IZoneInfoProvider
 {
-    private ZoneInfo[] _zoneInfos;
+    private ZoneInfo[]? _zoneInfos;
 
     /// <inheritdoc/>
     public IEnumerable<ZoneInfo> GetTimeZones() {

@@ -34,7 +34,7 @@ public class Rfc6238AuthenticationService
     /// <param name="securityToken">A security code. This should be a secret.</param>
     /// <param name="modifier">Entropy.</param>
     /// <returns>Returns the generated code.</returns>
-    public int GenerateCode(byte[] securityToken, string modifier = null) {
+    public int GenerateCode(byte[] securityToken, string? modifier = null) {
         if (securityToken == null) {
             throw new ArgumentNullException(nameof(securityToken));
         }
@@ -49,7 +49,7 @@ public class Rfc6238AuthenticationService
     /// <param name="code">The code.</param>
     /// <param name="modifier">Entropy.</param>
     /// <returns>Returns true if code is valid, otherwise false.</returns>
-    public bool ValidateCode(byte[] securityToken, int code, string modifier = null) {
+    public bool ValidateCode(byte[] securityToken, int code, string? modifier = null) {
         if (securityToken == null) {
             throw new ArgumentNullException(nameof(securityToken));
         }
@@ -65,7 +65,7 @@ public class Rfc6238AuthenticationService
         return false;
     }
 
-    private int ComputeTotp(HashAlgorithm hashAlgorithm, ulong timestepNumber, string modifier) {
+    private int ComputeTotp(HashAlgorithm hashAlgorithm, ulong timestepNumber, string? modifier) {
         // # of 0's = length of pin.
         var mod = (int)Math.Pow(10, _codeLength);
         // See https://tools.ietf.org/html/rfc4226
@@ -79,7 +79,7 @@ public class Rfc6238AuthenticationService
         return binaryCode % mod;
     }
 
-    private byte[] ApplyModifier(byte[] input, string modifier) {
+    private byte[] ApplyModifier(byte[] input, string? modifier) {
         if (string.IsNullOrEmpty(modifier)) {
             return input;
         }

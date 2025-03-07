@@ -32,7 +32,9 @@ public class MessageSenderService : IMessageSenderService
         DbContext.MessageSenders.Add(messageSender);
         if (request.IsDefault) {
             var defaultSender = await DbContext.MessageSenders.FirstOrDefaultAsync(s => s.IsDefault);
-            defaultSender.IsDefault = false;
+            if (defaultSender != null) {
+                defaultSender.IsDefault = false;
+            }
         }
         await DbContext.SaveChangesAsync();
         return new MessageSender {
@@ -49,16 +51,13 @@ public class MessageSenderService : IMessageSenderService
 
     /// <inheritdoc />
     public async Task Delete(Guid id) {
-        var messageSender = await DbContext.MessageSenders.FindAsync(id);
-        if (messageSender is null) {
-            throw MessageExceptions.MessageSenderNotFound(id);
-        }
+        var messageSender = await DbContext.MessageSenders.FindAsync(id) ?? throw MessageExceptions.MessageSenderNotFound(id);
         DbContext.MessageSenders.Remove(messageSender);
         await DbContext.SaveChangesAsync();
     }
 
     /// <inheritdoc />
-    public async Task<MessageSender> GetById(Guid id) {
+    public async Task<MessageSender?> GetById(Guid id) {
         var messageSender = await DbContext.MessageSenders.FindAsync(id);
         if (messageSender is null) {
             return default;
@@ -76,7 +75,7 @@ public class MessageSenderService : IMessageSenderService
     }
 
     /// <inheritdoc />
-    public async Task<MessageSender> GetByName(string name) {
+    public async Task<MessageSender?> GetByName(string name) {
         var messageSender = await DbContext.MessageSenders.Where(x => x.DisplayName == name).FirstOrDefaultAsync();
         if (messageSender is null) {
             return default;
@@ -99,35 +98,34 @@ public class MessageSenderService : IMessageSenderService
             .MessageSenders
             .AsNoTracking();
         if (!string.IsNullOrWhiteSpace(options.Search)) {
-            query = query.Where(x => x.DisplayName.ToLower().Contains(options.Search.ToLower()));
+            query = query.Where(x => x.DisplayName!.Contains(options.Search, StringComparison.CurrentCultureIgnoreCase));
         }
         if (filter?.IsDefault is not null) {
             query = query.Where(x => x.IsDefault == filter.IsDefault.Value);
         }
         return query.Select(messageSender => new MessageSender {
-                Id = messageSender.Id,
-                Sender = messageSender.Sender,
-                DisplayName = messageSender.DisplayName,
-                CreatedAt = messageSender.CreatedAt,
-                CreatedBy = messageSender.CreatedBy,
-                UpdatedBy = messageSender.UpdatedBy,
-                UpdatedAt = messageSender.UpdatedAt,
-                IsDefault = messageSender.IsDefault
+            Id = messageSender.Id,
+            Sender = messageSender.Sender,
+            DisplayName = messageSender.DisplayName,
+            CreatedAt = messageSender.CreatedAt,
+            CreatedBy = messageSender.CreatedBy,
+            UpdatedBy = messageSender.UpdatedBy,
+            UpdatedAt = messageSender.UpdatedAt,
+            IsDefault = messageSender.IsDefault
         }).ToResultSetAsync(options);
     }
 
     /// <inheritdoc />
     public async Task Update(Guid id, UpdateMessageSenderRequest request) {
-        var messageSender = await DbContext.MessageSenders.FindAsync(id);
-        if (messageSender is null) {
-            throw MessageExceptions.MessageSenderNotFound(id);
-        }
+        var messageSender = await DbContext.MessageSenders.FindAsync(id) ?? throw MessageExceptions.MessageSenderNotFound(id);
         messageSender.Sender = request.Sender;
         messageSender.DisplayName = request.DisplayName;
         if (request.IsDefault && !messageSender.IsDefault) {
             var defaultSender = await DbContext.MessageSenders.FirstOrDefaultAsync(s => s.IsDefault);
-            defaultSender.IsDefault = false;
-            messageSender.IsDefault = true;
+            if (defaultSender != null) {
+                defaultSender.IsDefault = false;
+                messageSender.IsDefault = true;
+            }
         }
         await DbContext.SaveChangesAsync();
     }

@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AuthCallbackComponent, AuthRenewComponent, PageNotFoundComponent, SidePaneSize } from '@indice/ng-components';
+import { AuthCallbackComponent, AuthRenewComponent, PageNotFoundComponent, SidePaneSize, UnauthorizedComponent } from '@indice/ng-components';
 import { AuthGuardService } from '@indice/ng-auth';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { HomeComponent } from './features/home/home.component';
@@ -58,6 +58,7 @@ const routes: Routes = [
   { path: 'new-case', component: CaseCreatePageComponent, pathMatch: 'prefix', outlet: 'rightpane', data: { title: 'New Case', paneSize: SidePaneSize.Small25, breadcrumb: { title: 'Νέα Υπόθεση' } } },
   { path: 'queries', component: QueriesPageComponent, pathMatch: 'prefix', outlet: 'rightpane', data: { title: 'Queries', paneSize: SidePaneSize.Small25, breadcrumb: { title: 'Εύρεση' } } },
   { path: 'logout', component: LogOutComponent, data: { title: 'Logout', shell: { fluid: true, showHeader: false, showFooter: false }, breadcrumb: { title: 'Αποσύνδεση' } } },
+  { path: 'forbidden', component: UnauthorizedComponent, data: { title: 'Forbidden', shell: { fluid: true, showHeader: false, showFooter: false }, breadcrumb: { title: 'Μη επαρκής πρόσβαση' } } },
   { path: '**', component: PageNotFoundComponent, data: { title: 'Page Not Found', shell: { fluid: true, showHeader: false, showFooter: false }, breadcrumb: { title: 'Δεν βρέθηκε η σελίδα' } } },
 ];
 

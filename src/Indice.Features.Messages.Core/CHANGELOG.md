@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.0.0] - 2024-12-03
+- Added support for persisting User communication channel preferences, locale and Consent.
+- Campaign and Template define whether user communication preferences must be ingored if needed. 
+- Send messages respects user communication preferences unless campaign specifies otherwise
+
+```sql		
+ALTER TABLE [#Schema#].[Campaign]
+ADD IgnoreUserPreferences BIT DEFAULT(0) NOT NULL;
+GO
+ALTER TABLE [#Schema#].[Contact]
+ADD 
+	CommunicationPreferences TINYINT DEFAULT(0) NOT NULL,
+	ConsentCommercial		 BIT DEFAULT(0) NOT NULL,
+	Locale					 VARCHAR(16);
+GO
+ALTER TABLE [#Schema#].[DistributionListContact]
+ADD Unsubscribed BIT DEFAULT(0) NOT NULL;	
+GO
+ALTER TABLE [#Schema#].[Template]
+ADD IgnoreUserPreferences BIT DEFAULT(0) NOT NULL;
+GO
+ALTER TABLE [#Schema#].[MessageType]
+ADD Classification TINYINT DEFAULT(0) NOT NULL;		
+GO
+ ```		
 
 ## [7.27.0] - 2024-07-26
 ### Added

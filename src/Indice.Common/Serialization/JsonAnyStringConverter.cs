@@ -5,10 +5,10 @@ using System.Text.Json.Serialization;
 namespace Indice.Serialization;
 
 /// <summary>A custom <see cref="JsonConverter"/> that tries to convert any JSON value a suitable string representation if possible. If not it takes the json and passes it to the value as a json string.</summary>
-public class JsonAnyStringConverter : JsonConverter<string>
+public class JsonAnyStringConverter : JsonConverter<string?>
 {
     /// <inheritdoc/>
-    public override string Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
+    public override string? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
         if (reader.TokenType == JsonTokenType.Null) {
             return default;
         }
@@ -33,5 +33,5 @@ public class JsonAnyStringConverter : JsonConverter<string>
     }
 
     /// <inheritdoc/>
-    public override void Write(Utf8JsonWriter writer, string value, JsonSerializerOptions options) => writer.WriteStringValue(value);
+    public override void Write(Utf8JsonWriter writer, string? value, JsonSerializerOptions options) => writer.WriteStringValue(value);
 }

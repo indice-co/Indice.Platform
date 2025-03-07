@@ -1,6 +1,4 @@
-﻿#if NET8_0_OR_GREATER
-#nullable enable
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,7 +6,6 @@ using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using System.Text.RegularExpressions;
 
 namespace Microsoft.AspNetCore.Routing;
 
@@ -47,12 +44,20 @@ public static class TranslationsGraphFeatureExtensions
     public static IEndpointRouteBuilder MapTranslationGraph(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<TranslationsGraphOptions>>().Value;
         var endpoints = options.GetEndpoints();
+        int counter = 0;
         foreach (var endpoint in endpoints) {
+            var operationName = "GetTranslations";
+            if (counter > 0) {
+                operationName += counter;
+            } 
             routes.MapGet(endpoint.Key, (string lang, IStringLocalizerFactory factory) => {
                 var culture = new System.Globalization.CultureInfo(lang);
                 var strings = endpoint.SelectMany(x => factory.Create(x.TranslationsBaseName, x.TranslationsLocation).GetAllStrings(culture, includeParentCultures: true));
                 return TypedResults.Ok(strings.ToObjectGraph());
-            });
+            })
+            .WithDescription($"Get translations aggregate for {endpoint.First().TranslationsBaseName}")
+            .WithName(operationName);
+            counter++;
         }
         return routes;
     }
@@ -71,7 +76,7 @@ public class TranslationsGraphOptions
     /// <summary>
     /// A dot dlimited path to the folder containing the Resex file with the translations key values. Defaults to <strong>"Resources.UiTranslations"</strong>
     /// </summary>
-    public string DefaultTranslationsBaseName { get; set; } = "Resources.UiTranslations";
+    public string DefaultTranslationsBaseName { get; set; } = "UiTranslations";
 
     /// <summary>
     /// The assembly name containing the translation resex files as embeded resources. Defaults to <strong>Assembly.GetEntryAssembly()!.GetName().Name!</strong>
@@ -110,7 +115,3 @@ public class TranslationsGraphOptions
         return all.ToLookup(x => x.EndpointRoutePattern);
     }
 }
-
-
-#nullable disable
-#endif

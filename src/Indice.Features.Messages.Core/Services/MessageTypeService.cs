@@ -25,47 +25,59 @@ public class MessageTypeService : IMessageTypeService
     public async Task<MessageType> Create(CreateMessageTypeRequest request) {
         var messageType = new DbMessageType {
             Id = Guid.NewGuid(),
-            Name = request.Name
+            Name = request.Name.Trim(),
+            Alias = string.IsNullOrWhiteSpace(request.Alias) ? null : request.Alias.Trim(),
+            Classification = request.Classification
         };
         DbContext.MessageTypes.Add(messageType);
         await DbContext.SaveChangesAsync();
         return new MessageType {
             Id = messageType.Id,
-            Name = messageType.Name
+            Name = messageType.Name,
+            Alias = messageType.Alias,
+            Classification = messageType.Classification,
         };
     }
 
     /// <inheritdoc />
     public async Task Delete(Guid id) {
-        var messageType = await DbContext.MessageTypes.FindAsync(id);
-        if (messageType is null) {
-            throw MessageExceptions.MessageTypeNotFound(id);
-        }
+        var messageType = await DbContext.MessageTypes.FindAsync(id) ?? throw MessageExceptions.MessageTypeNotFound(id);
         DbContext.MessageTypes.Remove(messageType);
         await DbContext.SaveChangesAsync();
     }
 
     /// <inheritdoc />
-    public async Task<MessageType> GetById(Guid id) {
-        var messageType = await DbContext.MessageTypes.FindAsync(id);
+    public async Task<MessageType?> GetById(GuidOrAlias? id) {
+        if (id == null || id.Value == null) {
+            return default;
+        }
+
+        DbMessageType? messageType = id.Value.IsGuid ?
+            await DbContext.MessageTypes.FindAsync(id.Value.Uuid) :
+            await DbContext.MessageTypes.FirstOrDefaultAsync(x => x.Alias == id.Value.Value);
+
         if (messageType is null) {
             return default;
         }
         return new MessageType {
             Id = messageType.Id,
-            Name = messageType.Name
+            Name = messageType.Name,
+            Alias = messageType.Alias,
+            Classification = messageType.Classification
         };
     }
 
     /// <inheritdoc />
-    public async Task<MessageType> GetByName(string name) {
-        var messageType = await DbContext.MessageTypes.Where(x => x.Name == name).FirstOrDefaultAsync();
+    public async Task<MessageType?> GetByName(string name) {
+        var messageType = await DbContext.MessageTypes.Where(x => x.Name == name.Trim()).FirstOrDefaultAsync();
         if (messageType is null) {
             return default;
         }
         return new MessageType {
             Id = messageType.Id,
-            Name = messageType.Name
+            Name = messageType.Name,
+            Alias = messageType.Alias,
+            Classification = messageType.Classification
         };
     }
 
@@ -76,21 +88,31 @@ public class MessageTypeService : IMessageTypeService
             .AsNoTracking()
             .Select(campaignType => new MessageType {
                 Id = campaignType.Id,
-                Name = campaignType.Name
+                Name = campaignType.Name,
+                Alias = campaignType.Alias,
+                Classification = campaignType.Classification
             });
-        if (!string.IsNullOrWhiteSpace(options.Search)) {
-            query = query.Where(x => x.Name.ToLower().Contains(options.Search.ToLower()));
+        if (!string.IsNullOrWhiteSpace(options.Search) && options.Search.Length > 2) {
+            query = query.Where(x =>
+            x.Name!.ToLower().Contains(options.Search.ToLower()) ||
+            x.Alias!.ToLower().Contains(options.Search.ToLower())
+            );
         }
         return query.ToResultSetAsync(options);
     }
 
     /// <inheritdoc />
     public async Task Update(Guid id, UpdateMessageTypeRequest request) {
-        var messageType = await DbContext.MessageTypes.FindAsync(id);
-        if (messageType is null) {
-            throw MessageExceptions.MessageTypeNotFound(id);
-        }
+        var messageType = await DbContext.MessageTypes.FindAsync(id) ?? throw MessageExceptions.MessageTypeNotFound(id);
         messageType.Name = request.Name;
+        messageType.Classification = request.Classification;
+        messageType.Alias = string.IsNullOrWhiteSpace(request.Alias) ? null : request.Alias.Trim();
+        if (!string.IsNullOrWhiteSpace(messageType.Alias)) {
+            var existingAlias = await GetById((GuidOrAlias)messageType.Alias);
+            if (existingAlias != null && existingAlias.Id != id) {
+                throw MessageExceptions.MessageTypeAliasExists(messageType.Alias);
+            }
+        }
         await DbContext.SaveChangesAsync();
     }
 }

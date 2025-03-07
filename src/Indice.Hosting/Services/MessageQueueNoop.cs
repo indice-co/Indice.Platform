@@ -13,7 +13,7 @@ public class MessageQueueNoop<T> : IMessageQueue<T> where T : class
     public Task<int> Count() => Task.FromResult(0);
 
     /// <inheritdoc/>
-    public Task<QMessage<T>> Dequeue() => Task.FromResult<QMessage<T>>(null);
+    public Task<QMessage<T>?> Dequeue() => Task.FromResult<QMessage<T>?>(null);
 
     /// <inheritdoc/>
     public Task Enqueue(QMessage<T> item, bool isPoison) => Task.CompletedTask;
@@ -22,5 +22,5 @@ public class MessageQueueNoop<T> : IMessageQueue<T> where T : class
     public Task EnqueueRange(IEnumerable<QMessage<T>> items) => Task.CompletedTask;
 
     /// <inheritdoc/>
-    public Task<T> Peek() => Task.FromResult<T>(null);
+    public Task<T?> Peek() => Task.FromResult<T?>(null);
 }

@@ -8,7 +8,8 @@ namespace Indice.AspNetCore.Tests;
 public class EmailRenderingTests
 {
     public EmailRenderingTests() {
-        TestServer = new TestServerFixture();
+        TestServer = new 
+            ();
     }
 
     private TestServerFixture TestServer { get; set; }
@@ -55,7 +56,7 @@ public class EmailRenderingTests
         var renderingEngine = TestServer.GetRequiredService<IHtmlRenderingEngine>();
         emailServiceMock.Setup(x => x.HtmlRenderingEngine).Returns(renderingEngine);
         await emailServiceMock.Object.SendAsync(messageBuilder => messageBuilder
-            .To("g.manoltzas@indice.gr")
+            .To("someone@indice.gr")
             .WithSubject("Verification")
             .WithData(new EmailModel {
                 Salutation = "Mr.",
@@ -70,7 +71,7 @@ public class EmailRenderingTests
         }
         var expectedBody = await File.ReadAllTextAsync(outputFilePath);
         emailServiceMock.Verify(p => p.SendAsync(
-            It.Is<string[]>(recipients => recipients[0] == "g.manoltzas@indice.gr"),
+            It.Is<string[]>(recipients => recipients[0] == "someone@indice.gr"),
             It.Is<string>(subject => subject == "Verification"),
             It.Is<string>(body => body == expectedBody),
             It.Is<EmailAttachment[]>(attachments => attachments.Count() == 0),
@@ -83,12 +84,12 @@ public class EmailRenderingTests
         const string STATIC_BODY = "<!DOCTYPE html><html><head><title>Page Title</title></head><body><p>Hello my friend!</p></body></html>";
         var emailServiceMock = new Mock<IEmailService>();
         await emailServiceMock.Object.SendAsync(messageBuilder => messageBuilder
-            .To("g.manoltzas@indice.gr")
+            .To("someone@indice.gr")
             .WithSubject("Verification")
             .WithBody(STATIC_BODY)
         );
         emailServiceMock.Verify(p => p.SendAsync(
-            It.Is<string[]>(recipients => recipients[0] == "g.manoltzas@indice.gr"),
+            It.Is<string[]>(recipients => recipients[0] == "someone@indice.gr"),
             It.Is<string>(subject => subject == "Verification"),
             It.Is<string>(body => body == STATIC_BODY),
             It.Is<EmailAttachment[]>(attachments => attachments.Count() == 0),

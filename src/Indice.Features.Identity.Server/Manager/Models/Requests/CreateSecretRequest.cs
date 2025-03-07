@@ -10,7 +10,7 @@ public class CreateSecretRequest
     public string? Description { get; set; }
     /// <summary>The value of client secret.</summary>
     [Required]
-    public string? Value { get; set; }
+    public string Value { get; set; } = null!;
     /// <summary>Optional expiration of client secret.</summary>
     public DateTime? Expiration { get; set; }
 }

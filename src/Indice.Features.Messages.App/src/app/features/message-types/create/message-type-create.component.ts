@@ -2,41 +2,48 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit
 import { Router } from '@angular/router';
 
 import { ToasterService, ToastType } from '@indice/ng-components';
-import { CreateMessageTypeRequest, MessagesApiClient, MessageType } from 'src/app/core/services/messages-api.service';
+import { catchError, EMPTY } from 'rxjs';
+import { CreateMessageTypeRequest, MessagesApiClient, MessageType, MessageTypeClassification } from 'src/app/core/services/messages-api.service';
 
 @Component({
-    selector: 'app-message-type-create',
-    templateUrl: './message-type-create.component.html'
+  selector: 'app-message-type-create',
+  templateUrl: './message-type-create.component.html'
 })
 export class MessageTypeCreateComponent implements OnInit, AfterViewInit {
-    @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
+  @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
 
-    constructor(
-        private _changeDetector: ChangeDetectorRef,
-        private _api: MessagesApiClient,
-        private _router: Router,
-        @Inject(ToasterService) private _toaster: ToasterService
-    ) { }
+  constructor(
+    private _changeDetector: ChangeDetectorRef,
+    private _api: MessagesApiClient,
+    private _router: Router,
+    @Inject(ToasterService) private _toaster: ToasterService
+  ) { }
 
-    public submitInProgress = false;
-    public model = new CreateMessageTypeRequest({ name: '' });
+  public submitInProgress = false;
+  public model = new CreateMessageTypeRequest({ name: '', alias: undefined, classification: MessageTypeClassification.System });
+  public classifications = Object.values(MessageTypeClassification);
 
-    public ngOnInit(): void { }
+  public ngOnInit(): void { }
 
-    public ngAfterViewInit(): void {
-        this._changeDetector.detectChanges();
-    }
+  public ngAfterViewInit(): void {
+    this._changeDetector.detectChanges();
+  }
 
-    public onSubmit(): void {
-        this.submitInProgress = true;
-        this._api
-            .createMessageType(this.model)
-            .subscribe({
-                next: (messageType: MessageType) => {
-                    this.submitInProgress = false;
-                    this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Ο τύπος με όνομα '${messageType.name}' δημιουργήθηκε με επιτυχία.`);
-                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['message-types']));
-                }
-            });
-    }
+  public onSubmit(): void {
+    this.submitInProgress = true;
+    this._api
+      .createMessageType(this.model)
+      .pipe(
+        catchError((error: any) => {
+          this.submitInProgress = false;
+          return EMPTY;
+        }))
+      .subscribe({
+        next: (messageType: MessageType) => {
+          this.submitInProgress = false;
+          this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Ο τύπος με όνομα '${messageType.name}' δημιουργήθηκε με επιτυχία.`);
+          this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['message-types']));
+        }
+      });
+  }
 }

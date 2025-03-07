@@ -56,7 +56,7 @@ public struct FilterClause
     /// <summary>Indicates whether this instance and a specified object are equal. </summary>
     /// <param name="obj">The object to compare with the current instance.</param>
     /// <returns></returns>
-    public override bool Equals(object obj) {
+    public override bool Equals(object? obj) {
         if (obj != null && obj is FilterClause clause) {
             var other = clause;
             return other.Member == Member && other.Value == Value && other.Operator == Operator && other.DataType == DataType;
@@ -123,7 +123,7 @@ public class FilterClauseTypeConverter : TypeConverter
     /// <param name="context"></param>
     /// <param name="sourceType"></param>
     /// <returns></returns>
-    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
+    public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType) {
         if (sourceType == typeof(string)) {
             return true;
         }
@@ -135,7 +135,7 @@ public class FilterClauseTypeConverter : TypeConverter
     /// <param name="culture"></param>
     /// <param name="value"></param>
     /// <returns></returns>
-    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
+    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) {
         if (value is string @string) {
             return FilterClause.Parse(@string);
         }
@@ -148,9 +148,9 @@ public class FilterClauseTypeConverter : TypeConverter
     /// <param name="value"></param>
     /// <param name="destinationType"></param>
     /// <returns></returns>
-    public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType) {
+    public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType) {
         if (destinationType == typeof(string)) {
-            return ((FilterClause)value).ToString();
+            return ((FilterClause)value!).ToString();
         }
         return base.ConvertTo(context, culture, value, destinationType);
     }

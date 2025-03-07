@@ -27,11 +27,11 @@ internal class StaticFileMiddlewareFactory
         Assembly assembly,
         string embeddedUIRoot,
         SpaUIOptions options,
-        IContentTypeProvider contentTypeProvider = null
+        IContentTypeProvider? contentTypeProvider = null
     ) {
         var hasCachedEntry = _cache.TryGetValue(requestPath, out var cachedEntry);
         if (hasCachedEntry) {
-            return cachedEntry;
+            return cachedEntry!;
         }
         var baseNamespace = $"{assembly.GetName().Name}.{embeddedUIRoot.Replace("-", "_")}";
         var staticFileOptions = new StaticFileOptions {

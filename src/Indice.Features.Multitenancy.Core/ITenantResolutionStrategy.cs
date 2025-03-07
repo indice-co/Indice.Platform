@@ -4,5 +4,5 @@
 public interface ITenantResolutionStrategy
 {
     /// <summary>Gets the tenant identifier.</summary>
-    Task<string> GetTenantIdentifierAsync();
+    Task<string?> GetTenantIdentifierAsync();
 }

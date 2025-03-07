@@ -35,7 +35,7 @@ function createAppSettings(): IAppSettings {
         appRoot.attributes.removeNamedItem('caseListFilters');
     }
     return {
-        api_url: !isTemplate ? environment.api_url : apiUrl,
+        api_url: !isTemplate ? environment.api_url : (apiUrl || [host.replace(/\/$/su, ""), 'api'].join('/')),
         auth_settings: {
             accessTokenExpiringNotificationTime: environment.auth_settings.accessTokenExpiringNotificationTime,
             authority: !isTemplate ? environment.auth_settings.authority : authority,

@@ -15,10 +15,10 @@ internal class FromQueueTriggerPayloadResolutionStrategy : ITenantResolutionStra
         _functionContextAccessor = functionContextAccessor ?? throw new ArgumentNullException(nameof(functionContextAccessor));
     }
 
-    public async Task<string> GetTenantIdentifierAsync() {
-        var message = _functionContextAccessor.FunctionContext.GetInputData<ReadOnlyMemory<byte>>("message");
+    public async Task<string?> GetTenantIdentifierAsync() {
+        var message = _functionContextAccessor.FunctionContext!.GetInputData<ReadOnlyMemory<byte>>("message");
         var originalMessage = await CompressionUtils.Decompress(message.ToArray());
-        var envelope = JsonSerializer.Deserialize<DefaultEnvelope>(originalMessage, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var envelope = JsonSerializer.Deserialize<DefaultEnvelope>(originalMessage, JsonSerializerOptionDefaults.GetDefaultSettings())!;
         return envelope.TenantId?.ToString();
     }
 

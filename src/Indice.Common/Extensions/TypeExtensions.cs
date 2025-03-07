@@ -10,7 +10,7 @@ public static class TypeExtensions
     /// <param name="type">The type to check.</param>
     public static bool IsFlagsEnum(this Type type) =>
         (type.IsEnum && type.GetCustomAttributes(typeof(FlagsAttribute), inherit: false).Any()) ||
-        (Nullable.GetUnderlyingType(type)?.IsEnum == true && Nullable.GetUnderlyingType(type).GetCustomAttributes(typeof(FlagsAttribute), inherit: false).Any());
+        (Nullable.GetUnderlyingType(type)?.IsEnum == true && Nullable.GetUnderlyingType(type)!.GetCustomAttributes(typeof(FlagsAttribute), inherit: false).Any());
 
     
     /// <summary>Determines whether a type is anonymous.</summary>

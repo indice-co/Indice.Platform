@@ -1,6 +1,6 @@
 import { LOCALE_ID, NgModule, Provider } from '@angular/core';
 import { CommonModule, DatePipe, JsonPipe, registerLocaleData } from '@angular/common';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS, withInterceptors, provideHttpClient} from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -54,6 +54,7 @@ import { TemplateDetailsEditRightpaneComponent } from './features/templates/edit
 import { TemplateEditComponent } from './features/templates/edit/template-edit.component';
 import { TemplatesComponent } from './features/templates/templates.component';
 import { FileUploadComponent } from './shared/components/file-upload/file-upload.component';
+import { MultiFileUploadComponent } from './shared/components/multi-file-upload/multi-file-upload.component';
 import { CampaignAttachmentsComponent } from './features/campaigns/create/steps/attachments/campaign-attachments.component';
 import { CampaignAttachmentsEditRightpaneComponent } from './features/campaigns/edit/details/rightpane/campaign-edit-attachments-rightpane.component';
 import * as app from 'src/app/core/models/settings';
@@ -76,7 +77,10 @@ import { ListViewComponent } from './features/media-library/item-views/list-view
 import { ReadOnlyViewComponent } from './features/media-library/item-views/read-only-view/read-only-view.component';
 import { MediaSettingsComponent } from './features/settings/media/media-settings.component';
 import { MediaSettingEditComponent } from './features/settings/media/edit/media-setting-edit.component';
-import { EditorModule, TINYMCE_SCRIPT_SRC } from '@tinymce/tinymce-angular';
+import { CodeEditorModule } from '@acrodata/code-editor';
+import { NgProgressbar } from 'ngx-progressbar';
+import { progressInterceptor, NgProgressHttp } from 'ngx-progressbar/http';
+
 registerLocaleData(localeGreek);
 
 const providers: Provider[] = [
@@ -103,7 +107,6 @@ const providers: Provider[] = [
     }
   },
   { provide: APP_LANGUAGES, useClass: AppLanguagesService },
-  { provide: TINYMCE_SCRIPT_SRC, useValue: 'tinymce/tinymce.min.js' }
 ]
 
 if (app.settings.tenantId) {
@@ -153,6 +156,7 @@ if (app.settings.tenantId) {
     ListContactCreateComponent,
     HttpStatusComponent,
     FileUploadComponent,
+    MultiFileUploadComponent,
     CampaignAttachmentsComponent,
     CampaignAttachmentsEditRightpaneComponent,
     SettingsComponent,
@@ -183,9 +187,14 @@ if (app.settings.tenantId) {
     IndiceAuthModule,
     IndiceComponentsModule.forRoot(),
     ReactiveFormsModule,
-    EditorModule
+    CodeEditorModule,
+    NgProgressbar,
+    NgProgressHttp
   ],
-  providers: providers,
+  providers: [
+    ...providers,
+    provideHttpClient(withInterceptors([progressInterceptor]))
+  ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}

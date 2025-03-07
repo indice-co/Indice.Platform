@@ -27,12 +27,12 @@ public static class ResultSetExtensions
     /// <param name="source">The source queryable.</param>
     /// <param name="options">The options used for paging and sorting.</param>
     /// <returns>The results.</returns>
-    public static ResultSet<T> ToResultSet<T>(this IQueryable<T> source, ListOptions options) {
+    public static ResultSet<T> ToResultSet<T>(this IQueryable<T> source, ListOptions? options) {
         options ??= new ListOptions();
         foreach (var sorting in options.GetSortings()) {
             source = source.ApplyOrder(sorting.Path, sorting.Direction, append:true);
         }
-        return source.ToResultSet(options.Page.Value, options.Size.Value);
+        return source.ToResultSet(options.Page!.Value, options.Size!.Value);
     }
 
     /// <summary>Creates a <see cref="ResultSet{T}"/> out of the current queryable. This operation executes and materialises the queryable.</summary>

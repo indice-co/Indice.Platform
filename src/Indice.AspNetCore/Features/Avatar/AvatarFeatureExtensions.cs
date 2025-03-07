@@ -1,5 +1,4 @@
-﻿#nullable enable
-using Indice.AspNetCore.Features;
+﻿using Indice.AspNetCore.Features;
 using Indice.Services;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -31,11 +30,7 @@ public static class AvatarFeatureExtensions {
         configureOptions?.Invoke(options);
         services.AddSingleton(options);
         services.AddSingleton(sp => new AvatarGenerator(options));
-#if NET7_0_OR_GREATER
-        //services.AddOutputCache(o => o.AddPolicy("avatars", builder =>
-        //                                                    builder.Expire(TimeSpan.FromDays(1))));
-#endif
+        services.AddOutputCache();
         return services;
     }
 }
-#nullable disable

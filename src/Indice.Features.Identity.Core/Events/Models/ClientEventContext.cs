@@ -145,7 +145,7 @@ public class ClientEventContext
         LogoUri = client.LogoUri,
         PairWiseSubjectSalt = client.PairWiseSubjectSalt,
         PostLogoutRedirectUris = client.PostLogoutRedirectUris?.Select(uri => uri.PostLogoutRedirectUri)?.ToList() ?? [],
-        Properties = client.Properties.ToDictionary(property => property.Key, property => property.Value),
+        Properties = client.Properties?.ToDictionary(property => property.Key, property => property.Value) ?? [],
         ProtocolType = client.ProtocolType,
         RedirectUris = client.RedirectUris?.Select(uri => uri.RedirectUri)?.ToList() ?? [],
         RefreshTokenExpiration = (TokenExpiration)client.RefreshTokenExpiration,

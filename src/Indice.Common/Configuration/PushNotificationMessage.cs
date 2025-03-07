@@ -11,11 +11,11 @@ public class PushNotificationMessage
     /// <param name="data">The payload data that will be sent to the mobile client (not visible to the push notification Title or Message).  If the data is null then only the token will be sent as data.</param>
     /// <param name="tags">The tags of the push notification.</param>
     /// <param name="classification">The type of the push notification.</param>
-    public PushNotificationMessage(string title, string body, string data, List<PushNotificationTag> tags, string classification) {
+    public PushNotificationMessage(string title, string? body, string? data, List<PushNotificationTag>? tags, string? classification) {
         Title = title ?? throw new ArgumentNullException(nameof(title));
         Body = body;
         Data = data;
-        Tags = tags ?? new List<PushNotificationTag>();
+        Tags = tags ?? [];
         Classification = classification;
     }
 
@@ -23,13 +23,13 @@ public class PushNotificationMessage
     /// The payload data that will be sent to the mobile client (not visible to the push notification Title or Message).
     /// If the data is null then only the token will be sent as data.
     /// </summary>
-    public string Data { get; }
+    public string? Data { get; }
     /// <summary>The title of the push notification.</summary>
     public string Title { get; }
     /// <summary>The title of the push notification.</summary>
-    public string Body { get; }
+    public string? Body { get; }
     /// <summary>The tags of the push notification.</summary>
     public List<PushNotificationTag> Tags { get; }
     /// <summary>The type of the push notification.</summary>
-    public string Classification { get; }
+    public string? Classification { get; }
 }

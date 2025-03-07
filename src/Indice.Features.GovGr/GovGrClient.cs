@@ -37,7 +37,7 @@ public class GovGrClient
     /// <param name="redirectUri"></param>
     /// <param name="environment">Represents the environment. Valid options are <em>production</em>, <em>staging</em>, <em>development</em> &amp; <em>mock</em>. Defaults to <b>production</b>.</param>
     /// <returns>A configured instance of the <see cref="IKycService"/></returns>
-    public IKycService Kyc(string clientId, string clientSecret, string redirectUri, string environment = null) => new GovGrKycClient(_httpClientFactory.CreateClient(nameof(GovGrClient)), _kycScopeDescriber, new() {
+    public IKycService Kyc(string? clientId, string? clientSecret, string? redirectUri, string? environment = null) => new GovGrKycClient(_httpClientFactory.CreateClient(nameof(GovGrClient)), _kycScopeDescriber, new() {
         Environment = environment ?? _settings.Value.Kyc.Environment,
         ClientId = clientId ?? _settings.Value.Kyc.ClientId,
         ClientSecret = clientSecret ?? _settings.Value.Kyc.ClientSecret,
@@ -46,21 +46,21 @@ public class GovGrClient
 
     /// <summary>Access the Wallet API</summary>
     /// <returns>A configured instance of the <see cref="IWalletService"/></returns>
-    public IWalletService Wallet(string token, bool? sandbox = null) => new GovGrWalletClient(_httpClientFactory.CreateClient(nameof(GovGrWalletClient)), new() {
+    public IWalletService Wallet(string? token, bool? sandbox = null) => new GovGrWalletClient(_httpClientFactory.CreateClient(nameof(GovGrWalletClient)), new() {
         Sandbox = sandbox ?? _settings.Value.Wallet.Sandbox,
         Token = token ?? _settings.Value.Wallet.Token
     });
 
     /// <summary>Access the Documents API</summary>
     /// <returns>A configured instance of the <see cref="IDocumentsService"/></returns>
-    public IDocumentsService Documents(string token, string serviceName) => new GovGrDocumentsClient(_httpClientFactory.CreateClient(nameof(GovGrDocumentsClient)), new() {
+    public IDocumentsService Documents(string? token, string serviceName) => new GovGrDocumentsClient(_httpClientFactory.CreateClient(nameof(GovGrDocumentsClient)), new() {
         Token = token ?? _settings.Value.Documents.Token,
         ServiceName = serviceName ?? _settings.Value.Documents.ServiceName,
     });
 
     /// <summary>Access the Bancapp API</summary>
     /// <returns>A configured instance of the <see cref="IBancappService"/></returns>
-    public IBancappService Bancapp(string username, string password, string clientId, string environment = null) => new GovGrBancappClient(
+    public IBancappService Bancapp(string? username, string? password, string? clientId, string? environment = null) => new GovGrBancappClient(
         _httpClientFactory.CreateClient(nameof(GovGrBancappClient)), new() {
             Environment = environment ?? _settings.Value.Bancapp.Environment,
             Username = username ?? _settings.Value.Bancapp.Username,

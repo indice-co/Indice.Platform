@@ -5,11 +5,8 @@
     <SpaProjectName>risks-app</SpaProjectName>
     <SpaSourceFolder>..\Indice.Features.Risk.App</SpaSourceFolder>
     <SpaDistFolder>$(SpaSourceFolder)\dist</SpaDistFolder>
-    <ImplicitUsings>enable</ImplicitUsings>
     <VersionPrefix>$(VersionPrefixRisk)</VersionPrefix>
   </PropertyGroup>
-
-
   <ItemGroup>
     <EmbeddedResource Include="$(SpaDistFolder)\**\*" Exclude="$(SpaDistFolder)\**\index.html" />
     <EmbeddedResource Include="$(SpaProjectName)\index.html" />
@@ -18,7 +15,7 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="$(VersionPrefixCore)" />
+    <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="$(VersionPrefixMajor).*-*" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore.EmbeddedUI\Indice.AspNetCore.EmbeddedUI.csproj" />

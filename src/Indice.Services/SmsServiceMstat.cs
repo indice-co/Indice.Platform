@@ -37,31 +37,31 @@ public class SmsServiceMstat : ISmsService
     protected ILogger<SmsServiceMstat> Logger { get; }
 
     /// <inheritdoc/>
-    public async Task SendAsync(string destination, string subject, string body, SmsSender sender = null) {
+    public async Task<SendReceipt> SendAsync(string destination, string subject, string? body, SmsSender? sender = null) {
         HttpResponseMessage httpResponse;
         MstatResponse response;
-        
-        if (destination is null || destination.Length is 0) {
-            throw new ArgumentException("Recipient cannot be null.", nameof(destination));
-        }
-        if (!PhoneNumber.TryParse(destination, out var phone)) {
-            throw new ArgumentException("Invalid recipients. Recipients should be valid phone numbers", nameof(destination));
-        }
-        destination = phone.ToString("D");
-        if (!destination.All(char.IsDigit)) {
-            throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(destination));
-        }
 
+        var recipients = (destination ?? string.Empty).Split([","], StringSplitOptions.RemoveEmptyEntries);
+        if (recipients == null) {
+            throw new ArgumentNullException(nameof(recipients));
+        }
+        if (recipients.Length == 0) {
+            throw new ArgumentException("Recipients list is empty.", nameof(recipients));
+        }
+        recipients = recipients.Select(recipient => {
+            if (!PhoneNumber.TryParse(recipient, out var phone)) {
+                throw new ArgumentException("Invalid recipients. Recipients should be valid phone numbers", nameof(recipients));
+            }
+            return phone.ToString("D");
+        })
+        .ToArray();
         var uniqueId = Settings.GenerateUniqueId ? Guid.NewGuid().ToString() : null;
-        var payload = new List<MstatRequest>() 
-        { 
-            new MstatRequest(ViberMessageType.OneWayTextSmartphones, message: body, Settings.SenderName, Settings.Channel, uniqueId, destination) 
-        };
+        var payload = recipients.Select(phoneNumber => new MstatRequest(ViberMessageType.OneWayTextSmartphones, message: body, Settings.SenderName!, Settings.Channel, uniqueId, phoneNumber)).ToList();
         var payloadJson = JsonSerializer.Serialize(payload, GetJsonSerializerOptions());
         var request = new HttpRequestMessage {
             Content = new StringContent(payloadJson, Encoding.UTF8, MediaTypeNames.Application.Json),
             Method = HttpMethod.Post,
-            RequestUri = new Uri(HttpClient.BaseAddress.ToString())
+            RequestUri = new Uri(HttpClient.BaseAddress!.ToString())
         };
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaTypeNames.Application.Json));
         request.Headers.Add("API-Token", Settings.ApiKey);
@@ -79,7 +79,7 @@ public class SmsServiceMstat : ISmsService
             Logger.LogInformation("Message Delivery failed. Status: {StatusCode} : {ResponseJson}", httpResponse.StatusCode, responseString);
             throw new SmsServiceException($"Message Delivery failed. {httpResponse.StatusCode} : {responseString}");
         }
-        response = JsonSerializer.Deserialize<MstatResponse>(responseString, GetJsonSerializerOptions());
+        response = JsonSerializer.Deserialize<MstatResponse>(responseString, GetJsonSerializerOptions())!;
 
         var responseDataList = response.Data.ToObject<List<MstatResponse.ResponseData>>(GetJsonSerializerOptions());
         var errorData = responseDataList.Where(x => x.HasErrros).ToList();
@@ -92,6 +92,10 @@ public class SmsServiceMstat : ISmsService
         Logger.LogInformation("Message to Number: {Destination} - UniqueId: {UniqueId}", destination, uniqueId ?? responseDataList.Where(x => !x.HasErrros)
                                                                                                                                   .Select(x => x.UniqueId)
                                                                                                                                   .FirstOrDefault());
+        if (responseDataList?.Where(x => !x.HasErrros).Count() > 0) {
+            uniqueId = string.Join(',', responseDataList.Select(x => x.UniqueId));
+        }
+        return new SendReceipt(uniqueId!, DateTimeOffset.UtcNow);
     }
 
     /// <summary>Checks the implementation if supports the given <paramref name="deliveryChannel"/>.</summary>
@@ -109,14 +113,14 @@ public class SmsServiceMstat : ISmsService
 
         /// <summary>Sender ID that a client is allowed to use when sending Viber ServiceMessages</summary>
         [JsonPropertyName("channel")]
-        public string Channel { get; set; }
+        public string? Channel { get; set; }
 
         [JsonPropertyName("unique_id")]
         public string UniqueId { get; set; }
 
         /// <summary>Phone Number</summary>
         [JsonPropertyName("destination")]
-        public string Destination { get; set; }
+        public string? Destination { get; set; }
 
         /// <summary>
         /// A JSON array that contains the message payload for the various types of messages. 
@@ -125,9 +129,9 @@ public class SmsServiceMstat : ISmsService
         /// For example when a Viber object is followed by an SMS object the platform attempts to send the Viber message first.
         /// </summary>
         [JsonPropertyName("flow")]
-        public List<MstatFlow> Flows { get; set; }
+        public List<MstatFlow>? Flows { get; set; }
 
-        public MstatRequest(ViberMessageType type, string message, string from, string channel, string uniqueId, string destination) {
+        public MstatRequest(ViberMessageType type, string? message, string from, string? channel, string? uniqueId, string destination) {
             Channel = channel;
             UniqueId = string.IsNullOrEmpty(uniqueId) ? "auto" : uniqueId;
             Destination = destination;
@@ -137,26 +141,26 @@ public class SmsServiceMstat : ISmsService
             ];
         }
     }
-    
+
 
     internal class MstatFlow
     {
 
         [JsonPropertyName("viber")]
-        public MstatViber Viber { get; set; }
+        public MstatViber? Viber { get; set; }
 
         [JsonPropertyName("sms")]
-        public MstatSms Sms { get; set; }
+        public MstatSms? Sms { get; set; }
 
         public MstatFlow() {
 
         }
 
-        public static MstatFlow ForSms(string from, string message) => new MstatFlow {
+        public static MstatFlow ForSms(string from, string? message) => new MstatFlow {
             Sms = new MstatSms(from, message)
         };
 
-        public static MstatFlow ForViber(ViberMessageType type, string message) => new MstatFlow {
+        public static MstatFlow ForViber(ViberMessageType type, string? message) => new MstatFlow {
             Viber = new MstatViber(type, message)
         };
 
@@ -164,7 +168,7 @@ public class SmsServiceMstat : ISmsService
         {
             /// <summary> A JSON object that defines the observable parameters of the Viber message. </summary>
             [JsonPropertyName("message")]
-            public MstatViberMessage ViberMessage { get; set; }
+            public MstatViberMessage? ViberMessage { get; set; }
 
             /// <summary> The message type of the Viber message. </summary>
             /// <value>You can find a description of Viber message types in the Documentation </value>
@@ -184,8 +188,8 @@ public class SmsServiceMstat : ISmsService
 
             }
 
-            public MstatViber(ViberMessageType type, string message) {
-                Type = (int) type;
+            public MstatViber(ViberMessageType type, string? message) {
+                Type = (int)type;
                 ViberMessage = new MstatViberMessage(message);
             }
         }
@@ -194,7 +198,7 @@ public class SmsServiceMstat : ISmsService
         {
             /// <summary>A JSON object that defines the observable parameters of the SMS message.</summary>
             [JsonPropertyName("message")]
-            public MstatSmsMessage SmsMessage { get; set; }
+            public MstatSmsMessage? SmsMessage { get; set; }
 
             /// <summary>
             /// The charset of the SMS message that will be delivered to the recipient. 
@@ -204,7 +208,7 @@ public class SmsServiceMstat : ISmsService
             /// Possible values are GSM and UTF-8 and the default value is GSM
             /// </value>
             [JsonPropertyName("charset")]
-            public string Charset { get; set; } = "GSM";
+            public string? Charset { get; set; } = "GSM";
 
             /// <summary>
             /// The number of seconds that the SMS is considered valid. 
@@ -222,25 +226,25 @@ public class SmsServiceMstat : ISmsService
 
             }
 
-            public MstatSms(string from, string message) {
+            public MstatSms(string from, string? message) {
                 SmsMessage = new MstatSmsMessage(from, message);
             }
         }
-        
+
     }
 
     internal class MstatViberMessage
     {
         /// <summary> The textual part of the Viber message. Can be up to 1000 Unicode characters. </summary>
         [JsonPropertyName("text")]
-        public string Text { get; set; }
+        public string? Text { get; set; }
 
         /// <summary>
         /// A Viber message can contain a call to action button. 
         /// This parameters defines the button caption that can be up to 30 Unicode characters.
         /// </summary>
         [JsonPropertyName("caption")]
-        public string Caption { get; set; }
+        public string? Caption { get; set; }
 
         /// <summary>
         /// There are various options to define the action that will happen when the user clicks on the action button.
@@ -249,7 +253,7 @@ public class SmsServiceMstat : ISmsService
         /// See the documentation for more: M-STAT_TMS_Fallback_1.5 - Section 6.1 Message Format
         /// </value>
         [JsonPropertyName("action")]
-        public string Action { get; set; }
+        public string? Action { get; set; }
 
         /// <summary>
         /// A Viber message can contain an optional image that is displayed inside the message. 
@@ -257,13 +261,13 @@ public class SmsServiceMstat : ISmsService
         /// The image will be fit in a square placeholder by the Viber mobile application so it is suggested to use square images.
         /// </summary>
         [JsonPropertyName("image")]
-        public string Image { get; set; }
+        public string? Image { get; set; }
 
         public MstatViberMessage() {
 
         }
 
-        public MstatViberMessage(string text) {
+        public MstatViberMessage(string? text) {
             Text = text;
         }
 
@@ -281,19 +285,19 @@ public class SmsServiceMstat : ISmsService
         /// Safe to Use Symbols are the following: + - _ ! $ ., and space.
         /// </value>
         [JsonPropertyName("from")]
-        public string From { get; set; }
+        public string? From { get; set; }
 
         /// <summary>The text that the recipient received as an SMS message. Multipart/Long SMS messages are supported.</summary>
         /// <value>
         /// You can find more information about the characters supported as well as the character limits in Documentation: M-STAT_TMS_Fallback_1.5 [Appendices 10.2 and 10.3].
         /// </value>
         [JsonPropertyName("text")]
-        public string Text { get; set; }
+        public string? Text { get; set; }
 
         public MstatSmsMessage() {
 
         }
-        public MstatSmsMessage(string from, string message) {
+        public MstatSmsMessage(string from, string? message) {
             From = from;
             Text = message;
         }
@@ -308,7 +312,7 @@ public class SmsServiceMstat : ISmsService
         /// The standard response format for failed requests is: "error".
         /// </value>
         [JsonPropertyName("status")]
-        public string Status { get; set; }
+        public string? Status { get; set; }
 
         [JsonPropertyName("data")]
         public JsonElement Data { get; set; }
@@ -321,25 +325,25 @@ public class SmsServiceMstat : ISmsService
         {
 
             [JsonPropertyName("channel")]
-            public string Channel { get; set; }
+            public string? Channel { get; set; }
 
             [JsonPropertyName("destination")]
-            public string Destination { get; set; }
+            public string? Destination { get; set; }
 
             [JsonPropertyName("unique_id")]
-            public string UniqueId { get; set; }
+            public string UniqueId { get; set; } = null!;
 
             [JsonPropertyName("flow")]
-            public List<MstatFlow> Flows { get; set; }
+            public List<MstatFlow>? Flows { get; set; }
 
             [JsonPropertyName("date")]
-            public string Date { get; set; }
+            public string? Date { get; set; }
 
             [JsonPropertyName("status")]
-            public MstatResponseStatus Status { get; set; }
+            public MstatResponseStatus? Status { get; set; }
 
             [JsonPropertyName("errors")]
-            public List<string> Errors { get; set; }
+            public List<string> Errors { get; set; } = [];
 
             [JsonIgnore]
             public bool HasErrros => Errors?.Count > 0;
@@ -351,20 +355,20 @@ public class SmsServiceMstat : ISmsService
             /// <example>tms, viber, sms</example>
             /// <value>Check the values in the Documentation: M-STAT_TMS_Fallback_1.5 [Appendices 10.1]</value>
             [JsonPropertyName("source")]
-            public string Source { get; set; }
+            public string? Source { get; set; }
 
             /// <summary>The status of the message.</summary>
             /// <value>Check the values in the Documentation: M-STAT_TMS_Fallback_1.5 [Appendices 10.1]</value>
             [JsonPropertyName("code")]
-            public string Code { get; set; }
+            public string? Code { get; set; }
 
             /// <summary>The description of the status code.</summary>
             /// <value>Check the values in the Documentation: M-STAT_TMS_Fallback_1.5 [Appendices 10.1]</value>
             [JsonPropertyName("description")]
-            public string Description { get; set; }
+            public string? Description { get; set; }
 
             [JsonPropertyName("date")]
-            public string Date { get; set; }
+            public string? Date { get; set; }
         }
     }
 
@@ -402,7 +406,7 @@ public class SmsServiceMstat : ISmsService
 public class SmsServiceMstatSettings : SmsServiceSettings
 {
     /// <summary>Sender ID that a client is allowed to use when sending Viber ServiceMessages</summary>
-    public string Channel { get => Sender; set => Sender = value; }
+    public string? Channel { get => Sender; set => Sender = value; }
     /// <summary>Each message submitted to the TMS platform must contain a uniqueidentifier. 
     /// <br/>
     /// This identifier is used to prevent duplicate message submissions to the service and to link delivery reports with the appropriate messages</summary>

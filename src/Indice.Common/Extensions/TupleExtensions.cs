@@ -5,7 +5,7 @@ namespace Indice.Extensions;
 /// <summary>Helper methods for working with <see cref="ValueTuple"/> struct.</summary>
 public static class TupleExtensions
 {
-    private static readonly HashSet<Type> ValueTupleTypes = new HashSet<Type>(new Type[] {
+    private static readonly HashSet<Type> ValueTupleTypes = new HashSet<Type>([
         typeof(ValueTuple<>),
         typeof(ValueTuple<,>),
         typeof(ValueTuple<,,>),
@@ -14,7 +14,7 @@ public static class TupleExtensions
         typeof(ValueTuple<,,,,,>),
         typeof(ValueTuple<,,,,,,>),
         typeof(ValueTuple<,,,,,,,>)
-    });
+    ]);
 
     /// <summary>Checks if the provided object is a <see cref="ValueTuple"/>.</summary>
     /// <param name="object">The object to check.</param>

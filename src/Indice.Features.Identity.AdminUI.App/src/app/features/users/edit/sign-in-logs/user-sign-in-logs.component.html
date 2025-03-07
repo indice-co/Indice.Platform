@@ -140,9 +140,9 @@
 </ng-template>
 <ng-template let-row="row" let-value="row" #statusTemplate>
     <div *ngIf="value">
-        <span *ngIf="value.succeeded" class="badge badge-pill badge-success m-r-10" [title]="'Succeeded Attempt'">Succeeded</span>
-        <span *ngIf="!value.succeeded" class="badge badge-pill badge-danger m-r-10" [title]="'Failed Attempt'">Failed</span>
-        <span *ngIf="value.review" class="badge badge-pill badge-warning" [title]="'Marked for Review'">Review</span>
+        <span *ngIf="value.succeeded" class="badge text-success border boder-success bg-light m-r-10" [title]="'Succeeded Attempt'">Succeeded</span>
+        <span *ngIf="!value.succeeded" class="badge text-danger border boder-danger bg-light m-r-10" [title]="'Failed Attempt'">Failed</span>
+        <span *ngIf="value.review" class="badge text-warning border boder-warning bg-light" [title]="'Marked for Review'">Review</span>
     </div>
     <span *ngIf="!value"> - </span>
 </ng-template>

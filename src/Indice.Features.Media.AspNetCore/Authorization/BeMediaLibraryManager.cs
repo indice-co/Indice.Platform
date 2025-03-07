@@ -1,7 +1,6 @@
 ﻿using Indice.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Media.AspNetCore.Authorization;
 
@@ -38,12 +37,12 @@ public class BeMediaLibraryManagerHandler : AuthorizationHandler<BeMediaLibraryM
             return Task.CompletedTask;
         }
         // Get user id/application id from the corresponding claims.
-        var allowed = context.User.IsSystemClient() || context.User.IsAdmin() || context.User.HasRoleClaim(BasicRoleNames.CampaignManager);
+        var allowed = context.User!.IsSystemClient() || context.User!.IsAdmin() || context.User!.HasRoleClaim(BasicRoleNames.CampaignManager);
         // Apparently nothing else worked.
         if (allowed) {
             context.Succeed(requirement);
         } else {
-            _logger.LogInformation("User {userId} does not have role {roleName}.", context.User.FindSubjectId(), BasicRoleNames.CampaignManager);
+            _logger.LogInformation("User {userId} does not have role {roleName}.", context.User!.FindSubjectId(), BasicRoleNames.CampaignManager);
         }
         return Task.CompletedTask;
     }

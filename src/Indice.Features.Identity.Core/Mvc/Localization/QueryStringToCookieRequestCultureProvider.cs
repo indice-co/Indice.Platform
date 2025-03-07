@@ -25,15 +25,10 @@ public class QueryStringToCookieRequestCultureProvider : RequestCultureProvider
             exists = queryString.TryGetValue("returnUrl", out var returnUrl);
             if (exists) {
                 var request = returnUrl.ToArray()[0];
-#if NET6_0_OR_GREATER
                 if (!Uri.TryCreate("https://example.com" + request!.TrimStart('~'), new UriCreationOptions { }, out var uri)) {
                     return NullProviderCultureResult;
                 }
-#else
-                if (!Uri.TryCreate("https://example.com" + request!.TrimStart('~'), UriKind.Absolute, out var uri)) {
-                    return NullProviderCultureResult;
-                }
-#endif
+
                 var returnUrlQueryString = QueryHelpers.ParseQuery(uri.Query);
                 var requestCulture = returnUrlQueryString.FirstOrDefault(x => x.Key == QueryParameterName).Value;
                 var cultureFromReturnUrl = requestCulture.ToString();

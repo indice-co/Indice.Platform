@@ -25,7 +25,7 @@ public class LocalizedIdentityMessageDescriber : IdentityMessageDescriber
     /// <inheritdoc/>
     public override string UpdateEmailMessageSubject => _localizer["Confirm your account"];
     /// <inheritdoc/>
-    public override string UpdateEmailMessageBody<TUser>(TUser user, string token, string returnUrl) => _localizer["Email verification code is {0}.", token];
+    public override string UpdateEmailMessageBody<TUser>(TUser user, string token, string? returnUrl) => _localizer["Email verification code is {0}.", token];
     /// <inheritdoc/>
     public override string PasswordIsCommon => _localizer["Password is very easy to guess, please choose a more complex one."];
     /// <inheritdoc/>

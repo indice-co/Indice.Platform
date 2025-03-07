@@ -11,7 +11,7 @@ public class ScheduledJobSettings
     /// <param name="group">The job group.</param>
     /// <param name="description">The job description.</param>
     /// <param name="singleton">The job allows only one instance to run at any given time.</param>
-    public ScheduledJobSettings(Type jobHandlerType, Type jobDataStateType, string cronExpression, string name, string group, string description, bool singleton = false) {
+    public ScheduledJobSettings(Type jobHandlerType, Type jobDataStateType, string cronExpression, string? name, string? group, string? description, bool singleton = false) {
         JobHandlerType = jobHandlerType;
         JobStateType = jobDataStateType;
         CronExpression = cronExpression;
@@ -30,9 +30,9 @@ public class ScheduledJobSettings
     /// <summary>The job name.</summary>
     public string Name { get; }
     /// <summary>The job description.</summary>
-    public string Description { get; }
+    public string? Description { get; }
     /// <summary>The job group.</summary>
-    public string Group { get; }
+    public string? Group { get; }
     /// <summary>The job allows only one instance to run at any given time.</summary>
     public bool Singleton { get; }
 }

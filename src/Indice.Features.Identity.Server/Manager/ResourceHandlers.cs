@@ -62,7 +62,7 @@ internal static class ResourceHandlers
         ExtendedConfigurationDbContext configurationDbContext,
         CreateResourceRequest request) {
         var resource = new IdentityResource {
-            Name = request.Name,
+            Name = request.Name.Trim(),
             DisplayName = request.DisplayName,
             Description = request.Description,
             Enabled = true,
@@ -115,11 +115,13 @@ internal static class ResourceHandlers
         if (!(claims?.Length > 0)) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError("claims", "A claims list is required"));
         }
-        resource.UserClaims = new List<IdentityResourceClaim>();
-        resource.UserClaims.AddRange(claims.Select(x => new IdentityResourceClaim {
-            IdentityResourceId = resourceId,
-            Type = x
-        }));
+        resource.UserClaims =
+        [
+            .. claims.Select(x => new IdentityResourceClaim {
+                IdentityResourceId = resourceId,
+                Type = x
+            }),
+        ];
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.NoContent();
     }
@@ -131,9 +133,7 @@ internal static class ResourceHandlers
         if (resource == null) {
             return TypedResults.NotFound();
         }
-        if (resource.UserClaims == null) {
-            resource.UserClaims = new List<IdentityResourceClaim>();
-        }
+        resource.UserClaims ??= [];
         var claimToRemove = resource.UserClaims.Select(x => x.Type == claim).ToList();
         if (claimToRemove?.Count == 0) {
             return TypedResults.NotFound();
@@ -269,7 +269,7 @@ internal static class ResourceHandlers
             ShowInDiscoveryDocument = true,
             AllowedAccessTokenSigningAlgorithms = request.AllowedAccessTokenSigningAlgorithms,
             UserClaims = request.UserClaims.Select(claim => new ApiResourceClaim { Type = claim }).ToList(),
-            Scopes = new List<ApiResourceScope> { new ApiResourceScope { Scope = request.Name } }
+            Scopes = [new () { Scope = request.Name }]
         };
         configurationDbContext.ApiResources.Add(apiResource);
         var apiScope = new ApiScope {
@@ -329,13 +329,11 @@ internal static class ResourceHandlers
         }
         var secretToAdd = new ApiResourceSecret {
             Description = request.Description,
-            Value = request.Value.ToSha256(),
+            Value = request.Value!.ToSha256(),
             Expiration = request.Expiration,
             Type = IdentityServerConstants.SecretTypes.SharedSecret
         };
-        resource.Secrets = new List<ApiResourceSecret> {
-            secretToAdd
-        };
+        resource.Secrets = [secretToAdd];
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.Ok(new SecretInfo {
             Id = secretToAdd.Id,
@@ -355,9 +353,7 @@ internal static class ResourceHandlers
         if (resource == null) {
             return TypedResults.NotFound();
         }
-        if (resource.Secrets == null) {
-            resource.Secrets = new List<ApiResourceSecret>();
-        }
+        resource.Secrets ??= [];
         var secretToRemove = resource.Secrets.SingleOrDefault(x => x.Id == secretId);
         if (secretToRemove == null) {
             return TypedResults.NotFound();
@@ -379,11 +375,13 @@ internal static class ResourceHandlers
         if (!(claims?.Length > 0)) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError("claims", "A claims list is required"));
         }
-        resource.UserClaims = new List<ApiResourceClaim>();
-        resource.UserClaims.AddRange(claims.Select(x => new ApiResourceClaim {
-            ApiResourceId = resourceId,
-            Type = x
-        }));
+        resource.UserClaims =
+        [
+            .. claims.Select(x => new ApiResourceClaim {
+                ApiResourceId = resourceId,
+                Type = x
+            }),
+        ];
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.NoContent();
     }
@@ -397,9 +395,7 @@ internal static class ResourceHandlers
         if (resource == null) {
             return TypedResults.NotFound();
         }
-        if (resource.UserClaims == null) {
-            resource.UserClaims = new List<ApiResourceClaim>();
-        }
+        resource.UserClaims ??= [];
         var claimToRemove = resource.UserClaims.Select(x => x.Type == claim).ToList();
         if (claimToRemove?.Count == 0) {
             return TypedResults.NotFound();
@@ -428,7 +424,7 @@ internal static class ResourceHandlers
         };
         resource.Scopes.Add(apiResourceScope);
         var apiScopeToAdd = new ApiScope {
-            Name = request.Name,
+            Name = request.Name.Trim(),
             DisplayName = request.DisplayName,
             Description = request.Description,
             Enabled = true,
@@ -578,8 +574,8 @@ internal static class ResourceHandlers
         return TypedResults.NoContent();
     }
 
-    private static void AddTranslationsToApiScope(ApiScope apiScope, string translations) {
-        apiScope.Properties ??= new List<ApiScopeProperty>();
+    private static void AddTranslationsToApiScope(ApiScope apiScope, string? translations) {
+        apiScope.Properties ??= [];
         apiScope.Properties.Add(new ApiScopeProperty {
             Key = ClientPropertyKeys.Translation,
             Value = translations ?? string.Empty,

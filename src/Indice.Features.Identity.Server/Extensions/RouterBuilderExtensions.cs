@@ -22,6 +22,7 @@ public static class IdentityServerEndpointRouteBuilderExtensions
         builder.MapManageLookups();
         builder.MapManageResources();
         builder.MapMyAccount();
+        builder.MapProfilePictures();
         // Devices and push notifications endpoints.
         builder.MapMyDevices();
         builder.MapDevicePush();

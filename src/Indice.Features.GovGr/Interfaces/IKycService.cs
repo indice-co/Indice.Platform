@@ -9,5 +9,5 @@ public interface IKycService
     /// <summary>Get Data from eGov KYC</summary>
     Task<KycPayload> GetDataAsync(string code);
     /// <summary>Get available scopes for the KYC endpoint</summary>
-    List<ScopeDescription> GetAvailableScopes(IStringLocalizer localizer = null);
+    List<ScopeDescription> GetAvailableScopes(IStringLocalizer? localizer = null);
 }

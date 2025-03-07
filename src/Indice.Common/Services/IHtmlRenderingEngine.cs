@@ -23,6 +23,6 @@ public static class HtmlRenderingEngineExtensions
     /// <param name="data">The data usually used to substitute/bind to the given <paramref name="template"/>.</param>
     /// <returns>The rendered HTML output.</returns>
     public static Task<string> RenderAsync<TData>(this IHtmlRenderingEngine engine, string template, TData data) =>
-        engine.RenderAsync(template, data.GetType(), data);
+        engine.RenderAsync(template, data!.GetType(), data);
 
 }

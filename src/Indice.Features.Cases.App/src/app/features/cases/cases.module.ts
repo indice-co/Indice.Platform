@@ -20,7 +20,8 @@ import { QueriesModalComponent } from "src/app/shared/components/query-modal/que
 import { QueriesPageComponent } from "./queries-page/queries-page.component";
 import { GeneralCasesComponent } from "./general-cases/general-cases.component";
 import { CaseTypeSpecificCasesComponent } from "./case-type-specific-cases/case-type-specific-cases.component";
-import { ValueFromPathPipe } from "src/app/shared/pipes.services";
+import { RelatedCasesComponent } from "./case-detail-page/related-cases/related-cases.component";
+import { ToReadableDatePipe, ValueFromPathPipe } from "src/app/shared/pipes.services";
 
 @NgModule({
   declarations: [
@@ -36,7 +37,8 @@ import { ValueFromPathPipe } from "src/app/shared/pipes.services";
     CaseWarningModalComponent,
     QueriesModalComponent,
     GeneralCasesComponent,
-    CaseTypeSpecificCasesComponent
+    CaseTypeSpecificCasesComponent,
+    RelatedCasesComponent
   ],
   imports: [
     BrowserModule,
@@ -55,7 +57,8 @@ import { ValueFromPathPipe } from "src/app/shared/pipes.services";
     CaseDetailPageComponent
   ],
   providers: [
-    ValueFromPathPipe
+    ValueFromPathPipe,
+    ToReadableDatePipe
   ]
 })
 export class CasesModule { }

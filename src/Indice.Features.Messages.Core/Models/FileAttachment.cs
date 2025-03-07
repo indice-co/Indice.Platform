@@ -5,7 +5,7 @@ namespace Indice.Features.Messages.Core.Models;
 /// <summary>Models a file attachment.</summary>
 public class FileAttachment
 {
-    private readonly Func<Stream> _streamAccessor;
+    private readonly Func<Stream> _streamAccessor = null!;
 
     /// <summary>Creates a new instance of <see cref="FileAttachment"/>.</summary>
     public FileAttachment() {
@@ -44,22 +44,22 @@ public class FileAttachment
     /// <summary>The unique id of the file, for internal use.</summary>
     public Guid Guid { get; set; }
     /// <summary>The name of the file.</summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
     /// <summary>The file extension.</summary>
-    public string FileExtension { get; set; }
+    public string FileExtension { get; set; } = null!;
     /// <summary>The file mime type.</summary>
-    public string ContentType { get; set; }
+    public string ContentType { get; set; } = null!;
     /// <summary>The file size.</summary>
     public int ContentLength { get; set; }
     /// <summary>The file as a byte array.</summary>
-    public byte[] Data { get; set; }
+    public byte[]? Data { get; set; }
     /// <summary>The file URI.</summary>
     public string Uri => $"{Guid.ToString("N")[..2]}/{Guid:N}{FileExtension}";
 
     /// <summary></summary>
     public Stream OpenReadStream() => _streamAccessor();
 
-    private void PopulateFrom(string fileName, Stream stream, bool saveData = false) {
+    private void PopulateFrom(string fileName, Stream? stream, bool saveData = false) {
         Name = Path.GetFileName(fileName);
         FileExtension = Path.GetExtension(fileName);
         ContentType = FileExtensions.GetMimeType(Path.GetExtension(fileName));

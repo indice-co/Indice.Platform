@@ -45,7 +45,7 @@ public class AdminRuleService
     /// </summary>
     /// <param name="ruleName"></param>
     /// <returns></returns>
-    public async Task<Dictionary<string, string>> GetRiskRuleOptionsAsync(string ruleName) {
+    public async Task<Dictionary<string, string?>> GetRiskRuleOptionsAsync(string ruleName) {
         return await _ruleOptionsStore.GetRuleOptions(ruleName);
     }
 

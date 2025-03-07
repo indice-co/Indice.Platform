@@ -83,6 +83,39 @@ internal static class GovGrConstants
                                ""status"":""1200""
                             }
                          },
+                        ""taxidInfo"": {
+                            ""data"": {
+                                ""tin"": ""068933130"",
+                                ""doy"": ""1209"",
+                                ""doyDescr"": ""ΗΡΑΚΛΕΙΟΥ""
+                            },
+                            ""result"": {
+                                ""message"": ""Success"",
+                                ""status"": ""1200""
+                            }
+                        },
+                        ""familyStatus"": {
+                            ""data"": {
+                                ""maritalStatus"": ""2"",
+                                ""maritalStatusDesc"": ""ΕΓΓΑΜΟΣ-Η/ΣΥΝΑΨΗ ΣΥΜΦ ΣΥΜΒΙΩΣΗΣ""
+                            },
+                            ""result"": {
+                                ""message"": ""Success"",
+                                ""status"": ""1200""
+                            }
+                        },
+                        ""demographics"": {
+                            ""data"": {
+                                ""birthCountryThreeDigitCode"": ""GRC"",
+                                ""birthCountryName"": ""Ελλάδα"",
+                                ""mainNationalityId"": ""7"",
+                                ""mainNationalityName"": ""Ελληνική""
+                            },
+                            ""result"": {
+                                ""message"": ""Success"",
+                                ""status"": ""1200""
+                            }
+                        },
                          ""income"":{
                             ""data"":{
                                ""addedCostDiffs"":""0"",

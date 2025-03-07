@@ -55,7 +55,7 @@ public readonly struct PushNotificationTag : IEquatable<PushNotificationTag>
     public bool Equals(PushNotificationTag other) => Kind == other.Kind && Value == other.Value;
 
     /// <inheritdoc />
-    public override bool Equals(object other) => other is PushNotificationTag tag && Equals(tag);
+    public override bool Equals(object? other) => other is PushNotificationTag tag && Equals(tag);
 
     /// <inheritdoc />
     public override string ToString() => Kind == PushNotificationTagKind.Unspecified ? Value : $"{Kind.ToString().ToLowerInvariant()}:{Value}";

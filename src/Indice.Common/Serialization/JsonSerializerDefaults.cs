@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Text.Encodings.Web;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Indice.Serialization;
@@ -7,19 +8,15 @@ namespace Indice.Serialization;
 public static class JsonSerializerOptionDefaults
 {
     /// <summary>JSON options defaults.</summary>
-    public static JsonSerializerOptions GetDefaultSettings() {
+    public static JsonSerializerOptions GetDefaultSettings(JavaScriptEncoder? javaScriptEncoder = null) {
         var options = new JsonSerializerOptions {
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
             PropertyNameCaseInsensitive = true,
             WriteIndented = false,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            Encoder = javaScriptEncoder
         };
         options.Converters.Add(new JsonStringEnumConverter());
-#if NET6_0_OR_GREATER
-#else
-        options.Converters.Add(new JsonTimeSpanConverter());      
-        options.Converters.Add(new JsonNullableTimeSpanConverter());
-#endif
         options.Converters.Add(new TypeConverterJsonAdapterFactory());
         options.Converters.Add(new ValueTupleJsonConverterFactory());
         options.Converters.Add(new JsonObjectToInferredTypeConverter());

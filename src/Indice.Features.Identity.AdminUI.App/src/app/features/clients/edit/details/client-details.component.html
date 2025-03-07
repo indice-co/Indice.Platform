@@ -94,7 +94,9 @@
         <div class="col-sm-10">
             <div *ngFor="let provider of externalProviders" class="form-check col-form-label custom-control custom-checkbox">
                 <input class="form-check-input custom-control-input" type="checkbox" [id]="'provider' + provider.authenticationScheme" [name]="'provider' + provider.authenticationScheme" [(ngModel)]="provider.selected" />
-                <label class="custom-control-label" [for]="'provider' + provider.authenticationScheme">{{ provider.authenticationScheme }}</label>
+                <label class="custom-control-label align-middle" [for]="'provider' + provider.authenticationScheme">
+                    <img class="m-1" height="14" alt="{{provider.authenticationScheme}}" src="assets/img/idps/{{provider.authenticationScheme}}.svg" />
+                    <span>{{ provider.authenticationScheme }}</span></label>
             </div>
         </div>
     </div>

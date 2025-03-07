@@ -46,7 +46,7 @@ internal class TenantMiddleware<TDbContext, TTenant>
             throw new ArgumentNullException(nameof(cache));
         }
         var user = context.User;
-        if (user != null && user.Identity.IsAuthenticated) {
+        if (user != null && user.Identity?.IsAuthenticated == true) {
             // Get the subscription id or company alias from route.
             var tenantId = GetTenantIdFromRoute(context.Request.Path, RouteBase ?? "subscriptions");
             if (!string.IsNullOrEmpty(tenantId)) {

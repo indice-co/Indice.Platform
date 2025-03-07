@@ -29,11 +29,18 @@
 <ng-template let-row="row"
              let-value="value"
              #actionsTemplate>
-    <a class="btn btn-success"
-       href="#"
-       role="button"
-       *ngIf="value"
-       [routerLink]="value + '/details'">
-        {{ canEditResource ? 'Edit' : 'View' }}
+    <a class="icon-link text-primary" 
+       href="#" 
+       role="button" 
+       *ngIf="value" 
+       [routerLink]="value + '/details'" 
+       title="{{ canEditResource ? 'Edit' : 'View' }}">
+        <i class="material-icons align-middle">{{ canEditResource ? 'edit' : 'view_headline' }}</i>
     </a>
+</ng-template>
+<ng-template let-row="row"
+             let-value="value"
+             #nameTemplate>
+    <span class="badge text-muted border boder-primary bg-light m-1" [title]="value">
+        {{ value }}</span>
 </ng-template>

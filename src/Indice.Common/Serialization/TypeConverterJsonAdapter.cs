@@ -12,12 +12,12 @@ public class TypeConverterJsonAdapter<T> : JsonConverter<T>
     public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
         var converter = TypeDescriptor.GetConverter(typeToConvert);
         var text = reader.GetString();
-        return (T)converter.ConvertFromString(text);
+        return (T)converter?.ConvertFromString(text!)!;
     }
 
     /// <inheritdoc/>
     public override void Write(Utf8JsonWriter writer, T objectToWrite, JsonSerializerOptions options) {
-        var converter = TypeDescriptor.GetConverter(objectToWrite);
+        var converter = TypeDescriptor.GetConverter(objectToWrite!);
         var text = converter.ConvertToString(objectToWrite);
         writer.WriteStringValue(text);
     }
@@ -33,4 +33,4 @@ public class TypeConverterJsonAdapter<T> : JsonConverter<T>
 }
 
 /// <inheritdoc />
-public class TypeConverterJsonAdapter : TypeConverterJsonAdapter<object> { }
+public class TypeConverterJsonAdapter : TypeConverterJsonAdapter<object?> { }

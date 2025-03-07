@@ -15,5 +15,5 @@ public class TenantAccessorFunctionContext<TTenant> : ITenantAccessor<TTenant> w
     }
 
     /// <inheritdoc/>
-    public TTenant Tenant => _functionContextAccessor.FunctionContext.GetTenant<TTenant>();
+    public TTenant? Tenant => _functionContextAccessor.FunctionContext?.GetTenant<TTenant>()!;
 }

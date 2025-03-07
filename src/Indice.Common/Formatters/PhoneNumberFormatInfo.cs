@@ -7,7 +7,10 @@ public class PhoneNumberFormatInfo : IFormatProvider, ICustomFormatter
     public static PhoneNumberFormatInfo Default => new();
 
     /// <inheritdoc/>
-    public string Format(string format, object arg, IFormatProvider formatProvider) {
+    public string Format(string? format, object? arg, IFormatProvider? formatProvider) {
+        if (format is null) {
+            throw new ArgumentNullException(nameof(format));
+        }
         if (arg is not PhoneNumber) {
             return string.Format(format, arg);
         }
@@ -23,10 +26,11 @@ public class PhoneNumberFormatInfo : IFormatProvider, ICustomFormatter
     }
 
     /// <inheritdoc/>
-    public object GetFormat(Type formatType) {
+    public object? GetFormat(Type? formatType) {
         if (formatType == typeof(ICustomFormatter)) {
             return this;
         }
         return null;
     }
+
 }

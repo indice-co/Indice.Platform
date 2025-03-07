@@ -10,7 +10,7 @@ public static class HttpContextExtensions
     /// <param name="httpContext">Encapsulates all HTTP-specific information about an individual HTTP request.</param>
     public static IPAddress GetClientIpAddress(this HttpContext httpContext) {
         var headers = httpContext.Request.Headers;
-        string ipAddress = null;
+        string? ipAddress = null;
         // in case of a proxy being used, the UseForwardedHeaders() middleware should be configured to the HTTP request pipeline.
         var remoteIpAddress = httpContext.Connection.RemoteIpAddress?.ToString();
         if (!string.IsNullOrWhiteSpace(remoteIpAddress)) {

@@ -40,7 +40,7 @@ public class JsonPolymorphicConverter<T> : JsonConverter<T>
     }
 
     /// <inheritdoc />
-    public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
+    public override T? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
         if (reader.TokenType != JsonTokenType.StartObject) {
             throw new JsonException();
         }
@@ -54,18 +54,18 @@ public class JsonPolymorphicConverter<T> : JsonConverter<T>
         if (!canParse) {
             throw new JsonException();
         }
-        var jsonPropertyName = options.PropertyNamingPolicy.ConvertName(TypePropertyName);
-        jsonDocument.RootElement.TryGetProperty(jsonPropertyName, out var jsonElement);
-        var propertyValue = jsonElement.ValueKind != JsonValueKind.Undefined ? jsonElement.GetString() : string.Empty;
+        var jsonPropertyName = options.PropertyNamingPolicy!.ConvertName(TypePropertyName);
+        jsonDocument!.RootElement.TryGetProperty(jsonPropertyName, out var jsonElement);
+        var propertyValue = jsonElement.ValueKind != JsonValueKind.Undefined ? jsonElement.GetString()! : string.Empty;
         var typeToCreate = _nameToTypeMap.ContainsKey(propertyValue) ? _nameToTypeMap[propertyValue] : typeToConvert;
         var rawJson = jsonDocument.RootElement.GetRawText();
         var jsonSerializerOptions = CopyJsonSerializerOptions(options);
         var target = JsonSerializer.Deserialize(rawJson, typeToCreate, jsonSerializerOptions);
-        return (T)target;
+        return (T?)target;
     }
 
     /// <inheritdoc />
-    public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options) {
+    public override void Write(Utf8JsonWriter writer, T? value, JsonSerializerOptions options) {
         if (writer == null) {
             throw new ArgumentNullException(nameof(writer));
         }
@@ -155,8 +155,8 @@ public class JsonPolymorphicUtils
         return allTypes;
     }
 
-    private static string ResolveDiscriminatorValue(Type type, PropertyInfo discriminator, string[] options) {
-        var value = default(string);
+    private static string? ResolveDiscriminatorValue(Type type, PropertyInfo? discriminator, string[] options) {
+        var value = default(string?);
         if (discriminator == null || discriminator.Name.Equals("discriminator", StringComparison.OrdinalIgnoreCase)) {
             return null;
         }
@@ -164,10 +164,10 @@ public class JsonPolymorphicUtils
             try {
                 value = options.Where(name => type.Name.IndexOf(name, StringComparison.OrdinalIgnoreCase) > -1).Single();
             } catch {
-                value = discriminator.GetValue(Activator.CreateInstance(type), null).ToString();
+                value = discriminator.GetValue(Activator.CreateInstance(type), null)?.ToString();
             }
         } else {
-            value = discriminator.GetValue(Activator.CreateInstance(type), null).ToString();
+            value = discriminator.GetValue(Activator.CreateInstance(type), null)?.ToString();
         }
         return value;
     }
@@ -198,7 +198,7 @@ public class JsonPolymorphicConverterFactory<T> : JsonConverterFactory, IJsonPol
     public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options) {
         var converterType = typeof(JsonPolymorphicConverter<>).MakeGenericType(typeToConvert);
         var converter = Activator.CreateInstance(converterType, TypePropertyName);
-        return (JsonConverter)converter;
+        return (JsonConverter)converter!;
     }
 }
 

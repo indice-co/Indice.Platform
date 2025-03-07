@@ -36,7 +36,7 @@ public class CampaignService : ICampaignService
                 .Include(x => x.DistributionList)
                 .AsNoTracking()
                 .Select(Mapper.ProjectToCampaign);
-        if (!string.IsNullOrEmpty(options.Search)) {
+        if (!string.IsNullOrEmpty(options.Search) && options.Search.Length > 2) {
             var searchTerm = options.Search.Trim();
             query = query.Where(x => x.Title != null && x.Title.Contains(searchTerm));
         }
@@ -50,7 +50,7 @@ public class CampaignService : ICampaignService
     }
 
     /// <inheritdoc />
-    public async Task<CampaignDetails> GetById(Guid id) {
+    public async Task<CampaignDetails?> GetById(Guid id) {
         var campaign = await DbContext
             .Campaigns
             .AsNoTracking()
@@ -63,7 +63,7 @@ public class CampaignService : ICampaignService
             return default;
         }
         if (campaign.Attachment is not null) {
-            campaign.Attachment.PermaLink = $"{CampaignManagementOptions.ApiPrefix}/{campaign.Attachment.PermaLink.TrimStart('/')}";
+            campaign.Attachment.PermaLink = $"{CampaignManagementOptions.PathPrefix.TrimEnd('/')}/{campaign.Attachment.PermaLink?.TrimStart('/')}";
         }
         return campaign;
     }
@@ -108,7 +108,7 @@ public class CampaignService : ICampaignService
     }
 
     /// <inheritdoc />
-    public async Task<CampaignStatistics> GetStatistics(Guid id) {
+    public async Task<CampaignStatistics?> GetStatistics(Guid id) {
         var campaign = await DbContext.Campaigns.FindAsync(id);
         if (campaign is null) {
             return default;

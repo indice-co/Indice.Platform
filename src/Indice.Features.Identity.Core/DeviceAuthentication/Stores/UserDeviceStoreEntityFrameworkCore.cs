@@ -43,6 +43,7 @@ public class UserDeviceStoreEntityFrameworkCore : IUserDeviceStore
     public async Task UpdatePassword(UserDevice? device, string? passwordHash) {
         ArgumentNullException.ThrowIfNull(nameof(device));
         device!.Password = passwordHash;
+        // TODO: Should add and use SecurityStamp for otp purpose in device authentication
         await _dbContext.SaveChangesAsync();
     }
 
@@ -50,6 +51,7 @@ public class UserDeviceStoreEntityFrameworkCore : IUserDeviceStore
     public async Task UpdatePublicKey(UserDevice? device, string? publicKey) {
         ArgumentNullException.ThrowIfNull(nameof(device));
         device!.PublicKey = publicKey;
+        // TODO: Should add and use SecurityStamp for otp purpose in device authentication
         await _dbContext.SaveChangesAsync();
     }
 

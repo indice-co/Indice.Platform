@@ -26,17 +26,15 @@ public class GeoPoint
 
     /// <summary>Default string representation. <strong>37.9908697,23.7208298</strong>.</summary>
     /// <remarks>Web standard latitude followed by longitude invariant separated by comma.</remarks>
-    public override string ToString() {
-        var mask = Elevation.HasValue ? "{0:G},{1:G},{2:G}" : "{0:G},{1:G}";
-        return string.Format(CultureInfo.InvariantCulture, mask, Latitude, Longitude, Elevation);
-    }
+    public override string ToString() => Elevation.HasValue
+            ? string.Format(CultureInfo.InvariantCulture, "{0:G},{1:G},{2:G}", Latitude, Longitude, Elevation)
+            : string.Format(CultureInfo.InvariantCulture, "{0:G},{1:G}", Latitude, Longitude);
 
     /// <summary>Generates a SQL Server compatible string representation of the coordinates. <strong>POINT(23.7208298,37.9908697)</strong></summary>
     /// <remarks>SQL geopoint ToString() representation. This is reversed <strong>longitude</strong> first then <strong>latitude</strong> then optionaly elevation.</remarks>
-    public string ToDbGeographyString() {
-        var mask = Elevation.HasValue ? "POINT ({1:G} {0:G} {2:G})" : "POINT ({1:G} {0:G})";
-        return string.Format(CultureInfo.InvariantCulture, mask, Latitude, Longitude, Elevation);
-    }
+    public string ToDbGeographyString() => Elevation.HasValue
+            ? string.Format(CultureInfo.InvariantCulture, "POINT ({1:G} {0:G} {2:G})", Latitude, Longitude, Elevation)
+            : string.Format(CultureInfo.InvariantCulture, "POINT ({1:G} {0:G})", Latitude, Longitude);
 
     // https://developer.here.com/documentation/places/topics/location-contexts.html#location-contexts__position-format
     // https://tools.ietf.org/rfc/rfc5870
@@ -46,10 +44,9 @@ public class GeoPoint
     /// and optionally altitude (in meters above sea level), and a semicolon-separated list of position parameters. [RFC5870]
     /// </summary>
     /// <remarks>i.e. <strong>geo:37.9908697,23.7208298;cgen=map</strong></remarks>
-    public string ToHeaderGeographyString() {
-        var mask = Elevation.HasValue ? "geo:{0:G},{1:G},{2:G};cgen=map" : "geo:{0:G},{1:G};cgen=map";
-        return string.Format(CultureInfo.InvariantCulture, mask, Latitude, Longitude, Elevation);
-    }
+    public string ToHeaderGeographyString() => Elevation.HasValue ?
+            string.Format(CultureInfo.InvariantCulture, "geo:{0:G},{1:G},{2:G};cgen=map", Latitude, Longitude, Elevation) :
+            string.Format(CultureInfo.InvariantCulture, "geo:{0:G},{1:G};cgen=map", Latitude, Longitude);
 
     /// <summary>Calculates the distance in kilometers between two <see cref="GeoPoint"/> instances using the <b>Haversine formula.</b>.</summary>
     /// <param name="geoPoint">The geographical point to calculate the distance to.</param>
@@ -67,10 +64,10 @@ public class GeoPoint
     /// <summary>Tries to parse the given <paramref name="latLong"/> into a <paramref name="point"/>. In case of exception it handles it and returns false.</summary>
     /// <param name="latLong">Latitude and longitude as a string.</param>
     /// <param name="point">The parsed <see cref="GeoPoint"/> instance.</param>
-    public static bool TryParse(string latLong, out GeoPoint point) {
+    public static bool TryParse(string? latLong, out GeoPoint? point) {
         point = null;
         try {
-            point = Parse(latLong);
+            point = Parse(latLong!);
             return true;
         } catch {
             return false;
@@ -119,7 +116,7 @@ public class GeoPoint
 
     /// <summary>Cast operator.</summary>
     /// <param name="value">The text to parse.</param>
-    public static explicit operator GeoPoint(string value) => string.IsNullOrEmpty(value) ? null : Parse(value);
+    public static explicit operator GeoPoint(string? value) => string.IsNullOrEmpty(value) ? null! : Parse(value);
 }
 
 /// <summary>Type converter for converting between <see cref="GeoPoint"/> and <seealso cref="string"/></summary>
@@ -128,7 +125,7 @@ public class GeoPointTypeConverter : TypeConverter
     /// <summary>Overrides can convert to declare support for string conversion.</summary>
     /// <param name="context">Provides contextual information about a component, such as its container and property descriptor.</param>
     /// <param name="sourceType"></param>
-    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
+    public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType) {
         if (sourceType == typeof(string)) {
             return true;
         }
@@ -139,7 +136,7 @@ public class GeoPointTypeConverter : TypeConverter
     /// <param name="context">Provides contextual information about a component, such as its container and property descriptor.</param>
     /// <param name="culture"></param>
     /// <param name="value"></param>
-    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
+    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) {
         if (value is string) {
             return GeoPoint.Parse((string)value);
         }
@@ -151,9 +148,9 @@ public class GeoPointTypeConverter : TypeConverter
     /// <param name="culture"></param>
     /// <param name="value"></param>
     /// <param name="destinationType"></param>
-    public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType) {
+    public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType) {
         if (destinationType == typeof(string)) {
-            return ((GeoPoint)value).ToString();
+            return ((GeoPoint)value!).ToString();
         }
         return base.ConvertTo(context, culture, value, destinationType);
     }

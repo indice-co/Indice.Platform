@@ -18,7 +18,7 @@ namespace Indice.Features.Identity.Core;
 
 /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
 /// <typeparam name="TUser"></typeparam>
-public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
+public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly IPlatformEventService _eventService;
@@ -200,7 +200,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
             await signInManager.DoPartialSignInAsync(user, deviceId, ["pwd"]);
         }
         if (StateProvider.CurrentState == UserState.LoggedIn) {
-            await signInManager.SignInWithClaimsAsync(user, false, [ new(JwtClaimTypes.AuthenticationMethod, "pwd") ]);
+            await signInManager.SignInWithClaimsAsync(user, false, [new(JwtClaimTypes.AuthenticationMethod, "pwd")]);
         }
         return result;
     }
@@ -564,7 +564,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     /// <param name="swapDeviceId">The id of the device to remove before trusting the defined device.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public async Task<IdentityResult> SetTrustedDevice(TUser user, UserDevice device, string? swapDeviceId = null, CancellationToken cancellationToken = default) {
+    public async Task<IdentityResult> SetTrustedDeviceAsync(TUser user, UserDevice device, string? swapDeviceId = null, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
         if (user is null) {
             throw new ArgumentNullException(nameof(user));
@@ -598,7 +598,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
                     Description = "Device specified for swap is not valid."
                 });
             }
-            var result = await SetUntrustedDevice(user, swapDevice, cancellationToken);
+            var result = await SetUntrustedDeviceAsync(user, swapDevice, cancellationToken);
             if (!result.Succeeded) {
                 return result;
             }
@@ -632,7 +632,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     /// <param name="user">The user instance.</param>
     /// <param name="device">The device to mark as trusted.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-    public async Task<IdentityResult> SetUntrustedDevice(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
+    public async Task<IdentityResult> SetUntrustedDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
         if (user is null) {
             throw new ArgumentNullException(nameof(user));
@@ -651,6 +651,49 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         return await UpdateDeviceAsync(user, device, cancellationToken);
     }
 
+    /// <summary>Sets user profile picture</summary>
+    /// <param name="user">The user instance</param>
+    /// <param name="inputStream">The picture stream</param>
+    /// <param name="scale">used to crop the source <paramref name="inputStream"/></param>
+    /// <param name="translateX">used to crop the source <paramref name="inputStream"/></param>
+    /// <param name="translateY">used to crop the source <paramref name="inputStream"/></param>
+    /// <param name="viewPortSize">The side size of the viewport square used to crop the image source. 
+    /// This is used as a reference for converting the <paramref name="translateX"/> and <paramref name="translateY"/> to the internal crop sqare the will be used with <paramref name="sideSize"/>. Defaults to 256 (same as the <paramref name="sideSize"/>)</param>
+    /// <param name="sideSize">Image side size to store in pixels</param>
+    /// <returns>An <see cref="IdentityResult"/></returns>
+    public async Task<IdentityResult> SetUserPictureAsync(TUser user, Stream inputStream, int sideSize = 256, double scale = 1, int translateX = 0, int translateY = 0, int viewPortSize = 256) {
+        var pictureStore = GetPictureStore();
+        return await pictureStore!.SetUserPictureAsync(user, inputStream, sideSize, scale, translateX, translateY, viewPortSize);
+    }
+
+    /// <summary>Clear user profile picture</summary>
+    /// <param name="user">The user instance</param>
+    /// <returns>An <see cref="IdentityResult"/></returns>
+    public async Task<IdentityResult> ClearUserPictureAsync(TUser user) {
+        var pictureStore = GetPictureStore();
+        return await pictureStore!.ClearUserPictureAsync(user);
+    }
+
+    /// <summary>Return user picture stream and content type</summary>
+    /// <param name="user">The user instance</param>
+    /// <param name="contentType">Content type of file to be returned</param>
+    /// <param name="size">Image size to be returned</param>
+    /// <returns>A tupple of <see cref="Stream"/> and Content Type </returns>
+    public async Task<(Stream? Stream, string ContentType)> GetUserPictureAsync(TUser user, string? contentType = null, int? size = null) {
+        var pictureStore = GetPictureStore();
+        return await pictureStore!.GetUserPictureAsync(user, contentType, size);
+    }
+
+    /// <summary>Return user picture stream and content type</summary>
+    /// <param name="pictureKey">The key assiciated with this picture. Can be the Sha256 of the userid or email, or the userid itself</param>
+    /// <param name="contentType">Content type of file to be returned</param>
+    /// <param name="size">Image size to be returned</param>
+    /// <returns>A tupple of <see cref="Stream"/> and Content Type.</returns>
+    public async Task<(Stream? Stream, string ContentType, bool Exists)> FindPictureByKeyAsync(string pictureKey, string? contentType = null, int? size = null) {
+        var pictureStore = GetPictureStore();
+        return await pictureStore!.FindUserPictureByKeyAsync(pictureKey, contentType, size);
+    }
+
     #region Helper Methods
     private IExtendedUserStore<TUser>? GetUserStore(bool throwOnFail = true) {
         var cast = Store as IExtendedUserStore<TUser>;
@@ -664,6 +707,13 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         var cast = Store as IUserDeviceStore<TUser>;
         if (throwOnFail && cast is null) {
             throw new NotSupportedException($"Store does not implement {nameof(IUserDeviceStore<TUser>)}.");
+        }
+        return cast;
+    }
+    private IUserPictureStore<TUser>? GetPictureStore(bool throwOnFail = true) {
+        var cast = Store as IUserPictureStore<TUser>;
+        if (throwOnFail && cast is null) {
+            throw new NotSupportedException($"Store does not implement {nameof(IUserPictureStore<TUser>)}.");
         }
         return cast;
     }

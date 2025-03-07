@@ -48,15 +48,15 @@ public class NotificationsManager(
     /// <param name="data">Optional data for the campaign.</param>
     /// <param name="attachment">An attachement available to email and inbox channels</param>
     /// <param name="recipientIds">Defines a list of user identifiers that constitutes the audience of the campaign.</param>
-    public async Task<CreateCampaignResult> SendMessageToRecipients(string title, Dictionary<MessageChannelKind, MessageContent> templates, Period period = null,
-        Hyperlink actionLink = null, string type = null, dynamic data = null, FileAttachment attachment = null, params string[] recipientIds) {
+    public async Task<CreateCampaignResult> SendMessageToRecipients(string title, Dictionary<MessageChannelKind, MessageContent> templates, Period? period = null,
+        Hyperlink? actionLink = null, string? type = null, dynamic? data = null, FileAttachment? attachment = null, params string[] recipientIds) {
         Guid? typeId = null;
         if (!string.IsNullOrWhiteSpace(type)) {
             var isGuid = Guid.TryParse(type, out var typeGuid);
             if (isGuid) {
                 typeId = typeGuid;
             } else {
-                var messageType = await GetMessageTypeByName(type);
+                var messageType = await GetMessageType(type);
                 if (messageType is null) {
                     return CreateCampaignResult.Fail("Specified type id is not valid.");
                 }
@@ -87,8 +87,8 @@ public class NotificationsManager(
     /// <param name="type">The id or name of the campaign type.</param>
     /// <param name="data">Optional data for the campaign.</param>
     /// <param name="attachment">An attachement available to email and inbox channels</param>
-    public Task<CreateCampaignResult> SendMessageToRecipient(string recipientId, string title, Dictionary<MessageChannelKind, MessageContent> templates, Period period = null,
-        Hyperlink actionLink = null, string type = null, dynamic data = null, FileAttachment attachment = null) =>
+    public Task<CreateCampaignResult> SendMessageToRecipient(string recipientId, string title, Dictionary<MessageChannelKind, MessageContent> templates, Period? period = null,
+        Hyperlink? actionLink = null, string? type = null, dynamic? data = null, FileAttachment? attachment = null) =>
         SendMessageToRecipients(title, templates, period, actionLink, type, data, attachment, recipientId);
 
     /// <summary>Creates a new message for the specified recipient.</summary>
@@ -101,8 +101,8 @@ public class NotificationsManager(
     /// <param name="type">The id or name of the campaign type.</param>
     /// <param name="data">Optional data for the campaign.</param>
     /// <param name="attachment">An attachement available to email and inbox channels</param>
-    public Task<CreateCampaignResult> SendMessageToRecipient(string recipientId, string title, MessageChannelKind channels, MessageContent template, Period period = null,
-        Hyperlink actionLink = null, string type = null, dynamic data = null, FileAttachment attachment = null) =>
+    public Task<CreateCampaignResult> SendMessageToRecipient(string recipientId, string title, MessageChannelKind channels, MessageContent template, Period? period = null,
+        Hyperlink? actionLink = null, string? type = null, dynamic? data = null, FileAttachment? attachment = null) =>
         SendMessageToRecipients(title, channels.GetFlagValues().ToDictionary(x => x, y => template), period, actionLink, type, data, attachment, recipientId);
 
     /// <summary>Creates a new message for the specified recipient.</summary>
@@ -115,8 +115,8 @@ public class NotificationsManager(
     /// <param name="type">The id or name of the campaign type.</param>
     /// <param name="data">Optional data for the campaign.</param>
     /// <param name="attachment">An attachement available to email and inbox channels</param>
-    public Task<CreateCampaignResult> SendMessageToRecipient(string recipientId, string title, MessageChannelKind channels, Guid templateId, Period period = null,
-        Hyperlink actionLink = null, string type = null, dynamic data = null, FileAttachment attachment = null) =>
+    public Task<CreateCampaignResult> SendMessageToRecipient(string recipientId, string title, MessageChannelKind channels, Guid templateId, Period? period = null,
+        Hyperlink? actionLink = null, string? type = null, dynamic? data = null, FileAttachment? attachment = null) =>
         SendMessageToRecipients(title, channels, templateId, period, actionLink, type, data, attachment, recipientId);
 
     /// <summary>Creates a new message for the specified recipients.</summary>
@@ -129,11 +129,11 @@ public class NotificationsManager(
     /// <param name="data">Optional data for the campaign.</param>
     /// <param name="attachment">An attachement available to email and inbox channels</param>
     /// <param name="recipientIds">Defines a list of user identifiers that constitutes the audience of the campaign.</param>
-    public async Task<CreateCampaignResult> SendMessageToRecipients(string title, MessageChannelKind channels, Guid templateId, Period period = null,
-        Hyperlink actionLink = null, string type = null, dynamic data = null, FileAttachment attachment = null, params string[] recipientIds) {
+    public async Task<CreateCampaignResult> SendMessageToRecipients(string title, MessageChannelKind channels, Guid templateId, Period? period = null,
+        Hyperlink? actionLink = null, string? type = null, dynamic? data = null, FileAttachment? attachment = null, params string[] recipientIds) {
         var template = await TemplateService.GetById(templateId);
         var arrayOfChannel = channels.GetFlagValues();
-        return await SendMessageToRecipients(title, template.Content
+        return await SendMessageToRecipients(title, template?.Content
                                                             .Select(x => new KeyValuePair<MessageChannelKind, MessageContent>(Enum.Parse<MessageChannelKind>(x.Key, ignoreCase: true), x.Value))
                                                             .Where(x => arrayOfChannel.Contains(x.Key))
                                                             .ToDictionary(x => x.Key, x => x.Value), period, actionLink, type, data, attachment, recipientIds);
@@ -149,12 +149,12 @@ public class NotificationsManager(
     /// <param name="data">Optional data for the campaign.</param>
     /// <param name="attachment">An attachement available to email and inbox channels</param>
     /// <param name="recipientIds">Defines a list of user identifiers that constitutes the audience of the campaign.</param>
-    public Task<CreateCampaignResult> SendMessageToRecipients(string title, MessageChannelKind channels, MessageContent template, Period period = null,
-        Hyperlink actionLink = null, string type = null, dynamic data = null, FileAttachment attachment = null, params string[] recipientIds) =>
+    public Task<CreateCampaignResult> SendMessageToRecipients(string title, MessageChannelKind channels, MessageContent template, Period? period = null,
+        Hyperlink? actionLink = null, string? type = null, dynamic? data = null, FileAttachment? attachment = null, params string[] recipientIds) =>
         SendMessageToRecipients(title, channels.GetFlagValues().ToDictionary(x => x, y => template), period, actionLink, type, data, attachment, recipientIds);
 
     internal async Task<CreateCampaignResult> CreateCampaignInternal(CreateCampaignRequest request, bool? validateRules = true) {
-        if (validateRules.Value) {
+        if (validateRules == true) {
             // Apply validation rules to incoming data.
             var validationResult = CreateCampaignValidator.Validate(request);
             if (!validationResult.IsValid) {
@@ -175,11 +175,11 @@ public class NotificationsManager(
         }
         // create the attachemtns
         if (request.Attachments.Any()) {
-            if (request.Attachments.Count > 3) { 
+            if (request.Attachments.Count > 3) {
                 return CreateCampaignResult.Fail("Too many attachments. Maximum attachent size for Notification manager is '3'");
             }
-            
-            try { 
+
+            try {
                 var createAttachmentTasks = request.Attachments.Where(x => x is not null).Select(x => CampaignAttachmentService.Create(x));
                 var attachments = await Task.WhenAll(createAttachmentTasks);
                 request.AttachmentIds = attachments.Select(x => x.Id).ToList();
@@ -193,14 +193,25 @@ public class NotificationsManager(
             if (template == null) {
                 return CreateCampaignResult.Fail($"The selected Template with Id:({request.MessageTemplateId}) does not exist");
             }
+            if (!request.IgnoreUserPreferences.HasValue) {
+                request.IgnoreUserPreferences = template.IgnoreUserPreferences;
+            }
+            request.Data ??= template.Data;
             request.Content = template.Content;
+        }
+        if (request.TypeId.HasValue) {
+            var messageType = await MessageTypeService.GetById(request.TypeId.Value);
+            if (messageType is null) {
+                return CreateCampaignResult.Fail("Specified type id is not valid.");
+            }
+            request.TypeId = messageType.Id;
         }
         // Create campaign in the store.
         var createdCampaign = await CampaignService.Create(request);
         // Dispatch event that the campaign was created.
         await EventDispatcher.RaiseEventAsync(
             payload: CampaignCreatedEvent.FromCampaign(createdCampaign, request.RecipientIds, request.Recipients, isNewDistributionList),
-            configure: builder => 
+            configure: builder =>
                 builder.WrapInEnvelope()
                        .At(request.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow)
                        .WithQueueName(EventNames.CampaignCreated)
@@ -211,7 +222,7 @@ public class NotificationsManager(
     /// <summary>Retrieves the campaign with the specified id.</summary>
     /// <param name="campaignId">The id of the campaign.</param>
     /// <returns>The campaign with the specified id, otherwise null.</returns>
-    public Task<CampaignDetails> GetCampaignById(Guid campaignId) => CampaignService.GetById(campaignId);
+    public Task<CampaignDetails?> GetCampaignById(Guid campaignId) => CampaignService.GetById(campaignId);
 
     /// <summary>Creates a new campaign type.</summary>
     /// <param name="name">The name used to create a new campaign type.</param>
@@ -227,8 +238,13 @@ public class NotificationsManager(
     }
 
     /// <summary>Retrieves the campaign type with the specified name.</summary>
-    /// <param name="name">The name of the campaign type to look for.</param>
-    public Task<MessageType> GetMessageTypeByName(string name) => MessageTypeService.GetByName(name);
+    /// <param name="name">The name or the alias of the campaign type to look for.</param>
+    public Task<MessageType?> GetMessageType(string name) {
+        var messageType = MessageTypeService.GetById((GuidOrAlias)name);
+        if (messageType != null) return messageType;
+        return MessageTypeService.GetByName(name);
+    }
+
 
     /// <summary>Gets a list of all available templates.</summary>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>

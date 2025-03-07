@@ -19,14 +19,7 @@ export class ClientUiConfigComponent implements OnInit {
 
     public settings: any;
 
-    public schemaFormOptions = {
-        addSubmit: true,
-        debug: false,
-        loadExternalAssets: false,
-        returnEmptyFields: false,
-        setSchemaDefaults: false,
-        defautWidgetOptions: { feedback: true }
-    };
+    public uischema = {};
 
     public ngOnInit(): void {
         this._clientId = this._route.parent.snapshot.params['id'];

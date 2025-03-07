@@ -4,7 +4,8 @@
       <LangVersion>Latest</LangVersion>
       <ImplicitUsings>enable</ImplicitUsings>
       <Nullable>disable</Nullable>
-      <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+      <TargetFrameworks></TargetFrameworks>
+      <TargetFramework>net8.0</TargetFramework>
       <IsTestProject>true</IsTestProject>
     </PropertyGroup>
     <PropertyGroup Label="Package Common">

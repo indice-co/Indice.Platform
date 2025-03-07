@@ -11,11 +11,11 @@ public class PushNotificationMessageBuilder
     /// The payload data that will be sent to the mobile client (not visible to the push notification Title or Message).
     /// If the data is null then only the token will be sent as data.
     /// </summary>
-    public string Data { get; set; }
+    public string? Data { get; set; }
     /// <summary>The message of the push notification.</summary>
-    public string Title { get; set; }
+    public string Title { get; set; } = null!;
     /// <summary>The body of the push notification.</summary>
-    public string Body { get; set; }
+    public string? Body { get; set; }
     /// <summary>The user identifier that correlates devices with users. This can be any identifier like user id, username, user email, customer code etc.</summary>
     public PushNotificationTag? UserTag { get; set; }
     /// <summary>The device identifier.</summary>
@@ -23,7 +23,7 @@ public class PushNotificationMessageBuilder
     /// <summary>The tags of the push notification.</summary>
     public List<PushNotificationTag> Tags { get; set; } = new List<PushNotificationTag>();
     /// <summary>The type of the push notification.</summary>
-    public string Classification { get; set; }
+    public string? Classification { get; set; }
 }
 
 /// <summary><see cref="PushNotificationMessageBuilder"/> extensions.</summary>
@@ -54,7 +54,7 @@ public static class PushNotificationMessageBuilderExtensions
     /// <summary>Defines the data of the push notification. Data is optional.</summary>
     /// <param name="builder">The builder.</param>
     /// <param name="data">The data that will be sent to the push notification.</param>
-    public static PushNotificationMessageBuilder WithData(this PushNotificationMessageBuilder builder, string data) {
+    public static PushNotificationMessageBuilder WithData(this PushNotificationMessageBuilder builder, string? data) {
         builder.Data = data;
         return builder;
     }
@@ -97,14 +97,14 @@ public static class PushNotificationMessageBuilderExtensions
         if (tags?.Length == 0) {
             throw new ArgumentException("You must set the tags to the push notification.", nameof(tags));
         }
-        builder.Tags.AddRange(tags.Select(tag => new PushNotificationTag(tag, PushNotificationTagKind.Unspecified)));
+        builder.Tags.AddRange(tags!.Select(tag => new PushNotificationTag(tag, PushNotificationTagKind.Unspecified)));
         return builder;
     }
 
     /// <summary>Defines the type of the push notification.</summary>
     /// <param name="builder">the builder.</param>
     /// <param name="classification">The type of the push notification.</param>
-    public static PushNotificationMessageBuilder WithClassification(this PushNotificationMessageBuilder builder, string classification) {
+    public static PushNotificationMessageBuilder WithClassification(this PushNotificationMessageBuilder builder, string? classification) {
         builder.Classification = classification;
         return builder;
     }

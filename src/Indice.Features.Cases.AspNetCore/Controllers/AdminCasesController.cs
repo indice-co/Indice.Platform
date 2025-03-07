@@ -1,9 +1,10 @@
 ﻿using System.Net.Mime;
 using Indice.AspNetCore.Filters;
-using Indice.Features.Cases.Events;
-using Indice.Features.Cases.Interfaces;
-using Indice.Features.Cases.Models;
-using Indice.Features.Cases.Models.Responses;
+using Indice.Events;
+using Indice.Features.Cases.Core.Events;
+using Indice.Features.Cases.Core.Models;
+using Indice.Features.Cases.Core.Models.Responses;
+using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -29,7 +30,7 @@ internal class AdminCasesController : ControllerBase
     private readonly ICaseActionsService _caseBookmarkService;
     private readonly IAdminCaseMessageService _adminCaseMessageService;
     private readonly ICaseApprovalService _caseApprovalService;
-    private readonly ICaseEventService _caseEventService;
+    private readonly IPlatformEventService _platformEventService;
     private readonly AdminCasesApiOptions _options;
 
     public AdminCasesController(
@@ -39,7 +40,7 @@ internal class AdminCasesController : ControllerBase
         ICaseActionsService caseBookmarkService,
         IAdminCaseMessageService adminCaseMessageService,
         ICaseApprovalService caseApprovalService,
-        ICaseEventService caseEventService,
+        IPlatformEventService platformEventService,
         IOptions<AdminCasesApiOptions> options) {
         _adminCaseService = adminCaseService ?? throw new ArgumentNullException(nameof(adminCaseService));
         _casePdfService = casePdfService ?? throw new ArgumentNullException(nameof(casePdfService));
@@ -47,7 +48,7 @@ internal class AdminCasesController : ControllerBase
         _caseBookmarkService = caseBookmarkService ?? throw new ArgumentNullException(nameof(caseBookmarkService));
         _adminCaseMessageService = adminCaseMessageService ?? throw new ArgumentNullException(nameof(adminCaseMessageService));
         _caseApprovalService = caseApprovalService ?? throw new ArgumentNullException(nameof(caseApprovalService));
-        _caseEventService = caseEventService ?? throw new ArgumentNullException(nameof(caseEventService));
+        _platformEventService = platformEventService ?? throw new ArgumentNullException(nameof(platformEventService));
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
 
@@ -57,7 +58,7 @@ internal class AdminCasesController : ControllerBase
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Guid))]
     public async Task<IActionResult> CreateDraftAdminCase([FromBody] CreateDraftCaseRequest request) {
-        return Ok(await _adminCaseService.CreateDraft(User, request.CaseTypeCode, request.GroupId, request.Customer, request.Metadata));
+        return Ok(await _adminCaseService.CreateDraft(User, request.CaseTypeCode, request.GroupId, request.Owner, request.Metadata));
     }
 
     /// <summary>Get a list of Attachments for a CaseId</summary>
@@ -75,7 +76,8 @@ internal class AdminCasesController : ControllerBase
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="file">The file to attach.</param>
     /// <returns></returns>
-    [AllowedFileSize(6291456)] // 6 MegaBytes
+    [AllowedFileSize()]
+    [AllowedFileExtensions()]
     [Consumes("multipart/form-data")]
     [DisableRequestSizeLimit]
     [HttpPost("{caseId:guid}/attachments")]
@@ -88,16 +90,11 @@ internal class AdminCasesController : ControllerBase
             return BadRequest(new ValidationProblemDetails(ModelState));
         }
         var fileExtension = Path.GetExtension(file.FileName)?.ToLowerInvariant();
-        if (!_options.PermittedAttachmentFileExtensions.Contains(fileExtension)) {
-            return BadRequest(new ValidationProblemDetails(new Dictionary<string, string[]> {
-                { CasesApiConstants.ValidationErrorKeys.FileExtension, new[] { "File type extension is not acceptable." } }
-            }));
-        }
-        var attachmentId = await _adminCaseMessageService.Send(caseId, User, new Message { File = file });
+        var attachmentId = await _adminCaseMessageService.Send(caseId, User, new Message { FileName = file.FileName, FileStreamAccessor = () => file.OpenReadStream() });
         return Ok(new CasesAttachmentLink { Id = attachmentId.GetValueOrDefault() });
     }
 
-    /// <summary>Get an Case Attachment</summary>
+    /// <summary>Get a Case Attachment</summary>
     /// <param name="caseId"></param>
     /// <param name="attachmentId"></param>
     /// <returns></returns>
@@ -110,7 +107,25 @@ internal class AdminCasesController : ControllerBase
         if (attachment is null) {
             return NotFound();
         }
-        return File(attachment.Data, attachment.ContentType, attachment.Name);
+        return File(attachment.Data!, attachment.ContentType!, attachment.FileName!);
+    }
+
+    /// <summary>
+    /// Get a Case Attachment by field name
+    /// </summary>
+    /// <param name="caseId"></param>
+    /// <param name="fieldName"></param>
+    /// <returns></returns>
+    [HttpGet("{caseId:guid}/attachments/{attachmentName}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IFormFile))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(void))]
+    [Produces(typeof(IFormFile))]
+    public async Task<IActionResult> GetAttachmentByField([FromRoute] Guid caseId, [FromRoute] string fieldName) {
+        var attachment = await _adminCaseService.GetAttachmentByField(User, caseId, fieldName);
+        if (attachment is null) {
+            return NotFound();
+        }
+        return File(attachment.Data!, attachment.ContentType!, attachment.FileName!);
     }
 
     /// <summary>Update the case with the business data as defined at the specific case type. This action is allowed only for draft cases.</summary>
@@ -230,12 +245,29 @@ internal class AdminCasesController : ControllerBase
         return Ok(timeline);
     }
 
+    /// <summary>
+    /// Gets the cases that are related to the given id.
+    /// Set a value to the case's metadata with the key ExternalCorrelationKey to correlate cases.
+    /// </summary>
+    /// <param name="caseId">The id of the case.</param>
+    /// <response code="200">OK</response>
+    /// <response code="404">Not Found</response>
+    [HttpGet("{caseId:guid}/related-cases")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<CasePartial>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+    public async Task<IActionResult> GetRelatedCases([FromRoute] Guid caseId) {
+        var relatedCases = await _adminCaseService.GetRelatedCases(User, caseId);
+        return Ok(relatedCases);
+    }
+
     /// <summary>Gets the cases actions (Approval, edit, assignments, etc) for a case Id. Actions differ based on user role.</summary>
     /// <param name="caseId">The id of the case.</param>
     /// <response code="200">OK</response>
     /// <response code="404">Not Found</response>
     [HttpGet("{caseId:guid}/actions")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CaseActions))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
     public async Task<IActionResult> GetCaseActions([FromRoute] Guid caseId) {
         return Ok(await _caseBookmarkService.GetUserActions(HttpContext.User, caseId));
     }
@@ -244,9 +276,9 @@ internal class AdminCasesController : ControllerBase
     /// <param name="caseId">The Id of the case.</param>
     /// <returns></returns>
     [HttpGet("{caseId:guid}/reject-reasons")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<RejectReason>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<RejectReason>))]
     public async Task<IActionResult> GetCaseRejectReasons([FromRoute] Guid caseId) {
-        return Ok(await _caseApprovalService.GetRejectReasons(caseId));
+        return Ok(await _caseApprovalService.GetRejectReasons(User, caseId));
     }
 
     /// <summary>Download case in a PDF format.</summary>
@@ -263,7 +295,7 @@ internal class AdminCasesController : ControllerBase
         }
         var file = await CreatePdf(@case);
         var fileName = $"{@case?.CaseType?.Code}-{DateTimeOffset.UtcNow.Date:dd-MM-yyyy}.pdf";
-        await _caseEventService.Publish(new CaseDownloadedEvent(@case, CasesApiConstants.Channels.Agent));
+        await _platformEventService.Publish(new CaseDownloadedEvent(@case!, CasesApiConstants.Channels.Agent));
         return File(file, "application/pdf", fileName);
     }
 

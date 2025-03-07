@@ -30,11 +30,11 @@ internal class ScheduledJob<TTaskHandler, TState> : IJob where TTaskHandler : cl
         var jobHandlerType = jobDataMap[JobDataKeys.JobHandlerType] as Type;
         var singleton = jobDataMap[JobDataKeys.Singleton] as bool? ?? false;
         if (singleton) {
-            await _lockManager.ExclusiveRun(context.JobDetail.Key.ToString(), token => ExecuteInternal(context, jobHandlerType, token), context.CancellationToken);
+            await _lockManager.ExclusiveRun(context.JobDetail.Key.ToString(), token => ExecuteInternal(context, jobHandlerType!, token), context.CancellationToken);
             return;
         }
         // No lock is needed so execute at will.
-        await ExecuteInternal(context, jobHandlerType);
+        await ExecuteInternal(context, jobHandlerType!);
     }
     
     private async Task ExecuteInternal(IJobExecutionContext context, Type jobHandlerType, CancellationToken? cancellationToken = null) {

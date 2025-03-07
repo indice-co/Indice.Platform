@@ -21,6 +21,8 @@ public static partial class IdentityEndpoints
         public const string Clients = "identity:clients";
         /// <summary>A scope that allows managing users on IdentityServer.</summary>
         public const string Users = "identity:users";
+        /// <summary>A scope that allows using the totp endpoints on IdentityServer.</summary>
+        public const string Totp = "identity:totp";
     }
 
     /// <summary>Identity API policies.</summary>
@@ -61,10 +63,11 @@ public static partial class IdentityEndpoints
             "account/username-exists",
             "account/validate-password",
             "totp",
-            "account/calling-codes"
+            "account/calling-codes",
+            "my/account/picture"
         };
 
-        public static class Policies 
+        public static class Policies
         {
             public static readonly string ForgotPassword = Endpoints[0];
             public static readonly string ForgotPasswordConfirmation = Endpoints[1];
@@ -73,6 +76,8 @@ public static partial class IdentityEndpoints
             public static readonly string ValidatePassword = Endpoints[4];
             public static readonly string Totp = Endpoints[5];
             public static readonly string CallingCodes = Endpoints[6];
+            public static readonly string UploadPicture = Endpoints[7];
+            
         }
     }
 }

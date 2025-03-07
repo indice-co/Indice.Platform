@@ -140,9 +140,11 @@ internal class CompleteRegistrationRequestValidator : RequestValidatorBase<Compl
         }
         // Validate OTP code, if needed.
         if (DeviceAuthenticationOptions.AlwaysSendOtp || !mfaPassed) {
-            var totpResult = await TotpServiceFactory.Create<User>().VerifyAsync(user, parameters.Get(RegistrationRequestParameters.OtpCode)!, Constants.DeviceAuthenticationOtpPurpose(userId, authorizationCode.DeviceId!));
+            var totpResult = await TotpServiceFactory
+                .Create<User>()
+                .VerifyAsync(user, parameters.Get(RegistrationRequestParameters.OtpCode)!, Constants.DeviceAuthenticationOtpPurpose(userId, authorizationCode.DeviceId!, authorizationCode.InteractionMode));
             if (!totpResult.Success) {
-                return Error(totpResult.Error);
+                return Error(totpResult.Error!);
             }
         }
         // Finally return result.

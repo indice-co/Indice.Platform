@@ -7,5 +7,15 @@
     </div>
 </div>
 <ng-template let-row="row" let-value="value" #actionsTemplate>
-    <button class="btn btn-danger" (click)="showDeleteAlert(value)">Delete</button>
+    <a class="icon-link text-primary" href="#" role="button" *ngIf="value" (click)="showDeleteAlert(value)" title="Delete">
+        <i class="material-icons align-middle text-danger">delete</i>
+    </a>
+</ng-template>
+<ng-template let-row="row"
+             let-value="value"
+             #providerNameTemplate>
+    <span class="badge text-muted border boder-primary bg-light align-middle" [title]="value">
+        <img class="m-1" height="14" alt="{{value}}" src="assets/img/idps/{{value}}.svg" />
+        {{ value }}
+    </span>
 </ng-template>

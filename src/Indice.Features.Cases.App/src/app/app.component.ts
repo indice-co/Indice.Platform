@@ -3,7 +3,10 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-root',
-  template: '<lib-shell-layout></lib-shell-layout>'
+  template: `
+  <ng-progress ngProgressHttp/>
+  <lib-shell-layout></lib-shell-layout>
+  `
 })
 export class AppComponent {
   constructor(translate: TranslateService) {

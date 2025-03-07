@@ -10,5 +10,5 @@ public interface IScheduledTaskStore<TState> where TState : class
     Task Save(ScheduledTask<TState> scheduledTask);
     /// <summary>Find a persisted schedule task.</summary>
     /// <param name="taskId">The unique id of the task item.</param>
-    Task<ScheduledTask<TState>> GetById(string taskId);
+    Task<ScheduledTask<TState>?> GetById(string taskId);
 }

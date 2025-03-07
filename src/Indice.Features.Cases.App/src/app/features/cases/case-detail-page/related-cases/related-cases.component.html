@@ -1,0 +1,25 @@
+<div class="mt-auto pt-1 pl-1" *ngIf="relatedCases.length > 0">
+  <div class="overflow-y-auto" style="max-height: 14rem;">
+    <table class="table-auto w-full border-collapse">
+      <tbody>
+        <tr *ngFor="let relatedCase of relatedCases" class="hover:bg-gray-50 border-b border-gray-200">
+          <td class="px-1.5 py-1 text-[16px]" style="color: #374151;">
+            {{ relatedCase.caseType?.code }}
+          </td>
+          <td class="px-1.5 py-1 text-[18px] font-bold" style="color: #374151;">
+            {{ relatedCase.checkpointType?.code }}
+          </td>
+          <td class="px-1.5 py-1 text-gray-400 dark:text-gray-500 text-sm">
+            {{ relatedCase.createdByWhen | toReadableDate }}
+          </td>
+          <td class="px-1.5 py-1">
+            <button [routerLink]="['/cases', relatedCase.id, 'details']"
+                    class="bg-blue-600 hover:bg-blue-800 text-white px-2 py-1 rounded">
+              <i class="ms-Icon ms-Icon--SkypeArrow rotate-180"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

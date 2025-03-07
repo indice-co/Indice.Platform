@@ -16,8 +16,8 @@ public static class MediaApi
     /// <param name="builder">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     /// <returns>The <see cref="IEndpointRouteBuilder"/> instance.</returns>
     internal static IEndpointRouteBuilder MapMedia(this IEndpointRouteBuilder builder) {
-        var options = builder.ServiceProvider.GetService<IOptions<MediaApiOptions>>()?.Value ?? new MediaApiOptions();
-        var group = builder.MapGroup($"{options.ApiPrefix}")
+        var options = builder.ServiceProvider.GetRequiredService<IOptions<MediaApiOptions>>().Value;
+        var group = builder.MapGroup($"{options.PathPrefix}")
                            .WithGroupName("media")
                            .WithTags("Media")
                            .ProducesProblem(StatusCodes.Status401Unauthorized)
@@ -26,7 +26,7 @@ public static class MediaApi
                            .RequireAuthorization(MediaLibraryApi.Policies.BeMediaLibraryManager)
                            .WithHandledException<BusinessException>();
 
-        var requiredScopes = options.ApiScope.Split(' ').Where(scope => !string.IsNullOrWhiteSpace(scope)).ToArray();
+        var requiredScopes = options.Scope.Split(' ').Where(scope => !string.IsNullOrWhiteSpace(scope)).ToArray();
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", requiredScopes);
 
         group.MapGet("/media-root/{*path}", MediaHandlers.DownloadFile)
@@ -34,16 +34,21 @@ public static class MediaApi
              .WithSummary("Retrieves an existing file.")
              .ProducesProblem(StatusCodes.Status404NotFound)
              .Produces(StatusCodes.Status200OK, typeof(IFormFile))
-             .CacheOutputMemory()
-             .AllowAnonymous();
+             .AllowAnonymous()
+             .CacheOutput(policy => policy.Expire(TimeSpan.FromMinutes(30))
+                                          .SetVaryByQuery("Size")
+                                          .SetVaryByRouteValue("path")
+                                          .SetAuthorized());
 
         group.MapGet("/media/{fileGuid}.{format}", MediaHandlers.GetFile)
              .WithName(nameof(MediaHandlers.GetFile))
              .WithSummary("Retrieves an existing file.")
              .ProducesProblem(StatusCodes.Status404NotFound)
              .Produces(StatusCodes.Status200OK, typeof(IFormFile))
-             .CacheOutputMemory()
-             .AllowAnonymous();
+             .AllowAnonymous()
+             .CacheOutput(policy => policy.Expire(TimeSpan.FromMinutes(30))
+                                          .SetAuthorized()
+                                          .SetVaryByRouteValue(["fileGuid", "format"]));
 
         group.MapGet("/media/{fileId}", MediaHandlers.GetFileDetails)
              .WithName(nameof(MediaHandlers.GetFileDetails))

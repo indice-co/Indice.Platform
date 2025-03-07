@@ -1,5 +1,11 @@
-﻿using System.Security.Claims;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Security.Claims;
+using System.Text;
+using System.Text.RegularExpressions;
 using IdentityModel;
+using IdentityServer4.Configuration;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using IdentityServer4.Stores.Serialization;
@@ -14,17 +20,25 @@ using Indice.Security;
 using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Processing;
 using static IdentityServer4.IdentityServerConstants;
 
 namespace Indice.Features.Identity.Server.Manager;
 
-internal static class MyAccountHandlers
+internal static partial class MyAccountHandlers
 {
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> UpdateEmail(
         ExtendedUserManager<User> userManager,
@@ -51,7 +65,7 @@ internal static class MyAccountHandlers
         var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
         await emailService.SendAsync(message => {
             var builder = message
-                .To(user.Email)
+                .To(user.Email!)
                 .WithSubject(userManager.MessageDescriber.UpdateEmailMessageSubject);
             if (!string.IsNullOrWhiteSpace(endpointOptions.Value.Email.UpdateEmailTemplate)) {
                 var data = new IdentityApiEmailData {
@@ -88,7 +102,7 @@ internal static class MyAccountHandlers
                 ValidationErrors.AddError(nameof(request.Token).ToLower(), userManager.MessageDescriber.EmailAlreadyConfirmed)
             );
         }
-        var result = await userManager.ConfirmEmailAsync(user, request.Token);
+        var result = await userManager.ConfirmEmailAsync(user, request.Token!);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
@@ -119,10 +133,10 @@ internal static class MyAccountHandlers
         if (!endpointOptions.Value.PhoneNumber.SendOtpOnUpdate) {
             return TypedResults.NoContent();
         }
-        var smsService = smsServiceFactory.Create(request.DeliveryChannel) ?? throw new Exception($"No concrete implementation of {nameof(ISmsService)} is registered.");
+        var smsService = smsServiceFactory.Create(request.DeliveryChannel!) ?? throw new Exception($"No concrete implementation of {nameof(ISmsService)} is registered.");
 
         var token = await userManager.GenerateChangePhoneNumberTokenAsync(user, request.PhoneNumber!);
-        await smsService.SendAsync(request.PhoneNumber, string.Empty, userManager.MessageDescriber.PhoneNumberVerificationMessage(token));
+        await smsService.SendAsync(request.PhoneNumber!, string.Empty, userManager.MessageDescriber.PhoneNumberVerificationMessage(token));
         return TypedResults.NoContent();
     }
 
@@ -144,7 +158,7 @@ internal static class MyAccountHandlers
                 ValidationErrors.AddError(nameof(request.Token).ToLower(), userManager.MessageDescriber.PhoneNumberAlreadyConfirmed)
             );
         }
-        var result = await userManager.ChangePhoneNumberAsync(user, user.PhoneNumber, request.Token);
+        var result = await userManager.ChangePhoneNumberAsync(user, user.PhoneNumber!, request.Token!);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
@@ -196,7 +210,7 @@ internal static class MyAccountHandlers
         if (user == null) {
             return TypedResults.NotFound();
         }
-        var result = await userManager.ChangePasswordAsync(user, request.OldPassword, request.NewPassword);
+        var result = await userManager.ChangePasswordAsync(user, request.OldPassword!, request.NewPassword!);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
@@ -229,7 +243,7 @@ internal static class MyAccountHandlers
         };
         await emailService.SendAsync(message => {
             var builder = message
-                .To(user.Email)
+                .To(user.Email!)
                 .WithSubject(userManager.MessageDescriber.ForgotPasswordMessageSubject);
             if (!string.IsNullOrWhiteSpace(endpointOptions.Value.Email.ForgotPasswordTemplate)) {
                 builder.UsingTemplate(endpointOptions.Value.Email.ForgotPasswordTemplate)
@@ -249,7 +263,7 @@ internal static class MyAccountHandlers
         if (user == null) {
             return TypedResults.NoContent();
         }
-        var result = await userManager.ResetPasswordAsync(user, request.Token, request.NewPassword);
+        var result = await userManager.ResetPasswordAsync(user, request.Token!, request.NewPassword!);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
@@ -492,8 +506,8 @@ internal static class MyAccountHandlers
                 }
             }
         }
-        return TypedResults.Ok(new CredentialsValidationInfo { 
-            PasswordRules = availableRules.Values.ToList() 
+        return TypedResults.Ok(new CredentialsValidationInfo {
+            PasswordRules = availableRules.Values.ToList()
         });
     }
 
@@ -531,9 +545,9 @@ internal static class MyAccountHandlers
         }
         var result = await userManager.CreateAsync(user, request.Password!);
         if (!result.Succeeded) {
-            TypedResults.ValidationProblem(result.Errors.ToDictionary());
+            return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
-        var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+        //var token = await userManager.GenerateEmailConfirmationTokenAsync(user); // in case we need this
         return TypedResults.NoContent();
     }
 
@@ -747,4 +761,7 @@ internal static class MyAccountHandlers
         }
         return list;
     }
+
+
+
 }

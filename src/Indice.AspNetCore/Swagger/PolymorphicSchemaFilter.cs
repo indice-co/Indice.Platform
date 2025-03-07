@@ -15,7 +15,7 @@ public class PolymorphicSchemaFilter<TBaseType> : PolymorphicSchemaFilter
     /// <summary>Constructs the schema filter.</summary>
     /// <param name="discriminator">The property that will be used or added to the schema as the Type discriminator</param>
     /// <param name="map">A dictionary that provides the value to Type name</param>
-    public PolymorphicSchemaFilter(string discriminator, Dictionary<string, Type> map) : base(typeof(TBaseType), discriminator, map) { }
+    public PolymorphicSchemaFilter(string? discriminator, Dictionary<string, Type>? map) : base(typeof(TBaseType), discriminator, map) { }
 }
 
 /// <summary>Adds all derived types of any given base type.</summary>
@@ -36,7 +36,7 @@ public class PolymorphicSchemaFilter : ISchemaFilter
     /// <param name="baseType">The base type.</param>
     /// <param name="discriminator">The property that will be used or added to the schema as the Type discriminator.</param>
     /// <param name="map">A dictionary that provides the value to <see cref="Type"/> name.</param>
-    public PolymorphicSchemaFilter(Type baseType, string discriminator, IDictionary<string, Type> map) {
+    public PolymorphicSchemaFilter(Type baseType, string? discriminator, IDictionary<string, Type>? map) {
         BaseType = baseType;
         if (discriminator == null) {
             discriminator = baseType.GetRuntimeProperties().Where(x => x.PropertyType.IsEnum).FirstOrDefault()?.Name;
@@ -101,7 +101,7 @@ public class PolymorphicSchemaFilter : ISchemaFilter
         var extraProps = derivedSchema.Properties.Where(x => !baseSchema.Properties.ContainsKey(x.Key)).ToDictionary(x => x.Key, x => x.Value);
         var extraRequired = derivedSchema.Required.Where(x => !baseSchema.Properties.ContainsKey(x));
         context.SchemaRepository.Schemas[derivedType.Name] = new OpenApiSchema {
-            AllOf = new List<OpenApiSchema> {
+            AllOf = [
                 new OpenApiSchema {
                     Reference = new OpenApiReference {
                         Type = ReferenceType.Schema,
@@ -113,7 +113,7 @@ public class PolymorphicSchemaFilter : ISchemaFilter
                     Properties = extraProps,
                     Required = new HashSet<string>(extraRequired)
                 }
-            }
+            ]
         };
     }
 }

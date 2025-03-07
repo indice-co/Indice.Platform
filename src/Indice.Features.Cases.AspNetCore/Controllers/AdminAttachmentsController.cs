@@ -1,5 +1,5 @@
 ﻿using System.Net.Mime;
-using Indice.Features.Cases.Interfaces;
+using Indice.Features.Cases.Core.Services.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -28,11 +28,13 @@ internal class AdminAttachmentsController : ControllerBase
     [Produces(MediaTypeNames.Application.Octet, Type = typeof(IFormFile))]
     [HttpGet("{attachmentId:guid}/download")]
     public async Task<IActionResult> DownloadAttachment(Guid attachmentId) {
-        var attachment = await _adminCaseService.GetDbAttachmentById(User, attachmentId);
+        var attachment = await _adminCaseService.GetAttachmentById(User, attachmentId);
         if (attachment is null) {
             return NotFound();
         }
         var fileName = $"{attachmentId}-{DateTimeOffset.UtcNow.Date:dd-MM-yyyy}.{attachment.FileExtension}";
-        return File(attachment.Data, attachment.ContentType, fileName);
+
+        //filename will be accessible via the Content-Disposition response header, so remember to expose Content-Disposition in your Cors policy
+        return File(attachment.Data!, attachment.ContentType!, fileName);
     }
 }

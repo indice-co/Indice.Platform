@@ -1,24 +1,30 @@
 <Project>
     <PropertyGroup Label="Assembly Common">
       <Copyright>Copyright (c) 2018 Indice</Copyright>
-      <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
-      <VersionPrefixBase>7.28</VersionPrefixBase>
+      <TargetFrameworks></TargetFrameworks>
+      <TargetFramework>net8.0</TargetFramework>
+      
+      <VersionPrefixMajor>8</VersionPrefixMajor>
+      <VersionPrefixBase>$(VersionPrefixMajor).0</VersionPrefixBase>
+      
       <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
       <VersionPrefixIdentity>$(VersionPrefixBase).0</VersionPrefixIdentity>
       <VersionPrefixIdentityUI>$(VersionPrefixBase).0</VersionPrefixIdentityUI>
-      <VersionPrefixCases>$(VersionPrefixBase).3</VersionPrefixCases>
+      <VersionPrefixCases>$(VersionPrefixBase).0</VersionPrefixCases>
       <VersionPrefixMessages>$(VersionPrefixBase).0</VersionPrefixMessages>
       <VersionPrefixMultitenancy>$(VersionPrefixBase).0</VersionPrefixMultitenancy>
       <VersionPrefixRisk>$(VersionPrefixBase).0</VersionPrefixRisk>
       <VersionPrefixMedia>$(VersionPrefixBase).0</VersionPrefixMedia>
       <VersionPrefixGovGr>$(VersionPrefixBase).0</VersionPrefixGovGr>
+      <VersionPrefixAspNet>$(VersionPrefixBase).0</VersionPrefixAspNet>
       <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
-      <!--<VersionSuffix>beta-01</VersionSuffix>-->
-      <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
+      
+      <VersionSuffix>rc22</VersionSuffix>
+      <Authors>Constantinos Leftheris</Authors>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
       <LangVersion>Latest</LangVersion>
       <ImplicitUsings>enable</ImplicitUsings>
-      <Nullable>disable</Nullable>
+      <Nullable>enable</Nullable>
       <CheckEolTargetFramework>false</CheckEolTargetFramework>
     </PropertyGroup>
     <PropertyGroup Label="Package Common">

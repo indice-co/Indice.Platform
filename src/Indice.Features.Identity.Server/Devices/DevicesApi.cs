@@ -78,7 +78,7 @@ public static class DevicesApi
             if (!deviceIdSpecified) {
                 return null;
             }
-            return await userManager.GetDeviceByIdAsync(user, deviceId!.ToString());
+            return await userManager.GetDeviceByIdAsync(user, deviceId!.ToString()!);
         })
         .AddMessageTemplate((serviceProvider, principal, state) =>
             serviceProvider.GetRequiredService<IdentityMessageDescriber>().TrustedDeviceRequiresOtpMessage((UserDevice)state!)

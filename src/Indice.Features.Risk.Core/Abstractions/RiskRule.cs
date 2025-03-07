@@ -17,7 +17,7 @@ public abstract class RiskRule
     public string Name { get; }
 
     /// <summary>The options of the rule.</summary>
-    public RuleOptions Options { get; set; }
+    public RuleOptions Options { get; set; } = new RuleOptions();
 
     /// <summary>Executes the rule asynchronously.</summary>
     /// <param name="event">The event occurred.</param>

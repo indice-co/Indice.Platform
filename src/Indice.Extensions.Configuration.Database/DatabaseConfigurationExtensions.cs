@@ -39,7 +39,7 @@ public static class DatabaseConfigurationExtensions
     /// <param name="configureAction">The <see cref="EntityConfigurationOptions"/> to use.</param>
     /// <returns>The <see cref="IHostBuilder"/>.</returns>
     /// <remarks>The database will not create the table <strong>[config].[AppSetting]</strong> by itself. Using the internal DbContext for app settings means that we need to manually create the table and schema in our target database</remarks>
-    public static IWebHostBuilder AddDatabaseSettingsDefaults(this IWebHostBuilder webHostBuilder, Action<EntityConfigurationOptions, IConfiguration> configureAction = null) => 
+    public static IWebHostBuilder AddDatabaseSettingsDefaults(this IWebHostBuilder webHostBuilder, Action<EntityConfigurationOptions, IConfiguration>? configureAction = null) => 
         AddDatabaseSettings<DefaultAppSettingsDbContext>(webHostBuilder, configureAction ?? new Action<EntityConfigurationOptions, IConfiguration>((options, configuration) => {
             options.ReloadOnInterval = TimeSpan.FromSeconds(30);
             options.ConfigureDbContext = dbBuilder => dbBuilder.UseSqlServer(configuration.GetConnectionString("AppSettingsDb"));

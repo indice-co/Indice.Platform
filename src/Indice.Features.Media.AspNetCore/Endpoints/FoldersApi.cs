@@ -16,7 +16,7 @@ public static class FoldersApi
     /// <returns>The <see cref="IEndpointRouteBuilder"/> instance.</returns>
     internal static IEndpointRouteBuilder MapFolders(this IEndpointRouteBuilder builder) {
         var options = builder.ServiceProvider.GetService<IOptions<MediaApiOptions>>()?.Value ?? new MediaApiOptions();
-        var group = builder.MapGroup($"{options.ApiPrefix}/media/folders")
+        var group = builder.MapGroup($"{options.PathPrefix.Value!.TrimEnd('/')}/media/folders")
                            .WithGroupName("media")
                            .WithTags("Folders")
                            .ProducesProblem(StatusCodes.Status401Unauthorized)
@@ -25,7 +25,7 @@ public static class FoldersApi
                            .RequireAuthorization(MediaLibraryApi.Policies.BeMediaLibraryManager)
                            .WithHandledException<BusinessException>();
 
-        var requiredScopes = options.ApiScope.Split(' ').Where(scope => !string.IsNullOrWhiteSpace(scope)).ToArray();
+        var requiredScopes = options.Scope.Split(' ').Where(scope => !string.IsNullOrWhiteSpace(scope)).ToArray();
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", requiredScopes);
 
         group.MapGet("structure", FoldersHandlers.GetFolderStructure)

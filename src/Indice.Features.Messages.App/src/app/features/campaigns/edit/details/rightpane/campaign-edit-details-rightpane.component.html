@@ -29,7 +29,8 @@
         Τίτλος (*)
     </label>
     <div class="mt-1 flex rounded-sm">
-        <input type="text"
+        <input class="w-full"
+               type="text"
                name="campaignTitle"
                id="campaignTitle"
                [(ngModel)]="model.title"
@@ -115,7 +116,8 @@
     </label>
     <div class="mt-1 flex rounded-sm"
          *ngIf="model.actionLink">
-        <input type="text"
+        <input class="w-full"
+               type="text"
                name="ctaText"
                id="ctaText"
                [(ngModel)]="model.actionLink.text"
@@ -129,7 +131,8 @@
     </label>
     <ng-container *ngIf="model.actionLink">
         <div class="mt-1 flex rounded-sm">
-            <input type="text"
+            <input class="w-full"
+                   type="text"
                    name="ctaLink"
                    id="ctaLink"
                    [(ngModel)]="model.actionLink.href"

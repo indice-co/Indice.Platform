@@ -11,7 +11,7 @@ public partial class RgWsPublicClient
     /// <summary></summary>
     public RgWsPublicClient(GovGrOptions.BusinessRegistryOptions settings) : base(GetBindingForEndpoint(new EndpointAddress(settings.BaseAddress)), new EndpointAddress(settings.BaseAddress)) {
         Endpoint.Name = nameof(RgWsPublic);
-        var requestInterceptor = new InspectorBehavior(new MessageInspector(settings.Username, settings.Password));
+        var requestInterceptor = new InspectorBehavior(new MessageInspector(settings.Username!, settings.Password!));
         Endpoint.EndpointBehaviors.Add(requestInterceptor);
         ConfigureEndpoint(Endpoint, ClientCredentials);
     }

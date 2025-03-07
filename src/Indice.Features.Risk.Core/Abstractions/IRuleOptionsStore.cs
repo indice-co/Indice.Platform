@@ -10,7 +10,7 @@ public interface IRuleOptionsStore
     /// </summary>
     /// <param name="ruleName"></param>
     /// <returns></returns>
-    Task<Dictionary<string, string>> GetRuleOptions(string ruleName);
+    Task<Dictionary<string, string?>> GetRuleOptions(string ruleName);
 
     /// <summary>
     /// Updates the risk options for a given rule name.

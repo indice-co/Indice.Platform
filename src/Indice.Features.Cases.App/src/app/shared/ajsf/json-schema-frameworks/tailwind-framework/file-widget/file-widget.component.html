@@ -4,33 +4,40 @@
               [class]="options?.labelHtmlClass"
               [style.display]="options?.notitle ? 'none' : ''"
               [innerHTML]="options?.title"></label>
-       <input *ngIf="!controlValue || draft"
-              type="file"
-              [accept]="accept"
-              [attr.aria-describedby]="'control' + layoutNode?._id + 'Status'"
-              [attr.list]="'control' + layoutNode?._id + 'Autocomplete'"
-              [attr.maxlength]="options?.maxLength"
-              [attr.minlength]="options?.minLength"
-              [attr.pattern]="options?.pattern"
-              [attr.placeholder]="options?.placeholder"
-              [attr.required]="options?.required"
-              [class]="options?.fieldHtmlClass"
-              [disabled]="controlDisabled"
-              [id]="'control' + layoutNode?._id"
-              [name]="controlName"
-              [readonly]="options?.readonly ? 'readonly' : null"
-              (change)="onFileSelect($event)">
-       <p class="text-sm text-gray-900"
-          *ngIf="!controlValue">Δεν έχει υποβληθεί κάποιο έγγραφο.</p>
-       <button type="button"
-               *ngIf="controlValue && !draft"
-               (click)="onDownload()"
-               class="btn-default">
-              <svg class="fill-current w-4 h-4 mr-2"
-                   xmlns="http://www.w3.org/2000/svg"
-                   viewBox="0 0 20 20">
-                     <path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z" />
-              </svg>
-              <span>Download</span>
-       </button>
+      <ng-container *ngIf="!isGuid(controlValue!)">
+        <input *ngIf="!options?.readonly" type="file"
+               [accept]="accept"
+               [attr.aria-describedby]="'control' + layoutNode?._id + 'Status'"
+               [attr.list]="'control' + layoutNode?._id + 'Autocomplete'"
+               [attr.maxlength]="options?.maxLength"
+               [attr.minlength]="options?.minLength"
+               [attr.pattern]="options?.pattern"
+               [attr.placeholder]="options?.placeholder"
+               [attr.required]="options?.required"
+               [class]="options?.fieldHtmlClass"
+               [disabled]="controlDisabled"
+               [id]="'control' + layoutNode?._id"
+               [name]="controlName"
+               [readonly]="options?.readonly ? 'readonly' : null"
+               (change)="onFileSelect($event)">
+        <p class="text-sm text-gray-900">Δεν έχει υποβληθεί κάποιο έγγραφο.</p>
+      </ng-container>
+      <div *ngIf="isGuid(controlValue!)" class="flex align-items-center justify-content-center align-middle">
+        <button type="button"
+                (click)="onDownload()"
+                class="btn-default">
+               <svg class="fill-current w-4 h-4 mr-2"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20">
+                      <path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z" />
+               </svg>
+               <span>Download</span>
+        </button>
+        <button *ngIf="!this.options.readonly" (click)="onRemove()" type="button" class="ml-2 bg-gray-300 hover:bg-gray-400 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-full text-sm p-1 text-center inline-flex items-center me-2 dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800">
+          <svg class="w-6 h-6 text-gray-800 text-black" style="color: rgb(31 41 55 / 1) !important" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"/>
+          </svg>
+          <span class="sr-only">Remove attachment</span>
+        </button>
+      </div>
 </div>

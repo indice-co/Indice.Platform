@@ -1,5 +1,4 @@
-﻿#if NET7_0_OR_GREATER
-using System.Reflection;
+﻿using System.Reflection;
 using FluentValidation;
 using Indice.AspNetCore.Http.Validation;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -36,4 +35,3 @@ public static class EndpointParameterValidationConfiguration
         return services;
     }
 }
-#endif

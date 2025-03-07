@@ -13,7 +13,7 @@ public interface IPushNotificationService
     /// <param name="pnsHandle">Platform Notification Service (PNS) obtained from client platform.</param>
     /// <param name="devicePlatform">Client device platform.</param>
     /// <param name="tags">Tags are used to route notifications to the correct set of device handles.</param>
-    Task Register(string deviceId, string pnsHandle, DevicePlatform devicePlatform, IList<PushNotificationTag> tags);
+    Task Register(string deviceId, string? pnsHandle, DevicePlatform devicePlatform, IList<PushNotificationTag> tags);
     /// <summary>Unregister device from receiving notifications.</summary>
     /// <param name="deviceId">The device id to unregister.</param>
     Task UnRegister(string deviceId);
@@ -23,7 +23,7 @@ public interface IPushNotificationService
     /// <param name="tags">Tags are used to route notifications to the correct set of device handles.</param>
     /// <param name="data">Data passed to mobile client, not visible to notification toast.</param>
     /// <param name="classification">The notification's type.</param>
-    Task SendAsync(string title, string body, IList<PushNotificationTag> tags, string data = null, string classification = null);
+    Task SendAsync(string title, string? body, IList<PushNotificationTag>? tags, string? data = null, string? classification = null);
 }
 
 /// <summary>Extensions for <see cref="IPushNotificationService"/>.</summary>
@@ -36,7 +36,7 @@ public static class PushNotificationServiceExtensions
     /// <param name="devicePlatform">Client device platform.</param>
     /// <param name="userTag">UserId to be passed as tag.</param>
     /// <param name="tags">Optional tag parameters.</param>
-    public static Task Register(this IPushNotificationService service, string deviceId, string pnsHandle, DevicePlatform devicePlatform, string userTag, params string[] tags) {
+    public static Task Register(this IPushNotificationService service, string deviceId, string? pnsHandle, DevicePlatform devicePlatform, string userTag, params string[]? tags) {
         var allTags = tags?.Select(tagValue => new PushNotificationTag(tagValue)) ?? Enumerable.Empty<PushNotificationTag>();
         allTags = allTags.Append(new PushNotificationTag(userTag, PushNotificationTagKind.User));
         return service.Register(deviceId, pnsHandle, devicePlatform, allTags.ToList());
@@ -50,9 +50,9 @@ public static class PushNotificationServiceExtensions
     /// <param name="userTag">UserId to be passed as tag.</param>
     /// <param name="classification">The type of the push notification.</param>
     /// <param name="tags">Optional tag parameters.</param>
-    public static Task SendToUserAsync(this IPushNotificationService service, string title, string body, string data, string userTag, string classification = null, params string[] tags) {
+    public static Task SendToUserAsync(this IPushNotificationService service, string title, string? body, string? data, string? userTag, string? classification = null, params string[]? tags) {
         var allTags = tags?.Select(tagValue => new PushNotificationTag(tagValue)) ?? Enumerable.Empty<PushNotificationTag>();
-        allTags = allTags.Append(new PushNotificationTag(userTag, PushNotificationTagKind.User));
+        allTags = allTags.Append(new PushNotificationTag(userTag!, PushNotificationTagKind.User));
         return service.SendAsync(title, body, allTags.ToList(), data, classification);
     }
 
@@ -65,7 +65,7 @@ public static class PushNotificationServiceExtensions
     /// <param name="userTag">UserId to be passed as tag.</param>
     /// <param name="classification">The type of the push notification.</param>
     /// <param name="tags">Optional tag parameters.</param>
-    public static Task SendToUserAsync<TData>(this IPushNotificationService service, string title, string body, TData data, string userTag, string classification = null, params string[] tags) where TData : class {
+    public static Task SendToUserAsync<TData>(this IPushNotificationService service, string title, string? body, TData? data, string? userTag, string? classification = null, params string[]? tags) where TData : class {
         var dataJson = data is not null ? JsonSerializer.Serialize(data, JsonSerializerOptionDefaults.GetDefaultSettings()) : null;
         return service.SendToUserAsync(title, body, dataJson, userTag, classification, tags);
     }
@@ -77,7 +77,7 @@ public static class PushNotificationServiceExtensions
     /// <param name="body">Body of notification.</param>
     /// <param name="data">Data passed to mobile client, not visible to notification toast.</param>
     /// <param name="classification">The type of the push notification.</param>
-    public static Task SendToDeviceAsync(this IPushNotificationService service, string deviceId, string title, string body, string data = null, string classification = null) {
+    public static Task SendToDeviceAsync(this IPushNotificationService service, string deviceId, string title, string? body, string? data = null, string? classification = null) {
         var tags = Enumerable.Empty<PushNotificationTag>().Append(new PushNotificationTag(deviceId, PushNotificationTagKind.Device)).ToList();
         return service.SendAsync(title, body, tags, data, classification);
     }
@@ -89,7 +89,7 @@ public static class PushNotificationServiceExtensions
     /// <param name="body">Body of notification.</param>
     /// <param name="data">Data passed to mobile client, not visible to notification toast.</param>
     /// <param name="classification">The type of the push notification.</param>
-    public static Task SendToDeviceAsync<TData>(this IPushNotificationService service, string deviceId, string title, string body, TData data, string classification = null) where TData : class {
+    public static Task SendToDeviceAsync<TData>(this IPushNotificationService service, string deviceId, string title, string? body, TData? data, string? classification = null) where TData : class {
         var dataJson = data is not null ? JsonSerializer.Serialize(data, JsonSerializerOptionDefaults.GetDefaultSettings()) : null;
         return service.SendToDeviceAsync(deviceId, title, body, dataJson, classification);
     }
@@ -113,7 +113,7 @@ public static class PushNotificationServiceExtensions
     /// <param name="body">Body of notification.</param>
     /// <param name="data">Data passed to mobile client, not visible to notification toast.</param>
     /// <param name="classification">The type of the push notification.</param>
-    public static Task BroadcastAsync(this IPushNotificationService service, string title, string body, string data, string classification = null) =>
+    public static Task BroadcastAsync(this IPushNotificationService service, string title, string? body, string? data, string? classification = null) =>
         service.SendAsync(title, body, new List<PushNotificationTag>(), data, classification);
 
     /// <summary>Sends a notification to all registered devices.</summary>
@@ -123,7 +123,7 @@ public static class PushNotificationServiceExtensions
     /// <param name="body">Body of notification.</param>
     /// <param name="data">Data passed to mobile client, not visible to notification toast.</param>
     /// <param name="classification">The type of the push notification.</param>
-    public static Task BroadcastAsync<TData>(this IPushNotificationService service, string title, string body, TData data, string classification = null) where TData : class {
+    public static Task BroadcastAsync<TData>(this IPushNotificationService service, string title, string? body, TData? data, string? classification = null) where TData : class {
         var dataJson = data is not null ? JsonSerializer.Serialize(data, JsonSerializerOptionDefaults.GetDefaultSettings()) : null;
         return service.BroadcastAsync(title, body, dataJson, classification);
     }

@@ -18,7 +18,9 @@ public class CreateDistributionListRequestValidator : AbstractValidator<CreateDi
             .WithMessage("Please provide a name for the distribution list.")
             .MaximumLength(TextSizePresets.M128)
             .WithMessage($"Maximum length for name is {TextSizePresets.M128} characters.")
-            .Must(name => string.IsNullOrWhiteSpace(name) || distributionListService.GetByName(name).Result is null)
+            .MustAsync(async (name, ctx) => { 
+                return string.IsNullOrWhiteSpace(name) || (await distributionListService.GetByName(name)) is null; 
+            })
             .WithMessage(x => $"There is already a distribution list with name '{x.Name}'.");
     }
 }

@@ -5,5 +5,5 @@
 public interface ITenantAccessor<TTenant> where TTenant : Tenant
 {
     /// <summary>The current tenant.</summary>
-    TTenant Tenant { get; }
+    TTenant? Tenant { get; }
 }

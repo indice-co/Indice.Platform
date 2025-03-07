@@ -12,7 +12,7 @@ public interface ICampaignService
     Task<ResultSet<Campaign>> GetList(ListOptions<CampaignListFilter> options);
     /// <summary>Gets a campaign by it's unique id.</summary>
     /// <param name="id">The id of the campaign.</param>
-    Task<CampaignDetails> GetById(Guid id);
+    Task<CampaignDetails?> GetById(Guid id);
     /// <summary>Creates a new campaign.</summary>
     /// <param name="request">The data for the campaign to create.</param>
     Task<Campaign> Create(CreateCampaignRequest request);
@@ -28,7 +28,7 @@ public interface ICampaignService
     Task<Campaign> Publish(Guid id);
     /// <summary>Gets some statistics for the campaign.</summary>
     /// <param name="id">The id of the campaign.</param>
-    Task<CampaignStatistics> GetStatistics(Guid id);
+    Task<CampaignStatistics?> GetStatistics(Guid id);
     /// <summary>Records a visit for the specified campaign.</summary>
     /// <param name="id">The id of the campaign.</param>
     Task UpdateHit(Guid id);

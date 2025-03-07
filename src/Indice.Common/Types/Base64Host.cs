@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 
@@ -9,28 +10,19 @@ namespace Indice.Types;
 /// Use this class to wrap a Guid into a representation that is shortened and obfuscated for querystring use. 
 /// </summary>
 [TypeConverter(typeof(Base64HostTypeConverter))]
+[DebuggerDisplay($"{{{nameof(GetDebuggerDisplay)}(),nq}}")]
 public struct Base64Host
 {
-#if NETSTANDARD14
-    private const string UriSchemeHttps = "https";
-    private const string UriSchemeHttp = "http";
-    private const string SchemeDelimiter = "://";
-#else
     private static readonly string UriSchemeHttps = Uri.UriSchemeHttps;
     private static readonly string UriSchemeHttp = Uri.UriSchemeHttp;
     private static readonly string SchemeDelimiter = Uri.SchemeDelimiter;
-#endif
     /// <summary>The internal <see cref="Host"/> value.</summary>
     public string Host { get; }
 
     /// <summary>Construct the type from a <see cref="Uri" /></summary>
     /// <param name="uri"></param>
     public Base64Host(Uri uri) {
-#if NETSTANDARD14
-        Host = uri.OriginalString.Replace(uri.PathAndQuery, string.Empty);
-#else
         Host = uri.GetLeftPart(UriPartial.Scheme | UriPartial.Authority);
-#endif
     }
 
     /// <summary>Construct the type from a <see cref="string"/> Url.</summary>
@@ -44,7 +36,7 @@ public struct Base64Host
     /// <summary>Compare equality with the giver object. </summary>
     /// <param name="obj"></param>
     /// <returns></returns>
-    public override bool Equals(object obj) {
+    public override bool Equals(object? obj) {
         if (obj != null && obj is Base64Host host) {
             var other = host;
             return other.Host == Host;
@@ -113,6 +105,10 @@ public struct Base64Host
         byte1 = (byte)(number >> 8); // to treat as same byte 1 from above
         byte2 = (byte)number;
     }
+
+    private string GetDebuggerDisplay() {
+        return ToString();
+    }
 }
 
 /// <summary>Converter class for the <see cref="Base64Id"/>.</summary>
@@ -122,7 +118,7 @@ public class Base64HostTypeConverter : TypeConverter
     /// <param name="context"></param>
     /// <param name="sourceType"></param>
     /// <returns></returns>
-    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
+    public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType) {
         if (sourceType == typeof(string)) {
             return true;
         }
@@ -134,7 +130,7 @@ public class Base64HostTypeConverter : TypeConverter
     /// <param name="culture"></param>
     /// <param name="value"></param>
     /// <returns></returns>
-    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
+    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) {
         if (value is string @string) {
             return Base64Host.Parse(@string);
         }
@@ -147,9 +143,9 @@ public class Base64HostTypeConverter : TypeConverter
     /// <param name="value"></param>
     /// <param name="destinationType"></param>
     /// <returns></returns>
-    public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType) {
+    public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType) {
         if (destinationType == typeof(string)) {
-            return ((Base64Host)value).ToString();
+            return ((Base64Host)value!).ToString();
         }
         return base.ConvertTo(context, culture, value, destinationType);
     }

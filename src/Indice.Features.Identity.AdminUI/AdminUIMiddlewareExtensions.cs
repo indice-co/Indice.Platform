@@ -9,6 +9,6 @@ public static class AdminUIMiddlewareExtensions
     /// <summary>Registers the Identity Server's Admin UI single page application, using the provided options.</summary>
     /// <param name="builder">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
     /// <param name="optionsAction">Options for configuring <see cref="SpaUIMiddleware{TOptions}"/> middleware.</param>
-    public static IApplicationBuilder UseAdminUI(this IApplicationBuilder builder, Action<SpaUIOptions> optionsAction = null) =>
+    public static IApplicationBuilder UseAdminUI(this IApplicationBuilder builder, Action<SpaUIOptions>? optionsAction = null) =>
         builder.UseSpaUI("adminui-app", typeof(AdminUIMiddlewareExtensions).Assembly, optionsAction);
 }

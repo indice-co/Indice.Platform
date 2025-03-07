@@ -48,6 +48,7 @@ public class IdentityDbContext<TUser, TRole> : IdentityDbContext<TUser, TRole, s
         builder.ApplyConfiguration(new UserMap<TUser>());
         builder.ApplyConfiguration(new UserPasswordMap<TUser>());
         builder.ApplyConfiguration(new UserDeviceMap<TUser>());
+        builder.ApplyConfiguration(new UserPictureMap<TUser>());
         builder.ApplyConfiguration(new AppSettingMap());
     }
 }

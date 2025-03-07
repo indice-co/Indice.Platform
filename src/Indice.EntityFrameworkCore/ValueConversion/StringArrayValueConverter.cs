@@ -3,7 +3,7 @@
 namespace Indice.EntityFrameworkCore.ValueConversion;
 
 /// <summary>Value converter for EF core that takes an <see cref="Array"/> of strings and saves it as comma separated values string and vice versa.</summary>
-public class StringArrayValueConverter : ValueConverter<string[], string>
+public class StringArrayValueConverter : ValueConverter<string[]?, string?>
 {
     /// <inheritdoc/>
     public StringArrayValueConverter() : base(

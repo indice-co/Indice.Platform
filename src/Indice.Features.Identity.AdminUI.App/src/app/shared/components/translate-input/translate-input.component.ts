@@ -1,7 +1,6 @@
 import { Component, forwardRef, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-
-import * as ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import { ClassicEditor, Bold, Essentials, Italic, Mention, Paragraph, Undo } from 'ckeditor5';
 
 @Component({
     selector: 'app-translate-input',

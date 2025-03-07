@@ -110,7 +110,7 @@ export class TailwindFrameworkComponent implements OnInit, OnChanges {
             addClasses(this.options.htmlClass, 'form-group');
       this.widgetOptions.htmlClass = '';
       this.options.labelHtmlClass =
-        addClasses(this.options.labelHtmlClass, 'form-label inline-block mb-2 text-gray-700');
+        addClasses(this.options.labelHtmlClass, 'form-label inline-block mb-1 text-gray-700');
       this.widgetOptions.activeClass =
         addClasses(this.widgetOptions.activeClass, 'active');
       this.options.fieldAddonLeft =

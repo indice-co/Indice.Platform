@@ -5,14 +5,14 @@
       "src\\Indice.AspNetCore.Authentication.Apple\\Indice.AspNetCore.Authentication.Apple.csproj",
       "src\\Indice.AspNetCore.Authentication.GovGr\\Indice.AspNetCore.Authentication.GovGr.csproj",
       "src\\Indice.AspNetCore.EmbeddedUI\\Indice.AspNetCore.EmbeddedUI.csproj",
-      "src\\Indice.AspNetCore.Identity\\Indice.AspNetCore.Identity.csproj",
       "src\\Indice.AspNetCore\\Indice.AspNetCore.csproj",
-      "src\\Indice.AspNet\\Indice.AspNet.csproj",
+      "src\\Indice.AspNetCore.Builder\\Indice.AspNetCore.Builder.csproj",
       "src\\Indice.Common\\Indice.Common.csproj",
       "src\\Indice.EntityFrameworkCore\\Indice.EntityFrameworkCore.csproj",
       "src\\Indice.Extensions.Configuration.Database\\Indice.Extensions.Configuration.Database.csproj",
       "src\\Indice.Features.Cases.AspNetCore\\Indice.Features.Cases.AspNetCore.csproj",
       "src\\Indice.Features.Cases.Server\\Indice.Features.Cases.Server.csproj",
+      "src\\Indice.Features.Cases.Workflows\\Indice.Features.Cases.Workflows.csproj",
       "src\\Indice.Features.Cases.UI\\Indice.Features.Cases.UI.csproj",
       "src\\Indice.Features.GovGr\\Indice.Features.GovGr.csproj",
       "src\\Indice.Features.Identity.AdminUI\\Indice.Features.Identity.AdminUI.csproj",
@@ -32,6 +32,7 @@
       "src\\Indice.Features.Risk.Core\\Indice.Features.Risk.Core.csproj",
       "src\\Indice.Features.Risk.Server\\Indice.Features.Risk.Server.csproj",
       "src\\Indice.Features.Risk.UI\\Indice.Features.Risk.UI.csproj",
+      "src\\Indice.Functions.Builder\\Indice.Functions.Builder.csproj",
       "src\\Indice.Hosting\\Indice.Hosting.csproj",
       "src\\Indice.Services\\Indice.Services.csproj",
       "test\\Indice.AspNetCore.Tests\\Indice.AspNetCore.Tests.csproj",
@@ -43,7 +44,8 @@
       "test\\Indice.Features.Messages.Tests\\Indice.Features.Messages.Tests.csproj",
       "test\\Indice.Features.Risk.Tests\\Indice.Features.Risk.Tests.csproj",
       "test\\Indice.Services.Tests\\Indice.Services.Tests.csproj",
-      "test\\Indice.EcmaScript.Tests\\Indice.EcmaScript.Tests.csproj"
+      "test\\Indice.EcmaScript.Tests\\Indice.EcmaScript.Tests.csproj",
+      "test\\Indice.Hosting.Tests\\Indice.Hosting.Tests.csproj"
     ]
   }
 }

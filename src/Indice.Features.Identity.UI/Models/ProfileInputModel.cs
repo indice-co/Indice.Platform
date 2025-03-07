@@ -32,4 +32,7 @@ public class ProfileInputModel
 
     /// <summary>A calculated field that holds the <see cref="PhoneNumber"/> padded with its international <seealso cref="CallingCode"/>.</summary>
     public string? PhoneNumberWithCallingCode => string.IsNullOrWhiteSpace(CallingCode) ? PhoneNumber : $"{CallingCode} {PhoneNumber}";
+
+    /// <summary>Calculates a display name for UI purposes</summary>
+    public string? DisplayName => string.IsNullOrWhiteSpace(FirstName) ? UserName : (FirstName + " " + LastName).Trim();
 }

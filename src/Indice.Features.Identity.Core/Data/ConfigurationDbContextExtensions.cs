@@ -2,12 +2,7 @@
 using IdentityServer4.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-
-#if NET7_0_OR_GREATER
 using Indice.IdentityServer.EntityFramework.Storage.Mappers;
-#else
-using IdentityServer4.EntityFramework.Mappers;
-#endif
 
 namespace Indice.Features.Identity.Core.Data;
 

@@ -48,8 +48,8 @@ task('copy:libs', async function () {
     if (npmDist().length === 0) {
         return;
     }
-    return src(npmDist(), { base: './node_modules' })
-               .pipe(dest(lib));
+    return src(npmDist(), { base: './node_modules', encoding: false })
+        .pipe(dest(lib));
 });
 
 /* tailwind specific */

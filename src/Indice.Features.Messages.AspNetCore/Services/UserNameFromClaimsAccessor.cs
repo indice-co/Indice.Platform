@@ -16,7 +16,7 @@ public class UserNameFromClaimsAccessor(IHttpContextAccessor httpContextAccessor
     public int Priority => 1;
 
     /// <inheritdoc />
-    public string Resolve() {
+    public string? Resolve() {
         var principal = _httpContextAccessor.HttpContext?.User;
         if (principal is null) {
             return default;

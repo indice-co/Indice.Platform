@@ -19,6 +19,7 @@ using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Options;
 using Indice.Features.Identity.Server.Totp.Models;
 using Indice.Features.Identity.Server.Totp.Validators;
+using Indice.AspNetCore.Filters;
 using Indice.Security;
 using Indice.Serialization;
 using Indice.Services;
@@ -116,9 +117,6 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         Action<DbContextOptionsBuilder>? configureConfigurationDbContext,
         Action<DbContextOptionsBuilder>? configurePersistedGrantDbContext
     ) {
-#if NET6_0
-        JsonExtensions.Serializer = o => JsonSerializer.Serialize(o);
-#endif
         services.AddTransient<ITokenResponseGenerator, ExtendedTokenResponseGenerator>();
         services.AddTransient<ITokenCreationService, ExtendedTokenCreationService>();
         var identityServerBuilder = services.AddIdentityServer(options => {
@@ -164,6 +162,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             var certificate = new X509Certificate2(Path.Combine(webHostEnvironment.ContentRootPath, configuration["IdentityServer:SigningPfxFile"] ?? string.Empty), configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
             identityServerBuilder.AddSigningCredential(certificate);
         }
+
         return identityServerBuilder;
     }
 
@@ -200,14 +199,6 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         }); // Configure anti-forgery token options.
         builder.Services.Configure<ExtendedEndpointOptions>(options => builder.Configuration.GetSection(ExtendedEndpointOptions.Name).Bind(options));
         builder.Services.PostConfigure<ExtendedEndpointOptions>(options => configureAction?.Invoke(options));
-        builder.Services.Configure<CacheResourceFilterOptions>(options => builder.Configuration.GetSection(CacheResourceFilterOptions.Name).Bind(options)); // Configure options for CacheResourceFilter.
-        builder.Services.PostConfigure<CacheResourceFilterOptions>(options => {
-            var endpointOptions = new ExtendedEndpointOptions {
-                DisableCache = options.DisableCache
-            };
-            configureAction?.Invoke(endpointOptions);
-            options.DisableCache = endpointOptions.DisableCache;
-        });
         builder.Services.ConfigureHttpJsonOptions(options => {
             options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             options.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
@@ -313,6 +304,8 @@ public static class IdentityServerEndpointServiceCollectionExtensions
                .AddLocalApi(IdentityEndpoints.AuthenticationScheme, options => {
                    options.ExpectedScope = IdentityEndpoints.Scope;
                });
+        //Add output cache
+        builder.Services.AddOutputCache();
         return builder;
     }
 
@@ -325,7 +318,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             Services = services
         };
         configureAction?.Invoke(options);
-        options.Services = null;
+        options.Services = null!;
         services.Configure<DeviceOptions>(deviceOptions => {
             deviceOptions.DefaultTotpDeliveryChannel = options.DefaultTotpDeliveryChannel;
         });

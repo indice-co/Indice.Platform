@@ -34,12 +34,12 @@ export class CampaignsComponent extends BaseListComponent<Campaign> implements O
 
     public override ngOnInit(): void {
         super.ngOnInit();
-        this.actions.push(new RouterViewAction(Icons.Add, 'campaigns/add-campaign', null, null));
+        this.actions.push(new RouterViewAction(Icons.Add, 'campaigns/add-campaign', null, 'δημιουργία καμπάνιας'));
     }
 
     public loadItems(): Observable<IResultSet<Campaign> | null | undefined> {
         return this._api
-            .getCampaigns(undefined, undefined, this.page, this.pageSize, this.sortdir === 'asc' ? this.sort! : this.sort + '-', this.search || undefined)
+          .getCampaigns(this.page, this.pageSize, this.sortdir === 'asc' ? this.sort! : this.sort + '-', this.search || undefined, undefined, undefined)
             .pipe(map((result: CampaignResultSet) => (result as IResultSet<Campaign>)));
     }
 

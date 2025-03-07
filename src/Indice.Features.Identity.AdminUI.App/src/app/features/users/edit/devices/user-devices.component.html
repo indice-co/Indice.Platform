@@ -1,5 +1,12 @@
+<swal title="Delete?" text="User device will be deleted permanently. This action cannot be reversed." type="warning" [showCancelButton]="true" (confirm)="delete()" #deleteAlert>
+</swal>
 <div class="row mt-3">
     <div class="col-12">
         <app-list-view [clientSide]="true" [rowsPerPage]="10" [canFilter]="false" [columns]="columns" [rows]="rows" [defaultSortField]="'createdAt'" [defaultSortDirection]="'Asc'" #userDeviceList></app-list-view>
     </div>
 </div>
+<ng-template let-row="row" let-value="value" #actionsTemplate>
+    <a class="icon-link text-primary" href="#" role="button" *ngIf="value" (click)="showDeleteAlert(value)" title="Delete">
+        <i class="material-icons align-middle text-danger">delete</i>
+    </a>
+</ng-template>

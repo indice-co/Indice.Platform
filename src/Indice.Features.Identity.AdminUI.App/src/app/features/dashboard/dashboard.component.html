@@ -25,6 +25,11 @@
                             <h6 class="text-uppercase mt-0 float-start text-white-50">Users</h6>
                             <h4 class="mb-3 mt-0 float-end">{{ summary.totalUsers }}</h4>
                         </div>
+                        <div>
+                            <span class="badge bg-light" [ngClass]="{'text-info': summary.activity.day.trend > 0, 'text-danger': summary.activity.day.trend < 0, 'text-warning': summary.activity.day.trend == 0 }">
+                                {{summary.activity.day.trend >= 0 ? "+" : "" }}{{summary.activity.day.trend}}% 
+                            </span>
+                            <span class="ms-2">Signins from yesterday</span></div>
                     </div>
                     <div class="p-3">
                         <div class="float-end">
@@ -33,6 +38,7 @@
                                 <i class="material-icons">group</i>
                             </a>
                         </div>
+                        <p class="font-14 m-0">Today : {{ summary.activity.day.count }}</p>
                     </div>
                 </div>
             </div>

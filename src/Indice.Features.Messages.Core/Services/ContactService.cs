@@ -1,4 +1,5 @@
-﻿using Indice.Features.Messages.Core.Data;
+﻿using Indice.Extensions;
+using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Exceptions;
 using Indice.Features.Messages.Core.Models;
@@ -23,7 +24,7 @@ public class ContactService : IContactService
 
     /// <inheritdoc />
     public async Task AddToDistributionList(Guid id, CreateDistributionListContactRequest request) {
-        DbContact contact;
+        DbContact? contact;
         var list = await DbContext.DistributionLists.FindAsync(id);
         if (list is null) {
             throw MessageExceptions.DistributionListNotFound(id);
@@ -85,7 +86,7 @@ public class ContactService : IContactService
     }
 
     /// <inheritdoc />
-    public async Task<Contact> GetById(Guid id) {
+    public async Task<Contact?> GetById(Guid id) {
         var contact = await DbContext.Contacts.FindAsync(id);
         if (contact is null) {
             return default;
@@ -95,19 +96,21 @@ public class ContactService : IContactService
 
     /// <inheritdoc />
     public async Task<ResultSet<Contact>> GetList(ListOptions<ContactListFilter> options) {
-        var query = DbContext.Contacts.AsNoTracking();
+        var query = DbContext.Contacts
+                            .AsNoTracking();
         var filter = options.Filter;
         if (filter?.DistributionListId is not null) {
+            query = query.Include(x => x.DistributionListContacts);
             query = query.Where(x => x.DistributionListContacts.Any(y => y.DistributionListId == filter.DistributionListId.Value));
         }
         if (filter?.Email is not null) {
-            query = query.Where(x => x.Email.ToLower() == filter.Email.ToLower());
+            query = query.Where(x => x.Email!.ToLower() == filter.Email.ToLower());
         }
         if (filter?.PhoneNumber is not null) {
-            query = query.Where(x => x.PhoneNumber.ToLower() == filter.PhoneNumber.ToLower());
+            query = query.Where(x => x.PhoneNumber!.ToLower() == filter.PhoneNumber.ToLower());
         }
         if (filter?.RecipientId is not null) {
-            query = query.Where(x => x.RecipientId.ToLower() == filter.RecipientId.ToLower());
+            query = query.Where(x => x.RecipientId!.ToLower() == filter.RecipientId.ToLower());
         }
         return await query.Select(Mapper.ProjectToContact).ToResultSetAsync(options);
     }
@@ -134,6 +137,9 @@ public class ContactService : IContactService
         contact.LastName = request.LastName;
         contact.PhoneNumber = request.PhoneNumber;
         contact.Salutation = request.Salutation;
+        contact.CommunicationPreferences = request.CommunicationPreferences;
+        contact.Locale = request.Locale;
+        contact.ConsentCommercial = request.ConsentCommercial;
         contact.UpdatedAt = DateTimeOffset.UtcNow;
         await DbContext.SaveChangesAsync();
     }

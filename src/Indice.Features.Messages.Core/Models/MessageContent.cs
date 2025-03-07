@@ -16,9 +16,9 @@ public class MessageContent
 
     /// <summary>The sender identity. This is optional and will default to the default settings.</summary>
     /// <remarks>When email it is the from account no-reply@domain.com. When SMS, it is the sending name i.e. INDICE</remarks>
-    public MessageSender Sender { get; set; }
+    public MessageSender? Sender { get; set; }
     /// <summary>The title of the message.</summary>
-    public string Title { get; set; }
+    public string? Title { get; set; }
     /// <summary>The body of the message.</summary>
-    public string Body { get; set; }
+    public string? Body { get; set; }
 }

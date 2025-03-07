@@ -9,15 +9,15 @@ namespace Indice.Serialization;
 /// A <see cref="JsonConverter"/> that skips serialization for a given type instead of throwing the unsupported exception. Very handy when exposing WCF proxy entities to the web directly 
 /// - which you shouldnt be doing anyways ¯\_(ツ)_/¯
 /// </remarks>
-public class JsonUnsupportedTypeConverter<TIgnore> : JsonConverter<TIgnore>
+public class JsonUnsupportedTypeConverter<TIgnore> : JsonConverter<TIgnore?>
 {
     /// <inheritdoc/>
-    public override TIgnore Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
+    public override TIgnore? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
         return default;
     }
 
     /// <inheritdoc/>
-    public override void Write(Utf8JsonWriter writer, TIgnore value, JsonSerializerOptions options) {
+    public override void Write(Utf8JsonWriter writer, TIgnore? value, JsonSerializerOptions options) {
         writer.WriteNullValue();
     }
 }

@@ -122,28 +122,28 @@ public enum TotpDeliveryChannel
 public class TotpMessage
 {
     /// <summary>The message to be sent in the selected channel. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.</summary>
-    public string Message { get; set; }
+    public string Message { get; set; } = null!;
     /// <summary>The subject of message.</summary>
     public string Subject { get; set; } = "OTP";
     /// <summary>The classification type when selected delivery channel is <see cref="TotpDeliveryChannel.PushNotification"/>.</summary>
-    public string Category { get; set; }
+    public string? Category { get; set; }
     /// <summary>The data (preferably as a JSON string) when selected delivery channel is <see cref="TotpDeliveryChannel.PushNotification"/>.</summary>
-    public string Data { get; set; }
+    public string? Data { get; set; }
     /// <summary>The email template to be used.</summary>
-    public string EmailTemplate { get; set; }
+    public string? EmailTemplate { get; set; }
 }
 
 /// <summary>TOTP recipient info DTO.</summary>
 public class TotpRecipient
 {
     /// <summary>Phone number (used when selected delivery channel is <see cref="TotpDeliveryChannel.Sms"/> or <see cref="TotpDeliveryChannel.Viber"/>).</summary>
-    public string PhoneNumber { get; set; }
+    public string PhoneNumber { get; set; } = null!;
     /// <summary>Device identifier (used when selected delivery channel is <see cref="TotpDeliveryChannel.PushNotification"/>).</summary>
-    public string DeviceId { get; set; }
+    public string? DeviceId { get; set; }
     /// <summary>User identifier.</summary>
-    public string UserId { get; set; }
+    public string? UserId { get; set; }
     /// <summary>Email (used when selected delivery channel is <see cref="TotpDeliveryChannel.Email"/>).</summary>
-    public string Email { get; set; }
+    public string Email { get; set; } = null!;
 }
 
 /// <summary>TOTP view model for databinding to an email template.</summary>
@@ -175,7 +175,7 @@ public class TotpProviderMetadata
     /// <summary>The name which is used to register the provider in the list of token providers.</summary>
     public string Name => $"{Channel}";
     /// <summary>The display name.</summary>
-    public string DisplayName { get; set; }
+    public string? DisplayName { get; set; }
     /// <summary>Can generate TOTP. If false this provider can only validate TOTPs.</summary>
     public bool CanGenerate { get; set; }
 }
@@ -203,7 +203,7 @@ public class TotpResult
     /// <summary>Indicates success.</summary>
     public bool Success { get; private set; }
     /// <summary>The error occurred.</summary>
-    public string Error { get; private set; }
+    public string? Error { get; private set; }
 
     /// <summary>Constructs a success result.</summary>
     public static TotpResult SuccessResult => new() {
@@ -218,8 +218,8 @@ public class TotpServiceException : Exception
     public TotpServiceException() { }
 
     /// <summary>Constructs the <see cref="TotpServiceException"/>.</summary>
-    public TotpServiceException(string message) : base(message) { }
+    public TotpServiceException(string? message) : base(message) { }
 
     /// <summary>Constructs the <see cref="TotpServiceException"/>.</summary>
-    public TotpServiceException(string message, Exception innerException) : base(message, innerException) { }
+    public TotpServiceException(string? message, Exception? innerException) : base(message, innerException) { }
 }

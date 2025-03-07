@@ -15,7 +15,8 @@ namespace Indice.Features.Identity.Core;
 /// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>, if one is available.</param>
 public class DefaultUserStateProvider(
     IConfiguration configuration,
-    IHttpContextAccessor httpContextAccessor) : DefaultUserStateProvider<User>(configuration, httpContextAccessor) { }
+    IHttpContextAccessor httpContextAccessor) : DefaultUserStateProvider<User>(configuration, httpContextAccessor)
+{ }
 
 /// <summary>A service used to implement state machine for <see cref="ExtendedUserManager{TUser}"/> and <see cref="ExtendedSignInManager{TUser}"/>.</summary>
 public class DefaultUserStateProvider<TUser> : IUserStateProvider<TUser> where TUser : User

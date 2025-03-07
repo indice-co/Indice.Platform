@@ -19,6 +19,5 @@ export const environment = {
   culture: 'el-GR',
   isTemplate: false,
   production: true,
-  enableMediaLibrary: true,
-  enableRichTextEditor: true
+  enableMediaLibrary: true
 };
