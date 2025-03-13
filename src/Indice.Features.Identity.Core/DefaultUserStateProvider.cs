@@ -19,7 +19,7 @@ public class DefaultUserStateProvider(
 { }
 
 /// <summary>A service used to implement state machine for <see cref="ExtendedUserManager{TUser}"/> and <see cref="ExtendedSignInManager{TUser}"/>.</summary>
-public class DefaultUserStateProvider<TUser> : IUserStateProvider<TUser> where TUser : User
+public class DefaultUserStateProvider<TUser> : IUserStateProvider2<TUser> where TUser : User
 {
     private readonly bool _requirePostSignInConfirmedEmail;
     private readonly bool _requirePostSignInConfirmedPhoneNumber;

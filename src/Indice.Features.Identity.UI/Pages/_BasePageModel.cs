@@ -67,18 +67,37 @@ public abstract class BasePageModel : PageModel
         return url;
     }
 
-    /// <summary>>Gets the page to redirect based on the <see cref="UserState"/>.</summary>
-    /// <param name="loginState">The current user state.</param>
+    /// <summary>Gets the page to redirect based on the <see cref="SignInResult"/>.</summary>
+    /// <param name="result">Represents the result of a sign-in operation.</param>
     /// <param name="returnUrl">The return URL.</param>
-    public string? GetRedirectUrl(UserState loginState, string? returnUrl = null) => loginState switch {
-        UserState.LoggedOut or UserState.LoggedIn => IsValidReturnUrl(returnUrl) ? returnUrl : "/",
-        UserState.RequiresPhoneNumberVerification => Url.PageLink("/AddPhone", values: new { returnUrl }),
-        UserState.RequiresEmailVerification => Url.PageLink("/AddEmail", values: new { returnUrl }),
-        UserState.RequiresPasswordChange => Url.PageLink("/PasswordExpired", values: new { returnUrl }),
-        UserState.RequiresMfa => Url.PageLink("/Mfa", values: new { returnUrl }),
-        UserState.RequiresMfaOnboarding => Url.PageLink("/MfaOnboarding", values: new { returnUrl }),
-        _ => default
-    };
+    public string? GetRedirectUrl(IdentityResult result, string? returnUrl = null) {
+        string? url = null;
+        if (result.RequiresPasswordChange()) {
+            url = Url.PageLink("/PasswordExpired", values: new { returnUrl });
+        } else if (result.RequiresEmailConfirmation()) {
+            url = Url.PageLink("/AddEmail", values: new { returnUrl });
+        } else if (result.RequiresPhoneNumberConfirmation()) {
+            url = Url.PageLink("/AddPhone", values: new { returnUrl });
+        } else if (result.RequiresTwoFactor) {
+            url = Url.PageLink("/Mfa", values: new { returnUrl });
+        } else if (result.RequiresMfaOnboarding()) {
+            url = Url.PageLink("/MfaOnboarding", values: new { returnUrl });
+        }
+        return url;
+    }
+
+    ///// <summary>>Gets the page to redirect based on the <see cref="UserState"/>.</summary>
+    ///// <param name="loginState">The current user state.</param>
+    ///// <param name="returnUrl">The return URL.</param>
+    //public string? GetRedirectUrl(UserState loginState, string? returnUrl = null) => loginState switch {
+    //    UserState.LoggedOut or UserState.LoggedIn => IsValidReturnUrl(returnUrl) ? returnUrl : "/",
+    //    UserState.RequiresPhoneNumberVerification => Url.PageLink("/AddPhone", values: new { returnUrl }),
+    //    UserState.RequiresEmailVerification => Url.PageLink("/AddEmail", values: new { returnUrl }),
+    //    UserState.RequiresPasswordChange => Url.PageLink("/PasswordExpired", values: new { returnUrl }),
+    //    UserState.RequiresMfa => Url.PageLink("/Mfa", values: new { returnUrl }),
+    //    UserState.RequiresMfaOnboarding => Url.PageLink("/MfaOnboarding", values: new { returnUrl }),
+    //    _ => default
+    //};
 
     /// <summary>Adds errors contained in <see cref="IdentityResult"/> to the <see cref="ModelStateDictionary"/>.</summary>
     /// <param name="result">Represents the result of a sign-in operation.</param>
