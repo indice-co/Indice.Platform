@@ -9,12 +9,6 @@ using Indice.Types;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.Azure.Functions.Worker.Core.FunctionMetadata;
-using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Immutable;
-using System.Reflection;
-using Microsoft.Extensions.Configuration;
 
 namespace Indice.Features.Messages.Worker.Azure;
 internal class ServiceBusTriggers
@@ -34,7 +28,7 @@ internal class ServiceBusTriggers
     private MessageJobHandlerFactory CampaignJobHandlerFactory { get; }
     private IEventDispatcherFactory EventDispatcherFactory { get; }
 
-    [EnableFunction("FunctionType", "ServiceBus")]
+    
     [Function("ServiceBus-" + EventNames.CampaignCreated)]
     public async Task CampaignPublishedHandler(
         [ServiceBusTrigger("%ENVIRONMENT%-" + EventNames.CampaignCreated, Connection = "ServiceBusConnection")] byte[] message,
@@ -54,7 +48,7 @@ internal class ServiceBusTriggers
         }
         await CampaignJobHandlerFactory.CreateFor<CampaignCreatedEvent>().Process(payload);
     }
-    [EnableFunction("FunctionType", "ServiceBus")]
+    
     [Function("ServiceBus-" + EventNames.ResolveMessage)]
     public async Task ResolveMessageHandler(
         [ServiceBusTrigger("%ENVIRONMENT%-" + EventNames.ResolveMessage, Connection = "ServiceBusConnection")] byte[] message,
@@ -66,7 +60,6 @@ internal class ServiceBusTriggers
         await CampaignJobHandlerFactory.CreateFor<ResolveMessageEvent>().Process(payload!);
     }
 
-    [EnableFunction("FunctionType", "ServiceBus")]
     [Function("ServiceBus-" + EventNames.SendPushNotification)]
     public async Task SendPushNotificationHandler(
         [ServiceBusTrigger("%ENVIRONMENT%-" + EventNames.SendPushNotification, Connection = "ServiceBusConnection")] byte[] message,
@@ -77,8 +70,7 @@ internal class ServiceBusTriggers
         var payload = envelope.Payload;
         await CampaignJobHandlerFactory.CreateFor<SendPushNotificationEvent>().Process(payload!);
     }
-
-    [EnableFunction("FunctionType", "ServiceBus")]
+    
     [Function("ServiceBus-" + EventNames.SendEmail)]
     public async Task SendEmailHandler(
         [ServiceBusTrigger("%ENVIRONMENT%-" + EventNames.SendEmail, Connection = "ServiceBusConnection")] byte[] message,
@@ -90,7 +82,6 @@ internal class ServiceBusTriggers
         await CampaignJobHandlerFactory.CreateFor<SendEmailEvent>().Process(payload!);
     }
 
-    [EnableFunction("FunctionType", "ServiceBus")]
     [Function("ServiceBus-" + EventNames.SendSms)]
     public async Task SendSmsHandler(
         [ServiceBusTrigger("%ENVIRONMENT%-" + EventNames.SendSms, Connection = "ServiceBusConnection")] byte[] message,

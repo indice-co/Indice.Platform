@@ -1,10 +1,8 @@
 ﻿using System.Collections.Immutable;
 using System.Reflection;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Azure.Functions.Worker.Core.FunctionMetadata;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Features.Messages.Worker.Azure;
 
@@ -17,7 +15,7 @@ namespace Indice.Features.Messages.Worker.Azure;
 public delegate bool ExtendedFunctionMetadataProviderDisablePredicate(IFunctionMetadata functionMetadata, IConfiguration configuration);
 
 /// <summary>Decorates the default function implementation.</summary>
-public class ExtendedFunctionMetadataProvider : IFunctionMetadataProvider
+internal class ExtendedFunctionMetadataProvider : IFunctionMetadataProvider
 {
     private readonly IFunctionMetadataProvider _inner;
     private readonly IConfiguration _configuration;
@@ -47,64 +45,42 @@ public class ExtendedFunctionMetadataProvider : IFunctionMetadataProvider
 /// <summary>
 /// Custom Function Metadata Provider that allows to enable/disable Functions based on configuration settings.
 /// </summary>
-public class CustomFunctionMetadataProvider : IFunctionMetadataProvider
+internal class AttributeBasedFunctionMetadataProvider : IFunctionMetadataProvider
 {
-    private readonly IServiceProvider sp;
-    private readonly IConfiguration _config;
+    private readonly IFunctionMetadataProvider _inner;
+    private readonly IConfiguration _configuration;
     /// <summary>
-    /// 
+    /// construct decorator
     /// </summary>
-    /// <param name="sp"></param>
+    /// <param name="inner"></param>
     /// <param name="configuration"></param>
-    public CustomFunctionMetadataProvider(IServiceProvider sp, IConfiguration configuration) {
-        this.sp = sp;
-        _config = configuration;
+    public AttributeBasedFunctionMetadataProvider(IFunctionMetadataProvider inner, IConfiguration configuration) {
+        _inner = inner ?? throw new ArgumentNullException(nameof(inner));
+        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
     }
 
-    public Task<ImmutableArray<IFunctionMetadata>> GetFunctionMetadataAsync(string directory) {
-        var service = this.sp.GetServices<IFunctionMetadataProvider>().ToList();
-        var functionMetadataProvider = service.Last(x => x.GetType() != typeof(CustomFunctionMetadataProvider));
+    /// <inheritdoc/>
+    public async Task<ImmutableArray<IFunctionMetadata>> GetFunctionMetadataAsync(string directory) {
+        var list = await _inner.GetFunctionMetadataAsync(directory);
+        var disabledFunctions = new HashSet<string>();
 
-        var metadataList = new List<IFunctionMetadata>();
-        Task<ImmutableArray<IFunctionMetadata>> list = functionMetadataProvider.GetFunctionMetadataAsync(directory);
-
-        HashSet<string> disabledFunctions = new HashSet<string>();
-        var scriptFiles = list.Result.Select(fn => fn.ScriptFile).ToHashSet();
+        var scriptFiles = list.Select(fn => fn.ScriptFile).ToHashSet();
         foreach (var item in scriptFiles) {
-            Type[] types = Assembly.LoadFrom(item).GetTypes();
-            var methods = types.SelectMany(t => t.GetMethods()).Where(m => m.GetCustomAttributes(typeof(EnableFunctionAttribute)).Any() && m.GetCustomAttributes(typeof(FunctionAttribute)).Any());
+            var methods = Assembly.Load(Path.GetFileNameWithoutExtension(item!))
+                                   .GetTypes()
+                                   .SelectMany(t => t.GetMethods())
+                                   .Where(m => m.GetCustomAttributes(typeof(EnableFunctionAttribute)).Any() && 
+                                           m.GetCustomAttributes(typeof(FunctionAttribute)).Any()).ToArray();
             foreach (var method in methods) {
-                var setting = method.GetCustomAttribute<EnableFunctionAttribute>();
-                if (IsSettingEnabled(setting)) {
-                    disabledFunctions.Add(method.GetCustomAttribute<FunctionAttribute>().Name);
+                var setting = method.GetCustomAttribute<EnableFunctionAttribute>()!;
+                var functionName = method.GetCustomAttribute<FunctionAttribute>()!.Name;
+                if (setting.CheckDisabled(_configuration)) {
+                    disabledFunctions.Add(functionName!);
                 }
             }
         }
 
-        foreach (var item in list.Result) {
-            if (!disabledFunctions.Contains(item.Name)) {
-                metadataList.Add(item);
-            }
-        }
-
-        return Task.FromResult(metadataList.ToImmutableArray());
-    }
-
-    private bool IsSettingEnabled(EnableFunctionAttribute? attribute) {
-        if (attribute == null) return false;
-
-        // check the target setting and return false (disabled) if the value exists and is "falsey"
-        string? value = _config.GetValue<string>(attribute.SettingName);
-
-        if (string.IsNullOrEmpty(value) && !attribute.IsDefault) {
-            return true;
-        }
-
-        if (!string.IsNullOrEmpty(value) && string.Compare(value, attribute.ActivationValue, StringComparison.OrdinalIgnoreCase) == 0) {
-            return true;
-        }
-
-        return false;
+        return list.Where(fn => !disabledFunctions.Contains(fn.Name!)).ToImmutableArray();
     }
 }
 
@@ -112,7 +88,7 @@ public class CustomFunctionMetadataProvider : IFunctionMetadataProvider
 /// Attribute to enable/disable a Function based on a configuration setting
 /// </summary>
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-public class EnableFunctionAttribute : Attribute, IFilterMetadata
+public class EnableFunctionAttribute : Attribute
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="EnableFunctionAttribute"/> class.
@@ -138,5 +114,26 @@ public class EnableFunctionAttribute : Attribute, IFilterMetadata
     internal string SettingName { get; }
     internal string ActivationValue { get; }
     internal bool IsDefault { get; } = false;
+
+    /// <summary>
+    /// Check if the Function should be enabled or not
+    /// </summary>
+    /// <param name="configuration"></param>
+    /// <returns></returns>
+    public bool CheckDisabled(IConfiguration configuration) {
+        // check the target setting and return false (disabled) if the value exists and is "falsey"
+        var value = configuration[SettingName];
+
+        if (string.IsNullOrEmpty(value) && !IsDefault) {
+            return true;
+        }
+
+        if (!string.IsNullOrEmpty(value) &&
+            !ActivationValue.Equals(value, StringComparison.OrdinalIgnoreCase)) {
+            return true;
+        }
+
+        return false;
+    }
 }
 

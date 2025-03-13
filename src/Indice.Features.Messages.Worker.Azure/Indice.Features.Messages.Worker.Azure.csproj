@@ -8,7 +8,6 @@
     <PackageReference Include="Indice.Features.Messages.Core" Version="$(VersionPrefixMessages)-*" />
     <PackageReference Include="Indice.Features.Multitenancy.Worker.Azure" Version="$(VersionPrefixMultitenancy)-*" />
     <PackageReference Include="Indice.Services" Version="$(VersionPrefixCore)-*" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.3.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Core" Version="2.0.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Storage.Queues" Version="5.5.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.ServiceBus" Version="5.22.0" />
