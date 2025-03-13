@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using Indice.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -66,7 +67,7 @@ public class SmsServiceApifon : ISmsService
             throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(recipients));
         }
         // https://docs.apifon.com/apireference.html#sms-request
-        var payload = ApifonRequest.Create(sender?.Id ?? Settings.Sender ?? Settings.SenderName!, recipients, body!);
+        var payload = ApifonRequest.Create(sender?.Id ?? Settings.Sender ?? Settings.SenderName!, recipients, body!, Settings.EnableUrlShortener);
         var signature = payload.Sign(Settings.ApiKey!, HttpMethod.Post.ToString(), SERVICE_ENDPOINT);
         var request = new HttpRequestMessage {
             Content = new StringContent(payload.ToJson(), Encoding.UTF8, "application/json"),
@@ -128,6 +129,8 @@ public class SmsServiceApifonSettings : SmsServiceSettings
 {
     /// <summary>Apifon Api token key.</summary>
     public string Token { get; set; } = null!;
+    /// <summary>If enabled all urls in the message will be replaced with shortened urls</summary>
+    public bool EnableUrlShortener { get; set; } = false;
 }
 
 internal class ApifonResponse
@@ -164,14 +167,46 @@ internal class ApifonResponse
 
 internal class ApifonRequest
 {
-    public static ApifonRequest Create(string from, string[] to, string message) {
+    public static ApifonRequest Create(string from, string[] to, string message, bool enableUrlShortener) {
         var request = new ApifonRequest();
+        Dictionary<string, ApifonListParameter>? parameters = null;
+        if (enableUrlShortener) {
+            parameters = ExtractAndReplaceUrlsFromMessage(ref message);
+        }
+        
         foreach (var subNumber in to) {
-            request.Subscribers.Add(new Subscriber { To = subNumber });
+            request.Subscribers.Add(new Subscriber { 
+                To = subNumber,
+                Params = parameters
+            });
         }
         request.Message.From = from;
         request.Message.Text = message;
         return request;
+    }
+
+    private static Dictionary<string, ApifonListParameter> ExtractAndReplaceUrlsFromMessage(ref string message) {
+        int instance = 0;
+        List<string> extractedLinks = new List<string>();
+        Regex regex = new Regex(@"https?://[^\s""<>]*[^\s""<>.,!?)]", RegexOptions.Compiled);
+        message = regex.Replace(message, match => {
+            extractedLinks.Add(match.Value);
+            return $"{{apifon_lp_{instance++}}}";
+        });
+        Console.WriteLine(message);
+        var parameters = new Dictionary<string, ApifonListParameter>();
+        instance = 0;
+        foreach (var link in extractedLinks) {
+            var name = $"apifon_lp_{instance}";
+            parameters.Add(name, new ApifonListParameter() {
+                Url = link,
+                Data = new Data() { Name = name },
+                Redirect = true
+            });
+            instance++;
+        }
+
+        return parameters;
     }
 
     [JsonPropertyName("message")]
@@ -227,7 +262,24 @@ internal class ApifonRequest
         [JsonPropertyName("number")]
         public string? To { get; set; }
         /// <summary>If your message content contains placeholders for personalized messages per destination, this field is required to populate the value for each recipient.</summary>
-        public Dictionary<string, string>? Params { get; set; }
+        public Dictionary<string, ApifonListParameter>? Params { get; set; }
+    }
+
+    internal class ApifonListParameter
+    {
+        [JsonPropertyName("url")]
+        public required string Url { get; set; }
+
+        [JsonPropertyName("data")]
+        public required Data Data { get; set; }
+
+        [JsonPropertyName("redirect")]
+        public bool Redirect { get; set; }
+    }
+    internal class Data
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
     }
 }
 
