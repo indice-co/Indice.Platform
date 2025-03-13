@@ -45,7 +45,7 @@ public static class HostBuilderExtensions
             messageWorkerOptions.ContactRetainPeriodInDays = options.ContactRetainPeriodInDays;
         });
         builder.Services.AddHostedService<StartupSeedHostedService>();
-        builder.Services.TryAddSingleton(options.FunctionEnablePredicate);
+        builder.Services.TryAddSingleton(options.FunctionDisablePredicate);
         builder.Services.AddDecorator<IFunctionMetadataProvider, ExtendedFunctionMetadataProvider>();
         return builder;
     }
@@ -72,7 +72,7 @@ public static class HostBuilderExtensions
                 messageWorkerOptions.ContactRetainPeriodInDays = options.ContactRetainPeriodInDays;
             });
             services.AddHostedService<StartupSeedHostedService>();
-            services.TryAddSingleton(options.FunctionEnablePredicate);
+            services.TryAddSingleton(options.FunctionDisablePredicate);
             services.AddDecorator<IFunctionMetadataProvider, ExtendedFunctionMetadataProvider>();
         });
 
@@ -277,10 +277,12 @@ public static class HostBuilderExtensions
         return options;
     }
 
+    /// <summary>Configures that campaign contact information will be resolved by contacting the Identity Server instance.</summary>
+    /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
     public static MessageOptions WithServiceBusTriggers(this MessageOptions options) {
-        options.FunctionEnablePredicate = (fn, Configuration) => {
-            //var enabledFunctions = Configuration.GetSection("EnabledFunctions").Get<string[]>();
-            return !fn.Name!.StartsWith("health", StringComparison.OrdinalIgnoreCase);
+        options.FunctionDisablePredicate = (fn, Configuration) => {
+            var list = new string[] { "campaign-created", "campaign-resolve-message", "campaign-send-email", "campaign-send-push-notification", "campaign-send-sms" };
+            return list.Any(x => x.Equals(fn.Name, StringComparison.OrdinalIgnoreCase));
         };
         return options;
     }

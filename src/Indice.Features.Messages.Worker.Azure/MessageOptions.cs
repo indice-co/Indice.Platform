@@ -17,5 +17,8 @@ public class MessageOptions : MessageWorkerOptions
     /// <summary>Specifies the contract for a collection of service descriptors.</summary>
     public IServiceCollection Services { get; internal set; } = null!;
     /// <summary>Predicate that determines if a function should be enabled or not.</summary>
-    public ExtendedFunctionMetadataProviderEnabledPredicate FunctionEnablePredicate { get; set; } = (fn, Configuration) => true;
+    public ExtendedFunctionMetadataProviderDisablePredicate FunctionDisablePredicate { get; set; } = (fn, Configuration) => {
+        var list = new string[] { "servicebus-campaign-created", "servicebus-campaign-resolve-message", "servicebus-campaign-send-email", "servicebus-campaign-send-push-notification", "servicebus-campaign-send-sms" };
+        return list.Any(x => x.Equals(fn.Name, StringComparison.OrdinalIgnoreCase));
+    };
 }
