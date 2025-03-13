@@ -9,9 +9,14 @@ using Indice.Types;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Azure.Functions.Worker.Core.FunctionMetadata;
+using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Immutable;
+using System.Reflection;
+using Microsoft.Extensions.Configuration;
 
 namespace Indice.Features.Messages.Worker.Azure;
-
 internal class ServiceBusTriggers
 {
     private static readonly JsonSerializerOptions JsonSerializerOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
@@ -29,13 +34,14 @@ internal class ServiceBusTriggers
     private MessageJobHandlerFactory CampaignJobHandlerFactory { get; }
     private IEventDispatcherFactory EventDispatcherFactory { get; }
 
-    [Function("SB-"+EventNames.CampaignCreated)]
+    [EnableFunction("FunctionType", "ServiceBus")]
+    [Function("ServiceBus-" + EventNames.CampaignCreated)]
     public async Task CampaignPublishedHandler(
         [ServiceBusTrigger("%ENVIRONMENT%-" + EventNames.CampaignCreated, Connection = "ServiceBusConnection")] byte[] message,
         FunctionContext functionContext
     ) {
         LogExecution(functionContext, EventNames.CampaignCreated);
-        var envelope = JsonSerializer.Deserialize<Envelope<CampaignCreatedEvent>>(await ReadMessageAsync(message),  JsonSerializerOptions)!;
+        var envelope = JsonSerializer.Deserialize<Envelope<CampaignCreatedEvent>>(await ReadMessageAsync(message), JsonSerializerOptions)!;
         var payload = envelope.Payload!;
         var campaignStart = payload.ActivePeriod?.From;
         // Azure queues can store a queue message with a visibility window up to 7 days. So if a campaign must start (appear on queue) after more than 7 days then we should check the campaign start date and re-enqueue the message.
@@ -48,52 +54,55 @@ internal class ServiceBusTriggers
         }
         await CampaignJobHandlerFactory.CreateFor<CampaignCreatedEvent>().Process(payload);
     }
-
-    [Function("SB-"+EventNames.ResolveMessage)]
+    [EnableFunction("FunctionType", "ServiceBus")]
+    [Function("ServiceBus-" + EventNames.ResolveMessage)]
     public async Task ResolveMessageHandler(
         [ServiceBusTrigger("%ENVIRONMENT%-" + EventNames.ResolveMessage, Connection = "ServiceBusConnection")] byte[] message,
         FunctionContext functionContext
     ) {
         LogExecution(functionContext, EventNames.ResolveMessage);
-        var envelope = JsonSerializer.Deserialize<Envelope<ResolveMessageEvent>>(await ReadMessageAsync(message),  JsonSerializerOptions)!;
+        var envelope = JsonSerializer.Deserialize<Envelope<ResolveMessageEvent>>(await ReadMessageAsync(message), JsonSerializerOptions)!;
         var payload = envelope.Payload;
         await CampaignJobHandlerFactory.CreateFor<ResolveMessageEvent>().Process(payload!);
     }
 
-    [Function("SB-"+EventNames.SendPushNotification)]
+    [EnableFunction("FunctionType", "ServiceBus")]
+    [Function("ServiceBus-" + EventNames.SendPushNotification)]
     public async Task SendPushNotificationHandler(
         [ServiceBusTrigger("%ENVIRONMENT%-" + EventNames.SendPushNotification, Connection = "ServiceBusConnection")] byte[] message,
         FunctionContext functionContext
     ) {
         LogExecution(functionContext, EventNames.SendPushNotification);
-        var envelope = JsonSerializer.Deserialize<Envelope<SendPushNotificationEvent>>(await ReadMessageAsync(message),  JsonSerializerOptions)!;
+        var envelope = JsonSerializer.Deserialize<Envelope<SendPushNotificationEvent>>(await ReadMessageAsync(message), JsonSerializerOptions)!;
         var payload = envelope.Payload;
         await CampaignJobHandlerFactory.CreateFor<SendPushNotificationEvent>().Process(payload!);
     }
 
-    [Function("SB-"+EventNames.SendEmail)]
+    [EnableFunction("FunctionType", "ServiceBus")]
+    [Function("ServiceBus-" + EventNames.SendEmail)]
     public async Task SendEmailHandler(
         [ServiceBusTrigger("%ENVIRONMENT%-" + EventNames.SendEmail, Connection = "ServiceBusConnection")] byte[] message,
         FunctionContext functionContext
     ) {
         LogExecution(functionContext, EventNames.SendEmail);
-        var envelope = JsonSerializer.Deserialize<Envelope<SendEmailEvent>>(await ReadMessageAsync(message),  JsonSerializerOptions)!;
+        var envelope = JsonSerializer.Deserialize<Envelope<SendEmailEvent>>(await ReadMessageAsync(message), JsonSerializerOptions)!;
         var payload = envelope.Payload;
         await CampaignJobHandlerFactory.CreateFor<SendEmailEvent>().Process(payload!);
     }
 
-    [Function("SB-"+EventNames.SendSms)]
+    [EnableFunction("FunctionType", "ServiceBus")]
+    [Function("ServiceBus-" + EventNames.SendSms)]
     public async Task SendSmsHandler(
         [ServiceBusTrigger("%ENVIRONMENT%-" + EventNames.SendSms, Connection = "ServiceBusConnection")] byte[] message,
         FunctionContext functionContext
     ) {
         LogExecution(functionContext, EventNames.SendSms);
-        var envelope = JsonSerializer.Deserialize<Envelope<SendSmsEvent>>(await ReadMessageAsync(message),  JsonSerializerOptions)!;
+        var envelope = JsonSerializer.Deserialize<Envelope<SendSmsEvent>>(await ReadMessageAsync(message), JsonSerializerOptions)!;
         var payload = envelope.Payload;
         await CampaignJobHandlerFactory.CreateFor<SendSmsEvent>().Process(payload!);
     }
     private async Task<byte[]> ReadMessageAsync(byte[] message) {
-        if (_options.UseCompression) { 
+        if (_options.UseCompression) {
             return await CompressionUtils.Decompress(message);
         }
         return message;
