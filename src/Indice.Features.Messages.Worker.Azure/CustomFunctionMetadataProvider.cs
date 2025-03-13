@@ -9,6 +9,42 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Indice.Features.Messages.Worker.Azure;
 
 /// <summary>
+/// Predicate that determines if a function should be enabled or not.
+/// </summary>
+/// <param name="functionMetadata">the function to check for enablement</param>
+/// <param name="configuration">the configuration</param>
+/// <returns></returns>
+public delegate bool ExtendedFunctionMetadataProviderEnabledPredicate(IFunctionMetadata functionMetadata, IConfiguration configuration);
+
+/// <summary>Decorates the default function implementation.</summary>
+public class ExtendedFunctionMetadataProvider : IFunctionMetadataProvider
+{
+    private readonly IFunctionMetadataProvider _inner;
+    private readonly IConfiguration _configuration;
+    private readonly ExtendedFunctionMetadataProviderEnabledPredicate _functionEnabledPredicate;
+
+    /// <summary>
+    /// construct the extended function decorator
+    /// </summary>
+    /// <param name="inner"></param>
+    /// <param name="configuration"></param>
+    /// <param name="functionEnabledPredicate"></param>
+    public ExtendedFunctionMetadataProvider(IFunctionMetadataProvider inner, IConfiguration configuration, ExtendedFunctionMetadataProviderEnabledPredicate functionEnabledPredicate) {
+        _inner = inner ?? throw new ArgumentNullException(nameof(inner));
+        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        _functionEnabledPredicate = functionEnabledPredicate ?? throw new ArgumentNullException(nameof(functionEnabledPredicate));
+    }
+
+
+    /// <inheritdoc/>
+    public async Task<ImmutableArray<IFunctionMetadata>> GetFunctionMetadataAsync(string directory) {
+        var allFunctions = await _inner.GetFunctionMetadataAsync(directory);
+        return allFunctions.Where(fn => _functionEnabledPredicate(fn, _configuration)).ToImmutableArray();
+    }
+}
+
+
+/// <summary>
 /// Custom Function Metadata Provider that allows to enable/disable Functions based on configuration settings.
 /// </summary>
 public class CustomFunctionMetadataProvider : IFunctionMetadataProvider

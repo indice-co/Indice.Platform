@@ -16,4 +16,6 @@ public class MessageOptions : MessageWorkerOptions
     public string DatabaseSchema { get; set; } = MessagesApi.DatabaseSchema;
     /// <summary>Specifies the contract for a collection of service descriptors.</summary>
     public IServiceCollection Services { get; internal set; } = null!;
+    /// <summary>Predicate that determines if a function should be enabled or not.</summary>
+    public ExtendedFunctionMetadataProviderEnabledPredicate FunctionEnablePredicate { get; set; } = (fn, Configuration) => true;
 }

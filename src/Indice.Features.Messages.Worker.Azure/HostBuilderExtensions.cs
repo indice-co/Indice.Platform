@@ -12,6 +12,7 @@ using Indice.Features.Messages.Core.Services.Validators;
 using Indice.Features.Messages.Worker.Azure;
 using Indice.Services;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Core.FunctionMetadata;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -44,6 +45,8 @@ public static class HostBuilderExtensions
             messageWorkerOptions.ContactRetainPeriodInDays = options.ContactRetainPeriodInDays;
         });
         builder.Services.AddHostedService<StartupSeedHostedService>();
+        builder.Services.TryAddSingleton(options.FunctionEnablePredicate);
+        builder.Services.AddDecorator<IFunctionMetadataProvider, ExtendedFunctionMetadataProvider>();
         return builder;
     }
 
@@ -69,6 +72,8 @@ public static class HostBuilderExtensions
                 messageWorkerOptions.ContactRetainPeriodInDays = options.ContactRetainPeriodInDays;
             });
             services.AddHostedService<StartupSeedHostedService>();
+            services.TryAddSingleton(options.FunctionEnablePredicate);
+            services.AddDecorator<IFunctionMetadataProvider, ExtendedFunctionMetadataProvider>();
         });
 
     private static IServiceCollection AddCoreServices(this IServiceCollection services, MessageOptions options, IConfiguration configuration) {
@@ -269,6 +274,14 @@ public static class HostBuilderExtensions
     /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
     public static MessageOptions UseContactResolver<TContactResolver>(this MessageOptions options) where TContactResolver : IContactResolver {
         options.Services.AddTransient(typeof(IContactResolver), typeof(TContactResolver));
+        return options;
+    }
+
+    public static MessageOptions WithServiceBusTriggers(this MessageOptions options) {
+        options.FunctionEnablePredicate = (fn, Configuration) => {
+            //var enabledFunctions = Configuration.GetSection("EnabledFunctions").Get<string[]>();
+            return !fn.Name!.StartsWith("health", StringComparison.OrdinalIgnoreCase);
+        };
         return options;
     }
 }
