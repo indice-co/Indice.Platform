@@ -171,7 +171,7 @@ internal class ApifonRequest
         var request = new ApifonRequest();
         Dictionary<string, ApifonListParameter>? parameters = null;
         if (enableUrlShortener) {
-            parameters = ExtractAndReplaceUrlsFromMessage(ref message);
+            parameters = ExtractParametersAndReplaceUrlsFromMessage(ref message);
         }
         
         foreach (var subNumber in to) {
@@ -185,7 +185,7 @@ internal class ApifonRequest
         return request;
     }
 
-    private static Dictionary<string, ApifonListParameter> ExtractAndReplaceUrlsFromMessage(ref string message) {
+    private static Dictionary<string, ApifonListParameter> ExtractParametersAndReplaceUrlsFromMessage(ref string message) {
         int instance = 0;
         List<string> extractedLinks = new List<string>();
         Regex regex = new Regex(@"https?://[^\s""<>]*[^\s""<>.,!?)]", RegexOptions.Compiled);
