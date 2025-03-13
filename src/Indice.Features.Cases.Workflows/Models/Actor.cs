@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using Indice.Features.Cases.Workflows.Integration;
+using Indice.Features.Cases.Workflows.Integrations;
 using Indice.Security;
 
 namespace Indice.Features.Cases.Workflows.Models;
@@ -8,7 +8,7 @@ namespace Indice.Features.Cases.Workflows.Models;
 /// Represents a user/contact/client that is acting on the workflow. <see cref="CasesWorkflowConstants.WorkflowVariables.Actor"/> for supported types.
 /// All exposed endpoints should receive Actor in the request body and update the corresponding Elsa variable
 /// Currently this is used as information metadata for activities that need to know the last actor in the running context.
-/// Clients may resolve additional user information with their identity provider using <see cref="CasesHttpClient.DataAsync(string, string)"/>
+/// Clients may resolve additional user information with their identity provider using <see cref="ICasesManager.DataAsync(string, string)"/>
 /// </summary>
 public sealed record Actor
 {

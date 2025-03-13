@@ -1,11 +1,11 @@
 using Elsa.ActivityResults;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Workflows.Integration;
+using Indice.Features.Cases.Workflows.Integrations;
 
 namespace Indice.Features.Cases.Workflows.Activities;
 
 /// <summary>Base Blocking Activity for Cases which provides automatic suspending of action on execute or automatic run when this is the first activity.</summary>
-public abstract class BaseBlockingActivity(CasesHttpClient casesHttpClient) : BaseCaseActivity(casesHttpClient)
+public abstract class BaseBlockingActivity(ICasesManager casesManager) : BaseCaseActivity(casesManager)
 {
     /// <summary>
     /// Since we are writing a blocking activity, the activity needs to tell the workflow engine that execution should pause until an Request is received.

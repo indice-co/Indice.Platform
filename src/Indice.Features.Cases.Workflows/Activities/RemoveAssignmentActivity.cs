@@ -2,7 +2,7 @@
 using Elsa.ActivityResults;
 using Elsa.Attributes;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Workflows.Integration;
+using Indice.Features.Cases.Workflows.Integrations;
 
 namespace Indice.Features.Cases.Workflows.Activities;
 
@@ -13,11 +13,11 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "Remove the assignment of a case.",
     Outcomes = new[] { OutcomeNames.Done }
 )]
-internal class RemoveAssignmentActivity(CasesHttpClient casesHttpClient) : BaseCaseActivity(casesHttpClient)
+internal class RemoveAssignmentActivity(ICasesManager casesManager) : BaseCaseActivity(casesManager)
 {
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
-        await CasesClient.RemoveAssignmentAsync(CaseId.Value);
+        await CasesManager.RemoveAssignmentAsync(CaseId.Value);
         return Done();
     }
 }

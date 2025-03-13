@@ -43,8 +43,8 @@ internal abstract class BaseActivityInvoker(
         // Loop until a workflow has been executed. Then break the loop (Avoid multiple executions)
         var collectedWorkflows = new List<CollectedWorkflow>();
         foreach (var query in queries.TakeWhile(_ => !collectedWorkflows.Any())) {
-            // todo: when invoker activities fail we get a correct response, the workflow could be in a faulted state
-            collectedWorkflows.AddRange(await _workflowLaunchpad.CollectAndExecuteWorkflowsAsync(query, new WorkflowInput(input), cancellationToken));
+            var collectedWorkflowsList = await _workflowLaunchpad.CollectAndExecuteWorkflowsAsync(query, new WorkflowInput(input));
+            collectedWorkflows.AddRange(collectedWorkflowsList);
         }
         return collectedWorkflows;
     }

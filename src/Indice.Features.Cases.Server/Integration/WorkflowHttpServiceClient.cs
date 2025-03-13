@@ -4,7 +4,6 @@ using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Core.Localization;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Server.Integration;
@@ -19,12 +18,8 @@ public class WorkflowHttpServiceClient : ICasesWorkflowManager
     /// <summary>WorkflowHttpServiceClient Constructor</summary>
     public WorkflowHttpServiceClient(
         WorkflowHttpClient workflowApiClient,
-        IConfiguration configuration,
         IOptions<CasesOptions> caseOptions,
         CaseSharedResourceService caseSharedResourceService) {
-        // var httpClient = factory.CreateClient(nameof(WorkflowHttpServiceClient)) ?? throw new ArgumentNullException(nameof(WorkflowHttpServiceClient));
-        // httpClient.BaseAddress = new Uri(configuration.GetHost() ?? throw new ArgumentNullException(nameof(configuration)));
-        // _workflowApiClient = new WorkflowHttpClient(httpClient);
         _workflowApiClient = workflowApiClient ?? throw new ArgumentNullException(nameof(workflowApiClient));
         _casesOptions = caseOptions.Value ?? throw new ArgumentNullException(nameof(caseOptions));
         _caseSharedResourceService = caseSharedResourceService ?? throw new ArgumentNullException(nameof(caseSharedResourceService));
@@ -120,9 +115,9 @@ public class WorkflowHttpServiceClient : ICasesWorkflowManager
     }
 
 
-    [Obsolete("This method is obsolete and will be removed in a future version.")]
     /// <inheritdoc />
-    public async Task<CaseActions> GetAvailableActionsAsync(ClaimsPrincipal user, Guid caseId, string? assignedToId, string[] bookmarks, string? lastApprovedById = null) {
+    [Obsolete("This method is obsolete and will be removed in a future version.")]
+    public Task<CaseActions> GetAvailableActionsAsync(ClaimsPrincipal user, Guid caseId, string? assignedToId, string[] bookmarks, string? lastApprovedById = null) {
         throw new NotImplementedException();
     }
 }

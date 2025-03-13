@@ -5,7 +5,6 @@ using Elsa.Design;
 using Elsa.Expressions;
 using Elsa.Services.Models;
 using Indice.Features.Cases.Workflows.Extensions;
-using Indice.Features.Cases.Workflows.Integration;
 using Indice.Features.Cases.Workflows.Integrations;
 using Indice.Features.Cases.Workflows.Models;
 
@@ -21,7 +20,7 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "A blocking activity that handles a custom action.",
     Outcomes = new[] { OutcomeNames.Done }
 )]
-public class AwaitActionActivity(CasesHttpClient casesHttpClient) : BaseBlockingActivity(casesHttpClient)
+public class AwaitActionActivity(ICasesManager casesManager) : BaseBlockingActivity(casesManager)
 {
     /// <summary>The Id of the action that will trigger the activity. It's hidden from the elsa dashboard and gets a unique value automatically.</summary>
     [ActivityInput(IsBrowsable = false)]
@@ -124,7 +123,7 @@ public class AwaitActionActivity(CasesHttpClient casesHttpClient) : BaseBlocking
         context.LogOutputProperty(this, nameof(Output), Output);
         
         var comment = $"Action \"{ActionName}\" executed successfully";
-        await CasesClient.SendMessageAsync(CaseId.Value, new WorkflowSendMessageRequest {
+        await CasesManager.SendMessageAsync(CaseId.Value, new WorkflowSendMessageRequest {
             Message = new Message {
                 Comment = string.IsNullOrEmpty(input?.Value) ? $"{comment}." : $"{comment} with value \"{Output}\".",
                 PrivateComment = true

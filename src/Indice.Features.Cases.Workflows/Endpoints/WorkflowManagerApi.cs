@@ -48,7 +48,6 @@ public static class WorkflowManagerApi
             .WithName(nameof(WorkflowManagerHandler.GetRejectReasonsByCaseId))
             .WithSummary("Get the reject reasons for a case.");
 
-        group.AllowAnonymous();
         return group;
     }
 }

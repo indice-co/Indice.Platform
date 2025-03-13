@@ -2,8 +2,7 @@
 using Elsa.ActivityResults;
 using Elsa.Attributes;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Workflows.Extensions;
-using Indice.Features.Cases.Workflows.Integration;
+using Indice.Features.Cases.Workflows.Integrations;
 
 namespace Indice.Features.Cases.Workflows.Activities;
 
@@ -14,14 +13,14 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "Get the channel of the case.",
     Outcomes = new[] { OutcomeNames.Done }
 )]
-internal class GetChannelActivity(CasesHttpClient casesHttpClient) : BaseCaseActivity(casesHttpClient)
+internal class GetChannelActivity(ICasesManager casesManager) : BaseCaseActivity(casesManager)
 {
     [ActivityOutput]
     public object? Output { get; set; }
 
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
-        var @case = await CasesClient.GetCaseAsync(CaseId.Value, false);
+        var @case = await CasesManager.GetByIdAsync(CaseId.Value, false);
         Output = @case.Channel!;
         context.LogOutputProperty(this, nameof(Output), Output);
         return Done(Output);

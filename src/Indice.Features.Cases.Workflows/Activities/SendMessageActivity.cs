@@ -6,9 +6,8 @@ using Elsa.Expressions;
 using Elsa.Providers.WorkflowStorage;
 using Elsa.Services.Models;
 using Indice.Features.Cases.Workflows.Extensions;
-using Indice.Features.Cases.Workflows.Integration;
 using Indice.Features.Cases.Workflows.Integrations;
-using Message = Indice.Features.Cases.Workflows.Integration.Message;
+using Message = Indice.Features.Cases.Workflows.Integrations.Message;
 using CustomOutcomeNames = Indice.Features.Cases.Workflows.CasesWorkflowConstants.WorkflowVariables.OutcomeNames;
 
 namespace Indice.Features.Cases.Workflows.Activities;
@@ -19,7 +18,7 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "Send a message to a case in order to change the active checkpoint, update its data, add an attachment or add a comment. The current context user will be responsible for the change.",
     Outcomes = new[] { OutcomeNames.Done, CustomOutcomeNames.Failed }
 )]
-internal class SendMessageActivity(CasesHttpClient casesHttpClient) : BaseCaseActivity(casesHttpClient)
+internal class SendMessageActivity(ICasesManager casesManager) : BaseCaseActivity(casesManager)
 {
     [ActivityInput(
         Label = "Message",
@@ -45,7 +44,7 @@ internal class SendMessageActivity(CasesHttpClient casesHttpClient) : BaseCaseAc
         CaseId ??= Guid.Parse(context.CorrelationId); // Because we are not triggering base.TryExecuteAsync we need to declare it again.
 
         try {
-            await CasesClient.SendMessageAsync(CaseId.Value, new WorkflowSendMessageRequest {
+            await CasesManager.SendMessageAsync(CaseId.Value, new WorkflowSendMessageRequest {
                 Message = Message, // Message.Data is JToken here from Jint or Liquid, it is implicitly serialized on the http client
                 WorkflowActor = context.TryGetLastActor().ToCasesActor()
             });

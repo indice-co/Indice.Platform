@@ -6,6 +6,7 @@ using Indice.Features.Cases.Core.Data.Models;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services.Abstractions;
+using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -116,7 +117,7 @@ internal abstract class BaseCaseService
             .Include(c => c.CaseType)
             .FirstOrDefaultAsync(p => p.Id == caseId && (p.CreatedBy.Id == userId || p.Owner.UserId == userId));
         if (@case == null) {
-            throw new Exception("Case not found."); // todo  proper exception & handle from problemConfig (NotFound)
+            throw new BusinessException("Case not found."); // todo  proper exception & handle from problemConfig (NotFound)
         }
         return @case;
     }

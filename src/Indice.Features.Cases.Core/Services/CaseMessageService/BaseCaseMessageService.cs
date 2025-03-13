@@ -5,6 +5,7 @@ using Indice.Features.Cases.Core.Data.Models;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Events;
 using Indice.Events;
+using Indice.Types;
 
 namespace Indice.Features.Cases.Core.Services.CaseMessageService;
 
@@ -42,7 +43,7 @@ internal abstract class BaseCaseMessageService
         if (message.ReplyToCommentId.HasValue) {
             var exists = await DbContext.Comments.AsQueryable().AnyAsync(x => x.CaseId == caseId && x.Id == message.ReplyToCommentId.Value);
             if (!exists) {
-                throw new Exception("Invalid reply to comment id. Not found on the current case.");
+                throw new BusinessException("Invalid reply to comment id. Not found on the current case.");
             }
         }
 
@@ -119,7 +120,7 @@ internal abstract class BaseCaseMessageService
         return link;
     }
 
-    private async Task<DbCheckpoint> AddCheckpoint(AuditMeta createdBy, DbCase @case, DbCheckpointType checkpointType) {
+    private async Task AddCheckpoint(AuditMeta createdBy, DbCase @case, DbCheckpointType checkpointType) {
         ArgumentNullException.ThrowIfNull(checkpointType);
         var checkpoint = await DbContext.Checkpoints
             .Include(p => p.CheckpointType)
@@ -128,7 +129,7 @@ internal abstract class BaseCaseMessageService
 
         // If the new checkpoint is the same as the last attempt, only add the comment. 
         if (checkpoint != null && checkpoint.CheckpointType.Code == checkpointType.Code) {
-            return checkpoint;
+            return;
         }
 
         // Else continue to change the checkpoint.
@@ -157,7 +158,6 @@ internal abstract class BaseCaseMessageService
         @case.CheckpointId = nextCheckpoint.Id;
         @case.Checkpoints.Add(nextCheckpoint);
         await DbContext.Checkpoints.AddAsync(nextCheckpoint);
-        return nextCheckpoint;
     }
 
     private async Task AddCaseData(AuditMeta createdBy, DbCase @case, dynamic data) {
@@ -165,7 +165,7 @@ internal abstract class BaseCaseMessageService
 
         // Validate data against case type json schema, only when schema is present
         if (@case.CaseType.DataSchema is not null && !_schemaValidator.IsValid(@case.CaseType.DataSchema, (object)data)) {
-            throw new Exception("Data validation error.");
+            throw new BusinessException("Data validation error.");
         }
 
         var newDataVersion = new DbCaseData {

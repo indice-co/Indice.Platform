@@ -3,9 +3,8 @@ using Elsa.ActivityResults;
 using Elsa.Attributes;
 using Elsa.Services.Models;
 using Indice.Features.Cases.Workflows.Extensions;
-using Indice.Features.Cases.Workflows.Integration;
 using Indice.Features.Cases.Workflows.Integrations;
-using CaseApproval = Indice.Features.Cases.Workflows.Integration.CaseApproval;
+using CaseApproval = Indice.Features.Cases.Workflows.Integrations.CaseApproval;
 
 namespace Indice.Features.Cases.Workflows.Activities;
 
@@ -16,13 +15,15 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "Block the previous approver if it is the same user and prevent from continuing the workflow.",
     Outcomes = new[] { OutcomeNames.True, OutcomeNames.False }
 )]
-internal class BlockPreviousApproverActivity(CasesHttpClient casesHttpClient) : BaseCaseActivity(casesHttpClient)
+internal class BlockPreviousApproverActivity(ICasesManager casesManager) : BaseCaseActivity(casesManager)
 {
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
 
-        var lastApproval = await CasesClient.LastApprovalAsync(CaseId.Value);
-        if (lastApproval == null) {
+        CaseApproval lastApproval;
+        try {
+            lastApproval = await CasesManager.GetLastApprovalAsync(CaseId.Value);
+        } catch (Exception) {
             return Outcome(OutcomeNames.False);
         }
         
@@ -30,7 +31,7 @@ internal class BlockPreviousApproverActivity(CasesHttpClient casesHttpClient) : 
             return Outcome(OutcomeNames.False);
         }
 
-        await CasesClient.BlockPreviousApproverAsync(CaseId.Value, context.TryGetLastActor().ToCasesActor());
+        await CasesManager.BlockPreviousApproverAsync(CaseId.Value, context.TryGetLastActor().ToCasesActor());
         
         return Outcome(OutcomeNames.True);
     }

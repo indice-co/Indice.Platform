@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Indice.Features.Cases.Workflows.Serialization;
 
-// todo: serialize/deserialize directly
+// todo: improve serialize/deserialize
 /// <inheritdoc />
 public class JTokenToJsonNodeConverter : JsonConverter<JToken>
 {
@@ -48,7 +48,6 @@ public class JTokenToJsonNodeConverter : JsonConverter<JToken>
     {
         if (jToken == null) return null;
 
-        // todo: serialize/deserialize directly?
         return jToken switch {
             JValue jValue => JsonValue.Create(jValue.Value),
             JArray jArray => new JsonArray(jArray.Select(ConvertJTokenToJsonNode).ToArray()),

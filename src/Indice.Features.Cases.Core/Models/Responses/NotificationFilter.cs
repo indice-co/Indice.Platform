@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using Indice.Security;
+using Indice.Types;
 
 namespace Indice.Features.Cases.Core.Models.Responses;
 
@@ -22,7 +23,7 @@ public class NotificationFilter
         var emails = user.FindAll(BasicClaimTypes.Email)
             .Select(x => x.Value).Where(x => !string.IsNullOrEmpty(x)).ToArray();
         if (groupIds.Length == 0 && emails.Length == 0) {
-            throw new Exception($"Failed to create NotificationFilter.");
+            throw new BusinessException("Failed to create NotificationFilter.");
         }
         return new NotificationFilter {
             GroupId = groupIds,

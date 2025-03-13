@@ -6,7 +6,7 @@ using Elsa.Design;
 using Elsa.Expressions;
 using Elsa.Providers.WorkflowStorage;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Workflows.Integration;
+using Indice.Features.Cases.Workflows.Integrations;
 using Indice.Services;
 
 namespace Indice.Features.Cases.Workflows.Activities;
@@ -17,7 +17,7 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "Notify the customer via sms/viber, PushNotification or Email, with a specific message regarding the status of the case.",
     Outcomes = new[] { OutcomeNames.Done }
 )]
-internal class NotifyCustomerActivity(CasesHttpClient casesHttpClient, ISmsService smsService) : BaseCaseActivity(casesHttpClient)
+internal class NotifyCustomerActivity(ICasesManager casesManager, ISmsService smsService) : BaseCaseActivity(casesManager)
 {
     private readonly ISmsService _smsService = smsService ?? throw new ArgumentNullException(nameof(smsService));
 
@@ -73,7 +73,7 @@ internal class NotifyCustomerActivity(CasesHttpClient casesHttpClient, ISmsServi
             return Outcome(OutcomeNames.Done);
         }
 
-        var @case = await CasesClient.GetCaseAsync(CaseId!.Value, null);
+        var @case = await CasesManager.GetByIdAsync(CaseId!.Value, null);
         var infoMessage = new StringBuilder();
         var subject = default(string);
         var body = default(string);

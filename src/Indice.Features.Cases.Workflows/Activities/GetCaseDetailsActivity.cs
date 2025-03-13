@@ -3,7 +3,7 @@ using Elsa;
 using Elsa.ActivityResults;
 using Elsa.Attributes;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Workflows.Integration;
+using Indice.Features.Cases.Workflows.Integrations;
 using Indice.Serialization;
 using CustomOutcomeNames = Indice.Features.Cases.Workflows.CasesWorkflowConstants.WorkflowVariables.OutcomeNames;
 
@@ -15,7 +15,7 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "Get the details of the case.",
     Outcomes = new[] { OutcomeNames.Done, CustomOutcomeNames.Failed }
 )]
-internal class GetCaseDetailsActivity(CasesHttpClient casesHttpClient) : BaseCaseActivity(casesHttpClient)
+internal class GetCaseDetailsActivity(ICasesManager casesManager) : BaseCaseActivity(casesManager)
 {
     [ActivityOutput]
     public object? Output { get; set; }
@@ -28,7 +28,7 @@ internal class GetCaseDetailsActivity(CasesHttpClient casesHttpClient) : BaseCas
 
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
-        var @case = await CasesClient.GetCaseAsync(CaseId.Value, IncludeAttachmentsData);
+        var @case = await CasesManager.GetByIdAsync(CaseId.Value, IncludeAttachmentsData);
         
         // When trying to access Output object from another activity, we need NewtonSoft for Jint and Liquid evaluators to correctly operate on the data
         @case.Data = Newtonsoft.Json.Linq.JObject.Parse(JsonSerializer.Serialize(@case.Data, JsonSerializerOptionDefaults.GetDefaultSettings()));

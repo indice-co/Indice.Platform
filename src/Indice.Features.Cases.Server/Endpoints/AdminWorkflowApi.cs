@@ -18,15 +18,26 @@ internal static class AdminWorkflowApi
         
         var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
         group.RequireAuthorization(policy => policy
-            .RequireAuthenticatedUser()
-            .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-            .RequireCasesAccess(Authorization.CasesAccessLevel.Admin)
-        );
-
-        group.MapGet("get-case/{caseId}", AdminWorkflowHandler.GetWorkflowCaseById)
-            .WithName(nameof(AdminWorkflowHandler.GetWorkflowCaseById))
-            .WithSummary("Get workflow case.");
+                .RequireAuthenticatedUser()
+                .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
+                .RequireCasesAccess(Authorization.CasesAccessLevel.Admin)
+            ).WithHandledException<Exception>();
         
+        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+        group.ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        // Product Endpoints - Synchronous response
+        group.MapGet("{caseId}", AdminWorkflowHandler.GetById)
+            .WithName(nameof(AdminWorkflowHandler.GetById))
+            .WithSummary("Gets an admin case.");
+        
+        group.MapGet("{caseId}/last-approval", AdminWorkflowHandler.GetLastApproval)
+            .WithName(nameof(AdminWorkflowHandler.GetLastApproval))
+            .WithSummary("Gets last approval of a case.");
+        
+        // Product Endpoints - Notifications but current or further activities down the line depend on completion of action
         group.MapPost("{caseId}/send-message", AdminWorkflowHandler.SendMessage)
             .WithName(nameof(AdminWorkflowHandler.SendMessage))
             .WithSummary("Sends a message for a case.");
@@ -35,17 +46,13 @@ internal static class AdminWorkflowApi
             .WithName(nameof(AdminWorkflowHandler.Assign))
             .WithSummary("Assign case to a user.");
         
-        group.MapPost("{caseId}/add-approval", AdminWorkflowHandler.AddApproval)
+        group.MapPost("{caseId}/approve", AdminWorkflowHandler.AddApproval)
             .WithName(nameof(AdminWorkflowHandler.AddApproval))
             .WithSummary("Adds an approval to a case.");
         
-        group.MapPost("{caseId}/add-approval-with-comment", AdminWorkflowHandler.AddApprovalWithComment)
+        group.MapPost("{caseId}/approve-with-comment", AdminWorkflowHandler.AddApprovalWithComment)
             .WithName(nameof(AdminWorkflowHandler.AddApprovalWithComment))
             .WithSummary("Adds an approval with comment to a case translating the provided comment.");
-        
-        group.MapGet("{caseId}/last-approval", AdminWorkflowHandler.GetLastApproval)
-            .WithName(nameof(AdminWorkflowHandler.GetLastApproval))
-            .WithSummary("Gets last approval of a case.");
         
         group.MapPost("{caseId}/remove-assignment", AdminWorkflowHandler.RemoveAssignment)
             .WithName(nameof(AdminWorkflowHandler.RemoveAssignment))
@@ -53,17 +60,20 @@ internal static class AdminWorkflowApi
         
         group.MapPost("{caseId}/block-previous-approver", AdminWorkflowHandler.BlockPreviousApprover)
             .WithName(nameof(AdminWorkflowHandler.BlockPreviousApprover))
-            .WithSummary("Remove assignment and send a message.");
+            .WithSummary("Remove assignment and send a message for the UI.");
         
         group.MapPost("{caseId}/rollback-approval", AdminWorkflowHandler.RollbackApproval)
             .WithName(nameof(AdminWorkflowHandler.RollbackApproval))
             .WithSummary("Rollbacks the previous approval of a case.");
         
-        group.MapGet("contacts/{reference}/data/{caseTypeCode}", AdminWorkflowHandler.GetContactReference)
-            .WithName(nameof(AdminWorkflowHandler.GetContactReference))
-            .WithSummary("Fetch contact data by contact.reference number for a specific case type code.");
+        // Integrator Endpoints
+        group.MapPatch("{caseId}/patch-case-data", AdminWorkflowHandler.PatchData)
+            .WithName(nameof(AdminWorkflowHandler.PatchData))
+            .WithSummary("Patches the data for a case.");
         
-        // todo: add patchCaseData, patchMetadata
+        group.MapPatch("{caseId}/patch-case-metadata", AdminWorkflowHandler.PatchMetadata)
+            .WithName(nameof(AdminWorkflowHandler.PatchMetadata))
+            .WithSummary("Patches the metadata of a case.");
         
         return group;
     }

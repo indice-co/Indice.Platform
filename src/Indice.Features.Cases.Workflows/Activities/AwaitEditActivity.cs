@@ -5,7 +5,6 @@ using Elsa.Design;
 using Elsa.Expressions;
 using Elsa.Services.Models;
 using Indice.Features.Cases.Workflows.Extensions;
-using Indice.Features.Cases.Workflows.Integration;
 using Indice.Features.Cases.Workflows.Integrations;
 using Indice.Features.Cases.Workflows.Models;
 using CustomOutcomeNames = Indice.Features.Cases.Workflows.CasesWorkflowConstants.WorkflowVariables.OutcomeNames;
@@ -22,7 +21,7 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "Handles the edit of the data for case.",
     Outcomes = new[] { OutcomeNames.Done, CustomOutcomeNames.Save }
 )]
-public class AwaitEditActivity(CasesHttpClient casesHttpClient) : BaseBlockingActivity(casesHttpClient)
+public class AwaitEditActivity(ICasesManager casesManager) : BaseBlockingActivity(casesManager)
 {
     [ActivityInput(
         Label = "Role",
@@ -41,7 +40,7 @@ public class AwaitEditActivity(CasesHttpClient casesHttpClient) : BaseBlockingAc
         var editRequest = context.Input as InvokeEditRequest;
         var caseData = editRequest!.Data;
         
-        await CasesClient.SendMessageAsync(CaseId.Value, new WorkflowSendMessageRequest {
+        await CasesManager.SendMessageAsync(CaseId.Value, new WorkflowSendMessageRequest {
             Message = new Message {
                 Data = caseData,
                 Comment = editRequest.Comment,

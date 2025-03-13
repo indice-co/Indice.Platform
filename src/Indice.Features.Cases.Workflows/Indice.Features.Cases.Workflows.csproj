@@ -23,6 +23,7 @@
     <PackageReference Include="Indice.Common" Version="$(VersionPrefixCore)-*" />
     <PackageReference Include="Indice.Services" Version="$(VersionPrefixCore)-*" />
     <PackageReference Include="IdentityModel" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="8.10.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Common\Indice.Common.csproj" />

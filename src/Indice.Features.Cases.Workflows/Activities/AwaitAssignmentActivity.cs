@@ -4,7 +4,6 @@ using Elsa.Attributes;
 using Elsa.Design;
 using Elsa.Expressions;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Workflows.Integration;
 using Indice.Features.Cases.Workflows.Integrations;
 using Indice.Features.Cases.Workflows.Models;
 using CustomOutcomeNames = Indice.Features.Cases.Workflows.CasesWorkflowConstants.WorkflowVariables.OutcomeNames;
@@ -21,7 +20,7 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "When a user triggers this activity, they will assign the current workflow case to themselves.",
     Outcomes = new[] { OutcomeNames.Done, CustomOutcomeNames.Failed }
 )]
- public class AwaitAssignmentActivity(CasesHttpClient casesHttpClient) : BaseBlockingActivity(casesHttpClient)
+ public class AwaitAssignmentActivity(ICasesManager casesManager) : BaseBlockingActivity(casesManager)
 {
     [ActivityInput(
         Label = "Role",
@@ -42,7 +41,7 @@ namespace Indice.Features.Cases.Workflows.Activities;
 
         AuditMeta assignedTo;
         try {
-            assignedTo = await CasesClient.AssignAsync(CaseId!.Value, assignment!.Actor.ToCasesActor());
+            assignedTo = await CasesManager.AssignAsync(CaseId!.Value, assignment!.Actor.ToCasesActor());
         } catch (Exception ex) {
             await LogCaseError(context, ex);
             return Outcome(CustomOutcomeNames.Failed);

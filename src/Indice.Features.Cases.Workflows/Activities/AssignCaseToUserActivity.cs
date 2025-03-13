@@ -4,7 +4,7 @@ using Elsa.Attributes;
 using Elsa.Design;
 using Elsa.Expressions;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Workflows.Integration;
+using Indice.Features.Cases.Workflows.Integrations;
 using CustomOutcomeNames = Indice.Features.Cases.Workflows.CasesWorkflowConstants.WorkflowVariables.OutcomeNames;
 
 namespace Indice.Features.Cases.Workflows.Activities;
@@ -16,7 +16,7 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "Assign the case to a back-office user.",
     Outcomes = new[] { OutcomeNames.Done, CustomOutcomeNames.Failed }
 )]
-internal class AssignCaseToUserActivity(CasesHttpClient casesHttpClient) : BaseCaseActivity(casesHttpClient)
+internal class AssignCaseToUserActivity(ICasesManager casesManager) : BaseCaseActivity(casesManager)
 {
     [ActivityInput(
         Label = "User",
@@ -30,7 +30,7 @@ internal class AssignCaseToUserActivity(CasesHttpClient casesHttpClient) : BaseC
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
         try {
-            await CasesClient.AssignAsync(CaseId.Value, User);
+            await CasesManager.AssignAsync(CaseId.Value, User);
         } catch (Exception ex) {
             await LogCaseError(context, ex);
             return Outcome(CustomOutcomeNames.Failed);

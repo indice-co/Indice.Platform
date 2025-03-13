@@ -3,10 +3,9 @@ using Elsa.Attributes;
 using Elsa.Design;
 using Elsa.Expressions;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Workflows.Integration;
 using Indice.Features.Cases.Workflows.Integrations;
 using Indice.Features.Cases.Workflows.Models;
-using Approval = Indice.Features.Cases.Workflows.Integration.Approval;
+using Approval = Indice.Features.Cases.Workflows.Integrations.Approval;
 
 namespace Indice.Features.Cases.Workflows.Activities;
 
@@ -20,7 +19,7 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "Handles the approval or rejection of a case.",
     Outcomes = new[] { nameof(Approval.Approve), nameof(Approval.Reject) }
 )]
-public class AwaitApprovalActivity(CasesHttpClient casesHttpClient) : BaseBlockingActivity(casesHttpClient)
+public class AwaitApprovalActivity(ICasesManager casesManager) : BaseBlockingActivity(casesManager)
 {
     [ActivityInput(
         Label = "Role",
@@ -66,8 +65,7 @@ public class AwaitApprovalActivity(CasesHttpClient casesHttpClient) : BaseBlocki
         Action = approval.Action.ToString();
         context.LogOutputProperty(this, "Output", Output);
         
-        await CasesClient.AddApprovalWithCommentAsync(new WorkflowAddApprovalWithCommentRequest {
-            CaseId = CaseId.Value,
+        await CasesManager.AddApprovalWithCommentAsync(CaseId.Value, new WorkflowAddApprovalWithCommentRequest {
             Action = Enum.Parse<Approval>(approval.Action.ToString()),
             Reason = approval.Comment,
             PrivateComment = !PublicActions.Contains(approval.Action.ToString()),
@@ -75,6 +73,7 @@ public class AwaitApprovalActivity(CasesHttpClient casesHttpClient) : BaseBlocki
         });
         
         context.SetVariable(CasesWorkflowConstants.WorkflowVariables.Actor.Current, approval.Actor);
+        
         return Outcome(approval.Action.ToString(), approval);
     }
 }

@@ -4,7 +4,7 @@ using Elsa.Attributes;
 using Elsa.Design;
 using Elsa.Providers.WorkflowStorage;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Workflows.Integration;
+using Indice.Features.Cases.Workflows.Integrations;
 using Indice.Features.Cases.Workflows.Localization;
 using Microsoft.Extensions.Configuration;
 
@@ -17,9 +17,9 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Outcomes = new[] { OutcomeNames.Done }
 )]
 internal class GetRejectedReasonActivity(
-    CasesHttpClient casesHttpClient,
+    ICasesManager casesManager,
     IConfiguration configuration,
-    WorkflowSharedResourceService workflowSharedResourceService) : BaseCaseActivity(casesHttpClient)
+    WorkflowSharedResourceService workflowSharedResourceService) : BaseCaseActivity(casesManager)
 {
     private readonly string _defaultTranslationLanguage = configuration.GetSection("PrimaryTranslationLanguage").Value ?? CasesWorkflowConstants.DefaultTranslationLanguage;
 
@@ -36,12 +36,12 @@ internal class GetRejectedReasonActivity(
     public string? Output { get; set; }
 
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
-        var approval = await CasesClient.LastApprovalAsync(CaseId!.Value);
+        var approval = await CasesManager.GetLastApprovalAsync(CaseId!.Value);
         var language = string.Empty;
 
         switch (Language) {
             case "Customer":
-                var @case = await CasesClient.GetCaseAsync(CaseId!.Value, null);
+                var @case = await CasesManager.GetByIdAsync(CaseId!.Value, null);
                 language = GetCustomerLanguageOrDefault(@case.Metadata?["CurrentCultureName"]);
                 break;
             case "English":

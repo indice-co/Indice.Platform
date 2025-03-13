@@ -5,6 +5,7 @@ using Indice.Features.Cases.Server;
 using Indice.Features.Cases.Server.Authorization;
 using Indice.Features.Cases.Server.Endpoints;
 using Indice.Features.Cases.Server.Endpoints.Validators;
+using Indice.Features.Cases.Server.Extensions;
 using Indice.Features.Cases.Server.Integration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Routing;
@@ -64,8 +65,9 @@ public static class CaseServerFeatureExtensions
             options.Scope = serverOptions.RequiredScope;
         });
         builder.Services.AddHttpClient<WorkflowHttpClient>(httpClient => {
-                httpClient.BaseAddress = new(builder.Configuration.GetHost()!);
+                httpClient.BaseAddress = new Uri(builder.Configuration.GetHost()!);
             })
+            .ClearResilienceHandlers()
             .AddClientCredentialsTokenHandler("cases");
         builder.Services.AddScoped<ICasesWorkflowManager, WorkflowHttpServiceClient>();
         builder.Services.AddTransient<IAuthorizationHandler, DefaultCasesRolesHandler>();

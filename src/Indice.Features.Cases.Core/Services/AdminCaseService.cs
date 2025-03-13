@@ -14,6 +14,7 @@ using Indice.Security;
 using Indice.Types;
 using Json.Patch;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Core.Services;
@@ -101,7 +102,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             throw new ArgumentNullException(nameof(@case), @"Case does not exist.");
         }
         if (!@case.Draft) {
-            throw new Exception("Case is submitted."); // todo proper exception (BadRequest)
+            throw new BusinessException("Case is submitted."); // todo proper exception (BadRequest)
         }
 
         @case.Draft = false;
@@ -476,7 +477,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         }
 
         if (!@case.Draft) {
-            throw new Exception("Cannot delete a submitted case.");
+            throw new BusinessException("Cannot delete a submitted case.");
         }
 
         DbContext.Remove(@case);

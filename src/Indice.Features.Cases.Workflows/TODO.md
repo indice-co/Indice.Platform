@@ -1,4 +1,3 @@
-- [ ] Register Workflow client_credentials
 - [ ] Specification for ICaseAuthorizationService
 - [ ] Handle localization in Workflows
 - [ ] Pass culture on actors on Workflow
@@ -6,11 +5,15 @@
 - [ ] Remove Newtonsoft from Cases
 - [ ] Finalize Actor data:
   - Currently, when starting workflow we have http context data + Owner Reference from the contact that created the draft, and when triggering a blocking activity we have http context data + claim ReferenceIdClaimType from the current user
+- [ ] Properly handle Business Exceptions in the cases client
+
+## Improvements
+- [ ] Throwing an exception anywhere AFTER a blocking activity will produce a 200 response to Cases.
+- [ ] Remove return value of `IAdminCaseService.AssignCase`
 
 ## Acknowledgements
 1. Multiple blocking activities of the same kind are NOT allowed
-2. When the integrator wants to specify the output of an activity and handle it as input in another activity data is serialized in Elsa and he has to work with JToken. Sending the data to Cases they will always be converted to JsonNode.
-
+2. When the integrator wants to specify the output of an activity and handle it as input in another activity data is serialized in Elsa and they have to work with JToken. Sending the data to Cases they will always be converted to JsonNode.
 
 ## Flows
 1. Edit Triggered from Spa:

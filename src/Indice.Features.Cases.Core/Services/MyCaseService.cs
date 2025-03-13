@@ -73,7 +73,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
 
         var @case = await GetDbCaseForCustomer(caseId, user);
         if (!@case.Draft) {
-            throw new Exception("Case status is not draft."); // todo proper exception (BadRequest)
+            throw new BusinessException("Case status is not draft."); // todo proper exception (BadRequest)
         }
 
         @case.Draft = false;
@@ -107,7 +107,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
 
         // the customer should be able to see only cases that have been created from him/herself!
         if (@case.Channel == CasesCoreConstants.Channels.Agent) {
-            throw new Exception("Case not found.");
+            throw new BusinessException("Case not found.");
         }
 
         @case.CaseType = TranslateCaseType(@case.CaseType, CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
@@ -246,7 +246,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         if (caseTypeCode == null) throw new ArgumentNullException(nameof(caseTypeCode));
         var dbCaseType = await GetCaseTypeInternal(caseTypeCode);
         if (dbCaseType == null) {
-            throw new Exception("Case type not found."); // todo  proper exception & handle from problemConfig (NotFound)
+            throw new BusinessException("Case type not found."); // todo  proper exception & handle from problemConfig (NotFound)
         }
 
         var caseType = new CaseTypePartial {

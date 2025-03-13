@@ -32,7 +32,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Hosting;
 using Elsa.Serialization;
-using Indice.Features.Cases.Workflows.Integration;
+using Indice.Features.Cases.Workflows.Extensions;
+using Indice.Features.Cases.Workflows.Integrations;
 using Indice.Features.Cases.Workflows.Localization;
 using Indice.Features.Cases.Workflows.Serialization;
 using Indice.Features.Cases.Workflows.Services.Abstractions;
@@ -152,11 +153,12 @@ public static class CasesWorkflowFeatureExtensions
             options.ClientSecret = builder.Configuration.GetApiSecret("ClientSecret");
             options.Scope = builder.Configuration.GetApiResourceName();
         });
-        builder.Services.AddHttpClient<CasesHttpClient>(httpClient => {
-                httpClient.BaseAddress = new(builder.Configuration.GetHost()!);
+        builder.Services.AddHttpClient<ICasesManager, CasesManager>(httpClient => { 
+                httpClient.BaseAddress = new Uri(builder.Configuration.GetHost()!);
             })
-            .AddClientCredentialsTokenHandler("cases");
-
+            .AddClientCredentialsTokenHandler("cases")
+            .ClearResilienceHandlers();
+        
         // Add authentication / authorization
         if (casesWorkflowOptions.RegisterAuthentication) {
             builder.Services.AddWorkflowAuthentication(builder.Configuration, casesWorkflowOptions);

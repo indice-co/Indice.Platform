@@ -5,9 +5,7 @@ namespace Indice.Features.Cases.Server.Models;
 /// <summary>WorkflowAddApprovalWithCommentRequest</summary>
 public class WorkflowAddApprovalWithCommentRequest
 {
-    /// <summary>Id of the case.</summary>
-    public Guid CaseId {get; set;}
-    
+   
     /// <summary>Approval Action.</summary>
     public Approval Action {get; set;}
     

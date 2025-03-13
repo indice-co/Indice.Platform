@@ -1,5 +1,6 @@
 ﻿using Indice.Features.Cases.Core.Models;
 using Indice.Security;
+using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -22,11 +23,11 @@ internal static class AdminWorkflowInvokerApi
         var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
 
         group.RequireAuthorization(policy => policy
-             .RequireAuthenticatedUser()
-             .AddAuthenticationSchemes("Bearer")
-             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-             .RequireCasesAccess(Authorization.CasesAccessLevel.Manager)
-        );
+            .RequireAuthenticatedUser()
+            .AddAuthenticationSchemes("Bearer")
+            .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
+            .RequireCasesAccess(Authorization.CasesAccessLevel.Manager)
+        ).WithHandledException<BusinessException>();
 
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
