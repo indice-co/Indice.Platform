@@ -280,10 +280,25 @@ public static class HostBuilderExtensions
     /// <summary>Configures that campaign contact information will be resolved by contacting the Identity Server instance.</summary>
     /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
     public static MessageOptions WithServiceBusTriggers(this MessageOptions options) {
-        options.FunctionDisablePredicate = (fn, Configuration) => {
-            var list = new string[] { "campaign-created", "campaign-resolve-message", "campaign-send-email", "campaign-send-push-notification", "campaign-send-sms" };
-            return list.Any(x => x.Equals(fn.Name, StringComparison.OrdinalIgnoreCase));
-        };
+        options.FunctionDisablePredicate = ExcludeQueueTriggers;
         return options;
+    }
+
+
+    internal static ExtendedFunctionMetadataProviderDisablePredicate ExcludeQueueTriggers = 
+                                           ExcludeFunctions(EventNames.CampaignCreated,
+                                                            EventNames.ResolveMessage,
+                                                            EventNames.SendEmail,
+                                                            EventNames.SendPushNotification,
+                                                            EventNames.SendSms);
+
+    internal static ExtendedFunctionMetadataProviderDisablePredicate ExcludeServiceBusTriggers = 
+                                           ExcludeFunctions($"ServiceBus-{EventNames.CampaignCreated}",
+                                                            $"ServiceBus-{EventNames.ResolveMessage}",
+                                                            $"ServiceBus-{EventNames.SendEmail}",
+                                                            $"ServiceBus-{EventNames.SendPushNotification}",
+                                                            $"ServiceBus-{EventNames.SendSms}");
+    internal static ExtendedFunctionMetadataProviderDisablePredicate ExcludeFunctions(params string[] functionNames) {
+        return (fn, Configuration) => functionNames.Any(x => x.Equals(fn.Name, StringComparison.OrdinalIgnoreCase));
     }
 }
