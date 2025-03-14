@@ -70,13 +70,15 @@ public class SmsTests
 
     [Theory(Skip = "Sensitive Data")]
     [InlineData("", "", "", "Indice", "Indice", "Test from ApifonIM", "Apifon Viber message body")]
+    [InlineData("", "", "", "Indice", "Indice", "Test Subject", "Welcome to https://www.indice.gr! You can manage you account here: https://my.indice.com.")]
     public async Task TestApifonIM(string apiKey, string token, string phoneNumber, string sender, string senderName, string subject, string body) {
         var inMemorySettings = new Dictionary<string, string> {
             ["Sms:ApiKey"] = apiKey,
             ["Sms:Token"] = token,
             ["Sms:Sender"] = sender,
             ["Sms:SenderName"] = senderName,
-            ["Sms:TestMode"] = true.ToString()
+            ["Sms:TestMode"] = true.ToString(),
+            ["Sms:EnableUrlShortener"] = true.ToString()
         };
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(inMemorySettings)

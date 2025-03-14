@@ -48,26 +48,25 @@ public class SmsServiceApifon : ISmsService
     public async Task<SendReceipt> SendAsync(string destination, string subject, string? body, SmsSender? sender = null) {
         HttpResponseMessage httpResponse;
         ApifonResponse response;
-        var messageId = Guid.NewGuid().ToString();
         var recipients = (destination ?? string.Empty).Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
         if (recipients == null) {
-            throw new ArgumentNullException(nameof(recipients));
+            throw new ArgumentNullException(nameof(destination));
         }
         if (recipients.Length == 0) {
-            throw new ArgumentException("Recipients list cannot be empty.", nameof(recipients));
+            throw new ArgumentException("Recipients list cannot be empty.", nameof(destination));
         }
         recipients = recipients.Select(recipient => {
             if (!PhoneNumber.TryParse(recipient, out var phone)) {
-                throw new ArgumentException("Invalid recipients. Recipients should be valid phone numbers", nameof(recipients));
+                throw new ArgumentException("Invalid recipients. Recipients should be valid phone numbers", nameof(recipient));
             }
             return phone.ToString("D");
         })
         .ToArray();
         if (recipients.Any(phoneNumber => phoneNumber.Any(numberChar => !char.IsNumber(numberChar)))) {
-            throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(recipients));
+            throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(destination));
         }
         // https://docs.apifon.com/apireference.html#sms-request
-        var payload = ApifonRequest.Create(sender?.Id ?? Settings.Sender ?? Settings.SenderName!, recipients, body!, Settings.EnableUrlShortener);
+        var payload = ApifonRequest.CreateSms(sender?.Id ?? Settings.Sender ?? Settings.SenderName!, recipients, body!, Settings.EnableUrlShortener);
         var signature = payload.Sign(Settings.ApiKey!, HttpMethod.Post.ToString(), SERVICE_ENDPOINT);
         var request = new HttpRequestMessage {
             Content = new StringContent(payload.ToJson(), Encoding.UTF8, "application/json"),
@@ -78,26 +77,26 @@ public class SmsServiceApifon : ISmsService
         request.Headers.Add("X-ApifonWS-Date", payload.RequestDate.ToString("r"));
         request.Headers.Authorization = new AuthenticationHeaderValue("ApifonWS", $"{Settings.Token}:{signature}");
         try {
-            Logger.LogInformation("The full request sent to Apifon: {requestMessage}", JsonSerializer.Serialize(request, GetJsonSerializerOptions()));
-            Logger.LogInformation("The following payload was sent to Apifon: {requestPayload}", payload.ToJson());
+            Logger.LogInformation("The full request sent to Apifon: {RequestMessage}", JsonSerializer.Serialize(request, GetJsonSerializerOptions()));
+            Logger.LogInformation("The following payload was sent to Apifon: {RequestPayload}", payload.ToJson());
             httpResponse = await HttpClient.SendAsync(request);
         } catch (Exception ex) {
-            Logger.LogError("SMS Delivery took too long");
+            Logger.LogError(ex, "SMS Delivery took too long");
             throw new SmsServiceException("SMS Delivery took too long", ex);
         }
         var responseString = await httpResponse.Content.ReadAsStringAsync();
         if (!httpResponse.IsSuccessStatusCode) {
-            Logger.LogInformation("SMS Delivery failed. {statusCode} : {responseString}", httpResponse.StatusCode, responseString);
+            Logger.LogInformation("SMS Delivery failed. {StatusCode} : {ResponseString}", httpResponse.StatusCode, responseString);
             throw new SmsServiceException($"SMS Delivery failed. {httpResponse.StatusCode} : {responseString}");
         }
         response = JsonSerializer.Deserialize<ApifonResponse>(responseString, GetJsonSerializerOptions())!;
         if (response.HasError) {
-            Logger.LogInformation("SMS Delivery failed. {responseStatus}. ResponseId: {responseId}", response.Status?.Description, response.Id);
+            Logger.LogInformation("SMS Delivery failed. {ResponseStatus}. ResponseId: {ResponseId}", response.Status?.Description, response.Id);
             throw new SmsServiceException($"SMS Delivery failed. {response.Status?.Description} responseId {response.Id}");
         } else {
-            Logger.LogInformation("SMS message successfully sent: {result}", response.Results.FirstOrDefault());
+            Logger.LogInformation("SMS message successfully sent: {Result}", response.Results.FirstOrDefault());
         }
-        messageId = response.Id;
+        var messageId = response.Id;
         var messageIds = response.Results?.Values.SelectMany(x => x?.Select(y => y.Id)!)?.ToList();
         if (messageIds?.Count > 0) {
             messageId = string.Join(",", messageIds);
@@ -167,7 +166,7 @@ internal class ApifonResponse
 
 internal class ApifonRequest
 {
-    public static ApifonRequest Create(string from, string[] to, string message, bool enableUrlShortener) {
+    public static ApifonRequest CreateSms(string from, string[] to, string message, bool enableUrlShortener) {
         var request = new ApifonRequest();
         Dictionary<string, ApifonListParameter>? parameters = null;
         if (enableUrlShortener) {
@@ -185,7 +184,7 @@ internal class ApifonRequest
         return request;
     }
 
-    private static Dictionary<string, ApifonListParameter> ExtractParametersAndReplaceUrlsFromMessage(ref string message) {
+    internal static Dictionary<string, ApifonListParameter> ExtractParametersAndReplaceUrlsFromMessage(ref string message) {
         int instance = 0;
         List<string> extractedLinks = new List<string>();
         Regex regex = new Regex(@"https?://[^\s""<>]*[^\s""<>.,!?)]", RegexOptions.Compiled);

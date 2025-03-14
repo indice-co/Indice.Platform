@@ -46,23 +46,23 @@ public class SmsServiceApifonIM : ISmsService
         ApifonResponse response;
         var recipients = (destination ?? string.Empty).Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
         if (recipients == null) {
-            throw new ArgumentNullException(nameof(recipients));
+            throw new ArgumentNullException(nameof(destination));
         }
         if (recipients.Length == 0) {
-            throw new ArgumentException("Recipients list cannot be empty.", nameof(recipients));
+            throw new ArgumentException("Recipients list cannot be empty.", nameof(destination));
         }
         recipients = recipients.Select(recipient => {
             if (!PhoneNumber.TryParse(recipient, out var phone)) {
-                throw new ArgumentException("Invalid recipients. Recipients should be valid phone numbers", nameof(recipients));
+                throw new ArgumentException("Invalid recipients. Recipients should be valid phone numbers", nameof(recipient));
             }
             return phone.ToString("D");
         }).ToArray();
         if (recipients.Any(phoneNumber => phoneNumber.Any(numberChar => !char.IsNumber(numberChar)))) {
-            throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(recipients));
+            throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(destination));
         }
         var senderId = sender?.Id ?? Options.Sender ?? Options.SenderName;
 
-        var payload = ApifonIMRequest.Create(senderId!, recipients, body!, Options.ViberFallbackEnabled);
+        var payload = ApifonIMRequest.CreateIM(senderId!, recipients, body!, Options.ViberFallbackEnabled, Options.EnableUrlShortener);
         var signature = payload.Sign(Options.ApiKey!, HttpMethod.Post.ToString(), SERVICE_ENDPOINT);
         var request = new HttpRequestMessage {
             Content = new StringContent(payload.ToJson(), Encoding.UTF8, MediaTypeNames.Application.Json),
@@ -73,24 +73,24 @@ public class SmsServiceApifonIM : ISmsService
         request.Headers.Add("X-ApifonWS-Date", payload.RequestDate.ToString("r"));
         request.Headers.Authorization = new AuthenticationHeaderValue("ApifonWS", $"{Options.Token}:{signature}");
         try {
-            Logger.LogInformation("The full request sent to Apifon: {requestMessage}", JsonSerializer.Serialize(request, GetJsonSerializerOptions()));
-            Logger.LogInformation("The following payload was sent to Apifon: {requestPayload}", payload.ToJson());
+            Logger.LogInformation("The full request sent to Apifon: {RequestMessage}", JsonSerializer.Serialize(request, GetJsonSerializerOptions()));
+            Logger.LogInformation("The following payload was sent to Apifon: {RequestPayload}", payload.ToJson());
             httpResponse = await HttpClient.SendAsync(request);
         } catch (Exception ex) {
-            Logger.LogError("Viber/SMS Delivery took too long");
+            Logger.LogError(ex, "Viber/SMS Delivery took too long");
             throw new SmsServiceException("Viber/SMS Delivery took too long", ex);
         }
         var responseString = await httpResponse.Content.ReadAsStringAsync();
         if (!httpResponse.IsSuccessStatusCode) {
-            Logger.LogInformation("Viber/SMS Delivery failed. {statusCode} : {responseString}", httpResponse.StatusCode, responseString);
+            Logger.LogInformation("Viber/SMS Delivery failed. {StatusCode} : {ResponseString}", httpResponse.StatusCode, responseString);
             throw new SmsServiceException($"Viber/SMS Delivery failed. {httpResponse.StatusCode} : {responseString}");
         }
         response = JsonSerializer.Deserialize<ApifonResponse>(responseString, GetJsonSerializerOptions())!;
         if (response.HasError) {
-            Logger.LogInformation("Viber/SMS Delivery failed. {responseStatus}. ResponseId: {responseId}", response.Status?.Description, response.Id);
+            Logger.LogInformation("Viber/SMS Delivery failed. {ResponseStatus}. ResponseId: {ResponseId}", response.Status?.Description, response.Id);
             throw new SmsServiceException($"Viber/SMS Delivery failed. {response.Status?.Description} responseId {response.Id}");
         } else {
-            Logger.LogInformation("Viber/SMS message successfully sent: {result}", response.Results.FirstOrDefault());
+            Logger.LogInformation("Viber/SMS message successfully sent: {Result}", response.Results.FirstOrDefault());
         }
         var messageIds = response.Results?.Values
           .SelectMany(x => x?.Select(y => y.Id)!)?
@@ -114,12 +114,22 @@ public class SmsServiceApifonIM : ISmsService
     };
 }
 
-internal class ApifonIMRequest : ApifonRequest {
-    public static new ApifonIMRequest Create(string from, string[] to, string message, bool viberFallbackEnabled) {
+internal class ApifonIMRequest : ApifonRequest
+{
+    public static ApifonIMRequest CreateIM(string from, string[] to, string message, bool viberFallbackEnabled, bool enableUrlShortener) {
         var request = new ApifonIMRequest();
-        foreach (var subNumber in to) {
-            request.Subscribers.Add(new Subscriber { To = subNumber });
+        Dictionary<string, ApifonListParameter>? parameters = null;
+        if (enableUrlShortener) {
+            parameters = ExtractParametersAndReplaceUrlsFromMessage(ref message);
         }
+
+        foreach (var subNumber in to) {
+            request.Subscribers.Add(new Subscriber {
+                To = subNumber,
+                Params = parameters
+            });
+        }
+
         request.IMChannels = [new() {
             SenderId = from,
             Text = message
