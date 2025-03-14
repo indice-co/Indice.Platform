@@ -81,13 +81,6 @@ public static class CasesWorkflowFeatureExtensions
         CasesWorkflowOptions casesWorkflowOptions) {
         // db initializer
         var configureDatabase = casesWorkflowOptions.ConfigureDbContext ?? new Action<IServiceProvider, DbContextOptionsBuilder>((sp, ef) => ef.UseSqlServer(sp.GetRequiredService<IConfiguration>().GetConnectionString("WorkflowDb")));
-       
-        var seedOptions = new CasesWorkflowDbInitializerOptions();
-        casesWorkflowOptions.ConfigureDbSeed?.Invoke(seedOptions);
-        
-        builder.Services.Configure<CasesWorkflowDbInitializerOptions>(opp => {
-            opp.WorkflowDefinitions.AddRange(seedOptions.WorkflowDefinitions);
-        });
         
         builder.Services.AddHostedService<CasesWorkflowDbInitializerHostedService>();
         builder.Services.AddDbContextFactory<ElsaContext>(configureDatabase);

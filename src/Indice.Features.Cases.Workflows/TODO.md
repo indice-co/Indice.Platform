@@ -4,9 +4,9 @@
 - [ ] Use dispatch for blocking activities.
 - [ ] Authorization Requirements are checked when displaying Available Actions to the user but not all of them on the specific endpoints i.e. Edit, Assign, Approve
 - [ ] Remove Newtonsoft from Cases - Platform, this shouldn't be used anymore
-- [ ] Add PatchMyData method to the CasesManager endpoint.
-- [ ] NotificationSubscriptionService.GetSubscriptions() could also be a CasesManager endpoint.
-- [ ] Move handling of HttpValidationProblemDetails in BaseCaseActivity directly in cases exception handler.
+- [ ] Add `PatchMyData` method to the CasesManager endpoint. See if we get a request to add `GetMyCaseById` as well.
+- [ ] `NotificationSubscriptionService.GetSubscriptions()` could also be a CasesManager endpoint.
+- [ ] Move handling of `HttpValidationProblemDetails` in `BaseCaseActivity` directly in cases exception handler.
 
 ## Acknowledgements
 1. Multiple blocking activities of the same kind are NOT allowed

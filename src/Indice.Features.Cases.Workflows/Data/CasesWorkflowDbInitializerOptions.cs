@@ -3,6 +3,4 @@
 /// <summary>Options for the cases workflow database initializer</summary>
 public class CasesWorkflowDbInitializerOptions
 {
-    /// <summary>List of Json Workflow Definitions.</summary>
-    public List<string> WorkflowDefinitions { get; set; } = [];
 }

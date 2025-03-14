@@ -25,6 +25,4 @@ internal class GetChannelActivity(ICasesManager casesManager) : BaseCaseActivity
         context.LogOutputProperty(this, nameof(Output), Output);
         return Done(Output);
     }
-    
-    
 }

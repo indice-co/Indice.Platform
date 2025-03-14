@@ -48,7 +48,7 @@ internal class CasesWorkflowDbInitializerHostedService : BackgroundService
             using var scope = _serviceScopeFactory.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<ElsaContext>();
             var seedOptions = scope.ServiceProvider.GetRequiredService<IOptions<CasesWorkflowDbInitializerOptions>>();
-            await dbContext.InitializeAsync(seedOptions, _contentSerializer, scope);
+            await dbContext.InitializeAsync(seedOptions, _contentSerializer);
             await Task.Delay(TimeSpan.FromSeconds(2));
             if (!await dbContext.WorkflowDefinitions.AnyAsync(x => x.Name == "HelloWorld"))
                 await SeedSampleWorkflowDefinition(scope, stoppingToken);

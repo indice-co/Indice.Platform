@@ -64,11 +64,9 @@ internal class AdminCaseMessageService : BaseCaseMessageService, IAdminCaseMessa
             CreatedById = @case.CreatedBy.Id
         };
 
-        // todo: specification here
         if (!await _caseAuthorization.IsMember(user, caseDetails)) {
             throw new ResourceUnauthorizedException();
         }
-        
         return @case;
     }
 }
