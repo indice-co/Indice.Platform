@@ -54,11 +54,11 @@ public class SmsTests
             .AddOptions()
             .Configure<SmsServiceApifonSettings>(configuration.GetSection(SmsServiceApifonSettings.Name))
             .AddSmsServiceApifon(configuration);
-        
+
 
         var serviceProvider = collection.BuildServiceProvider();
         var excepion = default(Exception);
-        
+
         try {
             var service = serviceProvider.GetRequiredService<ISmsService>();
             await service.SendAsync(phoneNumber, subject, body);
@@ -70,7 +70,7 @@ public class SmsTests
 
     [Theory(Skip = "Sensitive Data")]
     [InlineData("", "", "", "Indice", "Indice", "Test from ApifonIM", "Apifon Viber message body")]
-    [InlineData("", "", "", "Indice", "Indice", "Test Subject", "Welcome to https://www.indice.gr! You can manage you account here: https://my.indice.com.")]
+    [InlineData("", "", "", "Indice", "Indice", "Test from ApifonIM", "Welcome to https://www.indice.gr! You can manage you account here: https://my.indice.com.")]
     public async Task TestApifonIM(string apiKey, string token, string phoneNumber, string sender, string senderName, string subject, string body) {
         var inMemorySettings = new Dictionary<string, string> {
             ["Sms:ApiKey"] = apiKey,

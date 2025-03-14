@@ -90,7 +90,7 @@ public class SmsServiceApifonIM : ISmsService
             Logger.LogInformation("Viber/SMS Delivery failed. {ResponseStatus}. ResponseId: {ResponseId}", response.Status?.Description, response.Id);
             throw new SmsServiceException($"Viber/SMS Delivery failed. {response.Status?.Description} responseId {response.Id}");
         } else {
-            Logger.LogInformation("Viber/SMS message successfully sent: {Result}", response.Results.FirstOrDefault());
+            Logger.LogInformation("Viber/SMS message successfully sent: {Result}", response.Results!.FirstOrDefault().Key);
         }
         var messageIds = response.Results?.Values
           .SelectMany(x => x?.Select(y => y.Id)!)?

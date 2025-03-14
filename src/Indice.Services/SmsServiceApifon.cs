@@ -94,7 +94,7 @@ public class SmsServiceApifon : ISmsService
             Logger.LogInformation("SMS Delivery failed. {ResponseStatus}. ResponseId: {ResponseId}", response.Status?.Description, response.Id);
             throw new SmsServiceException($"SMS Delivery failed. {response.Status?.Description} responseId {response.Id}");
         } else {
-            Logger.LogInformation("SMS message successfully sent: {Result}", response.Results.FirstOrDefault());
+            Logger.LogInformation("SMS message successfully sent: {Result}", response.Results!.FirstOrDefault().Key);
         }
         var messageId = response.Id;
         var messageIds = response.Results?.Values.SelectMany(x => x?.Select(y => y.Id)!)?.ToList();
@@ -136,6 +136,7 @@ internal class ApifonResponse
 {
     [JsonPropertyName("request_id")]
     public string Id { get; set; } = null!;
+    [JsonPropertyName("results")]
     public Dictionary<string, ResultDetails[]> Results { get; set; } = [];
     [JsonPropertyName("result_info")]
     public ResultInfo? Status { get; set; }
@@ -148,6 +149,7 @@ internal class ApifonResponse
         public string Id { get; set; } = null!;
         [JsonPropertyName("custom_id")]
         public string? CustomId { get; set; }
+        [JsonPropertyName("length")]
         public int Length { get; set; }
         [JsonPropertyName("short_url")]
         public string? ShortUrl { get; set; }
