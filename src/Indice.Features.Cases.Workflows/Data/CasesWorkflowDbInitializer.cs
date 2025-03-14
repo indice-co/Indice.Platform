@@ -15,10 +15,7 @@ public static class CasesDbInitalizerExtesnions
     /// <param name="options">Seed options</param>
     /// <param name="contentSerializer">Elsas content serializer</param>
     /// <returns>The Task</returns>
-    public async static Task InitializeAsync(
-        this ElsaContext dbContext,
-        IOptions<CasesWorkflowDbInitializerOptions> options,
-        IContentSerializer contentSerializer) {
+    public async static Task InitializeAsync(this ElsaContext dbContext, IOptions<CasesWorkflowDbInitializerOptions> options, IContentSerializer contentSerializer) {
         if (await dbContext.Database.EnsureCreatedAsync()) {
             await dbContext.SeedAsync(options, contentSerializer);
         }

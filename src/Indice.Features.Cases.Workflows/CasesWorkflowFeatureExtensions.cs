@@ -65,7 +65,6 @@ public static class CasesWorkflowFeatureExtensions
             options.RegisterControllers = workflowOptions.RegisterControllers;
             options.RegisterStaticFiles = workflowOptions.RegisterStaticFiles;
             options.RegisterAuthentication = workflowOptions.RegisterAuthentication;
-            options.ConfigureDbSeed = workflowOptions.ConfigureDbSeed;
         });
         builder.AddWorkflowInternal(workflowOptions);
         return builder;

@@ -1,11 +1,9 @@
 ﻿using System.Reflection;
 using Elsa.Activities.Email;
 using Elsa.Activities.Email.Options;
-using Elsa.Persistence.EntityFramework.Core;
 using Elsa.Retention.Contracts;
 using Elsa.Retention.Options;
 using Elsa.Retention.Specifications;
-using Indice.Features.Cases.Workflows.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -71,9 +69,4 @@ public class CasesWorkflowOptions
     /// The client id of the UI client that will be used to authenticate with the server.
     /// </summary>
     public string WorkflowUIClientId { get; set; } = "cases-ui";
-    
-    /// <summary>
-    /// Configuration <see cref="Action"/> for internal seed of the <see cref="ElsaContext"/>. 
-    /// </summary>
-    public Action<CasesWorkflowDbInitializerOptions>? ConfigureDbSeed { get; set; }
 }
