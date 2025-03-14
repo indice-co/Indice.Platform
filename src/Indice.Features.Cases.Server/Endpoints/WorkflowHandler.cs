@@ -113,4 +113,36 @@ internal static class WorkflowHandler
         
         return TypedResults.Ok();
     }
+    
+    #region endpoint description
+
+    public const string PatchDataDescription = @"
+    Patches the Case.Data object with an object passed in the body.
+    If Data is invalid due to schema validation failure, no change will happen and an error 500 will be returned
+    Recursively merges two JsonNodes by ensuring that the structure of the `original` node is
+    updated defensively preventing overwrites of incompatible JsonNode types.
+    1. If the `toMerge` node contains multiple nested types, each one of them should exist as-is in the `original` node.
+    2. If the `toMerge` node contains nested types that the `original` node only partially matches (subset),
+      the remaining nested types are added to the corresponding location in the `original` node.
+    3. When we encounter a JsonArray we add/replace from THIS POINT ON the nested element at the end of the array,
+    and NOT replace any existing - nested or not - items.
+    
+    <b>JsonIgnoreCondition.WhenWritingNull must NOT be set in the nswag client serializer if you want to remove a property</b>
+    https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API"">Documentation
+    For handling nested arrays, moving elements, checking if data exists at specified locations use JsonPatch API
+    <code>
+    _casesApiClient.PatchAdminCaseDataAsync(caseId, null, new { t1 = ""test"", t2 = (object)null! }
+    </code>
+    <b>If the path is found ""add"" works as add or replace.</b>
+    <b>This will NOT create non existing paths, be sure to specify the full object as value on a JsonPointer that exists.</b>
+    </param>
+    ";
+
+    public const string PatchMetadataDescription = @"
+    Patches the Metadata of the Case from a Dictionary<string, string>
+    Note that this runs as a systemic user and does not perform ANY authorization as opposed to the front facing endpoint.
+    This should return a boolean response indicating if the Metadata was actually updated.
+    ";
+
+    #endregion
 }

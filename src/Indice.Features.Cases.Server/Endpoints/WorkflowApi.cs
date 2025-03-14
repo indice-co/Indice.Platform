@@ -69,11 +69,13 @@ internal static class WorkflowApi
         // Integrator Endpoints
         group.MapPatch("{caseId}/patch-case-data", WorkflowHandler.PatchData)
             .WithName(nameof(WorkflowHandler.PatchData))
-            .WithSummary("Patches the data for a case.");
-        
+            .WithSummary("Patches the data for a case.")
+            .WithDescription(WorkflowHandler.PatchDataDescription);
+
         group.MapPatch("{caseId}/patch-case-metadata", WorkflowHandler.PatchMetadata)
             .WithName(nameof(WorkflowHandler.PatchMetadata))
-            .WithSummary("Patches the metadata of a case.");
+            .WithSummary("Patches the metadata of a case.")
+            .WithDescription(WorkflowHandler.PatchMetadataDescription);
         
         return group;
     }

@@ -41,15 +41,26 @@ public abstract class BaseCaseActivity(ICasesManager casesManager) : Activity
             CaseId ??= Guid.Parse(context.CorrelationId);
             return await TryExecuteAsync(context);
         } catch (ApiException<HttpValidationProblemDetails> ex) {
-            throw new CaseManagerException(ex.Result?.Detail ?? ex.Message);
+            var exceptionMessage = ex.Result?.Detail ?? ex.Message;
+            if (HandleActivityError) {
+                var message = $"Workflow Integration Exception with DefinitionId \"{context.WorkflowInstance.DefinitionId}\" and InstanceId \"{context.WorkflowInstance.Id}\". Original exception message \"{exceptionMessage}\".";
+                await CasesManager.SendMessageAsync(CaseId!.Value, new WorkflowSendMessageRequest {
+                    Message = new Message {
+                        Comment = $"Faulted with message: {message}",
+                        PrivateComment = true
+                    },
+                    WorkflowActor = context.TryGetLastActor().ToCasesActor()
+                });
+            }
+
+            throw;
+            
         } catch (Exception exception) {
             if (HandleActivityError) {
                 var message = $"Workflow Exception with DefinitionId \"{context.WorkflowInstance.DefinitionId}\" and InstanceId \"{context.WorkflowInstance.Id}\". Original exception message \"{exception.Message}\".";
                 await CasesManager.SendMessageAsync(CaseId!.Value, new WorkflowSendMessageRequest {
                     Message = new Message {
-                        Comment = string.IsNullOrEmpty(message) 
-                            ? $"Faulted with message: {exception.Message}" 
-                            : $"Faulted with message: {message} and exception message: {exception.Message}",
+                        Comment = $"Faulted with message: {message} and exception message: {exception.Message}",
                         PrivateComment = true
                     },
                     WorkflowActor = context.TryGetLastActor().ToCasesActor()

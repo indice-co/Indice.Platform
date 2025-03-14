@@ -6,6 +6,7 @@
 - [ ] Remove Newtonsoft from Cases - Platform, this shouldn't be used anymore
 - [ ] Add PatchMyData method to the CasesManager endpoint.
 - [ ] NotificationSubscriptionService.GetSubscriptions() could also be a CasesManager endpoint.
+- [ ] Move handling of HttpValidationProblemDetails in BaseCaseActivity directly in cases exception handler.
 
 ## Acknowledgements
 1. Multiple blocking activities of the same kind are NOT allowed

@@ -114,6 +114,27 @@ namespace Indice.Features.Cases.Workflows.Integrations
         /// <summary>
         /// Patches the data for a case.
         /// </summary>
+        /// <remarks>
+        /// Patches the Case.Data object with an object passed in the body.
+        /// <br/>    If Data is invalid due to schema validation failure, no change will happen and an error 500 will be returned
+        /// <br/>    Recursively merges two JsonNodes by ensuring that the structure of the `original` node is
+        /// <br/>    updated defensively preventing overwrites of incompatible JsonNode types.
+        /// <br/>    1. If the `toMerge` node contains multiple nested types, each one of them should exist as-is in the `original` node.
+        /// <br/>    2. If the `toMerge` node contains nested types that the `original` node only partially matches (subset),
+        /// <br/>      the remaining nested types are added to the corresponding location in the `original` node.
+        /// <br/>    3. When we encounter a JsonArray we add/replace from THIS POINT ON the nested element at the end of the array,
+        /// <br/>    and NOT replace any existing - nested or not - items.
+        /// <br/>    
+        /// <br/>    &lt;b&gt;JsonIgnoreCondition.WhenWritingNull must NOT be set in the nswag client serializer if you want to remove a property&lt;/b&gt;
+        /// <br/>    https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API"&gt;Documentation
+        /// <br/>    For handling nested arrays, moving elements, checking if data exists at specified locations use JsonPatch API
+        /// <br/>    &lt;code&gt;
+        /// <br/>    _casesApiClient.PatchAdminCaseDataAsync(caseId, null, new { t1 = "test", t2 = (object)null! }
+        /// <br/>    &lt;/code&gt;
+        /// <br/>    &lt;b&gt;If the path is found "add" works as add or replace.&lt;/b&gt;
+        /// <br/>    &lt;b&gt;This will NOT create non existing paths, be sure to specify the full object as value on a JsonPointer that exists.&lt;/b&gt;
+        /// <br/>    &lt;/param&gt;
+        /// </remarks>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task PatchDataAsync(System.Guid caseId, object body);
 
@@ -121,12 +142,38 @@ namespace Indice.Features.Cases.Workflows.Integrations
         /// <summary>
         /// Patches the data for a case.
         /// </summary>
+        /// <remarks>
+        /// Patches the Case.Data object with an object passed in the body.
+        /// <br/>    If Data is invalid due to schema validation failure, no change will happen and an error 500 will be returned
+        /// <br/>    Recursively merges two JsonNodes by ensuring that the structure of the `original` node is
+        /// <br/>    updated defensively preventing overwrites of incompatible JsonNode types.
+        /// <br/>    1. If the `toMerge` node contains multiple nested types, each one of them should exist as-is in the `original` node.
+        /// <br/>    2. If the `toMerge` node contains nested types that the `original` node only partially matches (subset),
+        /// <br/>      the remaining nested types are added to the corresponding location in the `original` node.
+        /// <br/>    3. When we encounter a JsonArray we add/replace from THIS POINT ON the nested element at the end of the array,
+        /// <br/>    and NOT replace any existing - nested or not - items.
+        /// <br/>    
+        /// <br/>    &lt;b&gt;JsonIgnoreCondition.WhenWritingNull must NOT be set in the nswag client serializer if you want to remove a property&lt;/b&gt;
+        /// <br/>    https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API"&gt;Documentation
+        /// <br/>    For handling nested arrays, moving elements, checking if data exists at specified locations use JsonPatch API
+        /// <br/>    &lt;code&gt;
+        /// <br/>    _casesApiClient.PatchAdminCaseDataAsync(caseId, null, new { t1 = "test", t2 = (object)null! }
+        /// <br/>    &lt;/code&gt;
+        /// <br/>    &lt;b&gt;If the path is found "add" works as add or replace.&lt;/b&gt;
+        /// <br/>    &lt;b&gt;This will NOT create non existing paths, be sure to specify the full object as value on a JsonPointer that exists.&lt;/b&gt;
+        /// <br/>    &lt;/param&gt;
+        /// </remarks>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task PatchDataAsync(System.Guid caseId, object body, System.Threading.CancellationToken cancellationToken);
 
         /// <summary>
         /// Patches the metadata of a case.
         /// </summary>
+        /// <remarks>
+        /// Patches the Metadata of the Case from a Dictionary&lt;string, string&gt;
+        /// <br/>    Note that this runs as a systemic user and does not perform ANY authorization as opposed to the front facing endpoint.
+        /// <br/>    This should return a boolean response indicating if the Metadata was actually updated.
+        /// </remarks>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<bool> PatchMetadataAsync(System.Guid caseId, System.Collections.Generic.IDictionary<string, string> body);
@@ -135,6 +182,11 @@ namespace Indice.Features.Cases.Workflows.Integrations
         /// <summary>
         /// Patches the metadata of a case.
         /// </summary>
+        /// <remarks>
+        /// Patches the Metadata of the Case from a Dictionary&lt;string, string&gt;
+        /// <br/>    Note that this runs as a systemic user and does not perform ANY authorization as opposed to the front facing endpoint.
+        /// <br/>    This should return a boolean response indicating if the Metadata was actually updated.
+        /// </remarks>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<bool> PatchMetadataAsync(System.Guid caseId, System.Collections.Generic.IDictionary<string, string> body, System.Threading.CancellationToken cancellationToken);
@@ -1013,6 +1065,27 @@ namespace Indice.Features.Cases.Workflows.Integrations
         /// <summary>
         /// Patches the data for a case.
         /// </summary>
+        /// <remarks>
+        /// Patches the Case.Data object with an object passed in the body.
+        /// <br/>    If Data is invalid due to schema validation failure, no change will happen and an error 500 will be returned
+        /// <br/>    Recursively merges two JsonNodes by ensuring that the structure of the `original` node is
+        /// <br/>    updated defensively preventing overwrites of incompatible JsonNode types.
+        /// <br/>    1. If the `toMerge` node contains multiple nested types, each one of them should exist as-is in the `original` node.
+        /// <br/>    2. If the `toMerge` node contains nested types that the `original` node only partially matches (subset),
+        /// <br/>      the remaining nested types are added to the corresponding location in the `original` node.
+        /// <br/>    3. When we encounter a JsonArray we add/replace from THIS POINT ON the nested element at the end of the array,
+        /// <br/>    and NOT replace any existing - nested or not - items.
+        /// <br/>    
+        /// <br/>    &lt;b&gt;JsonIgnoreCondition.WhenWritingNull must NOT be set in the nswag client serializer if you want to remove a property&lt;/b&gt;
+        /// <br/>    https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API"&gt;Documentation
+        /// <br/>    For handling nested arrays, moving elements, checking if data exists at specified locations use JsonPatch API
+        /// <br/>    &lt;code&gt;
+        /// <br/>    _casesApiClient.PatchAdminCaseDataAsync(caseId, null, new { t1 = "test", t2 = (object)null! }
+        /// <br/>    &lt;/code&gt;
+        /// <br/>    &lt;b&gt;If the path is found "add" works as add or replace.&lt;/b&gt;
+        /// <br/>    &lt;b&gt;This will NOT create non existing paths, be sure to specify the full object as value on a JsonPointer that exists.&lt;/b&gt;
+        /// <br/>    &lt;/param&gt;
+        /// </remarks>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task PatchDataAsync(System.Guid caseId, object body)
         {
@@ -1023,6 +1096,27 @@ namespace Indice.Features.Cases.Workflows.Integrations
         /// <summary>
         /// Patches the data for a case.
         /// </summary>
+        /// <remarks>
+        /// Patches the Case.Data object with an object passed in the body.
+        /// <br/>    If Data is invalid due to schema validation failure, no change will happen and an error 500 will be returned
+        /// <br/>    Recursively merges two JsonNodes by ensuring that the structure of the `original` node is
+        /// <br/>    updated defensively preventing overwrites of incompatible JsonNode types.
+        /// <br/>    1. If the `toMerge` node contains multiple nested types, each one of them should exist as-is in the `original` node.
+        /// <br/>    2. If the `toMerge` node contains nested types that the `original` node only partially matches (subset),
+        /// <br/>      the remaining nested types are added to the corresponding location in the `original` node.
+        /// <br/>    3. When we encounter a JsonArray we add/replace from THIS POINT ON the nested element at the end of the array,
+        /// <br/>    and NOT replace any existing - nested or not - items.
+        /// <br/>    
+        /// <br/>    &lt;b&gt;JsonIgnoreCondition.WhenWritingNull must NOT be set in the nswag client serializer if you want to remove a property&lt;/b&gt;
+        /// <br/>    https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API"&gt;Documentation
+        /// <br/>    For handling nested arrays, moving elements, checking if data exists at specified locations use JsonPatch API
+        /// <br/>    &lt;code&gt;
+        /// <br/>    _casesApiClient.PatchAdminCaseDataAsync(caseId, null, new { t1 = "test", t2 = (object)null! }
+        /// <br/>    &lt;/code&gt;
+        /// <br/>    &lt;b&gt;If the path is found "add" works as add or replace.&lt;/b&gt;
+        /// <br/>    &lt;b&gt;This will NOT create non existing paths, be sure to specify the full object as value on a JsonPointer that exists.&lt;/b&gt;
+        /// <br/>    &lt;/param&gt;
+        /// </remarks>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task PatchDataAsync(System.Guid caseId, object body, System.Threading.CancellationToken cancellationToken)
         {
@@ -1143,6 +1237,11 @@ namespace Indice.Features.Cases.Workflows.Integrations
         /// <summary>
         /// Patches the metadata of a case.
         /// </summary>
+        /// <remarks>
+        /// Patches the Metadata of the Case from a Dictionary&lt;string, string&gt;
+        /// <br/>    Note that this runs as a systemic user and does not perform ANY authorization as opposed to the front facing endpoint.
+        /// <br/>    This should return a boolean response indicating if the Metadata was actually updated.
+        /// </remarks>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<bool> PatchMetadataAsync(System.Guid caseId, System.Collections.Generic.IDictionary<string, string> body)
@@ -1154,6 +1253,11 @@ namespace Indice.Features.Cases.Workflows.Integrations
         /// <summary>
         /// Patches the metadata of a case.
         /// </summary>
+        /// <remarks>
+        /// Patches the Metadata of the Case from a Dictionary&lt;string, string&gt;
+        /// <br/>    Note that this runs as a systemic user and does not perform ANY authorization as opposed to the front facing endpoint.
+        /// <br/>    This should return a boolean response indicating if the Metadata was actually updated.
+        /// </remarks>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<bool> PatchMetadataAsync(System.Guid caseId, System.Collections.Generic.IDictionary<string, string> body, System.Threading.CancellationToken cancellationToken)
