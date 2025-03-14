@@ -115,7 +115,7 @@ public class SmsServiceApifonIM : ISmsService
 }
 
 internal class ApifonIMRequest : ApifonRequest {
-    public static ApifonIMRequest Create(string from, string[] to, string message, bool viberFallbackEnabled) {
+    public static new ApifonIMRequest Create(string from, string[] to, string message, bool viberFallbackEnabled) {
         var request = new ApifonIMRequest();
         foreach (var subNumber in to) {
             request.Subscribers.Add(new Subscriber { To = subNumber });

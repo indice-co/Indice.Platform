@@ -279,7 +279,7 @@ internal class ApifonRequest
     internal class Data
     {
         [JsonPropertyName("name")]
-        public string Name { get; set; }
+        public required string Name { get; set; }
     }
 }
 
