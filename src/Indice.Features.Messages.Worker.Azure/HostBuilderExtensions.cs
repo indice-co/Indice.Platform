@@ -12,6 +12,7 @@ using Indice.Features.Messages.Core.Services.Validators;
 using Indice.Features.Messages.Worker.Azure;
 using Indice.Services;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Core.FunctionMetadata;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -44,6 +45,8 @@ public static class HostBuilderExtensions
             messageWorkerOptions.ContactRetainPeriodInDays = options.ContactRetainPeriodInDays;
         });
         builder.Services.AddHostedService<StartupSeedHostedService>();
+        builder.Services.TryAddSingleton(options.FunctionDisablePredicate);
+        builder.Services.AddDecorator<IFunctionMetadataProvider, ExtendedFunctionMetadataProvider>();
         return builder;
     }
 
@@ -69,6 +72,8 @@ public static class HostBuilderExtensions
                 messageWorkerOptions.ContactRetainPeriodInDays = options.ContactRetainPeriodInDays;
             });
             services.AddHostedService<StartupSeedHostedService>();
+            services.TryAddSingleton(options.FunctionDisablePredicate);
+            services.AddDecorator<IFunctionMetadataProvider, ExtendedFunctionMetadataProvider>();
         });
 
     private static IServiceCollection AddCoreServices(this IServiceCollection services, MessageOptions options, IConfiguration configuration) {
@@ -134,6 +139,29 @@ public static class HostBuilderExtensions
             options.TenantIdSelector = eventDispatcherOptions.TenantIdSelector;
             options.UseCompression = true;
         });
+        return options;
+    }
+
+    /// <summary>Adds <see cref="IEventDispatcher"/> using Azure Storage as a queuing mechanism.</summary>
+    /// <param name="options">Options used to configure the Campaigns API feature.</param>
+    /// <param name="configure">Configure the available options. Null to use defaults.</param>
+    public static MessageOptions UseEventDispatcherAzureServiceBus(this MessageOptions options, Action<IServiceProvider, MessageEventDispatcherAzureOptions>? configure = null) {
+        options.Services!.AddEventDispatcherAzureServiceBus(Indice.Features.Messages.Core.KeyedServiceNames.EventDispatcherServiceKey,
+            (serviceProvider, options) => {
+                var eventDispatcherOptions = new MessageEventDispatcherAzureOptions {
+                    ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME),
+                    Enabled = true,
+                    EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
+                    ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!)
+                };
+                configure?.Invoke(serviceProvider, eventDispatcherOptions);
+                options.ClaimsPrincipalSelector = eventDispatcherOptions.ClaimsPrincipalSelector;
+                options.ConnectionString = eventDispatcherOptions.ConnectionString;
+                options.Enabled = eventDispatcherOptions.Enabled;
+                options.EnvironmentName = eventDispatcherOptions.EnvironmentName;
+                options.TenantIdSelector = eventDispatcherOptions.TenantIdSelector;
+                options.UseCompression = false;
+            });
         return options;
     }
 
@@ -247,5 +275,30 @@ public static class HostBuilderExtensions
     public static MessageOptions UseContactResolver<TContactResolver>(this MessageOptions options) where TContactResolver : IContactResolver {
         options.Services.AddTransient(typeof(IContactResolver), typeof(TContactResolver));
         return options;
+    }
+
+    /// <summary>Configures that campaign contact information will be resolved by contacting the Identity Server instance.</summary>
+    /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
+    public static MessageOptions WithServiceBusTriggers(this MessageOptions options) {
+        options.FunctionDisablePredicate = ExcludeQueueTriggers;
+        return options;
+    }
+
+
+    internal static readonly ExtendedFunctionMetadataProviderDisablePredicate ExcludeQueueTriggers =
+                                           ExcludeFunctions(EventNames.CampaignCreated,
+                                                            EventNames.ResolveMessage,
+                                                            EventNames.SendEmail,
+                                                            EventNames.SendPushNotification,
+                                                            EventNames.SendSms);
+
+    internal static readonly ExtendedFunctionMetadataProviderDisablePredicate ExcludeServiceBusTriggers =
+                                           ExcludeFunctions($"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.CampaignCreated}",
+                                                            $"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.ResolveMessage}",
+                                                            $"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.SendEmail}",
+                                                            $"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.SendPushNotification}",
+                                                            $"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.SendSms}");
+    internal static ExtendedFunctionMetadataProviderDisablePredicate ExcludeFunctions(params string[] functionNames) {
+        return (fn, Configuration) => functionNames.Any(x => x.Equals(fn.Name, StringComparison.OrdinalIgnoreCase));
     }
 }
