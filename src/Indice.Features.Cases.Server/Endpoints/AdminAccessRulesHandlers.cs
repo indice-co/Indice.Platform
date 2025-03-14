@@ -75,7 +75,7 @@ internal static class AdminAccessRulesHandlers
     /// <returns></returns>
     public static async Task<Results<NoContent, NotFound>> ReplaceAccessRulesUser(Guid caseId, ReplaceCaseAccessRuleUserRequest request, ClaimsPrincipal user, IAccessRuleService accessRuleService) {
         var succeeded = await accessRuleService.ReplaceUser(user, caseId, request.ExistingUserId, request.ReplacementUserId);
-        if (succeeded) {
+        if (!succeeded) {
             return TypedResults.NotFound();
         }
         return TypedResults.NoContent();

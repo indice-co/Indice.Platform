@@ -80,7 +80,7 @@ public class Envelope : Envelope<JsonElement>
     /// <typeparam name="T">The type of payload.</typeparam>
     public T ReadAs<T>(JsonSerializerOptions jsonSerializerOptions) => Payload.ToObject<T>(jsonSerializerOptions);
 
-    /// <summary>Reads the payload to the specified type, using the <see cref="JsonSerializerOptionDefaults.GetDefaultSettings()"/> serializer options.</summary>
+    /// <summary>Reads the payload to the specified type, using the <see cref="JsonSerializerOptionDefaults.GetDefaultSettings(System.Text.Encodings.Web.JavaScriptEncoder?)"/> serializer options.</summary>
     /// <typeparam name="T">The type of payload.</typeparam>
     public T ReadAs<T>() => ReadAs<T>(JsonSerializerOptionDefaults.GetDefaultSettings());
 
