@@ -49,6 +49,7 @@ public class EventDispatcherAzureServiceBus : IEventDispatcher
         _claimsPrincipalSelector = claimsPrincipalSelector ?? throw new ArgumentNullException(nameof(claimsPrincipalSelector));
         _tenantIdSelector = tenantIdSelector ?? new Func<string?>(() => null);
         _jsonSerializerOptions = JsonSerializerOptionDefaults.GetDefaultSettings(JavaScriptEncoder.UnsafeRelaxedJsonEscaping);
+        _serviceBusAdministrationClient = serviceBusAdministrationClient;
     }
 
     /// <inheritdoc/>
@@ -71,7 +72,7 @@ public class EventDispatcherAzureServiceBus : IEventDispatcher
         var isBinary = false;
         switch (payload) {
             case string text: payloadBytes = Encoding.UTF8.GetBytes(text); contentType = $"{MediaTypeNames.Text.Plain}; charset=utf-8"; break;
-            case byte[] bytes: payloadBytes = bytes; isBinary = true;  break;
+            case byte[] bytes: payloadBytes = bytes; isBinary = true; break;
             case ReadOnlyMemory<byte> memory: payloadBytes = memory.ToArray(); isBinary = true; break;
             case Stream stream:
                 await using (var memoryStream = new MemoryStream()) {
@@ -92,7 +93,7 @@ public class EventDispatcherAzureServiceBus : IEventDispatcher
         var maxTimeSpan = TimeSpan.FromDays(5);
         visibilityTimeout = visibilityTimeout.HasValue && visibilityTimeout.Value > maxTimeSpan ? maxTimeSpan : visibilityTimeout;
 
-        var message = (_useCompression && !isBinary) ? new ServiceBusMessage(new BinaryData(await CompressionUtils.Compress(payloadBytes))) 
+        var message = (_useCompression && !isBinary) ? new ServiceBusMessage(new BinaryData(await CompressionUtils.Compress(payloadBytes)))
                                                      : new ServiceBusMessage(new BinaryData(payloadBytes));
         message.ScheduledEnqueueTime = DateTimeOffset.UtcNow.Add(visibilityTimeout ?? TimeSpan.Zero);
         message.ContentType = contentType;

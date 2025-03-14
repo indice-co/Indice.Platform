@@ -21,7 +21,7 @@ public static class IServiceCollectionExtensions
             return services;
         }
         if (serviceDescriptor.ImplementationType is not null) {
-            services.TryAddTransient(serviceDescriptor.ImplementationType);
+            services.TryAdd(ServiceDescriptor.Describe(serviceDescriptor.ImplementationType, serviceDescriptor.ImplementationType, serviceDescriptor.Lifetime));
         }
         return services.AddTransient<TService, TDecorator>(serviceProvider => {
             var parameters = typeof(TDecorator).GetConstructors(BindingFlags.Public | BindingFlags.Instance).First().GetParameters();
