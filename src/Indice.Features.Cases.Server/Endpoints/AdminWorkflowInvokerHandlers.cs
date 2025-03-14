@@ -26,7 +26,6 @@ internal static class AdminWorkflowInvokerHandlers
         IAdminCaseMessageService caseMessageService,
         CaseSharedResourceService caseSharedResourceService
     ) {
-        // todo: Do we need Case must be assigned to them if already assigned?
         var bookmarks = await workflowManager.GetActionsByCaseId(caseId) as AvailableActions;
         var approvalBookmark = bookmarks?.ApprovalBookmarks.FirstOrDefault();
         if (approvalBookmark is null) {
@@ -81,7 +80,6 @@ internal static class AdminWorkflowInvokerHandlers
         IAuthorizationService authorizationService,
         CasesMessageDescriber casesMessageDescriber
     ) {
-        // todo: Case must be assigned to them requirement not being checked
         request.Data = JsonSerializer.SerializeToNode(request.Data);
         
         var bookmarks = await workflowManager.GetActionsByCaseId(caseId) as AvailableActions;

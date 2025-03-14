@@ -6,6 +6,7 @@ namespace Indice.Features.Cases.Workflows.Extensions;
 /// <summary>CasesClaimsPrincipalExtensions</summary>
 public static class CasesClaimsPrincipalExtensions
 {
+    /// <summary>Claims of the implicitly created user.</summary>
     public static List<Claim> Claims = [
         new (BasicClaimTypes.Scope, "cases"),
         new (BasicClaimTypes.Subject, "Case API"),

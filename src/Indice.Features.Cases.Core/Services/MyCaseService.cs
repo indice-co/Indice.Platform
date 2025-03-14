@@ -84,9 +84,11 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             @case.CaseType.Code,
             new WorkflowActor {
                 Id = @case.CreatedBy.Id,
+                Reference = @case.Owner.Reference,
+                GroupId = user.FindFirstValue(Options.GroupIdClaimType),
                 Email = @case.CreatedBy.Email,
                 Name = @case.CreatedBy.Name,
-                Reference = @case.Owner.Reference
+                CurrentCulture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName
             }));
     }
 

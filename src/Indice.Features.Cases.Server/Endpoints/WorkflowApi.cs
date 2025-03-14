@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Server.Endpoints;
 
-internal static class AdminWorkflowApi
+internal static class WorkflowApi
 {
     public static IEndpointRouteBuilder MapWorkflow(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<CaseServerOptions>>().Value;
@@ -29,50 +29,50 @@ internal static class AdminWorkflowApi
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         // Product Endpoints - Synchronous response
-        group.MapGet("{caseId}", AdminWorkflowHandler.GetById)
-            .WithName(nameof(AdminWorkflowHandler.GetById))
+        group.MapGet("{caseId}", WorkflowHandler.GetById)
+            .WithName(nameof(WorkflowHandler.GetById))
             .WithSummary("Gets an admin case.");
         
-        group.MapGet("{caseId}/last-approval", AdminWorkflowHandler.GetLastApproval)
-            .WithName(nameof(AdminWorkflowHandler.GetLastApproval))
+        group.MapGet("{caseId}/last-approval", WorkflowHandler.GetLastApproval)
+            .WithName(nameof(WorkflowHandler.GetLastApproval))
             .WithSummary("Gets last approval of a case.");
         
         // Product Endpoints - Notifications but current or further activities down the line depend on completion of action
-        group.MapPost("{caseId}/send-message", AdminWorkflowHandler.SendMessage)
-            .WithName(nameof(AdminWorkflowHandler.SendMessage))
+        group.MapPost("{caseId}/send-message", WorkflowHandler.SendMessage)
+            .WithName(nameof(WorkflowHandler.SendMessage))
             .WithSummary("Sends a message for a case.");
         
-        group.MapPost("{caseId}/assign", AdminWorkflowHandler.Assign)
-            .WithName(nameof(AdminWorkflowHandler.Assign))
+        group.MapPost("{caseId}/assign", WorkflowHandler.Assign)
+            .WithName(nameof(WorkflowHandler.Assign))
             .WithSummary("Assign case to a user.");
         
-        group.MapPost("{caseId}/approve", AdminWorkflowHandler.AddApproval)
-            .WithName(nameof(AdminWorkflowHandler.AddApproval))
+        group.MapPost("{caseId}/approve", WorkflowHandler.AddApproval)
+            .WithName(nameof(WorkflowHandler.AddApproval))
             .WithSummary("Adds an approval to a case.");
         
-        group.MapPost("{caseId}/approve-with-comment", AdminWorkflowHandler.AddApprovalWithComment)
-            .WithName(nameof(AdminWorkflowHandler.AddApprovalWithComment))
+        group.MapPost("{caseId}/approve-with-comment", WorkflowHandler.AddApprovalWithComment)
+            .WithName(nameof(WorkflowHandler.AddApprovalWithComment))
             .WithSummary("Adds an approval with comment to a case translating the provided comment.");
         
-        group.MapPost("{caseId}/remove-assignment", AdminWorkflowHandler.RemoveAssignment)
-            .WithName(nameof(AdminWorkflowHandler.RemoveAssignment))
+        group.MapPost("{caseId}/remove-assignment", WorkflowHandler.RemoveAssignment)
+            .WithName(nameof(WorkflowHandler.RemoveAssignment))
             .WithSummary("Removes the assigner of a case.");
         
-        group.MapPost("{caseId}/block-previous-approver", AdminWorkflowHandler.BlockPreviousApprover)
-            .WithName(nameof(AdminWorkflowHandler.BlockPreviousApprover))
+        group.MapPost("{caseId}/block-previous-approver", WorkflowHandler.BlockPreviousApprover)
+            .WithName(nameof(WorkflowHandler.BlockPreviousApprover))
             .WithSummary("Remove assignment and send a message for the UI.");
         
-        group.MapPost("{caseId}/rollback-approval", AdminWorkflowHandler.RollbackApproval)
-            .WithName(nameof(AdminWorkflowHandler.RollbackApproval))
+        group.MapPost("{caseId}/rollback-approval", WorkflowHandler.RollbackApproval)
+            .WithName(nameof(WorkflowHandler.RollbackApproval))
             .WithSummary("Rollbacks the previous approval of a case.");
         
         // Integrator Endpoints
-        group.MapPatch("{caseId}/patch-case-data", AdminWorkflowHandler.PatchData)
-            .WithName(nameof(AdminWorkflowHandler.PatchData))
+        group.MapPatch("{caseId}/patch-case-data", WorkflowHandler.PatchData)
+            .WithName(nameof(WorkflowHandler.PatchData))
             .WithSummary("Patches the data for a case.");
         
-        group.MapPatch("{caseId}/patch-case-metadata", AdminWorkflowHandler.PatchMetadata)
-            .WithName(nameof(AdminWorkflowHandler.PatchMetadata))
+        group.MapPatch("{caseId}/patch-case-metadata", WorkflowHandler.PatchMetadata)
+            .WithName(nameof(WorkflowHandler.PatchMetadata))
             .WithSummary("Patches the metadata of a case.");
         
         return group;

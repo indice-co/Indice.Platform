@@ -15,7 +15,7 @@ namespace Indice.Features.Cases.Server.Endpoints;
 /// These are internal http endpoints so they will not necessarily follow http semantics on responses.
 /// Convenience responses - generally OK - should be used to follow method-like semantics.
 /// </summary>
-internal static class AdminWorkflowHandler
+internal static class WorkflowHandler
 {
     /// <summary> Gets the Admin case for the specified caseId.</summary>
     public static async Task<Results<Ok<Case>, NotFound>> GetById(
@@ -25,7 +25,6 @@ internal static class AdminWorkflowHandler
         bool includeAttachments = false
     ) => TypedResults.Ok(await adminCaseService.GetCaseById(currentUser, caseId, includeAttachments));
 
-    // TODO: check json serialization with json from elsa JSON.parse(JSON.stringify(workflowExecutionContext.CurrentScope.Variables.Data.CurrentValue.Message)) in update-cases-recurring.json
     /// <summary>Sends a message as Admin for a case.</summary>
     public static async Task SendMessage(
         Guid caseId,
@@ -77,12 +76,13 @@ internal static class AdminWorkflowHandler
         CaseSharedResourceService caseSharedResourceService,
         ICaseApprovalService caseApprovalService
     ) {
+        var createdBy = request.WorkflowActor.ToAuditMeta();
         await caseMessageService.Send(caseId, currentUser, new Message {
             Comment = caseSharedResourceService.GetLocalizedHtmlString(request.Reason ?? string.Empty).Value,
             PrivateComment = request.PrivateComment
-        });
+        }, createdBy);
 
-        await caseApprovalService.AddApproval(caseId, null, request.Action, request.Reason, request.WorkflowActor.ToAuditMeta());
+        await caseApprovalService.AddApproval(caseId, null, request.Action, request.Reason, createdBy);
     }
     
     /// <summary>Assign a Case to an Actor.</summary>

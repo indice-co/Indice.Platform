@@ -32,7 +32,7 @@ public class JTokenToJsonNodeConverter : JsonConverter<JToken>
         if (jsonNode == null) return JValue.CreateNull();
         
         return jsonNode switch {
-            JsonValue jsonValue => JToken.FromObject(jsonValue.GetValue<object?>()),
+            JsonValue jsonValue => JToken.FromObject(jsonValue.GetValue<object>()),
             JsonArray jsonArray => new JArray(jsonArray.Select(ConvertJsonNodeToJToken)),
             JsonObject jsonObject => new JObject(
                 jsonObject.ToDictionary<KeyValuePair<string, JsonNode?>, string, JToken>(

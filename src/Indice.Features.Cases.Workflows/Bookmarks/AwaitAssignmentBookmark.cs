@@ -22,7 +22,7 @@ public class AwaitAssignmentBookmark : IBookmark
 
     /// <summary>The user role that can trigger the bookmark. Can be null for all authenticated users</summary>
     [ExcludeFromHash]
-    public string Role { get; set; }
+    public string? Role { get; set; }
 }
 
 /// <summary>

@@ -785,11 +785,17 @@ namespace Indice.Features.Cases.Server.Integration
         [System.Text.Json.Serialization.JsonPropertyName("reference")]
         public string Reference { get; set; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("groupId")]
+        public string GroupId { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("name")]
         public string Name { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("email")]
         public string Email { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("currentCulture")]
+        public string CurrentCulture { get; set; }
 
     }
 

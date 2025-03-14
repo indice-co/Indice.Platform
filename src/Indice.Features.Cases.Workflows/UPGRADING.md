@@ -1,7 +1,7 @@
 - context.TryGetUser() on ActivityContext is not available anymore, use context.TryGetLastActor() optionally resolving with your identity provider
 - Bookmark hashes will need recalculation as they are only calculated using `CaseId` and `ActionId` in the case of `AwaitActionActivity`
-- Remove `When` from activities that had `AuditMeta` as an input, this will be automatically set to the current DateTimeOffset i.e. AssignCaseToUserActivity, 
-- Case rejection reasons resources should be copied to `Workflow` as well using `WorkflowSharedResource`
+- Remove `When` from activities that had `AuditMeta` as an input, this will be automatically set to the current DateTimeOffset i.e. AssignCaseToUserActivity - no breaking change 
+- Case rejection reasons and approval resources should be copied to `Workflow` as well using `WorkflowSharedResource`
 - 
 - The following queries must be ran on an existing elsa database to alter `Input` and `Output` `Activity` data:
 ```sql
@@ -305,17 +305,3 @@ IBookmark MapToBookmark(Bookmark bookmark) {
     throw new NotSupportedException($"Unknown activity type {bookmark}");
 }
 ```
-
-## Integrators endpoints currently used
-Api Calls from Workflows SendMessageActivity:
-- Απο το designer για να προχωρήσουμε το checkpoint
-- Από τα activities για να ανεβάσουμε attachment - που?
-- Από τα activities για να αλλάξουμε τα CaseData
-
-Aπό custom workflows:
-- getCaseById
-- getAttachments, GetAttachment
-- PatchCaseMetadata
-- PatchCaseData
-
-NotificationSubscriptionService.GetSubscriptions() is also used.

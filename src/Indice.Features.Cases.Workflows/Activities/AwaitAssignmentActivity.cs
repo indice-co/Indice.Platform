@@ -22,6 +22,7 @@ namespace Indice.Features.Cases.Workflows.Activities;
 )]
  public class AwaitAssignmentActivity(ICasesManager casesManager) : BaseBlockingActivity(casesManager)
 {
+    /// <summary>User role that can assign a case to self.</summary>
     [ActivityInput(
         Label = "Role",
         Hint = "User role that can assign a case to self. If left blank, any authenticated user can assign a case to them.",
@@ -31,6 +32,7 @@ namespace Indice.Features.Cases.Workflows.Activities;
     )]
     public string? AllowedRole { get; set; }
 
+    /// <summary>Assignee Audit Meta.</summary>
     [ActivityOutput]
     public AuditMeta? Output { get; set; }
     

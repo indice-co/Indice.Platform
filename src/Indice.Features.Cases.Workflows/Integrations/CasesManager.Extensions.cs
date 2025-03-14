@@ -8,8 +8,10 @@ internal static class CasesManager_Extensions
     public static WorkflowActor ToCasesActor(this Actor actor) =>
         new() {
             Id = actor.Id,
+            Reference = actor.Reference,
+            GroupId = actor.GroupId,
             Email = actor.Email,
             Name = actor.Name,
-            Reference = actor.Reference
+            CurrentCulture = actor.CurrentCulture
         };
 }

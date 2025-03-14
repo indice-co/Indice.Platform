@@ -19,7 +19,7 @@ public class CasesRolesRequirement : IAuthorizationRequirement
     }
 }
 
-/// <summary> </summary>
+/// <summary>Authorization handler for the <see cref="CasesRolesRequirement"/>.</summary>
 public class DefaultCasesRolesHandler(ILogger<DefaultCasesRolesHandler> logger) : AuthorizationHandler<CasesRolesRequirement>
 {
     /// <inheritdoc />

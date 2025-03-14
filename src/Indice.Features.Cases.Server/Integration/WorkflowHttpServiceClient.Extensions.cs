@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Claims;
 using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Core.Models;
@@ -19,8 +20,10 @@ internal static class WorkflowHttpServiceClient_Extensions
         return new Actor {
             Id = string.IsNullOrWhiteSpace(subject) ? user.FindFirstValue(BasicClaimTypes.ClientId) : subject,
             Reference = user.FindFirstValue(options.ReferenceIdClaimType),
+            GroupId = user.FindFirstValue(options.GroupIdClaimType),
             Email = string.IsNullOrWhiteSpace(subject) ? user.FindFirstValue(BasicClaimTypes.ClientId) : user.FindFirstValue(BasicClaimTypes.Email),
             Name = string.IsNullOrWhiteSpace(subject) ? CasesCoreConstants.SystemUserName : $"{user.FindFirstValue(BasicClaimTypes.GivenName)} {user.FindFirstValue(BasicClaimTypes.FamilyName)}".Trim(),
+            CurrentCulture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName
         };
     }
 
@@ -28,9 +31,11 @@ internal static class WorkflowHttpServiceClient_Extensions
     public static Actor ToActor(this WorkflowActor actor) {
         return new Actor {
             Id = actor.Id,
+            Reference = actor.Reference,
+            GroupId = actor.GroupId,
             Email = actor.Email,
             Name = actor.Name,
-            Reference = actor.Reference,
+            CurrentCulture = actor.CurrentCulture
         };
     }
 

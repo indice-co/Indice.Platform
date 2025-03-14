@@ -23,6 +23,7 @@ namespace Indice.Features.Cases.Workflows.Activities;
 )]
 public class AwaitEditActivity(ICasesManager casesManager) : BaseBlockingActivity(casesManager)
 {
+    /// <summary>Admin user role that can provide approval. If left blank, all authenticated users can approve/reject.</summary>
     [ActivityInput(
         Label = "Role",
         Hint = "Admin user role that can provide approval. If left blank, all authenticated users can approve/reject.",
@@ -32,9 +33,11 @@ public class AwaitEditActivity(ICasesManager casesManager) : BaseBlockingActivit
     )]
     public string? AllowedRole { get; set; }
 
+    /// <summary>Case Data after Editing.</summary>
     [ActivityOutput]
     public object? Output { get; set; }
 
+    /// <inheritdoc />
     protected override async Task<IActivityExecutionResult> OnExecuteInternalAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
         var editRequest = context.Input as InvokeEditRequest;
