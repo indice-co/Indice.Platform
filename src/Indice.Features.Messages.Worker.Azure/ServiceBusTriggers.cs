@@ -27,9 +27,9 @@ internal class ServiceBusTriggers
     private readonly EventDispatcherAzureServiceBusOptions _options;
     private MessageJobHandlerFactory CampaignJobHandlerFactory { get; }
     private IEventDispatcherFactory EventDispatcherFactory { get; }
+    public const string ServiceBusTriggerPrefix = "servicebus-";
 
-    
-    [Function("ServiceBus-" + EventNames.CampaignCreated)]
+    [Function(ServiceBusTriggerPrefix + EventNames.CampaignCreated)]
     public async Task CampaignPublishedHandler(
         [ServiceBusTrigger("%ENVIRONMENT%-" + EventNames.CampaignCreated, Connection = "ServiceBusConnection")] byte[] message,
         FunctionContext functionContext
@@ -48,8 +48,8 @@ internal class ServiceBusTriggers
         }
         await CampaignJobHandlerFactory.CreateFor<CampaignCreatedEvent>().Process(payload);
     }
-    
-    [Function("ServiceBus-" + EventNames.ResolveMessage)]
+
+    [Function(ServiceBusTriggerPrefix + EventNames.ResolveMessage)]
     public async Task ResolveMessageHandler(
         [ServiceBusTrigger("%ENVIRONMENT%-" + EventNames.ResolveMessage, Connection = "ServiceBusConnection")] byte[] message,
         FunctionContext functionContext
@@ -60,7 +60,7 @@ internal class ServiceBusTriggers
         await CampaignJobHandlerFactory.CreateFor<ResolveMessageEvent>().Process(payload!);
     }
 
-    [Function("ServiceBus-" + EventNames.SendPushNotification)]
+    [Function(ServiceBusTriggerPrefix + EventNames.SendPushNotification)]
     public async Task SendPushNotificationHandler(
         [ServiceBusTrigger("%ENVIRONMENT%-" + EventNames.SendPushNotification, Connection = "ServiceBusConnection")] byte[] message,
         FunctionContext functionContext
@@ -70,8 +70,8 @@ internal class ServiceBusTriggers
         var payload = envelope.Payload;
         await CampaignJobHandlerFactory.CreateFor<SendPushNotificationEvent>().Process(payload!);
     }
-    
-    [Function("ServiceBus-" + EventNames.SendEmail)]
+
+    [Function(ServiceBusTriggerPrefix + EventNames.SendEmail)]
     public async Task SendEmailHandler(
         [ServiceBusTrigger("%ENVIRONMENT%-" + EventNames.SendEmail, Connection = "ServiceBusConnection")] byte[] message,
         FunctionContext functionContext
@@ -82,7 +82,7 @@ internal class ServiceBusTriggers
         await CampaignJobHandlerFactory.CreateFor<SendEmailEvent>().Process(payload!);
     }
 
-    [Function("ServiceBus-" + EventNames.SendSms)]
+    [Function(ServiceBusTriggerPrefix + EventNames.SendSms)]
     public async Task SendSmsHandler(
         [ServiceBusTrigger("%ENVIRONMENT%-" + EventNames.SendSms, Connection = "ServiceBusConnection")] byte[] message,
         FunctionContext functionContext
@@ -99,7 +99,7 @@ internal class ServiceBusTriggers
         return message;
     }
     private static void LogExecution(FunctionContext functionContext, string eventName) {
-        var logger = functionContext.GetLogger(eventName);
-        logger.LogInformation("Function '{FunctionName}' was triggered.", eventName);
+        var logger = functionContext.GetLogger(ServiceBusTriggerPrefix + eventName);
+        logger.LogInformation("Function '{FunctionName}' was triggered.", ServiceBusTriggerPrefix + eventName);
     }
 }

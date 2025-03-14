@@ -285,19 +285,19 @@ public static class HostBuilderExtensions
     }
 
 
-    internal static ExtendedFunctionMetadataProviderDisablePredicate ExcludeQueueTriggers = 
+    internal static readonly ExtendedFunctionMetadataProviderDisablePredicate ExcludeQueueTriggers =
                                            ExcludeFunctions(EventNames.CampaignCreated,
                                                             EventNames.ResolveMessage,
                                                             EventNames.SendEmail,
                                                             EventNames.SendPushNotification,
                                                             EventNames.SendSms);
 
-    internal static ExtendedFunctionMetadataProviderDisablePredicate ExcludeServiceBusTriggers = 
-                                           ExcludeFunctions($"ServiceBus-{EventNames.CampaignCreated}",
-                                                            $"ServiceBus-{EventNames.ResolveMessage}",
-                                                            $"ServiceBus-{EventNames.SendEmail}",
-                                                            $"ServiceBus-{EventNames.SendPushNotification}",
-                                                            $"ServiceBus-{EventNames.SendSms}");
+    internal static readonly ExtendedFunctionMetadataProviderDisablePredicate ExcludeServiceBusTriggers =
+                                           ExcludeFunctions($"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.CampaignCreated}",
+                                                            $"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.ResolveMessage}",
+                                                            $"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.SendEmail}",
+                                                            $"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.SendPushNotification}",
+                                                            $"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.SendSms}");
     internal static ExtendedFunctionMetadataProviderDisablePredicate ExcludeFunctions(params string[] functionNames) {
         return (fn, Configuration) => functionNames.Any(x => x.Equals(fn.Name, StringComparison.OrdinalIgnoreCase));
     }
