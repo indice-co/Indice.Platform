@@ -115,12 +115,15 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     }
 
     public async Task<ResultSet<CasePartial>> GetCases(ClaimsPrincipal user, ListOptions<GetCasesListFilter> options) {
-
-        // if client is systemic or admin, then bypass checks since no filtering is required.
+        // if client is systemic or admin, then bypass access rule checks since no filtering is required.
         var isSystemOrAdmin = ((user.HasClaim(BasicClaimTypes.Scope, Options.RequiredScope) && user.IsSystemClient()) || user.IsAdmin());
-
+        //by default we use access rules
+        var ignoreAccessRules = false;
+        if (isSystemOrAdmin && options.Filter.UseAccessRules != true) {
+            ignoreAccessRules = true;
+        }
         var userId = user.FindSubjectIdOrClientId();
-        string? inputGroupId = user.FindFirstValue(Options.GroupIdClaimType);
+        var inputGroupId = user.FindFirstValue(Options.GroupIdClaimType);
         var userRoles = user.GetUserRoles();
 
         var queryCases = DbContext.Cases
@@ -129,7 +132,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             .Where(options.Filter.Metadata ?? []); // filter Metadata
 
         IQueryable<CasePartial> query;
-        if (isSystemOrAdmin) {
+        if (ignoreAccessRules) {
             query = queryCases
                 .Select(@case => new CasePartial {
                     Id = @case.Id,
