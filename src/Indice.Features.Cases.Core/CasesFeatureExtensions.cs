@@ -37,6 +37,7 @@ public static class CasesFeatureExtensions
             options.GroupIdClaimType = casesOptions.GroupIdClaimType;
             options.ReferenceNumberEnabled = casesOptions.ReferenceNumberEnabled;
             options.RequiredScope = casesOptions.RequiredScope;
+            options.ByPassAccessRulesForElevatedUsers = casesOptions.ByPassAccessRulesForElevatedUsers;
             options.ConfigureDbSeed = casesOptions.ConfigureDbSeed;
         });
 
@@ -83,7 +84,7 @@ public static class CasesFeatureExtensions
         services.AddDefaultPlatformEventService();
 
         // Register internal handlers
-        services.AddPlatformEventHandler<CaseSubmittedEvent, StartWorkflowHandler>();
+        services.TryAddPlatformEventHandler<CaseSubmittedEvent, StartWorkflowHandler>();
 
         // Register application DbContext.
         services.AddDbContext<CasesDbContext>(casesOptions.ConfigureDbContext ?? ((sp, builder) => builder.UseSqlServer(sp.GetRequiredService<IConfiguration>().GetConnectionString("CasesDb"))));

@@ -25,8 +25,9 @@ public class GetCasesListFilter
     /// <summary>The creation date of the case, ending to, to filter.</summary>
     public DateTimeOffset? To { get; set; }
 
-    /// <summary>In case of system Clients idenify whether access rules should be used.</summary>
-    public bool? UseAccessRules { get; set; } = false;
+    /// <summary>Show all cases or fetch only mine.</summary>
+    /// <remarks>The flag is only used for system clients and admins </remarks>
+    public bool? ShowAll { get; set; }
 
     /// <summary>The list of case type codes to filter.</summary>
     public FilterClause[]? CaseTypeCodes { get; set; } = [];

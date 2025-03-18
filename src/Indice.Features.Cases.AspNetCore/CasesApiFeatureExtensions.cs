@@ -81,6 +81,7 @@ public static class CasesApiFeatureExtensions
             options.GroupIdClaimType = casesMyOptions.GroupIdClaimType;
             options.ReferenceNumberEnabled = casesMyOptions.ReferenceNumberEnabled;
             options.RequiredScope = casesMyOptions.RequiredScope;
+            options.ByPassAccessRulesForElevatedUsers = casesMyOptions.ByPassAccessRulesForElevatedUsers;
             // api spesifics
             options.ApiPrefix = casesMyOptions.ApiPrefix;
             options.GroupName = casesMyOptions.GroupName;
@@ -131,6 +132,7 @@ public static class CasesApiFeatureExtensions
             options.UserClaimType = casesAdminOptions.UserClaimType;
             options.GroupIdClaimType = casesAdminOptions.GroupIdClaimType;
             options.ReferenceNumberEnabled = casesAdminOptions.ReferenceNumberEnabled;
+            options.ByPassAccessRulesForElevatedUsers = casesAdminOptions.ByPassAccessRulesForElevatedUsers;
             options.RequiredScope = casesAdminOptions.RequiredScope;
             // api spesifics
             options.ApiPrefix = casesAdminOptions.ApiPrefix;
@@ -159,10 +161,12 @@ public static class CasesApiFeatureExtensions
             options.ConfigureDbContext = casesAdminOptions.ConfigureDbContext;
             options.DatabaseSchema = casesAdminOptions.DatabaseSchema;
             options.UserClaimType = casesAdminOptions.UserClaimType;
+            options.UserClaimType = casesAdminOptions.UserClaimType;
             options.GroupIdClaimType = casesAdminOptions.GroupIdClaimType;
             options.ReferenceNumberEnabled = casesAdminOptions.ReferenceNumberEnabled;
             
             options.RequiredScope = casesAdminOptions.RequiredScope;
+            options.ByPassAccessRulesForElevatedUsers = casesAdminOptions.ByPassAccessRulesForElevatedUsers;
             options.TinClaimType = casesAdminOptions.TinClaimType;
             options.ReferenceIdClaimType = casesAdminOptions.ReferenceIdClaimType;
         });

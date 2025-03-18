@@ -115,13 +115,19 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     }
 
     public async Task<ResultSet<CasePartial>> GetCases(ClaimsPrincipal user, ListOptions<GetCasesListFilter> options) {
+        
+        options.Filter.ShowAll ??= Options.ByPassAccessRulesForElevatedUsers;
+        
         // if client is systemic or admin, then bypass access rule checks since no filtering is required.
-        var isSystemOrAdmin = ((user.HasClaim(BasicClaimTypes.Scope, Options.RequiredScope) && user.IsSystemClient()) || user.IsAdmin());
+        var canOverrideAccessRules =
+            user.HasRoleClaim(BasicRoleNames.CasesAdministrator) ||
+            user.IsAdmin() ||
+            user.IsSystemClient();
+        
+
         //by default we use access rules
-        var ignoreAccessRules = false;
-        if (isSystemOrAdmin && options.Filter.UseAccessRules != true) {
-            ignoreAccessRules = true;
-        }
+        var ignoreAccessRules = canOverrideAccessRules && options.Filter.ShowAll == true;
+
         var userId = user.FindSubjectIdOrClientId();
         var inputGroupId = user.FindFirstValue(Options.GroupIdClaimType);
         var userRoles = user.GetUserRoles();
@@ -330,7 +336,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                 };
             }
         }
-        
+
 
         if (options.Filter.From != null) {
             query = query.Where(c => c.CreatedByWhen >= options.Filter.From.Value.Date);
