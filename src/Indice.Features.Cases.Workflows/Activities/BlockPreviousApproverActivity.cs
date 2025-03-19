@@ -23,7 +23,7 @@ internal class BlockPreviousApproverActivity(ICasesManager casesManager) : BaseC
         CaseApproval lastApproval;
         try {
             lastApproval = await CasesManager.GetLastApprovalAsync(CaseId.Value);
-        } catch (Exception) {
+        } catch (ApiException) {
             return Outcome(OutcomeNames.False);
         }
         
