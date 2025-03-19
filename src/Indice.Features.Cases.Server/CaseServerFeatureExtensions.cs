@@ -34,6 +34,7 @@ public static class CaseServerFeatureExtensions
             options.ConfigureDbContext = serverOptions.ConfigureDbContext;
             options.DatabaseSchema = serverOptions.DatabaseSchema;
             options.RequiredScope = serverOptions.RequiredScope;
+            options.ByPassAccessRulesForElevatedUsers = serverOptions.ByPassAccessRulesForElevatedUsers;
             options.UserClaimType = serverOptions.UserClaimType;
             options.GroupIdClaimType = serverOptions.GroupIdClaimType;
             options.ReferenceNumberEnabled = serverOptions.ReferenceNumberEnabled;
@@ -46,6 +47,7 @@ public static class CaseServerFeatureExtensions
             options.UserClaimType = serverOptions.UserClaimType;
             options.GroupIdClaimType = serverOptions.GroupIdClaimType;
             options.ReferenceNumberEnabled = serverOptions.ReferenceNumberEnabled;
+            options.ByPassAccessRulesForElevatedUsers = serverOptions.ByPassAccessRulesForElevatedUsers;
         });
         builder.Services.Configure<CaseServerOptions>(options => {
             options.PathPrefix = serverOptions.PathPrefix;
@@ -55,6 +57,7 @@ public static class CaseServerFeatureExtensions
             options.GroupIdClaimType = serverOptions.GroupIdClaimType;
             options.GroupName = serverOptions.GroupName;
             options.ConfigureLimitUpload = serverOptions.ConfigureLimitUpload;
+            options.ByPassAccessRulesForElevatedUsers = serverOptions.ByPassAccessRulesForElevatedUsers;
         });
         builder.Services.AddLimitUpload(serverOptions.ConfigureLimitUpload);
         builder.Services.AddTransient<IAuthorizationHandler, CasesAccessHandler>();

@@ -22,6 +22,8 @@ public class CasesOptions
 
     /// <summary>The default scope name to be used for Cases API. Defaults to <strong>cases</strong>.</summary>
     public string RequiredScope { get; set; } = CasesCoreConstants.DefaultScopeName;
+    /// <summary>The default scope name to be used for Cases API. Defaults to <strong>cases</strong>.</summary>
+    public bool ByPassAccessRulesForElevatedUsers { get; set; } = true;
 
     /// <summary>Enables the Case `ReferenceNumber` feature. Defaults to <see langword="true"/>.</summary>
     public bool ReferenceNumberEnabled { get; set; } = true;
