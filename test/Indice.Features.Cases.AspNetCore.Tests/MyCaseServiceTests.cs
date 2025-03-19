@@ -48,7 +48,6 @@ public class MyCaseServiceTests : IDisposable
             await dbContext.SeedAsync();
         }
         var a = await dbContext.Cases.ToListAsync();
-        var mockCaseTypeService = new Mock<ICaseTypeService>();
         var mockCaseEventService = new Mock<IPlatformEventService>();
         var mockMyCaseMessageService = new Mock<IMyCaseMessageService>();
         var mockJsonTranslationService = new Mock<IJsonTranslationService>();
@@ -56,7 +55,6 @@ public class MyCaseServiceTests : IDisposable
         
         var myCaseService = new MyCaseService(dbContext,
             options,
-            mockCaseTypeService.Object,
             mockCaseEventService.Object,
             mockMyCaseMessageService.Object,
             mockJsonTranslationService.Object,
@@ -88,7 +86,6 @@ public class MyCaseServiceTests : IDisposable
             await dbContext.SeedAsync();
         }
 
-        var mockCaseTypeService = new Mock<ICaseTypeService>();
         var mockCaseEventService = new Mock<IPlatformEventService>();
         var mockMyCaseMessageService = new Mock<IMyCaseMessageService>();
         var mockJsonTranslationService = new Mock<IJsonTranslationService>();
@@ -96,7 +93,6 @@ public class MyCaseServiceTests : IDisposable
 
         var myCaseService = new MyCaseService(dbContext,
             myOptions,
-            mockCaseTypeService.Object,
             mockCaseEventService.Object,
             mockMyCaseMessageService.Object,
             mockJsonTranslationService.Object,

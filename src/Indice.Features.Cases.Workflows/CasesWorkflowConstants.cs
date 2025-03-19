@@ -30,6 +30,15 @@ internal static class CasesWorkflowConstants
             /// <summary>Outcome for "Save".</summary>
             public const string Save = nameof(Save);
         }
+
+        /// <summary>The <see cref="Actor"/> of the workflow.</summary>
+        public static class Actor
+        {
+            /// <summary>The Actor that initiated the workflow.</summary>
+            public const string Initiator = nameof(Initiator);
+            /// <summary>The current Actor aka last actor acting on the workflow.</summary>
+            public const string Current = nameof(Current);
+        }
     }
 
     /// <summary>Cases API keys for validation errors.</summary>

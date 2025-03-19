@@ -3,11 +3,10 @@ using Elsa.Attributes;
 using Elsa.Design;
 using Elsa.Expressions;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Core.Localization;
-using Indice.Features.Cases.Core.Models;
-using Indice.Features.Cases.Core.Services.Abstractions;
-using Indice.Features.Cases.Workflows.Extensions;
-using Indice.Security;
+using Indice.Features.Cases.Workflows.Integrations;
+using Indice.Features.Cases.Workflows.Localization;
+using Indice.Features.Cases.Workflows.Models;
+using Approval = Indice.Features.Cases.Workflows.Integrations.Approval;
 
 namespace Indice.Features.Cases.Workflows.Activities;
 
@@ -21,20 +20,9 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "Handles the approval or rejection of a case.",
     Outcomes = new[] { nameof(Approval.Approve), nameof(Approval.Reject) }
 )]
-internal class AwaitApprovalActivity : BaseCaseActivity
+public class AwaitApprovalActivity(ICasesManager casesManager, WorkflowSharedResourceService sharedResourceService) : BaseBlockingActivity(casesManager)
 {
-    private readonly ICaseApprovalService _caseApprovalService;
-    private readonly CaseSharedResourceService _caseSharedResourceService;
-
-    public AwaitApprovalActivity(
-        IAdminCaseMessageService caseMessageService,
-        ICaseApprovalService caseApprovalService,
-        CaseSharedResourceService caseSharedResourceService)
-        : base(caseMessageService) {
-        _caseApprovalService = caseApprovalService ?? throw new ArgumentNullException(nameof(caseApprovalService));
-        _caseSharedResourceService = caseSharedResourceService ?? throw new ArgumentNullException(nameof(caseSharedResourceService));
-    }
-
+    /// <summary>Admin user role that can provide approval. If left blank, all authenticated users can approve/reject.</summary>
     [ActivityInput(
         Label = "Role",
         Hint = "Admin user role that can provide approval. If left blank, all authenticated users can approve/reject.",
@@ -44,12 +32,14 @@ internal class AwaitApprovalActivity : BaseCaseActivity
     )]
     public string? AllowedRole { get; set; } = string.Empty;
 
+    /// <summary>Whether we should Block previous approver.</summary>
     [ActivityInput(
         Label = "Block previous approver",
         Hint = "Check this to block approvals from the same user."
     )]
     public bool BlockPreviousApprover { get; set; }
 
+    /// <summary>Send approval comment to customer (if any)</summary>
     [ActivityInput(
         Label = "Send approval comment to customer (if any)",
         Hint = "Show the approval comment of the selected actions to the customer or front-end of the application.",
@@ -60,73 +50,47 @@ internal class AwaitApprovalActivity : BaseCaseActivity
     )]
     public IEnumerable<string> PublicActions { get; set; } = new List<string>();
 
+    /// <summary>Action performed and user comment for the approval.</summary>
     [ActivityOutput]
-    public ApprovalRequest? Output { get; set; }
+    public ApprovalOutput? Output { get; set; }
 
+    /// <summary>Approval Action performed.</summary>
     [ActivityOutput]
     public string? Action { get; set; }
 
-    public override async ValueTask<bool> CanExecuteAsync(ActivityExecutionContext context) {
-        var user = context.TryGetUser()!;
-        // If the activity input is null or the user has the claim "Administrator" (as configured at Indice.Security)
-        // allow the execution
-        if (string.IsNullOrEmpty(AllowedRole) || user.IsAdmin()) {
-            return true;
-        }
-        // User must be in allowed role to continue executing
-        return user.IsInRole(AllowedRole) && await UserCanApprove(context);
-    }
-
-    public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
-        // Since we are writing a blocking activity, the activity needs to tell the workflow engine that execution should pause until an ApprovalRequest is received.
-        // That will work, but only when the activity is used a blocking activity and not as a starting activity. If we used this as a starting activity,
-        // what will happen is that when an ApprovalRequest is received, the workflow will begin, but gets suspended immediately after. That's no good.
-        // Instead, what we want is for the workflow to continue to the next activity when an ApprovalRequest is received.
-        // To make that work, we need to return a SuspendResult only if this is not the first pass.If it IS the first pass, we will simply return an OutcomeResult with the "Done" outcome.
-        return context.WorkflowExecutionContext.IsFirstPass ? await OnExecuteInternalAsync(context) : Suspend();
-    }
-
-    protected override async ValueTask<IActivityExecutionResult> OnResumeAsync(ActivityExecutionContext context) {
-        // That will achieve exactly what we need: when the activity is used as a starting activity, it will return "Done" and execution of the workflow will continue.
-        // But when the activity is used as a blocking activity (i.e. not as the first activity of the workflow), the activity will suspend the workflow.           
-        // The big idea is that we should be able to trigger workflows when an ApprovalRequest is received, regardless of whether we have workflows that use this as a starting trigger
-        // or as a trigger to resume existing workflow instances.
-        return await OnExecuteInternalAsync(context);
-    }
-
-    private async Task<IActivityExecutionResult> OnExecuteInternalAsync(ActivityExecutionContext context) {
-        // Get approval from activity input trigger
-        var approval = context.Input as ApprovalRequest;
-
+    /// <inheritdoc />
+    protected override async Task<IActivityExecutionResult> OnExecuteInternalAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
+        var approval = context.Input as InvokeApprovalRequest;
 
         // Set activity's output properties 
-        Output = approval;
-        Action = approval!.Action.ToString();
+        Output = new ApprovalOutput {
+            Action = approval!.Action,
+            Comment = approval.Comment
+        };
+        Action = approval.Action.ToString();
         context.LogOutputProperty(this, "Output", Output);
-
-        // Send a message to the case service regarding the approval action. If PublicActions property contains the action,
-        // then make the comment public 
-        await CaseMessageService.Send(
-            CaseId!.Value,
-            context.TryGetUser()!,
-            new Message {
-                Comment = _caseSharedResourceService.GetLocalizedHtmlString(approval.Comment ?? string.Empty).Value,
-                PrivateComment = !PublicActions.Contains(approval.Action.ToString())
-            });
-
-        await _caseApprovalService.AddApproval(CaseId!.Value, null, context.TryGetUser()!, approval.Action, approval.Comment);
-
+        
+        await CasesManager.AddApprovalWithCommentAsync(CaseId.Value, new WorkflowAddApprovalWithCommentRequest {
+            Action = Enum.Parse<Approval>(approval.Action.ToString()),
+            // Reason = approval.Comment,
+            Reason = sharedResourceService.GetLocalizedHtmlStringWithCulture(approval.Comment!, approval.Actor.CurrentCulture ?? "el"),
+            PrivateComment = !PublicActions.Contains(approval.Action.ToString()),
+            WorkflowActor = approval.Actor.ToCasesActor()
+        });
+        
+        context.SetVariable(CasesWorkflowConstants.WorkflowVariables.Actor.Current, approval.Actor);
+        
         return Outcome(approval.Action.ToString(), approval);
     }
+}
 
-    private async ValueTask<bool> UserCanApprove(ActivityExecutionContext context) {
-        if (!BlockPreviousApprover) {
-            return true;
-        }
-
-        var caseId = CaseId ??= Guid.Parse(context.CorrelationId);
-        var lastApproval = await _caseApprovalService.GetLastApproval(caseId);
-        return context.TryGetUser()!.FindSubjectId() != lastApproval?.CreatedBy.Id;
-    }
+/// <summary>The Output of the Activity.</summary>
+public class ApprovalOutput
+{
+    /// <summary>Action for approval.</summary>
+    public WorkflowApproval Action { get; set; }
+    
+    /// <summary>Comment related to the action.</summary>
+    public string? Comment { get; set; }
 }

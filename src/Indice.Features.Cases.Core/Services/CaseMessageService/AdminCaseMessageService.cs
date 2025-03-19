@@ -23,9 +23,9 @@ internal class AdminCaseMessageService : BaseCaseMessageService, IAdminCaseMessa
         _caseAuthorization = caseAuthorization ?? throw new ArgumentNullException(nameof(caseAuthorization));
     }
 
-    public async Task<Guid?> Send(Guid caseId, ClaimsPrincipal user, Message message) {
+    public async Task<Guid?> Send(Guid caseId, ClaimsPrincipal user, Message message, AuditMeta createdBy) {
         var @case = await GetAdminCase(caseId, user);
-        return await SendInternal(@case, message, user);
+        return await SendInternal(@case, message, createdBy);
     }
 
     private async Task<DbCase> GetAdminCase(Guid caseId, ClaimsPrincipal user) {

@@ -1,11 +1,15 @@
 ﻿using FluentValidation;
 using FluentValidation.AspNetCore;
+using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Server;
 using Indice.Features.Cases.Server.Authorization;
 using Indice.Features.Cases.Server.Endpoints;
 using Indice.Features.Cases.Server.Endpoints.Validators;
+using Indice.Features.Cases.Server.Extensions;
+using Indice.Features.Cases.Server.Integration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -54,9 +58,23 @@ public static class CaseServerFeatureExtensions
         });
         builder.Services.AddLimitUpload(serverOptions.ConfigureLimitUpload);
         builder.Services.AddTransient<IAuthorizationHandler, CasesAccessHandler>();
+        builder.Services.AddClientCredentialsTokenManagement().AddClient("cases", options => {
+            options.TokenEndpoint = builder.Configuration.GetAuthority(tryInternal: true) + "/connect/token";
+            options.ClientId = builder.Configuration.GetApiSecret("ClientId");
+            options.ClientSecret = builder.Configuration.GetApiSecret("ClientSecret");
+            options.Scope = serverOptions.RequiredScope;
+        });
+        builder.Services.AddHttpClient<WorkflowHttpClient>(httpClient => {
+                httpClient.BaseAddress = new Uri(builder.Configuration.GetHost()!);
+            })
+            .ClearResilienceHandlers()
+            .AddClientCredentialsTokenHandler("cases");
+        builder.Services.AddScoped<ICasesWorkflowManager, WorkflowHttpServiceClient>();
+        builder.Services.AddTransient<IAuthorizationHandler, DefaultCasesRolesHandler>();
         builder.Services.AddFluentValidationAutoValidation()
                        .AddValidatorsFromAssemblyContaining<AddAccessRuleRequestValidator>()
                        .AddFluentValidationClientsideAdapters();
+        
         return builder;
     }
 
@@ -80,6 +98,7 @@ public static class CaseServerFeatureExtensions
         routes.MapLookup();
         routes.MapAdminAccessRules();
         routes.MapAdminCaseData();
+        routes.MapWorkflow();
         return routes;
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Indice.Features.Cases.Workflows;
-using Indice.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -24,7 +23,7 @@ public static class WorkflowDesignerIndexApi
     public static IEndpointRouteBuilder MapCasesWorkflowDesignerPage(this IEndpointRouteBuilder routes, PathString? pathPrefix = null) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<CasesWorkflowOptions>>().Value;
         var uiendpoint = routes.MapGet(pathPrefix ?? "/workflow", CreateWorkflowDesignerPage(options.RegisterAuthentication))
-                               .ExcludeFromDescription();
+            .ExcludeFromDescription();
         if (options.RegisterAuthentication) {
             uiendpoint.RequireAuthorization(CasesWorkflowFeatureExtensions.WorkflowPolicy);
         }
@@ -36,11 +35,11 @@ public static class WorkflowDesignerIndexApi
 
         if (options.RegisterAuthentication) {
             routes.MapGet("/workflow-signout", async (HttpContext httpContext, IConfiguration configuration) => {
-                await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme, new AuthenticationProperties { RedirectUri = configuration.GetHost() });
-                await httpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties { RedirectUri = configuration.GetHost() });
-            })
-            .RequireAuthorization(CasesWorkflowFeatureExtensions.WorkflowPolicy)
-            .ExcludeFromDescription();
+                    await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme, new AuthenticationProperties { RedirectUri = configuration.GetHost() });
+                    await httpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties { RedirectUri = configuration.GetHost() });
+                })
+                .RequireAuthorization(CasesWorkflowFeatureExtensions.WorkflowPolicy)
+                .ExcludeFromDescription(); 
         }
 
         return routes;

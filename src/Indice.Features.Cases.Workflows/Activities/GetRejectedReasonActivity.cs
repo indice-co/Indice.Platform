@@ -4,9 +4,8 @@ using Elsa.Attributes;
 using Elsa.Design;
 using Elsa.Providers.WorkflowStorage;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Core.Localization;
-using Indice.Features.Cases.Core.Services.Abstractions;
-using Indice.Features.Cases.Workflows.Extensions;
+using Indice.Features.Cases.Workflows.Integrations;
+using Indice.Features.Cases.Workflows.Localization;
 using Microsoft.Extensions.Configuration;
 
 namespace Indice.Features.Cases.Workflows.Activities;
@@ -17,25 +16,12 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "Get the rejected reason the backofficer has selected. This activity returns a dictionary with translations",
     Outcomes = new[] { OutcomeNames.Done }
 )]
-internal class GetRejectedReasonActivity : BaseCaseActivity
+internal class GetRejectedReasonActivity(
+    ICasesManager casesManager,
+    IConfiguration configuration,
+    WorkflowSharedResourceService workflowSharedResourceService) : BaseCaseActivity(casesManager)
 {
-    private readonly CaseSharedResourceService _caseSharedResourceService;
-    private readonly IAdminCaseService _adminCaseService;
-    private readonly ICaseApprovalService _caseApprovalService;
-    private readonly string _defaultTranslationLanguage;
-
-    public GetRejectedReasonActivity(
-        IAdminCaseMessageService caseMessageService,
-        CaseSharedResourceService caseSharedResourceService,
-        IAdminCaseService adminCaseService,
-        ICaseApprovalService caseApprovalService,
-        IConfiguration configuration)
-        : base(caseMessageService) {
-        _caseSharedResourceService = caseSharedResourceService ?? throw new ArgumentNullException(nameof(caseSharedResourceService));
-        _adminCaseService = adminCaseService ?? throw new ArgumentNullException(nameof(adminCaseService));
-        _caseApprovalService = caseApprovalService ?? throw new ArgumentNullException(nameof(caseApprovalService));
-        _defaultTranslationLanguage = configuration.GetSection("PrimaryTranslationLanguage").Value ?? CasesWorkflowConstants.DefaultTranslationLanguage;
-    }
+    private readonly string _defaultTranslationLanguage = configuration.GetSection("PrimaryTranslationLanguage").Value ?? CasesWorkflowConstants.DefaultTranslationLanguage;
 
     [ActivityInput(
         Label = "Select Language",
@@ -50,12 +36,12 @@ internal class GetRejectedReasonActivity : BaseCaseActivity
     public string? Output { get; set; }
 
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
-        var approval = await _caseApprovalService.GetLastApproval(CaseId!.Value);
+        var approval = await CasesManager.GetLastApprovalAsync(CaseId!.Value);
         var language = string.Empty;
 
         switch (Language) {
             case "Customer":
-                var @case = await _adminCaseService.GetCaseById(context.TryGetUser()!, CaseId!.Value);
+                var @case = await CasesManager.GetByIdAsync(CaseId!.Value, null);
                 language = GetCustomerLanguageOrDefault(@case.Metadata?["CurrentCultureName"]);
                 break;
             case "English":
@@ -66,7 +52,7 @@ internal class GetRejectedReasonActivity : BaseCaseActivity
                 break;
         }
 
-        Output = _caseSharedResourceService.GetLocalizedHtmlStringWithCulture(approval?.Reason!, language);
+        Output = workflowSharedResourceService.GetLocalizedHtmlStringWithCulture(approval?.Reason!, language);
         context.LogOutputProperty(this, nameof(Output), Output);
         return Outcome(OutcomeNames.Done);
     }

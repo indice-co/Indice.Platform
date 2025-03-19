@@ -6,17 +6,12 @@ using Elsa.Services.Models;
 
 namespace Indice.Features.Cases.Workflows.Services;
 
-internal abstract class BaseActivityInvoker
+internal abstract class BaseActivityInvoker(
+    IWorkflowLaunchpad workflowLaunchpad,
+    IWorkflowInstanceStore workflowInstanceStore)
 {
-    private readonly IWorkflowLaunchpad _workflowLaunchpad;
-    private readonly IWorkflowInstanceStore _workflowInstanceStore;
-
-    protected BaseActivityInvoker(
-        IWorkflowLaunchpad workflowLaunchpad,
-        IWorkflowInstanceStore workflowInstanceStore) {
-        _workflowLaunchpad = workflowLaunchpad ?? throw new ArgumentNullException(nameof(workflowLaunchpad));
-        _workflowInstanceStore = workflowInstanceStore ?? throw new ArgumentNullException(nameof(workflowInstanceStore));
-    }
+    private readonly IWorkflowLaunchpad _workflowLaunchpad = workflowLaunchpad ?? throw new ArgumentNullException(nameof(workflowLaunchpad));
+    private readonly IWorkflowInstanceStore _workflowInstanceStore = workflowInstanceStore ?? throw new ArgumentNullException(nameof(workflowInstanceStore));
 
     /// <summary>
     /// Dispatching a workflow will not execute the workflow directly, but instead send an instruction to a message queue.
@@ -31,7 +26,7 @@ internal abstract class BaseActivityInvoker
 
         // Loop until a workflow has been dispatched. Then break the loop (Avoid multiple dispatches)
         var collectedWorkflows = new List<CollectedWorkflow>();
-        foreach (var query in queries.TakeWhile(query => !collectedWorkflows.Any())) {
+        foreach (var query in queries.TakeWhile(_ => !collectedWorkflows.Any())) {
             collectedWorkflows.AddRange(await _workflowLaunchpad.CollectAndDispatchWorkflowsAsync(query, new WorkflowInput(input), cancellationToken));
         }
         return collectedWorkflows;
@@ -47,8 +42,9 @@ internal abstract class BaseActivityInvoker
 
         // Loop until a workflow has been executed. Then break the loop (Avoid multiple executions)
         var collectedWorkflows = new List<CollectedWorkflow>();
-        foreach (var query in queries.TakeWhile(query => !collectedWorkflows.Any())) {
-            collectedWorkflows.AddRange(await _workflowLaunchpad.CollectAndExecuteWorkflowsAsync(query, new WorkflowInput(input), cancellationToken));
+        foreach (var query in queries.TakeWhile(_ => !collectedWorkflows.Any())) {
+            var collectedWorkflowsList = await _workflowLaunchpad.CollectAndExecuteWorkflowsAsync(query, new WorkflowInput(input));
+            collectedWorkflows.AddRange(collectedWorkflowsList);
         }
         return collectedWorkflows;
     }

@@ -1,11 +1,11 @@
-﻿using System.Security.Claims;
-using Indice.Features.Cases.Core.Services.Abstractions;
+﻿using Indice.Features.Cases.Core.Services.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Data.Models;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Events;
 using Indice.Events;
+using Indice.Types;
 
 namespace Indice.Features.Cases.Core.Services.CaseMessageService;
 
@@ -24,7 +24,7 @@ internal abstract class BaseCaseMessageService
         _schemaValidator = schemaValidator ?? throw new ArgumentNullException(nameof(schemaValidator));
     }
 
-    protected async Task<Guid?> SendInternal(DbCase @case, Message message, ClaimsPrincipal user) {
+    protected async Task<Guid?> SendInternal(DbCase @case, Message message, AuditMeta createdBy) {
         Guid? attachmentId = null;
         var caseId = @case.Id;
         ArgumentNullException.ThrowIfNull(message);
@@ -43,32 +43,33 @@ internal abstract class BaseCaseMessageService
         if (message.ReplyToCommentId.HasValue) {
             var exists = await DbContext.Comments.AsQueryable().AnyAsync(x => x.CaseId == caseId && x.Id == message.ReplyToCommentId.Value);
             if (!exists) {
-                throw new Exception("Invalid reply to comment id. Not found on the current case.");
+                throw new BusinessException("Invalid reply to comment id. Not found on the current case.");
             }
         }
 
         if (message.FileStreamAccessor == null && message.CheckpointTypeName == null && message.Data is null) {
-            await AddComment(user, caseId, message.Comment, message.ReplyToCommentId, message.PrivateComment);
+            await AddComment(createdBy, caseId, message.Comment, message.ReplyToCommentId, message.PrivateComment);
         } else if (message.FileStreamAccessor != null && message.CheckpointTypeName == null) {
-            var attachment = await AddAttachment(user, @case, message.Comment, message.FileName!, message.FileStreamAccessor!);
+            var attachment = await AddAttachment(createdBy, @case, message.Comment, message.FileName!, message.FileStreamAccessor!);
             attachmentId = attachment.Id;
         } else if (message.FileStreamAccessor == null && message.CheckpointTypeName != null) {
             //TODO: if message has both Data and Checkpoint name, then Data does not save (check 64 line)
-            await AddCheckpoint(user, @case, newCheckpointType!);
+            await AddCheckpoint(createdBy, @case, newCheckpointType!);
             if (!string.IsNullOrWhiteSpace(message.Comment)) {
                 message.PrivateComment ??= newCheckpointType!.Private;
-                await AddComment(user, caseId, message.Comment, message.ReplyToCommentId, message.PrivateComment);
+                await AddComment(createdBy, caseId, message.Comment, message.ReplyToCommentId, message.PrivateComment);
             }
         } else if (message.Data is not null) {
-            await AddCaseData(user, @case, message.Data);
+            await AddCaseData(createdBy, @case, message.Data);
             if (!string.IsNullOrWhiteSpace(message.Comment)) {
-                await AddComment(user, caseId, message.Comment, message.ReplyToCommentId, message.PrivateComment);
+                await AddComment(createdBy, caseId, message.Comment, message.ReplyToCommentId, message.PrivateComment);
             }
         } else {
-            await AddCheckpoint(user, @case, newCheckpointType!);
-            var attachment = await AddAttachment(user, @case, string.Empty, message.FileName!, message.FileStreamAccessor!);
+            await AddCheckpoint(createdBy, @case, newCheckpointType!);
+            var attachment = await AddAttachment(createdBy, @case, string.Empty, message.FileName!, message.FileStreamAccessor!);
             attachmentId = attachment.Id;
         }
+        
         if (!string.IsNullOrEmpty(message.CheckpointTypeName)) {
             if (!message.PrivateComment.HasValue) {
                 message.PrivateComment = newCheckpointType!.Private;
@@ -82,20 +83,20 @@ internal abstract class BaseCaseMessageService
         return attachmentId;
     }
 
-    private async Task AddComment(ClaimsPrincipal user, Guid caseId, string? text, Guid? replyToCommentId, bool? @private) {
+    private async Task AddComment(AuditMeta createdBy, Guid caseId, string? text, Guid? replyToCommentId, bool? @private) {
         var newComment = new DbComment {
             IsCustomer = false, // todo decide if customer, from claims
             Private = @private ?? true,
             CaseId = caseId,
             Text = text,
             ReplyToCommentId = replyToCommentId,
-            CreatedBy = AuditMeta.Create(user)
+            CreatedBy = createdBy
         };
 
         await DbContext.Comments.AddAsync(newComment);
     }
 
-    private async Task<CasesAttachmentLink> AddAttachment(ClaimsPrincipal user, DbCase @case, string? comment, string fileName, Func<Stream> fileStreamAccessor) {
+    private async Task<CasesAttachmentLink> AddAttachment(AuditMeta createdBy, DbCase @case, string? comment, string fileName, Func<Stream> fileStreamAccessor) {
         var attachment = new DbAttachment(@case.Id);
         attachment.PopulateFrom(fileName, fileStreamAccessor, saveData: true);
         DbContext.Attachments.Add(attachment);
@@ -109,7 +110,7 @@ internal abstract class BaseCaseMessageService
             //PermaLink = $"/api/requests/{requestId}/files/{(Base64Id)attachment.Guid}"
         };
         var commentEntity = new DbComment {
-            CreatedBy = AuditMeta.Create(user),
+            CreatedBy = createdBy,
             CaseId = @case.Id,
             Private = true,
             AttachmentId = attachment.Id,
@@ -119,7 +120,7 @@ internal abstract class BaseCaseMessageService
         return link;
     }
 
-    private async Task<DbCheckpoint> AddCheckpoint(ClaimsPrincipal user, DbCase @case, DbCheckpointType checkpointType) {
+    private async Task AddCheckpoint(AuditMeta createdBy, DbCase @case, DbCheckpointType checkpointType) {
         ArgumentNullException.ThrowIfNull(checkpointType);
         var checkpoint = await DbContext.Checkpoints
             .Include(p => p.CheckpointType)
@@ -128,7 +129,7 @@ internal abstract class BaseCaseMessageService
 
         // If the new checkpoint is the same as the last attempt, only add the comment. 
         if (checkpoint != null && checkpoint.CheckpointType.Code == checkpointType.Code) {
-            return checkpoint;
+            return;
         }
 
         // Else continue to change the checkpoint.
@@ -139,7 +140,7 @@ internal abstract class BaseCaseMessageService
         var nextCheckpoint = new DbCheckpoint {
             CaseId = @case.Id,
             CheckpointTypeId = checkpointType.Id,
-            CreatedBy = AuditMeta.Create(user)
+            CreatedBy = createdBy
         };
 
         if (!checkpointType.Private) {
@@ -147,7 +148,7 @@ internal abstract class BaseCaseMessageService
         }
 
         if (checkpointType.Status == CaseStatus.Completed && @case.CompletedBy is null) {
-            @case.CompletedBy = AuditMeta.Create(user);
+            @case.CompletedBy = createdBy;
             // fast-forward public data Id
             @case.PublicDataId = @case.DataId;
             // force remove assignment (if any)
@@ -157,27 +158,26 @@ internal abstract class BaseCaseMessageService
         @case.CheckpointId = nextCheckpoint.Id;
         @case.Checkpoints.Add(nextCheckpoint);
         await DbContext.Checkpoints.AddAsync(nextCheckpoint);
-        return nextCheckpoint;
     }
 
-    private async Task AddCaseData(ClaimsPrincipal user, DbCase @case, dynamic data) {
+    private async Task AddCaseData(AuditMeta createdBy, DbCase @case, dynamic data) {
         if (data is null) throw new ArgumentNullException(nameof(data));
 
         // Validate data against case type json schema, only when schema is present
         if (@case.CaseType.DataSchema is not null && !_schemaValidator.IsValid(@case.CaseType.DataSchema, (object)data)) {
-            throw new Exception("Data validation error.");
+            throw new BusinessException("Data validation error.");
         }
 
         var newDataVersion = new DbCaseData {
             Case = @case,
-            CreatedBy = AuditMeta.Create(user),
+            CreatedBy = createdBy,
             Data = data
         };
 
         @case.DataId = newDataVersion.Id;
         
         // If case is mine, my changes are also publicly visible
-        if (@case.CreatedBy.Id == user.FindSubjectIdOrClientId()) {
+        if (@case.CreatedBy.Id == createdBy.Id) {
             @case.PublicDataId = newDataVersion.Id;
         }
 

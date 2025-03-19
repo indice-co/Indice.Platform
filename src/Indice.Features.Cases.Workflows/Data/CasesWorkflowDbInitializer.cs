@@ -1,12 +1,6 @@
-﻿using System.Reflection.Metadata;
-using System.Threading;
-using Elsa.Models;
+﻿using Elsa.Models;
 using Elsa.Persistence.EntityFramework.Core;
 using Elsa.Serialization;
-using Elsa.Server.Api.Helpers;
-using Elsa.Server.Api.Swagger.Examples;
-using Elsa.Services;
-using IdentityModel;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Workflows.Data;
@@ -47,6 +41,7 @@ public static class CasesDbInitalizerExtesnions
               DeleteCompletedInstances = false,
               IsPublished = true,
               IsLatest = true,
+              Tag = "SampleAddress",
               Activities = new List<ActivityDefinition>() {
                 new ActivityDefinition() {
                     ActivityId = "0641c8d5-9f5d-49c5-b871-3add4bd22d3b",

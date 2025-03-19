@@ -9,7 +9,7 @@ namespace Indice.Features.Cases.Server.Authorization;
 /// </summary>
 public enum CasesAccessLevel
 {
-    /// <summary>Require meber access.</summary>
+    /// <summary>Require member access.</summary>
     Member = 0,
     /// <summary>
     /// Require access to manage cases.
@@ -66,7 +66,6 @@ public class CasesAccessHandler : AuthorizationHandler<CasesAccessRequirement>
                 _ => false
             };
 
-        // Apparently nothing else worked.
         if (allowed) {
             context.Succeed(requirement);
         } else {

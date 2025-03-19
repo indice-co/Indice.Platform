@@ -56,23 +56,22 @@ internal class AdminReportService : IAdminReportService
             return [];
         }
         List<GroupByReportResult> groupByReportResult;
-        var caseTypes = new ResultSet<CaseTypePartial>();
+        var caseTypes = await _caseTypeService.Get(user, false);
+        var allowedCaseTypeIds = caseTypes.Items.Select(x => x.Id).ToList();
+        query = query.Where(x => allowedCaseTypeIds.Contains(x.CaseType.Id));
         switch (reportTag) {
             case ReportTag.GroupedByCasetype:
                 groupByReportResult = await GetCasesGroupedByCaseType(query);
-                caseTypes = await _caseTypeService.Get(user, false);
                 // translate
                 groupByReportResult.ForEach(x => x.Label = caseTypes.Items.First(c => c.Code == x.Label).Title!);
                 return groupByReportResult;
             case ReportTag.AgentGroupedByCasetype:
                 groupByReportResult = await GetAgentCasesGroupedByCaseType(query);
-                caseTypes = await _caseTypeService.Get(user, false);
                 // translate
                 groupByReportResult.ForEach(x => x.Label = caseTypes.Items.First(c => c.Code == x.Label).Title!);
                 return groupByReportResult;
             case ReportTag.CustomerGroupedByCasetype:
                 groupByReportResult = await GetCustomerCasesGroupedByCaseType(query);
-                caseTypes = await _caseTypeService.Get(user, false);
                 // translate
                 groupByReportResult.ForEach(x => x.Label = caseTypes.Items.First(c => c.Code == x.Label).Title!);
                 return groupByReportResult;
