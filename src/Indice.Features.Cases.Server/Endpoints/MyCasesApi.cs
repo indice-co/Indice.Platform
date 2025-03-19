@@ -2,6 +2,7 @@
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Server;
 using Indice.Features.Cases.Server.Endpoints;
+using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,10 +29,10 @@ internal static class MyCasesApi
 
         // Add security requirements, all incoming requests to this API *must* be authenticated with a valid user.
         group.RequireAuthorization(policy => policy
-             .RequireAuthenticatedUser()
-             .AddAuthenticationSchemes("Bearer")
-             .RequireCasesAccess()
-        );
+            .RequireAuthenticatedUser()
+            .AddAuthenticationSchemes("Bearer")
+            .RequireCasesAccess()
+        ).WithHandledException<BusinessException>();
 
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)

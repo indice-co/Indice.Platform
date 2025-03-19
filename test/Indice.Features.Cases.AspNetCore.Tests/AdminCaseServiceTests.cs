@@ -46,7 +46,6 @@ public class AdminCaseServiceTests : IDisposable
             await dbContext.SeedAsync();
         }
 
-        var mockCaseTypeService = Substitute.For<ICaseTypeService>();
         var mockCaseEventService = Substitute.For<IPlatformEventService>();
         var mockCaseAuthorization = Substitute.For<ICaseAuthorizationProvider>();
         var mockAdminCaseMessage = Substitute.For<IAdminCaseMessageService>();
@@ -55,7 +54,6 @@ public class AdminCaseServiceTests : IDisposable
             dbContext,
             options,
             mockCaseAuthorization,
-            mockCaseTypeService,
             mockAdminCaseMessage,
             mockCaseEventService
         );

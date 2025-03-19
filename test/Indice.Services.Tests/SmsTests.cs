@@ -36,13 +36,15 @@ public class SmsTests
 
     [Theory(Skip = "Sensitive Data")]
     [InlineData("", "", "", "Indice", "Indice", "Test Subject", "Test Body")]
+    [InlineData("", "", "", "Indice", "Indice", "Test Subject", "Welcome to https://www.indice.gr! You can manage you account here: https://my.indice.com.")]
     public async Task TestApifonSms(string apiKey, string token, string phoneNumber, string sender, string senderName, string subject, string body) {
         var inMemorySettings = new Dictionary<string, string> {
             ["Sms:ApiKey"] = apiKey,
             ["Sms:Token"] = token,
             ["Sms:Sender"] = sender,
             ["Sms:SenderName"] = senderName,
-            ["Sms:TestMode"] = true.ToString()
+            ["Sms:TestMode"] = true.ToString(),
+            ["Sms:EnableUrlShortener"] = true.ToString()
         };
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(inMemorySettings)
@@ -52,11 +54,11 @@ public class SmsTests
             .AddOptions()
             .Configure<SmsServiceApifonSettings>(configuration.GetSection(SmsServiceApifonSettings.Name))
             .AddSmsServiceApifon(configuration);
-        
+
 
         var serviceProvider = collection.BuildServiceProvider();
         var excepion = default(Exception);
-        
+
         try {
             var service = serviceProvider.GetRequiredService<ISmsService>();
             await service.SendAsync(phoneNumber, subject, body);
@@ -68,13 +70,15 @@ public class SmsTests
 
     [Theory(Skip = "Sensitive Data")]
     [InlineData("", "", "", "Indice", "Indice", "Test from ApifonIM", "Apifon Viber message body")]
+    [InlineData("", "", "", "Indice", "Indice", "Test from ApifonIM", "Welcome to https://www.indice.gr! You can manage you account here: https://my.indice.com.")]
     public async Task TestApifonIM(string apiKey, string token, string phoneNumber, string sender, string senderName, string subject, string body) {
         var inMemorySettings = new Dictionary<string, string> {
             ["Sms:ApiKey"] = apiKey,
             ["Sms:Token"] = token,
             ["Sms:Sender"] = sender,
             ["Sms:SenderName"] = senderName,
-            ["Sms:TestMode"] = true.ToString()
+            ["Sms:TestMode"] = true.ToString(),
+            ["Sms:EnableUrlShortener"] = true.ToString()
         };
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(inMemorySettings)

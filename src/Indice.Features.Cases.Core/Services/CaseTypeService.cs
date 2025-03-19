@@ -53,7 +53,7 @@ internal class CaseTypeService : ICaseTypeService
                 Translations = x.Translations
             })
             .FirstOrDefaultAsync();
-        return caseType ?? throw new Exception("CaseType is invalid."); // todo proper exception;
+        return caseType ?? throw new BusinessException("CaseType is invalid."); // todo proper exception;
     }
 
     public async Task<CaseType> Get(Guid id) {

@@ -7,11 +7,8 @@ using Elsa.Retention.Extensions;
 using Elsa.Server.Api.Extensions;
 using Elsa.Server.Api.Mapping;
 using Elsa.Server.Api.Services;
-using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Workflows;
-using Indice.Features.Cases.Workflows.Bookmarks.AwaitApproval;
 using Indice.Features.Cases.Workflows.Data;
-using Indice.Features.Cases.Workflows.Interfaces;
 using Indice.Features.Cases.Workflows.Services;
 using Indice.Security;
 using Microsoft.AspNetCore.Authorization;
@@ -27,15 +24,19 @@ using NodaTime;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Options;
 using IdentityModel;
+using Indice.Features.Cases.Workflows.Bookmarks;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
-using Quartz.Util;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Hosting;
 using Elsa.Serialization;
-using Indice.Features.Cases.Core.Serialization;
+using Indice.Features.Cases.Workflows.Extensions;
+using Indice.Features.Cases.Workflows.Integrations;
+using Indice.Features.Cases.Workflows.Localization;
+using Indice.Features.Cases.Workflows.Serialization;
+using Indice.Features.Cases.Workflows.Services.Abstractions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -79,6 +80,7 @@ public static class CasesWorkflowFeatureExtensions
         CasesWorkflowOptions casesWorkflowOptions) {
         // db initializer
         var configureDatabase = casesWorkflowOptions.ConfigureDbContext ?? new Action<IServiceProvider, DbContextOptionsBuilder>((sp, ef) => ef.UseSqlServer(sp.GetRequiredService<IConfiguration>().GetConnectionString("WorkflowDb")));
+        
         builder.Services.AddHostedService<CasesWorkflowDbInitializerHostedService>();
         builder.Services.AddDbContextFactory<ElsaContext>(configureDatabase);
 
@@ -131,20 +133,24 @@ public static class CasesWorkflowFeatureExtensions
         }
 
         // Register Custom Services
+        builder.Services.TryAddTransient<WorkflowSharedResourceService>(); // Add the service even if there is no resx file, so the runtime will not throw exception
         // Workflow integration
         builder.Services.TryAddScoped<IAwaitApprovalInvoker, AwaitApprovalInvoker>();
         builder.Services.TryAddScoped<IAwaitEditInvoker, AwaitEditInvoker>();
         builder.Services.TryAddScoped<IAwaitAssignmentInvoker, AwaitAssignmentInvoker>();
         builder.Services.TryAddScoped<IAwaitActionInvoker, AwaitActionInvoker>();
-        builder.Services.AddScoped<ICasesWorkflowManager, CasesWorkflowManagerElsa>();
-        //
-        // TODO: Should remove dependecies to core services.
-        // Here there are missing service registrations related to
-        // accessing the CasesDbContext directly via the cases core services
-        // We should refactor the code to use a HttpClient instead of direct db access
-        // We can track down these dependencies by inspecting code inside of custom activities.
-
-
+        builder.Services.AddClientCredentialsTokenManagement().AddClient("workflow", options => {
+            options.TokenEndpoint = builder.Configuration.GetAuthority(tryInternal: true) + "/connect/token";
+            options.ClientId = builder.Configuration.GetApiSecret("ClientId");
+            options.ClientSecret = builder.Configuration.GetApiSecret("ClientSecret");
+            options.Scope = builder.Configuration.GetApiResourceName();
+        });
+        builder.Services.AddHttpClient<ICasesManager, CasesManager>(httpClient => { 
+                httpClient.BaseAddress = new Uri(builder.Configuration.GetHost()!);
+            })
+            .AddClientCredentialsTokenHandler("cases")
+            .ClearResilienceHandlers();
+        
         // Add authentication / authorization
         if (casesWorkflowOptions.RegisterAuthentication) {
             builder.Services.AddWorkflowAuthentication(builder.Configuration, casesWorkflowOptions);
@@ -300,7 +306,7 @@ public static class CasesWorkflowFeatureExtensions
             // This is for ELSA API
             if (controller.DisplayName.Contains("elsa", StringComparison.OrdinalIgnoreCase)) {
                 controller.ApiExplorer.IsVisible = false;
-                controller.ApiExplorer.GroupName = "workflow";
+                controller.ApiExplorer.GroupName = "workflow-designer";
             }
         }
     }

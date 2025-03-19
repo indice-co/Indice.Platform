@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Duende.AccessTokenManagement" Version="3.2.0" />
     <PackageReference Include="Elsa" Version="2.13.0" />
     <PackageReference Include="Elsa.Activities.Email" Version="2.13.0" />
     <PackageReference Include="Elsa.Activities.Http" Version="2.13.0" />
@@ -15,15 +16,18 @@
     <PackageReference Include="Elsa.Persistence.EntityFramework.SqlServer" Version="2.13.0" />
     <PackageReference Include="Elsa.Retention" Version="2.13.0" />
     <PackageReference Include="Elsa.Server.Api" Version="2.13.0" />
+    <PackageReference Include="JsonSchema.Net" Version="7.3.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.11" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
     <PackageReference Include="MediatR" Version="12.2.0" />
     <PackageReference Include="Indice.Common" Version="$(VersionPrefixCore)-*" />
-    <PackageReference Include="Indice.Features.Cases.Core" Version="$(VersionPrefixCases)-*" />
+    <PackageReference Include="Indice.Services" Version="$(VersionPrefixCore)-*" />
+    <PackageReference Include="IdentityModel" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="8.10.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Common\Indice.Common.csproj" />
-    <ProjectReference Include="..\Indice.Features.Cases.Core\Indice.Features.Cases.Core.csproj" />
+    <ProjectReference Include="..\Indice.Services\Indice.Services.csproj" />
   </ItemGroup>
 
   <ItemGroup>

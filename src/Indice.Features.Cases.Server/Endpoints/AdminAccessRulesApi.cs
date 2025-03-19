@@ -3,6 +3,7 @@ using Indice.Features.Cases.Server;
 using Indice.Features.Cases.Server.Authorization;
 using Indice.Features.Cases.Server.Endpoints;
 using Indice.Security;
+using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -31,7 +32,8 @@ internal static class AdminAccessRulesApi
                 .RequireAuthenticatedUser()
                 .AddAuthenticationSchemes("Bearer")
                 .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-                .RequireCasesAccess(CasesAccessLevel.Manager)); // equivalent to BeCasesManager
+                .RequireCasesAccess(CasesAccessLevel.Manager))
+            .WithHandledException<BusinessException>(); // equivalent to BeCasesManager
 
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 

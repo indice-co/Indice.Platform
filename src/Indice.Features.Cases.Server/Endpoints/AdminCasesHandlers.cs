@@ -3,13 +3,19 @@ using System.Security.Claims;
 using System.Text.Json.Nodes;
 using Indice.Events;
 using Indice.Features.Cases.Core;
+using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Events;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services.Abstractions;
+using Indice.Features.Cases.Server.Authorization;
+using Indice.Features.Cases.Server.Integration;
+using Indice.Security;
 using Indice.Types;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Server.Endpoints;
@@ -35,6 +41,7 @@ internal static class AdminCasesHandlers
         if (file.Length is 0) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(file), "File is empty."));
         }
+        
         var attachmentId = await adminCaseMessageService.Send(caseId, currentUser, new Message {
             FileName = file.FileName,
             FileStreamAccessor = () => file.OpenReadStream()
@@ -120,9 +127,116 @@ internal static class AdminCasesHandlers
         return TypedResults.Ok(cases);
     }
 
-    public static async Task<Results<Ok<CaseActions>, NotFound>> GetCaseActions(Guid caseId, ICaseActionsService caseBookmarkService, ClaimsPrincipal currentUser) {
-        var actions = await caseBookmarkService.GetUserActions(currentUser, caseId);
-        return actions is null ? TypedResults.NotFound() : TypedResults.Ok(actions);
+    public static async Task<Results<Ok<CaseActions>, NotFound>> GetCaseActions(
+        Guid caseId,
+        ClaimsPrincipal currentUser,
+        ICasesWorkflowManager workflowManager,
+        ICaseActionsService caseBookmarkService,
+        IAdminCaseService adminCaseService,
+        ICaseApprovalService caseApprovalService,
+        IAuthorizationService authorizationService,
+        CasesDbContext dbContext
+    ) {
+        // If user has no role, do not allow any actions
+        if (!currentUser.FindAll(c => c.Type == BasicClaimTypes.Role).Any() && !currentUser.IsSystemClient()) {
+            return TypedResults.Ok(new CaseActions());
+        }
+        
+        var @case = await dbContext.Cases.Where(x => x.Id == caseId)
+            .Select(x => new {
+                x.Id,
+                AssignedToId = x.AssignedTo == null ? null : x.AssignedTo.Id
+            })
+            .FirstOrDefaultAsync();
+        
+        if (@case == null) {
+            TypedResults.Ok();
+        }
+        
+        // Get List of Available Actions from Workflow
+        var actions = await workflowManager.GetActionsByCaseId(caseId) as AvailableActions;
+        if (actions is null) {
+            return TypedResults.NotFound();
+        }
+        
+        var assignedToId = @case!.AssignedToId;
+        var caseIsAssigned = !string.IsNullOrWhiteSpace(assignedToId);
+        
+        // If user is Admin, they can do everything except assign an already assigned case
+        if (currentUser.IsAdmin() || currentUser.IsSystemClient()) {
+            return TypedResults.Ok(new CaseActions {
+                HasAssignment = actions.AssignmentBookmarks.Count != 0 && !caseIsAssigned,
+                HasApproval = actions.ApprovalBookmarks.Count != 0,
+                HasUnassignment = caseIsAssigned,
+                HasEdit = actions.EditBookmarks.Count != 0,
+                CustomActions = actions.CustomActions?.Select(x => x.CreateFromWorkflowAction()).ToList()!
+            });
+        }
+        
+        var hasApproval = false;
+        var hasAssignment = false;
+        var hasEdit = false;
+        var hasCustom = false;
+        var isAssignedToCurrentUser = caseIsAssigned && assignedToId == currentUser.FindSubjectId();
+
+        // For Assignment Action:
+        // 1. User must have the specified role
+        // 2. Case must not be already assigned
+        if (actions.AssignmentBookmarks is { Count: > 0 }) {
+            var authorizationResult = await authorizationService.AuthorizeAsync(currentUser, caseId, new CasesRolesRequirement([actions.AssignmentBookmarks.FirstOrDefault()?.Role]));
+            if (authorizationResult.Succeeded && !caseIsAssigned) {
+                hasAssignment = true;
+            }
+        }
+        
+        // For Approval Action:
+        if (actions.ApprovalBookmarks is { Count: > 0 }) {
+            var authorizationResult = await authorizationService.AuthorizeAsync(currentUser, caseId, new CasesRolesRequirement([actions.ApprovalBookmarks.FirstOrDefault()?.Role]));
+            // 1. User must have the specified role
+            if (authorizationResult.Succeeded) { 
+                hasApproval = true;
+            }
+            
+            // 2. Case must be assigned to them if already assigned
+            if (caseIsAssigned && !isAssignedToCurrentUser) {
+                hasApproval = false;
+            }
+            
+            // 3. If BlockPreviousApprover is set, they must not be the previous approver
+            if (actions.ApprovalBookmarks.First().BlockPreviousApprover) {
+                var lastApproval = await caseApprovalService.GetLastApproval(caseId);
+                if (currentUser.FindSubjectId() == lastApproval?.CreatedBy.Id) {
+                    hasApproval = false;
+                }
+            }
+        }
+        
+        // For Edit Action:
+        // 1. User must have the specified role
+        // 2. Case must be assigned to them
+        if (actions.EditBookmarks is { Count: > 0 }) {
+            var authorizationResult = await authorizationService.AuthorizeAsync(currentUser, caseId, new CasesRolesRequirement([actions.EditBookmarks.FirstOrDefault()?.Role]));
+            if (authorizationResult.Succeeded && isAssignedToCurrentUser) {
+                hasEdit = true;
+            }
+        }
+
+        
+        // For Custom Action:
+        // User must have the specified role
+        if (actions.CustomActions is { Count: > 0 }) {
+            var authorizationResult = await authorizationService.AuthorizeAsync(currentUser, caseId, new CasesRolesRequirement([actions.CustomActions.FirstOrDefault()?.AllowedRole]));
+            if (authorizationResult.Succeeded) {
+                hasCustom = true;
+            }
+        }
+        
+        return TypedResults.Ok(new CaseActions {
+            HasApproval = hasApproval,
+            HasAssignment = hasAssignment,
+            HasEdit = hasEdit,
+            CustomActions = hasCustom ? actions.CustomActions?.Select(x => x.CreateFromWorkflowAction()).ToList()! : [] 
+        });
     }
 
     public static async Task<Ok<List<RejectReason>>> GetCaseRejectReasons(Guid caseId, ICaseApprovalService caseApprovalService, ClaimsPrincipal currentUser) =>
@@ -140,7 +254,7 @@ internal static class AdminCasesHandlers
         }
         var file = await CreatePdf(@case, caseTemplateService, casePdfService);
         var fileName = $"{@case.CaseType.Code}-{DateTimeOffset.UtcNow.Date:dd-MM-yyyy}.pdf";
-        await platformEventService.Publish(new CaseDownloadedEvent(@case!, CasesCoreConstants.Channels.Agent));
+        await platformEventService.Publish(new CaseDownloadedEvent(@case, CasesCoreConstants.Channels.Agent));
         return TypedResults.File(file, MediaTypeNames.Application.Pdf, fileName);
     }
 

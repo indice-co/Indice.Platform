@@ -89,7 +89,7 @@ internal class ContactProviderIdentityServer : IContactProvider
         if (response.IsError && response.Exception is not null) {
             throw response.Exception!;
         } else if (response.IsError) {
-            throw new Exception(response.Error);
+            throw new BusinessException(response.Error);
         }
         accessToken = response.AccessToken;
         await _cache.SetStringAsync(TOKEN_CACHE_KEY, accessToken!, new DistributedCacheEntryOptions {

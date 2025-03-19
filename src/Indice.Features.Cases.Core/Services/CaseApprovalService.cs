@@ -20,12 +20,12 @@ internal class CaseApprovalService : ICaseApprovalService
         _workflowManager = workflowManager ?? throw new ArgumentNullException(nameof(workflowManager));
     }
 
-    public async Task AddApproval(Guid caseId, Guid? commentId, ClaimsPrincipal user, Approval action, string? reason) {
-        if (caseId == default) throw new ArgumentNullException(nameof(caseId));
-        if (user == null) throw new ArgumentNullException(nameof(user));
+    public async Task AddApproval(Guid caseId, Guid? commentId, Approval action, string? reason, AuditMeta createdBy) {
+        if (caseId == Guid.Empty) throw new ArgumentNullException(nameof(caseId));
+        if (createdBy.Id is null) throw new ArgumentNullException(nameof(createdBy.Id));
 
         await _dbContext.CaseApprovals.AddAsync(new DbCaseApproval {
-            CreatedBy = AuditMeta.Create(user),
+            CreatedBy = createdBy,
             Action = action,
             CaseId = caseId,
             CommentId = commentId,

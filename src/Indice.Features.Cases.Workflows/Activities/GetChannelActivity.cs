@@ -1,9 +1,8 @@
-﻿using System.Security.Claims;
-using Elsa;
+﻿using Elsa;
 using Elsa.ActivityResults;
 using Elsa.Attributes;
 using Elsa.Services.Models;
-using Indice.Features.Cases.Core.Services.Abstractions;
+using Indice.Features.Cases.Workflows.Integrations;
 
 namespace Indice.Features.Cases.Workflows.Activities;
 
@@ -14,25 +13,14 @@ namespace Indice.Features.Cases.Workflows.Activities;
     Description = "Get the channel of the case.",
     Outcomes = new[] { OutcomeNames.Done }
 )]
-internal class GetChannelActivity : BaseCaseActivity
+internal class GetChannelActivity(ICasesManager casesManager) : BaseCaseActivity(casesManager)
 {
-    private readonly IAdminCaseService _adminCaseService;
-
-    public GetChannelActivity(
-        IAdminCaseMessageService caseMessageService, 
-        IAdminCaseService adminCaseService)
-        : base(caseMessageService) {
-        _adminCaseService = adminCaseService ?? throw new ArgumentNullException(nameof(adminCaseService));
-    }
-    
     [ActivityOutput]
     public object? Output { get; set; }
 
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
-        // Run as systemic user, since this is a system activity for creating conditions at workflow
-        var systemUser = CasesClaimsPrincipalExtensions.SystemUser();
-        var @case = await _adminCaseService.GetCaseById(systemUser, CaseId.Value!);
+        var @case = await CasesManager.GetByIdAsync(CaseId.Value, false);
         Output = @case.Channel!;
         context.LogOutputProperty(this, nameof(Output), Output);
         return Done(Output);

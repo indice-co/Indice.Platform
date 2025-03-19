@@ -26,6 +26,7 @@ internal class QueueTriggers
     private MessageJobHandlerFactory CampaignJobHandlerFactory { get; }
     private IEventDispatcherFactory EventDispatcherFactory { get; }
 
+    
     [Function(EventNames.CampaignCreated)]
     public async Task CampaignPublishedHandler(
         [QueueTrigger("%ENVIRONMENT%-" + EventNames.CampaignCreated, Connection = "StorageConnection")] byte[] message,
@@ -47,6 +48,7 @@ internal class QueueTriggers
         await CampaignJobHandlerFactory.CreateFor<CampaignCreatedEvent>().Process(payload);
     }
 
+    
     [Function(EventNames.ResolveMessage)]
     public async Task ResolveMessageHandler(
         [QueueTrigger("%ENVIRONMENT%-" + EventNames.ResolveMessage, Connection = "StorageConnection")] byte[] message,
@@ -59,6 +61,7 @@ internal class QueueTriggers
         await CampaignJobHandlerFactory.CreateFor<ResolveMessageEvent>().Process(payload!);
     }
 
+    
     [Function(EventNames.SendPushNotification)]
     public async Task SendPushNotificationHandler(
         [QueueTrigger("%ENVIRONMENT%-" + EventNames.SendPushNotification, Connection = "StorageConnection")] byte[] message,
@@ -71,6 +74,7 @@ internal class QueueTriggers
         await CampaignJobHandlerFactory.CreateFor<SendPushNotificationEvent>().Process(payload!);
     }
 
+    
     [Function(EventNames.SendEmail)]
     public async Task SendEmailHandler(
         [QueueTrigger("%ENVIRONMENT%-" + EventNames.SendEmail, Connection = "StorageConnection")] byte[] message,
@@ -83,6 +87,7 @@ internal class QueueTriggers
         await CampaignJobHandlerFactory.CreateFor<SendEmailEvent>().Process(payload!);
     }
 
+    
     [Function(EventNames.SendSms)]
     public async Task SendSmsHandler(
         [QueueTrigger("%ENVIRONMENT%-" + EventNames.SendSms, Connection = "StorageConnection")] byte[] message,
