@@ -101,9 +101,12 @@ internal class AccessRuleService : IAccessRuleService
 
     public async Task AdminBatch(ClaimsPrincipal user, List<AddAccessRuleRequest> accessRules) {
         // if client is systemic or admin, then bypass checks since no filtering is required.
-        var isSystemOrAdmin = ((user.HasClaim(BasicClaimTypes.Scope, _options.RequiredScope) && user.IsSystemClient()) || user.IsAdmin());
+        var canAddAccessRules =
+            user.HasRoleClaim(BasicRoleNames.CasesAdministrator) ||
+            user.IsAdmin() ||
+            user.IsSystemClient();
 
-        if (!isSystemOrAdmin) {
+        if (!canAddAccessRules) {
             throw new UnauthorizedAccessException("User does not have administrator rights.");
         }
 
@@ -149,13 +152,16 @@ internal class AccessRuleService : IAccessRuleService
 
     public async Task Delete(ClaimsPrincipal user, Guid id) {
         // if client is systemic or admin, then bypass checks since no filtering is required.
-        var isSystemOrAdmin = ((user.HasClaim(BasicClaimTypes.Scope, _options.RequiredScope) && user.IsSystemClient()) || user.IsAdmin());
+        var canDeleteAccessRules =
+            user.HasRoleClaim(BasicRoleNames.CasesAdministrator) ||
+            user.IsAdmin() ||
+            user.IsSystemClient();
 
         var dbAccessRule = await _dbContext.CaseAccessRules
                              .AsQueryable()
                              .FirstOrDefaultAsync(x => x.Id == id) ?? throw new AccessRuleFoundException("Rule was not not found.");
 
-        if (!isSystemOrAdmin && dbAccessRule.RuleCaseId is null) {
+        if (!canDeleteAccessRules && dbAccessRule.RuleCaseId is null) {
             throw new UnauthorizedAccessException("Only admin users can update this rule");
         }
         _dbContext.CaseAccessRules.Remove(dbAccessRule);
