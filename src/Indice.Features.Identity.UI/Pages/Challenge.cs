@@ -109,7 +109,7 @@ public abstract class BaseChallengeModel : BasePageModel
         await Task.CompletedTask;
         var claims = externalLoginInfo.Principal.Claims.ToList();
         TempData.Put("UserDetails", new AssociateViewModel {
-            UserName = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Email)?.Value,
+            UserName = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Email)?.Value ?? claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Name)?.Value,
             Email = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Email)?.Value ?? string.Empty,
             FirstName = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value ?? string.Empty,
             LastName = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value ?? string.Empty,
