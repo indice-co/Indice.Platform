@@ -6,6 +6,7 @@ using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services;
 using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Features.Cases.Server.Models;
+using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -32,22 +33,6 @@ internal static class WorkflowHandler
         ClaimsPrincipal currentUser,
         IAdminCaseMessageService adminCaseMessageService
     ) => await adminCaseMessageService.Send(caseId, currentUser, request.Message, request.WorkflowActor.ToAuditMeta());
-
-    /// <summary>Patch Case Data.</summary>
-    public static async Task PatchData(
-        Guid caseId,
-        JsonNode caseData,
-        ClaimsPrincipal currentUser,
-        IAdminCaseService adminCaseService
-    ) => await adminCaseService.PatchCaseData(currentUser, caseId, caseData);
-
-    /// <summary>Patch Case Metadata</summary>
-    public static async Task<bool> PatchMetadata(
-        Guid caseId,
-        Dictionary<string, string> metadata,
-        ClaimsPrincipal currentUser,
-        IAdminCaseService adminCaseService
-    ) => await adminCaseService.PatchCaseMetadata(caseId, currentUser, metadata);
 
     /// <summary>Rollback an approval</summary>
     /// <param name="caseId"></param>
@@ -113,6 +98,58 @@ internal static class WorkflowHandler
         
         return TypedResults.Ok();
     }
+    
+    /// <summary>Patch Case Data.</summary>
+    public static async Task PatchData(
+        Guid caseId,
+        JsonNode caseData,
+        ClaimsPrincipal currentUser,
+        IAdminCaseService adminCaseService
+    ) => await adminCaseService.PatchCaseData(currentUser, caseId, caseData);
+
+    /// <summary>Patch Case Metadata</summary>
+    public static async Task<bool> PatchMetadata(
+        Guid caseId,
+        Dictionary<string, string> metadata,
+        ClaimsPrincipal currentUser,
+        IAdminCaseService adminCaseService
+    ) => await adminCaseService.PatchCaseMetadata(caseId, currentUser, metadata);
+    
+    /// <summary>Uploads an Attachment as Admin for a case.</summary>
+    public static async Task<Results<Ok<CasesAttachmentLink>, ValidationProblem>> UploadAttachment(
+        Guid caseId,
+        IFormFile file, // todo: pass workflowActor
+        ClaimsPrincipal currentUser,
+        IAdminCaseMessageService adminCaseMessageService
+    ) {
+        if (file.Length == 0) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(file), "File is empty ."));
+        }
+        
+        var attachmentId = await adminCaseMessageService.Send(caseId, currentUser, new Message {
+            FileName = file.FileName,
+            FileStreamAccessor = file.OpenReadStream
+        });
+
+        return TypedResults.Ok(new CasesAttachmentLink {
+            Id = attachmentId.GetValueOrDefault()
+        });
+    }
+
+    /// <summary>Gets an attachment by id.</summary>
+    public static async Task<Results<Ok<CaseAttachment>, NotFound>> GetAttachment(
+        Guid caseId,
+        Guid attachmentId,
+        IAdminCaseService adminCaseService
+    ) {
+        var attachment = await adminCaseService.GetAttachment(caseId, attachmentId);
+        return attachment is null ? TypedResults.NotFound() : TypedResults.Ok(attachment);
+    }
+    
+    /// <summary>Gets all attachments of a case by id.</summary>
+    public static async Task<Ok<ResultSet<CaseAttachment>>> GetAttachments(Guid caseId, IAdminCaseService adminCaseService) =>
+        TypedResults.Ok(await adminCaseService.GetAttachments(caseId));
+
     
     #region endpoint description
 

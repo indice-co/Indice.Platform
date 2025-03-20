@@ -76,6 +76,19 @@ internal static class WorkflowApi
             .WithName(nameof(WorkflowHandler.PatchMetadata))
             .WithSummary("Patches the metadata of a case.")
             .WithDescription(WorkflowHandler.PatchMetadataDescription);
+
+        group.MapPost("{caseId}/upload-attachment", WorkflowHandler.UploadAttachment)
+            .WithName(nameof(WorkflowHandler.UploadAttachment))
+            .DisableAntiforgery()
+            .WithSummary("Uploads an attachment to a case.");
+        
+        group.MapGet("{caseId}/attachments/{attachmentId:guid}", WorkflowHandler.GetAttachment)
+            .WithName(nameof(WorkflowHandler.GetAttachment))
+            .WithSummary("Get a Case Attachment");
+        
+        group.MapGet("{caseId}/attachments", WorkflowHandler.GetAttachments)
+            .WithName(nameof(WorkflowHandler.GetAttachments))
+            .WithSummary("Get a list of Attachments for a CaseId");
         
         return group;
     }
