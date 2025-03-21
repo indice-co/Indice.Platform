@@ -264,7 +264,6 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             }
         }
         await base.SignOutAsync();
-        _stateProvider.ClearState();
     }
 
     /// <inheritdoc/>
@@ -319,9 +318,6 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             if (RequireMfaWhenUserHasTrustedBrowserButExpiredPassword) {
                 isRemembered = isRemembered && !user.HasExpiredPassword();
             }
-        }
-        if (isRemembered) {
-            await _stateProvider.ChangeStateAsync(user, UserAction.MultiFactorAuthenticated);
         }
         return isRemembered;
     }

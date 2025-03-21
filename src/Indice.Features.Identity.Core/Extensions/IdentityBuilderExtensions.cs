@@ -40,7 +40,6 @@ public static class IdentityBuilderExtensions
         builder.Services.TryAddTransient<IAuthenticationMethodProvider, AuthenticationMethodProviderInMemory>();
         builder.Services.TryAddSingleton<ISignInGuard<TUser>, SignInGuardNoOp<TUser>>();
         builder.AddSignInManager<ExtendedSignInManager<TUser>>();
-        builder.Services.TryAddScoped<IUserStateProvider<TUser>, DefaultUserStateProvider<TUser>>();
         return builder;
     }
 
