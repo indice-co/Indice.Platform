@@ -74,6 +74,9 @@
                         {
                             <div class="idp idp-@provider.AuthenticationScheme!.ToLower() mx-2.5">
                                 <a asp-page="/Challenge" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.View.ReturnUrl" asp-route-prompt="@OidcConstants.PromptModes.SelectAccount">
+                                    <span class="hidden">
+                                        @Localizer[provider.DisplayName!]
+                                    </span>
                                 </a>
                             </div>
                         }
