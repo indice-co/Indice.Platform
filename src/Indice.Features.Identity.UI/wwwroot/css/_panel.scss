@@ -340,3 +340,46 @@ li.idp {
         }
     }
 }
+
+.idp-govgr {
+    a {
+        background-image: url(../img/idps/govgr.svg);
+        background-repeat: no-repeat;
+        background-position: 12px center;
+        padding-left: 36px;
+        width: 100%;
+
+        &:active {
+            background-image: url(../img/idps/govgr.svg);
+        }
+
+        &:not([disabled]) {
+            &:not(.disabled) {
+                &:active {
+                    background-image: url(../img/idps/govgr.svg);
+                }
+            }
+        }
+
+        &.btn-outline-govgr {
+            color: $microsoft-gray;
+            background-color: transparent;
+            border-color: $microsoft-gray;
+
+            &:hover {
+                color: #fff;
+                background-color: $microsoft-gray;
+            }
+        }
+
+        &.btn-govgr {
+            color: #fff;
+            background-color: $microsoft-gray;
+
+
+            &:hover {
+                background-color: $microsoft-gray-hover;
+            }
+        }
+    }
+}
