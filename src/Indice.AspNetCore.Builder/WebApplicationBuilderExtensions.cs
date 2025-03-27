@@ -110,6 +110,8 @@ public static class WebApplicationBuilderExtensions
             options.ClientSecret = builder.Configuration.GetApiSecret("Introspection");
             // Enable caching so we avoid perform a round-trip to the introspection endpoint for each incoming request. 
             options.EnableCaching = true;
+            // Add cache key to avoid caching the same token for different apis (eg in case of Redis)
+            options.CacheKeyPrefix = options.ClientId;
             options.CacheDuration = TimeSpan.FromMinutes(5); // 5 minutes is the default. Should potentially go back up to defaults.
         });
         builder.Services.AddScopeTransformation();
