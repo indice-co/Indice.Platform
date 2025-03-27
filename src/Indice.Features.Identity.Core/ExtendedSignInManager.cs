@@ -148,7 +148,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         if (result.Warning == SignInWarning.ImpossibleTravel && _signInGuard.ImpossibleTravelDetector?.FlowType == ImpossibleTravelFlowType.DenyLogin) {
             return SignInResult.Failed;
         }
-        if (_stateProvider.ShouldSignInPartially()) {
+        if (ShouldSignInForExtendedValidation(user) || ShouldSignInForMfaOnBoarding(user)) {
             return await DoPartialSignInAsync(user, deviceId, ["pwd"]);
         }
         var mfaImplicitlyPassed = false;
@@ -174,7 +174,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
                 }
             }
         }
-        if (_stateProvider.ShouldSignInPartially()) {
+        if (ShouldSignInForExtendedValidation(user) || ShouldSignInForMfaOnBoarding(user)) {
             var authenticationMethods = new List<string> { "pwd" };
             if (mfaImplicitlyPassed) {
                 authenticationMethods.Add("mfa");
@@ -224,15 +224,18 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         }
         var error = await PreSignInCheck(user);
         if (error != null) {
-            return error;
+            return error!;
         }
         if (await ExtendedUserManager.VerifyTwoFactorTokenAsync(user, provider, code)) {
-            await _stateProvider.ChangeStateAsync(user, UserAction.MultiFactorAuthenticated);
             await DoTwoFactorSignInAsync(user, twoFactorInfo, isPersistent, rememberClient);
-            if (_stateProvider.ShouldSignInPartially()) {
+            if (ShouldSignInForExtendedValidation(user)) {
                 return await DoPartialSignInAsync(user, twoFactorInfo.DeviceId, ["pwd", "mfa"]);
             }
-            return new ExtendedSignInResult(_stateProvider.CurrentState);
+            return new ExtendedSignInResult(RequirePostSignInConfirmedEmail && !user.EmailConfirmed,
+                                            RequirePostSignInConfirmedPhoneNumber && !user.PhoneNumberConfirmed,
+                                            user.HasExpiredPassword(),
+                                            requiresMfaOnboarding: false,
+                                            isImpossibleTraveler: false);
         }
         if (ExtendedUserManager.SupportsUserLockout) {
             await ExtendedUserManager.AccessFailedAsync(user);
@@ -389,6 +392,14 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         return result;
     }
 
+    private bool ShouldSignInForExtendedValidation(TUser user) =>
+        (RequirePostSignInConfirmedEmail && !user.EmailConfirmed) ||
+        (RequirePostSignInConfirmedPhoneNumber && !user.PhoneNumberConfirmed) ||
+        user.HasExpiredPassword();
+
+    private bool ShouldSignInForMfaOnBoarding(TUser user) =>
+        !user.TwoFactorEnabled && MfaPolicy == MfaPolicy.Enforced;
+
     private async Task<bool> IsTfaEnabled(TUser user)
         => ExtendedUserManager.SupportsUserTwoFactor && user.TwoFactorEnabled && (await ExtendedUserManager.GetValidTwoFactorProvidersAsync(user)).Count > 0;
 
@@ -489,9 +500,6 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         if (rememberClient) {
             await RememberTwoFactorClientAsync(user);
         }
-        if (_stateProvider.CurrentState != UserState.LoggedIn) {
-            return;
-        }
         await ResetLockout(user);
         List<Claim> claims = [ 
             new(JwtClaimTypes.AuthenticationMethod, "pwd"), 
@@ -533,16 +541,6 @@ public class ExtendedSignInResult : SignInResult
         RequiresPasswordChange = requiresPasswordChange;
         RequiresMfaOnboarding = requiresMfaOnboarding;
         IsImpossibleTraveler = isImpossibleTraveler;
-    }
-
-    /// <summary>Constructs an instance of <see cref="ExtendedSignInResult"/> based on <see cref="UserState"/>.</summary>
-    public ExtendedSignInResult(UserState state) : this(
-        state == UserState.RequiresEmailVerification,
-        state == UserState.RequiresPhoneNumberVerification,
-        state == UserState.RequiresPasswordChange,
-        state == UserState.RequiresMfaOnboarding,
-        state == UserState.IsImpossibleTraveler) {
-        Succeeded = state == UserState.LoggedIn;
     }
 
     /// <summary>Returns a flag indication whether the user attempting to sign-in requires phone number confirmation.</summary>
