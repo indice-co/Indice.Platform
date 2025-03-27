@@ -54,8 +54,10 @@
 
 .idp-govgr {
     @apply rounded-full flex items-center justify-center h-[60px] w-[60px] border border-tenant-900;
+    background-color: rgb(0, 51, 117);
+    overflow:hidden;
     a {
-        @apply w-full h-full bg-center bg-no-repeat bg-[url("./../img/idps/govgr.svg")] bg-transparent;
-        background-size: 24px;
+        @apply w-full h-full bg-center bg-no-repeat bg-[url("./../img/idps/GovGr.svg")] bg-transparent;
+        background-size: 80%;
     }
 }

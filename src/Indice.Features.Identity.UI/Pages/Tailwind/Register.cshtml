@@ -249,7 +249,11 @@
                         @foreach (var provider in Model.View.VisibleExternalProviders)
                         {
                             <div class="idp idp-@provider.AuthenticationScheme!.ToLower() mx-2.5">
-                                <a asp-page="/Challenge" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.View.ReturnUrl" asp-route-prompt="@OidcConstants.PromptModes.SelectAccount"></a>
+                                <a asp-page="/Challenge" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.View.ReturnUrl" asp-route-prompt="@OidcConstants.PromptModes.SelectAccount" title="@Localizer[provider.DisplayName!]">
+                                    <span class="hidden">
+                                        @Localizer[provider.DisplayName!]
+                                    </span>
+                                </a>
                             </div>
                         }
                     </div>
