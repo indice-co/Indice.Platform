@@ -145,8 +145,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             .Where(options.Filter.Metadata ?? []); // filter Metadata
 
         // filter assignedTo
-        if (!string.IsNullOrWhiteSpace(options.Filter.AssignedToId)) {
-            queryCases = queryCases.Where(c => c.AssignedTo.Id == options.Filter.AssignedToId);
+        if (!string.IsNullOrWhiteSpace(options.Filter.AssignedTo)) {
+            queryCases = queryCases.Where(c => c.AssignedTo.Id == options.Filter.AssignedTo);
         }
 
         IQueryable<CasePartial> query;
