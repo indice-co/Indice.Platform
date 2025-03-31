@@ -122,15 +122,15 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     }
 
     public async Task<ResultSet<CasePartial>> GetCases(ClaimsPrincipal user, ListOptions<GetCasesListFilter> options) {
-        
+
         options.Filter.ShowAll ??= Options.ByPassAccessRulesForElevatedUsers;
-        
+
         // if client is systemic or admin, then bypass access rule checks since no filtering is required.
         var canOverrideAccessRules =
             user.HasRoleClaim(BasicRoleNames.CasesAdministrator) ||
             user.IsAdmin() ||
             user.IsSystemClient();
-        
+
 
         //by default we use access rules
         var ignoreAccessRules = canOverrideAccessRules && options.Filter.ShowAll == true;
@@ -143,6 +143,11 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             .AsNoTracking()
             .Where(c => !c.Draft) // filter out draft cases
             .Where(options.Filter.Metadata ?? []); // filter Metadata
+
+        // filter assignedTo
+        if (!string.IsNullOrWhiteSpace(options.Filter.AssignedTo)) {
+            queryCases = queryCases.Where(c => c.AssignedTo.Id == options.Filter.AssignedTo);
+        }
 
         IQueryable<CasePartial> query;
         if (ignoreAccessRules) {
@@ -302,6 +307,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                 };
             }
         }
+
+
 
         // filter CustomerId
         if (options.Filter.OwnerIds?.Length > 0) {
