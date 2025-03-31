@@ -297,6 +297,7 @@ public static class CasesWorkflowFeatureExtensions
             routes.MapControllers(); // this enables controllers from Elsa.Server.Api
         }
         routes.MapCasesWorkflowDesignerPage();
+        routes.MapWorkflowManager();
         return app;
     }
 
