@@ -136,7 +136,7 @@
     <value>Confirm your account.</value>
   </data>
   <data name="ForgotPasswordMessageBody" xml:space="preserve">
-    <value>Follow this link to verify your email is &gt;a href="{0}" &lt;{1}&gt;a&lt;</value>
+    <value>Follow this link to verify your email is &lt;a href="{0}" &gt;{1}&lt;a&gt;</value>
   </data>
   <data name="ForgotPasswordMessageSubject" xml:space="preserve">
     <value>Forgot password</value>

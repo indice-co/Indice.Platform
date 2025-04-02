@@ -124,7 +124,7 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Follow this link to verify your email is &gt;a href=&quot;{0}&quot; &lt;{1}&gt;a&lt;.
+        ///   Looks up a localized string similar to Follow this link to verify your email is &lt;a href=&quot;{0}&quot; &gt;{1}&lt;a&gt;.
         /// </summary>
         internal static string ForgotPasswordMessageBody {
             get {

@@ -139,7 +139,7 @@
     <value>Παρακαλώ επιβεβαιώστε το λογαριαμό σας.</value>
   </data>
   <data name="ForgotPasswordMessageBody" xml:space="preserve">
-    <value>Ακολουθήστε αυτόν τον σύνδεσμο για να επαληθεύσετε το email σας  &gt;a href="{0}" &lt;{1}&gt;a&lt;</value>
+    <value>Ακολουθήστε αυτόν τον σύνδεσμο για να επαληθεύσετε το email σας &lt;a href="{0}" &gt;{1}&lt;a&gt;</value>
   </data>
   <data name="ForgotPasswordMessageSubject" xml:space="preserve">
     <value>Ξέχασα τον κωδικό</value>
