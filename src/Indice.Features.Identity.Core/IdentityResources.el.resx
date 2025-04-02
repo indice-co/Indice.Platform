@@ -117,133 +117,133 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ConfirmationEmailSubject" xml:space="preserve">
+    <value>Επιβεβαίωση λογαριασμού</value>
+  </data>
   <data name="DeviceAlreadyTrusted" xml:space="preserve">
-    <value>Device is already trusted.</value>
+    <value>Η συσκευή είναι ήδη εγγεγραμένη.</value>
   </data>
   <data name="DevicePendingTrustActivation" xml:space="preserve">
-    <value>Device is pending trust activation.</value>
+    <value>Εκκρεμή η επιβεβαίωση της εγγραφής της συσκευής.</value>
   </data>
   <data name="DeviceRegistrationOtpCode" xml:space="preserve">
-    <value>Registration OTP code for device {0} is {1}.</value>
+    <value>Ο κωδικός OTP για την εγγραφή της συκευής {0} είναι {1}</value>
   </data>
   <data name="EmailAlreadyConfirmed" xml:space="preserve">
-    <value>User's email is already confirmed.</value>
+    <value>Το email έχει ήδη επιβαιωθεί.</value>
   </data>
   <data name="EmailUpdateMessageBody" xml:space="preserve">
-    <value>Email verification code is {0}.</value>
+    <value>Ο κωδικός επιβεβαίωσης για το email είναι {0}.</value>
   </data>
   <data name="EmailUpdateMessageSubject" xml:space="preserve">
-    <value>Confirm your account.</value>
+    <value>Παρακαλώ επιβεβαιώστε το λογαριαμό σας.</value>
   </data>
   <data name="ForgotPasswordMessageBody" xml:space="preserve">
-    <value>Follow this link to verify your email is &gt;a href="{0}" &lt;{1}&gt;a&lt;</value>
+    <value>Ακολουθήστε αυτόν τον σύνδεσμο για να επαληθεύσετε το email σας  &gt;a href="{0}" &lt;{1}&gt;a&lt;</value>
   </data>
   <data name="ForgotPasswordMessageSubject" xml:space="preserve">
-    <value>Forgot password</value>
+    <value>Ξέχασα τον κωδικό</value>
   </data>
   <data name="ImpossibleTravelOtpMessage" xml:space="preserve">
-    <value>Suspicious login attempt OTP code is {0}.</value>
+    <value>Ύποπτη προσπάθεια σύνδεσης. Ο κωδικός OTP είναι {0}.</value>
   </data>
   <data name="ImpossibleTravelOtpSubject" xml:space="preserve">
-    <value>Suspicious login attempt from a new location.</value>
+    <value>Ύποπτη προσπάθεια σύνδεσης από νέα τοποθεσία.</value>
   </data>
   <data name="InsufficientNumberOfDevices" xml:space="preserve">
-    <value>User must have at least 1 device.</value>
+    <value>Ο χρήστης πρέπει να έχει τουλάχιστον 1 συσκευή.</value>
   </data>
   <data name="InvalidPhoneNumber" xml:space="preserve">
-    <value>Phone number is not valid '{0}'.</value>
+    <value>Ο αριθμός τηλεφώνου '{0}' δεν είναι έγκυρος,</value>
   </data>
   <data name="LargeNumberOfDevices" xml:space="preserve">
-    <value>Cannot set max number of devices to {0}. Maximum value can be {1}.</value>
+    <value>Δεν μπορείτε να ορίσετε τον μέγιστο αριθμό συσκευών σε {0}. Η μέγιστη επιτρεπτή τιμή είναι {1}.</value>
   </data>
   <data name="LargeNumberOfUserDevices" xml:space="preserve">
-    <value>User already has {0} devices. Cannot set max number to {1}.</value>
+    <value>Ο χρήστης έχει ήδη {0} συσκευές. Δεν μπορείτε να ορίστε το μέγιστο αριθμό σε {1}.</value>
   </data>
   <data name="MaxNumberOfDevices" xml:space="preserve">
-    <value>You have reached the maximum number of registered devices.</value>
+    <value>Έχετε φτάσει το μέγιστο επιτρεπτό αριθμό εγγεγραμένων συσκευών.</value>
   </data>
   <data name="OtpSecuredValidatorOtpBody" xml:space="preserve">
-    <value>Your verification code is '{0}'.</value>
+    <value>Ο κωδικός επιβεβαίωσης είναι '{0}'.</value>
   </data>
   <data name="OtpSecuredValidatorOtpSubject" xml:space="preserve">
-    <value>OTP Verification</value>
+    <value>Επιβεβαίωση OTP</value>
   </data>
   <data name="PasswordContainsNotAllowedChars" xml:space="preserve">
-    <value>Your password contains not allowed characters.</value>
+    <value>Ο κωδικός σας περιέχει μη επιτρεπτούς χαρακτήρες.</value>
   </data>
   <data name="PasswordContainsNotAllowedCharsRequirement" xml:space="preserve">
-    <value>Not allowed characters.</value>
+    <value>Χαρακτήρες που δεν επιτρέπονται.</value>
   </data>
   <data name="PasswordHasNonLatinChars" xml:space="preserve">
-    <value>Password cannot contain non-Latin characters.</value>
+    <value>Ο κωδικός δεν μπορεί να περιέχει μη Λατινικούς χαρακτήρες. </value>
   </data>
   <data name="PasswordHasNonLatinCharsRequirement" xml:space="preserve">
-    <value>Does not contain non-Latin characters.</value>
+    <value>Δεν περιέχει μη Λατινικούς χαρακτήρες. </value>
   </data>
   <data name="PasswordIdenticalToUserName" xml:space="preserve">
-    <value>Your password looks a lot like your username which can lead to your account been hacked.</value>
+    <value>Ο κωδικός πρόσβασής σας είναι πολύ παρόμοιος με το όνομα χρήστη, γεγονός που μπορεί να θέσει τον λογαριασμό σας σε κίνδυνο.</value>
   </data>
   <data name="PasswordIdenticalToUserNameRequirement" xml:space="preserve">
-    <value>Does not contain part of your username.</value>
+    <value>Δεν περιέχει κομάτι του ονόματος χρήστη.</value>
   </data>
   <data name="PasswordIsCommon" xml:space="preserve">
-    <value>Password is very easy to guess, please choose a more complex one.</value>
+    <value>Ο κωδικός που επιλέξατε είναι αδύναμος. Παρακαλώ εισαγάγετε έναν πιο σύνθετο κωδικό για μεγαλύτερη ασφάλεια.</value>
   </data>
   <data name="PasswordIsCommonRequirement" xml:space="preserve">
-    <value>Not easy to guess.</value>
+    <value>Ο κωδικός που επιλέξατε είναι ισχυρός.</value>
   </data>
   <data name="PasswordRecentlyUsed" xml:space="preserve">
-    <value>This password has been used recently. It is a good practice not to re-use your previous password.</value>
+    <value>Αυτός ο κωδικός πρόσβασης έχει χρησιμοποιηθεί πρόσφατα. Είναι καλή πρακτική να μην επαναχρησιμοποιείτε τον προηγούμενο κωδικό σας.</value>
   </data>
   <data name="PasswordRecentlyUsedRequirement" xml:space="preserve">
-    <value>Not recently used.</value>
+    <value>Δεν έχει χρησιμοποιηθεί πρόσφατα.</value>
   </data>
   <data name="PasswordRequiresDigitRequirement" xml:space="preserve">
-    <value>A numeric character.</value>
+    <value>Έναν αριθμητικό χαρακτήρα</value>
   </data>
   <data name="PasswordRequiresLowerRequirement" xml:space="preserve">
-    <value>A lower case letter.</value>
+    <value>Ένα πεζό γράμμα.</value>
   </data>
   <data name="PasswordRequiresNonAlphanumericRequirement" xml:space="preserve">
-    <value>A non-alphanumeric character.</value>
+    <value>Ένας μη αλφαριθμητικός χαρακτήρας.</value>
   </data>
   <data name="PasswordRequiresUniqueCharsRequirement" xml:space="preserve">
-    <value>{0} unique chars required.</value>
+    <value>Απαιτούνται {0} ειδικοί χαρακτήρες</value>
   </data>
   <data name="PasswordRequiresUpperRequirement" xml:space="preserve">
-    <value>An upper case letter.</value>
+    <value>Ένα κεφαλαίο γράμμα.</value>
   </data>
   <data name="PasswordTooShortRequirement" xml:space="preserve">
-    <value>At least {0} characters long.</value>
+    <value>Πρέπει να έχει τουλάχιστον {0} χαρακτήρες.</value>
   </data>
   <data name="PhoneNumberAlreadyConfirmed" xml:space="preserve">
-    <value>User's phone number is already confirmed.</value>
+    <value>Ο αριθμός τηλεφώνου του χρήστη έχει ήδη επιβεβαιωθεί.</value>
   </data>
   <data name="PhoneNumberVerificationMessage" xml:space="preserve">
-    <value>SMS verification code is {0}.</value>
+    <value>Ο κωδικός επιβεβαίωσης μέσω SMS είναι {0}.</value>
   </data>
   <data name="RequiresOtpMessage" xml:space="preserve">
-    <value>OTP code is {0}.</value>
+    <value>Ο κωδικός OTP είναι {0}.</value>
   </data>
   <data name="TrustedDeviceRequiresOtpMessage" xml:space="preserve">
-    <value>OTP code is {0}.</value>
+    <value>Ο κωδικός OTP είναι {0}.</value>
   </data>
   <data name="TrustedDevicesLimitReached" xml:space="preserve">
-    <value>You have reached the maximum number of trusted devices.</value>
+    <value>Έχετε φτάσει στον μέγιστο αριθμό αξιόπιστων συσκευών.</value>
   </data>
   <data name="UserAlreadyHasEmail" xml:space="preserve">
-    <value>User already has email '{0}'.</value>
+    <value>Ο χρήστης έχει ήδη το email '{0}'.</value>
   </data>
   <data name="UserAlreadyHasPhoneNumber" xml:space="preserve">
-    <value>User already has phone number '{0}'.</value>
-  </data>
-  <data name="ConfirmationEmailSubject" xml:space="preserve">
-    <value>Account confirmation</value>
+    <value>Ο χρήστης έχει ήδη τον αριθμό τηλεφώνου '{0}'.</value>
   </data>
   <data name="PhoneVerificationSmsSubject" xml:space="preserve">
-    <value>Verify phone number</value>
+    <value>Επιβεβαιώστε τον αριθμό τηλεφώνου</value>
   </data>
   <data name="PhoneVerificationSmsBody" xml:space="preserve">
-    <value>OTP CODE: {0} FOR PHONE NUMBER VERIFICATION. IT WILL BE VALID FOR 2 MINUTES.</value>
+    <value>ΚΩΔΙΚΟΣ OTP: {0} ΓΙΑ ΕΠΙΒΕΒΑΙΩΣΗ ΑΡΙΘΜΟΥ ΤΗΛΕΦΩΝΟΥ. Ο ΚΩΔΙΚΟΣ ΕΧΕΙ ΙΣΧΥ ΓΙΑ 2 ΛΕΠΤΑ.</value>
   </data>
 </root>

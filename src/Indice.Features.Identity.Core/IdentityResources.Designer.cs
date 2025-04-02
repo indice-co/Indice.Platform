@@ -61,6 +61,15 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Account confirmation.
+        /// </summary>
+        internal static string ConfirmationEmailSubject {
+            get {
+                return ResourceManager.GetString("ConfirmationEmailSubject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Device is already trusted..
         /// </summary>
         internal static string DeviceAlreadyTrusted {
@@ -372,6 +381,24 @@ namespace Indice.Features.Identity.Core {
         internal static string PhoneNumberVerificationMessage {
             get {
                 return ResourceManager.GetString("PhoneNumberVerificationMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OTP CODE: {0} FOR PHONE NUMBER VERIFICATION. IT WILL BE VALID FOR 2 MINUTES..
+        /// </summary>
+        internal static string PhoneVerificationSmsBody {
+            get {
+                return ResourceManager.GetString("PhoneVerificationSmsBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verify phone number.
+        /// </summary>
+        internal static string PhoneVerificationSmsSubject {
+            get {
+                return ResourceManager.GetString("PhoneVerificationSmsSubject", resourceCulture);
             }
         }
         

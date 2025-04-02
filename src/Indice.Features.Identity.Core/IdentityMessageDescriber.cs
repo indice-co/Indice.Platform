@@ -77,4 +77,10 @@ public class IdentityMessageDescriber
     public virtual string ImpossibleTravelOtpMessage() => string.Format(IdentityResources.Culture, IdentityResources.ImpossibleTravelOtpMessage, "{0}");
     /// <summary>Subject content for suspicious login attempt (Impossible Travel).</summary>
     public virtual string ImpossibleTravelOtpSubject => string.Format(IdentityResources.Culture, IdentityResources.ImpossibleTravelOtpSubject);
+    /// <summary>Subject content for confirmation email.</summary>
+    public virtual string ConfirmationEmailSubject => string.Format(IdentityResources.Culture, IdentityResources.ConfirmationEmailSubject);
+    /// <summary>OTP Subject for phone confirmation.</summary>
+    public virtual string PhoneVerificationSmsSubject => string.Format(IdentityResources.Culture, IdentityResources.PhoneVerificationSmsSubject);
+    /// <summary>OTP body for phone confirmation.</summary>
+    public virtual string PhoneVerificationSmsBody(string code) => string.Format(IdentityResources.Culture, IdentityResources.PhoneVerificationSmsBody, code);
 }
