@@ -1,10 +1,8 @@
-﻿using System.Globalization;
-using IdentityModel;
+﻿using IdentityModel;
 using IdentityServer4.Services;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Services;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
@@ -13,7 +11,6 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
@@ -109,10 +106,10 @@ public abstract class BasePageModel : PageModel
         }
         var callbackUrl = Url.PageLink("/ConfirmEmail", values: new { userId = user.Id, token, returnUrl, client_id = HttpContext.GetClientIdFromReturnUrl() }, protocol: HttpContext.Request.Scheme ?? null);
         var emailService = ServiceProvider.GetRequiredService<IEmailService>();
-        var localizer = ServiceProvider.GetRequiredService<IStringLocalizer<BasePageModel>>();
+        var identityMessageDescriber = ServiceProvider.GetRequiredService<IdentityMessageDescriber>();
         await emailService.SendAsync(message =>
             message.To(user.Email!)
-                   .WithSubject(localizer["Account confirmation"])
+                   .WithSubject(identityMessageDescriber.ConfirmationEmailSubject)
                    .UsingTemplate("EmailRegister")
                    .WithData(new {
                        user.UserName,
@@ -144,10 +141,10 @@ public abstract class BasePageModel : PageModel
         var callbackUrl = Url.PageLink("/ChangeEmail", values: new { userId = user.Id, token, email = newEmail, returnUrl, client_id = HttpContext.GetClientIdFromReturnUrl() });
         var claims = await userManager.GetClaimsAsync(user);
         var emailService = ServiceProvider.GetRequiredService<IEmailService>();
-        var localizer = ServiceProvider.GetRequiredService<IStringLocalizer<BasePageModel>>();
+        var identityMessageDescriber = ServiceProvider.GetRequiredService<IdentityMessageDescriber>();
         await emailService.SendAsync(message =>
             message.To(user.Email!)
-                   .WithSubject(localizer["Account confirmation"])
+                   .WithSubject(identityMessageDescriber.ConfirmationEmailSubject)
                    .UsingTemplate("EmailConfirmYourEmail")
                    .WithData(new {
                        UserName = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value ?? user.UserName,
@@ -163,7 +160,7 @@ public abstract class BasePageModel : PageModel
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var code = await userManager.GenerateChangePhoneNumberTokenAsync(user, phoneNumber);
         var smsService = ServiceProvider.GetRequiredService<ISmsService>();
-        var localizer = ServiceProvider.GetRequiredService<IStringLocalizer<BasePageModel>>();
-        await smsService.SendAsync(phoneNumber, localizer["Verify phone number"], localizer["OTP CODE: {0} FOR PHONE NUMBER VERIFICATION. IT WILL BE VALID FOR 2 MINUTES.", code]);
+        var identityMessageDescriber = ServiceProvider.GetRequiredService<IdentityMessageDescriber>();
+        await smsService.SendAsync(phoneNumber, identityMessageDescriber.PhoneVerificationSmsSubject, identityMessageDescriber.PhoneVerificationSmsBody(code));
     }
 }
