@@ -1,9 +1,11 @@
 ﻿using System.Security.Claims;
+using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Services.Abstractions;
 using Json.Patch;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Server.Endpoints;
 
@@ -34,8 +36,10 @@ internal static class AdminCaseDataHandlers
     /// </param>
     /// <param name="adminCaseService"/>
     /// <param name="user"/>
-    public static async Task<NoContent> PatchAdminCaseData(Guid caseId, object patch, IAdminCaseService adminCaseService, ClaimsPrincipal user) {
-        await adminCaseService.PatchCaseData(user, caseId, patch);
+    public static async Task<NoContent> PatchAdminCaseData(Guid caseId, object patch, IAdminCaseService adminCaseService, 
+        ClaimsPrincipal user, 
+        IOptions<CasesOptions> casesOptions ) {
+        await adminCaseService.PatchCaseData(user.UserToActor(casesOptions.Value), caseId, patch);
         return TypedResults.NoContent();
     }
 
@@ -55,11 +59,14 @@ internal static class AdminCaseDataHandlers
     /// <b>If the path is found "add" works as add or replace.</b>
     /// <b>This will NOT create non existing paths, be sure to specify the full object as value on a JsonPointer that exists.</b>
     /// </param>
+    /// <param name="casesOptions"></param>
     /// <param name="adminCaseService"/>
     /// <param name="user"/>
-    public static async Task<NoContent> JsonPatchAdminCaseData(Guid caseId, List<PatchJsonPathRequest> request, IAdminCaseService adminCaseService, ClaimsPrincipal user) {
+    public static async Task<NoContent> JsonPatchAdminCaseData(Guid caseId, List<PatchJsonPathRequest> request, IAdminCaseService adminCaseService, 
+        ClaimsPrincipal user,
+        IOptions<CasesOptions> casesOptions) {
         var operations = request.Select(op => op.ToPatchOperation()).ToList();
-        await adminCaseService.PatchCaseData(user, caseId, new JsonPatch(operations));
+        await adminCaseService.PatchCaseData(user.UserToActor(casesOptions.Value), caseId, new JsonPatch(operations));
         return TypedResults.NoContent();
     }
 }

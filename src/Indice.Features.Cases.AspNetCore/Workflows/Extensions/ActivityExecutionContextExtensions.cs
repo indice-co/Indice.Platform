@@ -24,4 +24,10 @@ public static class ActivityExecutionContextExtensions
         var httpContextAccessor = context.GetService<IHttpContextAccessor>();
         return httpContextAccessor.HttpContext?.User!;
     }
+    public static ClaimsPrincipal TryGetActor(this ActivityExecutionContext context) {
+        var runAsSystemUser = context.GetVariable<bool>("RunAsSystemUser");
+        return runAsSystemUser
+            ? CasesClaimsPrincipalExtensions.SystemUser()
+            : GetHttpContextUser(context);
+    }
 }

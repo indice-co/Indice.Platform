@@ -24,7 +24,7 @@ internal class CaseActionsService : ICaseActionsService
         this._logger = logger;
     }
 
-    public async Task<CaseActions?> GetUserActions(ClaimsPrincipal user, Guid caseId) {
+    public async Task<CaseActions?> GetUserActions(WorkflowActor user, Guid caseId) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
         var @case = await _casesDbContext.Cases.Where(x => x.Id == caseId)
@@ -38,11 +38,7 @@ internal class CaseActionsService : ICaseActionsService
             return null;
         }
 
-        var userRoles = user
-            .FindAll(claim => claim.Type == BasicClaimTypes.Role)
-            .Select(claim => claim.Value)
-            .ToArray();
-        if (userRoles.Length == 0 && !user.IsSystemClient()) {
+        if (user.Roles.Count == 0 && !user.IsSystemClient) {
             return new CaseActions();
         }
         var lastApprovedById = await _casesDbContext.CaseApprovals
@@ -50,6 +46,6 @@ internal class CaseActionsService : ICaseActionsService
                                                     .OrderByDescending(p => p.CreatedBy.When)
                                                     .Select(p => p.CreatedBy.Id)
                                                     .FirstOrDefaultAsync();
-        return await _workflowManager.GetAvailableActionsAsync(user, caseId, @case.AssignedToId, userRoles, lastApprovedById);
+        return await _workflowManager.GetAvailableActionsAsync(user, caseId, @case.AssignedToId, user.Roles.ToArray(), lastApprovedById);
     }
 }

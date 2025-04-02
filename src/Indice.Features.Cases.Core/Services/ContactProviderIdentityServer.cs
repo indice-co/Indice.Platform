@@ -38,7 +38,7 @@ internal class ContactProviderIdentityServer : IContactProvider
     }
 
 
-    public async Task<ResultSet<Contact>> GetListAsync(ClaimsPrincipal user, ListOptions<ContactFilter> listOptions) {
+    public async Task<ResultSet<Contact>> GetListAsync(WorkflowActor user, ListOptions<ContactFilter> listOptions) {
         var accessToken = await GetAccessToken();
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         var uriBuilder = new UriBuilder("api/users") {
@@ -59,7 +59,7 @@ internal class ContactProviderIdentityServer : IContactProvider
         return result!.Items.Select(x => x.ToContact(_caseOptions)).ToResultSet(result.Count);
     }
 
-    public async Task<Contact?> GetByReferenceAsync(ClaimsPrincipal user, string reference, string caseTypeCode) {
+    public async Task<Contact?> GetByReferenceAsync(WorkflowActor user, string reference, string caseTypeCode) {
         if (string.IsNullOrWhiteSpace(reference)) {
             return default;
         }

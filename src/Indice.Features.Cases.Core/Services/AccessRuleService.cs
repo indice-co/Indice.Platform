@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Linq.Expressions;
-using System.Security.Claims;
+﻿using System.Linq.Expressions;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Data.Models;
 using Indice.Features.Cases.Core.Exceptions;
@@ -8,21 +6,17 @@ using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Requests;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services.Abstractions;
-using Indice.Security;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Core.Services;
 
 internal class AccessRuleService : IAccessRuleService
 {
     private readonly CasesDbContext _dbContext;
-    private readonly CasesOptions _options;
 
-    public AccessRuleService(CasesDbContext dbContext, IOptions<CasesOptions> options) {
+    public AccessRuleService(CasesDbContext dbContext) {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-        _options = options.Value;
     }
 
 
@@ -87,9 +81,10 @@ internal class AccessRuleService : IAccessRuleService
         return await query.Select(ToModelExpression()).ToListAsync();
     }
 
-    public async Task AdminCreate(ClaimsPrincipal user, AddAccessRuleRequest accessRule) {
+    public async Task AdminCreate(WorkflowActor user, AddAccessRuleRequest accessRule) {
         // if client is systemic or admin, then bypass checks since no filtering is required.
-        var isSystemOrAdmin = user.IsSystemClient() || user.IsAdmin();
+        //TODO: this check need to run on contoller
+        var isSystemOrAdmin = user.IsSystemClient || user.IsAdmin;
         if (!isSystemOrAdmin) {
             throw new UnauthorizedAccessException("User does not have administrator rights.");
         }
@@ -99,12 +94,10 @@ internal class AccessRuleService : IAccessRuleService
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task AdminBatch(ClaimsPrincipal user, List<AddAccessRuleRequest> accessRules) {
+    public async Task AdminBatch(WorkflowActor user, List<AddAccessRuleRequest> accessRules) {
         // if client is systemic or admin, then bypass checks since no filtering is required.
-        var canAddAccessRules =
-            user.HasRoleClaim(BasicRoleNames.CasesAdministrator) ||
-            user.IsAdmin() ||
-            user.IsSystemClient();
+        //TODO: this check need to run on contoller
+        var canAddAccessRules = user.IsSystemClient || user.IsAdmin;
 
         if (!canAddAccessRules) {
             throw new UnauthorizedAccessException("User does not have administrator rights.");
@@ -118,16 +111,17 @@ internal class AccessRuleService : IAccessRuleService
     }
 
 
-    public async Task Create(ClaimsPrincipal user, Guid caseId, AddCaseAccessRuleRequest accessRule) {
+    public async Task Create(WorkflowActor user, Guid caseId, AddCaseAccessRuleRequest accessRule) {
         var entity = FromModel(accessRule, caseId);
         await _dbContext.CaseAccessRules.AddAsync(entity);
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<AccessRule> Update(ClaimsPrincipal user, Guid accessRuleId, int accessLevel) {
+    public async Task<AccessRule> Update(WorkflowActor user, Guid accessRuleId, int accessLevel) {
 
         // if client is systemic or admin, then bypass checks since no filtering is required.
-        var isSystemOrAdmin = ((user.HasClaim(BasicClaimTypes.Scope, CasesCoreConstants.DefaultScopeName) && user.IsSystemClient()) || user.IsAdmin());
+        //TODO: this check need to run on contoller
+        var isSystemOrAdmin = user.IsSystemClient || user.IsAdmin;
 
         var dbAccessRule = await _dbContext.CaseAccessRules
                              .AsQueryable()
@@ -143,19 +137,16 @@ internal class AccessRuleService : IAccessRuleService
         return ToModel(dbAccessRule);
     }
 
-    public async Task Batch(ClaimsPrincipal user, Guid caseId, List<AddCaseAccessRuleRequest> accessRules) {
+    public async Task Batch(WorkflowActor user, Guid caseId, List<AddCaseAccessRuleRequest> accessRules) {
         foreach (var accessRule in accessRules) {
             await _dbContext.CaseAccessRules.AddAsync(FromModel(accessRule, caseId));
         }
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task Delete(ClaimsPrincipal user, Guid id) {
+    public async Task Delete(WorkflowActor user, Guid id) {
         // if client is systemic or admin, then bypass checks since no filtering is required.
-        var canDeleteAccessRules =
-            user.HasRoleClaim(BasicRoleNames.CasesAdministrator) ||
-            user.IsAdmin() ||
-            user.IsSystemClient();
+        var canDeleteAccessRules = user.IsSystemClient || user.IsAdmin;
 
         var dbAccessRule = await _dbContext.CaseAccessRules
                              .AsQueryable()
@@ -168,7 +159,7 @@ internal class AccessRuleService : IAccessRuleService
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<bool> ReplaceUser(ClaimsPrincipal user, Guid caseId, string existingUserId, string newUserId) {
+    public async Task<bool> ReplaceUser(WorkflowActor user, Guid caseId, string existingUserId, string newUserId) {
         var query = _dbContext.CaseAccessRules
             .Where(x =>
                 x.RuleCaseId == caseId &&

@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text.Json.Nodes;
+using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Core.Localization;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
@@ -8,6 +9,7 @@ using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Features.Cases.Server.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Server.Endpoints;
 
@@ -21,33 +23,37 @@ internal static class WorkflowHandler
     public static async Task<Results<Ok<Case>, NotFound>> GetById(
         Guid caseId,
         ClaimsPrincipal currentUser, // todo: add workflow actor
+        IOptions<CasesOptions> casesOptions,
         IAdminCaseService adminCaseService,
         bool includeAttachments = false
-    ) => TypedResults.Ok(await adminCaseService.GetCaseById(currentUser, caseId, includeAttachments));
+    ) => TypedResults.Ok(await adminCaseService.GetCaseById(currentUser.UserToActor(casesOptions.Value), caseId, includeAttachments));
 
     /// <summary>Sends a message as Admin for a case.</summary>
     public static async Task SendMessage(
         Guid caseId,
         WorkflowSendMessageRequest request,
         ClaimsPrincipal currentUser,
+        IOptions<CasesOptions> casesOptions,
         IAdminCaseMessageService adminCaseMessageService
-    ) => await adminCaseMessageService.Send(caseId, currentUser, request.Message, request.WorkflowActor.ToAuditMeta());
+    ) => await adminCaseMessageService.Send(caseId, currentUser.UserToActor(casesOptions.Value), request.Message, request.WorkflowActor.ToAuditMeta());
 
     /// <summary>Patch Case Data.</summary>
     public static async Task PatchData(
         Guid caseId,
         JsonNode caseData,
         ClaimsPrincipal currentUser,
+        IOptions<CasesOptions> casesOptions,
         IAdminCaseService adminCaseService
-    ) => await adminCaseService.PatchCaseData(currentUser, caseId, caseData);
+    ) => await adminCaseService.PatchCaseData(currentUser.UserToActor(casesOptions.Value), caseId, caseData);
 
     /// <summary>Patch Case Metadata</summary>
     public static async Task<bool> PatchMetadata(
         Guid caseId,
         Dictionary<string, string> metadata,
         ClaimsPrincipal currentUser,
+        IOptions<CasesOptions> casesOptions,
         IAdminCaseService adminCaseService
-    ) => await adminCaseService.PatchCaseMetadata(caseId, currentUser, metadata);
+    ) => await adminCaseService.PatchCaseMetadata(caseId, currentUser.UserToActor(casesOptions.Value), metadata);
 
     /// <summary>Rollback an approval</summary>
     /// <param name="caseId"></param>
@@ -72,12 +78,13 @@ internal static class WorkflowHandler
         Guid caseId,
         WorkflowAddApprovalWithCommentRequest request,
         ClaimsPrincipal currentUser,
+        IOptions<CasesOptions> casesOptions,
         IAdminCaseMessageService caseMessageService,
         CaseSharedResourceService caseSharedResourceService,
         ICaseApprovalService caseApprovalService
     ) {
         var createdBy = request.WorkflowActor.ToAuditMeta();
-        await caseMessageService.Send(caseId, currentUser, new Message {
+        await caseMessageService.Send(caseId, currentUser.UserToActor(casesOptions.Value), new Message {
             Comment = caseSharedResourceService.GetLocalizedHtmlString(request.Reason ?? string.Empty).Value,
             PrivateComment = request.PrivateComment
         }, createdBy);
@@ -100,11 +107,12 @@ internal static class WorkflowHandler
         Guid caseId,
         WorkflowActor actor,
         ClaimsPrincipal currentUser,
+        IOptions<CasesOptions> casesOptions,
         CasesMessageDescriber casesMessageDescriber,
         IAdminCaseMessageService caseMessageService,
         IAdminCaseService adminCaseService
     ) {
-        await caseMessageService.Send(caseId, currentUser, new Message {
+        await caseMessageService.Send(caseId, currentUser.UserToActor(casesOptions.Value), new Message {
             Comment = casesMessageDescriber.BlockPreviousApproverCommentWithCulture("en-US"), // todo: pass culture in body
             PrivateComment = true
         }, actor.ToAuditMeta());

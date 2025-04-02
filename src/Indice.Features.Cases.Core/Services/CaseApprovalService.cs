@@ -22,7 +22,7 @@ internal class CaseApprovalService : ICaseApprovalService
 
     public async Task AddApproval(Guid caseId, Guid? commentId, Approval action, string? reason, AuditMeta createdBy) {
         if (caseId == Guid.Empty) throw new ArgumentNullException(nameof(caseId));
-        if (createdBy.Id is null) throw new ArgumentNullException(nameof(createdBy.Id));
+        if (createdBy.Id is null) throw new ArgumentNullException(nameof(createdBy), "createdBy.Id cannot be null");
 
         await _dbContext.CaseApprovals.AddAsync(new DbCaseApproval {
             CreatedBy = createdBy,
@@ -54,7 +54,7 @@ internal class CaseApprovalService : ICaseApprovalService
     public async ValueTask RollbackApproval(Guid caseId) {
         var approval = await GetLastApproval(caseId);
         if (approval == null) {
-            throw new ArgumentNullException(nameof(approval), "Case is not valid.");
+            throw new ArgumentNullException(nameof(caseId), "Case is not valid.");
         }
         approval.Committed = false;
         await _dbContext.SaveChangesAsync();
@@ -62,7 +62,7 @@ internal class CaseApprovalService : ICaseApprovalService
 
 
     /// <inheritdoc/>
-    public Task<List<RejectReason>> GetRejectReasons(ClaimsPrincipal user, Guid caseId) {
+    public Task<List<RejectReason>> GetRejectReasons(WorkflowActor user, Guid caseId) {
         return _workflowManager.GetApprovalRejectOptionsListAsync(user, caseId);
     }
 }

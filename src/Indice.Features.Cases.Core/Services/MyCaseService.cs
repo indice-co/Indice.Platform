@@ -36,7 +36,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         _caseSharedResourceService = caseSharedResourceService;
     }
 
-    public async Task<CreateCaseResponse> CreateDraft(ClaimsPrincipal user,
+    public async Task<CreateCaseResponse> CreateDraft(WorkflowActor user,
         string caseTypeCode,
         string? groupId,
         ContactMeta? customer,
@@ -61,14 +61,14 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         };
     }
 
-    public async Task UpdateData(ClaimsPrincipal user, Guid caseId, dynamic data) {
+    public async Task UpdateData(WorkflowActor user, Guid caseId, dynamic data) {
         if (user == null) throw new ArgumentNullException(nameof(user));
         if (caseId == default) throw new ArgumentNullException(nameof(caseId));
         if (data is null) throw new ArgumentNullException(nameof(data));
         await _caseMessageService.Send(caseId, user, new Message { Data = data });
     }
 
-    public async Task Submit(ClaimsPrincipal user, Guid caseId) {
+    public async Task Submit(WorkflowActor user, Guid caseId) {
         if (caseId == default) throw new ArgumentNullException(nameof(caseId));
 
         var @case = await GetDbCaseForCustomer(caseId, user);
@@ -85,19 +85,19 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             new WorkflowActor {
                 Id = @case.CreatedBy.Id,
                 Reference = @case.Owner.Reference,
-                GroupId = user.FindFirstValue(Options.GroupIdClaimType),
+                GroupId = user.GroupId,
                 Email = @case.CreatedBy.Email,
                 Name = @case.CreatedBy.Name,
                 CurrentCulture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName
             }));
     }
 
-    public async Task<Case?> GetCaseById(ClaimsPrincipal user, Guid caseId) {
-        var userId = user.FindSubjectIdOrClientId()!;
+    public async Task<Case?> GetCaseById(WorkflowActor user, Guid caseId) {
+
         var query =
-            from c in GetCasesInternal(userId, includeAttachmentData: true, SchemaSelector)
-            let isCustomer = userId == c.OwnerId
-            let isCreator = userId == c.CreatedById
+            from c in GetCasesInternal(user.Id, includeAttachmentData: true, SchemaSelector)
+            let isCustomer = user.Id == c.OwnerId
+            let isCreator = user.Id == c.CreatedById
             let isOwner = isCustomer || isCreator
             where c.Id == caseId && isOwner
             select c;
@@ -116,11 +116,11 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         return @case;
     }
 
-    public async Task<ResultSet<MyCasePartial>> GetCases(ClaimsPrincipal user, ListOptions<GetMyCasesListFilter> options) {
-        var userId = user.FindSubjectIdOrClientId();
+    public async Task<ResultSet<MyCasePartial>> GetCases(WorkflowActor user, ListOptions<GetMyCasesListFilter> options) {
+        
         var dbCaseQueryable = DbContext.Cases
             .AsQueryable()
-            .Where(p => (p.CreatedBy.Id == userId || p.Owner.UserId == userId) && p.PublicCheckpoint.CheckpointType.Status != CaseStatus.Deleted)
+            .Where(p => (p.CreatedBy.Id == user.Id || p.Owner.UserId == user.Id) && p.PublicCheckpoint.CheckpointType.Status != CaseStatus.Deleted)
             .Where(options.Filter.Metadata!);
 
         // We do not return draft cases as a default behaviour either when

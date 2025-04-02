@@ -20,7 +20,7 @@ public interface ICaseMessageService
     ///  <param name="user">The user that creates the message.</param>
     ///  <param name="message">The message to send.</param>
     ///  <returns></returns>
-    Task<Guid?> Send(Guid caseId, ClaimsPrincipal user, Message message) => Send(caseId, user, message, AuditMeta.Create(user));
+    Task<Guid?> Send(Guid caseId, WorkflowActor user, Message message) => Send(caseId, user, message, AuditMeta.Create(user));
     
     ///  <summary>
     ///  When the user that sends the message sends it on behalf of another user.
@@ -38,7 +38,7 @@ public interface ICaseMessageService
     ///  <param name="message">The message to send.</param>
     ///  <param name="createdBy">The user that creates the message.</param>
     ///  <returns></returns>
-    Task<Guid?> Send(Guid caseId, ClaimsPrincipal user, Message message, AuditMeta createdBy);
+    Task<Guid?> Send(Guid caseId, WorkflowActor user, Message message, AuditMeta createdBy);
 }
 
 /// <summary>Placeholder to indicate MyCase feature.</summary>
@@ -66,7 +66,7 @@ public static class ICaseMessageServiceExtensions
     /// <param name="exception">The exception to send.</param>
     /// <param name="message">The message to log.</param>
     /// <returns></returns>
-    public static Task<Guid?> Send(this ICaseMessageService caseMessageService, Guid caseId, ClaimsPrincipal user, Exception exception, string? message = null) =>
+    public static Task<Guid?> Send(this ICaseMessageService caseMessageService, Guid caseId, WorkflowActor user, Exception exception, string? message = null) =>
         caseMessageService.Send(caseId, user, new Message {
             Comment = string.IsNullOrEmpty(message)
             ? $"Faulted with message: {exception.Message}"

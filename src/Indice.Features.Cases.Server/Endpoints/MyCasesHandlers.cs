@@ -9,6 +9,7 @@ using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Server.Endpoints;
 
@@ -20,36 +21,45 @@ internal static class MyCasesHandlers
     /// <param name="options">The ListOptions for filtering MyCases.</param>
     /// <param name="filter"></param>
     /// <param name="user"></param>
+    /// <param name="casesOptions">CasesOptions settings</param>
     /// <param name="myCaseService"></param>
     /// <returns></returns>
-    public static async Task<Ok<ResultSet<MyCasePartial>>> GetMyCases([AsParameters] ListOptions options, [AsParameters] GetMyCasesListFilter filter, ClaimsPrincipal user, IMyCaseService myCaseService) =>
-        TypedResults.Ok(await myCaseService.GetCases(user, ListOptions.Create(options, filter)));
+    public static async Task<Ok<ResultSet<MyCasePartial>>> GetMyCases([AsParameters] ListOptions options, [AsParameters] GetMyCasesListFilter filter, ClaimsPrincipal user,
+        IOptions<CasesOptions> casesOptions, 
+        IMyCaseService myCaseService) =>
+        TypedResults.Ok(await myCaseService.GetCases(user.UserToActor(casesOptions.Value), ListOptions.Create(options, filter)));
 
     /// <summary>Get case details by Id.</summary>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="user"></param>
     /// <param name="myCaseService"></param>
-    public static async Task<Results<Ok<Case>, NotFound>> GetMyCaseById(Guid caseId, ClaimsPrincipal user, IMyCaseService myCaseService) {
-        var @case = await myCaseService.GetCaseById(user, caseId);
+    /// <param name="casesOptions">CasesOptions settings</param>
+    public static async Task<Results<Ok<Case>, NotFound>> GetMyCaseById(Guid caseId, ClaimsPrincipal user,
+        IOptions<CasesOptions> casesOptions, IMyCaseService myCaseService) {
+        var @case = await myCaseService.GetCaseById(user.UserToActor(casesOptions.Value), caseId);
         return @case is null ? TypedResults.NotFound() : TypedResults.Ok(@case);
     }
 
     /// <summary>Create a new case in draft mode. That means no one will be able to edit it besides the creator of the case.</summary>
     /// <param name="request">The draft.</param>
     /// <param name="user"></param>
+    /// <param name="casesOptions">CasesOptions settings</param>
     /// <param name="myCaseService"></param>
     /// <returns></returns>
-    public static async Task<Ok<CreateCaseResponse>> CreateDraftCase(CreateDraftCaseRequest request, ClaimsPrincipal user, IMyCaseService myCaseService) =>
-        TypedResults.Ok(await myCaseService.CreateDraft(user, request.CaseTypeCode, request.GroupId, request.Owner, request.Metadata, request.Channel));
+    public static async Task<Ok<CreateCaseResponse>> CreateDraftCase(CreateDraftCaseRequest request, ClaimsPrincipal user,
+        IOptions<CasesOptions> casesOptions, IMyCaseService myCaseService) =>
+        TypedResults.Ok(await myCaseService.CreateDraft(user.UserToActor(casesOptions.Value), request.CaseTypeCode, request.GroupId, request.Owner, request.Metadata, request.Channel));
 
     /// <summary>Add an attachment to an existing case regardless of its status and mode (draft or not).</summary>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="file">The file to attach.</param>
     /// <param name="user"></param>
+    /// <param name="casesOptions">CasesOptions settings</param>
     /// <param name="myCaseMessageService"></param>
     /// <returns></returns>
-    public static async Task<Results<Ok<CasesAttachmentLink>, BadRequest>> UploadCaseAttachment(Guid caseId, IFormFile file, ClaimsPrincipal user, IMyCaseMessageService myCaseMessageService) {
-        var attachmentId = await myCaseMessageService.Send(caseId, user, new Message { FileName = file.FileName, FileStreamAccessor = file.OpenReadStream });
+    public static async Task<Results<Ok<CasesAttachmentLink>, BadRequest>> UploadCaseAttachment(Guid caseId, IFormFile file, ClaimsPrincipal user,
+        IOptions<CasesOptions> casesOptions, IMyCaseMessageService myCaseMessageService) {
+        var attachmentId = await myCaseMessageService.Send(caseId, user.UserToActor(casesOptions.Value), new Message { FileName = file.FileName, FileStreamAccessor = file.OpenReadStream });
         return attachmentId is null ? TypedResults.BadRequest() : TypedResults.Ok(new CasesAttachmentLink { Id = attachmentId.GetValueOrDefault() });
     }
 
@@ -57,32 +67,38 @@ internal static class MyCasesHandlers
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="request">The update request.</param>
     /// <param name="user"></param>
+    /// <param name="casesOptions">CasesOptions settings</param>
     /// <param name="myCaseService"></param>
     /// <returns></returns>
-    public static async Task<NoContent> UpdateCase(Guid caseId, UpdateCaseRequest request, ClaimsPrincipal user, IMyCaseService myCaseService) {
-        await myCaseService.UpdateData(user, caseId, request.Data);
+    public static async Task<NoContent> UpdateCase(Guid caseId, UpdateCaseRequest request, ClaimsPrincipal user,
+        IOptions<CasesOptions> casesOptions, IMyCaseService myCaseService) {
+        await myCaseService.UpdateData(user.UserToActor(casesOptions.Value), caseId, request.Data);
         return TypedResults.NoContent();
     }
 
     /// <summary>Submit the case by removing the draft mode.</summary>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="user"></param>
+    /// <param name="casesOptions">CasesOptions settings</param>
     /// <param name="myCaseService"></param>
     /// <returns></returns>
-    public static async Task<NoContent> SubmitMyCase(Guid caseId, ClaimsPrincipal user, IMyCaseService myCaseService) {
-        await myCaseService.Submit(user, caseId);
+    public static async Task<NoContent> SubmitMyCase(Guid caseId, ClaimsPrincipal user,
+        IOptions<CasesOptions> casesOptions, IMyCaseService myCaseService) {
+        await myCaseService.Submit(user.UserToActor(casesOptions.Value), caseId);
         return TypedResults.NoContent();
     }
 
     /// <summary>Download case in a PDF format</summary>
     /// <param name="caseId"></param>
     /// <param name="user"></param>
+    /// <param name="casesOptions">CasesOptions settings</param>
     /// <param name="myCaseService"></param>
     /// <param name="caseTemplateService"></param>
     /// <param name="casePdfService"></param>
     /// <param name="platformEventService"></param>
-    public static async Task<FileContentHttpResult> DownloadMyCasePdf(Guid caseId, ClaimsPrincipal user, IMyCaseService myCaseService, ICaseTemplateService caseTemplateService, ICasePdfService casePdfService, IPlatformEventService platformEventService) {
-        var @case = await myCaseService.GetCaseById(user, caseId);
+    public static async Task<FileContentHttpResult> DownloadMyCasePdf(Guid caseId, ClaimsPrincipal user,
+        IOptions<CasesOptions> casesOptions, IMyCaseService myCaseService, ICaseTemplateService caseTemplateService, ICasePdfService casePdfService, IPlatformEventService platformEventService) {
+        var @case = await myCaseService.GetCaseById(user.UserToActor(casesOptions.Value), caseId);
         var file = await CreatePdf(@case!, caseTemplateService, casePdfService);
         var fileName = $"{@case!.CaseType.Code}-{DateTimeOffset.UtcNow.Date:dd-MM-yyyy}.pdf";
         await platformEventService.Publish(new CaseDownloadedEvent(@case, CasesCoreConstants.Channels.Customer));

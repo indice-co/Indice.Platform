@@ -3,7 +3,6 @@ using System.Security.Claims;
 using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Core.Models;
 using Indice.Security;
-using Microsoft.Extensions.Options;
 using CaseSuccessMessage = Indice.Features.Cases.Core.Models.SuccessMessage;
 
 namespace Indice.Features.Cases.Server.Integration;
@@ -12,7 +11,7 @@ namespace Indice.Features.Cases.Server.Integration;
 public partial record AvailableActions : IWorkflowActions {}
 
 
-internal static class WorkflowHttpServiceClient_Extensions
+internal static class WorkflowHttpServiceClientExtensions
 {
     /// <summary>Creates a http <see cref="Actor"/> model from the current user.</summary>
     public static Actor ToActor(this ClaimsPrincipal user, CasesOptions options) {

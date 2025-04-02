@@ -63,15 +63,12 @@ internal class CaseTypeService : ICaseTypeService
         return await GetCaseTypeDetailsById(id);
     }
 
-    public async Task<ResultSet<CaseTypePartial>> Get(ClaimsPrincipal user, bool canCreate) {
-        if (user.IsAdmin()) {
+    public async Task<ResultSet<CaseTypePartial>> Get(WorkflowActor user, bool canCreate) {
+        if (user.IsAdmin) {
             return await GetAdminCaseTypes(canCreate);
         }
 
-        var roleClaims = user.Claims
-            .Where(c => c.Type == BasicClaimTypes.Role)
-            .Select(c => c.Value)
-            .ToList();
+        var roleClaims = user.Roles;
 
         var caseTypeIds = canCreate ? await GetCaseTypeIdsForCaseCreation(roleClaims) : await GetCaseTypeIds(roleClaims);
 

@@ -37,10 +37,11 @@ internal abstract class BaseCaseService
     /// <param name="json"></param>
     /// <returns>string schema</returns>
     protected static JsonNode? GetSingleOrMultiple(string? selectorProperty, JsonNode? json) {
-        if (!string.IsNullOrEmpty(selectorProperty) && json is not null) {
-            if (json.GetValueKind() == JsonValueKind.Object && json[selectorProperty!] is not null ) {
-                return json[selectorProperty!];
-            }
+        if (!string.IsNullOrEmpty(selectorProperty) &&
+            json is not null &&
+            json.GetValueKind() == JsonValueKind.Object &&
+            json[selectorProperty!] is not null) {
+            return json[selectorProperty!];
         }
         return json;
     }
@@ -62,7 +63,7 @@ internal abstract class BaseCaseService
                     Code = isCustomer ? c.PublicCheckpoint.CheckpointType.Code : c.Checkpoint.CheckpointType.Code,
                     Title = isCustomer ? c.PublicCheckpoint.CheckpointType.Title : c.Checkpoint.CheckpointType.Title,
                     Description = isCustomer ? c.PublicCheckpoint.CheckpointType.Description : c.Checkpoint.CheckpointType.Description,
-                    Translations = 
+                    Translations =
                         isCustomer ? c.PublicCheckpoint.CheckpointType.Translations : c.Checkpoint.CheckpointType.Translations,
                 },
                 CreatedByWhen = c.CreatedBy.When,
@@ -73,7 +74,7 @@ internal abstract class BaseCaseService
                     Code = c.CaseType.Code,
                     Title = c.CaseType.Title,
                     Id = c.CaseType.Id,
-                    DataSchema = GetSingleOrMultiple(schemaKey, c.CaseType.DataSchema),
+                    DataSchema = GetSingleOrMultiple(schemaKey, c.CaseType.DataSchema)!,
                     Layout = GetSingleOrMultiple(schemaKey, c.CaseType.Layout),
                     LayoutTranslations = c.CaseType.LayoutTranslations,
                     Translations = c.CaseType.Translations,
@@ -91,7 +92,7 @@ internal abstract class BaseCaseService
                     FileName = attachment.Name,
                     ContentType = attachment.ContentType,
                     FileExtension = attachment.FileExtension,
-                    Data = includeAttachmentData == true ? attachment.Data : null
+                    Data = includeAttachmentData ? attachment.Data : null
                 }).ToList(),
                 Data = isCustomer ? c.PublicData.Data : c.Data.Data,
                 AssignedToName = c.AssignedTo!.Name,
@@ -106,13 +107,13 @@ internal abstract class BaseCaseService
         return query;
     }
 
-    /// <summary>Get the case as requested by a Customer. Case must match <see cref="DbCase.CreatedBy"/> with the <see cref="ClaimsPrincipal"/> of the customer.</summary>
+    /// <summary>Get the case as requested by a Customer. Case must match <see cref="DbCase.CreatedBy"/> with the <see cref="WorkflowActor"/> of the customer.</summary>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="customer">The customer that initiated the request.</param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    protected async Task<DbCase> GetDbCaseForCustomer(Guid caseId, ClaimsPrincipal customer) {
-        var userId = customer.FindSubjectIdOrClientId();
+    protected async Task<DbCase> GetDbCaseForCustomer(Guid caseId, WorkflowActor customer) {
+        var userId = customer.Id;
         var @case = await DbContext.Cases
             .Include(c => c.CaseType)
             .FirstOrDefaultAsync(p => p.Id == caseId && (p.CreatedBy.Id == userId || p.Owner.UserId == userId));
@@ -137,13 +138,13 @@ internal abstract class BaseCaseService
     /// <returns></returns>
     protected async Task<DbCase> CreateDraftInternal(
         ICaseMessageService caseMessageService,
-        ClaimsPrincipal user,
+        WorkflowActor user,
         DbCaseType caseType,
         string? groupId,
         ContactMeta? customer,
         Dictionary<string, string> metadata,
         string channel,
-        ClaimsPrincipal? assignee = null) {
+        WorkflowActor? assignee = null) {
         if (user is null) throw new ArgumentNullException(nameof(user));
         if (caseType == null) throw new ArgumentNullException(nameof(caseType));
         if (string.IsNullOrEmpty(channel)) throw new ArgumentNullException(nameof(channel));

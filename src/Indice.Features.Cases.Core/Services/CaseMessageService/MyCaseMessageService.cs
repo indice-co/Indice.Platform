@@ -21,16 +21,16 @@ internal class MyCaseMessageService : BaseCaseMessageService, IMyCaseMessageServ
         _dbContext = dbContext; //TODO: this should be used and exposed by the base class
     }
     /// <inheritdoc />
-    public async Task<Guid?> Send(Guid caseId, ClaimsPrincipal user, Message message, AuditMeta createdBy) {
+    public async Task<Guid?> Send(Guid caseId, WorkflowActor user, Message message, AuditMeta createdBy) {
         var @case = await GetMyCase(caseId, user);
         return await SendInternal(@case, message, createdBy);
     }
 
-    private async Task<DbCase> GetMyCase(Guid caseId, ClaimsPrincipal user) {
+    private async Task<DbCase> GetMyCase(Guid caseId, WorkflowActor user) {
         if (caseId == Guid.Empty) {
             throw new ArgumentException(nameof(caseId));
         };
-        var userId = user.FindSubjectIdOrClientId();
+        var userId = user.Id;
         if (string.IsNullOrEmpty(userId)) {
             throw new ArgumentException(nameof(userId));
         }

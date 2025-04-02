@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using Indice.Features.Cases.Core.Data;
+using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Security;
@@ -36,22 +37,23 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
     /// <param name="cases"></param>
     /// <param name="user"></param>
     /// <returns></returns>
-    public Task<IQueryable<CasePartial>> GetCaseMembership(IQueryable<CasePartial> cases, ClaimsPrincipal user) => Task.FromResult(cases);
-    
+    public Task<IQueryable<CasePartial>> GetCaseMembership(IQueryable<CasePartial> cases, WorkflowActor user) => Task.FromResult(cases);
+
 
     /// <summary>Determines whether user can see a Case in relation to i) user's role(s) and ii) case's CaseType and CheckpointType</summary>
     /// <param name="user"></param>
     /// <param name="case"></param>
-    public async Task<bool> IsMember(ClaimsPrincipal user, Case @case) {
+    public async Task<bool> IsMember(WorkflowActor user, Case @case) {
         if (user is null) throw new ArgumentNullException(nameof(user));
         if (@case is null) throw new ArgumentNullException(nameof(@case));
 
         // if client is systemic, then bypass checks
-        if ((user.HasClaim(BasicClaimTypes.Scope, _options.RequiredScope ?? CasesCoreConstants.DefaultScopeName) && user.IsSystemClient()) || user.IsAdmin() || IsOwnerOfCase(user, @case)) {
+        //(user.HasClaim(BasicClaimTypes.Scope, _options.RequiredScope ?? CasesCoreConstants.DefaultScopeName)
+        if (user.IsSystemClient || user.IsAdmin || IsOwnerOfCase(user, @case)) {
             return true;
         }
-        var userId = user.FindSubjectIdOrClientId();
-        var roles = user.GetUserRoles();
+
+
         var accessRules = await GetAccessRules();
 
         var appliedRules = accessRules.Where(x => x.RuleCaseTypeId == @case.CaseType!.Id || x.RuleCheckpointTypeId == @case.CheckpointType.Id);
@@ -60,20 +62,20 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
                 .AsQueryable()
                 .Where(x => x.RuleCaseId == @case.Id)
                 .AnyAsync(x =>
-                  roles.Contains(x.MemberRole!) ||
-                  x.MemberUserId == userId ||
+                  user.Roles.Contains(x.MemberRole!) ||
+                  x.MemberUserId == user.Id ||
                   x.MemberGroupId == @case.GroupId
                 );
         }
 
-        return appliedRules.Any( x => roles.Contains(x.MemberRole!) || x.MemberUserId == userId || x.MemberGroupId == @case.GroupId);
+        return appliedRules.Any(x => user.Roles.Contains(x.MemberRole!) || x.MemberUserId == user.Id || x.MemberGroupId == @case.GroupId);
     }
 
     /// <summary>Determines whether user is Owner of a Case</summary>
     /// <param name="user">The user.</param>
     /// <param name="case">The case.</param>
-    private bool IsOwnerOfCase(ClaimsPrincipal user, Case @case) =>
-        user.FindSubjectId()?.Equals(@case.CreatedById) == true;
+    private bool IsOwnerOfCase(WorkflowActor user, Case @case) =>
+        user.Id?.Equals(@case.CreatedById) == true;
 
     /// <summary>Gets the list of Members</summary>
     private async Task<List<AccessRule>> GetAccessRules() {
@@ -82,7 +84,7 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
             getSourceAsync: async () => await _dbContext.CaseAccessRules
                 .AsQueryable()
                 .Where(x => x.RuleCaseTypeId.HasValue || x.RuleCheckpointTypeId.HasValue)
-                .Select(x => new AccessRule { 
+                .Select(x => new AccessRule {
                     Id = x.Id,
                     AccessLevel = x.AccessLevel,
                     MemberGroupId = x.MemberGroupId,
