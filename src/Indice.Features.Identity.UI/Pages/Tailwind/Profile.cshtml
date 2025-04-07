@@ -188,7 +188,7 @@
                     @foreach (var provider in Model.View.OtherLogins)
                     {
                         <div class="idp idp-@provider.Name.ToLower() mx-2.5">
-                            <a asp-page-handler="LinkLogin" asp-route-provider="@provider.Name">
+                            <a asp-page-handler="LinkLogin" asp-route-provider="@provider.Name" title="@provider.DisplayName">
                             </a>
                         </div>
                     }

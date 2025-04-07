@@ -51,4 +51,7 @@ public class GetCasesListFilter
     public FilterClause[]? Data { get; set; } = [];
     /// <summary>Determines whether case data should be included in result.</summary>
     public bool? IncludeData { get; set; }
+
+    /// <summary>The user Id assigned to case.</summary>
+    public string? AssignedTo { get; set; }
 }
