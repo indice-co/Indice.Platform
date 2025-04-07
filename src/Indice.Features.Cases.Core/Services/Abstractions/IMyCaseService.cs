@@ -32,9 +32,9 @@ public interface IMyCaseService
     Task Submit(WorkflowActor user, Guid caseId);
 
     /// <summary>Get <see cref="Case"/> for a user by its Id.</summary>
-    /// <param name="user">The user that creates the request.</param>
     /// <param name="caseId">The Id of the case.</param>
-    Task<Case?> GetCaseById(WorkflowActor user, Guid caseId);
+    /// <param name="fetchPublicData">Indicates what data to fetch.</param>
+    Task<Case?> GetCaseById(Guid caseId, bool fetchPublicData);
 
     /// <summary>Get the cases of the User.</summary>
     /// <param name="user">The Id of the user to retrieve the cases.</param>

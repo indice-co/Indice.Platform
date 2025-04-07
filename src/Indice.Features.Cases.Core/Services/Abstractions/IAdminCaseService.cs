@@ -38,8 +38,9 @@ public interface IAdminCaseService
     /// <param name="user">The user that will update the case.</param>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="patch">A JsonNode to merge with the existing case data.</param>
+    /// <param name="patchPublicData">TODO</param>
     /// <returns>A <see cref="Task"/> representing an asynchronous operation</returns>
-    Task PatchCaseData(WorkflowActor user, Guid caseId, JsonNode patch);
+    Task PatchCaseData(WorkflowActor user, Guid caseId, JsonNode patch, bool patchPublicData);
 
     /// <summary>
     /// Performs a Partial Upgrade of the case data and does a json instance-schema validation of
@@ -49,8 +50,9 @@ public interface IAdminCaseService
     /// <param name="user">The current user</param>
     /// <param name="caseId">The case id</param>
     /// <param name="operations">https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API</param>
+    /// <param name="patchPublicData">TODO</param>
     /// <returns>A <see cref="Task"/> representing an asynchronous operation</returns>
-    Task PatchCaseData(WorkflowActor user, Guid caseId, JsonPatch operations);
+    Task PatchCaseData(WorkflowActor user, Guid caseId, JsonPatch operations, bool patchPublicData);
 
     /// <summary>Submit the case. Case must be in <strong>Draft</strong> mode.</summary>
     /// <param name="user">The user that initiated the submission.</param>
@@ -65,11 +67,11 @@ public interface IAdminCaseService
     Task<ResultSet<CasePartial>> GetCases(WorkflowActor user, ListOptions<GetCasesListFilter> options);
 
     /// <summary>Get a case for a user by its Id</summary>
-    /// <param name="user">The user that creates the request.</param>
     /// <param name="caseId">The Id of the case.</param>
+    /// <param name="fetchPublicData">Fetch the public data of case.</param>
     /// <param name="includeAttachmentData">Include the attachment data with the response.</param>
     /// <returns>A <see cref="Task{Case}"/> representing the asynchronous operation</returns>
-    Task<Case> GetCaseById(WorkflowActor user, Guid caseId, bool? includeAttachmentData = null);
+    Task<Case> GetCaseById(Guid caseId, bool fetchPublicData, bool? includeAttachmentData = null);
 
     /// <summary>Performs a physical delete for a draft case.</summary>
     /// <param name="user">The user that created the case.</param>
@@ -78,10 +80,9 @@ public interface IAdminCaseService
     Task DeleteDraft(WorkflowActor user, Guid caseId);
 
     /// <summary>Get an attachment for a user by its Id</summary>
-    /// <param name="user">The user that creates the request.</param>
     /// <param name="attachmentId">The Id of the attachment.</param>
     /// <returns>An object that points to the attachement file created</returns>
-    Task<CaseAttachment> GetAttachmentById(WorkflowActor user, Guid attachmentId);
+    Task<CaseAttachment?> GetAttachmentById(Guid attachmentId);
 
     /// <summary>Assign a case to the actor that initiated this method.</summary>
     /// <param name="assignTo">The user that initiated the call, and will be self-assigned to the case.</param>
@@ -95,10 +96,9 @@ public interface IAdminCaseService
     Task RemoveAssignment(Guid caseId);
 
     /// <summary>Get the timeline entries for a case.</summary>
-    /// <param name="user">The user that creates the request.</param>
     /// <param name="caseId">The Id of the case.</param>
     /// <returns>A list of <seealso cref="TimelineEntry"/></returns>
-    Task<List<TimelineEntry>> GetTimeline(WorkflowActor user, Guid caseId);
+    Task<List<TimelineEntry>> GetTimeline(Guid caseId);
 
     /// <summary>
     /// Gets the cases that are related to the given id.
@@ -133,10 +133,9 @@ public interface IAdminCaseService
     /// Adds or edits metadata for a case.
     /// </summary>
     /// <param name="caseId">The case id</param>
-    /// <param name="User">The user that creates the request.</param>
     /// <param name="metadata">The metadata to add or edit.</param>
     /// <returns>True in case of success</returns>
-    Task<bool> PatchCaseMetadata(Guid caseId, WorkflowActor User, Dictionary<string, string> metadata);
+    Task<bool> PatchCaseMetadata(Guid caseId, Dictionary<string, string> metadata);
 }
 
 /// <summary>

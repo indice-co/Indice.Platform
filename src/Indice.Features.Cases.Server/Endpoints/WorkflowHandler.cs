@@ -26,7 +26,7 @@ internal static class WorkflowHandler
         IOptions<CasesOptions> casesOptions,
         IAdminCaseService adminCaseService,
         bool includeAttachments = false
-    ) => TypedResults.Ok(await adminCaseService.GetCaseById(currentUser.UserToActor(casesOptions.Value), caseId, includeAttachments));
+    ) => TypedResults.Ok(await adminCaseService.GetCaseById(caseId, includeAttachments));
 
     /// <summary>Sends a message as Admin for a case.</summary>
     public static async Task SendMessage(
@@ -50,10 +50,8 @@ internal static class WorkflowHandler
     public static async Task<bool> PatchMetadata(
         Guid caseId,
         Dictionary<string, string> metadata,
-        ClaimsPrincipal currentUser,
-        IOptions<CasesOptions> casesOptions,
         IAdminCaseService adminCaseService
-    ) => await adminCaseService.PatchCaseMetadata(caseId, currentUser.UserToActor(casesOptions.Value), metadata);
+    ) => await adminCaseService.PatchCaseMetadata(caseId, metadata);
 
     /// <summary>Rollback an approval</summary>
     /// <param name="caseId"></param>

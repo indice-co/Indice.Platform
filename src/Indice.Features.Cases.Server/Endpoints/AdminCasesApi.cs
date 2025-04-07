@@ -62,19 +62,23 @@ internal static class AdminCasesApi
 
         group.MapPut("{caseId}", AdminCasesHandlers.UpdateAdminCase)
             .WithName(nameof(AdminCasesHandlers.UpdateAdminCase))
-            .WithSummary("Update the case with the business data as defined at the specific case type. This action is allowed only for draft cases.");
+            .WithSummary("Update the case with the business data as defined at the specific case type. This action is allowed only for draft cases.")
+            .RequireAuthorization(pb => pb.RequireBeCasesMemberAccess(CasesAccessLevel.Manager));
 
         group.MapPost("{caseId}/submit", AdminCasesHandlers.SubmitAdminCase)
             .WithName(nameof(AdminCasesHandlers.SubmitAdminCase))
-            .WithSummary("Submit the case by removing the draft mode.");
+            .WithSummary("Submit the case by removing the draft mode.")
+            .RequireAuthorization(pb => pb.RequireBeCasesMemberAccess(CasesAccessLevel.Manager));
 
         group.MapPatch("{caseId}/metadata", AdminCasesHandlers.PatchCaseMetadata)
             .WithName(nameof(AdminCasesHandlers.PatchCaseMetadata))
-            .WithSummary("Patches the metadata of a case.");
+            .WithSummary("Patches the metadata of a case.")
+            .RequireAuthorization(pb => pb.RequireBeCasesMemberAccess(CasesAccessLevel.Manager)); 
 
         group.MapPost("{caseId}/comment", AdminCasesHandlers.AdminAddComment)
             .WithName(nameof(AdminCasesHandlers.AdminAddComment))
-            .WithSummary("Add a comment to a case.");
+            .WithSummary("Add a comment to a case.")
+            .RequireAuthorization(pb => pb.RequireBeCasesMemberAccess(CasesAccessLevel.Manager));
 
         group.MapGet(string.Empty, AdminCasesHandlers.GetCases)
             .WithName(nameof(AdminCasesHandlers.GetCases))
@@ -82,19 +86,23 @@ internal static class AdminCasesApi
 
         group.MapGet("{caseId}", AdminCasesHandlers.GetCaseById)
             .WithName(nameof(AdminCasesHandlers.GetCaseById))
-            .WithSummary("Gets a case with the specified id.");
+            .WithSummary("Gets a case with the specified id.")
+            .RequireAuthorization(pb => pb.RequireBeCasesMemberAccess());
 
         group.MapDelete("{caseId}", AdminCasesHandlers.DeleteDraftCase)
             .WithName(nameof(AdminCasesHandlers.DeleteDraftCase))
-            .WithSummary("Deletes a draft case with the specified id.");
+            .WithSummary("Deletes a draft case with the specified id.")
+            .RequireAuthorization(pb => pb.RequireBeCasesMemberAccess(CasesAccessLevel.Manager));
 
         group.MapGet("{caseId}/timeline", AdminCasesHandlers.GetCaseTimeline)
             .WithName(nameof(AdminCasesHandlers.GetCaseTimeline))
-            .WithSummary("Gets the timeline entries for a case.");
+            .WithSummary("Gets the timeline entries for a case.")
+            .RequireAuthorization(pb => pb.RequireBeCasesMemberAccess(CasesAccessLevel.Manager));
 
         group.MapGet("{caseId}/related-cases", AdminCasesHandlers.GetRelatedCases)
             .WithName(nameof(AdminCasesHandlers.GetRelatedCases))
-            .WithSummary("Gets the cases that are related to the given id.");
+            .WithSummary("Gets the cases that are related to the given id.")
+            .RequireAuthorization(pb => pb.RequireBeCasesMemberAccess(CasesAccessLevel.Manager));
 
         group.MapGet("{caseId}/actions", AdminCasesHandlers.GetCaseActions)
             .WithName(nameof(AdminCasesHandlers.GetCaseActions))

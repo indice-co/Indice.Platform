@@ -21,6 +21,12 @@ public interface ICaseAuthorizationProvider
     /// <returns></returns>
     public Task<bool> IsMember(WorkflowActor user, Case @case);
 
+    /// <summary>Validates that a user is authorized against a list of <see cref="ICaseAuthorizationService"/> for a <see cref="Case"/>.</summary>
+    /// <param name="user">The user.</param>
+    /// <param name="caseId">The case id.</param>
+    /// <returns></returns>
+    public Task<bool> IsMember(WorkflowActor user, Guid caseId);
+
     /// <summary>
     /// Return an IQueryable of CasePartials based on the role of the user
     /// </summary>

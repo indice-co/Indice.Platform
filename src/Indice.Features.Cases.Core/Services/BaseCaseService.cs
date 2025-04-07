@@ -47,13 +47,13 @@ internal abstract class BaseCaseService
     }
 
     /// <summary>Create a IQueryable from a <see cref="DbCase"/> projected to a <see cref="Case"/>.</summary>
-    /// /// <param name="userId">The Id of the user</param>
+    /// <param name="fetchPublicData">Indicates if it should get private or public data</param>
     /// <param name="includeAttachmentData">Include the attachment binary data to the response.</param>
     /// <param name="schemaKey">The schemaKey for the case type JSON schema/layout. Can be "frontend", "backoffice" or null</param>
-    protected IQueryable<Case> GetCasesInternal(string userId, bool includeAttachmentData = false, string? schemaKey = null) {
+    protected IQueryable<Case> GetCasesInternal(bool fetchPublicData, bool includeAttachmentData = false, string? schemaKey = null) {
         var query =
             from c in DbContext.Cases.AsQueryable().AsNoTracking()
-            let isCustomer = userId == c.Owner.UserId
+            let isCustomer = fetchPublicData
             select new Case {
                 Id = c.Id,
                 ReferenceNumber = c.ReferenceNumber,

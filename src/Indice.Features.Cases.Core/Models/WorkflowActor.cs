@@ -22,7 +22,7 @@ public class WorkflowActor
     public string? CurrentCulture { get; init; }
     /// <summary>Indicates if the currect actor is either a SystemClient or an administrator.</summary>
     public bool IsSystemClient { get; init; }
-    /// <summary>Indicates if the currect actor is either an administrator.</summary>
+    /// <summary>Indicates if the currect actor is either a cases administrator or a admin.</summary>
     public bool IsAdmin { get; init; }
     public List<string> Roles { get; init; } = new();
     internal AuditMeta ToAuditMeta() =>

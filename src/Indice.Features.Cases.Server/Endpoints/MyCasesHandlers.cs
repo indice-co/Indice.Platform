@@ -34,9 +34,8 @@ internal static class MyCasesHandlers
     /// <param name="user"></param>
     /// <param name="myCaseService"></param>
     /// <param name="casesOptions">CasesOptions settings</param>
-    public static async Task<Results<Ok<Case>, NotFound>> GetMyCaseById(Guid caseId, ClaimsPrincipal user,
-        IOptions<CasesOptions> casesOptions, IMyCaseService myCaseService) {
-        var @case = await myCaseService.GetCaseById(user.UserToActor(casesOptions.Value), caseId);
+    public static async Task<Results<Ok<Case>, NotFound>> GetMyCaseById(Guid caseId, IMyCaseService myCaseService) {
+        var @case = await myCaseService.GetCaseById(caseId, true);
         return @case is null ? TypedResults.NotFound() : TypedResults.Ok(@case);
     }
 
@@ -90,15 +89,12 @@ internal static class MyCasesHandlers
 
     /// <summary>Download case in a PDF format</summary>
     /// <param name="caseId"></param>
-    /// <param name="user"></param>
-    /// <param name="casesOptions">CasesOptions settings</param>
     /// <param name="myCaseService"></param>
     /// <param name="caseTemplateService"></param>
     /// <param name="casePdfService"></param>
     /// <param name="platformEventService"></param>
-    public static async Task<FileContentHttpResult> DownloadMyCasePdf(Guid caseId, ClaimsPrincipal user,
-        IOptions<CasesOptions> casesOptions, IMyCaseService myCaseService, ICaseTemplateService caseTemplateService, ICasePdfService casePdfService, IPlatformEventService platformEventService) {
-        var @case = await myCaseService.GetCaseById(user.UserToActor(casesOptions.Value), caseId);
+    public static async Task<FileContentHttpResult> DownloadMyCasePdf(Guid caseId, IMyCaseService myCaseService, ICaseTemplateService caseTemplateService, ICasePdfService casePdfService, IPlatformEventService platformEventService) {
+        var @case = await myCaseService.GetCaseById(caseId, true);
         var file = await CreatePdf(@case!, caseTemplateService, casePdfService);
         var fileName = $"{@case!.CaseType.Code}-{DateTimeOffset.UtcNow.Date:dd-MM-yyyy}.pdf";
         await platformEventService.Publish(new CaseDownloadedEvent(@case, CasesCoreConstants.Channels.Customer));

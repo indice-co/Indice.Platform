@@ -26,5 +26,8 @@ public static class CasesAuthorizationExtensions
     public static AuthorizationPolicyBuilder RequireCasesAccess(this AuthorizationPolicyBuilder builder, CasesAccessLevel minimumAccessLevel = CasesAccessLevel.Member) => builder.AddRequirements(new CasesAccessRequirement(minimumAccessLevel));
 
 
-    CasesBeMemberHandler
+    /// <summary>Requires cases management Authorization of some level.</summary>
+    /// <param name="builder">Used for building policies during application startup.</param>
+    public static AuthorizationPolicyBuilder RequireBeCasesMemberAccess(this AuthorizationPolicyBuilder builder, CasesAccessLevel minimumAccessLevel = CasesAccessLevel.Member) => 
+        builder.AddRequirements(new CasesBeMemberRequirement(minimumAccessLevel));
 }

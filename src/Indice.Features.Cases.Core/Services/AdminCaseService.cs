@@ -64,10 +64,10 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     /// Patches the <strong>CaseData.Data</strong> with the provided JsonNode performing add, replace and remove operations
     /// </summary>
     /// <remarks>For example usages see https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API.</remarks>
-    public async Task PatchCaseData(WorkflowActor user, Guid caseId, JsonNode patch) {
+    public async Task PatchCaseData(WorkflowActor user, Guid caseId, JsonNode patch, bool patchPublicData) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
-        var caseData = (await GetCaseById(user, caseId, false)).DataAsJsonNode();
+        var caseData = (await GetCaseById(caseId, patchPublicData, false)).DataAsJsonNode();
 
         await _adminCaseMessageService.Send(caseId, user, new Message { Data = caseData.Merge(patch) });
     }
@@ -77,10 +77,10 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     /// https://datatracker.ietf.org/doc/html/rfc6902#appendix-A
     /// </summary>
     /// <remarks>For example usages see https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API.</remarks>
-    public async Task PatchCaseData(WorkflowActor user, Guid caseId, JsonPatch operations) {
+    public async Task PatchCaseData(WorkflowActor user, Guid caseId, JsonPatch operations, bool patchPublicData) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
-        var caseData = (await GetCaseById(user, caseId, false)).DataAsJsonNode();
+        var caseData = (await GetCaseById(caseId, patchPublicData, false)).DataAsJsonNode();
 
         var patchResult = operations.Apply(caseData);
         if (!patchResult.IsSuccess) {
@@ -463,18 +463,13 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return result;
     }
 
-    public async Task<Case> GetCaseById(WorkflowActor user, Guid caseId, bool? includeAttachmentData) {
+    public async Task<Case> GetCaseById(Guid caseId, bool fetchPublicData, bool? includeAttachmentData = null) {
         var query =
-            from c in GetCasesInternal(user.Id!, includeAttachmentData ?? false, SchemaKey)
+            from c in GetCasesInternal(fetchPublicData, includeAttachmentData ?? false, SchemaKey)
             where c.Id == caseId
             select c;
 
         var @case = await query.FirstOrDefaultAsync();
-
-        // Check that user role can view this case at this checkpoint.
-        if (!await _memberAuthorizationProvider.IsMember(user, @case!)) {
-            throw new ResourceUnauthorizedException();
-        }
         @case!.CaseType = @case.CaseType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
         @case.CheckpointType = @case.CheckpointType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
         return @case;
@@ -498,13 +493,13 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         await DbContext.SaveChangesAsync();
     }
 
-    public async Task<CaseAttachment> GetAttachmentById(WorkflowActor user, Guid attachmentId) {
+    public async Task<CaseAttachment?> GetAttachmentById(Guid attachmentId) {
         var attachment = await DbContext.Attachments
             .AsNoTracking()
             .SingleOrDefaultAsync(x => x.Id == attachmentId);
-        // TODO check this out???????
-        // Check that user role can download this attachment.
-        await GetCaseById(user, attachment!.CaseId, false);
+        if (attachment is null) {
+            return null;
+        }
 
         return new CaseAttachment {
             Id = attachmentId,
@@ -545,7 +540,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     }
 
     public async Task<CaseAttachment?> GetAttachmentByField(WorkflowActor user, Guid caseId, string fieldName) {
-        var stringifiedCaseData = (await GetCaseById(user, caseId, false)).DataAs<string>();
+        var stringifiedCaseData = (await GetCaseById(caseId, false, false)).DataAs<string>();
         var json = JsonDocument.Parse(stringifiedCaseData);
         var found = json.RootElement.TryGetProperty(fieldName, out JsonElement attachmentId);
 
@@ -557,10 +552,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return null;
     }
 
-    public async Task<bool> PatchCaseMetadata(Guid caseId, WorkflowActor User, Dictionary<string, string> metadata) {
-        // Check that user role can view this case
-        await GetCaseById(User, caseId, false);
-
+    public async Task<bool> PatchCaseMetadata(Guid caseId, Dictionary<string, string> metadata) {
         var dbCase = await DbContext.Cases.FindAsync(caseId);
         if (dbCase == null) {
             return false;
@@ -603,9 +595,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         await DbContext.SaveChangesAsync();
     }
 
-    public async Task<List<TimelineEntry>> GetTimeline(WorkflowActor user, Guid caseId) {
-        // Check that user role can view this case
-        await GetCaseById(user, caseId, false);
+    public async Task<List<TimelineEntry>> GetTimeline(Guid caseId) {
 
         var comments = await DbContext.Comments
             .AsNoTracking()
@@ -665,7 +655,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
 
     public async Task<List<CasePartial>> GetRelatedCases(WorkflowActor user, Guid caseId) {
         // Check that user role can view this case
-        var @case = await GetCaseById(user, caseId, false);
+        var @case = await GetCaseById(caseId, false, false);
         var result = await GetCases(user, new ListOptions<GetCasesListFilter>() {
             Filter = new GetCasesListFilter {
                 Metadata = [new FilterClause("metadata.ExternalCorrelationKey", @case.Metadata!["ExternalCorrelationKey"], FilterOperator.Eq, JsonDataType.String)]

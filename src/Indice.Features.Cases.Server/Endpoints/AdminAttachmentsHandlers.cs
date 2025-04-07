@@ -16,7 +16,7 @@ internal static class AdminAttachmentsHandler
         ClaimsPrincipal currentUser,
         IOptions<CasesOptions> casesOptions
         ) {
-        var attachment = await adminCaseService.GetAttachmentById(currentUser.UserToActor(casesOptions.Value), attachmentId);
+        var attachment = await adminCaseService.GetAttachmentById(attachmentId);
         if (attachment is null) {
             return TypedResults.NotFound();
         }

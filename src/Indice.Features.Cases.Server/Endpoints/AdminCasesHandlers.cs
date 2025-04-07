@@ -39,11 +39,11 @@ internal static class AdminCasesHandlers
         IOptions<CasesOptions> casesOptions,
         IFormFile file,
         IAdminCaseMessageService adminCaseMessageService,
-        IOptions<CasesOptions> options) { 
+        IOptions<CasesOptions> options) {
         if (file.Length is 0) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(file), "File is empty."));
         }
-        
+
         var attachmentId = await adminCaseMessageService.Send(caseId, currentUser.UserToActor(casesOptions.Value), new Message {
             FileName = file.FileName,
             FileStreamAccessor = () => file.OpenReadStream()
@@ -61,9 +61,9 @@ internal static class AdminCasesHandlers
         return TypedResults.File(attachment.Data!, attachment.ContentType, attachment.FileName);
     }
 
-    public static async Task<Results<FileContentHttpResult, NotFound>> GetAttachmentByField(Guid caseId, string fieldName, 
+    public static async Task<Results<FileContentHttpResult, NotFound>> GetAttachmentByField(Guid caseId, string fieldName,
         ClaimsPrincipal currentUser,
-        IOptions<CasesOptions> casesOptions, 
+        IOptions<CasesOptions> casesOptions,
         IAdminCaseService adminCaseService) {
         var attachment = await adminCaseService.GetAttachmentByField(currentUser.UserToActor(casesOptions.Value), caseId, fieldName);
         if (attachment is null) {
@@ -72,43 +72,35 @@ internal static class AdminCasesHandlers
         return TypedResults.File(attachment.Data!, attachment.ContentType, attachment.FileName);
     }
 
-    public static async Task<Results<NoContent, NotFound>> UpdateAdminCase(Guid caseId, UpdateCaseRequest request, 
-        IAdminCaseService adminCaseService, 
+    public static async Task<Results<NoContent, NotFound>> UpdateAdminCase(Guid caseId, UpdateCaseRequest request,
+        IAdminCaseService adminCaseService,
         ClaimsPrincipal currentUser,
         IOptions<CasesOptions> casesOptions) {
-        if (await adminCaseService.GetCaseById(currentUser.UserToActor(casesOptions.Value), caseId) is not { }) {
-            return TypedResults.NotFound();
-        }
         await adminCaseService.UpdateData(currentUser.UserToActor(casesOptions.Value), caseId, request.Data);
         return TypedResults.NoContent();
     }
 
-    public static async Task<Results<NoContent, NotFound>> SubmitAdminCase(Guid caseId, JsonNode data, IAdminCaseService adminCaseService, 
+    public static async Task<Results<NoContent, NotFound>> SubmitAdminCase(Guid caseId, JsonNode data, IAdminCaseService adminCaseService,
         ClaimsPrincipal currentUser,
         IOptions<CasesOptions> casesOptions) {
-        if (await adminCaseService.GetCaseById(currentUser.UserToActor(casesOptions.Value), caseId) is not { }) {
-            return TypedResults.NotFound();
-        }
         await adminCaseService.UpdateData(currentUser.UserToActor(casesOptions.Value), caseId, data);
         await adminCaseService.Submit(currentUser.UserToActor(casesOptions.Value), caseId);
         return TypedResults.NoContent();
     }
 
-    public static async Task<Results<NoContent, NotFound>> PatchCaseMetadata(Guid caseId, 
-        Dictionary<string, string> metadata, 
-        IAdminCaseService adminCaseService, 
-        ClaimsPrincipal currentUser,
-        IOptions<CasesOptions> casesOptions
+    public static async Task<Results<NoContent, NotFound>> PatchCaseMetadata(Guid caseId,
+        Dictionary<string, string> metadata,
+        IAdminCaseService adminCaseService
         ) {
-        var result = await adminCaseService.PatchCaseMetadata(caseId, currentUser.UserToActor(casesOptions.Value), metadata);
+        var result = await adminCaseService.PatchCaseMetadata(caseId, metadata);
         if (!result) {
             return TypedResults.NotFound();
         }
         return TypedResults.NoContent();
     }
 
-    public static async Task<NoContent> AdminAddComment(Guid caseId, SendCommentRequest request, 
-        IAdminCaseMessageService adminCaseMessageService, 
+    public static async Task<NoContent> AdminAddComment(Guid caseId, SendCommentRequest request,
+        IAdminCaseMessageService adminCaseMessageService,
         ClaimsPrincipal currentUser,
         IOptions<CasesOptions> casesOptions) {
         _ = await adminCaseMessageService.Send(caseId, currentUser.UserToActor(casesOptions.Value), new Message {
@@ -119,30 +111,25 @@ internal static class AdminCasesHandlers
         return TypedResults.NoContent();
     }
 
-    public static async Task<Ok<ResultSet<CasePartial>>> GetCases([AsParameters] ListOptions options, [AsParameters] GetCasesListFilter filter, 
-        IAdminCaseService adminCaseService, 
+    public static async Task<Ok<ResultSet<CasePartial>>> GetCases([AsParameters] ListOptions options, [AsParameters] GetCasesListFilter filter,
+        IAdminCaseService adminCaseService,
         ClaimsPrincipal currentUser,
         IOptions<CasesOptions> casesOptions) =>
         TypedResults.Ok(await adminCaseService.GetCases(currentUser.UserToActor(casesOptions.Value), ListOptions.Create(options, filter)));
 
-    public static async Task<Results<Ok<Case>, NotFound>> GetCaseById(Guid caseId, IAdminCaseService adminCareService, ClaimsPrincipal currentUser,
-        IOptions<CasesOptions> casesOptions) {
-        var @case = await adminCareService.GetCaseById(currentUser.UserToActor(casesOptions.Value), caseId, false);
+    public static async Task<Results<Ok<Case>, NotFound>> GetCaseById(Guid caseId, IAdminCaseService adminCareService, bool fetchPublicData = true) {
+        var @case = await adminCareService.GetCaseById(caseId, fetchPublicData, false);
         return @case is not null ? TypedResults.Ok(@case) : TypedResults.NotFound();
     }
 
     public static async Task<Results<NoContent, NotFound>> DeleteDraftCase(Guid caseId, IAdminCaseService adminCaseService, ClaimsPrincipal currentUser,
         IOptions<CasesOptions> casesOptions) {
-        if (await adminCaseService.GetCaseById(currentUser.UserToActor(casesOptions.Value), caseId) is not { }) {
-            return TypedResults.NotFound();
-        }
         await adminCaseService.DeleteDraft(currentUser.UserToActor(casesOptions.Value), caseId);
         return TypedResults.NoContent();
     }
 
-    public static async Task<Ok<List<TimelineEntry>>> GetCaseTimeline(Guid caseId, IAdminCaseService adminCaseService, ClaimsPrincipal currentUser,
-        IOptions<CasesOptions> casesOptions) {
-        var timeline = await adminCaseService.GetTimeline(currentUser.UserToActor(casesOptions.Value), caseId);
+    public static async Task<Ok<List<TimelineEntry>>> GetCaseTimeline(Guid caseId, IAdminCaseService adminCaseService) {
+        var timeline = await adminCaseService.GetTimeline(caseId);
         return TypedResults.Ok(timeline);
     }
 
@@ -167,27 +154,27 @@ internal static class AdminCasesHandlers
         if (!currentUser.FindAll(c => c.Type == BasicClaimTypes.Role).Any() && !currentUser.IsSystemClient()) {
             return TypedResults.Ok(new CaseActions());
         }
-        
+
         var @case = await dbContext.Cases.Where(x => x.Id == caseId)
             .Select(x => new {
                 x.Id,
                 AssignedToId = x.AssignedTo == null ? null : x.AssignedTo.Id
             })
             .FirstOrDefaultAsync();
-        
+
         if (@case == null) {
             TypedResults.Ok();
         }
-        
+
         // Get List of Available Actions from Workflow
         var actions = await workflowManager.GetActionsByCaseId(caseId) as AvailableActions;
         if (actions is null) {
             return TypedResults.NotFound();
         }
-        
+
         var assignedToId = @case!.AssignedToId;
         var caseIsAssigned = !string.IsNullOrWhiteSpace(assignedToId);
-        
+
         // If user is Admin, they can do everything except assign an already assigned case
         if (currentUser.IsAdmin() || currentUser.IsSystemClient()) {
             return TypedResults.Ok(new CaseActions {
@@ -198,7 +185,7 @@ internal static class AdminCasesHandlers
                 CustomActions = actions.CustomActions?.Select(x => x.CreateFromWorkflowAction()).ToList()!
             });
         }
-        
+
         var hasApproval = false;
         var hasAssignment = false;
         var hasEdit = false;
@@ -214,20 +201,20 @@ internal static class AdminCasesHandlers
                 hasAssignment = true;
             }
         }
-        
+
         // For Approval Action:
         if (actions.ApprovalBookmarks is { Count: > 0 }) {
             var authorizationResult = await authorizationService.AuthorizeAsync(currentUser, caseId, new CasesRolesRequirement([actions.ApprovalBookmarks.FirstOrDefault()?.Role]));
             // 1. User must have the specified role
-            if (authorizationResult.Succeeded) { 
+            if (authorizationResult.Succeeded) {
                 hasApproval = true;
             }
-            
+
             // 2. Case must be assigned to them if already assigned
             if (caseIsAssigned && !isAssignedToCurrentUser) {
                 hasApproval = false;
             }
-            
+
             // 3. If BlockPreviousApprover is set, they must not be the previous approver
             if (actions.ApprovalBookmarks.First().BlockPreviousApprover) {
                 var lastApproval = await caseApprovalService.GetLastApproval(caseId);
@@ -236,7 +223,7 @@ internal static class AdminCasesHandlers
                 }
             }
         }
-        
+
         // For Edit Action:
         // 1. User must have the specified role
         // 2. Case must be assigned to them
@@ -247,7 +234,7 @@ internal static class AdminCasesHandlers
             }
         }
 
-        
+
         // For Custom Action:
         // User must have the specified role
         if (actions.CustomActions is { Count: > 0 }) {
@@ -256,12 +243,12 @@ internal static class AdminCasesHandlers
                 hasCustom = true;
             }
         }
-        
+
         return TypedResults.Ok(new CaseActions {
             HasApproval = hasApproval,
             HasAssignment = hasAssignment,
             HasEdit = hasEdit,
-            CustomActions = hasCustom ? actions.CustomActions?.Select(x => x.CreateFromWorkflowAction()).ToList()! : [] 
+            CustomActions = hasCustom ? actions.CustomActions?.Select(x => x.CreateFromWorkflowAction()).ToList()! : []
         });
     }
 
@@ -277,7 +264,7 @@ internal static class AdminCasesHandlers
         IPlatformEventService platformEventService,
         ICaseTemplateService caseTemplateService,
         ICasePdfService casePdfService) {
-        var @case = await adminCaseService.GetCaseById(currentUser.UserToActor(casesOptions.Value), caseId, true);
+        var @case = await adminCaseService.GetCaseById(caseId, false, true);
         if (@case is null) {
             return TypedResults.NotFound();
         }

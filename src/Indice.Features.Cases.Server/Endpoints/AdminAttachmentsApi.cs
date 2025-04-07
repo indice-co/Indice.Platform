@@ -18,12 +18,12 @@ internal static class AdminAttachmentsApi
     /// <summary>Downloads Admin Attachments</summary>
     public static IEndpointRouteBuilder MapAdminAttachments(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<CaseServerOptions>>().Value;
-        
+
         var group = routes.MapGroup($"{options.PathPrefix.Value!.Trim('/')}/manage/attachments");
         group.WithTags("AdminAttachments");
-        
+
         group.WithGroupName(options.GroupName);
-        
+
         var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
         group.RequireAuthorization(policy => policy
             .RequireAuthenticatedUser()
@@ -40,7 +40,8 @@ internal static class AdminAttachmentsApi
         group.MapGet("{attachmentId}/download", AdminAttachmentsHandler.DownloadAttachment)
              .WithName(nameof(AdminAttachmentsHandler.DownloadAttachment))
              .WithSummary("Download attachment in a PDF format for back-office users.")
-             .Produces(StatusCodes.Status200OK, typeof(IFormFile), MediaTypeNames.Application.Octet);
+             .Produces(StatusCodes.Status200OK, typeof(IFormFile), MediaTypeNames.Application.Octet)
+             .RequireAuthorization(pb => pb.RequireBeCasesMemberAccess(CasesAccessLevel.Manager));
 
         return routes;
     }

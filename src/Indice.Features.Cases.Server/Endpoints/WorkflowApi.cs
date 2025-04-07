@@ -1,3 +1,4 @@
+using Indice.Features.Cases.Server.Authorization;
 using Indice.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -31,7 +32,8 @@ internal static class WorkflowApi
         // Product Endpoints - Synchronous response
         group.MapGet("{caseId}", WorkflowHandler.GetById)
             .WithName(nameof(WorkflowHandler.GetById))
-            .WithSummary("Gets an admin case.");
+            .WithSummary("Gets an admin case.")
+            .RequireAuthorization(pb => pb.RequireBeCasesMemberAccess(CasesAccessLevel.Manager));
         
         group.MapGet("{caseId}/last-approval", WorkflowHandler.GetLastApproval)
             .WithName(nameof(WorkflowHandler.GetLastApproval))
@@ -75,7 +77,8 @@ internal static class WorkflowApi
         group.MapPatch("{caseId}/patch-case-metadata", WorkflowHandler.PatchMetadata)
             .WithName(nameof(WorkflowHandler.PatchMetadata))
             .WithSummary("Patches the metadata of a case.")
-            .WithDescription(WorkflowHandler.PatchMetadataDescription);
+            .WithDescription(WorkflowHandler.PatchMetadataDescription)
+            .RequireAuthorization(pb => pb.RequireBeCasesMemberAccess(CasesAccessLevel.Manager));
         
         return group;
     }

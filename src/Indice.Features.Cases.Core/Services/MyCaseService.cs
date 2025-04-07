@@ -92,14 +92,11 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             }));
     }
 
-    public async Task<Case?> GetCaseById(WorkflowActor user, Guid caseId) {
+    public async Task<Case?> GetCaseById(Guid caseId, bool fetchPublicData) {
 
         var query =
-            from c in GetCasesInternal(user.Id, includeAttachmentData: true, SchemaSelector)
-            let isCustomer = user.Id == c.OwnerId
-            let isCreator = user.Id == c.CreatedById
-            let isOwner = isCustomer || isCreator
-            where c.Id == caseId && isOwner
+            from c in GetCasesInternal(fetchPublicData, includeAttachmentData: true, SchemaSelector)
+            where c.Id == caseId 
             select c;
 
         var @case = await query.FirstOrDefaultAsync();
