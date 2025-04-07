@@ -69,7 +69,7 @@ public class CasesAccessHandler : AuthorizationHandler<CasesAccessRequirement>
         if (allowed) {
             context.Succeed(requirement);
         } else {
-            _logger.LogInformation("User {userId} does not have role {roleName}.", context.User!.FindSubjectId(), BasicRoleNames.CasesManager);
+            _logger.LogInformation("User {UserId} does not have role {RoleName}.", context.User!.FindSubjectId(), BasicRoleNames.CasesManager);
         }
         return Task.CompletedTask;
     }

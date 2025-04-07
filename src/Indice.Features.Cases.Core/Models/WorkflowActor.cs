@@ -16,10 +16,8 @@ public class WorkflowActor
     public string? Name { get; init; }
     /// <summary>The name of the user.</summary>
     public string? Tin { get; init; }
-
     /// <summary>The email of the user.</summary>
     public string? Email { get; init; }
-
     /// <summary>The current culture of the user.</summary>
     public string? CurrentCulture { get; init; }
     /// <summary>Indicates if the currect actor is either a SystemClient or an administrator.</summary>

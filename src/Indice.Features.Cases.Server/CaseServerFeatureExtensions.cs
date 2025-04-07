@@ -74,6 +74,7 @@ public static class CaseServerFeatureExtensions
             .AddClientCredentialsTokenHandler("cases");
         builder.Services.AddScoped<ICasesWorkflowManager, WorkflowHttpServiceClient>();
         builder.Services.AddTransient<IAuthorizationHandler, DefaultCasesRolesHandler>();
+        builder.Services.AddTransient<IAuthorizationHandler, CasesBeMemberHandler>();
         builder.Services.AddFluentValidationAutoValidation()
                        .AddValidatorsFromAssemblyContaining<AddAccessRuleRequestValidator>()
                        .AddFluentValidationClientsideAdapters();
