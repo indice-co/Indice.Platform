@@ -21,7 +21,7 @@ internal static class WorkflowApi
         group.RequireAuthorization(policy => policy
                 .RequireAuthenticatedUser()
                 .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-                .RequireCasesAccess(Authorization.CasesAccessLevel.Admin)
+                .RequireBeCasesMemberAccess(CasesAccessLevel.Admin)
             ).WithHandledException<Exception>();
         
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
@@ -32,8 +32,7 @@ internal static class WorkflowApi
         // Product Endpoints - Synchronous response
         group.MapGet("{caseId}", WorkflowHandler.GetById)
             .WithName(nameof(WorkflowHandler.GetById))
-            .WithSummary("Gets an admin case.")
-            .RequireAuthorization(pb => pb.RequireBeCasesMemberAccess(CasesAccessLevel.Manager));
+            .WithSummary("Gets an admin case.");
         
         group.MapGet("{caseId}/last-approval", WorkflowHandler.GetLastApproval)
             .WithName(nameof(WorkflowHandler.GetLastApproval))

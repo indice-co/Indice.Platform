@@ -87,7 +87,7 @@ internal static class AdminCasesApi
         group.MapGet("{caseId}", AdminCasesHandlers.GetCaseById)
             .WithName(nameof(AdminCasesHandlers.GetCaseById))
             .WithSummary("Gets a case with the specified id.")
-            .RequireAuthorization(pb => pb.RequireBeCasesMemberAccess());
+            .RequireAuthorization(pb => pb.RequireBeCasesMemberAccess(CasesAccessLevel.Manager));
 
         group.MapDelete("{caseId}", AdminCasesHandlers.DeleteDraftCase)
             .WithName(nameof(AdminCasesHandlers.DeleteDraftCase))
@@ -106,11 +106,13 @@ internal static class AdminCasesApi
 
         group.MapGet("{caseId}/actions", AdminCasesHandlers.GetCaseActions)
             .WithName(nameof(AdminCasesHandlers.GetCaseActions))
-            .WithSummary("Gets the cases actions (Approval, edit, assignments, etc) for a case Id. Actions differ based on user role.");
+            .WithSummary("Gets the cases actions (Approval, edit, assignments, etc) for a case Id. Actions differ based on user role.")
+            .RequireAuthorization(pb => pb.RequireBeCasesMemberAccess(CasesAccessLevel.Manager));
 
         group.MapGet("{caseId}/reject-reasons", AdminCasesHandlers.GetCaseRejectReasons)
             .WithName(nameof(AdminCasesHandlers.GetCaseRejectReasons))
-            .WithSummary("Get the reject reasons for a case.");
+            .WithSummary("Get the reject reasons for a case.")
+            .RequireAuthorization(pb => pb.RequireBeCasesMemberAccess(CasesAccessLevel.Manager));
 
         group.MapGet("{caseId}.pdf", AdminCasesHandlers.DownloadCasePdf)
             .WithName(nameof(AdminCasesHandlers.DownloadCasePdf))

@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using Indice.Features.Cases.Core.Services.Abstractions;
+﻿using Indice.Features.Cases.Core.Services.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Models;
@@ -11,15 +10,14 @@ namespace Indice.Features.Cases.Core.Services.CaseMessageService;
 /// <inheritdoc />
 internal class MyCaseMessageService : BaseCaseMessageService, IMyCaseMessageService
 {
-    private readonly CasesDbContext _dbContext;
 
     public MyCaseMessageService(
         CasesDbContext dbContext,
         IPlatformEventService platformEventService,
         ISchemaValidator schemaValidator)
         : base(dbContext, platformEventService, schemaValidator) {
-        _dbContext = dbContext; //TODO: this should be used and exposed by the base class
     }
+
     /// <inheritdoc />
     public async Task<Guid?> Send(Guid caseId, WorkflowActor user, Message message, AuditMeta createdBy) {
         var @case = await GetMyCase(caseId, user);
@@ -29,14 +27,14 @@ internal class MyCaseMessageService : BaseCaseMessageService, IMyCaseMessageServ
     private async Task<DbCase> GetMyCase(Guid caseId, WorkflowActor user) {
         if (caseId == Guid.Empty) {
             throw new ArgumentException(nameof(caseId));
-        };
+        }
         var userId = user.Id;
         if (string.IsNullOrEmpty(userId)) {
             throw new ArgumentException(nameof(userId));
         }
-        var @case = await _dbContext.Cases.AsQueryable().FirstOrDefaultAsync(c => c.Id == caseId && c.CreatedBy.Id == userId);
+        var @case = await DbContext.Cases.AsQueryable().FirstOrDefaultAsync(c => c.Id == caseId && c.CreatedBy.Id == userId);
         if (@case == null) {
-            throw new ArgumentNullException(nameof(@case));
+            throw new ArgumentNullException(nameof(caseId), "Case not found");
         }
         return @case;
     }
