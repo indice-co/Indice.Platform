@@ -23,7 +23,7 @@ public interface ICaseAuthorizationService
     /// Return an IQueryable of CasePartials based on the role of the user
     /// </summary>
     /// <param name="user"></param>
-    /// <param name="queryable"></param>
+    /// <param name="casesQuery"></param>
     /// <returns></returns>
-    public Task<IQueryable<CasePartial>> GetCaseMembership(IQueryable<CasePartial> queryable, WorkflowActor user);
+    public Task<IQueryable<CasePartial>> GetCaseMembership(IQueryable<CasePartial> casesQuery, WorkflowActor user);
 }
