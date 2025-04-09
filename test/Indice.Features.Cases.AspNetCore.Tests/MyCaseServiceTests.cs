@@ -62,7 +62,7 @@ public class MyCaseServiceTests : IDisposable
         var listOptions = new ListOptions<GetMyCasesListFilter>() { };
         //listOptions.AddSort(new SortByClause("checkpointcontainsDownloaded", "DESC"));
         listOptions.AddSort(new SortByClause("Created", "DESC"));
-        _ = await myCaseService.GetCases(User(), listOptions);
+        _ = await myCaseService.GetCases(User().UserToActor(options.Value), listOptions);
     }
 
     private static ClaimsPrincipal User() {
@@ -105,7 +105,7 @@ public class MyCaseServiceTests : IDisposable
             }
         };
 
-        var result = await myCaseService.GetCases(User(), listOptions);
+        var result = await myCaseService.GetCases(User().UserToActor(myOptions.Value), listOptions);
         Assert.NotEmpty(result.Items);
     }
 

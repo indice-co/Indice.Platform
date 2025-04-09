@@ -37,7 +37,7 @@ public class AdminCaseServiceTests : IDisposable
 
     public ServiceProvider ServiceProvider { get; }
 
-    [Fact(Skip = "IQueryable throws exception, needs fixing")]
+    [Fact]
     public async Task GetCases() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
         var options = ServiceProvider.GetRequiredService<IOptions<CasesOptions>>();
@@ -65,7 +65,7 @@ public class AdminCaseServiceTests : IDisposable
                 Data = [(FilterClause)"data.customerId::Contains::(string)667"]
             }
         };
-        var result = await adminCaseService.GetCases(Admin(), listOptions);
+        var result = await adminCaseService.GetCases(Admin().UserToActor(options.Value), listOptions);
 
         Assert.NotEmpty(result.Items);
     }

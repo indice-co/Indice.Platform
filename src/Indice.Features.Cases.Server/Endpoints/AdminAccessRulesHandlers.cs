@@ -43,6 +43,7 @@ internal static class AdminAccessRulesHandlers
     /// <param name="ruleId">Rule to be updated id</param>
     /// <param name="accessLevel">new access level</param>
     /// <param name="user"></param>
+    /// <param name="casesOptions"></param>
     /// <param name="accessRuleService"></param>
     public static async Task<NoContent> UpdateAccessRule(Guid ruleId, int accessLevel, ClaimsPrincipal user, IOptions<CasesOptions> casesOptions, IAccessRuleService accessRuleService) {
         await accessRuleService.Update(user.UserToActor(casesOptions.Value), ruleId, accessLevel);
@@ -59,6 +60,7 @@ internal static class AdminAccessRulesHandlers
     /// <param name="caseId">Case type Id</param>
     /// <param name="request">Rule grants</param>
     /// <param name="user"></param>
+    /// <param name="casesOptions"></param>
     /// <param name="accessRuleService"></param>
     /// <returns></returns>
     public static async Task<NoContent> CreateCaseAccessRules(Guid caseId, AddCaseAccessRuleRequest request, ClaimsPrincipal user, IOptions<CasesOptions> casesOptions, IAccessRuleService accessRuleService) {
@@ -74,6 +76,7 @@ internal static class AdminAccessRulesHandlers
     /// <param name="caseId">Case type Id</param>
     /// <param name="request">The users for the replace</param>
     /// <param name="user"></param>
+    /// <param name="casesOptions"></param>
     /// <param name="accessRuleService"></param>
     /// <returns></returns>
     public static async Task<Results<NoContent, NotFound>> ReplaceAccessRulesUser(Guid caseId, ReplaceCaseAccessRuleUserRequest request, ClaimsPrincipal user, IOptions<CasesOptions> casesOptions, IAccessRuleService accessRuleService) {

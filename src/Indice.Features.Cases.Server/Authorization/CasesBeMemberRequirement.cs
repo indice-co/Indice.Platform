@@ -1,8 +1,7 @@
 ﻿using System.Security.Claims;
 using Indice.Features.Cases.Core;
-using Indice.Features.Cases.Core.Data;
+using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Services.Abstractions;
-using Indice.Features.Cases.Server.Integration;
 using Indice.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -97,7 +96,7 @@ public class CasesBeMemberHandler : AuthorizationHandler<CasesBeMemberRequiremen
             return;
         }
 
-        var isMember = await _memberAuthorizationProvider.IsMember(actor, caseId);
+        var isMember = await CheckMembershipAsync(actor, caseId);
         if (!isMember) {
             _logger.LogInformation("User {UserId} is not a member.", actor.Id);
             context.Fail();
@@ -107,19 +106,17 @@ public class CasesBeMemberHandler : AuthorizationHandler<CasesBeMemberRequiremen
     }
 
 
-    private async Task<bool> CheckMembershipAsync(string memberId, Guid policyId, CasesAccessLevel? level) {
+    private async Task<bool> CheckMembershipAsync(WorkflowActor actor, Guid caseId) {
         var hasMembership = false;
-        var cacheKey = $"member-{memberId}-policy-{policyId}-level-{level}";
+        var cacheKey = $"member-{actor.Id}-caseId-{caseId}";
         var value = await _cache.GetStringAsync(cacheKey);
-        //var entryExists = value != null;
-        //if (entryExists) {
-        //    bool.TryParse(value, out hasMembership);
-        //    return hasMembership;
-        //}
+        var entryExists = value != null;
+        if (entryExists) {
+            bool.TryParse(value, out hasMembership);
+            return hasMembership;
+        }
         //// This is the case that cache is unavalable or this is the first authorization call for this requirement/policy.
-        //hasMembership = await _dbContext.PolicyMembers
-        //                                .Where(s => s.MemberId == memberId && s.PolicyId == policyId && (level == null || s.AccessLevel >= level.Value))
-        //                                .AnyAsync();
+        hasMembership = await _memberAuthorizationProvider.IsMember(actor, caseId);
         // Add to cache. 
         var cacheEntryOptions = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
         await _cache.SetStringAsync(cacheKey, $"{hasMembership}", cacheEntryOptions);
