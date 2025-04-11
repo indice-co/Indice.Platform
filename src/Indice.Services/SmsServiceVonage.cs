@@ -109,67 +109,45 @@ public class SmsServiceVonageSettings : SmsServiceSettings
     public int Ttl { get; set; } = 20000;
 }
 
-internal class VonageSmsRequest {
+internal class VonageSmsRequest
+{
+    private readonly SortedDictionary<string, string> _requestParams;
+
     public VonageSmsRequest(string apiKey, string from, string to, string text, int ttl) {
-        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture);
-        _requestParams = new SortedDictionary<string, string> {
+        _requestParams = new SortedDictionary<string, string>
+        {
             { "api_key", apiKey },
             { "to", to },
             { "from", from },
             { "text", text },
-            { "ttl", ttl.ToString() },
-            { "timestamp", timestamp }
+            { "ttl", ttl.ToString(CultureInfo.InvariantCulture) },
+            { "timestamp", DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture) }
         };
     }
 
     public HttpRequestMessage ToHttpRequest(Uri uri, string signatureSecret) {
-        var queryToSign = GenerateQueryToSign();
-        var signature = GenerateSha256Signature(queryToSign, signatureSecret);
-
-        var queryBuilder = new StringBuilder();
-        foreach (var kvp in _requestParams!) {
-            queryBuilder.AppendFormat("{0}={1}&", WebUtility.UrlEncode(kvp.Key),
-                kvp.Key == "ids" ? kvp.Value : WebUtility.UrlEncode(kvp.Value));
-        }
-
-        var queryString = $"{queryBuilder}sig={signature}";
-        var data = Encoding.ASCII.GetBytes(queryString);
-        var request = new HttpRequestMessage {
-            RequestUri = uri,
-            Content = new ByteArrayContent(data),
-            Method = HttpMethod.Post,
-        };
-        request.Content.Headers.ContentType = new MediaTypeHeaderValue(MediaTypeNames.Application.FormUrlEncoded);
-
-        return request;
+        var queryString = BuildQueryString(signatureSecret);
+        var content = new ByteArrayContent(Encoding.ASCII.GetBytes(queryString));
+        content.Headers.ContentType = new MediaTypeHeaderValue(MediaTypeNames.Application.FormUrlEncoded);
+        return new HttpRequestMessage(HttpMethod.Post, uri) { Content = content };
     }
 
-    private SortedDictionary<string, string>? _requestParams;
+    private string BuildQueryString(string signatureSecret) {
+        var queryToSign = string.Join("&", _requestParams.Select(kvp =>
+            $"{kvp.Key.Replace('=', '_').Replace('&', '_')}={kvp.Value.Replace('=', '_').Replace('&', '_')}"));
 
-    private string GenerateQueryToSign() {
-        var stringBuilder = new StringBuilder();
-        foreach (var param in _requestParams!) {
-            stringBuilder.AppendFormat(
-                "{0}={1}&", param.Key.Replace('=', '_').Replace('&', '_'),
-                param.Value.Replace('=', '_').Replace('&', '_')
-            );
-        }
-        var queryToSign = $"&{stringBuilder}";
-        queryToSign = queryToSign.Remove(queryToSign.Length - 1);
-        return queryToSign;
+        var signature = GenerateSha256Signature($"&{queryToSign}", signatureSecret);
+
+        var encodedQuery = string.Join("&", _requestParams.Select(kvp =>
+            $"{WebUtility.UrlEncode(kvp.Key)}={(kvp.Key == "ids" ? kvp.Value : WebUtility.UrlEncode(kvp.Value))}"));
+
+        return $"{encodedQuery}&sig={signature}";
     }
 
-    private string GenerateSha256Signature(string queryString, string signatureSecret) {
-        var sigSecretBytes = Encoding.UTF8.GetBytes(signatureSecret);
-        var input = Encoding.UTF8.GetBytes(queryString);
-        HMAC hmacGen = new HMACMD5(sigSecretBytes);
-        hmacGen = new HMACSHA256(sigSecretBytes);
-        var hash = hmacGen.ComputeHash(input);
-        var stringBuilder = new StringBuilder(hash.Length * 2);
-        foreach (var x in hash) {
-            stringBuilder.Append(x.ToString("x2"));
-        }
-        return stringBuilder.ToString().ToUpper();
+    private static string GenerateSha256Signature(string data, string key) {
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(key));
+        var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
+        return BitConverter.ToString(hash).Replace("-", "").ToUpperInvariant();
     }
 }
 
