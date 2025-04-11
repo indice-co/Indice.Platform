@@ -1,11 +1,8 @@
-﻿using System.Linq.Expressions;
-using System.Security.Claims;
-using Indice.Features.Cases.Core.Data;
+﻿using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Data.Models;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services.Abstractions;
-using Indice.Security;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
@@ -17,7 +14,6 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
 {
     private readonly CasesDbContext _dbContext;
     private readonly IDistributedCache _distributedCache;
-    private readonly CasesOptions _options;
     private const string MembersCacheKey = $"{nameof(MemberAuthorizationService)}.members";
 
     /// <summary>
@@ -25,12 +21,10 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
     /// </summary>
     public MemberAuthorizationService(
         CasesDbContext dbContext,
-        IDistributedCache distributedCache,
-        IOptions<CasesOptions> options
+        IDistributedCache distributedCache
         ) {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _distributedCache = distributedCache ?? throw new ArgumentNullException(nameof(distributedCache));
-        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
 
     /// <summary>
@@ -94,21 +88,23 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
             }))!;
     }
 
+    public async Task<int> MemberAccess(WorkflowActor user, Guid caseId) {
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(caseId);
 
-    private List<string> GetAllowedCheckpointTypes(List<string> roleClaims, List<Member> members) {
-        // what CheckpointTypes can the user see based on their ROLE(S)?
-        return members
-            .Where(members => roleClaims.Contains(members.RoleName!))
-            .Select(members => members.CheckpointTypeId.ToString())
-            .Distinct() // Avoid duplicates: it is possible that user has >1 roles and those roles can "see" common CheckpointTypes
-            .ToList();
-    }
-    private List<string> GetAllowedCaseTypeCodes(List<string> roleClaims, List<Member> members) {
-        // what CaseType codes can the user see based on their ROLE(S)?
-        return members
-            .Where(members => roleClaims.Contains(members.RoleName!))
-            .Select(x => x.CaseTypePartial!.Code)
-            .Distinct()
-            .ToList();
+        var dbcase = await _dbContext.Cases
+                .AsNoTracking()
+                .Include(x => x.Checkpoint)
+                .FirstOrDefaultAsync(x => x.Id == caseId);
+
+        if (dbcase == null) { return -1; }
+        // Create a case details just for the authorization, with the min required properties
+        var accessPredicate = DbCaseAccessRule.AccessMatchPredicate(user.Id, user.Roles, user.GroupId);
+        var rulePredicate = DbCaseAccessRule.RuleMatchPredicate(dbcase.Id, dbcase.CaseTypeId, dbcase.Checkpoint.CheckpointTypeId);
+        return await _dbContext.CaseAccessRules
+                .Where(rulePredicate)
+                .Where(accessPredicate)
+                .Select(x => x.AccessLevel)
+                .MaxAsync();
     }
 }

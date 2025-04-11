@@ -60,7 +60,7 @@ public static class CaseServerFeatureExtensions
             options.ByPassAccessRulesForElevatedUsers = serverOptions.ByPassAccessRulesForElevatedUsers;
         });
         builder.Services.AddLimitUpload(serverOptions.ConfigureLimitUpload);
-        builder.Services.AddTransient<IAuthorizationHandler, CasesAccessHandler>();
+        builder.Services.AddTransient<IAuthorizationHandler, CasesAccessRoleBasedHandler>();
         builder.Services.AddClientCredentialsTokenManagement().AddClient("cases", options => {
             options.TokenEndpoint = builder.Configuration.GetAuthority(tryInternal: true) + "/connect/token";
             options.ClientId = builder.Configuration.GetApiSecret("ClientId");
@@ -74,7 +74,7 @@ public static class CaseServerFeatureExtensions
             .AddClientCredentialsTokenHandler("cases");
         builder.Services.AddScoped<ICasesWorkflowManager, WorkflowHttpServiceClient>();
         builder.Services.AddTransient<IAuthorizationHandler, DefaultCasesRolesHandler>();
-        builder.Services.AddTransient<IAuthorizationHandler, CasesBeMemberHandler>();
+        builder.Services.AddTransient<IAuthorizationHandler, CasesAccessMemberHandler>();
         builder.Services.AddFluentValidationAutoValidation()
                        .AddValidatorsFromAssemblyContaining<AddAccessRuleRequestValidator>()
                        .AddFluentValidationClientsideAdapters();

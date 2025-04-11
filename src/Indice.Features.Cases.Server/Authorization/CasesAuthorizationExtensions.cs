@@ -13,7 +13,7 @@ public static class CasesAuthorizationExtensions
     /// <param name="policyName">The name of the policy.</param>
     /// <param name="minimumAccessLevel">The minimum required access level</param>
     /// <param name="requiredScope">The scope required to operate. Defaults to <strong>messages</strong></param>
-    public static void AddCasesAccessPolicy(this AuthorizationOptions options, string policyName, CasesAccessLevel minimumAccessLevel = CasesAccessLevel.Member, string requiredScope = CasesCoreConstants.DefaultScopeName) =>
+    public static void AddCasesAccessPolicy(this AuthorizationOptions options, string policyName, CasesAccessLevel minimumAccessLevel = CasesAccessLevel.Read, string requiredScope = CasesCoreConstants.DefaultScopeName) =>
         options.AddPolicy(policyName, policyBuilder => policyBuilder
                                                         .AddAuthenticationSchemes("Bearer")
                                                         .RequireAuthenticatedUser()
@@ -23,12 +23,19 @@ public static class CasesAuthorizationExtensions
     /// <summary>Requires cases management Authorization of some level.</summary>
     /// <param name="builder">Used for building policies during application startup.</param>
     /// <param name="minimumAccessLevel">The minimum required access level</param>
-    public static AuthorizationPolicyBuilder RequireCasesAccess(this AuthorizationPolicyBuilder builder, CasesAccessLevel minimumAccessLevel = CasesAccessLevel.Member) => builder.AddRequirements(new CasesAccessRequirement(minimumAccessLevel));
+    public static AuthorizationPolicyBuilder RequireCasesAccess(this AuthorizationPolicyBuilder builder, CasesAccessLevel minimumAccessLevel = CasesAccessLevel.Read) =>
+        builder.AddRequirements(new CasesSystemAccessRequirement(minimumAccessLevel));
 
+
+    /// <summary>Requires cases ownership.</summary>
+    /// <param name="builder">Used for building policies during application startup.</param>
+    public static AuthorizationPolicyBuilder RequireCasesOwnershipAccess(this AuthorizationPolicyBuilder builder) =>
+        builder.AddRequirements(new CasesOwnerAccessRequirement());
 
     /// <summary>Requires cases management Authorization of some level.</summary>
     /// <param name="builder">Used for building policies during application startup.</param>
-    /// <param name="minimumAccessLevel">The minimumAccessLevel required.</param>
-    public static AuthorizationPolicyBuilder RequireBeCasesMemberAccess(this AuthorizationPolicyBuilder builder, CasesAccessLevel? minimumAccessLevel) => 
-        builder.AddRequirements(new CasesBeMemberRequirement(minimumAccessLevel));
+    /// <param name="minimumAccessLevel">The minimum required access level</param>
+    public static AuthorizationPolicyBuilder RequireCasesRecordAccess(this AuthorizationPolicyBuilder builder, CasesAccessLevel minimumAccessLevel = CasesAccessLevel.Read) =>
+        builder.AddRequirements(new CasesRecordsAccessLevelRequirement(minimumAccessLevel));
+
 }

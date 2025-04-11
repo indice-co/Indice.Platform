@@ -53,4 +53,12 @@ internal class AggregateCaseAuthorizationProvider : ICaseAuthorizationProvider
         };
         return await IsMember(user, caseDetails);
     }
+
+    public async Task<int> MemberAccess(WorkflowActor user, Guid caseId) {
+        var accessLevel = new List<int>();
+        foreach (var authorizationService in _caseAuthorizationServices) {
+            accessLevel.Add(await authorizationService.MemberAccess(user, caseId));
+        }
+        return accessLevel.Max();
+    }
 }

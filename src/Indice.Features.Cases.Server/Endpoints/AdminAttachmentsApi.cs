@@ -29,7 +29,7 @@ internal static class AdminAttachmentsApi
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes("Bearer")
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-            .RequireCasesAccess(CasesAccessLevel.Manager) // equivalent to BeCasesManager
+            .RequireCasesAccess(CasesAccessLevel.Manage) // equivalent to BeCasesManager
         ).WithHandledException<BusinessException>();
 
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
@@ -40,8 +40,7 @@ internal static class AdminAttachmentsApi
         group.MapGet("{attachmentId}/download", AdminAttachmentsHandler.DownloadAttachment)
              .WithName(nameof(AdminAttachmentsHandler.DownloadAttachment))
              .WithSummary("Download attachment in a PDF format for back-office users.")
-             .Produces(StatusCodes.Status200OK, typeof(IFormFile), MediaTypeNames.Application.Octet)
-             .RequireAuthorization(pb => pb.RequireBeCasesMemberAccess(CasesAccessLevel.Manager));
+             .Produces(StatusCodes.Status200OK, typeof(IFormFile), MediaTypeNames.Application.Octet);
 
         return routes;
     }

@@ -27,6 +27,12 @@ public interface ICaseAuthorizationProvider
     /// <returns></returns>
     public Task<bool> IsMember(WorkflowActor user, Guid caseId);
 
+    /// <summary>Gets the access level between against a list of <see cref="ICaseAuthorizationService"/> for a <see cref="Case"/>.</summary>
+    /// <param name="user">The user.</param>
+    /// <param name="caseId">The case id.</param>
+    /// <returns></returns>
+    public Task<int> MemberAccess(WorkflowActor user, Guid caseId);
+
     /// <summary>
     /// Return an IQueryable of CasePartials based on the role of the user
     /// </summary>

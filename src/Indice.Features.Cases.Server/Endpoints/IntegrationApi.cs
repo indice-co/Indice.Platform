@@ -21,8 +21,7 @@ internal static class IntegrationApi
         var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
         group.RequireAuthorization(policy => policy
                 .RequireAuthenticatedUser()
-                .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-                .RequireBeCasesMemberAccess(null)
+                .RequireAssertion(ctx=> ctx.User.IsSystemClient() || ctx.User.IsAdmin())
             ).WithHandledException<Exception>();
         
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
