@@ -30,7 +30,7 @@ internal class AssignCaseToUserActivity(ICasesManager casesManager) : BaseCaseAc
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
         try {
-            await CasesManager.AssignAsync(CaseId.Value, User);
+            await CasesManager.AssignToActor(User, CaseId.Value);
         } catch (Exception ex) {
             await LogCaseError(context, ex);
             return Outcome(CustomOutcomeNames.Failed);

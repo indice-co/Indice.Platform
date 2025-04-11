@@ -1,8 +1,12 @@
 - context.TryGetUser() on ActivityContext is not available anymore, use context.TryGetLastActor() optionally resolving with your identity provider
-- Bookmark hashes will need recalculation as they are only calculated using `CaseId` and `ActionId` in the case of `AwaitActionActivity`
+- Bookmark hashes will need recalculation as they are only calculated using `CaseId` and `ActionId` in the case of `AwaitActionActivity`. see script
 - Remove `When` from activities that had `AuditMeta` as an input, this will be automatically set to the current DateTimeOffset i.e. AssignCaseToUserActivity - no breaking change 
 - Case rejection reasons and approval resources should be copied to `Workflow` as well using `WorkflowSharedResource`
-- 
+- `GetCaseDetails` activity has now the `FetchPublicData` input set to false by default. If this activity ran on your workflow on an http context user that was the Owner/Creator of the case then you probably need to set this to true.
+- CasesManager `PatchData` call now has the `patchPublicData` argument to disambiguate if you want to update the public/private data. 
+- Whenever possible avoid relying on last `Actor` context in your activities' logic. Whenever you can, be EXPLICIT about which action you want to perform some helper arguments have been added i.e. `FetchPublicData` when you want to get the public data or `PatchPublicData` when you want to patch the public data.
+
+
 - The following queries must be ran on an existing elsa database to alter `Input` and `Output` `Activity` data:
 ```sql
 -- 7.47 namespaces and older version

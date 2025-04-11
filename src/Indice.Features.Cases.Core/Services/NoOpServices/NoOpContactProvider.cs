@@ -29,7 +29,7 @@ internal class NoOpContactProvider : IContactProvider
     private Contact ToContact(WorkflowActor workflowActor) => new () {
         UserId = workflowActor.Id,
         Email = workflowActor.Email,
-        Reference = workflowActor.Reference,
+        Reference = workflowActor.Reference ?? workflowActor.Id,
         FirstName = workflowActor.Name,
         //todo check what to do with LastName
         //LastName = workflowActor.FindFirstValue(BasicClaimTypes.FamilyName),

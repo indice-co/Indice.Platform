@@ -23,224 +23,14 @@ namespace Indice.Features.Cases.Workflows.Integrations
     using System = global::System;
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial interface ICasesManager
-    {
-        /// <summary>
-        /// Gets an admin case.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<Case> GetByIdAsync(System.Guid caseId, bool? includeAttachments);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Gets an admin case.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<Case> GetByIdAsync(System.Guid caseId, bool? includeAttachments, System.Threading.CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Adds an approval to a case.
-        /// </summary>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task AddApprovalAsync(System.Guid caseId, WorkflowAddApprovalRequest body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Adds an approval to a case.
-        /// </summary>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task AddApprovalAsync(System.Guid caseId, WorkflowAddApprovalRequest body, System.Threading.CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Adds an approval with comment to a case translating the provided comment.
-        /// </summary>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task AddApprovalWithCommentAsync(System.Guid caseId, WorkflowAddApprovalWithCommentRequest body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Adds an approval with comment to a case translating the provided comment.
-        /// </summary>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task AddApprovalWithCommentAsync(System.Guid caseId, WorkflowAddApprovalWithCommentRequest body, System.Threading.CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Assign case to a user.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AuditMeta> AssignAsync(System.Guid caseId, WorkflowActor body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Assign case to a user.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AuditMeta> AssignAsync(System.Guid caseId, WorkflowActor body, System.Threading.CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Remove assignment and send a message for the UI.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task BlockPreviousApproverAsync(System.Guid caseId, WorkflowActor body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Remove assignment and send a message for the UI.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task BlockPreviousApproverAsync(System.Guid caseId, WorkflowActor body, System.Threading.CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Gets last approval of a case.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<CaseApproval> GetLastApprovalAsync(System.Guid caseId);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Gets last approval of a case.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<CaseApproval> GetLastApprovalAsync(System.Guid caseId, System.Threading.CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Patches the data for a case.
-        /// </summary>
-        /// <remarks>
-        /// Patches the Case.Data object with an object passed in the body.
-        /// <br/>    If Data is invalid due to schema validation failure, no change will happen and an error 500 will be returned
-        /// <br/>    Recursively merges two JsonNodes by ensuring that the structure of the `original` node is
-        /// <br/>    updated defensively preventing overwrites of incompatible JsonNode types.
-        /// <br/>    1. If the `toMerge` node contains multiple nested types, each one of them should exist as-is in the `original` node.
-        /// <br/>    2. If the `toMerge` node contains nested types that the `original` node only partially matches (subset),
-        /// <br/>      the remaining nested types are added to the corresponding location in the `original` node.
-        /// <br/>    3. When we encounter a JsonArray we add/replace from THIS POINT ON the nested element at the end of the array,
-        /// <br/>    and NOT replace any existing - nested or not - items.
-        /// <br/>    
-        /// <br/>    &lt;b&gt;JsonIgnoreCondition.WhenWritingNull must NOT be set in the nswag client serializer if you want to remove a property&lt;/b&gt;
-        /// <br/>    https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API"&gt;Documentation
-        /// <br/>    For handling nested arrays, moving elements, checking if data exists at specified locations use JsonPatch API
-        /// <br/>    &lt;code&gt;
-        /// <br/>    _casesApiClient.PatchAdminCaseDataAsync(caseId, null, new { t1 = "test", t2 = (object)null! }
-        /// <br/>    &lt;/code&gt;
-        /// <br/>    &lt;b&gt;If the path is found "add" works as add or replace.&lt;/b&gt;
-        /// <br/>    &lt;b&gt;This will NOT create non existing paths, be sure to specify the full object as value on a JsonPointer that exists.&lt;/b&gt;
-        /// <br/>    &lt;/param&gt;
-        /// </remarks>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task PatchDataAsync(System.Guid caseId, object body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Patches the data for a case.
-        /// </summary>
-        /// <remarks>
-        /// Patches the Case.Data object with an object passed in the body.
-        /// <br/>    If Data is invalid due to schema validation failure, no change will happen and an error 500 will be returned
-        /// <br/>    Recursively merges two JsonNodes by ensuring that the structure of the `original` node is
-        /// <br/>    updated defensively preventing overwrites of incompatible JsonNode types.
-        /// <br/>    1. If the `toMerge` node contains multiple nested types, each one of them should exist as-is in the `original` node.
-        /// <br/>    2. If the `toMerge` node contains nested types that the `original` node only partially matches (subset),
-        /// <br/>      the remaining nested types are added to the corresponding location in the `original` node.
-        /// <br/>    3. When we encounter a JsonArray we add/replace from THIS POINT ON the nested element at the end of the array,
-        /// <br/>    and NOT replace any existing - nested or not - items.
-        /// <br/>    
-        /// <br/>    &lt;b&gt;JsonIgnoreCondition.WhenWritingNull must NOT be set in the nswag client serializer if you want to remove a property&lt;/b&gt;
-        /// <br/>    https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API"&gt;Documentation
-        /// <br/>    For handling nested arrays, moving elements, checking if data exists at specified locations use JsonPatch API
-        /// <br/>    &lt;code&gt;
-        /// <br/>    _casesApiClient.PatchAdminCaseDataAsync(caseId, null, new { t1 = "test", t2 = (object)null! }
-        /// <br/>    &lt;/code&gt;
-        /// <br/>    &lt;b&gt;If the path is found "add" works as add or replace.&lt;/b&gt;
-        /// <br/>    &lt;b&gt;This will NOT create non existing paths, be sure to specify the full object as value on a JsonPointer that exists.&lt;/b&gt;
-        /// <br/>    &lt;/param&gt;
-        /// </remarks>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task PatchDataAsync(System.Guid caseId, object body, System.Threading.CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Patches the metadata of a case.
-        /// </summary>
-        /// <remarks>
-        /// Patches the Metadata of the Case from a Dictionary&lt;string, string&gt;
-        /// <br/>    Note that this runs as a systemic user and does not perform ANY authorization as opposed to the front facing endpoint.
-        /// <br/>    This should return a boolean response indicating if the Metadata was actually updated.
-        /// </remarks>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<bool> PatchMetadataAsync(System.Guid caseId, System.Collections.Generic.IDictionary<string, string> body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Patches the metadata of a case.
-        /// </summary>
-        /// <remarks>
-        /// Patches the Metadata of the Case from a Dictionary&lt;string, string&gt;
-        /// <br/>    Note that this runs as a systemic user and does not perform ANY authorization as opposed to the front facing endpoint.
-        /// <br/>    This should return a boolean response indicating if the Metadata was actually updated.
-        /// </remarks>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<bool> PatchMetadataAsync(System.Guid caseId, System.Collections.Generic.IDictionary<string, string> body, System.Threading.CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Removes the assigner of a case.
-        /// </summary>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task RemoveAssignmentAsync(System.Guid caseId);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Removes the assigner of a case.
-        /// </summary>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task RemoveAssignmentAsync(System.Guid caseId, System.Threading.CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Rollbacks the previous approval of a case.
-        /// </summary>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task RollbackApprovalAsync(System.Guid caseId);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Rollbacks the previous approval of a case.
-        /// </summary>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task RollbackApprovalAsync(System.Guid caseId, System.Threading.CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Sends a message for a case.
-        /// </summary>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task SendMessageAsync(System.Guid caseId, WorkflowSendMessageRequest body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Sends a message for a case.
-        /// </summary>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task SendMessageAsync(System.Guid caseId, WorkflowSendMessageRequest body, System.Threading.CancellationToken cancellationToken);
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NSwag", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class CasesManager : ICasesManager
+    public partial class CasesManagerHttpClient 
     {
         private System.Net.Http.HttpClient _httpClient;
         private static System.Lazy<System.Text.Json.JsonSerializerOptions> _settings = new System.Lazy<System.Text.Json.JsonSerializerOptions>(CreateSerializerSettings, true);
         private System.Text.Json.JsonSerializerOptions _instanceSettings;
 
     #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        public CasesManager(System.Net.Http.HttpClient httpClient)
+        public CasesManagerHttpClient(System.Net.Http.HttpClient httpClient)
     #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
             _httpClient = httpClient;
@@ -272,9 +62,9 @@ namespace Indice.Features.Cases.Workflows.Integrations
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<Case> GetByIdAsync(System.Guid caseId, bool? includeAttachments)
+        public virtual System.Threading.Tasks.Task<Case> GetByIdAsync(System.Guid caseId, bool fetchPublicData, bool? includeAttachments)
         {
-            return GetByIdAsync(caseId, includeAttachments, System.Threading.CancellationToken.None);
+            return GetByIdAsync(caseId, fetchPublicData, includeAttachments, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
@@ -283,10 +73,13 @@ namespace Indice.Features.Cases.Workflows.Integrations
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<Case> GetByIdAsync(System.Guid caseId, bool? includeAttachments, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<Case> GetByIdAsync(System.Guid caseId, bool fetchPublicData, bool? includeAttachments, System.Threading.CancellationToken cancellationToken)
         {
             if (caseId == null)
                 throw new System.ArgumentNullException("caseId");
+
+            if (fetchPublicData == null)
+                throw new System.ArgumentNullException("fetchPublicData");
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -299,10 +92,11 @@ namespace Indice.Features.Cases.Workflows.Integrations
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "api/manage/workflow/{caseId}"
-                    urlBuilder_.Append("api/manage/workflow/");
+                    // Operation Path: "api/manage/workflow-integration/{caseId}"
+                    urlBuilder_.Append("api/manage/workflow-integration/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append('?');
+                    urlBuilder_.Append(System.Uri.EscapeDataString("fetchPublicData")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(fetchPublicData, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
                     if (includeAttachments != null)
                     {
                         urlBuilder_.Append(System.Uri.EscapeDataString("includeAttachments")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(includeAttachments, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
@@ -443,8 +237,8 @@ namespace Indice.Features.Cases.Workflows.Integrations
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "api/manage/workflow/{caseId}/approve"
-                    urlBuilder_.Append("api/manage/workflow/");
+                    // Operation Path: "api/manage/workflow-integration/{caseId}/approve"
+                    urlBuilder_.Append("api/manage/workflow-integration/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/approve");
 
@@ -573,8 +367,8 @@ namespace Indice.Features.Cases.Workflows.Integrations
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "api/manage/workflow/{caseId}/approve-with-comment"
-                    urlBuilder_.Append("api/manage/workflow/");
+                    // Operation Path: "api/manage/workflow-integration/{caseId}/approve-with-comment"
+                    urlBuilder_.Append("api/manage/workflow-integration/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/approve-with-comment");
 
@@ -706,8 +500,8 @@ namespace Indice.Features.Cases.Workflows.Integrations
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "api/manage/workflow/{caseId}/assign"
-                    urlBuilder_.Append("api/manage/workflow/");
+                    // Operation Path: "api/manage/workflow-integration/{caseId}/assign"
+                    urlBuilder_.Append("api/manage/workflow-integration/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/assign");
 
@@ -804,6 +598,457 @@ namespace Indice.Features.Cases.Workflows.Integrations
         }
 
         /// <summary>
+        /// Attaches a file to a case.
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task AttachFileAsync(System.Guid caseId, FileParameter file, string comment, string dataRootKey, string actorId, string actorReference, string actorGroupId, string actorName, string actorTin, string actorEmail, string actorCurrentCulture)
+        {
+            return AttachFileAsync(caseId, file, comment, dataRootKey, actorId, actorReference, actorGroupId, actorName, actorTin, actorEmail, actorCurrentCulture, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Attaches a file to a case.
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task AttachFileAsync(System.Guid caseId, FileParameter file, string comment, string dataRootKey, string actorId, string actorReference, string actorGroupId, string actorName, string actorTin, string actorEmail, string actorCurrentCulture, System.Threading.CancellationToken cancellationToken)
+        {
+            if (caseId == null)
+                throw new System.ArgumentNullException("caseId");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    var boundary_ = System.Guid.NewGuid().ToString();
+                    var content_ = new System.Net.Http.MultipartFormDataContent(boundary_);
+                    content_.Headers.Remove("Content-Type");
+                    content_.Headers.TryAddWithoutValidation("Content-Type", "multipart/form-data; boundary=" + boundary_);
+
+                    if (file == null)
+                        throw new System.ArgumentNullException("file");
+                    else
+                    {
+                        var content_file_ = new System.Net.Http.StreamContent(file.Data);
+                        if (!string.IsNullOrEmpty(file.ContentType))
+                            content_file_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(file.ContentType);
+                        content_.Add(content_file_, "file", file.FileName ?? "file");
+                    }
+
+                    if (comment != null)
+                    {
+                        content_.Add(new System.Net.Http.StringContent(ConvertToString(comment, System.Globalization.CultureInfo.InvariantCulture)), "comment");
+                    }
+
+                    if (dataRootKey != null)
+                    {
+                        content_.Add(new System.Net.Http.StringContent(ConvertToString(dataRootKey, System.Globalization.CultureInfo.InvariantCulture)), "dataRootKey");
+                    }
+
+                    if (actorId != null)
+                    {
+                        content_.Add(new System.Net.Http.StringContent(ConvertToString(actorId, System.Globalization.CultureInfo.InvariantCulture)), "actorId");
+                    }
+
+                    if (actorReference != null)
+                    {
+                        content_.Add(new System.Net.Http.StringContent(ConvertToString(actorReference, System.Globalization.CultureInfo.InvariantCulture)), "actorReference");
+                    }
+
+                    if (actorGroupId != null)
+                    {
+                        content_.Add(new System.Net.Http.StringContent(ConvertToString(actorGroupId, System.Globalization.CultureInfo.InvariantCulture)), "actorGroupId");
+                    }
+
+                    if (actorName != null)
+                    {
+                        content_.Add(new System.Net.Http.StringContent(ConvertToString(actorName, System.Globalization.CultureInfo.InvariantCulture)), "actorName");
+                    }
+
+                    if (actorTin != null)
+                    {
+                        content_.Add(new System.Net.Http.StringContent(ConvertToString(actorTin, System.Globalization.CultureInfo.InvariantCulture)), "actorTin");
+                    }
+
+                    if (actorEmail != null)
+                    {
+                        content_.Add(new System.Net.Http.StringContent(ConvertToString(actorEmail, System.Globalization.CultureInfo.InvariantCulture)), "actorEmail");
+                    }
+
+                    if (actorCurrentCulture != null)
+                    {
+                        content_.Add(new System.Net.Http.StringContent(ConvertToString(actorCurrentCulture, System.Globalization.CultureInfo.InvariantCulture)), "actorCurrentCulture");
+                    }
+                    request_.Content = content_;
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                
+                    // Operation Path: "api/manage/workflow-integration/{caseId}/attach-file"
+                    urlBuilder_.Append("api/manage/workflow-integration/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
+                    urlBuilder_.Append("/attach-file");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 400)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<HttpValidationProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<HttpValidationProblemDetails>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 403)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 200)
+                        {
+                            return;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Get a list of Attachments for a CaseId
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<CaseAttachmentResultSet> GetAttachmentsAsync(System.Guid caseId)
+        {
+            return GetAttachmentsAsync(caseId, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Get a list of Attachments for a CaseId
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<CaseAttachmentResultSet> GetAttachmentsAsync(System.Guid caseId, System.Threading.CancellationToken cancellationToken)
+        {
+            if (caseId == null)
+                throw new System.ArgumentNullException("caseId");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                
+                    // Operation Path: "api/manage/workflow-integration/{caseId}/attachments"
+                    urlBuilder_.Append("api/manage/workflow-integration/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
+                    urlBuilder_.Append("/attachments");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 400)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<HttpValidationProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<HttpValidationProblemDetails>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 403)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<CaseAttachmentResultSet>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Get a Case Attachment
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<CaseAttachment> GetAttachmentAsync(System.Guid caseId, System.Guid attachmentId)
+        {
+            return GetAttachmentAsync(caseId, attachmentId, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Get a Case Attachment
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<CaseAttachment> GetAttachmentAsync(System.Guid caseId, System.Guid attachmentId, System.Threading.CancellationToken cancellationToken)
+        {
+            if (caseId == null)
+                throw new System.ArgumentNullException("caseId");
+
+            if (attachmentId == null)
+                throw new System.ArgumentNullException("attachmentId");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                
+                    // Operation Path: "api/manage/workflow-integration/{caseId}/attachments/{attachmentId}"
+                    urlBuilder_.Append("api/manage/workflow-integration/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
+                    urlBuilder_.Append("/attachments/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(attachmentId, System.Globalization.CultureInfo.InvariantCulture)));
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 400)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<HttpValidationProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<HttpValidationProblemDetails>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 403)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<CaseAttachment>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 404)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("Not Found", status_, responseText_, headers_, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
         /// Remove assignment and send a message for the UI.
         /// </summary>
         /// <returns>OK</returns>
@@ -841,8 +1086,8 @@ namespace Indice.Features.Cases.Workflows.Integrations
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "api/manage/workflow/{caseId}/block-previous-approver"
-                    urlBuilder_.Append("api/manage/workflow/");
+                    // Operation Path: "api/manage/workflow-integration/{caseId}/block-previous-approver"
+                    urlBuilder_.Append("api/manage/workflow-integration/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/block-previous-approver");
 
@@ -934,162 +1179,25 @@ namespace Indice.Features.Cases.Workflows.Integrations
         }
 
         /// <summary>
-        /// Gets last approval of a case.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<CaseApproval> GetLastApprovalAsync(System.Guid caseId)
-        {
-            return GetLastApprovalAsync(caseId, System.Threading.CancellationToken.None);
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Gets last approval of a case.
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<CaseApproval> GetLastApprovalAsync(System.Guid caseId, System.Threading.CancellationToken cancellationToken)
-        {
-            if (caseId == null)
-                throw new System.ArgumentNullException("caseId");
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "api/manage/workflow/{caseId}/last-approval"
-                    urlBuilder_.Append("api/manage/workflow/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append("/last-approval");
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 400)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<HttpValidationProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<HttpValidationProblemDetails>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 401)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 200)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<CaseApproval>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            return objectResponse_.Object;
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
         /// Patches the data for a case.
         /// </summary>
         /// <remarks>
-        /// Patches the Case.Data object with an object passed in the body.
-        /// <br/>    If Data is invalid due to schema validation failure, no change will happen and an error 500 will be returned
-        /// <br/>    Recursively merges two JsonNodes by ensuring that the structure of the `original` node is
-        /// <br/>    updated defensively preventing overwrites of incompatible JsonNode types.
-        /// <br/>    1. If the `toMerge` node contains multiple nested types, each one of them should exist as-is in the `original` node.
-        /// <br/>    2. If the `toMerge` node contains nested types that the `original` node only partially matches (subset),
-        /// <br/>      the remaining nested types are added to the corresponding location in the `original` node.
-        /// <br/>    3. When we encounter a JsonArray we add/replace from THIS POINT ON the nested element at the end of the array,
-        /// <br/>    and NOT replace any existing - nested or not - items.
-        /// <br/>    
-        /// <br/>    &lt;b&gt;JsonIgnoreCondition.WhenWritingNull must NOT be set in the nswag client serializer if you want to remove a property&lt;/b&gt;
-        /// <br/>    https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API"&gt;Documentation
-        /// <br/>    For handling nested arrays, moving elements, checking if data exists at specified locations use JsonPatch API
-        /// <br/>    &lt;code&gt;
-        /// <br/>    _casesApiClient.PatchAdminCaseDataAsync(caseId, null, new { t1 = "test", t2 = (object)null! }
-        /// <br/>    &lt;/code&gt;
-        /// <br/>    &lt;b&gt;If the path is found "add" works as add or replace.&lt;/b&gt;
-        /// <br/>    &lt;b&gt;This will NOT create non existing paths, be sure to specify the full object as value on a JsonPointer that exists.&lt;/b&gt;
-        /// <br/>    &lt;/param&gt;
+        /// Update the Case Data for the specific caseId according to https://datatracker.ietf.org/doc/html/rfc6902#appendix-A
+        /// <br/>Example Usage:
+        /// <br/>```csharp
+        /// <br/>_casesApiClient.JsonPatchAdminCaseDataAsync(caseId, null, new PatchJsonPathRequest[] {
+        /// <br/>   Operations = new PatchOperation[] {
+        /// <br/>     new() { Op = OperationType.Add, Path = "/t1", Value = "test" },
+        /// <br/>     new() { Op = OperationType.Remove, Path = "/t2" }
+        /// <br/>}
+        /// <br/>- **If the path is found "add" works as add or replace.**
+        /// <br/>- **This will NOT create non existing paths, be sure to specify the full object as value on a JsonPointer that exists.**
+        /// <br/>```
         /// </remarks>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task PatchDataAsync(System.Guid caseId, object body)
+        public virtual System.Threading.Tasks.Task JsonPatchDataAsync(System.Guid caseId, JsonPatchDataRequest body)
         {
-            return PatchDataAsync(caseId, body, System.Threading.CancellationToken.None);
+            return JsonPatchDataAsync(caseId, body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
@@ -1097,28 +1205,20 @@ namespace Indice.Features.Cases.Workflows.Integrations
         /// Patches the data for a case.
         /// </summary>
         /// <remarks>
-        /// Patches the Case.Data object with an object passed in the body.
-        /// <br/>    If Data is invalid due to schema validation failure, no change will happen and an error 500 will be returned
-        /// <br/>    Recursively merges two JsonNodes by ensuring that the structure of the `original` node is
-        /// <br/>    updated defensively preventing overwrites of incompatible JsonNode types.
-        /// <br/>    1. If the `toMerge` node contains multiple nested types, each one of them should exist as-is in the `original` node.
-        /// <br/>    2. If the `toMerge` node contains nested types that the `original` node only partially matches (subset),
-        /// <br/>      the remaining nested types are added to the corresponding location in the `original` node.
-        /// <br/>    3. When we encounter a JsonArray we add/replace from THIS POINT ON the nested element at the end of the array,
-        /// <br/>    and NOT replace any existing - nested or not - items.
-        /// <br/>    
-        /// <br/>    &lt;b&gt;JsonIgnoreCondition.WhenWritingNull must NOT be set in the nswag client serializer if you want to remove a property&lt;/b&gt;
-        /// <br/>    https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API"&gt;Documentation
-        /// <br/>    For handling nested arrays, moving elements, checking if data exists at specified locations use JsonPatch API
-        /// <br/>    &lt;code&gt;
-        /// <br/>    _casesApiClient.PatchAdminCaseDataAsync(caseId, null, new { t1 = "test", t2 = (object)null! }
-        /// <br/>    &lt;/code&gt;
-        /// <br/>    &lt;b&gt;If the path is found "add" works as add or replace.&lt;/b&gt;
-        /// <br/>    &lt;b&gt;This will NOT create non existing paths, be sure to specify the full object as value on a JsonPointer that exists.&lt;/b&gt;
-        /// <br/>    &lt;/param&gt;
+        /// Update the Case Data for the specific caseId according to https://datatracker.ietf.org/doc/html/rfc6902#appendix-A
+        /// <br/>Example Usage:
+        /// <br/>```csharp
+        /// <br/>_casesApiClient.JsonPatchAdminCaseDataAsync(caseId, null, new PatchJsonPathRequest[] {
+        /// <br/>   Operations = new PatchOperation[] {
+        /// <br/>     new() { Op = OperationType.Add, Path = "/t1", Value = "test" },
+        /// <br/>     new() { Op = OperationType.Remove, Path = "/t2" }
+        /// <br/>}
+        /// <br/>- **If the path is found "add" works as add or replace.**
+        /// <br/>- **This will NOT create non existing paths, be sure to specify the full object as value on a JsonPointer that exists.**
+        /// <br/>```
         /// </remarks>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task PatchDataAsync(System.Guid caseId, object body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task JsonPatchDataAsync(System.Guid caseId, JsonPatchDataRequest body, System.Threading.CancellationToken cancellationToken)
         {
             if (caseId == null)
                 throw new System.ArgumentNullException("caseId");
@@ -1140,10 +1240,10 @@ namespace Indice.Features.Cases.Workflows.Integrations
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "api/manage/workflow/{caseId}/patch-case-data"
-                    urlBuilder_.Append("api/manage/workflow/");
+                    // Operation Path: "api/manage/workflow-integration/{caseId}/json-patch-data"
+                    urlBuilder_.Append("api/manage/workflow-integration/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append("/patch-case-data");
+                    urlBuilder_.Append("/json-patch-data");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -1235,12 +1335,147 @@ namespace Indice.Features.Cases.Workflows.Integrations
         }
 
         /// <summary>
+        /// Gets last approval of a case.
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<CaseApproval> GetLastApprovalAsync(System.Guid caseId)
+        {
+            return GetLastApprovalAsync(caseId, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Gets last approval of a case.
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<CaseApproval> GetLastApprovalAsync(System.Guid caseId, System.Threading.CancellationToken cancellationToken)
+        {
+            if (caseId == null)
+                throw new System.ArgumentNullException("caseId");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                
+                    // Operation Path: "api/manage/workflow-integration/{caseId}/last-approval"
+                    urlBuilder_.Append("api/manage/workflow-integration/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
+                    urlBuilder_.Append("/last-approval");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 400)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<HttpValidationProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<HttpValidationProblemDetails>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 403)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<CaseApproval>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 404)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("Not Found", status_, responseText_, headers_, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
         /// Patches the metadata of a case.
         /// </summary>
         /// <remarks>
         /// Patches the Metadata of the Case from a Dictionary&lt;string, string&gt;
-        /// <br/>    Note that this runs as a systemic user and does not perform ANY authorization as opposed to the front facing endpoint.
-        /// <br/>    This should return a boolean response indicating if the Metadata was actually updated.
+        /// <br/>Note that this runs as a systemic user and does not perform ANY authorization as opposed to the front facing endpoint.
+        /// <br/>This should return a boolean response indicating if the Metadata was actually updated.
         /// </remarks>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -1255,8 +1490,8 @@ namespace Indice.Features.Cases.Workflows.Integrations
         /// </summary>
         /// <remarks>
         /// Patches the Metadata of the Case from a Dictionary&lt;string, string&gt;
-        /// <br/>    Note that this runs as a systemic user and does not perform ANY authorization as opposed to the front facing endpoint.
-        /// <br/>    This should return a boolean response indicating if the Metadata was actually updated.
+        /// <br/>Note that this runs as a systemic user and does not perform ANY authorization as opposed to the front facing endpoint.
+        /// <br/>This should return a boolean response indicating if the Metadata was actually updated.
         /// </remarks>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -1283,10 +1518,10 @@ namespace Indice.Features.Cases.Workflows.Integrations
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "api/manage/workflow/{caseId}/patch-case-metadata"
-                    urlBuilder_.Append("api/manage/workflow/");
+                    // Operation Path: "api/manage/workflow-integration/{caseId}/metadata"
+                    urlBuilder_.Append("api/manage/workflow-integration/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append("/patch-case-metadata");
+                    urlBuilder_.Append("/metadata");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -1381,6 +1616,178 @@ namespace Indice.Features.Cases.Workflows.Integrations
         }
 
         /// <summary>
+        /// Patches the data for a case.
+        /// </summary>
+        /// <remarks>
+        /// Patches the Case.Data object with an object passed in the body.
+        /// <br/>If Data is invalid due to schema validation failure, no change will happen and an error 500 will be returned
+        /// <br/>Recursively merges two JsonNodes by ensuring that the structure of the `original` node is
+        /// <br/>updated defensively preventing overwrites of incompatible JsonNode types.
+        /// <br/>
+        /// <br/>1. If the `toMerge` node contains multiple nested types, each one of them should exist as-is in the `original` node.
+        /// <br/>2. If the `toMerge` node contains nested types that the `original` node only partially matches (subset),
+        /// <br/>  the remaining nested types are added to the corresponding location in the `original` node.
+        /// <br/>3. When we encounter a JsonArray we add/replace from THIS POINT ON the nested element at the end of the array,
+        /// <br/>and NOT replace any existing - nested or not - items.
+        /// <br/>
+        /// <br/>**JsonIgnoreCondition.WhenWritingNull must NOT be set in the nswag client serializer if you want to remove a property**
+        /// <br/>https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API"&gt;Documentation
+        /// <br/>For handling nested arrays, moving elements, checking if data exists at specified locations use JsonPatch API
+        /// <br/>```csharp
+        /// <br/>_casesApiClient.PatchAdminCaseDataAsync(caseId, null, new { t1 = "test", t2 = (object)null! }
+        /// <br/>```
+        /// <br/>- **If the path is found "add" works as add or replace.**
+        /// <br/>- **This will NOT create non existing paths, be sure to specify the full object as value on a JsonPointer that exists.**
+        /// </remarks>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task PatchDataAsync(System.Guid caseId, PatchDataRequest body)
+        {
+            return PatchDataAsync(caseId, body, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Patches the data for a case.
+        /// </summary>
+        /// <remarks>
+        /// Patches the Case.Data object with an object passed in the body.
+        /// <br/>If Data is invalid due to schema validation failure, no change will happen and an error 500 will be returned
+        /// <br/>Recursively merges two JsonNodes by ensuring that the structure of the `original` node is
+        /// <br/>updated defensively preventing overwrites of incompatible JsonNode types.
+        /// <br/>
+        /// <br/>1. If the `toMerge` node contains multiple nested types, each one of them should exist as-is in the `original` node.
+        /// <br/>2. If the `toMerge` node contains nested types that the `original` node only partially matches (subset),
+        /// <br/>  the remaining nested types are added to the corresponding location in the `original` node.
+        /// <br/>3. When we encounter a JsonArray we add/replace from THIS POINT ON the nested element at the end of the array,
+        /// <br/>and NOT replace any existing - nested or not - items.
+        /// <br/>
+        /// <br/>**JsonIgnoreCondition.WhenWritingNull must NOT be set in the nswag client serializer if you want to remove a property**
+        /// <br/>https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API"&gt;Documentation
+        /// <br/>For handling nested arrays, moving elements, checking if data exists at specified locations use JsonPatch API
+        /// <br/>```csharp
+        /// <br/>_casesApiClient.PatchAdminCaseDataAsync(caseId, null, new { t1 = "test", t2 = (object)null! }
+        /// <br/>```
+        /// <br/>- **If the path is found "add" works as add or replace.**
+        /// <br/>- **This will NOT create non existing paths, be sure to specify the full object as value on a JsonPointer that exists.**
+        /// </remarks>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task PatchDataAsync(System.Guid caseId, PatchDataRequest body, System.Threading.CancellationToken cancellationToken)
+        {
+            if (caseId == null)
+                throw new System.ArgumentNullException("caseId");
+
+            if (body == null)
+                throw new System.ArgumentNullException("body");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
+                    var content_ = new System.Net.Http.ByteArrayContent(json_);
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+                    request_.Content = content_;
+                    request_.Method = new System.Net.Http.HttpMethod("PATCH");
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                
+                    // Operation Path: "api/manage/workflow-integration/{caseId}/patch-data"
+                    urlBuilder_.Append("api/manage/workflow-integration/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
+                    urlBuilder_.Append("/patch-data");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 400)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<HttpValidationProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<HttpValidationProblemDetails>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 403)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+
+                        if (status_ == 200 || status_ == 204)
+                        {
+
+                            return;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
         /// Removes the assigner of a case.
         /// </summary>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -1410,8 +1817,8 @@ namespace Indice.Features.Cases.Workflows.Integrations
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "api/manage/workflow/{caseId}/remove-assignment"
-                    urlBuilder_.Append("api/manage/workflow/");
+                    // Operation Path: "api/manage/workflow-integration/{caseId}/remove-assignment"
+                    urlBuilder_.Append("api/manage/workflow-integration/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/remove-assignment");
 
@@ -1534,8 +1941,8 @@ namespace Indice.Features.Cases.Workflows.Integrations
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "api/manage/workflow/{caseId}/rollback-approval"
-                    urlBuilder_.Append("api/manage/workflow/");
+                    // Operation Path: "api/manage/workflow-integration/{caseId}/rollback-approval"
+                    urlBuilder_.Append("api/manage/workflow-integration/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/rollback-approval");
 
@@ -1632,9 +2039,9 @@ namespace Indice.Features.Cases.Workflows.Integrations
         /// Sends a message for a case.
         /// </summary>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task SendMessageAsync(System.Guid caseId, WorkflowSendMessageRequest body)
+        public virtual System.Threading.Tasks.Task SendMessageAsync(System.Guid caseId, System.Guid? replyToCommentId, string checkpointTypeName, bool? privateComment, string comment, StreamFunc fileStreamAccessor, string fileName, object data, FileParameter file, string actorId, string actorReference, string actorGroupId, string actorName, string actorTin, string actorEmail, string actorCurrentCulture)
         {
-            return SendMessageAsync(caseId, body, System.Threading.CancellationToken.None);
+            return SendMessageAsync(caseId, replyToCommentId, checkpointTypeName, privateComment, comment, fileStreamAccessor, fileName, data, file, actorId, actorReference, actorGroupId, actorName, actorTin, actorEmail, actorCurrentCulture, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
@@ -1642,13 +2049,10 @@ namespace Indice.Features.Cases.Workflows.Integrations
         /// Sends a message for a case.
         /// </summary>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task SendMessageAsync(System.Guid caseId, WorkflowSendMessageRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task SendMessageAsync(System.Guid caseId, System.Guid? replyToCommentId, string checkpointTypeName, bool? privateComment, string comment, StreamFunc fileStreamAccessor, string fileName, object data, FileParameter file, string actorId, string actorReference, string actorGroupId, string actorName, string actorTin, string actorEmail, string actorCurrentCulture, System.Threading.CancellationToken cancellationToken)
         {
             if (caseId == null)
                 throw new System.ArgumentNullException("caseId");
-
-            if (body == null)
-                throw new System.ArgumentNullException("body");
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -1656,16 +2060,99 @@ namespace Indice.Features.Cases.Workflows.Integrations
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
-                    var content_ = new System.Net.Http.ByteArrayContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+                    var boundary_ = System.Guid.NewGuid().ToString();
+                    var content_ = new System.Net.Http.MultipartFormDataContent(boundary_);
+                    content_.Headers.Remove("Content-Type");
+                    content_.Headers.TryAddWithoutValidation("Content-Type", "multipart/form-data; boundary=" + boundary_);
+
+                    if (replyToCommentId != null)
+                    {
+                        content_.Add(new System.Net.Http.StringContent(ConvertToString(replyToCommentId, System.Globalization.CultureInfo.InvariantCulture)), "replyToCommentId");
+                    }
+
+                    if (checkpointTypeName != null)
+                    {
+                        content_.Add(new System.Net.Http.StringContent(ConvertToString(checkpointTypeName, System.Globalization.CultureInfo.InvariantCulture)), "checkpointTypeName");
+                    }
+
+                    if (privateComment != null)
+                    {
+                        content_.Add(new System.Net.Http.StringContent(ConvertToString(privateComment, System.Globalization.CultureInfo.InvariantCulture)), "privateComment");
+                    }
+
+                    if (comment != null)
+                    {
+                        content_.Add(new System.Net.Http.StringContent(ConvertToString(comment, System.Globalization.CultureInfo.InvariantCulture)), "comment");
+                    }
+
+                    if (fileStreamAccessor == null)
+                        throw new System.ArgumentNullException("fileStreamAccessor");
+                    else
+                    {
+                        var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(fileStreamAccessor, JsonSerializerSettings);
+                        content_.Add(new System.Net.Http.ByteArrayContent(json_), "fileStreamAccessor");
+                    }
+
+                    if (fileName != null)
+                    {
+                        content_.Add(new System.Net.Http.StringContent(ConvertToString(fileName, System.Globalization.CultureInfo.InvariantCulture)), "fileName");
+                    }
+
+                    if (data != null)
+                    {
+                        var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(data, JsonSerializerSettings);
+                        content_.Add(new System.Net.Http.ByteArrayContent(json_), "data");
+                    }
+
+                    if (file != null)
+                    {
+                        var content_file_ = new System.Net.Http.StreamContent(file.Data);
+                        if (!string.IsNullOrEmpty(file.ContentType))
+                            content_file_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(file.ContentType);
+                        content_.Add(content_file_, "file", file.FileName ?? "file");
+                    }
+
+                    if (actorId != null)
+                    {
+                        content_.Add(new System.Net.Http.StringContent(ConvertToString(actorId, System.Globalization.CultureInfo.InvariantCulture)), "actorId");
+                    }
+
+                    if (actorReference != null)
+                    {
+                        content_.Add(new System.Net.Http.StringContent(ConvertToString(actorReference, System.Globalization.CultureInfo.InvariantCulture)), "actorReference");
+                    }
+
+                    if (actorGroupId != null)
+                    {
+                        content_.Add(new System.Net.Http.StringContent(ConvertToString(actorGroupId, System.Globalization.CultureInfo.InvariantCulture)), "actorGroupId");
+                    }
+
+                    if (actorName != null)
+                    {
+                        content_.Add(new System.Net.Http.StringContent(ConvertToString(actorName, System.Globalization.CultureInfo.InvariantCulture)), "actorName");
+                    }
+
+                    if (actorTin != null)
+                    {
+                        content_.Add(new System.Net.Http.StringContent(ConvertToString(actorTin, System.Globalization.CultureInfo.InvariantCulture)), "actorTin");
+                    }
+
+                    if (actorEmail != null)
+                    {
+                        content_.Add(new System.Net.Http.StringContent(ConvertToString(actorEmail, System.Globalization.CultureInfo.InvariantCulture)), "actorEmail");
+                    }
+
+                    if (actorCurrentCulture != null)
+                    {
+                        content_.Add(new System.Net.Http.StringContent(ConvertToString(actorCurrentCulture, System.Globalization.CultureInfo.InvariantCulture)), "actorCurrentCulture");
+                    }
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "api/manage/workflow/{caseId}/send-message"
-                    urlBuilder_.Append("api/manage/workflow/");
+                    // Operation Path: "api/manage/workflow-integration/{caseId}/send-message"
+                    urlBuilder_.Append("api/manage/workflow-integration/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(caseId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/send-message");
 
@@ -1944,6 +2431,43 @@ namespace Indice.Features.Cases.Workflows.Integrations
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record AttachFileRequest
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("file")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public byte[] File { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("comment")]
+        public string Comment { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("dataRootKey")]
+        public string DataRootKey { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("actorId")]
+        public string ActorId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("actorReference")]
+        public string ActorReference { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("actorGroupId")]
+        public string ActorGroupId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("actorName")]
+        public string ActorName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("actorTin")]
+        public string ActorTin { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("actorEmail")]
+        public string ActorEmail { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("actorCurrentCulture")]
+        public string ActorCurrentCulture { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial record AuditMeta
     {
 
@@ -2091,6 +2615,28 @@ namespace Indice.Features.Cases.Workflows.Integrations
 
         [System.Text.Json.Serialization.JsonPropertyName("data")]
         public byte[] Data { get; set; }
+
+    }
+
+    /// <summary>
+    /// Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results.
+    /// </summary>
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record CaseAttachmentResultSet
+    {
+        /// <summary>
+        /// Total results count.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("count")]
+        public int Count { get; set; }
+
+        /// <summary>
+        /// The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("items")]
+        public System.Collections.Generic.ICollection<CaseAttachment> Items { get; set; }
 
     }
 
@@ -2711,6 +3257,18 @@ namespace Indice.Features.Cases.Workflows.Integrations
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record JsonPatchDataRequest
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("jsonPatch")]
+        public System.Collections.Generic.ICollection<PatchJsonPathRequest> JsonPatch { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("patchPublicData")]
+        public bool PatchPublicData { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public enum LayoutKind
     {
 
@@ -2790,7 +3348,7 @@ namespace Indice.Features.Cases.Workflows.Integrations
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record Message
+    public partial record MessageRequest
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("replyToCommentId")]
@@ -2813,6 +3371,30 @@ namespace Indice.Features.Cases.Workflows.Integrations
 
         [System.Text.Json.Serialization.JsonPropertyName("data")]
         public object Data { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("file")]
+        public byte[] File { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("actorId")]
+        public string ActorId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("actorReference")]
+        public string ActorReference { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("actorGroupId")]
+        public string ActorGroupId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("actorName")]
+        public string ActorName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("actorTin")]
+        public string ActorTin { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("actorEmail")]
+        public string ActorEmail { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("actorCurrentCulture")]
+        public string ActorCurrentCulture { get; set; }
 
     }
 
@@ -3200,6 +3782,33 @@ namespace Indice.Features.Cases.Workflows.Integrations
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum OperationType
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Unknown")]
+        Unknown = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Add")]
+        Add = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Remove")]
+        Remove = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Replace")]
+        Replace = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Move")]
+        Move = 4,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Copy")]
+        Copy = 5,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Test")]
+        Test = 6,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public enum ParameterAttributes
     {
 
@@ -3287,6 +3896,37 @@ namespace Indice.Features.Cases.Workflows.Integrations
 
         [System.Text.Json.Serialization.JsonPropertyName("metadataToken")]
         public int MetadataToken { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record PatchDataRequest
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("caseData")]
+        public object CaseData { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("patchPublicData")]
+        public bool PatchPublicData { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record PatchJsonPathRequest
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("op")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public OperationType Op { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("path")]
+        public string Path { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("value")]
+        public object Value { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("from")]
+        public string From { get; set; }
 
     }
 
@@ -4055,11 +4695,23 @@ namespace Indice.Features.Cases.Workflows.Integrations
         [System.Text.Json.Serialization.JsonPropertyName("name")]
         public string Name { get; set; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("tin")]
+        public string Tin { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("email")]
         public string Email { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("currentCulture")]
         public string CurrentCulture { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSystemClient")]
+        public bool IsSystemClient { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAdmin")]
+        public bool IsAdmin { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("roles")]
+        public System.Collections.Generic.ICollection<string> Roles { get; set; }
 
     }
 
@@ -4098,16 +4750,31 @@ namespace Indice.Features.Cases.Workflows.Integrations
 
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record WorkflowSendMessageRequest
+    [System.CodeDom.Compiler.GeneratedCode("NSwag", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class FileParameter
     {
+        public FileParameter(System.IO.Stream data)
+            : this (data, null, null)
+        {
+        }
 
-        [System.Text.Json.Serialization.JsonPropertyName("message")]
-        public Message Message { get; set; }
+        public FileParameter(System.IO.Stream data, string fileName)
+            : this (data, fileName, null)
+        {
+        }
 
-        [System.Text.Json.Serialization.JsonPropertyName("workflowActor")]
-        public WorkflowActor WorkflowActor { get; set; }
+        public FileParameter(System.IO.Stream data, string fileName, string contentType)
+        {
+            Data = data;
+            FileName = fileName;
+            ContentType = contentType;
+        }
 
+        public System.IO.Stream Data { get; private set; }
+
+        public string FileName { get; private set; }
+
+        public string ContentType { get; private set; }
     }
 
 

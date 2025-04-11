@@ -16,7 +16,6 @@ public class WorkflowHttpServiceClient : ICasesWorkflowManager
     /// <summary>WorkflowHttpServiceClient Constructor</summary>
     public WorkflowHttpServiceClient(
         WorkflowHttpClient workflowApiClient,
-        IOptions<CasesOptions> caseOptions,
         CaseSharedResourceService caseSharedResourceService) {
         _workflowApiClient = workflowApiClient ?? throw new ArgumentNullException(nameof(workflowApiClient));
         _caseSharedResourceService = caseSharedResourceService ?? throw new ArgumentNullException(nameof(caseSharedResourceService));

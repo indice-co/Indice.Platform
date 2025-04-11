@@ -42,14 +42,12 @@ public class AwaitEditActivity(ICasesManager casesManager) : BaseBlockingActivit
         CaseId ??= Guid.Parse(context.CorrelationId);
         var editRequest = context.Input as InvokeEditRequest;
         var caseData = editRequest!.Data;
-        
-        await CasesManager.SendMessageAsync(CaseId.Value, new WorkflowSendMessageRequest {
-            Message = new Message {
-                Data = caseData,
-                Comment = editRequest.Comment,
-                PrivateComment = true
-            },
-            WorkflowActor = context.TryGetLastActor().ToCasesActor()});
+
+        await CasesManager.Send(CaseId.Value, context.TryGetLastActor(), new Message {
+            Data = caseData,
+            Comment = editRequest.Comment,
+            PrivateComment = true
+        });
         
         Output = caseData;
         context.LogOutputProperty(this, "Output", caseData);

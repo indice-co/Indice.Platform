@@ -11,10 +11,10 @@ using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.Routing;
 /// <summary>Integration endpoints with 3rd party systems.</summary>
-internal static class AdminIntegrationApi
+internal static class AdminContactsApi
 {
     /// <summary>Maps admin integration endpoint.</summary>
-    public static IEndpointRouteBuilder MapAdminIntegration(this IEndpointRouteBuilder routes) {
+    public static IEndpointRouteBuilder MapAdminContacts(this IEndpointRouteBuilder routes) {
 
         var options = routes.ServiceProvider.GetRequiredService<IOptions<CaseServerOptions>>().Value;
 
@@ -36,12 +36,12 @@ internal static class AdminIntegrationApi
              .ProducesProblem(StatusCodes.Status403Forbidden)
              .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapGet("contacts", AdminIntegrationHandlers.GetContacts)
-             .WithName(nameof(AdminIntegrationHandlers.GetContacts))
+        group.MapGet("contacts", AdminContactsHandlers.GetContacts)
+             .WithName(nameof(AdminContactsHandlers.GetContacts))
              .WithSummary("Search contacts.");
 
-        group.MapGet("contacts/{reference}/data/{caseTypeCode}", AdminIntegrationHandlers.GetContactData)
-             .WithName(nameof(AdminIntegrationHandlers.GetContactData))
+        group.MapGet("contacts/{reference}/data/{caseTypeCode}", AdminContactsHandlers.GetContactData)
+             .WithName(nameof(AdminContactsHandlers.GetContactData))
              .WithSummary("Fetch contact data by contact.reference number for a specific case type code.");
 
         return group;

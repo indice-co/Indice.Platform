@@ -791,6 +791,9 @@ namespace Indice.Features.Cases.Server.Integration
         [System.Text.Json.Serialization.JsonPropertyName("name")]
         public string Name { get; set; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("tin")]
+        public string Tin { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("email")]
         public string Email { get; set; }
 

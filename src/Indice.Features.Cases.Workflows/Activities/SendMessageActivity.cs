@@ -7,7 +7,6 @@ using Elsa.Providers.WorkflowStorage;
 using Elsa.Services.Models;
 using Indice.Features.Cases.Workflows.Extensions;
 using Indice.Features.Cases.Workflows.Integrations;
-using Message = Indice.Features.Cases.Workflows.Integrations.Message;
 using CustomOutcomeNames = Indice.Features.Cases.Workflows.CasesWorkflowConstants.WorkflowVariables.OutcomeNames;
 
 namespace Indice.Features.Cases.Workflows.Activities;
@@ -44,10 +43,7 @@ internal class SendMessageActivity(ICasesManager casesManager) : BaseCaseActivit
         CaseId ??= Guid.Parse(context.CorrelationId); // Because we are not triggering base.TryExecuteAsync we need to declare it again.
 
         try {
-            await CasesManager.SendMessageAsync(CaseId.Value, new WorkflowSendMessageRequest {
-                Message = Message, // Message.Data is JToken here from Jint or Liquid, it is implicitly serialized on the http client
-                WorkflowActor = context.TryGetLastActor().ToCasesActor()
-            });
+            await CasesManager.Send(CaseId.Value, context.TryGetLastActor(), Message); // Message.Data is JToken here from Jint or Liquid, it is implicitly serialized on the http client
         } catch (Exception exception) {
             Output = exception.Message;
             context.LogOutputProperty(this, "Output", exception);

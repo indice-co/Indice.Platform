@@ -39,7 +39,7 @@ internal static class AdminCaseDataHandlers
     public static async Task<NoContent> PatchAdminCaseData(Guid caseId, object patch, IAdminCaseService adminCaseService, 
         ClaimsPrincipal user, 
         IOptions<CasesOptions> casesOptions ) {
-        await adminCaseService.PatchCaseData(user.UserToActor(casesOptions.Value), caseId, patch);
+        await adminCaseService.PatchCaseData(user.UserToActor(casesOptions.Value), caseId, patch, false);
         return TypedResults.NoContent();
     }
 
@@ -66,7 +66,7 @@ internal static class AdminCaseDataHandlers
         ClaimsPrincipal user,
         IOptions<CasesOptions> casesOptions) {
         var operations = request.Select(op => op.ToPatchOperation()).ToList();
-        await adminCaseService.PatchCaseData(user.UserToActor(casesOptions.Value), caseId, new JsonPatch(operations));
+        await adminCaseService.PatchCaseData(user.UserToActor(casesOptions.Value), caseId, new JsonPatch(operations), false);
         return TypedResults.NoContent();
     }
 }

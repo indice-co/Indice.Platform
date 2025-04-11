@@ -1,5 +1,5 @@
 ﻿namespace Indice.Features.Cases.Workflows;
-internal static class CasesWorkflowConstants
+public static class CasesWorkflowConstants
 {
 
     /// <summary>The default language key that will be used at to translate data.</summary>
