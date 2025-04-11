@@ -16,7 +16,7 @@ internal class RemovePreviousApprovalActivity(ICasesManager casesManager) : Base
 {
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
-        await CasesManager.RollbackApprovalAsync(CaseId.Value);
+        await CasesManager.RollbackApproval(CaseId.Value);
         return Done();
     }
 }

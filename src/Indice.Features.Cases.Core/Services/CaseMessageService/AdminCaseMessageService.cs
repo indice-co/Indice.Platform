@@ -17,6 +17,7 @@ internal class AdminCaseMessageService : BaseCaseMessageService, IAdminCaseMessa
         : base(dbContext, platformEventService, schemaValidator) {
     }
 
+    // todo: remove actor
     public async Task<Guid?> Send(Guid caseId, WorkflowActor user, Message message, AuditMeta createdBy) {
         var @case = await GetAdminCase(caseId);
         return await SendInternal(@case, message, createdBy);

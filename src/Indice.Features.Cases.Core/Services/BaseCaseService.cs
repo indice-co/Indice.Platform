@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Nodes;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Data.Models;
@@ -53,18 +52,17 @@ internal abstract class BaseCaseService
     protected IQueryable<Case> GetCasesInternal(bool fetchPublicData, bool includeAttachmentData = false, string? schemaKey = null) {
         var query =
             from c in DbContext.Cases.AsQueryable().AsNoTracking()
-            let isCustomer = fetchPublicData
             select new Case {
                 Id = c.Id,
                 ReferenceNumber = c.ReferenceNumber,
                 CheckpointType = new CheckpointType {
-                    Id = isCustomer ? c.PublicCheckpoint.CheckpointType.Id : c.Checkpoint.CheckpointType.Id,
-                    Status = isCustomer ? c.PublicCheckpoint.CheckpointType.Status : c.Checkpoint.CheckpointType.Status,
-                    Code = isCustomer ? c.PublicCheckpoint.CheckpointType.Code : c.Checkpoint.CheckpointType.Code,
-                    Title = isCustomer ? c.PublicCheckpoint.CheckpointType.Title : c.Checkpoint.CheckpointType.Title,
-                    Description = isCustomer ? c.PublicCheckpoint.CheckpointType.Description : c.Checkpoint.CheckpointType.Description,
+                    Id = fetchPublicData ? c.PublicCheckpoint.CheckpointType.Id : c.Checkpoint.CheckpointType.Id,
+                    Status = fetchPublicData ? c.PublicCheckpoint.CheckpointType.Status : c.Checkpoint.CheckpointType.Status,
+                    Code = fetchPublicData ? c.PublicCheckpoint.CheckpointType.Code : c.Checkpoint.CheckpointType.Code,
+                    Title = fetchPublicData ? c.PublicCheckpoint.CheckpointType.Title : c.Checkpoint.CheckpointType.Title,
+                    Description = fetchPublicData ? c.PublicCheckpoint.CheckpointType.Description : c.Checkpoint.CheckpointType.Description,
                     Translations =
-                        isCustomer ? c.PublicCheckpoint.CheckpointType.Translations : c.Checkpoint.CheckpointType.Translations,
+                        fetchPublicData ? c.PublicCheckpoint.CheckpointType.Translations : c.Checkpoint.CheckpointType.Translations,
                 },
                 CreatedByWhen = c.CreatedBy.When,
                 CreatedById = c.CreatedBy.Id,
@@ -94,7 +92,7 @@ internal abstract class BaseCaseService
                     FileExtension = attachment.FileExtension,
                     Data = includeAttachmentData ? attachment.Data : null
                 }).ToList(),
-                Data = isCustomer ? c.PublicData.Data : c.Data.Data,
+                Data = fetchPublicData ? c.PublicData.Data : c.Data.Data,
                 AssignedToName = c.AssignedTo!.Name,
                 Channel = c.Channel,
                 Draft = c.Draft,

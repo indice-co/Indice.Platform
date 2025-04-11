@@ -19,11 +19,9 @@ internal class BlockPreviousApproverActivity(ICasesManager casesManager) : BaseC
 {
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
-
-        CaseApproval lastApproval;
-        try {
-            lastApproval = await CasesManager.GetLastApprovalAsync(CaseId.Value);
-        } catch (ApiException) {
+        
+        var lastApproval = await CasesManager.GetLastApproval(CaseId.Value);
+        if (lastApproval == null) {
             return Outcome(OutcomeNames.False);
         }
         
@@ -31,7 +29,7 @@ internal class BlockPreviousApproverActivity(ICasesManager casesManager) : BaseC
             return Outcome(OutcomeNames.False);
         }
 
-        await CasesManager.BlockPreviousApproverAsync(CaseId.Value, context.TryGetLastActor().ToCasesActor());
+        await CasesManager.BlockPreviousApprover(CaseId.Value, context.TryGetLastActor());
         
         return Outcome(OutcomeNames.True);
     }

@@ -14,17 +14,8 @@ public partial record AvailableActions : IWorkflowActions {}
 internal static class WorkflowHttpServiceClientExtensions
 {
     /// <summary>Creates a http <see cref="Actor"/> model from the current user.</summary>
-    public static Actor ToActor(this ClaimsPrincipal user, CasesOptions options) {
-        var subject = user.FindFirstValue(BasicClaimTypes.Subject);
-        return new Actor {
-            Id = string.IsNullOrWhiteSpace(subject) ? user.FindFirstValue(BasicClaimTypes.ClientId) : subject,
-            Reference = user.FindFirstValue(options.ReferenceIdClaimType),
-            GroupId = user.FindFirstValue(options.GroupIdClaimType),
-            Email = string.IsNullOrWhiteSpace(subject) ? user.FindFirstValue(BasicClaimTypes.ClientId) : user.FindFirstValue(BasicClaimTypes.Email),
-            Name = string.IsNullOrWhiteSpace(subject) ? CasesCoreConstants.SystemUserName : $"{user.FindFirstValue(BasicClaimTypes.GivenName)} {user.FindFirstValue(BasicClaimTypes.FamilyName)}".Trim(),
-            CurrentCulture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName
-        };
-    }
+    public static Actor ToActor(this ClaimsPrincipal user, CasesOptions options) 
+        => ToActor(user.UserToActor(options));
 
     /// <summary>Simple mapping from Cases <see cref="WorkflowActor"/> to http <see cref="Actor"/></summary>
     public static Actor ToActor(this WorkflowActor actor) {
@@ -32,8 +23,9 @@ internal static class WorkflowHttpServiceClientExtensions
             Id = actor.Id,
             Reference = actor.Reference,
             GroupId = actor.GroupId,
-            Email = actor.Email,
             Name = actor.Name,
+            Tin = actor.Tin,
+            Email = actor.Email,
             CurrentCulture = actor.CurrentCulture
         };
     }

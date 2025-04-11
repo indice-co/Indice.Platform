@@ -86,8 +86,9 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
                 Id = @case.CreatedBy.Id,
                 Reference = @case.Owner.Reference,
                 GroupId = user.GroupId,
-                Email = @case.CreatedBy.Email,
                 Name = @case.CreatedBy.Name,
+                Tin = user.Tin,
+                Email = @case.CreatedBy.Email,
                 CurrentCulture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName
             }));
     }

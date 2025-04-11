@@ -15,6 +15,6 @@ public static class ActivityExecutionContextExtensions
         return runAsSystemUser
             ? Actor.Create(CasesClaimsPrincipalExtensions.SystemUser())
             : context.GetVariable<Actor>(CasesWorkflowConstants.WorkflowVariables.Actor.Current) 
-              ?? Actor.Create(CasesClaimsPrincipalExtensions.SystemUser());
+              ?? Actor.Create(CasesClaimsPrincipalExtensions.SystemUser()); // TODO[2025-07-07]: Remove this eventually
     }
 }

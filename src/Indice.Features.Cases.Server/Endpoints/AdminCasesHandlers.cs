@@ -117,7 +117,7 @@ internal static class AdminCasesHandlers
         IOptions<CasesOptions> casesOptions) =>
         TypedResults.Ok(await adminCaseService.GetCases(currentUser.UserToActor(casesOptions.Value), ListOptions.Create(options, filter)));
 
-    public static async Task<Results<Ok<Case>, NotFound>> GetCaseById(Guid caseId, IAdminCaseService adminCareService, bool fetchPublicData = true) {
+    public static async Task<Results<Ok<Case>, NotFound>> GetCaseById(Guid caseId, IAdminCaseService adminCareService, bool fetchPublicData = false) {
         var @case = await adminCareService.GetCaseById(caseId, fetchPublicData, false);
         return @case is not null ? TypedResults.Ok(@case) : TypedResults.NotFound();
     }

@@ -94,7 +94,7 @@ public static class CaseServerFeatureExtensions
         routes.MapAdminAttachments();
         routes.MapAdminCaseTypes();
         routes.MapAdminCheckpointTypes();
-        routes.MapAdminIntegration();
+        routes.MapAdminContacts();
         routes.MapAdminNotifications();
         routes.MapAdminQueries();
         routes.MapAdminReports();
@@ -102,7 +102,7 @@ public static class CaseServerFeatureExtensions
         routes.MapLookup();
         routes.MapAdminAccessRules();
         routes.MapAdminCaseData();
-        routes.MapWorkflow();
+        routes.MapIntegration();
         return routes;
     }
 }

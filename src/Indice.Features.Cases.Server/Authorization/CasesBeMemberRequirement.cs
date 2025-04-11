@@ -22,11 +22,11 @@ public class CasesBeMemberRequirement : IAuthorizationRequirement
     /// <summary>
     /// Initializes a new instance of the <see cref="CasesBeMemberRequirement"/> class.
     /// </summary>
-    public CasesBeMemberRequirement(CasesAccessLevel minimumAccessLevel = CasesAccessLevel.Member) {
+    public CasesBeMemberRequirement(CasesAccessLevel? minimumAccessLevel) {
         MinimumAccessLevel = minimumAccessLevel;
     }
     /// <summary>The minimum access level needed to access the protected resources</summary>
-    public CasesAccessLevel MinimumAccessLevel { get; }
+    public CasesAccessLevel? MinimumAccessLevel { get; }
     
     /// <inheritdoc/>
     public override string ToString() => $"Requires Cases {MinimumAccessLevel} Access.";
@@ -76,11 +76,12 @@ public class CasesBeMemberHandler : AuthorizationHandler<CasesBeMemberRequiremen
         }
 
         var actor = context.User!.UserToActor(_casesOptions);
-        var allowedAccessLevel = 
+        var allowedAccessLevel =
             requirement.MinimumAccessLevel switch {
                 CasesAccessLevel.Admin => context.User!.HasRoleClaim(BasicRoleNames.CasesAdministrator),
                 CasesAccessLevel.Manager => context.User!.HasRoleClaim(BasicRoleNames.CasesAdministrator) || context.User!.HasRoleClaim(BasicRoleNames.CasesManager),
                 CasesAccessLevel.Member => context.User!.HasRoleClaim(BasicRoleNames.CasesAdministrator) || context.User!.HasRoleClaim(BasicRoleNames.CasesManager) || context.User!.HasRoleClaim(BasicRoleNames.CasesUser),
+                null => true,
                 _ => false
             };
 

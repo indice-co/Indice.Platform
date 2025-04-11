@@ -20,7 +20,7 @@ internal class GetChannelActivity(ICasesManager casesManager) : BaseCaseActivity
 
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
-        var @case = await CasesManager.GetByIdAsync(CaseId.Value, false);
+        var @case = await CasesManager.GetCaseById(CaseId.Value);
         Output = @case.Channel!;
         context.LogOutputProperty(this, nameof(Output), Output);
         return Done(Output);

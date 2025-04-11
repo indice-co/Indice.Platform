@@ -123,12 +123,9 @@ public class AwaitActionActivity(ICasesManager casesManager) : BaseBlockingActiv
         context.LogOutputProperty(this, nameof(Output), Output);
         
         var comment = $"Action \"{ActionName}\" executed successfully";
-        await CasesManager.SendMessageAsync(CaseId.Value, new WorkflowSendMessageRequest {
-            Message = new Message {
-                Comment = string.IsNullOrEmpty(input?.Value) ? $"{comment}." : $"{comment} with value \"{Output}\".",
-                PrivateComment = true
-            },
-            WorkflowActor = context.TryGetLastActor().ToCasesActor()
+        await CasesManager.Send(CaseId.Value, context.TryGetLastActor(), new Message {
+            Comment = string.IsNullOrEmpty(input?.Value) ? $"{comment}." : $"{comment} with value \"{Output}\".",
+            PrivateComment = true
         });
         
         context.SetVariable(CasesWorkflowConstants.WorkflowVariables.Actor.Current, input!.Actor);

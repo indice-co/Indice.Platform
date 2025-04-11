@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Server.Endpoints;
-internal static class AdminIntegrationHandlers
+internal static class AdminContactsHandlers
 {
     public static async Task<Results<Ok<ResultSet<Contact>>, NotFound>> GetContacts(ClaimsPrincipal currentUser, 
         IOptions<CasesOptions> casesOptions,
