@@ -29,7 +29,7 @@ internal static class AdminCasesApi
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes("Bearer")
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-            .RequireCasesAccess(CasesAccessLevel.Manage)
+            .RequireCasesRecordAccess(CasesAccessLevel.Manage)
         ).WithHandledException<BusinessException>();
 
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
@@ -38,13 +38,19 @@ internal static class AdminCasesApi
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
+        group.MapGet(string.Empty, AdminCasesHandlers.GetCases)
+            .WithName(nameof(AdminCasesHandlers.GetCases))
+            .WithSummary("Gets the list of all cases using the provided.");
+
         group.MapPost(string.Empty, AdminCasesHandlers.CreateDraftAdminCase)
             .WithName(nameof(AdminCasesHandlers.CreateDraftAdminCase))
-            .WithSummary("Create a new case in draft mode.");
+            .WithSummary("Create a new case in draft mode.")
+            .RequireAuthorization(pb=>pb.RequireCasesAccess(CasesAccessLevel.Manage));
 
         group.MapGet("{caseId}/attachments", AdminCasesHandlers.GetCaseAttachments)
             .WithName(nameof(AdminCasesHandlers.GetCaseAttachments))
-            .WithSummary("Get a list of Attachments for a CaseId");
+            .WithSummary("Get a list of Attachments for a CaseId")
+            .RequireAuthorization(pb => pb.RequireCasesAccess(CasesAccessLevel.Manage));
 
         group.MapPost("{caseId}/attachments", AdminCasesHandlers.UploadAdminCaseAttachment)
             .WithName(nameof(AdminCasesHandlers.UploadAdminCaseAttachment))
@@ -76,9 +82,6 @@ internal static class AdminCasesApi
             .WithName(nameof(AdminCasesHandlers.AdminAddComment))
             .WithSummary("Add a comment to a case.");
 
-        group.MapGet(string.Empty, AdminCasesHandlers.GetCases)
-            .WithName(nameof(AdminCasesHandlers.GetCases))
-            .WithSummary("Gets the list of all cases using the provided.");
 
         group.MapGet("{caseId}", AdminCasesHandlers.GetCaseById)
             .WithName(nameof(AdminCasesHandlers.GetCaseById))
