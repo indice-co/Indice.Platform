@@ -112,6 +112,19 @@ public static class IndiceServicesServiceCollectionExtensions
         return services;
     }
 
+    /// <summary>Adds an implementation of <see cref="ISmsService"/> using Vonage SMS service gateway.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <param name="configure">Configure the available options. Null to use defaults.</param>
+    public static IServiceCollection AddSmsServiceVonage(this IServiceCollection services, IConfiguration configuration, Action<SmsServiceVonageSettings>? configure = null) {
+        services.Configure<SmsServiceVonageSettings>(configuration.GetSection(SmsServiceSettings.Name));
+        services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
+        var options = new SmsServiceVonageSettings();
+        configure?.Invoke(options);
+        services.AddHttpClient<ISmsService, SmsServiceVonage>();
+        return services;
+    }
+
     /// <summary>Adds an implementation of <see cref="ISmsService"/> using Apifon SMS service gateway.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
