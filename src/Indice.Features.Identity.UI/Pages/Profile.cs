@@ -202,7 +202,7 @@ public abstract class BaseProfileModel : BasePageModel
             TempData.Put("AlertProviders", AlertModel.Error(string.Join(", ", result.Errors.Select(x => x.Description))));
             return RedirectToPage("/Profile");
         }
-        await HttpContext.SignOutAsync(SignInManager.ExternalScheme);
+        await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
         TempData.Put("AlertProviders", AlertModel.Success(Localizer["The external login was added."]));
         return RedirectToPage("/Profile");
     }

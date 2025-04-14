@@ -2,6 +2,7 @@ using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.UI.Filters;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +11,8 @@ using Microsoft.Extensions.Localization;
 namespace Indice.Features.Identity.UI.Pages;
 
 /// <summary>Page model for the extended validation add email screen.</summary>
-[Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ExtendedValidationUserIdScheme)]
+[Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ExtendedValidationScheme)]
+[ExtendedValidationRequirementFilter<User>(UserActivityRequirementKind.RequiresPhoneNumberVerification)]
 [IdentityUI(typeof(VerifyPhoneModel))]
 [SecurityHeaders]
 [ValidateAntiForgeryToken]
@@ -70,15 +72,7 @@ public abstract class BaseVerifyPhoneModel : BasePageModel
         }
         var result = await UserManager.ChangePhoneNumberAsync(user, Input.PhoneNumber!, Input.Code!);
         if (result.Succeeded) {
-            if (UserManager.StateProvider.CurrentState == UserState.LoggedIn) {
-                await SignInManager.AutoSignIn(user, ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
-            }
-            var redirectUrl = GetRedirectUrl(UserManager.StateProvider.CurrentState, Input.ReturnUrl) ?? "/";
-            return Redirect(redirectUrl);
-            //TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
-            //    Alert = AlertModel.Success(_localizer["Your phone number was successfully validated. Please press the 'Next' button to continue."]),
-            //    NextStepUrl = redirectUrl
-            //});
+            // next step or signin
         } else {
             TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
                 Alert = AlertModel.Error(_localizer["Please enter the code that you have received at your mobile phone."]),

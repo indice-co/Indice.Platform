@@ -1,7 +1,9 @@
 using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
+using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Models;
+using Indice.Features.Identity.UI.Filters;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +11,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace Indice.Features.Identity.UI.Pages;
 
 /// <summary>Page model for the MFA onboarding screen.</summary>
-[Authorize(AuthenticationSchemes = ExtendedIdentityConstants.MfaOnboardingScheme)]
+[Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ExtendedValidationScheme)]
+[ExtendedValidationRequirementFilter<User>(UserActivityRequirementKind.RequiresMfaOnboarding)]
 [IdentityUI(typeof(MfaOnboardingModel))]
 [SecurityHeaders]
 [ValidateAntiForgeryToken]

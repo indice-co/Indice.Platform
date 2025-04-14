@@ -13,7 +13,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -23,6 +22,7 @@ public abstract class BasePageModel : PageModel
     private IdentityUIOptions? _uiOptions;
     private RequestCulture? _requestCulture;
     private IIdentityServerInteractionService? _interactionService;
+    private IUserActivityProvider<User>? _userActivityProvider;
 
     /// <summary>Will propagate to body class</summary>
     [ViewData]
@@ -35,6 +35,8 @@ public abstract class BasePageModel : PageModel
     public RequestCulture RequestCulture => _requestCulture ??= Request.HttpContext.Features.Get<IRequestCultureFeature>()!.RequestCulture;
     /// <summary>Provide services be used by the user interface to communicate with IdentityServer.</summary>
     public IIdentityServerInteractionService InteractionService => _interactionService ??= ServiceProvider.GetRequiredService<IIdentityServerInteractionService>();
+    /// <summary>The <see cref="IUserActivityProvider{User}"/> used to retrieve the next validation activity according to the user state.</summary>
+    public IUserActivityProvider<User> UserActivityProvider => _userActivityProvider ??= ServiceProvider.GetRequiredService<IUserActivityProvider<User>>();
 
     /// <summary>Checks if the given return URL is safe for redirection.</summary>
     /// <param name="returnUrl">The URL to validate.</param>
@@ -44,57 +46,6 @@ public abstract class BasePageModel : PageModel
         }
         return InteractionService.IsValidReturnUrl(returnUrl) || Url.IsLocalUrl(returnUrl) || UiOptions.IsValidReturnUrl(returnUrl);
     }
-
-    /// <summary>Gets the page to redirect based on the <see cref="SignInResult"/>.</summary>
-    /// <param name="result">Represents the result of a sign-in operation.</param>
-    /// <param name="returnUrl">The return URL.</param>
-    public string? GetRedirectUrl(SignInResult result, string? returnUrl = null) {
-        string? url = null;
-        if (result.RequiresPasswordChange()) {
-            url = Url.PageLink("/PasswordExpired", values: new { returnUrl });
-        } else if (result.RequiresEmailConfirmation()) {
-            url = Url.PageLink("/AddEmail", values: new { returnUrl });
-        } else if (result.RequiresPhoneNumberConfirmation()) {
-            url = Url.PageLink("/AddPhone", values: new { returnUrl });
-        } else if (result.RequiresTwoFactor) {
-            url = Url.PageLink("/Mfa", values: new { returnUrl });
-        } else if (result.RequiresMfaOnboarding()) {
-            url = Url.PageLink("/MfaOnboarding", values: new { returnUrl });
-        }
-        return url;
-    }
-
-    /// <summary>Gets the page to redirect based on the <see cref="SignInResult"/>.</summary>
-    /// <param name="result">Represents the result of a sign-in operation.</param>
-    /// <param name="returnUrl">The return URL.</param>
-    public string? GetRedirectUrl(IdentityResult result, string? returnUrl = null) {
-        string? url = null;
-        if (result.RequiresPasswordChange()) {
-            url = Url.PageLink("/PasswordExpired", values: new { returnUrl });
-        } else if (result.RequiresEmailConfirmation()) {
-            url = Url.PageLink("/AddEmail", values: new { returnUrl });
-        } else if (result.RequiresPhoneNumberConfirmation()) {
-            url = Url.PageLink("/AddPhone", values: new { returnUrl });
-        } else if (result.RequiresTwoFactor) {
-            url = Url.PageLink("/Mfa", values: new { returnUrl });
-        } else if (result.RequiresMfaOnboarding()) {
-            url = Url.PageLink("/MfaOnboarding", values: new { returnUrl });
-        }
-        return url;
-    }
-
-    ///// <summary>>Gets the page to redirect based on the <see cref="UserState"/>.</summary>
-    ///// <param name="loginState">The current user state.</param>
-    ///// <param name="returnUrl">The return URL.</param>
-    //public string? GetRedirectUrl(UserState loginState, string? returnUrl = null) => loginState switch {
-    //    UserState.LoggedOut or UserState.LoggedIn => IsValidReturnUrl(returnUrl) ? returnUrl : "/",
-    //    UserState.RequiresPhoneNumberVerification => Url.PageLink("/AddPhone", values: new { returnUrl }),
-    //    UserState.RequiresEmailVerification => Url.PageLink("/AddEmail", values: new { returnUrl }),
-    //    UserState.RequiresPasswordChange => Url.PageLink("/PasswordExpired", values: new { returnUrl }),
-    //    UserState.RequiresMfa => Url.PageLink("/Mfa", values: new { returnUrl }),
-    //    UserState.RequiresMfaOnboarding => Url.PageLink("/MfaOnboarding", values: new { returnUrl }),
-    //    _ => default
-    //};
 
     /// <summary>Adds errors contained in <see cref="IdentityResult"/> to the <see cref="ModelStateDictionary"/>.</summary>
     /// <param name="result">Represents the result of a sign-in operation.</param>
@@ -136,7 +87,7 @@ public abstract class BasePageModel : PageModel
                    })
         );
         var logger = ServiceProvider.GetRequiredService<ILogger<BasePageModel>>();
-        var maskedEmail = user.Email.Substring(0, 2) + "****" + user.Email.Substring(user.Email.IndexOf('@'));
+        var maskedEmail = user.Email!.Substring(0, 2) + "****" + user.Email.Substring(user.Email.IndexOf('@'));
         logger.LogInformation("Sending a confirmation email to {Email} with callback URL: {CallbackUrl}.", maskedEmail, callbackUrl);
     }
 

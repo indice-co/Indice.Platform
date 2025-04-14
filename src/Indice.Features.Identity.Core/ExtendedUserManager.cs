@@ -186,20 +186,13 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         if (result.Succeeded) {
             await _eventService.Publish(new EmailConfirmedEvent(UserEventContext.InitializeFromUser(user)));
         }
-        return result.ToExtendedIdentityResult(user,
-                                               requirePostSigninConfirmedEmail: RequirePostSignInConfirmedEmail,
-                                               requirePostSigninConfirmedPhoneNumber: RequirePostSignInConfirmedPhoneNumber,
-                                               MfaPolicy);
+        return result;
     }
 
     /// <inheritdoc />
     public override async Task<IdentityResult> SetTwoFactorEnabledAsync(TUser user, bool enabled) {
         var result = await base.SetTwoFactorEnabledAsync(user, enabled);
-        
-        return result.ToExtendedIdentityResult(user,
-                                               requirePostSigninConfirmedEmail: RequirePostSignInConfirmedEmail,
-                                               requirePostSigninConfirmedPhoneNumber: RequirePostSignInConfirmedPhoneNumber,
-                                               MfaPolicy);
+        return result;
     }
     #endregion
 
@@ -292,7 +285,6 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         if (!result.Succeeded) {
             return result;
         }
-        await StateProvider.ChangeStateAsync(user, UserAction.PasswordChanged);
         if (await IsLockedOutAsync(user)) {
             result = await SetLockoutEndDateAsync(user, null);
         }
@@ -715,72 +707,4 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         return cast;
     }
     #endregion
-}
-
-
-/// <summary>Extends the <see cref="IdentityResult"/> type.</summary>
-public class ExtendedIdentityResult : IdentityResult
-{
-    /// <summary>Constructs an instance of <see cref="ExtendedIdentityResult"/>.</summary>
-    public ExtendedIdentityResult(
-        bool requiresEmailVerification,
-        bool requiresPhoneNumberVerification,
-        bool requiresPasswordChange,
-        bool requiresMfaOnboarding) {
-        RequiresEmailVerification = requiresEmailVerification;
-        RequiresPhoneNumberVerification = requiresPhoneNumberVerification;
-        RequiresPasswordChange = requiresPasswordChange;
-        RequiresMfaOnboarding = requiresMfaOnboarding;
-    }
-
-    /// <summary>Returns a flag indication whether the user attempting to sign-in requires phone number confirmation.</summary>
-    /// <value>True if the user attempting to sign-in requires phone number confirmation, otherwise false.</value>
-    public bool RequiresPhoneNumberVerification { get; }
-    /// <summary>Returns a flag indication whether the user attempting to sign-in requires email confirmation.</summary>
-    /// <value>True if the user attempting to sign-in requires email confirmation, otherwise false.</value>
-    public bool RequiresEmailVerification { get; }
-    /// <summary>Returns a flag indication whether the user attempting to sign-in requires an immediate password change due to expiration.</summary>
-    /// <value>True if the user attempting to sign-in requires a password change, otherwise false.</value>
-    public bool RequiresPasswordChange { get; }
-    /// <summary>Returns a flag indication whether the user should on-board to MFA.</summary>
-    /// <value>True if the user attempting to sign-in requires MFA on-boarding, otherwise false.</value>
-    public bool RequiresMfaOnboarding { get; }
-}
-
-/// <summary>Extensions on <see cref="SignInResult"/> type.</summary>
-public static class ExtendedIdentityResultExtensions
-{
-    /// <summary>Returns a flag indication whether the user attempting to sign-in requires phone number confirmation.</summary>
-    /// <param name="result">Represents the result of a sign-in operation.</param>
-    public static bool RequiresPhoneNumberConfirmation(this IdentityResult result) => result is ExtendedIdentityResult { RequiresPhoneNumberVerification: true };
-    /// <summary>Returns a flag indication whether the user attempting to sign-in requires email confirmation .</summary>
-    public static bool RequiresEmailConfirmation(this IdentityResult result) => result is ExtendedIdentityResult { RequiresEmailVerification: true };
-    /// <summary>Returns a flag indication whether the user attempting to sign-in requires email confirmation .</summary>
-    public static bool RequiresPasswordChange(this IdentityResult result) => result is ExtendedIdentityResult { RequiresPasswordChange: true };
-    /// <summary>Returns a flag indication whether the user should on-board to MFA.</summary>
-    public static bool RequiresMfaOnboarding(this IdentityResult result) => result is ExtendedIdentityResult { RequiresMfaOnboarding: true };
-    /// <summary>Returns a flag indication whether the user should on-board to MFA.</summary>
-    public static bool RequiresExtendedValidation(this IdentityResult result) => result.RequiresEmailConfirmation() || 
-                                                                                 result.RequiresPhoneNumberConfirmation() || 
-                                                                                 result.RequiresPasswordChange() || 
-                                                                                 result.RequiresMfaOnboarding();
-
-    /// <summary>
-    /// Converts an <see cref="IdentityResult"/> to an <see cref="ExtendedIdentityResult"/>.
-    /// </summary>
-    /// <typeparam name="TUser">The user Type</typeparam>
-    /// <param name="result">The reulting <see cref="ExtendedIdentityResult"/> based on the input.</param>
-    /// <param name="user">The user state to inspect</param>
-    /// <param name="requirePostSigninConfirmedEmail">The configured Email verification policy</param>
-    /// <param name="requirePostSigninConfirmedPhoneNumber">The configured Phone number verification policy</param>
-    /// <param name="mfaPolicy">The configured MFA policy.</param>
-    /// <returns></returns>
-    public static ExtendedIdentityResult ToExtendedIdentityResult<TUser>(this IdentityResult result, TUser user, bool requirePostSigninConfirmedEmail, bool requirePostSigninConfirmedPhoneNumber, MfaPolicy mfaPolicy) where TUser : User { 
-        return new ExtendedIdentityResult(
-            requirePostSigninConfirmedEmail && !user.EmailConfirmed,
-            requirePostSigninConfirmedPhoneNumber && !user.PhoneNumberConfirmed,
-            requiresPasswordChange: user.HasExpiredPassword(),
-            requiresMfaOnboarding: mfaPolicy == MfaPolicy.Enforced && user.TwoFactorEnabled == false
-        );
-    }
 }

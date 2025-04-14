@@ -103,9 +103,9 @@ public abstract class BaseMfaModel : BasePageModel
                 throw new Exception("Invalid return URL.");
             }
         }
-        var redirectUrl = GetRedirectUrl(signInResult, Input.ReturnUrl);
-        if (!string.IsNullOrWhiteSpace(redirectUrl)) {
-            return Redirect(redirectUrl);
+        if (signInResult.RequiresValidation()) { 
+            return RedirectToPage("/AddEmail", new { returnUrl });
+            
         }
         ModelState.AddModelError(string.Empty, _localizer["The OTP code is not valid."]);
         return Page();

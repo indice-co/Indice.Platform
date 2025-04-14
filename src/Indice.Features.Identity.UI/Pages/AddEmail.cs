@@ -2,6 +2,7 @@ using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.UI.Filters;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +11,8 @@ using Microsoft.Extensions.Localization;
 namespace Indice.Features.Identity.UI.Pages;
 
 /// <summary>Page model for the extended validation add email screen.</summary>
-[Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ExtendedValidationUserIdScheme)]
+[Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ExtendedValidationScheme)]
+[ExtendedValidationRequirementFilter<User>(UserActivityRequirementKind.RequiresEmailVerification)]
 [IdentityUI(typeof(AddEmailModel))]
 [SecurityHeaders]
 [ValidateAntiForgeryToken]
@@ -49,15 +51,6 @@ public abstract class BaseAddEmailModel : BasePageModel
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        if (user.EmailConfirmed) {
-            await UserManager.StateProvider.ChangeStateAsync(user, UserAction.VerifiedEmail);
-        }
-        if (UserManager.StateProvider.CurrentState == UserState.LoggedIn) {
-            await SignInManager.AutoSignIn(user, ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
-        }
-        if (UserManager.StateProvider.CurrentState != UserState.RequiresEmailVerification) {
-            return Redirect(GetRedirectUrl(UserManager.StateProvider.CurrentState, returnUrl) ?? "/");
-        }
         Input.Email = user.Email;
         Input.ReturnUrl = returnUrl;
         if (!UiOptions.ShowAddEmailPrompt) {
@@ -99,7 +92,7 @@ public abstract class BaseAddEmailModel : BasePageModel
     }
 }
 
-[Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ExtendedValidationUserIdScheme)]
+[Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ExtendedValidationScheme)]
 internal class AddEmailModel : BaseAddEmailModel
 {
     public AddEmailModel(

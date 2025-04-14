@@ -12,6 +12,7 @@ using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
@@ -89,7 +90,6 @@ public abstract class BaseLoginModel : BasePageModel
     /// <summary>Login page GET handler.</summary>
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync(string? returnUrl = null) {
-        UserManager.StateProvider.ClearState();
         // Build a model so we know what to show on the login page.
         Input = View = await BuildLoginViewModelAsync(returnUrl);
         if (View.PromptRegister()) {
@@ -133,9 +133,9 @@ public abstract class BaseLoginModel : BasePageModel
             // Validate username/password against database.
             var result = await SignInManager.PasswordSignInAsync(Input.UserName!, Input.Password!, IdentityUIOptions.AllowRememberLogin && Input.RememberLogin, lockoutOnFailure: true);
             var user = await UserManager.FindByNameAsync(Input.UserName!);
-            if (result.Succeeded && user is not null) {
+            if (result.Succeeded) {
                 // Replace locale Claim only if it has a different value configured.
-                var localeClaim = user.Claims.FirstOrDefault(x => x.ClaimType == JwtClaimTypes.Locale && x.ClaimValue == RequestCulture.Culture.TwoLetterISOLanguageName);
+                var localeClaim = user!.Claims.FirstOrDefault(x => x.ClaimType == JwtClaimTypes.Locale && x.ClaimValue == RequestCulture.Culture.TwoLetterISOLanguageName);
                 if (localeClaim is null) {
                     await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.Locale, RequestCulture.Culture.TwoLetterISOLanguageName);
                 }
@@ -164,9 +164,16 @@ public abstract class BaseLoginModel : BasePageModel
                 await Events.RaiseAsync(new ExtendedUserLoginFailureEvent(Input.UserName!, "User locked out.", subjectId: user?.Id, clientId: context?.Client?.ClientId, clientName: context?.Client?.ClientName));
                 ModelState.AddModelError(string.Empty, "Your account is temporarily locked. Please contact system administrator.");
             }
-            var redirectUrl = GetRedirectUrl(result, Input.ReturnUrl);
-            if (redirectUrl is not null && user is not null) {
-                return Redirect(redirectUrl);
+            if (result.RequiresTwoFactor) {
+                Logger.LogWarning("User '{UserName}' requires two factor authentication.", Input.UserName);
+                var redirectUrl = Url.PageLink("/Mfa", values: new { Input.ReturnUrl });
+                return Redirect(redirectUrl!);
+            }
+            if (result.RequiresValidation()) {
+                Logger.LogWarning("User '{UserName}' requires extended validation.", Input.UserName);
+                var requirement = await UserActivityProvider.GetNextAsync(HttpContext, user!);
+                var redirectUrl = GetRedirectUrl(requirement, Input.ReturnUrl);
+                return Redirect(redirectUrl!);
             }
             Logger.LogWarning("User '{UserName}' entered invalid credentials during login.", Input.UserName);
             await Events.RaiseAsync(new ExtendedUserLoginFailureEvent(Input.UserName!, "Invalid credentials.", subjectId: user?.Id, clientId: context?.Client?.ClientId, clientName: context?.Client?.ClientName));
@@ -178,6 +185,14 @@ public abstract class BaseLoginModel : BasePageModel
         View = await BuildLoginViewModelAsync(Input);
         return Page();
     }
+
+    /// <summary>>Gets the page to redirect based on the <see cref="UserActivityRequirement"/>.</summary>
+    /// <param name="requirement">The current user validation requirement.</param>
+    /// <param name="returnUrl">The return URL.</param>
+    private string? GetRedirectUrl(UserActivityRequirement requirement, string? returnUrl = null) => requirement.Kind switch {
+        UserActivityRequirementKind.None => IsValidReturnUrl(returnUrl) ? returnUrl : "/",
+        _ => Url.PageLink(requirement.PageName, values: new { returnUrl })
+    };
 
     private async Task<LoginViewModel> BuildLoginViewModelAsync(string? returnUrl) {
         var context = await Interaction.GetAuthorizationContextAsync(returnUrl);

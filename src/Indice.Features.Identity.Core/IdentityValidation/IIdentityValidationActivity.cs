@@ -1,6 +1,5 @@
 ﻿using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data.Models;
-using Indice.Features.Identity.Core.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -28,13 +27,13 @@ public interface IIdentityValidationActivity
     /// </summary>
     /// <param name="activityContext">The input state to check for handler compatibility</param>
     /// <returns></returns>
-    Task HandleAsync(IdentityValidationActivityContext activityContext);
+    Task HandleAsync(UserValidationActivityContext activityContext);
 }
 
 /// <summary>
 /// The request context for the filter chain of Validation activities. <seealso cref="IIdentityValidationActivity"/>.
 /// </summary>
-public class IdentityValidationActivityContext(User user, HttpContext httpContext) 
+public class UserValidationActivityContext(User user, HttpContext httpContext) 
 {
     /// <summary></summary>
     public User User { get; } = user;
@@ -47,8 +46,8 @@ public class IdentityValidationActivityContext(User user, HttpContext httpContex
 /// <summary>
 /// Represents the result of an identity validation activity operation.
 /// </summary>
-/// <param name="UserState"></param>
-public record IdentityValidationActivityResult(UserState UserState);
+/// <param name="Requirement"></param>
+public record IdentityValidationActivityResult(UserActivityRequirement Requirement);
 
 
 /// <summary>
@@ -61,7 +60,7 @@ public abstract class IdentityValidationActivityBase : IIdentityValidationActivi
     public IIdentityValidationActivity? Next { get; set; }
 
     /// <inheritdoc/>
-    public async Task HandleAsync(IdentityValidationActivityContext activityContext) {
+    public async Task HandleAsync(UserValidationActivityContext activityContext) {
         activityContext.Result = await GetResultAsync(activityContext);
         if (activityContext.Result is not null) {
             return;
@@ -76,7 +75,7 @@ public abstract class IdentityValidationActivityBase : IIdentityValidationActivi
     /// </summary>
     /// <param name="activityContext"></param>
     /// <returns></returns>
-    protected abstract ValueTask<IdentityValidationActivityResult?> GetResultAsync(IdentityValidationActivityContext activityContext);
+    protected abstract ValueTask<IdentityValidationActivityResult?> GetResultAsync(UserValidationActivityContext activityContext);
 }
 
 /// <summary>
@@ -85,33 +84,13 @@ public abstract class IdentityValidationActivityBase : IIdentityValidationActivi
 public class RequiresMfaOnboardingActivity : IdentityValidationActivityBase
 {
     /// <inheritdoc/>
-    protected override async ValueTask<IdentityValidationActivityResult?> GetResultAsync(IdentityValidationActivityContext activityContext) {
+    protected override async ValueTask<IdentityValidationActivityResult?> GetResultAsync(UserValidationActivityContext activityContext) {
         await ValueTask.CompletedTask;
         var configuration = activityContext.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
         var mfaPolicy = configuration.GetIdentityOption<MfaPolicy?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Policy") ?? MfaPolicy.Default;
 
         if (activityContext.User.TwoFactorEnabled == false && mfaPolicy == MfaPolicy.Enforced) {
-            return new IdentityValidationActivityResult(UserState.RequiresMfaOnboarding);
-        }
-        return null;
-    }
-}
-
-/// <summary>
-/// Activity handler for determine the need for mfa (seccond factor authentication)
-/// </summary>
-public class RequiresMfaActivity : IdentityValidationActivityBase
-{
-    /// <inheritdoc/>
-    protected override async ValueTask<IdentityValidationActivityResult?> GetResultAsync(IdentityValidationActivityContext activityContext) {
-        if (activityContext.User.TwoFactorEnabled == true &&
-            activityContext.User.PhoneNumberConfirmed == false &&
-            (await activityContext.HttpContext.RequestServices.GetRequiredService<IAuthenticationMethodProvider>().GetRequiredAuthenticationMethod(activityContext.User))?.GetType() == typeof(SmsAuthenticationMethod) &&
-            (await activityContext.HttpContext.RequestServices.GetRequiredService<ExtendedSignInManager<User>>().IsTwoFactorClientRememberedAsync(activityContext.User))) {
-            throw new InvalidOperationException("User cannot have MFA enabled without a verified phone number.");
-        }
-        if (activityContext.User.TwoFactorEnabled == true) {
-            return new IdentityValidationActivityResult(UserState.RequiresMfa);
+            return new IdentityValidationActivityResult(new UserActivityRequirement(UserActivityRequirementKind.RequiresMfaOnboarding, "/MfaOnboarding"));
         }
         return null;
     }
@@ -123,10 +102,10 @@ public class RequiresMfaActivity : IdentityValidationActivityBase
 public class RequiresPasswordChangeActivity : IdentityValidationActivityBase
 {
     /// <inheritdoc/>
-    protected override async ValueTask<IdentityValidationActivityResult?> GetResultAsync(IdentityValidationActivityContext activityContext) {
+    protected override async ValueTask<IdentityValidationActivityResult?> GetResultAsync(UserValidationActivityContext activityContext) {
         await ValueTask.CompletedTask;
-        if (activityContext.User.HasExpiredPassword() == true) {
-            return new IdentityValidationActivityResult(UserState.RequiresPasswordChange);
+        if (activityContext.User.HasExpiredPassword()) {
+            return new IdentityValidationActivityResult(new UserActivityRequirement(UserActivityRequirementKind.RequiresPasswordChange, "/PasswordExpired"));
         }
         return null;
     }
@@ -138,13 +117,13 @@ public class RequiresPasswordChangeActivity : IdentityValidationActivityBase
 public class RequiresEmailVerificationActivity : IdentityValidationActivityBase
 {
     /// <inheritdoc/>
-    protected override async ValueTask<IdentityValidationActivityResult?> GetResultAsync(IdentityValidationActivityContext activityContext) {
+    protected override async ValueTask<IdentityValidationActivityResult?> GetResultAsync(UserValidationActivityContext activityContext) {
         await ValueTask.CompletedTask;
         var configuration = activityContext.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
         var requirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedEmail)) == true;
 
         if (activityContext.User.EmailConfirmed == false && requirePostSignInConfirmedEmail) {
-            return new IdentityValidationActivityResult(UserState.RequiresEmailVerification);
+            return new IdentityValidationActivityResult(new UserActivityRequirement(UserActivityRequirementKind.RequiresEmailVerification, "/AddEmail"));
         }
         return null;
     }
@@ -156,25 +135,14 @@ public class RequiresEmailVerificationActivity : IdentityValidationActivityBase
 public class RequiresPhoneNumberVerificationActivity : IdentityValidationActivityBase
 {
     /// <inheritdoc/>
-    protected override async ValueTask<IdentityValidationActivityResult?> GetResultAsync(IdentityValidationActivityContext activityContext) {
+    protected override async ValueTask<IdentityValidationActivityResult?> GetResultAsync(UserValidationActivityContext activityContext) {
         await ValueTask.CompletedTask;
         var configuration = activityContext.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
         var requirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedPhoneNumber)) == true;
         
         if (activityContext.User.PhoneNumberConfirmed == false && requirePostSignInConfirmedPhoneNumber) {
-            return new IdentityValidationActivityResult(UserState.RequiresPhoneNumberVerification);
+            return new IdentityValidationActivityResult(new UserActivityRequirement(UserActivityRequirementKind.RequiresPhoneNumberVerification, "/AddPhone"));
         }
         return null;
-    }
-}
-
-/// <summary>
-/// Activity handler for determine the need for Password Change
-/// </summary>
-public class RequiresPasswordValidationActivity : IdentityValidationActivityBase
-{
-    /// <inheritdoc/>
-    protected override ValueTask<IdentityValidationActivityResult?> GetResultAsync(IdentityValidationActivityContext activityContext) {
-        throw new NotImplementedException();
     }
 }

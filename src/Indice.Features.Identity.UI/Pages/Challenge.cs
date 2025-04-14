@@ -86,10 +86,11 @@ public abstract class BaseChallengeModel : BasePageModel
         if (localeClaim is null) {
             await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.Locale, RequestCulture.Culture.TwoLetterISOLanguageName);
         }
-        var redirectUrl = GetRedirectUrl(result, returnUrl);
-        if (redirectUrl is not null) {
-            return Redirect(redirectUrl);
+
+        if (result.RequiresValidation()) {
+            return RedirectToPage("/AddEmail", new { returnUrl });
         }
+
         // Check if external login is in the context of an OIDC request.
         var context = await Interaction.GetAuthorizationContextAsync(returnUrl);
         if (context is not null) {

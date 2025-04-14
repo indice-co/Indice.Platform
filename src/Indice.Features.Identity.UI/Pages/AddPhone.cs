@@ -2,6 +2,7 @@ using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.UI.Filters;
 using Indice.Features.Identity.UI.Models;
 using Indice.Globalization;
 using Microsoft.AspNetCore.Authorization;
@@ -12,7 +13,8 @@ using Microsoft.Extensions.Options;
 namespace Indice.Features.Identity.UI.Pages;
 
 /// <summary>Page model for the extended validation add email screen.</summary>
-[Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ExtendedValidationUserIdScheme)]
+[Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ExtendedValidationScheme)]
+[ExtendedValidationRequirementFilter<User>(UserActivityRequirementKind.RequiresPhoneNumberVerification)]
 [IdentityUI(typeof(AddPhoneModel))]
 [SecurityHeaders]
 [ValidateAntiForgeryToken]
@@ -52,10 +54,7 @@ public abstract class BaseAddPhoneModel : BasePageModel
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        if (UserManager.StateProvider.CurrentState != UserState.RequiresPhoneNumberVerification) {
-            var redirectUrl = GetRedirectUrl(UserManager.StateProvider.CurrentState, returnUrl);
-            return Redirect(redirectUrl ?? "/");
-        }
+        
         TempData.Put(TempDataKey, new AlertModel {
             Message = _localizer["Please select your phone number so we can verify it before we continue."],
             AlertType = AlertType.Info

@@ -1,7 +1,6 @@
-﻿using System.Text;
-using Indice.Features.Identity.Core.Configuration;
+﻿using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data.Models;
-using Indice.Features.Identity.Core.Models;
+using Indice.Features.Identity.Core.IdentityValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -10,52 +9,34 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Indice.Features.Identity.Core;
 
 /// <summary>A service used to implement state machine for <see cref="ExtendedUserManager{User}"/> and <see cref="ExtendedSignInManager{User}"/>.</summary>
-/// <remarks>Creates a new instance of <see cref="DefaultUserStateProvider{User}"/>.</remarks>
-/// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-/// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>, if one is available.</param>
-public class DefaultUserStateProvider(
-    IConfiguration configuration,
-    IHttpContextAccessor httpContextAccessor) : DefaultUserStateProvider<User>(configuration, httpContextAccessor)
+/// <remarks>Creates a new instance of <see cref="DefaultUserActivityProvider{User}"/>.</remarks>
+public class DefaultUserActivityProvider() : DefaultUserActivityProvider<User>
 { }
 
 /// <summary>A service used to implement state machine for <see cref="ExtendedUserManager{TUser}"/> and <see cref="ExtendedSignInManager{TUser}"/>.</summary>
-public class DefaultUserStateProvider<TUser> : IUserStateProvider2<TUser> where TUser : User
+public class DefaultUserActivityProvider<TUser> : IUserActivityProvider<TUser> where TUser : User
 {
-    private readonly bool _requirePostSignInConfirmedEmail;
-    private readonly bool _requirePostSignInConfirmedPhoneNumber;
-    private readonly MfaPolicy _mfaPolicy;
-    private readonly HttpContext? _httpContext;
-    private const string USER_LOGIN_STATE_SESSION_KEY = "user_login_state";
 
-    /// <summary>Creates a new instance of <see cref="DefaultUserStateProvider{TUser}"/>.</summary>
-    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    /// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>, if one is available.</param>
-    public DefaultUserStateProvider(
-        IConfiguration configuration,
-        IHttpContextAccessor httpContextAccessor
-    ) {
-        _requirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedEmail)) == true;
-        _requirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedPhoneNumber)) == true;
-        _mfaPolicy = configuration.GetIdentityOption<MfaPolicy?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Policy") ?? MfaPolicy.Default;
-        _httpContext = httpContextAccessor.HttpContext;
-        if (_httpContext is not null && _httpContext.Session.TryGetValue(USER_LOGIN_STATE_SESSION_KEY, out var bytes) == true) {
-            CurrentState = Enum.Parse<UserState>(Encoding.UTF8.GetString(bytes));
+    /// <summary>Creates a new instance of <see cref="DefaultUserActivityProvider{TUser}"/>.</summary>
+    public DefaultUserActivityProvider() {
+        
+    }
+
+    /// <inheritdoc/>
+    public async Task<UserActivityRequirement> GetNextAsync(HttpContext httpContext, TUser user) {
+        var validators = httpContext.RequestServices.GetServices<IIdentityValidationActivity>().ToList();
+        for(var i = 0; i < validators.Count; i++) {
+            if (i < validators.Count - 1) {
+                validators[i].Next = validators[i + 1];
+            }
         }
+        var context = new UserValidationActivityContext(user, httpContext);
+        var start = validators[0];
+        await start.HandleAsync(context);
+        return context.Result?.Requirement ?? UserActivityRequirement.None; 
     }
 
-    /// <inheritdoc />
-    public UserState CurrentState { get; private set; }
-
-    /// <inheritdoc />
-    public async Task ChangeStateAsync(TUser user, UserAction action) {
-        CurrentState = await GetNextStateAsync(user, action);
-        _httpContext?.Session.Set(USER_LOGIN_STATE_SESSION_KEY, Encoding.UTF8.GetBytes(CurrentState.ToString()));
-    }
-
-    /// <inheritdoc />
-    public void ClearState() => _httpContext?.Session.Clear();
-
-    /* Note for future self: Never change the order of the combinations in the method below. It does matter. */
+    /* Note for future self: Never change the order of the combinations in the method below. It does matter.
     private async Task<UserState> GetNextStateAsync(TUser user, UserAction action) => (CurrentState, action) switch {
         (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == true &&
                                                      user.PhoneNumberConfirmed == false &&
@@ -105,5 +86,6 @@ public class DefaultUserStateProvider<TUser> : IUserStateProvider2<TUser> where 
         (UserState.RequiresPhoneNumberVerification, UserAction.VerifiedPhoneNumber) => UserState.LoggedIn,
         (UserState.LoggedIn, UserAction.Logout) => UserState.LoggedOut,
         _ => CurrentState
-    };
+    }; 
+     */
 }

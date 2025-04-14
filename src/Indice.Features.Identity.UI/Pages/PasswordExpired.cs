@@ -2,6 +2,7 @@ using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.UI.Filters;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +11,8 @@ using Microsoft.Extensions.Localization;
 namespace Indice.Features.Identity.UI.Pages;
 
 /// <summary>Page model for the extended validation add email screen.</summary>
-[Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ExtendedValidationUserIdScheme)]
+[Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ExtendedValidationScheme)]
+[ExtendedValidationRequirementFilter<User>(UserActivityRequirementKind.RequiresPasswordChange)]
 [IdentityUI(typeof(PasswordExpiredModel))]
 [SecurityHeaders]
 [ValidateAntiForgeryToken]
@@ -49,9 +51,6 @@ public abstract class BasePasswordExpiredModel : BasePageModel
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         await Task.CompletedTask;
-        if (UserManager.StateProvider.CurrentState != UserState.RequiresPasswordChange) {
-            return Redirect(GetRedirectUrl(UserManager.StateProvider.CurrentState, returnUrl) ?? "/");
-        }
         TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
             Alert = AlertModel.Info(_localizer["Your password has expired. Please choose a new password."])
         });
@@ -71,14 +70,10 @@ public abstract class BasePasswordExpiredModel : BasePageModel
             return Page();
         }
         await UserManager.SetPasswordExpiredAsync(user, false);
-        if (UserManager.StateProvider.CurrentState == UserState.LoggedIn) {
-            await SignInManager.AutoSignIn(user, ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
-        }
-        var redirectUrl = GetRedirectUrl(UserManager.StateProvider.CurrentState, Input.ReturnUrl);
         TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
             Alert = AlertModel.Success(_localizer["Your password has been changed successfully. Please press the 'Next' button to continue."]),
             DisableForm = true,
-            NextStepUrl = redirectUrl
+            NextStepUrl = Url.Page("/PasswordExpired", new { returnUrl })
         });
         return Page();
     }

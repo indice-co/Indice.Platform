@@ -1,18 +1,18 @@
-using IdentityModel;
 using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.UI.Filters;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 
 namespace Indice.Features.Identity.UI.Pages;
 
 /// <summary>Page model for the MFA onboarding verify phone screen.</summary>
-[Authorize(AuthenticationSchemes = ExtendedIdentityConstants.MfaOnboardingScheme)]
+[Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ExtendedValidationScheme)]
+[ExtendedValidationRequirementFilter<User>(UserActivityRequirementKind.RequiresMfaOnboarding)]
 [IdentityUI(typeof(MfaOnboardingVerifyPhoneModel))]
 [SecurityHeaders]
 [ValidateAntiForgeryToken]
@@ -66,15 +66,6 @@ public abstract class BaseMfaOnboardingVerifyPhoneModel : BasePageModel
         var result = await UserManager.ChangePhoneNumberAsync(user, user.PhoneNumber!, Input.Code!);
         if (result.Succeeded) {
             var twoFactorEnableResult = await UserManager.SetTwoFactorEnabledAsync(user, true);
-            var signInManager = ServiceProvider.GetRequiredService<ExtendedSignInManager<User>>();
-            if (twoFactorEnableResult.RequiresExtendedValidation()) {
-                var deviceId = signInManager.GetMfaDeviceIdentifier(user);
-                var signinResult = await signInManager.DoPartialSignInAsync(user, deviceId, ["pwd"]);
-                tempDataModel.NextStepUrl = GetRedirectUrl(signinResult, Input.ReturnUrl) ?? "/";
-            }
-            else {
-                await signInManager.SignInWithClaimsAsync(user, false, [new(JwtClaimTypes.AuthenticationMethod, "pwd")]);
-            }
             tempDataModel.Alert = AlertModel.Success(_localizer["Your phone number was successfully validated. Please press the 'Next' button to continue."]);
         } else {
             tempDataModel.Alert = AlertModel.Error(_localizer["Please enter the code that you have received at your mobile phone."]);
