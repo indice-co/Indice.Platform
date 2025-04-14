@@ -112,6 +112,9 @@ internal static class AdminCasesApi
             .WithSummary("Download case in a PDF format.")
             .Produces(StatusCodes.Status200OK, typeof(IFormFile), MediaTypeNames.Application.Pdf);
 
+        group.MapPost("{caseId}/publish-private-data", AdminCasesHandlers.PublishPrivateData)
+            .WithName(nameof(AdminCasesHandlers.PublishPrivateData))
+            .WithSummary("Publish private data to public data of a case.");
         return group;
     }
 }

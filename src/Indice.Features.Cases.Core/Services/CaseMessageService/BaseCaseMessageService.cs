@@ -176,11 +176,6 @@ internal abstract class BaseCaseMessageService
 
         @case.DataId = newDataVersion.Id;
         
-        // If case is mine, my changes are also publicly visible
-        if (@case.CreatedBy.Id == createdBy.Id) {
-            @case.PublicDataId = newDataVersion.Id;
-        }
-
         // Update checkpoint data
         await DbContext.CaseData.AddAsync(newDataVersion);
     }

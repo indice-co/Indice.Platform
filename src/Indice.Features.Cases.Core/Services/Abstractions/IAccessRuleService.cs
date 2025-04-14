@@ -14,27 +14,27 @@ public interface IAccessRuleService
     /// </summary>
     /// <param name="filters">Query filters</param>
     /// <returns></returns>
-    Task<ResultSet<AccessRule>> Get(ListOptions<GetAccessRulesListFilter> filters);
+    Task<ResultSet<AccessRule>> GetList(ListOptions<GetAccessRulesListFilter> filters);
     /// <summary>
     /// Return list of access rules for the case specified
     /// </summary>
     /// <param name="caseId">Case id</param>
     /// <returns>List of access rules to be added</returns>
-    Task<List<AccessRule>> GetCaseAccessRules(Guid caseId);
+    Task<List<AccessRule>> GetListByCase(Guid caseId);
     /// <summary>
     /// Allows Admin users to add a new access rule
     /// </summary>
     /// <param name="user">The user that will create the access rule.</param>
     /// <param name="accessRule">The access rule to be added</param>
     /// <returns></returns>
-    Task AdminCreate(WorkflowActor user, AddAccessRuleRequest accessRule);
+    Task Create(WorkflowActor user, AddAccessRuleRequest accessRule);
     /// <summary>
     /// Add a list case rule for admin users. This allows user to add more generic rules
     /// </summary>
     /// <param name="user">The user that will create the access rule.</param>
     /// <param name="accessRules">List of accessrules</param>
     /// <returns></returns>
-    Task AdminBatch(WorkflowActor user, List<AddAccessRuleRequest> accessRules);
+    Task BatchCreate(WorkflowActor user, List<AddAccessRuleRequest> accessRules);
     /// <summary>
     /// Add case rule for admin users. This allows user to add more generic rules
     /// </summary>
@@ -42,7 +42,7 @@ public interface IAccessRuleService
     /// <param name="caseId">The case to which the rule must be added</param>
     /// <param name="accessRule">The access rule to be added</param>
     /// <returns></returns>
-    Task Create(WorkflowActor user, Guid caseId, AddCaseAccessRuleRequest accessRule);
+    Task CreateForCase(WorkflowActor user, Guid caseId, AddCaseAccessRuleRequest accessRule);
 
     /// <summary>
     /// Add a list case rule for admin users. 
@@ -51,7 +51,7 @@ public interface IAccessRuleService
     /// <param name="caseId">The case to which the rule must be added</param>
     /// <param name="accessRules">The list of access rules to be added</param>
     /// <returns></returns>
-    Task Batch(WorkflowActor user, Guid caseId, List<AddCaseAccessRuleRequest> accessRules);
+    Task BatchCreateForCase(WorkflowActor user, Guid caseId, List<AddCaseAccessRuleRequest> accessRules);
     /// <summary>
     /// Updates access rule'w access level
     /// </summary>

@@ -67,7 +67,7 @@ public class MyCaseServiceTests : IDisposable
 
     private static ClaimsPrincipal User() {
         var claims = new List<Claim> {
-                new Claim(BasicClaimTypes.Scope, CasesApiConstants.Scope),
+                new Claim(BasicClaimTypes.Scope, CasesCoreConstants.DefaultScopeName),
                 new Claim(BasicClaimTypes.Subject, "ab9769f1-d532-4b7d-9922-3da003157ebd"),
                 new Claim(BasicClaimTypes.Email, "Case API"),
                 new Claim(BasicClaimTypes.GivenName, "Case API"),

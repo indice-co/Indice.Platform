@@ -6,6 +6,7 @@ using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using Indice.Events;
 using Indice.Features.Cases.Core.Data;
+using Indice.Features.Cases.Core.Data.Models;
 using Indice.Features.Cases.Core.Events;
 using Indice.Features.Cases.Core.Exceptions;
 using Indice.Features.Cases.Core.Models;
@@ -671,4 +672,15 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return [.. checkpointTypeIds];
     }
 
+    public async Task<bool> PublishPrivateData(Guid caseId) {
+        ArgumentNullException.ThrowIfNull(caseId);
+        var @case = await DbContext.Cases.FirstOrDefaultAsync(p => p.Id == caseId);
+        if (@case is null) {
+            return false;
+        }
+        @case.PublicDataId = @case.DataId;
+        DbContext.Cases.Update(@case);
+        await DbContext.SaveChangesAsync();
+        return true;
+    }
 }

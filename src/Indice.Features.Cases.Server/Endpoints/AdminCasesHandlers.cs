@@ -279,4 +279,11 @@ internal static class AdminCasesHandlers
         var pdfOptions = new PdfOptions(@case.CaseType.Config);
         return await casePdfService.HtmlToPdfAsync(template, pdfOptions, @case);
     }
+
+
+    /// <summary>Sync private data to public</summary>
+    /// <param name="caseId"></param>
+    /// <param name="adminCaseService"></param>
+    public static async Task PublishPrivateData(Guid caseId, IAdminCaseService adminCaseService)
+        => await adminCaseService.PublishPrivateData(caseId);
 }

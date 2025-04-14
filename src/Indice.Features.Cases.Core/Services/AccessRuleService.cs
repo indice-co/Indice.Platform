@@ -20,7 +20,7 @@ internal class AccessRuleService : IAccessRuleService
     }
 
 
-    public Task<ResultSet<AccessRule>> Get(ListOptions<GetAccessRulesListFilter> filters) {
+    public Task<ResultSet<AccessRule>> GetList(ListOptions<GetAccessRulesListFilter> filters) {
         var query = _dbContext.CaseAccessRules
           .AsNoTracking();
         // also: filter CheckpointTypeIds
@@ -60,7 +60,7 @@ internal class AccessRuleService : IAccessRuleService
         .ToResultSetAsync(filters);
     }
 
-    public async Task<List<AccessRule>> GetCaseAccessRules(Guid caseId) {
+    public async Task<List<AccessRule>> GetListByCase(Guid caseId) {
         var @case = await _dbContext.Cases
         .AsNoTracking()
         .FirstAsync(x => x.Id == caseId);
@@ -81,7 +81,7 @@ internal class AccessRuleService : IAccessRuleService
         return await query.Select(ToModelExpression()).ToListAsync();
     }
 
-    public async Task AdminCreate(WorkflowActor user, AddAccessRuleRequest accessRule) {
+    public async Task Create(WorkflowActor user, AddAccessRuleRequest accessRule) {
         // if client is systemic or admin, then bypass checks since no filtering is required.
         //TODO: this check need to run on contoller
         var isSystemOrAdmin = user.IsSystemClient || user.IsAdmin;
@@ -94,7 +94,7 @@ internal class AccessRuleService : IAccessRuleService
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task AdminBatch(WorkflowActor user, List<AddAccessRuleRequest> accessRules) {
+    public async Task BatchCreate(WorkflowActor user, List<AddAccessRuleRequest> accessRules) {
         // if client is systemic or admin, then bypass checks since no filtering is required.
         //TODO: this check need to run on contoller
         var canAddAccessRules = user.IsSystemClient || user.IsAdmin;
@@ -111,7 +111,7 @@ internal class AccessRuleService : IAccessRuleService
     }
 
 
-    public async Task Create(WorkflowActor user, Guid caseId, AddCaseAccessRuleRequest accessRule) {
+    public async Task CreateForCase(WorkflowActor user, Guid caseId, AddCaseAccessRuleRequest accessRule) {
         var entity = FromModel(accessRule, caseId);
         await _dbContext.CaseAccessRules.AddAsync(entity);
         await _dbContext.SaveChangesAsync();
@@ -137,7 +137,7 @@ internal class AccessRuleService : IAccessRuleService
         return ToModel(dbAccessRule);
     }
 
-    public async Task Batch(WorkflowActor user, Guid caseId, List<AddCaseAccessRuleRequest> accessRules) {
+    public async Task BatchCreateForCase(WorkflowActor user, Guid caseId, List<AddCaseAccessRuleRequest> accessRules) {
         foreach (var accessRule in accessRules) {
             await _dbContext.CaseAccessRules.AddAsync(FromModel(accessRule, caseId));
         }

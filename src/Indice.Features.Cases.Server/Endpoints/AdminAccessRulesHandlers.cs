@@ -19,23 +19,23 @@ internal static class AdminAccessRulesHandlers
     /// <param name="filters">Filters to narrow down the results</param>
     /// <param name="accessRuleService"/>
     public static async Task<Ok<ResultSet<AccessRule>>> GetAccessRules([AsParameters] ListOptions options, [AsParameters] GetAccessRulesListFilter filters, IAccessRuleService accessRuleService) =>
-        TypedResults.Ok(await accessRuleService.Get(ListOptions.Create(options, filters)));
+        TypedResults.Ok(await accessRuleService.GetList(ListOptions.Create(options, filters)));
 
     /// <summary>Get Access rules for the specified case.</summary>
     /// <param name="caseId"></param>
     /// <param name="accessRuleService"></param>
     public static async Task<Ok<List<AccessRule>>> GetCaseAccessRules(Guid caseId, IAccessRuleService accessRuleService) =>
-        TypedResults.Ok(await accessRuleService.GetCaseAccessRules(caseId));
+        TypedResults.Ok(await accessRuleService.GetListByCase(caseId));
 
     /// <summary>Add a new Access rule for admin Users.</summary>
     public static async Task<NoContent> CreateAccessRule(AddAccessRuleRequest request, ClaimsPrincipal user, IOptions<CasesOptions> casesOptions, IAccessRuleService accessRuleService) {
-        await accessRuleService.AdminCreate(user.UserToActor(casesOptions.Value), request);
+        await accessRuleService.Create(user.UserToActor(casesOptions.Value), request);
         return TypedResults.NoContent();
     }
 
     /// <summary>Add a list of new access rules for admin Users.</summary>
     public static async Task<NoContent> CreateAccessRulesBatch(List<AddAccessRuleRequest> request, ClaimsPrincipal user, IOptions<CasesOptions> casesOptions, IAccessRuleService accessRuleService) {
-        await accessRuleService.AdminBatch(user.UserToActor(casesOptions.Value), request);
+        await accessRuleService.BatchCreate(user.UserToActor(casesOptions.Value), request);
         return TypedResults.NoContent();
     }
 
@@ -64,12 +64,12 @@ internal static class AdminAccessRulesHandlers
     /// <param name="accessRuleService"></param>
     /// <returns></returns>
     public static async Task<NoContent> CreateCaseAccessRules(Guid caseId, AddCaseAccessRuleRequest request, ClaimsPrincipal user, IOptions<CasesOptions> casesOptions, IAccessRuleService accessRuleService) {
-        await accessRuleService.Create(user.UserToActor(casesOptions.Value), caseId, request);
+        await accessRuleService.CreateForCase(user.UserToActor(casesOptions.Value), caseId, request);
         return TypedResults.NoContent();
     }
 
     public static async Task<NoContent> UpdateCaseAccessRulesBatch(Guid caseId, List<AddCaseAccessRuleRequest> request, ClaimsPrincipal user, IOptions<CasesOptions> casesOptions, IAccessRuleService accessRuleService) {
-        await accessRuleService.Batch(user.UserToActor(casesOptions.Value), caseId, request);
+        await accessRuleService.BatchCreateForCase(user.UserToActor(casesOptions.Value), caseId, request);
         return TypedResults.NoContent();
     }
     /// <summary>Replace user to the specified case with another</summary>

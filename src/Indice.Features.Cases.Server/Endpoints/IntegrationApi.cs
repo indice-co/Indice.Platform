@@ -96,7 +96,11 @@ internal static class IntegrationApi
         group.MapGet("{caseId}/attachments", IntegrationHandlers.GetAttachments)
             .WithName(nameof(IntegrationHandlers.GetAttachments))
             .WithSummary("Get a list of Attachments for a CaseId");
-        
+
+        group.MapPost("{caseId}/publish-private-data", IntegrationHandlers.PublishPrivateData)
+            .WithName(nameof(IntegrationHandlers.PublishPrivateData))
+            .WithSummary("Publish private data to public data of a case.");
+
         group.MapGet("{caseId}/attachments/{attachmentId:guid}", IntegrationHandlers.GetAttachment)
             .WithName(nameof(IntegrationHandlers.GetAttachment))
             .WithSummary("Get a Case Attachment");

@@ -136,6 +136,13 @@ public interface IAdminCaseService
     /// <param name="metadata">The metadata to add or edit.</param>
     /// <returns>True in case of success</returns>
     Task<bool> PatchCaseMetadata(Guid caseId, Dictionary<string, string> metadata);
+
+    /// <summary>
+    /// Publish private data to public.
+    /// </summary>
+    /// <param name="caseId">The case id</param>
+    Task<bool> PublishPrivateData(Guid caseId);
+    
 }
 
 /// <summary>

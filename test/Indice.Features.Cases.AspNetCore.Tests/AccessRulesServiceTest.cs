@@ -80,7 +80,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
         var options = ServiceProvider.GetRequiredService<IOptions<CasesOptions>>();
         var caseMembersService = new AccessRuleService(dbContext);
         var @case = await FetchCaseForTestAsync(dbContext);
-        await caseMembersService.AdminCreate(Admin().UserToActor(options.Value),
+        await caseMembersService.Create(Admin().UserToActor(options.Value),
             new() {
                 AccessLevel = 110,
                 MemberUserId = Guid.NewGuid().ToString(),
@@ -96,20 +96,20 @@ public class AccessRulesServiceTest : IAsyncLifetime
         var options = ServiceProvider.GetRequiredService<IOptions<CasesOptions>>();
         var caseMembersService = new AccessRuleService(dbContext);
         var @case = await FetchCaseForTestAsync(dbContext);
-        await caseMembersService.AdminCreate(Admin().UserToActor(options.Value),
+        await caseMembersService.Create(Admin().UserToActor(options.Value),
             new() {
                 AccessLevel = 0,
                 MemberUserId = Guid.NewGuid().ToString(),
                 RuleCaseId = @case.Id
             });
-        await caseMembersService.AdminCreate(Admin().UserToActor(options.Value),
+        await caseMembersService.Create(Admin().UserToActor(options.Value),
            new() {
                AccessLevel = 1,
                MemberRole = BasicRoleNames.Administrator,
                RuleCaseTypeId = @case.CaseTypeId
            });
 
-        var rules = await caseMembersService.GetCaseAccessRules(@case.Id);
+        var rules = await caseMembersService.GetListByCase(@case.Id);
         Assert.True(rules.Count == 2);
     }
 
@@ -119,7 +119,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
         var options = ServiceProvider.GetRequiredService<IOptions<CasesOptions>>();
         var caseMembersService = new AccessRuleService(dbContext);
         var @case = await FetchCaseForTestAsync(dbContext);
-        await caseMembersService.AdminBatch(Admin().UserToActor(options.Value), [
+        await caseMembersService.BatchCreate(Admin().UserToActor(options.Value), [
                 new () {
                     AccessLevel = 110,
                     MemberUserId = Guid.NewGuid().ToString(),
@@ -146,7 +146,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
         var options = ServiceProvider.GetRequiredService<IOptions<CasesOptions>>();
         var caseMembersService = new AccessRuleService(dbContext);
         var @case = await FetchCaseForTestAsync(dbContext);
-        await caseMembersService.AdminCreate(Admin().UserToActor(options.Value),
+        await caseMembersService.Create(Admin().UserToActor(options.Value),
             new() {
                 AccessLevel = 110,
                 MemberUserId = Guid.NewGuid().ToString(),
@@ -163,7 +163,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
         var options = ServiceProvider.GetRequiredService<IOptions<CasesOptions>>();
         var caseMembersService = new AccessRuleService(dbContext);
         var caseType = await dbContext.CaseTypes.FirstOrDefaultAsync();
-        await caseMembersService.AdminCreate(Admin().UserToActor(options.Value),
+        await caseMembersService.Create(Admin().UserToActor(options.Value),
             new() {
                 AccessLevel = 110,
                 MemberRole = BasicRoleNames.Administrator,
@@ -180,7 +180,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
         var options = ServiceProvider.GetRequiredService<IOptions<CasesOptions>>();
         var caseMembersService = new AccessRuleService(dbContext);
         var caseType = await dbContext.CaseTypes.FirstOrDefaultAsync();
-        await caseMembersService.AdminCreate(Admin().UserToActor(options.Value),
+        await caseMembersService.Create(Admin().UserToActor(options.Value),
             new() {
                 AccessLevel = 110,
                 MemberRole = BasicRoleNames.Administrator,
@@ -197,7 +197,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
         var options = ServiceProvider.GetRequiredService<IOptions<CasesOptions>>();
         var caseMembersService = new AccessRuleService(dbContext);
         var caseType = await dbContext.CaseTypes.FirstOrDefaultAsync();
-        await caseMembersService.AdminCreate(Admin().UserToActor(options.Value),
+        await caseMembersService.Create(Admin().UserToActor(options.Value),
             new() {
                 AccessLevel = 110,
                 MemberRole = BasicRoleNames.Administrator,
@@ -222,7 +222,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
         var caseMembersService = new AccessRuleService(dbContext);
         var @case = await FetchCaseForTestAsync(dbContext);
 
-        await caseMembersService.AdminCreate(Admin().UserToActor(options.Value),
+        await caseMembersService.Create(Admin().UserToActor(options.Value),
             new() {
                 AccessLevel = 110,
                 MemberUserId = Guid.NewGuid().ToString(),
@@ -242,7 +242,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
         var caseMembersService = new AccessRuleService(dbContext);
         var @case = await FetchCaseForTestAsync(dbContext);
         try {
-            await caseMembersService.AdminCreate(NonAdmin().UserToActor(options.Value),
+            await caseMembersService.Create(NonAdmin().UserToActor(options.Value),
                 new() {
                     AccessLevel = 110,
                     MemberUserId = Guid.NewGuid().ToString(),
@@ -264,13 +264,13 @@ public class AccessRulesServiceTest : IAsyncLifetime
         var @case = await FetchCaseForTestAsync(dbContext);
         var initialUser = Guid.NewGuid().ToString();
         var replacementUser = Guid.NewGuid().ToString();
-        await caseMembersService.AdminCreate(Admin().UserToActor(options.Value),
+        await caseMembersService.Create(Admin().UserToActor(options.Value),
             new() {
                 AccessLevel = 0,
                 MemberUserId = initialUser,
                 RuleCaseId = @case.Id
             });
-        await caseMembersService.AdminCreate(Admin().UserToActor(options.Value),
+        await caseMembersService.Create(Admin().UserToActor(options.Value),
            new() {
                AccessLevel = 1,
                MemberRole = BasicRoleNames.Administrator,
@@ -279,7 +279,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
 
         var result = await caseMembersService.ReplaceUser(Admin().UserToActor(options.Value), @case.Id, initialUser, replacementUser);
         Assert.True(result);
-        var rules = await caseMembersService.GetCaseAccessRules(@case.Id);
+        var rules = await caseMembersService.GetListByCase(@case.Id);
         Assert.True(rules.Exists(x => x.MemberUserId == replacementUser));
     }
 
@@ -291,13 +291,13 @@ public class AccessRulesServiceTest : IAsyncLifetime
         var @case = await FetchCaseForTestAsync(dbContext);
         var initialUser = Guid.NewGuid().ToString();
         var replacementUser = Guid.NewGuid().ToString();
-        await caseMembersService.AdminCreate(Admin().UserToActor(options.Value),
+        await caseMembersService.Create(Admin().UserToActor(options.Value),
             new() {
                 AccessLevel = 0,
                 MemberUserId = initialUser,
                 RuleCaseId = @case.Id
             });
-        await caseMembersService.AdminCreate(Admin().UserToActor(options.Value),
+        await caseMembersService.Create(Admin().UserToActor(options.Value),
            new() {
                AccessLevel = 1,
                MemberRole = BasicRoleNames.Administrator,
@@ -306,7 +306,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
 
         var result = await caseMembersService.ReplaceUser(Admin().UserToActor(options.Value), @case.Id, Guid.NewGuid().ToString(), replacementUser);
         Assert.False(result);
-        var rules = await caseMembersService.GetCaseAccessRules(@case.Id);
+        var rules = await caseMembersService.GetListByCase(@case.Id);
         Assert.True(rules.Exists(x => x.MemberUserId == initialUser));
     }
 

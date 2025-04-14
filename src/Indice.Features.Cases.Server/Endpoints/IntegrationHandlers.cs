@@ -107,6 +107,11 @@ internal static class IntegrationHandlers
     public static async Task RollbackApproval(Guid caseId, ICaseApprovalService caseApprovalService)
         => await caseApprovalService.RollbackApproval(caseId);
 
+    /// <summary>Sync private data to public</summary>
+    /// <param name="caseId"></param>
+    /// <param name="adminCaseService"></param>
+    public static async Task PublishPrivateData(Guid caseId, IAdminCaseService adminCaseService)
+        => await adminCaseService.PublishPrivateData(caseId);
 
     /// <summary>Patch Case Data.</summary>
     public static async Task PatchData(
