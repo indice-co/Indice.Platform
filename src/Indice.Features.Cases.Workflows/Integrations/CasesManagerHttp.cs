@@ -14,12 +14,15 @@ internal class CasesManagerHttp(CasesManagerHttpClient client) : ICasesManager
 
     /// <inheritdoc />
     public async Task Send(Guid caseId, Actor actor, Message message) {
+        if (actor == null) {
+            throw new ArgumentNullException(nameof(actor));
+        }
         FileParameter? fileParameter = null;
         if (message.File is not null) {
             fileParameter = new FileParameter(new MemoryStream(message.File.Data), message.File.Name, message.File.ContentType);
         }
 
-        await _client.SendMessageAsync(caseId, message.ReplyToCommentId, message.CheckpointTypeName, message.PrivateComment, message.Comment, new StreamFunc(), null, message.Data, fileParameter, actor.Id, actor?.Reference, actor?.GroupId, actor?.Name, actor?.Tin, actor?.Email, actor?.CurrentCulture);
+        await _client.SendMessageAsync(caseId, message.ReplyToCommentId, message.CheckpointTypeName, message.PrivateComment, message.Comment, new StreamFunc(), null, message.Data, fileParameter, actor.Id, actor.Reference, actor.GroupId, actor.Name, actor.Tin, actor.Email, actor.CurrentCulture);
     }
     
     /// <inheritdoc />
