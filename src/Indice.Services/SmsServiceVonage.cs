@@ -64,9 +64,15 @@ public class SmsServiceVonage : ISmsService
         try {
             Logger.LogInformation("The following payload was sent to VONAGE: {RequestPayload}", JsonSerializer.Serialize(request, GetJsonSerializerOptions()));
             httpResponse = await HttpClient.SendAsync(request);
+        } catch (HttpRequestException ex) {
+            Logger.LogError(ex, "HTTP request error occurred during SMS delivery");
+            throw new SmsServiceException("HTTP request error occurred during SMS delivery", ex);
+        } catch (TaskCanceledException ex) {
+            Logger.LogError(ex, "SMS delivery request timed out");
+            throw new SmsServiceException("SMS delivery request timed out", ex);
         } catch (Exception ex) {
-            Logger.LogError(ex, "SMS Delivery took too long");
-            throw new SmsServiceException("SMS Delivery took too long", ex);
+            Logger.LogError(ex, "An unexpected error occurred during SMS delivery");
+            throw new SmsServiceException("An unexpected error occurred during SMS delivery", ex);
         }
 
         var responseString = await httpResponse.Content.ReadAsStringAsync();
