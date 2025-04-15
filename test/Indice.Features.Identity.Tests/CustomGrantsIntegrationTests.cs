@@ -228,7 +228,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
                     .AddPushNotificationServiceNoop()
                     .AddLocalization()
                     .AddDbContext<ExtendedIdentityDbContext<User, Role>>(builder => builder.UseInMemoryDatabase(_identityDatabaseName));
-            services.AddTransient<IUserStateProvider<User>, UserStateProviderNoop>();
+            services.AddTransient<IUserActivityProvider<User>, UserActivityProviderNoOp>();
             services.AddIdentity<User, Role>()
                     .AddExtendedUserManager()
                     .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()

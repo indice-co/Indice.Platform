@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Indice.Features.Identity.Tests;
 
-internal class UserStateProviderNoop : IUserActivityProvider<User>
+internal class UserActivityProviderNoOp : IUserActivityProvider<User>
 {
     public Task<UserActivityRequirement> GetNextAsync(HttpContext httpContext, User user) {
         throw new NotImplementedException();
