@@ -6,7 +6,9 @@ namespace Indice.Features.Identity.Core;
 /// <summary>Manages the user state during login process.</summary>
 public interface IUserActivityProvider<TUser> where TUser : User
 {
-    /// <summary></summary>
+    /// <summary>
+    /// Gets the next user activity requirement based on the current HTTP context and user.
+    /// </summary>
     /// <param name="httpContext"></param>
     /// <param name="user"></param>
     Task<UserActivityRequirement> GetNextAsync(HttpContext httpContext, TUser user);
