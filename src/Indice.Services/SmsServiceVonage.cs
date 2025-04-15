@@ -51,11 +51,10 @@ public class SmsServiceVonage : ISmsService
         if (!PhoneNumber.TryParse(destination, out var phone)) {
             throw new ArgumentException("Invalid recipient. Recipient should be valid phone numbers", nameof(destination));
         }
-        var phoneNumber = phone.ToString("D");
         var request = new VonageSmsRequest(
             apiKey: Settings.ApiKey!,
             from: sender?.Id ?? Settings.Sender ?? Settings.SenderName!,
-            to: destination,
+            to: phone.ToString("D"),
             text: body!,
             ttl: Settings.Ttl
         )
@@ -153,7 +152,7 @@ internal class VonageSmsRequest
 
 internal class VonageSmsResponse {
     [JsonPropertyName("message-count")]
-    public string MessageCount { get; set; }
+    public string? MessageCount { get; set; }
     [JsonPropertyName("messages")]
     public List<VonageSmsResponseMessage> Messages { get; set; } = new();
 
@@ -164,15 +163,15 @@ internal class VonageSmsResponse {
 
 internal class VonageSmsResponseMessage {
     [JsonPropertyName("to")]
-    public string To { get; set; }
+    public string? To { get; set; }
     [JsonPropertyName("message-id")]
-    public string MessageId { get; set; }
+    public string? MessageId { get; set; }
     [JsonPropertyName("status")]
-    public string Status { get; set; }
+    public string? Status { get; set; }
     [JsonPropertyName("network")]
-    public string Network { get; set; }
+    public string? Network { get; set; }
     [JsonPropertyName("client-ref")]
-    public string ClientRef { get; set; }
+    public string? ClientRef { get; set; }
     [JsonPropertyName("error-text")]
     public string? ErrorText { get; set; }
 }
