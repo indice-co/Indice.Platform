@@ -50,11 +50,11 @@ public class ExtendedValidationRequirementFilter<TUser> : ResultFilterAttribute 
     }
 
     private async Task CheckStateAndRedirectAsync(ResultExecutingContext context, PageResult pageResult, BasePageModel pageModel, TUser user) {
-        var userStateProvider = context.HttpContext.RequestServices.GetRequiredService<IUserActivityProvider<TUser>>();
+        var userStateProvider = context.HttpContext.RequestServices.GetRequiredService<IUserRequirementProvider<TUser>>();
         var signInManager = context.HttpContext.RequestServices.GetRequiredService<ExtendedSignInManager<TUser>>();
         var requirement = await userStateProvider.GetNextAsync(context.HttpContext, user);
         var returnUrl = context.HttpContext.Request.Query["returnUrl"].ToString();
-        if (requirement == UserActivityRequirement.None) {
+        if (requirement == UserValidationRequirement.None) {
             await signInManager.AutoSignIn(user, ExtendedIdentityConstants.ExtendedValidationScheme);
             context.Result = pageModel.IsValidReturnUrl(returnUrl) ? new RedirectResult(returnUrl) : new RedirectResult("/");
             return;

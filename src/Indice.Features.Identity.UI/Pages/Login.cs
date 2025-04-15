@@ -186,10 +186,10 @@ public abstract class BaseLoginModel : BasePageModel
         return Page();
     }
 
-    /// <summary>>Gets the page to redirect based on the <see cref="UserActivityRequirement"/>.</summary>
+    /// <summary>>Gets the page to redirect based on the <see cref="UserValidationRequirement"/>.</summary>
     /// <param name="requirement">The current user validation requirement.</param>
     /// <param name="returnUrl">The return URL.</param>
-    private string? GetRedirectUrl(UserActivityRequirement requirement, string? returnUrl = null) => requirement.Kind switch {
+    private string? GetRedirectUrl(UserValidationRequirement requirement, string? returnUrl = null) => requirement.Kind switch {
         UserActivityRequirementKind.None => IsValidReturnUrl(returnUrl) ? returnUrl : "/",
         _ => Url.PageLink(requirement.PageName, values: new { returnUrl })
     };

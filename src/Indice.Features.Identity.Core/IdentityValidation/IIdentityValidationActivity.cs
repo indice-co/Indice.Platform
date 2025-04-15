@@ -47,7 +47,7 @@ public class UserValidationActivityContext(User user, HttpContext httpContext)
 /// Represents the result of an identity validation activity operation.
 /// </summary>
 /// <param name="Requirement"></param>
-public record IdentityValidationActivityResult(UserActivityRequirement Requirement);
+public record IdentityValidationActivityResult(UserValidationRequirement Requirement);
 
 
 /// <summary>
@@ -90,7 +90,7 @@ public class RequiresMfaOnboardingActivity : IdentityValidationActivityBase
         var mfaPolicy = configuration.GetIdentityOption<MfaPolicy?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Policy") ?? MfaPolicy.Default;
 
         if (activityContext.User.TwoFactorEnabled == false && mfaPolicy == MfaPolicy.Enforced) {
-            return new IdentityValidationActivityResult(new UserActivityRequirement(UserActivityRequirementKind.RequiresMfaOnboarding, "/MfaOnboarding"));
+            return new IdentityValidationActivityResult(new UserValidationRequirement(UserActivityRequirementKind.RequiresMfaOnboarding, "/MfaOnboarding"));
         }
         return null;
     }
@@ -105,7 +105,7 @@ public class RequiresPasswordChangeActivity : IdentityValidationActivityBase
     protected override async ValueTask<IdentityValidationActivityResult?> GetResultAsync(UserValidationActivityContext activityContext) {
         await ValueTask.CompletedTask;
         if (activityContext.User.HasExpiredPassword()) {
-            return new IdentityValidationActivityResult(new UserActivityRequirement(UserActivityRequirementKind.RequiresPasswordChange, "/PasswordExpired"));
+            return new IdentityValidationActivityResult(new UserValidationRequirement(UserActivityRequirementKind.RequiresPasswordChange, "/PasswordExpired"));
         }
         return null;
     }
@@ -123,7 +123,7 @@ public class RequiresEmailVerificationActivity : IdentityValidationActivityBase
         var requirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedEmail)) == true;
 
         if (activityContext.User.EmailConfirmed == false && requirePostSignInConfirmedEmail) {
-            return new IdentityValidationActivityResult(new UserActivityRequirement(UserActivityRequirementKind.RequiresEmailVerification, "/AddEmail"));
+            return new IdentityValidationActivityResult(new UserValidationRequirement(UserActivityRequirementKind.RequiresEmailVerification, "/AddEmail"));
         }
         return null;
     }
@@ -141,7 +141,7 @@ public class RequiresPhoneNumberVerificationActivity : IdentityValidationActivit
         var requirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedPhoneNumber)) == true;
         
         if (activityContext.User.PhoneNumberConfirmed == false && requirePostSignInConfirmedPhoneNumber) {
-            return new IdentityValidationActivityResult(new UserActivityRequirement(UserActivityRequirementKind.RequiresPhoneNumberVerification, "/AddPhone"));
+            return new IdentityValidationActivityResult(new UserValidationRequirement(UserActivityRequirementKind.RequiresPhoneNumberVerification, "/AddPhone"));
         }
         return null;
     }

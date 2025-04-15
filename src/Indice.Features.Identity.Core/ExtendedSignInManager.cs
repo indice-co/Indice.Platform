@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.Design;
-using System.Diagnostics;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using IdentityModel;
 using Indice.Events;
 using Indice.Features.Identity.Core.Configuration;
@@ -37,6 +35,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     private readonly IUserStore<TUser> _userStore;
     private readonly ISignInGuard<TUser> _signInGuard;
     private readonly IPlatformEventService _eventService;
+    private readonly IUserRequirementProvider<TUser> _userRequirementProvider;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     /// <summary>Creates a new instance of <see cref="SignInManager{TUser}" /></summary>
@@ -52,6 +51,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// <param name="userStore">Provides an abstraction for a store which manages user accounts.</param>
     /// <param name="signInGuard">Abstracts the process of running various rules that determine whether a login attempt is suspicious or not.</param>
     /// <param name="eventService">Models the event mechanism used to raise events inside the platform.</param>
+    /// <param name="userRequirementProvider">Provides information about the user active validation requirements.</param>
     public ExtendedSignInManager(
         ExtendedUserManager<TUser> userManager,
         IHttpContextAccessor httpContextAccessor,
@@ -64,13 +64,15 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         IAuthenticationSchemeProvider authenticationSchemeProvider,
         IUserStore<TUser> userStore,
         ISignInGuard<TUser> signInGuard,
-        IPlatformEventService eventService
+        IPlatformEventService eventService,
+        IUserRequirementProvider<TUser> userRequirementProvider
     ) : base(userManager, httpContextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation) {
         _authenticationSchemeProvider = authenticationSchemeProvider ?? throw new ArgumentNullException(nameof(authenticationSchemeProvider));
         _userStore = userStore ?? throw new ArgumentNullException(nameof(userStore));
-        _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(_httpContextAccessor));
+        _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         _signInGuard = signInGuard ?? throw new ArgumentNullException(nameof(signInGuard));
         _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
+        _userRequirementProvider = userRequirementProvider ?? throw new ArgumentNullException(nameof(userRequirementProvider));
         RequirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedEmail)) == true;
         RequirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedPhoneNumber)) == true;
         ExpireBlacklistedPasswordsOnSignIn = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExpireBlacklistedPasswordsOnSignIn)) == true;
@@ -170,7 +172,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
                 }
             }
         }
-        if (ShouldSignInForExtendedValidation(user)) {
+        if (await ShouldSignInForExtendedValidationAsync(user)) {
             var authenticationMethods = new List<string> { "pwd" };
             if (mfaImplicitlyPassed) {
                 authenticationMethods.Add("mfa");
@@ -223,7 +225,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             return error!;
         }
         if (await ExtendedUserManager.VerifyTwoFactorTokenAsync(user, provider, code)) {
-            if (ShouldSignInForExtendedValidation(user)) {
+            if (await ShouldSignInForExtendedValidationAsync(user)) {
                 return await DoPartialSignInAsync(user, twoFactorInfo.DeviceId, ["pwd", "mfa"]);
             }
             await DoTwoFactorSignInAsync(user, twoFactorInfo, isPersistent, rememberClient);
@@ -381,11 +383,8 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// </summary>
     /// <param name="user">The user to check</param>
     /// <returns>True in case of extended validaton requirement</returns>
-    public bool ShouldSignInForExtendedValidation(TUser user) =>
-        (RequirePostSignInConfirmedEmail && !user.EmailConfirmed) ||
-        (RequirePostSignInConfirmedPhoneNumber && !user.PhoneNumberConfirmed) ||
-        user.HasExpiredPassword() ||
-        user.TwoFactorEnabled == false && MfaPolicy == MfaPolicy.Enforced;
+    public Task<bool> ShouldSignInForExtendedValidationAsync(TUser user) => 
+        _userRequirementProvider.RequiresValidationAsync(_httpContextAccessor.HttpContext!, user);
 
     private async Task<bool> IsTfaEnabled(TUser user)
         => ExtendedUserManager.SupportsUserTwoFactor && user.TwoFactorEnabled && (await ExtendedUserManager.GetValidTwoFactorProvidersAsync(user)).Count > 0;

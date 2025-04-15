@@ -22,7 +22,7 @@ public abstract class BasePageModel : PageModel
     private IdentityUIOptions? _uiOptions;
     private RequestCulture? _requestCulture;
     private IIdentityServerInteractionService? _interactionService;
-    private IUserActivityProvider<User>? _userActivityProvider;
+    private IUserRequirementProvider<User>? _userActivityProvider;
 
     /// <summary>Will propagate to body class</summary>
     [ViewData]
@@ -35,8 +35,8 @@ public abstract class BasePageModel : PageModel
     public RequestCulture RequestCulture => _requestCulture ??= Request.HttpContext.Features.Get<IRequestCultureFeature>()!.RequestCulture;
     /// <summary>Provide services be used by the user interface to communicate with IdentityServer.</summary>
     public IIdentityServerInteractionService InteractionService => _interactionService ??= ServiceProvider.GetRequiredService<IIdentityServerInteractionService>();
-    /// <summary>The <see cref="IUserActivityProvider{User}"/> used to retrieve the next validation activity according to the user state.</summary>
-    public IUserActivityProvider<User> UserActivityProvider => _userActivityProvider ??= ServiceProvider.GetRequiredService<IUserActivityProvider<User>>();
+    /// <summary>The <see cref="IUserRequirementProvider{User}"/> used to retrieve the next validation activity according to the user state.</summary>
+    public IUserRequirementProvider<User> UserActivityProvider => _userActivityProvider ??= ServiceProvider.GetRequiredService<IUserRequirementProvider<User>>();
 
     /// <summary>Checks if the given return URL is safe for redirection.</summary>
     /// <param name="returnUrl">The URL to validate.</param>

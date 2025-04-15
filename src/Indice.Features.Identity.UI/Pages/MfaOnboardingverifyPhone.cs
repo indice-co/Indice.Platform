@@ -65,7 +65,7 @@ public abstract class BaseMfaOnboardingVerifyPhoneModel : BasePageModel
         Input.PhoneNumber = user.PhoneNumber;
         var result = await UserManager.ChangePhoneNumberAsync(user, user.PhoneNumber!, Input.Code!);
         if (result.Succeeded) {
-            var twoFactorEnableResult = await UserManager.SetTwoFactorEnabledAsync(user, true);
+            await UserManager.SetTwoFactorEnabledAsync(user, true);
             tempDataModel.Alert = AlertModel.Success(_localizer["Your phone number was successfully validated. Please press the 'Next' button to continue."]);
         } else {
             tempDataModel.Alert = AlertModel.Error(_localizer["Please enter the code that you have received at your mobile phone."]);

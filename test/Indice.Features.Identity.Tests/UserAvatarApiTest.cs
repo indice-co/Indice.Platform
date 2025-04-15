@@ -48,7 +48,7 @@ public class UserAvatarApiTest : IAsyncLifetime
         builder.ConfigureServices((ctx, services) => {
             services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(builder => builder.UseInMemoryDatabase(_identityDatabaseName));
             services.AddDbContext<ExtendedConfigurationDbContext>(builder => builder.UseInMemoryDatabase(_identityDatabaseName));
-            services.AddTransient<IUserActivityProvider<User>, UserActivityProviderNoOp>();
+            services.AddTransient<IUserRequirementProvider<User>, UserRequirementProviderNoOp>();
             services.AddIdentity<User, Role>()
                     .AddExtendedUserManager()
                     .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
