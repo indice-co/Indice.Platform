@@ -40,9 +40,10 @@ public class AwaitEditActivity(ICasesManager casesManager) : BaseBlockingActivit
     /// <inheritdoc />
     protected override async Task<IActivityExecutionResult> OnExecuteInternalAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
-        var editRequest = context.Input as InvokeEditRequest;
-        var caseData = editRequest!.Data;
+        var editRequest = context.Input as InvokeEditRequest 
+            ?? throw new InvalidOperationException("Invalid input: expected InvokeEditRequest.");
 
+        var caseData = editRequest!.Data;
         await CasesManager.Send(CaseId.Value, context.TryGetLastActor(), new Message {
             Data = caseData,
             Comment = editRequest.Comment,

@@ -39,8 +39,9 @@ internal class CasesManagerHttp(CasesManagerHttpClient client) : ICasesManager
     }
 
     public async Task AttachFile(Guid caseId, Actor actor, File file, string? comment, string caseDataRootKey) {
+        ArgumentNullException.ThrowIfNull(actor);
         var fileParameter = new FileParameter(new MemoryStream(file.Data), file.Name, file.ContentType);
-        await _client.AttachFileAsync(caseId, fileParameter, comment, caseDataRootKey, actor.Id, actor?.Reference, actor?.GroupId, actor?.Name, actor?.Tin, actor?.Email, actor?.CurrentCulture);
+        await _client.AttachFileAsync(caseId, fileParameter, comment, caseDataRootKey, actor.Id, actor.Reference, actor.GroupId, actor.Name, actor.Tin, actor.Email, actor.CurrentCulture);
     }
 
     public async Task<CaseAttachment?> GetAttachment(Guid caseId, Guid attachmentId) {
