@@ -39,7 +39,7 @@ public static class IUserRequirementProviderExtensions
 /// <param name="Kind"></param>
 /// <param name="PageName"></param>
 public record UserValidationRequirement(UserActivityRequirementKind Kind, string? PageName) { 
-    private static UserValidationRequirement _None = new UserValidationRequirement(UserActivityRequirementKind.None, null);
+    private static readonly UserValidationRequirement _None = new UserValidationRequirement(UserActivityRequirementKind.None, null);
     /// <summary>None.</summary>
     public static UserValidationRequirement None => _None;
 }
