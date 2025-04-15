@@ -1,13 +1,12 @@
 ﻿using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace Indice.Features.Identity.Tests;
 
-internal class UserStateProviderNoop : IUserStateProvider<User>
+internal class UserStateProviderNoop : IUserActivityProvider<User>
 {
-    public UserState CurrentState => UserState.LoggedOut;
-
-    public Task ChangeStateAsync(User user, UserAction action) => Task.CompletedTask;
-
-    public void ClearState() { }
+    public Task<UserActivityRequirement> GetNextAsync(HttpContext httpContext, User user) {
+        throw new NotImplementedException();
+    }
 }
