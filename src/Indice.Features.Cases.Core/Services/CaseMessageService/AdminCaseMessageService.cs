@@ -18,7 +18,7 @@ internal class AdminCaseMessageService : BaseCaseMessageService, IAdminCaseMessa
     }
 
     // todo: remove actor
-    public async Task<Guid?> Send(Guid caseId, WorkflowActor user, Message message, AuditMeta createdBy) {
+    public async Task<Guid?> Send(Guid caseId, UserActor user, Message message, AuditMeta createdBy) {
         var @case = await GetAdminCase(caseId);
         return await SendInternal(@case, message, createdBy);
     }

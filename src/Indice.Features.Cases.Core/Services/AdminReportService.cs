@@ -25,7 +25,7 @@ internal class AdminReportService : IAdminReportService
         _caseTypeService = caseTypeService ?? throw new ArgumentNullException(nameof(caseTypeService));
     }
 
-    public async Task<List<GroupByReportResult>> GenerateReport(WorkflowActor user, ReportTag reportTag) {
+    public async Task<List<GroupByReportResult>> GenerateReport(UserActor user, ReportTag reportTag) {
         var query = _dbContext.Cases
             .AsNoTracking()
             .Where(c => !c.Draft) // filter out draft cases

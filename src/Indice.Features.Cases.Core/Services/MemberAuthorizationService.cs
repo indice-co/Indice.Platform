@@ -30,11 +30,11 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
     /// <summary>
     /// In the case of a non admin user. Apply extra Where clauses to the IQueryable based on their roles.
     /// </summary>
-    public Task<IQueryable<CasePartial>> GetCaseMembership(IQueryable<CasePartial> casesQuery, WorkflowActor user) => Task.FromResult(casesQuery);
+    public Task<IQueryable<CasePartial>> GetCaseMembership(IQueryable<CasePartial> casesQuery, UserActor user) => Task.FromResult(casesQuery);
 
 
     /// <summary>Determines whether user can see a Case in relation to i) user's role(s) and ii) case's CaseType and CheckpointType</summary>
-    public async Task<bool> IsMember(WorkflowActor user, Case @case) {
+    public async Task<bool> IsMember(UserActor user, Case @case) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(@case);
 
@@ -62,7 +62,7 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
     /// <summary>Determines whether user is Owner of a Case</summary>
     /// <param name="user">The user.</param>
     /// <param name="case">The case.</param>
-    private static bool IsOwnerOfCase(WorkflowActor user, Case @case) =>
+    private static bool IsOwnerOfCase(UserActor user, Case @case) =>
         user.Id?.Equals(@case.CreatedById) == true;
 
     /// <summary>Gets the list of Members</summary>
@@ -88,7 +88,7 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
             }))!;
     }
 
-    public async Task<int> MemberAccess(WorkflowActor user, Guid caseId) {
+    public async Task<int> MemberAccess(UserActor user, Guid caseId) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(caseId);
 

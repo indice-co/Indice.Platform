@@ -74,7 +74,7 @@ public class CasesAccessOwnerHandler: AuthorizationHandler<CasesOwnerAccessRequi
     }
 
 
-    private async Task<bool> CheckOwnershipAsync(WorkflowActor actor, Guid caseId) {
+    private async Task<bool> CheckOwnershipAsync(UserActor actor, Guid caseId) {
         var isOwner = false;
         var cacheKey = $"owner:{actor.Id}-caseId:{caseId}";
         var value = await _cache.GetStringAsync(cacheKey);

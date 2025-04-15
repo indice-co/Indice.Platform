@@ -27,14 +27,14 @@ public interface IAccessRuleService
     /// <param name="user">The user that will create the access rule.</param>
     /// <param name="accessRule">The access rule to be added</param>
     /// <returns></returns>
-    Task Create(WorkflowActor user, AddAccessRuleRequest accessRule);
+    Task Create(UserActor user, AddAccessRuleRequest accessRule);
     /// <summary>
     /// Add a list case rule for admin users. This allows user to add more generic rules
     /// </summary>
     /// <param name="user">The user that will create the access rule.</param>
     /// <param name="accessRules">List of accessrules</param>
     /// <returns></returns>
-    Task BatchCreate(WorkflowActor user, List<AddAccessRuleRequest> accessRules);
+    Task BatchCreate(UserActor user, List<AddAccessRuleRequest> accessRules);
     /// <summary>
     /// Add case rule for admin users. This allows user to add more generic rules
     /// </summary>
@@ -42,7 +42,7 @@ public interface IAccessRuleService
     /// <param name="caseId">The case to which the rule must be added</param>
     /// <param name="accessRule">The access rule to be added</param>
     /// <returns></returns>
-    Task CreateForCase(WorkflowActor user, Guid caseId, AddCaseAccessRuleRequest accessRule);
+    Task CreateForCase(UserActor user, Guid caseId, AddCaseAccessRuleRequest accessRule);
 
     /// <summary>
     /// Add a list case rule for admin users. 
@@ -51,7 +51,7 @@ public interface IAccessRuleService
     /// <param name="caseId">The case to which the rule must be added</param>
     /// <param name="accessRules">The list of access rules to be added</param>
     /// <returns></returns>
-    Task BatchCreateForCase(WorkflowActor user, Guid caseId, List<AddCaseAccessRuleRequest> accessRules);
+    Task BatchCreateForCase(UserActor user, Guid caseId, List<AddCaseAccessRuleRequest> accessRules);
     /// <summary>
     /// Updates access rule'w access level
     /// </summary>
@@ -59,7 +59,7 @@ public interface IAccessRuleService
     /// <param name="accessRuleId">The id of the rule to be updated</param>
     /// <param name="accessLevel">The new level to which the rule will be updated</param>
     /// <returns></returns>
-    Task<AccessRule> Update(WorkflowActor user, Guid accessRuleId, int accessLevel);
+    Task<AccessRule> Update(UserActor user, Guid accessRuleId, int accessLevel);
 
     /// <summary>
     /// Delete the specified access rule
@@ -67,7 +67,7 @@ public interface IAccessRuleService
     /// <param name="user">The user that will update the access rule.</param>
     /// <param name="id">The Id of the rule to be deleted</param>
     /// <returns></returns>
-    Task Delete(WorkflowActor user, Guid id);
+    Task Delete(UserActor user, Guid id);
 
     /// <summary>
     /// Replaces all existing user in access rules of the specified case with the new user
@@ -77,5 +77,5 @@ public interface IAccessRuleService
     /// <param name="existingUserId">Existing user id</param>
     /// <param name="newUserId">User to replace the old user</param>
     /// <returns>true if any row were updated</returns>
-    Task<bool> ReplaceUser(WorkflowActor user, Guid caseId, string existingUserId, string newUserId);
+    Task<bool> ReplaceUser(UserActor user, Guid caseId, string existingUserId, string newUserId);
 }

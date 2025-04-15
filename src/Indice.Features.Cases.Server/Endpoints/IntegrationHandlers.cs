@@ -45,7 +45,7 @@ internal static class IntegrationHandlers
     ) => await adminCaseMessageService.Send(caseId, currentUser.UserToActor(casesOptions.Value), request.Message, request.Actor.ToAuditMeta());
 
     /// <summary>Assign a Case to an Actor.</summary>
-    public static async Task<Ok<AuditMeta>> Assign(Guid caseId, WorkflowActor actor, IAdminCaseService adminCaseService) {
+    public static async Task<Ok<AuditMeta>> Assign(Guid caseId, UserActor actor, IAdminCaseService adminCaseService) {
         var assignedTo = await adminCaseService.AssignCase(actor.ToAuditMeta(), caseId);
         return TypedResults.Ok(assignedTo);
     }
@@ -84,7 +84,7 @@ internal static class IntegrationHandlers
     /// <summary>Remove assignment for a Case and Send a message for the UI.</summary>
     public static async Task<Ok> BlockPreviousApprover(
         Guid caseId,
-        WorkflowActor actor,
+        UserActor actor,
         ClaimsPrincipal currentUser,
         IOptions<CasesOptions> casesOptions,
         CasesMessageDescriber casesMessageDescriber,
@@ -208,7 +208,7 @@ internal static class IntegrationHandlers
         public string? ActorCurrentCulture { get; init; }
         
         /// <summary>Actor</summary>
-        internal WorkflowActor Actor => new WorkflowActor { Id = ActorId, Reference = ActorReference, GroupId = ActorGroupId, Name = ActorName, Tin = ActorTin, Email = ActorEmail, CurrentCulture = ActorCurrentCulture, IsSystemClient = true, IsAdmin = false };
+        internal UserActor Actor => new UserActor { Id = ActorId, Reference = ActorReference, GroupId = ActorGroupId, Name = ActorName, Tin = ActorTin, Email = ActorEmail, CurrentCulture = ActorCurrentCulture, IsSystemClient = true, IsAdmin = false };
 
         /// <summary>Bind method</summary>
         public static async ValueTask<AttachFileRequest> BindAsync(HttpContext context, ParameterInfo parameter) {
@@ -255,7 +255,7 @@ internal static class IntegrationHandlers
         public string? Reason { get; set; }
 
         /// <summary>Actor responsible for this action.</summary>
-        public WorkflowActor WorkflowActor { get; set; }
+        public UserActor WorkflowActor { get; set; }
     }
 
     /// <summary>WorkflowAddApprovalWithCommentRequest</summary>
@@ -268,7 +268,7 @@ internal static class IntegrationHandlers
         public string? Reason { get; set; }
 
         /// <summary>Actor responsible for this action.</summary>
-        public WorkflowActor WorkflowActor { get; set; }
+        public UserActor WorkflowActor { get; set; }
 
         /// <summary>Comment Private or not.</summary>
         public bool PrivateComment { get; set; }
@@ -303,7 +303,7 @@ internal static class IntegrationHandlers
         internal Message Message => new Message { ReplyToCommentId = ReplyToCommentId, CheckpointTypeName = CheckpointTypeName, PrivateComment = PrivateComment, Comment = Comment, Data = Data, FileStreamAccessor = FileStreamAccessor, FileName = FileName };
 
         /// <summary>Actor</summary>
-        internal WorkflowActor Actor => new WorkflowActor { Id = ActorId, Reference = ActorReference, GroupId = ActorGroupId, Name = ActorName, Tin = ActorTin, Email = ActorEmail, CurrentCulture = ActorCurrentCulture, IsSystemClient = true, IsAdmin = false };
+        internal UserActor Actor => new UserActor { Id = ActorId, Reference = ActorReference, GroupId = ActorGroupId, Name = ActorName, Tin = ActorTin, Email = ActorEmail, CurrentCulture = ActorCurrentCulture, IsSystemClient = true, IsAdmin = false };
 
         /// <summary>Bind method</summary>
         public static async ValueTask<MessageRequest> BindAsync(HttpContext context, ParameterInfo parameter) {

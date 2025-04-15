@@ -81,7 +81,7 @@ public class CasesAccessMemberHandler : AuthorizationHandler<CasesRecordsAccessL
         }
     }
 
-    private async Task<bool> CheckMembershipAsync(WorkflowActor actor, Guid caseId, CasesRecordsAccessLevelRequirement requirement) {
+    private async Task<bool> CheckMembershipAsync(UserActor actor, Guid caseId, CasesRecordsAccessLevelRequirement requirement) {
         
         var cacheKey = $"member:{actor.Id}-caseId:{caseId}-level:{requirement.MinimumAccessLevel}";
         var value = await _cache.GetStringAsync(cacheKey);

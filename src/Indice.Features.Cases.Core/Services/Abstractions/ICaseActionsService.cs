@@ -10,5 +10,5 @@ public interface ICaseActionsService
     /// <param name="user">The user.</param>
     /// <param name="caseId">The Id of the case.</param>
     /// <returns></returns>
-    Task<CaseActions?> GetUserActions(WorkflowActor user, Guid caseId);
+    Task<CaseActions?> GetUserActions(UserActor user, Guid caseId);
 }

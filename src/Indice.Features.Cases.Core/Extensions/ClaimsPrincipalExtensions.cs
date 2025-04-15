@@ -50,15 +50,15 @@ public static class CasesClaimsPrincipalExtensions
             .ToList();
 
     /// <summary>
-    /// Get <see cref="WorkflowActor"/> from a ClaimsPrincipal.
+    /// Get <see cref="UserActor"/> from a ClaimsPrincipal.
     /// </summary>
     /// <param name="user">The claims principal.</param>
     /// <param name="options">Case options settings</param>
     /// <returns></returns>
-    /// <summary>Creates a http <see cref="WorkflowActor"/> model from the current user.</summary>
-    public static WorkflowActor UserToActor(this ClaimsPrincipal user, CasesOptions options) {
+    /// <summary>Creates a http <see cref="UserActor"/> model from the current user.</summary>
+    public static UserActor UserToActor(this ClaimsPrincipal user, CasesOptions options) {
         var subject = user.FindFirstValue(BasicClaimTypes.Subject);
-        return new WorkflowActor {
+        return new UserActor {
             Id = string.IsNullOrWhiteSpace(subject) ? user.FindFirstValue(BasicClaimTypes.ClientId) : subject,
             Reference = user.FindFirstValue(options.ReferenceIdClaimType),
             GroupId = user.FindFirstValue(options.GroupIdClaimType),

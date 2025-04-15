@@ -12,5 +12,5 @@ public interface ICheckpointTypeService
     /// </summary>
     /// <param name="user">The user to filter the case types.</param>
     /// <returns></returns>
-    Task<List<CheckpointType>> GetDistinctCheckpointTypes(WorkflowActor user);
+    Task<List<CheckpointType>> GetDistinctCheckpointTypes(UserActor user);
 }

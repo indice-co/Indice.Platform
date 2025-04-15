@@ -13,7 +13,7 @@ public interface ICaseApprovalService
     /// <param name="user">The actor that created the approval.</param>
     /// <param name="action">The action of the actor.</param>
     /// <param name="reason">The reason of the rejection.</param>
-    Task AddApproval(Guid caseId, Guid? commentId, WorkflowActor user, Approval action, string? reason) 
+    Task AddApproval(Guid caseId, Guid? commentId, UserActor user, Approval action, string? reason) 
         => AddApproval(caseId, commentId, action, reason, AuditMeta.Create(user));
 
     /// <summary>Add an approval to a case.</summary>
@@ -38,5 +38,5 @@ public interface ICaseApprovalService
     /// <param name="user">The actor.</param>
     /// <param name="caseId">The Id of the case</param>
     /// <returns>A list of <see cref="RejectReason"/></returns>
-    Task<List<RejectReason>> GetRejectReasons(WorkflowActor user, Guid caseId);
+    Task<List<RejectReason>> GetRejectReasons(UserActor user, Guid caseId);
 }

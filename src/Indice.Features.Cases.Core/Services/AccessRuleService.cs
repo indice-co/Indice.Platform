@@ -81,7 +81,7 @@ internal class AccessRuleService : IAccessRuleService
         return await query.Select(ToModelExpression()).ToListAsync();
     }
 
-    public async Task Create(WorkflowActor user, AddAccessRuleRequest accessRule) {
+    public async Task Create(UserActor user, AddAccessRuleRequest accessRule) {
         // if client is systemic or admin, then bypass checks since no filtering is required.
         //TODO: this check need to run on contoller
         var isSystemOrAdmin = user.IsSystemClient || user.IsAdmin;
@@ -94,7 +94,7 @@ internal class AccessRuleService : IAccessRuleService
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task BatchCreate(WorkflowActor user, List<AddAccessRuleRequest> accessRules) {
+    public async Task BatchCreate(UserActor user, List<AddAccessRuleRequest> accessRules) {
         // if client is systemic or admin, then bypass checks since no filtering is required.
         //TODO: this check need to run on contoller
         var canAddAccessRules = user.IsSystemClient || user.IsAdmin;
@@ -111,13 +111,13 @@ internal class AccessRuleService : IAccessRuleService
     }
 
 
-    public async Task CreateForCase(WorkflowActor user, Guid caseId, AddCaseAccessRuleRequest accessRule) {
+    public async Task CreateForCase(UserActor user, Guid caseId, AddCaseAccessRuleRequest accessRule) {
         var entity = FromModel(accessRule, caseId);
         await _dbContext.CaseAccessRules.AddAsync(entity);
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<AccessRule> Update(WorkflowActor user, Guid accessRuleId, int accessLevel) {
+    public async Task<AccessRule> Update(UserActor user, Guid accessRuleId, int accessLevel) {
 
         // if client is systemic or admin, then bypass checks since no filtering is required.
         //TODO: this check need to run on contoller
@@ -137,14 +137,14 @@ internal class AccessRuleService : IAccessRuleService
         return ToModel(dbAccessRule);
     }
 
-    public async Task BatchCreateForCase(WorkflowActor user, Guid caseId, List<AddCaseAccessRuleRequest> accessRules) {
+    public async Task BatchCreateForCase(UserActor user, Guid caseId, List<AddCaseAccessRuleRequest> accessRules) {
         foreach (var accessRule in accessRules) {
             await _dbContext.CaseAccessRules.AddAsync(FromModel(accessRule, caseId));
         }
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task Delete(WorkflowActor user, Guid id) {
+    public async Task Delete(UserActor user, Guid id) {
         // if client is systemic or admin, then bypass checks since no filtering is required.
         var canDeleteAccessRules = user.IsSystemClient || user.IsAdmin;
 
@@ -159,7 +159,7 @@ internal class AccessRuleService : IAccessRuleService
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<bool> ReplaceUser(WorkflowActor user, Guid caseId, string existingUserId, string newUserId) {
+    public async Task<bool> ReplaceUser(UserActor user, Guid caseId, string existingUserId, string newUserId) {
         var query = _dbContext.CaseAccessRules
             .Where(x =>
                 x.RuleCaseId == caseId &&

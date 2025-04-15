@@ -37,7 +37,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         _platformEventService = platformEventService ?? throw new ArgumentNullException(nameof(platformEventService));
     }
 
-    public async Task<CreateCaseResponse> CreateDraft(WorkflowActor user,
+    public async Task<CreateCaseResponse> CreateDraft(UserActor user,
         string caseTypeCode,
         string? groupId,
         ContactMeta? customer,
@@ -55,7 +55,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return new() { Id = entity.Id, Created = DateTimeOffset.UtcNow };
     }
 
-    public async Task UpdateData(WorkflowActor user, Guid caseId, JsonNode data) {
+    public async Task UpdateData(UserActor user, Guid caseId, JsonNode data) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
         ArgumentNullException.ThrowIfNull(data);
@@ -66,7 +66,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     /// Patches the <strong>CaseData.Data</strong> with the provided JsonNode performing add, replace and remove operations
     /// </summary>
     /// <remarks>For example usages see https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API.</remarks>
-    public async Task PatchCaseData(WorkflowActor user, Guid caseId, JsonNode patch, bool patchPublicData) {
+    public async Task PatchCaseData(UserActor user, Guid caseId, JsonNode patch, bool patchPublicData) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
         var caseData = (await GetCaseById(caseId, patchPublicData, false)).DataAsJsonNode();
@@ -79,7 +79,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     /// https://datatracker.ietf.org/doc/html/rfc6902#appendix-A
     /// </summary>
     /// <remarks>For example usages see https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API.</remarks>
-    public async Task PatchCaseData(WorkflowActor user, Guid caseId, JsonPatch operations, bool patchPublicData) {
+    public async Task PatchCaseData(UserActor user, Guid caseId, JsonPatch operations, bool patchPublicData) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
         var caseData = (await GetCaseById(caseId, patchPublicData, false)).DataAsJsonNode();
@@ -92,7 +92,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         await _adminCaseMessageService.Send(caseId, user, new Message { Data = patchResult.Result });
     }
 
-    public async Task Submit(WorkflowActor user, Guid caseId) {
+    public async Task Submit(UserActor user, Guid caseId) {
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
 
         var @case = await DbContext
@@ -113,7 +113,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             Id = @case.Id,
             // TODO: do a proper caseDb to case mapping
         }, @case.CaseType.Code,
-        new WorkflowActor {
+        new UserActor {
             Id = @case!.CreatedBy!.Id!,
             Reference = @case.Owner.Reference,
             GroupId = user.GroupId,
@@ -124,7 +124,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         }));
     }
 
-    public async Task<ResultSet<CasePartial>> GetCases(WorkflowActor user, ListOptions<GetCasesListFilter> options) {
+    public async Task<ResultSet<CasePartial>> GetCases(UserActor user, ListOptions<GetCasesListFilter> options) {
 
         options.Filter.ShowAll ??= Options.ByPassAccessRulesForElevatedUsers;
 
@@ -462,7 +462,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return @case;
     }
 
-    public async Task DeleteDraft(WorkflowActor user, Guid caseId) {
+    public async Task DeleteDraft(UserActor user, Guid caseId) {
         var @case = await DbContext.Cases.FindAsync(caseId);
         if (@case is null) {
             throw new CaseNotFoundException();
@@ -526,7 +526,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return attachment;
     }
 
-    public async Task<CaseAttachment?> GetAttachmentByField(WorkflowActor user, Guid caseId, string fieldName) {
+    public async Task<CaseAttachment?> GetAttachmentByField(UserActor user, Guid caseId, string fieldName) {
         var stringifiedCaseData = (await GetCaseById(caseId, false, false)).DataAs<string>();
         var json = JsonDocument.Parse(stringifiedCaseData);
         var found = json.RootElement.TryGetProperty(fieldName, out JsonElement attachmentId);
@@ -640,7 +640,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return timeline;
     }
 
-    public async Task<List<CasePartial>> GetRelatedCases(WorkflowActor user, Guid caseId) {
+    public async Task<List<CasePartial>> GetRelatedCases(UserActor user, Guid caseId) {
         // Check that user role can view this case
         var @case = await GetCaseById(caseId, false, false);
         var result = await GetCases(user, new ListOptions<GetCasesListFilter>() {

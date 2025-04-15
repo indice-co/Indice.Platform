@@ -19,7 +19,7 @@ public interface ICaseTypeService
     /// <summary>Get the case type a user is authorized for.</summary>
     /// <param name="user"></param>
     /// <param name="canCreate">Differentiates between the case types that an admin user can 1) view and 2) select for a case creation</param>
-    Task<ResultSet<CaseTypePartial>> Get(WorkflowActor user, bool canCreate);
+    Task<ResultSet<CaseTypePartial>> Get(UserActor user, bool canCreate);
 
     /// <summary>Get the case type details by its Id.</summary>
     /// <param name="id">The case type Id.</param>

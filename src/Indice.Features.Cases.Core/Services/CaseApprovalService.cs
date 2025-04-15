@@ -62,7 +62,7 @@ internal class CaseApprovalService : ICaseApprovalService
 
 
     /// <inheritdoc/>
-    public Task<List<RejectReason>> GetRejectReasons(WorkflowActor user, Guid caseId) {
+    public Task<List<RejectReason>> GetRejectReasons(UserActor user, Guid caseId) {
         return _workflowManager.GetApprovalRejectOptionsListAsync(user, caseId);
     }
 }

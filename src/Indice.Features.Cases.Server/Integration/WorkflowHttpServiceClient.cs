@@ -22,7 +22,7 @@ public class WorkflowHttpServiceClient : ICasesWorkflowManager
     }
 
     /// <inheritdoc />
-    public async Task<WorkflowInvocationResult> StartWorkflowAsync(Guid caseId, string caseTypeCode, WorkflowActor workflowActor) {
+    public async Task<WorkflowInvocationResult> StartWorkflowAsync(Guid caseId, string caseTypeCode, UserActor workflowActor) {
         try {
             await _workflowApiClient.StartWorkflowAsync(caseId, caseTypeCode, workflowActor.ToActor());
             return new WorkflowInvocationResult(Success: true, []);
@@ -32,7 +32,7 @@ public class WorkflowHttpServiceClient : ICasesWorkflowManager
     }
 
     /// <inheritdoc />
-    public async Task<WorkflowInvocationResult> InvokeAssignmentAsync(Guid caseId, WorkflowActor user) {
+    public async Task<WorkflowInvocationResult> InvokeAssignmentAsync(Guid caseId, UserActor user) {
         try {
             await _workflowApiClient.AssignAsync(new InvokeAssignmentRequest {
                 CaseId = caseId,
@@ -45,7 +45,7 @@ public class WorkflowHttpServiceClient : ICasesWorkflowManager
     }
 
     /// <inheritdoc />
-    public async Task<WorkflowInvocationResult> InvokeApprovalAsync(WorkflowActor user, Guid caseId, ApprovalRequest request) {
+    public async Task<WorkflowInvocationResult> InvokeApprovalAsync(UserActor user, Guid caseId, ApprovalRequest request) {
         try {
             await _workflowApiClient.ApprovalAsync(new InvokeApprovalRequest {
                 CaseId = caseId,
@@ -60,7 +60,7 @@ public class WorkflowHttpServiceClient : ICasesWorkflowManager
     }
 
     /// <inheritdoc />
-    public async Task<WorkflowInvocationResult> InvokeEditAsync(WorkflowActor user, Guid caseId, string? comment, EditCaseRequest request) {
+    public async Task<WorkflowInvocationResult> InvokeEditAsync(UserActor user, Guid caseId, string? comment, EditCaseRequest request) {
         try {
             await _workflowApiClient.EditAsync(new InvokeEditRequest {
                 CaseId = caseId,
@@ -83,7 +83,7 @@ public class WorkflowHttpServiceClient : ICasesWorkflowManager
     }
 
     /// <inheritdoc />
-    public async Task<WorkflowInvocationResult> TriggerActionAsync(WorkflowActor user, Guid caseId, ActionRequest request) {
+    public async Task<WorkflowInvocationResult> TriggerActionAsync(UserActor user, Guid caseId, ActionRequest request) {
         try {
             await _workflowApiClient.ActionAsync(new InvokeActionRequest {
                 CaseId = caseId,
@@ -98,7 +98,7 @@ public class WorkflowHttpServiceClient : ICasesWorkflowManager
     }
 
     /// <inheritdoc />
-    public async Task<List<RejectReason>> GetApprovalRejectOptionsListAsync(WorkflowActor user, Guid caseId) {
+    public async Task<List<RejectReason>> GetApprovalRejectOptionsListAsync(UserActor user, Guid caseId) {
         try {
             var reasons = await _workflowApiClient.RejectReasonsAsync(caseId);
             return reasons.Select(reason => new RejectReason {
@@ -113,7 +113,7 @@ public class WorkflowHttpServiceClient : ICasesWorkflowManager
 
     /// <inheritdoc />
     [Obsolete("This method is obsolete and will be removed in a future version.")]
-    public Task<CaseActions> GetAvailableActionsAsync(WorkflowActor user, Guid caseId, string? assignedToId, string[] bookmarks, string? lastApprovedById = null) {
+    public Task<CaseActions> GetAvailableActionsAsync(UserActor user, Guid caseId, string? assignedToId, string[] bookmarks, string? lastApprovedById = null) {
         throw new NotImplementedException();
     }
 }

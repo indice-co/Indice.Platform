@@ -9,15 +9,15 @@ public interface IQueryService
 {
     /// <summary>Get saved queries.</summary>
     /// <param name="user">The user that saves the query.</param>
-    Task<List<Query>> GetQueries(WorkflowActor user);
+    Task<List<Query>> GetQueries(UserActor user);
 
     /// <summary>Save a new query.</summary>
     /// <param name="user">The user that saves the query.</param>
     /// <param name="request"></param>
-    Task SaveQuery(WorkflowActor user, SaveQueryRequest request);
+    Task SaveQuery(UserActor user, SaveQueryRequest request);
 
     /// <summary>Delete a query.</summary>
     /// <param name="user">The user that saves the query.</param>
     /// <param name="queryId">The id of the query.</param>
-    Task<bool> DeleteQuery(WorkflowActor user, Guid queryId);
+    Task<bool> DeleteQuery(UserActor user, Guid queryId);
 }

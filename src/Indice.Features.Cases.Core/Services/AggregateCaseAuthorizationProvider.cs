@@ -15,14 +15,14 @@ internal class AggregateCaseAuthorizationProvider : ICaseAuthorizationProvider
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
-    public async Task<IQueryable<CasePartial>> GetCaseMembership(IQueryable<CasePartial> cases, WorkflowActor user) {
+    public async Task<IQueryable<CasePartial>> GetCaseMembership(IQueryable<CasePartial> cases, UserActor user) {
         foreach (var authorizationService in _caseAuthorizationServices) {
             cases = await authorizationService.GetCaseMembership(cases, user);
         }
         return cases;
     }
 
-    public async Task<bool> IsMember(WorkflowActor user, Case @case) {
+    public async Task<bool> IsMember(UserActor user, Case @case) {
         foreach (var authorizationService in _caseAuthorizationServices) {
             if (!await authorizationService.IsMember(user, @case)) {
                 return false;
@@ -31,7 +31,7 @@ internal class AggregateCaseAuthorizationProvider : ICaseAuthorizationProvider
         return true;
     }
 
-    public async Task<bool> IsMember(WorkflowActor user, Guid caseId) {
+    public async Task<bool> IsMember(UserActor user, Guid caseId) {
         var dbcase = await _dbContext.Cases
                 .AsNoTracking()
                 .Include(x => x.Checkpoint)
@@ -54,7 +54,7 @@ internal class AggregateCaseAuthorizationProvider : ICaseAuthorizationProvider
         return await IsMember(user, caseDetails);
     }
 
-    public async Task<int> MemberAccess(WorkflowActor user, Guid caseId) {
+    public async Task<int> MemberAccess(UserActor user, Guid caseId) {
         var accessLevel = new List<int>();
         foreach (var authorizationService in _caseAuthorizationServices) {
             accessLevel.Add(await authorizationService.MemberAccess(user, caseId));

@@ -17,16 +17,16 @@ internal class NoOpContactProvider : IContactProvider
         Environment = environment;
     }
 
-    public Task<ResultSet<Contact>> GetListAsync(WorkflowActor user, ListOptions<ContactFilter> listOptions) =>
+    public Task<ResultSet<Contact>> GetListAsync(UserActor user, ListOptions<ContactFilter> listOptions) =>
         Environment.IsDevelopment() ?
             Task.FromResult(new ResultSet<Contact>([ToContact(user), JohnDoe(Options)], 2)) :
             Task.FromResult(new ResultSet<Contact>([ToContact(user)], 1));
 
 
-    public Task<Contact?> GetByReferenceAsync(WorkflowActor user, string reference, string caseTypeCode) => 
+    public Task<Contact?> GetByReferenceAsync(UserActor user, string reference, string caseTypeCode) => 
         Task.FromResult<Contact?>(ToContact(user));
 
-    private Contact ToContact(WorkflowActor workflowActor) => new () {
+    private Contact ToContact(UserActor workflowActor) => new () {
         UserId = workflowActor.Id,
         Email = workflowActor.Email,
         Reference = workflowActor.Reference ?? workflowActor.Id,

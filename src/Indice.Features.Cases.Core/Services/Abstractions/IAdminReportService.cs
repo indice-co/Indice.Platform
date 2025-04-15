@@ -10,5 +10,5 @@ public interface IAdminReportService
     /// <param name="user"></param>
     /// <param name="reportTag"></param>
     /// <returns></returns>
-    Task<List<GroupByReportResult>> GenerateReport(WorkflowActor user, ReportTag reportTag);
+    Task<List<GroupByReportResult>> GenerateReport(UserActor user, ReportTag reportTag);
 }

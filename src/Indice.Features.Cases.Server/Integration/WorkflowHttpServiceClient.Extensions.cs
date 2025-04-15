@@ -17,8 +17,8 @@ internal static class WorkflowHttpServiceClientExtensions
     public static Actor ToActor(this ClaimsPrincipal user, CasesOptions options) 
         => ToActor(user.UserToActor(options));
 
-    /// <summary>Simple mapping from Cases <see cref="WorkflowActor"/> to http <see cref="Actor"/></summary>
-    public static Actor ToActor(this WorkflowActor actor) {
+    /// <summary>Simple mapping from Cases <see cref="UserActor"/> to http <see cref="Actor"/></summary>
+    public static Actor ToActor(this UserActor actor) {
         return new Actor {
             Id = actor.Id,
             Reference = actor.Reference,

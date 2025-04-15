@@ -24,7 +24,7 @@ internal class CaseActionsService : ICaseActionsService
         this._logger = logger;
     }
 
-    public async Task<CaseActions?> GetUserActions(WorkflowActor user, Guid caseId) {
+    public async Task<CaseActions?> GetUserActions(UserActor user, Guid caseId) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
         var @case = await _casesDbContext.Cases.Where(x => x.Id == caseId)

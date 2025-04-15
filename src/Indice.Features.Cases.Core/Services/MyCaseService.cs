@@ -36,7 +36,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         _caseSharedResourceService = caseSharedResourceService;
     }
 
-    public async Task<CreateCaseResponse> CreateDraft(WorkflowActor user,
+    public async Task<CreateCaseResponse> CreateDraft(UserActor user,
         string caseTypeCode,
         string? groupId,
         ContactMeta? customer,
@@ -61,14 +61,14 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         };
     }
 
-    public async Task UpdateData(WorkflowActor user, Guid caseId, dynamic data) {
+    public async Task UpdateData(UserActor user, Guid caseId, dynamic data) {
         if (user == null) throw new ArgumentNullException(nameof(user));
         if (caseId == default) throw new ArgumentNullException(nameof(caseId));
         if (data is null) throw new ArgumentNullException(nameof(data));
         await _caseMessageService.Send(caseId, user, new Message { Data = data });
     }
 
-    public async Task Submit(WorkflowActor user, Guid caseId) {
+    public async Task Submit(UserActor user, Guid caseId) {
         if (caseId == default) throw new ArgumentNullException(nameof(caseId));
 
         var @case = await GetDbCaseForCustomer(caseId, user);
@@ -82,7 +82,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         await _platformEventService.Publish(new CaseSubmittedEvent(
             new Case { Id = @case.Id },
             @case.CaseType.Code,
-            new WorkflowActor {
+            new UserActor {
                 Id = @case.CreatedBy.Id,
                 Reference = @case.Owner.Reference,
                 GroupId = user.GroupId,
@@ -113,7 +113,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         return @case;
     }
 
-    public async Task<ResultSet<MyCasePartial>> GetCases(WorkflowActor user, ListOptions<GetMyCasesListFilter> options) {
+    public async Task<ResultSet<MyCasePartial>> GetCases(UserActor user, ListOptions<GetMyCasesListFilter> options) {
         
         var dbCaseQueryable = DbContext.Cases
             .AsQueryable()

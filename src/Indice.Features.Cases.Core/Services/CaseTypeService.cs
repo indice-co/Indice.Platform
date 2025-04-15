@@ -63,7 +63,7 @@ internal class CaseTypeService : ICaseTypeService
         return await GetCaseTypeDetailsById(id);
     }
 
-    public async Task<ResultSet<CaseTypePartial>> Get(WorkflowActor user, bool canCreate) {
+    public async Task<ResultSet<CaseTypePartial>> Get(UserActor user, bool canCreate) {
         if (user.IsAdmin) {
             return await GetAdminCaseTypes(canCreate);
         }

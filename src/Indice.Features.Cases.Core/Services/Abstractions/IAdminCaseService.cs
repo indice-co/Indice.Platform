@@ -20,14 +20,14 @@ public interface IAdminCaseService
     /// <param name="customer">The customer metadata that initiated the case.</param>
     /// <param name="metadata">The metadata the case might have.</param>
     /// <returns></returns>
-    Task<CreateCaseResponse> CreateDraft(WorkflowActor user, string caseTypeCode, string? groupId, ContactMeta? customer, Dictionary<string, string> metadata);
+    Task<CreateCaseResponse> CreateDraft(UserActor user, string caseTypeCode, string? groupId, ContactMeta? customer, Dictionary<string, string> metadata);
 
     /// <summary>Update the case with the case data and does a json instance-schema validation of the case type's schema (<see cref="CaseType.DataSchema"/>).</summary>
     /// <param name="user">The user that will update the case.</param>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="data">The case data (as defined by JSON Schema in CaseType).</param>
     /// <returns>A <see cref="Task"/> representing an asynchronous operation</returns>
-    Task UpdateData(WorkflowActor user, Guid caseId, JsonNode data);
+    Task UpdateData(UserActor user, Guid caseId, JsonNode data);
 
     /// <summary>
     /// Performs a Partial Upgrade of the case data and does a json instance-schema validation of
@@ -40,7 +40,7 @@ public interface IAdminCaseService
     /// <param name="patch">A JsonNode to merge with the existing case data.</param>
     /// <param name="patchPublicData">TODO</param>
     /// <returns>A <see cref="Task"/> representing an asynchronous operation</returns>
-    Task PatchCaseData(WorkflowActor user, Guid caseId, JsonNode patch, bool patchPublicData);
+    Task PatchCaseData(UserActor user, Guid caseId, JsonNode patch, bool patchPublicData);
 
     /// <summary>
     /// Performs a Partial Upgrade of the case data and does a json instance-schema validation of
@@ -52,19 +52,19 @@ public interface IAdminCaseService
     /// <param name="operations">https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API</param>
     /// <param name="patchPublicData">TODO</param>
     /// <returns>A <see cref="Task"/> representing an asynchronous operation</returns>
-    Task PatchCaseData(WorkflowActor user, Guid caseId, JsonPatch operations, bool patchPublicData);
+    Task PatchCaseData(UserActor user, Guid caseId, JsonPatch operations, bool patchPublicData);
 
     /// <summary>Submit the case. Case must be in <strong>Draft</strong> mode.</summary>
     /// <param name="user">The user that initiated the submission.</param>
     /// <param name="caseId">The Id of the case.</param>
     /// <returns>A <see cref="Task"/> representing an asynchronous operation</returns>
-    Task Submit(WorkflowActor user, Guid caseId);
+    Task Submit(UserActor user, Guid caseId);
 
     /// <summary>Get a list of cases as defined by <see cref="GetCasesListFilter"/> and the role of the user.</summary>
     /// <param name="user">The user that initiated the request</param>
     /// <param name="options">The case list filters.</param>
     /// <returns>A <see cref="Task{ResultSet}"/> representing an asynchronous operation</returns>
-    Task<ResultSet<CasePartial>> GetCases(WorkflowActor user, ListOptions<GetCasesListFilter> options);
+    Task<ResultSet<CasePartial>> GetCases(UserActor user, ListOptions<GetCasesListFilter> options);
 
     /// <summary>Get a case for a user by its Id</summary>
     /// <param name="caseId">The Id of the case.</param>
@@ -77,7 +77,7 @@ public interface IAdminCaseService
     /// <param name="user">The user that created the case.</param>
     /// <param name="caseId">The Id of the case.</param>
     /// <returns>A <see cref="Task"/> representing an asynchronous operation</returns>
-    Task DeleteDraft(WorkflowActor user, Guid caseId);
+    Task DeleteDraft(UserActor user, Guid caseId);
 
     /// <summary>Get an attachment for a user by its Id</summary>
     /// <param name="attachmentId">The Id of the attachment.</param>
@@ -107,7 +107,7 @@ public interface IAdminCaseService
     /// <param name="user">The user that creates the request.</param>
     /// <param name="caseId">The Id of the case.</param>
     /// <returns>A list of <seealso cref="CasePartial"/></returns>
-    Task<List<CasePartial>> GetRelatedCases(WorkflowActor user, Guid caseId);
+    Task<List<CasePartial>> GetRelatedCases(UserActor user, Guid caseId);
 
     /// <summary>Get a list of attachments by CaseId</summary>
     /// <param name="caseId"></param>
@@ -127,7 +127,7 @@ public interface IAdminCaseService
     /// <param name="caseId">The case id</param>
     /// <param name="fieldName">The attachment filename</param>
     /// <returns>The <seealso cref="CaseAttachment"/> or null</returns>
-    Task<CaseAttachment?> GetAttachmentByField(WorkflowActor user, Guid caseId, string fieldName);
+    Task<CaseAttachment?> GetAttachmentByField(UserActor user, Guid caseId, string fieldName);
 
     /// <summary>
     /// Adds or edits metadata for a case.
@@ -151,6 +151,6 @@ public interface IAdminCaseService
 public static class AdminCaseServiceExtensions
 {
     /// <summary>Patches Case Data using a Json Serializable object.</summary>
-    public static async Task PatchCaseData<TValue>(this IAdminCaseService adminCaseService, WorkflowActor user, Guid caseId, TValue patch, bool patchPublicData) where TValue : notnull
+    public static async Task PatchCaseData<TValue>(this IAdminCaseService adminCaseService, UserActor user, Guid caseId, TValue patch, bool patchPublicData) where TValue : notnull
         => await adminCaseService.PatchCaseData(user, caseId, patch.ToJsonNode() ?? throw new ArgumentNullException(nameof(patch), "Patch Operation cannot be null."), patchPublicData);
 }

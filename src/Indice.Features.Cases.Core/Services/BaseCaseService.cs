@@ -105,12 +105,12 @@ internal abstract class BaseCaseService
         return query;
     }
 
-    /// <summary>Get the case as requested by a Customer. Case must match <see cref="DbCase.CreatedBy"/> with the <see cref="WorkflowActor"/> of the customer.</summary>
+    /// <summary>Get the case as requested by a Customer. Case must match <see cref="DbCase.CreatedBy"/> with the <see cref="UserActor"/> of the customer.</summary>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="customer">The customer that initiated the request.</param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    protected async Task<DbCase> GetDbCaseForCustomer(Guid caseId, WorkflowActor customer) {
+    protected async Task<DbCase> GetDbCaseForCustomer(Guid caseId, UserActor customer) {
         var userId = customer.Id;
         var @case = await DbContext.Cases
             .Include(c => c.CaseType)
@@ -136,13 +136,13 @@ internal abstract class BaseCaseService
     /// <returns></returns>
     protected async Task<DbCase> CreateDraftInternal(
         ICaseMessageService caseMessageService,
-        WorkflowActor user,
+        UserActor user,
         DbCaseType caseType,
         string? groupId,
         ContactMeta? customer,
         Dictionary<string, string> metadata,
         string channel,
-        WorkflowActor? assignee = null) {
+        UserActor? assignee = null) {
         if (user is null) throw new ArgumentNullException(nameof(user));
         if (caseType == null) throw new ArgumentNullException(nameof(caseType));
         if (string.IsNullOrEmpty(channel)) throw new ArgumentNullException(nameof(channel));

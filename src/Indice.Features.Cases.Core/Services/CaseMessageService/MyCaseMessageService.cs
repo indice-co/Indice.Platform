@@ -19,12 +19,12 @@ internal class MyCaseMessageService : BaseCaseMessageService, IMyCaseMessageServ
     }
 
     /// <inheritdoc />
-    public async Task<Guid?> Send(Guid caseId, WorkflowActor user, Message message, AuditMeta createdBy) {
+    public async Task<Guid?> Send(Guid caseId, UserActor user, Message message, AuditMeta createdBy) {
         var @case = await GetMyCase(caseId, user);
         return await SendInternal(@case, message, createdBy);
     }
 
-    private async Task<DbCase> GetMyCase(Guid caseId, WorkflowActor user) {
+    private async Task<DbCase> GetMyCase(Guid caseId, UserActor user) {
         if (caseId == Guid.Empty) {
             throw new ArgumentException(nameof(caseId));
         }

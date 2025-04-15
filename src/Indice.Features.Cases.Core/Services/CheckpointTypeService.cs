@@ -18,7 +18,7 @@ internal class CheckpointTypeService : ICheckpointTypeService
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
-    public async Task<List<CheckpointType>> GetDistinctCheckpointTypes(WorkflowActor user) {
+    public async Task<List<CheckpointType>> GetDistinctCheckpointTypes(UserActor user) {
         if (user.IsAdmin) {
             return await GetAdminDistinctCheckpointsTypes();
         }
