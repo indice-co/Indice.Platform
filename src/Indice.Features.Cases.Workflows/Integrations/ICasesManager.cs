@@ -67,7 +67,7 @@ public interface ICasesManager
     /// <summary>
     /// <inheritdoc cref="CasesManagerHttpClient.AssignAsync(Guid, WorkflowActor)"/>
     /// </summary>
-    internal Task<AuditMeta> AssignToActor(WorkflowActor actor, Guid caseId);
+    internal Task<AuditMeta> AssignToActor(UserActor actor, Guid caseId);
 
     /// <summary>
     /// <inheritdoc cref="CasesManagerHttpClient.BlockPreviousApproverAsync(Guid, WorkflowActor)"/>

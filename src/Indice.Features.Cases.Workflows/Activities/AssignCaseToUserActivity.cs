@@ -25,7 +25,7 @@ internal class AssignCaseToUserActivity(ICasesManager casesManager) : BaseCaseAc
         DefaultSyntax = SyntaxNames.JavaScript,
         SupportedSyntaxes = [SyntaxNames.JavaScript]
     )]
-    public WorkflowActor User { get; set; } = new();
+    public UserActor User { get; set; } = new();
 
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);

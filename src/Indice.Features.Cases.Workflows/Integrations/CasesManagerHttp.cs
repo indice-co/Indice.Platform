@@ -84,8 +84,8 @@ internal class CasesManagerHttp(CasesManagerHttpClient client) : ICasesManager
     }
 
     /// <inheritdoc />
-    public async Task<AuditMeta> AssignToActor(WorkflowActor workflowActor, Guid caseId) {
-        return await _client.AssignAsync(caseId, workflowActor);
+    public async Task<AuditMeta> AssignToActor(UserActor actor, Guid caseId) {
+        return await _client.AssignAsync(caseId, actor);
     }
 
     /// <inheritdoc />
