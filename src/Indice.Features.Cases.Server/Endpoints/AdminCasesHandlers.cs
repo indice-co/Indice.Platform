@@ -284,6 +284,6 @@ internal static class AdminCasesHandlers
     /// <summary>Sync private data to public</summary>
     /// <param name="caseId"></param>
     /// <param name="adminCaseService"></param>
-    public static async Task PublishPrivateData(Guid caseId, IAdminCaseService adminCaseService)
+    public static async Task PublishCasePrivateData(Guid caseId, IAdminCaseService adminCaseService)
         => await adminCaseService.PublishPrivateData(caseId);
 }
