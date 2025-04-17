@@ -225,11 +225,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             return error!;
         }
         if (await ExtendedUserManager.VerifyTwoFactorTokenAsync(user, provider, code)) {
-            if (await ShouldSignInForExtendedValidationAsync(user)) {
-                return await DoPartialSignInAsync(user, twoFactorInfo.DeviceId, ["pwd", "mfa"]);
-            }
-            await DoTwoFactorSignInAsync(user, twoFactorInfo, isPersistent, rememberClient);
-            return SignInResult.Success;
+            return await DoTwoFactorSignInAsync(user, twoFactorInfo, isPersistent, rememberClient);
         }
         if (ExtendedUserManager.SupportsUserLockout) {
             await ExtendedUserManager.AccessFailedAsync(user);
@@ -365,7 +361,6 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         var isEmailConfirmed = user.EmailConfirmed;
         var isPhoneConfirmed = user.PhoneNumberConfirmed;
         var isPasswordExpired = user.HasExpiredPassword();
-        var shouldSignInForMfaOnboarding = MfaPolicy == MfaPolicy.Enforced && !user.TwoFactorEnabled;
 
         var result = ExtendedSignInResult.ValidationRequired;
         var userId = user.Id;
@@ -482,7 +477,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         };
     }
 
-    private async Task DoTwoFactorSignInAsync(TUser user, TwoFactorAuthenticationInfo twoFactorInfo, bool isPersistent, bool rememberClient) {
+    private async Task<SignInResult> DoTwoFactorSignInAsync(TUser user, TwoFactorAuthenticationInfo twoFactorInfo, bool isPersistent, bool rememberClient) {
         if (rememberClient) {
             await RememberTwoFactorClientAsync(user);
         }
@@ -499,7 +494,11 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             claims.Add(new Claim(BasicClaimTypes.DeviceId, twoFactorInfo.DeviceId.Value!));
         }
         await Context.SignOutAsync(IdentityConstants.TwoFactorUserIdScheme);
+        if (await ShouldSignInForExtendedValidationAsync(user)) {
+            return await DoPartialSignInAsync(user, twoFactorInfo.DeviceId, ["pwd", "mfa"]);
+        }
         await SignInWithClaimsAsync(user, isPersistent, claims);
+        return SignInResult.Success;
     }
 
     private IUserDeviceStore<TUser>? GetDeviceStore(bool throwOnFail = true) {
