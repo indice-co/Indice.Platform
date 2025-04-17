@@ -48,6 +48,9 @@ public class SmsServiceVonage : ISmsService
         if (string.IsNullOrWhiteSpace(destination)) {
             throw new ArgumentNullException("Recipient is empty" ,nameof(destination));
         }
+        if (destination.Split(',').Length > 1) {
+            throw new NotSupportedException("Only a single recipient phone number is supported.");
+        }
         if (!PhoneNumber.TryParse(destination, out var phone)) {
             throw new ArgumentException("Invalid recipient. Recipient should be valid phone numbers", nameof(destination));
         }
@@ -160,7 +163,7 @@ internal class VonageSmsResponse {
     [JsonPropertyName("message-count")]
     public string? MessageCount { get; set; }
     [JsonPropertyName("messages")]
-    public List<VonageSmsResponseMessage> Messages { get; set; } = new();
+    public List<VonageSmsResponseMessage> Messages { get; set; } = [];
 
     public bool HasError => Messages.Any(x => x.Status != "0");
 
