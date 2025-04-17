@@ -76,11 +76,6 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         services.AddAuthenticationDefaults();
         options.ConfigureIdentityDbContext ??= dbBuilder => dbBuilder.UseSqlServer(configuration.GetConnectionString("IdentityDb"));
         services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(options.ConfigureIdentityDbContext);
-        services.AddSession(options => {
-            options.IdleTimeout = TimeSpan.FromMinutes(10);
-            options.Cookie.HttpOnly = true;
-            options.Cookie.IsEssential = true;
-        });
         return new ExtendedIdentityServerBuilder(identityServerBuilder, identityBuilder, configuration, environment);
     }
 
