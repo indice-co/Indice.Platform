@@ -48,7 +48,7 @@ public class SmsServiceVonage : ISmsService
         if (string.IsNullOrWhiteSpace(destination)) {
             throw new ArgumentNullException("Recipient is empty" ,nameof(destination));
         }
-        if (destination.Split(',').Length > 1) {
+        if (destination.IndexOf(',') >= 0) {
             throw new NotSupportedException("Only a single recipient phone number is supported.");
         }
         if (!PhoneNumber.TryParse(destination, out var phone)) {
