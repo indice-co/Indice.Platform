@@ -527,15 +527,13 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     }
 
     public async Task<CaseAttachment?> GetAttachmentByField(UserActor user, Guid caseId, string fieldName) {
-        var stringifiedCaseData = (await GetCaseById(caseId, false, false)).DataAs<string>();
-        var json = JsonDocument.Parse(stringifiedCaseData);
-        var found = json.RootElement.TryGetProperty(fieldName, out JsonElement attachmentId);
-
-        if (found && !string.IsNullOrEmpty(attachmentId.GetString())) {
-            var attachment = await GetAttachment(caseId, attachmentId.GetGuid());
+        var json = (await GetCaseById(caseId, false, false)).DataAsJsonNode();
+        if (json is null) return null;
+        var attachmentId = json[fieldName]?.GetValue<Guid?>();
+        if (attachmentId.HasValue) {
+            var attachment = await GetAttachment(caseId, attachmentId.Value);
             return attachment;
         }
-
         return null;
     }
 

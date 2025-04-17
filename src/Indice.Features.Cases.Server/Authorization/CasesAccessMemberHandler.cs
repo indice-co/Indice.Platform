@@ -88,13 +88,13 @@ public class CasesAccessMemberHandler : AuthorizationHandler<CasesRecordsAccessL
         var entryExists = value != null;
         if (entryExists && int.TryParse(value, out var accessLevel)) {
             
-            return accessLevel >= requirement.MinimumAccessLevel.GetHashCode();
+            return accessLevel >= (int)requirement.MinimumAccessLevel;
         }
         accessLevel = await _memberAuthorizationProvider.MemberAccess(actor, caseId);
         // Add to cache. 
         var cacheEntryOptions = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
         await _cache.SetStringAsync(cacheKey, $"{accessLevel}", cacheEntryOptions);
-        return accessLevel >= requirement.MinimumAccessLevel.GetHashCode();
+        return accessLevel >= (int)requirement.MinimumAccessLevel;
     }
 
 }
