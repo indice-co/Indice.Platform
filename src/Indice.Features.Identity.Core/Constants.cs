@@ -29,7 +29,7 @@ public class ExtendedIdentityConstants
     /// <summary>The cookie name used to identify to identify application authentication cookies.</summary>
     public const string ApplicationCookieName = CookiePrefix;
     /// <summary>A claim type used to store temp data regarding password expiration that will be used in a partial login to identify that a user is in need for an immediate password change.</summary>
-    public const string PasswordExpiredClaimType = "PasswordExpired";
+    public const string PasswordExpiredClaimType = "password_expired";
     /// <summary>Authentication scheme name used by IdentityServer local API.</summary>
     public const string ApiAuthenticationScheme = "IdentityServerApiAccessToken";
     /// <summary>The cookie name used to protect agains XSS attacks.</summary>

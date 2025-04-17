@@ -334,7 +334,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         AuthenticationProperties? authenticationProperties = default;
         if (authenticateResult.Succeeded) {
             authenticationProperties = authenticateResult.Properties;
-            await SignInWithClaimsAsync(user, authenticationProperties, authenticateResult.Principal.Claims);
+            await SignInWithClaimsAsync(user, authenticationProperties, authenticateResult.Principal.Claims.Where(x => x.Type == JwtClaimTypes.AuthenticationMethod || x.Type == BasicClaimTypes.DeviceId));
             await _httpContextAccessor.HttpContext!.SignOutAsync(scheme);
         }
         return authenticationProperties;
