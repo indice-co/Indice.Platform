@@ -34,6 +34,8 @@ public class ExtendedIdentityConstants
     public const string ApiAuthenticationScheme = "IdentityServerApiAccessToken";
     /// <summary>The cookie name used to protect agains XSS attacks.</summary>
     public const string AntiforgeryCookieName = CookiePrefix + ".xss";
+    /// <summary>The cookie name used to by the CookieTempDataProvider to store temp parameters.</summary>
+    public const string TempDataCookieName = CookiePrefix + ".tmp";
 }
 
 /// <summary>Constant values for custom grants.</summary>

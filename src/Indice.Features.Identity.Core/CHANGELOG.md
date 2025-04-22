@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.0.0-rc26] - 2025-04-22
+### Added 
+- Support for confugurable per user Two Factor enforcement policy.
+
+### Migrations
+Add new column in user table.
+
+```sql
+ALTER TABLE [auth].[User]
+ADD TwoFactorPolicy smallint NULL;
+GO
+```
+
 ## [7.35.0] - 2024-10-30
 ### Added 
 - Support for profile image upload

@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using IdentityModel;
+using IdentityServer4;
 using Indice.Events;
 using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data.Models;
@@ -81,7 +82,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         RememberTrustedBrowserAcrossSessions = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(RememberTrustedBrowserAcrossSessions)) == true;
         RememberExpirationType = configuration.GetIdentityOption<MfaExpirationType?>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(RememberExpirationType)) ?? default;
         RequireMfaWhenUserHasTrustedBrowserButExpiredPassword = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa:RequireWhen", "UserHasTrustedBrowserButExpiredPassword") ?? true;
-        MfaPolicy = configuration.GetIdentityOption<MfaPolicy?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Policy") ?? MfaPolicy.Default;
+        MfaPolicy = configuration.GetIdentityOption<MfaPolicy?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Policy") ?? MfaPolicy.Optional;
     }
 
     private ExtendedUserManager<TUser> ExtendedUserManager => (ExtendedUserManager<TUser>)UserManager;
@@ -107,7 +108,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     #region Method Overrides
     /// <inheritdoc/>
     public override async Task<ExternalLoginInfo?> GetExternalLoginInfoAsync(string? expectedXsrf = null) {
-        var auth = await Context.AuthenticateAsync(IdentityConstants.ExternalScheme);
+        var auth = await Context.AuthenticateAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);
         var items = auth?.Properties?.Items;
         if (auth?.Principal == null || items == null || !items.ContainsKey(LOGIN_PROVIDER_KEY)) {
             return null;
@@ -247,7 +248,8 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         var allSchemes = await _authenticationSchemeProvider.GetAllSchemesAsync();
         // Check if authentication scheme is registered before trying to sign out, to avoid errors.
         var schemes = new string[] {
-            ExtendedIdentityConstants.ExtendedValidationScheme
+            ExtendedIdentityConstants.ExtendedValidationScheme,
+            IdentityServerConstants.ExternalCookieAuthenticationScheme
         };
         foreach (var scheme in schemes) {
             if (allSchemes.FirstOrDefault(x => x.Name == scheme) is not null) {
@@ -312,7 +314,14 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         }
         return isRemembered;
     }
-#endregion
+
+    /// <inheritdoc/>
+    public override async Task<SignInResult> ExternalLoginSignInAsync(string loginProvider, string providerKey, bool isPersistent, bool bypassTwoFactor) {
+        await Context.SignOutAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);
+        return await base.ExternalLoginSignInAsync(loginProvider, providerKey, isPersistent, bypassTwoFactor);
+    }
+
+    #endregion
 
     #region Custom Methods
     /// <summary>Revokes all sessions for user browsers.</summary>

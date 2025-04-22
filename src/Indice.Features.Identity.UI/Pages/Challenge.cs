@@ -10,6 +10,7 @@ using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -86,7 +87,10 @@ public abstract class BaseChallengeModel : BasePageModel
         if (localeClaim is null) {
             await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.Locale, RequestCulture.Culture.TwoLetterISOLanguageName);
         }
-
+        if (result.RequiresTwoFactor) {
+            var redirectUrl = Url.PageLink("/Mfa", values: new { returnUrl });
+            return Redirect(redirectUrl!);
+        }
         if (result.RequiresValidation()) {
             return RedirectToPage("/AddEmail", new { returnUrl });
         }

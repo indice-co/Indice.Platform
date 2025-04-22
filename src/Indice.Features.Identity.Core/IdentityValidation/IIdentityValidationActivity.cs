@@ -87,7 +87,7 @@ public class RequiresMfaOnboardingActivity : IdentityValidationActivityBase
     protected override async ValueTask<IdentityValidationActivityResult?> GetResultAsync(UserValidationActivityContext activityContext) {
         await ValueTask.CompletedTask;
         var configuration = activityContext.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
-        var mfaPolicy = configuration.GetIdentityOption<MfaPolicy?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Policy") ?? MfaPolicy.Default;
+        var mfaPolicy = activityContext.User.TwoFactorPolicy ?? configuration.GetIdentityOption<MfaPolicy?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Policy") ?? MfaPolicy.Optional;
 
         if (activityContext.User.TwoFactorEnabled == false && mfaPolicy == MfaPolicy.Enforced) {
             return new IdentityValidationActivityResult(new UserValidationRequirement(UserActivityRequirementKind.RequiresMfaOnboarding, "/MfaOnboarding"));

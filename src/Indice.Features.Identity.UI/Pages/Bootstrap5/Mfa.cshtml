@@ -23,7 +23,7 @@
             <input type="hidden" asp-for="Input.DeviceId" />
             <div class="mb-3">
                 <label asp-for="Input.OtpCode" class="form-label">@Localizer["OTP Code"]</label>
-                <input class="form-control" placeholder="@Localizer["OTP Code"]" asp-for="Input.OtpCode" autofocus />
+                <input class="form-control" placeholder="@Localizer["OTP Code"]" asp-for="Input.OtpCode" autofocus autocomplete="off" />
                 <span asp-validation-for="Input.OtpCode" class="text-danger"></span>
             </div>
             <div class="mb-3" indice-if="!Model.View.IsExistingBrowser">

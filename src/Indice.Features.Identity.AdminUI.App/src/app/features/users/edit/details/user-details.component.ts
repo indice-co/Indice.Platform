@@ -5,7 +5,7 @@ import { Subscription, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SwalPortalTargets } from '@sweetalert2/ngx-sweetalert2';
-import { SingleUserInfo, ClaimTypeInfo, ClaimValueType, PasswordExpirationPolicy, ProblemDetails, HttpValidationProblemDetails } from 'src/app/core/services/identity-api.service';
+import { SingleUserInfo, ClaimTypeInfo, ClaimValueType, PasswordExpirationPolicy, ProblemDetails, HttpValidationProblemDetails, MfaPolicy } from 'src/app/core/services/identity-api.service';
 import { ClaimType } from './models/claim-type.model';
 import { UserStore } from '../user-store.service';
 import { NgbDateCustomParserFormatter } from 'src/app/shared/services/custom-parser-formatter.service';

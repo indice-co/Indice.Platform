@@ -39,6 +39,7 @@ using Microsoft.FeatureManagement;
 using Microsoft.IdentityModel.Logging;
 using IndiceStores = Indice.IdentityServer.EntityFramework.Storage.Stores;
 using Indice.Features.Identity.Core.IdentityValidation;
+using SixLabors.ImageSharp;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -73,7 +74,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         services.AddTotpServiceFactory(configuration);
         var identityBuilder = services.AddIdentityDefaults(configuration);
         var identityServerBuilder = services.AddIdentityServerDefaults(configuration, environment, options.ConfigureConfigurationDbContext, options.ConfigurePersistedGrantDbContext);
-        services.AddAuthenticationDefaults();
+        services.AddAuthenticationDefaults(configuration);
         options.ConfigureIdentityDbContext ??= dbBuilder => dbBuilder.UseSqlServer(configuration.GetConnectionString("IdentityDb"));
         services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(options.ConfigureIdentityDbContext);
         return new ExtendedIdentityServerBuilder(identityServerBuilder, identityBuilder, configuration, environment);
@@ -88,9 +89,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         services.AddExternalProviderClaimsTransformation();
         services.Configure<CookieTempDataProviderOptions>(options => {
             options.Cookie.Expiration = TimeSpan.FromMinutes(30);
-        });
-        services.Configure<CookieAuthenticationOptions>(IdentityConstants.TwoFactorRememberMeScheme, options => {
-            options.ExpireTimeSpan = TimeSpan.FromDays(configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "RememberDurationInDays") ?? ExtendedSignInManager<User>.DEFAULT_MFA_REMEMBER_DURATION_IN_DAYS);
+            options.Cookie.Name = ExtendedIdentityConstants.TempDataCookieName;
         });
         services.TryAddScoped<IdentityMessageDescriber>();
         services.TryAddScoped<CallingCodesProvider>();
@@ -166,7 +165,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         return identityServerBuilder;
     }
 
-    private static AuthenticationBuilder AddAuthenticationDefaults(this IServiceCollection services) {
+    private static AuthenticationBuilder AddAuthenticationDefaults(this IServiceCollection services, IConfiguration configuration) {
         var authBuilder = services.AddAuthentication();
         static Action<CookieAuthenticationOptions> AuthCookie(string cookieName) => options => {
             options.LoginPath = new PathString("/login");
@@ -190,9 +189,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         });
         services.Configure<CookieAuthenticationOptions>(IdentityConstants.TwoFactorRememberMeScheme, options => {
             options.Cookie.Name = ExtendedIdentityConstants.TwoFactorRememberMeCookieName;
-        });
-        services.Configure<CookieAuthenticationOptions>(IdentityConstants.TwoFactorRememberMeScheme, options => {
-            options.Cookie.Name = ExtendedIdentityConstants.TwoFactorRememberMeCookieName;
+            options.ExpireTimeSpan = TimeSpan.FromDays(configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "RememberDurationInDays") ?? ExtendedSignInManager<User>.DEFAULT_MFA_REMEMBER_DURATION_IN_DAYS);
         });
         services.AddAntiforgery(options => options.Cookie.Name = ExtendedIdentityConstants.AntiforgeryCookieName);
         return authBuilder;

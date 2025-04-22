@@ -61,7 +61,6 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         MaxTrustedDevices = configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.User)}:Devices", nameof(MaxTrustedDevices));
         TrustActivationDelay = configuration.GetIdentityOption<TimeSpan?>($"{nameof(IdentityOptions.User)}:Devices", nameof(TrustActivationDelay));
         EmailAsUserName = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.User)}", nameof(EmailAsUserName)) ?? false;
-        MfaPolicy = configuration.GetIdentityOption<MfaPolicy?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Policy") ?? MfaPolicy.Default;
         RequirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedEmail)) ?? false;
         RequirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedPhoneNumber)) ?? false;
         
@@ -81,8 +80,6 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     public int? DefaultAllowedRegisteredDevices { get; }
     /// <summary>Gets a flag indicating whether the backing user store supports user name that are the same as emails.</summary>
     public bool EmailAsUserName { get; }
-    /// <summary>MFA policy applied for new users.</summary>
-    public MfaPolicy MfaPolicy { get; }
     /// <summary>Whether the user should confirm their email after signing in.</summary>
     public bool RequirePostSignInConfirmedEmail { get; }
     /// <summary>Whether the user should confirm their phone number after signing in.</summary>
@@ -205,9 +202,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     public async Task SetPasswordExpirationPolicyAsync(TUser user, PasswordExpirationPolicy? policy, CancellationToken cancellationToken = default) {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
-        if (user is null) {
-            throw new ArgumentNullException(nameof(user));
-        }
+        ArgumentNullException.ThrowIfNull(user);
         var userStore = GetUserStore();
         await userStore!.SetPasswordExpirationPolicyAsync(user, policy, cancellationToken);
         await UpdateAsync(user);
@@ -220,9 +215,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     public async Task SetPasswordExpiredAsync(TUser user, bool expired, CancellationToken cancellationToken = default) {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
-        if (user is null) {
-            throw new ArgumentNullException(nameof(user));
-        }
+        ArgumentNullException.ThrowIfNull(user);
         var userStore = GetUserStore();
         await userStore!.SetPasswordExpiredAsync(user, expired, cancellationToken);
         await UpdateAsync(user);
@@ -237,9 +230,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     public async Task SetLastSignInDateAsync(TUser user, DateTimeOffset? timestamp = null, CancellationToken cancellationToken = default) {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
-        if (user is null) {
-            throw new ArgumentNullException(nameof(user));
-        }
+        ArgumentNullException.ThrowIfNull(user);
         var userStore = GetUserStore();
         await userStore!.SetLastSignInDateAsync(user, timestamp, cancellationToken);
         await UpdateAsync(user);
@@ -253,12 +244,8 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <remarks>This overload is used for administrator reset password. Bypasses token requirement of default <see cref="UserManager{TUser}.ResetPasswordAsync(TUser, string, string)"/></remarks>
     public async Task<IdentityResult> CreateAsync(TUser user, string password, bool validatePassword) {
         ThrowIfDisposed();
-        if (user is null) {
-            throw new ArgumentNullException(nameof(user));
-        }
-        if (password is null) {
-            throw new ArgumentNullException(nameof(password));
-        }
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(password);
         var result = await UpdatePasswordHash(user, password, validatePassword);
         if (!result.Succeeded) {
             return result;
@@ -274,9 +261,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <remarks>This overload is used for administrator reset password. Bypasses token requirement of default <see cref="UserManager{TUser}.ResetPasswordAsync(TUser, string, string)"/></remarks>
     public async Task<IdentityResult> ResetPasswordAsync(TUser user, string newPassword, bool validatePassword = true) {
         ThrowIfDisposed();
-        if (user is null) {
-            throw new ArgumentNullException(nameof(user));
-        }
+        ArgumentNullException.ThrowIfNull(user);
         var result = await base.UpdatePasswordHash(user, newPassword, validatePassword);
         if (!result.Succeeded) {
             return result;
@@ -341,9 +326,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     public async Task<IdentityResult> SetBlockedAsync(TUser user, bool blocked, CancellationToken cancellationToken = default) {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
-        if (user is null) {
-            throw new ArgumentNullException(nameof(user));
-        }
+        ArgumentNullException.ThrowIfNull(user);
         var changed = user.Blocked != blocked;
         user.Blocked = blocked;
         var result = await UpdateAsync(user);
@@ -446,9 +429,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> parameter is null.</exception>
     public async Task<IdentityResult> SetMaxDevicesCountAsync(TUser user, int maxDevicesCount, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
-        if (user is null) {
-            throw new ArgumentNullException(nameof(user));
-        }
+        ArgumentNullException.ThrowIfNull(user);
         if (maxDevicesCount < 0) {
             return IdentityResult.Failed(new IdentityError {
                 Code = nameof(MessageDescriber.InsufficientNumberOfDevices),
@@ -482,15 +463,11 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> or <paramref name="deviceId"/> parameters are null.</exception>
     public Task<UserDevice?> GetDeviceByIdAsync(TUser user, string deviceId, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
-        if (user is null) {
-            throw new ArgumentNullException(nameof(user));
-        }
+        ArgumentNullException.ThrowIfNull(user);
         if (string.IsNullOrWhiteSpace(deviceId)) {
             throw new ArgumentNullException(nameof(deviceId));
         }
-        if (user is null) {
-            throw new ArgumentNullException(nameof(user));
-        }
+        ArgumentNullException.ThrowIfNull(user);
         var deviceStore = GetDeviceStore();
         return deviceStore!.GetDeviceByIdAsync(user, deviceId, cancellationToken);
     }
@@ -503,12 +480,8 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <exception cref="ArgumentNullException"></exception>
     public async Task RemoveDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
-        if (user is null) {
-            throw new ArgumentNullException(nameof(user));
-        }
-        if (device is null) {
-            throw new ArgumentNullException(nameof(user));
-        }
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(device);
         var deviceStore = GetDeviceStore();
         await deviceStore!.RemoveDeviceAsync(user, device, cancellationToken);
         await _eventService.Publish(new DeviceDeletedEvent(UserDeviceEventContext.InitializeFromUserDevice(device), UserEventContext.InitializeFromUser(user)));
@@ -523,12 +496,8 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <exception cref="ArgumentNullException"></exception>
     public async Task<IdentityResult> SetDeviceRequiresPasswordAsync(TUser? user, UserDevice? device, bool requiresPassword, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
-        if (user is null) {
-            throw new ArgumentNullException(nameof(user));
-        }
-        if (device is null) {
-            throw new ArgumentNullException(nameof(user));
-        }
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(device);
         device.RequiresPassword = requiresPassword;
         return await UpdateDeviceAsync(user, device, cancellationToken);
     }
@@ -540,9 +509,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <exception cref="ArgumentNullException"></exception>
     public Task<IdentityResult> SetNativeDevicesRequirePasswordAsync(TUser user, bool requiresPassword, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
-        if (user is null) {
-            throw new ArgumentNullException(nameof(user));
-        }
+        ArgumentNullException.ThrowIfNull(user);
         var deviceStore = GetDeviceStore();
         return deviceStore!.SetNativeDevicesRequirePasswordAsync(user, requiresPassword, cancellationToken);
     }
@@ -555,12 +522,8 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <exception cref="ArgumentNullException"></exception>
     public async Task<IdentityResult> SetTrustedDeviceAsync(TUser user, UserDevice device, string? swapDeviceId = null, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
-        if (user is null) {
-            throw new ArgumentNullException(nameof(user));
-        }
-        if (device is null) {
-            throw new ArgumentNullException(nameof(user));
-        }
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(device);
         // 1. Device is already trusted.
         if (device.IsTrusted) {
             return IdentityResult.Failed(new IdentityError {
@@ -623,12 +586,8 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
     public async Task<IdentityResult> SetUntrustedDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
-        if (user is null) {
-            throw new ArgumentNullException(nameof(user));
-        }
-        if (device is null) {
-            throw new ArgumentNullException(nameof(user));
-        }
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(device);
         if (device.IsPendingTrustActivation) {
             return IdentityResult.Failed(new IdentityError {
                 Code = nameof(UserDevice.TrustActivationDate),

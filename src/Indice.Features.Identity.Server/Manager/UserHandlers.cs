@@ -56,6 +56,7 @@ internal static class UserHandlers
                 LockoutEnabled = user.LockoutEnabled,
                 LockoutEnd = user.LockoutEnd,
                 TwoFactorEnabled = user.TwoFactorEnabled,
+                TwoFactorPolicy = user.TwoFactorPolicy,
                 Blocked = user.Blocked,
                 PasswordExpirationPolicy = user.PasswordExpirationPolicy,
                 IsAdmin = user.Admin,
@@ -89,6 +90,7 @@ internal static class UserHandlers
                     LockoutEnabled = user.LockoutEnabled,
                     LockoutEnd = user.LockoutEnd,
                     TwoFactorEnabled = user.TwoFactorEnabled,
+                    TwoFactorPolicy = user.TwoFactorPolicy,
                     Blocked = user.Blocked,
                     PasswordExpirationPolicy = user.PasswordExpirationPolicy,
                     IsAdmin = user.IsAdmin,
@@ -132,6 +134,7 @@ internal static class UserHandlers
                 PhoneNumber = user.PhoneNumber,
                 PhoneNumberConfirmed = user.PhoneNumberConfirmed,
                 TwoFactorEnabled = user.TwoFactorEnabled,
+                TwoFactorPolicy = user.TwoFactorPolicy,
                 UserName = user.UserName,
                 Blocked = user.Blocked,
                 PasswordExpirationPolicy = user.PasswordExpirationPolicy,
@@ -185,6 +188,7 @@ internal static class UserHandlers
             PhoneNumber = request.PhoneNumber,
             PhoneNumberConfirmed = request.PhoneNumberConfirmed ?? false,
             TwoFactorEnabled = request.TwoFactorEnabled ?? false,
+            TwoFactorPolicy = request.TwoFactorPolicy,
             UserName = request.UserName,
         };
         IdentityResult? result = null;
@@ -257,6 +261,7 @@ internal static class UserHandlers
         user.Email = request.Email;
         user.PhoneNumber = request.PhoneNumber;
         user.TwoFactorEnabled = request.TwoFactorEnabled;
+        user.TwoFactorPolicy = request.TwoFactorPolicy;
         user.PasswordExpirationPolicy = request.PasswordExpirationPolicy;
         user.Admin = request.IsAdmin;
         user.EmailConfirmed = request.EmailConfirmed;
