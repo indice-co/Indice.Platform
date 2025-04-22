@@ -535,7 +535,7 @@ internal static class UserHandlers
         if (user == null) {
             return TypedResults.NotFound();
         }
-        var device = await userManager.GetDeviceByIdAsync(user, userId);
+        var device = await userManager.GetDeviceByIdAsync(user, deviceId);
         if (device == null) {
             return TypedResults.NotFound();
         }

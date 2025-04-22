@@ -102,6 +102,38 @@ public class SmsTests
     }
 
     [Theory(Skip = "Sensitive Data")]
+    [InlineData("", "Hello from INDICE", "", "", "Indice")]
+    public async Task TestVonageSms(string phoneNumber, string body, string apiKey, string signatureSecret, string sender) {
+        var inMemorySettings = new Dictionary<string, string> {
+            ["Sms:ApiKey"] = apiKey,
+            ["Sms:SignatureSecret"] = signatureSecret,
+            ["Sms:Sender"] = sender,
+            ["Sms:SenderName"] = sender,
+            ["Sms:TestMode"] = true.ToString(),
+        };
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(inMemorySettings)
+            .Build();
+
+        var collection = new ServiceCollection()
+          .AddSingleton(configuration)
+          .AddOptions()
+          .Configure<SmsServiceVonageSettings>(configuration.GetSection(SmsServiceVonageSettings.Name))
+          .AddSmsServiceVonage(configuration);
+
+        var serviceProvider = collection.BuildServiceProvider();
+        var error = default(Exception);
+
+        try {
+            var service = serviceProvider.GetRequiredService<ISmsService>();
+            await service.SendAsync(phoneNumber, "subject", body);
+        } catch (Exception smsServiceException) {
+            error = smsServiceException;
+        }
+        Assert.Null(error);
+    }
+
+    [Theory(Skip = "Sensitive Data")]
     [InlineData("", "", "", "Test Subject", "Test Body", "Test")]
     public async Task TestMstatSms(string apiToken, string phoneNumber, string sender, string subject, string body, string senderName) {
 

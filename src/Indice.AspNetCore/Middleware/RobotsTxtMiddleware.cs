@@ -12,7 +12,7 @@ namespace Indice.AspNetCore.Middleware;
 /// <remarks>This code is taken from https://khalidabuhakmeh.com/robotstxt-middleware-aspnet-core</remarks>.
 internal class RobotsTxtMiddleware
 {
-    const string Default = @"User-Agent: *\nAllow: /";
+    const string Default = "User-Agent: *\nAllow: /";
     private readonly RequestDelegate _next;
     private readonly string _environmentName;
     private readonly string _rootPath;
