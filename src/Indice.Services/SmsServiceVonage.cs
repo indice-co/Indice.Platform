@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Security.Cryptography;
@@ -153,7 +152,7 @@ internal class VonageSmsRequest
 
     private static string GenerateSha256Signature(string data, string key) {
         var hash = HMACSHA256.HashData(Encoding.UTF8.GetBytes(key), Encoding.UTF8.GetBytes(data));
-        return BitConverter.ToString(hash).Replace("-", "");
+        return BitConverter.ToString(hash).Replace("-", string.Empty);
     }
 }
 
