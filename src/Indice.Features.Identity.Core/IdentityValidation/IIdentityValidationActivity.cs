@@ -147,9 +147,12 @@ public class RequiresTermsAcceptanceActivity : IdentityValidationActivityBase
 {
     /// <inheritdoc/>
     protected override async ValueTask<UserValidationRequirement?> GetResultAsync(UserValidationActivityContext activityContext) {
-        await ValueTask.CompletedTask;
+        await ValueTask.CompletedTask; 
+        
+        var configuration = activityContext.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
+        var requirePostSignInAcceptedTerms = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInAcceptedTerms)) == true;
         var hasAcceptedTerms = activityContext.User.Claims.Where(x => x.ClaimType == BasicClaimTypes.ConsentTerms).Select(x => bool.TrueString.Equals(x.ClaimValue, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
-        if (!hasAcceptedTerms) {
+        if (!hasAcceptedTerms && requirePostSignInAcceptedTerms) {
             return new UserValidationRequirement(UserActivityRequirementKind.RequiresAcceptanceOfTerms, "/AcceptTerms");
         }
         return null;

@@ -170,7 +170,7 @@ public static class IdentityBuilderExtensions
     /// <param name="otherAuthenticationMethods">The authentication methods to apply in the identity system.</param>
     /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
     public static IdentityBuilder AddAuthenticationMethodProvider(this IdentityBuilder builder, AuthenticationMethod authenticationMethod, params AuthenticationMethod[] otherAuthenticationMethods) {
-        var allMethods = (otherAuthenticationMethods ?? Array.Empty<AuthenticationMethod>()).Prepend(authenticationMethod);
+        var allMethods = (otherAuthenticationMethods ?? []).Prepend(authenticationMethod);
         foreach (var method in allMethods) {
             builder.Services.AddSingleton(method);
         }

@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -98,8 +97,6 @@ public abstract class BasePageModel : PageModel
     public virtual async Task SendChangeEmailConfirmationEmail(User user, string newEmail, string? returnUrl = null) {
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var token = await userManager.GenerateChangeEmailTokenAsync(user, newEmail);
-        var configuration = ServiceProvider.GetRequiredService<IConfiguration>();
-        var generalSettings = configuration.GetGeneralSettings();
         if (!string.IsNullOrEmpty(returnUrl) && InteractionService.IsValidReturnUrl(returnUrl)) {
             // if this is a login url use it to extract the client_id param but remove it from the email link
             // If a return url such as a login url is baked into the confirmation chanses are that it will

@@ -10,7 +10,7 @@ namespace Indice.Features.Identity.Core;
 /// <summary>Default implementation of <see cref="IAuthenticationMethodProvider"/> where authentication methods are statically configured.</summary>
 public class AuthenticationMethodProviderInMemory : IAuthenticationMethodProvider
 {
-    private readonly IEnumerable<AuthenticationMethod> _authenticationMethods;
+    private readonly AuthenticationMethod[] _authenticationMethods;
     private readonly IConfiguration _configuration;
     private readonly ExtendedUserManager<User> _userManager;
 
@@ -26,7 +26,7 @@ public class AuthenticationMethodProviderInMemory : IAuthenticationMethodProvide
         IConfiguration configuration,
         ExtendedUserManager<User> userManager
     ) {
-        _authenticationMethods = authenticationMethods ?? throw new ArgumentNullException(nameof(authenticationMethods));
+        _authenticationMethods = authenticationMethods?.OrderByDescending(x => x.SecurityLevel).ToArray() ?? throw new ArgumentNullException(nameof(authenticationMethods));
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         HubContext = multiFactorAuthenticationHubs?.FirstOrDefault();
@@ -36,10 +36,10 @@ public class AuthenticationMethodProviderInMemory : IAuthenticationMethodProvide
     public IHubContext<MultiFactorAuthenticationHub>? HubContext { get; }
 
     /// <inheritdoc />
-    public Task<IEnumerable<AuthenticationMethod>> GetAllMethodsAsync() => Task.FromResult(_authenticationMethods);
+    public Task<AuthenticationMethod[]> GetAllMethodsAsync() => Task.FromResult(_authenticationMethods);
 
     /// <inheritdoc />
-    /// <remarks>For now the supported authentication methods are <see cref="SmsAuthenticationMethod"/> and <see cref="BiometricsAuthenticationMethod"/>.</remarks>
+    /// <remarks>For now the supported authentication methods are <see cref="SmsAuthenticationMethod"/>, <see cref="TrustedDeviceAuthenticationMethod"/> and <see cref="AuthenticatorAppAuthenticationMethod"/>.</remarks>
     public async Task<AuthenticationMethod?> GetRequiredAuthenticationMethod(User user, bool? tryDowngradeAuthenticationMethod = false) {
         if (_authenticationMethods?.Count() == 0) {
             throw new InvalidOperationException("No authentication methods have been configured.");
@@ -51,7 +51,13 @@ public class AuthenticationMethodProviderInMemory : IAuthenticationMethodProvide
         }
         var trustedDevices = await _userManager.GetDevicesAsync(user, UserDeviceListFilter.TrustedNativeDevices());
         if (trustedDevices.Count > 0) {
-            selectedAuthenticationMethod = _authenticationMethods!.FirstOrDefault(x => x.Type == AuthenticationMethodType.Biometrics);
+            selectedAuthenticationMethod = _authenticationMethods!.FirstOrDefault(x => x.Type == AuthenticationMethodType.TrustedDevice);
+            return selectedAuthenticationMethod;
+        }
+        var authenticatorKey = await _userManager.GetAuthenticatorKeyAsync(user);
+        var authenticatorConfigured = !string.IsNullOrWhiteSpace(authenticatorKey);
+        if (authenticatorConfigured) {
+            selectedAuthenticationMethod = _authenticationMethods!.FirstOrDefault(x => x.Type == AuthenticationMethodType.AuthenticatorApp);
             return selectedAuthenticationMethod;
         }
         var phoneNumber = await _userManager.GetPhoneNumberAsync(user);

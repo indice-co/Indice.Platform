@@ -105,39 +105,41 @@ public class Fido2AuthenticationMethod : AuthenticationMethod
     }
 }
 
-/// <summary>Microsoft Authenticator authentication method.</summary>
-public class MicrosoftAuthenticatorAuthenticationMethod : AuthenticationMethod
+/// <summary>Authenticator app authentication method.</summary>
+public class AuthenticatorAppAuthenticationMethod : AuthenticationMethod, IAuthenticationMethodWithTokenProvider
 {
-    /// <summary>Creates a new instance of <see cref="MicrosoftAuthenticatorAuthenticationMethod"/> class.</summary>
+    /// <summary>Creates a new instance of <see cref="AuthenticatorAppAuthenticationMethod"/> class.</summary>
     /// <param name="displayName">The name for the UI.</param>
     /// <param name="description">A detailed description.</param>
     /// <param name="supportsMfa">Determines whether this authentication method participates in the MFA step.</param>
     /// <param name="enabled">Determines whether this authentication method is enabled.</param>
-    public MicrosoftAuthenticatorAuthenticationMethod(string displayName, string description, bool supportsMfa = true, bool enabled = true) : base(displayName, description, supportsMfa, enabled) {
-        Type = AuthenticationMethodType.MicrosoftAuthenticator;
+    public AuthenticatorAppAuthenticationMethod(string displayName, string description, bool supportsMfa = true, bool enabled = true) : base(displayName, description, supportsMfa, enabled) {
+        Type = AuthenticationMethodType.AuthenticatorApp;
         SecurityLevel = AuthenticationMethodSecurityLevel.High;
     }
+    /// <inheritdoc />
+    public string TokenProvider => TokenOptions.DefaultAuthenticatorProvider;
 }
 
-/// <summary>Biometrics authentication method.</summary>
-public class BiometricsAuthenticationMethod : AuthenticationMethod, IAuthenticationMethodWithChannel, IAuthenticationMethodWithDevices, IAuthenticationMethodWithTokenProvider
+/// <summary>Trusted device authentication method.</summary>
+public class TrustedDeviceAuthenticationMethod : AuthenticationMethod, IAuthenticationMethodWithChannel, IAuthenticationMethodWithDevices, IAuthenticationMethodWithTokenProvider
 {
-    /// <summary>Creates a new instance of <see cref="BiometricsAuthenticationMethod"/> class.</summary>
+    /// <summary>Creates a new instance of <see cref="TrustedDeviceAuthenticationMethod"/> class.</summary>
     /// <param name="displayName">The name for the UI.</param>
     /// <param name="description">A detailed description.</param>
     /// <param name="supportsMfa">Determines whether this authentication method participates in the MFA step.</param>
     /// <param name="enabled">Determines whether this authentication method is enabled.</param>
-    public BiometricsAuthenticationMethod(string displayName, string description, bool supportsMfa = true, bool enabled = true) : base(displayName, description, supportsMfa, enabled) {
-        Type = AuthenticationMethodType.Biometrics;
+    public TrustedDeviceAuthenticationMethod(string displayName, string description, bool supportsMfa = true, bool enabled = true) : base(displayName, description, supportsMfa, enabled) {
+        Type = AuthenticationMethodType.TrustedDevice;
         SecurityLevel = AuthenticationMethodSecurityLevel.High;
     }
 
     /// <inheritdoc />
-    public TotpDeliveryChannel DeliveryChannel { get; } = TotpDeliveryChannel.PushNotification;
+    public TotpDeliveryChannel DeliveryChannel => TotpDeliveryChannel.PushNotification;
     /// <inheritdoc />
     public IEnumerable<UserDevice> Devices { get; } = new List<UserDevice>();
     /// <inheritdoc />
-    public string TokenProvider { get; } = TokenOptions.DefaultPhoneProvider;
+    public string TokenProvider => TokenOptions.DefaultPhoneProvider;
 }
 
 /// <summary>Email authentication method.</summary>
@@ -154,7 +156,7 @@ public class EmailAuthenticationMethod : AuthenticationMethod, IAuthenticationMe
     }
 
     /// <inheritdoc />
-    public string TokenProvider { get; } = TokenOptions.DefaultEmailProvider;
+    public string TokenProvider => TokenOptions.DefaultEmailProvider;
     /// <inheritdoc />
     public TotpDeliveryChannel DeliveryChannel => TotpDeliveryChannel.Email;
 }

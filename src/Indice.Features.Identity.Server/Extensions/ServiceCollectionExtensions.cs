@@ -94,7 +94,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         services.TryAddScoped<IdentityMessageDescriber>();
         services.TryAddScoped<CallingCodesProvider>();
         services.TryAddScoped<IUserRequirementProvider<User>, DefaultUserRequirementProvider<User>>();
-        //services.AddScoped<IIdentityValidationActivity, RequiresTermsAcceptanceActivity>();
+        services.AddScoped<IIdentityValidationActivity, RequiresTermsAcceptanceActivity>();
         services.AddScoped<IIdentityValidationActivity, RequiresMfaOnboardingActivity>();
         services.AddScoped<IIdentityValidationActivity, RequiresEmailVerificationActivity>();
         services.AddScoped<IIdentityValidationActivity, RequiresPhoneNumberVerificationActivity>();
