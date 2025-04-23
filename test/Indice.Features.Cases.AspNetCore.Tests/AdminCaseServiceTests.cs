@@ -65,7 +65,7 @@ public class AdminCaseServiceTests : IDisposable
                 Data = [(FilterClause)"data.customerId::Contains::(string)667"]
             }
         };
-        var result = await adminCaseService.GetCases(Admin(), listOptions);
+        var result = await adminCaseService.GetCases(Admin().UserToActor(options.Value), listOptions);
 
         Assert.NotEmpty(result.Items);
     }
@@ -80,7 +80,7 @@ public class AdminCaseServiceTests : IDisposable
 
     private static ClaimsPrincipal Admin() {
         var claims = new List<Claim> {
-            new Claim(BasicClaimTypes.Scope, CasesApiConstants.Scope),
+            new Claim(BasicClaimTypes.Scope, CasesCoreConstants.DefaultScopeName),
             new Claim(BasicClaimTypes.Subject, "CE21AF5A-FEDD-4BD6-BAE3-B7473E8A219D"),
             new Claim(BasicClaimTypes.Email, "Case API"),
             new Claim(BasicClaimTypes.GivenName, "Case API"),

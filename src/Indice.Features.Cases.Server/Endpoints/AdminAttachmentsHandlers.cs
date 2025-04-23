@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using System.Security.Claims;
 using Indice.Features.Cases.Core.Services.Abstractions;
+using Indice.Features.Cases.Core;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Server.Endpoints;
 
@@ -9,10 +11,12 @@ namespace Indice.Features.Cases.Server.Endpoints;
 internal static class AdminAttachmentsHandler
 {
     public static async Task<Results<FileContentHttpResult, NotFound>> DownloadAttachment(
-        Guid attachmentId, 
-        IAdminCaseService adminCaseService, 
-        ClaimsPrincipal currentUser) {
-        var attachment = await adminCaseService.GetAttachmentById(currentUser, attachmentId);
+        Guid attachmentId,
+        IAdminCaseService adminCaseService,
+        ClaimsPrincipal currentUser,
+        IOptions<CasesOptions> casesOptions
+        ) {
+        var attachment = await adminCaseService.GetAttachmentById(attachmentId);
         if (attachment is null) {
             return TypedResults.NotFound();
         }

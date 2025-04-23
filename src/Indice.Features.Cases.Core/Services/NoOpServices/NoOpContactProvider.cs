@@ -1,11 +1,6 @@
-﻿using System.Security.Claims;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using Indice.Features.Cases.Core.Models;
+﻿using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services.Abstractions;
-using Indice.Security;
-using Indice.Serialization;
 using Indice.Types;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -22,23 +17,24 @@ internal class NoOpContactProvider : IContactProvider
         Environment = environment;
     }
 
-    public Task<ResultSet<Contact>> GetListAsync(ClaimsPrincipal user, ListOptions<ContactFilter> listOptions) =>
+    public Task<ResultSet<Contact>> GetListAsync(UserActor user, ListOptions<ContactFilter> listOptions) =>
         Environment.IsDevelopment() ?
             Task.FromResult(new ResultSet<Contact>([ToContact(user), JohnDoe(Options)], 2)) :
             Task.FromResult(new ResultSet<Contact>([ToContact(user)], 1));
 
 
-    public Task<Contact?> GetByReferenceAsync(ClaimsPrincipal user, string reference, string caseTypeCode) => 
+    public Task<Contact?> GetByReferenceAsync(UserActor user, string reference, string caseTypeCode) => 
         Task.FromResult<Contact?>(ToContact(user));
 
-    private Contact ToContact(ClaimsPrincipal claimsPrincipal) => new () {
-        UserId = claimsPrincipal.FindFirstValue(Options.UserClaimType),
-        Email = claimsPrincipal.FindFirstValue(BasicClaimTypes.Email),
-        Reference = claimsPrincipal.FindFirstValue(Options.ReferenceIdClaimType) ?? claimsPrincipal.FindFirstValue(Options.UserClaimType),
-        FirstName = claimsPrincipal.FindFirstValue(BasicClaimTypes.GivenName),
-        LastName = claimsPrincipal.FindFirstValue(BasicClaimTypes.FamilyName),
-        GroupId = claimsPrincipal.FindFirstValue(Options.GroupIdClaimType),
-        Tin = claimsPrincipal.FindFirstValue(Options.TinClaimType),
+    private Contact ToContact(UserActor workflowActor) => new () {
+        UserId = workflowActor.Id,
+        Email = workflowActor.Email,
+        Reference = workflowActor.Reference ?? workflowActor.Id,
+        FirstName = workflowActor.Name,
+        //todo check what to do with LastName
+        //LastName = workflowActor.FindFirstValue(BasicClaimTypes.FamilyName),
+        GroupId = workflowActor.GroupId,
+        Tin = workflowActor.Tin,
     };
 
     public static Contact JohnDoe(CasesOptions options) => new() {

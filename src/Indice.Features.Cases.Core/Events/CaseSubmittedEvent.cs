@@ -13,13 +13,13 @@ public class CaseSubmittedEvent : ICaseEvent
     public string CaseTypeCode { get; set; }
     
     /// <summary>The workflow Actor acting on the workflow.</summary>
-    public WorkflowActor WorkflowActor { get; set; }
+    public UserActor WorkflowActor { get; set; }
 
     /// <summary>Construct a new <see cref="CaseSubmittedEvent"/>.</summary>
     /// <param name="case">The case that has been submitted.</param>
     /// <param name="caseTypeCode">The case type code that has been submitted.</param>
     /// <param name="workflowActor">The actor acting on the workflow.</param>
-    public CaseSubmittedEvent(Case @case, string caseTypeCode, WorkflowActor workflowActor) {
+    public CaseSubmittedEvent(Case @case, string caseTypeCode, UserActor workflowActor) {
         Case = @case;
         CaseTypeCode = caseTypeCode;
         WorkflowActor = workflowActor;

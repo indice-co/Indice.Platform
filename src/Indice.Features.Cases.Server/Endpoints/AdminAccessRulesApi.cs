@@ -32,7 +32,7 @@ internal static class AdminAccessRulesApi
                 .RequireAuthenticatedUser()
                 .AddAuthenticationSchemes("Bearer")
                 .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-                .RequireCasesAccess(CasesAccessLevel.Manager))
+                .RequireCasesAccess(CasesAccessLevel.Manage))
             .WithHandledException<BusinessException>(); // equivalent to BeCasesManager
 
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
@@ -48,13 +48,13 @@ internal static class AdminAccessRulesApi
         group.MapPost("access-rules", AdminAccessRulesHandlers.CreateAccessRule)
             .WithName(nameof(AdminAccessRulesHandlers.CreateAccessRule))
             .WithSummary("Add a new Access rule for admin Users.")
-            .RequireAuthorization(pb => pb.RequireCasesAccess(CasesAccessLevel.Admin))
+            .RequireAuthorization(pb => pb.RequireCasesAccess(CasesAccessLevel.Administer))
             .WithParameterValidation<AddAccessRuleRequest>();
 
         group.MapPost("access-rules/batch", AdminAccessRulesHandlers.CreateAccessRulesBatch)
             .WithName(nameof(AdminAccessRulesHandlers.CreateAccessRulesBatch))
             .WithSummary("Add a new Access rule for admin Users.")
-            .RequireAuthorization(pb => pb.RequireCasesAccess(CasesAccessLevel.Admin))
+            .RequireAuthorization(pb => pb.RequireCasesAccess(CasesAccessLevel.Administer))
             .WithParameterValidation<List<AddAccessRuleRequest>>();
 
         group.MapPut("access-rules/{ruleId}/{accessLevel}", AdminAccessRulesHandlers.UpdateAccessRule)
@@ -77,13 +77,13 @@ internal static class AdminAccessRulesApi
         group.MapPut("cases/{caseId}/access-rules/batch", AdminAccessRulesHandlers.UpdateCaseAccessRulesBatch)
             .WithName(nameof(AdminAccessRulesHandlers.UpdateCaseAccessRulesBatch))
             .WithSummary("Update a batch of Access rules for a case.")
-            .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Admin))
+            .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Administer))
             .WithParameterValidation<List<AddCaseAccessRuleRequest>>();
         
         group.MapPut("cases/{caseId}/access-rules/replace", AdminAccessRulesHandlers.ReplaceAccessRulesUser)
             .WithName(nameof(AdminAccessRulesHandlers.ReplaceAccessRulesUser))
             .WithSummary("Replace user to the specified case with another")
-            .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Admin))
+            .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Administer))
             .WithParameterValidation<List<AddCaseAccessRuleRequest>>();
 
         return routes;

@@ -23,6 +23,9 @@ public sealed record Actor
 
     /// <summary>The name of the user.</summary>
     public string? Name { get; set; }
+    
+    /// <summary>The name of the user.</summary>
+    public string? Tin { get; init; }
 
     /// <summary>The email of the user.</summary>
     public string? Email { get; set; }

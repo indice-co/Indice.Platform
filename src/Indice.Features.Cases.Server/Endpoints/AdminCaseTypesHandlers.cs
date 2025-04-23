@@ -1,18 +1,23 @@
 ﻿using System.Security.Claims;
+using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Services.Abstractions;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Server.Endpoints;
 
 internal static class AdminCaseTypesHandlers
 {
 
-    public static async Task<Results<Ok<ResultSet<CaseTypePartial>>, NotFound>> GetCaseTypesList(ICaseTypeService caseTypeService, ClaimsPrincipal User, bool canCreate = false) {
-        var caseTypes = await caseTypeService.Get(User, canCreate);
+    public static async Task<Results<Ok<ResultSet<CaseTypePartial>>, NotFound>> GetCaseTypesList(ICaseTypeService caseTypeService, 
+        ClaimsPrincipal user,
+        IOptions<CasesOptions> casesOptions, 
+        bool canCreate = false) {
+        var caseTypes = await caseTypeService.Get(user.UserToActor(casesOptions.Value), canCreate);
         if (caseTypes == null) {
                return TypedResults.NotFound();
         }

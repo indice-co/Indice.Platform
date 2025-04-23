@@ -18,28 +18,27 @@ public interface IMyCaseService
     /// <param name="customer">The customer metadata that initiated the case.</param>
     /// <param name="metadata">The metadata the case might have.</param>
     /// <param name="channel">The channel the case was created from.</param>
-    Task<CreateCaseResponse> CreateDraft(ClaimsPrincipal user, string caseTypeCode, string? groupId, ContactMeta? customer, Dictionary<string, string> metadata, string? channel);
+    Task<CreateCaseResponse> CreateDraft(UserActor user, string caseTypeCode, string? groupId, ContactMeta? customer, Dictionary<string, string> metadata, string? channel);
 
     /// <summary>Update the case with the case data and does a json instance-schema validation of the case type's schema (<see cref="CaseType.DataSchema"/>).</summary>
     /// <param name="user">The user that will update the case.</param>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="data">The case data (as defined by JSON Schema in CaseType).</param>
-    Task UpdateData(ClaimsPrincipal user, Guid caseId, dynamic data);
+    Task UpdateData(UserActor user, Guid caseId, dynamic data);
 
     /// <summary>Submit the case. Case must be in <strong>Case.Draft</strong> mode.</summary>
     /// <param name="user">The user that initiated the submission.</param>
     /// <param name="caseId">The Id of the case.</param>
-    Task Submit(ClaimsPrincipal user, Guid caseId);
+    Task Submit(UserActor user, Guid caseId);
 
     /// <summary>Get <see cref="Case"/> for a user by its Id.</summary>
-    /// <param name="user">The user that creates the request.</param>
     /// <param name="caseId">The Id of the case.</param>
-    Task<Case?> GetCaseById(ClaimsPrincipal user, Guid caseId);
+    Task<Case?> GetCaseById(Guid caseId);
 
     /// <summary>Get the cases of the User.</summary>
     /// <param name="user">The Id of the user to retrieve the cases.</param>
     /// <param name="options">The user list options.</param>
-    Task<ResultSet<MyCasePartial>> GetCases(ClaimsPrincipal user, ListOptions<GetMyCasesListFilter> options);
+    Task<ResultSet<MyCasePartial>> GetCases(UserActor user, ListOptions<GetMyCasesListFilter> options);
 
     /// <summary>Gets a case type</summary>
     /// <param name="caseTypeCode">The case type code</param>

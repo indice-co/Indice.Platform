@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Data.Models;
 using Indice.Features.Cases.Core.Models;
@@ -25,7 +26,8 @@ internal static class CasesDbContextTestExtensions
                 new Claim("email", "tester@testakis.gr"),
 
             ], "test", "name", "role"));
-
+        var casesOptions = new CasesOptions();
+        
         // put seed logic here
         var caseType = new DbCaseType {
             Id = Guid.NewGuid(),
@@ -37,10 +39,10 @@ internal static class CasesDbContextTestExtensions
         dbContext.Cases.AddRange(new DbCase {
             CaseTypeId = caseType.Id,
             Channel = "web",
-            CreatedBy = AuditMeta.Create(principal),
+            CreatedBy = AuditMeta.Create(principal.UserToActor(casesOptions)),
             Versions = new List<DbCaseData> {
                 new DbCaseData {
-                    CreatedBy = AuditMeta.Create(principal),
+                    CreatedBy = AuditMeta.Create(principal.UserToActor(casesOptions)),
                     Data = new { test = true, customerId = 123 }
                 }
             }
@@ -48,10 +50,10 @@ internal static class CasesDbContextTestExtensions
         new DbCase {
             CaseTypeId = caseType.Id,
             Channel = "web",
-            CreatedBy = AuditMeta.Create(principal),
+            CreatedBy = AuditMeta.Create(principal.UserToActor(casesOptions)),
             Versions = new List<DbCaseData> {
                 new DbCaseData {
-                    CreatedBy = AuditMeta.Create(principal),
+                    CreatedBy = AuditMeta.Create(principal.UserToActor(casesOptions)),
                     Data = new { test = true, customerId = 123 }
                 }
             }
@@ -60,10 +62,10 @@ internal static class CasesDbContextTestExtensions
         new DbCase {
             CaseTypeId = caseType.Id,
             Channel = "web",
-            CreatedBy = AuditMeta.Create(principal),
+            CreatedBy = AuditMeta.Create(principal.UserToActor(casesOptions)),
             Versions = new List<DbCaseData> {
                 new DbCaseData {
-                    CreatedBy = AuditMeta.Create(principal),
+                    CreatedBy = AuditMeta.Create(principal.UserToActor(casesOptions)),
                     Data = new { test = true, customerId = 555 }
                 }
             }
@@ -72,10 +74,10 @@ internal static class CasesDbContextTestExtensions
         new DbCase {
             CaseTypeId = caseType.Id,
             Channel = "web",
-            CreatedBy = AuditMeta.Create(principal),
+            CreatedBy = AuditMeta.Create(principal.UserToActor(casesOptions)),
             Versions = new List<DbCaseData> {
                 new DbCaseData {
-                    CreatedBy = AuditMeta.Create(principal),
+                    CreatedBy = AuditMeta.Create(principal.UserToActor(casesOptions)),
                     Data = new { test = true, customerId = 667 }
                 }
             }
@@ -84,10 +86,10 @@ internal static class CasesDbContextTestExtensions
         new DbCase {
             CaseTypeId = caseType.Id,
             Channel = "mobile",
-            CreatedBy = AuditMeta.Create(principal),
+            CreatedBy = AuditMeta.Create(principal.UserToActor(casesOptions)),
             Versions = new List<DbCaseData> {
                 new DbCaseData {
-                    CreatedBy = AuditMeta.Create(principal),
+                    CreatedBy = AuditMeta.Create(principal.UserToActor(casesOptions)),
                     Data = new { test = true, customerId = 123 }
                 }
             }
