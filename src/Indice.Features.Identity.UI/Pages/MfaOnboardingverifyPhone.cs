@@ -12,7 +12,7 @@ namespace Indice.Features.Identity.UI.Pages;
 
 /// <summary>Page model for the MFA onboarding verify phone screen.</summary>
 [Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ExtendedValidationScheme)]
-[ExtendedValidationRequirementFilter<User>(UserActivityRequirementKind.RequiresMfaOnboarding)]
+[UserActivityRequirementFilter<User>(UserActivityRequirementKind.RequiresMfaOnboarding)]
 [IdentityUI(typeof(MfaOnboardingVerifyPhoneModel))]
 [SecurityHeaders]
 [ValidateAntiForgeryToken]

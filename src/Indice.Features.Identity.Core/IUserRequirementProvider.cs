@@ -36,27 +36,29 @@ public static class IUserRequirementProviderExtensions
 /// <summary>
 /// User activity requirement.
 /// </summary>
-/// <param name="Kind"></param>
-/// <param name="PageName"></param>
-public record UserValidationRequirement(UserActivityRequirementKind Kind, string? PageName) { 
-    private static readonly UserValidationRequirement _None = new UserValidationRequirement(UserActivityRequirementKind.None, null);
+/// <param name="Kind">The requirement name to satisfy.</param>
+/// <param name="PageName">The page route that fulfills the requirement.</param>
+public record UserValidationRequirement(string Kind, string? PageName) { 
+    private static readonly UserValidationRequirement _None = new(UserActivityRequirementKind.None, null);
     /// <summary>None.</summary>
     public static UserValidationRequirement None => _None;
 }
 
 /// <summary>Describes the required validation activity needed to be executed on the current principal while partially logged in, before he can proceed with the full login.</summary>
-public enum UserActivityRequirementKind
+public static class UserActivityRequirementKind
 {
     /// <summary>None.</summary>
-    None,
+    public const string None = nameof(None);
     /// <summary>Requires phone number verification.</summary>
-    RequiresPhoneNumberVerification,
+    public const string RequiresPhoneNumberVerification = nameof(RequiresPhoneNumberVerification);
     /// <summary>Requires email verification.</summary>
-    RequiresEmailVerification,
+    public const string RequiresEmailVerification = nameof(RequiresEmailVerification);
     /// <summary>Requires password change.</summary>
-    RequiresPasswordChange,
+    public const string RequiresPasswordChange = nameof(RequiresPasswordChange);
     /// <summary>MFA on-boarding.</summary>
-    RequiresMfaOnboarding
+    public const string RequiresMfaOnboarding = nameof(RequiresMfaOnboarding);
+    /// <summary>Requires Acceptance of terms and conditions.</summary>
+    public const string RequiresAcceptanceOfTerms = nameof(RequiresAcceptanceOfTerms);
 }
 
 
@@ -85,6 +87,6 @@ public class DefaultUserRequirementProvider<TUser> : IUserRequirementProvider<TU
         var context = new UserValidationActivityContext(user, httpContext);
         var start = validators[0];
         await start.HandleAsync(context);
-        return context.Result?.Requirement ?? UserValidationRequirement.None;
+        return context.Result ?? UserValidationRequirement.None;
     }
 }

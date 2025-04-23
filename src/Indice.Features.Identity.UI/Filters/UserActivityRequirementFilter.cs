@@ -11,14 +11,14 @@ namespace Indice.Features.Identity.UI.Filters;
 /// A filter that is used to enforce the extended validation state machine the extended validation scheme.
 /// </summary>
 /// <typeparam name="TUser"></typeparam>
-public class ExtendedValidationRequirementFilter<TUser> : ResultFilterAttribute where TUser : User
+public class UserActivityRequirementFilter<TUser> : ResultFilterAttribute where TUser : User
 {
     /// <summary>
-    /// Creates a new instance of <see cref="ExtendedValidationRequirementFilter{TUser}"/> class.
+    /// Creates a new instance of <see cref="UserActivityRequirementFilter{TUser}"/> class.
     /// </summary>
     /// <param name="requirement">The user requirement that is associated to the executing page.</param>
     /// <param name="autoRedirect">Auto redirect to next state</param>
-    public ExtendedValidationRequirementFilter(UserActivityRequirementKind requirement, bool autoRedirect = false) {
+    public UserActivityRequirementFilter(string requirement, bool autoRedirect = false) {
         RequirementKind = requirement;
         AutoRedirect = autoRedirect;
     }
@@ -27,7 +27,7 @@ public class ExtendedValidationRequirementFilter<TUser> : ResultFilterAttribute 
     /// The user state that is associated to the executing page.
     /// </summary>
     /// <remarks>This is used to guard against manual overriding the current flow by changing the page url.</remarks>
-    public UserActivityRequirementKind RequirementKind { get; }
+    public string RequirementKind { get; }
     /// <summary>
     /// Auto redirect to next state.
     /// </summary>

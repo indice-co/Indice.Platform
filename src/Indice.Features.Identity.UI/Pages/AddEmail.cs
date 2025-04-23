@@ -12,7 +12,7 @@ namespace Indice.Features.Identity.UI.Pages;
 
 /// <summary>Page model for the extended validation add email screen.</summary>
 [Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ExtendedValidationScheme)]
-[ExtendedValidationRequirementFilter<User>(UserActivityRequirementKind.RequiresEmailVerification)]
+[UserActivityRequirementFilter<User>(UserActivityRequirementKind.RequiresEmailVerification)]
 [IdentityUI(typeof(AddEmailModel))]
 [SecurityHeaders]
 [ValidateAntiForgeryToken]
