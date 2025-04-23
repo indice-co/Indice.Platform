@@ -11,17 +11,19 @@ namespace Indice.Features.Cases.Core.Events.Handlers;
 /// </summary>
 internal class StartWorkflowHandler : IPlatformEventHandler<CaseSubmittedEvent>
 {
-    public StartWorkflowHandler(ICasesWorkflowManager workflowManager) {
-        WorkflowManager = workflowManager;
-    }
-
     public ICasesWorkflowManager WorkflowManager { get; }
+    public IPlatformEventService PlatformEventService { get; }
+    
+    public StartWorkflowHandler(ICasesWorkflowManager workflowManager, IPlatformEventService platformEventService) {
+        WorkflowManager = workflowManager;
+        PlatformEventService = platformEventService;
+    }
 
     /// <inheritdoc/>
     public async Task Handle(CaseSubmittedEvent @event, PlatformEventArgs args) {
-        //args.ThrowOnError = true; // notify execution to break everythig.!!! TODO: This is a code smell
         var result = await WorkflowManager.StartWorkflowAsync(@event.Case.Id, @event.CaseTypeCode, @event.WorkflowActor);
         if (!result.Success) {
+            await PlatformEventService.Publish(new StartWorkflowFaultedEvent(@event.Case, @event.CaseTypeCode, @event.WorkflowActor, result.Message));
             throw new BusinessException(result.Message);
         }
     }
