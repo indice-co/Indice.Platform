@@ -149,7 +149,7 @@ public class RequiresTermsAcceptanceActivity : IdentityValidationActivityBase
     protected override async ValueTask<UserValidationRequirement?> GetResultAsync(UserValidationActivityContext activityContext) {
         await ValueTask.CompletedTask;
         var hasAcceptedTerms = activityContext.User.Claims.Where(x => x.ClaimType == BasicClaimTypes.ConsentTerms).Select(x => bool.TrueString.Equals(x.ClaimValue, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
-        if (hasAcceptedTerms) {
+        if (!hasAcceptedTerms) {
             return new UserValidationRequirement(UserActivityRequirementKind.RequiresAcceptanceOfTerms, "/AcceptTerms");
         }
         return null;

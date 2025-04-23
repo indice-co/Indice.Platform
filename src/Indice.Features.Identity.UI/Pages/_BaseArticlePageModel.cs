@@ -45,7 +45,7 @@ public abstract class BaseArticlePageModel : PageModel
         if (file.Exists) {
             markdownPath = markdownPath.Replace(fileName, localizedFileName);
         } else {
-            file = fileProvider.GetFileInfo(markdownPath.TrimStart('~', '/').Replace(fileName, localizedFileName));
+            file = fileProvider.GetFileInfo(markdownPath.TrimStart('~', '/'));
         }
         if (raw.HasValue && raw == true) {
             var markdownProcessor = ServiceProvider.GetRequiredService<IMarkdownProcessor>();
