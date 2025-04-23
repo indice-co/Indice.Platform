@@ -14,5 +14,8 @@ internal static class CaseServerConstants
 
         /// <summary>A user must have the BeCasesAdministrator role to be authorized for AdminCaseTypes Feature </summary>
         public const string BeCasesAdministrator = nameof(BeCasesAdministrator);
+
+        /// <summary>A user must have the BeCasesAdministrator role to be authorized for AdminCaseTypes Feature </summary>
+        public const string BeCasesMember = nameof(BeCasesMember);
     }
 }

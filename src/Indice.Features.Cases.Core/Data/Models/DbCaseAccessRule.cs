@@ -1,4 +1,6 @@
-﻿namespace Indice.Features.Cases.Core.Data.Models;
+﻿using System.Linq.Expressions;
+
+namespace Indice.Features.Cases.Core.Data.Models;
 
 #pragma warning disable 1591
 public class DbCaseAccessRule
@@ -20,5 +22,19 @@ public class DbCaseAccessRule
     public virtual DbCaseType? CaseType { get; set; }
     public virtual DbCheckpointType? CheckpointType { get; set; }
     public virtual DbCase? Case { get; set; }
+
+    public static Expression<Func<DbCaseAccessRule, bool>> AccessMatchPredicate(string? userId, List<string> userRoles, string? groupId) {
+        return x =>
+            (userId != null && x.MemberUserId == userId.ToString()) ||
+            (userRoles.Any() && userRoles.Contains(x.MemberRole!)) ||
+            (groupId != null && x.MemberGroupId == groupId);
+    }
+    public static Expression<Func<DbCaseAccessRule, bool>> RuleMatchPredicate(Guid caseId, Guid caseTypeId, Guid checkpointTypeId) {
+        return x =>
+                        (x.RuleCaseId == caseId && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == null) ||
+                        (x.RuleCaseId == null && x.RuleCaseTypeId == caseTypeId && x.RuleCheckpointTypeId == null) ||
+                        (x.RuleCaseId == null && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == checkpointTypeId) ||
+                        (x.RuleCaseId == caseId && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == checkpointTypeId);
+    }
 }
 #pragma warning restore 1591

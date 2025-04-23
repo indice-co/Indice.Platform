@@ -33,7 +33,7 @@ internal class NotificationSubscriptionService : INotificationSubscriptionServic
 
     public async Task Subscribe(List<Guid> caseTypeIds, NotificationSubscription subscriber) {
         if (string.IsNullOrEmpty(subscriber.GroupId)) throw new ArgumentException($"No Group found for subscriber: \"{subscriber.Email}\".");
-        if (string.IsNullOrEmpty(subscriber.Email)) throw new ArgumentNullException(nameof(subscriber.Email));
+        if (string.IsNullOrEmpty(subscriber.Email)) throw new ArgumentException($"Subscriber email cannot be null or empty.");
         // remove existing subscriptions
         var entitiesToRemove = await _dbContext.NotificationSubscriptions
             .AsQueryable()

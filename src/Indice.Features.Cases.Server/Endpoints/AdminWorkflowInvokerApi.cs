@@ -26,7 +26,8 @@ internal static class AdminWorkflowInvokerApi
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes("Bearer")
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-            .RequireCasesAccess(Authorization.CasesAccessLevel.Manager)
+            .RequireCasesAccess(Authorization.CasesAccessLevel.Manage)
+            //TODO: review with Nikos
         ).WithHandledException<BusinessException>();
 
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);

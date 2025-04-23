@@ -207,6 +207,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
                 ownerTins,
                 from ? new Date(from) : undefined,
                 to ? new Date(to) : undefined,
+                undefined,
                 caseTypeCodes,
                 checkpointTypeCodes,
                 groupIds,

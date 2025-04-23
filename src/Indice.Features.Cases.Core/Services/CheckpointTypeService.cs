@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Features.Cases.Core.Data.Models;
+using Indice.Features.Cases.Core.Models;
 
 namespace Indice.Features.Cases.Core.Services;
 
@@ -17,15 +18,12 @@ internal class CheckpointTypeService : ICheckpointTypeService
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
-    public async Task<List<CheckpointType>> GetDistinctCheckpointTypes(ClaimsPrincipal user) {
-        if (user.IsAdmin()) {
+    public async Task<List<CheckpointType>> GetDistinctCheckpointTypes(UserActor user) {
+        if (user.IsAdmin) {
             return await GetAdminDistinctCheckpointsTypes();
         }
 
-        var roleClaims = user.Claims
-            .Where(c => c.Type == BasicClaimTypes.Role)
-            .Select(c => c.Value)
-            .ToList();
+        var roleClaims = user.Roles;
 
         var checkpointTypeIds = await _dbContext.CaseAccessRules
             .AsQueryable()

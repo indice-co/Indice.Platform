@@ -3,8 +3,10 @@ using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 using Indice.Events;
 using Indice.Features.Cases.Core.Data;
+using Indice.Features.Cases.Core.Data.Models;
 using Indice.Features.Cases.Core.Events;
 using Indice.Features.Cases.Core.Exceptions;
 using Indice.Features.Cases.Core.Models;
@@ -14,7 +16,6 @@ using Indice.Security;
 using Indice.Types;
 using Json.Patch;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Core.Services;
@@ -36,7 +37,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         _platformEventService = platformEventService ?? throw new ArgumentNullException(nameof(platformEventService));
     }
 
-    public async Task<CreateCaseResponse> CreateDraft(ClaimsPrincipal user,
+    public async Task<CreateCaseResponse> CreateDraft(UserActor user,
         string caseTypeCode,
         string? groupId,
         ContactMeta? customer,
@@ -54,7 +55,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return new() { Id = entity.Id, Created = DateTimeOffset.UtcNow };
     }
 
-    public async Task UpdateData(ClaimsPrincipal user, Guid caseId, JsonNode data) {
+    public async Task UpdateData(UserActor user, Guid caseId, JsonNode data) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
         ArgumentNullException.ThrowIfNull(data);
@@ -65,10 +66,10 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     /// Patches the <strong>CaseData.Data</strong> with the provided JsonNode performing add, replace and remove operations
     /// </summary>
     /// <remarks>For example usages see https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API.</remarks>
-    public async Task PatchCaseData(ClaimsPrincipal user, Guid caseId, JsonNode patch) {
+    public async Task PatchCaseData(UserActor user, Guid caseId, JsonNode patch, bool patchPublicData) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
-        var caseData = (await GetCaseById(user, caseId, false)).DataAsJsonNode();
+        var caseData = (await GetCaseById(caseId, patchPublicData, false)).DataAsJsonNode();
 
         await _adminCaseMessageService.Send(caseId, user, new Message { Data = caseData.Merge(patch) });
     }
@@ -78,12 +79,12 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     /// https://datatracker.ietf.org/doc/html/rfc6902#appendix-A
     /// </summary>
     /// <remarks>For example usages see https://indice.visualstudio.com/Platform/_wiki/wikis/Platform.wiki/1613/Patch-Case-Data-API.</remarks>
-    public async Task PatchCaseData(ClaimsPrincipal user, Guid caseId, JsonPatch patch) {
+    public async Task PatchCaseData(UserActor user, Guid caseId, JsonPatch operations, bool patchPublicData) {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
-        var caseData = (await GetCaseById(user, caseId, false)).DataAsJsonNode();
+        var caseData = (await GetCaseById(caseId, patchPublicData, false)).DataAsJsonNode();
 
-        var patchResult = patch.Apply(caseData);
+        var patchResult = operations.Apply(caseData);
         if (!patchResult.IsSuccess) {
             throw new InvalidOperationException($"Could not apply JSON Patch with error: {patchResult.Error}");
         }
@@ -91,7 +92,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         await _adminCaseMessageService.Send(caseId, user, new Message { Data = patchResult.Result });
     }
 
-    public async Task Submit(ClaimsPrincipal user, Guid caseId) {
+    public async Task Submit(UserActor user, Guid caseId) {
         ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
 
         var @case = await DbContext
@@ -99,7 +100,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             .Include(c => c.CaseType)
             .FirstOrDefaultAsync(c => c.Id == caseId);
         if (@case == null) {
-            throw new ArgumentNullException(nameof(@case), @"Case does not exist.");
+            throw new ArgumentNullException(nameof(caseId), @"Case does not exist.");
         }
         if (!@case.Draft) {
             throw new BusinessException("Case is submitted."); // todo proper exception (BadRequest)
@@ -111,33 +112,31 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         await _platformEventService.Publish(new CaseSubmittedEvent(new Case {
             Id = @case.Id,
             // TODO: do a proper caseDb to case mapping
-        }, @case.CaseType.Code, new WorkflowActor {
-            Id = @case.CreatedBy.Id,
+        }, @case.CaseType.Code,
+        new UserActor {
+            Id = @case!.CreatedBy!.Id!,
             Reference = @case.Owner.Reference,
-            GroupId = user.FindFirstValue(Options.GroupIdClaimType),
-            Email = @case.CreatedBy.Email,
+            GroupId = user.GroupId,
             Name = @case.CreatedBy.Name,
+            Tin = user.Tin,
+            Email = @case.CreatedBy.Email,
             CurrentCulture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName,
         }));
     }
 
-    public async Task<ResultSet<CasePartial>> GetCases(ClaimsPrincipal user, ListOptions<GetCasesListFilter> options) {
+    public async Task<ResultSet<CasePartial>> GetCases(UserActor user, ListOptions<GetCasesListFilter> options) {
 
         options.Filter.ShowAll ??= Options.ByPassAccessRulesForElevatedUsers;
 
         // if client is systemic or admin, then bypass access rule checks since no filtering is required.
-        var canOverrideAccessRules =
-            user.HasRoleClaim(BasicRoleNames.CasesAdministrator) ||
-            user.IsAdmin() ||
-            user.IsSystemClient();
-
-
+        //TODO: this should be a handler method
+        var canOverrideAccessRules = user.IsSystemClient || user.IsAdmin;
         //by default we use access rules
         var ignoreAccessRules = canOverrideAccessRules && options.Filter.ShowAll == true;
 
-        var userId = user.FindSubjectIdOrClientId();
-        var inputGroupId = user.FindFirstValue(Options.GroupIdClaimType);
-        var userRoles = user.GetUserRoles();
+        var userId = user.Id;
+        var inputGroupId = user.GroupId;
+        var userRoles = user.Roles;
 
         var queryCases = DbContext.Cases
             .AsNoTracking()
@@ -183,71 +182,55 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                     AccessLevel = 111
                 });
         } else {
+            var accessMatch = Data.Models.DbCaseAccessRule.AccessMatchPredicate(userId, userRoles, inputGroupId);
             query = (from @case in queryCases
                      join checkpoint in DbContext.Checkpoints
                         on @case.CheckpointId equals checkpoint.Id
 
-                     let caseAccess = DbContext.CaseAccessRules.Where(x =>
-                                    x.RuleCaseId == @case.Id && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == null &&
-                                    ((userId != null && x.MemberUserId == userId.ToString()) ||
-                                    (userRoles.Any() && userRoles.Contains(x.MemberRole!)) ||
-                                    (inputGroupId != null && x.MemberGroupId == inputGroupId))
-                                    )
+                     let caseAccess = DbContext.CaseAccessRules
+                                    .Where(accessMatch)
+                                    .Where(x => x.RuleCaseId == @case.Id && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == null)
                                     .Select(x => x.AccessLevel)
                                     .FirstOrDefault()
 
-                     let CaseTypeAccess = DbContext.CaseAccessRules.Where(x =>
-                                     x.RuleCaseId == null && x.RuleCaseTypeId == @case.CaseTypeId && x.RuleCheckpointTypeId == null &&
-                                     ((userId != null && x.MemberUserId == userId.ToString()) ||
-                                     (userRoles.Any() && userRoles.Contains(x.MemberRole!)) ||
-                                     (inputGroupId != null && x.MemberGroupId == inputGroupId)))
+                     let CaseTypeAccess = DbContext.CaseAccessRules
+                                    .Where(accessMatch)
+                                    .Where(x => x.RuleCaseId == null && x.RuleCaseTypeId == @case.CaseTypeId && x.RuleCheckpointTypeId == null)
                                     .Select(x => x.AccessLevel)
                                     .FirstOrDefault()
-                     let CheckpointIdAccess = DbContext.CaseAccessRules.Where(x =>
-                                    x.RuleCaseId == null && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId &&
-                                     ((userId != null && x.MemberUserId == userId.ToString()) ||
-                                     (userRoles.Any() && userRoles.Contains(x.MemberRole!)) ||
-                                     (inputGroupId != null && x.MemberGroupId == inputGroupId)))
+
+                     let CheckpointIdAccess = DbContext.CaseAccessRules
+                                    .Where(accessMatch)
+                                    .Where(x => x.RuleCaseId == null && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId)
                                     .Select(x => x.AccessLevel)
                                     .FirstOrDefault()
-                     let caseCheckpointIdAccess = DbContext.CaseAccessRules.Where(x =>
-                                      x.RuleCaseId == @case.Id && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId &&
-                                      ((userId != null && x.MemberUserId == userId.ToString()) ||
-                                      (userRoles.Any() && userRoles.Contains(x.MemberRole!)) ||
-                                      (inputGroupId != null && x.MemberGroupId == inputGroupId)))
-                                     .Select(x => x.AccessLevel)
-                                     .FirstOrDefault()
 
-                     let caseAccessCondition = DbContext.CaseAccessRules.Where(x =>
-                                    x.RuleCaseId == @case.Id && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == null &&
-                                      ((userId != null && x.MemberUserId == userId.ToString()) ||
-                                      (userRoles.Any() && userRoles.Contains(x.MemberRole!)) ||
-                                      (inputGroupId != null && x.MemberGroupId == inputGroupId)))
+                     let caseCheckpointIdAccess = DbContext.CaseAccessRules
+                                    .Where(accessMatch)
+                                    .Where(x => x.RuleCaseId == @case.Id && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId)
+                                    .Select(x => x.AccessLevel)
+                                    .FirstOrDefault()
+
+                     let caseAccessCondition = DbContext.CaseAccessRules
+                                    .Where(accessMatch)
+                                    .Where(x => x.RuleCaseId == @case.Id && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == null)
                                     .Select(x => x.AccessLevel)
                                     .Any()
-                     let CaseTypeCondition = DbContext.CaseAccessRules.Where(x =>
-                                     x.RuleCaseId == null && x.RuleCaseTypeId == @case.CaseTypeId && x.RuleCheckpointTypeId == null &&
-                                     ((userId != null && x.MemberUserId == userId.ToString()) ||
-                                     (userRoles.Any() && userRoles.Contains(x.MemberRole!)) ||
-                                     (inputGroupId != null && x.MemberGroupId == inputGroupId)))
+                     let CaseTypeCondition = DbContext.CaseAccessRules
+                                    .Where(accessMatch)
+                                    .Where(x => x.RuleCaseId == null && x.RuleCaseTypeId == @case.CaseTypeId && x.RuleCheckpointTypeId == null)
                                     .Select(x => x.AccessLevel)
                                     .Any()
-                     let CheckpointIdACondition = DbContext.CaseAccessRules.Where(x =>
-                                    x.RuleCaseId == null && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId &&
-                                    ((userId != null && x.MemberUserId == userId.ToString()) ||
-                                    (userRoles.Any() && userRoles.Contains(x.MemberRole!)) ||
-                                    (inputGroupId != null && x.MemberGroupId == inputGroupId)))
+                     let CheckpointIdACondition = DbContext.CaseAccessRules
+                                    .Where(accessMatch)
+                                    .Where(x => x.RuleCaseId == null && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId)
                                     .Select(x => x.AccessLevel)
                                     .Any()
-
-                     let caseCheckpointIdCondition = DbContext.CaseAccessRules.Where(x =>
-                                    x.RuleCaseId == @case.Id && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId &&
-                                  ((userId != null && x.MemberUserId == userId.ToString()) ||
-                                  (userRoles.Any() && userRoles.Contains(x.MemberRole!)) ||
-                                  (inputGroupId != null && x.MemberGroupId == inputGroupId)))
-                                 .Select(x => x.AccessLevel)
-                                 .Any()
-
+                     let caseCheckpointIdCondition = DbContext.CaseAccessRules
+                                    .Where(accessMatch)
+                                    .Where(x => x.RuleCaseId == @case.Id && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId)
+                                    .Select(x => x.AccessLevel)
+                                    .Any()
                      where (caseAccessCondition || CaseTypeCondition || CheckpointIdACondition || caseCheckpointIdCondition)
 
                      select new CasePartial {
@@ -467,30 +450,25 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return result;
     }
 
-    public async Task<Case> GetCaseById(ClaimsPrincipal user, Guid caseId, bool? includeAttachmentData) {
+    public async Task<Case> GetCaseById(Guid caseId, bool fetchPublicData, bool? includeAttachmentData = null) {
         var query =
-            from c in GetCasesInternal(user.FindSubjectId()!, includeAttachmentData ?? false, SchemaKey)
+            from c in GetCasesInternal(fetchPublicData, includeAttachmentData ?? false, SchemaKey)
             where c.Id == caseId
             select c;
 
         var @case = await query.FirstOrDefaultAsync();
-
-        // Check that user role can view this case at this checkpoint.
-        if (!await _memberAuthorizationProvider.IsMember(user, @case!)) {
-            throw new ResourceUnauthorizedException();
-        }
         @case!.CaseType = @case.CaseType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
         @case.CheckpointType = @case.CheckpointType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
         return @case;
     }
 
-    public async Task DeleteDraft(ClaimsPrincipal user, Guid caseId) {
+    public async Task DeleteDraft(UserActor user, Guid caseId) {
         var @case = await DbContext.Cases.FindAsync(caseId);
         if (@case is null) {
             throw new CaseNotFoundException();
         }
 
-        if (@case.CreatedBy.Id != user.FindSubjectId()) {
+        if (@case.CreatedBy.Id != user.Id) {
             throw new ResourceUnauthorizedException();
         }
 
@@ -502,13 +480,13 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         await DbContext.SaveChangesAsync();
     }
 
-    public async Task<CaseAttachment> GetAttachmentById(ClaimsPrincipal user, Guid attachmentId) {
+    public async Task<CaseAttachment?> GetAttachmentById(Guid attachmentId) {
         var attachment = await DbContext.Attachments
             .AsNoTracking()
             .SingleOrDefaultAsync(x => x.Id == attachmentId);
-        // TODO check this out???????
-        // Check that user role can download this attachment.
-        await GetCaseById(user, attachment!.CaseId, false);
+        if (attachment is null) {
+            return null;
+        }
 
         return new CaseAttachment {
             Id = attachmentId,
@@ -548,23 +526,18 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return attachment;
     }
 
-    public async Task<CaseAttachment?> GetAttachmentByField(ClaimsPrincipal user, Guid caseId, string fieldName) {
-        var stringifiedCaseData = (await GetCaseById(user, caseId, false)).DataAs<string>();
-        var json = JsonDocument.Parse(stringifiedCaseData);
-        var found = json.RootElement.TryGetProperty(fieldName, out JsonElement attachmentId);
-
-        if (found && !string.IsNullOrEmpty(attachmentId.GetString())) {
-            var attachment = await GetAttachment(caseId, attachmentId.GetGuid());
+    public async Task<CaseAttachment?> GetAttachmentByField(UserActor user, Guid caseId, string fieldName) {
+        var json = (await GetCaseById(caseId, false, false)).DataAsJsonNode();
+        if (json is null) return null;
+        var attachmentId = json[fieldName]?.GetValue<Guid?>();
+        if (attachmentId.HasValue) {
+            var attachment = await GetAttachment(caseId, attachmentId.Value);
             return attachment;
         }
-
         return null;
     }
 
-    public async Task<bool> PatchCaseMetadata(Guid caseId, ClaimsPrincipal User, Dictionary<string, string> metadata) {
-        // Check that user role can view this case
-        await GetCaseById(User, caseId, false);
-
+    public async Task<bool> PatchCaseMetadata(Guid caseId, Dictionary<string, string> metadata) {
         var dbCase = await DbContext.Cases.FindAsync(caseId);
         if (dbCase == null) {
             return false;
@@ -607,9 +580,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         await DbContext.SaveChangesAsync();
     }
 
-    public async Task<List<TimelineEntry>> GetTimeline(ClaimsPrincipal user, Guid caseId) {
-        // Check that user role can view this case
-        await GetCaseById(user, caseId, false);
+    public async Task<List<TimelineEntry>> GetTimeline(Guid caseId) {
 
         var comments = await DbContext.Comments
             .AsNoTracking()
@@ -667,9 +638,9 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return timeline;
     }
 
-    public async Task<List<CasePartial>> GetRelatedCases(ClaimsPrincipal user, Guid caseId) {
+    public async Task<List<CasePartial>> GetRelatedCases(UserActor user, Guid caseId) {
         // Check that user role can view this case
-        var @case = await GetCaseById(user, caseId, false);
+        var @case = await GetCaseById(caseId, false, false);
         var result = await GetCases(user, new ListOptions<GetCasesListFilter>() {
             Filter = new GetCasesListFilter {
                 Metadata = [new FilterClause("metadata.ExternalCorrelationKey", @case.Metadata!["ExternalCorrelationKey"], FilterOperator.Eq, JsonDataType.String)]
@@ -699,4 +670,15 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return [.. checkpointTypeIds];
     }
 
+    public async Task<bool> PublishPrivateData(Guid caseId) {
+        ArgumentNullException.ThrowIfNull(caseId);
+        var @case = await DbContext.Cases.FirstOrDefaultAsync(p => p.Id == caseId);
+        if (@case is null) {
+            return false;
+        }
+        @case.PublicDataId = @case.DataId;
+        DbContext.Cases.Update(@case);
+        await DbContext.SaveChangesAsync();
+        return true;
+    }
 }

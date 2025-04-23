@@ -44,12 +44,9 @@ public abstract class BaseCaseActivity(ICasesManager casesManager) : Activity
             var exceptionMessage = ex.Result?.Detail ?? ex.Message;
             if (HandleActivityError) {
                 var message = $"Workflow Integration Exception with DefinitionId \"{context.WorkflowInstance.DefinitionId}\" and InstanceId \"{context.WorkflowInstance.Id}\". Original exception message \"{exceptionMessage}\".";
-                await CasesManager.SendMessageAsync(CaseId!.Value, new WorkflowSendMessageRequest {
-                    Message = new Message {
-                        Comment = $"Faulted with message: {message}",
-                        PrivateComment = true
-                    },
-                    WorkflowActor = context.TryGetLastActor().ToCasesActor()
+                await CasesManager.Send(CaseId!.Value, context.TryGetLastActor(), new Message {
+                    Comment = $"Faulted with message: {message}",
+                    PrivateComment = true
                 });
             }
 
@@ -58,12 +55,9 @@ public abstract class BaseCaseActivity(ICasesManager casesManager) : Activity
         } catch (Exception exception) {
             if (HandleActivityError) {
                 var message = $"Workflow Exception with DefinitionId \"{context.WorkflowInstance.DefinitionId}\" and InstanceId \"{context.WorkflowInstance.Id}\". Original exception message \"{exception.Message}\".";
-                await CasesManager.SendMessageAsync(CaseId!.Value, new WorkflowSendMessageRequest {
-                    Message = new Message {
-                        Comment = $"Faulted with message: {message} and exception message: {exception.Message}",
-                        PrivateComment = true
-                    },
-                    WorkflowActor = context.TryGetLastActor().ToCasesActor()
+                await CasesManager.Send(CaseId!.Value, context.TryGetLastActor(), new Message {
+                    Comment = $"Faulted with message: {message} and exception message: {exception.Message}",
+                    PrivateComment = true
                 });
             }
             
@@ -87,16 +81,11 @@ public abstract class BaseCaseActivity(ICasesManager casesManager) : Activity
         // Log to Elsa context
         context.LogOutputProperty(this, "Exception", exception);
         // Log to Case (via Comment)
-        await CasesManager.SendMessageAsync(CaseId!.Value, new WorkflowSendMessageRequest {
-            Message = new Message {
-                Comment = string.IsNullOrEmpty(message)
-                    ? $"Faulted with message: {exception.Message}"
-                    : $"Faulted with message: {message} and exception message: {exception.Message}",
-                PrivateComment = true
-            },
-            WorkflowActor = context.TryGetLastActor().ToCasesActor()
+        await CasesManager.Send(CaseId!.Value, context.TryGetLastActor(), new Message {
+            Comment = string.IsNullOrEmpty(message)
+                ? $"Faulted with message: {exception.Message}"
+                : $"Faulted with message: {message} and exception message: {exception.Message}",
+            PrivateComment = true
         });
     }
 }
-
-internal class CaseManagerException(string message) : Exception(message);

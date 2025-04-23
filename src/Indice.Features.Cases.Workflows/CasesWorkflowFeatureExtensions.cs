@@ -145,11 +145,12 @@ public static class CasesWorkflowFeatureExtensions
             options.ClientSecret = builder.Configuration.GetApiSecret("ClientSecret");
             options.Scope = builder.Configuration.GetApiResourceName();
         });
-        builder.Services.AddHttpClient<ICasesManager, CasesManager>(httpClient => { 
+        builder.Services.AddHttpClient<CasesManagerHttpClient>(httpClient => {
                 httpClient.BaseAddress = new Uri(builder.Configuration.GetHost()!);
             })
-            .AddClientCredentialsTokenHandler("cases")
+            .AddClientCredentialsTokenHandler("workflow")
             .ClearResilienceHandlers();
+        builder.Services.AddScoped<ICasesManager, CasesManagerHttp>();
         
         // Add authentication / authorization
         if (casesWorkflowOptions.RegisterAuthentication) {
@@ -159,7 +160,7 @@ public static class CasesWorkflowFeatureExtensions
         return builder;
     }
 
-    internal const string WorkflowPolicy = "WorkflowPolicy";
+    internal const string WorkflowPolicy = nameof(WorkflowPolicy);
     /// <summary>
     /// Adds a default security policy for Elsa Controllers and Razor Pages.
     /// </summary>

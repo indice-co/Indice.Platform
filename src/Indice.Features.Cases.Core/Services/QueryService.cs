@@ -17,10 +17,10 @@ internal class QueryService : IQueryService
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
-    public async Task<List<Query>> GetQueries(ClaimsPrincipal user) {
+    public async Task<List<Query>> GetQueries(UserActor user) {
         return await _dbContext.Queries
             .AsQueryable()
-            .Where(q => q.UserId == user.FindSubjectId())
+            .Where(q => q.UserId == user.Id)
             .Select(q => new Query {
                 Id = q.Id,
                 FriendlyName = q.FriendlyName,
@@ -29,9 +29,9 @@ internal class QueryService : IQueryService
             .ToListAsync();
     }
 
-    public async Task SaveQuery(ClaimsPrincipal user, SaveQueryRequest request) {
+    public async Task SaveQuery(UserActor user, SaveQueryRequest request) {
         var dbQuery = new DbQuery {
-            UserId = user.FindSubjectId()!,
+            UserId = user.Id!,
             FriendlyName = request.FriendlyName,
             Parameters = request.Parameters!,
         };
@@ -40,8 +40,8 @@ internal class QueryService : IQueryService
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<bool> DeleteQuery(ClaimsPrincipal user, Guid queryId) {
-        var dbQuery = await _dbContext.Queries.Where(x => x.Id == queryId && x.UserId != user.FindSubjectId()).FirstOrDefaultAsync();
+    public async Task<bool> DeleteQuery(UserActor user, Guid queryId) {
+        var dbQuery = await _dbContext.Queries.Where(x => x.Id == queryId && x.UserId != user.Id).FirstOrDefaultAsync();
         // someone tries to delete someone else's query!
         if (dbQuery is null) {
             return false;

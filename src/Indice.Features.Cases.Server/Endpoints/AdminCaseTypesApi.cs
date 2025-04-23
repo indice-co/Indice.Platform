@@ -30,7 +30,7 @@ internal static class AdminCaseTypesApi
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes("Bearer")
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-            .RequireCasesAccess(CasesAccessLevel.Manager)
+            .RequireCasesAccess(CasesAccessLevel.Manage)
             ).WithHandledException<BusinessException>();
         
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
@@ -38,26 +38,28 @@ internal static class AdminCaseTypesApi
         group.ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
+
         group.MapGet(string.Empty, AdminCaseTypesHandlers.GetCaseTypesList)
              .WithName(nameof(AdminCaseTypesHandlers.GetCaseTypesList))
              .WithSummary("Get case types.");
         group.MapGet("{caseTypeId}", AdminCaseTypesHandlers.GetCaseTypeById)
              .WithName(nameof(AdminCaseTypesHandlers.GetCaseTypeById))
              .WithSummary("Get a specific Case Type by Id.");
+
         group.MapPost(string.Empty, AdminCaseTypesHandlers.CreateCaseType)
              .WithName(nameof(AdminCaseTypesHandlers.CreateCaseType))
              .WithSummary("Create new case type.")
-             .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Admin)) // equivalent to BeCasesAdministrator
+             .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Administer)) // equivalent to BeCasesAdministrator
             .WithParameterValidation<CaseTypeRequest>();
         group.MapPut("{caseTypeId}", AdminCaseTypesHandlers.UpdateCaseType)
              .WithName(nameof(AdminCaseTypesHandlers.UpdateCaseType))
              .WithSummary("Update a specific Case Type.")
-             .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Admin)) // equivalent to BeCasesAdministrator
+             .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Administer)) // equivalent to BeCasesAdministrator
              .WithParameterValidation<CaseTypeRequest>();
         group.MapDelete("{caseTypeId}", AdminCaseTypesHandlers.DeleteCaseType)
              .WithName(nameof(AdminCaseTypesHandlers.DeleteCaseType))
              .WithSummary("Delete a specific Case Type.")
-             .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Admin)); // equivalent to BeCasesAdministrator
+             .RequireAuthorization(policy => policy.RequireCasesAccess(CasesAccessLevel.Administer)); // equivalent to BeCasesAdministrator
         return group;
     }
 }

@@ -36,12 +36,12 @@ internal class GetRejectedReasonActivity(
     public string? Output { get; set; }
 
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
-        var approval = await CasesManager.GetLastApprovalAsync(CaseId!.Value);
+        var approval = await CasesManager.GetLastApproval(CaseId!.Value);
         var language = string.Empty;
 
         switch (Language) {
             case "Customer":
-                var @case = await CasesManager.GetByIdAsync(CaseId!.Value, null);
+                var @case = await CasesManager.GetCaseById(CaseId!.Value, false);
                 language = GetCustomerLanguageOrDefault(@case.Metadata?["CurrentCultureName"]);
                 break;
             case "English":
