@@ -60,7 +60,7 @@ public class IdentityValidationActivityTests : IAsyncLifetime
         var request = new UserValidationActivityContext(user, httpContext);
         await pipeline.HandleAsync(request);
 
-        Assert.Equal(UserActivityRequirementKind.RequiresEmailVerification, request.Result.Requirement.Kind);
+        Assert.Equal(UserActivityRequirementKind.RequiresEmailVerification, request.Result.Kind);
     }
 
     public Task InitializeAsync() {
