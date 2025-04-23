@@ -17,7 +17,7 @@ internal class RemoveAssignmentActivity(ICasesManager casesManager) : BaseCaseAc
 {
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
-        await CasesManager.RemoveAssignmentAsync(CaseId.Value);
+        await CasesManager.RemoveAssignment(CaseId.Value);
         return Done();
     }
 }

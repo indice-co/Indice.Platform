@@ -43,7 +43,7 @@ namespace Indice.Features.Cases.Workflows.Activities;
 
         AuditMeta assignedTo;
         try {
-            assignedTo = await CasesManager.AssignAsync(CaseId!.Value, assignment!.Actor.ToCasesActor());
+            assignedTo = await CasesManager.AssignToActor(assignment!.Actor.ToCasesActor(), CaseId!.Value);
         } catch (Exception ex) {
             await LogCaseError(context, ex);
             return Outcome(CustomOutcomeNames.Failed);

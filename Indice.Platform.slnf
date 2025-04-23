@@ -10,7 +10,6 @@
       "src\\Indice.Common\\Indice.Common.csproj",
       "src\\Indice.EntityFrameworkCore\\Indice.EntityFrameworkCore.csproj",
       "src\\Indice.Extensions.Configuration.Database\\Indice.Extensions.Configuration.Database.csproj",
-      "src\\Indice.Features.Cases.AspNetCore\\Indice.Features.Cases.AspNetCore.csproj",
       "src\\Indice.Features.Cases.Server\\Indice.Features.Cases.Server.csproj",
       "src\\Indice.Features.Cases.Workflows\\Indice.Features.Cases.Workflows.csproj",
       "src\\Indice.Features.Cases.UI\\Indice.Features.Cases.UI.csproj",

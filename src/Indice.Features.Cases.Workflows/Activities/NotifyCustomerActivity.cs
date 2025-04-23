@@ -73,7 +73,7 @@ internal class NotifyCustomerActivity(ICasesManager casesManager, ISmsService sm
             return Outcome(OutcomeNames.Done);
         }
 
-        var @case = await CasesManager.GetByIdAsync(CaseId!.Value, null);
+        var @case = await CasesManager.GetCaseById(CaseId!.Value, false);
         var infoMessage = new StringBuilder();
         var subject = default(string);
         var body = default(string);

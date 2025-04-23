@@ -38,7 +38,7 @@ AND JSON_VALUE(Metadata, '$.taxId') IS NOT NULL
 SELECT cs.ID,[OwnerUserId]
 	  ,[OwnerTin]
 	  ,Metadata
-FROM [Chania.Cases].[case].[Case] as cs
+FROM [case].[Case] as cs
 WHERE [OwnerTin] IS NULL
 ```
 

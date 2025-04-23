@@ -29,7 +29,7 @@ internal static class AdminCheckpointTypesApi
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes("Bearer")
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-            .RequireCasesAccess(CasesAccessLevel.Manager)
+            .RequireCasesAccess(CasesAccessLevel.Manage)
         ).WithHandledException<BusinessException>();
         
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);

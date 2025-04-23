@@ -18,18 +18,18 @@ internal static class AdminAttachmentsApi
     /// <summary>Downloads Admin Attachments</summary>
     public static IEndpointRouteBuilder MapAdminAttachments(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<CaseServerOptions>>().Value;
-        
+
         var group = routes.MapGroup($"{options.PathPrefix.Value!.Trim('/')}/manage/attachments");
         group.WithTags("AdminAttachments");
-        
+
         group.WithGroupName(options.GroupName);
-        
+
         var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
         group.RequireAuthorization(policy => policy
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes("Bearer")
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-            .RequireCasesAccess(CasesAccessLevel.Manager) // equivalent to BeCasesManager
+            .RequireCasesAccess(CasesAccessLevel.Manage) // equivalent to BeCasesManager
         ).WithHandledException<BusinessException>();
 
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);

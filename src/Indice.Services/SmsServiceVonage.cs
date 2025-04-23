@@ -128,13 +128,14 @@ internal class VonageSmsRequest
             ["from"] = from,
             ["text"] = text,
             ["ttl"] = ttl.ToString(CultureInfo.InvariantCulture),
+            ["type"] = "unicode",
             ["timestamp"] = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture)
         };
     }
 
     public HttpRequestMessage ToHttpRequest(Uri uri, string signatureSecret) {
         var queryString = BuildQueryString(signatureSecret);
-        var content = new StringContent(queryString, new MediaTypeHeaderValue(MediaTypeNames.Application.FormUrlEncoded));
+        var content = new StringContent(queryString, Encoding.UTF8, MediaTypeNames.Application.FormUrlEncoded);
         return new HttpRequestMessage(HttpMethod.Post, uri) { Content = content };
     }
 

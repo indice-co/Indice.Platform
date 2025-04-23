@@ -1,4 +1,7 @@
-﻿using Indice.Features.Cases.Core;
+﻿using System.Globalization;
+using System.Numerics;
+using Indice.Features.Cases.Core;
+using Indice.Features.Cases.Core.Models;
 using Indice.Security;
 
 namespace System.Security.Claims;
@@ -45,4 +48,29 @@ public static class CasesClaimsPrincipalExtensions
             .Where(c => c.Type == BasicClaimTypes.Role)
             .Select(c => c.Value)
             .ToList();
+
+    /// <summary>
+    /// Get <see cref="UserActor"/> from a ClaimsPrincipal.
+    /// </summary>
+    /// <param name="user">The claims principal.</param>
+    /// <param name="options">Case options settings</param>
+    /// <returns></returns>
+    /// <summary>Creates a http <see cref="UserActor"/> model from the current user.</summary>
+    public static UserActor UserToActor(this ClaimsPrincipal user, CasesOptions options) {
+        var subject = user.FindFirstValue(BasicClaimTypes.Subject);
+        return new UserActor {
+            Id = string.IsNullOrWhiteSpace(subject) ? user.FindFirstValue(BasicClaimTypes.ClientId) : subject,
+            Reference = user.FindFirstValue(options.ReferenceIdClaimType),
+            GroupId = user.FindFirstValue(options.GroupIdClaimType),
+            Email = string.IsNullOrWhiteSpace(subject) ? user.FindFirstValue(BasicClaimTypes.ClientId) : user.FindFirstValue(BasicClaimTypes.Email),
+            Name = string.IsNullOrWhiteSpace(subject) ? CasesCoreConstants.SystemUserName : $"{user.FindFirstValue(BasicClaimTypes.GivenName)} {user.FindFirstValue(BasicClaimTypes.FamilyName)}".Trim(),
+            CurrentCulture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName,
+            IsAdmin = user.IsAdmin() || user.HasRoleClaim(BasicRoleNames.CasesAdministrator),
+            IsSystemClient = user.IsSystemClient(),
+            Roles = user.GetUserRoles(),
+            Tin = user.FindFirstValue(options.TinClaimType)
+        };
+    }
+
+
 }
