@@ -70,14 +70,14 @@ public class AwaitApprovalActivity(ICasesManager casesManager, WorkflowSharedRes
         };
         Action = approval.Action.ToString();
         context.LogOutputProperty(this, "Output", Output);
-        
-        await CasesManager.AddApprovalWithCommentAsync(CaseId.Value, new WorkflowAddApprovalWithCommentRequest {
-            Action = Enum.Parse<Approval>(approval.Action.ToString()),
-            // Reason = approval.Comment,
-            Reason = sharedResourceService.GetLocalizedHtmlStringWithCulture(approval.Comment!, approval.Actor.CurrentCulture ?? "el"),
-            PrivateComment = !PublicActions.Contains(approval.Action.ToString()),
-            WorkflowActor = approval.Actor.ToCasesActor()
-        });
+
+        await CasesManager.AddApprovalWithComment(
+            caseId: CaseId.Value,
+            action: Enum.Parse<Approval>(approval.Action.ToString()),
+            reason: sharedResourceService.GetLocalizedHtmlStringWithCulture(approval.Comment!, approval.Actor.CurrentCulture ?? "el"),
+            isPrivate: !PublicActions.Contains(approval.Action.ToString()),
+            actor: approval.Actor
+        );
         
         context.SetVariable(CasesWorkflowConstants.WorkflowVariables.Actor.Current, approval.Actor);
         

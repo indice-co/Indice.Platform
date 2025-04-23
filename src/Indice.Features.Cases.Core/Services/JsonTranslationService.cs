@@ -32,8 +32,8 @@ public class JsonTranslationService : IJsonTranslationService
     }
 
     /// <inheritdoc />
-    public JsonNode? Translate(JsonNode? jsonSource, Dictionary<string, string>? translations, string language) {
-        if (jsonSource is null || translations is null) {
+    public JsonNode? Translate(JsonNode? jsonSource, Dictionary<string, string>? jsonTranslations, string language) {
+        if (jsonSource is null || jsonTranslations is null) {
             return jsonSource;
         }
         ArgumentException.ThrowIfNullOrWhiteSpace(language);
@@ -46,7 +46,7 @@ public class JsonTranslationService : IJsonTranslationService
         var options = new JsonSerializerOptions(JsonSerializerDefaults.Web) {
             Encoder = JavaScriptEncoder.Create(UnicodeRanges.GreekExtended, UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic),
         };
-        return JsonNode.Parse(Translate(jsonSource.ToJsonString(options), translations));
+        return JsonNode.Parse(Translate(jsonSource.ToJsonString(options), jsonTranslations));
     }
 
     private static string Translate(string jsonSource, Dictionary<string, string> translations) {

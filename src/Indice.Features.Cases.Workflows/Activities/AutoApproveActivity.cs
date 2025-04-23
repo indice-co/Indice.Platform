@@ -17,11 +17,7 @@ internal class AutoApproveActivity(ICasesManager casesManager) : BaseCaseActivit
 {
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
-        await CasesManager.AddApprovalAsync(CaseId.Value, new WorkflowAddApprovalRequest {
-            Action = Approval.Approve,
-            Reason = null,
-            WorkflowActor = context.TryGetLastActor().ToCasesActor()
-        });
+        await CasesManager.AddApproval(CaseId.Value, Approval.Approve, null, context.TryGetLastActor());
         return Done();
     }
 }
