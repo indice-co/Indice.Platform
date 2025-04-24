@@ -10,6 +10,7 @@ using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -86,10 +87,14 @@ public abstract class BaseChallengeModel : BasePageModel
         if (localeClaim is null) {
             await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.Locale, RequestCulture.Culture.TwoLetterISOLanguageName);
         }
-        var redirectUrl = GetRedirectUrl(result, returnUrl);
-        if (redirectUrl is not null) {
-            return Redirect(redirectUrl);
+        if (result.RequiresTwoFactor) {
+            var redirectUrl = Url.PageLink("/Mfa", values: new { returnUrl });
+            return Redirect(redirectUrl!);
         }
+        if (result.RequiresValidation()) {
+            return RedirectToPage("/AddEmail", new { returnUrl });
+        }
+
         // Check if external login is in the context of an OIDC request.
         var context = await Interaction.GetAuthorizationContextAsync(returnUrl);
         if (context is not null) {

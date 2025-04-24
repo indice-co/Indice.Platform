@@ -2,6 +2,7 @@
 using Indice.Features.Identity.Core;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Routing;
 
 namespace Indice.Features.Identity.Server.Mfa;
@@ -27,7 +28,7 @@ public static class MfaApi
              .WithSummary("Sends a push notification to the user's trusted mobile device for login approval.")
              .RequireAuthorization(policy => policy
                  .RequireAuthenticatedUser()
-                 .AddAuthenticationSchemes(ExtendedIdentityConstants.TwoFactorUserIdScheme)
+                 .AddAuthenticationSchemes(IdentityConstants.TwoFactorUserIdScheme)
              )
              .ValidateAntiforgery();
 

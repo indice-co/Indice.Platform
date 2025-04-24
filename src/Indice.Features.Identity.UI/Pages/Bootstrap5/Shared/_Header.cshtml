@@ -6,7 +6,7 @@
 @inject ExtendedUserManager<User> UserManager
 
 @{
-    var displayMenu = SignInManager.IsSignedIn(User) && !User.IsSignedInWithScheme(ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
+    var displayMenu = SignInManager.IsSignedIn(User) && !User.IsSignedInWithScheme(ExtendedIdentityConstants.ExtendedValidationScheme);
     var generalSettings = GeneralSettingsWrapper.Value;
     var showRibbon = !Environment.IsProduction();
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;

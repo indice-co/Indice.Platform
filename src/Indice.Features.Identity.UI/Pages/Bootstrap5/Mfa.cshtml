@@ -14,6 +14,7 @@
 <div class="sign-in m-auto">
     <vc:page-heading title="@title" image-src="" />
     <partial name="_ValidationSummary" />
+    <div indice-if="!Model.View.HasError">
     @if (Model.View.AuthenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.Sms && !string.IsNullOrWhiteSpace(maskedPhoneNumber))
     {
         <div class="alert alert-primary" role="alert">@Localizer["We texted your phone {0}. Please enter the code to sign in.", maskedPhoneNumber]</div>
@@ -22,7 +23,7 @@
             <input type="hidden" asp-for="Input.DeviceId" />
             <div class="mb-3">
                 <label asp-for="Input.OtpCode" class="form-label">@Localizer["OTP Code"]</label>
-                <input class="form-control" placeholder="@Localizer["OTP Code"]" asp-for="Input.OtpCode" autofocus />
+                <input class="form-control" placeholder="@Localizer["OTP Code"]" asp-for="Input.OtpCode" autofocus autocomplete="off" />
                 <span asp-validation-for="Input.OtpCode" class="text-danger"></span>
             </div>
             <div class="mb-3" indice-if="!Model.View.IsExistingBrowser">
@@ -75,7 +76,8 @@
                 <a asp-page="/Mfa" asp-route-returnUrl="@Model.Input.ReturnUrl">@Localizer["Send another request to my app"]</a>
             </p>
         </form>
-    }
+        }
+    </div>
 </div>
 
 @section scripts {

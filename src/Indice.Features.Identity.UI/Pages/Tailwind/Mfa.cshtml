@@ -15,6 +15,7 @@
     <div class="card-wrapper">
         <vc:page-heading title="@title" image-src="" />
         <partial name="_ValidationSummary" />
+        <div indice-if="!Model.View.HasError">
         @if (Model.View.AuthenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.Sms && !string.IsNullOrWhiteSpace(maskedPhoneNumber))
         {
             <div class="alert alert-primary" role="alert">@Localizer["We texted your phone {0}. Please enter the code to sign in.", maskedPhoneNumber]</div>
@@ -77,6 +78,7 @@
                 </p>
             </form>
         }
+        </div>
     </div>
 </div>
 

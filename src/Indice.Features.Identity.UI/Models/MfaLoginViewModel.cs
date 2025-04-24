@@ -14,6 +14,10 @@ public class MfaLoginViewModel<TUser> : MfaLoginInputModel where TUser : User, n
     public AuthenticationMethod? AuthenticationMethod { get; set; }
     /// <summary>Indicates whether the current browser device already exists for the user.</summary>
     public bool IsExistingBrowser { get; set; }
+    /// <summary>The error message that informs the user that mfa cannot be performed.</summary>
+    public string? Error { get; set; }
+    /// <summary>True if the error message is populated. This is an indicator that the mfa process is in deadlock.</summary>
+    public bool HasError => !string.IsNullOrWhiteSpace(Error);
 }
 
 /// <summary>MFA login view model.</summary>

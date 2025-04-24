@@ -13,7 +13,7 @@ public interface IAuthenticationMethodProvider
     /// <summary>SignalR hub context.</summary>
     IHubContext<MultiFactorAuthenticationHub>? HubContext { get; }
     /// <summary>Gets a list of all available authentication methods supported by the identity system.</summary>
-    Task<IEnumerable<AuthenticationMethod>> GetAllMethodsAsync();
+    Task<AuthenticationMethod[]> GetAllMethodsAsync();
     /// <summary>Get the authentication method that must be applied to the user.</summary>
     /// <param name="user">The user instance.</param>
     /// <param name="tryDowngradeAuthenticationMethod"></param>

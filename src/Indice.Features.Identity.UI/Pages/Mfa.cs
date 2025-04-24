@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -24,6 +25,7 @@ public abstract class BaseMfaModel : BasePageModel
     private readonly IStringLocalizer<BaseMfaModel> _localizer;
 
     /// <summary>Creates a new instance of <see cref="BaseMfaModel"/> class.</summary>
+    /// <param name="logger">The logger instance for this page.</param>
     /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseMfaModel"/>.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
@@ -33,6 +35,7 @@ public abstract class BaseMfaModel : BasePageModel
     /// <param name="authenticationMethodProvider">Abstracts interaction with system's various authentication methods.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseMfaModel(
+        ILogger<BaseMfaModel> logger,
         IStringLocalizer<BaseMfaModel> localizer,
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager,
@@ -41,6 +44,7 @@ public abstract class BaseMfaModel : BasePageModel
         IIdentityServerInteractionService interaction,
         IAuthenticationMethodProvider authenticationMethodProvider
     ) {
+        Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
@@ -50,6 +54,8 @@ public abstract class BaseMfaModel : BasePageModel
         AuthenticationMethodProvider = authenticationMethodProvider ?? throw new ArgumentNullException(nameof(authenticationMethodProvider));
     }
 
+    /// <summary>The logger instance for this page.</summary>
+    public ILogger<BaseMfaModel> Logger { get; }
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
     protected ExtendedUserManager<User> UserManager { get; }
     /// <summary>Provides the APIs for user sign in.</summary>
@@ -75,6 +81,11 @@ public abstract class BaseMfaModel : BasePageModel
     /// <param name="downgradeChannel">Allows the user to select a channel with lower security.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl, [FromQuery(Name = "dc")] bool? downgradeChannel) {
         Input = View = await BuildMfaLoginViewModelAsync(returnUrl, downgradeChannel);
+        if (View.HasError) {
+            ModelState.AddModelError(string.Empty, _localizer[View.Error!]);
+            return Page();
+        }
+
         var totpService = TotpServiceFactory.Create<User>();
         if (View.AuthenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.Sms) {
             await totpService.SendAsync(message =>
@@ -93,19 +104,23 @@ public abstract class BaseMfaModel : BasePageModel
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnPostAsync([FromQuery] string? returnUrl) {
         View = await BuildMfaLoginViewModelAsync(Input);
+        if (View.HasError) {
+            ModelState.AddModelError(string.Empty, _localizer[View.Error!]);
+            return Page();
+        }
         var signInResult = await SignInManager.TwoFactorSignInAsync(View.AuthenticationMethod?.GetTokenProvider()!, Input.OtpCode!, Input.RememberMe, Input.RememberClient);
         if (signInResult.Succeeded) {
             if (string.IsNullOrEmpty(Input.ReturnUrl)) {
                 return Redirect("/");
-            } else if (Interaction.IsValidReturnUrl(Input.ReturnUrl) || Url.IsLocalUrl(Input.ReturnUrl)) {
+            } else if (IsValidReturnUrl(Input.ReturnUrl)) {
                 return Redirect(Input.ReturnUrl);
             } else {
                 throw new Exception("Invalid return URL.");
             }
         }
-        var redirectUrl = GetRedirectUrl(signInResult, Input.ReturnUrl);
-        if (!string.IsNullOrWhiteSpace(redirectUrl)) {
-            return Redirect(redirectUrl);
+        if (signInResult.RequiresValidation()) { 
+            return RedirectToPage("/AddEmail", new { returnUrl });
+            
         }
         ModelState.AddModelError(string.Empty, _localizer["The OTP code is not valid."]);
         return Page();
@@ -121,19 +136,24 @@ public abstract class BaseMfaModel : BasePageModel
 
     private async Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(string? returnUrl, bool? tryDowngradeAuthenticationMethod = false) {
         var user = await SignInManager.GetTwoFactorAuthenticationUserAsync() ?? throw new InvalidOperationException("User cannot be null");
-        var authenticationMethod = await AuthenticationMethodProvider.GetRequiredAuthenticationMethod(user, tryDowngradeAuthenticationMethod) ?? throw new InvalidOperationException("MFA must be applied but no suitable authentication method was found.");
+        var authenticationMethod = await AuthenticationMethodProvider.GetRequiredAuthenticationMethod(user, tryDowngradeAuthenticationMethod);
         var allowDowngradeAuthenticationMethod = Configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "AllowDowngradeAuthenticationMethod") ?? false;
         var deviceIdentifier = HttpContext.ResolveDeviceId();
         UserDevice? browserDevice = null;
         if (!string.IsNullOrWhiteSpace(deviceIdentifier.Value)) {
             browserDevice = await UserManager.GetDeviceByIdAsync(user, deviceIdentifier.Value);
         }
+        if (authenticationMethod is null) {
+            Logger.LogError("MFA must be applied but no suitable authentication method was found.");
+        }
+
         return new MfaLoginViewModel {
             AuthenticationMethod = authenticationMethod,
             AllowDowngradeAuthenticationMethod = allowDowngradeAuthenticationMethod,
             ReturnUrl = returnUrl,
             User = user,
-            IsExistingBrowser = browserDevice is not null
+            IsExistingBrowser = browserDevice is not null,
+            Error = authenticationMethod == null ? "MFA is enabled but there is no active two factor authentication method configured. Please contact your administrator." : null
         };
     }
 }
@@ -141,6 +161,7 @@ public abstract class BaseMfaModel : BasePageModel
 internal class MfaModel : BaseMfaModel
 {
     public MfaModel(
+        ILogger<BaseMfaModel> logger,
         IStringLocalizer<MfaModel> localizer,
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager,
@@ -148,5 +169,5 @@ internal class MfaModel : BaseMfaModel
         IConfiguration configuration,
         IIdentityServerInteractionService interaction,
         IAuthenticationMethodProvider authenticationMethodProvider
-    ) : base(localizer, userManager, signInManager, totpServiceFactory, configuration, interaction, authenticationMethodProvider) { }
+    ) : base(logger, localizer, userManager, signInManager, totpServiceFactory, configuration, interaction, authenticationMethodProvider) { }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using IdentityModel;
+using IdentityServer4;
 using Indice.Events;
 using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data.Models;
@@ -35,8 +36,8 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     private readonly IUserStore<TUser> _userStore;
     private readonly ISignInGuard<TUser> _signInGuard;
     private readonly IPlatformEventService _eventService;
+    private readonly IUserRequirementProvider<TUser> _userRequirementProvider;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IUserStateProvider<TUser> _stateProvider;
 
     /// <summary>Creates a new instance of <see cref="SignInManager{TUser}" /></summary>
     /// <param name="userManager">An instance of <see cref="ExtendedUserManager{TUser}"/> used to retrieve users from and persist users.</param>
@@ -49,9 +50,9 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="authenticationSchemeProvider">Responsible for managing what authenticationSchemes are supported.</param>
     /// <param name="userStore">Provides an abstraction for a store which manages user accounts.</param>
-    /// <param name="userStateProvider">A service used to implement state machine for <see cref="ExtendedUserManager{TUser}"/> and <see cref="ExtendedSignInManager{TUser}"/>.</param>
     /// <param name="signInGuard">Abstracts the process of running various rules that determine whether a login attempt is suspicious or not.</param>
     /// <param name="eventService">Models the event mechanism used to raise events inside the platform.</param>
+    /// <param name="userRequirementProvider">Provides information about the user active validation requirements.</param>
     public ExtendedSignInManager(
         ExtendedUserManager<TUser> userManager,
         IHttpContextAccessor httpContextAccessor,
@@ -63,25 +64,26 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         IConfiguration configuration,
         IAuthenticationSchemeProvider authenticationSchemeProvider,
         IUserStore<TUser> userStore,
-        IUserStateProvider<TUser> userStateProvider,
         ISignInGuard<TUser> signInGuard,
-        IPlatformEventService eventService
+        IPlatformEventService eventService,
+        IUserRequirementProvider<TUser> userRequirementProvider
     ) : base(userManager, httpContextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation) {
         _authenticationSchemeProvider = authenticationSchemeProvider ?? throw new ArgumentNullException(nameof(authenticationSchemeProvider));
         _userStore = userStore ?? throw new ArgumentNullException(nameof(userStore));
-        _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(_httpContextAccessor));
-        _stateProvider = userStateProvider ?? throw new ArgumentNullException(nameof(userStateProvider));
+        _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         _signInGuard = signInGuard ?? throw new ArgumentNullException(nameof(signInGuard));
         _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
-        RequirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedEmail)) == true;
-        RequirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedPhoneNumber)) == true;
-        ExpireBlacklistedPasswordsOnSignIn = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExpireBlacklistedPasswordsOnSignIn)) == true;
-        ExternalScheme = configuration.GetIdentityOption<string>(nameof(IdentityOptions.SignIn), nameof(ExternalScheme)) ?? IdentityConstants.ExternalScheme;
-        PersistTrustedBrowsers = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(PersistTrustedBrowsers)) == true;
+        _userRequirementProvider = userRequirementProvider ?? throw new ArgumentNullException(nameof(userRequirementProvider));
+        RequirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedEmail));
+        RequirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedPhoneNumber));
+        RequirePostSignInAcceptedTerms = configuration.GetIdentityOption<bool>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInAcceptedTerms));
+        ExpireBlacklistedPasswordsOnSignIn = configuration.GetIdentityOption<bool>(nameof(IdentityOptions.SignIn), nameof(ExpireBlacklistedPasswordsOnSignIn));
+        PersistTrustedBrowsers = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(PersistTrustedBrowsers)) ?? true;
         MfaRememberDurationInDays = configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "RememberDurationInDays") ?? DEFAULT_MFA_REMEMBER_DURATION_IN_DAYS;
-        RememberTrustedBrowserAcrossSessions = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(RememberTrustedBrowserAcrossSessions)) == true;
-        RememberExpirationType = configuration.GetIdentityOption<MfaExpirationType?>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(RememberExpirationType)) ?? default;
+        RememberTrustedBrowserAcrossSessions = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(RememberTrustedBrowserAcrossSessions)) ?? true;
+        RememberExpirationType = configuration.GetIdentityOption<MfaExpirationType>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(RememberExpirationType));
         RequireMfaWhenUserHasTrustedBrowserButExpiredPassword = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa:RequireWhen", "UserHasTrustedBrowserButExpiredPassword") ?? true;
+        MfaPolicy = configuration.GetIdentityOption<MfaPolicy?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Policy") ?? MfaPolicy.Optional;
     }
 
     private ExtendedUserManager<TUser> ExtendedUserManager => (ExtendedUserManager<TUser>)UserManager;
@@ -89,10 +91,10 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     public bool RequirePostSignInConfirmedEmail { get; }
     /// <summary>Enables the feature post login phone number confirmation.</summary>
     public bool RequirePostSignInConfirmedPhoneNumber { get; }
+    /// <summary>Enables the feature post login terms acceptance.</summary>
+    public bool RequirePostSignInAcceptedTerms { get; }
     /// <summary>If enabled then users with blacklisted passwords will be forced to change their password upon sign-in instead of waiting for the next time they need to change it.</summary>
     public bool ExpireBlacklistedPasswordsOnSignIn { get; }
-    /// <summary>The scheme used to identify external authentication cookies.</summary>
-    public string ExternalScheme { get; }
     /// <summary>Decides whether a trusted browser should be stored in the <see cref="UserDevice"/> table.</summary>
     public bool PersistTrustedBrowsers { get; }
     /// <summary>Defines the number of days that the browser will remember the MFA action and will not require re-authentication.</summary>
@@ -103,11 +105,13 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     public MfaExpirationType RememberExpirationType { get; }
     /// <summary>Quite self-explanatory property name. Defaults to true.</summary>
     public bool RequireMfaWhenUserHasTrustedBrowserButExpiredPassword { get; }
+    /// <summary>MFA policy applied for new users.</summary>
+    public MfaPolicy MfaPolicy { get; }
 
     #region Method Overrides
     /// <inheritdoc/>
     public override async Task<ExternalLoginInfo?> GetExternalLoginInfoAsync(string? expectedXsrf = null) {
-        var auth = await Context.AuthenticateAsync(ExternalScheme);
+        var auth = await Context.AuthenticateAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);
         var items = auth?.Properties?.Items;
         if (auth?.Principal == null || items == null || !items.ContainsKey(LOGIN_PROVIDER_KEY)) {
             return null;
@@ -144,18 +148,10 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     protected override async Task<SignInResult> SignInOrTwoFactorAsync(TUser user, bool isPersistent, string? loginProvider = null, bool bypassTwoFactor = false) {
         var isExternalLogin = !string.IsNullOrWhiteSpace(loginProvider) && (await _authenticationSchemeProvider.GetExternalSchemesAsync()).Select(scheme => scheme.Name).Contains(loginProvider);
         var deviceId = _httpContextAccessor.HttpContext.ResolveDeviceId();
-        if (isExternalLogin) {
-            await _stateProvider.ChangeStateAsync(user, UserAction.ExternalLogin);
-            bypassTwoFactor = true;
-        } else {
-            await _stateProvider.ChangeStateAsync(user, UserAction.Login);
-        }
+        
         var result = await _signInGuard.IsSuspiciousLogin(_httpContextAccessor.HttpContext!, user);
         if (result.Warning == SignInWarning.ImpossibleTravel && _signInGuard.ImpossibleTravelDetector?.FlowType == ImpossibleTravelFlowType.DenyLogin) {
             return SignInResult.Failed;
-        }
-        if (_stateProvider.ShouldSignInPartially()) {
-            return await DoPartialSignInAsync(user, deviceId, ["pwd"]);
         }
         var mfaImplicitlyPassed = false;
         if (!bypassTwoFactor && await IsTfaEnabled(user)) {
@@ -180,7 +176,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
                 }
             }
         }
-        if (_stateProvider.ShouldSignInPartially()) {
+        if (await ShouldSignInForExtendedValidationAsync(user)) {
             var authenticationMethods = new List<string> { "pwd" };
             if (mfaImplicitlyPassed) {
                 authenticationMethods.Add("mfa");
@@ -230,15 +226,10 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         }
         var error = await PreSignInCheck(user);
         if (error != null) {
-            return error;
+            return error!;
         }
         if (await ExtendedUserManager.VerifyTwoFactorTokenAsync(user, provider, code)) {
-            await _stateProvider.ChangeStateAsync(user, UserAction.MultiFactorAuthenticated);
-            await DoTwoFactorSignInAsync(user, twoFactorInfo, isPersistent, rememberClient);
-            if (_stateProvider.ShouldSignInPartially()) {
-                return await DoPartialSignInAsync(user, twoFactorInfo.DeviceId, ["pwd", "mfa"]);
-            }
-            return new ExtendedSignInResult(_stateProvider.CurrentState);
+            return await DoTwoFactorSignInAsync(user, twoFactorInfo, isPersistent, rememberClient);
         }
         if (ExtendedUserManager.SupportsUserLockout) {
             await ExtendedUserManager.AccessFailedAsync(user);
@@ -260,9 +251,8 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         var allSchemes = await _authenticationSchemeProvider.GetAllSchemesAsync();
         // Check if authentication scheme is registered before trying to sign out, to avoid errors.
         var schemes = new string[] {
-            ExtendedIdentityConstants.ExtendedValidationUserIdScheme,
-            ExtendedIdentityConstants.MfaOnboardingScheme,
-            ExternalScheme
+            ExtendedIdentityConstants.ExtendedValidationScheme,
+            IdentityServerConstants.ExternalCookieAuthenticationScheme
         };
         foreach (var scheme in schemes) {
             if (allSchemes.FirstOrDefault(x => x.Name == scheme) is not null) {
@@ -270,7 +260,6 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             }
         }
         await base.SignOutAsync();
-        _stateProvider.ClearState();
     }
 
     /// <inheritdoc/>
@@ -326,12 +315,16 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
                 isRemembered = isRemembered && !user.HasExpiredPassword();
             }
         }
-        if (isRemembered) {
-            await _stateProvider.ChangeStateAsync(user, UserAction.MultiFactorAuthenticated);
-        }
         return isRemembered;
     }
-#endregion
+
+    /// <inheritdoc/>
+    public override async Task<SignInResult> ExternalLoginSignInAsync(string loginProvider, string providerKey, bool isPersistent, bool bypassTwoFactor) {
+        await Context.SignOutAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);
+        return await base.ExternalLoginSignInAsync(loginProvider, providerKey, isPersistent, bypassTwoFactor);
+    }
+
+    #endregion
 
     #region Custom Methods
     /// <summary>Revokes all sessions for user browsers.</summary>
@@ -353,7 +346,8 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         AuthenticationProperties? authenticationProperties = default;
         if (authenticateResult.Succeeded) {
             authenticationProperties = authenticateResult.Properties;
-            await SignInWithClaimsAsync(user, authenticationProperties, authenticateResult.Principal.Claims);
+            await SignInWithClaimsAsync(user, authenticationProperties, authenticateResult.Principal.Claims.Where(x => x.Type == JwtClaimTypes.AuthenticationMethod || x.Type == BasicClaimTypes.DeviceId));
+            await _httpContextAccessor.HttpContext!.SignOutAsync(scheme);
         }
         return authenticationProperties;
     }
@@ -372,32 +366,38 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// <param name="deviceId">The device id that represents the current client (browser)</param>
     /// <param name="authenticationMethods">The authentication methods used during login.</param>
     /// <exception cref="InvalidOperationException"></exception>
-    public async Task<ExtendedSignInResult> DoPartialSignInAsync(TUser user, MfaDeviceIdentifier deviceId, string[] authenticationMethods) {
-        var scheme = _stateProvider.ShouldSignInForExtendedValidation()
-            ? ExtendedIdentityConstants.ExtendedValidationUserIdScheme
-            : _stateProvider.ShouldSignInForMfaOnboarding()
-                ? ExtendedIdentityConstants.MfaOnboardingScheme
-                : throw new InvalidOperationException("Cannot partially sign in.");
+    public async Task<SignInResult> DoPartialSignInAsync(TUser user, MfaDeviceIdentifier deviceId, string[] authenticationMethods) {
         var userClaims = await ExtendedUserManager.GetClaimsAsync(user);
         var firstName = userClaims.FirstOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value;
         var lastName = userClaims.FirstOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value;
         var isEmailConfirmed = user.EmailConfirmed;
         var isPhoneConfirmed = user.PhoneNumberConfirmed;
         var isPasswordExpired = user.HasExpiredPassword();
+
+        var result = ExtendedSignInResult.ValidationRequired;
         var userId = user.Id;
         var returnUrl = Context.Request.Query["ReturnUrl"];
-        await Context.SignInAsync(scheme, ClaimsPrincipalFromValidationInfo(userId, deviceId, isEmailConfirmed, isPhoneConfirmed, isPasswordExpired, firstName, lastName, user.UserName!, authenticationMethods), new AuthenticationProperties {
+
+        await Context.SignInAsync(ExtendedIdentityConstants.ExtendedValidationScheme, ClaimsPrincipalFromValidationInfo(userId, deviceId, isEmailConfirmed, isPhoneConfirmed, isPasswordExpired, firstName, lastName, user.UserName!, authenticationMethods), new AuthenticationProperties {
             RedirectUri = returnUrl,
             IsPersistent = false
         });
-        return new ExtendedSignInResult(_stateProvider.CurrentState);
+        return result;
     }
+
+    /// <summary>
+    /// Determines whether the user should be signed in for extended validation.
+    /// </summary>
+    /// <param name="user">The user to check</param>
+    /// <returns>True in case of extended validaton requirement</returns>
+    public Task<bool> ShouldSignInForExtendedValidationAsync(TUser user) => 
+        _userRequirementProvider.RequiresValidationAsync(_httpContextAccessor.HttpContext!, user);
 
     private async Task<bool> IsTfaEnabled(TUser user)
         => ExtendedUserManager.SupportsUserTwoFactor && user.TwoFactorEnabled && (await ExtendedUserManager.GetValidTwoFactorProvidersAsync(user)).Count > 0;
 
     private static ClaimsPrincipal ClaimsPrincipalFromValidationInfo(string userId, MfaDeviceIdentifier deviceId, bool isEmailConfirmed, bool isPhoneConfirmed, bool isPasswordExpired, string? firstName, string? lastName, string userName, string[] authenticationMethods) {
-        var identity = new ClaimsIdentity(ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
+        var identity = new ClaimsIdentity(ExtendedIdentityConstants.ExtendedValidationScheme);
         identity.AddClaim(new Claim(JwtClaimTypes.Subject, userId));
         identity.AddClaim(new Claim(JwtClaimTypes.EmailVerified, isEmailConfirmed.ToString().ToLower()));
         identity.AddClaim(new Claim(JwtClaimTypes.PhoneNumberVerified, isPhoneConfirmed.ToString().ToLower()));
@@ -463,7 +463,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         }
         var userId = await ExtendedUserManager.GetUserIdAsync(user);
         var deviceIdentity = new ClaimsIdentity(IdentityConstants.TwoFactorRememberMeScheme);
-        deviceIdentity.AddClaim(new Claim(JwtClaimTypes.Name, userId));
+        deviceIdentity.AddClaim(new Claim(Options.ClaimsIdentity.UserIdClaimType, userId));
         if (ExtendedUserManager.SupportsUserSecurityStamp) {
             deviceIdentity.AddClaim(new Claim(Options.ClaimsIdentity.SecurityStampClaimType, user.SecurityStamp ?? string.Empty));
         }
@@ -471,7 +471,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     }
 
     private async Task<TwoFactorAuthenticationInfo?> RetrieveTwoFactorInfoAsync() {
-        var result = await Context.AuthenticateAsync(ExtendedIdentityConstants.TwoFactorUserIdScheme);
+        var result = await Context.AuthenticateAsync(IdentityConstants.TwoFactorUserIdScheme);
         var claimsPrincipal = result?.Principal;
         if (claimsPrincipal is null) {
             return default;
@@ -489,12 +489,9 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         };
     }
 
-    private async Task DoTwoFactorSignInAsync(TUser user, TwoFactorAuthenticationInfo twoFactorInfo, bool isPersistent, bool rememberClient) {
+    private async Task<SignInResult> DoTwoFactorSignInAsync(TUser user, TwoFactorAuthenticationInfo twoFactorInfo, bool isPersistent, bool rememberClient) {
         if (rememberClient) {
             await RememberTwoFactorClientAsync(user);
-        }
-        if (_stateProvider.CurrentState != UserState.LoggedIn) {
-            return;
         }
         await ResetLockout(user);
         List<Claim> claims = [ 
@@ -508,8 +505,12 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         if (!twoFactorInfo.DeviceId.IsEmpty) {
             claims.Add(new Claim(BasicClaimTypes.DeviceId, twoFactorInfo.DeviceId.Value!));
         }
-        await Context.SignOutAsync(ExtendedIdentityConstants.TwoFactorUserIdScheme);
+        await Context.SignOutAsync(IdentityConstants.TwoFactorUserIdScheme);
+        if (await ShouldSignInForExtendedValidationAsync(user)) {
+            return await DoPartialSignInAsync(user, twoFactorInfo.DeviceId, ["pwd", "mfa"]);
+        }
         await SignInWithClaimsAsync(user, isPersistent, claims);
+        return SignInResult.Success;
     }
 
     private IUserDeviceStore<TUser>? GetDeviceStore(bool throwOnFail = true) {
@@ -525,61 +526,30 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
 /// <summary>Extends the <see cref="SignInResult"/> type.</summary>
 public class ExtendedSignInResult : SignInResult
 {
+    private static readonly SignInResult _validationRequired = new ExtendedSignInResult { RequiresValidation = true };
     /// <summary>Constructs an instance of <see cref="ExtendedSignInResult"/>.</summary>
-    public ExtendedSignInResult(
-        bool requiresEmailVerification,
-        bool requiresPhoneNumberVerification,
-        bool requiresPasswordChange,
-        bool requiresMfaOnboarding,
-        bool isImpossibleTraveler) {
-        RequiresEmailVerification = requiresEmailVerification;
-        RequiresPhoneNumberVerification = requiresPhoneNumberVerification;
-        RequiresPasswordChange = requiresPasswordChange;
-        RequiresMfaOnboarding = requiresMfaOnboarding;
-        IsImpossibleTraveler = isImpossibleTraveler;
+    public ExtendedSignInResult() {
     }
 
-    /// <summary>Constructs an instance of <see cref="ExtendedSignInResult"/> based on <see cref="UserState"/>.</summary>
-    public ExtendedSignInResult(UserState state) : this(
-        state == UserState.RequiresEmailVerification,
-        state == UserState.RequiresPhoneNumberVerification,
-        state == UserState.RequiresPasswordChange,
-        state == UserState.RequiresMfaOnboarding,
-        state == UserState.IsImpossibleTraveler) {
-        Succeeded = state == UserState.LoggedIn;
-    }
+    /// <summary>Returns a flag indication whether the user attempting to sign-in requires further validation for example password change, email verification, phone number verification, or mfa onboarding before moving to signin.</summary>
+    /// <value>True if the user attempting to sign-in requires validation, otherwise false.</value>
+    public bool RequiresValidation { get; protected set; }
 
-    /// <summary>Returns a flag indication whether the user attempting to sign-in requires phone number confirmation.</summary>
-    /// <value>True if the user attempting to sign-in requires phone number confirmation, otherwise false.</value>
-    public bool RequiresPhoneNumberVerification { get; }
-    /// <summary>Returns a flag indication whether the user attempting to sign-in requires email confirmation.</summary>
-    /// <value>True if the user attempting to sign-in requires email confirmation, otherwise false.</value>
-    public bool RequiresEmailVerification { get; }
-    /// <summary>Returns a flag indication whether the user attempting to sign-in requires an immediate password change due to expiration.</summary>
-    /// <value>True if the user attempting to sign-in requires a password change, otherwise false.</value>
-    public bool RequiresPasswordChange { get; }
-    /// <summary>Returns a flag indication whether the user should on-board to MFA.</summary>
-    /// <value>True if the user attempting to sign-in requires MFA on-boarding, otherwise false.</value>
-    public bool RequiresMfaOnboarding { get; }
-    /// <summary>Returns a flag indication whether the user should be treated with suspicion.</summary>
-    /// <value>True if the user attempting to sign-in from a galaxy far far away.</value>
-    public bool IsImpossibleTraveler { get; }
+    /// <summary>
+    /// Returns a <see cref="SignInResult"/> that represents a sign-in attempt that needs user validation.
+    /// </summary>
+    /// <returns>A <see cref="SignInResult"/> that represents sign-in attempt that needs user validation.</returns>
+    public static SignInResult ValidationRequired => _validationRequired;
+
+    /// <inheritdoc/>
+    public override string ToString() => RequiresValidation ? "RequiresValidation" : base.ToString();
 }
 
 /// <summary>Extensions on <see cref="SignInResult"/> type.</summary>
 public static class ExtendedSignInManagerExtensions
 {
-    /// <summary>Returns a flag indication whether the user attempting to sign-in requires phone number confirmation.</summary>
-    /// <param name="result">Represents the result of a sign-in operation.</param>
-    public static bool RequiresPhoneNumberConfirmation(this SignInResult result) => result is ExtendedSignInResult { RequiresPhoneNumberVerification: true };
-    /// <summary>Returns a flag indication whether the user attempting to sign-in requires email confirmation .</summary>
-    public static bool RequiresEmailConfirmation(this SignInResult result) => result is ExtendedSignInResult { RequiresEmailVerification: true };
-    /// <summary>Returns a flag indication whether the user attempting to sign-in requires email confirmation .</summary>
-    public static bool RequiresPasswordChange(this SignInResult result) => result is ExtendedSignInResult { RequiresPasswordChange: true };
-    /// <summary>Returns a flag indication whether the user should on-board to MFA.</summary>
-    public static bool RequiresMfaOnboarding(this SignInResult result) => result is ExtendedSignInResult { RequiresMfaOnboarding: true };
-    /// <summary>Returns a flag indication whether the user is an impossible traveler.</summary>
-    public static bool IsImpossibleTraveler(this SignInResult result) => result is ExtendedSignInResult { IsImpossibleTraveler: true };
+    /// <summary>Returns a flag indication whether the user attempting to sign-in requires extended validation.</summary>
+    public static bool RequiresValidation(this SignInResult result) => result is ExtendedSignInResult { RequiresValidation: true };
 }
 
 internal sealed class TwoFactorAuthenticationInfo

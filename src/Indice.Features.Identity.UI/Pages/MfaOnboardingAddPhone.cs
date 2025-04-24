@@ -2,6 +2,7 @@ using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.UI.Filters;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -11,7 +12,8 @@ using Microsoft.Extensions.Localization;
 namespace Indice.Features.Identity.UI.Pages;
 
 /// <summary>Page model for the MFA onboarding add phone screen.</summary>
-[Authorize(AuthenticationSchemes = ExtendedIdentityConstants.MfaOnboardingScheme)]
+[Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ExtendedValidationScheme)]
+[UserActivityRequirementFilter<User>(UserActivityRequirementKind.RequiresMfaOnboarding)]
 [IdentityUI(typeof(MfaOnboardingAddPhoneModel))]
 [SecurityHeaders]
 [ValidateAntiForgeryToken]
@@ -48,7 +50,7 @@ public abstract class BaseMfaOnboardingAddPhoneModel : BasePageModel
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        var alert = user.PhoneNumberConfirmed && UserManager.StateProvider.CurrentState == UserState.RequiresMfaOnboarding
+        var alert = user.PhoneNumberConfirmed
             ? _localizer["Your phone number is already confirmed. Continue to enable MFA."]
             : _localizer["Please select your phone number so we can verify it before we continue."];
         TempData.Put(TempDataKey, AlertModel.Info(alert));
@@ -82,7 +84,6 @@ public abstract class BaseMfaOnboardingAddPhoneModel : BasePageModel
             return Page();
         }
         TempData.Put(TempDataKey, AlertModel.Success(_localizer["You have successfully enabled MFA for your account. Login to access your account."]));
-        View.NextStepUrl = GetRedirectUrl(UserManager.StateProvider.CurrentState, Input.ReturnUrl);
         View.PhoneNumberConfirmed = user.PhoneNumberConfirmed;
         return Page();
     }

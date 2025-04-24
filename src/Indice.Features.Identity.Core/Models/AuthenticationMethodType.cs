@@ -7,10 +7,10 @@ public enum AuthenticationMethodType
     PhoneNumber,
     /// <summary>FIDO2</summary>
     Fido2,
-    /// <summary>Microsoft Authenticator application</summary>
-    MicrosoftAuthenticator,
-    /// <summary>Biometrics</summary>
-    Biometrics,
+    /// <summary>Authenticator app</summary>
+    AuthenticatorApp,
+    /// <summary>Trusted Device, push otp</summary>
+    TrustedDevice,
     /// <summary>Email</summary>
     Email
 }

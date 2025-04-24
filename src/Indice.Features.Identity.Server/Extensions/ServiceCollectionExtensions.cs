@@ -19,7 +19,6 @@ using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Options;
 using Indice.Features.Identity.Server.Totp.Models;
 using Indice.Features.Identity.Server.Totp.Validators;
-using Indice.AspNetCore.Filters;
 using Indice.Security;
 using Indice.Serialization;
 using Indice.Services;
@@ -39,6 +38,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.FeatureManagement;
 using Microsoft.IdentityModel.Logging;
 using IndiceStores = Indice.IdentityServer.EntityFramework.Storage.Stores;
+using Indice.Features.Identity.Core.IdentityValidation;
+using SixLabors.ImageSharp;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -73,14 +74,9 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         services.AddTotpServiceFactory(configuration);
         var identityBuilder = services.AddIdentityDefaults(configuration);
         var identityServerBuilder = services.AddIdentityServerDefaults(configuration, environment, options.ConfigureConfigurationDbContext, options.ConfigurePersistedGrantDbContext);
-        services.AddAuthenticationDefaults();
+        services.AddAuthenticationDefaults(configuration);
         options.ConfigureIdentityDbContext ??= dbBuilder => dbBuilder.UseSqlServer(configuration.GetConnectionString("IdentityDb"));
         services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(options.ConfigureIdentityDbContext);
-        services.AddSession(options => {
-            options.IdleTimeout = TimeSpan.FromMinutes(10);
-            options.Cookie.HttpOnly = true;
-            options.Cookie.IsEssential = true;
-        });
         return new ExtendedIdentityServerBuilder(identityServerBuilder, identityBuilder, configuration, environment);
     }
 
@@ -93,12 +89,16 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         services.AddExternalProviderClaimsTransformation();
         services.Configure<CookieTempDataProviderOptions>(options => {
             options.Cookie.Expiration = TimeSpan.FromMinutes(30);
-        });
-        services.Configure<CookieAuthenticationOptions>(IdentityConstants.TwoFactorRememberMeScheme, options => {
-            options.ExpireTimeSpan = TimeSpan.FromDays(configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "RememberDurationInDays") ?? ExtendedSignInManager<User>.DEFAULT_MFA_REMEMBER_DURATION_IN_DAYS);
+            options.Cookie.Name = ExtendedIdentityConstants.TempDataCookieName;
         });
         services.TryAddScoped<IdentityMessageDescriber>();
         services.TryAddScoped<CallingCodesProvider>();
+        services.TryAddScoped<IUserRequirementProvider<User>, DefaultUserRequirementProvider<User>>();
+        services.AddScoped<IIdentityValidationActivity, RequiresTermsAcceptanceActivity>();
+        services.AddScoped<IIdentityValidationActivity, RequiresMfaOnboardingActivity>();
+        services.AddScoped<IIdentityValidationActivity, RequiresEmailVerificationActivity>();
+        services.AddScoped<IIdentityValidationActivity, RequiresPhoneNumberVerificationActivity>();
+        services.AddScoped<IIdentityValidationActivity, RequiresPasswordChangeActivity>();
         return services.AddIdentity<User, Role>()
                        .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
                        .AddExtendedUserManager()
@@ -166,25 +166,33 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         return identityServerBuilder;
     }
 
-    private static AuthenticationBuilder AddAuthenticationDefaults(this IServiceCollection services) {
+    private static AuthenticationBuilder AddAuthenticationDefaults(this IServiceCollection services, IConfiguration configuration) {
         var authBuilder = services.AddAuthentication();
-        static Action<CookieAuthenticationOptions> AuthCookie() => options => {
+        static Action<CookieAuthenticationOptions> AuthCookie(string cookieName) => options => {
             options.LoginPath = new PathString("/login");
             options.LogoutPath = new PathString("/logout");
             options.AccessDeniedPath = new PathString("/403");
             options.Cookie.HttpOnly = true;
             options.Cookie.SameSite = SameSiteMode.None;
             options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            options.Cookie.Name = cookieName;
         };
-        services.ConfigureApplicationCookie(AuthCookie());
-        services.ConfigureExtendedValidationCookie(AuthCookie());
+        services.ConfigureApplicationCookie(AuthCookie(ExtendedIdentityConstants.ApplicationCookieName));
+        services.ConfigureExtendedValidationCookie(AuthCookie(ExtendedIdentityConstants.ExtendedValidationCookieName));
+        services.ConfigureExternalCookie(AuthCookie(ExtendedIdentityConstants.ExternalCookieName));
+        
         services.Configure<CookieAuthenticationOptions>(IdentityConstants.TwoFactorUserIdScheme, options => {
-            options.Cookie.Name = IdentityConstants.TwoFactorUserIdScheme;
+            options.Cookie.Name = ExtendedIdentityConstants.TwoFactorCookieName;
             options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
-            options.LoginPath = new PathString("/login-with-2fa");
+            options.LoginPath = new PathString("/login");
             options.LogoutPath = new PathString("/logout");
             options.AccessDeniedPath = new PathString("/403");
         });
+        services.Configure<CookieAuthenticationOptions>(IdentityConstants.TwoFactorRememberMeScheme, options => {
+            options.Cookie.Name = ExtendedIdentityConstants.TwoFactorRememberMeCookieName;
+            options.ExpireTimeSpan = TimeSpan.FromDays(configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "RememberDurationInDays") ?? ExtendedSignInManager<User>.DEFAULT_MFA_REMEMBER_DURATION_IN_DAYS);
+        });
+        services.AddAntiforgery(options => options.Cookie.Name = ExtendedIdentityConstants.AntiforgeryCookieName);
         return authBuilder;
     }
 

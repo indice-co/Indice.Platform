@@ -2,6 +2,7 @@ using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.UI.Filters;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +11,8 @@ using Microsoft.Extensions.Localization;
 namespace Indice.Features.Identity.UI.Pages;
 
 /// <summary>Page model for the MFA onboarding verify phone screen.</summary>
-[Authorize(AuthenticationSchemes = ExtendedIdentityConstants.MfaOnboardingScheme)]
+[Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ExtendedValidationScheme)]
+[UserActivityRequirementFilter<User>(UserActivityRequirementKind.RequiresMfaOnboarding)]
 [IdentityUI(typeof(MfaOnboardingVerifyPhoneModel))]
 [SecurityHeaders]
 [ValidateAntiForgeryToken]
@@ -68,7 +70,6 @@ public abstract class BaseMfaOnboardingVerifyPhoneModel : BasePageModel
         } else {
             tempDataModel.Alert = AlertModel.Error(_localizer["Please enter the code that you have received at your mobile phone."]);
         }
-        tempDataModel.NextStepUrl = GetRedirectUrl(UserManager.StateProvider.CurrentState, Input.ReturnUrl) ?? "/";
         TempData.Put(TempDataKey, tempDataModel);
         return Page();
     }
