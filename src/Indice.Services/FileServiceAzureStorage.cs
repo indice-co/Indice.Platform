@@ -141,9 +141,8 @@ public class FileServiceAzureStorage : IFileService
 
         var copyAction = async (BlobClient sourceBlob, BlobClient destBlob) => {
             var copyOperation = await destBlob.StartCopyFromUriAsync(sourceBlob.Uri);
-            var copiedContentLength = 0L;
             while (copyOperation.HasCompleted == false) {
-                copiedContentLength = await copyOperation.WaitForCompletionAsync();
+                await copyOperation.WaitForCompletionAsync();
                 await Task.Delay(100);
             }
             await sourceBlob.DeleteAsync();
