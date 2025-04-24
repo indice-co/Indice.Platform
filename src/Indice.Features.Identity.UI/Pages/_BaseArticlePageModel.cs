@@ -96,7 +96,7 @@ public abstract class BaseArticlePageModel : PageModel
     /// <summary>
     /// Recursively delete nodes not in the attributeWhitelist
     /// </summary>
-    private HtmlNode CleanNodes(HtmlNode node, string[] nodeWhitelist, string[] attributeWhitelist) {
+    private static HtmlNode CleanNodes(HtmlNode node, string[] nodeWhitelist, string[] attributeWhitelist) {
         if (SkipNode(node)) {
             var nextNode = node.NextSibling;
             node.ParentNode.RemoveChild(node);
@@ -113,7 +113,7 @@ public abstract class BaseArticlePageModel : PageModel
 
         if (node.NodeType == HtmlNodeType.Element) {
             var attribs = node.Attributes.ToList();
-            for (int i = attribs.Count - 1; i >= 0; i--) {
+            for (var i = attribs.Count - 1; i >= 0; i--) {
                 var attrib = node.Attributes[i];
                 if (!attributeWhitelist.Contains(attrib.Name)) {
                     node.Attributes.Remove(attrib);
@@ -136,14 +136,14 @@ public abstract class BaseArticlePageModel : PageModel
         return node.NextSibling;
     }
 
-    private bool SkipNode(HtmlNode node) {
+    private static bool SkipNode(HtmlNode node) {
         if (node.NodeType == HtmlNodeType.Comment) {
             return true;
         }
         if (node.Name == "script" || node.Name == "style" || node.Name == "aside") {
             return true;
         }
-        if (node.NodeType == HtmlNodeType.Text && String.IsNullOrWhiteSpace(node.InnerText)) {
+        if (node.NodeType == HtmlNodeType.Text && string.IsNullOrWhiteSpace(node.InnerText)) {
             return true;
         }
         return false;
