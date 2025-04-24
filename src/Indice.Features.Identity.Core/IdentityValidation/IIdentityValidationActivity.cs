@@ -80,7 +80,7 @@ public class RequiresMfaOnboardingActivity : IdentityValidationActivityBase
     protected override async ValueTask<UserValidationRequirement?> GetResultAsync(UserValidationActivityContext activityContext) {
         await ValueTask.CompletedTask;
         var configuration = activityContext.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
-        var mfaPolicy = activityContext.User.TwoFactorPolicy ?? configuration.GetIdentityOption<MfaPolicy?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Policy") ?? MfaPolicy.Optional;
+        var mfaPolicy = activityContext.User.TwoFactorPolicy ?? configuration.GetIdentityOption<MfaPolicy>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Policy");
 
         if (activityContext.User.TwoFactorEnabled == false && mfaPolicy == MfaPolicy.Enforced) {
             return new UserValidationRequirement(UserActivityRequirementKind.RequiresMfaOnboarding, "/MfaOnboarding");
@@ -113,7 +113,7 @@ public class RequiresEmailVerificationActivity : IdentityValidationActivityBase
     protected override async ValueTask<UserValidationRequirement?> GetResultAsync(UserValidationActivityContext activityContext) {
         await ValueTask.CompletedTask;
         var configuration = activityContext.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
-        var requirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedEmail)) == true;
+        var requirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedEmail));
 
         if (activityContext.User.EmailConfirmed == false && requirePostSignInConfirmedEmail) {
             return new UserValidationRequirement(UserActivityRequirementKind.RequiresEmailVerification, "/AddEmail");
@@ -131,7 +131,7 @@ public class RequiresPhoneNumberVerificationActivity : IdentityValidationActivit
     protected override async ValueTask<UserValidationRequirement?> GetResultAsync(UserValidationActivityContext activityContext) {
         await ValueTask.CompletedTask;
         var configuration = activityContext.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
-        var requirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedPhoneNumber)) == true;
+        var requirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedPhoneNumber));
         
         if (activityContext.User.PhoneNumberConfirmed == false && requirePostSignInConfirmedPhoneNumber) {
             return new UserValidationRequirement(UserActivityRequirementKind.RequiresPhoneNumberVerification, "/AddPhone");
@@ -150,7 +150,7 @@ public class RequiresTermsAcceptanceActivity : IdentityValidationActivityBase
         await ValueTask.CompletedTask; 
         
         var configuration = activityContext.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
-        var requirePostSignInAcceptedTerms = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInAcceptedTerms)) == true;
+        var requirePostSignInAcceptedTerms = configuration.GetIdentityOption<bool>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInAcceptedTerms));
         var hasAcceptedTerms = activityContext.User.Claims.Where(x => x.ClaimType == BasicClaimTypes.ConsentTerms).Select(x => bool.TrueString.Equals(x.ClaimValue, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
         if (!hasAcceptedTerms && requirePostSignInAcceptedTerms) {
             return new UserValidationRequirement(UserActivityRequirementKind.RequiresAcceptanceOfTerms, "/AcceptTerms");

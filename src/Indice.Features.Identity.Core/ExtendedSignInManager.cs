@@ -74,14 +74,14 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         _signInGuard = signInGuard ?? throw new ArgumentNullException(nameof(signInGuard));
         _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
         _userRequirementProvider = userRequirementProvider ?? throw new ArgumentNullException(nameof(userRequirementProvider));
-        RequirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedEmail)) == true;
-        RequirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedPhoneNumber)) == true;
-        RequirePostSignInAcceptedTerms = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInAcceptedTerms)) == true;
-        ExpireBlacklistedPasswordsOnSignIn = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExpireBlacklistedPasswordsOnSignIn)) == true;
-        PersistTrustedBrowsers = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(PersistTrustedBrowsers)) == true;
+        RequirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedEmail));
+        RequirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedPhoneNumber));
+        RequirePostSignInAcceptedTerms = configuration.GetIdentityOption<bool>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInAcceptedTerms));
+        ExpireBlacklistedPasswordsOnSignIn = configuration.GetIdentityOption<bool>(nameof(IdentityOptions.SignIn), nameof(ExpireBlacklistedPasswordsOnSignIn));
+        PersistTrustedBrowsers = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(PersistTrustedBrowsers)) ?? true;
         MfaRememberDurationInDays = configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "RememberDurationInDays") ?? DEFAULT_MFA_REMEMBER_DURATION_IN_DAYS;
-        RememberTrustedBrowserAcrossSessions = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(RememberTrustedBrowserAcrossSessions)) == true;
-        RememberExpirationType = configuration.GetIdentityOption<MfaExpirationType?>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(RememberExpirationType)) ?? default;
+        RememberTrustedBrowserAcrossSessions = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(RememberTrustedBrowserAcrossSessions)) ?? true;
+        RememberExpirationType = configuration.GetIdentityOption<MfaExpirationType>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(RememberExpirationType));
         RequireMfaWhenUserHasTrustedBrowserButExpiredPassword = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa:RequireWhen", "UserHasTrustedBrowserButExpiredPassword") ?? true;
         MfaPolicy = configuration.GetIdentityOption<MfaPolicy?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Policy") ?? MfaPolicy.Optional;
     }
