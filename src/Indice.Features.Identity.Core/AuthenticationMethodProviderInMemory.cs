@@ -41,7 +41,7 @@ public class AuthenticationMethodProviderInMemory : IAuthenticationMethodProvide
     /// <inheritdoc />
     /// <remarks>For now the supported authentication methods are <see cref="SmsAuthenticationMethod"/>, <see cref="TrustedDeviceAuthenticationMethod"/> and <see cref="AuthenticatorAppAuthenticationMethod"/>.</remarks>
     public async Task<AuthenticationMethod?> GetRequiredAuthenticationMethod(User user, bool? tryDowngradeAuthenticationMethod = false) {
-        if (_authenticationMethods?.Count() == 0) {
+         if (_authenticationMethods?.Count() == 0) {
             throw new InvalidOperationException("No authentication methods have been configured.");
         }
         var selectedAuthenticationMethod = _authenticationMethods!.FirstOrDefault(x => x.Type == AuthenticationMethodType.PhoneNumber);

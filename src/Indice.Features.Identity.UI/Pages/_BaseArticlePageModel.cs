@@ -1,4 +1,7 @@
 ﻿using System.Globalization;
+using System.Net.Mime;
+using System.Text;
+using HtmlAgilityPack;
 using Indice.Features.Identity.UI.Models;
 using Indice.Services;
 using Microsoft.AspNetCore.Builder;
@@ -60,5 +63,89 @@ public abstract class BaseArticlePageModel : PageModel
         }
         View = new ArticleViewModel(localizer[title], markdownPath);
         return Page();
+    }
+
+    /// <summary>
+    /// Redirect to an external article or Loads the rich text from the external html source
+    /// </summary>
+    /// <param name="articleUrl">The external source</param>
+    /// <param name="raw">Load the raw html.</param>
+    /// <returns></returns>
+    protected async Task<IActionResult> ExternalArticle(string articleUrl, bool? raw = null) {
+        if (raw.HasValue && raw.Value) {
+            var http = HttpContext.RequestServices.GetRequiredService<IHttpClientFactory>().CreateClient();
+            var html = await http.GetStringAsync(articleUrl);
+            var doc = new HtmlDocument();
+            doc.OptionFixNestedTags = true;
+            doc.OptionAutoCloseOnEnd = true;
+            doc.OptionDefaultStreamEncoding = Encoding.UTF8;
+            doc.OptionWriteEmptyNodes = true;
+            doc.OptionOutputAsXml = true;
+            doc.LoadHtml(html);
+            var mainNode = doc.DocumentNode.SelectSingleNode("//main")!;
+            var articleNode = mainNode.SelectSingleNode("//article");
+            if (articleNode is not null) {
+                mainNode = articleNode;
+            }
+            CleanNodes(mainNode, ["p", "br", "strong", "em", "b", "ul", "li", "ol", "a", "table", "tbody", "thead", "tfoot", "tr", "td", "h1", "h2", "h3", "h4", "h5", "h6", "h7", "h8"], ["href"]);
+            return Content(HtmlEntity.DeEntitize(mainNode.InnerHtml)!, MediaTypeNames.Text.Html, Encoding.UTF8);
+        }
+        return Redirect(articleUrl);
+    }
+
+    /// <summary>
+    /// Recursively delete nodes not in the attributeWhitelist
+    /// </summary>
+    private HtmlNode CleanNodes(HtmlNode node, string[] nodeWhitelist, string[] attributeWhitelist) {
+        if (SkipNode(node)) {
+            var nextNode = node.NextSibling;
+            node.ParentNode.RemoveChild(node);
+
+            return nextNode;
+        }
+
+        if (node.HasChildNodes) {
+            var childNode = node.FirstChild;
+            while (childNode != null) {
+                childNode = CleanNodes(childNode, nodeWhitelist, attributeWhitelist);
+            }
+        }
+
+        if (node.NodeType == HtmlNodeType.Element) {
+            var attribs = node.Attributes.ToList();
+            for (int i = attribs.Count - 1; i >= 0; i--) {
+                var attrib = node.Attributes[i];
+                if (!attributeWhitelist.Contains(attrib.Name)) {
+                    node.Attributes.Remove(attrib);
+                }
+            }
+
+            if (!nodeWhitelist.Contains(node.Name)) {
+                var nodeList = node.ChildNodes.ToList();
+                foreach (var child in nodeList) {
+                    node.ParentNode.InsertBefore(child, node);
+                }
+
+                var nextNode = node.NextSibling;
+                node.ParentNode.RemoveChild(node);
+
+                return nextNode;
+            }
+        }
+
+        return node.NextSibling;
+    }
+
+    private bool SkipNode(HtmlNode node) {
+        if (node.NodeType == HtmlNodeType.Comment) {
+            return true;
+        }
+        if (node.Name == "script" || node.Name == "style" || node.Name == "aside") {
+            return true;
+        }
+        if (node.NodeType == HtmlNodeType.Text && String.IsNullOrWhiteSpace(node.InnerText)) {
+            return true;
+        }
+        return false;
     }
 }
