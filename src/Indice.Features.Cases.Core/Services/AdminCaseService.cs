@@ -670,7 +670,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return [.. checkpointTypeIds];
     }
 
-    public async Task<bool> PublishPrivateData(Guid caseId) {
+    public async Task<bool> PublishData(Guid caseId) {
         ArgumentNullException.ThrowIfNull(caseId);
         var @case = await DbContext.Cases.FirstOrDefaultAsync(p => p.Id == caseId);
         if (@case is null) {
