@@ -34,7 +34,7 @@ public abstract class BaseSetLanguageModel : BasePageModel
 
     /// <summary>Set language page POST handler.</summary>
     private IActionResult OnSetLangageInternal(string? returnUrl, string? culture) {
-        var supportedCultures = (_requestLocalizationOptions.SupportedCultures ?? new List<CultureInfo>()).Select(x => x.TwoLetterISOLanguageName).ToHashSet();
+        var supportedCultures = (_requestLocalizationOptions.SupportedCultures ?? []).Select(x => x.TwoLetterISOLanguageName).ToHashSet();
         if (string.IsNullOrWhiteSpace(culture) || !supportedCultures.Contains(culture)) {
             culture = _requestLocalizationOptions.DefaultRequestCulture.Culture.TwoLetterISOLanguageName;
         }
