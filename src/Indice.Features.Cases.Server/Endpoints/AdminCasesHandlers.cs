@@ -84,6 +84,7 @@ internal static class AdminCasesHandlers
         ClaimsPrincipal currentUser,
         IOptions<CasesOptions> casesOptions) {
         await adminCaseService.UpdateData(currentUser.UserToActor(casesOptions.Value), caseId, data);
+        await adminCaseService.PublishData(caseId); // todo: replace with the above (saveData with publish flag and SaveAndPublish expressive interface method)
         await adminCaseService.Submit(currentUser.UserToActor(casesOptions.Value), caseId);
         return TypedResults.NoContent();
     }
@@ -279,11 +280,10 @@ internal static class AdminCasesHandlers
         var pdfOptions = new PdfOptions(@case.CaseType.Config);
         return await casePdfService.HtmlToPdfAsync(template, pdfOptions, @case);
     }
-
-
-    /// <summary>Sync private data to public</summary>
+    
+    /// <summary>Publish the latest version of Data.</summary>
     /// <param name="caseId"></param>
     /// <param name="adminCaseService"></param>
     public static async Task PublishCasePrivateData(Guid caseId, IAdminCaseService adminCaseService)
-        => await adminCaseService.PublishPrivateData(caseId);
+        => await adminCaseService.PublishData(caseId);
 }
