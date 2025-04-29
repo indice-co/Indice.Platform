@@ -9,11 +9,11 @@ namespace Indice.Serialization;
 public class JsonStringArrayEnumFlagsConverterFactory : JsonConverterFactory
 {
     /// <inheritdoc />
-    public override bool CanConvert(Type typeToConvert) => typeToConvert.IsFlagsEnum();
+    public override bool CanConvert(Type typeToConvert) => typeToConvert.IsFlagsEnum() || Nullable.GetUnderlyingType(typeToConvert)?.IsFlagsEnum() == true;
 
     /// <inheritdoc />
     public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options) {
-        var converterType = typeof(JsonStringArrayEnumFlagsConverter<>).MakeGenericType(typeToConvert);
+        var converterType = typeof(JsonStringArrayEnumFlagsConverter<>).MakeGenericType(typeToConvert.IsFlagsEnum() ? typeToConvert : Nullable.GetUnderlyingType(typeToConvert)!);
         var converter = Activator.CreateInstance(converterType)!;
         return (JsonConverter)converter;
     }
