@@ -1,6 +1,8 @@
 using System.Reflection;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Unicode;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -217,6 +219,7 @@ public static class ServiceDefaultsExtensions
     private static JsonSerializerOptions CreateJsonOptions() {
         var options = new JsonSerializerOptions {
             WriteIndented = true,
+            Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
             AllowTrailingCommas = true,
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
