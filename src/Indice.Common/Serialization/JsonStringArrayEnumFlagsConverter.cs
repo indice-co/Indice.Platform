@@ -9,11 +9,11 @@ namespace Indice.Serialization;
 public class JsonStringArrayEnumFlagsConverterFactory : JsonConverterFactory
 {
     /// <inheritdoc />
-    public override bool CanConvert(Type typeToConvert) => typeToConvert.IsFlagsEnum() || Nullable.GetUnderlyingType(typeToConvert)?.IsFlagsEnum() == true;
+    public override bool CanConvert(Type typeToConvert) => typeToConvert.IsFlagsEnum();
 
     /// <inheritdoc />
     public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options) {
-        var converterType = typeof(JsonStringArrayEnumFlagsConverter<>).MakeGenericType(typeToConvert.IsFlagsEnum() ? typeToConvert : Nullable.GetUnderlyingType(typeToConvert)!);
+        var converterType = typeof(JsonStringArrayEnumFlagsConverter<>).MakeGenericType(typeToConvert);
         var converter = Activator.CreateInstance(converterType)!;
         return (JsonConverter)converter;
     }
@@ -21,7 +21,7 @@ public class JsonStringArrayEnumFlagsConverterFactory : JsonConverterFactory
 
 /// <summary>A custom JSON converter which transforms <see cref="Enum"/> flags to string array.</summary>
 /// <typeparam name="TEnum">The type of the enum.</typeparam>
-internal class JsonStringArrayEnumFlagsConverter<TEnum> : JsonConverter<TEnum?>
+internal class JsonStringArrayEnumFlagsConverter<TEnum> : JsonConverter<TEnum>
 {
     /// <inheritdoc />
     /// <remarks>https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-converters-how-to?pivots=dotnet-6-0#error-handling</remarks>
