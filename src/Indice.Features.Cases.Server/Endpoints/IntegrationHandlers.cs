@@ -111,7 +111,7 @@ internal static class IntegrationHandlers
     /// <param name="caseId"></param>
     /// <param name="adminCaseService"></param>
     public static async Task PublishPrivateData(Guid caseId, IAdminCaseService adminCaseService)
-        => await adminCaseService.PublishPrivateData(caseId);
+        => await adminCaseService.PublishData(caseId);
 
     /// <summary>Patch Case Data.</summary>
     public static async Task PatchData(
