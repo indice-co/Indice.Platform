@@ -197,7 +197,15 @@ public class NotificationsManager(
                 request.IgnoreUserPreferences = template.IgnoreUserPreferences;
             }
             request.Data ??= template.Data;
-            request.Content = template.Content;
+            var content = template.Content;
+            if (null != request.MessageTemplateChannels && request.MessageTemplateChannels.Count > 0) {
+                var channels = request.MessageTemplateChannels.Select(ch => ch.ToString());
+                content = new (template.Content.Where(cnt => channels.Contains(cnt.Key)));
+                if (content.Count == 0) {
+                    return CreateCampaignResult.Fail($"Content was empty after applying the messageTemplateChannels to the selected Template with Id:({request.MessageTemplateId})");
+                }
+            }
+            request.Content = content;
         }
         if (request.TypeId.HasValue) {
             var messageType = await MessageTypeService.GetById(request.TypeId.Value);
