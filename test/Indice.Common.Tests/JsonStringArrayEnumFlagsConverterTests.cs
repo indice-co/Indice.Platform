@@ -68,10 +68,13 @@ public class JsonStringArrayEnumFlagsConverterTests
         };
         var json = @"{""id"":1,""name"":""Sales Christmas 2021"",""deliveryChannel"":null}";
         var json2 = @"{""id"":1,""name"":""Sales Christmas 2021"",""deliveryChannel"": [""Inbox"", ""PushNotification""]}";
+        var json3 = @"{""id"":1,""name"":""Sales Christmas 2021"",""deliveryChannel"": ""Email, SMS""}";
         var campaign = JsonSerializer.Deserialize<Campaign2>(json, Options);
         var campaign2 = JsonSerializer.Deserialize<Campaign2>(json2, Options);
+        var campaign3 = JsonSerializer.Deserialize<Campaign2>(json3, Options);
         Assert.Equal(expectedCampaign.DeliveryChannel, campaign.DeliveryChannel);
         Assert.Equal(expectedCampaign2.DeliveryChannel, campaign2.DeliveryChannel);
+        Assert.Equal(CampaignDeliveryChannel.Email | CampaignDeliveryChannel.SMS, campaign3.DeliveryChannel);
     }
 }
 

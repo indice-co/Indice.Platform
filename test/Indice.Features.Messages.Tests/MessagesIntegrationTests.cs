@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 using Indice.AspNetCore.Authorization;
+using Indice.Extensions;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Models;
@@ -70,6 +71,239 @@ public class MessagesIntegrationTests : IAsyncLifetime
         _httpClient = new HttpClient(handler) {
             BaseAddress = new Uri(BASE_URL)
         };
+    }
+
+    [Fact]
+    public async Task Create_Template_And_Create_Campaign__No_Channels_Specified__Success() {
+        //arrange
+        string templateAlias = "my dummy template";
+        var createTemplateRequest = new CreateTemplateRequest {
+            Name = "My Welcome Email", Alias = templateAlias,
+            Content = new MessageContentDictionary(
+                new Dictionary<MessageChannelKind, MessageContent> {
+                    [MessageChannelKind.Email] = new MessageContent("Email Test Message", "Test Message Content: {{data.localization.description_key}}"),
+                    [MessageChannelKind.PushNotification] = new MessageContent("Push Test Message", "Test Message Content: {{data.localization.description_key}}"),
+                    [MessageChannelKind.SMS] = new MessageContent("SMS Test Message", "Test Message Content: {{data.localization.description_key}}")
+                }
+            ),
+            Data = new {
+                localization = new {
+                    description_key = "This is a description"
+                }
+            }
+        };
+        var createTemplatePayload = JsonSerializer.Serialize(createTemplateRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var createTemplateResponse = await _httpClient.PostAsync("/api/templates", new StringContent(createTemplatePayload, Encoding.UTF8, "application/json"));
+
+        //action
+        var createCampaignRequest = new CreateCampaignRequest {
+            Title = "Test Campaign",
+            ActivePeriod = new Types.Period {
+                From = DateTimeOffset.UtcNow,
+                To = DateTimeOffset.UtcNow.AddDays(1)
+            },
+            Published = false,
+            RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"],
+            MessageTemplateId = new GuidOrAlias(templateAlias)
+        };
+        var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));
+        var createCampaignResponseJson = await createCampaignResponse.Content.ReadAsStringAsync();
+        if (!createCampaignResponse.IsSuccessStatusCode) {
+            _output.WriteLine(createCampaignResponseJson);
+        }
+
+        //assert
+        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location.PathAndQuery);
+        var getCampaignResponseJson = await getCampaignResponse.Content.ReadAsStringAsync();
+        if (!getCampaignResponse.IsSuccessStatusCode) {
+            _output.WriteLine(getCampaignResponseJson);
+        }
+
+        Assert.True(createCampaignResponse.IsSuccessStatusCode);
+        Assert.True(getCampaignResponse.IsSuccessStatusCode);
+
+        var serializationOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
+        serializationOptions.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
+        var campaignDetails = JsonSerializer.Deserialize<CampaignDetails>(getCampaignResponseJson, serializationOptions);
+
+        Assert.NotNull(campaignDetails);
+        var actualContentMessageKinds = campaignDetails.Content.Select(cnt => cnt.Key);
+        var expectedContentMessageKinds = createTemplateRequest.Content.Select(cnt => cnt.Key);
+        Assert.Equal(expectedContentMessageKinds.Count(), actualContentMessageKinds.Count());
+        Assert.Equal(expectedContentMessageKinds.Count(), expectedContentMessageKinds.Intersect(actualContentMessageKinds).Count());
+        Assert.Equal(expectedContentMessageKinds.Count(), campaignDetails.MessageChannelKind.GetFlagValues().Count());
+    }
+
+    [Fact]
+    public async Task Create_Template_And_Create_Campaign__Channels_Specified__Success() {
+        //arrange
+        string templateAlias = "my dummy template";
+        var createTemplateRequest = new CreateTemplateRequest {
+            Name = "My Welcome Email", Alias = templateAlias,
+            Content = new MessageContentDictionary(
+                new Dictionary<MessageChannelKind, MessageContent> {
+                    [MessageChannelKind.Email] = new MessageContent("Email Test Message", "Test Message Content: {{data.localization.description_key}}"),
+                    [MessageChannelKind.PushNotification] = new MessageContent("Push Test Message", "Test Message Content: {{data.localization.description_key}}"),
+                    [MessageChannelKind.SMS] = new MessageContent("SMS Test Message", "Test Message Content: {{data.localization.description_key}}")
+                }
+            ),
+            Data = new {
+                localization = new {
+                    description_key = "This is a description"
+                }
+            }
+        };
+        var createTemplatePayload = JsonSerializer.Serialize(createTemplateRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var createTemplateResponse = await _httpClient.PostAsync("/api/templates", new StringContent(createTemplatePayload, Encoding.UTF8, "application/json"));
+
+        //action
+        var createCampaignRequest = new CreateCampaignRequest {
+            Title = "Test Campaign",
+            ActivePeriod = new Types.Period {
+                From = DateTimeOffset.UtcNow,
+                To = DateTimeOffset.UtcNow.AddDays(1)
+            },
+            Published = false,
+            RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"],
+            MessageTemplateId = new GuidOrAlias(templateAlias),
+            MessageTemplateChannels = MessageChannelKind.Email | MessageChannelKind.PushNotification
+        };
+        var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));
+        var createCampaignResponseJson = await createCampaignResponse.Content.ReadAsStringAsync();
+        if (!createCampaignResponse.IsSuccessStatusCode) {
+            _output.WriteLine(createCampaignResponseJson);
+        }
+
+        //assert
+        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location.PathAndQuery);
+        var getCampaignResponseJson = await getCampaignResponse.Content.ReadAsStringAsync();
+        if (!getCampaignResponse.IsSuccessStatusCode) {
+            _output.WriteLine(getCampaignResponseJson);
+        }
+
+        Assert.True(createCampaignResponse.IsSuccessStatusCode);
+        Assert.True(getCampaignResponse.IsSuccessStatusCode);
+
+        var serializationOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
+        serializationOptions.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
+        var campaignDetails = JsonSerializer.Deserialize<CampaignDetails>(getCampaignResponseJson, serializationOptions);
+
+        Assert.NotNull(campaignDetails);
+        var actualContentMessageKinds = campaignDetails.Content.Select(cnt => cnt.Key);
+        var expectedContentMessageKinds = createCampaignRequest.MessageTemplateChannels.Value.GetFlagValues().Select(v => v.ToString());
+        Assert.Equal(expectedContentMessageKinds.Count(), actualContentMessageKinds.Count());
+        Assert.Equal(expectedContentMessageKinds.Count(), expectedContentMessageKinds.Intersect(actualContentMessageKinds).Count());
+        Assert.Equal(expectedContentMessageKinds.Count(), campaignDetails.MessageChannelKind.GetFlagValues().Count());
+    }
+
+    [Fact]
+    public async Task Create_Template_And_Create_Campaign__Channels_Specified__Subset_Success() {
+        //arrange
+        string templateAlias = "my dummy template";
+        var createTemplateRequest = new CreateTemplateRequest {
+            Name = "My Welcome Email", Alias = templateAlias,
+            Content = new MessageContentDictionary(
+                new Dictionary<MessageChannelKind, MessageContent> {
+                    [MessageChannelKind.Email] = new MessageContent("Email Test Message", "Test Message Content: {{data.localization.description_key}}"),
+                    [MessageChannelKind.PushNotification] = new MessageContent("Push Test Message", "Test Message Content: {{data.localization.description_key}}"),
+                    [MessageChannelKind.SMS] = new MessageContent("SMS Test Message", "Test Message Content: {{data.localization.description_key}}")
+                }
+            ),
+            Data = new {
+                localization = new {
+                    description_key = "This is a description"
+                }
+            }
+        };
+        var createTemplatePayload = JsonSerializer.Serialize(createTemplateRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var createTemplateResponse = await _httpClient.PostAsync("/api/templates", new StringContent(createTemplatePayload, Encoding.UTF8, "application/json"));
+
+        //action
+        var createCampaignRequest = new CreateCampaignRequest {
+            Title = "Test Campaign",
+            ActivePeriod = new Types.Period {
+                From = DateTimeOffset.UtcNow,
+                To = DateTimeOffset.UtcNow.AddDays(1)
+            },
+            Published = false,
+            RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"],
+            MessageTemplateId = new GuidOrAlias(templateAlias),
+            MessageTemplateChannels = MessageChannelKind.Email | MessageChannelKind.Inbox
+        };
+        var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));
+        var createCampaignResponseJson = await createCampaignResponse.Content.ReadAsStringAsync();
+        if (!createCampaignResponse.IsSuccessStatusCode) {
+            _output.WriteLine(createCampaignResponseJson);
+        }
+
+        //assert
+        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location.PathAndQuery);
+        var getCampaignResponseJson = await getCampaignResponse.Content.ReadAsStringAsync();
+        if (!getCampaignResponse.IsSuccessStatusCode) {
+            _output.WriteLine(getCampaignResponseJson);
+        }
+
+        Assert.True(createCampaignResponse.IsSuccessStatusCode);
+        Assert.True(getCampaignResponse.IsSuccessStatusCode);
+
+        var serializationOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
+        serializationOptions.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
+        var campaignDetails = JsonSerializer.Deserialize<CampaignDetails>(getCampaignResponseJson, serializationOptions);
+
+        Assert.NotNull(campaignDetails);
+        var actualContentMessageKinds = campaignDetails.Content.Select(cnt => cnt.Key);
+        var expectedContentMessageKinds = new string[] { MessageChannelKind.Email.ToString() };
+        Assert.Equal(expectedContentMessageKinds.Count(), actualContentMessageKinds.Count());
+        Assert.Equal(expectedContentMessageKinds.Count(), expectedContentMessageKinds.Intersect(actualContentMessageKinds).Count());
+        Assert.Equal(expectedContentMessageKinds.Count(), campaignDetails.MessageChannelKind.GetFlagValues().Count());
+    }
+
+    [Fact]
+    public async Task Create_Template_And_Create_Campaign__Channels_Specified__No_Intersection_Failure() {
+        //arrange
+        string templateAlias = "my dummy template";
+        var createTemplateRequest = new CreateTemplateRequest {
+            Name = "My Welcome Email", Alias = templateAlias,
+            Content = new MessageContentDictionary(
+                new Dictionary<MessageChannelKind, MessageContent> {
+                    [MessageChannelKind.Email] = new MessageContent("Email Test Message", "Test Message Content: {{data.localization.description_key}}"),
+                    [MessageChannelKind.PushNotification] = new MessageContent("Push Test Message", "Test Message Content: {{data.localization.description_key}}")
+                }
+            ),
+            Data = new {
+                localization = new {
+                    description_key = "This is a description"
+                }
+            }
+        };
+        var createTemplatePayload = JsonSerializer.Serialize(createTemplateRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var createTemplateResponse = await _httpClient.PostAsync("/api/templates", new StringContent(createTemplatePayload, Encoding.UTF8, "application/json"));
+
+        //action
+        var createCampaignRequest = new CreateCampaignRequest {
+            Title = "Test Campaign",
+            ActivePeriod = new Types.Period {
+                From = DateTimeOffset.UtcNow,
+                To = DateTimeOffset.UtcNow.AddDays(1)
+            },
+            Published = false,
+            RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"],
+            MessageTemplateId = new GuidOrAlias(templateAlias),
+            MessageTemplateChannels = MessageChannelKind.Inbox | MessageChannelKind.SMS
+        };
+        var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));
+        var createCampaignResponseJson = await createCampaignResponse.Content.ReadAsStringAsync();
+        if (!createCampaignResponse.IsSuccessStatusCode) {
+            _output.WriteLine(createCampaignResponseJson);
+        }
+
+        //assert
+        Assert.Equal(System.Net.HttpStatusCode.BadRequest, createCampaignResponse.StatusCode);
+        Assert.Contains($"Content was empty after applying the messageTemplateChannels to the selected Template with Id:({templateAlias})", createCampaignResponseJson);
     }
 
     [Fact]
