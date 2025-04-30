@@ -167,7 +167,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
             Published = false,
             RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"],
             MessageTemplateId = new GuidOrAlias(templateAlias),
-            MessageTemplateChannels = new List<MessageChannelKind>() { MessageChannelKind.Email, MessageChannelKind.PushNotification}
+            MessageTemplateChannels = [MessageChannelKind.Email, MessageChannelKind.PushNotification]
         };
         var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
         var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));
