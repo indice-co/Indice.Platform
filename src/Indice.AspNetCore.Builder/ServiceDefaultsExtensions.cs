@@ -219,7 +219,6 @@ public static class ServiceDefaultsExtensions
     private static JsonSerializerOptions CreateJsonOptions() {
         var options = new JsonSerializerOptions {
             WriteIndented = true,
-            Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
             AllowTrailingCommas = true,
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
