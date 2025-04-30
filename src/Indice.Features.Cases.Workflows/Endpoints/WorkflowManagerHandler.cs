@@ -15,7 +15,7 @@ namespace Indice.Features.Cases.Workflows.Endpoints;
 
 internal static class WorkflowManagerHandler
 {
-    public static async Task<Results<NoContent, ProblemHttpResult>> StartWorkflow(
+    public static async Task<Results<NoContent, ValidationProblem>> StartWorkflow(
         Guid caseId,
         string caseTypeCode,
         Actor actor,
@@ -30,7 +30,7 @@ internal static class WorkflowManagerHandler
         var workflowDefinitionTagSpecification = new WorkflowDefinitionTagCsvSpecification(caseTypeCode);
         var workflowDefinition = await workflowDefinitionStore.FindAsync(workflowDefinitionTagSpecification, cancellationToken);
         if (workflowDefinition == null) {
-            return TypedResults.Problem(detail: $"Workflow failed to start. There is no workflow definition with the tag: {caseTypeCode}.");
+            return TypedResults.ValidationProblem(errors: new Dictionary<string, string[]>(), detail: $"Workflow failed to start. There is no workflow definition with the tag: {caseTypeCode}.");
         }
         
         workflowDefinition.Variables.Set(CasesWorkflowConstants.WorkflowVariables.Actor.Initiator, actor);
@@ -43,7 +43,7 @@ internal static class WorkflowManagerHandler
             caseId.ToString(), cancellationToken: cancellationToken);
 
         if (runWorkflowResult.WorkflowInstance?.Faults is { Count: > 0 }) {
-            return TypedResults.Problem(detail: $"Workflow failed to start. {runWorkflowResult.WorkflowInstance?.Faults.FirstOrDefault()?.Message}");
+            return TypedResults.ValidationProblem(errors: new Dictionary<string, string[]>(), detail: $"Workflow failed to start. {runWorkflowResult.WorkflowInstance?.Faults.FirstOrDefault()?.Message}");
         }
         return TypedResults.NoContent();
     }
@@ -148,7 +148,7 @@ internal static class WorkflowManagerHandler
             return [];
         }
         
-        return instance.Variables.Get<IEnumerable<string>>("RejectReasons") ?? [];
+        return instance.Variables.Get<IEnumerable<string>>(CasesWorkflowConstants.WorkflowVariables.RejectReasons) ?? [];
     }
     
     private static async Task<List<CustomAction>?> GetCustomActions(
