@@ -21,7 +21,7 @@ public class JsonStringArrayEnumFlagsConverterFactory : JsonConverterFactory
 
 /// <summary>A custom JSON converter which transforms <see cref="Enum"/> flags to string array.</summary>
 /// <typeparam name="TEnum">The type of the enum.</typeparam>
-internal class JsonStringArrayEnumFlagsConverter<TEnum> : JsonConverter<TEnum?>
+internal class JsonStringArrayEnumFlagsConverter<TEnum> : JsonConverter<TEnum>
 {
     /// <inheritdoc />
     /// <remarks>https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-converters-how-to?pivots=dotnet-6-0#error-handling</remarks>
