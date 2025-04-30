@@ -26,7 +26,6 @@ internal class JsonStringArrayEnumFlagsConverter<TEnum> : JsonConverter<TEnum>
     /// <inheritdoc />
     /// <remarks>https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-converters-how-to?pivots=dotnet-6-0#error-handling</remarks>
     public override TEnum? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
-        Debug.WriteLine("Search for me!");
         if (reader.TokenType == JsonTokenType.Null) {
             return default;
         }
