@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Primitives;
-using Polly;
 
 namespace Indice.Features.Identity.Core.Extensions;
 
