@@ -138,10 +138,10 @@ public interface IAdminCaseService
     Task<bool> PatchCaseMetadata(Guid caseId, Dictionary<string, string> metadata);
 
     /// <summary>
-    /// Publish private data to public.
+    /// Publish the latest version of Data.
     /// </summary>
     /// <param name="caseId">The case id</param>
-    Task<bool> PublishPrivateData(Guid caseId);
+    Task<bool> PublishData(Guid caseId);
     
 }
 

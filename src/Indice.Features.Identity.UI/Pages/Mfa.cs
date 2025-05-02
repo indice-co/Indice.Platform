@@ -152,7 +152,7 @@ public abstract class BaseMfaModel : BasePageModel
             AllowDowngradeAuthenticationMethod = allowDowngradeAuthenticationMethod,
             ReturnUrl = returnUrl,
             User = user,
-            IsExistingBrowser = browserDevice is not null,
+            IsExistingBrowser = browserDevice?.MfaSessionActive ?? false,
             Error = authenticationMethod == null ? "MFA is enabled but there is no active two factor authentication method configured. Please contact your administrator." : null
         };
     }

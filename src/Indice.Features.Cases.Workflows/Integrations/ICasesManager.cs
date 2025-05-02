@@ -65,12 +65,12 @@ public interface ICasesManager
     internal Task AddApprovalWithComment(Guid caseId, Approval action, string? reason, bool isPrivate, Actor actor);
 
     /// <summary>
-    /// <inheritdoc cref="CasesManagerHttpClient.AssignAsync(Guid, WorkflowActor)"/>
+    /// <inheritdoc cref="CasesManagerHttpClient.AssignAsync(Guid, UserActor)"/>
     /// </summary>
     internal Task<AuditMeta> AssignToActor(UserActor actor, Guid caseId);
 
     /// <summary>
-    /// <inheritdoc cref="CasesManagerHttpClient.BlockPreviousApproverAsync(Guid, WorkflowActor)"/>
+    /// <inheritdoc cref="CasesManagerHttpClient.BlockPreviousApproverAsync(Guid, UserActor)"/>
     /// </summary>
     internal Task BlockPreviousApprover(Guid caseId, Actor actor);
     
