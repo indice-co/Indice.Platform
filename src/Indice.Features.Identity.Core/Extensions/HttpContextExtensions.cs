@@ -2,8 +2,11 @@
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
 using Indice.Features.Identity.Core.Models;
 using Indice.Security;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Primitives;
+using Polly;
 
 namespace Indice.Features.Identity.Core.Extensions;
 
@@ -12,15 +15,15 @@ public static class HttpContextExtensions
 {
     /// <summary>Tries to resolve the device id using the <see cref="HttpContext"/>.</summary>
     /// <param name="httpContext">Encapsulates all HTTP-specific information about an individual HTTP request.</param>
-    public static MfaDeviceIdentifier ResolveDeviceId(this HttpContext? httpContext) {
+    public static async ValueTask<MfaDeviceIdentifier> ResolveDeviceIdAsync(this HttpContext? httpContext) {
         var request = httpContext?.Request;
         if (request is not null) {
-            return new MfaDeviceIdentifier(GetDeviceId(httpContext!), GetRegistrationId(httpContext!));
+            return new MfaDeviceIdentifier(await GetDeviceIdAsync(httpContext!), GetRegistrationId(httpContext!));
         }
         return MfaDeviceIdentifier.Empty;
     }
 
-    private static string? GetDeviceId(HttpContext httpContext) {
+    private static async ValueTask<string?> GetDeviceIdAsync(HttpContext httpContext) {
         if (httpContext is null) {
             throw new ArgumentNullException(nameof(httpContext));
         }
@@ -36,6 +39,11 @@ public static class HttpContextExtensions
         }
         if (!hasDeviceId) {
             deviceId = httpContext.User.FindFirstValue(BasicClaimTypes.DeviceId);
+            hasDeviceId = !string.IsNullOrWhiteSpace(deviceId);
+        }
+        if (!hasDeviceId) {
+            var result = await httpContext.AuthenticateAsync(IdentityConstants.TwoFactorRememberMeScheme);
+            deviceId = result.Principal?.FindFirstValue(BasicClaimTypes.DeviceId);
             hasDeviceId = !string.IsNullOrWhiteSpace(deviceId);
         }
         return hasDeviceId ? deviceId.ToString() : default;
