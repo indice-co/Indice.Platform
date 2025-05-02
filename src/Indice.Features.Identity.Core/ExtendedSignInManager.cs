@@ -37,7 +37,6 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     private readonly ISignInGuard<TUser> _signInGuard;
     private readonly IPlatformEventService _eventService;
     private readonly IUserRequirementProvider<TUser> _userRequirementProvider;
-    private readonly IHttpContextAccessor _httpContextAccessor;
 
     /// <summary>Creates a new instance of <see cref="SignInManager{TUser}" /></summary>
     /// <param name="userManager">An instance of <see cref="ExtendedUserManager{TUser}"/> used to retrieve users from and persist users.</param>
@@ -70,7 +69,6 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     ) : base(userManager, httpContextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation) {
         _authenticationSchemeProvider = authenticationSchemeProvider ?? throw new ArgumentNullException(nameof(authenticationSchemeProvider));
         _userStore = userStore ?? throw new ArgumentNullException(nameof(userStore));
-        _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         _signInGuard = signInGuard ?? throw new ArgumentNullException(nameof(signInGuard));
         _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
         _userRequirementProvider = userRequirementProvider ?? throw new ArgumentNullException(nameof(userRequirementProvider));
@@ -147,9 +145,9 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// <inheritdoc/>
     protected override async Task<SignInResult> SignInOrTwoFactorAsync(TUser user, bool isPersistent, string? loginProvider = null, bool bypassTwoFactor = false) {
         var isExternalLogin = !string.IsNullOrWhiteSpace(loginProvider) && (await _authenticationSchemeProvider.GetExternalSchemesAsync()).Select(scheme => scheme.Name).Contains(loginProvider);
-        var deviceId = _httpContextAccessor.HttpContext.ResolveDeviceId();
+        var deviceId = Context.ResolveDeviceId();
         
-        var result = await _signInGuard.IsSuspiciousLogin(_httpContextAccessor.HttpContext!, user);
+        var result = await _signInGuard.IsSuspiciousLogin(Context!, user);
         if (result.Warning == SignInWarning.ImpossibleTravel && _signInGuard.ImpossibleTravelDetector?.FlowType == ImpossibleTravelFlowType.DenyLogin) {
             return SignInResult.Failed;
         }
@@ -159,9 +157,8 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
                 var userId = await ExtendedUserManager.GetUserIdAsync(user);
                 await Context.SignInAsync(IdentityConstants.TwoFactorUserIdScheme, ClaimsPrincipalFromTwoFactorInfo(userId, deviceId, loginProvider));
                 return SignInResult.TwoFactorRequired;
-            } else {
-                mfaImplicitlyPassed = true;
             }
+            mfaImplicitlyPassed = true;
         }
         if (user is User) {
             var userDevice = !deviceId.IsEmpty ? user.Devices?.FirstOrDefault(x => x.DeviceId == deviceId.Value) : null;
@@ -206,7 +203,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         user.LastSignInDate = DateTimeOffset.UtcNow;
         await ExtendedUserManager.UpdateAsync(user);
         await base.SignInWithClaimsAsync(user, authenticationProperties, additionalClaims);
-        var result = await _signInGuard.IsSuspiciousLogin(_httpContextAccessor.HttpContext, user);
+        var result = await _signInGuard.IsSuspiciousLogin(Context, user);
         await _eventService.Publish(UserLoginEvent.Success(
             UserEventContext.InitializeFromUser(user),
             result.Warning,
@@ -268,7 +265,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         if (!attempt.Succeeded) {
             return attempt;
         }
-        var result = await _signInGuard.IsSuspiciousLogin(_httpContextAccessor.HttpContext, user);
+        var result = await _signInGuard.IsSuspiciousLogin(Context, user);
         await _eventService.Publish(UserPasswordLoginEvent.Success(UserEventContext.InitializeFromUser(user), result.Warning));
         if (ExpireBlacklistedPasswordsOnSignIn) {
             var blacklistPasswordValidator = ExtendedUserManager.PasswordValidators.OfType<NonCommonPasswordValidator<TUser>>().FirstOrDefault();
@@ -295,7 +292,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
 
     /// <inheritdoc/>
     public override async Task RememberTwoFactorClientAsync(TUser user) {
-        var deviceId = _httpContextAccessor.HttpContext.ResolveDeviceId();
+        var deviceId = Context.ResolveDeviceId();
         var principal = await StoreRememberClient(user, deviceId);
         await Context.SignInAsync(IdentityConstants.TwoFactorRememberMeScheme, principal, new AuthenticationProperties { IsPersistent = true });
     }
@@ -305,9 +302,10 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         var userId = await ExtendedUserManager.GetUserIdAsync(user);
         var result = await Context.AuthenticateAsync(IdentityConstants.TwoFactorRememberMeScheme);
         var isRemembered = result?.Principal is not null && result.Principal.FindFirstValue(Options.ClaimsIdentity.UserIdClaimType) == userId;
-        var deviceId = _httpContextAccessor.HttpContext.ResolveDeviceId();
-        if (!string.IsNullOrWhiteSpace(deviceId.Value) && (isRemembered || (!isRemembered && RememberTrustedBrowserAcrossSessions))) {
-            var device = await ExtendedUserManager.GetDeviceByIdAsync(user, deviceId.Value);
+        var deviceId = Context.ResolveDeviceId();
+        deviceId = deviceId.IsEmpty ? new MfaDeviceIdentifier(result?.Principal?.FindFirstValue(BasicClaimTypes.DeviceId)) : deviceId;
+        if (!deviceId.IsEmpty && (isRemembered || (!isRemembered && RememberTrustedBrowserAcrossSessions))) {
+            var device = await ExtendedUserManager.GetDeviceByIdAsync(user, deviceId.Value!);
             isRemembered = device is not null &&
                            device.MfaSessionExpirationDate.HasValue &&
                            device.MfaSessionExpirationDate.Value > DateTimeOffset.UtcNow;
@@ -342,12 +340,12 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// <param name="user">The user instance.</param>
     /// <param name="scheme">Authenticates the current request using the specified scheme.</param>
     public async Task<AuthenticationProperties?> AutoSignIn(TUser user, string scheme) {
-        var authenticateResult = await _httpContextAccessor.HttpContext!.AuthenticateAsync(scheme);
+        var authenticateResult = await Context!.AuthenticateAsync(scheme);
         AuthenticationProperties? authenticationProperties = default;
         if (authenticateResult.Succeeded) {
             authenticationProperties = authenticateResult.Properties;
             await SignInWithClaimsAsync(user, authenticationProperties, authenticateResult.Principal.Claims.Where(x => x.Type == JwtClaimTypes.AuthenticationMethod || x.Type == BasicClaimTypes.DeviceId));
-            await _httpContextAccessor.HttpContext!.SignOutAsync(scheme);
+            await Context!.SignOutAsync(scheme);
         }
         return authenticationProperties;
     }
@@ -355,7 +353,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// <summary>Gets the current device id from context (broser cookie or form post)</summary>
     /// <param name="user"></param>
     /// <returns>The device identifier</returns>
-    public MfaDeviceIdentifier GetMfaDeviceIdentifier(TUser user) => _httpContextAccessor.HttpContext.ResolveDeviceId();
+    public MfaDeviceIdentifier GetMfaDeviceIdentifier(TUser user) => Context.ResolveDeviceId();
     #endregion
 
     #region Helper Methods
@@ -391,7 +389,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// <param name="user">The user to check</param>
     /// <returns>True in case of extended validaton requirement</returns>
     public Task<bool> ShouldSignInForExtendedValidationAsync(TUser user) => 
-        _userRequirementProvider.RequiresValidationAsync(_httpContextAccessor.HttpContext!, user);
+        _userRequirementProvider.RequiresValidationAsync(Context!, user);
 
     private async Task<bool> IsTfaEnabled(TUser user)
         => ExtendedUserManager.SupportsUserTwoFactor && user.TwoFactorEnabled && (await ExtendedUserManager.GetValidTwoFactorProvidersAsync(user)).Count > 0;
@@ -464,6 +462,9 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         var userId = await ExtendedUserManager.GetUserIdAsync(user);
         var deviceIdentity = new ClaimsIdentity(IdentityConstants.TwoFactorRememberMeScheme);
         deviceIdentity.AddClaim(new Claim(Options.ClaimsIdentity.UserIdClaimType, userId));
+        if (!deviceId.IsEmpty) { 
+            deviceIdentity.AddClaim(new Claim(BasicClaimTypes.DeviceId, deviceId.Value!));
+        }
         if (ExtendedUserManager.SupportsUserSecurityStamp) {
             deviceIdentity.AddClaim(new Claim(Options.ClaimsIdentity.SecurityStampClaimType, user.SecurityStamp ?? string.Empty));
         }
