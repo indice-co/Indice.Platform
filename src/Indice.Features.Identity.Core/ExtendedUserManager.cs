@@ -111,7 +111,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         return base.UpdateAsync(user);
     }
 
-    /// </inheritdoc />
+    /// <inheritdoc />
     public override async Task<IdentityResult> DeleteAsync(TUser user) {
         var result = await base.DeleteAsync(user);
         if (result.Succeeded) {

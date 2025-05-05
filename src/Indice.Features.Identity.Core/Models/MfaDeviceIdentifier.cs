@@ -53,7 +53,7 @@ public sealed partial record MfaDeviceIdentifier(string? Value, Guid? Registrati
     }
 
     [GeneratedRegex(@"^([a-fA-F0-9]{32})(\.[a-zA-Z0-9\-]+)?$")]
-    private static partial Regex DevideIdentifierFormat();
+    public static partial Regex DevideIdentifierFormat();
 
     /// <inheritdoc />
     public override int GetHashCode() => Value?.GetHashCode() ?? string.Empty.GetHashCode();

@@ -24,7 +24,7 @@ public sealed class DeviceIdEnricher : ISignInLogEntryEnricher
 
     /// <inheritdoc />
     public async ValueTask EnrichAsync(SignInLogEntry logEntry) {
-        var device = await _httpContextAccessor.HttpContext.ResolveDeviceIdAsync();
+        var device = await _httpContextAccessor.HttpContext.ResolveDeviceId();
         logEntry.DeviceId = device.Value;
         if (device.HasRegistrationId) {
             logEntry.ExtraData.UserDevice = new SignInLogEntryUserDevice {

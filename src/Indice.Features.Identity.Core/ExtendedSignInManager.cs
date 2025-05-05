@@ -145,7 +145,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// <inheritdoc/>
     protected override async Task<SignInResult> SignInOrTwoFactorAsync(TUser user, bool isPersistent, string? loginProvider = null, bool bypassTwoFactor = false) {
         var isExternalLogin = !string.IsNullOrWhiteSpace(loginProvider) && (await _authenticationSchemeProvider.GetExternalSchemesAsync()).Select(scheme => scheme.Name).Contains(loginProvider);
-        var deviceId = await Context.ResolveDeviceIdAsync();
+        var deviceId = Context.ResolveDeviceId();
         
         var result = await _signInGuard.IsSuspiciousLogin(Context!, user);
         if (result.Warning == SignInWarning.ImpossibleTravel && _signInGuard.ImpossibleTravelDetector?.FlowType == ImpossibleTravelFlowType.DenyLogin) {
@@ -292,7 +292,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
 
     /// <inheritdoc/>
     public override async Task RememberTwoFactorClientAsync(TUser user) {
-        var deviceId = await Context.ResolveDeviceIdAsync();
+        var deviceId = Context.ResolveDeviceId();
         var principal = await StoreRememberClient(user, deviceId);
         await Context.SignInAsync(IdentityConstants.TwoFactorRememberMeScheme, principal, new AuthenticationProperties { IsPersistent = true });
     }
@@ -300,10 +300,9 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// <inheritdoc/>
     public override async Task<bool> IsTwoFactorClientRememberedAsync(TUser user) {
         var userId = await ExtendedUserManager.GetUserIdAsync(user);
-        var result = await Context.AuthenticateAsync(IdentityConstants.TwoFactorRememberMeScheme);
-        var isRemembered = result?.Principal is not null && result.Principal.FindFirstValue(Options.ClaimsIdentity.UserIdClaimType) == userId;
-        var deviceId = await Context.ResolveDeviceIdAsync();
-        deviceId = deviceId.IsEmpty ? new MfaDeviceIdentifier(result?.Principal?.FindFirstValue(BasicClaimTypes.DeviceId)) : deviceId;
+        var info = await RetrieveTwoFactorInfoAsync();
+        var isRemembered = info is not null && info.UserId == userId;
+        var deviceId = info?.DeviceId ?? MfaDeviceIdentifier.Empty;
         if (!deviceId.IsEmpty && (isRemembered || (!isRemembered && RememberTrustedBrowserAcrossSessions))) {
             var device = await ExtendedUserManager.GetDeviceByIdAsync(user, deviceId.Value!);
             isRemembered = device is not null &&
@@ -353,7 +352,13 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// <summary>Gets the current device id from context (broser cookie or form post)</summary>
     /// <param name="user"></param>
     /// <returns>The device identifier</returns>
-    public ValueTask<MfaDeviceIdentifier> GetMfaDeviceIdentifier(TUser user) => Context.ResolveDeviceIdAsync();
+    public async Task<MfaDeviceIdentifier> GetMfaDeviceIdentifierAsync(TUser user) {
+        var info = await RetrieveTwoFactorInfoAsync();
+        if (info is null || info.UserId != user.Id) {
+            return Context.ResolveDeviceId();
+        }
+        return info.DeviceId;
+    }
     #endregion
 
     #region Helper Methods
