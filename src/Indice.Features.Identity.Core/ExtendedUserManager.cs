@@ -111,6 +111,15 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         return base.UpdateAsync(user);
     }
 
+    /// </inheritdoc />
+    public override async Task<IdentityResult> DeleteAsync(TUser user) {
+        var result = await base.DeleteAsync(user);
+        if (result.Succeeded) {
+            await _eventService.Publish(new UserDeletedEvent(UserEventContext.InitializeFromUser(user)));
+        }
+        return result;
+    }
+
     /// <inheritdoc />
     public async override Task<IdentityResult> ChangePasswordAsync(TUser user, string currentPassword, string newPassword) {
         var result = await base.ChangePasswordAsync(user, currentPassword, newPassword);
