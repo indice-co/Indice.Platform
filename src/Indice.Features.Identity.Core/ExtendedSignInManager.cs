@@ -306,10 +306,10 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             if (device == null) {
                 return false;
             }
-            var isRemembered = device.MfaSessionActive() || (device.IsTrusted && RememberTrustedBrowserAcrossSessions);
-            if (RequireMfaWhenUserHasTrustedBrowserButExpiredPassword) {
-                isRemembered = isRemembered && !user.HasExpiredPassword();
+            if (RequireMfaWhenUserHasTrustedBrowserButExpiredPassword && user.HasExpiredPassword()) {
+                return false;
             }
+            var isRemembered = device.MfaSessionActive() || (device.IsTrusted && RememberTrustedBrowserAcrossSessions);
             return isRemembered;
         }
         return false;
