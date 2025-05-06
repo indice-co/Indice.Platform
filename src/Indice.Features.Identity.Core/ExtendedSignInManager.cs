@@ -413,10 +413,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     private ClaimsPrincipal ClaimsPrincipalFromTwoFactorInfo(string userId, MfaDeviceIdentifier deviceId, string? loginProvider) {
         var identity = new ClaimsIdentity(IdentityConstants.TwoFactorUserIdScheme);
         identity.AddClaim(new Claim(Options.ClaimsIdentity.UserIdClaimType, userId));
-        identity.AddClaim(new Claim(JwtClaimTypes.AuthenticationMethod, "pwd"));
-        if (loginProvider != null) {
-            identity.AddClaim(new Claim(ClaimTypes.AuthenticationMethod, loginProvider));
-        }
+        identity.AddClaim(new Claim(JwtClaimTypes.AuthenticationMethod, loginProvider ?? "pwd"));
         if (!deviceId.IsEmpty) { 
             identity.AddClaim(new Claim(BasicClaimTypes.DeviceId, deviceId.Value!));
         }
@@ -490,19 +487,19 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         }
         await ResetLockout(user);
         List<Claim> claims = [ 
-            new(JwtClaimTypes.AuthenticationMethod, "pwd"), 
+            new(JwtClaimTypes.AuthenticationMethod, twoFactorInfo.LoginProvider ?? "pwd"), 
             new(JwtClaimTypes.AuthenticationMethod, "mfa") 
         ];
         if (twoFactorInfo.LoginProvider is not null) {
-            claims.Add(new Claim(ClaimTypes.AuthenticationMethod, twoFactorInfo.LoginProvider));
             await Context.SignOutAsync(IdentityConstants.ExternalScheme);
+            await Context.SignOutAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);
         }
         if (!twoFactorInfo.DeviceId.IsEmpty) {
             claims.Add(new Claim(BasicClaimTypes.DeviceId, twoFactorInfo.DeviceId.Value!));
         }
         await Context.SignOutAsync(IdentityConstants.TwoFactorUserIdScheme);
         if (await ShouldSignInForExtendedValidationAsync(user)) {
-            return await DoPartialSignInAsync(user, twoFactorInfo.DeviceId, ["pwd", "mfa"]);
+            return await DoPartialSignInAsync(user, twoFactorInfo.DeviceId, [twoFactorInfo.LoginProvider ?? "pwd", "mfa"]);
         }
         await SignInWithClaimsAsync(user, isPersistent, claims);
         return SignInResult.Success;
