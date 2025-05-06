@@ -46,8 +46,7 @@ internal class GovGrBusinessRegistryClient : IBusinessRegistryService
                 City = user.postalAreaDescription
             },
             MainActivityCode = mainFirmActivity?.firmActCode,
-            MainActivityDescription = mainFirmActivity?.firmActKindDescr,
-            MainActivityKind = mainFirmActivity?.firmActKind,
+            MainActivityDescription = mainFirmActivity?.firmActDescr,
             RegisterDate = user.registDate,
             StopDate = user.stopDate,
             FirmFlagDescription = user.firmFlagDescr,
