@@ -33,6 +33,21 @@ internal static class IntegrationApi
         group.MapGet("{caseId}", IntegrationHandlers.GetById)
             .WithName(nameof(IntegrationHandlers.GetById))
             .WithSummary("Gets an admin case.");
+
+        // group.MapGet("test", IntegrationHandlers.Test)
+        //     .AllowAnonymous();
+        //
+        // group.MapPost("test2", IntegrationHandlers.Test2)
+        //     .AllowAnonymous();
+        
+        group.MapPost("create-workflow", IntegrationHandlers.CreateWorkflow)
+            .AllowAnonymous();
+        
+        group.MapPost("create-rules", IntegrationHandlers.CreateRules)
+            .AllowAnonymous();
+        
+        group.MapPost("run-workflow", IntegrationHandlers.RunWorkflow)
+            .AllowAnonymous();
         
         group.MapGet("{caseId}/last-approval", IntegrationHandlers.GetLastApproval)
             .WithName(nameof(IntegrationHandlers.GetLastApproval))
@@ -104,6 +119,10 @@ internal static class IntegrationApi
         group.MapGet("{caseId}/attachments/{attachmentId:guid}", IntegrationHandlers.GetAttachment)
             .WithName(nameof(IntegrationHandlers.GetAttachment))
             .WithSummary("Get a Case Attachment");
+        
+        group.MapGet("subscriptions", IntegrationHandlers.GetSubscriptionsByFilters)
+            .WithName(nameof(IntegrationHandlers.GetSubscriptionsByFilters))
+            .WithSummary("Get Subscriptions by filters.");
         
         return group;
     }

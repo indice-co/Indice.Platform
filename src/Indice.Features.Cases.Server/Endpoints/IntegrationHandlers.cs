@@ -1,7 +1,9 @@
+using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Reflection;
 using System.Security.Claims;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Core.Localization;
@@ -14,12 +16,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
+using RulesEngine.Extensions;
+using RulesEngine.Models;
 
 namespace Indice.Features.Cases.Server.Endpoints;
 
 /// <summary>WorkflowHandler</summary>
 internal static class IntegrationHandlers
 {
+    private static ConcurrentDictionary<string, Dictionary<string, Workflow>> _dictionary;
     /// <summary> Gets the Admin case for the specified caseId.</summary>
     public static async Task<Results<Ok<Case>, NotFound>> GetById(
         Guid caseId,
@@ -28,6 +33,108 @@ internal static class IntegrationHandlers
         IAdminCaseService adminCaseService,
         bool includeAttachments = false
     ) => TypedResults.Ok(await adminCaseService.GetCaseById(caseId, fetchPublicData, includeAttachments));
+
+    public static async Task CreateWorkflow(string caseType, string workflowName) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(caseType);
+        ArgumentException.ThrowIfNullOrWhiteSpace(workflowName);
+        _dictionary = new ConcurrentDictionary<string, Dictionary<string, Workflow>>();
+        _dictionary.TryAdd(caseType, new Dictionary<string, Workflow>() {
+            [workflowName] = null!
+        });
+    }
+
+    public static async Task CreateRules(string caseType, string workflowName, JsonObject[] rules) {
+        var rulesList = rules.Select(x => new Rule {
+            RuleName = x["RuleName"]!.ToString(),
+            SuccessEvent = x["SuccessEvent"]!.ToString(),
+            ErrorMessage = "One or more adjust rules failed.",
+            Expression = x["Expression"]!.ToString(),
+        }).ToArray();
+
+        _dictionary[caseType][workflowName] = new Workflow {
+            WorkflowName = workflowName,
+            Rules = rulesList
+        };
+    }
+
+    public static async Task<Ok<string>> RunWorkflow(string caseType, string workflowName, JsonElement[] jsonElements) {
+        var workflow = _dictionary[caseType][workflowName];
+        var rulesEngine = new RulesEngine.RulesEngine([workflow]);
+        
+        var input = jsonElements.Select(x => JsonToExpandoConverter.ConvertToExpando(x.ToString())).ToArray();
+        List<RuleResultTree> resultList = await rulesEngine.ExecuteAllRulesAsync(workflow.WorkflowName, input);
+        
+        var successfulRuleResult = resultList.FirstOrDefault(ruleResult => ruleResult.IsSuccess);
+        var result = successfulRuleResult is not null ? 
+            successfulRuleResult.Rule.SuccessEvent :
+            "false";
+
+        return TypedResults.Ok(result);
+    }
+    
+    public static async Task<string> Test2(JsonElement[] jsonElements) {
+        
+        var files = Directory.GetFiles(Directory.GetCurrentDirectory(), "Discount.json", SearchOption.AllDirectories);
+        var fileData = File.ReadAllText(files[0]);
+        var workflow = JsonSerializer.Deserialize<List<Workflow>>(fileData);
+
+        var rulesEngine = new RulesEngine.RulesEngine(workflow!.ToArray());
+        var params2 = jsonElements.Select(x => JsonToExpandoConverter.ConvertToExpando(x.ToString())).ToArray();
+        List<RuleResultTree> resultList = rulesEngine.ExecuteAllRulesAsync("Discount", params2).Result;
+        
+        var successfulRuleResult = resultList.FirstOrDefault(ruleResult => ruleResult.IsSuccess);
+        return successfulRuleResult != null ? 
+            $"Discount offered is {successfulRuleResult.Rule.SuccessEvent ?? successfulRuleResult.Rule.RuleName} % over MRP." :
+            "The user is not eligible for any discount.";
+    }
+
+    public static async Task<string> Test() {
+        var basicInfoOld = "{\"name\": \"Dishant\",\"email\": \"abc@xyz.com\",\"creditHistory\": \"good\",\"country\": \"canada\",\"loyaltyFactor\": 3,\"totalPurchasesToDate\": 10000}";
+        var orderInfoOld = "{\"totalOrders\": 5,\"recurringItems\": 2}";
+        var telemetryInfoOld = "{\"noOfVisitsPerMonth\": 10,\"percentageOfBuyingToVisit\": 15}";
+        
+        var basicInfo = JsonToExpandoConverter.ConvertToExpando(basicInfoOld);
+        var orderInfo = JsonToExpandoConverter.ConvertToExpando(orderInfoOld);
+        var telemetryInfo = JsonToExpandoConverter.ConvertToExpando(telemetryInfoOld);
+        
+        // var dictionary = basicInfo.Deserialize<Dictionary<string, JsonElement?>>();
+        // var input1 = dictionary?.Select(x => RuleParameter.Create(x.Key, JsonToExpandoConverter.ConvertToExpando(x.Value))).OfType<RuleParameter>().ToArray() ?? [];
+        //
+        // dictionary = orderInfo.Deserialize<Dictionary<string, JsonElement?>>();
+        // var input2 = dictionary?.Select(x => RuleParameter.Create(x.Key, JsonToExpandoConverter.ConvertToExpando(x.Value))).OfType<RuleParameter>().ToArray() ?? [];
+        //
+        // dictionary = telemetryInfo.Deserialize<Dictionary<string, JsonElement?>>();
+        // var input3 = dictionary?.Select(x => RuleParameter.Create(x.Key, JsonToExpandoConverter.ConvertToExpando(x.Value))).OfType<RuleParameter>().ToArray() ?? [];
+
+        
+        // dynamic? input1 = JsonSerializer.Deserialize<ExpandoObject>(basicInfo);
+        // dynamic? input2 = JsonSerializer.Deserialize<ExpandoObject>(orderInfo);
+        // dynamic? input3 = JsonSerializer.Deserialize<ExpandoObject>(telemetryInfo);
+        // var inputs = new[] {
+        //     input1,
+        //     input2,
+        //     input3
+        // };
+        //
+        var files = Directory.GetFiles(Directory.GetCurrentDirectory(), "Discount.json", SearchOption.AllDirectories);
+        var fileData = File.ReadAllText(files[0]);
+        var workflow = JsonSerializer.Deserialize<List<Workflow>>(fileData);
+
+        var rulesEngine = new RulesEngine.RulesEngine(workflow.ToArray());
+        List<RuleResultTree> resultList = rulesEngine.ExecuteAllRulesAsync("Discount", basicInfo, orderInfo, telemetryInfo).Result;
+        
+        string discountOffered = "No discount offered.";
+
+        resultList.OnSuccess((eventName) => {
+            discountOffered = $"Discount offered is {eventName} % over MRP.";
+        });
+
+        resultList.OnFail(() => {
+            discountOffered = "The user is not eligible for any discount.";
+        });
+
+        return discountOffered;
+    }
 
     /// <summary>Gets the Last Approval</summary>
     public static async Task<Results<Ok<CaseApproval>, NotFound>> GetLastApproval(Guid caseId, ICaseApprovalService caseApprovalService) {
@@ -173,6 +280,15 @@ internal static class IntegrationHandlers
     /// <summary>Gets all attachments of a case by id.</summary>
     public static async Task<Ok<ResultSet<CaseAttachment>>> GetAttachments(Guid caseId, IAdminCaseService adminCaseService) =>
         TypedResults.Ok(await adminCaseService.GetAttachments(caseId));
+
+    public static async Task<Results<Ok<List<NotificationSubscription>>, NotFound>> GetSubscriptionsByFilters(
+        [AsParameters] ListOptions options,
+        [AsParameters] NotificationFilter filter,
+        INotificationSubscriptionService notificationSubscriptionService)
+    {
+        var subscriptions = await notificationSubscriptionService.GetSubscriptions(ListOptions.Create(options, filter));
+        return subscriptions?.Count > 0 ? TypedResults.Ok(subscriptions) : TypedResults.NotFound();
+    }
 
     public class AttachFileRequest
     {
