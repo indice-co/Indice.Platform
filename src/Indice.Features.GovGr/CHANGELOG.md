@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- ## [Unreleased] -->
 
-## [rc28] - 2025-05-06
+## [8.0.0-rc28] - 2025-05-06
 - The MainActivityDescription property of the BusinessRegistryRecord type contains the actual description of the main activity (and not the description of its kind)
 - The MainActivityKind property of the BusinessRegistryRecord type was deleted because the scope/context of BusinessRegistryRecord is always the main activity
 
