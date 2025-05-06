@@ -464,7 +464,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         return await ReplaceClaimAsync(user, BasicClaimTypes.MaxDevicesCount, maxDevicesCount.ToString());
     }
 
-    /// <summary>Get the devices registered by the specified user.</summary>
+    /// <summary>Get a device registered by the specified user using the specified deviceId.</summary>
     /// <param name="user">The user instance.</param>
     /// <param name="deviceId">The id of the device to look for.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>

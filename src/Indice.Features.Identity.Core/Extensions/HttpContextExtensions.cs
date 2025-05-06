@@ -2,9 +2,7 @@
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
 using Indice.Features.Identity.Core.Models;
 using Indice.Security;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Primitives;
 
 namespace Indice.Features.Identity.Core.Extensions;

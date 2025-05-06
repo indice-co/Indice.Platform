@@ -2,7 +2,6 @@ using IdentityServer4.Services;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
-using Indice.Features.Identity.Core.Extensions;
 using Indice.Features.Identity.Core.Totp;
 using Indice.Features.Identity.UI.Models;
 using Indice.Services;
@@ -152,7 +151,7 @@ public abstract class BaseMfaModel : BasePageModel
             AllowDowngradeAuthenticationMethod = allowDowngradeAuthenticationMethod,
             ReturnUrl = returnUrl,
             User = user,
-            IsExistingBrowser = browserDevice?.MfaSessionActive ?? false,
+            IsExistingBrowser = browserDevice?.MfaSessionActive() ?? false,
             Error = authenticationMethod == null ? "MFA is enabled but there is no active two factor authentication method configured. Please contact your administrator." : null
         };
     }
