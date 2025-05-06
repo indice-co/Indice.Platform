@@ -25,19 +25,21 @@ public static class HttpContextExtensions
     private static string? FindDeviceId(HttpContext httpContext) {
         ArgumentNullException.ThrowIfNull(httpContext);
         var deviceId = default(StringValues);
-        var requestHasDeviceId = httpContext.Request.HasFormContentType && (
+        var found = httpContext.Request.HasFormContentType && (
             httpContext.Request.Form.TryGetValue("DeviceId", out deviceId) ||
             httpContext.Request.Form.TryGetValue("Input.DeviceId", out deviceId) ||
             httpContext.Request.Form.TryGetValue(RegistrationRequestParameters.DeviceId, out deviceId) 
         ) && MfaDeviceIdentifier.ValidateDeviceId(deviceId);
-        if (!requestHasDeviceId && httpContext.Items.TryGetValue("deviceId", out var deviceIdObject)) {
-            deviceId = deviceIdObject?.ToString();
-            requestHasDeviceId = MfaDeviceIdentifier.ValidateDeviceId(deviceId);
+        if (found) {
+            return deviceId.ToString();
         }
-        if (!requestHasDeviceId) {
-            deviceId = FindDeviceId(httpContext.User);
+        if (httpContext.Items.TryGetValue("deviceId", out var deviceIdObject) && MfaDeviceIdentifier.ValidateDeviceId(deviceIdObject?.ToString())) {
+            return deviceIdObject!.ToString();
         }
-        return requestHasDeviceId ? deviceId.ToString() : default;
+        if (httpContext.User is not null) {
+            return FindDeviceId(httpContext.User);
+        }
+        return null;
     }
 
     private static string? FindDeviceId(ClaimsPrincipal claimsPrincipal) {
