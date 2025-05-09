@@ -7,17 +7,15 @@
 
 @{
     var title = ViewData["Title"] = Localizer["Multifactor Authentication"].Value;
-    var maskedPhoneNumber = !string.IsNullOrWhiteSpace(Model.View.User?.PhoneNumber) ? Regex.Replace(Model.View.User.PhoneNumber, @"\d(?!\d{0,1}$)", "X") : null;
-    var hubConnectionUrl = Configuration.GetSection("General").GetValue<string>("HubConnectionUrl");
 }
 
 <div class="sign-in m-auto">
     <vc:page-heading title="@title" image-src="" />
     <partial name="_ValidationSummary" />
     <div indice-if="!Model.View.HasError">
-    @if (Model.View.AuthenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.Sms && !string.IsNullOrWhiteSpace(maskedPhoneNumber))
+        @if (Model.View.AuthenticationMethodDeliveryChannel == TotpDeliveryChannel.Sms && Model.View.PhoneNumberAvailable)
     {
-        <div class="alert alert-primary" role="alert">@Localizer["We texted your phone {0}. Please enter the code to sign in.", maskedPhoneNumber]</div>
+        <div class="alert alert-primary" role="alert">@Localizer["We texted your phone {0}. Please enter the code to sign in.", Model.View.PhoneNumberMasked!]</div>
         <form id="mfa-form" asp-page="/Mfa" asp-route-returnUrl="@Model.Input.ReturnUrl" method="post">
             <input type="hidden" asp-for="Input.ReturnUrl" />
             <input type="hidden" asp-for="Input.DeviceId" />
@@ -35,7 +33,15 @@
                     </label>
                 </div>
             </div>
-            <button type="submit" class="btn btn-info btn-block">@Localizer["Login"]</button>
+            <div class="row justify-content-between">
+            <button type="submit" class="btn btn-info col-5">@Localizer["Login"]</button>
+                    <button type="submit" class="btn btn-info col-5" id="otp-resend" name="Input.ResendOtp" disabled="@Model.View.ResendEnabled" value="true">
+                    @Localizer["Resend"]
+                        <div indice-if="!Model.View.ResendEnabled">
+                        <span id="lblcountdown" class="countdown"></span>
+                    </div>
+                </button>
+            </div>
         </form>
     }
     @if (Model.View.AuthenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.PushNotification)
@@ -88,6 +94,7 @@
     }
     <script type="text/javascript" src="~/lib/@@fingerprintjs/fingerprintjs/dist/fp.min.js" csp-nonce></script>
     <script type="text/javascript" src="~/js/mfa.js" csp-nonce></script>
+    <script type="text/javascript" src="~/js/otp.js" csp-nonce></script>
     <script type="text/javascript" csp-nonce>
         $(document).ready(function () {
             var viewModelParameters = {
@@ -98,7 +105,7 @@
                 $rememberClientCheckbox: $('#Input_RememberClient'),
                 browserFamily: '@(HttpContext.Request.GetBrowserName())',
                 deliveryChannel: '@Model.View.AuthenticationMethod?.GetDeliveryChannel()',
-                hubConnectionUrl: '@hubConnectionUrl'
+                hubConnectionUrl: '@Model.View.HubConnectionUrl'
             };
             var viewModel = new indice.mfaViewModelFactory(viewModelParameters);
             viewModel.init();
