@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="An unexpected error occurred while sending the OTP code." xml:space="preserve">
+    <value>Προέκυψε απρόσμενο σφάλμα κατά την αποστολή του κωδικού OTP.</value>
+  </data>
   <data name="Because you've turned on two-step verification, you need to approve request on your mobile app." xml:space="preserve">
     <value>Επειδή έχετε ενεργοποιήσει την επαλήθευση σε δύο βήματα, πρέπει να εγκρίνετε το αίτημα στην εφαρμογή σας για κινητά.</value>
   </data>
@@ -137,6 +140,9 @@
   </data>
   <data name="Request denied" xml:space="preserve">
     <value>Το αίτημα απορρίφθηκε</value>
+  </data>
+  <data name="Resend" xml:space="preserve">
+    <value>Επαναποστολή</value>
   </data>
   <data name="Send another request to my app" xml:space="preserve">
     <value>Στείλτε ένα άλλο αίτημα στην εφαρμογή</value>

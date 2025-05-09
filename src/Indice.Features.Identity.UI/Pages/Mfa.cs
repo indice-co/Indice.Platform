@@ -85,17 +85,7 @@ public abstract class BaseMfaModel : BasePageModel
             return Page();
         }
 
-        var totpService = TotpServiceFactory.Create<User>();
-        if (View.AuthenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.Sms) {
-            await totpService.SendAsync(message =>
-                message.ToUser(View.User)
-                       .WithMessage(_localizer["Your OTP code for login is: {0}"])
-                       .UsingSms()
-                       .UsingTokenProvider(View.AuthenticationMethod?.GetTokenProvider()!)
-                       .WithSubject(_localizer["OTP login"])
-                       .WithPurpose("TwoFactor")
-            );
-        }
+        await SendOtp();
         return Page();
     }
 
@@ -105,6 +95,17 @@ public abstract class BaseMfaModel : BasePageModel
         View = await BuildMfaLoginViewModelAsync(Input);
         if (View.HasError) {
             ModelState.AddModelError(string.Empty, _localizer[View.Error!]);
+            return Page();
+        }
+        if (Input.ResendOtp) {
+            var otpResult = await SendOtp();
+            if(!otpResult.Success) {
+                if(!string.IsNullOrWhiteSpace(otpResult.Error)) {
+                    ModelState.AddModelError(string.Empty, otpResult.Error);
+                } else {
+                    ModelState.AddModelError(string.Empty, _localizer["An unexpected error occurred while sending the OTP code."]);
+                }
+            }
             return Page();
         }
         var signInResult = await SignInManager.TwoFactorSignInAsync(View.AuthenticationMethod?.GetTokenProvider()!, Input.OtpCode!, Input.RememberMe, Input.RememberClient);
@@ -154,6 +155,21 @@ public abstract class BaseMfaModel : BasePageModel
             IsExistingBrowser = browserDevice?.MfaSessionActive() ?? false,
             Error = authenticationMethod == null ? "MFA is enabled but there is no active two factor authentication method configured. Please contact your administrator." : null
         };
+    }
+
+    private async Task<TotpResult> SendOtp() {
+        var totpService = TotpServiceFactory.Create<User>();
+        if (View.AuthenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.Sms) {
+            return await totpService.SendAsync(message =>
+                message.ToUser(View.User)
+                       .WithMessage(_localizer["Your OTP code for login is: {0}"])
+                       .UsingSms()
+                       .UsingTokenProvider(View.AuthenticationMethod?.GetTokenProvider()!)
+                       .WithSubject(_localizer["OTP login"])
+                       .WithPurpose("TwoFactor")
+            );
+        }
+        return TotpResult.SuccessResult;
     }
 }
 

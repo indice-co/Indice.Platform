@@ -9,6 +9,7 @@
     var title = ViewData["Title"] = Localizer["Multifactor Authentication"].Value;
     var maskedPhoneNumber = !string.IsNullOrWhiteSpace(Model.View.User?.PhoneNumber) ? Regex.Replace(Model.View.User.PhoneNumber, @"\d(?!\d{0,1}$)", "X") : null;
     var hubConnectionUrl = Configuration.GetSection("General").GetValue<string>("HubConnectionUrl");
+    var canResendOtp = Model.View.HasError;
 }
 
 <div class="sign-in m-auto">
@@ -35,7 +36,17 @@
                     </label>
                 </div>
             </div>
-            <button type="submit" class="btn btn-info w-100">@Localizer["Login"]</button>
+            <div class="row justify-content-between">
+                <button type="submit" class="btn btn-info col-5">
+                    @Localizer["Login"]
+                </button>
+                <button type="submit" class="btn btn-info col-5" id="otp-resend" name="Input.ResendOtp" disabled="@canResendOtp" value="true">
+                    @Localizer["Resend"]
+                    <div indice-if="!canResendOtp">
+                        <span id="lblcountdown" class="countdown"></span>
+                    </div>
+                </button>
+            </div>
         </form>
     }
     @if (Model.View.AuthenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.PushNotification)
@@ -88,6 +99,8 @@
     }
     <script type="text/javascript" src="~/lib/@@fingerprintjs/fingerprintjs/dist/fp.min.js" csp-nonce></script>
     <script type="text/javascript" src="~/js/mfa.js" csp-nonce></script>
+    <script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="~/js/otp.js" csp-nonce></script>
     <script type="text/javascript" csp-nonce>
         $(document).ready(function () {
             var viewModelParameters = {
