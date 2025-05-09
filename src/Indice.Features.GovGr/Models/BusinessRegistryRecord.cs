@@ -23,8 +23,6 @@ public class BusinessRegistryRecord
     public decimal? MainActivityCode { get; set; }
     /// <summary>Περιγραφή κύριας δραστηριότητας Taxis </summary>
     public string? MainActivityDescription { get; set; }
-    /// <summary>Τύπος Δραστηριότητας (Πάντα 1) </summary>
-    public string? MainActivityKind { get; set; }
     /// <summary>Διεύθυνση</summary>
     public BusinessRegistryAddress? Address { get; set; }
     /// <summary>ΗΜ/ΝΙΑ ΕΝΑΡΞΗΣ</summary>
