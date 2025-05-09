@@ -157,11 +157,11 @@ public abstract class BaseMfaModel : BasePageModel
 
     private async Task<TotpResult> SendOtpAsync() {
         var totpService = TotpServiceFactory.Create<User>();
-        if (View.AuthenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.Sms) {
+        if (View.AuthenticationMethodDeliveryChannel == TotpDeliveryChannel.Sms || View.AuthenticationMethodDeliveryChannel == TotpDeliveryChannel.PushNotification) {
             return await totpService.SendAsync(message =>
                 message.ToUser(View.User)
                        .WithMessage(_localizer["Your OTP code for login is: {0}"])
-                       .UsingSms()
+                       .UsingDeliveryChannel(View.AuthenticationMethodDeliveryChannel.Value)
                        .UsingTokenProvider(View.AuthenticationMethod?.GetTokenProvider()!)
                        .WithSubject(_localizer["OTP login"])
                        .WithPurpose("TwoFactor")
