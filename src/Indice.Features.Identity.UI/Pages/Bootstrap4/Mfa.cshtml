@@ -9,7 +9,7 @@
     var title = ViewData["Title"] = Localizer["Multifactor Authentication"].Value;
     var maskedPhoneNumber = !string.IsNullOrWhiteSpace(Model.View.User?.PhoneNumber) ? Regex.Replace(Model.View.User.PhoneNumber, @"\d(?!\d{0,1}$)", "X") : null;
     var hubConnectionUrl = Configuration.GetSection("General").GetValue<string>("HubConnectionUrl");
-    var canResendOtp = Model.View.HasError;
+    var isResendDisabled = Model.View.HasError;
 }
 
 <div class="sign-in m-auto">
@@ -38,7 +38,7 @@
             </div>
             <div class="row justify-content-between">
                 <button type="submit" class="btn btn-info col-5">@Localizer["Login"]</button>
-                <button type="submit" class="btn btn-info col-5" id="otp-resend" name="Input.ResendOtp" disabled="@canResendOtp" value="true">
+                    <button type="submit" class="btn btn-info col-5" id="otp-resend" name="Input.ResendOtp" disabled="@isResendDisabled" value="true">
                     @Localizer["Resend"]
                     <div indice-if="!canResendOtp">
                         <span id="lblcountdown" class="countdown"></span>
