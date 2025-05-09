@@ -41,6 +41,9 @@ public class IndiceWebApplicationBuilder : IHostApplicationBuilder
 
     /// <inheritdoc/>
     public IServiceCollection Services => InnerBuilder.Services;
+    
+    /// <inheritdoc/>
+    public ConfigureWebHostBuilder WebHost => InnerBuilder.WebHost;
 
     /// <inheritdoc/>
     void IHostApplicationBuilder.ConfigureContainer<TContainerBuilder>(IServiceProviderFactory<TContainerBuilder> factory, Action<TContainerBuilder>? configure) =>
