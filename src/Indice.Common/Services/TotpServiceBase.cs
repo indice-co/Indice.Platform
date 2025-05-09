@@ -194,21 +194,33 @@ public enum TotpProviderType
 /// <summary><see cref="TotpServiceBase"/> result.</summary>
 public class TotpResult
 {
-    /// <summary>Constructs an error result.</summary>
-    /// <param name="error">The error.</param>
-    public static TotpResult ErrorResult(string error) => new() {
-        Error = error
-    };
+    private static readonly TotpResult _successResult = new() { Success = true };
 
+    private TotpResult() { }
     /// <summary>Indicates success.</summary>
     public bool Success { get; private set; }
     /// <summary>The error occurred.</summary>
     public string? Error { get; private set; }
-
+    /// <summary>Indicates whether the result has failed with a rate limiting reason.</summary>
+    public bool IsRateLimited { get; private set; }
+    /// <summary>Indicates whether the result has failed with due to an invalid code.</summary>
+    public bool IsInvalidCode { get; private set; }
+    /// <summary>Indicates whether the result has failed with due to invalid code format.</summary>
+    public bool IsInvalidFormat { get; private set; }
+    /// <summary>Returns a <see cref="TotpResult"/> that represents a totp send attempt that failed due to RateLimiting.</summary>
+    public static TotpResult RateLimitedResult(string? error = null) => new() { Error = error ?? "RateLimited", IsRateLimited = true };
+    /// <summary>Returns a <see cref="TotpResult"/> that represents a totp send attempt that failed due to the code being invalid.</summary>
+    public static TotpResult InvalidCodeResult(string? error = null) => new() { Error = error ?? "InvalidCode", IsInvalidCode = true };
+    /// <summary>Returns a <see cref="TotpResult"/> that represents a totp send attempt that failed due to the Format of the code.</summary>
+    public static TotpResult InvalidFormatResult(string? error = null) => new() { Error = error ?? "InvalidFormat", IsInvalidFormat = true };
     /// <summary>Constructs a success result.</summary>
-    public static TotpResult SuccessResult => new() {
-        Success = true
-    };
+    public static TotpResult SuccessResult => _successResult;
+    /// <summary>Constructs an error result.</summary>
+    /// <param name="error">The error.</param>
+    public static TotpResult ErrorResult(string error) => new() { Error = error };
+
+    /// <inheritdoc/>
+    public override string? ToString() => Success ? nameof(Success) : !string.IsNullOrEmpty(Error) ? Error : base.ToString();
 }
 
 /// <summary>Specific exception used to pass errors when using .</summary>

@@ -85,7 +85,7 @@ public abstract class BaseMfaModel : BasePageModel
             return Page();
         }
 
-        await SendOtp();
+        await SendOtpAsync();
         return Page();
     }
 
@@ -98,13 +98,9 @@ public abstract class BaseMfaModel : BasePageModel
             return Page();
         }
         if (Input.ResendOtp) {
-            var otpResult = await SendOtp();
+            var otpResult = await SendOtpAsync();
             if(!otpResult.Success) {
-                if(!string.IsNullOrWhiteSpace(otpResult.Error)) {
-                    ModelState.AddModelError(string.Empty, otpResult.Error);
-                } else {
-                    ModelState.AddModelError(string.Empty, _localizer["An unexpected error occurred while sending the OTP code."]);
-                }
+                ModelState.AddModelError(string.Empty, otpResult.Error!);
             }
             return Page();
         }
@@ -159,7 +155,7 @@ public abstract class BaseMfaModel : BasePageModel
         };
     }
 
-    private async Task<TotpResult> SendOtp() {
+    private async Task<TotpResult> SendOtpAsync() {
         var totpService = TotpServiceFactory.Create<User>();
         if (View.AuthenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.Sms) {
             return await totpService.SendAsync(message =>
