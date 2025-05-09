@@ -37,7 +37,7 @@
                 <button type="submit" class="btn btn-info col-5">
                     @Localizer["Login"]
                 </button>
-                    <button type="submit" class="btn btn-info col-5" id="otp-resend" name="Input.ResendOtp" disabled="@Model.View.ResendEnabled" value="true">
+                <button type="submit" class="btn btn-info col-5" id="otp-resend" name="Input.ResendOtp" disabled="@Model.View.ResendEnabled" value="true">
                     @Localizer["Resend"]
                     <div indice-if="!@Model.View.ResendEnabled">
                         <span id="lblcountdown" class="countdown"></span>
@@ -96,7 +96,6 @@
     }
     <script type="text/javascript" src="~/lib/@@fingerprintjs/fingerprintjs/dist/fp.min.js" csp-nonce></script>
     <script type="text/javascript" src="~/js/mfa.js" csp-nonce></script>
-    <script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js" csp-nonce="true"></script>
     <script type="text/javascript" src="~/js/otp.js" csp-nonce></script>
     <script type="text/javascript" csp-nonce>
         $(document).ready(function () {
@@ -108,7 +107,7 @@
                 $rememberClientCheckbox: $('#Input_RememberClient'),
                 browserFamily: '@(HttpContext.Request.GetBrowserName())',
                 deliveryChannel: '@Model.View.AuthenticationMethod?.GetDeliveryChannel()',
-                hubConnectionUrl: '@hubConnectionUrl'
+                hubConnectionUrl: '@Model.View.HubConnectionUrl'
             };
             var viewModel = new indice.mfaViewModelFactory(viewModelParameters);
             viewModel.init();
