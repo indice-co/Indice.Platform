@@ -40,7 +40,7 @@
                 <button type="submit" class="btn btn-info col-5">@Localizer["Login"]</button>
                     <button type="submit" class="btn btn-info col-5" id="otp-resend" name="Input.ResendOtp" disabled="@isResendDisabled" value="true">
                     @Localizer["Resend"]
-                    <div indice-if="!canResendOtp">
+                        <div indice-if="!isResendDisabled">
                         <span id="lblcountdown" class="countdown"></span>
                     </div>
                 </button>
