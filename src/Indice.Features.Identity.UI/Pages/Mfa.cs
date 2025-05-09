@@ -146,14 +146,16 @@ public abstract class BaseMfaModel : BasePageModel
         if (authenticationMethod is null) {
             Logger.LogError("MFA must be applied but no suitable authentication method was found.");
         }
-
+        var hasError = authenticationMethod == null;
         return new MfaLoginViewModel {
             AuthenticationMethod = authenticationMethod,
             AllowDowngradeAuthenticationMethod = allowDowngradeAuthenticationMethod,
             ReturnUrl = returnUrl,
             User = user,
             IsExistingBrowser = browserDevice?.MfaSessionActive() ?? false,
-            Error = authenticationMethod == null ? "MFA is enabled but there is no active two factor authentication method configured. Please contact your administrator." : null
+            Error = hasError ? "MFA is enabled but there is no active two factor authentication method configured. Please contact your administrator." : null,
+            ResendEnabled = !hasError && (authenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.Sms || authenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.PushNotification),
+            HubConnectionUrl = Configuration.GetSection("General").GetValue<string>("HubConnectionUrl")
         };
     }
 
