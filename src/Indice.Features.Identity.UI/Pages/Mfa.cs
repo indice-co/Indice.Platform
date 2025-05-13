@@ -79,7 +79,7 @@ public abstract class BaseMfaModel : BasePageModel
     /// <param name="returnUrl">The return URL.</param>
     /// <param name="downgradeChannel">Allows the user to select a channel with lower security.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl, [FromQuery(Name = "dc")] bool? downgradeChannel) {
-        Input = View = await BuildMfaLoginViewModelAsync(returnUrl, downgradeChannel);
+        Input = View = await BuildMfaLoginViewModelAsync(returnUrl, downgradeChannel ?? false);
         if (View.HasError) {
             ModelState.AddModelError(string.Empty, _localizer[View.Error!]);
             return Page();
@@ -130,9 +130,9 @@ public abstract class BaseMfaModel : BasePageModel
         return viewModel;
     }
 
-    private async Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(string? returnUrl, bool? tryDowngradeAuthenticationMethod = false) {
+    private async Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(string? returnUrl, bool tryDowngradeAuthenticationMethod = false) {
         var user = await SignInManager.GetTwoFactorAuthenticationUserAsync() ?? throw new InvalidOperationException("User cannot be null");
-        var authenticationMethod = await AuthenticationMethodProvider.GetRequiredAuthenticationMethod(user, tryDowngradeAuthenticationMethod);
+        var authenticationMethod = await AuthenticationMethodProvider.GetDefaultMethodForUserAsync(user, tryDowngradeAuthenticationMethod);
         var allowDowngradeAuthenticationMethod = Configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "AllowDowngradeAuthenticationMethod") ?? false;
         var deviceIdentifier = await SignInManager.GetMfaDeviceIdentifierAsync(user);
         UserDevice? browserDevice = null;

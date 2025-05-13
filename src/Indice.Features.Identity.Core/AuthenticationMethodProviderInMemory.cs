@@ -40,31 +40,41 @@ public class AuthenticationMethodProviderInMemory : IAuthenticationMethodProvide
 
     /// <inheritdoc />
     /// <remarks>For now the supported authentication methods are <see cref="SmsAuthenticationMethod"/>, <see cref="TrustedDeviceAuthenticationMethod"/> and <see cref="AuthenticatorAppAuthenticationMethod"/>.</remarks>
-    public async Task<AuthenticationMethod?> GetRequiredAuthenticationMethod(User user, bool? tryDowngradeAuthenticationMethod = false) {
-         if (_authenticationMethods?.Count() == 0) {
+    public async Task<AuthenticationMethod?> GetDefaultMethodForUserAsync(User user, bool tryDowngradeAuthenticationMethod = false) {
+        if (_authenticationMethods.Count() == 0) {
             throw new InvalidOperationException("No authentication methods have been configured.");
         }
-        var selectedAuthenticationMethod = _authenticationMethods!.FirstOrDefault(x => x.Type == AuthenticationMethodType.PhoneNumber);
         var allowMfaChannelDowngrade = _configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "AllowDowngradeAuthenticationMethod") ?? false;
-        if ((tryDowngradeAuthenticationMethod ??= false) && allowMfaChannelDowngrade) {
-            return selectedAuthenticationMethod;
+        var userMethods = await GetAllMethodsForUserAsync(user);
+        if (userMethods.Length == 0) {
+            return null;
         }
-        var trustedDevices = await _userManager.GetDevicesAsync(user, UserDeviceListFilter.TrustedNativeDevices());
-        if (trustedDevices.Count > 0) {
-            selectedAuthenticationMethod = _authenticationMethods!.FirstOrDefault(x => x.Type == AuthenticationMethodType.TrustedDevice);
-            return selectedAuthenticationMethod;
+        if (tryDowngradeAuthenticationMethod) {
+            return userMethods.OrderBy(x => x.SecurityLevel).FirstOrDefault();
         }
-        var authenticatorKey = await _userManager.GetAuthenticatorKeyAsync(user);
-        var authenticatorConfigured = !string.IsNullOrWhiteSpace(authenticatorKey);
-        if (authenticatorConfigured) {
-            selectedAuthenticationMethod = _authenticationMethods!.FirstOrDefault(x => x.Type == AuthenticationMethodType.AuthenticatorApp);
-            return selectedAuthenticationMethod;
+        return userMethods.FirstOrDefault();
+    }
+
+    /// <inheritdoc />
+    public async Task<AuthenticationMethod[]> GetAllMethodsForUserAsync(User user) {
+        var allMethods = _authenticationMethods.Where(x => x.SupportsMfa && x.Enabled).ToArray();
+        var methods = new List<AuthenticationMethod>();
+        foreach (var method in allMethods) {
+            if (method.Type is AuthenticationMethodType.TrustedDevice &&
+                       await _userManager.GetDevicesAsync(user, UserDeviceListFilter.TrustedNativeDevices()) is { Count: > 0 }) {
+                methods.Add(method);
+            } else if (method.Type is AuthenticationMethodType.AuthenticatorApp &&
+                       !string.IsNullOrWhiteSpace(await _userManager.GetAuthenticatorKeyAsync(user))) {
+                methods.Add(method);
+            } else if (method.Type is AuthenticationMethodType.PhoneNumber &&
+                       !string.IsNullOrWhiteSpace(await _userManager.GetPhoneNumberAsync(user)) && await _userManager.IsPhoneNumberConfirmedAsync(user)) {
+                methods.Add(method);
+            }
+            //TODO: Uncomment this when Fido2 is implemented
+            //} else if (method.Type is AuthenticationMethodType.Fido2) {
+            //    methods.Add(method);
+            //}
         }
-        var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-        var phoneNumberConfirmed = !string.IsNullOrWhiteSpace(phoneNumber) && await _userManager.IsPhoneNumberConfirmedAsync(user);
-        if (phoneNumberConfirmed) {
-            return selectedAuthenticationMethod;
-        }
-        return null;
+        return methods.ToArray();
     }
 }
