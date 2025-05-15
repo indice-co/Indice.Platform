@@ -12,6 +12,11 @@ public static class ActivityExecutionContextExtensions
     /// <summary>Try to get the last actor either from the HTTP request body with an "actor" field
     /// or the Workflow context variable "RunAsSystemUser" or the Last Actor from the Variables.</summary>
     public static Actor TryGetLastActor(this ActivityExecutionContext context) {
+        var forceRunAsSystemUser = context.GetVariable<bool>("RunAsSystemUser");
+        if (forceRunAsSystemUser) {
+            return Actor.Create(CasesClaimsPrincipalExtensions.SystemUser());
+        }
+
         if (context.Input is HttpRequestModel { RawBody: not null } request) {
             var body = JsonNode.Parse(request.RawBody);
             var actorNode = body?["actor"];
@@ -20,11 +25,7 @@ public static class ActivityExecutionContextExtensions
                 return tempActor;
             }
         }
-
-        var runAsSystemUser = context.GetVariable<bool>("RunAsSystemUser");
-        if (runAsSystemUser) {
-            return Actor.Create(CasesClaimsPrincipalExtensions.SystemUser());
-        }
+        
         return context.GetVariable<Actor>(CasesWorkflowConstants.WorkflowVariables.Actor.Current)
             ?? Actor.Create(CasesClaimsPrincipalExtensions.SystemUser()); // TODO[2025-07-07]: Remove this eventually
     }

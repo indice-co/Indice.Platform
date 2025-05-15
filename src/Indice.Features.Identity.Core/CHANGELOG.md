@@ -8,12 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [8.0.0-rc26] - 2025-04-22
 ### Added 
 - Support for confugurable per user Two Factor enforcement policy.
-
-### Code Changes
-Remove from program.cs the following code:
-```csharp
-app.UseSession();
-```
+- Removed session state dependency from the library. So unless your app requires session then you must remove `app.UseSession()`.
 
 ### Migrations
 Add new column in user table.
