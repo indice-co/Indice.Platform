@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 using IdentityModel;
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
@@ -704,84 +705,79 @@ internal static partial class MyAccountHandlers
         }))
         .ToArray();
         try {
-            var consents = grants
-                .Where(x => x.Type == PersistedGrantTypes.UserConsent)
-                .Select(x => serializer.Deserialize<Consent>(x.Data))
-                .Select(x => new UserConsentInfo {
-                    ClientId = x.ClientId,
-                    Scopes = x.Scopes,
-                    CreatedAt = x.CreationTime,
-                    ExpiresAt = x.Expiration,
-                    Type = PersistedGrantTypes.UserConsent
-                });
-            var codes = grants
-                .Where(x => x.Type == PersistedGrantTypes.AuthorizationCode)
-                .Select(x => serializer.Deserialize<AuthorizationCode>(x.Data))
-                .Select(x => new UserConsentInfo {
-                    ClientId = x.ClientId,
-                    Scopes = x.RequestedScopes,
-                    CreatedAt = x.CreationTime,
-                    ExpiresAt = x.CreationTime.AddSeconds(x.Lifetime),
-                    Type = PersistedGrantTypes.AuthorizationCode
-                });
-            var refresh = grants
-                .Where(x => x.Type == PersistedGrantTypes.RefreshToken)
-                .Select(x => serializer.Deserialize<RefreshToken>(x.Data))
-                .Select(x => new UserConsentInfo {
-                    ClientId = x.ClientId,
-                    Scopes = x.Scopes,
-                    Claims = x.AccessToken?.Claims?.Select(x => new BasicClaimInfo {
-                        Type = x.Type,
-                        Value = x.Value
-                    }) ?? new List<BasicClaimInfo>(),
-                    CreatedAt = x.CreationTime,
-                    ExpiresAt = x.CreationTime.AddSeconds(x.Lifetime),
-                    Type = PersistedGrantTypes.RefreshToken
-                });
-            var access = grants
-                .Where(x => x.Type == PersistedGrantTypes.ReferenceToken)
-                .Select(x => serializer.Deserialize<Token>(x.Data))
-                .Select(x => new UserConsentInfo {
-                    ClientId = x.ClientId,
-                    Scopes = x.Scopes,
-                    Claims = x.Claims.Select(x => new BasicClaimInfo {
-                        Type = x.Type,
-                        Value = x.Value
-                    }),
-                    CreatedAt = x.CreationTime,
-                    ExpiresAt = x.CreationTime.AddSeconds(x.Lifetime),
-                    Type = PersistedGrantTypes.ReferenceToken
-                });
-            consents = Join(consents, codes);
-            consents = Join(consents, refresh);
-            consents = Join(consents, access);
-            return consents.ToArray();
+            var consents = grants.OrderBy(x => x.CreationTime)
+                                  .GroupBy(x => x.ClientId)
+                                  .Select(group => {
+                                      var info = new UserConsentInfo {
+                                          ClientId = group.Key,
+                                      };
+                                      foreach (var grant in group) {
+                                          switch (grant.Type) {
+                                              case PersistedGrantTypes.UserConsent:
+                                                  var consent = serializer.Deserialize<Consent>(grant.Data);
+                                                  info.UpdateWith(PersistedGrantTypes.UserConsent, consent.CreationTime, consent.Expiration, consent.Scopes);
+                                                  info.Grants.Add(new UserGrantInfo {
+                                                      Type = PersistedGrantTypes.UserConsent,
+                                                      SessionId = grant.SessionId,
+                                                      CreatedAt = consent.CreationTime,
+                                                      ExpiresAt = consent.Expiration,
+                                                  });
+                                                  break;
+                                              case PersistedGrantTypes.AuthorizationCode:
+                                                  var code = serializer.Deserialize<AuthorizationCode>(grant.Data);
+                                                  info.UpdateWith(PersistedGrantTypes.AuthorizationCode, code.CreationTime, code.CreationTime.AddSeconds(code.Lifetime), code.RequestedScopes);
+                                                  info.Grants.Add(new UserGrantInfo {
+                                                      Type = PersistedGrantTypes.AuthorizationCode,
+                                                      SessionId = grant.SessionId,
+                                                      CreatedAt = code.CreationTime,
+                                                      ExpiresAt = code.CreationTime.AddSeconds(code.Lifetime),
+                                                  });
+                                                  break;
+                                              case PersistedGrantTypes.RefreshToken:
+                                                  var refresh = serializer.Deserialize<RefreshToken>(grant.Data);
+                                                  info.UpdateWith(PersistedGrantTypes.RefreshToken, refresh.CreationTime, refresh.CreationTime.AddSeconds(refresh.Lifetime), refresh.Scopes);
+                                                  info.Grants.Add(new UserGrantInfo {
+                                                      Type = PersistedGrantTypes.RefreshToken,
+                                                      SessionId = grant.SessionId,
+                                                      CreatedAt = refresh.CreationTime,
+                                                      ExpiresAt = refresh.CreationTime.AddSeconds(refresh.Lifetime),
+                                                      TokenId = refresh.AccessToken?.Claims?.FirstOrDefault(x => x.Type == JwtClaimTypes.JwtId)?.Value,
+                                                      DeviceId = refresh.AccessToken?.Claims?.FirstOrDefault(x => x.Type == BasicClaimTypes.DeviceId)?.Value,
+                                                      IpAddress = refresh.AccessToken?.Claims?.FirstOrDefault(x => x.Type == BasicClaimTypes.IPAddress)?.Value,
+                                                  });
+                                                  break;
+                                              case PersistedGrantTypes.ReferenceToken:
+                                                  var token = serializer.Deserialize<Token>(grant.Data);
+                                                  info.UpdateWith(PersistedGrantTypes.ReferenceToken, token.CreationTime, token.CreationTime.AddSeconds(token.Lifetime), token.Scopes);
+                                                  info.Grants.Add(new UserGrantInfo {
+                                                      Type = PersistedGrantTypes.ReferenceToken,
+                                                      SessionId = grant.SessionId,
+                                                      CreatedAt = token.CreationTime,
+                                                      ExpiresAt = token.CreationTime.AddSeconds(token.Lifetime),
+                                                      TokenId = token.Claims?.FirstOrDefault(x => x.Type == JwtClaimTypes.JwtId)?.Value,
+                                                      DeviceId = token.Claims?.FirstOrDefault(x => x.Type == BasicClaimTypes.DeviceId)?.Value,
+                                                      IpAddress = token.Claims?.FirstOrDefault(x => x.Type == BasicClaimTypes.IPAddress)?.Value,
+                                                  });
+                                                  break;
+                                              default:
+                                                  break;
+                                          }
+                                      }
+                                      return info;
+                                  }).ToList();
+            
+            return consents;
         } catch (Exception) { }
-        return Enumerable.Empty<UserConsentInfo>();
+        return [];
     }
 
-    private static IEnumerable<UserConsentInfo> Join(IEnumerable<UserConsentInfo> first, IEnumerable<UserConsentInfo> second) {
-        var list = first.ToList();
-        foreach (var other in second) {
-            var match = list.FirstOrDefault(x => x.ClientId == other.ClientId);
-            if (match != null) {
-                match.Claims = match.Claims.Union(other.Claims, BasicClaimInfo.DefaultComparer);
-                match.Scopes = match.Scopes.Union(other.Scopes);
-                if (match.CreatedAt > other.CreatedAt) {
-                    match.CreatedAt = other.CreatedAt;
-                }
-                if (match.ExpiresAt == null || other.ExpiresAt == null) {
-                    match.ExpiresAt = null;
-                } else if (match.ExpiresAt < other.ExpiresAt) {
-                    match.ExpiresAt = other.ExpiresAt;
-                }
-            } else {
-                list.Add(other);
-            }
-        }
-        return list;
-    }
-
-
-
+    private static readonly HashSet<string> _grantClaimTypesToInclude = [
+        JwtClaimTypes.JwtId,
+        //JwtClaimTypes.SessionId,
+        //JwtClaimTypes.IssuedAt,
+        //JwtClaimTypes.AuthenticationMethod,
+        BasicClaimTypes.IPAddress,
+        BasicClaimTypes.DeviceId,
+        ];
+    private static Func<BasicClaimInfo, bool> OnlyRelevantGrantClaims => x => _grantClaimTypesToInclude.Contains(x.Type!);
 }

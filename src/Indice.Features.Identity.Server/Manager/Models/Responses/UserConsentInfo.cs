@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using static Microsoft.Azure.Amqp.Serialization.SerializableType;
 
 namespace Indice.Features.Identity.Server.Manager.Models;
 
@@ -13,9 +14,23 @@ public class UserConsentInfo
     /// <summary>Consent expiration <see cref="DateTime"/>.</summary>
     public DateTime? ExpiresAt { get; set; }
     /// <summary>Consent type.</summary>
-    public string? Type { get; set; }
+    public List<string> Types { get; set; } = [];
     /// <summary>Associated scopes.</summary>
-    public IEnumerable<string> Scopes { get; set; } = new List<string>();
-    /// <summary>Associated claims.</summary>
-    public IEnumerable<BasicClaimInfo> Claims { get; set; } = new List<BasicClaimInfo>();
+    public List<string> Scopes { get; set; } = [];
+
+    public List<UserGrantInfo> Grants { get; set; } = [];
+
+
+    public void UpdateWith(string type, DateTime createdAt, DateTime? expiresAt, IEnumerable<string> scopes) {
+        if (CreatedAt > createdAt) {
+            CreatedAt = createdAt;
+        }
+        if (expiresAt == null) {
+            ExpiresAt = null;
+        } else if (ExpiresAt < expiresAt) {
+            ExpiresAt = expiresAt;
+        }
+        Scopes = [.. Scopes.Union(scopes)];
+        Types = [.. Types.Union([type])];
+    }
 }
