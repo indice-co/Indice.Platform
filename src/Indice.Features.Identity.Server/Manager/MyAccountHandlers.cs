@@ -1,12 +1,10 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
+﻿using System.Linq;
 using System.Security.Claims;
-using System.Text;
-using System.Text.RegularExpressions;
 using IdentityModel;
-using IdentityServer4.Configuration;
+using IdentityServer4.Events;
+using IdentityServer4.Extensions;
 using IdentityServer4.Models;
+using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.Stores.Serialization;
 using Indice.Features.Identity.Core;
@@ -20,20 +18,12 @@ using Indice.Security;
 using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OutputCaching;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats;
-using SixLabors.ImageSharp.Processing;
 using static IdentityServer4.IdentityServerConstants;
 
 namespace Indice.Features.Identity.Server.Manager;
@@ -443,7 +433,7 @@ internal static partial class MyAccountHandlers
 
     internal static async Task<Results<Ok<ResultSet<UserConsentInfo>>, NotFound>> GetConsents(
         ExtendedUserManager<User> userManager,
-        IPersistedGrantStore persistedGrantStore,
+        IPersistedGrantStore grants,
         IPersistentGrantSerializer serializer,
         ClaimsPrincipal currentUser,
         [AsParameters] ListOptions options,
@@ -453,8 +443,38 @@ internal static partial class MyAccountHandlers
         if (user == null) {
             return TypedResults.NotFound();
         }
-        var consents = await persistedGrantStore.GetPersistedGrantsAsync(serializer, user.Id, filter?.ClientId, filter?.ConsentType.ToConstantName());
+        var consents = await grants.GetPersistedGrantsAsync(serializer, user.Id, filter?.ClientId, filter?.ConsentType.ToConstantName());
         return TypedResults.Ok(consents.AsQueryable().ToResultSet(options));
+    }
+
+    internal static async Task<Results<NoContent, NotFound>> RevokeConsents(
+        ExtendedUserManager<User> userManager, 
+        IPersistedGrantService grants,
+        IEventService events,
+        ClaimsPrincipal currentUser,
+        string clientId) {
+        var user = await userManager.GetUserAsync(currentUser);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        await grants.RemoveAllGrantsAsync(currentUser.GetSubjectId(), clientId);
+        await events.RaiseAsync(new GrantsRevokedEvent(currentUser.GetSubjectId(), clientId));
+        return TypedResults.NoContent();
+    }
+
+    internal static async Task<Results<NoContent, NotFound>> RevokeAllConsents(
+        ExtendedUserManager<User> userManager,
+        IPersistedGrantService grants,
+        IEventService events,
+        ClaimsPrincipal currentUser,
+        string clientId) {
+        var user = await userManager.GetUserAsync(currentUser);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        await grants.RemoveAllGrantsAsync(currentUser.GetSubjectId());
+        await events.RaiseAsync(new GrantsRevokedEvent(currentUser.GetSubjectId(), null));
+        return TypedResults.NoContent();
     }
 
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteAccount(
@@ -745,8 +765,8 @@ internal static partial class MyAccountHandlers
         foreach (var other in second) {
             var match = list.FirstOrDefault(x => x.ClientId == other.ClientId);
             if (match != null) {
-                match.Claims = match.Claims.Union(other.Claims).Distinct();
-                match.Scopes = match.Scopes.Union(other.Scopes).Distinct();
+                match.Claims = match.Claims.Union(other.Claims, BasicClaimInfo.DefaultComparer);
+                match.Scopes = match.Scopes.Union(other.Scopes);
                 if (match.CreatedAt > other.CreatedAt) {
                     match.CreatedAt = other.CreatedAt;
                 }
