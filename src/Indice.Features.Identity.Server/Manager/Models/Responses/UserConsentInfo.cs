@@ -17,10 +17,16 @@ public class UserConsentInfo
     public List<string> Types { get; set; } = [];
     /// <summary>Associated scopes.</summary>
     public List<string> Scopes { get; set; } = [];
-
+    /// <summary>The issued grants requested by the client and granted by the user.</summary>
     public List<UserGrantInfo> Grants { get; set; } = [];
 
-
+    /// <summary>
+    /// Updates the consent information with the given parameters.
+    /// </summary>
+    /// <param name="type">The grant type</param>
+    /// <param name="createdAt">The grant creation time</param>
+    /// <param name="expiresAt">The grant expiration time</param>
+    /// <param name="scopes">The scopes requested</param>
     public void UpdateWith(string type, DateTime createdAt, DateTime? expiresAt, IEnumerable<string> scopes) {
         if (CreatedAt > createdAt) {
             CreatedAt = createdAt;

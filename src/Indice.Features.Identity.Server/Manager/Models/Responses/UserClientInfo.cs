@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Indice.Features.Identity.Server.Manager.Models;
+﻿namespace Indice.Features.Identity.Server.Manager.Models;
 
 /// <summary>Models a system client that a user has given consent to or currently has IdentityServer side tokens for.</summary>
 public class UserClientInfo : ClientInfo
