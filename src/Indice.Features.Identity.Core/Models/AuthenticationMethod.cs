@@ -91,6 +91,25 @@ public class SmsAuthenticationMethod : AuthenticationMethod, IAuthenticationMeth
     public string TokenProvider { get; } = TokenOptions.DefaultPhoneProvider;
 }
 
+/// <summary>SMS authentication method.</summary>
+public class ViberAuthenticationMethod : AuthenticationMethod, IAuthenticationMethodWithChannel, IAuthenticationMethodWithTokenProvider
+{
+    /// <summary>Creates a new instance of <see cref="ViberAuthenticationMethod"/> class.</summary>
+    /// <param name="displayName">The name for the UI.</param>
+    /// <param name="description">A detailed description.</param>
+    /// <param name="supportsMfa">Determines whether this authentication method participates in the MFA step.</param>
+    /// <param name="enabled">Determines whether this authentication method is enabled.</param>
+    public ViberAuthenticationMethod(string displayName, string description, bool supportsMfa = true, bool enabled = true) : base(displayName, description, supportsMfa, enabled) {
+        Type = AuthenticationMethodType.PhoneNumber;
+        SecurityLevel = AuthenticationMethodSecurityLevel.Medium;
+    }
+
+    /// <inheritdoc />
+    public TotpDeliveryChannel DeliveryChannel { get; } = TotpDeliveryChannel.Viber;
+    /// <inheritdoc />
+    public string TokenProvider { get; } = TokenOptions.DefaultPhoneProvider;
+}
+
 /// <summary>FIDO2 authentication method.</summary>
 public class Fido2AuthenticationMethod : AuthenticationMethod
 {
