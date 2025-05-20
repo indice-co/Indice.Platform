@@ -4,9 +4,11 @@ import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { TableColumn } from '@swimlane/ngx-datatable';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { UserClientInfo } from 'src/app/core/services/identity-api.service';
+import { UserClientInfo, UserConsentType } from 'src/app/core/services/identity-api.service';
 import { UserStore } from '../user-store.service';
 import { ListViewComponent } from 'src/app/shared/components/list-view/list-view.component';
+import { ToastService } from 'src/app/layout/services/app-toast.service';
+import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 
 @Component({
     selector: 'app-user-applications',
@@ -15,12 +17,16 @@ import { ListViewComponent } from 'src/app/shared/components/list-view/list-view
 export class UserApplicationsComponent implements OnInit, OnDestroy {
     @ViewChild('userApplicationsList', { static: true }) public _userApplicationsList: ListViewComponent;
     @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('userAppKeyTemplate', { static: true }) private _keyTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('deleteAlert', { static: false }) private _deleteAlert: SwalComponent;
     private _getDataSubscription: Subscription;
+    private _userId: string;
 
     constructor(
         private _userStore: UserStore,
         private _route: ActivatedRoute,
-        private _modalService: NgbModal
+        private _modalService: NgbModal,
+        private _toast: ToastService
     ) { }
 
     public columns: TableColumn[] = [];
@@ -29,13 +35,13 @@ export class UserApplicationsComponent implements OnInit, OnDestroy {
 
     public ngOnInit(): void {
         this.columns = [
-            { prop: 'clientId', name: 'App Id', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._userApplicationsList.keyTemplate },
+            { prop: 'clientId', name: 'App Id', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._keyTemplate },
             { prop: 'clientName', name: 'App Name', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
             { prop: 'description', name: 'Description', draggable: false, canAutoResize: true, sortable: false, resizeable: false },
             { prop: 'id', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' }
         ];
-        const userId = this._route.parent.snapshot.params['id'];
-        this._getDataSubscription = this._userStore.getUserApplications(userId).subscribe((userApplications: UserClientInfo[]) => this.rows = userApplications);
+        this._userId = this._route.parent.snapshot.params['id'];
+        this._getDataSubscription = this._userStore.getUserApplications(this._userId).subscribe((userApplications: UserClientInfo[]) => this.rows = userApplications);
     }
 
     public ngOnDestroy(): void {
@@ -45,5 +51,17 @@ export class UserApplicationsComponent implements OnInit, OnDestroy {
     public showDetails(client: UserClientInfo, content: any): void {
         this.selectedUserClient = client;
         this._modalService.open(content);
+    }
+
+    public showDeleteAlert(client: UserClientInfo): void {
+        this.selectedUserClient = client;
+        setTimeout(() => this._deleteAlert.fire(), 0);
+    }
+
+    public delete(): void {
+        this._userStore.revokeUserApplicationAccess(this._userId, this.selectedUserClient.clientId).subscribe(_ => {
+            this.rows = [...this.rows.filter(x => x.clientId !== this.selectedUserClient.clientId)];
+            this._toast.showSuccess(`Login provider '${this.selectedUserClient.clientName || this.selectedUserClient.clientId}' was successfully removed from user.`);
+        });
     }
 }

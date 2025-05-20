@@ -432,7 +432,7 @@ internal static partial class MyAccountHandlers
         });
     }
 
-    internal static async Task<Results<Ok<ResultSet<UserConsentInfo>>, NotFound>> GetConsents(
+    internal static async Task<Results<Ok<ResultSet<UserClientInfo>>, NotFound>> GetConsents(
         ExtendedUserManager<User> userManager,
         IPersistedGrantStore grants,
         IPersistentGrantSerializer serializer,
@@ -444,7 +444,7 @@ internal static partial class MyAccountHandlers
         if (user == null) {
             return TypedResults.NotFound();
         }
-        var consents = await grants.GetPersistedGrantsAsync(serializer, user.Id, filter?.ClientId, filter?.ConsentType.ToConstantName());
+        var consents = await grants.GetAllGroupedByClientAsync(serializer, user.Id, filter?.ClientId, filter?.ConsentType.ToConstantName());
         return TypedResults.Ok(consents.AsQueryable().ToResultSet(options));
     }
 
@@ -467,8 +467,8 @@ internal static partial class MyAccountHandlers
         ExtendedUserManager<User> userManager,
         IPersistedGrantService grants,
         IEventService events,
-        ClaimsPrincipal currentUser,
-        string clientId) {
+        ClaimsPrincipal currentUser) {
+
         var user = await userManager.GetUserAsync(currentUser);
         if (user == null) {
             return TypedResults.NotFound();
@@ -688,12 +688,22 @@ internal static partial class MyAccountHandlers
         return result;
     }
 
-    private static async Task<IEnumerable<UserConsentInfo>> GetPersistedGrantsAsync(
+    /// <summary>
+    /// Get all persisted grants for a user grouped by client id.
+    /// </summary>
+    /// <param name="persistedGrantStore">The grant store to extend</param>
+    /// <param name="serializer">The persisted grant serializer to use for inspecting the grant data</param>
+    /// <param name="subjectId">The user id</param>
+    /// <param name="clientId">The client id</param>
+    /// <param name="grantType">The grant type</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    public static async Task<IEnumerable<UserClientInfo>> GetAllGroupedByClientAsync(
         this IPersistedGrantStore persistedGrantStore,
         IPersistentGrantSerializer serializer,
         string subjectId,
-        string? clientId,
-        string? consentType
+        string? clientId = null,
+        string? grantType = null
     ) {
         if (string.IsNullOrWhiteSpace(subjectId)) {
             throw new ArgumentNullException(nameof(subjectId));
@@ -701,14 +711,14 @@ internal static partial class MyAccountHandlers
         var grants = (await persistedGrantStore.GetAllAsync(new PersistedGrantFilter {
             SubjectId = subjectId,
             ClientId = clientId,
-            Type = consentType
+            Type = grantType
         }))
         .ToArray();
         try {
             var consents = grants.OrderBy(x => x.CreationTime)
                                   .GroupBy(x => x.ClientId)
                                   .Select(group => {
-                                      var info = new UserConsentInfo {
+                                      var info = new UserClientInfo {
                                           ClientId = group.Key,
                                       };
                                       foreach (var grant in group) {

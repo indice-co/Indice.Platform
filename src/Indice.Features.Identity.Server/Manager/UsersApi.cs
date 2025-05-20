@@ -102,6 +102,16 @@ public static class UsersApi
              .WithSummary("Gets a list of the applications the user has given consent to or currently has IdentityServer side tokens for.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
 
+        group.MapDelete("{userId}/applications/{clientId}", UserHandlers.RevokeUserApplicationAccess)
+             .WithName(nameof(UserHandlers.RevokeUserApplicationAccess))
+             .WithSummary("Revokes all a user's consents and grants for a client.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
+
+        group.MapDelete("{userId}/applications", UserHandlers.RevokeAllUserApplicationAccess)
+             .WithName(nameof(UserHandlers.RevokeAllUserApplicationAccess))
+             .WithSummary("Revokes all a user's consents and grants for all clients.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
+
         group.MapGet("{userId}/devices", UserHandlers.GetUserDevices)
              .WithName(nameof(UserHandlers.GetUserDevices))
              .WithSummary("Gets a list of the devices of the specified user.")
