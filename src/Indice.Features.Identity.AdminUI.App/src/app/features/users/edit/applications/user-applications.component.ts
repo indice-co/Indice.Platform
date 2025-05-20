@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { TableColumn } from '@swimlane/ngx-datatable';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { UserClientInfo, UserConsentType } from 'src/app/core/services/identity-api.service';
+import { UserClientInfo } from 'src/app/core/services/identity-api.service';
 import { UserStore } from '../user-store.service';
 import { ListViewComponent } from 'src/app/shared/components/list-view/list-view.component';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
