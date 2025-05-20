@@ -52,6 +52,6 @@
              let-value="value"
              #keyTemplate>
     <span class="badge text-muted border boder-primary bg-light m-1" [title]="value">
-        {{ value }}
+        {{ value }} <b class="text-success" *ngIf="row.isActive">⦿</b>
     </span>
 </ng-template>
