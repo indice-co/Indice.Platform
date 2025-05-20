@@ -1,4 +1,7 @@
-﻿using Indice.Features.Messages.Core.Models;
+﻿using System.Net.Mime;
+using Indice.Features.Messages.AspNetCore.Csv;
+using Indice.Features.Messages.AspNetCore.Requests;
+using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
@@ -50,6 +53,25 @@ internal static class DistributionListsHandlers
     public static async Task<NoContent> RemoveContactFromDistributionList(IContactService contactService, Guid distributionListId, Guid contactId) {
         await contactService.RemoveFromDistributionList(distributionListId, contactId);
         return TypedResults.NoContent();
+    }
+
+    public static async Task<NoContent> BulkImportContactsToDistributionList(IContactService contactService, Guid distributionListId, BulkCreateDistributionListContactRequest request) {
+        var contactRequests = await ContactCsvImporter.Parse(request.File.OpenReadStream());
+        await contactService.BulkAddToDistributionList(distributionListId, contactRequests);
+        return TypedResults.NoContent();
+    }
+
+    public static async Task<Results<FileContentHttpResult, NotFound>> BulkExportContactsFromDistributionList(IContactService contactService, Guid distributionListId) {
+        var contacts = await contactService.GetByDistributionList(distributionListId);
+        if (contacts is null || contacts.Length == 0) {
+            return TypedResults.NotFound();
+        }
+        var csvBytes =  await ContactCsvExporter.Export(contacts);
+        return TypedResults.File(
+            fileContents: csvBytes,
+            contentType: MediaTypeNames.Text.Csv,
+            fileDownloadName: $"contacts-{distributionListId}.csv"
+        );
     }
 
     #region Descriptions
@@ -105,5 +127,20 @@ Removes a contact from the specified distribution list.
 Parameters:
 - distributionListId: The unique ID of the distribution list.
 - contactId: The unique ID of the contact to remove.";
+
+    public static readonly string BULK_IMPORT_CONTACTS_TO_DISTRIBUTION_LIST = @"
+Bulk imports contacts to an existing distribution list.
+
+Parameters:
+- distributionListId: The unique ID of the distribution list.
+- file: The file with the desired contacts. It must be a valid text/csv file.
+";
+
+    public static readonly string BULK_EXPORT_CONTACTS_FROM_DISTRIBUTION_LIST = @"
+Exports a list of all contacts of a specified distribution list in CSV file.
+
+Parameters:
+- distributionListId: The unique ID of the distribution list.
+";
     #endregion
 }
