@@ -6,6 +6,8 @@ using Elsa.Activities.Http.Models;
 using Elsa.ActivityResults;
 using Elsa.Attributes;
 using Elsa.Services.Models;
+using Indice.Features.Cases.Workflows.Extensions;
+using Indice.Features.Cases.Workflows.Models;
 using Indice.Serialization;
 using Json.More;
 using Json.Schema;
@@ -35,6 +37,7 @@ public class HttpEndpointWithValidation : HttpEndpoint
     private IActivityExecutionResult ExecuteInternal(ActivityExecutionContext context) {
         Output = context.GetInput<HttpRequestModel>()!;
         context.JournalData.Add("Inbound Request", Output);
+        context.TrySetLastActor();
 
         // Skip validation when there is no Schema
         if (Schema is null) {
