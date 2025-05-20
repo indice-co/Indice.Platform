@@ -1,39 +1,38 @@
 ﻿using System.Text.Json;
 using HandlebarsDotNet;
-using Indice.Serialization;
+using HandlebarsDotNet.Extension.Json;
 using Xunit;
 
 namespace Indice.Features.Messages.Tests;
 public class HandlebarParsingTests
 {
-    const string Template = "This should repeat:\n{{#each data.items}}- {{title}}: {{href}} \n{{/each}}";
-
-    [InlineData(@"{
-    ""items"": [
-      {
-        ""title"": ""1"",
-        ""href"": ""https://one.com""
-      },
-      {
-        ""title"": ""2"",
-        ""href"": ""https://two.com""
-      }
-    ]
-  }", "This should repeat:\n- 1: https://one.com \n- 2: https://two.com \n")]
+    [InlineData("{\"Description\": \"IsSuccess value is false, output should be FALSE\",\"IsSuccess\": false}", "{{#if data.IsSuccess }}TRUE{{else}}FALSE{{/if}}", "FALSE")]
+    [InlineData("{\"Description\": \"IsSuccess value is true, output should be TRUE\",\"IsSuccess\": true}", "{{#if data.IsSuccess }}TRUE{{else}}FALSE{{/if}}", "TRUE")]
+    [InlineData("{\"Description\": \"IsSuccess value is missing, output should be FALSE\",\"NotSuccess\": true}", "{{#if data.IsSuccess }}TRUE{{else}}FALSE{{/if}}", "FALSE")]
+    [InlineData("{\"Description\": \"IsSuccess value is not bool, output should be TRUE\",\"IsSuccess\": \"otinanane\"}", "{{#if data.IsSuccess }}TRUE{{else}}FALSE{{/if}}", "TRUE")]
+    [InlineData("{\"Innner\":{\"Description\": \"IsSuccess value is false, output should be FALSE\",\"IsSuccess\": false}}", "{{#if data.Innner.IsSuccess }}TRUE{{else}}FALSE{{/if}}", "FALSE")]
+    [InlineData("{\"Innner\":{\"Description\": \"IsSuccess value is true, output should be TRUE\",\"IsSuccess\": true}}", "{{#if data.Innner.IsSuccess }}TRUE{{else}}FALSE{{/if}}", "TRUE")]
+    [InlineData(
+        "{\"customData\":{\"mitosStatus\":{\"Abandoned\":true}}}",
+        "{{#if data.customData.mitosStatus.Abandoned}}Abandoned{{/if}}{{#if data.customData.mitosStatus.Approved}}Approved{{/if}}{{#if data.customData.mitosStatus.Disbursement}}Disbursement{{/if}}",
+        "Abandoned")]
+    [InlineData(@"{""items"": [
+      {""title"": ""1"", ""href"": ""https://one.com""},
+      {""title"": ""2"",""href"": ""https://two.com""}
+    ]}", "This should repeat:\n{{#each data.items}}- {{title}}: {{href}} \n{{/each}}", "This should repeat:\n- 1: https://one.com \n- 2: https://two.com \n")]
     [Theory]
-    public void ParseInputDataToHandlebar(string input, string expected) {
+    public void ParseInputDataToHandlebar(string data, string template, string expected) {
         var handlebars = Handlebars.Create();
         handlebars.Configuration.TextEncoder = new HtmlEncoder();
-
-        dynamic Data = input;
+        handlebars.Configuration.UseJson();
         dynamic templateData = new {
             title = "Welcome",
-            data = Data is not null && (Data is not string || !string.IsNullOrWhiteSpace(Data))
-                    ? JsonSerializer.Deserialize<System.Text.Json.Nodes.JsonNode>(Data, JsonSerializerOptionDefaults.GetDefaultSettings())
+            data = data is not null && (data is not string || !string.IsNullOrWhiteSpace(data))
+                    ? JsonDocument.Parse(data)
                     : null
         };
-
-        var output = handlebars.Compile(Template)(templateData);
-       Assert.Equal(expected, output);
+        var output = handlebars.Compile(template)(templateData);
+        Assert.Equal(expected, output);
     }
+
 }
