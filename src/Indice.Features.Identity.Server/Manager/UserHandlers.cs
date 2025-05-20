@@ -64,7 +64,7 @@ internal static class UserHandlers
                 LastSignInDate = user.LastSignInDate,
                 PasswordExpirationDate = user.PasswordExpirationDate
             };
-        if (expandClaims?.Length > 3) {
+        if (expandClaims?.Length > 4) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(expandClaims), "Cannot expand more than three claim types"));
         }
         foreach (var claimType in expandClaims ?? []) {
