@@ -10,6 +10,10 @@ public interface IContactService
     /// <summary>Gets a list of all contacts in the system.</summary>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
     Task<ResultSet<Contact>> GetList(ListOptions<ContactListFilter> options);
+    /// <summary>Gets a list of all contacts of a specified distribution list.</summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<Contact[]> GetByDistributionList(Guid id);
     /// <summary>Gets a contact by it's unique id.</summary>
     /// <param name="id">The id of the contact.</param>
     Task<Contact?> GetById(Guid id);
@@ -18,6 +22,10 @@ public interface IContactService
     /// <param name="request">The data for the contact to add.</param>
     /// <remarks>This method will also create the contact if the a contact with the given id is not found or the id is null</remarks>
     Task AddToDistributionList(Guid id, CreateDistributionListContactRequest request);
+    /// <summary>Bulk imports contacts to an existing distribution list.</summary>
+    /// <param name="id"></param>
+    /// <param name="request"></param>
+    Task BulkAddToDistributionList(Guid id, IEnumerable<CreateDistributionListContactRequest> request);
     /// <summary>Creates a new contact.</summary>
     /// <param name="request">The data for the contact to create.</param>
     Task<Contact> Create(CreateContactRequest request);
