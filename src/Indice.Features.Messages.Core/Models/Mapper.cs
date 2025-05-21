@@ -5,7 +5,6 @@ using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Manager.Commands;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Types;
-using Microsoft.Azure.Amqp.Framing;
 
 namespace Indice.Features.Messages.Core.Models;
 
