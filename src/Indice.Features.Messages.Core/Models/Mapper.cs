@@ -5,6 +5,7 @@ using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Manager.Commands;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Types;
+using Microsoft.Azure.Amqp.Framing;
 
 namespace Indice.Features.Messages.Core.Models;
 
@@ -159,6 +160,7 @@ internal static class Mapper
         Locale = request.Locale,
         UpdatedAt = DateTimeOffset.UtcNow
     };
+
     public static DbContact ToDbContact(Contact contact) => new() {
         Email = contact.Email,
         FirstName = contact.FirstName,
@@ -188,6 +190,7 @@ internal static class Mapper
         Salutation = request.Salutation,
         UpdatedAt = DateTimeOffset.UtcNow
     };
+
     public static CreateDistributionListContactRequest ToCreateDistributionListContactRequest(Contact contact) => new() {
         Email = contact.Email,
         FirstName = contact.FirstName,
@@ -202,18 +205,31 @@ internal static class Mapper
         Salutation = contact.Salutation
     };
 
-
     public static void MapFromCreateDistributionListContactRequest(this DbContact contact, CreateDistributionListContactRequest request) {
-        contact.Email = request.Email;
-        contact.FirstName = request.FirstName;
-        contact.FullName = request.FullName;
-        contact.LastName = request.LastName;
-        contact.PhoneNumber = request.PhoneNumber;
-        contact.RecipientId = request.RecipientId;
-        contact.Salutation = request.Salutation;
-        contact.CommunicationPreferences = request.CommunicationPreferences;
-        contact.Locale = request.Locale;
-        contact.ConsentCommercial = request.ConsentCommercial;
+        if (string.IsNullOrWhiteSpace(contact.RecipientId) && !string.IsNullOrWhiteSpace(request.RecipientId)) {
+            contact.RecipientId = request.RecipientId;
+        }
+        if (string.IsNullOrWhiteSpace(contact.Email) && !string.IsNullOrWhiteSpace(request.Email)) {
+            contact.Email = request.Email;
+        }
+        if (string.IsNullOrWhiteSpace(contact.FirstName) && !string.IsNullOrWhiteSpace(request.FirstName)) {
+            contact.FirstName = request.FirstName;
+        }
+        if (string.IsNullOrWhiteSpace(contact.FullName) && !string.IsNullOrWhiteSpace(request.FullName)) {
+            contact.FullName = request.FullName;
+        }
+        if (string.IsNullOrWhiteSpace(contact.LastName) && !string.IsNullOrWhiteSpace(request.LastName)) {
+            contact.LastName = request.LastName;
+        }
+        if (string.IsNullOrWhiteSpace(contact.PhoneNumber) && !string.IsNullOrWhiteSpace(request.PhoneNumber)) {
+            contact.PhoneNumber = request.PhoneNumber;
+        }
+        if (string.IsNullOrWhiteSpace(contact.Salutation) && !string.IsNullOrWhiteSpace(request.Salutation)) {
+            contact.Salutation = request.Salutation;
+        }
+        if (string.IsNullOrWhiteSpace(contact.Locale) && !string.IsNullOrWhiteSpace(request.Locale)) {
+            contact.Locale = request.Locale;
+        }
         contact.UpdatedAt = DateTimeOffset.UtcNow;
     }
 
