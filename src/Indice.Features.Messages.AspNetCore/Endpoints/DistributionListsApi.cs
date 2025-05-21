@@ -87,13 +87,14 @@ internal static class DistributionListsApi
         group.MapGet("{distributionListId}/export", DistributionListsHandlers.BulkExportContactsFromDistributionList)
             .WithName(nameof(DistributionListsHandlers.BulkExportContactsFromDistributionList))
             .WithSummary("Bulk exports contacts from a specified distribution list in CSV file.")
-            .WithDescription(DistributionListsHandlers.BULK_EXPORT_CONTACTS_FROM_DISTRIBUTION_LIST);
+            .WithDescription(DistributionListsHandlers.BULK_EXPORT_CONTACTS_FROM_DISTRIBUTION_LIST)
+            .ExcludeFromDescription();
 
         group.MapPost("{distributionListId}/import", DistributionListsHandlers.BulkImportContactsToDistributionList)
             .WithName(nameof(DistributionListsHandlers.BulkImportContactsToDistributionList))
             .WithSummary("Bulk imports contacts in a specified distribution list.")
             .WithDescription(DistributionListsHandlers.BULK_IMPORT_CONTACTS_TO_DISTRIBUTION_LIST)
-            .Accepts<BulkCreateDistributionListContactRequest>(MediaTypeNames.Multipart.FormData);
+            .Accepts<BulkCreateDistributionListContactsRequest>(MediaTypeNames.Multipart.FormData);
 
         return group;
     }

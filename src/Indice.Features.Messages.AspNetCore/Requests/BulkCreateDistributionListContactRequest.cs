@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Http;
 
 namespace Indice.Features.Messages.AspNetCore.Requests;
 
-public class BulkCreateDistributionListContactRequest {
+public class BulkCreateDistributionListContactsRequest {
     [Required]
     public IFormFile File { get; init; }
 
-    public static async ValueTask<BulkCreateDistributionListContactRequest?> BindAsync(HttpContext context) {
+    public static async ValueTask<BulkCreateDistributionListContactsRequest?> BindAsync(HttpContext context) {
         var form = await context.Request.ReadFormAsync();
         var file = form.Files[nameof(File)];
         if (file is null || file.Length == 0) {
@@ -21,7 +21,7 @@ public class BulkCreateDistributionListContactRequest {
             await context.Response.WriteAsync("Only 'text/csv' content type is supported.");
             return null;
         }
-        return new BulkCreateDistributionListContactRequest {
+        return new BulkCreateDistributionListContactsRequest {
             File = file
         };
     }
