@@ -56,17 +56,14 @@ internal static class DistributionListsHandlers
     }
 
     public static async Task<NoContent> BulkImportContactsToDistributionList(IContactService contactService, Guid distributionListId, BulkCreateDistributionListContactsRequest request) {
-        var contactRequests = await ContactsCsvUtilities.Import(request.File.OpenReadStream());
+        var contactRequests = await ContactsCsvUtility.Import(request.File.OpenReadStream());
         await contactService.BulkAddToDistributionList(distributionListId, contactRequests);
         return TypedResults.NoContent();
     }
 
     public static async Task<Results<FileContentHttpResult, NotFound>> BulkExportContactsFromDistributionList(IContactService contactService, Guid distributionListId) {
         var contacts = await contactService.GetByDistributionList(distributionListId);
-        if (contacts is null || contacts.Length == 0) {
-            return TypedResults.NotFound();
-        }
-        var csvBytes =  await ContactsCsvUtilities.Export(contacts);
+        var csvBytes =  await ContactsCsvUtility.Export(contacts);
         return TypedResults.File(
             fileContents: csvBytes,
             contentType: MediaTypeNames.Text.Csv,

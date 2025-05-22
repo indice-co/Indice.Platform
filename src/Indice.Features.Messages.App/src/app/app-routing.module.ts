@@ -13,6 +13,7 @@ import { CampaignReportsComponent } from './features/campaigns/edit/reports/camp
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
 import { CommonAppShellConfig } from './shell.config';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
+import { DistributionListImportContactsComponent } from './features/distribution-lists/import-contacts/distribution-list-import-contacts.component';
 import { DistributionListContactCreateComponent } from './features/distribution-lists/edit/contacts/create/distribution-list-contact-create.component';
 import { DistributionListContactEditComponent } from './features/distribution-lists/edit/contacts/edit/distribution-list-contact-edit.component';
 import { DistributionListContactsComponent } from './features/distribution-lists/edit/contacts/distribution-list-contacts.component';
@@ -148,6 +149,7 @@ const routes: Routes = [
   { path: 'edit-campaign-attachments', canActivate: [AuthGuardService], component: CampaignAttachmentsEditRightpaneComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'edit-distribution-list', canActivate: [AuthGuardService], component: DistributionListDetailsEditRightpaneComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'create-distribution-list', canActivate: [AuthGuardService], component: DistributionListCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
+  { path: 'import-contacts', canActivate: [AuthGuardService], component: DistributionListImportContactsComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'create-contact', canActivate: [AuthGuardService], component: DistributionListContactCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'edit-contact/:contactId', canActivate: [AuthGuardService], component: DistributionListContactEditComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'edit-template', canActivate: [AuthGuardService], component: TemplateDetailsEditRightpaneComponent, outlet: 'rightpane', pathMatch: 'prefix' },
