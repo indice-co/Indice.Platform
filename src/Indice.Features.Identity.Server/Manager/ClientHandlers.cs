@@ -9,6 +9,7 @@ using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
+using IdentityServer4.Services;
 using Indice.AspNetCore.Extensions;
 using Indice.Events;
 using Indice.Features.Identity.Core;
@@ -170,7 +171,10 @@ internal static class ClientHandlers
         return TypedResults.CreatedAtRoute(response, nameof(GetClient), new { clientId = client.ClientId });
     }
 
-    internal static async Task<Results<NoContent, NotFound>> UpdateClient(ExtendedConfigurationDbContext configurationDbContext, string clientId, UpdateClientRequest request) {
+    internal static async Task<Results<NoContent, NotFound>> UpdateClient(
+        ExtendedConfigurationDbContext configurationDbContext,
+        IPlatformEventService eventService,
+        string clientId, UpdateClientRequest request) {
         var client = await configurationDbContext.Clients.Include(x => x.Properties).Include(x => x.IdentityProviderRestrictions).SingleOrDefaultAsync(x => x.ClientId == clientId);
         if (client == null) {
             return TypedResults.NotFound();
@@ -223,10 +227,14 @@ internal static class ClientHandlers
             clientTranslations.Value = request.Translations.ToJson() ?? string.Empty;
         }
         await configurationDbContext.SaveChangesAsync();
+        await eventService.Publish(new ClientUpdatedEvent(ClientEventContext.InitializeFromClient(client)));
         return TypedResults.NoContent();
     }
 
-    internal static async Task<Results<Ok<ClaimInfo>, NotFound, ValidationProblem>> AddClientClaim(ExtendedConfigurationDbContext configurationDbContext, string clientId, CreateClaimRequest request) {
+    internal static async Task<Results<Ok<ClaimInfo>, NotFound, ValidationProblem>> AddClientClaim(
+        ExtendedConfigurationDbContext configurationDbContext,
+        IPlatformEventService eventService, 
+        string clientId, CreateClaimRequest request) {
         var client = await configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
         if (client == null) {
             return TypedResults.NotFound();
@@ -239,6 +247,7 @@ internal static class ClientHandlers
         };
         client.Claims = [claimToAdd];
         await configurationDbContext.SaveChangesAsync();
+        await eventService.Publish(new ClientUpdatedEvent(ClientEventContext.InitializeFromClient(client)));
         return TypedResults.Ok(new ClaimInfo {
             Id = claimToAdd.Id,
             Type = claimToAdd.Type,
@@ -246,7 +255,10 @@ internal static class ClientHandlers
         });
     }
 
-    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteClientClaim(ExtendedConfigurationDbContext configurationDbContext, string clientId, int claimId) {
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteClientClaim(
+        ExtendedConfigurationDbContext configurationDbContext,
+        IPlatformEventService eventService, 
+        string clientId, int claimId) {
         var client = await configurationDbContext.Clients.Include(x => x.Claims).SingleOrDefaultAsync(x => x.ClientId == clientId);
         if (client == null) {
             return TypedResults.NotFound();
@@ -258,10 +270,14 @@ internal static class ClientHandlers
         }
         client.Claims.Remove(claimToRemove);
         await configurationDbContext.SaveChangesAsync();
+        await eventService.Publish(new ClientUpdatedEvent(ClientEventContext.InitializeFromClient(client)));
         return TypedResults.NoContent();
     }
 
-    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> UpdateClientUrls(ExtendedConfigurationDbContext configurationDbContext, string clientId, UpdateClientUrls request) {
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> UpdateClientUrls(
+        ExtendedConfigurationDbContext configurationDbContext, 
+        IPlatformEventService eventService, 
+        string clientId, UpdateClientUrls request) {
         var client = await configurationDbContext
             .Clients
             .Include(x => x.AllowedCorsOrigins)
@@ -293,10 +309,14 @@ internal static class ClientHandlers
             }));
         }
         await configurationDbContext.SaveChangesAsync();
+        await eventService.Publish(new ClientUpdatedEvent(ClientEventContext.InitializeFromClient(client)));
         return TypedResults.NoContent();
     }
 
-    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> AddClientResources(ExtendedConfigurationDbContext configurationDbContext, string clientId, string[] resources) {
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> AddClientResources(
+        ExtendedConfigurationDbContext configurationDbContext, 
+        IPlatformEventService eventService, 
+        string clientId, string[] resources) {
         var client = await configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
         if (client == null) {
             return TypedResults.NotFound();
@@ -304,10 +324,14 @@ internal static class ClientHandlers
         resources ??= [];
         client.AllowedScopes = [.. resources.Select(x => new ClientScope { ClientId = client.Id, Scope = x })];
         await configurationDbContext.SaveChangesAsync();
+        await eventService.Publish(new ClientUpdatedEvent(ClientEventContext.InitializeFromClient(client)));
         return TypedResults.NoContent();
     }
 
-    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteClientResource(ExtendedConfigurationDbContext configurationDbContext, string clientId, string[] resources) {
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteClientResource(
+        ExtendedConfigurationDbContext configurationDbContext,
+        IPlatformEventService eventService, 
+        string clientId, string[] resources) {
         var client = await configurationDbContext.Clients.Include(x => x.AllowedScopes).SingleOrDefaultAsync(x => x.ClientId == clientId);
         if (client == null) {
             return TypedResults.NotFound();
@@ -322,10 +346,14 @@ internal static class ClientHandlers
             client.AllowedScopes.Remove(resource);
         }
         await configurationDbContext.SaveChangesAsync();
+        await eventService.Publish(new ClientUpdatedEvent(ClientEventContext.InitializeFromClient(client)));
         return TypedResults.NoContent();
     }
 
-    internal static async Task<Results<Ok<GrantTypeInfo>, NotFound, ValidationProblem>> AddClientGrantType(ExtendedConfigurationDbContext configurationDbContext, string clientId, string grantType) {
+    internal static async Task<Results<Ok<GrantTypeInfo>, NotFound, ValidationProblem>> AddClientGrantType(
+        ExtendedConfigurationDbContext configurationDbContext,
+        IPlatformEventService eventService, 
+        string clientId, string grantType) {
         var client = await configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
         if (client == null) {
             return TypedResults.NotFound();
@@ -336,13 +364,17 @@ internal static class ClientHandlers
         };
         client.AllowedGrantTypes = [grantTypeToAdd];
         await configurationDbContext.SaveChangesAsync();
+        await eventService.Publish(new ClientUpdatedEvent(ClientEventContext.InitializeFromClient(client)));
         return TypedResults.Ok(new GrantTypeInfo {
             Id = grantTypeToAdd.Id,
             Name = grantTypeToAdd.GrantType
         });
     }
 
-    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteClientGrantType(ExtendedConfigurationDbContext configurationDbContext, string clientId, string grantType) {
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteClientGrantType(
+        ExtendedConfigurationDbContext configurationDbContext,
+        IPlatformEventService eventService, 
+        string clientId, string grantType) {
         var client = await configurationDbContext.Clients.Include(x => x.AllowedGrantTypes).SingleOrDefaultAsync(x => x.ClientId == clientId);
         if (client == null) {
             return TypedResults.NotFound();
@@ -354,6 +386,7 @@ internal static class ClientHandlers
         }
         client.AllowedGrantTypes.Remove(grantTypeToRemove);
         await configurationDbContext.SaveChangesAsync();
+        await eventService.Publish(new ClientUpdatedEvent(ClientEventContext.InitializeFromClient(client)));
         return TypedResults.NoContent();
     }
 
@@ -483,13 +516,17 @@ internal static class ClientHandlers
         return TypedResults.NoContent();
     }
 
-    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteClient(ExtendedConfigurationDbContext configurationDbContext, string clientId) {
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteClient(
+        ExtendedConfigurationDbContext configurationDbContext,
+        IPlatformEventService eventService,
+        string clientId) {
         var client = await configurationDbContext.Clients.AsNoTracking().SingleOrDefaultAsync(x => x.ClientId == clientId);
         if (client == null) {
             return TypedResults.NotFound();
         }
         configurationDbContext.Clients.Remove(client);
         await configurationDbContext.SaveChangesAsync();
+        await eventService.Publish(new ClientDeletedEvent(ClientEventContext.InitializeFromClient(client)));
         return TypedResults.NoContent();
     }
 

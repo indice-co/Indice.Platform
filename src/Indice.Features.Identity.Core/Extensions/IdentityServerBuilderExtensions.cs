@@ -5,6 +5,7 @@ using IdentityServer4.ResponseHandling;
 using IdentityServer4.Services;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Grants;
 using Indice.Features.Identity.Core.ResponseHandling;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -34,6 +35,15 @@ public static class IdentityServerBuilderExtensions
     /// <param name="builder"><see cref="IIdentityServerBuilder"/> builder interface.</param>
     public static IIdentityServerBuilder AddOtpAuthenticateGrantValidator(this IIdentityServerBuilder builder) {
         builder.AddExtensionGrantValidator<OtpAuthenticateExtensionGrantValidator>();
+        return builder;
+    }
+
+    /// <summary>Adds a custom event handler to invalidate the client store cache when a client is created, updated or deleted.</summary>
+    /// <param name="builder"><see cref="IIdentityServerBuilder"/> builder interface.</param>
+    /// <returns>The builder for further configuration.</returns>
+    public static IIdentityServerBuilder AddClientStoreCacheInvalidation(this IIdentityServerBuilder builder) {
+        builder.Services.AddPlatformEventHandler<ClientUpdatedEvent, ClientCacheInvalidationEventHandler>();
+        builder.Services.AddPlatformEventHandler<ClientDeletedEvent, ClientCacheInvalidationEventHandler>();
         return builder;
     }
 
