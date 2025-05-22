@@ -8,7 +8,7 @@ using Indice.Features.Messages.Core.Models.Requests;
 
 namespace Indice.Features.Messages.AspNetCore.Csv;
 
-internal class ContactsCsvUtilities
+internal class ContactsCsvUtility
 {
     internal static async Task<byte[]> Export(IEnumerable<Contact> contacts) {
         var csvConfig = new CsvConfiguration(CultureInfo.InvariantCulture) {

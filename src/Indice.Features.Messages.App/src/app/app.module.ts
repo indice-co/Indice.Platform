@@ -25,6 +25,7 @@ import { CampaignRecipientsComponent } from './features/campaigns/create/steps/r
 import { CampaignReportsComponent } from './features/campaigns/edit/reports/campaign-reports.component';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
+import { DistributionListImportContactsComponent } from './features/distribution-lists/import-contacts/distribution-list-import-contacts.component';
 import { DistributionListContactCreateComponent } from './features/distribution-lists/edit/contacts/create/distribution-list-contact-create.component';
 import { DistributionListContactEditComponent } from './features/distribution-lists/edit/contacts/edit/distribution-list-contact-edit.component';
 import { DistributionListContactsComponent } from './features/distribution-lists/edit/contacts/distribution-list-contacts.component';
@@ -138,6 +139,7 @@ if (app.settings.tenantId) {
     DistributionListDetailsEditRightpaneComponent,
     DistributionListEditComponent,
     DistributionListsComponent,
+    DistributionListImportContactsComponent,
     HomeComponent,
     LocalDropDownMenuComponent,
     LogOutComponent,

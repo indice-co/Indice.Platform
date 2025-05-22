@@ -1,0 +1,78 @@
+import { AfterViewInit, Component, ElementRef, OnInit, Inject, ViewChild } from "@angular/core";
+import { BulkCreateDistributionListContactsRequest, FileParameter, MessagesApiClient } from "../../../core/services/messages-api.service";
+import { Router } from "@angular/router";
+import { AbstractControl, UntypedFormControl, UntypedFormGroup } from "@angular/forms";
+import { IAttachment } from "../../../shared/components/file-upload/file-upload.component";
+import { ToasterService, ToastType } from "@indice/ng-components";
+
+@Component({
+  selector: 'app-distribution-list-import-contacts',
+  templateUrl: './distribution-list-import-contacts.component.html'
+})
+export class DistributionListImportContactsComponent implements OnInit, AfterViewInit {
+  @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
+
+  private _distributionListId: string = '';
+
+  public get attachment(): AbstractControl { return this.form.get('attachment')!; }
+  public form!: UntypedFormGroup;
+
+  public submitInProgress = false;
+  public model = new BulkCreateDistributionListContactsRequest();
+
+  constructor(
+      private _api: MessagesApiClient,
+      private _router: Router,
+      @Inject(ToasterService) private _toaster: ToasterService
+    ) {}
+
+  public ngOnInit(): void {
+    this._distributionListId = this._router.url.split('/')[2];
+    this._initForm();
+  }
+
+  public ngAfterViewInit(): void {}
+
+  public onSubmit(): void {
+    const fileAttachment: FileParameter = this.attachment.value as FileParameter;
+    this.submitInProgress = true;
+    this._api
+      .bulkImportContactsToDistributionList(this._distributionListId, fileAttachment)
+      .subscribe({
+        error: (err) => {
+          console.error('Failed to import contacts in distribution list.', err);
+          this._toaster.show(
+            ToastType.Error,
+            'Σφάλμα εισαγωγής επαφών',
+            'Παρουσιάστηκε πρόβλημα κατά την εισαγωγή επαφών στην λίστα διανομής.'
+          );
+          this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists', this._distributionListId, 'distribution-list-contacts']));
+        },
+        next: () => {
+          this._toaster.show(
+            ToastType.Success,
+            'Επιτυχής εισαγωγή επαφών',
+            'Οι επαφές αποθηκεύτηκαν επιτυχώς στην λίστα διανομής.'
+          );
+          this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists', this._distributionListId, 'distribution-list-contacts']));
+        }
+      })
+  }
+
+  public onFileChange(file: IAttachment | undefined) {
+    if (!file) {
+      this.attachment.setValue(null)
+      return;
+    }
+    this.attachment.setValue(<FileParameter>{
+      fileName: file.title,
+      data: file.data
+    });
+  }
+
+  private _initForm(): void {
+      this.form = new UntypedFormGroup({
+          attachment: new UntypedFormControl(false)
+      });
+  }
+}

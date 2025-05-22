@@ -75,6 +75,12 @@ public class ContactService : IContactService
                     continue;
                 }
             }
+            if (string.IsNullOrWhiteSpace(request.RecipientId)) {
+                contact = await DbContext.Contacts.FirstOrDefaultAsync(x => x.RecipientId == request.RecipientId);
+                if (contact is not null) {
+
+                }
+            }
             contact = Mapper.ToDbContact(request);
             contact.DistributionListContacts.Add(new DbDistributionListContact {
                 ContactId = Guid.NewGuid(),
@@ -95,7 +101,7 @@ public class ContactService : IContactService
 
     /// <inheritdoc />
     public async Task CreateMany(IEnumerable<CreateContactRequest> contacts) {
-        DbContext.Contacts.AddRange(contacts.Select(contact => Mapper.ToDbContact(contact)));
+        DbContext.Contacts.AddRange(contacts.Select(Mapper.ToDbContact));
         await DbContext.SaveChangesAsync();
     }
 
