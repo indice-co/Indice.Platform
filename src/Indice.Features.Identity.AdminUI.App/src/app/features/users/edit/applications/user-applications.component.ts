@@ -6,6 +6,7 @@ import { TableColumn } from '@swimlane/ngx-datatable';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { UserClientInfo } from 'src/app/core/services/identity-api.service';
 import { UserStore } from '../user-store.service';
+import { AuthService } from "src/app/core/services/auth.service";
 import { ListViewComponent } from 'src/app/shared/components/list-view/list-view.component';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
@@ -21,9 +22,11 @@ export class UserApplicationsComponent implements OnInit, OnDestroy {
     @ViewChild('deleteAlert', { static: false }) private _deleteAlert: SwalComponent;
     private _getDataSubscription: Subscription;
     private _userId: string;
+    public canEditUser: boolean;
 
     constructor(
         private _userStore: UserStore,
+        private _authService: AuthService,
         private _route: ActivatedRoute,
         private _modalService: NgbModal,
         private _toast: ToastService
@@ -34,6 +37,7 @@ export class UserApplicationsComponent implements OnInit, OnDestroy {
     public selectedUserClient: UserClientInfo;
 
     public ngOnInit(): void {
+        this.canEditUser = this._authService.isAdminUIUsersWriter();
         this.columns = [
             { prop: 'clientId', name: 'App Id', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._keyTemplate },
             { prop: 'clientName', name: 'App Name', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
