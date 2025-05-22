@@ -56,7 +56,7 @@ export class DistributionListImportContactsComponent implements OnInit, AfterVie
           );
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists', this._distributionListId, 'distribution-list-contacts']));
         }
-      })
+      });
   }
 
   public onFileChange(file: IAttachment | undefined) {
