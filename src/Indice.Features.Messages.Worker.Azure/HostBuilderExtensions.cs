@@ -98,6 +98,8 @@ public static class HostBuilderExtensions
         services.TryAddSingleton(new DatabaseSchemaNameResolver(options.DatabaseSchema));
         services.AddScoped<IUserNameAccessor>(serviceProvider => new UserNameStaticAccessor("worker"));
         services.TryAddScoped<UserNameAccessorAggregate>();
+        services.AddSingleton<CampaignEventQueue>();
+        services.AddSingleton<IHostedService, CampaignEventHandler>();
         return services;
     }
 

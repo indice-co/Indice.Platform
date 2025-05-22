@@ -8,6 +8,8 @@ public class SendSmsEvent
 {
     /// <summary>The id of the campaign.</summary>
     public Guid CampaignId { get; set; }
+    /// <summary>The id of the contact.</summary>
+    public Guid ContactId { get; set; }
     /// <summary>The title of the message.</summary>
     public string? Title { get; set; }
     /// <summary>The body of the message.</summary>
@@ -38,6 +40,7 @@ public class SendSmsEvent
         MessageType = messageEvent.Campaign.Type,
         RecipientId = contact.RecipientId,
         RecipientPhoneNumber = contact.PhoneNumber,
-        Title = messageEvent.Campaign.Content[nameof(MessageChannelKind.SMS)].Title
+        Title = messageEvent.Campaign.Content[nameof(MessageChannelKind.SMS)].Title,
+        ContactId = contact.Id!.Value
     };
 }

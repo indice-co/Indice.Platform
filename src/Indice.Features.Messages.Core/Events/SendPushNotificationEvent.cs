@@ -8,6 +8,8 @@ public class SendPushNotificationEvent
 {
     /// <summary>The id of the campaign.</summary>
     public Guid CampaignId { get; set; }
+    /// <summary>The id of the contact.</summary>
+    public Guid ContactId { get; set; }
     /// <summary>The title of the message.</summary>
     public string? Title { get; set; }
     /// <summary>The body of the message.</summary>
@@ -50,6 +52,7 @@ public class SendPushNotificationEvent
         MessageType = @event.Campaign.Type,
         RecipientId = contact.RecipientId,
         MessageId = messageId,
-        Title = @event.Campaign.Content[nameof(MessageChannelKind.PushNotification)].Title
+        Title = @event.Campaign.Content[nameof(MessageChannelKind.PushNotification)].Title,
+        ContactId = contact.Id!.Value
     };
 }
