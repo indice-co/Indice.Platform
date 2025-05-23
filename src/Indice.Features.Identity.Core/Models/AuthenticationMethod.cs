@@ -32,6 +32,9 @@ public abstract class AuthenticationMethod
     /// <summary>Authentication method security level.</summary>
     public AuthenticationMethodSecurityLevel SecurityLevel { get; protected set; }
 
+    /// <summary>Gets the code for the authentication method.</summary>
+    public abstract string Code { get; }
+
     /// <summary>Determines whether the authentication method supports the use of a delivery channel.</summary>
     public bool SupportsDeliveryChannel() => typeof(IAuthenticationMethodWithChannel).IsAssignableFrom(GetType());
 
@@ -89,6 +92,8 @@ public class SmsAuthenticationMethod : AuthenticationMethod, IAuthenticationMeth
     public TotpDeliveryChannel DeliveryChannel { get; } = TotpDeliveryChannel.Sms;
     /// <inheritdoc />
     public string TokenProvider { get; } = TokenOptions.DefaultPhoneProvider;
+    /// <inheritdoc />
+    public override string Code => "Sms";
 }
 
 /// <summary>SMS authentication method.</summary>
@@ -108,6 +113,8 @@ public class ViberAuthenticationMethod : AuthenticationMethod, IAuthenticationMe
     public TotpDeliveryChannel DeliveryChannel { get; } = TotpDeliveryChannel.Viber;
     /// <inheritdoc />
     public string TokenProvider { get; } = TokenOptions.DefaultPhoneProvider;
+    /// <inheritdoc />
+    public override string Code => "Viber";
 }
 
 /// <summary>FIDO2 authentication method.</summary>
@@ -122,6 +129,8 @@ public class Fido2AuthenticationMethod : AuthenticationMethod
         Type = AuthenticationMethodType.Fido2;
         SecurityLevel = AuthenticationMethodSecurityLevel.High;
     }
+    /// <inheritdoc />
+    public override string Code => "Fido2";
 }
 
 /// <summary>Authenticator app authentication method.</summary>
@@ -138,6 +147,8 @@ public class AuthenticatorAppAuthenticationMethod : AuthenticationMethod, IAuthe
     }
     /// <inheritdoc />
     public string TokenProvider => TokenOptions.DefaultAuthenticatorProvider;
+    /// <inheritdoc />
+    public override string Code => "AuthenticatorApp";
 }
 
 /// <summary>Trusted device authentication method.</summary>
@@ -159,6 +170,8 @@ public class TrustedDeviceAuthenticationMethod : AuthenticationMethod, IAuthenti
     public IEnumerable<UserDevice> Devices { get; } = new List<UserDevice>();
     /// <inheritdoc />
     public string TokenProvider => TokenOptions.DefaultPhoneProvider;
+    /// <inheritdoc />
+    public override string Code => "TrustedDevice";
 }
 
 /// <summary>Email authentication method.</summary>
@@ -178,4 +191,6 @@ public class EmailAuthenticationMethod : AuthenticationMethod, IAuthenticationMe
     public string TokenProvider => TokenOptions.DefaultEmailProvider;
     /// <inheritdoc />
     public TotpDeliveryChannel DeliveryChannel => TotpDeliveryChannel.Email;
+    /// <inheritdoc />
+    public override string Code => "Email";
 }

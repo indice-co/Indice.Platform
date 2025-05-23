@@ -26,6 +26,10 @@ export default {
                     600: 'var(--tenant600)',
                     500: 'var(--tenant500)',
                     400: 'var(--tenant400)',
+                    300: 'var(--tenant300)',
+                    200: 'var(--tenant200)',
+                    100: 'var(--tenant100)',
+                    50: 'var(--tenant50)',
                 },
                 'greys': {
                     900: '#1D1D1B',

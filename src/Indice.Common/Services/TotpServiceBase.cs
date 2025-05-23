@@ -93,6 +93,17 @@ public abstract class TotpServiceBase
         return exists;
     }
 
+    /// <summary>Gets the expiration time of the given key.</summary>
+    /// <param name="cacheKey">The key to the cache.</param>
+    protected async Task<int> GetCacheKeyExpirationAsync(string cacheKey) {
+        var timeText = await ServiceProvider.GetRequiredService<IDistributedCache>().GetStringAsync(cacheKey);
+        if (timeText != null && long.TryParse(timeText, out var unixTime)) {
+            var time = DateTimeOffset.FromUnixTimeSeconds(unixTime);
+            return (int)(time - DateTimeOffset.UtcNow).TotalSeconds;
+        }
+        return 0;
+    }
+
     /// <summary>Gets a modifier for the TOTP.</summary>
     /// <param name="purpose">The purpose.</param>
     /// <param name="phoneNumber">The phone number.</param>
@@ -207,8 +218,10 @@ public class TotpResult
     public bool IsInvalidCode { get; private set; }
     /// <summary>Indicates whether the result has failed with due to invalid code format.</summary>
     public bool IsInvalidFormat { get; private set; }
+    /// <summary>The timeout in seconds until the next attempt is allowed for the selected channel.</summary>
+    public int RateLimitTimeout { get; private set; }
     /// <summary>Returns a <see cref="TotpResult"/> that represents a totp send attempt that failed due to RateLimiting.</summary>
-    public static TotpResult RateLimitedResult(string? error = null) => new() { Error = error ?? "RateLimited", IsRateLimited = true };
+    public static TotpResult RateLimitedResult(string? error = null, int timeout = 0) => new() { Error = error ?? "RateLimited", IsRateLimited = true, RateLimitTimeout = timeout };
     /// <summary>Returns a <see cref="TotpResult"/> that represents a totp send attempt that failed due to the code being invalid.</summary>
     public static TotpResult InvalidCodeResult(string? error = null) => new() { Error = error ?? "InvalidCode", IsInvalidCode = true };
     /// <summary>Returns a <see cref="TotpResult"/> that represents a totp send attempt that failed due to the Format of the code.</summary>
