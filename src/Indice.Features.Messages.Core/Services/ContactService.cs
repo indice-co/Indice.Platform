@@ -29,7 +29,7 @@ public class ContactService : IContactService
         }
         DbContact? contact;
         if (request.ContactId.HasValue) {
-            contact = await DbContext.Contacts.SingleOrDefaultAsync(x => x.Id == request.ContactId.Value);
+            contact = await DbContext.Contacts.SingleOrDefaultAsync(x => x.Id == request.ContactId);
             if (contact is null) {
                 throw MessageExceptions.ContactNotFound(id);
             }
