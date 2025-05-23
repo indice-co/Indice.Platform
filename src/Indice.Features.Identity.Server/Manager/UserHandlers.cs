@@ -1,7 +1,10 @@
 ﻿using System.Security.Claims;
 using IdentityModel;
+using IdentityServer4.Events;
+using IdentityServer4.Extensions;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
+using IdentityServer4.Stores.Serialization;
 using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
@@ -477,30 +480,44 @@ internal static class UserHandlers
 
     internal static async Task<Ok<ResultSet<UserClientInfo>>> GetUserApplications(
         IPersistedGrantService persistedGrantService,
+        IPersistedGrantStore grants,
+        IPersistentGrantSerializer serializer,
         IClientStore clientStore,
         string userId
     ) {
-        var userGrants = await persistedGrantService.GetAllGrantsAsync(userId);
-        var clients = new List<UserClientInfo>();
-        foreach (var grant in userGrants) {
-            var client = await clientStore.FindClientByIdAsync(grant.ClientId);
+        var userClients = await grants.GetAllGroupedByClientAsync(serializer, userId);
+        foreach (var grantGroup in userClients) {
+            var client = await clientStore.FindClientByIdAsync(grantGroup.ClientId);
             if (client != null) {
-                clients.Add(new UserClientInfo {
-                    ClientId = client.ClientId,
-                    ClientName = client.ClientName,
-                    ClientUri = client.ClientUri,
-                    Description = client.Description,
-                    LogoUri = client.LogoUri,
-                    RequireConsent = client.RequireConsent,
-                    AllowRememberConsent = client.AllowRememberConsent,
-                    Enabled = client.Enabled,
-                    CreatedAt = grant.CreationTime,
-                    ExpiresAt = grant.Expiration,
-                    Scopes = grant.Scopes
-                });
+                grantGroup.ClientId = client.ClientId;
+                grantGroup.ClientName = client.ClientName;
+                grantGroup.ClientUri = client.ClientUri;
+                grantGroup.Description = client.Description;
+                grantGroup.LogoUri = client.LogoUri;
             }
         }
-        return TypedResults.Ok(clients.ToResultSet());
+        return TypedResults.Ok(userClients.ToResultSet());
+    }
+
+    internal static async Task<Results<NoContent, NotFound>> RevokeUserApplicationAccess(
+        ExtendedUserManager<User> userManager,
+        IPersistedGrantService grants,
+        IEventService events,
+        string userId,
+        string clientId) {
+        await grants.RemoveAllGrantsAsync(userId, clientId);
+        await events.RaiseAsync(new GrantsRevokedEvent(userId, clientId));
+        return TypedResults.NoContent();
+    }
+
+    internal static async Task<Results<NoContent, NotFound>> RevokeAllUserApplicationAccess(
+        ExtendedUserManager<User> userManager,
+        IPersistedGrantService grants,
+        IEventService events,
+        string userId) {
+        await grants.RemoveAllGrantsAsync(userId);
+        await events.RaiseAsync(new GrantsRevokedEvent(userId, null));
+        return TypedResults.NoContent();
     }
 
     internal static async Task<Ok<ResultSet<DeviceInfo>>> GetUserDevices(

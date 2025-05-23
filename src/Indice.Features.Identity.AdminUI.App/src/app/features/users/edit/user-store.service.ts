@@ -177,6 +177,10 @@ export class UserStore {
     return this._userApplications;
   }
 
+  public revokeUserApplicationAccess(userId: string, clientId: string): Observable<void> {
+    return this._api.revokeUserApplicationAccess(userId, clientId);
+  }
+
   public getUserDevices(userId: string): Observable<DeviceInfo[]> {
     if (!this._userDevices) {
       this._userDevices = new AsyncSubject<DeviceInfo[]>();

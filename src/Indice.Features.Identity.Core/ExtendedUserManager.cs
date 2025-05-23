@@ -173,7 +173,12 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
                 return result;
             }
         }
-        return await base.SetEmailAsync(user, email);
+        var previousValue = user.Email;
+        var emailresult = await base.SetEmailAsync(user, email);
+        if (emailresult.Succeeded) {
+            await _eventService.Publish(new UserEmailChangedEvent(UserEventContext.InitializeFromUser(user), previousValue!));
+        }
+        return emailresult;
     }
 
     /// <inheritdoc />
