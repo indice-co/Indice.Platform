@@ -43,6 +43,16 @@ public class ContactService : IContactService
                 return;
             }
         }
+        if (string.IsNullOrWhiteSpace(request.RecipientId)) {
+            contact = await DbContext.Contacts.FirstOrDefaultAsync(x => x.RecipientId == request.RecipientId);
+            if (contact is not null) {
+                if (!string.IsNullOrWhiteSpace(contact.Email) && contact.Email.Equals(request.Email, StringComparison.OrdinalIgnoreCase)) {
+                    contact.MapFromCreateDistributionListContactRequest(request);
+                    await DbContext.SaveChangesAsync();
+                    return;
+                }
+            }
+        }
         contact = Mapper.ToDbContact(request);
         contact.DistributionListContacts.Add(new DbDistributionListContact {
             ContactId = Guid.NewGuid(),
@@ -58,36 +68,39 @@ public class ContactService : IContactService
         if (list is null) {
             throw MessageExceptions.DistributionListNotFound(id);
         }
+
+        var existingContactsInDistributionList = await DbContext.ContactDistributionLists
+            .Where(x => x.DistributionListId == id && !string.IsNullOrWhiteSpace(x.Contact.Email))
+            .Select(x => x.Contact)
+            .ToListAsync();
+
         foreach (var request in requests) {
             DbContact? contact;
-            if (request.ContactId.HasValue) {
-                contact = await DbContext.Contacts.SingleOrDefaultAsync(x => x.Id == request.ContactId.Value);
-                if (contact is null) {
-                    continue;
-                }
-                await AddContactToDistributionListIfNotExists(contact, list, request);
-                continue;
-            }
+
             if (!string.IsNullOrWhiteSpace(request.RecipientId)) {
                 contact = await DbContext.Contacts.FirstOrDefaultAsync(x => x.RecipientId == request.RecipientId);
+
                 if (contact is not null) {
                     await AddContactToDistributionListIfNotExists(contact, list, request);
                     continue;
                 }
-            }
-            if (string.IsNullOrWhiteSpace(request.RecipientId)) {
-                contact = await DbContext.Contacts.FirstOrDefaultAsync(x => x.RecipientId == request.RecipientId);
-                if (contact is not null) {
 
+                CreateAndAddContactToDistributionList(request, list);
+            } else {
+                var existingContact = existingContactsInDistributionList
+                    .FirstOrDefault(a => a.Email!.Equals(request.Email, StringComparison.OrdinalIgnoreCase));
+
+                if (existingContact is not null) {
+                    if (string.IsNullOrWhiteSpace(existingContact.RecipientId)) {
+                        existingContact.MapFromCreateDistributionListContactRequest(request);
+                    }
+                    continue;
                 }
+
+                CreateAndAddContactToDistributionList(request, list);
             }
-            contact = Mapper.ToDbContact(request);
-            contact.DistributionListContacts.Add(new DbDistributionListContact {
-                ContactId = Guid.NewGuid(),
-                DistributionListId = list.Id
-            });
-            DbContext.Contacts.Add(contact);
         }
+
         await DbContext.SaveChangesAsync();
     }
 
@@ -176,32 +189,34 @@ public class ContactService : IContactService
 
     private async Task AddContactToDistributionList(DbContact contact, DbDistributionList list, CreateDistributionListContactRequest request) {
         var associationExists = await DbContext.ContactDistributionLists.AnyAsync(x => x.ContactId == contact.Id && x.DistributionListId == list.Id);
-
         if (associationExists) {
             throw MessageExceptions.ContactAlreadyInDistributionList(list.Id, contact.Id);
         }
-
         contact.DistributionListContacts.Add(new DbDistributionListContact {
             ContactId = contact.Id,
             DistributionListId = list.Id
         });
-
         contact.MapFromCreateDistributionListContactRequest(request);
         await DbContext.SaveChangesAsync();
     }
 
     private async Task AddContactToDistributionListIfNotExists(DbContact contact, DbDistributionList list, CreateDistributionListContactRequest request) {
         var associationExists = await DbContext.ContactDistributionLists.AnyAsync(x => x.ContactId == contact.Id && x.DistributionListId == list.Id);
-
         if (associationExists) {
             return;
         }
-
         contact.DistributionListContacts.Add(new DbDistributionListContact {
             ContactId = contact.Id,
             DistributionListId = list.Id
         });
+    }
 
-        contact.MapFromCreateDistributionListContactRequest(request);
+    private void CreateAndAddContactToDistributionList(CreateDistributionListContactRequest request, DbDistributionList list) {
+        var contact = Mapper.ToDbContact(request);
+        contact.DistributionListContacts.Add(new DbDistributionListContact {
+            ContactId = Guid.NewGuid(),
+            DistributionListId = list.Id
+        });
+        DbContext.Contacts.Add(contact);
     }
 }
