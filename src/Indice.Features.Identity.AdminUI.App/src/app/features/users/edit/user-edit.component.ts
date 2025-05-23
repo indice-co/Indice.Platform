@@ -10,6 +10,7 @@ import {
 import { UiFeaturesService } from "src/app/core/services/ui-features.service";
 import { forkJoin, map, Subscription } from "rxjs";
 import { environment } from "src/environments/environment";
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
   selector: "app-user-edit",
@@ -23,6 +24,7 @@ export class UserEditComponent implements OnInit, OnDestroy {
   public blocked: boolean = false;
   public locked: boolean = false;
   public signInLogsEnabled = false;
+  public canEditUser: boolean;
 
   private _getDataSubscription: Subscription;
 
@@ -30,11 +32,13 @@ export class UserEditComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private logger: LoggerService,
     private uiFeaturesService: UiFeaturesService,
-    private userStore: UserStore
+    private userStore: UserStore,
+    private authService: AuthService
   ) {}
 
   public ngOnInit(): void {
     this.logger.log("UserEditComponent ngOnInit was called.");
+    this.canEditUser = this.authService.isAdminUIUsersWriter();
     this.userId = this.route.snapshot.params["id"];
 
     const getFeatures = this.uiFeaturesService.getUiFeatures();

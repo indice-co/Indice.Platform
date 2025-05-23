@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using HandlebarsDotNet;
+using HandlebarsDotNet.Extension.Json;
 using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
@@ -86,6 +87,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         // Make substitution to message content using contact resolved data.
         var handlebars = Handlebars.Create();
         handlebars.Configuration.TextEncoder = new HtmlEncoder();
+        handlebars.Configuration.UseJson();
         foreach (var content in campaign!.Content) {
             dynamic templateData = new {
                 id = campaign.Id,
@@ -99,10 +101,10 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
                 mediaBaseHref = campaign.MediaBaseHref,
                 now = DateTimeOffset.UtcNow,
                 contact = contact is not null
-                    ? JsonSerializer.Deserialize<System.Text.Json.Nodes.JsonNode>(JsonSerializer.Serialize(contact, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings())
+                    ? JsonDocument.Parse(JsonSerializer.Serialize(contact, JsonSerializerOptionDefaults.GetDefaultSettings()))
                     : null,
                 data = campaign.Data is not null && (campaign.Data is not string || !string.IsNullOrWhiteSpace(campaign.Data))
-                    ? JsonSerializer.Deserialize<System.Text.Json.Nodes.JsonNode>(campaign.Data, JsonSerializerOptionDefaults.GetDefaultSettings())
+                    ? JsonDocument.Parse(JsonSerializer.Serialize(campaign.Data, JsonSerializerOptionDefaults.GetDefaultSettings()))
                     : null
             };
             var messageContent = campaign.Content[content.Key];

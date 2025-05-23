@@ -106,6 +106,16 @@ public static class MyAccountApi
              .WithSummary("Gets the consents given by the user.")
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
+        group.MapDelete("my/account/grants/{clientId}", MyAccountHandlers.RevokeConsents)
+             .WithName(nameof(MyAccountHandlers.RevokeConsents))
+             .WithSummary("Revokes all a user's consents and grants for a client.")
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+
+        group.MapDelete("my/account/grants", MyAccountHandlers.RevokeAllConsents)
+             .WithName(nameof(MyAccountHandlers.RevokeAllConsents))
+             .WithSummary("Revokes all a user's consents and grants for all clients.")
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+
         group.MapPost("my/account/claims", MyAccountHandlers.AddClaims)
              .WithName(nameof(MyAccountHandlers.AddClaims))
              .WithSummary("Adds the requested claims on the current user's account.")
