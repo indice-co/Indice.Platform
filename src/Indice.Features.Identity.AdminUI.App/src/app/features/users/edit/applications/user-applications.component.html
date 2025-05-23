@@ -56,7 +56,7 @@
     <a role="button" class="icon-link text-primary" (click)="showDetails(row, content)" title="Details">
         <i class="material-icons align-middle">view_headline</i>
     </a>
-    <a class="icon-link text-primary" role="button" (click)="showDeleteAlert(row)" title="Delete">
+    <a class="icon-link text-primary" role="button" *ngIf="canEditUser" (click)="showDeleteAlert(row)" title="Delete">
         <i class="material-icons align-middle text-danger">delete</i>
     </a>
 </ng-template>
