@@ -205,30 +205,14 @@ internal static class Mapper
     };
 
     public static void MapFromCreateDistributionListContactRequest(this DbContact contact, CreateDistributionListContactRequest request) {
-        if (string.IsNullOrWhiteSpace(contact.RecipientId) && !string.IsNullOrWhiteSpace(request.RecipientId)) {
-            contact.RecipientId = request.RecipientId;
-        }
-        if (string.IsNullOrWhiteSpace(contact.Email) && !string.IsNullOrWhiteSpace(request.Email)) {
-            contact.Email = request.Email;
-        }
-        if (string.IsNullOrWhiteSpace(contact.FirstName) && !string.IsNullOrWhiteSpace(request.FirstName)) {
-            contact.FirstName = request.FirstName;
-        }
-        if (string.IsNullOrWhiteSpace(contact.FullName) && !string.IsNullOrWhiteSpace(request.FullName)) {
-            contact.FullName = request.FullName;
-        }
-        if (string.IsNullOrWhiteSpace(contact.LastName) && !string.IsNullOrWhiteSpace(request.LastName)) {
-            contact.LastName = request.LastName;
-        }
-        if (string.IsNullOrWhiteSpace(contact.PhoneNumber) && !string.IsNullOrWhiteSpace(request.PhoneNumber)) {
-            contact.PhoneNumber = request.PhoneNumber;
-        }
-        if (string.IsNullOrWhiteSpace(contact.Salutation) && !string.IsNullOrWhiteSpace(request.Salutation)) {
-            contact.Salutation = request.Salutation;
-        }
-        if (string.IsNullOrWhiteSpace(contact.Locale) && !string.IsNullOrWhiteSpace(request.Locale)) {
-            contact.Locale = request.Locale;
-        }
+        contact.RecipientId = request.RecipientId;
+        contact.Email = request.Email;
+        contact.FirstName = request.FirstName;
+        contact.FullName = request.FullName;
+        contact.LastName = request.LastName;
+        contact.PhoneNumber = request.PhoneNumber;
+        contact.Salutation = request.Salutation;
+        contact.Locale = request.Locale;
         contact.UpdatedAt = DateTimeOffset.UtcNow;
     }
 

@@ -99,7 +99,9 @@ public class ContactService : IContactService
             }
         }
 
-        await DbContext.SaveChangesAsync();
+        if (DbContext.ChangeTracker.HasChanges()) {
+            await DbContext.SaveChangesAsync();
+        }
     }
 
     /// <inheritdoc />
