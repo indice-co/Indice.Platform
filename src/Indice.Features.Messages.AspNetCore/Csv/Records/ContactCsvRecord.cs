@@ -15,7 +15,7 @@ internal record ContactCsvRecord(
 {
     public CreateDistributionListContactRequest ToCreateDistributionListContactRequest() {
         return new CreateDistributionListContactRequest {
-            RecipientId = RecipientId,
+            RecipientId = string.IsNullOrWhiteSpace(RecipientId) ? null : RecipientId,
             Salutation = Salutation,
             FirstName = FirstName,
             LastName = LastName,

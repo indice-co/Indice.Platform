@@ -52,8 +52,8 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
         });
         // add custom ViewActions for importing/exporting contacts
         this.actions.push(
-            new ViewAction(this._exportViewActionKey, this._exportViewActionKey, '', 'ms-Icon ms-Icon--CloudDownload ', 'Εξαγωγή επαφών σε αρχείο CSV.', ''),
-            new ViewAction(this._importViewActionKey, this._importViewActionKey, '', 'ms-Icon ms-Icon--CloudUpload ', 'Εισαγωγή επαφών από αρχείο CSV.', '')
+            new ViewAction(this._exportViewActionKey, this._exportViewActionKey, '', 'ms-Icon ms-Icon--Download ', 'Εξαγωγή επαφών σε αρχείο CSV.', ''),
+            new ViewAction(this._importViewActionKey, this._importViewActionKey, '', 'ms-Icon ms-Icon--Upload ', 'Εισαγωγή επαφών από αρχείο CSV.', '')
         );
     }
 

@@ -8,7 +8,7 @@ using Indice.Features.Messages.Core.Models.Requests;
 
 namespace Indice.Features.Messages.AspNetCore.Csv;
 
-internal class ContactsCsvUtility
+internal static class ContactsCsvUtility
 {
     internal static async Task<byte[]> Export(IEnumerable<Contact> contacts) {
         var csvConfig = new CsvConfiguration(CultureInfo.InvariantCulture) {
@@ -27,7 +27,7 @@ internal class ContactsCsvUtility
     }
 
     internal static async Task<List<CreateDistributionListContactRequest>> Import(Stream fileStream, CancellationToken cancellationToken = default) {
-        var contactRequests = new List<CreateDistributionListContactRequest>();
+        var contactRequests = new List<ContactCsvRecord>();
         var csvConfig = new CsvConfiguration(CultureInfo.InvariantCulture) {
             Encoding = Encoding.UTF8,
             DetectDelimiter = true,
@@ -36,8 +36,9 @@ internal class ContactsCsvUtility
         using var reader = new StreamReader(fileStream);
         using var csvReader = new CsvReader(reader, csvConfig);
         await foreach (var record in csvReader.GetRecordsAsync<ContactCsvRecord>().WithCancellation(cancellationToken)) {
-            contactRequests.Add(record.ToCreateDistributionListContactRequest());
+            contactRequests.Add(record);
         }
-        return contactRequests;
+        var distictRecords = contactRequests.Distinct();
+        return distictRecords.Select(x => x.ToCreateDistributionListContactRequest()).ToList();
     }
 }
