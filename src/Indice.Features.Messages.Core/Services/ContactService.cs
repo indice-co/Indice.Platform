@@ -45,12 +45,10 @@ public class ContactService : IContactService
         }
         if (string.IsNullOrWhiteSpace(request.RecipientId)) {
             contact = await DbContext.Contacts.FirstOrDefaultAsync(x => x.RecipientId == request.RecipientId);
-            if (contact is not null) {
-                if (!string.IsNullOrWhiteSpace(contact.Email) && contact.Email.Equals(request.Email, StringComparison.OrdinalIgnoreCase)) {
-                    contact.MapFromCreateDistributionListContactRequest(request);
-                    await DbContext.SaveChangesAsync();
-                    return;
-                }
+            if (contact is not null && !string.IsNullOrWhiteSpace(contact.Email) && contact.Email.Equals(request.Email, StringComparison.OrdinalIgnoreCase)) {
+                contact.MapFromCreateDistributionListContactRequest(request);
+                await DbContext.SaveChangesAsync();
+                return;
             }
         }
         contact = Mapper.ToDbContact(request);
