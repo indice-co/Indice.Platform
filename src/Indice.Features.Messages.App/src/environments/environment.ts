@@ -21,7 +21,7 @@ export const environment = {
     useRefreshToken: true,
     prompt: 'login'
   },
-  culture: 'en-US',
+  culture: 'el-GR',
   isTemplate: false,
   production: false,
   enableMediaLibrary: true
