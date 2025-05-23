@@ -7,10 +7,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.Features.Messages.Core.Data.Mappings;
 
-/// <summary>Configuration for <see cref="DbContact"/> entity.</summary>
+/// <summary>Configuration for <see cref="DbCampaignEvent"/> entity.</summary>
 public class DbCampaignEventMap : IEntityTypeConfiguration<DbCampaignEvent>
 {
-    /// <summary>Creates a new instance of <see cref="DbContactMap"/>.</summary>
+    /// <summary>Creates a new instance of <see cref="DbCampaignEventMap"/>.</summary>
     /// <param name="schemaName">The schema name.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public DbCampaignEventMap(string schemaName) {
