@@ -16,4 +16,22 @@ public class BasicClaimInfo
     public string? Type { get; set; }
     /// <summary>The value of the claim.</summary>
     public string? Value { get; set; }
+
+    /// <summary>
+    /// Compares two <see cref="ClaimInfo"/> objects for equality based on their type and value.
+    /// </summary>
+    public static readonly IEqualityComparer<BasicClaimInfo> DefaultComparer = new ClaimInfoComparer<BasicClaimInfo>();
+
+    /// <summary>Compares two <see cref="ClaimInfo"/> objects for equality.</summary>
+    public class ClaimInfoComparer<TClaimInfo> : IEqualityComparer<TClaimInfo> where TClaimInfo : BasicClaimInfo
+    {
+        /// <summary>Compares two <see cref="ClaimInfo"/> objects for equality.</summary>
+        public bool Equals(TClaimInfo? x, TClaimInfo? y) {
+            return x?.Type == y?.Type && x?.Value == y?.Value;
+        }
+        /// <summary>Gets the hash code for a <see cref="BasicClaimInfo"/> object.</summary>
+        public int GetHashCode(TClaimInfo obj) {
+            return HashCode.Combine(obj.Type, obj.Value);
+        }
+    }
 }
