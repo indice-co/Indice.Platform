@@ -27,7 +27,8 @@ public class SendSmsHandler : ICampaignJobHandler<SendSmsEvent>
         await CampaignEventQueue.EnqueueAsync(new CampaignEvent() {
             CampaignId = @event.CampaignId,
             ContactId = @event.ContactId,
-            Type = CampaignEventType.SmsSent.ToString()
+            Type = CampaignEventType.Sent.ToString(),
+            Channel = MessageChannelKind.SMS.ToString()
         });
     }
 }

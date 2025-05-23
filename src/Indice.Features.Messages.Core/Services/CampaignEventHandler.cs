@@ -44,6 +44,7 @@ public class CampaignEventHandler(
     private static async Task UpsertBatchAsync(List<CampaignEvent> lastActivityBatch, CampaignsDbContext db, CancellationToken stoppingToken) {
         var entries = lastActivityBatch.Select(activity => new DbCampaignEvent() {
             Type = activity.Type,
+            Channel = activity.Channel,
             CampaignId = activity.CampaignId,
             ContactId = activity.ContactId,
             CreatedOn = activity.CreatedOn

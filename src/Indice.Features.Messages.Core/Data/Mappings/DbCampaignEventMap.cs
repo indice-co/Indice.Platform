@@ -1,4 +1,5 @@
-﻿using Indice.Configuration;
+﻿using System.Threading.Channels;
+using Indice.Configuration;
 using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Models;
 using Microsoft.EntityFrameworkCore;
@@ -25,5 +26,6 @@ public class DbCampaignEventMap : IEntityTypeConfiguration<DbCampaignEvent>
         builder.HasKey(x => x.Id);
         // Configure properties.
         builder.Property(x => x.Type).HasMaxLength(TextSizePresets.S64);
+        builder.Property(x => x.Channel).HasMaxLength(TextSizePresets.S64);
     }
 }

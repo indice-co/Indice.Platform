@@ -52,11 +52,11 @@ public class SendEmailHandler : ICampaignJobHandler<SendEmailEvent>
                 builder.WithAttachments(new EmailAttachment(attachment.Name!, attachment.Data!));
             }
         });
-
         await CampaignEventQueue.EnqueueAsync(new CampaignEvent() {
             CampaignId = @event.CampaignId,
             ContactId = @event.ContactId,
-            Type = CampaignEventType.EmailSend.ToString()
+            Type = CampaignEventType.Sent.ToString(),
+            Channel = MessageChannelKind.Email.ToString()
         });
     }
 }

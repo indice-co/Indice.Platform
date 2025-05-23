@@ -11,6 +11,8 @@ public class DbCampaignEvent
     public Guid ContactId { get; set; }
     /// <summary>The type of the event.</summary>
     public string Type { get; set; } = string.Empty;
+    /// <summary>The communication channel.</summary>
+    public string Channel { get; set; } = string.Empty;
     /// <summary>The date and time when the event occurred.</summary>   
     public DateTimeOffset CreatedOn { get; set; } = DateTimeOffset.UtcNow;
 }
