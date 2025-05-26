@@ -219,9 +219,9 @@ public class TotpResult
     /// <summary>Indicates whether the result has failed with due to invalid code format.</summary>
     public bool IsInvalidFormat { get; private set; }
     /// <summary>The timeout in seconds until the next attempt is allowed for the selected channel.</summary>
-    public int RateLimitTimeout { get; private set; }
+    public int TotpLifetime { get; private set; }
     /// <summary>Returns a <see cref="TotpResult"/> that represents a totp send attempt that failed due to RateLimiting.</summary>
-    public static TotpResult RateLimitedResult(string? error = null, int timeout = 0) => new() { Error = error ?? "RateLimited", IsRateLimited = true, RateLimitTimeout = timeout };
+    public static TotpResult RateLimitedResult(string? error = null, int lifetime = 0) => new() { Error = error ?? "RateLimited", IsRateLimited = true, TotpLifetime = lifetime };
     /// <summary>Returns a <see cref="TotpResult"/> that represents a totp send attempt that failed due to the code being invalid.</summary>
     public static TotpResult InvalidCodeResult(string? error = null) => new() { Error = error ?? "InvalidCode", IsInvalidCode = true };
     /// <summary>Returns a <see cref="TotpResult"/> that represents a totp send attempt that failed due to the Format of the code.</summary>

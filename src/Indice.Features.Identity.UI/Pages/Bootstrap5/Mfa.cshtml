@@ -1,4 +1,6 @@
 ﻿@page "/login/mfa"
+@using Indice.Extensions
+@using Indice.Features.Identity.Core.Models
 
 @model BaseMfaModel
 
@@ -8,29 +10,41 @@
 @{
     var title = ViewData["Title"] = Localizer["Multifactor Authentication"].Value;
 }
+@functions {
+    public string GetIconFromAuthenticationMethod(AuthenticationMethod method)
+    {
+        return method.DisplayName.ToLowerInvariant() switch
+        {
+            "viber" => "fa-brands fa-viber",
+            "sms" => "fa-regular fa-message",
+            "email" => "fa-regular fa-envelope",
+            "authenticatorapp" => "fa-solid fa-shield-halved",
+            "trusteddevice" => "fa-solid fa-mobile-screen",
+            "fido2" => "fa-solid fa-fingerprint",
+            "code" => "fa-solid fa-square-binary",
+            _ => "fa-regular fa-message"
+        };
+    }
+}
 
 <div class="sign-in m-auto">
     <vc:page-heading title="@title" image-src="" />
     <partial name="_ValidationSummary" />
     <div indice-if="!Model.View.HasError">
-
-        @if ((Model.View.AuthenticationMethodDeliveryChannel is TotpDeliveryChannel.Sms or TotpDeliveryChannel.Viber)
-        && Model.View.PhoneNumberAvailable)
+        @if ((Model.View is { AuthenticationMethodDeliveryChannel: TotpDeliveryChannel.Sms or TotpDeliveryChannel.Viber, PhoneNumberAvailable: true }))
         {
-            <div class="alert alert-primary" role="alert">
-                @Localizer["We texted your phone {0}. Please enter the code to sign in.", Model.View.PhoneNumberMasked!]
-            </div>
-
             <form id="mfa-form"
                   asp-page="/Mfa"
                   asp-route-returnUrl="@Model.Input.ReturnUrl"
                   method="post">
                 <input type="hidden" asp-for="Input.ReturnUrl" />
                 <input type="hidden" asp-for="Input.DeviceId" />
-                <input type="hidden" name="Input.SelectedDeliveryChannel" value="" />
 
                 <div id="panel-main">
-                    <div class="mb-3">
+                    <div class="alert alert-primary mb-4">
+                        @Localizer["We texted your phone {0}. Please enter the code to sign in.", Model.View.PhoneNumberMasked!]
+                    </div>
+                    <div class="mb-4">
                         <label asp-for="Input.OtpCode" class="form-label">
                             @Localizer["OTP Code"]
                         </label>
@@ -38,59 +52,87 @@
                                class="form-control"
                                placeholder="@Localizer["OTP Code"]"
                                autofocus autocomplete="off" />
-                        <span asp-validation-for="Input.OtpCode" class="text-danger"></span>
+                        <span asp-validation-for="Input.OtpCode" class="text-danger small"></span>
                     </div>
 
-                    <div class="text-center mb-3">
-                        <button type="button"
-                                class="btn btn-link show-channels">
-                            @Localizer["Other authentication methods..."]
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <div class="form-check me-2" indice-if="!Model.View.IsExistingBrowser">
+                            <input asp-for="Input.RememberClient"
+                                   type="checkbox"
+                                   class="form-check-input ms-0 me-1" />
+                            <label class="form-check-label" for="Input_RememberClient">
+                                @Localizer["I sign in frequently here. Remember this browser."]
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            @Localizer["Authenticate"]
                         </button>
                     </div>
 
-                    <div class="row g-2 mb-3">
-                        <div class="col">
-                            <button type="submit" class="btn btn-info w-100">
-                                @Localizer["Login"]
+                    <div class="d-flex @(Model.View.AllowDowngradeAuthenticationMethod ? "justify-content-between" : "justify-content-center") mb-3">
+                        <button id="otp-resend"
+                                type="submit"
+                                name="Input.ResendOtp"
+                                value="true"
+                                class="btn btn-link text-decoration-none p-0"
+                                disabled="@(!Model.View.ResendEnabled)">
+                            <span>@Localizer["Resend"]</span>
+                            <span class="countdown ms-2 text-muted small"></span>
+                        </button>
+
+                        @if (Model.View.AllowDowngradeAuthenticationMethod)
+                        {
+                            <button id="show-channels"
+                                    type="button"
+                                    class="btn btn-link text-decoration-none p-0">
+                                @Localizer["Other authentication methods..."]
                             </button>
-                        </div>
-                        <div class="col">
-                            <button id="otp-resend"
-                                    type="submit"
-                                    name="Input.ResendOtp"
-                                    value="true"
-                                    class="btn btn-info w-100"
-                                    disabled="@(!Model.View.ResendEnabled)">
-                                @Localizer["Resend"]
-                                <span id="lblcountdown" class="countdown ms-2"></span>
-                            </button>
-                        </div>
+                        }
                     </div>
                 </div>
 
                 <div id="panel-channels" class="d-none">
-                    <h5>@Localizer["Resend code via"]</h5>
-                    <div class="list-group mb-3">
+                    <p class="text-muted fw-medium mb-2">
+                        @Localizer["Authenticate yourself using:"]
+                    </p>
+
+                    <div class="list-group mb-4 border-top border-bottom">
                         @foreach (var method in Model.View.AvailableAuthenticationMethods)
                         {
                             var dc = method.GetDeliveryChannel();
-                            <button type="button"
-                                    data-channel="@dc"
-                                    class="list-group-item list-group-item-action channel-btn">
-                                @Localizer[method.DisplayName]
+                            <button type="submit"
+                                    name="Input.SelectedDeliveryChannel"
+                                    value="@dc"
+                                    class="list-group-item list-group-item-action border-0 py-3 channel-btn rounded-0
+                                                   channel-@(method.DisplayName.ToKebabCase()) d-flex justify-content-between align-items-center
+                                                   transition">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="d-flex align-items-center justify-content-center" style="width: 2rem;">
+                                        <i class="@GetIconFromAuthenticationMethod(method) fs-4 text-primary"></i>
+                                    </div>
+                                    <div class="text-start">
+                                        <div class="small text-muted">
+                                            @Localizer[method.Description]
+                                        </div>
+                                        <div class="small fw-semibold">
+                                            @Localizer[method.DisplayName]
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" class="text-muted">
+                                        <path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
                             </button>
                         }
                     </div>
-                    <div class="d-flex justify-content-between">
+
+                    <div class="d-flex justify-content-start mt-2">
                         <button id="go-back"
                                 type="button"
-                                class="btn btn-secondary">
+                                class="btn btn-link text-decoration-none p-0 text-dark">
                             ← @Localizer["Back"]
-                        </button>
-                        <button id="send-code"
-                                type="button"
-                                class="btn btn-primary">
-                            @Localizer["Send code"]
                         </button>
                     </div>
                 </div>
@@ -103,82 +145,107 @@
             <form id="mfa-form-push"
                   asp-page="/Mfa"
                   asp-route-returnUrl="@Model.Input.ReturnUrl"
-                  method="post" class="mt-4">
+                  method="post">
                 <input type="hidden" asp-for="Input.ReturnUrl" />
                 <input type="hidden" asp-for="Input.OtpCode" />
                 <input type="hidden" asp-for="Input.DeviceId" />
-                <input type="hidden" name="Input.SelectedDeliveryChannel" value="sms" />
 
-                <p><strong>@Model.View.User?.UserName</strong></p>
-                <p>
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                         width="16" height="16" fill="currentColor"
-                         class="bi bi-key-fill me-1" viewBox="0 0 16 16">
-                        <path d="M3.5 11.5a3.5 3.5 0 1 1 3.163-5H14L15.5 8
-                     14 9.5l-1-1-1 1-1-1-1 1-1-1-1 1H6.663a3.5 3.5
-                     0 0 1-3.163 2zM2.5 9a1 1 0 1 0 0-2 1 1 0
-                     0 0 0 2z" />
-                    </svg>
-                    @Localizer["Because you've turned on two-step verification, you need to approve the request on your mobile app."]
-                </p>
+                <div id="panel-main" class="mb-4">
+                    <p class="fs-5 fw-semibold">@Model.View.User?.UserName</p>
+                    <p class="d-flex align-items-center text-muted">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             class="me-2 text-primary"
+                             width="20" height="20"
+                             fill="currentColor"
+                             viewBox="0 0 16 16">
+                            <path d="M3.5 11.5a3.5 3.5 0 1 1 3.163-5H14L15.5
+                                8 14 9.5l-1-1-1 1-1-1-1 1-1-1-1 1H6.663a3.5
+                                3.5 0 0 1-3.163 2zM2.5 9a1 1 0 1 0 0-2
+                                1 1 0 0 0 0 2z" />
+                        </svg>
+                        @Localizer["Because you've turned on two-step verification, you need to approve request on your mobile app."]
+                    </p>
 
-                <div class="mb-3" indice-if="!Model.View.IsExistingBrowser">
-                    <div class="form-check form-check-inline">
-                        <input asp-for="Input.RememberClient"
-                               class="form-check-input"
-                               type="checkbox" />
-                        <label class="form-check-label" for="Input_RememberClient">
-                            @Localizer["I sign in frequently here. Remember this browser."]
-                        </label>
+                    <div class="d-flex justify-content-center py-3" indice-if="!Model.View.IsExistingBrowser">
+                        <div class="form-check">
+                            <input asp-for="Input.RememberClient"
+                                   type="checkbox"
+                                   class="form-check-input" />
+                            <label class="form-check-label" for="Input_RememberClient">
+                                @Localizer["I sign in frequently here. Remember this browser."]
+                            </label>
+                        </div>
                     </div>
+
+                    @if (Model.View.AllowDowngradeAuthenticationMethod)
+                    {
+                        <div class="text-center mt-4">
+                            <button id="show-channels"
+                                    type="button"
+                                    class="btn btn-link text-decoration-none p-0">
+                                @Localizer["I can't use my app right now"]
+                            </button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="d-flex gap-3">
+                            <button id="otp-resend"
+                                    type="button"
+                                    class="flex-fill btn btn-primary"
+                            @(Model.View.ResendEnabled ? "" : "disabled")>
+                                @Localizer["I didn't receive the notification/Resend."]
+                            </button>
+                        </div>
+                    }
                 </div>
 
-                @if (Model.View.AllowDowngradeAuthenticationMethod)
-                {
-                    <div class="text-center mb-3">
-                        <button type="button"
-                                id="push-show-channels"
-                                class="btn btn-link show-channels"
-                        @(Model.View.ResendEnabled ? "" : "disabled")>
-                            @Localizer["I can't use my app right now"]
-                        </button>
-                        <span id="lblcountdown" class="countdown ms-2"></span>
-                    </div>
-                }
-                else
-                {
-                    <div class="row g-2">
-                        <div class="col">
-                            <button type="submit" class="btn btn-info w-100">
-                                @Localizer["Login"]
-                            </button>
-                        </div>
-                        <div class="col">
-                            <button type="submit"
-                                    asp-page-handler="ResendOtp"
-                                    asp-route-returnUrl="@Model.Input.ReturnUrl"
-                                    class="btn btn-info w-100"
-                                    disabled="@(!Model.View.ResendEnabled)">
-                                @Localizer["I can't use my app right now"]
-                                <span id="lblcountdown" class="countdown ms-2"></span>
-                            </button>
-                        </div>
-                    </div>
-                }
-                <input type="hidden" name="Input.ResendOtp" value="" />
-            </form>
+                <div id="panel-channels" class="d-none">
+                    <p class="text-muted fw-medium mb-2">
+                        @Localizer["Authenticate yourself using:"]
+                    </p>
 
-            <form id="mfa-form-reject" class="d-none mt-4">
-                <p><strong>@Model.View.User?.UserName</strong></p>
-                <h2>@Localizer["Request denied"]</h2>
-                <p>@Localizer["We sent an identity verification request to your mobile device, but you denied it."]</p>
-                <p>
-                    <a asp-page="/Mfa"
-                       asp-route-returnUrl="@Model.Input.ReturnUrl"
-                       class="btn btn-link">
-                        @Localizer["Send another request to my app"]
-                    </a>
-                </p>
+                    <div class="list-group mb-4 border-top border-bottom">
+                        @foreach (var method in Model.View.AvailableAuthenticationMethods)
+                        {
+                            var dc = method.GetDeliveryChannel();
+                            <button type="submit"
+                                    name="Input.SelectedDeliveryChannel"
+                                    value="@dc"
+                                    class="list-group-item list-group-item-action border-0 py-3 channel-btn rounded-0
+                                                   channel-@(method.DisplayName.ToKebabCase()) d-flex justify-content-between align-items-center
+                                                   transition">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="d-flex align-items-center justify-content-center" style="width: 2rem;">
+                                        <i class="@GetIconFromAuthenticationMethod(method) fs-4 text-primary"></i>
+                                    </div>
+                                    <div class="text-start">
+                                        <div class="small text-muted">
+                                            @Localizer[method.Description]
+                                        </div>
+                                        <div class="small fw-semibold">
+                                            @Localizer[method.DisplayName]
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" class="text-muted">
+                                        <path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                            </button>
+                        }
+                    </div>
+
+                    <div class="d-flex justify-content-start mt-2">
+                        <button id="go-back"
+                                type="button"
+                                class="btn btn-link text-decoration-none p-0 text-dark">
+                            ← @Localizer["Back"]
+                        </button>
+                    </div>
+                </div>
+                <input type="hidden" name="Input.ResendOtp" value="" />
             </form>
         }
     </div>
@@ -215,42 +282,39 @@
     </script>
     <script csp-nonce>
         $(function() {
-          var $main       = $('#panel-main'),
-              $chan       = $('#panel-channels'),
-              $chanInput  = $('input[name="Input.SelectedDeliveryChannel"]'),
-              $resendFlag = $('input[name="Input.ResendOtp"]'),
-              chosen      = '';
+            var $mainPanel = $('#panel-main'),
+                $chanPanel = $('#panel-channels');
 
-          // Open the channel picker on the "Other authentication methods..." link
-          $(document).on('click', '.show-channels', function(e) {
-            e.preventDefault();
-            $main.addClass('d-none');
-            $chan.removeClass('d-none');
-          });
+            function showElement($element) {
+                $element.removeClass('d-none');
+                $element.css('display', '');
+                $element.show();
+            }
 
-          // Back button in the picker
-          $('#go-back').on('click', function() {
-            $chan.addClass('d-none');
-            $main.removeClass('d-none');
-          });
+            function hideElement($element) {
+                $element.hide();
+                $element.css('display', 'none');
+            }
 
-          // Selecting a channel – just set `chosen` and toggle active state
-          $('.channel-btn').on('click', function() {
-            $('.channel-btn').removeClass('active');
-            $(this).addClass('active');
-            chosen = $(this).data('channel');
-          });
-          // Highlight the first one by default
-          $('.channel-btn').first().addClass('active');
+            $(document).on('click', '#show-channels, #otp-resend:not([name])', function(e) {
+                e.preventDefault();
+                hideElement($mainPanel);
+                showElement($chanPanel);
+            });
 
-          // When "Send code" is clicked, write the hidden inputs and submit
-          $('#send-code').on('click', function() {
-            $chanInput.val(chosen);
-            $resendFlag.val('true');
-            $chan.addClass('d-none');
-            $main.removeClass('d-none');
-            $('#mfa-form, #mfa-form-push').submit();
-          });
+            $('#go-back').on('click', function() {
+                hideElement($chanPanel);
+                showElement($mainPanel);
+            });
+
+            $('.channel-btn').on('click', function() {
+                $('.channel-btn').removeClass('active');
+                $(this).addClass('active');
+            });
+
+            document.head.insertAdjacentHTML('beforeend',
+                '<style>.transition { transition: all 0.2s ease-in-out; } ' +
+                '.channel-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }</style>');
         });
     </script>
 }

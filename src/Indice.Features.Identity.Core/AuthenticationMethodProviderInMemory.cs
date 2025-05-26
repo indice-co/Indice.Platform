@@ -48,7 +48,7 @@ public class AuthenticationMethodProviderInMemory : IAuthenticationMethodProvide
     public async Task<AuthenticationMethod?> FindMethodForUserOrDefaultAsync(User user, TotpDeliveryChannel? channel = null) {
         var userMethods = await GetAllMethodsForUserAsync(user);
         if (channel.HasValue && AllowMfaChannelDowngrade) {
-            return userMethods.FirstOrDefault(x => x.GetDeliveryChannel() == channel.Value) ?? userMethods.FirstOrDefault();
+            return userMethods.FirstOrDefault(x => x.GetDeliveryChannel() == channel!.Value) ?? userMethods.FirstOrDefault();
         }
         return userMethods.FirstOrDefault();
     }
