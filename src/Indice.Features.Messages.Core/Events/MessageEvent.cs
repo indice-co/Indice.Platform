@@ -36,5 +36,11 @@ public enum MessageEventType
     /// <summary>The event type used when a new campaign message is created.</summary>
     Created,
     /// <summary>The event type used when a new contact is resolved.</summary>
-    Sent
+    Sent,
+    /// <summary>The event type used when a message is opened by the user.</summary>
+    MarkedAsRead,
+    /// <summary>The event type used when a message is deleted by the user.</summary>
+    MarkedAsDeleted,
+    /// <summary>The event type used when a message is marked as unread by the user.</summary>
+    MarkedAsUnread,
 }

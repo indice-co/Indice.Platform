@@ -176,6 +176,9 @@ public static class MessageFeatureExtensions
         Action<IServiceProvider, DbContextOptionsBuilder> sqlServerConfiguration = (serviceProvider, builder) => builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("MessagesDb"));
         services.AddDbContext<CampaignsDbContext>(baseOptions.ConfigureDbContext ?? sqlServerConfiguration);
         services.AddHostedService<DbInitializerHostedService>();
+
+        services.AddSingleton<CampaignEventQueue>();
+        services.AddSingleton<IHostedService, CampaignEventHandler>();
         return services;
     }
 
