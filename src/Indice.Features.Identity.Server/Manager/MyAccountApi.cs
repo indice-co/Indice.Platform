@@ -52,6 +52,30 @@ public static class MyAccountApi
              .WithParameterValidation<ConfirmPhoneNumberRequest>()
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
+        group.MapPut("my/account/email/change", MyAccountHandlers.EmailChange)
+             .WithName(nameof(MyAccountHandlers.EmailChange))
+             .WithSummary("Request email change for the current user.")
+             .WithParameterValidation<ChangeUserEmailRequest>()
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+
+        group.MapPut("my/account/email/change-confirmation", MyAccountHandlers.ConfirmEmailChange)
+             .WithName(nameof(MyAccountHandlers.ConfirmEmailChange))
+             .WithSummary("Confirms the email address change of the current user and saves.")
+             .WithParameterValidation<ConfirmEmailChangeRequest>()
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+
+        group.MapPut("my/account/phone-number/change", MyAccountHandlers.PhoneNumberChange)
+             .WithName(nameof(MyAccountHandlers.PhoneNumberChange))
+             .WithSummary("Requests phone number change for the current user.")
+             .WithParameterValidation<ChangeUserPhoneNumberRequest>()
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+
+        group.MapPut("my/account/phone-number/change-confirmation", MyAccountHandlers.ConfirmPhoneNumberChange)
+             .WithName(nameof(MyAccountHandlers.ConfirmPhoneNumberChange))
+             .WithSummary("Confirms the phone number change via OTP for the current user and saves.")
+             .WithParameterValidation<ConfirmPhoneNumberChangeRequest>()
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+
         group.MapPut("my/account/block", MyAccountHandlers.BlockAccount)
              .WithName(nameof(MyAccountHandlers.BlockAccount))
              .WithSummary("Blocks a user account.")

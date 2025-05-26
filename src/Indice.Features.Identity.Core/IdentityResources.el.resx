@@ -249,4 +249,16 @@
   <data name="ConfirmationEmailChangeSubject" xml:space="preserve">
     <value>Επιβεβαίωση αλλαγής Email</value>
   </data>
+  <data name="EmailChangeMessageBody" xml:space="preserve">
+    <value>Ο κωδικός επιβεβαίωσης για το email είναι {0}.</value>
+  </data>
+  <data name="PhoneChangeVerificationSmsSubject" xml:space="preserve">
+    <value>Επιβεβαιώστε τον νέο αριθμό τηλεφώνου σας</value>
+  </data>
+  <data name="PhoneChangeVerificationSmsBody" xml:space="preserve">
+    <value>ΚΩΔΙΚΟΣ OTP: {0} ΓΙΑ ΕΠΙΒΕΒΑΙΩΣΗ ΑΡΙΘΜΟΥ ΤΗΛΕΦΩΝΟΥ. Ο ΚΩΔΙΚΟΣ ΕΧΕΙ ΙΣΧΥ ΓΙΑ 2 ΛΕΠΤΑ.</value>
+  </data>
+  <data name="PhoneNumberChangeVerificationMessage" xml:space="preserve">
+    <value>Ο κωδικός επιβεβαίωσης μέσω SMS είναι {0}.</value>
+  </data>
 </root>
