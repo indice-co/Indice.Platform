@@ -61,6 +61,15 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Change email confirmation.
+        /// </summary>
+        internal static string ConfirmationEmailChangeSubject {
+            get {
+                return ResourceManager.GetString("ConfirmationEmailChangeSubject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Account confirmation.
         /// </summary>
         internal static string ConfirmationEmailSubject {

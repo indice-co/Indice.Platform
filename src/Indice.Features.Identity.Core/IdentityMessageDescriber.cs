@@ -79,6 +79,8 @@ public class IdentityMessageDescriber
     public virtual string ImpossibleTravelOtpSubject => string.Format(IdentityResources.Culture, IdentityResources.ImpossibleTravelOtpSubject);
     /// <summary>Subject content for confirmation email.</summary>
     public virtual string ConfirmationEmailSubject => string.Format(IdentityResources.Culture, IdentityResources.ConfirmationEmailSubject);
+    /// <summary>Subject content for confirmation of email change .</summary>
+    public virtual string ConfirmationEmailChangeSubject => string.Format(IdentityResources.Culture, IdentityResources.ConfirmationEmailChangeSubject);
     /// <summary>OTP Subject for phone confirmation.</summary>
     public virtual string PhoneVerificationSmsSubject => string.Format(IdentityResources.Culture, IdentityResources.PhoneVerificationSmsSubject);
     /// <summary>OTP body for phone confirmation.</summary>

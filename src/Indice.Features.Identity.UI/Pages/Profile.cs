@@ -110,8 +110,6 @@ public abstract class BaseProfileModel : BasePageModel
         }
         if (user.NormalizedEmail != Input.Email?.Trim().ToUpper()) {
             EmailChangeRequested = true;
-            user.EmailConfirmed = false;
-            await UserManager.SetEmailAsync(user, Input.Email);
             if (!string.IsNullOrWhiteSpace(Input.Email)) {
                 await SendChangeEmailConfirmationEmail(user, Input.Email);
             }
@@ -262,7 +260,7 @@ public abstract class BaseProfileModel : BasePageModel
             CurrentLogins = currentLogins,
             DeveloperTotp = model.DeveloperTotp,
             Email = model.Email,
-            EmailChangePending = !await UserManager.IsEmailConfirmedAsync(user),
+            EmailChangePending = !await UserManager.IsEmailConfirmedAsync(user) || EmailChangeRequested,
             FirstName = model.FirstName,
             HasDeveloperTotp = Configuration.DeveloperTotpEnabled() && roles.Contains(BasicRoleNames.Developer),
             LastName = model.LastName,
