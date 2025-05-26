@@ -55,4 +55,17 @@ public class SendPushNotificationEvent
         Title = @event.Campaign.Content[nameof(MessageChannelKind.PushNotification)].Title,
         ContactId = contact.Id!.Value
     };
+
+    /// <summary>
+    /// Converts the current <see cref="SendPushNotificationEvent"/> to a <see cref="MessageEvent"/> with the specified type.
+    /// </summary>
+    /// <param name="type">the type of the event</param>
+    /// <returns></returns>
+    public MessageEvent ToMessageEvent(string type) => new MessageEvent {
+        CampaignId = CampaignId,
+        ContactId = ContactId,
+        MessageId = MessageId,
+        Type = type,
+        Channel = MessageChannelKind.PushNotification.ToString()
+    };
 }

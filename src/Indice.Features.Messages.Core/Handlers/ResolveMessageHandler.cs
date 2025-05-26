@@ -125,28 +125,32 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         });
         var eventDispatcher = EventDispatcherFactory.Create(KeyedServiceNames.EventDispatcherServiceKey);
         var contactChannels = campaign.ResolveAvailableChannels(contact!.CommunicationPreferences);
+        if (contactChannels.HasFlag(MessageChannelKind.Inbox)) {
+            await LogEvent(campaign, contact, MessageChannelKind.Inbox, messageId);
+        }
         if (contactChannels.HasFlag(MessageChannelKind.PushNotification)) {
-            await LogEvent(campaign, contact, MessageChannelKind.PushNotification);
+            await LogEvent(campaign, contact, MessageChannelKind.PushNotification, messageId);
             await eventDispatcher.RaiseEventAsync(SendPushNotificationEvent.FromContactResolutionEvent(@event, contact, broadcast: false, messageId: messageId),
                 options => options.WrapInEnvelope().At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendPushNotification));
         }
         if (contactChannels.HasFlag(MessageChannelKind.Email)) {
-            await LogEvent(campaign, contact, MessageChannelKind.Email);
-            await eventDispatcher.RaiseEventAsync(SendEmailEvent.FromContactResolutionEvent(@event, contact, broadcast: false),
+            await LogEvent(campaign, contact, MessageChannelKind.Email, messageId);
+            await eventDispatcher.RaiseEventAsync(SendEmailEvent.FromContactResolutionEvent(@event, contact, messageId, broadcast: false),
                 options => options.WrapInEnvelope().At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendEmail));
         }
         if (contactChannels.HasFlag(MessageChannelKind.SMS)) {
-            await LogEvent(campaign, contact, MessageChannelKind.SMS);
-            await eventDispatcher.RaiseEventAsync(SendSmsEvent.FromContactResolutionEvent(@event, contact, broadcast: false),
+            await LogEvent(campaign, contact, MessageChannelKind.SMS, messageId);
+            await eventDispatcher.RaiseEventAsync(SendSmsEvent.FromContactResolutionEvent(@event, contact, messageId, broadcast: false),
                 options => options.WrapInEnvelope().At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendSms));
         }
     }
 
-    private async Task LogEvent(CampaignCreatedEvent campaign, Contact contact, MessageChannelKind kind) {
-        await CampaignEventQueue.EnqueueAsync(new CampaignEvent() {
+    private async Task LogEvent(CampaignCreatedEvent campaign, Contact contact, MessageChannelKind kind, Guid messageId) {
+        await CampaignEventQueue.EnqueueAsync(new MessageEvent() {
             CampaignId = campaign.Id,
             ContactId = contact.Id!.Value,
-            Type = CampaignEventType.Created.ToString(),
+            MessageId = messageId,
+            Type = MessageEventType.Created.ToString(),
             Channel = kind.ToString()
         });
     }

@@ -7,21 +7,21 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.Features.Messages.Core.Data.Mappings;
 
-/// <summary>Configuration for <see cref="DbCampaignEvent"/> entity.</summary>
-public class DbCampaignEventMap : IEntityTypeConfiguration<DbCampaignEvent>
+/// <summary>Configuration for <see cref="DbMessageEvent"/> entity.</summary>
+public class DbMessageEventMap : IEntityTypeConfiguration<DbMessageEvent>
 {
-    /// <summary>Creates a new instance of <see cref="DbCampaignEventMap"/>.</summary>
+    /// <summary>Creates a new instance of <see cref="DbMessageEventMap"/>.</summary>
     /// <param name="schemaName">The schema name.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public DbCampaignEventMap(string schemaName) {
+    public DbMessageEventMap(string schemaName) {
         SchemaName = schemaName ?? throw new ArgumentNullException(nameof(schemaName));
     }
 
     private string SchemaName { get; }
 
     /// <inheritdoc />
-    public void Configure(EntityTypeBuilder<DbCampaignEvent> builder) {
-        builder.ToTable("CampaignEvent", SchemaName);
+    public void Configure(EntityTypeBuilder<DbMessageEvent> builder) {
+        builder.ToTable("MessageEvent", SchemaName);
         // Configure primary key.
         builder.HasKey(x => x.Id);
         // Configure properties.

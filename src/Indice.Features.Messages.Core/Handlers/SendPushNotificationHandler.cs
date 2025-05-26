@@ -1,7 +1,6 @@
 ﻿using System.Dynamic;
 using System.Text.Json;
 using Indice.Features.Messages.Core.Events;
-using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Services;
 using Indice.Serialization;
 using Indice.Services;
@@ -37,11 +36,6 @@ public class SendPushNotificationHandler(IPushNotificationServiceFactory pushNot
             string[]? tags = !string.IsNullOrEmpty(pushNotification.RecipientId) ? [pushNotification.RecipientId] : null;
             await pushNotificationService.SendToUserAsync(pushNotification.Title!, pushBody, data, pushNotification.RecipientId, classification: pushNotification.MessageType?.Name, tags: tags);
         }
-        await CampaignEventQueue.EnqueueAsync(new CampaignEvent() {
-            CampaignId = pushNotification.CampaignId,
-            ContactId = pushNotification.ContactId,
-            Type = CampaignEventType.Sent.ToString(),
-            Channel = MessageChannelKind.PushNotification.ToString()
-        });
+        await CampaignEventQueue.EnqueueAsync(pushNotification.ToMessageEvent(MessageEventType.Sent.ToString()));
     }
 }

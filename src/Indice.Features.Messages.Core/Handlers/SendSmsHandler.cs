@@ -1,5 +1,4 @@
 ﻿using Indice.Features.Messages.Core.Events;
-using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Services;
 using Indice.Services;
 
@@ -24,11 +23,6 @@ public class SendSmsHandler : ICampaignJobHandler<SendSmsEvent>
     /// <param name="event">The event model used when sending an email.</param>
     public async Task Process(SendSmsEvent @event) {
         await SmsService.SendAsync(@event.RecipientPhoneNumber!, @event.Title!, @event.Body, sender: @event.Sender?.IsEmpty == false ? new SmsSender(@event.Sender.Sender!, @event.Sender.DisplayName!) : null);
-        await CampaignEventQueue.EnqueueAsync(new CampaignEvent() {
-            CampaignId = @event.CampaignId,
-            ContactId = @event.ContactId,
-            Type = CampaignEventType.Sent.ToString(),
-            Channel = MessageChannelKind.SMS.ToString()
-        });
+        await CampaignEventQueue.EnqueueAsync(@event.ToMessageEvent(MessageEventType.Sent.ToString()));
     }
 }

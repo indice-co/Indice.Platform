@@ -34,21 +34,19 @@ public class CampaignEventHandler(
             var db = scope.ServiceProvider.GetRequiredService<CampaignsDbContext>();
             try {
                 await UpsertBatchAsync(lastActivityBatch, db, stoppingToken);
+            } catch (DbUpdateException dbEx) {
+                logger.LogError(dbEx, "Database update failed while upserting CampaignEvents.");
+            } catch (OperationCanceledException ocEx) when (stoppingToken.IsCancellationRequested) {
+                logger.LogWarning(ocEx, "Operation was canceled while upserting CampaignEvents.");
             } catch (Exception ex) {
-                logger.LogError(ex, "Failed to upsert CampaignEvents");
+                logger.LogError(ex, "An unexpected error occurred while upserting CampaignEvents.");
             }
         }
     }
 
     /// <summary>Upserts a batch of campaign events into the database.</summary>
-    private static async Task UpsertBatchAsync(List<CampaignEvent> lastActivityBatch, CampaignsDbContext db, CancellationToken stoppingToken) {
-        var entries = lastActivityBatch.Select(activity => new DbCampaignEvent() {
-            Type = activity.Type,
-            Channel = activity.Channel,
-            CampaignId = activity.CampaignId,
-            ContactId = activity.ContactId,
-            CreatedOn = activity.CreatedOn
-        });
+    private static async Task UpsertBatchAsync(List<MessageEvent> lastActivityBatch, CampaignsDbContext db, CancellationToken stoppingToken) {
+        var entries = lastActivityBatch.Select(activity => activity.GetDbEvent());
         await db.CampaignEvent.AddRangeAsync(entries, stoppingToken);
         await db.SaveChangesAsync(stoppingToken);
     }

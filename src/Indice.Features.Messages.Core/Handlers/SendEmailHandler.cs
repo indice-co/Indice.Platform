@@ -1,5 +1,4 @@
 ﻿using Indice.Features.Messages.Core.Events;
-using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
@@ -41,7 +40,7 @@ public class SendEmailHandler : ICampaignJobHandler<SendEmailEvent>
             });
             sender = defaultSenderResult?.Items?.FirstOrDefault();
         }
-        await EmailService.SendAsync(builder => {
+      _ =  await EmailService.SendAsync(builder => {
             if (sender is not null && !sender.IsEmpty) {
                 builder.From(sender.Sender!, sender.DisplayName);
             }
@@ -52,11 +51,7 @@ public class SendEmailHandler : ICampaignJobHandler<SendEmailEvent>
                 builder.WithAttachments(new EmailAttachment(attachment.Name!, attachment.Data!));
             }
         });
-        await CampaignEventQueue.EnqueueAsync(new CampaignEvent() {
-            CampaignId = @event.CampaignId,
-            ContactId = @event.ContactId,
-            Type = CampaignEventType.Sent.ToString(),
-            Channel = MessageChannelKind.Email.ToString()
-        });
+        
+        await CampaignEventQueue.EnqueueAsync(@event.ToMessageEvent(MessageEventType.Sent.ToString()));
     }
 }

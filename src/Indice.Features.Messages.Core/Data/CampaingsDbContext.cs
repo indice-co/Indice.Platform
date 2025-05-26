@@ -22,7 +22,7 @@ public class CampaignsDbContext : DbContext
     /// <summary>Campaigns table.</summary>
     public DbSet<DbCampaign> Campaigns { get; set; }
     /// <summary>Campaign events table.</summary>
-    public DbSet<DbCampaignEvent> CampaignEvent { get; set; }
+    public DbSet<DbMessageEvent> CampaignEvent { get; set; }
     /// <summary>Message types table.</summary>
     public DbSet<DbMessageType> MessageTypes { get; set; }
     /// <summary>Message senders table.</summary>
@@ -45,7 +45,7 @@ public class CampaignsDbContext : DbContext
         var schemaName = Database.GetService<DatabaseSchemaNameResolver>().GetSchemaName();
         modelBuilder.ApplyConfiguration(new DbAttachmentMap(schemaName));
         modelBuilder.ApplyConfiguration(new DbCampaignMap(schemaName));
-        modelBuilder.ApplyConfiguration(new DbCampaignEventMap(schemaName));
+        modelBuilder.ApplyConfiguration(new DbMessageEventMap(schemaName));
         modelBuilder.ApplyConfiguration(new DbDistributionListContactMap(schemaName));
         modelBuilder.ApplyConfiguration(new DbContactMap(schemaName));
         modelBuilder.ApplyConfiguration(new DbDistributionListMap(schemaName));

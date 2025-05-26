@@ -26,12 +26,15 @@ public class SendSmsEvent
     public string? RecipientPhoneNumber { get; set; }
     /// <summary>The type details of the campaign.</summary>
     public MessageType? MessageType { get; set; }
+    /// <summary>The message Id.</summary>
+    public Guid MessageId { get; set; }
 
     /// <summary>Creates a <see cref="SendSmsEvent"/> instance from a <see cref="ResolveMessageEvent"/> instance.</summary>
     /// <param name="messageEvent">The event model used when a contact is resolved from an external system.</param>
     /// <param name="contact">The resolved contact</param>
+    /// <param name="messageId">The id of the message.</param>
     /// <param name="broadcast">Defines if push notification is sent to all registered user devices.</param>
-    public static SendSmsEvent FromContactResolutionEvent(ResolveMessageEvent messageEvent, Contact contact, bool broadcast) => new() {
+    public static SendSmsEvent FromContactResolutionEvent(ResolveMessageEvent messageEvent, Contact contact, Guid messageId, bool broadcast) => new() {
         Body = messageEvent.Campaign!.Content[nameof(MessageChannelKind.SMS)].Body,
         Sender = messageEvent.Campaign.Content[nameof(MessageChannelKind.SMS)].Sender,
         Broadcast = broadcast,
@@ -41,6 +44,20 @@ public class SendSmsEvent
         RecipientId = contact.RecipientId,
         RecipientPhoneNumber = contact.PhoneNumber,
         Title = messageEvent.Campaign.Content[nameof(MessageChannelKind.SMS)].Title,
-        ContactId = contact.Id!.Value
+        ContactId = contact.Id!.Value,
+        MessageId = messageId
+    };
+
+    /// <summary>
+    /// Converts the current <see cref="SendSmsEvent"/> to a <see cref="MessageEvent"/> with the specified type.
+    /// </summary>
+    /// <param name="type">the type of the event</param>
+    /// <returns></returns>
+    public MessageEvent ToMessageEvent(string type) => new MessageEvent {
+        CampaignId = CampaignId,
+        ContactId = ContactId,
+        MessageId = MessageId,
+        Type = type,
+        Channel = MessageChannelKind.SMS.ToString()
     };
 }
