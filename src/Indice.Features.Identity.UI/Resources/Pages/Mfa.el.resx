@@ -135,6 +135,9 @@
   <data name="I can't use my app right now" xml:space="preserve">
     <value>Δεν μπορώ να χρησιμοποιήσω τη συσκευή μου αυτή τη στιγμή</value>
   </data>
+  <data name="I didn't receive the notification/Resend." xml:space="preserve">
+    <value>Δεν έλαβα την ειδοποίηση/Επαναποστολή.</value>
+  </data>
   <data name="I sign in frequently here. Remember this browser." xml:space="preserve">
     <value>Συνδέομαι συχνά από εδώ. Να θυμάσαι αυτό το browser.</value>
   </data>
