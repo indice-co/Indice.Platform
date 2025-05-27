@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Text.RegularExpressions;
 using Indice.AspNetCore.Filters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -12,6 +11,7 @@ namespace Indice.Features.Identity.UI.Pages;
 /// <summary>Page model for the set language screen.</summary>
 [IdentityUI(typeof(SetLanguageModel))]
 [SecurityHeaders]
+[IgnoreAntiforgeryToken]
 public abstract class BaseSetLanguageModel : BasePageModel
 {
     private readonly RequestLocalizationOptions _requestLocalizationOptions;
@@ -30,7 +30,7 @@ public abstract class BaseSetLanguageModel : BasePageModel
 
     /// <summary>Set language page GET handler.</summary>
     public virtual IActionResult OnGet(string? returnUrl, string? culture) => OnSetLangageInternal(returnUrl, culture);
-    
+
 
     /// <summary>Set language page POST handler.</summary>
     private IActionResult OnSetLangageInternal(string? returnUrl, string? culture) {
