@@ -159,6 +159,7 @@ internal static class Mapper
         Locale = request.Locale,
         UpdatedAt = DateTimeOffset.UtcNow
     };
+
     public static DbContact ToDbContact(Contact contact) => new() {
         Email = contact.Email,
         FirstName = contact.FirstName,
@@ -188,6 +189,7 @@ internal static class Mapper
         Salutation = request.Salutation,
         UpdatedAt = DateTimeOffset.UtcNow
     };
+
     public static CreateDistributionListContactRequest ToCreateDistributionListContactRequest(Contact contact) => new() {
         Email = contact.Email,
         FirstName = contact.FirstName,
@@ -202,16 +204,15 @@ internal static class Mapper
         Salutation = contact.Salutation
     };
 
-
     public static void MapFromCreateDistributionListContactRequest(this DbContact contact, CreateDistributionListContactRequest request) {
+        contact.RecipientId = request.RecipientId;
         contact.Email = request.Email;
         contact.FirstName = request.FirstName;
         contact.FullName = request.FullName;
         contact.LastName = request.LastName;
-        contact.PhoneNumber = request.PhoneNumber;
-        contact.RecipientId = request.RecipientId;
-        contact.Salutation = request.Salutation;
+        contact.PhoneNumber = request.PhoneNumber; 
         contact.CommunicationPreferences = request.CommunicationPreferences;
+        contact.Salutation = request.Salutation;
         contact.Locale = request.Locale;
         contact.ConsentCommercial = request.ConsentCommercial;
         contact.UpdatedAt = DateTimeOffset.UtcNow;

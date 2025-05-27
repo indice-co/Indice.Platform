@@ -5,6 +5,7 @@
     <VersionPrefix>$(VersionPrefixMessages)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="CsvHelper" Version="33.0.1" />
     <PackageReference Include="EPPlus-LGPL" Version="4.5.3.13" />
     <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefixCore)-*" />
     <PackageReference Include="Indice.Features.Messages.Core" Version="$(VersionPrefixMessages)-*" />

@@ -1,4 +1,6 @@
-﻿using Indice.Features.Messages.AspNetCore.Endpoints;
+﻿using System.Net.Mime;
+using Indice.Features.Messages.AspNetCore.Endpoints;
+using Indice.Features.Messages.AspNetCore.Requests;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Security;
@@ -81,6 +83,18 @@ internal static class DistributionListsApi
              .WithName(nameof(DistributionListsHandlers.RemoveContactFromDistributionList))
              .WithSummary("Removes an existing contact from the specified distribution list.")
              .WithDescription(DistributionListsHandlers.REMOVE_CONTACT_FROM_DISTRIBUTION_LIST_DESCRIPTION);
+
+        group.MapGet("{distributionListId}/export", DistributionListsHandlers.BulkExportContactsFromDistributionList)
+            .WithName(nameof(DistributionListsHandlers.BulkExportContactsFromDistributionList))
+            .WithSummary("Bulk exports contacts from a specified distribution list in CSV file.")
+            .WithDescription(DistributionListsHandlers.BULK_EXPORT_CONTACTS_FROM_DISTRIBUTION_LIST)
+            .Produces<IFormFile>(StatusCodes.Status200OK, MediaTypeNames.Application.Octet);
+
+        group.MapPost("{distributionListId}/import", DistributionListsHandlers.BulkImportContactsToDistributionList)
+            .WithName(nameof(DistributionListsHandlers.BulkImportContactsToDistributionList))
+            .WithSummary("Bulk imports contacts in a specified distribution list.")
+            .WithDescription(DistributionListsHandlers.BULK_IMPORT_CONTACTS_TO_DISTRIBUTION_LIST)
+            .Accepts<BulkCreateDistributionListContactsRequest>(MediaTypeNames.Multipart.FormData);
 
         return group;
     }

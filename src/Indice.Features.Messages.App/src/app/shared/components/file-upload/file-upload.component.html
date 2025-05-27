@@ -17,8 +17,14 @@
             Δεν έχετε προσθέσει κάποιο επισυναπτόμενο αρχείο.
         </label>
     </div>
-    <input type="file" id="fileInput" #fileInput class="hidden" (change)="onFilesAdded()" [accept]="accept" />
-    <button *ngIf="!file" class="pl-3 py-2 border-0 border-l border-gray-300"
+    <input 
+        type="file" 
+        id="fileInput" 
+        #fileInput 
+        class="hidden" 
+        (change)="onFilesAdded()" 
+        [accept]="accept" />
+    <button title="Προσθήκη επισυναπτόμενου αρχείου" type="button" *ngIf="!file" class="pl-3 py-2 border-0 border-l border-gray-300"
             (click)="clickElement()">
         <svg class="text-gray-400 flex-shrink-0 -ml-1 mr-3 h-6 w-6"
              xmlns="http://www.w3.org/2000/svg"
