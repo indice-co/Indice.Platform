@@ -61,6 +61,15 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Change email confirmation.
+        /// </summary>
+        internal static string ConfirmationEmailChangeSubject {
+            get {
+                return ResourceManager.GetString("ConfirmationEmailChangeSubject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Account confirmation.
         /// </summary>
         internal static string ConfirmationEmailSubject {
@@ -102,6 +111,15 @@ namespace Indice.Features.Identity.Core {
         internal static string EmailAlreadyConfirmed {
             get {
                 return ResourceManager.GetString("EmailAlreadyConfirmed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Email verification code is {0}..
+        /// </summary>
+        internal static string EmailChangeMessageBody {
+            get {
+                return ResourceManager.GetString("EmailChangeMessageBody", resourceCulture);
             }
         }
         
@@ -367,11 +385,38 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to OTP CODE: {0} FOR PHONE NUMBER VERIFICATION. IT WILL BE VALID FOR 2 MINUTES..
+        /// </summary>
+        internal static string PhoneChangeVerificationSmsBody {
+            get {
+                return ResourceManager.GetString("PhoneChangeVerificationSmsBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change phone number.
+        /// </summary>
+        internal static string PhoneChangeVerificationSmsSubject {
+            get {
+                return ResourceManager.GetString("PhoneChangeVerificationSmsSubject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to User&apos;s phone number is already confirmed..
         /// </summary>
         internal static string PhoneNumberAlreadyConfirmed {
             get {
                 return ResourceManager.GetString("PhoneNumberAlreadyConfirmed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SMS verification code is {0}..
+        /// </summary>
+        internal static string PhoneNumberChangeVerificationMessage {
+            get {
+                return ResourceManager.GetString("PhoneNumberChangeVerificationMessage", resourceCulture);
             }
         }
         

@@ -19,6 +19,9 @@ public class IdentityMessageDescriber
     /// <summary>SMS verification code is {token}.</summary>
     /// <param name="token">Phone number verification token.</param>
     public virtual string PhoneNumberVerificationMessage(string token) => string.Format(IdentityResources.Culture, IdentityResources.PhoneNumberVerificationMessage, token);
+    /// <summary>SMS verification code is {token}.</summary>
+    /// <param name="token">Phone number change verification token.</param>
+    public virtual string PhoneNumberChangeVerificationMessage(string token) => string.Format(IdentityResources.Culture, IdentityResources.PhoneNumberChangeVerificationMessage, token);
     /// <summary>Confirm your account.</summary>
     public virtual string UpdateEmailMessageSubject => string.Format(IdentityResources.Culture, IdentityResources.EmailUpdateMessageSubject);
     /// <summary>Email verification code is {0}.</summary>
@@ -79,8 +82,15 @@ public class IdentityMessageDescriber
     public virtual string ImpossibleTravelOtpSubject => string.Format(IdentityResources.Culture, IdentityResources.ImpossibleTravelOtpSubject);
     /// <summary>Subject content for confirmation email.</summary>
     public virtual string ConfirmationEmailSubject => string.Format(IdentityResources.Culture, IdentityResources.ConfirmationEmailSubject);
-    /// <summary>OTP Subject for phone confirmation.</summary>
+    /// <summary>Subject content for confirmation of email change .</summary>
+    public virtual string ConfirmationEmailChangeSubject => string.Format(IdentityResources.Culture, IdentityResources.ConfirmationEmailChangeSubject);
+
+    /// <summary>Email verification code is {0}.</summary>
+    public virtual string ChangeEmailMessageBody<TUser>(TUser user, string token, string newEmail, string? returnUrl) where TUser : class => string.Format(IdentityResources.Culture, IdentityResources.EmailChangeMessageBody, token);
+    /// <summary>OTP Subject for phone update confirmation.</summary>
     public virtual string PhoneVerificationSmsSubject => string.Format(IdentityResources.Culture, IdentityResources.PhoneVerificationSmsSubject);
+    /// <summary>OTP Subject for phone change confirmation.</summary>
+    public virtual string PhoneChangeVerificationSmsSubject => string.Format(IdentityResources.Culture, IdentityResources.PhoneChangeVerificationSmsSubject);
     /// <summary>OTP body for phone confirmation.</summary>
     public virtual string PhoneVerificationSmsBody(string code) => string.Format(IdentityResources.Culture, IdentityResources.PhoneVerificationSmsBody, code);
 }
