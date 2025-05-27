@@ -1,8 +1,8 @@
 import { AfterViewInit, Component, ElementRef, OnInit, Inject, ViewChild } from "@angular/core";
-import { BulkCreateDistributionListContactsRequest, FileParameter, MessagesApiClient } from "../../../core/services/messages-api.service";
+import { BulkCreateDistributionListContactsRequest, FileParameter, MessagesApiClient } from "src/app/core/services/messages-api.service";
 import { Router } from "@angular/router";
 import { AbstractControl, UntypedFormControl, UntypedFormGroup } from "@angular/forms";
-import { IAttachment } from "../../../shared/components/file-upload/file-upload.component";
+import { IAttachment } from "src/app/shared/components/file-upload/file-upload.component";
 import { ToasterService, ToastType } from "@indice/ng-components";
 
 @Component({

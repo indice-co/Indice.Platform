@@ -1,11 +1,9 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-
 import { ToasterService, ToastType } from '@indice/ng-components';
-import { CreateDistributionListRequest, MessagesApiClient, MessageType } from 'src/app/core/services/messages-api.service';
-import { IAttachment } from '../../../shared/components/file-upload/file-upload.component';
+import { FileParameter, CreateDistributionListRequest, MessagesApiClient, MessageType } from 'src/app/core/services/messages-api.service';
+import { IAttachment } from 'src/app/shared/components/file-upload/file-upload.component';
 import { AbstractControl, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
-import { FileParameter } from '../../../core/services/messages-api.service';
 import { catchError, EMPTY, finalize, map, of, switchMap } from 'rxjs';
 
 @Component({

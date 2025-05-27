@@ -103,8 +103,12 @@ public class ContactService : IContactService
                     CreateAndAddContactToDistributionList(request, list);
                     result.ContactsAdded++;
                 }
-            } catch (Exception) {
-                result.Errors.Add($"Error processing contact with Email '{request.Email}'.");
+            } catch (DbUpdateException dbEx) {
+                result.Errors.Add($"Database error processing contact with Email '{request.Email}': {dbEx.Message}");
+            } catch (ArgumentException argEx) {
+                result.Errors.Add($"Invalid argument for contact with Email '{request.Email}': {argEx.Message}");
+            } catch (Exception ex) {
+                result.Errors.Add($"Unexpected error processing contact with Email '{request.Email}': {ex.Message}");
             }
         }
 

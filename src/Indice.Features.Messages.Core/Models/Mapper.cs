@@ -210,11 +210,12 @@ internal static class Mapper
         contact.FirstName = request.FirstName;
         contact.FullName = request.FullName;
         contact.LastName = request.LastName;
-        contact.PhoneNumber = request.PhoneNumber;
+        contact.PhoneNumber = request.PhoneNumber; 
+        contact.CommunicationPreferences = request.CommunicationPreferences;
         contact.Salutation = request.Salutation;
         contact.Locale = request.Locale;
-        contact.UpdatedAt = DateTimeOffset.UtcNow;
         contact.ConsentCommercial = request.ConsentCommercial;
+        contact.UpdatedAt = DateTimeOffset.UtcNow;
     }
 
     public static DbAttachment ToDbAttachment(FileAttachment fileAttachment) => new() {

@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, ToasterService, ToastType, ViewAction } from '@indice/ng-components';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { DistributionList, DistributionListResultSet, MessagesApiClient } from '../../core/services/messages-api.service';
+import { DistributionList, DistributionListResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
 
 @Component({
