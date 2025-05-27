@@ -1,6 +1,8 @@
 ﻿using Indice.Features.Messages.Core;
+using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
+using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Services;
 using Indice.Types;
@@ -59,6 +61,19 @@ internal static class MyMessagesHandlers
     ) {
         var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType)!;
         await messageService.MarkAsRead(messageId, userCode);
+        return TypedResults.NoContent();
+    }
+
+    public static async Task<NoContent> MarkAllAsRead(
+        UserActionQueue actionQueue,
+        IOptions<MessageInboxOptions> campaignEndpointOptions,
+        ClaimsPrincipal currentUser
+    ) {
+        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType)!;
+        await actionQueue.EnqueueAsync(new UserEvent {
+            UserCode = userCode,
+            Action = "MarkAllAsRead"
+        });
         return TypedResults.NoContent();
     }
 
@@ -121,8 +136,11 @@ Marks the specified message as read.
 Parameters:
 - messageId: The ID of the message.
 ";
+public static readonly string MARK_ALL_MESSAGE_AS_READ_DESCRIPTION = @"
+Marks all user messages as read.
+";
 
-public static readonly string MARK_MESSAGE_AS_UNREAD_DESCRIPTION = @"
+    public static readonly string MARK_MESSAGE_AS_UNREAD_DESCRIPTION = @"
 Marks the specified message as unread.
 
 Parameters:

@@ -48,6 +48,12 @@ internal static class MyMessagesApi
              .WithSummary("Marks the specified message as read.")
              .WithDescription(MyMessagesHandlers.MARK_MESSAGE_AS_READ_DESCRIPTION);
 
+        group.MapPut("my/messages/read-all", MyMessagesHandlers.MarkAllAsRead)
+             .WithName(nameof(MyMessagesHandlers.MarkAllAsRead))
+             .WithSummary("Marks all user messages as read.")
+             .WithDescription(MyMessagesHandlers.MARK_ALL_MESSAGE_AS_READ_DESCRIPTION);
+        
+
         group.MapPut("my/messages/{messageId}/unread", MyMessagesHandlers.MarkMessageAsUnread)
              .WithName(nameof(MyMessagesHandlers.MarkMessageAsUnread))
              .WithSummary("Marks the specified message as read.")
