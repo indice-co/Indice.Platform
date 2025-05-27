@@ -131,28 +131,29 @@ public class MessageService : IMessageService
 
     private async Task<DbMessage> CreateMessage(Guid id, string recipientId) {
         var dbCampaign = await DbContext.Campaigns
-                                .Include(x=>x.DistributionList)
+                                .Include(x => x.DistributionList)
                                 .FirstOrDefaultAsync(c => c.Id == id)
-            
             ?? throw MessageExceptions.MessageNotFound(id);
+
         var contact = await ContactService.FindByRecipientId(recipientId);
-        if (contact is null) {
-            var resolvedContact = await ContactResolver.Resolve(recipientId) ??
-                throw MessageExceptions.ContantResolverNotFound(recipientId);
-            contact = await ContactService.Create(Mapper.ToCreateContactRequest(resolvedContact));
-        }
         if (dbCampaign.DistributionListId.HasValue) {
+            if (contact is null) {
+                var resolvedContact = await ContactResolver.Resolve(recipientId) ??
+                    throw MessageExceptions.ContantResolverNotFound(recipientId);
+                contact = await ContactService.Create(Mapper.ToCreateContactRequest(resolvedContact));
+            }
             dbCampaign.DistributionList.ContactDistributionLists.Add(new DbDistributionListContact {
                 DistributionListId = dbCampaign.DistributionListId!.Value,
                 ContactId = contact.Id!.Value
             });
         }
+
         var dbMessage = new DbMessage {
             CampaignId = id,
             Id = Guid.NewGuid(),
             RecipientId = recipientId,
             Content = GetMessageContent(dbCampaign, contact),
-            ContactId = contact!.Id,
+            ContactId = contact?.Id,
         };
         return dbMessage;
     }
