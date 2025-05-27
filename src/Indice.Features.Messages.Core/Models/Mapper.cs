@@ -214,6 +214,7 @@ internal static class Mapper
         contact.Salutation = request.Salutation;
         contact.Locale = request.Locale;
         contact.UpdatedAt = DateTimeOffset.UtcNow;
+        contact.ConsentCommercial = request.ConsentCommercial;
     }
 
     public static DbAttachment ToDbAttachment(FileAttachment fileAttachment) => new() {

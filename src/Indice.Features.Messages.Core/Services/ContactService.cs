@@ -61,11 +61,12 @@ public class ContactService : IContactService
     }
 
     /// <inheritdoc />
-    public async Task BulkAddToDistributionList(Guid id, IEnumerable<CreateDistributionListContactRequest> requests) {
+    public async Task<ContactsImportResult> BulkAddToDistributionList(Guid id, IEnumerable<CreateDistributionListContactRequest> requests) {
         var list = await DbContext.DistributionLists.FindAsync(id);
         if (list is null) {
             throw MessageExceptions.DistributionListNotFound(id);
         }
+        var result = new ContactsImportResult();
 
         var existingContactsInDistributionList = await DbContext.ContactDistributionLists
             .Where(x => x.DistributionListId == id && !string.IsNullOrWhiteSpace(x.Contact.Email))
@@ -73,35 +74,42 @@ public class ContactService : IContactService
             .ToListAsync();
 
         foreach (var request in requests) {
-            DbContact? contact;
+            try {
+                DbContact? contact;
 
-            if (!string.IsNullOrWhiteSpace(request.RecipientId)) {
-                contact = await DbContext.Contacts.FirstOrDefaultAsync(x => x.RecipientId == request.RecipientId);
+                if (!string.IsNullOrWhiteSpace(request.RecipientId)) {
+                    contact = await DbContext.Contacts.FirstOrDefaultAsync(x => x.RecipientId == request.RecipientId);
 
-                if (contact is not null) {
-                    await AddContactToDistributionListIfNotExists(contact, list, request);
-                    continue;
-                }
-
-                CreateAndAddContactToDistributionList(request, list);
-            } else {
-                var existingContact = existingContactsInDistributionList
-                    .FirstOrDefault(a => a.Email!.Equals(request.Email, StringComparison.OrdinalIgnoreCase));
-
-                if (existingContact is not null) {
-                    if (string.IsNullOrWhiteSpace(existingContact.RecipientId)) {
-                        existingContact.MapFromCreateDistributionListContactRequest(request);
+                    if (contact is not null) {
+                        await AddContactToDistributionListIfNotExists(contact, list, request);
+                        result.ContactsUpdated++;
+                        continue;
                     }
-                    continue;
-                }
 
-                CreateAndAddContactToDistributionList(request, list);
+                    CreateAndAddContactToDistributionList(request, list);
+                    result.ContactsAdded++;
+                } else {
+                    var existingContact = existingContactsInDistributionList
+                        .FirstOrDefault(a => a.Email!.Equals(request.Email, StringComparison.OrdinalIgnoreCase));
+
+                    if (existingContact is not null) {
+                        if (string.IsNullOrWhiteSpace(existingContact.RecipientId)) {
+                            existingContact.MapFromCreateDistributionListContactRequest(request);
+                            result.ContactsUpdated++;
+                        }
+                        continue;
+                    }
+
+                    CreateAndAddContactToDistributionList(request, list);
+                    result.ContactsAdded++;
+                }
+            } catch (Exception) {
+                result.Errors.Add($"Error processing contact with Email '{request.Email}'.");
             }
         }
 
-        if (DbContext.ChangeTracker.HasChanges()) {
-            await DbContext.SaveChangesAsync();
-        }
+        await DbContext.SaveChangesAsync();
+        return result;
     }
 
     /// <inheritdoc />

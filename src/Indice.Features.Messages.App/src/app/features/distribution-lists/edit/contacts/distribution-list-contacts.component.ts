@@ -6,7 +6,7 @@ import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Contact, ContactResultSet, DistributionList, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
-import { FileResponse } from '../../../../core/services/messages-api.service';
+import { FileResponse } from 'src/app/core/services/messages-api.service';
 
 @Component({
     selector: 'app-distribution-list-contacts',

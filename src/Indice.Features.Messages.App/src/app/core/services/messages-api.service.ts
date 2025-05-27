@@ -158,15 +158,15 @@ export interface IMessagesApiClient {
     removeContactFromDistributionList(distributionListId: string, contactId: string): Observable<void>;
     /**
      * Bulk exports contacts from a specified distribution list in CSV file.
-     * @return CSV File
+     * @return OK
      */
     bulkExportContactsFromDistributionList(distributionListId: string): Observable<FileResponse>;
     /**
      * Bulk imports contacts in a specified distribution list.
      * @param file (optional) 
-     * @return No Content
+     * @return OK
      */
-    bulkImportContactsToDistributionList(distributionListId: string, file?: FileParameter | undefined): Observable<void>;
+    bulkImportContactsToDistributionList(distributionListId: string, file?: FileParameter | undefined): Observable<ContactsImportResult>;
     /**
      * Gets the list of available message senders.
      * @param page (optional) 
@@ -2314,7 +2314,7 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     /**
      * Bulk exports contacts from a specified distribution list in CSV file.
-     * @return CSV File
+     * @return OK
      */
     bulkExportContactsFromDistributionList(distributionListId: string): Observable<FileResponse> {
         let url_ = this.baseUrl + "/distribution-lists/{distributionListId}/export";
@@ -2327,7 +2327,7 @@ export class MessagesApiClient implements IMessagesApiClient {
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Accept": "text/csv"
+                "Accept": "application/octet-stream"
             })
         };
 
@@ -2406,9 +2406,9 @@ export class MessagesApiClient implements IMessagesApiClient {
     /**
      * Bulk imports contacts in a specified distribution list.
      * @param file (optional) 
-     * @return No Content
+     * @return OK
      */
-    bulkImportContactsToDistributionList(distributionListId: string, file?: FileParameter | undefined): Observable<void> {
+    bulkImportContactsToDistributionList(distributionListId: string, file?: FileParameter | undefined): Observable<ContactsImportResult> {
         let url_ = this.baseUrl + "/distribution-lists/{distributionListId}/import";
         if (distributionListId === undefined || distributionListId === null)
             throw new Error("The parameter 'distributionListId' must be defined.");
@@ -2426,6 +2426,7 @@ export class MessagesApiClient implements IMessagesApiClient {
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "Accept": "application/json"
             })
         };
 
@@ -2436,14 +2437,14 @@ export class MessagesApiClient implements IMessagesApiClient {
                 try {
                     return this.processBulkImportContactsToDistributionList(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
+                    return _observableThrow(e) as any as Observable<ContactsImportResult>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<void>;
+                return _observableThrow(response_) as any as Observable<ContactsImportResult>;
         }));
     }
 
-    protected processBulkImportContactsToDistributionList(response: HttpResponseBase): Observable<void> {
+    protected processBulkImportContactsToDistributionList(response: HttpResponseBase): Observable<ContactsImportResult> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -2478,9 +2479,12 @@ export class MessagesApiClient implements IMessagesApiClient {
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Internal Server Error", status, _responseText, _headers, result500);
             }));
-        } else if (status === 204) {
+        } else if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ContactsImportResult.fromJS(resultData200);
+            return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -4522,6 +4526,58 @@ export interface IContactResultSet {
     items?: Contact[] | undefined;
 }
 
+export class ContactsImportResult implements IContactsImportResult {
+    contactsAdded?: number;
+    contactsUpdated?: number;
+    errors?: string[] | undefined;
+
+    constructor(data?: IContactsImportResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.contactsAdded = _data["contactsAdded"];
+            this.contactsUpdated = _data["contactsUpdated"];
+            if (Array.isArray(_data["errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["errors"])
+                    this.errors!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): ContactsImportResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContactsImportResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["contactsAdded"] = this.contactsAdded;
+        data["contactsUpdated"] = this.contactsUpdated;
+        if (Array.isArray(this.errors)) {
+            data["errors"] = [];
+            for (let item of this.errors)
+                data["errors"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IContactsImportResult {
+    contactsAdded?: number;
+    contactsUpdated?: number;
+    errors?: string[] | undefined;
+}
+
 export class CreateCampaignRequest implements ICreateCampaignRequest {
     isGlobal?: boolean;
     title?: string;
@@ -5061,6 +5117,7 @@ export class DistributionList implements IDistributionList {
     createdAt?: Date;
     updatedBy?: string | undefined;
     updatedAt?: Date | undefined;
+    contactsAttachment?: AttachmentLink;
 
     constructor(data?: IDistributionList) {
         if (data) {
@@ -5079,6 +5136,7 @@ export class DistributionList implements IDistributionList {
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
             this.updatedBy = _data["updatedBy"];
             this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
+            this.contactsAttachment = _data["contactsAttachment"] ? AttachmentLink.fromJS(_data["contactsAttachment"]) : <any>undefined;
         }
     }
 
@@ -5097,6 +5155,7 @@ export class DistributionList implements IDistributionList {
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
         data["updatedBy"] = this.updatedBy;
         data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
+        data["contactsAttachment"] = this.contactsAttachment ? this.contactsAttachment.toJSON() : <any>undefined;
         return data;
     }
 }
@@ -5108,6 +5167,7 @@ export interface IDistributionList {
     createdAt?: Date;
     updatedBy?: string | undefined;
     updatedAt?: Date | undefined;
+    contactsAttachment?: AttachmentLink;
 }
 
 export class DistributionListResultSet implements IDistributionListResultSet {

@@ -55,10 +55,10 @@ internal static class DistributionListsHandlers
         return TypedResults.NoContent();
     }
 
-    public static async Task<NoContent> BulkImportContactsToDistributionList(IContactService contactService, Guid distributionListId, BulkCreateDistributionListContactsRequest request) {
-        var contactRequests = await ContactsCsvUtility.Import(request.File.OpenReadStream());
-        await contactService.BulkAddToDistributionList(distributionListId, contactRequests);
-        return TypedResults.NoContent();
+    public static async Task<Ok<ContactsImportResult>> BulkImportContactsToDistributionList(IContactService contactService, Guid distributionListId, BulkCreateDistributionListContactsRequest request) {
+        var contactRequests = await ContactsCsvUtility.Import(request.File!.OpenReadStream());
+        var response = await contactService.BulkAddToDistributionList(distributionListId, contactRequests);
+        return TypedResults.Ok(response);
     }
 
     public static async Task<Results<FileContentHttpResult, NotFound>> BulkExportContactsFromDistributionList(IContactService contactService, Guid distributionListId) {

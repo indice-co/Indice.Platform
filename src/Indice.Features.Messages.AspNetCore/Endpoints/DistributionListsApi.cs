@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
 
 namespace Microsoft.AspNetCore.Routing;
 
@@ -89,24 +88,7 @@ internal static class DistributionListsApi
             .WithName(nameof(DistributionListsHandlers.BulkExportContactsFromDistributionList))
             .WithSummary("Bulk exports contacts from a specified distribution list in CSV file.")
             .WithDescription(DistributionListsHandlers.BULK_EXPORT_CONTACTS_FROM_DISTRIBUTION_LIST)
-            .WithOpenApi(x =>
-            {
-                x.Responses["200"] = new OpenApiResponse {
-                    Description = "CSV File",
-                    Content =
-                    {
-                        [MediaTypeNames.Text.Csv] = new OpenApiMediaType
-                        {
-                            Schema = new OpenApiSchema
-                            {
-                                Type = "string",
-                                Format = "binary"
-                            }
-                        }
-                    }
-                };
-                return x;
-            });
+            .Produces<IFormFile>(StatusCodes.Status200OK, MediaTypeNames.Application.Octet);
 
         group.MapPost("{distributionListId}/import", DistributionListsHandlers.BulkImportContactsToDistributionList)
             .WithName(nameof(DistributionListsHandlers.BulkImportContactsToDistributionList))
