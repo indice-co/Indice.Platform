@@ -40,6 +40,9 @@ public class EmailServiceBrevo : IEmailService
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
+        var bccRecipients = string.IsNullOrEmpty(Settings.BccRecipients)
+            ? null
+            : (Settings.BccRecipients ?? "").Split(';', ',', StringSplitOptions.RemoveEmptyEntries).Select(x => new BrevoEmailAddress { Email = x }).ToArray();
         var request = new BrevoRequest {
             Sender = new BrevoEmailAddress {
                 Email = from?.Address ?? Settings.Sender,
@@ -49,20 +52,29 @@ public class EmailServiceBrevo : IEmailService
             To = recipients.Select(recipient => new BrevoEmailAddress {
                 Email = recipient
             }).ToArray(),
+            Bcc = bccRecipients,
+            Attachment = attachments is { Length: > 0 }
+                ? attachments.Select(x => new BrevoAttachment {
+                    Name = x.FileName,
+                    Content = Convert.ToBase64String(x.Data)
+                }).ToArray()
+                : null,
             HtmlContent = body
         };
 
         var requestJson = JsonSerializer.Serialize(request, serializerOptions);
-
-        var response = await HttpClient.PostAsync("smtp/email", new StringContent(requestJson, Encoding.UTF8, MediaTypeNames.Application.Json));
-        var contentJson = await response.Content.ReadAsStringAsync();
-        if (!response.IsSuccessStatusCode) {
-            throw new BrevoException($"Brevo service could not send email to recipients '{string.Join(", ", recipients)}'. Error is: '{contentJson}'.");
-        }
         var messageId = Guid.NewGuid().ToString();
-        if (!string.IsNullOrWhiteSpace(contentJson)) {
-            var content = JsonSerializer.Deserialize<BrevoResponse>(contentJson, serializerOptions);
-            messageId = content?.MessageId ?? messageId;
+        using (var content = new StringContent(requestJson, Encoding.UTF8, MediaTypeNames.Application.Json)) {
+            var response = await HttpClient.PostAsync("smtp/email", content);
+            var responseContentJson = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode) {
+                throw new EmailServiceBrevoException($"Brevo service could not send email to recipients '{string.Join(", ", recipients)}'. Error is: '{responseContentJson}'.");
+            }
+            
+            if (!string.IsNullOrWhiteSpace(responseContentJson)) {
+                var responseContent = JsonSerializer.Deserialize<BrevoResponse>(responseContentJson, serializerOptions);
+                messageId = responseContent?.MessageId ?? messageId;
+            }
         }
 
         return new SendReceipt(messageId, DateTimeOffset.UtcNow);
@@ -78,6 +90,8 @@ public class EmailServiceBrevoSettings
     public string? Sender { get; set; }
     /// <summary>The default sender name (ex. INDICE OE)</summary>
     public string? SenderName { get; set; }
+    /// <summary>Optional email addresses that are always added as blind carbon copy recipients.</summary>
+    public string? BccRecipients { get; set; }
     /// <summary>The Brevo API key.</summary>
     public string? ApiKey { get; set; }
     /// <summary>The Brevo API URL (ex. https://api.brevo.com/v3/).</summary>
@@ -85,14 +99,14 @@ public class EmailServiceBrevoSettings
 }
 
 /// <summary>Exception for Brevo email service failure.</summary>
-public class BrevoException : Exception
+public class EmailServiceBrevoException : Exception
 {
     /// <inheritdoc />
-    public BrevoException() {
+    public EmailServiceBrevoException() {
 
     }
     /// <inheritdoc />
-    public BrevoException(string message) : base(message) {
+    public EmailServiceBrevoException(string message) : base(message) {
 
     }
 }
@@ -103,6 +117,8 @@ internal class BrevoRequest
 {
     public BrevoEmailAddress? Sender { get; set; }
     public BrevoEmailAddress[]? To { get; set; }
+    public BrevoEmailAddress[]? Bcc { get; set; }
+    public BrevoAttachment[]? Attachment { get; set; }
     public string? Subject { get; set; }
     public string? HtmlContent { get; set; }
 }
@@ -116,6 +132,12 @@ internal class BrevoResponse
 internal class BrevoEmailAddress
 {
     public string? Email { get; set; }
+    public string? Name { get; set; }
+}
+
+internal class BrevoAttachment
+{
+    public string? Content { get; set; }
     public string? Name { get; set; }
 }
 #endregion
