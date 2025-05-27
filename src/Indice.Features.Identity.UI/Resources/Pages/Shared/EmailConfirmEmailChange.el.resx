@@ -117,55 +117,25 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="An unexpected error occurred while sending the OTP code." xml:space="preserve">
-    <value>Προέκυψε απρόσμενο σφάλμα κατά την αποστολή του κωδικού OTP.</value>
+  <data name="Account confirmation" xml:space="preserve">
+    <value>Επιβεβαίωση λογαριασμού</value>
   </data>
-  <data name="Authenticate" xml:space="preserve">
-    <value>Επαλήθευση</value>
+  <data name="here" xml:space="preserve">
+    <value>εδώ</value>
   </data>
-  <data name="Authenticate yourself using:" xml:space="preserve">
-    <value>Αυθεντικοποιήστε τον εαυτό σας μέσω:</value>
+  <data name="Hi" xml:space="preserve">
+    <value>Γεια σας</value>
   </data>
-  <data name="Back" xml:space="preserve">
-    <value>Πίσω</value>
+  <data name="Sincerely" xml:space="preserve">
+    <value>Με εκτίμηση</value>
   </data>
-  <data name="Because you've turned on two-step verification, you need to approve request on your mobile app." xml:space="preserve">
-    <value>Επειδή έχετε ενεργοποιήσει την επαλήθευση σε δύο βήματα, πρέπει να εγκρίνετε το αίτημα στην εφαρμογή σας για κινητά.</value>
+  <data name="Thanks" xml:space="preserve">
+    <value>Ευχαριστούμε</value>
   </data>
-  <data name="I can't use my app right now" xml:space="preserve">
-    <value>Δεν μπορώ να χρησιμοποιήσω τη συσκευή μου αυτή τη στιγμή</value>
+  <data name="to get verified" xml:space="preserve">
+    <value>για να το επιβεβαιώσετε</value>
   </data>
-  <data name="I didn't receive the notification/Resend." xml:space="preserve">
-    <value>Δεν έλαβα την ειδοποίηση/Επαναποστολή.</value>
-  </data>
-  <data name="I sign in frequently here. Remember this browser." xml:space="preserve">
-    <value>Συνδέομαι συχνά από εδώ. Να θυμάσαι αυτό το browser.</value>
-  </data>
-  <data name="Login" xml:space="preserve">
-    <value>Είσοδος</value>
-  </data>
-  <data name="Multifactor Authentication" xml:space="preserve">
-    <value>Επιπρόσθετος έλεγχος ταυτότητας</value>
-  </data>
-  <data name="Other authentication methods..." xml:space="preserve">
-    <value>Άλλοι τρόποι αυθεντικοποίησης...</value>
-  </data>
-  <data name="OTP Code" xml:space="preserve">
-    <value>Κωδικός OTP</value>
-  </data>
-  <data name="Request denied" xml:space="preserve">
-    <value>Το αίτημα απορρίφθηκε</value>
-  </data>
-  <data name="Resend" xml:space="preserve">
-    <value>Επαναποστολή</value>
-  </data>
-  <data name="Send another request to my app" xml:space="preserve">
-    <value>Στείλτε ένα άλλο αίτημα στην εφαρμογή</value>
-  </data>
-  <data name="We sent an identity verification request to your mobile device, but you denied it." xml:space="preserve">
-    <value>Στείλαμε ένα αίτημα επιβεβαίωσης στη συσκευή σας, αλλά το απορρίψατε.</value>
-  </data>
-  <data name="We texted your phone {0}. Please enter the code to sign in." xml:space="preserve">
-    <value>Ένα μήνυμα έχει σταλεί στον αριθμό {0}. Παρακαλώ εισάγετε τον κωδικό για να συνδεθείτε.</value>
+  <data name="We need you to verify your email. Please click" xml:space="preserve">
+    <value>Πρέπει να επιβεβαιώσουμε το λογαριασμό email σας. Παρακαλώ πατήστε</value>
   </data>
 </root>

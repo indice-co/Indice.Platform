@@ -145,7 +145,7 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
         message = _localizer[message, token];
         var cacheKey = $"{nameof(TotpServiceUser<TUser>)}:{user.Id}:{channel}:{purpose}";
         if (await CacheKeyExistsAsync(cacheKey)) {
-            return TotpResult.ErrorResult(_localizer["Last token has not expired yet. Please wait a few seconds and try again."]);
+            return TotpResult.RateLimitedResult(_localizer["Last token has not expired yet. Please wait a few seconds and try again."], await GetCacheKeyExpirationAsync(cacheKey));
         }
         if (channel == TotpDeliveryChannel.PushNotification) {
             var trustedDevices = await UserManager.GetDevicesAsync(user, UserDeviceListFilter.TrustedNativeDevices());

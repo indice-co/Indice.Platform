@@ -117,55 +117,46 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="An unexpected error occurred while sending the OTP code." xml:space="preserve">
-    <value>Προέκυψε απρόσμενο σφάλμα κατά την αποστολή του κωδικού OTP.</value>
+  <data name="Click" xml:space="preserve">
+    <value>Πατήστε</value>
   </data>
-  <data name="Authenticate" xml:space="preserve">
-    <value>Επαλήθευση</value>
+  <data name="Email Change Confirmation" xml:space="preserve">
+    <value>Επιβεβαίωση Αλλαγής Email</value>
   </data>
-  <data name="Authenticate yourself using:" xml:space="preserve">
-    <value>Αυθεντικοποιήστε τον εαυτό σας μέσω:</value>
+  <data name="Email verification link has expired." xml:space="preserve">
+    <value>Ο σύνδεσμος επιβεβαίωσης έχει λήξει</value>
   </data>
-  <data name="Back" xml:space="preserve">
-    <value>Πίσω</value>
+  <data name="here" xml:space="preserve">
+    <value>εδώ</value>
   </data>
-  <data name="Because you've turned on two-step verification, you need to approve request on your mobile app." xml:space="preserve">
-    <value>Επειδή έχετε ενεργοποιήσει την επαλήθευση σε δύο βήματα, πρέπει να εγκρίνετε το αίτημα στην εφαρμογή σας για κινητά.</value>
+  <data name="If you feel you got this error by mistake, simply click" xml:space="preserve">
+    <value>Εαν φτάσατε σε αυτή τη σελίδα κατά λάθος, απλά πατήστε</value>
   </data>
-  <data name="I can't use my app right now" xml:space="preserve">
-    <value>Δεν μπορώ να χρησιμοποιήσω τη συσκευή μου αυτή τη στιγμή</value>
+  <data name="No action was taken." xml:space="preserve">
+    <value>Καμία ενέργεια δεν πραγματοποιήθηκε.</value>
   </data>
-  <data name="I didn't receive the notification/Resend." xml:space="preserve">
-    <value>Δεν έλαβα την ειδοποίηση/Επαναποστολή.</value>
+  <data name="Please log in and resend the link" xml:space="preserve">
+    <value>Παρακαλώ συνδεθείτε για να ξαναστείλετε νέο σύνδεσμο.</value>
   </data>
-  <data name="I sign in frequently here. Remember this browser." xml:space="preserve">
-    <value>Συνδέομαι συχνά από εδώ. Να θυμάσαι αυτό το browser.</value>
+  <data name="This may take a moment. Click on the link below to verify your email address." xml:space="preserve">
+    <value>Ισως μας πάρει λίγο χρόνο. Πατήστε το σύνδεσμο παρακάτω για να επιβεβαιώσετε τη διεύθυνση ηλεκτρονικού ταχυδρομίου</value>
   </data>
-  <data name="Login" xml:space="preserve">
-    <value>Είσοδος</value>
+  <data name="to sign in or go back." xml:space="preserve">
+    <value>για να συνδεθείτε ή να πάτε πίσω.</value>
   </data>
-  <data name="Multifactor Authentication" xml:space="preserve">
-    <value>Επιπρόσθετος έλεγχος ταυτότητας</value>
+  <data name="Verify" xml:space="preserve">
+    <value>Επιβεβαίωση</value>
   </data>
-  <data name="Other authentication methods..." xml:space="preserve">
-    <value>Άλλοι τρόποι αυθεντικοποίησης...</value>
+  <data name="Verifying your email." xml:space="preserve">
+    <value>Επιβεβαιώνουμε το email σας.</value>
   </data>
-  <data name="OTP Code" xml:space="preserve">
-    <value>Κωδικός OTP</value>
+  <data name="You can now close this browse window." xml:space="preserve">
+    <value>Μπορείτε τώρα να κλείσετε αυτό το παράθυρο περιήγησης.</value>
   </data>
-  <data name="Request denied" xml:space="preserve">
-    <value>Το αίτημα απορρίφθηκε</value>
+  <data name="Your email has been successfully changed." xml:space="preserve">
+    <value>Το email σας έχει αλλάξει με επιτυχία.</value>
   </data>
-  <data name="Resend" xml:space="preserve">
-    <value>Επαναποστολή</value>
-  </data>
-  <data name="Send another request to my app" xml:space="preserve">
-    <value>Στείλτε ένα άλλο αίτημα στην εφαρμογή</value>
-  </data>
-  <data name="We sent an identity verification request to your mobile device, but you denied it." xml:space="preserve">
-    <value>Στείλαμε ένα αίτημα επιβεβαίωσης στη συσκευή σας, αλλά το απορρίψατε.</value>
-  </data>
-  <data name="We texted your phone {0}. Please enter the code to sign in." xml:space="preserve">
-    <value>Ένα μήνυμα έχει σταλεί στον αριθμό {0}. Παρακαλώ εισάγετε τον κωδικό για να συνδεθείτε.</value>
+  <data name="Your email is already verified. Thank you" xml:space="preserve">
+    <value>Το email σας είναι ήδη επιβεβαιωμένο</value>
   </data>
 </root>

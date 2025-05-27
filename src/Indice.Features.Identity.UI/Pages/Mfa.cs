@@ -77,9 +77,8 @@ public abstract class BaseMfaModel : BasePageModel
 
     /// <summary>MFA page GET handler.</summary>
     /// <param name="returnUrl">The return URL.</param>
-    /// <param name="downgradeChannel">Allows the user to select a channel with lower security.</param>
-    public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl, [FromQuery(Name = "dc")] bool? downgradeChannel) {
-        Input = View = await BuildMfaLoginViewModelAsync(returnUrl, downgradeChannel);
+    public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
+        Input = View = await BuildMfaLoginViewModelAsync(returnUrl);
         if (View.HasError) {
             ModelState.AddModelError(string.Empty, _localizer[View.Error!]);
             return Page();
@@ -114,26 +113,25 @@ public abstract class BaseMfaModel : BasePageModel
                 throw new Exception("Invalid return URL.");
             }
         }
-        if (signInResult.RequiresValidation()) { 
+        if (signInResult.RequiresValidation()) {
             return RedirectToPage("/AddEmail", new { returnUrl });
-            
+
         }
         ModelState.AddModelError(string.Empty, _localizer["The OTP code is not valid."]);
         return Page();
     }
 
     private async Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(MfaLoginInputModel model) {
-        var viewModel = await BuildMfaLoginViewModelAsync(model.ReturnUrl);
+        var viewModel = await BuildMfaLoginViewModelAsync(model.ReturnUrl, model.SelectedDeliveryChannel);
         viewModel.OtpCode = null;
         viewModel.RememberClient = model.RememberClient;
         viewModel.RememberMe = model.RememberMe;
         return viewModel;
     }
 
-    private async Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(string? returnUrl, bool? tryDowngradeAuthenticationMethod = false) {
+    private async Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(string? returnUrl, TotpDeliveryChannel? selectedTotpChannel = null) {
         var user = await SignInManager.GetTwoFactorAuthenticationUserAsync() ?? throw new InvalidOperationException("User cannot be null");
-        var authenticationMethod = await AuthenticationMethodProvider.GetRequiredAuthenticationMethod(user, tryDowngradeAuthenticationMethod);
-        var allowDowngradeAuthenticationMethod = Configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "AllowDowngradeAuthenticationMethod") ?? false;
+        var authenticationMethod = await AuthenticationMethodProvider.FindMethodForUserOrDefaultAsync(user, selectedTotpChannel);
         var deviceIdentifier = await SignInManager.GetMfaDeviceIdentifierAsync(user);
         UserDevice? browserDevice = null;
         if (!string.IsNullOrWhiteSpace(deviceIdentifier.Value)) {
@@ -145,7 +143,8 @@ public abstract class BaseMfaModel : BasePageModel
         var hasError = authenticationMethod == null;
         return new MfaLoginViewModel {
             AuthenticationMethod = authenticationMethod,
-            AllowDowngradeAuthenticationMethod = allowDowngradeAuthenticationMethod,
+            AvailableAuthenticationMethods = await AuthenticationMethodProvider.GetAllMethodsForUserAsync(user),
+            AllowDowngradeAuthenticationMethod = AuthenticationMethodProvider.AllowMfaChannelDowngrade,
             ReturnUrl = returnUrl,
             User = user,
             IsExistingBrowser = browserDevice?.MfaSessionActive() ?? false,
@@ -156,12 +155,15 @@ public abstract class BaseMfaModel : BasePageModel
     }
 
     private async Task<TotpResult> SendOtpAsync() {
+        if (View.AuthenticationMethod is null) {
+            return TotpResult.ErrorResult("MFA is enabled but there is no active two factor authentication method configured. Please contact your administrator.");
+        }
         var totpService = TotpServiceFactory.Create<User>();
-        if (View.AuthenticationMethodDeliveryChannel == TotpDeliveryChannel.Sms || View.AuthenticationMethodDeliveryChannel == TotpDeliveryChannel.PushNotification) {
+        if (View.AuthenticationMethod.SupportsDeliveryChannel()) {
             return await totpService.SendAsync(message =>
                 message.ToUser(View.User)
                        .WithMessage(_localizer["Your OTP code for login is: {0}"])
-                       .UsingDeliveryChannel(View.AuthenticationMethodDeliveryChannel.Value)
+                       .UsingDeliveryChannel(View.AuthenticationMethodDeliveryChannel!.Value)
                        .UsingTokenProvider(View.AuthenticationMethod?.GetTokenProvider()!)
                        .WithSubject(_localizer["OTP login"])
                        .WithPurpose("TwoFactor")
