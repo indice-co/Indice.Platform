@@ -32,6 +32,21 @@
                         </p>
                         <p class="field-info col-span-3">Η ονομασία με την οποία θα εμφανίζεται η λίστα διανομής.</p>
                     </div>
+                    <!-- CSV file upload option -->
+                     <div class="col-span-4">
+                        <label for="distributionListAttachment"
+                            class="field-label">
+                            Μαζική εισαγωγή επαφών στην λίστα διανομής (αρχείο CSV)
+                        </label>
+                        <div class="mt-5">
+                            <app-file-upload 
+                                #fileUploadComponent 
+                                [extendedView]="true" 
+                                [maxSize]="6*1024*1024" 
+                                (fileChange)="onFileChange($event)">
+                            </app-file-upload>
+                        </div>
+                     </div>
                 </div>
             </div>
             <button type="submit"

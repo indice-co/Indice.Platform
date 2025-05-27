@@ -105,16 +105,17 @@ public abstract class BasePageModel : PageModel
             // so remove the thing.
             returnUrl = null;
         }
-        var callbackUrl = Url.PageLink("/ChangeEmail", values: new { userId = user.Id, token, email = newEmail, returnUrl, client_id = HttpContext.GetClientIdFromReturnUrl() });
+        var callbackUrl = Url.PageLink("/ConfirmEmailChange", values: new { userId = user.Id, token, email = newEmail, returnUrl, client_id = HttpContext.GetClientIdFromReturnUrl() });
         var claims = await userManager.GetClaimsAsync(user);
         var emailService = ServiceProvider.GetRequiredService<IEmailService>();
         var identityMessageDescriber = ServiceProvider.GetRequiredService<IdentityMessageDescriber>();
         await emailService.SendAsync(message =>
             message.To(user.Email!)
-                   .WithSubject(identityMessageDescriber.ConfirmationEmailSubject)
-                   .UsingTemplate("EmailConfirmYourEmail")
+                   .WithSubject(identityMessageDescriber.ConfirmationEmailChangeSubject)
+                   .UsingTemplate("EmailConfirmEmailChange")
                    .WithData(new {
                        UserName = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value ?? user.UserName,
+                       NewEmail = newEmail,
                        Url = callbackUrl
                    })
         );

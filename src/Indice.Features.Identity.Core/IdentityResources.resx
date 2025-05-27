@@ -246,4 +246,19 @@
   <data name="PhoneVerificationSmsBody" xml:space="preserve">
     <value>OTP CODE: {0} FOR PHONE NUMBER VERIFICATION. IT WILL BE VALID FOR 2 MINUTES.</value>
   </data>
+  <data name="ConfirmationEmailChangeSubject" xml:space="preserve">
+    <value>Change email confirmation</value>
+  </data>
+  <data name="EmailChangeMessageBody" xml:space="preserve">
+    <value>Email verification code is {0}.</value>
+  </data>
+  <data name="PhoneChangeVerificationSmsSubject" xml:space="preserve">
+    <value>Change phone number</value>
+  </data>
+  <data name="PhoneChangeVerificationSmsBody" xml:space="preserve">
+    <value>OTP CODE: {0} FOR PHONE NUMBER VERIFICATION. IT WILL BE VALID FOR 2 MINUTES.</value>
+  </data>
+  <data name="PhoneNumberChangeVerificationMessage" xml:space="preserve">
+    <value>SMS verification code is {0}.</value>
+  </data>
 </root>

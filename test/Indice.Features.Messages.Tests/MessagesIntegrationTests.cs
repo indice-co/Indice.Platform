@@ -1,11 +1,14 @@
-﻿using System.Text;
+﻿using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 using Indice.AspNetCore.Authorization;
 using Indice.Extensions;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
+using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
+using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Features.Messages.Tests.Mocks;
 using Indice.Features.Messages.Tests.Security;
 using Indice.Serialization;
@@ -358,6 +361,132 @@ public class MessagesIntegrationTests : IAsyncLifetime
 
         Assert.False(createCampaignResponse.IsSuccessStatusCode);
         Assert.Equal(System.Net.HttpStatusCode.BadRequest, createCampaignResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task BulkAddToDistributionList_ExistingContactByRecipientId_AddsIfNotExists() {
+        //Create distribution list
+        var createDistributionListRequest = new CreateDistributionListRequest {
+            Name = "Test-Distribution-List"
+        };
+        var createDistributionListPayload = JsonSerializer.Serialize(createDistributionListRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var createDistributionListResponse = await _httpClient.PostAsync("/api/distribution-lists", new StringContent(createDistributionListPayload, Encoding.UTF8, "application/json"));
+        var createDistributionListResponseJson = await createDistributionListResponse.Content.ReadAsStringAsync();
+        if (!createDistributionListResponse.IsSuccessStatusCode) {
+            _output.WriteLine(createDistributionListResponseJson);
+        }
+
+        var distributionListLocation = createDistributionListResponse.Headers.Location;
+        var distributionListId = Guid.Parse(distributionListLocation!.Segments.Last());
+
+        // Generate import request
+        var csvLines = new[]
+        {
+            "RecipientId,Salutation,FirstName,LastName,FullName,Email,PhoneNumber,Locale",
+            "ABC123,Mr,John,Doe,John Doe,test@example.com,1234567890,en-US"
+        };
+        var csvContent = string.Join("\n", csvLines);
+        var csvBytes = Encoding.UTF8.GetBytes(csvContent);
+        var byteArrayContent = new ByteArrayContent(csvBytes);
+        byteArrayContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
+
+        var form = new MultipartFormDataContent {
+            { byteArrayContent, "File", "contacts.csv" }
+        };
+
+        var response = await _httpClient.PostAsync($"{createDistributionListResponse.Headers.Location.PathAndQuery}/import", form);
+
+        var context = _serviceProvider.GetRequiredService<CampaignsDbContext>();
+        var contactInDb = await context.Contacts.FirstOrDefaultAsync(c => c.RecipientId == "ABC123");
+        Assert.NotNull(contactInDb);
+        Assert.Equal("test@example.com", contactInDb!.Email);
+
+        var link = await context.ContactDistributionLists
+            .FirstOrDefaultAsync(x => x.DistributionListId == distributionListId && x.ContactId == contactInDb.Id);
+
+        Assert.NotNull(link);
+    }
+
+    [Fact]
+    public async Task BulkAddToDistributionList_ExistingContactByEmailWithoutRecipientId_UpdatesContact() {
+        var context = _serviceProvider.GetRequiredService<CampaignsDbContext>();
+        var list = new DbDistributionList { Id = Guid.NewGuid(), Name = "test-list", CreatedBy = "user1" };
+        var contact = new DbContact {
+            Email = "match@example.com",
+            FirstName = "Old",
+            LastName = "Name",
+            RecipientId = null
+        };
+        context.DistributionLists.Add(list);
+        context.Contacts.Add(contact);
+        await context.SaveChangesAsync();
+
+        var link = new DbDistributionListContact {
+            ContactId = contact.Id,
+            DistributionListId = list.Id
+        };
+        context.ContactDistributionLists.Add(link);
+        await context.SaveChangesAsync();
+
+        var requests = new List<CreateDistributionListContactRequest>
+        {
+            new()
+            {
+                RecipientId = null,
+                Email = "match@example.com",
+                FirstName = "Updated",
+                LastName = "Name",
+                PhoneNumber = "1234567890"
+            }
+        };
+
+        var service = _serviceProvider.GetRequiredService<IContactService>();
+        await service.BulkAddToDistributionList(list.Id, requests);
+
+        var updated = await context.Contacts.FirstOrDefaultAsync(c => c.Email == "match@example.com");
+        Assert.NotNull(updated);
+        Assert.Equal("Updated", updated!.FirstName);
+        Assert.Equal("1234567890", updated.PhoneNumber);
+    }
+
+    [Fact]
+    public async Task BulkAddToDistributionList_ExistingContactByRecipientId_AlreadyLinked_SkipsAdd() {
+        var context = _serviceProvider.GetRequiredService<CampaignsDbContext>();
+        var list = new DbDistributionList { Id = Guid.NewGuid(), Name = "test-list2", CreatedBy = "user1" };
+        var contact = new DbContact {
+            RecipientId = "EXIST123",
+            Email = "exist@example.com",
+            FirstName = "Already",
+            LastName = "There"
+        };
+        context.DistributionLists.Add(list);
+        context.Contacts.Add(contact);
+        await context.SaveChangesAsync();
+
+        var link = new DbDistributionListContact {
+            ContactId = contact.Id,
+            DistributionListId = list.Id
+        };
+        context.ContactDistributionLists.Add(link);
+        await context.SaveChangesAsync();
+
+        var requests = new List<CreateDistributionListContactRequest>
+        {
+            new()
+            {
+                RecipientId = "EXIST123",
+                Email = "exist@example.com",
+                FirstName = "Should",
+                LastName = "BeIgnored"
+            }
+        };
+
+        var service = _serviceProvider.GetRequiredService<IContactService>();
+        await service.BulkAddToDistributionList(list.Id, requests);
+
+        var duplicates = await context.ContactDistributionLists
+            .CountAsync(x => x.ContactId == contact.Id && x.DistributionListId == list.Id);
+        Assert.Equal(1, duplicates);
     }
 
     [Fact]
