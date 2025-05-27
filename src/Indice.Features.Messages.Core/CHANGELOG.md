@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [8.0.0-rc32] - 2024-12-03
+## [8.0.0-rc32] - 2025-05-25
 - Added support for logging message events.
 ```sql		
 CREATE TABLE [#Schema#].[MessageEvent](
