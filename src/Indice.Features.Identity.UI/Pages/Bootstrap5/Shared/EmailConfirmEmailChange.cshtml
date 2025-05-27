@@ -11,7 +11,7 @@
     var settings = GeneralSettings.Value;
     var subject = ViewData["Subject"];
     var userName = Model?.UserName ?? UserManager.GetUserName(User);
-    var newEmail = (string?)Model?.NewEmail;
+    //var newEmail = (string?)Model?.NewEmail;
     var confirmationLink = Model?.Url ?? throw new InvalidOperationException("Confirmation link cannot be null.");
 }
 
