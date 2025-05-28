@@ -13,12 +13,12 @@
     <PackageReference Include="Humanizer.Core" Version="2.14.1" />
     <PackageReference Include="Indice.EntityFrameworkCore" Version="$(VersionPrefixCore)-*" />
     <PackageReference Include="Indice.Services" Version="$(VersionPrefixCore)-*" />
-    <PackageReference Include="Markdig" Version="0.39.1" />
+    <PackageReference Include="Markdig" Version="0.41.1" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.10" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="7.2.0" />
     <PackageReference Include="IdentityModel" Version="7.0.0" />
-    <PackageReference Include="JsonSchema.Net.Generation" Version="5.0.0" />
+    <PackageReference Include="JsonSchema.Net.Generation" Version="5.0.2" />
     <PackageReference Include="Microsoft.OpenApi" Version="1.6.22" />
     <PackageReference Include="MiniValidation" Version="0.9.2" />
   </ItemGroup>
