@@ -116,8 +116,6 @@ public static class MessageFeatureExtensions
             options.GroupName = apiOptions.GroupName;
         });
         services.AddSingleton(new DatabaseSchemaNameResolver(apiOptions.DatabaseSchema));
-        services.AddHostedService<UserActionHandler>();
-        services.AddSingleton<UserActionQueue>();
         return services;
     }
 

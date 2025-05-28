@@ -92,6 +92,29 @@ internal class ServiceBusTriggers
         var payload = envelope.Payload;
         await CampaignJobHandlerFactory.CreateFor<SendSmsEvent>().Process(payload!);
     }
+
+    [Function(ServiceBusTriggerPrefix + EventNames.MarkAllAsRead)]
+    public async Task MarkAllAsReadHandler(
+        [QueueTrigger("%ENVIRONMENT%-" + EventNames.MarkAllAsRead, Connection = "ServiceBusConnection")] byte[] message,
+        FunctionContext functionContext
+    ) {
+        LogExecution(functionContext, EventNames.MarkAllAsRead);
+        var envelope = JsonSerializer.Deserialize<Envelope<MarkMessagesReadEvent>>(await ReadMessageAsync(message), JsonSerializerOptions)!;
+        var payload = envelope.Payload;
+        await CampaignJobHandlerFactory.CreateFor<MarkMessagesReadEvent>().Process(payload!);
+    }
+
+    [Function(ServiceBusTriggerPrefix + EventNames.MarkAllAsUnread)]
+    public async Task MarkAllAsUnreadHandler(
+        [QueueTrigger("%ENVIRONMENT%-" + EventNames.MarkAllAsUnread, Connection = "ServiceBusConnection")] byte[] message,
+        FunctionContext functionContext
+    ) {
+        LogExecution(functionContext, EventNames.MarkAllAsUnread);
+        var envelope = JsonSerializer.Deserialize<Envelope<MarkMessagesUnreadEvent>>(await ReadMessageAsync(message), JsonSerializerOptions)!;
+        var payload = envelope.Payload;
+        await CampaignJobHandlerFactory.CreateFor<MarkMessagesUnreadEvent>().Process(payload!);
+    }
+
     private async Task<byte[]> ReadMessageAsync(byte[] message) {
         if (_options.UseCompression) {
             return await CompressionUtils.Decompress(message);
