@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 using IdentityModel;
@@ -21,6 +22,7 @@ using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -34,6 +36,8 @@ internal static partial class MyAccountHandlers
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> UpdateEmail(
         ExtendedUserManager<User> userManager,
         IOptions<ExtendedEndpointOptions> endpointOptions,
+        LinkGenerator linkGenerator,
+        HttpContext httpContext,
         ClaimsPrincipal currentUser,
         IEmailService emailService,
         UpdateUserEmailRequest request
@@ -64,7 +68,9 @@ internal static partial class MyAccountHandlers
                     ReturnUrl = request.ReturnUrl,
                     Subject = userManager.MessageDescriber.UpdateEmailMessageSubject,
                     Token = token,
-                    User = user
+                    Url = linkGenerator.GetUriByPage(httpContext, "/ConfirmEmail", values: new { userId = user.Id, token, email = request.Email, request.ReturnUrl }),
+                    User = user,
+                    NewEmail = request.Email
                 };
                 builder.UsingTemplate(endpointOptions.Value.Email.UpdateEmailTemplate)
                        .WithData(data);
@@ -94,6 +100,72 @@ internal static partial class MyAccountHandlers
             );
         }
         var result = await userManager.ConfirmEmailAsync(user, request.Token!);
+        if (!result.Succeeded) {
+            return TypedResults.ValidationProblem(result.Errors.ToDictionary());
+        }
+        return TypedResults.NoContent();
+    }
+
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> EmailChange(
+        ExtendedUserManager<User> userManager,
+        IOptions<ExtendedEndpointOptions> endpointOptions,
+        LinkGenerator linkGenerator,
+        HttpContext httpContext,
+        ClaimsPrincipal currentUser,
+        IEmailService emailService,
+        ChangeUserEmailRequest request
+    ) {
+        var user = await userManager.GetUserAsync(currentUser);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        var currentEmail = await userManager.GetEmailAsync(user);
+        if (currentEmail is not null && currentEmail.Equals(request.Email, StringComparison.OrdinalIgnoreCase) && await userManager.IsEmailConfirmedAsync(user)) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.Email).ToLower(), userManager.MessageDescriber.EmailAlreadyExists(request.Email)));
+        }
+        var token = await userManager.GenerateChangeEmailTokenAsync(user, request.Email);
+        await emailService.SendAsync(message => {
+            var builder = message
+                .To(request.Email)
+                .WithSubject(userManager.MessageDescriber.ConfirmationEmailChangeSubject);
+            if (!string.IsNullOrWhiteSpace(endpointOptions.Value.Email.UpdateEmailTemplate)) {
+                var data = new IdentityApiEmailData {
+                    DisplayName = currentUser.FindDisplayName() ?? user.UserName,
+                    ReturnUrl = request.ReturnUrl,
+                    Subject = userManager.MessageDescriber.ConfirmationEmailChangeSubject,
+                    Token = token,
+                    Url = linkGenerator.GetUriByPage(httpContext, "/ConfirmEmailChange", values: new { userId = user.Id, token, email = request.Email, request.ReturnUrl }),
+                    User = user,
+                    NewEmail = request.Email
+                };
+                builder.UsingTemplate(endpointOptions.Value.Email.ChangeEmailTemplate)
+                       .WithData(data);
+            } else {
+                builder.WithBody(userManager.MessageDescriber.ChangeEmailMessageBody(user, token, request.Email, request.ReturnUrl));
+            }
+        });
+        return TypedResults.NoContent();
+    }
+
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> ConfirmEmailChange(
+        ExtendedUserManager<User> userManager,
+        ClaimsPrincipal currentUser,
+        ConfirmEmailChangeRequest request
+    ) {
+        var userId = currentUser.FindFirstValue(JwtClaimTypes.Subject);
+        var user = await userManager.Users
+                                    .Include(x => x.Claims)
+                                    .Where(x => x.Id == userId)
+                                    .SingleOrDefaultAsync();
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        if (user.Email == request.Email && user.EmailConfirmed) {
+            return TypedResults.ValidationProblem(
+                ValidationErrors.AddError(nameof(request.Token).ToLower(), userManager.MessageDescriber.EmailAlreadyConfirmed)
+            );
+        }
+        var result = await userManager.ChangeEmailAsync(user, request.Email!, request.Token!);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
@@ -131,6 +203,29 @@ internal static partial class MyAccountHandlers
         return TypedResults.NoContent();
     }
 
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> PhoneNumberChange(
+        ExtendedUserManager<User> userManager,
+        IOptions<ExtendedEndpointOptions> endpointOptions,
+        ClaimsPrincipal currentUser,
+        ISmsServiceFactory smsServiceFactory,
+        ChangeUserPhoneNumberRequest request
+    ) {
+        var user = await userManager.GetUserAsync(currentUser);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        var currentPhoneNumber = user.PhoneNumber ?? string.Empty;
+        if (currentPhoneNumber.Equals(request.PhoneNumber, StringComparison.OrdinalIgnoreCase) && await userManager.IsPhoneNumberConfirmedAsync(user)) {
+            return TypedResults.ValidationProblem(
+                ValidationErrors.AddError(nameof(request.PhoneNumber).ToLower(), userManager.MessageDescriber.UserAlreadyHasPhoneNumber(request.PhoneNumber))
+            );
+        }
+        var smsService = smsServiceFactory.Create(request.DeliveryChannel!) ?? throw new Exception($"No concrete implementation of {nameof(ISmsService)} is registered.");
+        var token = await userManager.GenerateChangePhoneNumberTokenAsync(user, request.PhoneNumber!);
+        await smsService.SendAsync(request.PhoneNumber!, string.Empty, userManager.MessageDescriber.PhoneNumberChangeVerificationMessage(token));
+        return TypedResults.NoContent();
+    }
+
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> ConfirmPhoneNumber(
         ExtendedUserManager<User> userManager,
         ClaimsPrincipal currentUser,
@@ -150,6 +245,26 @@ internal static partial class MyAccountHandlers
             );
         }
         var result = await userManager.ChangePhoneNumberAsync(user, user.PhoneNumber!, request.Token!);
+        if (!result.Succeeded) {
+            return TypedResults.ValidationProblem(result.Errors.ToDictionary());
+        }
+        return TypedResults.NoContent();
+    }
+
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> ConfirmPhoneNumberChange(
+        ExtendedUserManager<User> userManager,
+        ClaimsPrincipal currentUser,
+        ConfirmPhoneNumberChangeRequest request
+    ) {
+        var userId = currentUser.FindFirstValue(JwtClaimTypes.Subject);
+        var user = await userManager
+            .Users
+            .Include(x => x.Claims)
+            .SingleOrDefaultAsync(x => x.Id == userId);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        var result = await userManager.ChangePhoneNumberAsync(user, request.PhoneNumber!, request.Token!);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }

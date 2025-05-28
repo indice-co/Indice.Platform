@@ -5,12 +5,14 @@ using Microsoft.Extensions.Configuration;
 
 namespace Indice.Features.Identity.Server.Manager.Validation;
 
-/// <summary></summary>
+/// <summary>
+/// Validates the <see cref="UpdateUserPhoneNumberRequest"/> model.
+/// </summary>
 public class UpdateUserPhoneNumberRequestValidator : AbstractValidator<UpdateUserPhoneNumberRequest>
 {
     private readonly IConfiguration _configuration;
 
-    /// <summary></summary>
+    /// <summary>Constructor that configures the rules</summary>
     public UpdateUserPhoneNumberRequestValidator(IConfiguration configuration, CallingCodesProvider callingCodesProvider) {
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         RuleFor(x => x.PhoneNumber).UserPhoneNumber(_configuration, callingCodesProvider).NotEmpty();

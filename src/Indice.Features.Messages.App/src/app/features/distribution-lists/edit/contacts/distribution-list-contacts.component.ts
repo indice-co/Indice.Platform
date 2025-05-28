@@ -6,6 +6,7 @@ import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Contact, ContactResultSet, DistributionList, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
+import { FileResponse } from 'src/app/core/services/messages-api.service';
 
 @Component({
     selector: 'app-distribution-list-contacts',
@@ -14,6 +15,8 @@ import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic
 export class DistributionListContactsComponent extends BaseListComponent<Contact> implements OnInit, OnDestroy {
     private _distributionListId: string = '';
     private _getListSubscription!: Subscription;
+    private _exportViewActionKey = 'export-contacts';
+    private _importViewActionKey = 'import-contacts';
 
     constructor(
         route: ActivatedRoute,
@@ -47,6 +50,11 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
         this._getListSubscription = this._api.getDistributionListById(this._distributionListId).subscribe((list: DistributionList) => {
             this.distributionList = list;
         });
+        // add custom ViewActions for importing/exporting contacts
+        this.actions.push(
+            new ViewAction(this._exportViewActionKey, this._exportViewActionKey, '', 'ms-Icon ms-Icon--Download ', 'Εξαγωγή επαφών σε αρχείο CSV.', ''),
+            new ViewAction(this._importViewActionKey, this._importViewActionKey, '', 'ms-Icon ms-Icon--Upload ', 'Εισαγωγή επαφών από αρχείο CSV.', '')
+        );
     }
 
     public loadItems(): Observable<IResultSet<Contact> | null | undefined> {
@@ -85,5 +93,29 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
             this.search = '';
             this.refresh();
         }
+        else if (action.key === this._importViewActionKey) {
+            this._router.navigate(['', { outlets: { rightpane: ['import-contacts'] } }]);
+        }
+        else if (action.key === this._exportViewActionKey) {
+            this.exportContactsFromDistributionList(this._distributionListId);
+        }
+    }
+
+    private exportContactsFromDistributionList(distributionListId: string): void {
+        this._api
+            .bulkExportContactsFromDistributionList(distributionListId)
+            .subscribe({
+                error: (err) => {
+                    console.error('Distribution list contacts export failed.', err);
+                },
+                next: (response: FileResponse) => {
+                    const url = window.URL.createObjectURL(response.data);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = response.fileName as string;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                }
+            });
     }
 }
