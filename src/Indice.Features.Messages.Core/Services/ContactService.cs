@@ -27,6 +27,7 @@ public class ContactService : IContactService
         if (list is null) {
             throw MessageExceptions.DistributionListNotFound(id);
         }
+        list.UpdatedAt = DateTimeOffset.UtcNow;
         DbContact? contact;
         if (request.ContactId.HasValue) {
             contact = await DbContext.Contacts.SingleOrDefaultAsync(x => x.Id == request.ContactId);
