@@ -38,7 +38,7 @@ public class BrevoServiceTests
         );
 
         // Act
-        await service.SendAsync(new[] { "user@indice.gr" }, "Email Subject", "This is the body");
+        await service.SendAsync([ "user@indice.gr" ], "Email Subject", "This is the body");
 
         // Assert
         Assert.True(true); // actually, no exception means that the test has passed

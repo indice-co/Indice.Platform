@@ -68,7 +68,7 @@ public class EmailServiceBrevo : IEmailService
             var response = await HttpClient.PostAsync("smtp/email", content);
             var responseContentJson = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode) {
-                throw new EmailServiceBrevoException($"Brevo service could not send email to recipients '{string.Join(", ", recipients)}'. Error is: '{responseContentJson}'.");
+                throw new EmailServiceException($"Brevo service could not send email to recipients '{string.Join(", ", recipients)}'. Error is: '{responseContentJson}'.");
             }
             
             if (!string.IsNullOrWhiteSpace(responseContentJson)) {
@@ -96,19 +96,6 @@ public class EmailServiceBrevoSettings
     public string? ApiKey { get; set; }
     /// <summary>The Brevo API URL (ex. https://api.brevo.com/v3/).</summary>
     public string Api { get; set; } = "https://api.brevo.com/v3/";
-}
-
-/// <summary>Exception for Brevo email service failure.</summary>
-public class EmailServiceBrevoException : Exception
-{
-    /// <inheritdoc />
-    public EmailServiceBrevoException() {
-
-    }
-    /// <inheritdoc />
-    public EmailServiceBrevoException(string message) : base(message) {
-
-    }
 }
 
 #region Brevo models
