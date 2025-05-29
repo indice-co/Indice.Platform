@@ -59,7 +59,7 @@ public static class CasesClaimsPrincipalExtensions
     public static UserActor UserToActor(this ClaimsPrincipal user, CasesOptions options) {
         var subject = user.FindFirstValue(BasicClaimTypes.Subject);
         return new UserActor {
-            Id = string.IsNullOrWhiteSpace(subject) ? user.FindFirstValue(BasicClaimTypes.ClientId) : subject,
+            Id = string.IsNullOrWhiteSpace(subject) ? user.FindFirstValue(BasicClaimTypes.ClientId)! : subject,
             Reference = user.FindFirstValue(options.ReferenceIdClaimType),
             GroupId = user.FindFirstValue(options.GroupIdClaimType),
             Email = string.IsNullOrWhiteSpace(subject) ? user.FindFirstValue(BasicClaimTypes.ClientId) : user.FindFirstValue(BasicClaimTypes.Email),
