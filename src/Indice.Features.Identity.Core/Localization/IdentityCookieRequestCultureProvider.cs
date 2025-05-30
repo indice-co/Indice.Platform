@@ -29,20 +29,27 @@ public class IdentityCookieRequestCultureProvider : CookieRequestCultureProvider
     /// <param name="httpContext">The <see cref="HttpContext"/> representing the current HTTP request and response.</param>
     /// <param name="culture">The two-letter ISO language name representing the desired culture. If the value is null, empty, or  not
     /// supported, the default culture specified in the application's localization options will be used.</param>
-    public void SetLanguage(HttpContext httpContext, string? culture) {
-        var requestLocalizationOptions = httpContext.RequestServices.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value;
-        HashSet<string> supportedCultures = [.. (requestLocalizationOptions.SupportedCultures ?? []).Select(x => x.TwoLetterISOLanguageName)];
+    public bool SetLanguage(HttpContext httpContext, string? culture) {
+        ArgumentNullException.ThrowIfNull(httpContext);
+        if (Options == null) {
+            Options = httpContext.RequestServices.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value;
+        }
+        HashSet<string> supportedCultures = [.. (Options?.SupportedCultures ?? []).Select(x => x.TwoLetterISOLanguageName)];
         if (string.IsNullOrWhiteSpace(culture) || !supportedCultures.Contains(culture)) {
-            culture = requestLocalizationOptions.DefaultRequestCulture.Culture.TwoLetterISOLanguageName;
+            culture = Options?.DefaultRequestCulture.Culture.TwoLetterISOLanguageName;
+        }
+        if (string.IsNullOrWhiteSpace(culture)) {
+            return false; // No culture specified, do not set the cookie.
         }
         httpContext.Response.Cookies.Append(
             CookieName,
-            MakeCookieValue(new RequestCulture(culture)), new CookieOptions {
+            MakeCookieValue(new RequestCulture(culture!)), new CookieOptions {
                 Expires = DateTimeOffset.UtcNow.AddYears(1),
                 IsEssential = true, // Critical setting to apply new culture.
                 Path = "/",
                 HttpOnly = false
             }
         );
+        return true;
     }
 }

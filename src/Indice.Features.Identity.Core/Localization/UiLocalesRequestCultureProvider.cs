@@ -16,27 +16,21 @@ public class UiLocalesRequestCultureProvider : RequestCultureProvider
 
     /// <inheritdoc />
     public override Task<ProviderCultureResult?> DetermineProviderCultureResult(HttpContext httpContext) {
-        if (httpContext == null) {
-            throw new ArgumentNullException(nameof(httpContext));
-        }
+        ArgumentNullException.ThrowIfNull(httpContext);
         var queryString = httpContext.Request.Query;
-        ProviderCultureResult? providerResultCulture = null;
         if (httpContext.Request.Method == HttpMethod.Get.Method &&
             httpContext.Request.Path.StartsWithSegments("/connect/authorize", StringComparison.OrdinalIgnoreCase) &&
             queryString.TryGetValue(QueryParameterName, out var requestCulture)) {
-            if (string.IsNullOrEmpty(requestCulture)) {
+            if (string.IsNullOrEmpty(requestCulture) || string.IsNullOrEmpty(requestCulture.ToString())) {
                 return NullProviderCultureResult;
             }
-            providerResultCulture = ParseDefaultParameterValue(requestCulture);
-            if (!string.IsNullOrEmpty(requestCulture.ToString())) {
-                var cookie = httpContext.Request.Cookies[IdentityCookieRequestCultureProvider.DefaultCookieName];
-                var newCookieValue = IdentityCookieRequestCultureProvider.MakeCookieValue(new RequestCulture(requestCulture!));
-                if (string.IsNullOrEmpty(cookie) || cookie != newCookieValue) {
-                    httpContext.Response.Cookies.Append(IdentityCookieRequestCultureProvider.DefaultCookieName, newCookieValue);
-                }
+            var identityCookieProvider = new IdentityCookieRequestCultureProvider();
+            var providerResultCulture = ParseDefaultParameterValue(requestCulture.ToString());
+            if (identityCookieProvider.SetLanguage(httpContext, providerResultCulture?.UICultures.FirstOrDefault().ToString())) {
+                return Task.FromResult(providerResultCulture);
             }
         }
-        return Task.FromResult(providerResultCulture);
+        return NullProviderCultureResult;
     }
 
     /// <summary>A factory method used for creating a new instance of <see cref="UiLocalesRequestCultureProvider"/> with a specified culture parameter to look for.</summary>
