@@ -9,7 +9,7 @@
     <PackageReference Include="Quartz" Version="3.13.1" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.16" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Services\Indice.Services.csproj" />
