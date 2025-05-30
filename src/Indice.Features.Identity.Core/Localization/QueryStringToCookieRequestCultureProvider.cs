@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.WebUtilities;
 
-namespace Indice.Features.Identity.Core.Mvc.Localization;
+namespace Indice.Features.Identity.Core.Localization;
 
 /// <summary>Searches for the specified query string parameter inside the URL sets a cookie for localization.</summary>
 public class QueryStringToCookieRequestCultureProvider : RequestCultureProvider
@@ -40,10 +40,10 @@ public class QueryStringToCookieRequestCultureProvider : RequestCultureProvider
         }
         var providerResultCulture = ParseDefaultParameterValue(culture);
         if (!string.IsNullOrEmpty(culture.ToString())) {
-            var cookie = httpContext.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName];
-            var newCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture!));
+            var cookie = httpContext.Request.Cookies[IdentityCookieRequestCultureProvider.DefaultCookieName];
+            var newCookieValue = IdentityCookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture!));
             if (string.IsNullOrEmpty(cookie) || cookie != newCookieValue) {
-                httpContext.Response.Cookies.Append(CookieRequestCultureProvider.DefaultCookieName, newCookieValue);
+                httpContext.Response.Cookies.Append(IdentityCookieRequestCultureProvider.DefaultCookieName, newCookieValue);
             }
         }
         return Task.FromResult(providerResultCulture);
