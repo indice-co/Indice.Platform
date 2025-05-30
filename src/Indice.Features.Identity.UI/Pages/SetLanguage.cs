@@ -37,7 +37,7 @@ public abstract class BaseSetLanguageModel : BasePageModel
 
     /// <summary>Set language page POST handler.</summary>
     private IActionResult OnSetLangageInternal(string? returnUrl, string? culture) {
-        _cultureProvider.SetLangage(HttpContext, culture);
+        _cultureProvider.SetLanguage(HttpContext, culture);
         return LocalRedirect(returnUrl ?? "/");
     }
 }

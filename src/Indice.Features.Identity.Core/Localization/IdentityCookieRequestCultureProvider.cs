@@ -29,7 +29,7 @@ public class IdentityCookieRequestCultureProvider : CookieRequestCultureProvider
     /// <param name="httpContext">The <see cref="HttpContext"/> representing the current HTTP request and response.</param>
     /// <param name="culture">The two-letter ISO language name representing the desired culture. If the value is null, empty, or  not
     /// supported, the default culture specified in the application's localization options will be used.</param>
-    public void SetLangage(HttpContext httpContext, string? culture) {
+    public void SetLanguage(HttpContext httpContext, string? culture) {
         var requestLocalizationOptions = httpContext.RequestServices.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value;
         HashSet<string> supportedCultures = [.. (requestLocalizationOptions.SupportedCultures ?? []).Select(x => x.TwoLetterISOLanguageName)];
         if (string.IsNullOrWhiteSpace(culture) || !supportedCultures.Contains(culture)) {
