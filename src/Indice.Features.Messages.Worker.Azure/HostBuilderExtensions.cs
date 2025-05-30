@@ -107,6 +107,8 @@ public static class HostBuilderExtensions
         services.TryAddTransient<ICampaignJobHandler<SendPushNotificationEvent>, SendPushNotificationHandler>();
         services.TryAddTransient<ICampaignJobHandler<SendEmailEvent>, SendEmailHandler>();
         services.TryAddTransient<ICampaignJobHandler<SendSmsEvent>, SendSmsHandler>();
+        services.TryAddTransient<ICampaignJobHandler<MarkMessagesReadEvent>, MarkReadEventHandler>();
+        services.TryAddTransient<ICampaignJobHandler<MarkMessagesUnreadEvent>, MarkUnreadEventHandler>();
         services.AddTransient<MessageJobHandlerFactory>();
         return services;
     }

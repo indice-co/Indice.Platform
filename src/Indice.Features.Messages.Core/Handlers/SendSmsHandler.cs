@@ -6,7 +6,7 @@ namespace Indice.Features.Messages.Core.Handlers;
 /// <summary>Job handler for <see cref="SendSmsEvent"/>.</summary>
 public class SendSmsHandler : ICampaignJobHandler<SendSmsEvent>
 {
-    /// <summary>Creates a new instance of <see cref="SendEmailHandler"/>.</summary>
+    /// <summary>Creates a new instance of <see cref="SendSmsHandler"/>.</summary>
     /// <param name="smsService">Push notification service abstraction in order to support different providers.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public SendSmsHandler(ISmsService smsService) {
