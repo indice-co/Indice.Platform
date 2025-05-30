@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using HandlebarsDotNet;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Events;
@@ -74,6 +75,7 @@ public static class HostBuilderExtensions
             services.AddHostedService<StartupSeedHostedService>();
             services.TryAddSingleton(options.FunctionDisablePredicate);
             services.AddDecorator<IFunctionMetadataProvider, ExtendedFunctionMetadataProvider>();
+
         });
 
     private static IServiceCollection AddCoreServices(this IServiceCollection services, MessageOptions options, IConfiguration configuration) {
@@ -98,6 +100,10 @@ public static class HostBuilderExtensions
         services.TryAddSingleton(new DatabaseSchemaNameResolver(options.DatabaseSchema));
         services.AddScoped<IUserNameAccessor>(serviceProvider => new UserNameStaticAccessor("worker"));
         services.TryAddScoped<UserNameAccessorAggregate>();
+
+        services.Configure<CampaignStatisticOptions>(opt => {
+            opt.EnableStatics = options.CampaignStatisticOptions.EnableStatics;
+        });
         services.AddSingleton<CampaignEventQueue>();
         services.AddSingleton<IHostedService, CampaignEventHandler>();
         return services;
@@ -294,14 +300,20 @@ public static class HostBuilderExtensions
                                                             EventNames.ResolveMessage,
                                                             EventNames.SendEmail,
                                                             EventNames.SendPushNotification,
-                                                            EventNames.SendSms);
+                                                            EventNames.SendSms,
+                                                            EventNames.MarkAllAsRead,
+                                                            EventNames.MarkAllAsUnread
+                                                            );
 
     internal static readonly ExtendedFunctionMetadataProviderDisablePredicate ExcludeServiceBusTriggers =
                                            ExcludeFunctions($"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.CampaignCreated}",
                                                             $"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.ResolveMessage}",
                                                             $"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.SendEmail}",
                                                             $"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.SendPushNotification}",
-                                                            $"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.SendSms}");
+                                                            $"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.SendSms}",
+                                                            $"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.MarkAllAsRead}",
+                                                            $"{ServiceBusTriggers.ServiceBusTriggerPrefix}{EventNames.MarkAllAsUnread}");
+
     internal static ExtendedFunctionMetadataProviderDisablePredicate ExcludeFunctions(params string[] functionNames) {
         return (fn, Configuration) => functionNames.Any(x => x.Equals(fn.Name, StringComparison.OrdinalIgnoreCase));
     }

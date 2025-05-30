@@ -19,4 +19,7 @@ public class MessageOptions : MessageWorkerOptions
     public IServiceCollection Services { get; internal set; } = null!;
     /// <summary>Predicate that determines if a function should be enabled or not.</summary>
     public ExtendedFunctionMetadataProviderDisablePredicate FunctionDisablePredicate { get; set; } = HostBuilderExtensions.ExcludeServiceBusTriggers;
+
+    /// <summary>Configuration for campaign statistics feature.</summary>
+    public CampaignStatisticOptions CampaignStatisticOptions { get; set; } = new CampaignStatisticOptions();
 }

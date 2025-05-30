@@ -1,11 +1,10 @@
 ﻿using Indice.Features.Messages.Core.Data;
-using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Events;
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Open.ChannelExtensions;
 
 namespace Indice.Features.Messages.Core.Services;
@@ -13,6 +12,7 @@ namespace Indice.Features.Messages.Core.Services;
 public class CampaignEventHandler(
     CampaignEventQueue queue,
     IServiceScopeFactory scopeFactory,
+    IOptions<CampaignStatisticOptions> StatisticOptions,
     ILogger<CampaignEventHandler> logger) : BackgroundService
 {
     /// <summary>Batch size for dequeuing events from the queue.</summary>
@@ -22,6 +22,9 @@ public class CampaignEventHandler(
 
     ///<inheritdoc/>
     protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
+        if(!StatisticOptions.Value.EnableStatics) {
+            return;
+        }
         var events = queue.Reader
                  .Pipe(LastEvent => LastEvent, cancellationToken: stoppingToken)
                  .Filter(logEntry => logEntry is not null)
