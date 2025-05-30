@@ -11,7 +11,7 @@
     var alert = TempData.Get<AlertModel>("Alert");
 }
 
-<section class="sign-up m-auto">
+<section class="identity-panel wide m-auto">
     <div class="text-center">
         <form asp-page-handler="UploadPicture" enctype="multipart/form-data">
             <div class="profilepic">
@@ -157,6 +157,31 @@
     </form>
 </section>
 <br />
+<section class="identity-panel wide m-auto" indice-if="Model.View.SupportedCultures.Count > 0">
+    <h4>
+        <span class="header-text text-center">@Localizer["Preferences"]</span>
+    </h4>
+    
+    <form id="userPreferenceForm" method="post" asp-page-handler="UpdateLanguagePreference">
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label asp-for="InputLanguagePreference.Locale" class="form-label">@Localizer["Preferred language"]</label>
+                    <select class="form-control form-select lh-lg" asp-for="InputLanguagePreference.Locale" required>
+                        <option value="">@Localizer["Choose..."]</option>
+                        @foreach (var culture in Model.View.SupportedCultures)
+                        {
+                            <option value="@culture.TwoLetterISOLanguageName" selected="@(culture.TwoLetterISOLanguageName.Equals(Model.View.Locale))">@culture.TwoLetterISOLanguageName.ToUpperInvariant() - @culture.NativeName</option>
+                        }
+                    </select>
+                    <span asp-validation-for="InputLanguagePreference.Locale" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+    </form>
+</section>
+<br />
 <section class="identity-panel wide m-auto" indice-if="Model.View.CurrentLogins?.Count > 0 || Model.View.OtherLogins.Count > 0">
     <h2>
         <span class="header-text text-center">@Localizer["External providers"]</span>
@@ -233,6 +258,13 @@
                     link.target.classList.add('disabled');
                 }
             };
+        });
+    </script>
+    <script csp-nonce="true">
+        document.querySelectorAll('#userPreferenceForm select').forEach(function (el) {
+            el.addEventListener("change", function (select) {
+                document.getElementById('userPreferenceForm').submit();
+            });
         });
     </script>
 }
