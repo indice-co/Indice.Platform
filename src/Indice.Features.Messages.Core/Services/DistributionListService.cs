@@ -97,6 +97,8 @@ public class DistributionListService : IDistributionListService
         return new DistributionList {
             CreatedAt = list.CreatedAt,
             CreatedBy = list.CreatedBy,
+            UpdatedAt = list.UpdatedAt,
+            UpdatedBy = list.UpdatedBy,
             Id = list.Id,
             Name = list.Name
         };

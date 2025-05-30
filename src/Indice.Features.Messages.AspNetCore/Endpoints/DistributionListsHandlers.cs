@@ -45,7 +45,9 @@ internal static class DistributionListsHandlers
         return TypedResults.Ok(contacts);
     }
 
-    public static async Task<NoContent> AddContactToDistributionList(IContactService contactService, Guid distributionListId, CreateDistributionListContactRequest request) {
+    public static async Task<NoContent> AddContactToDistributionList(IContactService contactService, 
+        Guid distributionListId, 
+        CreateDistributionListContactRequest request) {
         await contactService.AddToDistributionList(distributionListId, request);
         return TypedResults.NoContent();
     }

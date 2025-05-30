@@ -94,6 +94,7 @@ internal static class DistributionListsApi
             .WithName(nameof(DistributionListsHandlers.BulkImportContactsToDistributionList))
             .WithSummary("Bulk imports contacts in a specified distribution list.")
             .WithDescription(DistributionListsHandlers.BULK_IMPORT_CONTACTS_TO_DISTRIBUTION_LIST)
+            .LimitUpload(options.FileUploadLimit)
             .Accepts<BulkCreateDistributionListContactsRequest>(MediaTypeNames.Multipart.FormData);
 
         return group;
