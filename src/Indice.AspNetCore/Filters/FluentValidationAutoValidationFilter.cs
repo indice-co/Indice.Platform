@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -44,6 +45,8 @@ public class FluentValidationAutoValidationActionFilter : IAsyncActionFilter
                 (autoValidationMvcConfiguration.ValidationStrategy == ValidationStrategy.Annotations && !endpoint.Metadata.OfType<AutoValidationAttribute>().Any()) ||
                  endpoint.Metadata.OfType<AutoValidateNeverAttribute>().Any())) {
 
+                HandleUnvalidatedEntries(context);
+
                 await next();
 
                 return;
@@ -54,10 +57,6 @@ public class FluentValidationAutoValidationActionFilter : IAsyncActionFilter
                 if (context.ActionArguments.TryGetValue(parameter.Name, out var subject)) {
                     var parameterType = subject?.GetType();
                     var bindingSource = parameter.BindingInfo?.BindingSource;
-                    var subjectNotNull = subject != null;
-                    var pameterNotNull = parameterType != null;
-                    var hasValidBindingSource = HasValidBindingSource(bindingSource);
-                    var validatorRes = GetValidator(serviceProvider, parameterType);
                     if (subject != null && parameterType != null &&
                          HasValidBindingSource(bindingSource) &&
                         GetValidator(serviceProvider, parameterType) is IValidator validator) {
@@ -72,6 +71,9 @@ public class FluentValidationAutoValidationActionFilter : IAsyncActionFilter
                 }
             }
 
+            // Mark unvalidated entries as skipped if DataAnnotations validation is disabled.
+            HandleUnvalidatedEntries(context);
+
             // If model state is invalid, return a BadRequestObjectResult with validation details.
             if (!context.ModelState.IsValid) {
                 var problemDetailsFactory = serviceProvider.GetRequiredService<ProblemDetailsFactory>();
@@ -84,6 +86,18 @@ public class FluentValidationAutoValidationActionFilter : IAsyncActionFilter
         }
 
         await next();
+    }
+
+    /// <summary>
+    /// Marks unvalidated model state entries as skipped if DataAnnotations validation is disabled.
+    /// </summary>
+    /// <param name="context">The action executing context.</param>
+    private void HandleUnvalidatedEntries(ActionExecutingContext context) {
+        if (autoValidationMvcConfiguration.DisableDataAnnotationsValidation) {
+            foreach (var modelStateEntry in context.ModelState.Values.Where(modelStateEntry => modelStateEntry.ValidationState == ModelValidationState.Unvalidated)) {
+                modelStateEntry.ValidationState = ModelValidationState.Skipped;
+            }
+        }
     }
 
     /// <summary>
@@ -172,6 +186,11 @@ public class AutoValidationAttribute : Attribute
 public class AutoValidationMvcConfiguration
 {
     /// <summary>
+    /// Disables the built-in .NET model (data annotations) validation.
+    /// </summary>
+    public bool DisableDataAnnotationsValidation { get; set; }
+
+    /// <summary>
     /// Configures the validation strategy. Validation strategy <see cref="ValidationStrategy.All"/> enables asynchronous automatic validation on all controllers inheriting from <see cref="ControllerBase"/>.
     /// Validation strategy <see cref="ValidationStrategy.Annotations"/> enables asynchronous automatic validation on controllers inheriting from <see cref="ControllerBase"/> decorated (class or method) with a <see cref="AutoValidationAttribute"/> attribute.
     /// </summary>
@@ -212,6 +231,16 @@ public static class ServiceCollectionExtensions
             autoValidationMvcConfiguration.Invoke(configuration);
             serviceCollection.Configure(autoValidationMvcConfiguration);
         }
+
+        // Register a custom object model validator if DataAnnotations validation is disabled.
+        if (configuration.DisableDataAnnotationsValidation) {
+            serviceCollection.AddSingleton<IObjectModelValidator, FluentValidationAutoValidationObjectModelValidator>(serviceProvider =>
+                new FluentValidationAutoValidationObjectModelValidator(
+                    serviceProvider.GetRequiredService<IModelMetadataProvider>(),
+                    serviceProvider.GetRequiredService<IOptions<MvcOptions>>().Value.ModelValidatorProviders,
+                    configuration.DisableDataAnnotationsValidation));
+        }
+
         // Create a default instance of the `ModelStateInvalidFilter` to access the non static property `Order` in a static context.
         var modelStateInvalidFilter = new ModelStateInvalidFilter(new ApiBehaviorOptions { InvalidModelStateResponseFactory = context => new OkResult() }, NullLogger.Instance);
 
@@ -219,5 +248,81 @@ public static class ServiceCollectionExtensions
         serviceCollection.Configure<MvcOptions>(options => options.Filters.Add<FluentValidationAutoValidationActionFilter>(modelStateInvalidFilter.Order - 1));
 
         return serviceCollection;
+    }
+
+    /// <summary>
+    /// Custom object model validator that can disable built-in model validation.
+    /// </summary>
+    public class FluentValidationAutoValidationObjectModelValidator : ObjectModelValidator
+    {
+        private readonly bool disableBuiltInModelValidation;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FluentValidationAutoValidationObjectModelValidator"/> class.
+        /// </summary>
+        /// <param name="modelMetadataProvider">The model metadata provider.</param>
+        /// <param name="validatorProviders">The model validator providers.</param>
+        /// <param name="disableBuiltInModelValidation">Whether to disable built-in model validation.</param>
+        public FluentValidationAutoValidationObjectModelValidator(IModelMetadataProvider modelMetadataProvider, IList<IModelValidatorProvider> validatorProviders, bool disableBuiltInModelValidation)
+            : base(modelMetadataProvider, validatorProviders) {
+            this.disableBuiltInModelValidation = disableBuiltInModelValidation;
+        }
+
+        /// <summary>
+        /// Gets a custom validation visitor that can skip built-in model validation.
+        /// </summary>
+        /// <param name="actionContext">The action context.</param>
+        /// <param name="validatorProvider">The validator provider.</param>
+        /// <param name="validatorCache">The validator cache.</param>
+        /// <param name="metadataProvider">The metadata provider.</param>
+        /// <param name="validationState">The validation state dictionary.</param>
+        /// <returns>A <see cref="ValidationVisitor"/> instance.</returns>
+        public override ValidationVisitor GetValidationVisitor(ActionContext actionContext,
+            IModelValidatorProvider validatorProvider,
+            ValidatorCache validatorCache,
+            IModelMetadataProvider metadataProvider,
+            ValidationStateDictionary? validationState) {
+            return new FluentValidationAutoValidationValidationVisitor(actionContext, validatorProvider, validatorCache, metadataProvider, validationState, disableBuiltInModelValidation);
+        }
+    }
+
+    /// <summary>
+    /// Custom validation visitor that can skip built-in model validation if configured.
+    /// </summary>
+    public class FluentValidationAutoValidationValidationVisitor : ValidationVisitor
+    {
+        private readonly bool disableBuiltInModelValidation;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FluentValidationAutoValidationValidationVisitor"/> class.
+        /// </summary>
+        /// <param name="actionContext">The action context.</param>
+        /// <param name="validatorProvider">The validator provider.</param>
+        /// <param name="validatorCache">The validator cache.</param>
+        /// <param name="metadataProvider">The metadata provider.</param>
+        /// <param name="validationState">The validation state dictionary.</param>
+        /// <param name="disableBuiltInModelValidation">Whether to disable built-in model validation.</param>
+        public FluentValidationAutoValidationValidationVisitor(ActionContext actionContext,
+            IModelValidatorProvider validatorProvider,
+            ValidatorCache validatorCache,
+            IModelMetadataProvider metadataProvider,
+            ValidationStateDictionary? validationState,
+            bool disableBuiltInModelValidation)
+            : base(actionContext, validatorProvider, validatorCache, metadataProvider, validationState) {
+            this.disableBuiltInModelValidation = disableBuiltInModelValidation;
+        }
+
+        /// <summary>
+        /// Validates the model. If built-in model validation is disabled, always returns true to skip validation.
+        /// </summary>
+        /// <param name="metadata">The model metadata.</param>
+        /// <param name="key">The model key.</param>
+        /// <param name="model">The model instance.</param>
+        /// <param name="alwaysValidateAtTopLevel">Whether to always validate at the top level.</param>
+        /// <returns>True if validation should proceed; otherwise, false.</returns>
+        public override bool Validate(ModelMetadata? metadata, string? key, object? model, bool alwaysValidateAtTopLevel) {
+            // If built in model validation is disabled return true for later validation in the action filter.
+            return disableBuiltInModelValidation || base.Validate(metadata, key, model, alwaysValidateAtTopLevel);
+        }
     }
 }
