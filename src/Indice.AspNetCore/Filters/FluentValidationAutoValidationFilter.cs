@@ -54,18 +54,20 @@ public class FluentValidationAutoValidationActionFilter : IAsyncActionFilter
 
             // Iterate through action parameters and perform validation if a validator is found.
             foreach (var parameter in controllerActionDescriptor.Parameters) {
-                if (context.ActionArguments.TryGetValue(parameter.Name, out var subject)) {
-                    var parameterType = subject?.GetType();
-                    var bindingSource = parameter.BindingInfo?.BindingSource;
-                    if (subject != null && parameterType != null &&
-                         HasValidBindingSource(bindingSource) &&
-                        GetValidator(serviceProvider, parameterType) is IValidator validator) {
-                        IValidationContext validationContext = new ValidationContext<object>(subject);
-                        var validationResult = await validator.ValidateAsync(validationContext, context.HttpContext.RequestAborted);
-                        if (!validationResult.IsValid) {
-                            foreach (var error in validationResult.Errors) {
-                                context.ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
-                            }
+                if (!context.ActionArguments.TryGetValue(parameter.Name, out var subject)) {
+                    continue;
+                }
+
+                var parameterType = subject?.GetType();
+                var bindingSource = parameter.BindingInfo?.BindingSource;
+                if (subject != null && parameterType != null &&
+                     HasValidBindingSource(bindingSource) &&
+                    GetValidator(serviceProvider, parameterType) is IValidator validator) {
+                    IValidationContext validationContext = new ValidationContext<object>(subject);
+                    var validationResult = await validator.ValidateAsync(validationContext, context.HttpContext.RequestAborted);
+                    if (!validationResult.IsValid) {
+                        foreach (var error in validationResult.Errors) {
+                            context.ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
                         }
                     }
                 }
