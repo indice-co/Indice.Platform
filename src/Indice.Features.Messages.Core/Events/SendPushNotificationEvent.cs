@@ -8,6 +8,8 @@ public class SendPushNotificationEvent
 {
     /// <summary>The id of the campaign.</summary>
     public Guid CampaignId { get; set; }
+    /// <summary>The id of the contact.</summary>
+    public Guid ContactId { get; set; }
     /// <summary>The title of the message.</summary>
     public string? Title { get; set; }
     /// <summary>The body of the message.</summary>
@@ -50,6 +52,20 @@ public class SendPushNotificationEvent
         MessageType = @event.Campaign.Type,
         RecipientId = contact.RecipientId,
         MessageId = messageId,
-        Title = @event.Campaign.Content[nameof(MessageChannelKind.PushNotification)].Title
+        Title = @event.Campaign.Content[nameof(MessageChannelKind.PushNotification)].Title,
+        ContactId = contact.Id!.Value
+    };
+
+    /// <summary>
+    /// Converts the current <see cref="SendPushNotificationEvent"/> to a <see cref="MessageEvent"/> with the specified type.
+    /// </summary>
+    /// <param name="type">the type of the event</param>
+    /// <returns></returns>
+    public MessageEvent ToMessageEvent(string type) => new MessageEvent {
+        CampaignId = CampaignId,
+        ContactId = ContactId,
+        MessageId = MessageId,
+        Type = type,
+        Channel = MessageChannelKind.PushNotification.ToString()
     };
 }

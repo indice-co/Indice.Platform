@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [8.0.0-rc32] - 2025-05-25
+- Added support for logging message events.
+```sql		
+CREATE TABLE [#Schema#].[MessageEvent](
+	[Id] [uniqueidentifier] NOT NULL,
+	[CampaignId] [uniqueidentifier] NOT NULL,
+	[ContactId] [uniqueidentifier] NOT NULL,
+	[MessageId] [uniqueidentifier] NULL,
+	[Type] [nvarchar](64) NOT NULL,
+	[Channel] [nvarchar](64) NOT NULL,
+	[CreatedOn] [datetimeoffset](7) NOT NULL,
+ CONSTRAINT [PK_MessageEvent] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+```
+
 ## [8.0.0] - 2024-12-03
 - Added support for persisting User communication channel preferences, locale and Consent.
 - Campaign and Template define whether user communication preferences must be ingored if needed. 
@@ -30,6 +50,8 @@ ALTER TABLE [#Schema#].[MessageType]
 ADD Classification TINYINT DEFAULT(0) NOT NULL;		
 GO
  ```		
+
+
 
 ## [7.27.0] - 2024-07-26
 ### Added

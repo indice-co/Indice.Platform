@@ -61,4 +61,7 @@ public static class MessageExceptions
     /// <summary>Message sender not found exception.</summary>                                                                                                                                           
     /// <param name="id">The message sender id.</param>
     public static BusinessException MessageSenderNotFound(Guid id) => new($"Message sender with id '{id}' does not exist.", nameof(MessageSenderNotFound));
+    /// <summary>Contact resolver not found exception.</summary>                                                                                                                                           
+    /// <param name="id">The recipientId id of the external system.</param>
+    public static BusinessException ContantResolverNotFound(string id) => new($"The contact with id '{id}' was not found in the external system.", nameof(ContantResolverNotFound));
 }

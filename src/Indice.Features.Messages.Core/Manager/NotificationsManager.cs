@@ -165,7 +165,7 @@ public class NotificationsManager(
         var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         var isNewDistributionList = false;
         // If a distribution list id is not set, then we create a new list.
-        if (!request.RecipientListId.HasValue && !request.IsGlobal) {
+        if (!request.RecipientListId.HasValue) {
             var createdList = await DistributionListService.Create(new CreateDistributionListRequest {
                 Name = $"{request.Title} - {timestamp}",
                 IsSystemGenerated = true
