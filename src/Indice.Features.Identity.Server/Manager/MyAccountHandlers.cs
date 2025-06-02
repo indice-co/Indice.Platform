@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Security.Claims;
-using System.Text.RegularExpressions;
+﻿using System.Security.Claims;
 using IdentityModel;
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
@@ -63,7 +60,7 @@ internal static partial class MyAccountHandlers
                 .To(user.Email!)
                 .WithSubject(userManager.MessageDescriber.UpdateEmailMessageSubject);
             if (!string.IsNullOrWhiteSpace(endpointOptions.Value.Email.UpdateEmailTemplate)) {
-                var data = new IdentityApiEmailData {
+                var data = new EmailChangeEmailModel {
                     DisplayName = currentUser.FindDisplayName() ?? user.UserName,
                     ReturnUrl = request.ReturnUrl,
                     Subject = userManager.MessageDescriber.UpdateEmailMessageSubject,
@@ -129,7 +126,7 @@ internal static partial class MyAccountHandlers
                 .To(request.Email)
                 .WithSubject(userManager.MessageDescriber.ConfirmationEmailChangeSubject);
             if (!string.IsNullOrWhiteSpace(endpointOptions.Value.Email.UpdateEmailTemplate)) {
-                var data = new IdentityApiEmailData {
+                var data = new EmailChangeEmailModel {
                     DisplayName = currentUser.FindDisplayName() ?? user.UserName,
                     ReturnUrl = request.ReturnUrl,
                     Subject = userManager.MessageDescriber.ConfirmationEmailChangeSubject,
@@ -340,7 +337,7 @@ internal static partial class MyAccountHandlers
             return TypedResults.NoContent();
         }
         var code = await userManager.GeneratePasswordResetTokenAsync(user);
-        var data = new IdentityApiEmailData {
+        var data = new EmailChangeEmailModel {
             DisplayName = currentUser.FindDisplayName() ?? user.UserName,
             ReturnUrl = request.ReturnUrl,
             Subject = userManager.MessageDescriber.ForgotPasswordMessageSubject,

@@ -2,7 +2,9 @@
 using FluentValidation;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
+using Indice.Features.Identity.SignInLogs.Events;
 using Indice.Features.Identity.UI;
+using Indice.Features.Identity.UI.EventHandlers;
 using Indice.Features.Identity.UI.Localization;
 using Indice.Features.Identity.UI.Telemetry;
 using Microsoft.AspNetCore.Antiforgery;
@@ -92,6 +94,8 @@ public static class IdentityBuilderUIExtensions
         services.AddGeneralSettings(configuration);
         services.AddMarkdown();
         services.TryAddTransient<ITelemetryJavaScriptSnippet, AzureMonitorTelemetryJavaScriptSnippet>(); // browser ui telemetry.
+
+        services.AddPlatformEventHandler<SecurityNotificationEvent, SecurityNotificationEventHandler>();
         return services;
     }
 

@@ -1,0 +1,43 @@
+﻿@inject IIdentityViewLocalizer Localizer
+@inject IOptions<GeneralSettings> GeneralSettings
+@inject IOptions<IdentityUIOptions> UIOptions
+@model Indice.Features.Identity.Core.Models.SecurityNotificationModel
+@{
+    Layout = "_LayoutEmail.cshtml";
+    var settings = GeneralSettings.Value;
+}
+
+@section preheader {
+    @Localizer["Security notification regarding your account."]
+}
+
+@section subject {
+    <h1 style="font-size: 18px; font-family:'Century Gothic', Arial, sans-serif, Helvetica, Arial, sans-serif; font-weight:normal">
+        @Localizer[Model.Subject ?? "Security Notification"]
+    </h1>
+}
+
+<p style="font-family: 'Century Gothic', Arial, sans-serif, Helvetica, Arial, sans-serif; font-size: 12px;">
+    @Localizer["Hi"] @(Model.DisplayName ?? Model.UserName ?? string.Empty),
+    <br /><br />
+    @Localizer["We wanted to let you know that a security-related event occurred on your account."]<br /><br />
+
+    <strong>@Localizer["Event details:"]</strong><br />
+    <ul>
+        <li>@Localizer["Event time"]: @Model.TimeStamp.LocalDateTime.ToString("f")</li>
+        <li>@Localizer["Username"]: @Model.UserName</li>
+        <li>@Localizer["Email"]: @Model.User?.Email</li>
+        @if (Model.Device != null) {
+            <li>@Localizer["Device"]: @Model.Device.Name (@Model.Device.ClientType)</li>
+        }
+        @if (Model.Client != null) {
+            <li>@Localizer["Client"]: @Model.Client.ClientName (@Model.Client.ClientId)</li>
+        }
+        @if (Model.Location != null) {
+            <li>@Localizer["Location"]: @Model.Location.CityName, @Model.Location.CountryName (@Model.Location.IPAddress)</li>
+        }
+    </ul>
+    <br />
+    @Localizer["If you did not perform this action, please contact support immediately."]<br /><br />
+    @Localizer["Sincerely"], @Localizer[settings.Organization!].
+</p>
