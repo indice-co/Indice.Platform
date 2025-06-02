@@ -1,7 +1,6 @@
-﻿using System.Net.Mime;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using FluentValidation;
-using FluentValidation.AspNetCore;
+using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Swagger;
 using Indice.Events;
 using Indice.Features.Media.AspNetCore;
