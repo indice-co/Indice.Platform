@@ -84,4 +84,7 @@ public class CampaignOptionsBase
     public string DatabaseSchema { get; set; } = MessagesApi.DatabaseSchema;
     /// <summary>Specifies a prefix for the API endpoints.</summary>
     public string PathPrefix { get; set; } = "/";
+
+    /// <summary>Specifies the settings for statistis feature.</summary>
+    public CampaignStatisticOptions CampaignStatisticOptions { get; set; } = new CampaignStatisticOptions();
 }
