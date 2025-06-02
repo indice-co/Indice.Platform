@@ -24,8 +24,8 @@ public class SignInLogOptions
         Configuration = configuration;
     }
 
-    internal IServiceCollection Services { get; }
-    internal IConfiguration Configuration { get; }
+    internal IServiceCollection Services { get; } = null!;
+    internal IConfiguration Configuration { get; } = null!;
     internal List<Type> ExcludedEnrichers { get; } = new List<Type>();
     /// <summary>Determines whether personal data (i.e. IP Address) are anonymized when persisted in the database. Defaults to <i>false</i>.</summary>
     public bool AnonymizePersonalData { get; set; }

@@ -35,7 +35,7 @@ public sealed class IPAddressLocator
             result.CityName = cityResponse?.City?.Name;
             result.PostalCode = cityResponse?.Postal?.Code;
             if (cityResponse?.Subdivisions?.Any() == true) {
-                result.Subdivisions.AddRange(cityResponse.Subdivisions.Select(subdivision => subdivision.Name));
+                result.Subdivisions.AddRange(cityResponse.Subdivisions.Select(subdivision => subdivision.Name!));
             }
         }
         if (_countryDatabaseReader.TryCountry(ipAddress, out var countryResponse)) {

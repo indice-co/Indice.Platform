@@ -15,8 +15,8 @@ namespace Indice.Features.Identity.SignInLogs.ImpossibleTravel;
 /// <typeparam name="TUser"></typeparam>
 public class ImpossibleTravelDetector<TUser> : IImpossibleTravelDetector<TUser> where TUser : User
 {
-    private readonly IPAddressLocator _ipAddressLocator;
-    private readonly ISignInLogStore _signInLogStore;
+    private readonly IPAddressLocator? _ipAddressLocator;
+    private readonly ISignInLogStore? _signInLogStore;
     private readonly SignInLogOptions _signInLogOptions;
 
     /// <summary></summary>
@@ -26,8 +26,8 @@ public class ImpossibleTravelDetector<TUser> : IImpossibleTravelDetector<TUser> 
     /// <exception cref="ArgumentNullException"></exception>
     public ImpossibleTravelDetector(
         IOptions<SignInLogOptions> options,
-        IPAddressLocator ipAddressLocator = null,
-        ISignInLogStore signInLogStore = null) {
+        IPAddressLocator? ipAddressLocator = null,
+        ISignInLogStore? signInLogStore = null) {
         _signInLogOptions = options.Value ?? throw new ArgumentNullException(nameof(options));
         _ipAddressLocator = ipAddressLocator;
         _signInLogStore = signInLogStore;
@@ -37,7 +37,7 @@ public class ImpossibleTravelDetector<TUser> : IImpossibleTravelDetector<TUser> 
     public ImpossibleTravelFlowType FlowType => _signInLogOptions.ImpossibleTravel.FlowType;
 
     /// <inheritdoc />
-    public async Task<bool> IsImpossibleTravelLogin(HttpContext httpContext, TUser user) {
+    public async Task<bool> IsImpossibleTravelLogin(HttpContext? httpContext, TUser? user) {
         if (_ipAddressLocator is null || _signInLogStore is null || httpContext is null || user is null) {
             return false;
         }
