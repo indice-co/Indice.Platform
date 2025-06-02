@@ -1,9 +1,11 @@
 using System.Globalization;
 using Indice.AspNetCore.Filters;
+using Indice.Features.Identity.Core.Localization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.UI.Pages;
@@ -14,11 +16,12 @@ namespace Indice.Features.Identity.UI.Pages;
 [IgnoreAntiforgeryToken]
 public abstract class BaseSetLanguageModel : BasePageModel
 {
-    private readonly RequestLocalizationOptions _requestLocalizationOptions;
+    private readonly IdentityCookieRequestCultureProvider _cultureProvider;
 
     /// <summary>Creates a new instance of <see cref="BaseSetLanguageModel"/> class.</summary>
     public BaseSetLanguageModel(IOptions<RequestLocalizationOptions> requestLocalizationOptions) : base() {
-        _requestLocalizationOptions = requestLocalizationOptions.Value;
+        var options = requestLocalizationOptions.Value;
+        _cultureProvider = options.RequestCultureProviders.OfType<IdentityCookieRequestCultureProvider>().FirstOrDefault() ?? new IdentityCookieRequestCultureProvider();
     }
 
     /// <summary>The submitted culture to change.</summary>
@@ -34,19 +37,7 @@ public abstract class BaseSetLanguageModel : BasePageModel
 
     /// <summary>Set language page POST handler.</summary>
     private IActionResult OnSetLangageInternal(string? returnUrl, string? culture) {
-        var supportedCultures = (_requestLocalizationOptions.SupportedCultures ?? new List<CultureInfo>()).Select(x => x.TwoLetterISOLanguageName).ToHashSet();
-        if (string.IsNullOrWhiteSpace(culture) || !supportedCultures.Contains(culture)) {
-            culture = _requestLocalizationOptions.DefaultRequestCulture.Culture.TwoLetterISOLanguageName;
-        }
-        Response.Cookies.Append(
-            CookieRequestCultureProvider.DefaultCookieName,
-            CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)), new CookieOptions {
-                Expires = DateTimeOffset.UtcNow.AddYears(1),
-                IsEssential = true, // Critical setting to apply new culture.
-                Path = "/",
-                HttpOnly = false
-            }
-        );
+        _cultureProvider.SetLanguage(HttpContext, culture);
         return LocalRedirect(returnUrl ?? "/");
     }
 }

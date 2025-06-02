@@ -9,6 +9,7 @@ using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Events;
+using Indice.Features.Identity.Core.Localization;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -135,9 +136,11 @@ public abstract class BaseLoginModel : BasePageModel
             var user = await UserManager.FindByNameAsync(Input.UserName!);
             if (result.Succeeded) {
                 // Replace locale Claim only if it has a different value configured.
-                var localeClaim = user!.Claims.FirstOrDefault(x => x.ClaimType == JwtClaimTypes.Locale && x.ClaimValue == RequestCulture.Culture.TwoLetterISOLanguageName);
+                var localeClaim = user!.Claims.FirstOrDefault(x => x.ClaimType == JwtClaimTypes.Locale);
                 if (localeClaim is null) {
                     await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.Locale, RequestCulture.Culture.TwoLetterISOLanguageName);
+                } else {
+                    new IdentityCookieRequestCultureProvider().SetLanguage(HttpContext, localeClaim.ClaimValue);
                 }
                 Logger.LogInformation("User '{UserName}' with email {Email} was successfully logged in.", user.UserName, user.Email);
                 if (context is not null) {

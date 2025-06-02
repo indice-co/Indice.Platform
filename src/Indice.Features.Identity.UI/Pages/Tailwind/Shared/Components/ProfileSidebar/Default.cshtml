@@ -54,9 +54,17 @@
             </div>
         </div>
         <div indice-if="Model.HasDeveloperTotp" class="row">
-            <div class="col-span-6">
+            <div class="input-group flex flex-col mb-3">
                 <span>@Model.DeveloperTotp</span>
                 <label>@Localizer["Developer TOTP"]</label>
+            </div>
+        </div>
+        <div class="m-auto">
+            <hr>
+            <h3 class="text-black mb-1">@Localizer["Preferences"]</h3>
+            <div class="input-group flex flex-col mb-3">
+                <span>@Model.Locale</span>
+                <label>@Localizer["Language"]</label>
             </div>
         </div>
         <div class="m-auto" indice-if="Model.CurrentLogins?.Count > 0 || Model.OtherLogins?.Count > 0">
