@@ -187,6 +187,11 @@ public abstract class BaseRegisterModel : BasePageModel
             });
         }
         user.Claims.Add(new() {
+            ClaimType = JwtClaimTypes.Locale,
+            ClaimValue = RequestCulture.Culture.TwoLetterISOLanguageName,
+            UserId = user.Id
+        });
+        user.Claims.Add(new() {
             ClaimType = BasicClaimTypes.ConsentCommercial,
             ClaimValue = input.HasAcceptedTerms ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
             UserId = user.Id
