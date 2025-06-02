@@ -261,4 +261,7 @@
   <data name="PhoneNumberChangeVerificationMessage" xml:space="preserve">
     <value>SMS verification code is {0}.</value>
   </data>
+  <data name="RegisterEmailSubject" xml:space="preserve">
+    <value>Welcome to {0}! Please confirm your email to get started.</value>
+  </data>
 </root>

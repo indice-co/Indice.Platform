@@ -448,6 +448,15 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Welcome to {0}! Please confirm your email to get started..
+        /// </summary>
+        internal static string RegisterEmailSubject {
+            get {
+                return ResourceManager.GetString("RegisterEmailSubject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to OTP code is {0}..
         /// </summary>
         internal static string RequiresOtpMessage {

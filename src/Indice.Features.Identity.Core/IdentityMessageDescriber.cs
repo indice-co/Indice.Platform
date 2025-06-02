@@ -81,6 +81,8 @@ public class IdentityMessageDescriber
     /// <summary>Subject content for suspicious login attempt (Impossible Travel).</summary>
     public virtual string ImpossibleTravelOtpSubject => string.Format(IdentityResources.Culture, IdentityResources.ImpossibleTravelOtpSubject);
     /// <summary>Subject content for confirmation email.</summary>
+    public virtual string RegisterEmailSubject(string applicationName) => string.Format(IdentityResources.Culture, IdentityResources.RegisterEmailSubject, applicationName);
+    /// <summary>Subject content for confirmation email.</summary>
     public virtual string ConfirmationEmailSubject => string.Format(IdentityResources.Culture, IdentityResources.ConfirmationEmailSubject);
     /// <summary>Subject content for confirmation of email change .</summary>
     public virtual string ConfirmationEmailChangeSubject => string.Format(IdentityResources.Culture, IdentityResources.ConfirmationEmailChangeSubject);

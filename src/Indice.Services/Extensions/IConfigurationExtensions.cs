@@ -124,6 +124,12 @@ public static class IConfigurationExtensions
     /// <remarks>Checks for the <strong>General</strong> option in appsettings.json file and binds it to the <see cref="GeneralSettings"/> class.</remarks>
     public static GeneralSettings? GetGeneralSettings(this IConfiguration configuration) => configuration.GetSection($"{GeneralSettings.Name}").Get<GeneralSettings>();
     
+    /// <summary>A string that represents the running application short name.</summary>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <returns>The application name.</returns>
+    /// <remarks>Checks for the <strong>General:ApplicationName</strong> option in appsettings.json file.</remarks>
+    public static string? GetApplicationName(this IConfiguration configuration) => configuration.GetSection($"{GeneralSettings.Name}").GetValue<string>(nameof(GeneralSettings.ApplicationName));
+    
     /// <summary>A string that represents the api resource scope.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns>The api resource name. Or in other words the api base scope</returns>

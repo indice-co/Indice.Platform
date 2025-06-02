@@ -261,4 +261,7 @@
   <data name="PhoneNumberChangeVerificationMessage" xml:space="preserve">
     <value>Ο κωδικός επιβεβαίωσης μέσω SMS είναι {0}.</value>
   </data>
+  <data name="RegisterEmailSubject" xml:space="preserve">
+    <value>Καλωσήρθατε στην υπηρεσία {0}!</value>
+  </data>
 </root>
