@@ -264,4 +264,10 @@
   <data name="RegisterEmailSubject" xml:space="preserve">
     <value>Καλωσήρθατε στην υπηρεσία {0}!</value>
   </data>
+  <data name="PasswordChangedEventSubject" xml:space="preserve">
+    <value>Αλλαγή κωδικού πρόσβασης</value>
+  </data>
+  <data name="SecurityNotificationDefaultSubject" xml:space="preserve">
+    <value>Ειδοποίηση ασφαλείας για {0}</value>
+  </data>
 </root>

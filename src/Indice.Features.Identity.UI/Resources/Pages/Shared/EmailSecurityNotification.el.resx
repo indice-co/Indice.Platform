@@ -117,13 +117,32 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Please do not reply, as this address does not receive email messages and you will not receive a response." xml:space="preserve">
-    <value>Παρακαλούμε μην απαντάτε σε αυτό το email, καθώς αυτή η διεύθυνση δεν δέχεται μηνύματα ηλεκτρονικού ταχυδρομείου και δεν θα λάβετε απάντηση.</value>
+  <data name="(It may not match the exact location)" xml:space="preserve">
+    <value>(ίσως να μη συμφωνεί με την ακριβή τοποθεσία) </value>
   </data>
-  <data name="Privacy" xml:space="preserve">
-    <value>Ιδιωτικό Απόρρητο</value>
+  <data name="Device" xml:space="preserve">
+    <value>Συσκευή</value>
   </data>
-  <data name="This service email contains information related to your account." xml:space="preserve">
-    <value>Αυτό το ηλεκτρονικό μήνυμα υπηρεσίας περιλαμβάνει βασικές πληροφορίες που αφορούν τον λογαριασμό σας.</value>
+  <data name="Event details:" xml:space="preserve">
+    <value>Λεπτομέρειες:</value>
+    <comment>Λεπτομέρειες</comment>
+  </data>
+  <data name="Event time" xml:space="preserve">
+    <value>Ώρα</value>
+  </data>
+  <data name="Hi" xml:space="preserve">
+    <value>Αγαπητέ/ή</value>
+  </data>
+  <data name="If you did not perform this action, please contact support immediately." xml:space="preserve">
+    <value>Αν δεν πραγματοποιήσατε εσείς αυτήν την ενέργεια, παρακαλούμε επικοινωνήστε άμεσα με την υποστήριξη.</value>
+  </data>
+  <data name="Location" xml:space="preserve">
+    <value>Τοποθεσία</value>
+  </data>
+  <data name="Sincerely" xml:space="preserve">
+    <value>Με εκτίμηση</value>
+  </data>
+  <data name="We wanted to let you know that a security-related event occurred on your account." xml:space="preserve">
+    <value>Θα θέλαμε να σας ενημερώσουμε ότι πραγματοποιήθηκε μια ενέργεια σχετική με την ασφάλεια του λογαριασμού σας.</value>
   </data>
 </root>
