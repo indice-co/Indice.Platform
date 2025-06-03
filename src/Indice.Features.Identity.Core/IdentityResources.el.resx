@@ -138,9 +138,6 @@
   <data name="ForgotPasswordMessageBody" xml:space="preserve">
     <value>Ακολουθήστε αυτόν τον σύνδεσμο για να επαληθεύσετε το email σας &lt;a href="{0}" &gt;{1}&lt;a&gt;</value>
   </data>
-  <data name="ForgotPasswordMessageSubject" xml:space="preserve">
-    <value>Ξέχασα τον κωδικό</value>
-  </data>
   <data name="ImpossibleTravelOtpMessage" xml:space="preserve">
     <value>Ύποπτη προσπάθεια σύνδεσης. Ο κωδικός OTP είναι {0}.</value>
   </data>
@@ -269,5 +266,62 @@
   </data>
   <data name="SecurityNotificationDefaultSubject" xml:space="preserve">
     <value>Ειδοποίηση ασφαλείας για {0}</value>
+  </data>
+  <data name="AddEmailValidationEmailEmpty" xml:space="preserve">
+    <value>Παρακαλώ εισάγετε τη διεύθυνση email σας για να την επιβεβαιώσουμε πριν προχωρήσουμε.</value>
+  </data>
+  <data name="AddEmailConfirmationEmailSend" xml:space="preserve">
+    <value>Ένα email επιβεβαίωσης έχει αποσταλεί στην παρακάτω διεύθυνση.</value>
+  </data>
+  <data name="AddPhoneValidationPhoneEmpty" xml:space="preserve">
+    <value>Παρακαλώ επιλέξτε τον αριθμό τηλεφώνου σας για να τον επιβεβαιώσουμε πριν προχωρήσουμε.</value>
+  </data>
+  <data name="ForgotPasswordMessageSubject" xml:space="preserve">
+    <value>Ανάκτηση κωδικού</value>
+  </data>
+  <data name="ForgotPasswordConfirmationError" xml:space="preserve">
+    <value>Σφάλμα</value>
+  </data>
+  <data name="LoginValidationInvalidCredentials" xml:space="preserve">
+    <value>Παρακαλώ ελέγξτε τα στοιχεία εισόδου σας.</value>
+  </data>
+  <data name="MfaAddPhoneValidationPhoneEmpty" xml:space="preserve">
+    <value>Παρακαλώ επιλέξετε το αριθμό τηλεφώνου σας για να το επιβεβαιώσουμε πριν προχωρήσουμε.</value>
+  </data>
+  <data name="MfaAddPhoneSuccessMessage" xml:space="preserve">
+    <value>Έχετε επιτυχώς ενεργοποιήσει το MFA για το λογαριασμό σας. Συνδεθείτε για να εισέλθετε στο λογαριασμό σας.</value>
+  </data>
+  <data name="MfaAddPhoneValidationPhoneAlreadyConfirmed" xml:space="preserve">
+    <value>Ο αριθμός τηλεφώνου είναι ήδη επιβεβαιωμένος. Συνεχίστε για να ενεργοποιήσετε το MFA.</value>
+  </data>
+  <data name="MfaVerifyPhoneValidationMissingPhone" xml:space="preserve">
+    <value>Παρακαλώ εισάγετε τον κωδικό που λάβατε στο κινητό σας τηλέφωνο.</value>
+  </data>
+  <data name="MfaVerifyPhoneSuccessMessage" xml:space="preserve">
+    <value>Ο αριθμός τηλεφώνου σας επιβεβαιώθηκε επιτυχώς. Παρακαλώ πατήστε το κουμπί 'Επόμενο' για να συνεχίσετε.</value>
+  </data>
+  <data name="PasswordChangedSuccessfully" xml:space="preserve">
+    <value>Ο κωδικός σας έχει αλλάξει με επιτυχία. Παρακαλώ πατήστε το κουμπί 'Επόμενο' για να συνεχίσετε.</value>
+  </data>
+  <data name="PasswordExpiredMessage" xml:space="preserve">
+    <value>Ο κωδικός σας έχει λήξει. Παρακαλώ επιλέξτε ένα νέο κωδικό.</value>
+  </data>
+  <data name="ProfileExternalLoginAddedSuccessMessage" xml:space="preserve">
+    <value>Ο εξωτερικός λογαριασμός προστέθηκε στο προφίλ με επιτυχία.</value>
+  </data>
+  <data name="RegisterPhoneConfirmationPrompt" xml:space="preserve">
+    <value>Παρακαλώ εισάγετε τον κωδικό που λάβατε στο κινητό σας τηλέφωνο.</value>
+  </data>
+  <data name="MfaSmsSubject" xml:space="preserve">
+    <value>Είσοδος με OTP</value>
+  </data>
+  <data name="MfaSmsBody" xml:space="preserve">
+    <value>Ο κωδικός OTP για είσοδο είναι: {0}</value>
+  </data>
+  <data name="MfaValidationError" xml:space="preserve">
+    <value>Ο κωδικός OTP δεν είναι έγκυρος.</value>
+  </data>
+  <data name="LoginErrorLockedMessage" xml:space="preserve">
+    <value>Ο λογαριασμός σας είναι προσωρινά κλειδωμένος. Παρακαλώ επικοινωνήστε με έναν διαχειριστή του συστήματος.</value>
   </data>
 </root>

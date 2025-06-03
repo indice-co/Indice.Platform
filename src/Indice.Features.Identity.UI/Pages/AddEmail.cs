@@ -18,19 +18,15 @@ namespace Indice.Features.Identity.UI.Pages;
 [ValidateAntiForgeryToken]
 public abstract class BaseAddEmailModel : BasePageModel
 {
-    private readonly IStringLocalizer<BaseAddEmailModel> _localizer;
 
     /// <summary>Creates a new instance of <see cref="BaseAddEmailModel"/> class.</summary>
-    /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseAddEmailModel"/>.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="signInManager"></param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseAddEmailModel(
-        IStringLocalizer<BaseAddEmailModel> localizer,
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager
     ) : base() {
-        _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
     }
@@ -57,7 +53,7 @@ public abstract class BaseAddEmailModel : BasePageModel
             return await OnPostAsync(returnUrl);
         }
         TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
-            Alert = AlertModel.Info(_localizer["Please enter your email address so we can verify it before we continue."])
+            Alert = AlertModel.Info(UserManager.MessageDescriber.AddEmailValidationEmailEmpty)
         });
         return Page();
     }
@@ -84,7 +80,7 @@ public abstract class BaseAddEmailModel : BasePageModel
         }
         await SendConfirmationEmail(user, returnUrl);
         TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
-            Alert = AlertModel.Success(_localizer["A confirmation email has been sent to the address below."]),
+            Alert = AlertModel.Success(UserManager.MessageDescriber.AddEmailConfirmationEmailSend),
             DisableForm = true,
             NextStepUrl = Url.PageLink("/AddEmail", values: new { returnUrl })
         });
@@ -96,8 +92,7 @@ public abstract class BaseAddEmailModel : BasePageModel
 internal class AddEmailModel : BaseAddEmailModel
 {
     public AddEmailModel(
-        IStringLocalizer<AddEmailModel> localizer, 
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager
-    ) : base(localizer, userManager, signInManager) { }
+    ) : base(userManager, signInManager) { }
 }

@@ -4,7 +4,6 @@ using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Localization;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -14,18 +13,12 @@ namespace Indice.Features.Identity.UI.Pages;
 public abstract class BaseConfirmEmailChangeModel : BasePageModel
 {
     /// <summary>Creates a new instance of <see cref="BaseConfirmEmailChangeModel"/> class.</summary>
-    /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseConfirmEmailChangeModel"/>.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseConfirmEmailChangeModel(
-        IStringLocalizer<BaseConfirmEmailChangeModel> localizer,
         ExtendedUserManager<User> userManager) : base() {
-        Localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
     }
-    /// <summary>Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseConfirmEmailChangeModel"/>.</summary>
-    protected IStringLocalizer<BaseConfirmEmailChangeModel> Localizer { get; }
-
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
     protected ExtendedUserManager<User> UserManager { get; }
 
@@ -86,7 +79,6 @@ public abstract class BaseConfirmEmailChangeModel : BasePageModel
 internal class ConfirmEmailChangeModel : BaseConfirmEmailChangeModel
 {
     public ConfirmEmailChangeModel(
-        IStringLocalizer<ConfirmEmailChangeModel> localizer,
         ExtendedUserManager<User> userManager
-    ) : base(localizer, userManager) { }
+    ) : base(userManager) { }
 }

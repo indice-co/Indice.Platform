@@ -15,7 +15,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.UI.Pages;
@@ -30,7 +29,6 @@ public abstract class BaseProfileModel : BasePageModel
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    /// <param name="localizer">The source of translations for this model class</param>
     /// <param name="identityUiOptions">Configuration options for Identity UI.</param>
     /// <param name="localizationOptions">The request localization options</param>
     /// <exception cref="ArgumentNullException"></exception>
@@ -38,14 +36,12 @@ public abstract class BaseProfileModel : BasePageModel
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager,
         IConfiguration configuration,
-        IStringLocalizer localizer,
         IOptions<IdentityUIOptions> identityUiOptions,
         IOptions<RequestLocalizationOptions> localizationOptions
     ) : base() {
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-        Localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         LocalizationOptions = localizationOptions.Value;
         IdentityUIOptions = identityUiOptions?.Value ?? throw new ArgumentNullException(nameof(identityUiOptions));
     }
@@ -56,8 +52,7 @@ public abstract class BaseProfileModel : BasePageModel
     protected ExtendedSignInManager<User> SignInManager { get; }
     /// <summary>Represents a set of key/value application configuration properties.</summary>
     protected IConfiguration Configuration { get; }
-    /// <summary>The source of translations for this model class.</summary>
-    protected IStringLocalizer Localizer { get; }
+    
     /// <summary>
     /// Gets the localization options used to configure request localization settings.
     /// </summary>
@@ -228,7 +223,7 @@ public abstract class BaseProfileModel : BasePageModel
             return RedirectToPage("/Profile");
         }
         await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
-        TempData.Put("AlertProviders", AlertModel.Success(Localizer["The external login was added."]));
+        TempData.Put("AlertProviders", AlertModel.Success(UserManager.MessageDescriber.ProfileExternalLoginAddedSuccessMessage));
         return RedirectToPage("/Profile");
     }
 
@@ -310,8 +305,7 @@ internal class ProfileModel : BaseProfileModel
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager,
         IConfiguration configuration,
-        IStringLocalizer<ProfileModel> localizer,
         IOptions<IdentityUIOptions> identityUiOptions,
         IOptions<RequestLocalizationOptions> localizationOptions
-    ) : base(userManager, signInManager, configuration, localizer, identityUiOptions, localizationOptions) { }
+    ) : base(userManager, signInManager, configuration, identityUiOptions, localizationOptions) { }
 }

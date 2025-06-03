@@ -4,7 +4,6 @@ using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Identity.UI.Pages;
@@ -16,21 +15,16 @@ namespace Indice.Features.Identity.UI.Pages;
 [ValidateAntiForgeryToken]
 public abstract class BaseChangePasswordModel : BasePageModel
 {
-    private readonly IStringLocalizer<BaseChangePasswordModel> _localizer;
-
     /// <summary>Creates a new instance of <see cref="BaseChangePasswordModel"/> class.</summary>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="logger">Represents a type used to perform logging.</param>
-    /// <param name="localizer">Represents a service that provides localized strings.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseChangePasswordModel(
         ExtendedUserManager<User> userManager,
-        ILogger<BaseChangePasswordModel> logger,
-        IStringLocalizer<BaseChangePasswordModel> localizer
+        ILogger<BaseChangePasswordModel> logger
     ) {
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
     }
 
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
@@ -75,7 +69,6 @@ internal class ChangePasswordModel : BaseChangePasswordModel
 {
     public ChangePasswordModel(
         ExtendedUserManager<User> userManager,
-        ILogger<ChangePasswordModel> logger,
-        IStringLocalizer<ChangePasswordModel> localizer
-    ) : base(userManager, logger, localizer) { }
+        ILogger<ChangePasswordModel> logger
+    ) : base(userManager, logger) { }
 }

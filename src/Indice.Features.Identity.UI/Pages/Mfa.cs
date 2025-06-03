@@ -6,10 +6,8 @@ using Indice.Features.Identity.Core.Totp;
 using Indice.Features.Identity.UI.Models;
 using Indice.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Identity.UI.Pages;
@@ -21,11 +19,8 @@ namespace Indice.Features.Identity.UI.Pages;
 [ValidateAntiForgeryToken]
 public abstract class BaseMfaModel : BasePageModel
 {
-    private readonly IStringLocalizer<BaseMfaModel> _localizer;
-
     /// <summary>Creates a new instance of <see cref="BaseMfaModel"/> class.</summary>
     /// <param name="logger">The logger instance for this page.</param>
-    /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseMfaModel"/>.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="totpServiceFactory">A factory service that contains methods to create various TOTP services, based on <see cref="TotpServiceBase"/>.</param>
@@ -35,7 +30,6 @@ public abstract class BaseMfaModel : BasePageModel
     /// <exception cref="ArgumentNullException"></exception>
     public BaseMfaModel(
         ILogger<BaseMfaModel> logger,
-        IStringLocalizer<BaseMfaModel> localizer,
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager,
         TotpServiceFactory totpServiceFactory,
@@ -44,7 +38,6 @@ public abstract class BaseMfaModel : BasePageModel
         IAuthenticationMethodProvider authenticationMethodProvider
     ) {
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         TotpServiceFactory = totpServiceFactory ?? throw new ArgumentNullException(nameof(totpServiceFactory));
@@ -80,7 +73,7 @@ public abstract class BaseMfaModel : BasePageModel
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         Input = View = await BuildMfaLoginViewModelAsync(returnUrl);
         if (View.HasError) {
-            ModelState.AddModelError(string.Empty, _localizer[View.Error!]);
+            ModelState.AddModelError(string.Empty, View.Error!);
             return Page();
         }
 
@@ -93,12 +86,12 @@ public abstract class BaseMfaModel : BasePageModel
     public virtual async Task<IActionResult> OnPostAsync([FromQuery] string? returnUrl) {
         View = await BuildMfaLoginViewModelAsync(Input);
         if (View.HasError) {
-            ModelState.AddModelError(string.Empty, _localizer[View.Error!]);
+            ModelState.AddModelError(string.Empty, View.Error!);
             return Page();
         }
         if (Input.ResendOtp) {
             var otpResult = await SendOtpAsync();
-            if(!otpResult.Success) {
+            if (!otpResult.Success) {
                 ModelState.AddModelError(string.Empty, otpResult.Error!);
             }
             return Page();
@@ -117,7 +110,7 @@ public abstract class BaseMfaModel : BasePageModel
             return RedirectToPage("/AddEmail", new { returnUrl });
 
         }
-        ModelState.AddModelError(string.Empty, _localizer["The OTP code is not valid."]);
+        ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.MfaValidationError);
         return Page();
     }
 
@@ -162,10 +155,10 @@ public abstract class BaseMfaModel : BasePageModel
         if (View.AuthenticationMethod.SupportsDeliveryChannel()) {
             return await totpService.SendAsync(message =>
                 message.ToUser(View.User)
-                       .WithMessage(_localizer["Your OTP code for login is: {0}"])
+                       .WithMessage(UserManager.MessageDescriber.MfaSmsBody)
                        .UsingDeliveryChannel(View.AuthenticationMethodDeliveryChannel!.Value)
                        .UsingTokenProvider(View.AuthenticationMethod?.GetTokenProvider()!)
-                       .WithSubject(_localizer["OTP login"])
+                       .WithSubject(UserManager.MessageDescriber.MfaSmsSubject)
                        .WithPurpose("TwoFactor")
             );
         }
@@ -177,12 +170,11 @@ internal class MfaModel : BaseMfaModel
 {
     public MfaModel(
         ILogger<BaseMfaModel> logger,
-        IStringLocalizer<MfaModel> localizer,
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager,
         TotpServiceFactory totpServiceFactory,
         IConfiguration configuration,
         IIdentityServerInteractionService interaction,
         IAuthenticationMethodProvider authenticationMethodProvider
-    ) : base(logger, localizer, userManager, signInManager, totpServiceFactory, configuration, interaction, authenticationMethodProvider) { }
+    ) : base(logger, userManager, signInManager, totpServiceFactory, configuration, interaction, authenticationMethodProvider) { }
 }
