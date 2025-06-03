@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Security.Claims;
-using System.Text.RegularExpressions;
+﻿using System.Security.Claims;
 using IdentityModel;
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
@@ -63,7 +60,7 @@ internal static partial class MyAccountHandlers
                 .To(user.Email!)
                 .WithSubject(userManager.MessageDescriber.UpdateEmailMessageSubject);
             if (!string.IsNullOrWhiteSpace(endpointOptions.Value.Email.UpdateEmailTemplate)) {
-                var data = new IdentityApiEmailData {
+                var data = new EmailChangeEmailModel {
                     DisplayName = currentUser.FindDisplayName() ?? user.UserName,
                     ReturnUrl = request.ReturnUrl,
                     Subject = userManager.MessageDescriber.UpdateEmailMessageSubject,
@@ -129,7 +126,7 @@ internal static partial class MyAccountHandlers
                 .To(request.Email)
                 .WithSubject(userManager.MessageDescriber.ConfirmationEmailChangeSubject);
             if (!string.IsNullOrWhiteSpace(endpointOptions.Value.Email.UpdateEmailTemplate)) {
-                var data = new IdentityApiEmailData {
+                var data = new EmailChangeEmailModel {
                     DisplayName = currentUser.FindDisplayName() ?? user.UserName,
                     ReturnUrl = request.ReturnUrl,
                     Subject = userManager.MessageDescriber.ConfirmationEmailChangeSubject,
@@ -340,7 +337,7 @@ internal static partial class MyAccountHandlers
             return TypedResults.NoContent();
         }
         var code = await userManager.GeneratePasswordResetTokenAsync(user);
-        var data = new IdentityApiEmailData {
+        var data = new EmailChangeEmailModel {
             DisplayName = currentUser.FindDisplayName() ?? user.UserName,
             ReturnUrl = request.ReturnUrl,
             Subject = userManager.MessageDescriber.ForgotPasswordMessageSubject,
@@ -725,14 +722,10 @@ internal static partial class MyAccountHandlers
                 UserId = user.Id
             });
         }
-        user.Claims.Add(new IdentityUserClaim<string> {
-            ClaimType = BasicClaimTypes.ConsentCommercial,
-            ClaimValue = request.HasAcceptedTerms ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
-            UserId = user.Id
-        });
+
         user.Claims.Add(new IdentityUserClaim<string> {
             ClaimType = BasicClaimTypes.ConsentTerms,
-            ClaimValue = request.HasReadPrivacyPolicy ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
+            ClaimValue = request.HasReadPrivacyPolicy && request.HasAcceptedTerms ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
             UserId = user.Id
         });
         user.Claims.Add(new IdentityUserClaim<string> {
@@ -740,11 +733,19 @@ internal static partial class MyAccountHandlers
             ClaimValue = $"{DateTime.UtcNow:O}",
             UserId = user.Id
         });
-        user.Claims.Add(new IdentityUserClaim<string> {
-            ClaimType = BasicClaimTypes.ConsentCommercialDate,
-            ClaimValue = $"{DateTime.UtcNow:O}",
-            UserId = user.Id
-        });
+
+        if (request.HasConsentedToCommercialCommunications) {
+            user.Claims.Add(new() {
+                ClaimType = BasicClaimTypes.ConsentCommercial,
+                ClaimValue = request.HasConsentedToCommercialCommunications ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
+                UserId = user.Id
+            });
+            user.Claims.Add(new() {
+                ClaimType = BasicClaimTypes.ConsentCommercialDate,
+                ClaimValue = $"{DateTime.UtcNow:O}",
+                UserId = user.Id
+            });
+        }
         return user;
     }
 

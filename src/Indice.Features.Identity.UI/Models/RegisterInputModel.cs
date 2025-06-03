@@ -24,6 +24,8 @@ public class RegisterInputModel {
     public bool HasReadPrivacyPolicy { get; set; }
     /// <summary>The terms and conditions have been accepted.</summary>
     public bool HasAcceptedTerms { get; set; }
+    /// <summary>Gets or sets a value indicating whether the user has consented to receive commercial communications.</summary>
+    public bool HasConsentedToCommercialCommunications { get; set; }
     /// <summary>List of claims where each item is formatted as claimType:claimValue collection of strings.</summary>
     public List<AttributeModel> Claims { get; set; } = new List<AttributeModel>();
     /// <summary>The id of the current client in the request. </summary>

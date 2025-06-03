@@ -29,7 +29,7 @@ public sealed class LocationEnricher : ISignInLogEntryEnricher
         if (!isValidIp) {
             return ValueTask.CompletedTask;
         }
-        var location = _ipAddressLocator.GetLocationMetadata(ipAddress);
+        var location = _ipAddressLocator.GetLocationMetadata(ipAddress!);
         logEntry.CountryIsoCode = location.CountryIsoCode;
         logEntry.Location = location.ToString();
         logEntry.Coordinates = location.Coordinates;

@@ -117,25 +117,34 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Account confirmation" xml:space="preserve">
-    <value>Επιβεβαίωση λογαριασμού</value>
-  </data>
   <data name="here" xml:space="preserve">
     <value>εδώ</value>
   </data>
   <data name="Hi" xml:space="preserve">
     <value>Γεια σας</value>
   </data>
-  <data name="Sincerely" xml:space="preserve">
-    <value>Με εκτίμηση</value>
+  <data name="If you did not create an account, you can safely ignore this email." xml:space="preserve">
+    <value>Εαν δε δημιουργήσατε εσείς το λογαριασμό μπορείτε να αγνοήσετε αυτό το email.</value>
   </data>
-  <data name="Thanks" xml:space="preserve">
-    <value>Ευχαριστούμε</value>
+  <data name="To complete your registration, please confirm your email address by clicking" xml:space="preserve">
+    <value>Πατήστε τον παρακάτω σύνδεσμο για να ολοκληρώσετε τη διαδικασία της εγγραφής σας</value>
   </data>
   <data name="to get verified" xml:space="preserve">
     <value>για να το επιβεβαιώσετε</value>
   </data>
   <data name="We need you to verify your email. Please click" xml:space="preserve">
     <value>Πρέπει να επιβεβαιώσουμε το λογαριασμό email σας. Παρακαλώ πατήστε</value>
+  </data>
+  <data name="Welcome to {0}! Please confirm your email to get started." xml:space="preserve">
+    <value>Καλωσήρθατε στην υπηρεσία {0}!</value>
+  </data>
+  <data name="Welcome to {0}! We’re excited to have you on board." xml:space="preserve">
+    <value>Θα θέλαμε να σας καλοσορήσουμε στην υπηρεσία {0}! </value>
+  </data>
+  <data name="Sincerely" xml:space="preserve">
+    <value>Με εκτίμηση</value>
+  </data>
+  <data name="Thank you for joining!" xml:space="preserve">
+    <value>Ευχαριστούμε</value>
   </data>
 </root>

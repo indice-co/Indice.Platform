@@ -6,7 +6,6 @@ using Indice.Features.Identity.UI.Filters;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -18,18 +17,13 @@ namespace Indice.Features.Identity.UI.Pages;
 [ValidateAntiForgeryToken]
 public abstract class BaseMfaOnboardingVerifyPhoneModel : BasePageModel
 {
-    private readonly IStringLocalizer<BaseMfaOnboardingVerifyPhoneModel> _localizer;
-
     /// <summary>Creates a new instance of <see cref="BaseMfaOnboardingVerifyPhoneModel"/> class.</summary>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
-    /// <param name="localizer">Represents a service that provides localized strings.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseMfaOnboardingVerifyPhoneModel(
-        ExtendedUserManager<User> userManager,
-        IStringLocalizer<BaseMfaOnboardingVerifyPhoneModel> localizer
+        ExtendedUserManager<User> userManager
     ) {
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-        _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
     }
 
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
@@ -47,7 +41,7 @@ public abstract class BaseMfaOnboardingVerifyPhoneModel : BasePageModel
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
-            Alert = AlertModel.Success(_localizer["Please enter the code that you have received at your mobile phone."]),
+            Alert = AlertModel.Success( UserManager.MessageDescriber.MfaVerifyPhoneValidationMissingPhone),
             NextStepUrl = string.Empty
         });
         Input.PhoneNumber = user.PhoneNumber;
@@ -66,9 +60,9 @@ public abstract class BaseMfaOnboardingVerifyPhoneModel : BasePageModel
         var result = await UserManager.ChangePhoneNumberAsync(user, user.PhoneNumber!, Input.Code!);
         if (result.Succeeded) {
             await UserManager.SetTwoFactorEnabledAsync(user, true);
-            tempDataModel.Alert = AlertModel.Success(_localizer["Your phone number was successfully validated. Please press the 'Next' button to continue."]);
+            tempDataModel.Alert = AlertModel.Success(UserManager.MessageDescriber.MfaVerifyPhoneSuccessMessage);
         } else {
-            tempDataModel.Alert = AlertModel.Error(_localizer["Please enter the code that you have received at your mobile phone."]);
+            tempDataModel.Alert = AlertModel.Error(UserManager.MessageDescriber.MfaVerifyPhoneValidationMissingPhone);
         }
         TempData.Put(TempDataKey, tempDataModel);
         return Page();
@@ -78,7 +72,6 @@ public abstract class BaseMfaOnboardingVerifyPhoneModel : BasePageModel
 internal class MfaOnboardingVerifyPhoneModel : BaseMfaOnboardingVerifyPhoneModel
 {
     public MfaOnboardingVerifyPhoneModel(
-        ExtendedUserManager<User> userManager,
-        IStringLocalizer<MfaOnboardingVerifyPhoneModel> localizer
-    ) : base(userManager, localizer) { }
+        ExtendedUserManager<User> userManager
+    ) : base(userManager) { }
 }

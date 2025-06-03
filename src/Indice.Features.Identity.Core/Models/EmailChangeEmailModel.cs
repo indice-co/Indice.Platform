@@ -3,7 +3,7 @@
 namespace Indice.Features.Identity.Server.Manager.Models;
 
 /// <summary>Models the data being sent to the view template for email messages.</summary>
-public class IdentityApiEmailData
+public class EmailChangeEmailModel
 {
     /// <summary>The user instance.</summary>
     public User? User { get; set; }

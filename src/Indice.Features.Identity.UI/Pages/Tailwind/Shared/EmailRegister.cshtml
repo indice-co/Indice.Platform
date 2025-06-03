@@ -1,5 +1,6 @@
-﻿@inject IViewLocalizer Localizer
-@inject IOptions<GeneralSettings> SettingsWrapper
+﻿@inject IIdentityViewLocalizer Localizer
+@inject IOptions<GeneralSettings> GeneralSettings
+@inject IOptions<IdentityUIOptions> UIOptions
 @inject UserManager<User> UserManager
 
 @{
@@ -7,28 +8,39 @@
 }
 
 @{
-    var Settings = SettingsWrapper.Value;
-    var subject = ViewData["Subject"];
-    var body = ViewData["Body"];
+    var settings = GeneralSettings.Value;
+    var subject = ViewData["Subject"] ?? Localizer["Welcome to {0}! Please confirm your email to get started.", settings.ApplicationName!].Value;
     var userName = Model?.UserName ?? UserManager.GetUserName(User);
+    var confirmationLink = Model?.Url ?? throw new InvalidOperationException("Confirmation link cannot be null.");
 }
 
 @section preheader {
-    @Localizer["We need you to verify your email. Click"] <a style="color:#007ac3" href="@Model?.Url">@Localizer["here"]</a> @Localizer["to get verified"]!
+    @Localizer[$"Welcome to {0}! Please confirm your email to get started.", settings.ApplicationName!]
 }
 
 @section subject {
-    <h1 style="font-size: 18px; font-family:'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-weight:normal">@subject</h1>
+    <h1 style="font-size: 18px; font-family:'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-weight:normal">
+        @Localizer[$"{subject}"]
+    </h1>
 }
 
 <p style="font-family: 'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-size: 12px;">
     @Localizer["Hi"] @(userName ?? string.Empty),
-    <br /><br />
-    <br /><br />
-    @Localizer["We need you to verify your email. Click"] <a style="color:#007ac3" href="@Model?.Url">@Localizer["here"]</a> @Localizer["to get verified"]
-    <br /><br />
-    @Localizer["Thanks"].
     <br />
     <br />
-    @Localizer["Sincerely"] @Localizer[Settings.Organization!].
+    @Localizer["Welcome to {0}! We’re excited to have you on board.", settings.ApplicationName!]
+    <br />
+    <br />
+    @Localizer["To complete your registration, please confirm your email address by clicking"]
+    <a style="color:#@UIOptions.Value.EmailLinkColorHex" href="@confirmationLink">@Localizer["here"]</a>.
+    <br />
+    <br />
+    @Localizer["If you did not create an account, you can safely ignore this email."]
+    <br />
+    <br />
+    @Localizer["Thank you for joining!"]
+    <br />
+    <br />
+    @Localizer["Sincerely"],<br />
+    @Localizer[settings.Organization!]
 </p>

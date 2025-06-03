@@ -628,7 +628,7 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
             await Task.Delay(TimeSpan.FromSeconds(1));
             // Each login from an impossible location should result in a bad request.
             var tokenResponse = await LoginWithPasswordGrant("someone@indice.gr", "xxxxxxx", deviceId, "67.168.97.200");
-            Assert.True(tokenResponse.HttpStatusCode == HttpStatusCode.BadRequest);
+            Assert.Equal(HttpStatusCode.BadRequest, tokenResponse.HttpStatusCode);
             Assert.True(tokenResponse.AccessToken is null);
         }
     }

@@ -192,13 +192,8 @@ public abstract class BaseRegisterModel : BasePageModel
             UserId = user.Id
         });
         user.Claims.Add(new() {
-            ClaimType = BasicClaimTypes.ConsentCommercial,
-            ClaimValue = input.HasAcceptedTerms ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
-            UserId = user.Id
-        });
-        user.Claims.Add(new() {
             ClaimType = BasicClaimTypes.ConsentTerms,
-            ClaimValue = input.HasReadPrivacyPolicy ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
+            ClaimValue = input.HasAcceptedTerms && input.HasReadPrivacyPolicy ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
             UserId = user.Id
         });
         user.Claims.Add(new() {
@@ -206,11 +201,18 @@ public abstract class BaseRegisterModel : BasePageModel
             ClaimValue = $"{DateTime.UtcNow:O}",
             UserId = user.Id
         });
-        user.Claims.Add(new() {
-            ClaimType = BasicClaimTypes.ConsentCommercialDate,
-            ClaimValue = $"{DateTime.UtcNow:O}",
-            UserId = user.Id
-        });
+        if (input.HasConsentedToCommercialCommunications) {
+            user.Claims.Add(new() {
+                ClaimType = BasicClaimTypes.ConsentCommercial,
+                ClaimValue = input.HasConsentedToCommercialCommunications ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
+                UserId = user.Id
+            });
+            user.Claims.Add(new() {
+                ClaimType = BasicClaimTypes.ConsentCommercialDate,
+                ClaimValue = $"{DateTime.UtcNow:O}",
+                UserId = user.Id
+            });
+        }
         foreach (var attribute in Input.Claims) {
             if (string.IsNullOrWhiteSpace(attribute.Value)) {
                 continue;

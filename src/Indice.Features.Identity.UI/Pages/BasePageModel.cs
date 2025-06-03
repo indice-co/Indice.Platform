@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -62,6 +63,39 @@ public abstract class BasePageModel : PageModel
     /// <summary>Generates a registration email confirmation link and sends it to the email of the specified user.</summary>
     /// <param name="user">The user instance.</param>
     /// <param name="returnUrl">The return URL.</param>
+    public virtual async Task SendRegistrationEmail(User user, string? returnUrl = null) {
+        var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var configuration = ServiceProvider.GetRequiredService<IConfiguration>();
+        var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+        if (!string.IsNullOrEmpty(returnUrl) && InteractionService.IsValidReturnUrl(returnUrl)) {
+            // if this is a login url use it to extract the client_id param but remove it from the email link
+            // If a return url such as a login url is baked into the confirmation chanses are that it will
+            // 1. either become invild by the time the user clicks his email
+            // 2. it will make the confirmation link so big it will fail on multiple browsers.
+            // so remove the thing.
+            returnUrl = null;
+        }
+        var callbackUrl = Url.PageLink("/ConfirmEmail", values: new { userId = user.Id, token, returnUrl, client_id = HttpContext.GetClientIdFromReturnUrl() }, protocol: HttpContext.Request.Scheme ?? null);
+        var emailService = ServiceProvider.GetRequiredService<IEmailService>();
+        var identityMessageDescriber = ServiceProvider.GetRequiredService<IdentityMessageDescriber>();
+        await emailService.SendAsync(message =>
+            message.To(user.Email!)
+                   .WithSubject(identityMessageDescriber.RegisterEmailSubject(configuration.GetApplicationName()!))
+                   .UsingTemplate("EmailRegister")
+                   .WithData(new {
+                       user.UserName,
+                       subject = identityMessageDescriber.RegisterEmailSubject(configuration.GetApplicationName()!),
+                       Url = callbackUrl
+                   })
+        );
+        var logger = ServiceProvider.GetRequiredService<ILogger<BasePageModel>>();
+        var maskedEmail = user.Email!.Substring(0, 2) + "****" + user.Email.Substring(user.Email.IndexOf('@'));
+        logger.LogInformation("Sending a welcome email to {Email} with callback URL: {CallbackUrl}.", maskedEmail, callbackUrl);
+    }
+
+    /// <summary>Generates a registration email confirmation link and sends it to the email of the specified user.</summary>
+    /// <param name="user">The user instance.</param>
+    /// <param name="returnUrl">The return URL.</param>
     public virtual async Task SendConfirmationEmail(User user, string? returnUrl = null) {
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -79,7 +113,7 @@ public abstract class BasePageModel : PageModel
         await emailService.SendAsync(message =>
             message.To(user.Email!)
                    .WithSubject(identityMessageDescriber.ConfirmationEmailSubject)
-                   .UsingTemplate("EmailRegister")
+                   .UsingTemplate("EmailConfirmYourEmail")
                    .WithData(new {
                        user.UserName,
                        Url = callbackUrl

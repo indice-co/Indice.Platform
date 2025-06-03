@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using IdentityModel;
 using IdentityServer4;
-using IdentityServer4.Events;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
@@ -13,9 +12,7 @@ using Indice.Features.Identity.Core.Localization;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -36,7 +33,6 @@ public abstract class BaseLoginModel : BasePageModel
     /// <param name="events">Interface for the event service.</param>
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
     /// <param name="logger">A generic interface for logging.</param>
-    /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseLoginModel"/>.</param>
     /// <param name="identityUiOptions">Configuration options for Identity UI.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseLoginModel(
@@ -47,7 +43,6 @@ public abstract class BaseLoginModel : BasePageModel
         IEventService events,
         IIdentityServerInteractionService interaction,
         ILogger<BaseLoginModel> logger,
-        IStringLocalizer localizer,
         IOptions<IdentityUIOptions> identityUiOptions
     ) : base() {
         SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
@@ -58,7 +53,6 @@ public abstract class BaseLoginModel : BasePageModel
         Interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         IdentityUIOptions = identityUiOptions?.Value ?? throw new ArgumentNullException(nameof(identityUiOptions));
-        Localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
     }
 
     /// <summary>Retrieval of client configuration.</summary>
@@ -77,8 +71,6 @@ public abstract class BaseLoginModel : BasePageModel
     protected ExtendedUserManager<User> UserManager { get; }
     /// <summary>Configuration options for Identity UI.</summary>
     protected IdentityUIOptions IdentityUIOptions { get; }
-    /// <summary>Login String Localizer.</summary>
-    protected IStringLocalizer Localizer { get; }
     /// <summary>The current principal's username.</summary>
     public string? UserName => User.FindFirstValue(JwtClaimTypes.Name);
     /// <summary>Login view model.</summary>
@@ -165,7 +157,7 @@ public abstract class BaseLoginModel : BasePageModel
             if (result.IsLockedOut) {
                 Logger.LogWarning("User '{UserName}' was locked out after {WrongLoginsAttempts} unsuccessful login attempts.", Input.UserName, user?.AccessFailedCount);
                 await Events.RaiseAsync(new ExtendedUserLoginFailureEvent(Input.UserName!, "User locked out.", subjectId: user?.Id, clientId: context?.Client?.ClientId, clientName: context?.Client?.ClientName));
-                ModelState.AddModelError(string.Empty, "Your account is temporarily locked. Please contact system administrator.");
+                ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.LoginErrorLockedMessage);
             }
             if (result.RequiresTwoFactor) {
                 Logger.LogWarning("User '{UserName}' requires two factor authentication.", Input.UserName);
@@ -180,9 +172,9 @@ public abstract class BaseLoginModel : BasePageModel
             }
             Logger.LogWarning("User '{UserName}' entered invalid credentials during login.", Input.UserName);
             await Events.RaiseAsync(new ExtendedUserLoginFailureEvent(Input.UserName!, "Invalid credentials.", subjectId: user?.Id, clientId: context?.Client?.ClientId, clientName: context?.Client?.ClientName));
-            ModelState.AddModelError(string.Empty, Localizer["Please check your credentials."]);
+            ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.LoginValidationInvalidCredentials);
         } else {
-            ModelState.AddModelError(string.Empty, Localizer["Please check your credentials."]);
+            ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.LoginValidationInvalidCredentials);
         }
         // Something went wrong, show form with error.
         View = await BuildLoginViewModelAsync(Input);
@@ -266,7 +258,6 @@ internal class LoginModel : BaseLoginModel
         IEventService events,
         IIdentityServerInteractionService interaction,
         ILogger<LoginModel> logger,
-        IStringLocalizer<LoginModel> localizer,
         IOptions<IdentityUIOptions> identityUiOptions
-    ) : base(signInManager, userManager, schemeProvider, clientStore, events, interaction, logger, localizer, identityUiOptions) { }
+    ) : base(signInManager, userManager, schemeProvider, clientStore, events, interaction, logger, identityUiOptions) { }
 }
