@@ -2,10 +2,8 @@ using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
-using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Identity.UI.Pages;
@@ -17,21 +15,16 @@ namespace Indice.Features.Identity.UI.Pages;
 [ValidateAntiForgeryToken]
 public abstract class BaseForgotPasswordConfirmationModel : BasePageModel
 {
-    private readonly IStringLocalizer<BaseForgotPasswordConfirmationModel> _localizer;
-
     /// <summary>Creates a new instance of <see cref="BaseForgotPasswordConfirmationModel"/> class.</summary>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="logger">Represents a type used to perform logging.</param>
-    /// <param name="localizer">Represents a service that provides localized strings.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseForgotPasswordConfirmationModel(
         ExtendedUserManager<User> userManager,
-        ILogger<BaseForgotPasswordConfirmationModel> logger,
-        IStringLocalizer<BaseForgotPasswordConfirmationModel> localizer
+        ILogger<BaseForgotPasswordConfirmationModel> logger
     ) : base() {
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _localizer = localizer;
     }
 
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
@@ -72,7 +65,7 @@ public abstract class BaseForgotPasswordConfirmationModel : BasePageModel
         var user = await UserManager.FindByEmailAsync(Input.Email ?? throw new InvalidOperationException("Email cannot be null."));
         if (user is null) {
             // Don't inform the user what went wrong! This is for security reasons.
-            ModelState.AddModelError(string.Empty, _localizer["Something went wrong."]);
+            ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.ForgotPasswordConfirmationError);
             return Page();
         }
         var result = await UserManager.ResetPasswordAsync(user, Input.Token!, Input.NewPassword!);
@@ -90,7 +83,6 @@ internal class ForgotPasswordConfirmationModel : BaseForgotPasswordConfirmationM
 {
     public ForgotPasswordConfirmationModel(
         ExtendedUserManager<User> userManager,
-        ILogger<ForgotPasswordConfirmationModel> logger,
-        IStringLocalizer<ForgotPasswordConfirmationModel> localizer
-    ) : base(userManager, logger, localizer) { }
+        ILogger<ForgotPasswordConfirmationModel> logger
+    ) : base(userManager, logger) { }
 }

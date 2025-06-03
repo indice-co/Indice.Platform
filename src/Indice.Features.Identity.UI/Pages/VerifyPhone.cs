@@ -18,19 +18,14 @@ namespace Indice.Features.Identity.UI.Pages;
 [ValidateAntiForgeryToken]
 public abstract class BaseVerifyPhoneModel : BasePageModel
 {
-    private readonly IStringLocalizer<BaseVerifyPhoneModel> _localizer;
-
     /// <summary>Creates a new instance of <see cref="BaseAddEmailModel"/> class.</summary>
-    /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseVerifyPhoneModel"/>.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="signInManager"></param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseVerifyPhoneModel(
-        IStringLocalizer<BaseVerifyPhoneModel> localizer,
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager
     ) : base() {
-        _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
     }
@@ -52,7 +47,7 @@ public abstract class BaseVerifyPhoneModel : BasePageModel
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
-            Alert = AlertModel.Success(_localizer["Please enter the code that you have received at your mobile phone."]),
+            Alert = AlertModel.Success(UserManager.MessageDescriber.RegisterPhoneConfirmationPrompt),
             NextStepUrl = string.Empty
         });
         Input.PhoneNumber = user.PhoneNumber;
@@ -75,7 +70,7 @@ public abstract class BaseVerifyPhoneModel : BasePageModel
             // next step or signin
         } else {
             TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
-                Alert = AlertModel.Error(_localizer["Please enter the code that you have received at your mobile phone."]),
+                Alert = AlertModel.Error(UserManager.MessageDescriber.RegisterPhoneConfirmationPrompt),
                 NextStepUrl = string.Empty
             });
         }
@@ -86,8 +81,7 @@ public abstract class BaseVerifyPhoneModel : BasePageModel
 internal class VerifyPhoneModel : BaseVerifyPhoneModel
 {
     public VerifyPhoneModel(
-        IStringLocalizer<VerifyPhoneModel> localizer,
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager
-    ) : base(localizer, userManager, signInManager) { }
+    ) : base(userManager, signInManager) { }
 }
