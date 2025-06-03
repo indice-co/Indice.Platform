@@ -264,4 +264,10 @@
   <data name="RegisterEmailSubject" xml:space="preserve">
     <value>Welcome to {0}! Please confirm your email to get started.</value>
   </data>
+  <data name="PasswordChangedEventSubject" xml:space="preserve">
+    <value>Your password was changed</value>
+  </data>
+  <data name="SecurityNotificationDefaultSubject" xml:space="preserve">
+    <value>Security Notification {0}</value>
+  </data>
 </root>

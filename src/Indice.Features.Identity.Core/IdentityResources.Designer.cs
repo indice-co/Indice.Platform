@@ -241,6 +241,15 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Your password was changed.
+        /// </summary>
+        internal static string PasswordChangedEventSubject {
+            get {
+                return ResourceManager.GetString("PasswordChangedEventSubject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Your password contains not allowed characters..
         /// </summary>
         internal static string PasswordContainsNotAllowedChars {
@@ -462,6 +471,15 @@ namespace Indice.Features.Identity.Core {
         internal static string RequiresOtpMessage {
             get {
                 return ResourceManager.GetString("RequiresOtpMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Security Notification {0}.
+        /// </summary>
+        internal static string SecurityNotificationDefaultSubject {
+            get {
+                return ResourceManager.GetString("SecurityNotificationDefaultSubject", resourceCulture);
             }
         }
         

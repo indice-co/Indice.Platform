@@ -1,4 +1,6 @@
-﻿using Indice.Features.Identity.Core.Data.Models;
+﻿using Humanizer;
+using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Grants;
 
 namespace Indice.Features.Identity.Core;
@@ -95,4 +97,11 @@ public class IdentityMessageDescriber
     public virtual string PhoneChangeVerificationSmsSubject => string.Format(IdentityResources.Culture, IdentityResources.PhoneChangeVerificationSmsSubject);
     /// <summary>OTP body for phone confirmation.</summary>
     public virtual string PhoneVerificationSmsBody(string code) => string.Format(IdentityResources.Culture, IdentityResources.PhoneVerificationSmsBody, code);
+
+    /// <summary>Security event subject.</summary>
+    public virtual string SecurityEventSubject(string activity) =>
+        activity switch {
+            nameof(PasswordChangedEvent) => IdentityResources.PasswordChangedEventSubject,
+            _ => string.Format(IdentityResources.Culture, IdentityResources.SecurityNotificationDefaultSubject, activity.Replace("Event", "").Humanize())
+        };
 }
