@@ -165,7 +165,10 @@ public abstract class BaseLoginModel : BasePageModel
             if (result.IsLockedOut) {
                 Logger.LogWarning("User '{UserName}' was locked out after {WrongLoginsAttempts} unsuccessful login attempts.", Input.UserName, user?.AccessFailedCount);
                 await Events.RaiseAsync(new ExtendedUserLoginFailureEvent(Input.UserName!, "User locked out.", subjectId: user?.Id, clientId: context?.Client?.ClientId, clientName: context?.Client?.ClientName));
-                ModelState.AddModelError(string.Empty, "Your account is temporarily locked. Please contact system administrator.");
+                ModelState.AddModelError(string.Empty, Localizer["Your account is temporarily locked. Please contact a system administrator."]);
+                //Since we are notifying the user that they are locked out we shouldn't inform them that their credentials were invalid. Thus we are returning early.
+                View = await BuildLoginViewModelAsync(Input);
+                return Page();
             }
             if (result.RequiresTwoFactor) {
                 Logger.LogWarning("User '{UserName}' requires two factor authentication.", Input.UserName);

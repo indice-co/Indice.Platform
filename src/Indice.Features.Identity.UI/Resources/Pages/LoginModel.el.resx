@@ -120,4 +120,7 @@
   <data name="Please check your credentials." xml:space="preserve">
     <value>Παρακαλώ ελέξτε τα στοιχεία εισόδου σας.</value>
   </data>
+  <data name="Your account is temporarily locked. Please contact a system administrator." xml:space="preserve">
+    <value>Ο λογαριασμός σας είναι προσωρινά κλειδωμένος. Παρακαλώ επικοινωνήστε με έναν διαχειριστή του συστήματος.</value>
+  </data>
 </root>
