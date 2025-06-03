@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -16,7 +19,7 @@ namespace Indice.AspNetCore.Filters;
 /// An action filter that performs automatic FluentValidation validation on action parameters
 /// based on the configured <see cref="AutoValidationMvcConfiguration"/>.
 /// </summary>
-public class FluentValidationAutoValidationActionFilter : IAsyncActionFilter
+public class FluentValidationAutoValidationActionFilter : IAsyncActionFilter, IAsyncPageFilter
 {
     private readonly AutoValidationMvcConfiguration autoValidationMvcConfiguration;
 
@@ -28,11 +31,7 @@ public class FluentValidationAutoValidationActionFilter : IAsyncActionFilter
         this.autoValidationMvcConfiguration = autoValidationMvcConfiguration.Value;
     }
 
-    /// <summary>
-    /// Called asynchronously before the action, to perform FluentValidation validation on action parameters.
-    /// </summary>
-    /// <param name="context">The action executing context.</param>
-    /// <param name="next">The delegate to execute the next action filter or action.</param>
+    /// <inheritdoc/>
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next) {
         if (IsValidController(context.Controller)) {
             var endpoint = context.HttpContext.GetEndpoint();
@@ -90,11 +89,90 @@ public class FluentValidationAutoValidationActionFilter : IAsyncActionFilter
         await next();
     }
 
+
+    /// <inheritdoc/>
+    public Task OnPageHandlerSelectionAsync(PageHandlerSelectedContext context) {
+        return Task.CompletedTask;
+    }
+    /// <inheritdoc/>
+    public async Task OnPageHandlerExecutionAsync(PageHandlerExecutingContext context, PageHandlerExecutionDelegate next) {
+        if (IsValidPageModel(context.HandlerInstance)) {
+            var endpoint = context.HttpContext.GetEndpoint();
+            var actionDescriptor = context.ActionDescriptor;
+            var serviceProvider = context.HttpContext.RequestServices;
+
+            // Skip validation if the endpoint is decorated with AutoValidationAttribute or AutoValidateNeverAttribute, depending on the strategy.
+            if (endpoint != null &&
+                (
+                (autoValidationMvcConfiguration.ValidationStrategy == ValidationStrategy.Annotations && !endpoint.Metadata.OfType<AutoValidationAttribute>().Any()) ||
+                 endpoint.Metadata.OfType<AutoValidateNeverAttribute>().Any())) {
+
+                HandleUnvalidatedEntries(context);
+
+                await next();
+
+                return;
+            }
+            foreach (PageBoundPropertyDescriptor property in actionDescriptor.BoundProperties) {
+                
+                var parameterType = property.ParameterType;
+                var bindingSource = property.BindingInfo?.BindingSource;
+                var subject = property.Property.GetValue(context.HandlerInstance);
+                if (subject != null && parameterType != null &&
+                    GetValidator(serviceProvider, parameterType) is IValidator validator) {
+                    IValidationContext validationContext = new ValidationContext<object>(subject);
+                    var validationResult = await validator.ValidateAsync(validationContext, context.HttpContext.RequestAborted);
+                    if (!validationResult.IsValid) {
+                        foreach (var error in validationResult.Errors) {
+                            context.ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                        }
+                    }
+                }
+            }
+            // Iterate through action parameters and perform validation if a validator is found.
+            foreach (var parameter in actionDescriptor.Parameters) {
+                if (!context.HandlerArguments.TryGetValue(parameter.Name, out var subject)) {
+                    continue;
+                }
+
+                var parameterType = subject?.GetType();
+                var bindingSource = parameter.BindingInfo?.BindingSource;
+                if (subject != null && parameterType != null &&
+                     HasValidBindingSource(bindingSource) &&
+                    GetValidator(serviceProvider, parameterType) is IValidator validator) {
+                    IValidationContext validationContext = new ValidationContext<object>(subject);
+                    var validationResult = await validator.ValidateAsync(validationContext, context.HttpContext.RequestAborted);
+                    if (!validationResult.IsValid) {
+                        foreach (var error in validationResult.Errors) {
+                            context.ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                        }
+                    }
+                }
+            }
+
+            // Mark unvalidated entries as skipped if DataAnnotations validation is disabled.
+            HandleUnvalidatedEntries(context);
+        }
+
+        await next();
+    }
+
     /// <summary>
     /// Marks unvalidated model state entries as skipped if DataAnnotations validation is disabled.
     /// </summary>
     /// <param name="context">The action executing context.</param>
     private void HandleUnvalidatedEntries(ActionExecutingContext context) {
+        if (autoValidationMvcConfiguration.DisableDataAnnotationsValidation) {
+            foreach (var modelStateEntry in context.ModelState.Values.Where(modelStateEntry => modelStateEntry.ValidationState == ModelValidationState.Unvalidated)) {
+                modelStateEntry.ValidationState = ModelValidationState.Skipped;
+            }
+        }
+    }
+    /// <summary>
+    /// Marks unvalidated model state entries as skipped if DataAnnotations validation is disabled.
+    /// </summary>
+    /// <param name="context">The action executing context.</param>
+    private void HandleUnvalidatedEntries(PageHandlerExecutingContext context) {
         if (autoValidationMvcConfiguration.DisableDataAnnotationsValidation) {
             foreach (var modelStateEntry in context.ModelState.Values.Where(modelStateEntry => modelStateEntry.ValidationState == ModelValidationState.Unvalidated)) {
                 modelStateEntry.ValidationState = ModelValidationState.Skipped;
@@ -117,6 +195,20 @@ public class FluentValidationAutoValidationActionFilter : IAsyncActionFilter
         return controller is ControllerBase ||
                HasCustomAttribute<ControllerAttribute>(controllerType) ||
                InheritsFromTypeWithNameEndingIn(controllerType, "Controller");
+    }
+
+    /// <summary>
+    /// Determines if the given page model is a valid target for validation.
+    /// </summary>
+    /// <param name="pageModel">The page model instance.</param>
+    /// <returns>True if the page model is valid for validation; otherwise, false.</returns>
+    private static bool IsValidPageModel(object pageModel) {
+        var modelType = pageModel.GetType();
+
+        if (HasCustomAttribute<NonControllerAttribute>(modelType)) {
+            return false;
+        }
+        return pageModel is PageModel;
     }
 
     /// <summary>
@@ -248,7 +340,6 @@ public static class ServiceCollectionExtensions
 
         // Make sure we insert the `FluentValidationAutoValidationActionFilter` before the built-in `ModelStateInvalidFilter` to prevent it short-circuiting the request.
         serviceCollection.Configure<MvcOptions>(options => options.Filters.Add<FluentValidationAutoValidationActionFilter>(modelStateInvalidFilter.Order - 1));
-
         return serviceCollection;
     }
 
