@@ -159,7 +159,6 @@ public static class MessageFeatureExtensions
             }
         });
         // Register validators.
-        services.AddFluentValidationAutoValidation();
         services.AddValidatorsFromAssemblyContaining<CreateCampaignRequestValidator>();
         // Register framework services.
         services.AddResponseCaching();
