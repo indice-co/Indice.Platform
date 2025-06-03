@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 using FluentValidation;
-using Indice.AspNetCore.Filters;
+using FluentValidation.AspNetCore;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.SignInLogs.Events;
 using Indice.Features.Identity.UI;
@@ -67,6 +67,7 @@ public static class IdentityBuilderUIExtensions
         services.AddFluentValidationAutoValidation(config => {
             config.DisableDataAnnotationsValidation = true;
         });
+        services.AddFluentValidationClientsideAdapters();
         // Configure required localization services.
         services.AddLocalization(options => options.ResourcesPath = "Resources");
         services.AddMvcCore()

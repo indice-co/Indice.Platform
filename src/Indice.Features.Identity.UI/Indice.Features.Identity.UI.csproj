@@ -21,6 +21,7 @@
   <ItemGroup>
     <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefixIdentity)-*" />
     <PackageReference Include="HtmlAgilityPack" Version="1.12.1" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Features.Identity.Core\Indice.Features.Identity.Core.csproj" />

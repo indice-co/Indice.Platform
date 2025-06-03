@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Indice.AspNetCore.Filters;
 using Indice.Features.Cases.Core;
 using Indice.Features.Cases.Server;
 using Indice.Features.Cases.Server.Authorization;
@@ -75,8 +74,7 @@ public static class CaseServerFeatureExtensions
         builder.Services.AddScoped<ICasesWorkflowManager, WorkflowHttpServiceClient>();
         builder.Services.AddTransient<IAuthorizationHandler, DefaultCasesRolesHandler>();
         builder.Services.AddTransient<IAuthorizationHandler, CasesAccessMemberHandler>();
-        builder.Services.AddFluentValidationAutoValidation()
-                        .AddValidatorsFromAssemblyContaining<AddAccessRuleRequestValidator>();
+        builder.Services.AddValidatorsFromAssemblyContaining<AddAccessRuleRequestValidator>();
         
         return builder;
     }
