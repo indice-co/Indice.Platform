@@ -722,14 +722,10 @@ internal static partial class MyAccountHandlers
                 UserId = user.Id
             });
         }
-        user.Claims.Add(new IdentityUserClaim<string> {
-            ClaimType = BasicClaimTypes.ConsentCommercial,
-            ClaimValue = request.HasAcceptedTerms ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
-            UserId = user.Id
-        });
+
         user.Claims.Add(new IdentityUserClaim<string> {
             ClaimType = BasicClaimTypes.ConsentTerms,
-            ClaimValue = request.HasReadPrivacyPolicy ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
+            ClaimValue = request.HasReadPrivacyPolicy && request.HasAcceptedTerms ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
             UserId = user.Id
         });
         user.Claims.Add(new IdentityUserClaim<string> {
@@ -737,11 +733,19 @@ internal static partial class MyAccountHandlers
             ClaimValue = $"{DateTime.UtcNow:O}",
             UserId = user.Id
         });
-        user.Claims.Add(new IdentityUserClaim<string> {
-            ClaimType = BasicClaimTypes.ConsentCommercialDate,
-            ClaimValue = $"{DateTime.UtcNow:O}",
-            UserId = user.Id
-        });
+
+        if (request.HasConsentedToCommercialCommunications) {
+            user.Claims.Add(new() {
+                ClaimType = BasicClaimTypes.ConsentCommercial,
+                ClaimValue = request.HasConsentedToCommercialCommunications ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
+                UserId = user.Id
+            });
+            user.Claims.Add(new() {
+                ClaimType = BasicClaimTypes.ConsentCommercialDate,
+                ClaimValue = $"{DateTime.UtcNow:O}",
+                UserId = user.Id
+            });
+        }
         return user;
     }
 
