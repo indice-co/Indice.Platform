@@ -24,7 +24,7 @@ public class AllowedCharactersPasswordValidatorTests
     [InlineData("123 Abc")]
     [InlineData("1234Abc(")]
     public async Task CheckInvalidPasswords(string password) {
-        var validator = new AllowedCharactersPasswordValidator(_configuration, new IdentityMessageDescriber());
+        var validator = new AllowedCharactersPasswordValidator(_configuration, new ExtendedIdentityErrorDescriber());
         var identityResult = await validator.ValidateAsync(null, new User(), password);
         Assert.False(identityResult.Succeeded);
     }
@@ -34,7 +34,7 @@ public class AllowedCharactersPasswordValidatorTests
     [InlineData("123Abc!$")]
     [InlineData("123")]
     public async Task CheckValidPasswords(string password) {
-        var validator = new AllowedCharactersPasswordValidator(_configuration, new IdentityMessageDescriber());
+        var validator = new AllowedCharactersPasswordValidator(_configuration, new ExtendedIdentityErrorDescriber());
         var identityResult = await validator.ValidateAsync(null, new User(), password);
         Assert.True(identityResult.Succeeded);
     }

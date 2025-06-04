@@ -156,11 +156,17 @@
   <data name="I have been informed about the processing of my personal data and I consent to it, as specifically defined" xml:space="preserve">
     <value>'Εχω ενημερωθεί για την επεξεργασία των προσωπικών μου δεδομένων και συναινώ, όπως περιγράφεται</value>
   </data>
+  <data name="Language" xml:space="preserve">
+    <value>Γλώσσα</value>
+  </data>
   <data name="Last name" xml:space="preserve">
     <value>Επίθετο</value>
   </data>
   <data name="Phone number" xml:space="preserve">
     <value>Αριθμός τηλεφώνου</value>
+  </data>
+  <data name="Preferences" xml:space="preserve">
+    <value>Ρυθμίσεις</value>
   </data>
   <data name="Profile" xml:space="preserve">
     <value>Προφίλ</value>

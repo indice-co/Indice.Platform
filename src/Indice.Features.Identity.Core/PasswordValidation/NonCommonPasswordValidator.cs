@@ -8,7 +8,7 @@ namespace Indice.Features.Identity.Core.PasswordValidation;
 public class NonCommonPasswordValidator : NonCommonPasswordValidator<User>
 {
     /// <inheritdoc/>
-    public NonCommonPasswordValidator(IEnumerable<IPasswordBlacklistProvider> providers, IdentityMessageDescriber messageDescriber) : base(providers, messageDescriber) { }
+    public NonCommonPasswordValidator(IEnumerable<IPasswordBlacklistProvider> providers, ExtendedIdentityErrorDescriber errorDescriber) : base(providers, errorDescriber) { }
 }
 
 /// <summary>A validator that checks if the user's password is a very common one and as a result easy to guess.</summary>
@@ -16,26 +16,21 @@ public class NonCommonPasswordValidator : NonCommonPasswordValidator<User>
 public class NonCommonPasswordValidator<TUser> : IPasswordValidator<TUser> where TUser : User
 {
     private readonly IEnumerable<IPasswordBlacklistProvider> _providers;
-    private readonly IdentityMessageDescriber _messageDescriber;
-    /// <summary>The code used when describing the <see cref="IdentityError"/>.</summary>
-    public static string ErrorDescriber = "PasswordIsBlacklisted";
+    private readonly ExtendedIdentityErrorDescriber _errorDescriber;
 
     /// <summary>Creates a new instance of <see cref="NonCommonPasswordValidator"/>.</summary>
     /// <param name="providers">The list of <see cref="IPasswordBlacklistProvider"/> providers to use.</param>
-    /// <param name="messageDescriber">Provides the various messages used throughout Indice packages.</param>
-    public NonCommonPasswordValidator(IEnumerable<IPasswordBlacklistProvider> providers, IdentityMessageDescriber messageDescriber) {
+    /// <param name="errorDescriber">Provides the various messages used throughout Indice packages.</param>
+    public NonCommonPasswordValidator(IEnumerable<IPasswordBlacklistProvider> providers, ExtendedIdentityErrorDescriber errorDescriber) {
         _providers = providers ?? throw new ArgumentNullException(nameof(providers));
-        _messageDescriber = messageDescriber ?? throw new ArgumentNullException(nameof(messageDescriber));
+        _errorDescriber = errorDescriber ?? throw new ArgumentNullException(nameof(errorDescriber));
     }
 
     /// <inheritdoc/>
     public async Task<IdentityResult> ValidateAsync(UserManager<TUser> manager, TUser user, string? password) {
         var result = IdentityResult.Success;
         if (string.IsNullOrWhiteSpace(password) || await IsBlacklistedAsync(password)) {
-            result = IdentityResult.Failed(new IdentityError {
-                Code = ErrorDescriber,
-                Description = _messageDescriber.PasswordIsCommon
-            });
+            result = IdentityResult.Failed(_errorDescriber.PasswordIsCommon());
         }
         return result;
     }
@@ -95,8 +90,8 @@ public class ConfigPasswordBlacklistProvider : IPasswordBlacklistProvider
     public ConfigPasswordBlacklistProvider(IConfiguration configuration) {
         var list = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.Password)}:{nameof(Blacklist)}").Get<string[]>() ??
                    configuration.GetSection($"{nameof(PasswordOptions)}").GetValue<string[]>(nameof(Blacklist)) ??
-                   Array.Empty<string>();
-        Blacklist = new HashSet<string>(list);
+                   [];
+        Blacklist = [.. list];
     }
 
     /// <inheritdoc/>

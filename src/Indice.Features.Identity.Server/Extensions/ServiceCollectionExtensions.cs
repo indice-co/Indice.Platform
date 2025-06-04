@@ -107,7 +107,9 @@ public static class IdentityServerEndpointServiceCollectionExtensions
                        .AddClaimsPrincipalFactory<ExtendedUserClaimsPrincipalFactory<User, Role>>()
                        .AddDefaultTokenProviders()
                        .AddExtendedPhoneNumberTokenProvider(configuration)
-                       .AddExtendedEmailTokenProvider(configuration);
+                       .AddExtendedEmailTokenProvider(configuration)
+                       .AddExtendedErrorDescriber()
+                       .AddIdentityMessageDescriber();
     }
 
     private static IIdentityServerBuilder AddIdentityServerDefaults(

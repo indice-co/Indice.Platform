@@ -325,6 +325,8 @@ internal static partial class MyAccountHandlers
         ClaimsPrincipal currentUser,
         IOptions<ExtendedEndpointOptions> endpointOptions,
         IEmailService emailService,
+        LinkGenerator linkGenerator,
+        HttpContext httpContext,
         ForgotPasswordRequest request
     ) {
         if (string.IsNullOrEmpty(request.Email)) {
@@ -352,7 +354,8 @@ internal static partial class MyAccountHandlers
                 builder.UsingTemplate(endpointOptions.Value.Email.ForgotPasswordTemplate)
                        .WithData(data);
             } else {
-                builder.WithBody(userManager.MessageDescriber.ForgotPasswordMessageBody(user, code));
+                var url = linkGenerator.GetUriByPage(httpContext, "/ForgotPasswordConfirmation", values: new { email = request.Email, token = code, request.ReturnUrl });
+                builder.WithBody(userManager.MessageDescriber.ForgotPasswordMessageBody(user, code, url));
             }
         });
         return TypedResults.NoContent();
@@ -752,26 +755,26 @@ internal static partial class MyAccountHandlers
     private static IDictionary<string, (string Description, string? Hint)> GetAvailableRules(this ExtendedUserManager<User> userManager, bool userAvailable, bool userNameAvailable) {
         var result = new Dictionary<string, (string Description, string? Hint)>();
         var passwordOptions = userManager.Options.Password;
-        var errorDescriber = userManager.ErrorDescriber as ExtendedIdentityErrorDescriber;
+        var errorDescriber = userManager.ErrorDescriber;
         var messageDescriber = userManager.MessageDescriber;
         result.Add(nameof(IdentityErrorDescriber.PasswordTooShort),
-            (userManager.ErrorDescriber.PasswordTooShort(passwordOptions.RequiredLength).Description, Hint: errorDescriber?.PasswordTooShortRequirement(passwordOptions.RequiredLength)));
+            (userManager.ErrorDescriber.PasswordTooShort(passwordOptions.RequiredLength).Description, Hint: errorDescriber.PasswordTooShortRequirement(passwordOptions.RequiredLength)));
         if (passwordOptions.RequiredUniqueChars > 1) {
             result.Add(nameof(IdentityErrorDescriber.PasswordRequiresUniqueChars),
-                (userManager.ErrorDescriber.PasswordRequiresUniqueChars(passwordOptions.RequiredUniqueChars).Description, Hint: errorDescriber?.PasswordRequiresUniqueCharsRequirement(passwordOptions.RequiredUniqueChars)));
+                (userManager.ErrorDescriber.PasswordRequiresUniqueChars(passwordOptions.RequiredUniqueChars).Description, Hint: errorDescriber.PasswordRequiresUniqueCharsRequirement(passwordOptions.RequiredUniqueChars)));
         }
         if (passwordOptions.RequireNonAlphanumeric) {
             result.Add(nameof(IdentityErrorDescriber.PasswordRequiresNonAlphanumeric),
-                (userManager.ErrorDescriber.PasswordRequiresNonAlphanumeric().Description, Hint: errorDescriber?.PasswordRequiresNonAlphanumericRequirement));
+                (userManager.ErrorDescriber.PasswordRequiresNonAlphanumeric().Description, Hint: errorDescriber.PasswordRequiresNonAlphanumericRequirement));
         }
         if (passwordOptions.RequireDigit) {
-            result.Add(nameof(IdentityErrorDescriber.PasswordRequiresDigit), (userManager.ErrorDescriber.PasswordRequiresDigit().Description, Hint: errorDescriber?.PasswordRequiresDigitRequirement));
+            result.Add(nameof(IdentityErrorDescriber.PasswordRequiresDigit), (userManager.ErrorDescriber.PasswordRequiresDigit().Description, Hint: errorDescriber.PasswordRequiresDigitRequirement));
         }
         if (passwordOptions.RequireLowercase) {
-            result.Add(nameof(IdentityErrorDescriber.PasswordRequiresLower), (userManager.ErrorDescriber.PasswordRequiresLower().Description, Hint: errorDescriber?.PasswordRequiresLowerRequirement));
+            result.Add(nameof(IdentityErrorDescriber.PasswordRequiresLower), (userManager.ErrorDescriber.PasswordRequiresLower().Description, Hint: errorDescriber.PasswordRequiresLowerRequirement));
         }
         if (passwordOptions.RequireUppercase) {
-            result.Add(nameof(IdentityErrorDescriber.PasswordRequiresUpper), (userManager.ErrorDescriber.PasswordRequiresUpper().Description, Hint: errorDescriber?.PasswordRequiresUpperRequirement));
+            result.Add(nameof(IdentityErrorDescriber.PasswordRequiresUpper), (userManager.ErrorDescriber.PasswordRequiresUpper().Description, Hint: errorDescriber.PasswordRequiresUpperRequirement));
         }
         var validators = userManager.PasswordValidators;
         foreach (var validator in validators) {
@@ -779,26 +782,26 @@ internal static partial class MyAccountHandlers
             validatorType = validatorType.IsGenericType ? validatorType.GetGenericTypeDefinition() : validatorType;
             var isNonCommonPasswordValidator = validatorType == typeof(NonCommonPasswordValidator) || validatorType == typeof(NonCommonPasswordValidator<>);
             if (isNonCommonPasswordValidator) {
-                result.Add(NonCommonPasswordValidator.ErrorDescriber, (Description: messageDescriber.PasswordIsCommon, Hint: messageDescriber.PasswordIsCommonRequirement));
+                result.Add(nameof(ExtendedIdentityErrorDescriber.PasswordIsCommon), (errorDescriber.PasswordIsCommon().Description, Hint: errorDescriber.PasswordIsCommonRequirement));
             }
             var isUserNameAsPasswordValidator = validatorType == typeof(UserNameAsPasswordValidator) || validatorType == typeof(UserNameAsPasswordValidator<>);
             if (isUserNameAsPasswordValidator && userNameAvailable) {
-                result.Add(UserNameAsPasswordValidator.ErrorDescriber, (Description: messageDescriber.PasswordIdenticalToUserName, Hint: messageDescriber.PasswordIdenticalToUserNameRequirement));
+                result.Add(nameof(ExtendedIdentityErrorDescriber.PasswordIdenticalToUserName), (errorDescriber.PasswordIdenticalToUserName().Description, Hint: errorDescriber.PasswordIdenticalToUserNameRequirement));
             }
             var isPreviousPasswordAwareValidator = validatorType == typeof(PreviousPasswordAwareValidator)
                 || validatorType == typeof(PreviousPasswordAwareValidator<>)
                 || validatorType == typeof(PreviousPasswordAwareValidator<,>)
                 || validatorType == typeof(PreviousPasswordAwareValidator<,,>);
             if (isPreviousPasswordAwareValidator && userAvailable) {
-                result.Add(PreviousPasswordAwareValidator.ErrorDescriber, (Description: messageDescriber.PasswordRecentlyUsed, Hint: messageDescriber.PasswordRecentlyUsedRequirement));
+                result.Add(nameof(ExtendedIdentityErrorDescriber.PasswordRecentlyUsed), (errorDescriber.PasswordRecentlyUsed().Description, Hint: errorDescriber.PasswordRecentlyUsedRequirement));
             }
             var isUnicodeCharactersPasswordValidator = validatorType == typeof(UnicodeCharactersPasswordValidator) || validatorType == typeof(UnicodeCharactersPasswordValidator<>);
             if (isUnicodeCharactersPasswordValidator) {
-                result.Add(UnicodeCharactersPasswordValidator.ErrorDescriber, (Description: messageDescriber.PasswordHasNonLatinChars, Hint: messageDescriber.PasswordHasNonLatinCharsRequirement));
+                result.Add(nameof(ExtendedIdentityErrorDescriber.PasswordHasNonLatinChars), (errorDescriber.PasswordHasNonLatinChars().Description, Hint: errorDescriber.PasswordHasNonLatinCharsRequirement));
             }
             var isNotAllowedCharactersPasswordValidator = validatorType == typeof(AllowedCharactersPasswordValidator) || validatorType == typeof(AllowedCharactersPasswordValidator<>);
             if (isNotAllowedCharactersPasswordValidator) {
-                result.Add(AllowedCharactersPasswordValidator.ErrorDescriber, (Description: messageDescriber.PasswordContainsNotAllowedChars, Hint: messageDescriber.PasswordContainsNotAllowedCharsRequirement));
+                result.Add(nameof(ExtendedIdentityErrorDescriber.PasswordContainsNotAllowedChars), (errorDescriber.PasswordContainsNotAllowedChars().Description, Hint: errorDescriber.PasswordContainsNotAllowedCharsRequirement));
             }
         }
         return result;
