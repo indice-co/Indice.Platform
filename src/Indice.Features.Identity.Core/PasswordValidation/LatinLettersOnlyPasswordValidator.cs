@@ -9,22 +9,20 @@ namespace Indice.Features.Identity.Core.PasswordValidation;
 public class UnicodeCharactersPasswordValidator : UnicodeCharactersPasswordValidator<User>
 {
     /// <inheritdoc/>
-    public UnicodeCharactersPasswordValidator(IdentityMessageDescriber messageDescriber, IConfiguration configuration) : base(messageDescriber, configuration) { }
+    public UnicodeCharactersPasswordValidator(ExtendedIdentityErrorDescriber errorDescriber, IConfiguration configuration) : base(errorDescriber, configuration) { }
 }
 
 /// <summary>A validator that checks that the letters contained in the password are only Latin English characters.</summary>
 /// <typeparam name="TUser">The type of user instance.</typeparam>
 public class UnicodeCharactersPasswordValidator<TUser> : IPasswordValidator<TUser> where TUser : User
 {
-    private readonly IdentityMessageDescriber _messageDescriber;
-    /// <summary>The code used when describing the <see cref="IdentityError"/>.</summary>
-    public const string ErrorDescriber = "PasswordContainsNonUnicodeCharacters";
+    private readonly ExtendedIdentityErrorDescriber _errorDescriber;
 
     /// <summary>Creates a new instance of <see cref="UnicodeCharactersPasswordValidator"/>.</summary>
-    /// <param name="messageDescriber">Provides the various messages used throughout Indice packages.</param>
+    /// <param name="errorDescriber">Provides the various messages used throughout Indice packages.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    public UnicodeCharactersPasswordValidator(IdentityMessageDescriber messageDescriber, IConfiguration configuration) {
-        _messageDescriber = messageDescriber ?? throw new ArgumentNullException(nameof(messageDescriber));
+    public UnicodeCharactersPasswordValidator(ExtendedIdentityErrorDescriber errorDescriber, IConfiguration configuration) {
+        _errorDescriber = errorDescriber ?? throw new ArgumentNullException(nameof(errorDescriber));
         AllowUnicodeCharacters = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.Password)}").GetValue<bool?>(nameof(AllowUnicodeCharacters)) ??
                                  configuration.GetSection(nameof(PasswordOptions)).GetValue<bool?>(nameof(AllowUnicodeCharacters));
     }
@@ -40,10 +38,7 @@ public class UnicodeCharactersPasswordValidator<TUser> : IPasswordValidator<TUse
         }
         var isValid = !string.IsNullOrWhiteSpace(password) && password.All(x => x.IsDigit() || x.IsSpecial() || x.IsLatinLetter());
         if (!isValid) {
-            result = IdentityResult.Failed(new IdentityError {
-                Code = ErrorDescriber,
-                Description = _messageDescriber.PasswordHasNonLatinChars
-            });
+            result = IdentityResult.Failed(_errorDescriber.PasswordHasNonLatinChars());
         }
         return Task.FromResult(result);
     }

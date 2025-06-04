@@ -13,7 +13,7 @@ internal class DbSignInLogEntry
     /// <summary>The type of event for sign in log.</summary>
     public SignInLogEventType EventType { get; set; }
     /// <summary>The name of the action.</summary>
-    public string ActionName { get; set; } = null!;
+    public string? ActionName { get; set; }
     /// <summary>The unique identifier of the application.</summary>
     public string? ApplicationId { get; set; }
     /// <summary>The display name of the application.</summary>

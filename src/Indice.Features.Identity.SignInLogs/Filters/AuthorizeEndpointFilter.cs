@@ -5,5 +5,5 @@ namespace Indice.Features.Identity.SignInLogs.Filters;
 
 internal class AuthorizeEndpointFilter : ISignInLogEntryFilter
 {
-    public Task<bool> Discard(SignInLogEntry logEntry) => Task.FromResult(logEntry?.ResourceId.Equals("Authorize", StringComparison.OrdinalIgnoreCase) == true);
+    public Task<bool> Discard(SignInLogEntry logEntry) => Task.FromResult("Authorize".Equals(logEntry?.ResourceId, StringComparison.OrdinalIgnoreCase));
 }

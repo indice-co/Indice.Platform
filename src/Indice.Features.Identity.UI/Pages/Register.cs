@@ -99,7 +99,7 @@ public abstract class BaseRegisterModel : BasePageModel
             AddModelErrors(result);
             return Page();
         }
-        await SendConfirmationEmail(user, Input.ReturnUrl);
+        await SendRegistrationEmail(user, Input.ReturnUrl);
         Logger.LogInformation(3, "User created a new account with password.");
         if (Interaction.IsValidReturnUrl(Input.ReturnUrl) || Url.IsLocalUrl(Input.ReturnUrl)) {
             return RedirectToPage("/Login", new { returnUrl = Input.ReturnUrl });

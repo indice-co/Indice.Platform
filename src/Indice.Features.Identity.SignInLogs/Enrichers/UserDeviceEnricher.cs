@@ -43,6 +43,7 @@ public sealed class UserDeviceEnricher : ISignInLogEntryEnricher
         if (device is null) {
             return true;
         }
+        logEntry.ExtraData ??= new ();
         logEntry.ExtraData.UserDevice = new SignInLogEntryUserDevice {
             Id = device.Id,
             Blocked = device.Blocked,

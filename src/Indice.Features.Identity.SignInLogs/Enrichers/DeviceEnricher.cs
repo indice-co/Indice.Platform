@@ -30,6 +30,7 @@ public sealed class DeviceEnricher : ISignInLogEntryEnricher
             return ValueTask.CompletedTask;
         }
         var userAgent = new UserAgent(userAgentHeader!);
+        logEntry.ExtraData ??= new ();
         logEntry.ExtraData.Device = new SignInLogEntryDevice {
             Model = userAgent.DeviceModel,
             Platform = userAgent.DevicePlatform,
