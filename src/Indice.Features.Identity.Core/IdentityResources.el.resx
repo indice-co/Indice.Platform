@@ -130,13 +130,13 @@
     <value>Το email έχει ήδη επιβαιωθεί.</value>
   </data>
   <data name="EmailUpdateMessageBody" xml:space="preserve">
-    <value>Ο κωδικός επιβεβαίωσης για το email είναι {0}.</value>
+    <value>Ο κωδικός επιβεβαίωσης της ηλεκτρονικής σας διεύθυνσης είναι {0}.</value>
   </data>
   <data name="EmailUpdateMessageSubject" xml:space="preserve">
-    <value>Παρακαλώ επιβεβαιώστε το λογαριαμό σας.</value>
+    <value>Επιβεβαίωση λογαριασμού.</value>
   </data>
   <data name="ForgotPasswordMessageBody" xml:space="preserve">
-    <value>Ακολουθήστε αυτόν τον σύνδεσμο για να επαληθεύσετε το email σας &lt;a href="{0}" &gt;{1}&lt;a&gt;</value>
+    <value>Παρακαλούμε δημιουργήστε το νέο σας κωδικό  &lt;a href="{0}" &gt;ακολουθώντας τον εξής σύνδεσμο&lt;a&gt;</value>
   </data>
   <data name="ImpossibleTravelOtpMessage" xml:space="preserve">
     <value>Ύποπτη προσπάθεια σύνδεσης. Ο κωδικός OTP είναι {0}.</value>
@@ -164,54 +164,6 @@
   </data>
   <data name="OtpSecuredValidatorOtpSubject" xml:space="preserve">
     <value>Επιβεβαίωση OTP</value>
-  </data>
-  <data name="PasswordContainsNotAllowedChars" xml:space="preserve">
-    <value>Ο κωδικός σας περιέχει μη επιτρεπτούς χαρακτήρες.</value>
-  </data>
-  <data name="PasswordContainsNotAllowedCharsRequirement" xml:space="preserve">
-    <value>Χαρακτήρες που δεν επιτρέπονται.</value>
-  </data>
-  <data name="PasswordHasNonLatinChars" xml:space="preserve">
-    <value>Ο κωδικός δεν μπορεί να περιέχει μη Λατινικούς χαρακτήρες. </value>
-  </data>
-  <data name="PasswordHasNonLatinCharsRequirement" xml:space="preserve">
-    <value>Δεν περιέχει μη Λατινικούς χαρακτήρες. </value>
-  </data>
-  <data name="PasswordIdenticalToUserName" xml:space="preserve">
-    <value>Ο κωδικός πρόσβασής σας είναι πολύ παρόμοιος με το όνομα χρήστη, γεγονός που μπορεί να θέσει τον λογαριασμό σας σε κίνδυνο.</value>
-  </data>
-  <data name="PasswordIdenticalToUserNameRequirement" xml:space="preserve">
-    <value>Δεν περιέχει κομάτι του ονόματος χρήστη.</value>
-  </data>
-  <data name="PasswordIsCommon" xml:space="preserve">
-    <value>Ο κωδικός που επιλέξατε είναι αδύναμος. Παρακαλώ εισαγάγετε έναν πιο σύνθετο κωδικό για μεγαλύτερη ασφάλεια.</value>
-  </data>
-  <data name="PasswordIsCommonRequirement" xml:space="preserve">
-    <value>Ο κωδικός που επιλέξατε είναι ισχυρός.</value>
-  </data>
-  <data name="PasswordRecentlyUsed" xml:space="preserve">
-    <value>Αυτός ο κωδικός πρόσβασης έχει χρησιμοποιηθεί πρόσφατα. Είναι καλή πρακτική να μην επαναχρησιμοποιείτε τον προηγούμενο κωδικό σας.</value>
-  </data>
-  <data name="PasswordRecentlyUsedRequirement" xml:space="preserve">
-    <value>Δεν έχει χρησιμοποιηθεί πρόσφατα.</value>
-  </data>
-  <data name="PasswordRequiresDigitRequirement" xml:space="preserve">
-    <value>Έναν αριθμητικό χαρακτήρα</value>
-  </data>
-  <data name="PasswordRequiresLowerRequirement" xml:space="preserve">
-    <value>Ένα πεζό γράμμα.</value>
-  </data>
-  <data name="PasswordRequiresNonAlphanumericRequirement" xml:space="preserve">
-    <value>Ένας μη αλφαριθμητικός χαρακτήρας.</value>
-  </data>
-  <data name="PasswordRequiresUniqueCharsRequirement" xml:space="preserve">
-    <value>Απαιτούνται {0} ειδικοί χαρακτήρες</value>
-  </data>
-  <data name="PasswordRequiresUpperRequirement" xml:space="preserve">
-    <value>Ένα κεφαλαίο γράμμα.</value>
-  </data>
-  <data name="PasswordTooShortRequirement" xml:space="preserve">
-    <value>Πρέπει να έχει τουλάχιστον {0} χαρακτήρες.</value>
   </data>
   <data name="PhoneNumberAlreadyConfirmed" xml:space="preserve">
     <value>Ο αριθμός τηλεφώνου του χρήστη έχει ήδη επιβεβαιωθεί.</value>
@@ -247,7 +199,7 @@
     <value>Επιβεβαίωση αλλαγής Email</value>
   </data>
   <data name="EmailChangeMessageBody" xml:space="preserve">
-    <value>Ο κωδικός επιβεβαίωσης για το email είναι {0}.</value>
+    <value>Ο κωδικός επιβεβαίωσης της ηλεκτρονικής σας διεύθυνσης είναι {0}.</value>
   </data>
   <data name="PhoneChangeVerificationSmsSubject" xml:space="preserve">
     <value>Επιβεβαιώστε τον νέο αριθμό τηλεφώνου σας</value>
@@ -303,9 +255,6 @@
   <data name="PasswordChangedSuccessfully" xml:space="preserve">
     <value>Ο κωδικός σας έχει αλλάξει με επιτυχία. Παρακαλώ πατήστε το κουμπί 'Επόμενο' για να συνεχίσετε.</value>
   </data>
-  <data name="PasswordExpiredMessage" xml:space="preserve">
-    <value>Ο κωδικός σας έχει λήξει. Παρακαλώ επιλέξτε ένα νέο κωδικό.</value>
-  </data>
   <data name="ProfileExternalLoginAddedSuccessMessage" xml:space="preserve">
     <value>Ο εξωτερικός λογαριασμός προστέθηκε στο προφίλ με επιτυχία.</value>
   </data>
@@ -323,5 +272,8 @@
   </data>
   <data name="LoginErrorLockedMessage" xml:space="preserve">
     <value>Ο λογαριασμός σας είναι προσωρινά κλειδωμένος. Παρακαλώ επικοινωνήστε με έναν διαχειριστή του συστήματος.</value>
+  </data>
+  <data name="PasswordExpiredMessage" xml:space="preserve">
+    <value>Ο κωδικός σας έχει λήξει. Παρακαλώ επιλέξτε ένα νέο κωδικό.</value>
   </data>
 </root>

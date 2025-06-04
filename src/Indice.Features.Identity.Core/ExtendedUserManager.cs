@@ -656,6 +656,15 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         return await pictureStore!.FindUserPictureByKeyAsync(pictureKey, contentType, size);
     }
 
+
+    /// <summary>
+    /// The <see cref="IdentityErrorDescriber"/> used to generate error messages.
+    /// </summary>
+    public new ExtendedIdentityErrorDescriber ErrorDescriber { 
+        get => (ExtendedIdentityErrorDescriber)base.ErrorDescriber; 
+        set => base.ErrorDescriber = value;
+    }
+
     #region Helper Methods
     private IExtendedUserStore<TUser>? GetUserStore(bool throwOnFail = true) {
         var cast = Store as IExtendedUserStore<TUser>;

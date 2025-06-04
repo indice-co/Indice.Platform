@@ -31,27 +31,7 @@ public class IdentityMessageDescriber
     /// <summary>Forgot password.</summary>
     public virtual string ForgotPasswordMessageSubject => string.Format(IdentityResources.Culture, IdentityResources.ForgotPasswordMessageSubject);
     /// <summary>Email verification code is {0}.</summary>
-    public virtual string ForgotPasswordMessageBody<TUser>(TUser user, string token) where TUser : class => string.Format(IdentityResources.Culture, IdentityResources.ForgotPasswordMessageBody, token);
-    /// <summary>Your password is very common to use.</summary>
-    public virtual string PasswordIsCommon => string.Format(IdentityResources.Culture, IdentityResources.PasswordIsCommon);
-    /// <summary>Your password is identical to your username.</summary>
-    public virtual string PasswordIdenticalToUserName => string.Format(IdentityResources.Culture, IdentityResources.PasswordIdenticalToUserName);
-    /// <summary>This password has been used recently.</summary>
-    public virtual string PasswordRecentlyUsed => string.Format(IdentityResources.Culture, IdentityResources.PasswordRecentlyUsed);
-    /// <summary>Password cannot contain non Latin characters.</summary>
-    public virtual string PasswordHasNonLatinChars => string.Format(IdentityResources.Culture, IdentityResources.PasswordHasNonLatinChars);
-    /// <summary>Your password is very easy to guess, please choose a more complex one.</summary>
-    public virtual string PasswordIsCommonRequirement => string.Format(IdentityResources.Culture, IdentityResources.PasswordIsCommonRequirement);
-    /// <summary>Your password looks a lot like your username which can lead to your account been hacked.</summary>
-    public virtual string PasswordIdenticalToUserNameRequirement => string.Format(IdentityResources.Culture, IdentityResources.PasswordIdenticalToUserNameRequirement);
-    /// <summary>It is a good practice not to re-use your past password.</summary>
-    public virtual string PasswordRecentlyUsedRequirement => string.Format(IdentityResources.Culture, IdentityResources.PasswordRecentlyUsedRequirement);
-    /// <summary>Your password cannot contain non-Latin characters, which is required by the password policy.</summary>
-    public virtual string PasswordHasNonLatinCharsRequirement => string.Format(IdentityResources.Culture, IdentityResources.PasswordHasNonLatinCharsRequirement);
-    /// <summary>Your password contains not allowed characters.</summary>
-    public virtual string PasswordContainsNotAllowedChars => string.Format(IdentityResources.Culture, IdentityResources.PasswordContainsNotAllowedChars);
-    /// <summary>Not allowed characters.</summary>
-    public virtual string PasswordContainsNotAllowedCharsRequirement => string.Format(IdentityResources.Culture, IdentityResources.PasswordContainsNotAllowedCharsRequirement);
+    public virtual string ForgotPasswordMessageBody<TUser>(TUser user, string token, string? confirmationUrl) where TUser : class => string.Format(IdentityResources.Culture, IdentityResources.ForgotPasswordMessageBody, confirmationUrl);
     /// <summary>Subject sent on message when <see cref="OtpAuthenticateExtensionGrantValidator"/> is used.</summary>
     public virtual string OtpSecuredValidatorOtpSubject => string.Format(IdentityResources.Culture, IdentityResources.OtpSecuredValidatorOtpSubject);
     /// <summary>Message sent on message when <see cref="OtpAuthenticateExtensionGrantValidator"/> is used. Should contain the '{0}' placeholder for the generated token.</summary>

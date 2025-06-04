@@ -178,7 +178,7 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Follow this link to verify your email is &lt;a href=&quot;{0}&quot; &gt;{1}&lt;a&gt;.
+        ///   Looks up a localized string similar to Follow &lt;a href=&quot;{0}&quot; &gt;this link&lt;a&gt;to create your new password.
         /// </summary>
         internal static string ForgotPasswordMessageBody {
             get {
@@ -385,155 +385,11 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Your password contains not allowed characters..
-        /// </summary>
-        internal static string PasswordContainsNotAllowedChars {
-            get {
-                return ResourceManager.GetString("PasswordContainsNotAllowedChars", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Not allowed characters..
-        /// </summary>
-        internal static string PasswordContainsNotAllowedCharsRequirement {
-            get {
-                return ResourceManager.GetString("PasswordContainsNotAllowedCharsRequirement", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Your password has expired. Please choose a new password..
         /// </summary>
         internal static string PasswordExpiredMessage {
             get {
                 return ResourceManager.GetString("PasswordExpiredMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Password cannot contain non-Latin characters..
-        /// </summary>
-        internal static string PasswordHasNonLatinChars {
-            get {
-                return ResourceManager.GetString("PasswordHasNonLatinChars", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Does not contain non-Latin characters..
-        /// </summary>
-        internal static string PasswordHasNonLatinCharsRequirement {
-            get {
-                return ResourceManager.GetString("PasswordHasNonLatinCharsRequirement", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Your password looks a lot like your username which can lead to your account been hacked..
-        /// </summary>
-        internal static string PasswordIdenticalToUserName {
-            get {
-                return ResourceManager.GetString("PasswordIdenticalToUserName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Does not contain part of your username..
-        /// </summary>
-        internal static string PasswordIdenticalToUserNameRequirement {
-            get {
-                return ResourceManager.GetString("PasswordIdenticalToUserNameRequirement", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Password is very easy to guess, please choose a more complex one..
-        /// </summary>
-        internal static string PasswordIsCommon {
-            get {
-                return ResourceManager.GetString("PasswordIsCommon", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Not easy to guess..
-        /// </summary>
-        internal static string PasswordIsCommonRequirement {
-            get {
-                return ResourceManager.GetString("PasswordIsCommonRequirement", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to This password has been used recently. It is a good practice not to re-use your previous password..
-        /// </summary>
-        internal static string PasswordRecentlyUsed {
-            get {
-                return ResourceManager.GetString("PasswordRecentlyUsed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Not recently used..
-        /// </summary>
-        internal static string PasswordRecentlyUsedRequirement {
-            get {
-                return ResourceManager.GetString("PasswordRecentlyUsedRequirement", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to A numeric character..
-        /// </summary>
-        internal static string PasswordRequiresDigitRequirement {
-            get {
-                return ResourceManager.GetString("PasswordRequiresDigitRequirement", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to A lower case letter..
-        /// </summary>
-        internal static string PasswordRequiresLowerRequirement {
-            get {
-                return ResourceManager.GetString("PasswordRequiresLowerRequirement", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to A non-alphanumeric character..
-        /// </summary>
-        internal static string PasswordRequiresNonAlphanumericRequirement {
-            get {
-                return ResourceManager.GetString("PasswordRequiresNonAlphanumericRequirement", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {0} unique chars required..
-        /// </summary>
-        internal static string PasswordRequiresUniqueCharsRequirement {
-            get {
-                return ResourceManager.GetString("PasswordRequiresUniqueCharsRequirement", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to An upper case letter..
-        /// </summary>
-        internal static string PasswordRequiresUpperRequirement {
-            get {
-                return ResourceManager.GetString("PasswordRequiresUpperRequirement", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to At least {0} characters long..
-        /// </summary>
-        internal static string PasswordTooShortRequirement {
-            get {
-                return ResourceManager.GetString("PasswordTooShortRequirement", resourceCulture);
             }
         }
         

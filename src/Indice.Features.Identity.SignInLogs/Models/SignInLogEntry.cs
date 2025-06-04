@@ -23,7 +23,7 @@ public class SignInLogEntry
     /// <summary>A timestamp that indicates when the user's sign in log entry occurred.</summary>
     public DateTimeOffset CreatedAt { get; set; }
     /// <summary>The name of the action.</summary>
-    public string ActionName { get; set; }
+    public string? ActionName { get; set; }
     /// <summary>The type of event for sign in log.</summary>
     public SignInLogEventType EventType { get; set; }
     /// <summary>The unique identifier of the application.</summary>
@@ -35,21 +35,21 @@ public class SignInLogEntry
     /// <summary>The display name of the subject.</summary>
     public string? SubjectName { get; set; }
     /// <summary>The unique identifier of the resource.</summary>
-    public string ResourceId { get; set; } = null!;
+    public string? ResourceId { get; set; } = null!;
     /// <summary>The name of the resource.</summary>
-    public string ResourceType { get; set; }
+    public string? ResourceType { get; set; }
     /// <summary>A friendly text describing the log entry.</summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
     /// <summary>Indicates whether the operation that caused the user's sign in log entry was successful or not.</summary>
     public bool Succeeded { get; set; }
     /// <summary>The IP address of the client.</summary>
-    public string IpAddress { get; set; }
+    public string? IpAddress { get; set; }
     /// <summary>The unique identifier of the current request.</summary>
-    public string RequestId { get; set; }
+    public string? RequestId { get; set; }
     /// <summary>The estimated client location based on the <see cref="IpAddress"/>.</summary>
-    public string Location { get; set; }
+    public string? Location { get; set; }
     /// <summary>User's session id.</summary>
-    public string SessionId { get; set; }
+    public string? SessionId { get; set; }
     /// <summary>Describes the user sign in type in terms of user presence.</summary>
     public SignInType? SignInType { get; set; }
     /// <summary>Indicates whether the specified log entry is marked for review.</summary>
@@ -59,9 +59,9 @@ public class SignInLogEntry
     /// <summary>The device id.</summary>
     public string? DeviceId { get; set; }
     /// <summary>The grant type used for the login.</summary>
-    public string GrantType { get; set; }
+    public string? GrantType { get; set; }
     /// <summary>The approximate location of the operation.</summary>
     public GeoPoint? Coordinates { get; set; }
     /// <summary>Additional information about the user's sign in log entry.</summary>
-    public SignInLogEntryExtraData ExtraData { get; set; }
+    public SignInLogEntryExtraData? ExtraData { get; set; }
 }

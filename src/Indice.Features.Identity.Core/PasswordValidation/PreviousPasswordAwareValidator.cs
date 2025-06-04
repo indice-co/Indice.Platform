@@ -13,8 +13,8 @@ public class PreviousPasswordAwareValidator<TContext> : PreviousPasswordAwareVal
     /// <summary>Class constructor.</summary>
     /// <param name="dbContext">The DbContext to use for the Identity framework.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    /// <param name="messageDescriber">Provides the various messages used throughout Indice packages.</param>
-    public PreviousPasswordAwareValidator(TContext dbContext, IConfiguration configuration, IdentityMessageDescriber messageDescriber) : base(dbContext, configuration, messageDescriber) { }
+    /// <param name="errorDescriber">Provides the various messages used throughout Indice packages.</param>
+    public PreviousPasswordAwareValidator(TContext dbContext, IConfiguration configuration, ExtendedIdentityErrorDescriber errorDescriber) : base(dbContext, configuration, errorDescriber) { }
 }
 
 /// <summary>An <see cref="IPasswordValidator{TUser}" /> that checks a number of previous passwords for equality.</summary>
@@ -23,8 +23,8 @@ public class PreviousPasswordAwareValidator : PreviousPasswordAwareValidator<Use
     /// <summary>Class constructor.</summary>
     /// <param name="dbContext">The DbContext to use for the Identity framework.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    /// <param name="messageDescriber">Provides the various messages used throughout Indice packages.</param>
-    public PreviousPasswordAwareValidator(IdentityDbContext<User, Role> dbContext, IConfiguration configuration, IdentityMessageDescriber messageDescriber) : base(dbContext, configuration, messageDescriber) { }
+    /// <param name="errorDescriber">Provides the various messages used throughout Indice packages.</param>
+    public PreviousPasswordAwareValidator(IdentityDbContext<User, Role> dbContext, IConfiguration configuration, ExtendedIdentityErrorDescriber errorDescriber) : base(dbContext, configuration, errorDescriber) { }
 }
 
 /// <summary>An <see cref="IPasswordValidator{TUser}" /> that checks a number of previous passwords for equality.</summary>
@@ -35,8 +35,8 @@ public class PreviousPasswordAwareValidator<TUser, TRole> : PreviousPasswordAwar
     /// <summary>Class constructor.</summary>
     /// <param name="dbContext">The DbContext to use for the Identity framework.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    /// <param name="messageDescriber">Provides the various messages used throughout Indice packages.</param>
-    public PreviousPasswordAwareValidator(IdentityDbContext<TUser, TRole> dbContext, IConfiguration configuration, IdentityMessageDescriber messageDescriber) : base(dbContext, configuration, messageDescriber) { }
+    /// <param name="errorDescriber">Provides the various messages used throughout Indice packages.</param>
+    public PreviousPasswordAwareValidator(IdentityDbContext<TUser, TRole> dbContext, IConfiguration configuration, ExtendedIdentityErrorDescriber errorDescriber) : base(dbContext, configuration, errorDescriber) { }
 }
 
 /// <summary>An <see cref="IPasswordValidator{TUser}" /> that checks a number of previous passwords for equality.</summary>
@@ -48,16 +48,14 @@ public class PreviousPasswordAwareValidator<TContext, TUser, TRole> : IPasswordV
     where TUser : User
     where TRole : IdentityRole
 {
-    /// <summary>The code used when describing the <see cref="IdentityError"/>.</summary>
-    public static string ErrorDescriber = "PasswordHistory";
 
     /// <summary>Class constructor.</summary>
     /// <param name="dbContext">The DbContext to use for the Identity framework.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    /// <param name="messageDescriber">Provides the various messages used throughout Indice packages.</param>
-    public PreviousPasswordAwareValidator(TContext dbContext, IConfiguration configuration, IdentityMessageDescriber messageDescriber) {
+    /// <param name="errorDescriber">Provides the various messages used throughout Indice packages.</param>
+    public PreviousPasswordAwareValidator(TContext dbContext, IConfiguration configuration, ExtendedIdentityErrorDescriber errorDescriber) {
         DbContext = dbContext;
-        MessageDescriber = messageDescriber ?? throw new ArgumentNullException(nameof(messageDescriber));
+        ErrorDescriber = errorDescriber ?? throw new ArgumentNullException(nameof(errorDescriber));
         MaximumPasswordAge = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.Password)}").GetValue<TimeSpan?>(nameof(MaximumPasswordAge)) ??
                              configuration.GetSection(nameof(PasswordOptions)).GetValue<TimeSpan?>(nameof(MaximumPasswordAge));
         PasswordHistoryLimit = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.Password)}").GetValue<int?>(nameof(PasswordHistoryLimit)) ??
@@ -76,7 +74,7 @@ public class PreviousPasswordAwareValidator<TContext, TUser, TRole> : IPasswordV
     /// <summary>A timespan written in dd:hh:mm:ss or (null is never).</summary>
     public TimeSpan? MaximumPasswordAge { get; }
     /// <summary>Provides the various messages used throughout Indice packages.</summary>
-    public IdentityMessageDescriber MessageDescriber { get; }
+    public ExtendedIdentityErrorDescriber ErrorDescriber { get; }
 
     /// <summary>Validates a password as an asynchronous operation.</summary>
     /// <param name="manager">Provides the APIs for managing user in a persistence store.</param>
@@ -104,10 +102,7 @@ public class PreviousPasswordAwareValidator<TContext, TUser, TRole> : IPasswordV
                                             .Distinct()
                                             .Any(hash => manager.PasswordHasher.VerifyHashedPassword(user, hash!, password) == PasswordVerificationResult.Success);
             if (isUsedBefore) {
-                result = IdentityResult.Failed(new IdentityError {
-                    Code = ErrorDescriber,
-                    Description = MessageDescriber.PasswordRecentlyUsed
-                });
+                result = IdentityResult.Failed(ErrorDescriber.PasswordRecentlyUsed());
             }
         }
         return result;

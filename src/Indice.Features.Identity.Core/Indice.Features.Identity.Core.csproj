@@ -29,6 +29,11 @@
     <ProjectReference Include="..\Indice.Extensions.Configuration.Database\Indice.Extensions.Configuration.Database.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="ExtendedIdentityErrorResources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ExtendedIdentityErrorResources.resx</DependentUpon>
+    </Compile>
     <Compile Update="IdentityResources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -36,6 +41,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Update="ExtendedIdentityErrorResources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>ExtendedIdentityErrorResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Update="IdentityResources.resx">
       <CustomToolNamespace>Indice.Features.Identity.Core</CustomToolNamespace>
       <LastGenOutput>IdentityResources.Designer.cs</LastGenOutput>
