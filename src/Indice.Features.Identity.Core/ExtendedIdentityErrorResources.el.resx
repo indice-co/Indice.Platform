@@ -117,43 +117,76 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="A lower case letter." xml:space="preserve">
-    <value>Ένα μικρό γράμμα.</value>
-  </data>
-  <data name="A non-alphanumeric character." xml:space="preserve">
-    <value>Ένα μη αλφαριθμητικό χαρακτήρα.</value>
-  </data>
-  <data name="A numeric character." xml:space="preserve">
-    <value>Έναν αριθμητικό χαρακτήρα.</value>
-  </data>
-  <data name="An upper case letter." xml:space="preserve">
-    <value>Ένα κεφαλαίο γράμμα.</value>
-  </data>
-  <data name="At least {0} characters long." xml:space="preserve">
-    <value>Τουλάχιστον {0} χαρακτήρες.</value>
-  </data>
-  <data name="Passwords must be at least {0} characters." xml:space="preserve">
-    <value>Ο κωδικός πρέπει να περιέχει τουλάχιστον {0} χαρακτήρες.</value>
-  </data>
-  <data name="Passwords must have at least one digit ('0'-'9')." xml:space="preserve">
-    <value>Ο κωδικός πρέπει να περιέχει τουλάχιστον ένα ψηφίο.</value>
-  </data>
-  <data name="Passwords must have at least one lowercase ('a'-'z')." xml:space="preserve">
-    <value>Ο κωδικός πρέπει να περιέχει τουλάχιστον ένα μικρό γράμμα.</value>
-  </data>
-  <data name="Passwords must have at least one non alphanumeric character." xml:space="preserve">
-    <value>Ο κωδικός πρέπει να περιέχει τουλάχιστον ένα μη αλφαριθμητικό χαρακτήρα.</value>
-  </data>
-  <data name="Passwords must have at least one uppercase ('A'-'Z')." xml:space="preserve">
-    <value>Ο κωδικός πρέπει να περιέχει τουλάχιστον ένα κεφαλαίο γράμμα.</value>
-  </data>
-  <data name="Passwords must use at least {0} different characters." xml:space="preserve">
-    <value>Ο κωδικός πρέπει να περιέχει τουλάχιστον {0} διαφορετικούς χαρακτήρες.</value>
-  </data>
-  <data name="Username '{0}' is already in user." xml:space="preserve">
+  <data name="DuplicateUserName" xml:space="preserve">
     <value>Το όνομα χρήστη '{0}' χρησιμοποιείται ήδη.</value>
   </data>
-  <data name="{0} unique chars required." xml:space="preserve">
-    <value>{0} μοναδικοί χαρακτήρες απαιτούνται.</value>
+  <data name="PasswordContainsNotAllowedChars" xml:space="preserve">
+    <value>Ο κωδικός σας περιέχει μη επιτρεπτούς χαρακτήρες.</value>
+  </data>
+  <data name="PasswordContainsNotAllowedCharsRequirement" xml:space="preserve">
+    <value>Χαρακτήρες που δεν επιτρέπονται.</value>
+  </data>
+  <data name="PasswordExpiredMessage" xml:space="preserve">
+    <value>Ο κωδικός σας έχει λήξει. Παρακαλώ επιλέξτε ένα νέο κωδικό.</value>
+  </data>
+  <data name="PasswordHasNonLatinChars" xml:space="preserve">
+    <value>Ο κωδικός δεν μπορεί να περιέχει μη Λατινικούς χαρακτήρες. </value>
+  </data>
+  <data name="PasswordHasNonLatinCharsRequirement" xml:space="preserve">
+    <value>Δεν περιέχει μη Λατινικούς χαρακτήρες. </value>
+  </data>
+  <data name="PasswordIdenticalToUserName" xml:space="preserve">
+    <value>Ο κωδικός πρόσβασής σας είναι παρόμοιος με το όνομα χρήστη, γεγονός που μπορεί να θέσει τον λογαριασμό σας σε κίνδυνο.</value>
+  </data>
+  <data name="PasswordIdenticalToUserNameRequirement" xml:space="preserve">
+    <value>Δεν μοιάζει με το όνομα χρήστη.</value>
+  </data>
+  <data name="PasswordIsCommon" xml:space="preserve">
+    <value>Ο κωδικός που επιλέξατε είναι αδύναμος. Παρακαλώ εισαγάγετε έναν πιο σύνθετο κωδικό για μεγαλύτερη ασφάλεια.</value>
+  </data>
+  <data name="PasswordIsCommonRequirement" xml:space="preserve">
+    <value>Ο κωδικός που επιλέξατε είναι ισχυρός.</value>
+  </data>
+  <data name="PasswordRecentlyUsed" xml:space="preserve">
+    <value>Αυτός ο κωδικός πρόσβασης έχει χρησιμοποιηθεί πρόσφατα. Είναι καλή πρακτική να μην επαναχρησιμοποιείτε τον προηγούμενο κωδικό σας.</value>
+  </data>
+  <data name="PasswordRecentlyUsedRequirement" xml:space="preserve">
+    <value>Δεν έχει χρησιμοποιηθεί πρόσφατα.</value>
+  </data>
+  <data name="PasswordRequiresDigit" xml:space="preserve">
+    <value>Ο κωδικός πρέπει να περιέχει τουλάχιστον ένα ψηφίο.</value>
+  </data>
+  <data name="PasswordRequiresDigitRequirement" xml:space="preserve">
+    <value>Έναν αριθμητικό χαρακτήρα</value>
+  </data>
+  <data name="PasswordRequiresLower" xml:space="preserve">
+    <value>Ο κωδικός πρέπει να περιέχει τουλάχιστον ένα μικρό γράμμα.</value>
+  </data>
+  <data name="PasswordRequiresLowerRequirement" xml:space="preserve">
+    <value>Ένα πεζό γράμμα.</value>
+  </data>
+  <data name="PasswordRequiresNonAlphanumeric" xml:space="preserve">
+    <value>Ο κωδικός πρέπει να περιέχει τουλάχιστον ένα μη αλφαριθμητικό χαρακτήρα.</value>
+  </data>
+  <data name="PasswordRequiresNonAlphanumericRequirement" xml:space="preserve">
+    <value>Έναν μη αλφαριθμητικό χαρακτήρα.</value>
+  </data>
+  <data name="PasswordRequiresUniqueChars" xml:space="preserve">
+    <value>Ο κωδικός πρέπει να περιέχει τουλάχιστον {0} διαφορετικούς χαρακτήρες.</value>
+  </data>
+  <data name="PasswordRequiresUniqueCharsRequirement" xml:space="preserve">
+    <value>Απαιτούνται {0} ειδικοί χαρακτήρες</value>
+  </data>
+  <data name="PasswordRequiresUpper" xml:space="preserve">
+    <value>Ο κωδικός πρέπει να περιέχει τουλάχιστον ένα κεφαλαίο γράμμα.</value>
+  </data>
+  <data name="PasswordRequiresUpperRequirement" xml:space="preserve">
+    <value>Ένα κεφαλαίο γράμμα.</value>
+  </data>
+  <data name="PasswordTooShort" xml:space="preserve">
+    <value>Ο κωδικός πρέπει να περιέχει τουλάχιστον {0} χαρακτήρες.</value>
+  </data>
+  <data name="PasswordTooShortRequirement" xml:space="preserve">
+    <value>Πρέπει να έχει τουλάχιστον {0} χαρακτήρες.</value>
   </data>
 </root>
