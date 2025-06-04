@@ -38,12 +38,8 @@ public partial struct PhoneNumber : IFormattable
         Number = number;
     }
 
-#if NET7_0_OR_GREATER
     [GeneratedRegex(RegexPatternString)]
     private static partial Regex PhoneNumberFormat();
-#else 
-    private static Regex PhoneNumberFormat() => new(RegexPatternString, RegexOptions.Compiled);
-#endif
 
     /// <inheritdoc/>
     public override string ToString() => ToString("G");

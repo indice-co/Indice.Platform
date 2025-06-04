@@ -26,6 +26,7 @@
         </div>
     </a>
     <aside class="sidebar"
+        id="sidebar-modal"
            aria-label="Sidebar">
         <div class="grid h-full">
             <div class="flex">
@@ -67,11 +68,16 @@
                             </a>
                         </div>
                         <div class="flex items-start md:items-center flex-col md:flex-row">
-                            <div class="rounded-full h-24 w-24 flex items-center justify-center bg-[#DFEAF2] text-tenant-900 font-bold text-4xl mr-8 mb-4">
+                            @* <div class="rounded-full h-24 w-24 flex items-center justify-center bg-[#DFEAF2] text-tenant-900 font-bold text-4xl mr-8 mb-4">
                                 @initials
-                            </div>
+                            </div> *@
+                            <img class="profilepic__image rounded-full h-24 w-24 flex items-center justify-center mr-8 mb-4"
+                                 profile-pic="256"
+                                 profile-display-name="@User.FindDisplayName()" 
+                                 profile-pic-background="cecece"
+                                 profile-pic-foreground="005b96" />
                             <div class="flex flex-col">
-                                <div class="font-bold mb-1">@Localizer[Settings.Organization]</div>
+                                <div class="font-bold mb-1">@Localizer[Settings.Organization!]</div>
                                 <div class="text-tenant-900 text-3xl font-normal">@User.FindDisplayName()</div>
                                 <div>@User.GetDisplayName()</div>
                             </div>
@@ -119,10 +125,10 @@
 <div class="content-wrapper">
     <div class="flex flex-col items-center justify-center">
         <h1 class="deck-title">
-            @Localizer[UiOptions.Value.HomePageSlogan, Settings.Organization]
+            @Localizer[UiOptions.Value.HomePageSlogan, Settings.Organization!]
         </h1>
         <p class="text-white lg:text-one text-lg pt-6 text-center max-w-screen-md">
-            @Localizer["The Identity portal gives you access to all {0} services with one account. A place to manage your user profile and account access settings. Use the links below to get started.", Settings.Organization]
+            @Localizer["The Identity portal gives you access to all {0} services with one account. A place to manage your user profile and account access settings. Use the links below to get started.", Settings.Organization!]
         </p>
         <div class="deck">
             @if (!User.IsAuthenticated())

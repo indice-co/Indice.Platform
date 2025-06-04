@@ -27,6 +27,9 @@ public class RegisterRequest
     public bool HasReadPrivacyPolicy { get; set; }
     /// <summary>Terms read.</summary>
     public bool HasAcceptedTerms { get; set; }
+    /// <summary>Gets or sets a value indicating whether the user has consented to receive commercial communications.</summary>
+    public bool HasConsentedToCommercialCommunications { get; set; }
+
     /// <summary>User claims.</summary>
-    public List<BasicClaimInfo> Claims { get; set; } = new List<BasicClaimInfo>();
+    public List<BasicClaimInfo> Claims { get; set; } = [];
 }

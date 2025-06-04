@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
-using Microsoft.Extensions.Primitives;
 
 namespace Indice.Extensions;
 
@@ -67,21 +66,13 @@ public static partial class StringExtensions
     }
 
 
-#if NET7_0_OR_GREATER
     [StringSyntax("Regex")]
-#endif
     internal const string WordsRegexPattern = @"(?<delimiter>[/\\-])|(?<separator>[^A-Za-z0-9.]*)?(?<word>([A-Z]?[a-z0-9.]+)|([A-Z][A-Z0-9.]*))[^A-Za-z0-9.]*";
-#if NET7_0_OR_GREATER
+
     /// <summary>Match all parts of a sentence that start with one capital letter e.g. Net</summary>
     [GeneratedRegex(WordsRegexPattern)]
     private static partial Regex WordsRegex();
-#else
-    private static readonly Regex _wordsRegex = new(WordsRegexPattern);
-    /// <summary>Match all parts of a sentence that start with one capital letter e.g. Net</summary>
-    private static Regex WordsRegex() => _wordsRegex;
-#endif
 
-#if !NETSTANDARD14
     /// <summary>Removes accent but keeps encoding.</summary>
     /// <param name="input">The string to manipulate.</param>
     public static string RemoveDiacritics(this string input) {
@@ -95,9 +86,6 @@ public static partial class StringExtensions
         }
         return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
     }
-#endif
-
-
 
     /// <summary>
     /// Creates a SHA256 hash of the specified input.
@@ -112,11 +100,7 @@ public static partial class StringExtensions
     /// </summary>
     /// <param name="input">The input.</param>
     /// <returns>A hash</returns>
-    public static string ToSha256Hex(this byte[] input) =>
-#if !NETSTANDARD
-        string.Join("", SHA256.HashData(input).Select(x => $"{x:x2}"));
-#else
-        string.Join("", SHA256.Create().ComputeHash(input).Select(x => $"{x:x2}"));
-#endif
+    public static string ToSha256Hex(this byte[] input) => string.Join("", SHA256.HashData(input).Select(x => $"{x:x2}"));
+
 }
 #nullable disable

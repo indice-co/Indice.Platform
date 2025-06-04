@@ -11,7 +11,7 @@ public class RedirectToHostRewriteRule : IRule
     /// <summary>The host binding under which we are serving. This should include if any the port and scheme.</summary>
     /// <remarks>If no host is passed then the rule will only try to remove the www in front of a domain if found.</remarks>
     /// <param name="hostDomain"></param>
-    public RedirectToHostRewriteRule(string hostDomain = null) {
+    public RedirectToHostRewriteRule(string? hostDomain = null) {
         if (!string.IsNullOrEmpty(hostDomain)) {
             Host = new HostString(hostDomain.TrimEnd('/'));
         }

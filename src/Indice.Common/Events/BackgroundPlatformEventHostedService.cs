@@ -1,5 +1,4 @@
-﻿#if !NETSTANDARD2_1
-using System.Collections;
+﻿using System.Collections;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -58,4 +57,3 @@ internal class BackgroundPlatformEventHostedService : BackgroundService
         return base.StopAsync(cancellationToken);
     }
 }
-#endif

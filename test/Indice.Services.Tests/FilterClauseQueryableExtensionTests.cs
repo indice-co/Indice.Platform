@@ -45,6 +45,15 @@ public class FilterClauseQueryableExtensionTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task PrimitiveCollection_Contains_Translates_ToDatabaseQuery_Test() {
+        var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
+
+        var query = dbContext.Dummies.Where(x => x.Tags.Contains("yellow"));
+        var results = await query.ToListAsync();
+        Assert.Equal(2, results.Count);
+    }
+
+    [Fact]
     public async Task ToResultset_Translates_DynamicJsonPaths_Sort_Test() {
         var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
         var query = dbContext.Dummies;
@@ -85,26 +94,18 @@ public class FilterClauseQueryableExtensionTests : IAsyncLifetime
 public class DummyDbContext : DbContext
 {
     public DummyDbContext(DbContextOptions<DummyDbContext> options) : base(options) {
-        
+
     }
 
     public async Task<bool> SeedAsync() {
         if (!await Database.EnsureCreatedAsync()) {
             return false;
         }
-#if NET7_0_OR_GREATER
         Dummies.AddRange(
-                new Dummy { Name = "Κωνσταντίνος", Extras = new { Id = 5 }, ModernExtras = JsonSerializer.SerializeToNode(new { Id = 5 }), Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos", ["Surname"] = "Panos" }, Data = new DummyItem { DisplayName = "Κωνσταντίνος Θέρης", Enabled = true, Order = 7, BirthDate = new DateTime(1981, 01, 28), Balance = 100.0, Period = new Period { From = DateTime.Now.AddDays(-10), To = DateTime.Now.AddDays(10) } } },
-                new Dummy { Name = "Γιώργος", Extras = new { Id = 15 }, ModernExtras = JsonSerializer.SerializeToNode(new { Id = 5 }), Data = new DummyItem { DisplayName = "Γιώργος Τζάς", Enabled = false, Order = -14, BirthDate = new DateTime(1989, 10, 24), Balance = 360.23 } },
-                new Dummy { Name = "Γιάννης", Extras = new { Id = 7 }, ModernExtras = JsonSerializer.SerializeToNode(new { Id = 5 }), Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos" }, Data = new DummyItem { DisplayName = "Γιάννης Νές", Enabled = true, Order = 2, BirthDate = new DateTime(1971, 12, 1), Balance = 1260.23 } }
+                new Dummy { Name = "Κωνσταντίνος", Tags = ["red", "yellow", "blue"], Extras = new { Id = 5 }, ModernExtras = JsonSerializer.SerializeToNode(new { Id = 5 }), Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos", ["Surname"] = "Panos" }, Data = new DummyItem { DisplayName = "Κωνσταντίνος Θέρης", Enabled = true, Order = 7, BirthDate = new DateTime(1981, 01, 28), Balance = 100.0, Period = new Period { From = DateTime.Now.AddDays(-10), To = DateTime.Now.AddDays(10) } } },
+                new Dummy { Name = "Γιώργος", Tags = ["yellow", "violet"], Extras = new { Id = 15 }, ModernExtras = JsonSerializer.SerializeToNode(new { Id = 5 }), Data = new DummyItem { DisplayName = "Γιώργος Τζάς", Enabled = false, Order = -14, BirthDate = new DateTime(1989, 10, 24), Balance = 360.23 } },
+                new Dummy { Name = "Γιάννης", Tags = ["blue", "magenta"], Extras = new { Id = 7 }, ModernExtras = JsonSerializer.SerializeToNode(new { Id = 5 }), Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos" }, Data = new DummyItem { DisplayName = "Γιάννης Νές", Enabled = true, Order = 2, BirthDate = new DateTime(1971, 12, 1), Balance = 1260.23 } }
             );
-#else
-        Dummies.AddRange(
-                new Dummy { Name = "Κωνσταντίνος", Extras = new { Id = 5 }, Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos", ["Surname"] = "Panos" }, Data = new DummyItem { DisplayName = "Κωνσταντίνος Θέρης", Enabled = true, Order = 7, BirthDate = new DateTime(1981, 01, 28), Balance = 100.0, Period = new Period { From = DateTime.Now.AddDays(-10), To = DateTime.Now.AddDays(10) } } },
-                new Dummy { Name = "Γιώργος", Extras = new { Id = 15 }, Data = new DummyItem { DisplayName = "Γιώργος Τζάς", Enabled = false, Order = -14, BirthDate = new DateTime(1989, 10, 24), Balance = 360.23 } },
-                new Dummy { Name = "Γιάννης", Extras = new { Id = 7 }, Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos" }, Data = new DummyItem { DisplayName = "Γιάννης Νές", Enabled = true, Order = 2, BirthDate = new DateTime(1971, 12, 1), Balance = 1260.23 } }
-            );
-#endif
         await SaveChangesAsync();
         return true;
     }
@@ -115,10 +116,9 @@ public class DummyDbContext : DbContext
         modelBuilder.Entity<Dummy>().HasKey(x => x.Id);
         modelBuilder.Entity<Dummy>().Property(x => x.Data).HasJsonConversion();
         modelBuilder.Entity<Dummy>().Property(x => x.Extras).HasJsonConversion();
-#if NET7_0_OR_GREATER
         modelBuilder.Entity<Dummy>().Property(x => x.ModernExtras).HasJsonConversion();
-#endif
         modelBuilder.Entity<Dummy>().Property(x => x.Metadata).HasJsonConversion();
+        modelBuilder.Entity<Dummy>().PrimitiveCollection(x => x.Tags);
         modelBuilder.ApplyJsonFunctions();
         base.OnModelCreating(modelBuilder);
     }
@@ -140,9 +140,8 @@ public class Dummy
     public Guid Id { get; set; }
     public string Name { get; set; }
     public dynamic Extras { get; set; }
-#if NET7_0_OR_GREATER
     public JsonNode ModernExtras { get; set; }
-#endif
     public DummyItem Data { get; set; }
+    public List<string> Tags { get; set; }
     public Dictionary<string, string> Metadata { get; set; }
 }

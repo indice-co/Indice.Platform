@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System.Net.Mime;
+﻿using System.Net.Mime;
 using Indice.AspNetCore.Middleware;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -52,4 +51,3 @@ public static class SecurityHeadersHttpContextExtensions
         return httpContext;
     }
 }
-#nullable disable

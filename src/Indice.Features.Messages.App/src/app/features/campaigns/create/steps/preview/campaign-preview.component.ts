@@ -1,11 +1,12 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { AbstractControl, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 
 import { CampaignPreview } from './campaign-preview';
 
 
 export interface IPreviewModel {
   published: boolean;
+  ignoreUserPreferences: boolean;
 }
 
 @Component({
@@ -13,16 +14,16 @@ export interface IPreviewModel {
   templateUrl: './campaign-preview.component.html'
 })
 export class CampaignPreviewComponent implements OnInit {
-    constructor() { }
-    
-    // Input & Output parameters
-    @Input() public data!: CampaignPreview;
+  constructor() { }
 
-    public model: IPreviewModel = { published: false };
-    // Properties
-    public form!: UntypedFormGroup;
+  // Input & Output parameters
+  @Input() public data!: CampaignPreview;
 
-    public ngOnInit(): void {
-    }
+  public model: IPreviewModel = { published: false, ignoreUserPreferences: false };
+  // Properties
+  public form!: UntypedFormGroup;
+
+  public ngOnInit(): void {
+  }
 
 }

@@ -20,10 +20,10 @@ public class SmsYubotoOmniService : YubotoOmniServiceBase, ISmsService
     ) : base(httpClient, settings, logger) { }
 
     /// <inheritdoc />
-    public async Task<SendReceipt> SendAsync(string destination, string subject, string body, SmsSender sender = null) {
+    public async Task<SendReceipt> SendAsync(string destination, string subject, string? body, SmsSender? sender = null) {
         var messageId = Guid.NewGuid().ToString();
         var phoneNumbers = GetRecipientsFromDestination(destination);
-        var requestBody = SendRequest.CreateSms(phoneNumbers, sender?.Id ?? Settings.Sender ?? Settings.SenderName, body, Settings.Validity);
+        var requestBody = SendRequest.CreateSms(phoneNumbers, (sender?.Id ?? Settings.Sender ?? Settings.SenderName)!, body!, Settings.Validity);
         var jsonData = JsonSerializer.Serialize(requestBody, GetJsonSerializerOptions());
         var data = new StringContent(jsonData, Encoding.UTF8, "application/json");
         var httpResponseMessage = await HttpClient.PostAsync("Send", data);
@@ -37,7 +37,7 @@ public class SmsYubotoOmniService : YubotoOmniServiceBase, ISmsService
         }
         var responseContent = await httpResponseMessage.Content.ReadAsStringAsync();
         var response = JsonSerializer.Deserialize<SendResponse>(responseContent);
-        if (!response.IsSuccess) {
+        if (!response!.IsSuccess) {
             var errorMessage = $"SMS Delivery failed.\n {response.ErrorCode} - {response.ErrorMessage}.\n {JsonSerializer.Serialize(response.Messages)}";
             Logger.LogError(errorMessage);
             throw new SmsServiceException(errorMessage);

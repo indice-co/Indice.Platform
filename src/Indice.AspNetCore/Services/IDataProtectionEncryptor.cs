@@ -11,5 +11,5 @@ public interface IDataProtectionEncryptor<T>
     /// <summary>Cryptographically unprotects a piece of protected data.</summary>
     /// <param name="encryptedText">A piece of plaintext data to decrypt.</param>
     /// <param name="object">Returns an object of the specified type that was decrypted.</param>
-    bool TryDecrypt(string encryptedText, out T @object);
+    bool TryDecrypt(string encryptedText, out T? @object);
 }

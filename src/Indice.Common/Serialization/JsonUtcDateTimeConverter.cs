@@ -48,10 +48,8 @@ public class JsonUtcDateTimeConverter : JsonConverter<DateTime>
 /// <summary>A custom <see cref="JsonConverter"/> that tries to convert a string JSON value to it's <see cref="TimeSpan"/> representation.</summary>
 public class JsonNullableUtcDateTimeConverter : JsonConverter<DateTime?>
 {
-#if NET5_0_OR_GREATER
     /// <inheritdoc/>
     public override bool HandleNull => true;
-#endif
 
     /// <inheritdoc/>
     public override DateTime? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {

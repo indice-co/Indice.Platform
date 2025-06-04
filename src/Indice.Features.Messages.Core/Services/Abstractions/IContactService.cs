@@ -10,14 +10,22 @@ public interface IContactService
     /// <summary>Gets a list of all contacts in the system.</summary>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
     Task<ResultSet<Contact>> GetList(ListOptions<ContactListFilter> options);
+    /// <summary>Gets a list of all contacts of a specified distribution list.</summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<Contact[]> GetByDistributionList(Guid id);
     /// <summary>Gets a contact by it's unique id.</summary>
     /// <param name="id">The id of the contact.</param>
-    Task<Contact> GetById(Guid id);
+    Task<Contact?> GetById(Guid id);
     /// <summary>Adds a contact to an existing distribution list.</summary>
     /// <param name="id">The id of the distribution list.</param>
     /// <param name="request">The data for the contact to add.</param>
     /// <remarks>This method will also create the contact if the a contact with the given id is not found or the id is null</remarks>
     Task AddToDistributionList(Guid id, CreateDistributionListContactRequest request);
+    /// <summary>Bulk imports contacts to an existing distribution list.</summary>
+    /// <param name="id"></param>
+    /// <param name="request"></param>
+    Task<ContactsImportResult> BulkAddToDistributionList(Guid id, IEnumerable<CreateDistributionListContactRequest> request);
     /// <summary>Creates a new contact.</summary>
     /// <param name="request">The data for the contact to create.</param>
     Task<Contact> Create(CreateContactRequest request);
@@ -41,7 +49,7 @@ public static class IContactServiceExtensions
     /// <param name="contactService">The <see cref="IContactService"/> to extend.</param>
     /// <param name="email">The contact email to search by</param>
     /// <returns></returns>
-    public async static Task<Contact> FindByEmail(this IContactService contactService, string email) {
+    public async static Task<Contact?> FindByEmail(this IContactService contactService, string email) {
         if (string.IsNullOrEmpty(email)) {
             throw new ArgumentNullException(nameof(email));
         }
@@ -54,7 +62,7 @@ public static class IContactServiceExtensions
     /// <param name="contactService">The <see cref="IContactService"/> to extend.</param>
     /// <param name="phoneNumber">The contact email to search by</param>
     /// <returns></returns>
-    public async static Task<Contact> FindByPhoneNumber(this IContactService contactService, string phoneNumber) {
+    public async static Task<Contact?> FindByPhoneNumber(this IContactService contactService, string phoneNumber) {
         if (string.IsNullOrEmpty(phoneNumber)) {
             throw new ArgumentNullException(nameof(phoneNumber));
         }
@@ -67,7 +75,7 @@ public static class IContactServiceExtensions
     /// <param name="contactService">The <see cref="IContactService"/> to extend.</param>
     /// <param name="recipientId">The id of the recipient.</param>
     /// <returns></returns>
-    public async static Task<Contact> FindByRecipientId(this IContactService contactService, string recipientId) {
+    public async static Task<Contact?> FindByRecipientId(this IContactService contactService, string? recipientId) {
         if (string.IsNullOrEmpty(recipientId)) {
             throw new ArgumentNullException(nameof(recipientId));
         }

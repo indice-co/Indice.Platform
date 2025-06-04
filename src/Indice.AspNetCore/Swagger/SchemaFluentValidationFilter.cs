@@ -2,7 +2,6 @@
 using FluentValidation.Internal;
 using FluentValidation.Validators;
 using Humanizer;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -25,7 +24,7 @@ public class SchemaFluentValidationFilter : ISchemaFilter
         if (context.Type == typeof(void)) {
             return;
         }
-        IValidator validator;
+        IValidator? validator;
         using (var scope = _serviceProvider.CreateScope()) {
             validator = scope.ServiceProvider.GetService(context.Type) as IValidator;
         }
@@ -61,13 +60,13 @@ public class RequestBodyFluentValidationSwaggerFilter : IRequestBodyFilter
     }
     /// <inheritdoc/>
     public void Apply(OpenApiRequestBody requestBody, RequestBodyFilterContext context) {
-        var scopedServiceProvider = _rootServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext.RequestServices;
+        using var scope = _rootServiceProvider.CreateScope();
         if (context.BodyParameterDescription is not null) {
-            AnnotateRequestBodySchemaWithValidator(scopedServiceProvider, context, context.BodyParameterDescription.Type);
+            AnnotateRequestBodySchemaWithValidator(scope.ServiceProvider, context, context.BodyParameterDescription.Type);
         } else if (context.FormParameterDescriptions?.Count() > 0) {
             foreach (var parameterDescription in context.FormParameterDescriptions) {
                 if (parameterDescription.Type is not null)
-                    AnnotateRequestBodySchemaWithValidator(scopedServiceProvider, context, parameterDescription.Type);
+                    AnnotateRequestBodySchemaWithValidator(scope.ServiceProvider, context, parameterDescription.Type);
             }
         }
     }
@@ -77,11 +76,11 @@ public class RequestBodyFluentValidationSwaggerFilter : IRequestBodyFilter
             return;
         }
         Type validatorType = typeof(IValidator<>).MakeGenericType(parameterDescriptionType);
-        IValidator validator = services.GetService(validatorType) as IValidator;
+        IValidator? validator = services.GetService(validatorType) as IValidator;
         if (validator is not null) {
-            OpenApiSchema schema = default;
-            if (context.SchemaRepository.Schemas.ContainsKey(parameterDescriptionType.FullName)) {
-                schema = context.SchemaRepository.Schemas[parameterDescriptionType.FullName];
+            OpenApiSchema? schema = default;
+            if (context.SchemaRepository.Schemas.ContainsKey(parameterDescriptionType.FullName!)) {
+                schema = context.SchemaRepository.Schemas[parameterDescriptionType.FullName!];
             } else if (context.SchemaRepository.Schemas.ContainsKey(parameterDescriptionType.Name)) {
                 schema = context.SchemaRepository.Schemas[parameterDescriptionType.Name];
             } else {

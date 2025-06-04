@@ -4,9 +4,11 @@ using Indice.Security;
 using Indice.Serialization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
+using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
 using System.Text.Json;
@@ -53,8 +55,17 @@ public static class WebApplicationBuilderExtensions
             options.SerializerOptions.Converters.Add(new TypeConverterJsonAdapterFactory());
         });
         // Configure indice services
-        builder.Services.AddProblemDetails();
-        builder.Services.AddEndpointParameterFluentValidation(Assembly.GetEntryAssembly());
+        builder.Services.AddProblemDetails(options =>
+        {
+            options.CustomizeProblemDetails = context =>
+            {
+                context.ProblemDetails.Instance = $"{context.HttpContext.Request.Method} {context.HttpContext.Request.Path}";
+                context.ProblemDetails.Extensions.TryAdd("requestId", context.HttpContext.TraceIdentifier);
+                Activity? activity = context.HttpContext.Features.Get<IHttpActivityFeature>()?.Activity;
+                context.ProblemDetails.Extensions.TryAdd("traceId", activity?.Id);
+            };
+        });
+        builder.Services.AddEndpointParameterFluentValidation(Assembly.GetEntryAssembly()!);
         builder.Services.AddGeneralSettings(builder.Configuration);
         return builder;
     }
@@ -88,8 +99,8 @@ public static class WebApplicationBuilderExtensions
             // Base address of the Identity Server.
             options.Authority = builder.Configuration.GetAuthority(tryInternal: true);
             options.DiscoveryPolicy = new DiscoveryPolicy() {
-                Authority = builder.Configuration.GetAuthority(tryInternal: true),
-                AdditionalEndpointBaseAddresses = [builder.Configuration.GetAuthority()],
+                Authority = builder.Configuration.GetAuthority(tryInternal: true)!,
+                AdditionalEndpointBaseAddresses = [builder.Configuration.GetAuthority()!],
                 ValidateIssuerName = false,
                 RequireHttps = false,
             };
@@ -99,6 +110,10 @@ public static class WebApplicationBuilderExtensions
             options.ClientSecret = builder.Configuration.GetApiSecret("Introspection");
             // Enable caching so we avoid perform a round-trip to the introspection endpoint for each incoming request. 
             options.EnableCaching = true;
+            // Having multiple instances of the same application with distributed cache configured (Redis, Sql) is not an issue.
+            // Having same distributed cache configuration for difference applications, regardless of instance count, is a problem.
+            // Add cache key to avoid caching the same token for different api hosts
+            options.CacheKeyPrefix = $"{options.ClientId}_";
             options.CacheDuration = TimeSpan.FromMinutes(5); // 5 minutes is the default. Should potentially go back up to defaults.
         });
         builder.Services.AddScopeTransformation();

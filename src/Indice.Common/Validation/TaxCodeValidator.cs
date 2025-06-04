@@ -96,11 +96,7 @@ public static class TaxCodeValidator
                 }
                 // Call the appropriate country VAT validation routine depending on the country code
                 var methodName = cCode + "CheckDigit";
-#if !NETSTANDARD14
                 var method = typeof(TaxCodeValidator).GetMethod(methodName, BindingFlags.Static | BindingFlags.NonPublic);
-#else
-                var method = typeof(TaxCodeValidator).GetTypeInfo().GetDeclaredMethod(methodName);
-#endif
                 if (method != null && (bool)method.Invoke(null, [cNumber])!)
                     valid = true;
 

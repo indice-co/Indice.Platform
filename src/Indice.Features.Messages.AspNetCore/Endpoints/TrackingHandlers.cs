@@ -1,7 +1,4 @@
-﻿#if NET7_0_OR_GREATER
-#nullable enable
-
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Indice.Features.Messages.Core;
 using Indice.Types;
@@ -22,7 +19,7 @@ internal static class TrackingHandlers
             return TypedResults.NotFound();
         }
         await campaignService.UpdateHit(campaignId);
-        return TypedResults.Redirect(campaign.ActionLink.Href);
+        return TypedResults.Redirect(campaign.ActionLink!.Href!);
     }
 
     #region Descriptions
@@ -34,6 +31,3 @@ Parameters:
 ";
     #endregion
 }
-
-#nullable disable
-#endif

@@ -29,14 +29,7 @@ internal class SignInLogStoreEntityFrameworkCore : ISignInLogStore
             .SignInLogs
             .Where(x => EF.Functions.DateDiffDay(x.CreatedAt, DateTimeOffset.UtcNow) > _signInLogOptions.Cleanup.RetentionDays)
             .Take(_signInLogOptions.Cleanup.BatchSize);
-#if NET6_0
-        var logs = await query.ToListAsync(cancellationToken: cancellationToken);
-        _dbContext.RemoveRange(logs);
-        return await _dbContext.SaveChangesAsync(cancellationToken);
-#endif
-#if NET7_0_OR_GREATER
         return await query.ExecuteDeleteAsync(cancellationToken);
-#endif
     }
 
     /// <inheritdoc />
@@ -78,13 +71,6 @@ internal class SignInLogStoreEntityFrameworkCore : ISignInLogStore
     /// <inheritdoc />
     public async Task<int> UpdateAsync(Guid id, SignInLogEntryRequest model, CancellationToken cancellationToken = default) {
         var query = _dbContext.SignInLogs.Where(x => x.Id == id);
-#if NET6_0
-        var log = await query.FirstOrDefaultAsync(cancellationToken);
-        log.Review = model.Review;
-        return await _dbContext.SaveChangesAsync(cancellationToken);
-#endif
-#if NET7_0_OR_GREATER
         return await query.ExecuteUpdateAsync(updates => updates.SetProperty(x => x.Review, model.Review), cancellationToken);
-#endif
     }
 }

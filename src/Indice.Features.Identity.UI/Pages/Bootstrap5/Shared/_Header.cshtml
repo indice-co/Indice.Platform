@@ -6,7 +6,7 @@
 @inject ExtendedUserManager<User> UserManager
 
 @{
-    var displayMenu = SignInManager.IsSignedIn(User) && !User.IsSignedInWithScheme(ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
+    var displayMenu = SignInManager.IsSignedIn(User) && !User.IsSignedInWithScheme(ExtendedIdentityConstants.ExtendedValidationScheme);
     var generalSettings = GeneralSettingsWrapper.Value;
     var showRibbon = !Environment.IsProduction();
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
@@ -74,7 +74,7 @@
                             <div class="dropdown-menu dropdown-menu-end drop-card" aria-labelledby="navbarDropdownMenuLink">
                                 <div class="drop-card-body">
                                     <div class="current-account">
-                                        <div class="account-organization">@Localizer[generalSettings.Organization]</div>
+                                        <div class="account-organization">@Localizer[generalSettings.Organization!]</div>
                                         <div class="account-info">
                                             <div class="account-picture">
                                                 <img class="card-img rounded-circle" profile-pic="128" />

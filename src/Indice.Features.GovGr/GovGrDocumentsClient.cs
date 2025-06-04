@@ -20,7 +20,7 @@ internal class GovGrDocumentsClient : IDocumentsService
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
     };
 
-    protected string ServiceName => _settings.ServiceName;
+    protected string ServiceName => _settings.ServiceName!;
     protected Uri BaseAddress => new(string.Format(BASE_URL_MASK, ServiceName));
 
     public GovGrDocumentsClient(
@@ -40,7 +40,7 @@ internal class GovGrDocumentsClient : IDocumentsService
             throw new ArgumentNullException(nameof(walletRequest));
 
         // populate service name ref
-        walletRequest.Document.Template.RefName = ServiceName;
+        walletRequest.Document!.Template!.RefName = ServiceName;
 
         var response = await _httpClient.PostAsync("", new StringContent(
             JsonSerializer.Serialize(walletRequest, _jsonSerializerOptions),
@@ -52,6 +52,6 @@ internal class GovGrDocumentsClient : IDocumentsService
         if (!response.IsSuccessStatusCode) {
             throw new GovGrServiceException(body);
         }
-        return JsonSerializer.Deserialize<DoucumentsReponse>(body, _jsonSerializerOptions);
+        return JsonSerializer.Deserialize<DoucumentsReponse>(body, _jsonSerializerOptions)!;
     }
 }

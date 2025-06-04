@@ -46,12 +46,10 @@ public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="describer">Service to enable localization for application facing identity errors.</param>
     public ExtendedUserStore(TContext context, IConfiguration configuration, IdentityErrorDescriber? describer = null) : base(context, describer) {
-        PasswordHistoryLimit = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.Password)}").GetValue<int?>(nameof(PasswordHistoryLimit)) ??
-                               configuration.GetSection(nameof(PasswordOptions)).GetValue<int?>(nameof(PasswordHistoryLimit));
-        StorePictureAsClaim = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.User)}").GetValue<bool?>(nameof(StorePictureAsClaim)) ??
-                               configuration.GetSection(nameof(User)).GetValue<bool?>(nameof(StorePictureAsClaim)) ?? false;
-        PasswordExpirationPolicy = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.Password)}").GetValue<PasswordExpirationPolicy?>(nameof(PasswordExpirationPolicy)) ??
-                                   configuration.GetSection(nameof(PasswordOptions)).GetValue<PasswordExpirationPolicy?>(nameof(PasswordExpirationPolicy));
+        PasswordHistoryLimit = configuration.GetIdentityOption<int?>(nameof(IdentityOptions.Password), nameof(PasswordHistoryLimit));
+        PasswordExpirationPolicy = configuration.GetIdentityOption<PasswordExpirationPolicy?>(nameof(IdentityOptions.Password), nameof(PasswordExpirationPolicy));
+        StorePictureAsClaim = configuration.GetIdentityOption<bool?> (nameof(IdentityOptions.User), nameof(StorePictureAsClaim)) ?? false;
+        TwoFactorPolicy = configuration.GetIdentityOption<MfaPolicy?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Policy");
     }
 
     private DbSet<UserDevice> UserDeviceSet => Context.Set<UserDevice>();
@@ -64,6 +62,8 @@ public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser
     public int? PasswordHistoryLimit { get; protected set; }
     /// <inheritdoc/>
     public PasswordExpirationPolicy? PasswordExpirationPolicy { get; protected set; }
+    /// <inheritdoc/>
+    public MfaPolicy? TwoFactorPolicy { get; protected set; }
     /// <inheritdoc/>
     public bool StorePictureAsClaim { get; protected set; }
 
@@ -112,6 +112,10 @@ public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser
                 user.PasswordExpirationPolicy = PasswordExpirationPolicy;
             }
             user.PasswordExpirationDate = user.CalculatePasswordExpirationDate();
+        }
+        // If user does not already have a two factor policy assigned use the default policy.
+        if (!user.TwoFactorPolicy.HasValue && TwoFactorPolicy.HasValue) {
+            user.TwoFactorPolicy = TwoFactorPolicy;
         }
         return await base.CreateAsync(user, cancellationToken);
     }
@@ -288,17 +292,8 @@ public partial class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser
         return IdentityResult.Success;
     }
 
-#if NET7_0_OR_GREATER
-    [StringSyntax("Regex")]
-#endif
-    private const string Base64PicturePattern = "data:(?<ContentType>.+);base64,(?<Data>.+)";
-#if NET7_0_OR_GREATER
-    [GeneratedRegex(Base64PicturePattern)]
+    [GeneratedRegex("data:(?<ContentType>.+);base64,(?<Data>.+)")]
     private static partial Regex GetBase64PictureRegex();
-#else
-    private static readonly Regex _base64PictureRegex = new(Base64PicturePattern, RegexOptions.Compiled);
-    private static Regex GetBase64PictureRegex() => _base64PictureRegex;
-#endif
 
     /// <inheritdoc/>
     public async Task<IdentityResult> SetUserPictureAsync(TUser user, Stream inputStream, int sideSize = 256, double scale = 1, int translateX = 0, int translateY = 0, int viewPortSize = 256, CancellationToken cancellationToken = default) {

@@ -159,6 +159,18 @@ public class ClientEventContext
         UserCodeType = client.UserCodeType,
         UserSsoLifetime = client.UserSsoLifetime
     };
+    
+    /// <summary>Creates a new <see cref="ClientEventContext"/> instance given a <see cref="Client"/> entity.</summary>
+    /// <param name="client">The client entity.</param>
+    public static ClientEventContext InitializeFromClient(IdentityServer4.Models.Client client) => new() {
+        Claims = client.Claims?.Select(claim => new ClientClaimEventContext(claim.Type, claim.Value)).ToList() ?? [],
+        ClientId = client.ClientId,
+        ClientName = client.ClientName,
+        ClientUri = client.ClientUri,
+        Description = client.Description,
+        Enabled = client.Enabled,
+        LogoUri = client.LogoUri
+    };
 }
 
 /// <summary>Client claim.</summary>

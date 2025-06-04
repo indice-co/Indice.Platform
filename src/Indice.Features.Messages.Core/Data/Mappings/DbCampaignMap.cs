@@ -29,12 +29,14 @@ public class DbCampaignMap : IEntityTypeConfiguration<DbCampaign>
         builder.Property(x => x.Title).HasMaxLength(TextSizePresets.M128).IsRequired();
         builder.Property(x => x.CreatedAt).IsRequired();
         builder.Property(x => x.Published).IsRequired();
+        builder.Property(x => x.IgnoreUserPreferences).IsRequired();
+        
         builder.OwnsOne(x => x.ActivePeriod).Property(x => x.From).HasColumnName(nameof(Period.From));
         builder.OwnsOne(x => x.ActivePeriod).Property(x => x.To).HasColumnName(nameof(Period.To));
         builder.Property(x => x.IsGlobal).IsRequired();
         builder.Property(x => x.Data).HasJsonConversion();
         builder.Property(x => x.MediaBaseHref).HasMaxLength(TextSizePresets.L1024);
-        builder.Property(x => x.Content).HasJsonConversion();
+        builder.Property(x => x.Content).HasRequiredJsonConversion();
         builder.Property(x => x.CreatedBy).HasMaxLength(TextSizePresets.M128).IsRequired();
         builder.Property(x => x.UpdatedBy).HasMaxLength(TextSizePresets.M128);
         // Owned properties

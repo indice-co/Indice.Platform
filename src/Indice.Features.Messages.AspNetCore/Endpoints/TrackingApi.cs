@@ -1,7 +1,4 @@
-﻿#if NET7_0_OR_GREATER
-#nullable enable
-
-using Indice.Features.Messages.AspNetCore.Endpoints;
+﻿using Indice.Features.Messages.AspNetCore.Endpoints;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,7 +16,7 @@ internal static class TrackingApi
     /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     public static RouteGroupBuilder MapTracking(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<MessageInboxOptions>>().Value;
-        var group = routes.MapGroup(options.PathPrefix.TrimEnd('/') + "_tracking");
+        var group = routes.MapGroup(options.PathPrefix.TrimEnd('/') + "/_tracking");
 
         if (!string.IsNullOrEmpty(options.GroupName)) {
             group.WithGroupName(options.GroupName);
@@ -46,6 +43,3 @@ internal static class TrackingApi
         return group;
     }
 }
-
-#nullable disable
-#endif

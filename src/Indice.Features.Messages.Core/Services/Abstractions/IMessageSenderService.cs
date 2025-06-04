@@ -13,10 +13,10 @@ public interface IMessageSenderService
     /// <summary>
     /// Gets a message sender by it's unique id.</summary>
     /// <param name="id">The id of the message sender.</param>
-    Task<MessageSender> GetById(Guid id);
+    Task<MessageSender?> GetById(Guid id);
     /// <summary>Gets a message sender by it's name.</summary>
     /// <param name="name">The name of the message sender.</param>
-    Task<MessageSender> GetByName(string name);
+    Task<MessageSender?> GetByName(string name);
     /// <summary>Creates a new contact.</summary>
     /// <param name="request">The data for the message sender to create.</param>
     Task<MessageSender> Create(CreateMessageSenderRequest request);

@@ -1,6 +1,4 @@
-﻿#if NET8_0_OR_GREATER
-#nullable enable
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,7 +6,6 @@ using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using System.Text.RegularExpressions;
 
 namespace Microsoft.AspNetCore.Routing;
 
@@ -118,7 +115,3 @@ public class TranslationsGraphOptions
         return all.ToLookup(x => x.EndpointRoutePattern);
     }
 }
-
-
-#nullable disable
-#endif

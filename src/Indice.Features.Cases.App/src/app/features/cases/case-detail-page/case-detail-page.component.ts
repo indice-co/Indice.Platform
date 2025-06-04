@@ -85,7 +85,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
           )
         ),
         tap((response: Case) => {
-          this.caseTypeConfig = response.caseType?.config ? JSON.parse(response.caseType?.config) : {};
+          this.caseTypeConfig = response.caseType?.config ? response.caseType?.config : {};
           this.caseDetailsService.setCaseDetails(response);
         }),
         takeUntil(this.componentDestroy$)
@@ -94,10 +94,10 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
 
   private getCustomerData$(caseDetails: Case): Observable<Case> {
     return this.api
-      .getCustomerData(caseDetails.customerId ?? "", caseDetails.caseType?.code ?? "")
+      .getContactData(caseDetails.ownerId ?? "", caseDetails.caseType?.code ?? "")
       .pipe(
-        map(customerDetails => {
-          caseDetails.data = customerDetails.formData;
+        map(contactData => {
+          caseDetails.data = contactData;
           return caseDetails;
         }));
 
@@ -131,7 +131,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
    * @param event The action Id to trigger the corresponding custom workflow action.
    */
   onCustomActionTrigger(event: { redirectToList: boolean | undefined, successMessage: SuccessMessage | undefined, id: string | undefined, value: string | undefined }) {
-    this.api.triggerAction(this.caseId, undefined, new ActionRequest({ id: event?.id, value: event?.value }))
+    this.api.triggerAction(this.caseId, new ActionRequest({ id: event?.id, value: event?.value }))
       .pipe(
         tap(() => {
           if (event.redirectToList) {

@@ -42,7 +42,7 @@ public class ExtendedTokenResponseGenerator(
 
     /// <inheritdoc />
     protected override Task<TokenResponse> ProcessAuthorizationCodeRequestAsync(TokenRequestValidationResult request) {
-        var httpContext = ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext;
+        var httpContext = ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext!;
         var ip = httpContext.GetClientIpAddress();
         request.ValidatedRequest.Subject.AddIdentity(new(claims: [
             new(BasicClaimTypes.IPAddress, ip == IPAddress.None ? string.Empty : ip.ToString())
@@ -82,7 +82,7 @@ public class ExtendedTokenResponseGenerator(
 
     /// <inheritdoc/>
     protected override async Task<TokenResponse> ProcessExtensionGrantRequestAsync(TokenRequestValidationResult request) {
-        var httpContext = ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext;
+        var httpContext = ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext!;
         var ip = httpContext.GetClientIpAddress();
         request.ValidatedRequest.Subject.AddIdentity(new(claims: [
             new(BasicClaimTypes.IPAddress, ip == IPAddress.None ? string.Empty : ip.ToString())

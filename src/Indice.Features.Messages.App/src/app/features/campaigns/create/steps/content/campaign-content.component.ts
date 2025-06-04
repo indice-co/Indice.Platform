@@ -133,6 +133,9 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
     if (changes.content?.currentValue) {
       this.channelsContent.clear();
       const contentValue = changes.content.currentValue;
+      for (const channel in this.channelsState) {
+        this.channelsState[channel].checked = false;
+      }
       let index = 0;
       for (const channel in contentValue) {
         if (Object.prototype.hasOwnProperty.call(contentValue, channel)) {
@@ -150,7 +153,7 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
           this.channelsContent.push(channelForm);
           if (index === 0) {
             this._setSubjectPreview(content.title);
-            this._setBodyPreview(content.body);
+            this._setBodyPreview(content.body, channel);
           }
         }
         index++;
@@ -209,8 +212,9 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
     }
     const subject = formGroup.controls['subject'].value;
     const body = formGroup.controls['body'].value;
+    const channel = formGroup.controls['channel'].value;
     this._setSubjectPreview(subject);
-    this._setBodyPreview(body);
+    this._setBodyPreview(body, channel);
   }
 
   public onCampaignMetadataInput(event: any): void {
@@ -226,12 +230,13 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
 
   public onBodyInput(content: FormGroup): void {
     const body = content.controls['body'].value;
-    this._setBodyPreview(body);
+    const channel = content.controls['channel'].value;
+    this._setBodyPreview(body, channel);
   }
 
-  public onBodyInputValue(body: any): void {
+  public onBodyInputValue(body: any, channel: any): void {
     
-    this._setBodyPreview(body);
+    this._setBodyPreview(body, channel);
   }
 
   public openMediaLibraryInNewTab() {
@@ -274,12 +279,17 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
       this.subjectPreview = template(this.samplePayload);
     } catch (error) { }
   }
-  private _setBodyPreview(value: string | undefined): void {
+  private _setBodyPreview(value: string | undefined, channel?: any): void {
     if (!value) {
       this.bodyPreview = '';
     }
     try {
       const template = Handlebars.compile(value);
+      const isPlainText = channel?.toLowerCase() != 'email' && channel?.toLowerCase() != 'inbox'
+      if (isPlainText) {
+          this.bodyPreview = `<pre style="white-space: pre-wrap">${template(this.samplePayload)}</pre>`;
+          return;
+      }
       this.bodyPreview = template(this.samplePayload);
     } catch (error) { }
   }

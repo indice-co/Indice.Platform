@@ -4,7 +4,7 @@
 public class SignInLogEntryToken
 {
     /// <summary>Gets the type of the token.</summary>
-    public string TokenType { get; set; }
+    public string TokenType { get; set; } = null!;
     /// <summary>Gets the token value.</summary>
-    public string TokenValue { get; set; }
+    public string TokenValue { get; set; } = null!;
 }

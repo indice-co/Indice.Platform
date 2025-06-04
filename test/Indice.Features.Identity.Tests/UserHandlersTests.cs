@@ -1,5 +1,4 @@
-﻿#if NET8_0_OR_GREATER
-using Indice.Events;
+﻿using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
@@ -49,7 +48,7 @@ public class UserHandlersTests : IAsyncLifetime
         await identityDbContext.SaveChangesAsync();
 
         // execute
-        var result = await UserHandlers.CreateUser(userManager, identityDbContext, new Server.Manager.Models.CreateUserRequest {
+        _ = await UserHandlers.CreateUser(userManager, identityDbContext, new Server.Manager.Models.CreateUserRequest {
             UserName = "john.doe@indice.gr",
             Email = "john.doe@indice.gr",
             Password = "password",
@@ -82,4 +81,3 @@ public class UserHandlersTests : IAsyncLifetime
         }
     }
 }
-#endif

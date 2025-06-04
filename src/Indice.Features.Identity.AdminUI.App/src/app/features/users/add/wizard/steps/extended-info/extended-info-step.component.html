@@ -10,6 +10,7 @@
         [ngClass]="{ invalid: hostFormValidated && firstName.invalid }"
         formControlName="firstName"
         maxlength="256"
+        autocomplete="off"
       />
     </div>
   </div>
@@ -24,6 +25,7 @@
         [ngClass]="{ invalid: hostFormValidated && lastName.invalid }"
         formControlName="lastName"
         maxlength="256"
+        autocomplete="off"
       />
     </div>
   </div>
@@ -40,6 +42,7 @@
         email
         required
         maxlength="256"
+        autocomplete="off"
         (blur)="checkUserNameShouldUpdate()"
       />
       <div
@@ -106,6 +109,7 @@
         formControlName="userName"
         required
         maxlength="256"
+        autocomplete="off"
       />
       <div
         *ngIf="hostFormValidated && userName.invalid"
@@ -125,6 +129,7 @@
         name="user-phone-number"
         type="tel"
         class="form-control"
+        autocomplete="off"
         formControlName="phoneNumber"
       />
     </div>

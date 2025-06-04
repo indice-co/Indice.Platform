@@ -1,4 +1,5 @@
-﻿using Indice.Security;
+﻿using Indice.Features.Identity.Core.Configuration;
+using Indice.Security;
 using Microsoft.AspNetCore.Identity;
 
 namespace Indice.Features.Identity.Core.Data.Models;
@@ -42,6 +43,9 @@ public class User : IdentityUser
     public bool Blocked { get; set; }
     /// <summary>Indicates whether the user must provide a new password upon next login.</summary>
     public bool PasswordExpired { get; set; }
+    /// <summary>Indicates whether the user should enroll for the two factor authentication.</summary>
+    /// <remarks>In case this is empty or null then the two factor is optional.</remarks>
+    public MfaPolicy? TwoFactorPolicy { get; set; }
     /// <summary>Navigation property for the roles this user belongs to. This setting takes precedence over <see cref="PasswordExpirationPolicy"/>.</summary>
     public virtual ICollection<IdentityUserRole<string>> Roles { get; } = new List<IdentityUserRole<string>>();
     /// <summary>Navigation property for the claims this user possesses.</summary>

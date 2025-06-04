@@ -1,6 +1,4 @@
-﻿
-#if NET8_0_OR_GREATER
-using IdentityModel;
+﻿using IdentityModel;
 using Indice.AspNetCore.Authorization;
 using Indice.Events;
 using Indice.Features.Identity.Core;
@@ -18,19 +16,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
-using System.Net.Http.Json;
 using Indice.Security;
 using IdentityServer4;
 using IdentityModel.Client;
 using IdentityServer4.Models;
 using System.Security.Claims;
-using IdentityServer4.ResponseHandling;
-using IdentityServer4.Services;
-using Indice.Features.Identity.Core.ResponseHandling;
-using Indice.Features.Identity.Core.TokenCreation;
 using TokenResponse = IdentityModel.Client.TokenResponse;
 using Microsoft.AspNetCore.HttpOverrides;
-using System;
 using System.Net.Http.Headers;
 
 namespace Indice.Features.Identity.Tests;
@@ -56,7 +48,7 @@ public class UserAvatarApiTest : IAsyncLifetime
         builder.ConfigureServices((ctx, services) => {
             services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(builder => builder.UseInMemoryDatabase(_identityDatabaseName));
             services.AddDbContext<ExtendedConfigurationDbContext>(builder => builder.UseInMemoryDatabase(_identityDatabaseName));
-            services.AddTransient<IUserStateProvider<User>, UserStateProviderNoop>();
+            services.AddTransient<IUserRequirementProvider<User>, UserRequirementProviderNoOp>();
             services.AddIdentity<User, Role>()
                     .AddExtendedUserManager()
                     .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
@@ -129,22 +121,22 @@ public class UserAvatarApiTest : IAsyncLifetime
         var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var user = new User {
             CreateDate = DateTimeOffset.UtcNow,
-            Email = "e.travlos@indice.gr",
+            Email = "someone@indice.gr",
             EmailConfirmed = true,
             Id = Guid.NewGuid().ToString(),
             PhoneNumber = "69XXXXXXXX",
             PhoneNumberConfirmed = true,
-            UserName = "e.travlos@indice.gr"
+            UserName = "someone@indice.gr"
         };
         // 1. Create a new user.
-        var result = await userManager.CreateAsync(user, password: "123abc!", validatePassword: false);
+        var result = await userManager.CreateAsync(user, password: "xxxxxxx", validatePassword: false);
         if (!result.Succeeded) {
             Assert.Fail("User could not be created.");
         }
         //await userManager.AddToRoleAsync(user, BasicRoleNames.Developer);
 
         using var client = new HttpClient();
-        var tokenResponse = await LoginWithPasswordGrant("e.travlos@indice.gr", "123abc!");
+        var tokenResponse = await LoginWithPasswordGrant("someone@indice.gr", "xxxxxxx");
 
         var multipartContent = new MultipartFormDataContent();
         var stream = File.OpenRead("./Images/Profile.jpg");
@@ -256,4 +248,3 @@ public class UserAvatarApiTest : IAsyncLifetime
         return Task.CompletedTask;
     }
 }
-#endif

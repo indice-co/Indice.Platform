@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using System.Text.Encodings.Web;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
@@ -7,13 +6,8 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Indice.AspNetCore.Authorization;
 
-#if NET8_0_OR_GREATER
 internal class MockAuthenticationHandler(IOptionsMonitor<MockAuthenticationOptions> options, ILoggerFactory logger, UrlEncoder encoder)
     : AuthenticationHandler<MockAuthenticationOptions>(options, logger, encoder)
-#else
-internal class MockAuthenticationHandler(IOptionsMonitor<MockAuthenticationOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
-: AuthenticationHandler<MockAuthenticationOptions>(options, logger, encoder, clock)
-#endif
 {
 
     /// <summary>

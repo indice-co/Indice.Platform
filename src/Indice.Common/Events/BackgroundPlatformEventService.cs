@@ -1,5 +1,4 @@
-﻿#if !NETSTANDARD2_1
-using System.Threading.Channels;
+﻿using System.Threading.Channels;
 
 namespace Indice.Events;
 
@@ -15,4 +14,3 @@ internal sealed class BackgroundPlatformEventService : IPlatformEventService
     /// <inheritdoc />
     public async Task Publish(IPlatformEvent @event) => await _queue.EnqueueAsync(@event);
 }
-#endif

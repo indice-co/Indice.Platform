@@ -21,13 +21,14 @@ internal class DequeueJob<TWorkItem> : IJob where TWorkItem : class
         _logger.LogInformation("Dequeue job run at: {TimeStamp}", DateTime.UtcNow);
         var jobDataMap = context.JobDetail.JobDataMap;
         var jobHandlerType = jobDataMap[JobDataKeys.JobHandlerType] as Type;
+        var maxRetryCount = jobDataMap.GetInt(JobDataKeys.MaxRetryCount);
         var workItem = await _workItemQueue.Dequeue();
         if (workItem != null) {
             jobDataMap[JobDataKeys.BackoffIndex] = 0;
             try {
-                await _taskHandlerActivator.Invoke(jobHandlerType, jobDataMap, context.CancellationToken, workItem.Value);
+                await _taskHandlerActivator.Invoke(jobHandlerType!, jobDataMap, context.CancellationToken, workItem.Value);
             } catch (Exception exception) {
-                if (workItem.DequeueCount < 5) {
+                if (workItem.DequeueCount < maxRetryCount) {
                     await _workItemQueue.ReEnqueue(workItem); // Re-enqueue to retry.
                 } else {
                     await _workItemQueue.MarkPoison(workItem); // Enqueue to poison enqueue.

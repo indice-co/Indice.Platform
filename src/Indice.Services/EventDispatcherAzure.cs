@@ -22,7 +22,7 @@ public class EventDispatcherAzure : IEventDispatcher
     private readonly bool _useCompression;
     private readonly QueueMessageEncoding _queueMessageEncoding;
     private readonly Func<ClaimsPrincipal> _claimsPrincipalSelector;
-    private readonly Func<string> _tenantIdSelector;
+    private readonly Func<string?> _tenantIdSelector;
     private readonly JsonSerializerOptions _jsonSerializerOptions;
 
     /// <summary>Create a new <see cref="EventDispatcherAzure"/> instance.</summary>
@@ -40,12 +40,12 @@ public class EventDispatcherAzure : IEventDispatcher
         _useCompression = useCompression;
         _queueMessageEncoding = queueMessageEncoding;
         _claimsPrincipalSelector = claimsPrincipalSelector ?? throw new ArgumentNullException(nameof(claimsPrincipalSelector));
-        _tenantIdSelector = tenantIdSelector ?? new Func<string>(() => null);
+        _tenantIdSelector = tenantIdSelector ?? new Func<string?>(() => null);
         _jsonSerializerOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
     }
 
     /// <inheritdoc/>
-    public async Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal actingPrincipal = null, TimeSpan? visibilityTimeout = null, bool wrap = true, string queueName = null, bool prependEnvironmentInQueueName = true) where TEvent : class {
+    public async Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal? actingPrincipal = null, TimeSpan? visibilityTimeout = null, bool wrap = true, string? queueName = null, bool prependEnvironmentInQueueName = true) where TEvent : class {
         if (!_enabled) {
             return;
         }
@@ -75,7 +75,7 @@ public class EventDispatcherAzure : IEventDispatcher
             default:
                 // Create a message and add it to the queue.
                 var jsonPayload = wrap
-                    ? JsonSerializer.Serialize(Envelope.Create(user, payload, _tenantIdSelector()), _jsonSerializerOptions)
+                    ? JsonSerializer.Serialize(Envelope.Create(user!, payload, _tenantIdSelector()), _jsonSerializerOptions)
                     : JsonSerializer.Serialize(payload, _jsonSerializerOptions);
                 payloadBytes = Encoding.UTF8.GetBytes(jsonPayload);
                 break;
@@ -102,15 +102,15 @@ public class EventDispatcherAzure : IEventDispatcher
 public class EventDispatcherAzureOptions
 {
     /// <summary>The connection string to the Azure Storage account. By default it searches for <see cref="EventDispatcherAzure.CONNECTION_STRING_NAME"/> application setting inside ConnectionStrings section.</summary>
-    public string ConnectionString { get; set; }
+    public string? ConnectionString { get; set; }
     /// <summary>The environment name to use. Defaults to <see cref="IHostEnvironment.EnvironmentName"/>.</summary>
     public string EnvironmentName { get; set; } = "Production";
     /// <summary>Provides a way to enable/disable event dispatching at will. Defaults to true.</summary>
     public bool Enabled { get; set; } = true;
     /// <summary>A function that retrieves the current thread user from the current operation context.</summary>
-    public Func<ClaimsPrincipal> ClaimsPrincipalSelector { get; set; }
+    public Func<ClaimsPrincipal>? ClaimsPrincipalSelector { get; set; }
     /// <summary>A function that retrieves the current tenant id by any means possible. This is optional.</summary>
-    public Func<string> TenantIdSelector { get; set; }
+    public Func<string>? TenantIdSelector { get; set; }
     /// <summary>Determines how <see cref="Azure.Storage.Queues.Models.QueueMessage.Body"/> is represented in HTTP requests and responses.</summary>
     public QueueMessageEncoding QueueMessageEncoding { get; set; } = QueueMessageEncoding.Base64;
     /// <summary>When selected, applies Brotli compression algorithm in the queue message payload. Defaults to false.</summary>

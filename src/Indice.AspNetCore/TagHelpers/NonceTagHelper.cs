@@ -1,5 +1,6 @@
 ﻿using Indice.AspNetCore.Middleware;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Indice.AspNetCore.TagHelpers;
@@ -8,17 +9,17 @@ namespace Indice.AspNetCore.TagHelpers;
 [HtmlTargetElement("*", Attributes = "csp-nonce")]
 public class NonceTagHelper : TagHelper
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
     /// <summary>creates the tag helper</summary>
-    /// <param name="httpContextAccessor"></param>
-    public NonceTagHelper(IHttpContextAccessor httpContextAccessor) {
-        _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-    }
+    public NonceTagHelper() { }
 
     /// <summary>The predicate expression to test.</summary>
     [HtmlAttributeName("csp-nonce")]
     public bool Enabled { get; set; }
+
+    /// <summary>The view context</summary>
+    [HtmlAttributeNotBound]
+    [ViewContext]
+    public ViewContext? ViewContext { get; set; }
 
     /// <summary></summary>
     /// <param name="context"></param>
@@ -26,7 +27,10 @@ public class NonceTagHelper : TagHelper
     public override void Process(TagHelperContext context, TagHelperOutput output) {
         if (Enabled) {
             var nonce = CSP.CreateNonce();
-            var httpContext = _httpContextAccessor.HttpContext;
+            var httpContext = ViewContext?.HttpContext;
+            if (httpContext == null) {
+                return;
+            }   
             List<string> nonceList;
             var key = string.Empty;
             if (string.Equals(context.TagName, "script", StringComparison.OrdinalIgnoreCase)) {
@@ -35,7 +39,7 @@ public class NonceTagHelper : TagHelper
                 key = CSP.CSP_STYLE_NONCE_HTTPCONTEXT_KEY;
             }
             if (httpContext.Items.ContainsKey(key)) {
-                nonceList = (List<string>)httpContext.Items[key];
+                nonceList = (List<string>)httpContext.Items[key]!;
             } else {
                 nonceList = new List<string>();
                 httpContext.Items.Add(key, nonceList);

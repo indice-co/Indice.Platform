@@ -26,7 +26,7 @@ public static class FilterClauseQueryableExtensions
 
     private static IQueryable<TSource> Where<TSource>(this IQueryable<TSource> source,
             FilterClause filter) {
-        var where = DynamicExtensions.GetFullPredicateExpressionTree<TSource>(filter);
+        var where = DynamicExtensions.GetFullPredicateExpressionTree<TSource>(filter)!;
         return source.Where(where);
     }
 }

@@ -1,12 +1,9 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Security.Claims;
-using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Security.Claims;
 using IdentityModel;
-using IdentityServer4.Configuration;
+using IdentityServer4.Events;
+using IdentityServer4.Extensions;
 using IdentityServer4.Models;
+using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.Stores.Serialization;
 using Indice.Features.Identity.Core;
@@ -20,20 +17,13 @@ using Indice.Security;
 using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats;
-using SixLabors.ImageSharp.Processing;
 using static IdentityServer4.IdentityServerConstants;
 
 namespace Indice.Features.Identity.Server.Manager;
@@ -43,6 +33,8 @@ internal static partial class MyAccountHandlers
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> UpdateEmail(
         ExtendedUserManager<User> userManager,
         IOptions<ExtendedEndpointOptions> endpointOptions,
+        LinkGenerator linkGenerator,
+        HttpContext httpContext,
         ClaimsPrincipal currentUser,
         IEmailService emailService,
         UpdateUserEmailRequest request
@@ -68,12 +60,14 @@ internal static partial class MyAccountHandlers
                 .To(user.Email!)
                 .WithSubject(userManager.MessageDescriber.UpdateEmailMessageSubject);
             if (!string.IsNullOrWhiteSpace(endpointOptions.Value.Email.UpdateEmailTemplate)) {
-                var data = new IdentityApiEmailData {
+                var data = new EmailChangeEmailModel {
                     DisplayName = currentUser.FindDisplayName() ?? user.UserName,
                     ReturnUrl = request.ReturnUrl,
                     Subject = userManager.MessageDescriber.UpdateEmailMessageSubject,
                     Token = token,
-                    User = user
+                    Url = linkGenerator.GetUriByPage(httpContext, "/ConfirmEmail", values: new { userId = user.Id, token, email = request.Email, request.ReturnUrl }),
+                    User = user,
+                    NewEmail = request.Email
                 };
                 builder.UsingTemplate(endpointOptions.Value.Email.UpdateEmailTemplate)
                        .WithData(data);
@@ -103,6 +97,72 @@ internal static partial class MyAccountHandlers
             );
         }
         var result = await userManager.ConfirmEmailAsync(user, request.Token!);
+        if (!result.Succeeded) {
+            return TypedResults.ValidationProblem(result.Errors.ToDictionary());
+        }
+        return TypedResults.NoContent();
+    }
+
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> EmailChange(
+        ExtendedUserManager<User> userManager,
+        IOptions<ExtendedEndpointOptions> endpointOptions,
+        LinkGenerator linkGenerator,
+        HttpContext httpContext,
+        ClaimsPrincipal currentUser,
+        IEmailService emailService,
+        ChangeUserEmailRequest request
+    ) {
+        var user = await userManager.GetUserAsync(currentUser);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        var currentEmail = await userManager.GetEmailAsync(user);
+        if (currentEmail is not null && currentEmail.Equals(request.Email, StringComparison.OrdinalIgnoreCase) && await userManager.IsEmailConfirmedAsync(user)) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.Email).ToLower(), userManager.MessageDescriber.EmailAlreadyExists(request.Email)));
+        }
+        var token = await userManager.GenerateChangeEmailTokenAsync(user, request.Email);
+        await emailService.SendAsync(message => {
+            var builder = message
+                .To(request.Email)
+                .WithSubject(userManager.MessageDescriber.ConfirmationEmailChangeSubject);
+            if (!string.IsNullOrWhiteSpace(endpointOptions.Value.Email.UpdateEmailTemplate)) {
+                var data = new EmailChangeEmailModel {
+                    DisplayName = currentUser.FindDisplayName() ?? user.UserName,
+                    ReturnUrl = request.ReturnUrl,
+                    Subject = userManager.MessageDescriber.ConfirmationEmailChangeSubject,
+                    Token = token,
+                    Url = linkGenerator.GetUriByPage(httpContext, "/ConfirmEmailChange", values: new { userId = user.Id, token, email = request.Email, request.ReturnUrl }),
+                    User = user,
+                    NewEmail = request.Email
+                };
+                builder.UsingTemplate(endpointOptions.Value.Email.ChangeEmailTemplate)
+                       .WithData(data);
+            } else {
+                builder.WithBody(userManager.MessageDescriber.ChangeEmailMessageBody(user, token, request.Email, request.ReturnUrl));
+            }
+        });
+        return TypedResults.NoContent();
+    }
+
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> ConfirmEmailChange(
+        ExtendedUserManager<User> userManager,
+        ClaimsPrincipal currentUser,
+        ConfirmEmailChangeRequest request
+    ) {
+        var userId = currentUser.FindFirstValue(JwtClaimTypes.Subject);
+        var user = await userManager.Users
+                                    .Include(x => x.Claims)
+                                    .Where(x => x.Id == userId)
+                                    .SingleOrDefaultAsync();
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        if (user.Email == request.Email && user.EmailConfirmed) {
+            return TypedResults.ValidationProblem(
+                ValidationErrors.AddError(nameof(request.Token).ToLower(), userManager.MessageDescriber.EmailAlreadyConfirmed)
+            );
+        }
+        var result = await userManager.ChangeEmailAsync(user, request.Email!, request.Token!);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
@@ -140,6 +200,29 @@ internal static partial class MyAccountHandlers
         return TypedResults.NoContent();
     }
 
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> PhoneNumberChange(
+        ExtendedUserManager<User> userManager,
+        IOptions<ExtendedEndpointOptions> endpointOptions,
+        ClaimsPrincipal currentUser,
+        ISmsServiceFactory smsServiceFactory,
+        ChangeUserPhoneNumberRequest request
+    ) {
+        var user = await userManager.GetUserAsync(currentUser);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        var currentPhoneNumber = user.PhoneNumber ?? string.Empty;
+        if (currentPhoneNumber.Equals(request.PhoneNumber, StringComparison.OrdinalIgnoreCase) && await userManager.IsPhoneNumberConfirmedAsync(user)) {
+            return TypedResults.ValidationProblem(
+                ValidationErrors.AddError(nameof(request.PhoneNumber).ToLower(), userManager.MessageDescriber.UserAlreadyHasPhoneNumber(request.PhoneNumber))
+            );
+        }
+        var smsService = smsServiceFactory.Create(request.DeliveryChannel!) ?? throw new Exception($"No concrete implementation of {nameof(ISmsService)} is registered.");
+        var token = await userManager.GenerateChangePhoneNumberTokenAsync(user, request.PhoneNumber!);
+        await smsService.SendAsync(request.PhoneNumber!, string.Empty, userManager.MessageDescriber.PhoneNumberChangeVerificationMessage(token));
+        return TypedResults.NoContent();
+    }
+
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> ConfirmPhoneNumber(
         ExtendedUserManager<User> userManager,
         ClaimsPrincipal currentUser,
@@ -159,6 +242,26 @@ internal static partial class MyAccountHandlers
             );
         }
         var result = await userManager.ChangePhoneNumberAsync(user, user.PhoneNumber!, request.Token!);
+        if (!result.Succeeded) {
+            return TypedResults.ValidationProblem(result.Errors.ToDictionary());
+        }
+        return TypedResults.NoContent();
+    }
+
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> ConfirmPhoneNumberChange(
+        ExtendedUserManager<User> userManager,
+        ClaimsPrincipal currentUser,
+        ConfirmPhoneNumberChangeRequest request
+    ) {
+        var userId = currentUser.FindFirstValue(JwtClaimTypes.Subject);
+        var user = await userManager
+            .Users
+            .Include(x => x.Claims)
+            .SingleOrDefaultAsync(x => x.Id == userId);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        var result = await userManager.ChangePhoneNumberAsync(user, request.PhoneNumber!, request.Token!);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
@@ -234,7 +337,7 @@ internal static partial class MyAccountHandlers
             return TypedResults.NoContent();
         }
         var code = await userManager.GeneratePasswordResetTokenAsync(user);
-        var data = new IdentityApiEmailData {
+        var data = new EmailChangeEmailModel {
             DisplayName = currentUser.FindDisplayName() ?? user.UserName,
             ReturnUrl = request.ReturnUrl,
             Subject = userManager.MessageDescriber.ForgotPasswordMessageSubject,
@@ -441,9 +544,9 @@ internal static partial class MyAccountHandlers
         });
     }
 
-    internal static async Task<Results<Ok<ResultSet<UserConsentInfo>>, NotFound>> GetConsents(
+    internal static async Task<Results<Ok<ResultSet<UserClientInfo>>, NotFound>> GetConsents(
         ExtendedUserManager<User> userManager,
-        IPersistedGrantStore persistedGrantStore,
+        IPersistedGrantStore grants,
         IPersistentGrantSerializer serializer,
         ClaimsPrincipal currentUser,
         [AsParameters] ListOptions options,
@@ -453,8 +556,38 @@ internal static partial class MyAccountHandlers
         if (user == null) {
             return TypedResults.NotFound();
         }
-        var consents = await persistedGrantStore.GetPersistedGrantsAsync(serializer, user.Id, filter?.ClientId, filter?.ConsentType.ToConstantName());
+        var consents = await grants.GetAllGroupedByClientAsync(serializer, user.Id, filter?.ClientId, filter?.ConsentType.ToConstantName());
         return TypedResults.Ok(consents.AsQueryable().ToResultSet(options));
+    }
+
+    internal static async Task<Results<NoContent, NotFound>> RevokeConsents(
+        ExtendedUserManager<User> userManager, 
+        IPersistedGrantService grants,
+        IEventService events,
+        ClaimsPrincipal currentUser,
+        string clientId) {
+        var user = await userManager.GetUserAsync(currentUser);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        await grants.RemoveAllGrantsAsync(currentUser.GetSubjectId(), clientId);
+        await events.RaiseAsync(new GrantsRevokedEvent(currentUser.GetSubjectId(), clientId));
+        return TypedResults.NoContent();
+    }
+
+    internal static async Task<Results<NoContent, NotFound>> RevokeAllConsents(
+        ExtendedUserManager<User> userManager,
+        IPersistedGrantService grants,
+        IEventService events,
+        ClaimsPrincipal currentUser) {
+
+        var user = await userManager.GetUserAsync(currentUser);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        await grants.RemoveAllGrantsAsync(currentUser.GetSubjectId());
+        await events.RaiseAsync(new GrantsRevokedEvent(currentUser.GetSubjectId(), null));
+        return TypedResults.NoContent();
     }
 
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteAccount(
@@ -589,14 +722,10 @@ internal static partial class MyAccountHandlers
                 UserId = user.Id
             });
         }
-        user.Claims.Add(new IdentityUserClaim<string> {
-            ClaimType = BasicClaimTypes.ConsentCommercial,
-            ClaimValue = request.HasAcceptedTerms ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
-            UserId = user.Id
-        });
+
         user.Claims.Add(new IdentityUserClaim<string> {
             ClaimType = BasicClaimTypes.ConsentTerms,
-            ClaimValue = request.HasReadPrivacyPolicy ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
+            ClaimValue = request.HasReadPrivacyPolicy && request.HasAcceptedTerms ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
             UserId = user.Id
         });
         user.Claims.Add(new IdentityUserClaim<string> {
@@ -604,11 +733,19 @@ internal static partial class MyAccountHandlers
             ClaimValue = $"{DateTime.UtcNow:O}",
             UserId = user.Id
         });
-        user.Claims.Add(new IdentityUserClaim<string> {
-            ClaimType = BasicClaimTypes.ConsentCommercialDate,
-            ClaimValue = $"{DateTime.UtcNow:O}",
-            UserId = user.Id
-        });
+
+        if (request.HasConsentedToCommercialCommunications) {
+            user.Claims.Add(new() {
+                ClaimType = BasicClaimTypes.ConsentCommercial,
+                ClaimValue = request.HasConsentedToCommercialCommunications ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
+                UserId = user.Id
+            });
+            user.Claims.Add(new() {
+                ClaimType = BasicClaimTypes.ConsentCommercialDate,
+                ClaimValue = $"{DateTime.UtcNow:O}",
+                UserId = user.Id
+            });
+        }
         return user;
     }
 
@@ -667,12 +804,22 @@ internal static partial class MyAccountHandlers
         return result;
     }
 
-    private static async Task<IEnumerable<UserConsentInfo>> GetPersistedGrantsAsync(
+    /// <summary>
+    /// Get all persisted grants for a user grouped by client id.
+    /// </summary>
+    /// <param name="persistedGrantStore">The grant store to extend</param>
+    /// <param name="serializer">The persisted grant serializer to use for inspecting the grant data</param>
+    /// <param name="subjectId">The user id</param>
+    /// <param name="clientId">The client id</param>
+    /// <param name="grantType">The grant type</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    public static async Task<IEnumerable<UserClientInfo>> GetAllGroupedByClientAsync(
         this IPersistedGrantStore persistedGrantStore,
         IPersistentGrantSerializer serializer,
         string subjectId,
-        string? clientId,
-        string? consentType
+        string? clientId = null,
+        string? grantType = null
     ) {
         if (string.IsNullOrWhiteSpace(subjectId)) {
             throw new ArgumentNullException(nameof(subjectId));
@@ -680,88 +827,83 @@ internal static partial class MyAccountHandlers
         var grants = (await persistedGrantStore.GetAllAsync(new PersistedGrantFilter {
             SubjectId = subjectId,
             ClientId = clientId,
-            Type = consentType
+            Type = grantType
         }))
         .ToArray();
         try {
-            var consents = grants
-                .Where(x => x.Type == PersistedGrantTypes.UserConsent)
-                .Select(x => serializer.Deserialize<Consent>(x.Data))
-                .Select(x => new UserConsentInfo {
-                    ClientId = x.ClientId,
-                    Scopes = x.Scopes,
-                    CreatedAt = x.CreationTime,
-                    ExpiresAt = x.Expiration,
-                    Type = PersistedGrantTypes.UserConsent
-                });
-            var codes = grants
-                .Where(x => x.Type == PersistedGrantTypes.AuthorizationCode)
-                .Select(x => serializer.Deserialize<AuthorizationCode>(x.Data))
-                .Select(x => new UserConsentInfo {
-                    ClientId = x.ClientId,
-                    Scopes = x.RequestedScopes,
-                    CreatedAt = x.CreationTime,
-                    ExpiresAt = x.CreationTime.AddSeconds(x.Lifetime),
-                    Type = PersistedGrantTypes.AuthorizationCode
-                });
-            var refresh = grants
-                .Where(x => x.Type == PersistedGrantTypes.RefreshToken)
-                .Select(x => serializer.Deserialize<RefreshToken>(x.Data))
-                .Select(x => new UserConsentInfo {
-                    ClientId = x.ClientId,
-                    Scopes = x.Scopes,
-                    Claims = x.AccessToken?.Claims?.Select(x => new BasicClaimInfo {
-                        Type = x.Type,
-                        Value = x.Value
-                    }) ?? new List<BasicClaimInfo>(),
-                    CreatedAt = x.CreationTime,
-                    ExpiresAt = x.CreationTime.AddSeconds(x.Lifetime),
-                    Type = PersistedGrantTypes.RefreshToken
-                });
-            var access = grants
-                .Where(x => x.Type == PersistedGrantTypes.ReferenceToken)
-                .Select(x => serializer.Deserialize<Token>(x.Data))
-                .Select(x => new UserConsentInfo {
-                    ClientId = x.ClientId,
-                    Scopes = x.Scopes,
-                    Claims = x.Claims.Select(x => new BasicClaimInfo {
-                        Type = x.Type,
-                        Value = x.Value
-                    }),
-                    CreatedAt = x.CreationTime,
-                    ExpiresAt = x.CreationTime.AddSeconds(x.Lifetime),
-                    Type = PersistedGrantTypes.ReferenceToken
-                });
-            consents = Join(consents, codes);
-            consents = Join(consents, refresh);
-            consents = Join(consents, access);
-            return consents.ToArray();
+            var consents = grants.OrderBy(x => x.CreationTime)
+                                  .GroupBy(x => x.ClientId)
+                                  .Select(group => {
+                                      var info = new UserClientInfo {
+                                          ClientId = group.Key,
+                                      };
+                                      foreach (var grant in group) {
+                                          switch (grant.Type) {
+                                              case PersistedGrantTypes.UserConsent:
+                                                  var consent = serializer.Deserialize<Consent>(grant.Data);
+                                                  info.UpdateWith(PersistedGrantTypes.UserConsent, consent.CreationTime, consent.Expiration, consent.Scopes);
+                                                  info.Grants.Add(new UserGrantInfo {
+                                                      Type = PersistedGrantTypes.UserConsent,
+                                                      SessionId = grant.SessionId,
+                                                      CreatedAt = consent.CreationTime,
+                                                      ExpiresAt = consent.Expiration,
+                                                  });
+                                                  break;
+                                              case PersistedGrantTypes.AuthorizationCode:
+                                                  var code = serializer.Deserialize<AuthorizationCode>(grant.Data);
+                                                  info.UpdateWith(PersistedGrantTypes.AuthorizationCode, code.CreationTime, code.CreationTime.AddSeconds(code.Lifetime), code.RequestedScopes);
+                                                  info.Grants.Add(new UserGrantInfo {
+                                                      Type = PersistedGrantTypes.AuthorizationCode,
+                                                      SessionId = grant.SessionId,
+                                                      CreatedAt = code.CreationTime,
+                                                      ExpiresAt = code.CreationTime.AddSeconds(code.Lifetime),
+                                                  });
+                                                  break;
+                                              case PersistedGrantTypes.RefreshToken:
+                                                  var refresh = serializer.Deserialize<RefreshToken>(grant.Data);
+                                                  info.UpdateWith(PersistedGrantTypes.RefreshToken, refresh.CreationTime, refresh.CreationTime.AddSeconds(refresh.Lifetime), refresh.Scopes);
+                                                  info.Grants.Add(new UserGrantInfo {
+                                                      Type = PersistedGrantTypes.RefreshToken,
+                                                      SessionId = grant.SessionId,
+                                                      CreatedAt = refresh.CreationTime,
+                                                      ExpiresAt = refresh.CreationTime.AddSeconds(refresh.Lifetime),
+                                                      TokenId = refresh.AccessToken?.Claims?.FirstOrDefault(x => x.Type == JwtClaimTypes.JwtId)?.Value,
+                                                      DeviceId = refresh.AccessToken?.Claims?.FirstOrDefault(x => x.Type == BasicClaimTypes.DeviceId)?.Value,
+                                                      IpAddress = refresh.AccessToken?.Claims?.FirstOrDefault(x => x.Type == BasicClaimTypes.IPAddress)?.Value,
+                                                  });
+                                                  break;
+                                              case PersistedGrantTypes.ReferenceToken:
+                                                  var token = serializer.Deserialize<Token>(grant.Data);
+                                                  info.UpdateWith(PersistedGrantTypes.ReferenceToken, token.CreationTime, token.CreationTime.AddSeconds(token.Lifetime), token.Scopes);
+                                                  info.Grants.Add(new UserGrantInfo {
+                                                      Type = PersistedGrantTypes.ReferenceToken,
+                                                      SessionId = grant.SessionId,
+                                                      CreatedAt = token.CreationTime,
+                                                      ExpiresAt = token.CreationTime.AddSeconds(token.Lifetime),
+                                                      TokenId = token.Claims?.FirstOrDefault(x => x.Type == JwtClaimTypes.JwtId)?.Value,
+                                                      DeviceId = token.Claims?.FirstOrDefault(x => x.Type == BasicClaimTypes.DeviceId)?.Value,
+                                                      IpAddress = token.Claims?.FirstOrDefault(x => x.Type == BasicClaimTypes.IPAddress)?.Value,
+                                                  });
+                                                  break;
+                                              default:
+                                                  break;
+                                          }
+                                      }
+                                      return info;
+                                  }).ToList();
+            
+            return consents;
         } catch (Exception) { }
-        return Enumerable.Empty<UserConsentInfo>();
+        return [];
     }
 
-    private static IEnumerable<UserConsentInfo> Join(IEnumerable<UserConsentInfo> first, IEnumerable<UserConsentInfo> second) {
-        var list = first.ToList();
-        foreach (var other in second) {
-            var match = list.FirstOrDefault(x => x.ClientId == other.ClientId);
-            if (match != null) {
-                match.Claims = match.Claims.Union(other.Claims).Distinct();
-                match.Scopes = match.Scopes.Union(other.Scopes).Distinct();
-                if (match.CreatedAt > other.CreatedAt) {
-                    match.CreatedAt = other.CreatedAt;
-                }
-                if (match.ExpiresAt == null || other.ExpiresAt == null) {
-                    match.ExpiresAt = null;
-                } else if (match.ExpiresAt < other.ExpiresAt) {
-                    match.ExpiresAt = other.ExpiresAt;
-                }
-            } else {
-                list.Add(other);
-            }
-        }
-        return list;
-    }
-
-
-
+    private static readonly HashSet<string> _grantClaimTypesToInclude = [
+        JwtClaimTypes.JwtId,
+        //JwtClaimTypes.SessionId,
+        //JwtClaimTypes.IssuedAt,
+        //JwtClaimTypes.AuthenticationMethod,
+        BasicClaimTypes.IPAddress,
+        BasicClaimTypes.DeviceId,
+        ];
+    private static Func<BasicClaimInfo, bool> OnlyRelevantGrantClaims => x => _grantClaimTypesToInclude.Contains(x.Type!);
 }

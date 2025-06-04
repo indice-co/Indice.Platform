@@ -12,7 +12,7 @@
 }
 
 <h1 class="text-center display-4 p-sm-2 p-md-3 p-lg-4">
-    @Localizer[Model.UiOptions.HomePageSlogan, Localizer[Settings.Organization]]
+    @Localizer[Model.UiOptions.HomePageSlogan, Localizer[Settings.Organization!]]
 </h1>
 <section class="border-0 identity-panel">
     <article class="text-center">
@@ -23,7 +23,7 @@
         {
             <div class="section text-left" id="welcome-to-identityserver4">
                 <p class="lead">
-                    @Localizer["The Identity portal gives you access to all {0} services with one account. A place to manage your user profile and account access settings. Use the links below to get started.", Localizer[Settings.Organization]]
+                    @Localizer["The Identity portal gives you access to all {0} services with one account. A place to manage your user profile and account access settings. Use the links below to get started.", Localizer[Settings.Organization!]]
                 </p>
             </div>
             <partial name="_ServiceDeck" model="Model.Services" />
@@ -37,7 +37,7 @@
                 @Localizer["Welcome back"] @User.FindDisplayName().
             </h3>
             <div class="section text-left" id="welcome-to-identityserver4">
-                <p class="lead">@Localizer["The Identity portal gives you access to all {0} services with one account. A place to manage your user profile and account access settings. Use the links below to get started.", Localizer[Settings.Organization]]</p>
+                <p class="lead">@Localizer["The Identity portal gives you access to all {0} services with one account. A place to manage your user profile and account access settings. Use the links below to get started.", Localizer[Settings.Organization!]]</p>
             </div>
             <partial name="_ServiceDeck" model="Model.Services" />
             <div class="paragraph-block text-left">

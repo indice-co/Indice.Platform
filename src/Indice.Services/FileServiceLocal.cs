@@ -53,7 +53,7 @@ public class FileServiceLocal : IFileService
     }
 
     /// <inheritdoc />
-    public Task<FileProperties> GetPropertiesAsync(string filePath) {
+    public Task<FileProperties?> GetPropertiesAsync(string filePath) {
         filePath = Path.Combine(BaseDirectoryPath, filePath);
         GuardExists(filePath);
         var info = new FileInfo(filePath);
@@ -64,13 +64,13 @@ public class FileServiceLocal : IFileService
             ContentDisposition = $"attachment; filename={Path.GetFileName(info.FullName)}",
             ContentHash = null,
             ETag = $"\"{info.LastWriteTimeUtc.Ticks}\""
-        });
+        })!;
     }
 
     /// <inheritdoc />
-    public async Task SaveAsync(string filePath, Stream stream, FileServiceSaveOptions saveOptions) {
+    public async Task SaveAsync(string filePath, Stream stream, FileServiceSaveOptions? saveOptions) {
         filePath = Path.Combine(BaseDirectoryPath, filePath);
-        var directory = Path.GetDirectoryName(filePath);
+        var directory = Path.GetDirectoryName(filePath)!;
         if (!Directory.Exists(directory)) {
             Directory.CreateDirectory(directory);
         }

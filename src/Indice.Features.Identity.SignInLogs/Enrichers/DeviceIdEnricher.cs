@@ -28,7 +28,7 @@ public sealed class DeviceIdEnricher : ISignInLogEntryEnricher
         logEntry.DeviceId = device.Value;
         if (device.HasRegistrationId) {
             logEntry.ExtraData.UserDevice = new SignInLogEntryUserDevice {
-                Id = device.RegistrationId.Value
+                Id = device.RegistrationId!.Value
             };
         }
         return ValueTask.CompletedTask;

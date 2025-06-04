@@ -1,4 +1,5 @@
-﻿using Indice.Features.Identity.Core.Data.Models;
+﻿using Indice.Features.Identity.Core;
+using Indice.Features.Identity.Core.Data.Models;
 
 namespace Indice.Features.Identity.Server.Manager.Models;
 
@@ -47,6 +48,9 @@ public class BasicUserInfo
     public bool PhoneNumberConfirmed { get; set; }
     /// <summary>Indicates whether two-factor authentication is enabled for the user.</summary>
     public bool TwoFactorEnabled { get; set; }
+    /// <summary>Indicates whether the user should enroll for the two factor authentication.</summary>
+    /// <remarks>In case this is empty or null then the two factor is optional.</remarks>
+    public MfaPolicy? TwoFactorPolicy { get; set; }
     /// <summary>The date-time where the user was created in the system.</summary>
     public DateTimeOffset CreateDate { get; set; }
     /// <summary>The date-time where the lockout period ends.</summary>

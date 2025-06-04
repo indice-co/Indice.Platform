@@ -19,5 +19,5 @@ public class HostResolutionStrategy : ITenantResolutionStrategy
     }
 
     /// <inheritdoc/>
-    public async Task<string> GetTenantIdentifierAsync() => await Task.FromResult(_httpContextAccessor.HttpContext.Request.Host.Host);
+    public async Task<string?> GetTenantIdentifierAsync() => await Task.FromResult(_httpContextAccessor.HttpContext!.Request.Host.Host);
 }

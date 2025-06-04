@@ -6,7 +6,7 @@ namespace Indice.Features.Risk.UI;
 public class RisksUIOptions : SpaUIOptions
 {
     /// <summary>The Risks BackOffice API URL.</summary>
-    public string ApiUrl { get; set; }
+    public string? ApiUrl { get; set; }
 
     /// <summary>Creates a new instance <see cref="RisksUIOptions"/>.</summary>
     public RisksUIOptions() =>

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 
@@ -9,28 +10,19 @@ namespace Indice.Types;
 /// Use this class to wrap a Guid into a representation that is shortened and obfuscated for querystring use. 
 /// </summary>
 [TypeConverter(typeof(Base64HostTypeConverter))]
+[DebuggerDisplay($"{{{nameof(GetDebuggerDisplay)}(),nq}}")]
 public struct Base64Host
 {
-#if NETSTANDARD14
-    private const string UriSchemeHttps = "https";
-    private const string UriSchemeHttp = "http";
-    private const string SchemeDelimiter = "://";
-#else
     private static readonly string UriSchemeHttps = Uri.UriSchemeHttps;
     private static readonly string UriSchemeHttp = Uri.UriSchemeHttp;
     private static readonly string SchemeDelimiter = Uri.SchemeDelimiter;
-#endif
     /// <summary>The internal <see cref="Host"/> value.</summary>
     public string Host { get; }
 
     /// <summary>Construct the type from a <see cref="Uri" /></summary>
     /// <param name="uri"></param>
     public Base64Host(Uri uri) {
-#if NETSTANDARD14
-        Host = uri.OriginalString.Replace(uri.PathAndQuery, string.Empty);
-#else
         Host = uri.GetLeftPart(UriPartial.Scheme | UriPartial.Authority);
-#endif
     }
 
     /// <summary>Construct the type from a <see cref="string"/> Url.</summary>
@@ -112,6 +104,10 @@ public struct Base64Host
     private static void FromShort(ushort number, out byte byte1, out byte byte2) {
         byte1 = (byte)(number >> 8); // to treat as same byte 1 from above
         byte2 = (byte)number;
+    }
+
+    private string GetDebuggerDisplay() {
+        return ToString();
     }
 }
 

@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System;
+using System.Text.Json;
 using Indice.Serialization;
 using Xunit;
 
@@ -10,7 +11,7 @@ public class JsonStringArrayEnumFlagsConverterTests
         Options = new JsonSerializerOptions {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
-        Options.Converters.Add(new JsonStringArrayEnumFlagsConverterFactory());
+        Options.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
     }
 
     public JsonSerializerOptions Options { get; }
@@ -51,7 +52,29 @@ public class JsonStringArrayEnumFlagsConverterTests
         };
         var expectedJson = @"{""id"":1,""name"":""Sales Christmas 2021"",""deliveryChannel"":null}";
         var campaignJson = JsonSerializer.Serialize(campaign, Options);
-        Assert.Equal(campaignJson, expectedJson);
+        Assert.Equal(expectedJson, campaignJson);
+    }
+
+    [Fact]
+    public void CanDeserializeEnumFlagsToStringArrayWhenNullable() {
+        var expectedCampaign = new Campaign2 {
+            Id = 1,
+            Name = "Sales Christmas 2021"
+        };
+        var expectedCampaign2 = new Campaign2 {
+            Id = 1,
+            Name = "Sales Christmas 2021",
+            DeliveryChannel = CampaignDeliveryChannel.Inbox | CampaignDeliveryChannel.PushNotification
+        };
+        var json = @"{""id"":1,""name"":""Sales Christmas 2021"",""deliveryChannel"":null}";
+        var json2 = @"{""id"":1,""name"":""Sales Christmas 2021"",""deliveryChannel"": [""Inbox"", ""PushNotification""]}";
+        var json3 = @"{""id"":1,""name"":""Sales Christmas 2021"",""deliveryChannel"": ""Email, SMS""}";
+        var campaign = JsonSerializer.Deserialize<Campaign2>(json, Options);
+        var campaign2 = JsonSerializer.Deserialize<Campaign2>(json2, Options);
+        var campaign3 = JsonSerializer.Deserialize<Campaign2>(json3, Options);
+        Assert.Equal(expectedCampaign.DeliveryChannel, campaign.DeliveryChannel);
+        Assert.Equal(expectedCampaign2.DeliveryChannel, campaign2.DeliveryChannel);
+        Assert.Equal(CampaignDeliveryChannel.Email | CampaignDeliveryChannel.SMS, campaign3.DeliveryChannel);
     }
 }
 

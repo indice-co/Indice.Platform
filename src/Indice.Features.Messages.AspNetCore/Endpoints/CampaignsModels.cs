@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using Microsoft.AspNetCore.Http;
 
@@ -31,4 +30,3 @@ public class UploadFileRequest
     }
 
 }
-#nullable disable

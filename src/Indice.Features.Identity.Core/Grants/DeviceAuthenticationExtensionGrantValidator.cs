@@ -71,7 +71,7 @@ internal class DeviceAuthenticationExtensionGrantValidator(
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Please provider either authorization code of pin.");
             return;
         }
-        var ip = HttpContextAccessor.HttpContext.GetClientIpAddress();
+        var ip = HttpContextAccessor.HttpContext!.GetClientIpAddress();
         var claims = new List<Claim>();
         if (ip is not null) {
             claims.Add(new Claim(BasicClaimTypes.IPAddress, ip.ToString()));

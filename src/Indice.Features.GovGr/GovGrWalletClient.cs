@@ -42,8 +42,8 @@ internal class GovGrWalletClient : IWalletService
         });
 
         return new() {
-            DeclarationId = response.Data.Document.DeclarationId,
-            Title = response.Data.Document.DocumentTitle,
+            DeclarationId = response.Data?.Document?.DeclarationId,
+            Title = response.Data?.Document?.DocumentTitle,
         };
     }
 
@@ -69,6 +69,6 @@ internal class GovGrWalletClient : IWalletService
             ExportDocumentPdf = exportDocumentPdf
         });
 
-        return response.Data;
+        return response.Data!;
     }
 }

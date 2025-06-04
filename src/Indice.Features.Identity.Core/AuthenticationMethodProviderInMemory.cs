@@ -1,6 +1,7 @@
 ﻿using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Hubs;
 using Indice.Features.Identity.Core.Models;
+using Indice.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
@@ -10,7 +11,7 @@ namespace Indice.Features.Identity.Core;
 /// <summary>Default implementation of <see cref="IAuthenticationMethodProvider"/> where authentication methods are statically configured.</summary>
 public class AuthenticationMethodProviderInMemory : IAuthenticationMethodProvider
 {
-    private readonly IEnumerable<AuthenticationMethod> _authenticationMethods;
+    private readonly AuthenticationMethod[] _authenticationMethods;
     private readonly IConfiguration _configuration;
     private readonly ExtendedUserManager<User> _userManager;
 
@@ -26,39 +27,46 @@ public class AuthenticationMethodProviderInMemory : IAuthenticationMethodProvide
         IConfiguration configuration,
         ExtendedUserManager<User> userManager
     ) {
-        _authenticationMethods = authenticationMethods ?? throw new ArgumentNullException(nameof(authenticationMethods));
+        _authenticationMethods = authenticationMethods?.OrderByDescending(x => x.SecurityLevel).ToArray() ?? throw new ArgumentNullException(nameof(authenticationMethods));
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         HubContext = multiFactorAuthenticationHubs?.FirstOrDefault();
+        AllowMfaChannelDowngrade = _configuration.GetIdentityOption<bool>($"{nameof(IdentityOptions.SignIn)}:Mfa", "AllowDowngradeAuthenticationMethod");
     }
 
     /// <inheritdoc />
     public IHubContext<MultiFactorAuthenticationHub>? HubContext { get; }
 
     /// <inheritdoc />
-    public Task<IEnumerable<AuthenticationMethod>> GetAllMethodsAsync() => Task.FromResult(_authenticationMethods);
+    public bool AllowMfaChannelDowngrade { get; }
 
     /// <inheritdoc />
-    /// <remarks>For now the supported authentication methods are <see cref="SmsAuthenticationMethod"/> and <see cref="BiometricsAuthenticationMethod"/>.</remarks>
-    public async Task<AuthenticationMethod?> GetRequiredAuthenticationMethod(User user, bool? tryDowngradeAuthenticationMethod = false) {
-        if (_authenticationMethods?.Count() == 0) {
-            throw new InvalidOperationException("No authentication methods have been configured.");
+    public Task<AuthenticationMethod[]> GetAllMethodsAsync() => Task.FromResult(_authenticationMethods);
+
+    /// <inheritdoc />
+    /// <remarks>For now the supported authentication methods are <see cref="SmsAuthenticationMethod"/>, <see cref="TrustedDeviceAuthenticationMethod"/> and <see cref="AuthenticatorAppAuthenticationMethod"/>.</remarks>
+    public async Task<AuthenticationMethod?> FindMethodForUserOrDefaultAsync(User user, TotpDeliveryChannel? channel = null) {
+        var userMethods = await GetAllMethodsForUserAsync(user);
+        if (channel.HasValue && AllowMfaChannelDowngrade) {
+            return userMethods.FirstOrDefault(x => x.GetDeliveryChannel() == channel!.Value) ?? userMethods.FirstOrDefault();
         }
-        var selectedAuthenticationMethod = _authenticationMethods!.FirstOrDefault(x => x.Type == AuthenticationMethodType.PhoneNumber);
-        var allowMfaChannelDowngrade = _configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "AllowDowngradeAuthenticationMethod") ?? false;
-        if ((tryDowngradeAuthenticationMethod ??= false) && allowMfaChannelDowngrade) {
-            return selectedAuthenticationMethod;
+        return userMethods.FirstOrDefault();
+    }
+
+    /// <inheritdoc />
+    public async Task<AuthenticationMethod[]> GetAllMethodsForUserAsync(User user) {
+        var methods = new List<AuthenticationMethod>();
+        foreach (var method in _authenticationMethods.Where(x => x.SupportsMfa && x.Enabled)) {
+            switch (method.Type) {
+                case AuthenticationMethodType.TrustedDevice when await _userManager.GetDevicesAsync(user, UserDeviceListFilter.TrustedNativeDevices()) is { Count: > 0 }:
+                case AuthenticationMethodType.AuthenticatorApp when !string.IsNullOrWhiteSpace(await _userManager.GetAuthenticatorKeyAsync(user)):
+                case AuthenticationMethodType.PhoneNumber when !string.IsNullOrWhiteSpace(await _userManager.GetPhoneNumberAsync(user)) && await _userManager.IsPhoneNumberConfirmedAsync(user):
+                    methods.Add(method);
+                    break;
+                default:
+                    continue;
+            }
         }
-        var trustedDevices = await _userManager.GetDevicesAsync(user, UserDeviceListFilter.TrustedNativeDevices());
-        if (trustedDevices.Count > 0) {
-            selectedAuthenticationMethod = _authenticationMethods!.FirstOrDefault(x => x.Type == AuthenticationMethodType.Biometrics);
-            return selectedAuthenticationMethod;
-        }
-        var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-        var phoneNumberConfirmed = !string.IsNullOrWhiteSpace(phoneNumber) && await _userManager.IsPhoneNumberConfirmedAsync(user);
-        if (phoneNumberConfirmed) {
-            return selectedAuthenticationMethod;
-        }
-        return null;
+        return methods.ToArray();
     }
 }

@@ -27,6 +27,8 @@ public class TemplateService : ITemplateService
             Content = request.Content,
             Id = Guid.NewGuid(),
             Name = request.Name,
+            Alias = string.IsNullOrWhiteSpace(request.Alias) ? null : request.Alias.Trim(),
+            IgnoreUserPreferences = request.IgnoreUserPreferences,
             Data = request.Data,
             CreatedAt = DateTimeOffset.UtcNow,
         };
@@ -34,10 +36,12 @@ public class TemplateService : ITemplateService
         await DbContext.SaveChangesAsync();
         return new Template {
             Content = template.Content,
+            IgnoreUserPreferences = request.IgnoreUserPreferences,
             Id = template.Id,
             Name = template.Name,
-            Data= template.Data,
-            CreatedAt= template.CreatedAt,
+            Alias = template.Alias,
+            Data = template.Data,
+            CreatedAt = template.CreatedAt,
         };
     }
 
@@ -52,8 +56,14 @@ public class TemplateService : ITemplateService
     }
 
     /// <inheritdoc />
-    public async Task<Template> GetById(Guid id) {
-        var template = await DbContext.Templates.FindAsync(id);
+    public async Task<Template?> GetById(GuidOrAlias? id) {
+        if (id is null || id.Value == null) {
+            return default;
+        }
+        DbTemplate? template = id.Value.IsGuid ?
+            await DbContext.Templates.FindAsync(id.Value.Uuid) :
+            await DbContext.Templates.FirstOrDefaultAsync(x => x.Alias == id.Value.Value);
+
         if (template is null) {
             return default;
         }
@@ -65,6 +75,8 @@ public class TemplateService : ITemplateService
             CreatedBy = template.CreatedBy,
             Id = template.Id,
             Name = template.Name,
+            Alias = template.Alias,
+            IgnoreUserPreferences = template.IgnoreUserPreferences,
             Data = template.Data
         };
     }
@@ -72,8 +84,11 @@ public class TemplateService : ITemplateService
     /// <inheritdoc />
     public async Task<ResultSet<TemplateListItem>> GetList(ListOptions options) {
         var query = DbContext.Templates.AsQueryable();
-        if (!string.IsNullOrWhiteSpace(options.Search)) {
-            query = query.Where(x => x.Name.ToLower().Contains(options.Search.ToLower()));
+        if (!string.IsNullOrWhiteSpace(options.Search) && options.Search.Length > 2) {
+            query = query.Where(x =>
+            x.Name!.ToLower().Contains(options.Search.ToLower()) ||
+            x.Alias!.ToLower().Contains(options.Search.ToLower())
+            );
         }
         var result = await query.ToResultSetAsync(options);
         var templateItems = result.Items.Select(x => new TemplateListItem {
@@ -83,7 +98,9 @@ public class TemplateService : ITemplateService
             UpdatedBy = x.UpdatedBy,
             CreatedBy = x.CreatedBy,
             Id = x.Id,
-            Name = x.Name
+            Name = x.Name,
+            Alias = x.Alias,
+            IgnoreUserPreferences = x.IgnoreUserPreferences
         });
         return new ResultSet<TemplateListItem>(templateItems, result.Count);
     }
@@ -94,10 +111,32 @@ public class TemplateService : ITemplateService
         if (template is null) {
             throw MessageExceptions.TemplateNotFound(id);
         }
-        template.Name = request.Name;
+        template.Alias = string.IsNullOrWhiteSpace(request.Alias) ? null : request.Alias.Trim();
+        if (!string.IsNullOrWhiteSpace(template.Alias)) {
+            var existingAlias = await GetById((GuidOrAlias)template.Alias);
+            if (existingAlias != null && existingAlias.Id != id) {
+                throw MessageExceptions.TemplateAliasExists(template.Alias);
+            }
+        }
+
+        template.Name = request.Name.Trim();
         template.Content = request.Content;
         template.Data = request.Data;
         template.UpdatedAt = DateTime.UtcNow;
         await DbContext.SaveChangesAsync();
     }
+
+    /// <inheritdoc />
+    public async Task UpdateIgnreUserPreferences(Guid id, bool ignoreUserPreferences) {
+        var template = await DbContext.Templates.FindAsync(id);
+        if (template is null) {
+            throw MessageExceptions.TemplateNotFound(id);
+        }
+        template.IgnoreUserPreferences = ignoreUserPreferences;
+        template.UpdatedAt = DateTime.UtcNow;
+        await DbContext.SaveChangesAsync();
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> ExistsByName(string name) => await DbContext.Templates.AnyAsync(x => x.Name.ToLower() == name.Trim().ToLower());
 }

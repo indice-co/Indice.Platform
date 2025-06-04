@@ -15,7 +15,7 @@ public static class WorkPublisherConfiguration
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configureAction">The delegate used to configure the work publisher options.</param>
     /// <returns>The <see cref="WorkPublisherBuilder"/> used to configure the work publisher.</returns>
-    public static WorkPublisherBuilder AddWorkPublisher(this IServiceCollection services, Action<WorkPublisherOptions> configureAction = null) {
+    public static WorkPublisherBuilder AddWorkPublisher(this IServiceCollection services, Action<WorkPublisherOptions>? configureAction = null) {
         var workerHostOptions = new WorkPublisherOptions(services) {
             QueueStoreType = typeof(MessageQueueNoop<>)
         };
@@ -30,16 +30,16 @@ public static class WorkPublisherConfiguration
     /// <param name="options">The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</param>
     /// <param name="configureAction">The delegate used to configure the database table that contains the background jobs.</param>
     /// <returns>The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</returns>
-    public static WorkerHostOptions UseStoreRelational(this WorkerHostOptions options, Action<DbContextOptionsBuilder> configureAction = null) => options.UseStoreRelational<TaskDbContext>(configureAction);
+    public static WorkerHostOptions UseStoreRelational(this WorkerHostOptions options, Action<DbContextOptionsBuilder>? configureAction = null) => options.UseStoreRelational<TaskDbContext>(configureAction);
 
     /// <summary>Uses the tables of a relational database in order to manage queue items.</summary>
     /// <typeparam name="TContext">The type of <see cref="DbContext"/>.</typeparam>
     /// <param name="options">The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</param>
     /// <param name="configureAction">The delegate used to configure the database table that contains the background jobs.</param>
     /// <returns>The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</returns>
-    public static WorkPublisherOptions UseStoreRelational<TContext>(this WorkPublisherOptions options, Action<DbContextOptionsBuilder> configureAction = null) where TContext : TaskDbContext {
+    public static WorkPublisherOptions UseStoreRelational<TContext>(this WorkPublisherOptions options, Action<DbContextOptionsBuilder>? configureAction = null) where TContext : TaskDbContext {
         var isDefaultContext = typeof(TContext) == typeof(TaskDbContext);
-        var connectionString = options.Services.BuildServiceProvider().GetService<IConfiguration>().GetConnectionString("WorkerDb");
+        var connectionString = options.Services.BuildServiceProvider().GetRequiredService<IConfiguration>().GetConnectionString("WorkerDb");
         void sqlServerConfiguration(DbContextOptionsBuilder builder) => builder.UseSqlServer(connectionString);
         configureAction ??= sqlServerConfiguration;
         options.Services.AddDbContext<TContext>(configureAction);
@@ -55,7 +55,7 @@ public static class WorkPublisherConfiguration
     /// <param name="builder"></param>
     /// <returns></returns>
     public static WorkPublisherBuilder ForEvent<TEvent>(this WorkPublisherBuilder builder) where TEvent : class =>
-        builder.ForEvent<TEvent>(builder.Options.QueueStoreType?.MakeGenericType(typeof(TEvent)), typeof(TEvent).Name.ToKebabCase());
+        builder.ForEvent<TEvent>(builder.Options.QueueStoreType?.MakeGenericType(typeof(TEvent))!, typeof(TEvent).Name.ToKebabCase());
 
     /// <summary></summary>
     /// <typeparam name="TEvent"></typeparam>
@@ -63,7 +63,7 @@ public static class WorkPublisherConfiguration
     /// <param name="queueName"></param>
     /// <returns></returns>
     public static WorkPublisherBuilder ForEvent<TEvent>(this WorkPublisherBuilder builder, string queueName) where TEvent : class =>
-        builder.ForEvent<TEvent>(builder.Options.QueueStoreType?.MakeGenericType(typeof(TEvent)), queueName);
+        builder.ForEvent<TEvent>(builder.Options.QueueStoreType?.MakeGenericType(typeof(TEvent))!, queueName);
 
     private static WorkPublisherBuilder ForEvent<TEvent>(this WorkPublisherBuilder builder, Type messageQueueType, string queueName) where TEvent : class {
         if (messageQueueType is null) {
@@ -72,9 +72,9 @@ public static class WorkPublisherConfiguration
         var options = new QueueOptions(builder.Services) {
             QueueName = queueName
         };
-        builder.Services.AddTransient(typeof(IQueueNameResolver<TEvent>), serviceProvider => Activator.CreateInstance(typeof(DefaultQueueNameResolver<TEvent>), new object[] { options }));
+        builder.Services.AddTransient(typeof(IQueueNameResolver<TEvent>), serviceProvider => Activator.CreateInstance(typeof(DefaultQueueNameResolver<TEvent>), [options])!);
         builder.Services.AddTransient(typeof(IMessageQueue<TEvent>), messageQueueType);
-        var messageQueueDefaultType = builder.Options.QueueStoreType.MakeGenericType(typeof(TEvent));
+        var messageQueueDefaultType = builder.Options.QueueStoreType!.MakeGenericType(typeof(TEvent));
         if (!messageQueueDefaultType.Equals(messageQueueType)) {
             builder.Services.TryAddTransient(messageQueueDefaultType);
         }

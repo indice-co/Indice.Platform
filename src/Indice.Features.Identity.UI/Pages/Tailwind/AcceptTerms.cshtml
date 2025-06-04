@@ -1,0 +1,35 @@
+﻿@page "/login/accept-terms"
+
+@model BaseAcceptTermsModel
+
+@inject IIdentityViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["Terms & conditions acceptance"].Value;
+
+}
+<div class="content-wrapper">
+    <div class="card-wrapper">
+        <vc:page-heading title="@ViewData["Title"]" image-src="" />
+        <partial name="_ValidationSummary" />
+        <partial name="_Alert" model="Model.View.Alert" />
+        <div class="row">
+            <iframe src="~/terms?raw=true"></iframe>
+        </div>
+        <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post">
+            <div class="row justify-items-center place-items-center">
+                <div class="col-span-6 flex flex-col">
+                    <button class="btn btn-primary" type="submit">@Localizer["Accept"]</button>
+                </div>
+                <div class="col-span-6 flex flex-col">
+                    <a class="btn btn-primary no-underline" href="~/">@Localizer["Reject"]</a>
+                </div>
+            </div>
+            <input type="hidden" asp-for="View.ReturnUrl" />
+        </form>
+    </div>
+</div>
+
+@section scripts {
+    <partial name="_ValidationScripts" />
+}

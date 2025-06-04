@@ -13,16 +13,16 @@ internal class RouteMatcher
 
     public bool IsMatch(RoutePattern pattern, out IDictionary<string, string> resolvedParameters) {
         resolvedParameters = new Dictionary<string, string>();
-        if (pattern.RawText.Equals("/")) {
+        if (pattern.RawText!.Equals("/")) {
             return true;
         }
         var requestPath = HttpContext.Request.Path.Value;
-        var isValid = Uri.TryCreate($"https://example.com/{requestPath.Trim('/')}", UriKind.Absolute, out var requestUri);
+        var isValid = Uri.TryCreate($"https://example.com/{requestPath!.Trim('/')}", UriKind.Absolute, out var requestUri);
         if (!isValid) {
             return false;
         }
         var patternSegments = pattern.PathSegments.Select(segment => segment.Parts.First());
-        var requestUriSegments = requestUri
+        var requestUriSegments = requestUri!
             .Segments
             .Where(segment => !segment.Equals("/"))
             .Select(segment => segment.Trim('/'));
@@ -43,7 +43,7 @@ internal class RouteMatcher
             }
             if (patternSegment is not null) {
                 var parameterName = (patternSegment as RoutePatternParameterPart)?.Name;
-                resolvedParameters.Add(parameterName, segment);
+                resolvedParameters.Add(parameterName!, segment);
             }
         }
         return isMatch;

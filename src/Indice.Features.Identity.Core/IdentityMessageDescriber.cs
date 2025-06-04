@@ -1,4 +1,6 @@
-﻿using Indice.Features.Identity.Core.Data.Models;
+﻿using Humanizer;
+using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Grants;
 
 namespace Indice.Features.Identity.Core;
@@ -19,6 +21,9 @@ public class IdentityMessageDescriber
     /// <summary>SMS verification code is {token}.</summary>
     /// <param name="token">Phone number verification token.</param>
     public virtual string PhoneNumberVerificationMessage(string token) => string.Format(IdentityResources.Culture, IdentityResources.PhoneNumberVerificationMessage, token);
+    /// <summary>SMS verification code is {token}.</summary>
+    /// <param name="token">Phone number change verification token.</param>
+    public virtual string PhoneNumberChangeVerificationMessage(string token) => string.Format(IdentityResources.Culture, IdentityResources.PhoneNumberChangeVerificationMessage, token);
     /// <summary>Confirm your account.</summary>
     public virtual string UpdateEmailMessageSubject => string.Format(IdentityResources.Culture, IdentityResources.EmailUpdateMessageSubject);
     /// <summary>Email verification code is {0}.</summary>
@@ -77,4 +82,70 @@ public class IdentityMessageDescriber
     public virtual string ImpossibleTravelOtpMessage() => string.Format(IdentityResources.Culture, IdentityResources.ImpossibleTravelOtpMessage, "{0}");
     /// <summary>Subject content for suspicious login attempt (Impossible Travel).</summary>
     public virtual string ImpossibleTravelOtpSubject => string.Format(IdentityResources.Culture, IdentityResources.ImpossibleTravelOtpSubject);
+    /// <summary>Subject content for confirmation email.</summary>
+    public virtual string RegisterEmailSubject(string applicationName) => string.Format(IdentityResources.Culture, IdentityResources.RegisterEmailSubject, applicationName);
+    /// <summary>Subject content for confirmation email.</summary>
+    public virtual string ConfirmationEmailSubject => string.Format(IdentityResources.Culture, IdentityResources.ConfirmationEmailSubject);
+    /// <summary>Subject content for confirmation of email change .</summary>
+    public virtual string ConfirmationEmailChangeSubject => string.Format(IdentityResources.Culture, IdentityResources.ConfirmationEmailChangeSubject);
+
+    /// <summary>Email verification code is {0}.</summary>
+    public virtual string ChangeEmailMessageBody<TUser>(TUser user, string token, string newEmail, string? returnUrl) where TUser : class => string.Format(IdentityResources.Culture, IdentityResources.EmailChangeMessageBody, token);
+    /// <summary>OTP Subject for phone update confirmation.</summary>
+    public virtual string PhoneVerificationSmsSubject => string.Format(IdentityResources.Culture, IdentityResources.PhoneVerificationSmsSubject);
+    /// <summary>OTP Subject for phone change confirmation.</summary>
+    public virtual string PhoneChangeVerificationSmsSubject => string.Format(IdentityResources.Culture, IdentityResources.PhoneChangeVerificationSmsSubject);
+    /// <summary>OTP body for phone confirmation.</summary>
+    public virtual string PhoneVerificationSmsBody(string code) => string.Format(IdentityResources.Culture, IdentityResources.PhoneVerificationSmsBody, code);
+
+    /// <summary>Security event subject.</summary>
+    public virtual string SecurityEventSubject(string activity) =>
+        activity switch {
+            nameof(PasswordChangedEvent) => IdentityResources.PasswordChangedEventSubject,
+            _ => string.Format(IdentityResources.Culture, IdentityResources.SecurityNotificationDefaultSubject, activity.Replace("Event", "").Humanize())
+        };
+
+    /// <summary>Add email page validation empty email</summary>
+    public virtual string AddEmailValidationEmailEmpty => IdentityResources.AddEmailValidationEmailEmpty;
+
+    /// <summary>Add email page confirmation email send message</summary>
+    public virtual string AddEmailConfirmationEmailSend => IdentityResources.AddEmailConfirmationEmailSend;
+
+    /// <summary>Add phone page validation phone empty</summary>
+    public virtual string AddPhoneValidationPhoneEmpty => IdentityResources.AddPhoneValidationPhoneEmpty;
+
+    /// <summary>Forgot password confirmation error</summary>
+    public virtual string ForgotPasswordConfirmationError => IdentityResources.ForgotPasswordConfirmationError;
+
+    /// <summary>Login page validation invalid credentials error</summary>
+    public virtual string LoginValidationInvalidCredentials => IdentityResources.LoginValidationInvalidCredentials;
+    /// <summary>Mfa onboarding AddPhone Validation Phone Empty</summary>
+    public virtual string MfaAddPhoneValidationPhoneEmpty => IdentityResources.MfaAddPhoneValidationPhoneEmpty;
+    /// <summary>Mfa onboarding AddPhone Validation success message</summary>
+    public virtual string MfaAddPhoneSuccessMessage => IdentityResources.MfaAddPhoneSuccessMessage;
+    /// <summary>Mfa onboarding AddPhone Validation already confirmed</summary>
+    public virtual string MfaAddPhoneValidationPhoneAlreadyConfirmed => IdentityResources.MfaAddPhoneValidationPhoneAlreadyConfirmed;
+    /// <summary>Mfa onboarding AddPhone Validation missing phone</summary>
+    public virtual string MfaVerifyPhoneValidationMissingPhone => IdentityResources.MfaVerifyPhoneValidationMissingPhone;
+    /// <summary>Mfa onboarding verfication success message</summary>
+    public virtual string MfaVerifyPhoneSuccessMessage => IdentityResources.MfaVerifyPhoneSuccessMessage;
+    /// <summary>Password changed successfully message.</summary>
+    public virtual string PasswordChangedSuccessfully => IdentityResources.PasswordChangedSuccessfully;
+    /// <summary>Password expired message.</summary>
+    public virtual string PasswordExpiredMessage => IdentityResources.PasswordExpiredMessage;
+    /// <summary>Profile external login added success message.</summary>
+    public virtual string ProfileExternalLoginAddedSuccessMessage => IdentityResources.ProfileExternalLoginAddedSuccessMessage;
+    /// <summary>Registration phone confriamtion message prompt</summary>
+    public virtual string RegisterPhoneConfirmationPrompt => IdentityResources.RegisterPhoneConfirmationPrompt;
+
+    /// <summary>Mfa message subject</summary>
+    public virtual string MfaSmsSubject => IdentityResources.MfaSmsSubject;
+    /// <summary>Mfa message subject</summary>
+    public virtual string MfaSmsBody => IdentityResources.MfaSmsBody;
+
+    /// <summary>Mfa validation error message</summary>
+    public virtual string MfaValidationError => IdentityResources.MfaValidationError;
+    /// <summary>Login error message when user is locked out.</summary>
+    public virtual string LoginErrorLockedMessage => IdentityResources.LoginErrorLockedMessage;
+
 }

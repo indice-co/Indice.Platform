@@ -12,14 +12,14 @@ public class RouteStylesTagHelper : TagHelper
 {
     /// <summary>Context for view execution.</summary>
     [ViewContext]
-    public ViewContext ViewContext { get; set; }
+    public ViewContext? ViewContext { get; set; }
 
     /// <summary>Synchronously executes the Microsoft.AspNetCore.Razor.TagHelpers.TagHelper with the given context and output.</summary>
     /// <param name="context">Contains information associated with the current HTML tag.</param>
     /// <param name="output">A stateful HTML element used to generate an HTML tag.</param>
     public override void Process(TagHelperContext context, TagHelperOutput output) {
         base.Process(context, output);
-        var area = GetUrlCasing($"{ViewContext.RouteData.Values["area"]}");
+        var area = GetUrlCasing($"{ViewContext!.RouteData.Values["area"]}");
         if (!string.IsNullOrEmpty(area)) {
             area = $"area-{area}";
         }
@@ -35,7 +35,7 @@ public class RouteStylesTagHelper : TagHelper
         }
         var classList = new List<string>();
         if (output.Attributes.TryGetAttribute("class", out var css)) {
-            classList = css.Value.ToString().Split(' ').ToList();
+            classList = css.Value.ToString()!.Split(' ').ToList();
         }
         var pageSpecificClasses = new List<string> { area, controller, action, page, extras };
         classList.AddRange(pageSpecificClasses.Where(x => !string.IsNullOrWhiteSpace(x)).Distinct());

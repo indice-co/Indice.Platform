@@ -8,7 +8,7 @@
 @{
     var title = ViewBag.Title = Localizer["Verify phone number"].Value;
     var infoMessage = TempData.Peek<ExtendedValidationTempDataModel>(BaseMfaOnboardingVerifyPhoneModel.TempDataKey);
-    var displayNext = !string.IsNullOrEmpty(infoMessage.NextStepUrl) && infoMessage?.Alert?.AlertType == AlertType.Success;
+    var displayNext = !string.IsNullOrEmpty(infoMessage?.NextStepUrl) && infoMessage?.Alert?.AlertType == AlertType.Success;
 }
 
 <div class="sign-in m-auto">
@@ -20,7 +20,7 @@
         <input type="hidden" asp-for="Input.PhoneNumber" />
         <div class="mb-3">
             <label asp-for="Input.Code" class="form-label visually-hidden">@Localizer["Code"]</label>
-            <input class="form-control" type="text" placeholder="@Localizer["Code"]" asp-for="Input.Code" disabled="@displayNext" />
+            <input class="form-control" type="text" placeholder="@Localizer["Code"]" asp-for="Input.Code" disabled="@displayNext" autofocus autocomplete="off" />
             <span asp-validation-for="Input.Code" class="text-danger"></span>
         </div>
         <div class="mb-3">

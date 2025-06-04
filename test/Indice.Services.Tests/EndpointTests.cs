@@ -1,5 +1,4 @@
-﻿#if NET8_0_OR_GREATER
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -35,7 +34,7 @@ public class EndpointTests : IAsyncLifetime
             });
         });
         builder.ConfigureServices(services => {
-            var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
+            
             services.AddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
             services.AddRouting();
 
@@ -140,6 +139,3 @@ public class EndpointTests : IAsyncLifetime
         await _serviceProvider.DisposeAsync();
     }
 }
-
-
-#endif

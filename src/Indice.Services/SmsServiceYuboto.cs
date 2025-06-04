@@ -37,17 +37,13 @@ public class SmsServiceYuboto : ISmsService, IDisposable
     protected ILogger<SmsServiceYuboto> Logger { get; }
 
     /// <inheritdoc/>
-    public async Task<SendReceipt> SendAsync(string destination, string subject, string body, SmsSender sender = null) {
+    public async Task<SendReceipt> SendAsync(string destination, string subject, string? body, SmsSender? sender = null) {
         HttpResponseMessage httpResponse;
         YubotoResponse response;
         var messageId = Guid.NewGuid().ToString();
-        var recipients = (destination ?? string.Empty).Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
-        if (recipients == null) {
-            throw new ArgumentNullException(nameof(recipients));
-        }
-        if (recipients.Length == 0) {
-            throw new ArgumentException("Recipients list is empty.", nameof(recipients));
-        }
+        var recipients = (destination ?? string.Empty).Split([","], StringSplitOptions.RemoveEmptyEntries);
+        ArgumentNullException.ThrowIfNull(recipients, nameof(recipients));
+        ArgumentOutOfRangeException.ThrowIfEqual(recipients.Length, 0, nameof(recipients));
         recipients = recipients.Select(recipient => {
             if (!PhoneNumber.TryParse(recipient, out var phone)) {
                 throw new ArgumentException("Invalid recipients. Recipients should be valid phone numbers", nameof(recipients));
@@ -58,13 +54,13 @@ public class SmsServiceYuboto : ISmsService, IDisposable
         if (recipients.Any(telephone => telephone.Any(character => !char.IsNumber(character)))) {
             throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(recipients));
         }
-        var request = new YubotoRequestHelper(Settings.ApiKey, sender?.Id ?? Settings.Sender ?? Settings.SenderName, recipients, body) {
+        var request = new YubotoRequestHelper(Settings.ApiKey!, (sender?.Id ?? Settings.Sender ?? Settings.SenderName)!, recipients, body!) {
             IsSmsTest = Settings.TestMode
         }
         .CreateRequest();
         httpResponse = await HttpClient.GetAsync(request);
         var stringifyResponse = await httpResponse.Content.ReadAsStringAsync();
-        response = JsonSerializer.Deserialize<YubotoResponse>(stringifyResponse, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        response = JsonSerializer.Deserialize<YubotoResponse>(stringifyResponse, new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
         if (response.HasError) {
             throw new SmsServiceException($"SMS Delivery failed. {response}");
         } 
@@ -109,9 +105,9 @@ public class SmsServiceYuboto : ISmsService, IDisposable
 internal class YubotoResponse
 {
     public Dictionary<string, string> OK { get; set; } = new Dictionary<string, string>();
-    public string Error { get; set; }
+    public string? Error { get; set; }
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
-    public override string ToString() => HasError ? Error : $"{OK}";
+    public override string ToString() => HasError ? Error! : $"{OK}";
 }
 
 internal class YubotoRequestHelper
@@ -127,7 +123,7 @@ internal class YubotoRequestHelper
     string ApiKey { get; set; }
     string Action { get; set; } = "Send";
     /// <summary>Numeric (maximum number of digits: 16) or alphanumeric characters (maximum number of characters: 11).</summary>
-    string From { get; set; }
+    string? From { get; set; }
     /// <summary>Use country code without + or 00.</summary>
     IEnumerable<string> To { get; set; }
     /// <summary>
@@ -143,21 +139,21 @@ internal class YubotoRequestHelper
     /// Otherwise the message will be divided into multiple messages of 153 characters each (Maximum number of characters 2000).
     /// If you choose to send a long SMS without previously notifying the system, then the system will limit it to 160 characters(simple SMS).
     /// </summary>
-    string Message { get; set; }
+    string? Message { get; set; }
     /// <summary>Params: sms (default) / flash / unicode</summary>
     public string SmsType { get; set; } = "sms";
     /// <summary>Params: no (default) / yes</summary>
     public bool IsLongSms { get; set; }
     /// <summary>YYYYMMDD</summary>
-    public string DateToSend { get; set; }
+    public string? DateToSend { get; set; }
     /// <summary>HHMM</summary>
-    public string TimeToSend { get; set; }
+    public string? TimeToSend { get; set; }
     /// <summary>Min 30, max 4320 (default).</summary>
     public int SmsValidity { get; set; } = 4320;
     public bool IsSmsTest { get; set; }
-    public string CallbackUrl { get; set; }
-    public string Option1 { get; set; }
-    public string Option2 { get; set; }
+    public string? CallbackUrl { get; set; }
+    public string? Option1 { get; set; }
+    public string? Option2 { get; set; }
     public bool IsJson { get; set; } = true;
 
     // https://services.yuboto.com/web2sms/api/v2/smsc.aspx?api_key=XXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXX&action=send&from=Grpm&to=306942012052&text=This%20is%20my%20first%20test

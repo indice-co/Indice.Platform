@@ -32,7 +32,7 @@ public class EmailServiceSparkPost : IEmailService
         HtmlRenderingEngine = htmlRenderingEngine ?? throw new ArgumentNullException(nameof(htmlRenderingEngine));
         if (HttpClient.BaseAddress == null) {
             HttpClient.BaseAddress = new Uri(Settings.Api.TrimEnd('/') + "/");
-            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(Settings.ApiKey);
+            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(Settings.ApiKey!);
         }
     }
 
@@ -43,7 +43,7 @@ public class EmailServiceSparkPost : IEmailService
     public IHtmlRenderingEngine HtmlRenderingEngine { get; }
 
     /// <inheritdoc/>
-    public async Task<SendReceipt> SendAsync(string[] recipients, string subject, string body, EmailAttachment[] attachments = null, EmailSender from = null) {
+    public async Task<SendReceipt> SendAsync(string[] recipients, string subject, string? body, EmailAttachment[]? attachments = null, EmailSender? from = null) {
         var messageId = Guid.NewGuid().ToString();
         var bccRecipients = (Settings.BccRecipients ?? "").Split(';', ',');
         var recipientAddresses = recipients.Select(recipient => new SparkPostRecipient {
@@ -101,13 +101,13 @@ public class EmailServiceSparkPostSettings
     /// <summary>The configuration section name.</summary>
     public const string Name = "SparkPost";
     /// <summary>The default sender address (ex. no-reply@indice.gr).</summary>
-    public string Sender { get; set; }
+    public string? Sender { get; set; }
     /// <summary>The default sender name (ex. INDICE OE)</summary>
-    public string SenderName { get; set; }
+    public string? SenderName { get; set; }
     /// <summary>Optional email addresses that are always added as blind carbon copy recipients.</summary>
-    public string BccRecipients { get; set; }
+    public string? BccRecipients { get; set; }
     /// <summary>The SparkPost API key.</summary>
-    public string ApiKey { get; set; }
+    public string? ApiKey { get; set; }
     /// <summary>The SparkPost API URL (ex. https://api.eu.sparkpost.com/api/v1/).</summary>
     public string Api { get; set; } = "https://api.eu.sparkpost.com/api/v1/";
 }
@@ -115,45 +115,45 @@ public class EmailServiceSparkPostSettings
 #region SparkPost Models
 internal class SparkPostRequest
 {
-    public SparkPostContent Content { get; set; }
-    public SparkPostRecipient[] Recipients { get; set; }
+    public SparkPostContent? Content { get; set; }
+    public SparkPostRecipient[]? Recipients { get; set; }
 }
 
 internal class SparkPostContent
 {
-    public SparkPostSenderAddress From { get; set; }
-    public string Subject { get; set; }
-    public string Html { get; set; }
-    public SparkPostAttachment[] Attachments { get; set; }
+    public SparkPostSenderAddress? From { get; set; }
+    public string? Subject { get; set; }
+    public string? Html { get; set; }
+    public SparkPostAttachment[]? Attachments { get; set; }
 }
 
 internal class SparkPostSenderAddress
 {
-    public string Email { get; set; }
-    public string Name { get; set; }
+    public string? Email { get; set; }
+    public string? Name { get; set; }
 }
 
 internal class SparkPostRecipient
 {
-    public SparkPostRecipientEmailAddress Address { get; set; }
+    public SparkPostRecipientEmailAddress? Address { get; set; }
 }
 
 internal class SparkPostRecipientEmailAddress
 {
-    public string Email { get; set; }
+    public string? Email { get; set; }
     /// <summary>
     /// Decides whether this email address will be associated with an other one. 
     /// If left blank the address will receive a separate email.
     /// </summary>
     [JsonPropertyName("header_to")]
-    public string HeaderTo { get; set; }
+    public string? HeaderTo { get; set; }
 }
 
 internal class SparkPostAttachment
 {
-    public string Name { get; set; }
-    public string Type { get; set; }
-    public string Data { get; set; }
+    public string? Name { get; set; }
+    public string? Type { get; set; }
+    public string? Data { get; set; }
 }
 
 internal class SparkPostTransmissionResponse

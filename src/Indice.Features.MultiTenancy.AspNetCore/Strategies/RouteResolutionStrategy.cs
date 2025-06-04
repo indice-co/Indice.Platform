@@ -19,8 +19,8 @@ public class RouteResolutionStrategy : ITenantResolutionStrategy
     }
 
     /// <inheritdoc/>
-    public Task<string> GetTenantIdentifierAsync() {
-        var route = _httpContextAccessor.HttpContext.GetRouteData();
+    public Task<string?> GetTenantIdentifierAsync() {
+        var route = _httpContextAccessor.HttpContext!.GetRouteData();
         route.Values.TryGetValue(_routeParameterName, out var identifier);
         return Task.FromResult(identifier?.ToString());
     }

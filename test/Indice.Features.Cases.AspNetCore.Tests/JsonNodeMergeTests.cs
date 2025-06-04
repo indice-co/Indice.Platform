@@ -1,8 +1,7 @@
 #nullable enable
 
 using System.Text.Json.Nodes;
-using Indice.Features.Cases.Extensions;
-using Indice.Features.Cases.Models;
+using Indice.Features.Cases.Core.Models;
 using Json.Patch;
 
 namespace Indice.Features.Cases.Tests;

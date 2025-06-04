@@ -1,6 +1,6 @@
 import { LOCALE_ID, NgModule, Provider } from '@angular/core';
 import { CommonModule, DatePipe, JsonPipe, registerLocaleData } from '@angular/common';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS, withInterceptors, provideHttpClient} from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -25,6 +25,7 @@ import { CampaignRecipientsComponent } from './features/campaigns/create/steps/r
 import { CampaignReportsComponent } from './features/campaigns/edit/reports/campaign-reports.component';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
+import { DistributionListImportContactsComponent } from './features/distribution-lists/import-contacts/distribution-list-import-contacts.component';
 import { DistributionListContactCreateComponent } from './features/distribution-lists/edit/contacts/create/distribution-list-contact-create.component';
 import { DistributionListContactEditComponent } from './features/distribution-lists/edit/contacts/edit/distribution-list-contact-edit.component';
 import { DistributionListContactsComponent } from './features/distribution-lists/edit/contacts/distribution-list-contacts.component';
@@ -54,6 +55,7 @@ import { TemplateDetailsEditRightpaneComponent } from './features/templates/edit
 import { TemplateEditComponent } from './features/templates/edit/template-edit.component';
 import { TemplatesComponent } from './features/templates/templates.component';
 import { FileUploadComponent } from './shared/components/file-upload/file-upload.component';
+import { MultiFileUploadComponent } from './shared/components/multi-file-upload/multi-file-upload.component';
 import { CampaignAttachmentsComponent } from './features/campaigns/create/steps/attachments/campaign-attachments.component';
 import { CampaignAttachmentsEditRightpaneComponent } from './features/campaigns/edit/details/rightpane/campaign-edit-attachments-rightpane.component';
 import * as app from 'src/app/core/models/settings';
@@ -77,6 +79,8 @@ import { ReadOnlyViewComponent } from './features/media-library/item-views/read-
 import { MediaSettingsComponent } from './features/settings/media/media-settings.component';
 import { MediaSettingEditComponent } from './features/settings/media/edit/media-setting-edit.component';
 import { CodeEditorModule } from '@acrodata/code-editor';
+import { NgProgressbar } from 'ngx-progressbar';
+import { progressInterceptor, NgProgressHttp } from 'ngx-progressbar/http';
 
 registerLocaleData(localeGreek);
 
@@ -135,6 +139,7 @@ if (app.settings.tenantId) {
     DistributionListDetailsEditRightpaneComponent,
     DistributionListEditComponent,
     DistributionListsComponent,
+    DistributionListImportContactsComponent,
     HomeComponent,
     LocalDropDownMenuComponent,
     LogOutComponent,
@@ -153,6 +158,7 @@ if (app.settings.tenantId) {
     ListContactCreateComponent,
     HttpStatusComponent,
     FileUploadComponent,
+    MultiFileUploadComponent,
     CampaignAttachmentsComponent,
     CampaignAttachmentsEditRightpaneComponent,
     SettingsComponent,
@@ -184,8 +190,13 @@ if (app.settings.tenantId) {
     IndiceComponentsModule.forRoot(),
     ReactiveFormsModule,
     CodeEditorModule,
+    NgProgressbar,
+    NgProgressHttp
   ],
-  providers: providers,
+  providers: [
+    ...providers,
+    provideHttpClient(withInterceptors([progressInterceptor]))
+  ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}

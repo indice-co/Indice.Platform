@@ -14,20 +14,20 @@ namespace Indice.Features.GovGr.Models;
 internal class KycHttpResponse
 {
     [JsonPropertyName("payload")]
-    public string Payload { get; set; }
+    public string? Payload { get; set; }
     [JsonPropertyName("protected")]
-    public string Protected { get; set; }
+    public string? Protected { get; set; }
     [JsonPropertyName("signature")]
-    public string Signature { get; set; }
+    public string? Signature { get; set; }
 }
 
 /// <summary>The decoded protected from EGovKyc resource server's response</summary>
 internal class Protected
 {
     [JsonPropertyName("x5u")]
-    public string X5u { get; set; }
+    public string? X5u { get; set; }
     [JsonPropertyName("alg")]
-    public string Alg { get; set; }
+    public string? Alg { get; set; }
 }
 
 /// <summary>The decoded payload from EGovKyc resource server's response</summary>
@@ -35,25 +35,25 @@ public class KycPayload
 {
     /// <summary>Response</summary>
     [JsonPropertyName("response")]
-    public KycResponse Response { get; set; }
+    public KycResponse? Response { get; set; }
     /// <summary>Issued at claim (epoch date), <see cref="JwtClaimTypes.IssuedAt"/></summary>
     [JsonPropertyName("iat")]
     public int Iat { get; set; }
     /// <summary>Audience claim, <see cref="JwtClaimTypes.Audience"/></summary>
     [JsonPropertyName("aud")]
-    public string Aud { get; set; }
+    public string? Aud { get; set; }
     /// <summary>Jwt ID claim, <see cref="JwtClaimTypes.JwtId"/></summary>
     [JsonPropertyName("jti")]
     public int Jti { get; set; }
     /// <summary>Issuer claim, <see cref="JwtClaimTypes.Issuer"/></summary>
     [JsonPropertyName("iss")]
-    public string Iss { get; set; }
+    public string? Iss { get; set; }
     /// <summary>Subject claim, <see cref="JwtClaimTypes.Subject"/></summary>
     [JsonPropertyName("sub")]
-    public string Sub { get; set; }
+    public string? Sub { get; set; }
     /// <summary>Response Version</summary>
     [JsonPropertyName("version")]
-    public string Version { get; set; }
+    public string? Version { get; set; }
 
 
 
@@ -62,10 +62,10 @@ public class KycPayload
     {
         /// <summary>Data</summary>
         [JsonPropertyName("data")]
-        public TData Data { get; set; }
+        public TData? Data { get; set; }
         /// <summary>Result</summary>
         [JsonPropertyName("result")]
-        public KycResult Result { get; set; }
+        public KycResult? Result { get; set; }
     }
 
     /// <summary>Encapsulates a message and a <see cref="KycStatusCode"/></summary>
@@ -73,7 +73,7 @@ public class KycPayload
     {
         /// <summary>The text message</summary>
         [JsonPropertyName("message")]
-        public string Message { get; set; }
+        public string? Message { get; set; }
         /// <summary>The status code</summary>
         [JsonPropertyName("status")]
         public KycStatusCode Status { get; set; }
@@ -84,28 +84,28 @@ public class KycPayload
     {
         /// <summary>Ημερομηνία λήξης</summary>
         [JsonPropertyName("expireDate")]
-        public string ExpireDate { get; set; }
+        public string? ExpireDate { get; set; }
         /// <summary>Μοναδικός αριθμός εγγράφου, ο ΑΔΤ</summary>
         [JsonPropertyName("id")]
-        public string Id { get; set; }
+        public string? Id { get; set; }
         /// <summary>Ημερομηνία έκδοσης εγγράφου</summary>
         [JsonPropertyName("issueDate")]
-        public string IssueDate { get; set; }
+        public string? IssueDate { get; set; }
         /// <summary>Κωδικός Αρχής έκδοσης</summary>
         [JsonPropertyName("issuerId")]
-        public string IssuerId { get; set; }
+        public string? IssuerId { get; set; }
         /// <summary>Αρχή έκδοσης</summary>
         [JsonPropertyName("issuerName")]
-        public string IssuerName { get; set; }
+        public string? IssuerName { get; set; }
         /// <summary>Τύπος εγγράφου, π.χ. prado</summary>
         [JsonPropertyName("type")]
-        public string Type { get; set; }
+        public string? Type { get; set; }
         /// <summary>Είδος εγγράφου</summary>
         [JsonPropertyName("category")]
-        public string Category { get; set; }
+        public string? Category { get; set; }
         /// <summary>Προηγούμενος Μοναδικός αριθμός εγγράφου</summary>
         [JsonPropertyName("previousId")]
-        public string PreviousId { get; set; }
+        public string? PreviousId { get; set; }
     }
 
     /// <summary>User information</summary>
@@ -113,46 +113,46 @@ public class KycPayload
     {
         /// <summary>Ημερομηνία γέννησης</summary>
         [JsonPropertyName("birthDate")]
-        public string BirthDate { get; set; }
+        public string? BirthDate { get; set; }
         /// <summary>Έτος γέννησης</summary>
         [JsonPropertyName("birthYear")]
-        public string BirthYear { get; set; }
+        public string? BirthYear { get; set; }
         /// <summary>Τοποθεσία γέννησης</summary>
         [JsonPropertyName("birthPlace")]
-        public string BirthPlace { get; set; }
+        public string? BirthPlace { get; set; }
         /// <summary>Πατρώνυμο</summary>
         [JsonPropertyName("fatherName")]
-        public string FatherName { get; set; }
+        public string? FatherName { get; set; }
         /// <summary>Απόδοση με λατινικούς χαρακτήρες του fatherName</summary>
         [JsonPropertyName("fatherNameLatin")]
-        public string FatherNameLatin { get; set; }
+        public string? FatherNameLatin { get; set; }
         /// <summary>Φύλο</summary>
         [JsonPropertyName("gender")]
-        public string Gender { get; set; }
+        public string? Gender { get; set; }
         /// <summary>Φωτογραφία</summary>
         [JsonPropertyName("image")]
-        public string Image { get; set; }
+        public string? Image { get; set; }
         /// <summary>τύπος/κωδικοποίηση φωτογραφίας</summary>
         [JsonPropertyName("imageMimeType")]
-        public string ImageMimeType { get; set; }
+        public string? ImageMimeType { get; set; }
         /// <summary>Μητρώνυμο</summary>
         [JsonPropertyName("motherName")]
-        public string MotherName { get; set; }
+        public string? MotherName { get; set; }
         /// <summary>Απόδοση με λατινικούς χαρακτήρες του motherName</summary>
         [JsonPropertyName("motherNameLatin")]
-        public string MotherNameLatin { get; set; }
+        public string? MotherNameLatin { get; set; }
         /// <summary>Όνομα</summary>
         [JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
         /// <summary>Απόδοση με λατινικούς χαρακτήρες του name</summary>
         [JsonPropertyName("nameLatin")]
-        public string NameLatin { get; set; }
+        public string? NameLatin { get; set; }
         /// <summary>Επώνυμο</summary>
         [JsonPropertyName("surname")]
-        public string Surname { get; set; }
+        public string? Surname { get; set; }
         /// <summary>Απόδοση με λατινικούς χαρακτήρες του surname</summary>
         [JsonPropertyName("surnameLatin")]
-        public string SurnameLatin { get; set; }
+        public string? SurnameLatin { get; set; }
     }
 
     /// <summary>Δεδομένα Ταυτοποιητικού εγγράφου (grcBo, grcAo, etc.)</summary>
@@ -160,10 +160,10 @@ public class KycPayload
     {
         /// <summary>Στοιχεία σχετικά με το έγγραφο επιβεβαίωσης</summary>
         [JsonPropertyName("documentInfo")]
-        public DocumentInfo DocumentInfo { get; set; }
+        public DocumentInfo? DocumentInfo { get; set; }
         /// <summary>Στοιχεία σχετικά με τον χρήστη</summary>
         [JsonPropertyName("userInfo")]
-        public UserInfo UserInfo { get; set; }
+        public UserInfo? UserInfo { get; set; }
     }
 
     /// <summary>Identity Data</summary>
@@ -171,31 +171,31 @@ public class KycPayload
     {
         /// <summary>Ταυτότητες Ελλήνων Πολιτών</summary>
         [JsonPropertyName("grcBo")]
-        public KycDataWrapper<GrcData> GrcBo { get; set; }
+        public KycDataWrapper<GrcData>? GrcBo { get; set; }
 
         /// <summary>Ελληνικά Διαβατήρια</summary>
         [JsonPropertyName("grcAo")]
-        public KycDataWrapper<GrcData> GrcAo { get; set; }
+        public KycDataWrapper<GrcData>? GrcAo { get; set; }
 
         /// <summary>Υπηρεσιακά Δελτία Ταυτότητας Αστυνομικού Προσωπικού</summary>
         [JsonPropertyName("grcBs")]
-        public KycDataWrapper<GrcData> GrcBs { get; set; }
+        public KycDataWrapper<GrcData>? GrcBs { get; set; }
 
         /// <summary>Άδεια Διαμονής υπηκόων τρίτων χωρών</summary>
         [JsonPropertyName("grcHo")]
-        public KycDataWrapper<GrcData> GrcHo { get; set; }
+        public KycDataWrapper<GrcData>? GrcHo { get; set; }
 
         /// <summary>Ταξιδιωτικό έγγραφο χορηγούμενο σε αλλοδαπούς</summary>
         [JsonPropertyName("grcJo")]
-        public KycDataWrapper<GrcData> GrcJo { get; set; }
+        public KycDataWrapper<GrcData>? GrcJo { get; set; }
 
         /// <summary>Ταυτότητα Ομογενούς</summary>
         [JsonPropertyName("grcPn")]
-        public KycDataWrapper<GrcData> GrcPn { get; set; }
+        public KycDataWrapper<GrcData>? GrcPn { get; set; }
 
         /// <summary>Λοιπά εγχώρια ταυτοποιητικά έγγραφα</summary>
         [JsonPropertyName("grc")]
-        public KycDataWrapper<GrcData> Grc {  get; set; }
+        public KycDataWrapper<GrcData>? Grc {  get; set; }
     }
 
     /// <summary>Address</summary>
@@ -203,21 +203,21 @@ public class KycPayload
     {
         /// <summary>πόλη</summary>
         [JsonPropertyName("city")]
-        public string City { get; set; }
+        public string? City { get; set; }
         /// <summary>κωδικός χώρας</summary>
         [JsonPropertyName("country")]
-        public string Country { get; set; }
+        public string? Country { get; set; }
         /// <summary>πίνακας με τα στοιχεία διεύθυνσης “Οδός και αριθμός”, “Τ.Κ”, “Πόλη”</summary>
-        public List<string> lines { get; set; }
+        public List<string>? lines { get; set; }
         /// <summary>αριθμός</summary>
         [JsonPropertyName("number")]
-        public string Number { get; set; }
+        public string? Number { get; set; }
         /// <summary>οδός</summary>
         [JsonPropertyName("street")]
-        public string Street { get; set; }
+        public string? Street { get; set; }
         /// <summary>Τ.Κ.</summary>
         [JsonPropertyName("postalCode")]
-        public string PostalCode { get; set; }
+        public string? PostalCode { get; set; }
     }
 
     /// <summary>Contact Info Data</summary>
@@ -225,19 +225,19 @@ public class KycPayload
     {
         /// <summary>στοιχεία διεύθυνσης διαμονής</summary>
         [JsonPropertyName("address")]
-        public Address Address { get; set; }
+        public Address? Address { get; set; }
         /// <summary>στοιχεία διεύθυνσης επικοινωνίας</summary>
         [JsonPropertyName("contactAddress")]
-        public Address ContactAddress { get; set; }
+        public Address? ContactAddress { get; set; }
         /// <summary>ηλεκτρονική διεύθυνση αλληλογραφίας</summary>
         [JsonPropertyName("email")]
-        public string Email { get; set; }
+        public string? Email { get; set; }
         /// <summary>κινητό τηλέφωνο</summary>
         [JsonPropertyName("mobile")]
-        public string Mobile { get; set; }
+        public string? Mobile { get; set; }
         /// <summary>σταθερό τηλέφωνο</summary>
         [JsonPropertyName("telephone")]
-        public string Telephone { get; set; }
+        public string? Telephone { get; set; }
     }
 
     /// <summary>Income Data</summary>
@@ -245,58 +245,58 @@ public class KycPayload
     {
         /// <summary>Προστιθέμενη διαφορά δαπανών</summary>
         [JsonPropertyName("addedCostDiffs")]
-        public string AddedCostDiffs { get; set; }
+        public string? AddedCostDiffs { get; set; }
         /// <summary>Επιχειρηματική δραστηριότητα</summary>
         [JsonPropertyName("businessIncome")]
-        public string BusinessIncome { get; set; }
+        public string? BusinessIncome { get; set; }
         /// <summary>Υπεραξία μεταβίβασης κεφαλαίου</summary>
         [JsonPropertyName("capitalTransferValue")]
-        public string CapitalTransferValue { get; set; }
+        public string? CapitalTransferValue { get; set; }
         /// <summary>Ζημιές από επιχειρηματική δραστηριότητα, ιδίου έτους</summary>
         [JsonPropertyName("damageBusinessCurr")]
-        public string DamageBusinessCurr { get; set; }
+        public string? DamageBusinessCurr { get; set; }
         /// <summary>Ζημιές από επιχειρηματική δραστηριότητα, προηγούμενων ετών</summary>
         [JsonPropertyName("damageBusinessPrev")]
-        public string DamageBusinessPrev { get; set; }
+        public string? DamageBusinessPrev { get; set; }
         /// <summary>Ζημιές από αγροτική δραστηριότητα, ιδίου έτους</summary>
         [JsonPropertyName("damageFarmingCurr")]
-        public string DamageFarmingCurr { get; set; }
+        public string? DamageFarmingCurr { get; set; }
         /// <summary>Ζημιές από αγροτική δραστηριότητα, προηγούμενων ετών</summary>
         [JsonPropertyName("damageFarmingPrev")]
-        public string DamageFarmingPrev { get; set; }
+        public string? DamageFarmingPrev { get; set; }
         /// <summary>Εισόδημα από αγροτική δραστηριότητα</summary>
         [JsonPropertyName("farmingIncome")]
-        public string FarmingIncome { get; set; }
+        public string? FarmingIncome { get; set; }
         /// <summary>Ακαθάριστα Έσοδα, από επιχειρηματική δραστηριότητα</summary>
         [JsonPropertyName("grossBusiness")]
-        public string GrossBusiness { get; set; }
+        public string? GrossBusiness { get; set; }
         /// <summary>Ακαθάριστα Έσοδα, από αγροτική δραστηριότητα</summary>
         [JsonPropertyName("grossFarming")]
-        public string GrossFarming { get; set; }
+        public string? GrossFarming { get; set; }
         /// <summary>Εισόδημα από Μερίσματα – Τόκους - Δικαιώματα</summary>
         [JsonPropertyName("investmentIncome")]
-        public string InvestmentIncome { get; set; }
+        public string? InvestmentIncome { get; set; }
         /// <summary>Ναυτικό εισόδημα</summary>
         [JsonPropertyName("maritimeIncome")]
-        public string MaritimeIncome { get; set; }
+        public string? MaritimeIncome { get; set; }
         /// <summary>Έτος αναφοράς</summary>
         [JsonPropertyName("refYear")]
-        public string RefYear { get; set; }
+        public string? RefYear { get; set; }
         /// <summary>Ημερμηνία έκδοσης πράξης</summary>
         [JsonPropertyName("releaseDate")]
-        public string ReleaseDate { get; set; }
+        public string? ReleaseDate { get; set; }
         /// <summary>Ακίνητη περιουσία</summary>
         [JsonPropertyName("rentalIncome")]
-        public string RentalIncome { get; set; }
+        public string? RentalIncome { get; set; }
         /// <summary>Αυτοτελώς Φορολογούμενα Ποσά</summary>
         [JsonPropertyName("taxableAmounts")]
-        public string TaxableAmounts { get; set; }
+        public string? TaxableAmounts { get; set; }
         /// <summary>Επίδομα ανεργίας</summary>
         [JsonPropertyName("unemploymentBenefits")]
-        public string UnemploymentBenefits { get; set; }
+        public string? UnemploymentBenefits { get; set; }
         /// <summary>Μισθωτή Εργασία – Συντάξεις</summary>
         [JsonPropertyName("wagesPensionsIncome")]
-        public string WagesPensionsIncome { get; set; }
+        public string? WagesPensionsIncome { get; set; }
     }
 
     /// <summary>Department</summary>
@@ -304,13 +304,13 @@ public class KycPayload
     {
         /// <summary>ΚΑΔ, παραρτήματος</summary>
         [JsonPropertyName("activityCode")]
-        public string ActivityCode { get; set; }
+        public string? ActivityCode { get; set; }
         /// <summary>Περιγραφή δραστηριότητας</summary>
         [JsonPropertyName("activityDescr")]
-        public string ActivityDescr { get; set; }
+        public string? ActivityDescr { get; set; }
         /// <summary>Στοιχεία διεύθυνσης παραρτήματος</summary>
         [JsonPropertyName("address")]
-        public Address Address { get; set; }
+        public Address? Address { get; set; }
     }
 
     /// <summary>Main Activity</summary>
@@ -318,16 +318,16 @@ public class KycPayload
     {
         /// <summary>ΚΑΔ, κύριας δραστηριότητας</summary>
         [JsonPropertyName("activityCode")]
-        public string ActivityCode { get; set; }
+        public string? ActivityCode { get; set; }
         /// <summary>Περιγραφή κύριας δραστηριότητας</summary>
         [JsonPropertyName("activityDescr")]
-        public string ActivityDescr { get; set; }
+        public string? ActivityDescr { get; set; }
         /// <summary>Στοιχεία διεύθυνσης Έδρας</summary>
         [JsonPropertyName("address")]
-        public Address Address { get; set; }
+        public Address? Address { get; set; }
         /// <summary>Πίνακας δραστηριοτήτων με τα παρακάτω στοιχεία</summary>
         [JsonPropertyName("activities")]
-        public List<Activity> Activities { get; set; }
+        public List<Activity>? Activities { get; set; }
     }
 
     /// <summary>Firm</summary>
@@ -335,16 +335,16 @@ public class KycPayload
     {
         /// <summary>Στοιχεία παραρτήματος (optional)</summary>
         [JsonPropertyName("department")]
-        public Department Department { get; set; }
+        public Department? Department { get; set; }
         /// <summary>Στοιχεία Έδρας</summary>
         [JsonPropertyName("main")]
-        public MainActivity Main { get; set; }
+        public MainActivity? Main { get; set; }
         /// <summary>Επωνυμία</summary>
         [JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
         /// <summary>ΑΦΜ επιχείρησης</summary>
         [JsonPropertyName("tin")]
-        public string Tin { get; set; }
+        public string? Tin { get; set; }
     }
 
     /// <summary>Private Sector Occupation</summary>
@@ -352,13 +352,13 @@ public class KycPayload
     {
         /// <summary>Κωδικός ειδικότητας. Ακολουθεί το πρότυπο ΣΤΕΠ-92</summary>
         [JsonPropertyName("code")]
-        public string Code { get; set; }
+        public string? Code { get; set; }
         /// <summary>Περιγραφή ειδικότητας. Ακολουθεί το πρότυπο ΣΤΕΠ-92</summary>
         [JsonPropertyName("descr")]
-        public string Descr { get; set; }
+        public string? Descr { get; set; }
         /// <summary>Τύπος/Πρότυπο κωδικοποίησης (ΣΤΕΠ-92)</summary>
         [JsonPropertyName("type")]
-        public string Type { get; set; }
+        public string? Type { get; set; }
     }
 
     /// <summary>Public Sector Occupation</summary>
@@ -366,22 +366,22 @@ public class KycPayload
     {
         /// <summary>Κωδικός κατηγορίας προσωπικού. check: https://hr.apografi.gov.gr/api/public/metadata/dictionary/EmployeeCategories</summary>
         [JsonPropertyName("categoryCode")]
-        public string CategoryCode { get; set; }
+        public string? CategoryCode { get; set; }
         /// <summary>Περιγραφή κατηγορίας προσωπικού. check: https://hr.apografi.gov.gr/api/public/metadata/dictionary/EmployeeCategories</summary>
         [JsonPropertyName("categoryDescription")]
-        public string CategoryDescription { get; set; }
+        public string? CategoryDescription { get; set; }
         /// <summary>Κωδικός Κλάδου. check: https://hr.apografi.gov.gr/api/public/metadata/dictionary/ProfessionCategories</summary>
         [JsonPropertyName("sectorCode")]
-        public string SectorCode { get; set; }
+        public string? SectorCode { get; set; }
         /// <summary>Περιγραφή κλάδου. check: https://hr.apografi.gov.gr/api/public/metadata/dictionary/ProfessionCategories</summary>
         [JsonPropertyName("sectorDescription")]
-        public string SectorDescription { get; set; }
+        public string? SectorDescription { get; set; }
         /// <summary>Κωδικός ειδικότητας. check: https://hr.apografi.gov.gr/api/public/metadata/dictionary/Specialities</summary>
         [JsonPropertyName("specialtyCode")]
-        public string SpecialtyCode { get; set; }
+        public string? SpecialtyCode { get; set; }
         /// <summary>Περιγραφή ειδικότητας. check: https://hr.apografi.gov.gr/api/public/metadata/dictionary/Specialities</summary>
         [JsonPropertyName("specialtyDescription")]
-        public string SpecialtyDescription { get; set; }
+        public string? SpecialtyDescription { get; set; }
     }
 
     /// <summary>Private Employee Info Data</summary>
@@ -389,13 +389,13 @@ public class KycPayload
     {
         /// <summary>καθεστώς εργασίας, 0=Πλήρης, 1=Μερική και 2=Εκ περιτροπής</summary>
         [JsonPropertyName("contractType")]
-        public string ContractType { get; set; }
+        public string? ContractType { get; set; }
         /// <summary>Επιχείρηση</summary>
         [JsonPropertyName("firm")]
-        public Firm Firm { get; set; }
+        public Firm? Firm { get; set; }
         /// <summary>Ειδικότητα (για ιδιωτικό υπάλληλο)</summary>
         [JsonPropertyName("occupation")]
-        public PrivateSectorOccupation Occupation { get; set; }
+        public PrivateSectorOccupation? Occupation { get; set; }
     }
 
     /// <summary>Employment Position</summary>
@@ -403,13 +403,13 @@ public class KycPayload
     {
         /// <summary>Επωνυμία φορέα</summary>
         [JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
         /// <summary>ΑΦΜ φορέα</summary>
         [JsonPropertyName("tin")]
-        public string Tin { get; set; }
+        public string? Tin { get; set; }
         /// <summary>Στοιχεία διεύθυνσης φορέα</summary>
         [JsonPropertyName("address")]
-        public Address Address { get; set; }
+        public Address? Address { get; set; }
     }
 
     /// <summary>Work Position</summary>
@@ -417,13 +417,13 @@ public class KycPayload
     {
         /// <summary>Επωνυμία φορέα</summary>
         [JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
         /// <summary>ΑΦΜ φορέα</summary>
         [JsonPropertyName("tin")]
-        public string Tin { get; set; }
+        public string? Tin { get; set; }
         /// <summary>Στοιχεία διεύθυνσης φορέα</summary>
         [JsonPropertyName("address")]
-        public Address Address { get; set; }
+        public Address? Address { get; set; }
     }
 
     /// <summary>Public Employee Info Data</summary>
@@ -431,19 +431,19 @@ public class KycPayload
     {
         /// <summary>Ειδικότητα (για δημόσιο υπάλληλο)</summary>
         [JsonPropertyName("occupation")]
-        public PublicSectorOccupation Occupation { get; set; }
+        public PublicSectorOccupation? Occupation { get; set; }
         /// <summary>Ένδειξη (true/false) αν είναι η κύρια σχέση εργασίας</summary>
         [JsonPropertyName("primary")]
-        public string Primary { get; set; }
+        public string? Primary { get; set; }
         /// <summary>Στοιχεία φορέα οργανικής θέσης</summary>
         [JsonPropertyName("employmentPosition")]
-        public EmploymentPosition EmploymentPosition { get; set; }
+        public EmploymentPosition? EmploymentPosition { get; set; }
         /// <summary>Στοιχεία φορέα θέσης απασχόλησης (Optional)</summary>
         [JsonPropertyName("workPosition")]
-        public WorkPosition WorkPosition { get; set; }
+        public WorkPosition? WorkPosition { get; set; }
         /// <summary>Εργασιακή σχέση</summary>
         [JsonPropertyName("employmentType")]
-        public string EmploymentType { get; set; }
+        public string? EmploymentType { get; set; }
     }
 
     /// <summary>Activity/Δραστηριότητα</summary>
@@ -451,16 +451,16 @@ public class KycPayload
     {
         /// <summary>ΚΑΔ</summary>
         [JsonPropertyName("activityCode")]
-        public string ActivityCode { get; set; }
+        public string? ActivityCode { get; set; }
         /// <summary>Περιγραφή δραστηριότητας</summary>
         [JsonPropertyName("activityDescr")]
-        public string ActivityDescr { get; set; }
+        public string? ActivityDescr { get; set; }
         /// <summary>Τύπος δραστηριότητας (1 ή 2)</summary>
         [JsonPropertyName("activityType")]
-        public string ActivityType { get; set; }
+        public string? ActivityType { get; set; }
         /// <summary>Περιγραφή τύπου δραστηριότητας (ΚΥΡΙΑ ή ΔΕΥΤΕΡΕΥΟΥΣΑ)</summary>
         [JsonPropertyName("activityTypeDesc")]
-        public string ActivityTypeDesc { get; set; }
+        public string? ActivityTypeDesc { get; set; }
     }
 
     /// <summary>Self Employed Info Data</summary>
@@ -468,24 +468,24 @@ public class KycPayload
     {
         /// <summary>Main activity, Κύρια δραστηριότητα</summary>
         [JsonPropertyName("main")]
-        public MainActivity Main { get; set; }
+        public MainActivity? Main { get; set; }
         /// <summary>Επωνυμία</summary>
         [JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
         /// <summary>ΑΦΜ αυτοαπασχολούμενου (ίδιο με το principal)</summary>
         [JsonPropertyName("tin")]
-        public string Tin { get; set; }
+        public string? Tin { get; set; }
     }
 
     /// <summary>Unemployment Info Data</summary>
     public class UnemploymentInfoData {
         /// <summary>Επιδότηση Τακτικής Ανεργίας</summary>
         [JsonPropertyName("repidot")]
-        public string Repidot { get; set; }
+        public string? Repidot { get; set; }
 
         /// <summary>Ημέρες Επιδότησης κατά το τελευταίο έτος</summary>
         [JsonPropertyName("rmonthsepidot")]
-        public string RMonthsEpidot { get; set; }
+        public string? RMonthsEpidot { get; set; }
     }
 
     /// <summary>Pensioner Info Data</summary>
@@ -499,7 +499,7 @@ public class KycPayload
     public class AcademicInfoData {
         /// <summary>Tρέχουσες ενεργές ακαδημαϊκές ιδιότητες</summary>
         [JsonPropertyName("academicProperties")]
-        public List<string> AcademicProperties { get; set; }
+        public List<string>? AcademicProperties { get; set; }
     }
 
     /// <summary>IEK Student Info Data</summary>
@@ -514,25 +514,25 @@ public class KycPayload
     {
         /// <summary>Private Employed Info</summary>
         [JsonPropertyName("privateEmployeeInfo")]
-        public KycDataWrapper<List<PrivateEmployeeInfoData>> PrivateEmployeeInfo { get; set; }
+        public KycDataWrapper<List<PrivateEmployeeInfoData>>? PrivateEmployeeInfo { get; set; }
         /// <summary>Public Employed Info</summary>
         [JsonPropertyName("publicEmployeeInfo")]
-        public KycDataWrapper<List<PublicEmployeeInfoData>> PublicEmployeeInfo { get; set; }
+        public KycDataWrapper<List<PublicEmployeeInfoData>>? PublicEmployeeInfo { get; set; }
         /// <summary>Self Employed Info</summary>
         [JsonPropertyName("selfEmployedInfo")]
-        public KycDataWrapper<SelfEmployedInfoData> SelfEmployedInfo { get; set; }
+        public KycDataWrapper<SelfEmployedInfoData>? SelfEmployedInfo { get; set; }
         /// <summary>Unemployment Info</summary>
         [JsonPropertyName("unemploymentInfo")]
-        public KycDataWrapper<UnemploymentInfoData> UnemploymentInfo { get; set; }
+        public KycDataWrapper<UnemploymentInfoData>? UnemploymentInfo { get; set; }
         /// <summary>Pensioner Info</summary>
         [JsonPropertyName("pensionerInfo")]
-        public KycDataWrapper<PensionerInfoData> PensionerInfo { get; set; }
+        public KycDataWrapper<PensionerInfoData>? PensionerInfo { get; set; }
         /// <summary>Academic Info</summary>
         [JsonPropertyName("academicInfo")]
-        public KycDataWrapper<AcademicInfoData> AcademicInfo { get; set; }
+        public KycDataWrapper<AcademicInfoData>? AcademicInfo { get; set; }
         /// <summary>IEK Student Info</summary>
         [JsonPropertyName("iekStudentInfo")]
-        public KycDataWrapper<IekStudentInfo> IekStudentInfo { get; set; }
+        public KycDataWrapper<IekStudentInfo>? IekStudentInfo { get; set; }
     }
 
     /// <summary> Tax Information Data </summary>
@@ -540,15 +540,15 @@ public class KycPayload
     {
         /// <summary>ΑΦΜ του πολίτη (ίδιο με το principal)</summary>
         [JsonPropertyName("tin")]
-        public string Tin { get; set; }
+        public string? Tin { get; set; }
 
         /// <summary>Κωδικός της ΔΟΥ που υπάγεται ο πολίτης</summary>
         [JsonPropertyName("doy")]
-        public string Doy { get; set; }
+        public string? Doy { get; set; }
 
         /// <summary>Ονομασία της ΔΟΥ που υπάγεται ο πολίτης</summary>
         [JsonPropertyName("doyDescr")]
-        public string DoyDescription { get; set; }
+        public string? DoyDescription { get; set; }
     }
 
     /// <summary> Family Status Data </summary>
@@ -556,11 +556,11 @@ public class KycPayload
     {
         /// <summary>Κωδικός οικογενειακής κατάστασης</summary>
         [JsonPropertyName("maritalStatus")]
-        public string MaritalStatus { get; set; }
+        public string? MaritalStatus { get; set; }
 
         /// <summary>Περιγραφή οικογενειακής κατάστασης</summary>
         [JsonPropertyName("maritalStatusDesc")]
-        public string MaritalStatusDescription { get; set; }
+        public string? MaritalStatusDescription { get; set; }
     }
 
     /// <summary> Demographics Data </summary>
@@ -568,19 +568,19 @@ public class KycPayload
     {
         /// <summary>Κωδικός χώρας γέννησης</summary>
         [JsonPropertyName("birthCountryThreeDigitCode")]
-        public string BirthCountryThreeDigitCode { get; set; }
+        public string? BirthCountryThreeDigitCode { get; set; }
 
         /// <summary>Ονομασία χώρας γέννησης</summary>
         [JsonPropertyName("birthCountryName")]
-        public string BirthCountryName { get; set; }
+        public string? BirthCountryName { get; set; }
 
         /// <summary>Κωδικός Υπηκοότητας</summary>
         [JsonPropertyName("mainNationalityId")]
-        public string MainNationalityId { get; set; }
+        public string? MainNationalityId { get; set; }
 
         /// <summary>Ονομασία Υπηκοότητας</summary>
         [JsonPropertyName("mainNationalityName")]
-        public string MainNationalityName { get; set; }
+        public string? MainNationalityName { get; set; }
     }
 
     /// <summary>Encapsulates the actual KYC data.</summary>
@@ -588,25 +588,25 @@ public class KycPayload
     {
         /// <summary>Στοιχεία ταυτότητας</summary>
         [JsonPropertyName("identity")]
-        public KycDataWrapper<IdentityData> Identity { get; set; }
+        public KycDataWrapper<IdentityData>? Identity { get; set; }
         /// <summary>Στοιχεία επικοινωνίας</summary>
         [JsonPropertyName("contactInfo")]
-        public KycDataWrapper<ContactInfoData> ContactInfo { get; set; }
+        public KycDataWrapper<ContactInfoData>? ContactInfo { get; set; }
         /// <summary>Στοιχεία εισοδήματος</summary>
         [JsonPropertyName("income")]
-        public KycDataWrapper<IncomeData> Income { get; set; }
+        public KycDataWrapper<IncomeData>? Income { get; set; }
         /// <summary>Στοιχεία επαγγελματικής δραστηριότητας</summary>
         [JsonPropertyName("professionalActivity")]
-        public KycDataWrapper<ProfessionalActivityData> ProfessionalActivity { get; set; }
+        public KycDataWrapper<ProfessionalActivityData>? ProfessionalActivity { get; set; }
         /// <summary>Στοιχεία ΔΟΥ</summary>
         [JsonPropertyName("taxidInfo")]
-        public KycDataWrapper<TaxidInfoData> TaxidInfo { get; set; }
+        public KycDataWrapper<TaxidInfoData>? TaxidInfo { get; set; }
         /// <summary>Στοιχεία Οικογενειακής Κατάστασης</summary>
         [JsonPropertyName("familyStatus")]
-        public KycDataWrapper<FamilyStatusData> FamilyStatus { get; set; }
+        public KycDataWrapper<FamilyStatusData>? FamilyStatus { get; set; }
         /// <summary>Δημογραφικά Στοιχεία</summary>
         [JsonPropertyName("demographics")]
-        public KycDataWrapper<DemographicsData> Demographics { get; set; }
+        public KycDataWrapper<DemographicsData>? Demographics { get; set; }
 
     }
 
@@ -615,13 +615,13 @@ public class KycPayload
     {
         /// <summary>Ο ΑΦΜ του χρήστη</summary>
         [JsonPropertyName("principal")]
-        public string Principal { get; set; }
+        public string? Principal { get; set; }
         /// <summary>The response data</summary>
         [JsonPropertyName("data")]
-        public ResponseData Data { get; set; }
+        public ResponseData? Data { get; set; }
         /// <summary>Any message regarding the response, fault or other.</summary>
         [JsonPropertyName("result")]
-        public KycResult Result { get; set; }
+        public KycResult? Result { get; set; }
     }
 }
 

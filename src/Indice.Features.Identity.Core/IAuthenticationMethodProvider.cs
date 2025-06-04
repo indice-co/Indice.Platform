@@ -1,6 +1,7 @@
 ﻿using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Hubs;
 using Indice.Features.Identity.Core.Models;
+using Indice.Services;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Indice.Features.Identity.Core;
@@ -10,12 +11,21 @@ public interface IAuthenticationMethodProvider
 {
     /// <summary>Determines if SignalR service is configured. Use <strong>AddSignalR</strong> in your Program.cs.</summary>
     public bool SignalREnabled => HubContext is not null;
+    /// <summary>Determines if the authentication method provider allows downgrading of the authentication method.</summary>
+    public bool AllowMfaChannelDowngrade { get; }
     /// <summary>SignalR hub context.</summary>
     IHubContext<MultiFactorAuthenticationHub>? HubContext { get; }
     /// <summary>Gets a list of all available authentication methods supported by the identity system.</summary>
-    Task<IEnumerable<AuthenticationMethod>> GetAllMethodsAsync();
+    /// <remarks>This is used by the MFA Onboarding screens</remarks>
+    Task<AuthenticationMethod[]> GetAllMethodsAsync();
     /// <summary>Get the authentication method that must be applied to the user.</summary>
     /// <param name="user">The user instance.</param>
-    /// <param name="tryDowngradeAuthenticationMethod"></param>
-    Task<AuthenticationMethod?> GetRequiredAuthenticationMethod(User user, bool? tryDowngradeAuthenticationMethod = false);
+    /// <param name="channel">The authentication method delivery channel for OTP (optional).</param>
+    /// <remarks>This is used on actual MFA screens</remarks>
+    Task<AuthenticationMethod?> FindMethodForUserOrDefaultAsync(User user, TotpDeliveryChannel? channel = null);
+    /// <summary>Gets the authentication methods supported for the user.</summary>
+    /// <param name="user">The user instance.</param>
+    /// <returns><see cref="AuthenticationMethod"/></returns>
+    /// <remarks>This is used on actual MFA screens</remarks>
+    Task<AuthenticationMethod[]> GetAllMethodsForUserAsync(User user);
 }

@@ -18,8 +18,8 @@ public class HeaderResolutionStrategy : ITenantResolutionStrategy
     }
 
     /// <inheritdoc/>
-    public Task<string> GetTenantIdentifierAsync() {
-        var value = (string)_httpContextAccessor.HttpContext.Request.Headers[_headerName];
+    public Task<string?> GetTenantIdentifierAsync() {
+        var value = (string?)_httpContextAccessor.HttpContext!.Request.Headers[_headerName];
         return Task.FromResult(string.IsNullOrEmpty(value) ? null : value);
     }
 }

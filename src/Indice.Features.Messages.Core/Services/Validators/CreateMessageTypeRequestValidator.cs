@@ -2,6 +2,7 @@
 using Indice.Configuration;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
+using Indice.Types;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Features.Messages.Core.Services.Validators;
@@ -17,7 +18,19 @@ public class CreateMessageTypeRequestValidator : AbstractValidator<CreateMessage
             .WithMessage("Please provide a name for the campaign type.")
             .MaximumLength(TextSizePresets.M128)
             .WithMessage($"Maximum length for name is {TextSizePresets.M128} characters.")
-            .Must(name => string.IsNullOrWhiteSpace(name) || messageTypeService.GetByName(name).Result is null)
+            .MustAsync(async (name, ctx) => {
+                return string.IsNullOrWhiteSpace(name) || (await messageTypeService.GetByName(name)) is null;
+            })
             .WithMessage(x => $"There is already a campaign type with name '{x.Name}'.");
+
+        RuleFor(x => x.Alias)
+            .MaximumLength(TextSizePresets.S64)
+            .WithMessage($"Maximum length for alias is {TextSizePresets.S64} characters.")
+            .MustAsync(async (alias, ctx) => {
+                var aliasIsEmpty = string.IsNullOrWhiteSpace(alias);
+                var aliasExists = !string.IsNullOrWhiteSpace(alias) && (await messageTypeService.GetById((GuidOrAlias)alias)) is null;
+                return aliasIsEmpty || aliasExists;
+            })
+            .WithMessage(x => $"There is already a campaign type with the same alias '{x.Alias}'.");
     }
 }

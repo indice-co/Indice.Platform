@@ -1,3 +1,6 @@
+
+// initialize components based on data attribute selectors
+initFlowbite();
 (function () {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);

@@ -17,7 +17,7 @@ public class MessageJobHandlerFactory
     /// <summary>Creates the appropriate instance based on handled event.</summary>
     /// <typeparam name="TEvent">The type of event.</typeparam>
     public ICampaignJobHandler<TEvent> CreateFor<TEvent>() where TEvent : class {
-        var handler = ServiceProvider.GetService<ICampaignJobHandler<TEvent>>();
+        var handler = ServiceProvider.GetRequiredService<ICampaignJobHandler<TEvent>>();
         return handler;
     }
 }

@@ -37,7 +37,7 @@ public class PushNotificationServiceAzure : IPushNotificationService
     private PushNotificationAzureOptions PushNotificationAzureOptions { get; }
 
     /// <inheritdoc/>
-    public async Task Register(string deviceId, string pnsHandle, DevicePlatform devicePlatform, IList<PushNotificationTag> tags) {
+    public async Task Register(string deviceId, string? pnsHandle, DevicePlatform devicePlatform, IList<PushNotificationTag> tags) {
         if (string.IsNullOrEmpty(deviceId)) {
             throw new ArgumentNullException(nameof(deviceId));
         }
@@ -84,7 +84,7 @@ public class PushNotificationServiceAzure : IPushNotificationService
     }
 
     /// <inheritdoc/>
-    public async Task SendAsync(string title, string body, IList<PushNotificationTag> tags, string data = null, string classification = null) {
+    public async Task SendAsync(string title, string? body, IList<PushNotificationTag>? tags, string? data = null, string? classification = null) {
         if (string.IsNullOrEmpty(title)) {
             throw new ArgumentNullException(nameof(title));
         }
@@ -118,17 +118,17 @@ public class PushNotificationServiceAzure : IPushNotificationService
 /// <summary>Push notification service options.</summary>
 public class PushNotificationAzureOptions
 {
-    internal IServiceCollection Services { get; set; }
+    internal IServiceCollection Services { get; set; } = null!;
     /// <summary>The section name in application settings.</summary>
     public const string Name = "PushNotifications";
     /// <summary>The connection string to the push notification account.</summary>
-    public string ConnectionString { get; set; }
+    public string? ConnectionString { get; set; }
     /// <summary>Notifications hub name, if any.</summary>
-    public string NotificationHubPath { get; set; }
+    public string? NotificationHubPath { get; set; }
     /// <summary>Specifies whether the notification is handled by the operating system.</summary>
     public bool? SilentNotifications { get; set; }
     /// <summary>Gets or sets HTTP message handler.</summary>
-    public HttpClientHandler MessageHandler { get; set; }
+    public HttpClientHandler? MessageHandler { get; set; }
 }
 
 /// <summary>Generic and silent push notification templates for Android and iOS.</summary>

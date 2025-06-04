@@ -7,7 +7,7 @@ public class BancappGCloudUploadResponse
     public bool Succeeded { get; private set;}
 
     /// <summary>Error message.</summary>
-    public string ErrorMessage { get; set;}
+    public string? ErrorMessage { get; set;}
 
     /// <summary>Set result status to Success.</summary>
     internal static BancappGCloudUploadResponse Success() => new BancappGCloudUploadResponse {Succeeded = true};

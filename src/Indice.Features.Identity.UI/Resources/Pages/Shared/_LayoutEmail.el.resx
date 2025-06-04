@@ -117,7 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Please do not reply, as this address does not receive email messages and you will not receive a response." xml:space="preserve">
+    <value>Παρακαλούμε μην απαντάτε σε αυτό το email, καθώς αυτή η διεύθυνση δεν δέχεται μηνύματα ηλεκτρονικού ταχυδρομείου και δεν θα λάβετε απάντηση.</value>
+  </data>
   <data name="Privacy" xml:space="preserve">
     <value>Ιδιωτικό Απόρρητο</value>
+  </data>
+  <data name="This service email contains information related to your account." xml:space="preserve">
+    <value>Αυτό το ηλεκτρονικό μήνυμα υπηρεσίας περιλαμβάνει βασικές πληροφορίες που αφορούν τον λογαριασμό σας.</value>
   </data>
 </root>

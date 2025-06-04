@@ -218,7 +218,7 @@ public static class ILockManagerExtensions
                 // The leader task.
                 var leaderTask = task.Invoke(linkedTokenSource.Token);
                 // The renew lease task.
-                var renewLeaseTask = TryRenewUntilCancelled(lockResult.Lock!, linkedTokenSource.Token, intervalInSeconds: (int)Math.Round((decimal)options.LockDuration * (2 / 3)));
+                var renewLeaseTask = TryRenewUntilCancelled(lockResult.Lock!, linkedTokenSource.Token, intervalInSeconds: (int)Math.Round(options.LockDuration * (2M / 3)));
                 // Wait for either of the two tasks to complete.
                 await Task.WhenAny(leaderTask, renewLeaseTask);
             }

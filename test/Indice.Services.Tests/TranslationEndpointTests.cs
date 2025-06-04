@@ -1,10 +1,4 @@
-﻿#if NET8_0_OR_GREATER
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
@@ -12,11 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 using Microsoft.AspNetCore.Routing;
-using System.Text.Json.Nodes;
-using Indice.AspNetCore.Views;
 using Microsoft.Extensions.Localization;
 using Indice.Services.Tests.Types;
-using System.Runtime.CompilerServices;
 
 namespace Indice.Services.Tests;
 public class TranslationEndpointTests : IAsyncLifetime
@@ -38,8 +29,6 @@ public class TranslationEndpointTests : IAsyncLifetime
             });
         });
         builder.ConfigureServices(services => {
-            var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
-            
             services.AddRouting();
 
             services.AddTranslationGraph((o) => {
@@ -67,7 +56,7 @@ public class TranslationEndpointTests : IAsyncLifetime
 
     #region Facts
 
-    [Fact (Skip = "Work in progress")]
+    [Fact(Skip = "Work in progress")]
     public async Task Test_GetTranslation_From_Multiple_Sources() {
         var getTranslationsAsync = async (string routePattern) => {
             var response = await _httpClient.GetAsync(routePattern);
@@ -79,7 +68,7 @@ public class TranslationEndpointTests : IAsyncLifetime
             Assert.True(response.IsSuccessStatusCode);
             return json;
         };
-        var defaultJson = await getTranslationsAsync("/http-translations.el.json");
+        _ = await getTranslationsAsync("/http-translations.el.json");
     }
     #endregion
 
@@ -91,6 +80,3 @@ public class TranslationEndpointTests : IAsyncLifetime
         await _serviceProvider.DisposeAsync();
     }
 }
-
-
-#endif

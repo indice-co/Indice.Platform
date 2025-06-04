@@ -11,7 +11,7 @@ public static class IFileInfoExtensions
     /// <param name="file">Input file</param>
     /// <param name="format">The string representation for the byte array output</param>
     /// <returns></returns>
-    public static string ComputeHash<THashAlgorithm>(this IFileInfo file, string format = "x2")
+    public static string? ComputeHash<THashAlgorithm>(this IFileInfo file, string format = "x2")
         where THashAlgorithm : HashAlgorithm, new() {
         // nothing to compute
         if (file?.Exists != true || file.IsDirectory || file.Length == 0) {

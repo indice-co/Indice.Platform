@@ -77,6 +77,7 @@ public static class ExtendedIdentityDbContextExtensions
                     PhoneNumberConfirmed = true,
                     SecurityStamp = $"{Guid.NewGuid()}",
                     UserName = adminEmail,
+                    TwoFactorPolicy = MfaPolicy.Optional,
                     Claims = {
                         new () { ClaimType = JwtClaimTypes.GivenName, ClaimValue = "Indice" },
                         new () { ClaimType = JwtClaimTypes.FamilyName, ClaimValue = "Company" },

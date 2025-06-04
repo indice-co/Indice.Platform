@@ -51,20 +51,20 @@ public class BancappAuthorizationMessageHandler : DelegatingHandler
                 Scope = Scope,
                 Address = AuthUrl,
                 GrantType = OidcConstants.GrantTypes.RefreshToken,
-                Resource = new[] { _options.ClientId },
-                Parameters = new Parameters { { OidcConstants.TokenRequest.ClientId, _options.ClientId } }
+                Resource = new[] { _options.ClientId! },
+                Parameters = new Parameters { { OidcConstants.TokenRequest.ClientId, _options.ClientId! } }
             });
 
             return await TryGetAccessToken(refreshTokenResponse);
         }
 
         var passwordTokenResponse = await _httpClient.RequestPasswordTokenAsync(new PasswordTokenRequest {
-            UserName = _options.Username,
+            UserName = _options.Username!,
             Password = _options.Password,
             Scope = Scope,
             Address = AuthUrl,
             GrantType = OidcConstants.GrantTypes.Password,
-            Parameters = new Parameters { { OidcConstants.TokenRequest.ClientId, _options.ClientId } }
+            Parameters = new Parameters { { OidcConstants.TokenRequest.ClientId, _options.ClientId! } }
         });
 
         return await TryGetAccessToken(passwordTokenResponse);
@@ -82,6 +82,6 @@ public class BancappAuthorizationMessageHandler : DelegatingHandler
             AbsoluteExpiration = DateTimeOffset.UtcNow.AddSeconds(response.ExpiresIn - TokenExpirationInSeconds)
         });
 
-        return response.AccessToken;
+        return response.AccessToken!;
     }
 }

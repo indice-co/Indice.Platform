@@ -1,6 +1,7 @@
 ﻿using Indice.Features.Messages.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Indice.Features.Messages.Worker.Azure;
 
@@ -11,9 +12,14 @@ public class MessageOptions : MessageWorkerOptions
     /// Configuration <see cref="Action"/> for internal <see cref="DbContext"/>. 
     /// If not provided the underlying store defaults to SQL Server expecting the setting <i>ConnectionStrings:CampaignsDbConnection</i> to be present.
     /// </summary>
-    public Action<IServiceProvider, DbContextOptionsBuilder> ConfigureDbContext { get; set; }
+    public Action<IServiceProvider, DbContextOptionsBuilder>? ConfigureDbContext { get; set; }
     /// <summary>Schema name used for tables. Defaults to <i>campaign</i>.</summary>
     public string DatabaseSchema { get; set; } = MessagesApi.DatabaseSchema;
     /// <summary>Specifies the contract for a collection of service descriptors.</summary>
-    public IServiceCollection Services { get; internal set; }
+    public IServiceCollection Services { get; internal set; } = null!;
+    /// <summary>Predicate that determines if a function should be enabled or not.</summary>
+    public ExtendedFunctionMetadataProviderDisablePredicate FunctionDisablePredicate { get; set; } = HostBuilderExtensions.ExcludeServiceBusTriggers;
+
+    /// <summary>Configuration for campaign statistics feature.</summary>
+    public CampaignStatisticOptions CampaignStatisticOptions { get; set; } = new CampaignStatisticOptions();
 }

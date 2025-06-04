@@ -23,24 +23,21 @@ public static class IdentityBuilderExtensions
     /// <param name="builder">The type of builder for configuring identity services.</param>
     public static IdentityBuilder AddExtendedSignInManager<TUser>(this IdentityBuilder builder) where TUser : User {
         static Action<CookieAuthenticationOptions> AuthCookie(string cookieName) => options => {
-            options.Cookie.Name = cookieName;
-            options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
             options.LoginPath = new PathString("/login");
             options.LogoutPath = new PathString("/logout");
             options.AccessDeniedPath = new PathString("/403");
+            options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SameSite = SameSiteMode.None;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            options.Cookie.Name = cookieName;
         };
         builder.Services
                .AddAuthentication()
-               .AddCookie(ExtendedIdentityConstants.ExtendedValidationUserIdScheme, AuthCookie(ExtendedIdentityConstants.ExtendedValidationUserIdScheme))
-               .AddCookie(ExtendedIdentityConstants.MfaOnboardingScheme, AuthCookie(ExtendedIdentityConstants.MfaOnboardingScheme));
-        builder.Services.Configure<CookieAuthenticationOptions>(IdentityConstants.TwoFactorUserIdScheme, options => {
-            AuthCookie(IdentityConstants.TwoFactorUserIdScheme)(options);
-            options.LoginPath = new PathString("/login-with-2fa");
-        });
+               .AddCookie(ExtendedIdentityConstants.ExtendedValidationScheme, AuthCookie(ExtendedIdentityConstants.ExtendedValidationCookieName));
         builder.Services.TryAddTransient<IAuthenticationMethodProvider, AuthenticationMethodProviderInMemory>();
         builder.Services.TryAddSingleton<ISignInGuard<TUser>, SignInGuardNoOp<TUser>>();
         builder.AddSignInManager<ExtendedSignInManager<TUser>>();
-        builder.Services.TryAddScoped<IUserStateProvider<TUser>, DefaultUserStateProvider<TUser>>();
         return builder;
     }
 
@@ -173,7 +170,7 @@ public static class IdentityBuilderExtensions
     /// <param name="otherAuthenticationMethods">The authentication methods to apply in the identity system.</param>
     /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
     public static IdentityBuilder AddAuthenticationMethodProvider(this IdentityBuilder builder, AuthenticationMethod authenticationMethod, params AuthenticationMethod[] otherAuthenticationMethods) {
-        var allMethods = (otherAuthenticationMethods ?? Array.Empty<AuthenticationMethod>()).Prepend(authenticationMethod);
+        var allMethods = (otherAuthenticationMethods ?? []).Prepend(authenticationMethod);
         foreach (var method in allMethods) {
             builder.Services.AddSingleton(method);
         }

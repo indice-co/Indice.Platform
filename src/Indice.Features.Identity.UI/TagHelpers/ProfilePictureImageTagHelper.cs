@@ -29,6 +29,7 @@ public class ProfilePictureImageTagHelper : UrlResolutionTagHelper
     private const string ProfilePictureAttributeName = "profile-pic";
     private const string ProfilePictureIdAttributeName = "profile-pic-id";
     private const string ProfilePictureBackgroundColorAttributeName = "profile-pic-background";
+    private const string ProfilePictureForegroundColorAttributeName = "profile-pic-foreground";
     private const string ProfileDisplayNameAttributeName = "profile-display-name";
     private readonly IOptions<IdentityUIOptions> _UiOptions;
 
@@ -77,6 +78,15 @@ public class ProfilePictureImageTagHelper : UrlResolutionTagHelper
     public string? BackgroundColor { get; set; }
 
     /// <summary>
+    /// Foreground color for fallback image. Example CECECE.
+    /// </summary>
+    /// <remarks>
+    /// Optional
+    /// </remarks>
+    [HtmlAttributeName(ProfilePictureForegroundColorAttributeName)]
+    public string? ForegroundColor { get; set; }
+
+    /// <summary>
     /// Users picture requested size.
     /// </summary>
     /// <remarks>
@@ -104,19 +114,20 @@ public class ProfilePictureImageTagHelper : UrlResolutionTagHelper
         var url = new StringBuilder("~/");
         var displayName = DisplayName ?? User.FindDisplayName();
         var backgroundColor = BackgroundColor?.TrimStart('#') ?? _UiOptions.Value.AvatarColorHex;
+        var foregroundColor = ForegroundColor?.TrimStart('#');
         if (User.IsAuthenticated()) {
             url.Append("api/my/account/picture");
             if (Size.HasValue) {
                 url.Append($"/{Size}");
             }
-            var fallBackUrl = new Uri($"/avatar/{displayName}/{Size ?? 128}/{backgroundColor}.webp", UriKind.RelativeOrAbsolute);
+            var fallBackUrl = new Uri($"/avatar/{displayName}/{Size ?? 128}/{backgroundColor}.webp?foreground={foregroundColor}", UriKind.RelativeOrAbsolute);
             url.Append($"?d={UriHelper.Encode(fallBackUrl)}");
         } else {
             url.Append($"pictures/{PictureId}");
             if (Size.HasValue) {
                 url.Append($"/{Size}");
             }
-            var fallBackUrl = new Uri($"/avatar/{displayName}/{Size ?? 128}/{backgroundColor}.webp", UriKind.RelativeOrAbsolute);
+            var fallBackUrl = new Uri($"/avatar/{displayName}/{Size ?? 128}/{backgroundColor}.webp?foreground={foregroundColor}", UriKind.RelativeOrAbsolute);
             url.Append($"?d={UriHelper.Encode(fallBackUrl)}");
         }
         output.Attributes.Add("src", url.ToString());

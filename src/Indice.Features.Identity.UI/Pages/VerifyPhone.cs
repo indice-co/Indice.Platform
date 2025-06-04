@@ -2,6 +2,7 @@ using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.UI.Filters;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,25 +11,21 @@ using Microsoft.Extensions.Localization;
 namespace Indice.Features.Identity.UI.Pages;
 
 /// <summary>Page model for the extended validation add email screen.</summary>
-[Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ExtendedValidationUserIdScheme)]
+[Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ExtendedValidationScheme)]
+[UserActivityRequirementFilter<User>(UserActivityRequirementKind.RequiresPhoneNumberVerification)]
 [IdentityUI(typeof(VerifyPhoneModel))]
 [SecurityHeaders]
 [ValidateAntiForgeryToken]
 public abstract class BaseVerifyPhoneModel : BasePageModel
 {
-    private readonly IStringLocalizer<BaseVerifyPhoneModel> _localizer;
-
     /// <summary>Creates a new instance of <see cref="BaseAddEmailModel"/> class.</summary>
-    /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseVerifyPhoneModel"/>.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="signInManager"></param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseVerifyPhoneModel(
-        IStringLocalizer<BaseVerifyPhoneModel> localizer,
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager
     ) : base() {
-        _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
     }
@@ -50,7 +47,7 @@ public abstract class BaseVerifyPhoneModel : BasePageModel
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
-            Alert = AlertModel.Success(_localizer["Please enter the code that you have received at your mobile phone."]),
+            Alert = AlertModel.Success(UserManager.MessageDescriber.RegisterPhoneConfirmationPrompt),
             NextStepUrl = string.Empty
         });
         Input.PhoneNumber = user.PhoneNumber;
@@ -70,18 +67,10 @@ public abstract class BaseVerifyPhoneModel : BasePageModel
         }
         var result = await UserManager.ChangePhoneNumberAsync(user, Input.PhoneNumber!, Input.Code!);
         if (result.Succeeded) {
-            if (UserManager.StateProvider.CurrentState == UserState.LoggedIn) {
-                await SignInManager.AutoSignIn(user, ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
-            }
-            var redirectUrl = GetRedirectUrl(UserManager.StateProvider.CurrentState, Input.ReturnUrl) ?? "/";
-            return Redirect(redirectUrl);
-            //TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
-            //    Alert = AlertModel.Success(_localizer["Your phone number was successfully validated. Please press the 'Next' button to continue."]),
-            //    NextStepUrl = redirectUrl
-            //});
+            // next step or signin
         } else {
             TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
-                Alert = AlertModel.Error(_localizer["Please enter the code that you have received at your mobile phone."]),
+                Alert = AlertModel.Error(UserManager.MessageDescriber.RegisterPhoneConfirmationPrompt),
                 NextStepUrl = string.Empty
             });
         }
@@ -92,8 +81,7 @@ public abstract class BaseVerifyPhoneModel : BasePageModel
 internal class VerifyPhoneModel : BaseVerifyPhoneModel
 {
     public VerifyPhoneModel(
-        IStringLocalizer<VerifyPhoneModel> localizer,
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager
-    ) : base(localizer, userManager, signInManager) { }
+    ) : base(userManager, signInManager) { }
 }

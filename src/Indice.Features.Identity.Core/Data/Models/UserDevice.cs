@@ -60,6 +60,8 @@ public class UserDevice
     public DeviceClientType? ClientType { get; set; }
     /// <summary>The date until the client is remembered by the system and MFA is not asked.</summary>
     public DateTimeOffset? MfaSessionExpirationDate { get; set; }
+    /// <summary>Determines whether the device has an active MFA session. This is the period of time that the device is remembered by the system and MFA is not asked.</summary>
+    public bool MfaSessionActive() => !MfaSessionExpirationDate.HasValue || MfaSessionExpirationDate >= DateTimeOffset.UtcNow;
     /// <summary>The user associated with this device.</summary>
     public virtual User? User { get; set; }
 }

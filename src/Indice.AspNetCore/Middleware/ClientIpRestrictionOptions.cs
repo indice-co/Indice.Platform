@@ -6,7 +6,6 @@ using Microsoft.Extensions.Configuration;
 
 namespace Indice.AspNetCore.Middleware;
 
-
 /// <summary>Provides programmatic configuration for the <see cref="ClientIpRestrictionMiddleware"/>.</summary>
 public class ClientIpRestrictionOptions
 {
@@ -66,8 +65,9 @@ public class ClientIpRestrictionOptions
     /// <summary>Adds a new map entry to the dictionary of mappings. This will be picked up by the <see cref="ClientIpRestrictionMiddleware"/> in order to determine which ips are exempted from the restrictions.</summary>
     /// <param name="path">The path to map.</param>
     /// <param name="ipAddressesOrListName">An ip list name to use or a semicolon delimited string of ips.</param>
+    /// <exception cref="ArgumentException">Thrown when the path ends with a '/'</exception>
     public ClientIpRestrictionOptions MapPath(PathString path, string ipAddressesOrListName) {
-        if (path.HasValue && path.Value.EndsWith("/", StringComparison.Ordinal)) {
+        if (path.HasValue && path.Value.EndsWith('/')) {
             throw new ArgumentException("The path must not end with a '/'", nameof(path));
         }
         if (path.HasValue) {
@@ -93,7 +93,7 @@ public class ClientIpRestrictionOptions
     /// <param name="pathString">The path to exclude.</param>
     /// <param name="httpMethods">The HTTP methods to exclude for the given path.</param>
     public ClientIpRestrictionOptions IgnorePath(PathString pathString, params string[] httpMethods) {
-        if (pathString == null) {
+        if (pathString.Value == null) {
             throw new ArgumentNullException(nameof(pathString), "Cannot ignore a null path.");
         }
         var path = pathString.Value.EnsureLeadingSlash().ToTemplatedDynamicPath();
@@ -104,7 +104,7 @@ public class ClientIpRestrictionOptions
         }
         // Validate HTTP method.
         // There are more of course, but this seems enough for our needs.
-        foreach (var method in httpMethods) {
+        foreach (var method in httpMethods!) {
             var isValidHttpMethod = HttpMethods.IsGet(method) || HttpMethods.IsPost(method) || HttpMethods.IsPut(method) || HttpMethods.IsDelete(method) || HttpMethods.IsPatch(method);
             if (!isValidHttpMethod) {
                 throw new ArgumentException($"HTTP method {method} is not valid.");
@@ -124,7 +124,7 @@ public class ClientIpRestrictionOptions
     /// <param name="queryString">The request query string added to the specified path</param>
     /// <param name="httpMethod">The HTTP method of the specified path.</param>
     /// <param name="ipSafeList">The ips to be whitelisted.</param>
-    public bool TryMatch(PathString path, string queryString, string httpMethod, out byte[][] ipSafeList) {
+    public bool TryMatch(PathString path, string queryString, string httpMethod, out byte[][]? ipSafeList) {
         ipSafeList = null;
         if (Mappings.ContainsKey(path) && !InternalStringExtensions.IsIgnoredPath(IgnoredPaths, path, queryString, httpMethod)) {
             ipSafeList = IpAddressLists[Mappings[path]];
@@ -142,7 +142,7 @@ public class ClientIpRestrictionOptions
     /// <summary>Tries to find a matching path.</summary>
     /// <param name="httpContext">The path to match.</param>
     /// <param name="ipSafeList">The ips to be whitelisted for the current path.</param>
-    public bool TryMatch(HttpContext httpContext, out byte[][] ipSafeList) {
+    public bool TryMatch(HttpContext httpContext, out byte[][]? ipSafeList) {
         var path = httpContext.Request.Path;
         var queryString =
             httpContext.Request.QueryString.HasValue ?
@@ -157,7 +157,7 @@ public class ClientIpRestrictionOptions
     /// <summary>Marks options to be loaded from from <see cref="IConfiguration"/>.</summary>
     /// <param name="sectionName">If null defaults to <strong>IPRestrictions</strong></param>
     /// <returns>Self</returns>
-    public ClientIpRestrictionOptions LoadFromConfiguration(string sectionName = null) {
+    public ClientIpRestrictionOptions LoadFromConfiguration(string? sectionName = null) {
         ConfigurationSectionName = sectionName ?? DEFAULT_CONFIG_SECTION_KEY;
         return this;
     }
@@ -165,7 +165,7 @@ public class ClientIpRestrictionOptions
     private static bool IsIpList(string ipAddressesOrListName) => ipAddressesOrListName.Contains(';') || IPAddress.TryParse(ipAddressesOrListName, out var _);
     class SequenceEqualityComparer<T> : IEqualityComparer<IEnumerable<T>>
     {
-        public bool Equals(IEnumerable<T> a, IEnumerable<T> b) {
+        public bool Equals(IEnumerable<T>? a, IEnumerable<T>? b) {
             if (a == null) return b == null;
             if (b == null) return false;
             return a.SequenceEqual(b);
@@ -173,7 +173,7 @@ public class ClientIpRestrictionOptions
 
         public int GetHashCode(IEnumerable<T> val) {
             return val.Where(v => v != null)
-                    .Aggregate(0, (h, v) => h ^ v.GetHashCode());
+                    .Aggregate(0, (h, v) => h ^ v!.GetHashCode());
         }
     }
 }
@@ -181,12 +181,12 @@ public class ClientIpRestrictionOptions
 
 internal class ClientIpRestrictionRule
 {
-    public string Name { get; set; }
-    public string Path { get; set; }
+    public string Name { get; set; } = null!;
+    public string Path { get; set; } = null!;
 }
 
 internal class ClientIpRestrictionIgnore
 {
-    public string Path { get; set; }
-    public string HttpMethods { get; set; }
+    public string Path { get; set; } = null!;
+    public string HttpMethods { get; set; } = null!;
 }

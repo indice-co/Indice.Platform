@@ -1,5 +1,6 @@
-﻿#if NET7_0_OR_GREATER
-#nullable enable
+﻿using System.Net.Mime;
+using Indice.Features.Messages.AspNetCore.Csv;
+using Indice.Features.Messages.AspNetCore.Requests;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
@@ -44,7 +45,9 @@ internal static class DistributionListsHandlers
         return TypedResults.Ok(contacts);
     }
 
-    public static async Task<NoContent> AddContactToDistributionList(IContactService contactService, Guid distributionListId, CreateDistributionListContactRequest request) {
+    public static async Task<NoContent> AddContactToDistributionList(IContactService contactService, 
+        Guid distributionListId, 
+        CreateDistributionListContactRequest request) {
         await contactService.AddToDistributionList(distributionListId, request);
         return TypedResults.NoContent();
     }
@@ -52,6 +55,22 @@ internal static class DistributionListsHandlers
     public static async Task<NoContent> RemoveContactFromDistributionList(IContactService contactService, Guid distributionListId, Guid contactId) {
         await contactService.RemoveFromDistributionList(distributionListId, contactId);
         return TypedResults.NoContent();
+    }
+
+    public static async Task<Ok<ContactsImportResult>> BulkImportContactsToDistributionList(IContactService contactService, Guid distributionListId, BulkCreateDistributionListContactsRequest request) {
+        var contactRequests = await ContactsCsvUtility.Import(request.File!.OpenReadStream());
+        var response = await contactService.BulkAddToDistributionList(distributionListId, contactRequests);
+        return TypedResults.Ok(response);
+    }
+
+    public static async Task<Results<FileContentHttpResult, NotFound>> BulkExportContactsFromDistributionList(IContactService contactService, Guid distributionListId) {
+        var contacts = await contactService.GetByDistributionList(distributionListId);
+        var csvBytes =  await ContactsCsvUtility.Export(contacts);
+        return TypedResults.File(
+            fileContents: csvBytes,
+            contentType: MediaTypeNames.Text.Csv,
+            fileDownloadName: $"contacts-{distributionListId}.csv"
+        );
     }
 
     #region Descriptions
@@ -107,7 +126,20 @@ Removes a contact from the specified distribution list.
 Parameters:
 - distributionListId: The unique ID of the distribution list.
 - contactId: The unique ID of the contact to remove.";
+
+    public static readonly string BULK_IMPORT_CONTACTS_TO_DISTRIBUTION_LIST = @"
+Bulk imports contacts to an existing distribution list.
+
+Parameters:
+- distributionListId: The unique ID of the distribution list.
+- file: The file with the desired contacts. It must be a valid text/csv file.
+";
+
+    public static readonly string BULK_EXPORT_CONTACTS_FROM_DISTRIBUTION_LIST = @"
+Exports a list of all contacts of a specified distribution list in CSV file.
+
+Parameters:
+- distributionListId: The unique ID of the distribution list.
+";
     #endregion
 }
-#nullable disable
-#endif

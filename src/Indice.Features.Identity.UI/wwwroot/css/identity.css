@@ -919,7 +919,7 @@ main::after {
     padding-left: 0.5rem;
 }
 
-.footer .links .sonftware-verson {
+.footer .links .software-verson {
     display: none;
 }
 
@@ -1974,10 +1974,10 @@ li.idp a {
 }
 
 .idp-apple a:not(.remove-idp) {
-    background-size: 45px;
+    background-size: 24px;
     background-image: url(../img/idps/Apple.svg);
     background-repeat: no-repeat;
-    background-position: left center;
+    background-position: 10px center;
     padding-left: 36px;
     width: 100%;
     margin-bottom: 5px;
@@ -2017,6 +2017,46 @@ li.idp a {
 
 .idp-apple a:not(.remove-idp).btn-apple:hover {
     background-color: rgba(0, 0, 0, 0.09);
+}
+
+.idp-govgr {
+    background-color: rgb(0, 51, 117);
+}
+
+.idp-govgr a {
+    background-image: url(../img/idps/GovGr.svg);
+    background-repeat: no-repeat;
+    background-position: 12px center;
+    padding-left: 36px;
+    width: 100%;
+}
+
+.idp-govgr a:active {
+    background-image: url(../img/idps/GovGr.svg);
+}
+
+.idp-govgr a:not([disabled]):not(.disabled):active {
+    background-image: url(../img/idps/GovGr.svg);
+}
+
+.idp-govgr a.btn-outline-govgr {
+    color: #2f2f2f;
+    background-color: transparent;
+    border-color: #2f2f2f;
+}
+
+.idp-govgr a.btn-outline-govgr:hover {
+    color: #fff;
+    background-color: #2f2f2f;
+}
+
+.idp-govgr a.btn-govgr {
+    color: #fff;
+    background-color: rgb(0, 51, 117);
+}
+
+.idp-govgr a.btn-govgr:hover {
+    background-color: rgba(0, 51, 117, 0.8);
 }
 
 /*

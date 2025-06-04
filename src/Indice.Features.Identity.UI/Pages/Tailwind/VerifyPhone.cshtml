@@ -7,8 +7,8 @@
 @{
     var title = ViewData["Title"] = Localizer["Verify phone number"].Value;
     var tempData = TempData.Peek<ExtendedValidationTempDataModel>(BaseVerifyPhoneModel.TempDataKey);
-    var alert = tempData.Alert;
-    var displayNext = !string.IsNullOrEmpty(tempData.NextStepUrl) && tempData?.Alert?.AlertType == AlertType.Success;
+    var alert = tempData?.Alert;
+    var displayNext = !string.IsNullOrEmpty(tempData?.NextStepUrl) && tempData?.Alert?.AlertType == AlertType.Success;
 }
 
 <div class="content-wrapper">

@@ -70,6 +70,8 @@ public class ProfileSidebarViewComponent : ViewComponent
             UserName = user.UserName,
             DeveloperTotp = claims.SingleOrDefault(x => x.Type == BasicClaimTypes.DeveloperTotp)?.Value,
             HasDeveloperTotp = configuration.DeveloperTotpEnabled() && roles.Contains(BasicRoleNames.Developer),
+            Locale = claims.SingleOrDefault(x => x.Type == BasicClaimTypes.Locale)?.Value,
+            ZoneInfo = claims.SingleOrDefault(x => x.Type == BasicClaimTypes.ZoneInfo)?.Value,
         });
     }
 }

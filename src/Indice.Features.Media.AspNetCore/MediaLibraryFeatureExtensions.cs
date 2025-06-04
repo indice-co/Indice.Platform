@@ -36,6 +36,7 @@ public static class MediaLibraryFeatureExtensions
         // Register framework services.
         services.AddHttpContextAccessor();
         // Register services.
+        services.TryAddSingleton<MediaBaseHrefResolver>();
         services.TryAddTransient<IMediaFolderStore, MediaFolderStore>();
         services.TryAddTransient<IMediaFileStore, MediaFileStore>();
         services.TryAddTransient<IMediaSettingService, MediaSettingService>();
@@ -45,7 +46,7 @@ public static class MediaLibraryFeatureExtensions
         services.TryAddScoped<IFileServiceFactory, DefaultFileServiceFactory>(); // registers default fileservice factory plus no op fileservice
         // Register validators
         services.AddEndpointParameterFluentValidation(typeof(MediaLibraryApi).Assembly);
-        if (!apiOptions.UseSoftDelete) {
+        if (apiOptions.UseSoftDelete) {
             services.AddHostedService<FoldersCleanUpHostedService>();
             services.AddHostedService<FilesCleanUpHostedService>();
         }
@@ -76,6 +77,11 @@ public static class MediaLibraryFeatureExtensions
     /// <summary>Adds <see cref="IFileService"/> using Azure Blob Storage as the backing store.</summary>
     /// <param name="options">Options used to configure the Media API feature.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
-    public static void UseFilesAzure(this MediaApiOptions options, Action<FileServiceAzureOptions>? configure = null) =>
-        options.Services.AddFiles(options => options.AddAzureStorage(KeyedServiceNames.FileServiceKey, configure));
+    public static void UseFilesAzure(this MediaApiOptions options, Action<FileServiceAzureOptions>? configure = null) {
+        Action<FileServiceAzureOptions> defaultConfigureAction = (options) => {
+            options.ContainerName = string.IsNullOrEmpty(options.ContainerName) ? "messaging-media" : $"{options.ContainerName}-messaging-media";
+            configure?.Invoke(options);
+        };
+        options.Services.AddFiles(options => options.AddAzureStorage(KeyedServiceNames.FileServiceKey, defaultConfigureAction));
+    }
 }

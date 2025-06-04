@@ -1,14 +1,9 @@
-using IdentityServer4.Services;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Localization;
-using static IdentityServer4.Models.IdentityResources;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -18,17 +13,12 @@ namespace Indice.Features.Identity.UI.Pages;
 public abstract class BaseConfirmEmailModel : BasePageModel
 {
     /// <summary>Creates a new instance of <see cref="BaseConfirmEmailModel"/> class.</summary>
-    /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseConfirmEmailModel"/>.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseConfirmEmailModel(
-        IStringLocalizer<BaseConfirmEmailModel> localizer,
         ExtendedUserManager<User> userManager) : base() {
-        Localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
     }
-    /// <summary>Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseConfirmEmailModel"/>.</summary>
-    protected IStringLocalizer<BaseConfirmEmailModel> Localizer { get; }
 
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
     protected ExtendedUserManager<User> UserManager { get; }
@@ -83,7 +73,6 @@ public abstract class BaseConfirmEmailModel : BasePageModel
 internal class ConfirmEmailModel : BaseConfirmEmailModel
 {
     public ConfirmEmailModel(
-        IStringLocalizer<ConfirmEmailModel> localizer,
         ExtendedUserManager<User> userManager
-    ) : base(localizer, userManager) { }
+    ) : base(userManager) { }
 }

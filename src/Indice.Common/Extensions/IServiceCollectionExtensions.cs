@@ -21,7 +21,7 @@ public static class IServiceCollectionExtensions
             return services;
         }
         if (serviceDescriptor.ImplementationType is not null) {
-            services.TryAddTransient(serviceDescriptor.ImplementationType);
+            services.TryAdd(ServiceDescriptor.Describe(serviceDescriptor.ImplementationType, serviceDescriptor.ImplementationType, serviceDescriptor.Lifetime));
         }
         return services.AddTransient<TService, TDecorator>(serviceProvider => {
             var parameters = typeof(TDecorator).GetConstructors(BindingFlags.Public | BindingFlags.Instance).First().GetParameters();
@@ -107,7 +107,6 @@ public static class IServiceCollectionExtensions
         return services;
     }
 
-#if !NETSTANDARD2_1
     /// <summary>Adds the default implementation of <see cref="IPlatformEventService"/> which processes events αsynchronously on the background.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="config">Configuration action.</param>
@@ -118,5 +117,5 @@ public static class IServiceCollectionExtensions
         services.AddHostedService<BackgroundPlatformEventHostedService>();
         return services;
     }
-#endif
+
 }

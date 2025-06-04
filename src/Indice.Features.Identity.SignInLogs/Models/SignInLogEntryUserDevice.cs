@@ -11,11 +11,11 @@ public class SignInLogEntryUserDevice
     /// <summary>Device operating system.</summary>
     public DevicePlatform Platform { get; set; }
     /// <summary>Device name.</summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
     /// <summary>Device model.</summary>
-    public string Model { get; set; }
+    public string? Model { get; set; }
     /// <summary>Device OS version.</summary>
-    public string OsVersion { get; set; }
+    public string? OsVersion { get; set; }
     /// <summary>The date this device was created.</summary>
     public DateTimeOffset DateCreated { get; set; }
     /// <summary>Gets or sets the date and time, in UTC, when the device last signed in.</summary>
@@ -27,9 +27,9 @@ public class SignInLogEntryUserDevice
     /// <summary>Flag for fingerprint support.</summary>
     public bool SupportsFingerprintLogin { get; set; }
     /// <summary>Extra metadata for the device.</summary>
-    public dynamic Data { get; set; }
+    public dynamic? Data { get; set; }
     /// <summary>Device tags</summary>
-    public string[] Tags { get; set; }
+    public string[]? Tags { get; set; }
     /// <summary>Indicates whether the device is blocked.</summary>
     public bool RequiresPassword { get; set; }
     /// <summary>Indicates whether the device is a trusted device (i.e. capable of strong customer authentication scenarios).</summary>

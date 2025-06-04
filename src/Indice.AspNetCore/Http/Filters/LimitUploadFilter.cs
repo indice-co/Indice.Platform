@@ -1,5 +1,4 @@
-﻿#if NET7_0_OR_GREATER
-using Indice.Extensions;
+﻿using Indice.Extensions;
 using Microsoft.AspNetCore.Builder;
 
 namespace Microsoft.AspNetCore.Http;
@@ -19,7 +18,7 @@ public static class LimitUploadFilter
     /// <param name="sizeLimit">The maximum allowed file size in bytes.</param>
     /// <param name="fileExtensions">Allowed file extensions as a comma or space separated string.</param>
     /// <returns>The builder.</returns>
-    public static TBuilder LimitUpload<TBuilder>(this TBuilder builder, long sizeLimit, string fileExtensions = null) where TBuilder : IEndpointConventionBuilder {
+    public static TBuilder LimitUpload<TBuilder>(this TBuilder builder, long sizeLimit, string? fileExtensions = null) where TBuilder : IEndpointConventionBuilder {
         builder.Add(endpointBuilder => {
             var allowedExtensions = fileExtensions?
                 .Split(' ', ',', ';')
@@ -51,4 +50,3 @@ public static class LimitUploadFilter
         return builder;
     }
 }
-#endif

@@ -8,7 +8,7 @@ namespace Indice.Extensions.Configuration.Database;
 internal class EntityConfigurationProvider<TContext> : ConfigurationProvider, IDisposable where TContext : DbContext, IAppSettingsDbContext
 {
     private readonly EntityConfigurationOptions _options;
-    private Task _pollingTask;
+    private Task? _pollingTask;
     private readonly CancellationTokenSource _cancellationToken;
 
     /// <summary>Creates a new instance of <see cref="EntityConfigurationProvider{T}"/>.</summary>
@@ -29,7 +29,7 @@ internal class EntityConfigurationProvider<TContext> : ConfigurationProvider, ID
     private async Task LoadData() {
         var builder = new DbContextOptionsBuilder<TContext>();
         _options.ConfigureDbContext?.Invoke(builder);
-        using (var dbContext = (TContext)Activator.CreateInstance(typeof(TContext), new object[] { builder.Options })) {
+        using (var dbContext = (TContext)Activator.CreateInstance(typeof(TContext), [builder.Options])!) {
             var canConnect = await dbContext.Database.CanConnectAsync();
             if (canConnect) {
                 var data = await dbContext.Set<DbAppSetting>().ToDictionaryAsync(x => x.Key, y => y.Value, StringComparer.OrdinalIgnoreCase);
@@ -45,7 +45,7 @@ internal class EntityConfigurationProvider<TContext> : ConfigurationProvider, ID
         }
     }
 
-    private async Task WaitForReload() => await Task.Delay(_options.ReloadOnInterval.Value, _cancellationToken.Token);
+    private async Task WaitForReload() => await Task.Delay(_options.ReloadOnInterval!.Value, _cancellationToken.Token);
 
     private async Task PollForSettingsChanges() {
         while (!_cancellationToken.IsCancellationRequested) {

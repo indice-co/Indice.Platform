@@ -36,7 +36,7 @@ public static class PictureApi
              .ProducesProblem(StatusCodes.Status401Unauthorized)
              .InvalidateCacheTag(CacheTagPrefix, [], [BasicClaimTypes.Subject])
              .InvalidateCacheTag(CacheTagPrefix, ctx => [new("userId", ctx.User.FindSubjectId())])
-             .InvalidateCacheTag(CacheTagPrefix, ctx => [new("userId", ctx.User.FindSubjectId().ToSha256Hex())]);
+             .InvalidateCacheTag(CacheTagPrefix, ctx => [new("userId", ctx.User.FindSubjectId()!.ToSha256Hex())]);
 
         group.MapPut("my/account/picture", PictureHandlers.SaveMyPicture)
              .WithName(nameof(PictureHandlers.SaveMyPicture))

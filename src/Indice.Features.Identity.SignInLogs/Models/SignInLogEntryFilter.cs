@@ -8,7 +8,7 @@ public class SignInLogEntryFilterBase
     /// <summary>Period to.</summary>
     public DateTimeOffset? To { get; set; }
     /// <summary>The unique identifier of the application.</summary>
-    public string ApplicationId { get; set; }
+    public string? ApplicationId { get; set; }
     /// <summary>Describes the user sign in type in terms of user presence.</summary>
     public SignInType? SignInType { get; set; }
 }
@@ -17,13 +17,13 @@ public class SignInLogEntryFilterBase
 public class SignInLogEntryFilter : SignInLogEntryFilterBase
 {
     /// <summary>The unique identifier of the subject.</summary>
-    public string Subject { get; set; }
+    public string? Subject { get; set; }
     /// <summary>User's session id.</summary>
-    public string SessionId { get; set; }
+    public string? SessionId { get; set; }
     /// <summary>Indicates whether the specified log entry is marked for review.</summary>
     public bool? MarkForReview { get; set; }
     /// <summary>Indicates whether the specified log entry represents a successful attempt or not.</summary>
     public bool? Succeeded { get; set; }
     /// <summary>The name of the action.</summary>
-    public string ActionName { get; set; }
+    public string? ActionName { get; set; }
 }

@@ -35,7 +35,7 @@ public class IdentityValidationActivityTests : IAsyncLifetime
         };
 
         var pipeline = new RequiresMfaOnboardingActivity() {
-            Next = new RequiresMfaActivity() {
+            Next = new RequiresMfaOnboardingActivity() {
                 Next = new RequiresPasswordChangeActivity() {
                     Next = new RequiresEmailVerificationActivity() {
                         Next = new RequiresPhoneNumberVerificationActivity() { 
@@ -57,10 +57,10 @@ public class IdentityValidationActivityTests : IAsyncLifetime
             PasswordExpired = false,
         };
 
-        var request = new IdentityValidationActivityContext(user, httpContext);
+        var request = new UserValidationActivityContext(user, httpContext);
         await pipeline.HandleAsync(request);
 
-        Assert.Equal(UserState.RequiresEmailVerification, request.Result.UserState);
+        Assert.Equal(UserActivityRequirementKind.RequiresEmailVerification, request.Result.Kind);
     }
 
     public Task InitializeAsync() {

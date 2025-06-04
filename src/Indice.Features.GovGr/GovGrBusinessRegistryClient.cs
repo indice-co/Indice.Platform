@@ -30,7 +30,7 @@ internal class GovGrBusinessRegistryClient : IBusinessRegistryService
     }
 
     private static BusinessRegistryRecord ToModel(RgWsPublicBasicRtUser user, RgWsPublicFirmActRtUserArray firms) {
-        var mainFirmActivity = firms?.Where(x => x.firmActKind == "1").FirstOrDefault();
+        var mainFirmActivity = firms?.FirstOrDefault(x => x.firmActKind == "1");
         return new BusinessRegistryRecord {
             TaxOfficeCode = user.doy,
             TaxOfficeDescription = user.doyDescr,
@@ -46,8 +46,7 @@ internal class GovGrBusinessRegistryClient : IBusinessRegistryService
                 City = user.postalAreaDescription
             },
             MainActivityCode = mainFirmActivity?.firmActCode,
-            MainActivityDescription = mainFirmActivity?.firmActKindDescr,
-            MainActivityKind = mainFirmActivity?.firmActKind,
+            MainActivityDescription = mainFirmActivity?.firmActDescr,
             RegisterDate = user.registDate,
             StopDate = user.stopDate,
             FirmFlagDescription = user.firmFlagDescr,

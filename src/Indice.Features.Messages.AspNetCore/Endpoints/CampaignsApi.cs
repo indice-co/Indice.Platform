@@ -1,9 +1,5 @@
-﻿#if NET7_0_OR_GREATER
-#nullable enable
-
-using Indice.Features.Messages.AspNetCore.Endpoints;
+﻿using Indice.Features.Messages.AspNetCore.Endpoints;
 using Indice.Features.Messages.Core;
-using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Security;
 using Indice.Services;
@@ -115,6 +111,3 @@ internal static class CampaignsApi
         return group;
     }
 }
-
-#nullable disable
-#endif

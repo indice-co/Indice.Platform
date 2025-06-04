@@ -16,7 +16,7 @@ public class EventDispatcherHosting : IEventDispatcher
     }
 
     /// <inheritdoc />
-    public async Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal actingPrincipal = null, TimeSpan? visibilityTimeout = null, bool wrap = true, string queueName = null, bool prependEnvironmentInQueueName = true) where TEvent : class {
+    public async Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal? actingPrincipal = null, TimeSpan? visibilityTimeout = null, bool wrap = true, string? queueName = null, bool prependEnvironmentInQueueName = true) where TEvent : class {
         var messageQueue = _messageQueueFactory.Create<TEvent>();
         await messageQueue.Enqueue(payload, visibilityTimeout ?? TimeSpan.Zero);
     }

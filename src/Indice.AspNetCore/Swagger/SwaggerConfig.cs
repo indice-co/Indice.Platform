@@ -14,7 +14,8 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>Swagger configuration extensions the Indice way. Exposes useful defaults for hosting an API. Also leverages appsettings.json configuration through <see cref="GeneralSettings"/> for API setup.</summary>
-public static class SwaggerConfig {
+public static class SwaggerConfig
+{
     /// <summary>
     /// Since Swashbuckle 4.0 release the support for parameters of type IFormFile is out-of-the-box. 
     /// That is, the generator will automatically detect these and generate the correct Swagger to describe parameters that are passed in formData.
@@ -28,7 +29,7 @@ public static class SwaggerConfig {
 
     /// <summary>Adds support for Fluent validation.</summary>
     /// <param name="options">The options used to generate the swagger.json file.</param>
-    public static void AddFluentValidationSupport(this SwaggerGenOptions options) { 
+    public static void AddFluentValidationSupport(this SwaggerGenOptions options) {
         options.RequestBodyFilter<RequestBodyFluentValidationSwaggerFilter>();
         options.SchemaFilter<SchemaFluentValidationFilter>();
     }
@@ -70,7 +71,7 @@ public static class SwaggerConfig {
                     return $"{prefix}{name}Of{paramName}";
                 }
             } else if (typeof(ProblemDetails).IsAssignableFrom(typeInfo) ||
-                       type.Namespace.StartsWith("Indice.Types") ||
+                       type.Namespace!.StartsWith("Indice.Types") ||
                        type.Namespace.StartsWith("Indice.Globalization")) {
                 return typeInfo.Name;
             } else if (type.Namespace.Contains("Models")) {
@@ -98,13 +99,13 @@ public static class SwaggerConfig {
             }
             return true;
         })
-        .Cast<IJsonPolymorphicConverterFactory>();
+        .Cast<IJsonPolymorphicConverterFactory>() ?? [];
         if (!polymorphicConverters.Any()) {
             return;
         }
         foreach (var converter in polymorphicConverters) {
             var baseType = converter.BaseType;
-            var discriminator = jsonSerializerOptions.PropertyNamingPolicy.ConvertName(converter.TypePropertyName);
+            var discriminator = jsonSerializerOptions!.PropertyNamingPolicy!.ConvertName(converter.TypePropertyName);
             var mapping = JsonPolymorphicUtils.GetTypeMapping(baseType, discriminator);
             options.SchemaFilter<PolymorphicSchemaFilter>(baseType, discriminator, mapping);
             options.OperationFilter<PolymorphicOperationFilter>(new PolymorphicSchemaFilter(baseType, discriminator, mapping));
@@ -119,8 +120,8 @@ public static class SwaggerConfig {
     public static OpenApiInfo AddDoc(this SwaggerGenOptions options, GeneralSettings settings, string scopeOrGroup, string description) {
         var apiSettings = settings?.Api ?? new ApiSettings();
         var version = $"v{apiSettings.DefaultVersion}";
-        var license = apiSettings.License == null ? null : new OpenApiLicense { Name = apiSettings.License.Name, Url = new Uri(apiSettings.License.Url) };
-        var contact = apiSettings.Contact == null ? null : new OpenApiContact { Name = apiSettings.Contact.Name, Url = new Uri(apiSettings.Contact.Url), Email = apiSettings.Contact.Email };
+        var license = apiSettings.License == null ? null : new OpenApiLicense { Name = apiSettings.License.Name, Url = new Uri(apiSettings.License.Url!) };
+        var contact = apiSettings.Contact == null ? null : new OpenApiContact { Name = apiSettings.Contact.Name, Url = new Uri(apiSettings.Contact.Url!), Email = apiSettings.Contact.Email };
         var scope = apiSettings.GetScope(scopeOrGroup)
             ?? apiSettings.GetScope($"{apiSettings.ResourceName}.{scopeOrGroup}")
             ?? apiSettings.GetScope($"{apiSettings.ResourceName}:{scopeOrGroup}");
@@ -128,7 +129,10 @@ public static class SwaggerConfig {
         if (scope is null) {
             title = $"{apiSettings.FriendlyName}. {scopeOrGroup}";
         }
-        return options.AddDoc(scopeOrGroup, title, description, version, apiSettings.TermsOfServiceUrl, license, contact);
+        if (!options.SwaggerGeneratorOptions.SwaggerDocs.ContainsKey(scopeOrGroup)) {
+            return options.AddDoc(scopeOrGroup, title!, description, version, apiSettings.TermsOfServiceUrl, license, contact);
+        }
+        return options.SwaggerGeneratorOptions.SwaggerDocs[scopeOrGroup];
     }
 
     /// <summary>Add a new Swagger document based on a sub-scope of the existing API.</summary>
@@ -140,7 +144,7 @@ public static class SwaggerConfig {
     /// <param name="termsOfService"></param>
     /// <param name="license">An API license URL.</param>
     /// <param name="contact">A contact to communicate for the API.</param>
-    public static OpenApiInfo AddDoc(this SwaggerGenOptions options, string scopeOrGroup, string title, string description, string version = "v1", string termsOfService = null, OpenApiLicense license = null, OpenApiContact contact = null) {
+    public static OpenApiInfo AddDoc(this SwaggerGenOptions options, string scopeOrGroup, string title, string description, string version = "v1", string? termsOfService = null, OpenApiLicense? license = null, OpenApiContact? contact = null) {
         var info = new OpenApiInfo {
             Version = version,
             Title = title,
@@ -158,7 +162,7 @@ public static class SwaggerConfig {
     /// <param name="name">The security scheme name to protect.</param>
     /// <param name="settings">General settings for an ASP.NET Core application.</param>
     /// <param name="clearOther">Decides whether to clear existing security requirements.</param>
-    public static SwaggerGenOptions AddSecurityRequirements(this SwaggerGenOptions options, string name, GeneralSettings settings, bool clearOther = false) {
+    public static SwaggerGenOptions AddSecurityRequirements(this SwaggerGenOptions options, string name, GeneralSettings? settings, bool clearOther = false) {
         if (clearOther) {
             var filters = options.OperationFilterDescriptors.Where(x => x.Type == typeof(SecurityRequirementsOperationFilter));
             foreach (var filter in filters) {
@@ -210,7 +214,7 @@ public static class SwaggerConfig {
         options.AddSecurityDefinition(name, new OpenApiSecurityScheme {
             Type = SecuritySchemeType.OpenIdConnect,
             Description = "Identity Server Openid connect",
-            OpenIdConnectUrl = new Uri(settings?.Authority + "/.well-known/openid-configuration")
+            OpenIdConnectUrl = new Uri(settings.Authority + "/.well-known/openid-configuration")
         });
         options.AddSecurityRequirements(name, settings);
         return options;
@@ -300,6 +304,23 @@ public static class SwaggerConfig {
         return options;
     }
 
+    /// <summary>Adds api key header security scheme.</summary>
+    /// <param name="options">The options used to generate the swagger.json file.</param>
+    /// <param name="settings">General settings for an ASP.NET Core application.</param>
+    /// <param name="name">A unique name for the scheme.</param>
+    public static SwaggerGenOptions AddApiKeyAuthentication(this SwaggerGenOptions options, GeneralSettings settings, string name = "ApiKey") {
+        options.AddSecurityDefinition(name, new OpenApiSecurityScheme {
+            Type = SecuritySchemeType.ApiKey,
+            Scheme = "ApiKeyScheme",
+            Description = "Enter the api key to get access",
+            Name = "X-Api-Key",
+            In = ParameterLocation.Header,
+        });
+
+        options.AddSecurityRequirements(name, settings);
+        return options;
+    }
+
     /// <summary>A set of default settings for exposing an API.</summary>
     /// <param name="options">The options used to generate the swagger.json file.</param>
     /// <param name="settings">General settings for an ASP.NET Core application.</param>
@@ -312,10 +333,10 @@ public static class SwaggerConfig {
             TermsOfService = apiSettings.TermsOfServiceUrl == null ? null : new Uri(apiSettings.TermsOfServiceUrl),
             License = apiSettings.License == null ? null : new OpenApiLicense {
                 Name = apiSettings.License.Name,
-                Url = new Uri(apiSettings.License.Url)
+                Url = new Uri(apiSettings.License.Url!)
             }
         });
-        var xmlFile = $"{Assembly.GetEntryAssembly().GetName().Name}.xml";
+        var xmlFile = $"{Assembly.GetEntryAssembly()!.GetName().Name}.xml";
         var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
         if (File.Exists(xmlPath)) {
             options.IncludeXmlComments(xmlPath);
@@ -331,6 +352,7 @@ public static class SwaggerConfig {
         options.MapType<FilterClause>(() => new OpenApiSchema { Type = "string" });
         options.MapType<GeoPoint>(() => new OpenApiSchema { Type = "string" });
         options.MapType<Base64Id>(() => new OpenApiSchema { Type = "string" });
+        options.MapType<GuidOrAlias>(() => new OpenApiSchema { Type = "string" });
         options.MapType<Base64Host>(() => new OpenApiSchema { Type = "string" });
         options.CustomOperationIds(x => (x.ActionDescriptor as ControllerActionDescriptor)?.ActionName);
     }
@@ -345,11 +367,11 @@ public static class SwaggerConfig {
         }
     }
 
-    private static Dictionary<string, string> GetScopes(GeneralSettings settings) {
+    private static Dictionary<string, string?> GetScopes(GeneralSettings? settings) {
         var apiSettings = settings?.Api ?? new ApiSettings();
         // Define the OAuth2.0 scheme that's in use (i.e. Implicit Flow).
-        var scopes = new Dictionary<string, string> {
-            { apiSettings.ResourceName, $"Access to {apiSettings.FriendlyName}"},
+        var scopes = new Dictionary<string, string?> {
+            [apiSettings.ResourceName] = $"Access to {apiSettings.FriendlyName}",
         };
         foreach (var scope in apiSettings.Scopes) {
             scopes.Add(scope.Name, scope.Description);

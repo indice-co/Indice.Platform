@@ -1,4 +1,3 @@
-#nullable enable
 using IdentityModel.Client;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Reflection;
@@ -210,13 +209,12 @@ public static class OnBehalfOfHttpHandlerExtensions
     /// This uses <strong>General:Authority</strong>, <strong>General:Api:Secrets:ClientId</strong>, <strong>General:Api:Secrets:ClientSecret</strong>, <strong>General:Api:Secrets:ClientScope</strong>
     /// </param>
     /// <returns>The builder for further configuration.</returns>
-    public static IHttpClientBuilder AddOnBehlafOfTokenHandler(this IHttpClientBuilder httpClientBuilder, string tokenClientName, IConfiguration configuration) =>
+    public static IHttpClientBuilder AddOnBehalfOfTokenHandler(this IHttpClientBuilder httpClientBuilder, string tokenClientName, IConfiguration configuration) =>
         httpClientBuilder.AddOnBehalfOfTokenHandler(tokenClientName, (options) => {
-            var apiSecrets = configuration.GetApiSecrets();
+            var apiSecrets = configuration.GetApiSecrets()!;
             options.ClientId = apiSecrets["ClientId"];
             options.ClientSecret = apiSecrets["ClientSecret"];
             options.Scope = apiSecrets.ContainsKey("DelegationScope") ? apiSecrets["DelegationScope"] : apiSecrets["ClientScope"];
-            options.TokenEndpoint = $"{configuration.GetAuthority(tryInternal: true).TrimEnd('/')}/connect/token";
+            options.TokenEndpoint = $"{configuration.GetAuthority(tryInternal: true)!.TrimEnd('/')}/connect/token";
         });
 }
-#nullable disable

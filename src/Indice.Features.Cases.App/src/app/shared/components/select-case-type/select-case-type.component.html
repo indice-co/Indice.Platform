@@ -1,5 +1,5 @@
 <div class="flex gap-6 mb-6 max-h-96 "
-    [ngClass]="!selectedCaseTypeCode? 'scrollbar-hide' : ''"
+     [ngClass]="!selectedCaseTypeCode? 'scrollbar-hide' : ''"
      *ngIf="(caseTypes$ | async) as model">
     <div>
         <div class="mt-2 flow-root">
@@ -24,8 +24,7 @@
                                       clip-rule="evenodd" />
                             </svg>
                         </div>
-                        <div
-                             class="flex text-sm min-w-0 flex-1 sm:flex sm:items-center justify-between break-all">
+                        <div class="flex text-sm min-w-0 flex-1 sm:flex sm:items-center justify-between break-all">
                             <p class="truncate font-medium text-gray-600">{{ selectedCaseType.title }}</p>
                         </div>
                     </div>

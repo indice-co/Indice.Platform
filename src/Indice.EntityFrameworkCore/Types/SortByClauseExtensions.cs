@@ -25,14 +25,14 @@ public static class SortByClauseExtensions
     /// <returns></returns>
     public static IOrderedQueryable<TSource> ApplyJsonOrder<TSource>(this IQueryable<TSource> source, SortByClause sorting, bool append) {
         var expression = DynamicExtensions.GetFullMemberExpressionTree<TSource>(sorting.Path, sorting.DataType);
-        var returnType = expression.Body.Type;
+        var returnType = expression!.Body.Type;
         var methodPrefix = append && OrderByExtensions.IsOrdered(source) ? nameof(Queryable.ThenBy) : nameof(Queryable.OrderBy);
         var methodSuffix = sorting.Direction == SortByClause.DESC ? "Descending" : string.Empty;
         var methodName = methodPrefix + methodSuffix;
         var result = typeof(Queryable).GetMethods()
                                       .Single(method => method.Name == methodName && method.IsGenericMethodDefinition && method.GetGenericArguments().Length == 2 && method.GetParameters().Length == 2)
                                       .MakeGenericMethod(typeof(TSource), returnType)
-                                      .Invoke(null, new object[] { source, expression });
-        return (IOrderedQueryable<TSource>)result;
+                                      .Invoke(null, [ source, expression ]);
+        return (IOrderedQueryable<TSource>)result!;
     }
 }

@@ -1,10 +1,13 @@
 using System.Reflection;
+using System.Text.Encodings.Web;
 using System.Text.Json;
-using System.Text;
+using System.Text.Json.Serialization;
+using System.Text.Unicode;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
@@ -13,7 +16,6 @@ using OpenTelemetry.Exporter;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Extensions.Hosting;
 
@@ -117,8 +119,8 @@ public static class ServiceDefaultsExtensions
     private static string GetServiceNamespace() {
         var namespaceArray = Assembly.GetEntryAssembly()?.GetName()?.Name?.Split(['.'], StringSplitOptions.RemoveEmptyEntries);
         if (namespaceArray == null || namespaceArray.Length == 0)
-            return "Indice";
-        return namespaceArray[0];
+            return "indice";
+        return namespaceArray[0].ToLower();
     }
 
     private static IHostApplicationBuilder AddOpenTelemetryExporters(this IHostApplicationBuilder builder) {
@@ -133,9 +135,9 @@ public static class ServiceDefaultsExtensions
         //    .WithMetrics(metrics => metrics.AddPrometheusExporter());
 
         // enables the Azure Monitor exporter (requires the Azure.Monitor.OpenTelemetry.AspNetCore package)
-        else if (builder.Configuration.GetApplicationInsightsConnectionString() is { Length: > 0 } azureMonitorConnectionString) {
+        if (builder.Configuration.GetApplicationInsightsConnectionString() is { Length: > 0 } azureMonitorConnectionString) {
             builder.Services.AddOpenTelemetry()
-                    .UseAzureMonitor(options => options.ConnectionString = azureMonitorConnectionString);
+                            .UseAzureMonitor(options => options.ConnectionString = azureMonitorConnectionString);
         }
 
         return builder;
@@ -205,41 +207,23 @@ public static class ServiceDefaultsExtensions
 
         return app;
     }
+
     private static Task WriteResponse(HttpContext context, HealthReport healthReport) {
+        var responseJson = JsonSerializer.Serialize(healthReport, _jsonSerializerOptions.Value);
         context.Response.ContentType = "application/json; charset=utf-8";
+        return context.Response.WriteAsync(responseJson);
+    }
 
-        var options = new JsonWriterOptions { Indented = true };
+    private static readonly Lazy<JsonSerializerOptions> _jsonSerializerOptions = new(CreateJsonOptions);
 
-        using var memoryStream = new MemoryStream();
-        using (var jsonWriter = new Utf8JsonWriter(memoryStream, options)) {
-            jsonWriter.WriteStartObject();
-            jsonWriter.WriteString("status", healthReport.Status.ToString());
-            jsonWriter.WriteStartObject("results");
-
-            foreach (var healthReportEntry in healthReport.Entries) {
-                jsonWriter.WriteStartObject(healthReportEntry.Key);
-                jsonWriter.WriteString("status",
-                    healthReportEntry.Value.Status.ToString());
-                jsonWriter.WriteString("description",
-                    healthReportEntry.Value.Description);
-                jsonWriter.WriteStartObject("data");
-
-                foreach (var item in healthReportEntry.Value.Data) {
-                    jsonWriter.WritePropertyName(item.Key);
-
-                    JsonSerializer.Serialize(jsonWriter, item.Value,
-                        item.Value?.GetType() ?? typeof(object));
-                }
-
-                jsonWriter.WriteEndObject();
-                jsonWriter.WriteEndObject();
-            }
-
-            jsonWriter.WriteEndObject();
-            jsonWriter.WriteEndObject();
-        }
-
-        return context.Response.WriteAsync(
-            Encoding.UTF8.GetString(memoryStream.ToArray()));
+    private static JsonSerializerOptions CreateJsonOptions() {
+        var options = new JsonSerializerOptions {
+            WriteIndented = true,
+            AllowTrailingCommas = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        };
+        options.Converters.Add(new JsonStringEnumConverter());
+        return options;
     }
 }

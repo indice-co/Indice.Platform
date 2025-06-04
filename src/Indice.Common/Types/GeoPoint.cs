@@ -26,17 +26,15 @@ public class GeoPoint
 
     /// <summary>Default string representation. <strong>37.9908697,23.7208298</strong>.</summary>
     /// <remarks>Web standard latitude followed by longitude invariant separated by comma.</remarks>
-    public override string ToString() {
-        var mask = Elevation.HasValue ? "{0:G},{1:G},{2:G}" : "{0:G},{1:G}";
-        return string.Format(CultureInfo.InvariantCulture, mask, Latitude, Longitude, Elevation);
-    }
+    public override string ToString() => Elevation.HasValue
+            ? string.Format(CultureInfo.InvariantCulture, "{0:G},{1:G},{2:G}", Latitude, Longitude, Elevation)
+            : string.Format(CultureInfo.InvariantCulture, "{0:G},{1:G}", Latitude, Longitude);
 
     /// <summary>Generates a SQL Server compatible string representation of the coordinates. <strong>POINT(23.7208298,37.9908697)</strong></summary>
     /// <remarks>SQL geopoint ToString() representation. This is reversed <strong>longitude</strong> first then <strong>latitude</strong> then optionaly elevation.</remarks>
-    public string ToDbGeographyString() {
-        var mask = Elevation.HasValue ? "POINT ({1:G} {0:G} {2:G})" : "POINT ({1:G} {0:G})";
-        return string.Format(CultureInfo.InvariantCulture, mask, Latitude, Longitude, Elevation);
-    }
+    public string ToDbGeographyString() => Elevation.HasValue
+            ? string.Format(CultureInfo.InvariantCulture, "POINT ({1:G} {0:G} {2:G})", Latitude, Longitude, Elevation)
+            : string.Format(CultureInfo.InvariantCulture, "POINT ({1:G} {0:G})", Latitude, Longitude);
 
     // https://developer.here.com/documentation/places/topics/location-contexts.html#location-contexts__position-format
     // https://tools.ietf.org/rfc/rfc5870
@@ -46,10 +44,9 @@ public class GeoPoint
     /// and optionally altitude (in meters above sea level), and a semicolon-separated list of position parameters. [RFC5870]
     /// </summary>
     /// <remarks>i.e. <strong>geo:37.9908697,23.7208298;cgen=map</strong></remarks>
-    public string ToHeaderGeographyString() {
-        var mask = Elevation.HasValue ? "geo:{0:G},{1:G},{2:G};cgen=map" : "geo:{0:G},{1:G};cgen=map";
-        return string.Format(CultureInfo.InvariantCulture, mask, Latitude, Longitude, Elevation);
-    }
+    public string ToHeaderGeographyString() => Elevation.HasValue ?
+            string.Format(CultureInfo.InvariantCulture, "geo:{0:G},{1:G},{2:G};cgen=map", Latitude, Longitude, Elevation) :
+            string.Format(CultureInfo.InvariantCulture, "geo:{0:G},{1:G};cgen=map", Latitude, Longitude);
 
     /// <summary>Calculates the distance in kilometers between two <see cref="GeoPoint"/> instances using the <b>Haversine formula.</b>.</summary>
     /// <param name="geoPoint">The geographical point to calculate the distance to.</param>

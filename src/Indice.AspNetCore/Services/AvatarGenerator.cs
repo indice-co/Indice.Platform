@@ -1,5 +1,4 @@
 ﻿using Indice.Extensions;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing;
@@ -71,7 +70,7 @@ public class AvatarGenerator
     /// <param name="background">The background color to use.</param>
     /// <param name="foreground">The foreground color to use.</param>
     /// <param name="circular">Determines whether the tile will be circular or sqare. Defaults to false (sqare)</param>
-    public void Generate(Stream output, string firstName, string lastName, int size = 192, string contentType = "image/webp", string background = null, string foreground = null, bool circular = false) {
+    public void Generate(Stream output, string firstName, string? lastName, int size = 192, string contentType = "image/webp", string? background = null, string? foreground = null, bool circular = false) {
         var avatarText = string.Format("{0}{1}", firstName?.Length > 0 ? firstName[0] : ' ', lastName?.Length > 0 ? lastName[0] : ' ').ToUpper().RemoveDiacritics().Trim();
         if (int.TryParse(firstName, out var number) && string.IsNullOrWhiteSpace(lastName)) {
             avatarText = firstName;
@@ -83,10 +82,10 @@ public class AvatarGenerator
         }
         using (var image = new Image<Rgba32>(size, size)) {
             // image center.
-            var center = new PointF(image.Width / 2, image.Height / 2);
+            var center = new PointF((float)image.Width / 2, (float)image.Height / 2);
             if (circular) {
                 image.Mutate(x => x.Fill(Color.Transparent)
-                                   .Fill(accentColor.Background, new EllipsePolygon(center, image.Width / 2)));
+                                   .Fill(accentColor.Background, new EllipsePolygon(center, (float)image.Width / 2)));
             } else {
                 image.Mutate(x => x.Fill(accentColor.Background));
             }
@@ -114,7 +113,7 @@ public class AvatarGenerator
     }
 
     private static Stream GetFontResourceStream(string familyName, string fileName) => 
-        typeof(AvatarGenerator).Assembly.GetManifestResourceStream($"Indice.AspNetCore.Fonts.{familyName.Replace('-', '_')}.{fileName}");
+        typeof(AvatarGenerator).Assembly.GetManifestResourceStream($"Indice.AspNetCore.Fonts.{familyName.Replace('-', '_')}.{fileName}")!;
 }
 
 /// <summary>Internal class that represents a background, foreground pair of colors.</summary>
@@ -123,7 +122,7 @@ public class AvatarColor
     /// <summary>Creates an <see cref="AvatarColor"/> based on hex color strings for background and foreground.</summary>
     /// <param name="background">The background color.</param>
     /// <param name="color">The foreground color.</param>
-    public AvatarColor(string background, string color = null) {
+    public AvatarColor(string background, string? color = null) {
         Background = Rgba32.ParseHex(background);
         if (!string.IsNullOrWhiteSpace(color)) {
             Color = Rgba32.ParseHex(color);
@@ -137,7 +136,7 @@ public class AvatarColor
     /// <summary>The foreground color.</summary>
     public Rgba32 Color { get; }
 
-    private int PerceivedBrightness(Rgba32 color) => (int)Math.Sqrt((color.R * color.R * .299) + (color.G * color.G * .587) + (color.B * color.B * .114));
+    private int PerceivedBrightness(Rgba32 color) => (int)Math.Sqrt(((double)color.R * color.R * .299) + ((double)color.G * color.G * .587) + ((double)color.B *color.B * .114));
 }
 
 

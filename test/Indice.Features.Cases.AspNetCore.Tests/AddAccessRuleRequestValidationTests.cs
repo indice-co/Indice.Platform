@@ -1,4 +1,5 @@
-﻿using Indice.Features.Cases.Models.Requests;
+﻿using Indice.Features.Cases.Core.Models.Requests;
+using Indice.Features.Cases.Server.Endpoints.Validators;
 
 namespace Indice.Features.Messages.Tests;
 
@@ -11,7 +12,8 @@ public class AddAccessRuleRequestValidationTests
             RuleCaseId = Guid.NewGuid(),
             MemberUserId = "MockUser",
         };
-        Assert.True(request.IsValid());
+        AddAccessRuleRequestValidator validator = new AddAccessRuleRequestValidator();
+        Assert.True(validator.Validate(request).IsValid);
     }
     [Fact]
     public void Valid_AddAccessRuleRequest_Case_Role() {
@@ -19,7 +21,8 @@ public class AddAccessRuleRequestValidationTests
             RuleCaseId = Guid.NewGuid(),
             MemberRole = "Admin",
         };
-        Assert.True(request.IsValid());
+        AddAccessRuleRequestValidator validator = new AddAccessRuleRequestValidator();
+        Assert.True(validator.Validate(request).IsValid);
     }
     [Fact]
     public void Valid_AddAccessRuleRequest_Case_Group() {
@@ -27,7 +30,8 @@ public class AddAccessRuleRequestValidationTests
             RuleCaseId = Guid.NewGuid(),
             MemberGroupId = "Group"
         };
-        Assert.True(request.IsValid());
+        AddAccessRuleRequestValidator validator = new AddAccessRuleRequestValidator();
+        Assert.True(validator.Validate(request).IsValid);
     }
 
     [Fact]
@@ -36,7 +40,8 @@ public class AddAccessRuleRequestValidationTests
             RuleCheckpointTypeId = Guid.NewGuid(),
             MemberUserId = "MockUser"
         };
-        Assert.True(request.IsValid());
+        AddAccessRuleRequestValidator validator = new AddAccessRuleRequestValidator();
+        Assert.True(validator.Validate(request).IsValid);
     }
     [Fact]
     public void Valid_AddAccessRuleRequest_CheckPoint_Role() {
@@ -44,7 +49,8 @@ public class AddAccessRuleRequestValidationTests
             RuleCheckpointTypeId = Guid.NewGuid(),
             MemberRole = "Admin"
         };
-        Assert.True(request.IsValid());
+        AddAccessRuleRequestValidator validator = new AddAccessRuleRequestValidator();
+        Assert.True(validator.Validate(request).IsValid);
     }
     [Fact]
     public void Valid_AddAccessRuleRequest_CheckPoint_Group() {
@@ -52,7 +58,8 @@ public class AddAccessRuleRequestValidationTests
             RuleCheckpointTypeId = Guid.NewGuid(),
             MemberGroupId = "Group"
         };
-        Assert.True(request.IsValid());
+        AddAccessRuleRequestValidator validator = new AddAccessRuleRequestValidator();
+        Assert.True(validator.Validate(request).IsValid);
     }
 
     [Fact]
@@ -61,7 +68,8 @@ public class AddAccessRuleRequestValidationTests
             RuleCaseTypeId = Guid.NewGuid(),
             MemberUserId = "MockUser"
         };
-        Assert.True(request.IsValid());
+        AddAccessRuleRequestValidator validator = new AddAccessRuleRequestValidator();
+        Assert.True(validator.Validate(request).IsValid);
     }
     [Fact]
     public void Valid_AddAccessRuleRequest_CaseType_Role() {
@@ -69,7 +77,8 @@ public class AddAccessRuleRequestValidationTests
             RuleCaseTypeId = Guid.NewGuid(),
             MemberRole = "Admin"
         };
-        Assert.True(request.IsValid());
+        AddAccessRuleRequestValidator validator = new AddAccessRuleRequestValidator();
+        Assert.True(validator.Validate(request).IsValid);
     }
     [Fact]
     public void Valid_AddAccessRuleRequest_CaseType_Group() {
@@ -77,7 +86,8 @@ public class AddAccessRuleRequestValidationTests
             RuleCaseTypeId = Guid.NewGuid(),
             MemberGroupId = "Group"
         };
-        Assert.True(request.IsValid());
+        AddAccessRuleRequestValidator validator = new AddAccessRuleRequestValidator();
+        Assert.True(validator.Validate(request).IsValid);
     }
 
     [Fact]
@@ -87,7 +97,9 @@ public class AddAccessRuleRequestValidationTests
             RuleCheckpointTypeId = Guid.NewGuid(),
             MemberUserId = "MockUser"
         };
-        Assert.True(request.IsValid());
+
+        AddAccessRuleRequestValidator validator = new AddAccessRuleRequestValidator();
+        Assert.True(validator.Validate(request).IsValid);
     }
     [Fact]
     public void Valid_AddAccessRuleRequest_Case_CheckPoint_Role() {
@@ -97,7 +109,9 @@ public class AddAccessRuleRequestValidationTests
             MemberRole = "Admin",
 
         };
-        Assert.True(request.IsValid());
+
+        AddAccessRuleRequestValidator validator = new AddAccessRuleRequestValidator();
+        Assert.True(validator.Validate(request).IsValid);
     }
     [Fact]
     public void Valid_AddAccessRuleRequest_Case_CheckPoint_Group() {
@@ -107,7 +121,8 @@ public class AddAccessRuleRequestValidationTests
             MemberGroupId = "Group"
 
         };
-        Assert.True(request.IsValid());
+        AddAccessRuleRequestValidator validator = new AddAccessRuleRequestValidator();
+        Assert.True(validator.Validate(request).IsValid);
     }
 
 
@@ -121,7 +136,8 @@ public class AddAccessRuleRequestValidationTests
             MemberRole = "member",
             MemberGroupId = "group"
         };
-        Assert.False(request.IsValid());
+        AddAccessRuleRequestValidator validator = new AddAccessRuleRequestValidator();
+        Assert.False(validator.Validate(request).IsValid);
     }
     [Fact]
     public void Invalid_AddAccessRuleRequest_Rules_Case_CaseType() {
@@ -130,7 +146,8 @@ public class AddAccessRuleRequestValidationTests
             RuleCaseTypeId = Guid.NewGuid(),
             MemberUserId = "MockUser",
         };
-        Assert.False(request.IsValid());
+        AddAccessRuleRequestValidator validator = new AddAccessRuleRequestValidator();
+        Assert.False(validator.Validate(request).IsValid);
     }
 
     [Fact]
@@ -140,7 +157,8 @@ public class AddAccessRuleRequestValidationTests
             RuleCaseTypeId = Guid.NewGuid(),
             MemberUserId = "MockUser",
         };
-        Assert.False(request.IsValid());
+        AddAccessRuleRequestValidator validator = new AddAccessRuleRequestValidator();
+        Assert.False(validator.Validate(request).IsValid);
     }
 
     [Fact]
@@ -150,7 +168,8 @@ public class AddAccessRuleRequestValidationTests
             MemberUserId = "MockUser",
             MemberRole = "Admin"
         };
-        Assert.False(request.IsValid());
+        AddAccessRuleRequestValidator validator = new AddAccessRuleRequestValidator();
+        Assert.False(validator.Validate(request).IsValid);
     }
     [Fact]
     public void Invalid_AddAccessRuleRequest_Members_User_Group() {
@@ -159,7 +178,8 @@ public class AddAccessRuleRequestValidationTests
             MemberUserId = "MockUser",
             MemberGroupId = "Group"
         };
-        Assert.False(request.IsValid());
+        AddAccessRuleRequestValidator validator = new AddAccessRuleRequestValidator();
+        Assert.False(validator.Validate(request).IsValid);
     }
     [Fact]
     public void Invalid_AddAccessRuleRequest_Members_Role_Group() {
@@ -168,6 +188,7 @@ public class AddAccessRuleRequestValidationTests
             MemberRole = "Admin",
             MemberGroupId = "Group"
         };
-        Assert.False(request.IsValid());
+        AddAccessRuleRequestValidator validator = new AddAccessRuleRequestValidator();
+        Assert.False(validator.Validate(request).IsValid);
     }
 }

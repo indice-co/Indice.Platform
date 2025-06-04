@@ -1,6 +1,4 @@
-﻿#if NET7_0_OR_GREATER
-#nullable enable
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using Indice.Extensions;
@@ -105,7 +103,7 @@ internal static class AvatarsHandlers
             _ => "image/webp"
         };
         var data = new MemoryStream();
-        avatarGenerator.Generate(data, firstName, lastName, size ?? 192, contentType, background, foreground, circular ?? false);
+        avatarGenerator.Generate(data, firstName!, lastName!, size ?? 192, contentType, background, foreground, circular ?? false);
         var hash = string.Empty;
         hash = MD5.HashData(Encoding.UTF8.GetBytes($"{firstName} {lastName}")).ToBase64UrlSafe();
         response.Headers.Append("Cache-Control", "max-age=345600");
@@ -116,5 +114,3 @@ internal static class AvatarsHandlers
                                 entityTag: new EntityTagHeaderValue($"\"{hash}\""));
     }
 }
-#nullable disable
-#endif

@@ -16,5 +16,5 @@ public class MessageQueueFactory
 
     /// <summary>Creates a new instance of <see cref="IMessageQueue{T}"/>.</summary>
     /// <typeparam name="T">The type of queue item.</typeparam>
-    public IMessageQueue<T> Create<T>() where T : class => _serviceProvider.GetService<IMessageQueue<T>>();
+    public IMessageQueue<T> Create<T>() where T : class => _serviceProvider.GetRequiredService<IMessageQueue<T>>();
 }

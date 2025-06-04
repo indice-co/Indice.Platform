@@ -10,5 +10,5 @@ public class WorkerJsonOptions
     public JsonSerializerOptions JsonSerializerOptions { get; set; } = GetDefaultSettings();
 
     /// <summary>JSON options defaults.</summary>
-    public static JsonSerializerOptions GetDefaultSettings() => JsonSerializerOptionDefaults.GetDefaultSettings();
+    public static JsonSerializerOptions GetDefaultSettings() => JsonSerializerOptionDefaults.GetDefaultSettings(System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping);
 }

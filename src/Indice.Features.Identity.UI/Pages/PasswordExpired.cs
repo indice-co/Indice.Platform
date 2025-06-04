@@ -2,33 +2,30 @@ using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.UI.Filters;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
 
 namespace Indice.Features.Identity.UI.Pages;
 
 /// <summary>Page model for the extended validation add email screen.</summary>
-[Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ExtendedValidationUserIdScheme)]
+[Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ExtendedValidationScheme)]
+[UserActivityRequirementFilter<User>(UserActivityRequirementKind.RequiresPasswordChange)]
 [IdentityUI(typeof(PasswordExpiredModel))]
 [SecurityHeaders]
 [ValidateAntiForgeryToken]
 public abstract class BasePasswordExpiredModel : BasePageModel
 {
-    private readonly IStringLocalizer<BasePasswordExpiredModel> _localizer;
 
     /// <summary>Creates a new instance of <see cref="BasePasswordExpiredModel"/> class.</summary>
-    /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BasePasswordExpiredModel"/>.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="signInManager"></param>
     /// <exception cref="ArgumentNullException"></exception>
     public BasePasswordExpiredModel(
-        IStringLocalizer<BasePasswordExpiredModel> localizer,
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager
     ) : base() {
-        _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
     }
@@ -49,11 +46,8 @@ public abstract class BasePasswordExpiredModel : BasePageModel
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         await Task.CompletedTask;
-        if (UserManager.StateProvider.CurrentState != UserState.RequiresPasswordChange) {
-            return Redirect(GetRedirectUrl(UserManager.StateProvider.CurrentState, returnUrl) ?? "/");
-        }
         TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
-            Alert = AlertModel.Info(_localizer["Your password has expired. Please choose a new password."])
+            Alert = AlertModel.Info(UserManager.MessageDescriber.PasswordExpiredMessage)
         });
         Input.ReturnUrl = returnUrl;
         return Page();
@@ -71,14 +65,10 @@ public abstract class BasePasswordExpiredModel : BasePageModel
             return Page();
         }
         await UserManager.SetPasswordExpiredAsync(user, false);
-        if (UserManager.StateProvider.CurrentState == UserState.LoggedIn) {
-            await SignInManager.AutoSignIn(user, ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
-        }
-        var redirectUrl = GetRedirectUrl(UserManager.StateProvider.CurrentState, Input.ReturnUrl);
         TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
-            Alert = AlertModel.Success(_localizer["Your password has been changed successfully. Please press the 'Next' button to continue."]),
+            Alert = AlertModel.Success(UserManager.MessageDescriber.PasswordChangedSuccessfully),
             DisableForm = true,
-            NextStepUrl = redirectUrl
+            NextStepUrl = Url.Page("/PasswordExpired", new { returnUrl })
         });
         return Page();
     }
@@ -87,8 +77,7 @@ public abstract class BasePasswordExpiredModel : BasePageModel
 internal class PasswordExpiredModel : BasePasswordExpiredModel
 {
     public PasswordExpiredModel(
-        IStringLocalizer<PasswordExpiredModel> localizer, 
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager
-    ) : base(localizer, userManager, signInManager) { }
+    ) : base(userManager, signInManager) { }
 }

@@ -16,7 +16,7 @@ public class MediaApiOptions
     public MediaApiOptions(IServiceCollection services) {
         Services = services ?? throw new ArgumentNullException(nameof(services));
     }
-    internal IServiceCollection? Services { get; set; }
+    internal IServiceCollection Services { get; set; } = null!;
 
     /// <summary>Specifies a prefix for the media API endpoints.</summary>
     public PathString PathPrefix { get; set; } = "/";

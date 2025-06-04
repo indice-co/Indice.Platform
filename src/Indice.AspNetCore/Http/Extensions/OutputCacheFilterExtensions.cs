@@ -1,6 +1,4 @@
-﻿#if NET7_0_OR_GREATER
-#nullable enable
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.Routing;
@@ -235,5 +233,3 @@ internal sealed record CacheTagMetadata(string TagPrefix, string[]? RouteValueNa
     internal static string CreateTag(string tagPrefix, IEnumerable<KeyValuePair<string, object?>> keyValuePairs) =>
         tagPrefix + TAG_PART_DELIMITER + string.Join(TAG_PART_DELIMITER, keyValuePairs.Select(x => $"{x.Key}:{x.Value}"));
 }
-#nullable disable
-#endif
