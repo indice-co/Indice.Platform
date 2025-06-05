@@ -199,7 +199,10 @@ public class NotificationsManager(
             request.Data ??= template.Data;
             var content = template.Content;
             if (request.MessageTemplateChannels.HasValue && request.MessageTemplateChannels != MessageChannelKind.None) {
-                var channels = request.MessageTemplateChannels.Value.GetFlagValues().Select(f => f.ToString());
+                var channels = request.MessageTemplateChannels.Value
+                                    .GetFlagValues()
+                                    .Select(f => f.ToString())
+                                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
                 content = new (template.Content.Where(cnt => channels.Contains(cnt.Key)));
                 if (content.Count == 0) {
                     return CreateCampaignResult.Fail($"Content was empty after applying the messageTemplateChannels to the selected Template with Id:({request.MessageTemplateId})");
