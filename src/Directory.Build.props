@@ -1,9 +1,7 @@
 <Project>
     <PropertyGroup Label="Assembly Common">
       <Copyright>Copyright (c) 2018 Indice</Copyright>
-      <TargetFrameworks></TargetFrameworks>
-      <TargetFramework>net8.0</TargetFramework>
-      
+      <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
       <VersionPrefixMajor>8</VersionPrefixMajor>
       <VersionPrefixBase>$(VersionPrefixMajor).0</VersionPrefixBase>
       
