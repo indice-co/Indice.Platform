@@ -22,7 +22,7 @@ internal static class AdminReportsApi
         group.WithTags("AdminReports");
         group.WithGroupName(options.GroupName);
 
-        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
+        var allowedScopes = new[] { options.RequiredScope }.FilterOutNulls().ToArray();
 
         group.RequireAuthorization(policy => policy
             .RequireAuthenticatedUser()

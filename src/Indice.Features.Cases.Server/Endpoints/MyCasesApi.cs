@@ -26,7 +26,7 @@ internal static class MyCasesApi
         group.WithTags("MyCases");
         group.WithGroupName("my");
 
-        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
+        var allowedScopes = new[] { options.RequiredScope }.FilterOutNulls().ToArray();
 
         // Add security requirements, all incoming requests to this API *must* be authenticated with a valid user.
         group.RequireAuthorization(policy => policy
