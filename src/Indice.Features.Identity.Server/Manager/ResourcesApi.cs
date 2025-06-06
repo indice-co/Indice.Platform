@@ -22,7 +22,7 @@ public static class ResourcesApi
         group.WithTags("Resources");
         group.WithGroupName("identity");
         // Add security requirements, all incoming requests to this API *must* be authenticated with a valid user.
-        var allowedScopes = new[] { options.ApiScope, IdentityEndpoints.SubScopes.Clients }.Where(x => x != null).Cast<string>().ToArray();
+        var allowedScopes = new[] { options.ApiScope, IdentityEndpoints.SubScopes.Clients }.FilterOutNulls().ToArray();
         group.RequireAuthorization(pb => pb.RequireAuthenticatedUser()
                                            .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme));
 
