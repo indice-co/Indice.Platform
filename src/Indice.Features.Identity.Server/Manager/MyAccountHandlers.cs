@@ -765,16 +765,16 @@ internal static partial class MyAccountHandlers
         }
         if (passwordOptions.RequireNonAlphanumeric) {
             result.Add(nameof(IdentityErrorDescriber.PasswordRequiresNonAlphanumeric),
-                (userManager.ErrorDescriber.PasswordRequiresNonAlphanumeric().Description, Hint: errorDescriber.PasswordRequiresNonAlphanumericRequirement));
+                (userManager.ErrorDescriber.PasswordRequiresNonAlphanumeric().Description, Hint: errorDescriber.PasswordRequiresNonAlphanumericRequirement()));
         }
         if (passwordOptions.RequireDigit) {
-            result.Add(nameof(IdentityErrorDescriber.PasswordRequiresDigit), (userManager.ErrorDescriber.PasswordRequiresDigit().Description, Hint: errorDescriber.PasswordRequiresDigitRequirement));
+            result.Add(nameof(IdentityErrorDescriber.PasswordRequiresDigit), (userManager.ErrorDescriber.PasswordRequiresDigit().Description, Hint: errorDescriber.PasswordRequiresDigitRequirement()));
         }
         if (passwordOptions.RequireLowercase) {
-            result.Add(nameof(IdentityErrorDescriber.PasswordRequiresLower), (userManager.ErrorDescriber.PasswordRequiresLower().Description, Hint: errorDescriber.PasswordRequiresLowerRequirement));
+            result.Add(nameof(IdentityErrorDescriber.PasswordRequiresLower), (userManager.ErrorDescriber.PasswordRequiresLower().Description, Hint: errorDescriber.PasswordRequiresLowerRequirement()));
         }
         if (passwordOptions.RequireUppercase) {
-            result.Add(nameof(IdentityErrorDescriber.PasswordRequiresUpper), (userManager.ErrorDescriber.PasswordRequiresUpper().Description, Hint: errorDescriber.PasswordRequiresUpperRequirement));
+            result.Add(nameof(IdentityErrorDescriber.PasswordRequiresUpper), (userManager.ErrorDescriber.PasswordRequiresUpper().Description, Hint: errorDescriber.PasswordRequiresUpperRequirement()));
         }
         var validators = userManager.PasswordValidators;
         foreach (var validator in validators) {
@@ -782,26 +782,26 @@ internal static partial class MyAccountHandlers
             validatorType = validatorType.IsGenericType ? validatorType.GetGenericTypeDefinition() : validatorType;
             var isNonCommonPasswordValidator = validatorType == typeof(NonCommonPasswordValidator) || validatorType == typeof(NonCommonPasswordValidator<>);
             if (isNonCommonPasswordValidator) {
-                result.Add(nameof(ExtendedIdentityErrorDescriber.PasswordIsCommon), (errorDescriber.PasswordIsCommon().Description, Hint: errorDescriber.PasswordIsCommonRequirement));
+                result.Add(nameof(ExtendedIdentityErrorDescriber.PasswordIsCommon), (errorDescriber.PasswordIsCommon().Description, Hint: errorDescriber.PasswordIsCommonRequirement()));
             }
             var isUserNameAsPasswordValidator = validatorType == typeof(UserNameAsPasswordValidator) || validatorType == typeof(UserNameAsPasswordValidator<>);
             if (isUserNameAsPasswordValidator && userNameAvailable) {
-                result.Add(nameof(ExtendedIdentityErrorDescriber.PasswordIdenticalToUserName), (errorDescriber.PasswordIdenticalToUserName().Description, Hint: errorDescriber.PasswordIdenticalToUserNameRequirement));
+                result.Add(nameof(ExtendedIdentityErrorDescriber.PasswordIdenticalToUserName), (errorDescriber.PasswordIdenticalToUserName().Description, Hint: errorDescriber.PasswordIdenticalToUserNameRequirement()));
             }
             var isPreviousPasswordAwareValidator = validatorType == typeof(PreviousPasswordAwareValidator)
                 || validatorType == typeof(PreviousPasswordAwareValidator<>)
                 || validatorType == typeof(PreviousPasswordAwareValidator<,>)
                 || validatorType == typeof(PreviousPasswordAwareValidator<,,>);
             if (isPreviousPasswordAwareValidator && userAvailable) {
-                result.Add(nameof(ExtendedIdentityErrorDescriber.PasswordRecentlyUsed), (errorDescriber.PasswordRecentlyUsed().Description, Hint: errorDescriber.PasswordRecentlyUsedRequirement));
+                result.Add(nameof(ExtendedIdentityErrorDescriber.PasswordRecentlyUsed), (errorDescriber.PasswordRecentlyUsed().Description, Hint: errorDescriber.PasswordRecentlyUsedRequirement()));
             }
             var isUnicodeCharactersPasswordValidator = validatorType == typeof(UnicodeCharactersPasswordValidator) || validatorType == typeof(UnicodeCharactersPasswordValidator<>);
             if (isUnicodeCharactersPasswordValidator) {
-                result.Add(nameof(ExtendedIdentityErrorDescriber.PasswordHasNonLatinChars), (errorDescriber.PasswordHasNonLatinChars().Description, Hint: errorDescriber.PasswordHasNonLatinCharsRequirement));
+                result.Add(nameof(ExtendedIdentityErrorDescriber.PasswordHasNonLatinChars), (errorDescriber.PasswordHasNonLatinChars().Description, Hint: errorDescriber.PasswordHasNonLatinCharsRequirement()));
             }
             var isNotAllowedCharactersPasswordValidator = validatorType == typeof(AllowedCharactersPasswordValidator) || validatorType == typeof(AllowedCharactersPasswordValidator<>);
             if (isNotAllowedCharactersPasswordValidator) {
-                result.Add(nameof(ExtendedIdentityErrorDescriber.PasswordContainsNotAllowedChars), (errorDescriber.PasswordContainsNotAllowedChars().Description, Hint: errorDescriber.PasswordContainsNotAllowedCharsRequirement));
+                result.Add(nameof(ExtendedIdentityErrorDescriber.PasswordContainsNotAllowedChars), (errorDescriber.PasswordContainsNotAllowedChars().Description, Hint: errorDescriber.PasswordContainsNotAllowedCharsRequirement()));
             }
         }
         return result;

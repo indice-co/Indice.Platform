@@ -22,7 +22,7 @@ public class UnicodeCharactersPasswordValidatorTests
     [InlineData("K1$Λ")]
     [InlineData("K1$ e")]
     public async Task CheckInvalidPasswords(string password) {
-        var validator = new UnicodeCharactersPasswordValidator<User>(new ExtendedIdentityErrorDescriber(), _configuration);
+        var validator = new UnicodeCharactersPasswordValidator<User>(_configuration);
         var identityResult = await validator.ValidateAsync(null, new User(), password);
         Assert.False(identityResult.Succeeded);
     }
@@ -30,7 +30,7 @@ public class UnicodeCharactersPasswordValidatorTests
     [Theory]
     [InlineData(@"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+-={}[]:"";',./<>?")]
     public async Task CheckValidPasswords(string password) {
-        var validator = new UnicodeCharactersPasswordValidator<User>(new ExtendedIdentityErrorDescriber(), _configuration);
+        var validator = new UnicodeCharactersPasswordValidator<User>(_configuration);
         var identityResult = await validator.ValidateAsync(null, new User(), password);
         Assert.True(identityResult.Succeeded);
     }
