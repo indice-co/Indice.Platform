@@ -1,7 +1,4 @@
-﻿using System.Security.Claims;
-using Bogus.DataSets;
-using Indice.AspNetCore.Filters;
-using Indice.Extensions;
+﻿using Indice.Extensions;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Manager;
 using Indice.Features.Identity.Server.Manager.Models;

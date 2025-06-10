@@ -3,9 +3,9 @@
     <UserSecretsId>18f8ae2f-f3b5-4d7d-9233-504524330ca0</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Moq" Version="4.20.69" />
-    <PackageReference Include="NSubstitute" Version="5.1.0" />
-    <PackageReference Include="NSubstitute.Analyzers.CSharp" Version="1.0.16">
+    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="NSubstitute" Version="5.3.0" />
+    <PackageReference Include="NSubstitute.Analyzers.CSharp" Version="1.0.17">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
