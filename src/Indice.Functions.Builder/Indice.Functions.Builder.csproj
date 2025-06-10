@@ -14,6 +14,6 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.OpenTelemetry" Version="1.0.0-preview1" />
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.12.0" />
     <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.12.0" />
-    <PackageReference Include="OpenTelemetry.Resources.Container" Version="1.0.0-beta.9" />
+    <PackageReference Include="OpenTelemetry.Resources.Container" Version="1.12.0-beta.1" />
   </ItemGroup>
 </Project>

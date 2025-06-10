@@ -23,7 +23,6 @@
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
-
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">

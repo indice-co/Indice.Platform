@@ -12,15 +12,12 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.5" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\src\Indice.Features.GovGr\Indice.Features.GovGr.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <None Update="kyc-test-response.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
 </Project>

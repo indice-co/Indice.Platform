@@ -21,5 +21,4 @@
     <ProjectReference Include="..\..\src\Indice.Features.Cases.Server\Indice.Features.Cases.Server.csproj" />
     <ProjectReference Include="..\..\src\Indice.Features.Cases.Workflows\Indice.Features.Cases.Workflows.csproj" />
   </ItemGroup>
-
 </Project>
