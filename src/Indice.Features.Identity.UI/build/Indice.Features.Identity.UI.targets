@@ -1,17 +1,34 @@
 <Project>
   <!-- This will remove any duplicate assets found on the Host web application and the UI project. Host always wins-->
   <Target Name="RemoveIdentityDuplicateAssets">
+
     <ItemGroup>
-      <_DuplicateAssetCandidate Include="@(StaticWebAsset)" Condition="%(SourceId) == 'Indice.Features.Identity.UI'">
-        <_RelativePath>$([System.String]::new('%(RelativePath)').Replace('#[.{fingerprint}]?', ''))</_RelativePath>
-        <Path>$([System.IO.Path]::GetFullPath($(MSBuildProjectDirectory)/wwwroot%(BasePath)%(_DuplicateAssetCandidate._RelativePath)))</Path>
-      </_DuplicateAssetCandidate>
-      <DuplicateAsset Include="@(_DuplicateAssetCandidate)" Condition="Exists(%(Path))"></DuplicateAsset>
+      <!-- Find duplicate assets from the UI library -->
+      <DuplicateAsset Include="@(StaticWebAsset)"
+                      Condition="%(SourceId) == 'Indice.Features.Identity.UI' and 
+                    Exists($([System.IO.Path]::GetFullPath($(MSBuildProjectDirectory)/wwwroot%(StaticWebAsset.BasePath)%(StaticWebAsset.RelativePath))))" />
+
+      <!-- Find .gz/.br assets only if the corresponding original asset also exists in DuplicateAsset -->
+      <CompressedDuplicateAsset Include="@(StaticWebAsset)"
+        Condition="(%(SourceId) == 'Indice.Features.Identity.UI') and
+        (
+          $([System.String]::new('%(RelativePath)').EndsWith('.gz')) == 'True' or
+          $([System.String]::new('%(RelativePath)').EndsWith('.br')) == 'True'
+        ) and
+        (
+          Exists($([System.IO.Path]::GetFullPath(
+            $(MSBuildProjectDirectory)/wwwroot%(StaticWebAsset.BasePath)$([System.String]::new('%(StaticWebAsset.RelativePath)').Replace('.gz','').Replace('.br',''))
+          )))
+        )" />
     </ItemGroup>
+
     <ItemGroup>
       <StaticWebAsset Remove="@(DuplicateAsset)" />
+      <StaticWebAsset Remove="@(CompressedDuplicateAsset)" />
     </ItemGroup>
+
   </Target>
+
   <Target Name="IdentityUIScssImportsGeneration" BeforeTargets="PreBuildEvent"  Condition="$(IdentityUIScssImportsEnable) == 'true'">
     <ItemGroup>
       <IdentityThemeScssImportFile Include="$(MSBuildProjectDirectory)\wwwroot\css\$(IdentityUIScssImportsFileName).scss" />
