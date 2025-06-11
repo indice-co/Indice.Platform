@@ -10,8 +10,8 @@
     <StaticWebAssetsDisableProjectBuildPropsFileGeneration>true</StaticWebAssetsDisableProjectBuildPropsFileGeneration>
     <StaticWebAssetsDisableProjectBuildMultiTargetingPropsFileGeneration>true</StaticWebAssetsDisableProjectBuildMultiTargetingPropsFileGeneration>
     <StaticWebAssetsDisableProjectBuildTransitivePropsFileGeneration>true</StaticWebAssetsDisableProjectBuildTransitivePropsFileGeneration>
-    <StaticWebAssetFingerprintingEnabled>false</StaticWebAssetFingerprintingEnabled>
-    <StaticWebAssetsFingerprintContent>false</StaticWebAssetsFingerprintContent>
+    <StaticWebAssetFingerprintingEnabled>true</StaticWebAssetFingerprintingEnabled>
+    <StaticWebAssetsFingerprintContent>true</StaticWebAssetsFingerprintContent>
   </PropertyGroup>
   
   <ItemGroup>
