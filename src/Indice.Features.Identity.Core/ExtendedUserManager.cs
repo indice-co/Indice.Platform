@@ -205,6 +205,33 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         var result = await base.SetTwoFactorEnabledAsync(user, enabled);
         return result;
     }
+
+
+    /// <inheritdoc/>
+    public override async Task<IdentityResult> ChangeEmailAsync(TUser user, string newEmail, string token) {
+        ArgumentNullException.ThrowIfNull(user);
+        var previousValue = user.Email;
+        var result = IdentityResult.Success;
+        if (EmailAsUserName) {
+            // Make sure the token is valid and the stamp matches before updating the username
+            if (!await VerifyUserTokenAsync(user, Options.Tokens.ChangeEmailTokenProvider, GetChangeEmailTokenPurpose(newEmail), token).ConfigureAwait(false)) {
+                return IdentityResult.Failed(ErrorDescriber.InvalidToken());
+            }
+            // change the username first if possible to match the new email so that unique constraints are enforced on the userstore before going forward.
+            result = await SetUserNameAsync(user, newEmail);
+            if (!result.Succeeded) {
+                return result;
+            }
+        }
+        // do the default behavior that will update the email verify the new email and create a new security stamp.
+        result = await base.ChangeEmailAsync(user, newEmail, token);
+        if (result.Succeeded) {
+            // publish the event that the email has changed.
+            await _eventService.Publish(new UserEmailChangedEvent(UserEventContext.InitializeFromUser(user), previousValue!));
+        }
+        return result;
+    }
+
     #endregion
 
     #region Custom Methods
