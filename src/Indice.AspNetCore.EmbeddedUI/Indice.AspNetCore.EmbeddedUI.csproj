@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <VersionPrefix>$(VersionPrefixMajor).0.0</VersionPrefix>
+    <VersionPrefix>$(VersionPrefixCore)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
