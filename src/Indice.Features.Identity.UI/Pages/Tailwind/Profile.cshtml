@@ -4,6 +4,7 @@
 @inject IZoneInfoProvider zoneInfoProvider
 @inject CallingCodesProvider callingCodesProvider
 @inject IOptions<IdentityUIOptions> identityUiOptions
+@inject ExtendedUserManager<User> userManager
 
 @model BaseProfileModel
 
@@ -54,7 +55,7 @@
         </div>
         <div class="row">
             <div class="input-group">
-                <input class="peer" type="text" placeholder="@Localizer["Username"]" asp-for="Input.UserName" />
+                <input class="peer" type="text" placeholder="@Localizer["Username"]" asp-for="Input.UserName" readonly="@userManager.EmailAsUserName" />
                 <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.UserName">@Localizer["Username"]</label>
                 <span asp-validation-for="Input.UserName" class="text-danger"></span>
             </div>

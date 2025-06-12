@@ -61,9 +61,6 @@ public abstract class BaseConfirmEmailChangeModel : BasePageModel
             if (View.InvalidOrExpiredToken) {
                 return Page();
             }
-            if (UserManager.EmailAsUserName) {
-                await UserManager.SetUserNameAsync(user, Input.Email);
-            }
         }
         if (Input.ShouldRedirect && !string.IsNullOrWhiteSpace(Input.ReturnUrl) && IsValidReturnUrl(Input.ReturnUrl)) {
             return Redirect(Input.ReturnUrl!);
