@@ -3,20 +3,17 @@
 using IdSrvModels = Duende.IdentityServer.Models;
 using Duende.IdentityServer.EntityFramework.Entities;
 using Duende.IdentityServer.EntityFramework.Options;
-using Duende.IdentityServer.ResponseHandling;
 using Duende.IdentityServer.Services;
 #else
 using IdSrvModels = IdentityServer4.Models;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Options;
-using IdentityServer4.ResponseHandling;
 using IdentityServer4.Services;
 #endif
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Grants;
-using Indice.Features.Identity.Core.ResponseHandling;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
@@ -115,6 +112,9 @@ public static class IdentityServerBuilderExtensions
         options.IdentityResource = new TableConfiguration(nameof(IdentityResource));
         options.IdentityResourceClaim = new TableConfiguration(nameof(IdentityResourceClaim));
         options.IdentityResourceProperty = new TableConfiguration(nameof(IdentityResourceProperty));
+#if NET9_0_OR_GREATER
+        options.IdentityProvider = new TableConfiguration(nameof(IdentityProvider));
+#endif
     }
 
     /// <summary>Setup operational store.</summary>
@@ -123,5 +123,10 @@ public static class IdentityServerBuilderExtensions
         options.DefaultSchema = "auth";
         options.PersistedGrants = new TableConfiguration(nameof(PersistedGrant));
         options.DeviceFlowCodes = new TableConfiguration(nameof(IdSrvModels.DeviceCode));
+#if NET9_0_OR_GREATER
+        options.ServerSideSessions = new TableConfiguration(nameof(IdSrvModels.ServerSideSession));
+        options.Keys = new TableConfiguration(nameof(Key));
+        options.PushedAuthorizationRequests = new TableConfiguration(nameof(PushedAuthorizationRequest));
+#endif
     }
 }

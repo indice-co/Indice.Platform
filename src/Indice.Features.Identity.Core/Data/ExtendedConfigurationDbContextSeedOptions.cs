@@ -1,6 +1,5 @@
 ﻿#if NET9_0_OR_GREATER
 using Duende.IdentityServer.EntityFramework.DbContexts;
-using Duende.IdentityServer.EntityFramework.Options;
 #else
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Options;
