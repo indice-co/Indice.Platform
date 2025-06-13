@@ -7,10 +7,17 @@
       <VersionPrefixBase>$(VersionPrefixMajor).1</VersionPrefixBase>
       
       <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
+<<<<<<< release/v8.1.0
       <VersionPrefixIdentity>$(VersionPrefixBase).0</VersionPrefixIdentity>
       <VersionPrefixIdentityUI>$(VersionPrefixBase).0</VersionPrefixIdentityUI>
       <VersionPrefixCases>$(VersionPrefixBase).0</VersionPrefixCases>
       <VersionPrefixMessages>$(VersionPrefixBase).0</VersionPrefixMessages>
+=======
+      <VersionPrefixIdentity>$(VersionPrefixBase).2</VersionPrefixIdentity>
+      <VersionPrefixIdentityUI>$(VersionPrefixBase).1</VersionPrefixIdentityUI>
+      <VersionPrefixCases>$(VersionPrefixBase).1</VersionPrefixCases>
+      <VersionPrefixMessages>$(VersionPrefixBase).1</VersionPrefixMessages>
+>>>>>>> develop
       <VersionPrefixMultitenancy>$(VersionPrefixBase).0</VersionPrefixMultitenancy>
       <VersionPrefixRisk>$(VersionPrefixBase).0</VersionPrefixRisk>
       <VersionPrefixMedia>$(VersionPrefixBase).0</VersionPrefixMedia>

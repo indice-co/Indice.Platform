@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using IdentityModel;
 using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
@@ -52,7 +53,7 @@ public abstract class BaseProfileModel : BasePageModel
     protected ExtendedSignInManager<User> SignInManager { get; }
     /// <summary>Represents a set of key/value application configuration properties.</summary>
     protected IConfiguration Configuration { get; }
-    
+
     /// <summary>
     /// Gets the localization options used to configure request localization settings.
     /// </summary>
@@ -97,6 +98,7 @@ public abstract class BaseProfileModel : BasePageModel
             View = await BuildProfileViewModelAsync(Input);
             return Page();
         }
+
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         var result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.GivenName, Input.FirstName ?? string.Empty);
         AddModelErrors(result);
@@ -192,7 +194,7 @@ public abstract class BaseProfileModel : BasePageModel
         if (cacheStore is not null) {
             await cacheStore.EvictByTagAsync($"Picture|sub:{user.Id}", default);
             await cacheStore.EvictByTagAsync($"Picture|userId:{user.Id}", default);
-        } 
+        }
         return RedirectToPage("/Profile");
     }
 
@@ -293,8 +295,8 @@ public abstract class BaseProfileModel : BasePageModel
             PhoneNumber = IdentityUIOptions.EnablePhoneNumberCallingCodes ? model.PhoneNumberWithCallingCode : model.PhoneNumber,
             Tin = model.Tin,
             UserName = model.UserName,
-            ZoneInfo = model.ZoneInfo,
-            Locale = model.Locale,
+            ZoneInfo = model.ZoneInfo ?? user.Claims.SingleOrDefault(x => x.ClaimType == JwtClaimTypes.ZoneInfo)?.ClaimValue,
+            Locale = model.Locale ?? user.Claims.SingleOrDefault(x => x.ClaimType == JwtClaimTypes.Locale)?.ClaimValue,
         };
     }
 }

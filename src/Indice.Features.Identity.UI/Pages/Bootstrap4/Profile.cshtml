@@ -3,6 +3,7 @@
 @inject IIdentityViewLocalizer Localizer
 @inject CallingCodesProvider callingCodesProvider
 @inject IOptions<IdentityUIOptions> identityUiOptions
+@inject ExtendedUserManager<User> userManager
 
 @model BaseProfileModel
 
@@ -73,7 +74,7 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <label asp-for="Input.UserName">@Localizer["Username"]</label>
-                    <input class="form-control" type="text" placeholder="@Localizer["Username"]" asp-for="Input.UserName" />
+                    <input class="form-control" type="text" placeholder="@Localizer["Username"]" asp-for="Input.UserName" readonly="@userManager.EmailAsUserName" />
                     <span asp-validation-for="Input.UserName" class="text-danger"></span>
                 </div>
             </div>

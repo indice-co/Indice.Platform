@@ -84,7 +84,7 @@ public abstract class BasePageModel : PageModel
                    .UsingTemplate("EmailRegister")
                    .WithData(new {
                        user.UserName,
-                       subject = identityMessageDescriber.RegisterEmailSubject(configuration.GetApplicationName()!),
+                       Subject = identityMessageDescriber.RegisterEmailSubject(configuration.GetApplicationName()!),
                        Url = callbackUrl
                    })
         );
