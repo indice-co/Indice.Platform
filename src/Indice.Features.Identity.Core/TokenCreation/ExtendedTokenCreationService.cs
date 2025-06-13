@@ -1,19 +1,28 @@
 ﻿using IdentityModel;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer;
+using Duende.IdentityServer.Configuration;
+using Duende.IdentityServer.Services;
+using Duende.IdentityServer.Models;
+using Duende.IdentityServer.Internal.Extensions;
+using Duende.IdentityServer.Extensions;
+#else
+using IdentityServer4;
 using IdentityServer4.Configuration;
 using IdentityServer4.Services;
-using IdentityServer4;
+using IdentityServer4.Models;
+using IdentityServer4.Internal.Extensions;
+using IdentityServer4.Extensions;
+#endif
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.Json;
-using IdentityServer4.Models;
 using System.Globalization;
-using IdentityServer4.Internal.Extensions;
-using IdentityServer4.Extensions;
 
 namespace Indice.Features.Identity.Core.TokenCreation;
-
+// TODO: revisit this extension to see if it is already implemented in the Duende version of the library.
 /// <inheritdoc />
 public class ExtendedTokenCreationService : ITokenCreationService
 {
@@ -105,7 +114,7 @@ public class ExtendedTokenCreationService : ITokenCreationService
 
         // add confirmation claim if present (it's JSON valued)
         if (token.Confirmation.IsPresent()) {
-            jsonClaims.Add(new Claim(JwtClaimTypes.Confirmation, token.Confirmation, IdentityServerConstants.ClaimValueTypes.Json));
+            jsonClaims.Add(new Claim(JwtClaimTypes.Confirmation, token.Confirmation!, IdentityServerConstants.ClaimValueTypes.Json));
         }
 
         var normalClaims = token.Claims
@@ -132,6 +141,7 @@ public class ExtendedTokenCreationService : ITokenCreationService
             payload.Add(JwtClaimTypes.AuthenticationMethod, amrValues);
         }
 
+        
         // deal with json types
         // calling ToArray() to trigger JSON parsing once and so later 
         // collection identity comparisons work for the anonymous type

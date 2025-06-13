@@ -1,7 +1,12 @@
 using System.Security.Claims;
 using IdentityModel;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Extensions;
+using Duende.IdentityServer.Services;
+#else
 using IdentityServer4.Extensions;
 using IdentityServer4.Services;
+#endif
 using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
@@ -10,7 +15,6 @@ using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Identity.UI.Pages;
 

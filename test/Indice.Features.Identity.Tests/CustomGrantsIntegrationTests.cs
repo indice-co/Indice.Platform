@@ -8,10 +8,17 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using IdentityModel;
 using IdentityModel.Client;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer;
+using Duende.IdentityServer.Models;
+using Duende.IdentityServer.ResponseHandling;
+using Duende.IdentityServer.Services;
+#else
 using IdentityServer4;
 using IdentityServer4.Models;
 using IdentityServer4.ResponseHandling;
 using IdentityServer4.Services;
+#endif
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;

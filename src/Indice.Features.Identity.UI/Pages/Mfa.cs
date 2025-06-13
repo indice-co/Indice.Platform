@@ -1,4 +1,8 @@
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Services;
+#else
 using IdentityServer4.Services;
+#endif
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;

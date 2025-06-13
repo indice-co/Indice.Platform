@@ -4,12 +4,17 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using Humanizer;
 using IdentityModel;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer;
+using Duende.IdentityServer.Extensions;
+using IdSrvModels = Duende.IdentityServer.Models;
+using IdSrvEntities = Duende.IdentityServer.EntityFramework.Entities;
+#else
 using IdentityServer4;
-using IdentityServer4.EntityFramework.Entities;
-using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Extensions;
-using IdentityServer4.Models;
-using IdentityServer4.Services;
+using IdSrvModels = IdentityServer4.Models;
+using IdSrvEntities = IdentityServer4.EntityFramework.Entities;
+#endif
 using Indice.AspNetCore.Extensions;
 using Indice.Events;
 using Indice.Features.Identity.Core;
@@ -26,8 +31,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Client = IdentityServer4.EntityFramework.Entities.Client;
-using ClientClaim = IdentityServer4.EntityFramework.Entities.ClientClaim;
+using Org.BouncyCastle.Asn1.X9;
 
 namespace Indice.Features.Identity.Server.Manager;
 
@@ -77,7 +81,7 @@ internal static class ClientHandlers
                 UserSsoLifetime = x.UserSsoLifetime,
                 FrontChannelLogoutUri = x.FrontChannelLogoutUri,
                 PairWiseSubjectSalt = x.PairWiseSubjectSalt,
-                AccessTokenType = (IdentityServer4.Models.AccessTokenType)x.AccessTokenType,
+                AccessTokenType = (IdSrvModels.AccessTokenType)x.AccessTokenType,
                 FrontChannelLogoutSessionRequired = x.FrontChannelLogoutSessionRequired,
                 IncludeJwtId = x.IncludeJwtId,
                 AllowAccessTokensViaBrowser = x.AllowAccessTokensViaBrowser,
@@ -91,8 +95,8 @@ internal static class ClientHandlers
                 AbsoluteRefreshTokenLifetime = x.AbsoluteRefreshTokenLifetime,
                 AllowOfflineAccess = x.AllowOfflineAccess,
                 NonEditable = x.NonEditable,
-                RefreshTokenExpiration = (IdentityServer4.Models.TokenExpiration)x.RefreshTokenExpiration,
-                RefreshTokenUsage = (IdentityServer4.Models.TokenUsage)x.RefreshTokenUsage,
+                RefreshTokenExpiration = (IdSrvModels.TokenExpiration)x.RefreshTokenExpiration,
+                RefreshTokenUsage = (IdSrvModels.TokenUsage)x.RefreshTokenUsage,
                 UpdateAccessTokenClaimsOnRefresh = x.UpdateAccessTokenClaimsOnRefresh,
                 BackChannelLogoutUri = x.BackChannelLogoutUri,
                 BackChannelLogoutSessionRequired = x.BackChannelLogoutSessionRequired,
@@ -216,7 +220,7 @@ internal static class ClientHandlers
             client.EnableLocalLogin = request.EnableLocalLogin.Value;
         }
         client.IdentityProviderRestrictions.RemoveAll(x => true);
-        client.IdentityProviderRestrictions.AddRange(request.IdentityProviderRestrictions.Select(provider => new ClientIdPRestriction {
+        client.IdentityProviderRestrictions.AddRange(request.IdentityProviderRestrictions.Select(provider => new IdSrvEntities.ClientIdPRestriction {
             Provider = provider,
             Client = client
         }));
@@ -239,7 +243,7 @@ internal static class ClientHandlers
         if (client == null) {
             return TypedResults.NotFound();
         }
-        var claimToAdd = new ClientClaim {
+        var claimToAdd = new IdSrvEntities.ClientClaim {
             Client = client,
             ClientId = client.Id,
             Type = request.Type,
@@ -263,7 +267,7 @@ internal static class ClientHandlers
         if (client == null) {
             return TypedResults.NotFound();
         }
-        client.Claims ??= new List<ClientClaim>();
+        client.Claims ??= [];
         var claimToRemove = client.Claims.SingleOrDefault(x => x.Id == claimId);
         if (claimToRemove == null) {
             return TypedResults.NotFound();
@@ -291,19 +295,19 @@ internal static class ClientHandlers
         client.RedirectUris?.RemoveAll(x => true);
         client.PostLogoutRedirectUris?.RemoveAll(x => true);
         if (request.AllowedCorsOrigins?.Count() > 0) {
-            client.AllowedCorsOrigins!.AddRange(request.AllowedCorsOrigins.Select(x => new ClientCorsOrigin {
+            client.AllowedCorsOrigins!.AddRange(request.AllowedCorsOrigins.Select(x => new IdSrvEntities.ClientCorsOrigin {
                 ClientId = client.Id,
                 Origin = x.Trim().TrimEnd('/')
             }));
         }
         if (request.RedirectUris?.Count() > 0) {
-            client.RedirectUris!.AddRange(request.RedirectUris.Select(x => new ClientRedirectUri {
+            client.RedirectUris!.AddRange(request.RedirectUris.Select(x => new IdSrvEntities.ClientRedirectUri {
                 ClientId = client.Id,
                 RedirectUri = x.Trim()
             }));
         }
         if (request.PostLogoutRedirectUris?.Count() > 0) {
-            client.PostLogoutRedirectUris!.AddRange(request.PostLogoutRedirectUris.Select(x => new ClientPostLogoutRedirectUri {
+            client.PostLogoutRedirectUris!.AddRange(request.PostLogoutRedirectUris.Select(x => new IdSrvEntities.ClientPostLogoutRedirectUri {
                 ClientId = client.Id,
                 PostLogoutRedirectUri = x.Trim()
             }));
@@ -322,7 +326,7 @@ internal static class ClientHandlers
             return TypedResults.NotFound();
         }
         resources ??= [];
-        client.AllowedScopes = [.. resources.Select(x => new ClientScope { ClientId = client.Id, Scope = x })];
+        client.AllowedScopes = [.. resources.Select(x => new IdSrvEntities.ClientScope { ClientId = client.Id, Scope = x })];
         await configurationDbContext.SaveChangesAsync();
         await eventService.Publish(new ClientUpdatedEvent(ClientEventContext.InitializeFromClient(client)));
         return TypedResults.NoContent();
@@ -358,7 +362,7 @@ internal static class ClientHandlers
         if (client == null) {
             return TypedResults.NotFound();
         }
-        var grantTypeToAdd = new ClientGrantType {
+        var grantTypeToAdd = new IdSrvEntities.ClientGrantType {
             GrantType = grantType,
             ClientId = client.Id
         };
@@ -395,7 +399,7 @@ internal static class ClientHandlers
         if (client is null) {
             return TypedResults.NotFound();
         }
-        var newSecret = new ClientSecret {
+        var newSecret = new IdSrvEntities.ClientSecret {
             Description = request.Description,
             Value = request.Value!.ToSha256(),
             Expiration = request.Expiration,
@@ -422,7 +426,12 @@ internal static class ClientHandlers
         try {
             await request.File.CopyToAsync(memoryStream);
             var certificateBytes = memoryStream.ToArray();
+#if NET9_0_OR_GREATER
+            certificate = X509CertificateLoader.LoadPkcs12(certificateBytes, request.Password);
+#else
             certificate = new X509Certificate2(certificateBytes, request.Password);
+#endif
+
         } catch (CryptographicException) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError("file", "Uploaded certificate is not valid."));
         } finally {
@@ -432,7 +441,7 @@ internal static class ClientHandlers
         if (client == null) {
             return TypedResults.NotFound();
         }
-        var newSecret = new ClientSecret {
+        var newSecret = new IdSrvEntities.ClientSecret {
             Description = certificate.Subject,
             Value = Convert.ToBase64String(certificate.GetRawCertData()),
             Expiration = DateTime.Parse(certificate.GetExpirationDateString()),
@@ -459,7 +468,11 @@ internal static class ClientHandlers
         try {
             await request.File.CopyToAsync(memoryStream);
             var certificateBytes = memoryStream.ToArray();
+#if NET9_0_OR_GREATER
+            certificate = X509CertificateLoader.LoadPkcs12(certificateBytes, request.Password);
+#else
             certificate = new X509Certificate2(certificateBytes, request.Password);
+#endif
         } catch (CryptographicException) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError("file", "Uploaded certificate is not valid."));
         } finally {
@@ -489,7 +502,11 @@ internal static class ClientHandlers
         X509Certificate2? certificate = null;
         byte[] certificateBytes;
         try {
+#if NET9_0_OR_GREATER
+            certificate = X509CertificateLoader.LoadCertificate(Convert.FromBase64String(clientSecret.Value));
+#else
             certificate = new X509Certificate2(Convert.FromBase64String(clientSecret.Value));
+#endif
             certificateBytes = certificate.Export(X509ContentType.Cert);
         } catch (CryptographicException) {
             throw;
@@ -504,9 +521,7 @@ internal static class ClientHandlers
         if (client == null) {
             return TypedResults.NotFound();
         }
-        if (client.ClientSecrets == null) {
-            client.ClientSecrets = new List<ClientSecret>();
-        }
+        client.ClientSecrets ??= [];
         var secretToRemove = client.ClientSecrets.SingleOrDefault(x => x.Id == secretId);
         if (secretToRemove == null) {
             return TypedResults.NotFound();
@@ -540,7 +555,7 @@ internal static class ClientHandlers
             .Where(x => x.ClientId == clientId)
             .SingleOrDefaultAsync();
         if (client is null) {
-            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(Client.Id).Camelize(), "Requested client does not exist."));
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(clientId), "Requested client does not exist."));
         }
         var themeConfig = client.Properties.Where(x => x.Key == ClientPropertyKeys.ThemeConfig).FirstOrDefault();
         return TypedResults.Ok(new ClientThemeConfigResponse {
@@ -558,12 +573,12 @@ internal static class ClientHandlers
             .Where(x => x.ClientId == clientId)
             .SingleOrDefaultAsync();
         if (client is null) {
-            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(Client.Id).Camelize(), "Requested client does not exist."));
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(clientId), "Requested client does not exist."));
         }
         var themeConfig = client.Properties.Where(x => x.Key == ClientPropertyKeys.ThemeConfig).FirstOrDefault();
         var themeConfigValue = JsonSerializer.Serialize(request, JsonSerializerOptionDefaults.GetDefaultSettings());
         if (themeConfig is null) {
-            client.Properties.Add(new ClientProperty {
+            client.Properties.Add(new IdSrvEntities.ClientProperty {
                 Client = client,
                 ClientId = client.Id,
                 Key = ClientPropertyKeys.ThemeConfig,
@@ -576,14 +591,20 @@ internal static class ClientHandlers
         return TypedResults.NoContent();
     }
 
-    private static string GetClientSecretValue(ClientSecret clientSecret) {
+    private static string GetClientSecretValue(IdSrvEntities.ClientSecret clientSecret) {
         switch (clientSecret.Type) {
             case IdentityServerConstants.SecretTypes.SharedSecret:
             case IdentityServerConstants.SecretTypes.JsonWebKey:
                 return $"{clientSecret.Value.Substring(0, 3)}***********";
             case IdentityServerConstants.SecretTypes.X509CertificateBase64:
                 var certificateData = Convert.FromBase64String(clientSecret.Value);
-                using (var certificate = new X509Certificate2(certificateData)) {
+
+#if NET9_0_OR_GREATER
+                var certificate = X509CertificateLoader.LoadCertificate(certificateData);
+#else
+                var certificate = new X509Certificate2(certificateData);
+#endif
+                using (certificate) {
                     return $"Thumbprint: {certificate.Thumbprint}, Expiration Date: {certificate.GetExpirationDateString()}";
                 }
             case IdentityServerConstants.SecretTypes.X509CertificateName:
@@ -594,8 +615,8 @@ internal static class ClientHandlers
         }
     }
 
-    private static Client CreateForType(ClientType clientType, string authorityUri, CreateClientRequest clientRequest) {
-        var client = new Client {
+    private static IdSrvEntities.Client CreateForType(ClientType clientType, string authorityUri, CreateClientRequest clientRequest) {
+        var client = new IdSrvEntities.Client {
             ClientId = clientRequest.ClientId,
             ClientName = clientRequest.ClientName,
             Description = clientRequest.Description,
@@ -604,7 +625,7 @@ internal static class ClientHandlers
             RequireConsent = clientRequest.RequireConsent,
             BackChannelLogoutSessionRequired = true,
             AllowedScopes = clientRequest.IdentityResources.Union(clientRequest.ApiResources)
-                                                           .Select(scope => new ClientScope { Scope = scope })
+                                                           .Select(scope => new IdSrvEntities.ClientScope { Scope = scope })
                                                            .ToList(),
             EnableLocalLogin = true,
             Enabled = true
@@ -616,7 +637,7 @@ internal static class ClientHandlers
             client.PostLogoutRedirectUris = [new () { PostLogoutRedirectUri = clientRequest.PostLogoutRedirectUri }];
         }
         if (clientRequest.Secrets.Count != 0) {
-            client.ClientSecrets = clientRequest.Secrets.Select(x => new ClientSecret {
+            client.ClientSecrets = clientRequest.Secrets.Select(x => new IdSrvEntities.ClientSecret {
                 Type = IdentityServerConstants.SecretTypes.SharedSecret,
                 Description = x.Description,
                 Expiration = x.Expiration,
@@ -629,29 +650,29 @@ internal static class ClientHandlers
         }
         switch (clientType) {
             case ClientType.SPA:
-                client.AllowedGrantTypes = [new() { GrantType = GrantType.AuthorizationCode }];
+                client.AllowedGrantTypes = [new() { GrantType = IdSrvModels.GrantType.AuthorizationCode }];
                 client.RequirePkce = true;
                 client.RequireClientSecret = false;
                 client.AllowedCorsOrigins = [new() { Origin = clientRequest.ClientUri ?? authorityUri }];
                 break;
             case ClientType.WebApp:
-                client.AllowedGrantTypes = [new() { GrantType = GrantType.Hybrid }];
+                client.AllowedGrantTypes = [new() { GrantType = IdSrvModels.GrantType.Hybrid }];
                 client.RequirePkce = true;
                 break;
             case ClientType.Native:
-                client.AllowedGrantTypes = [new() { GrantType = GrantType.AuthorizationCode }];
+                client.AllowedGrantTypes = [new() { GrantType = IdSrvModels.GrantType.AuthorizationCode }];
                 client.RequirePkce = true;
                 client.RequireClientSecret = false;
                 break;
             case ClientType.Machine:
-                client.AllowedGrantTypes = [new() { GrantType = GrantType.ClientCredentials }];
+                client.AllowedGrantTypes = [new() { GrantType = IdSrvModels.GrantType.ClientCredentials }];
                 client.RequireConsent = false;
                 break;
             case ClientType.Device:
-                client.AllowedGrantTypes = [new() { GrantType = GrantType.DeviceFlow }];
+                client.AllowedGrantTypes = [new() { GrantType = IdSrvModels.GrantType.DeviceFlow }];
                 break;
             case ClientType.SPALegacy:
-                client.AllowedGrantTypes = [new () { GrantType = GrantType.Implicit }];
+                client.AllowedGrantTypes = [new () { GrantType = IdSrvModels.GrantType.Implicit }];
                 client.RequirePkce = false;
                 client.RequireClientSecret = false;
                 client.AllowAccessTokensViaBrowser = true;
@@ -663,9 +684,9 @@ internal static class ClientHandlers
         return client;
     }
 
-    private static void AddClientTranslations(Client client, string? translations) {
+    private static void AddClientTranslations(IdSrvEntities.Client client, string? translations) {
         client.Properties ??= [];
-        client.Properties.Add(new ClientProperty {
+        client.Properties.Add(new IdSrvEntities.ClientProperty {
             Key = ClientPropertyKeys.Translation,
             Value = translations ?? string.Empty,
             Client = client

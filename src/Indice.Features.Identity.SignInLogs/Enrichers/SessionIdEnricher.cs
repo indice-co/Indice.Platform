@@ -1,4 +1,8 @@
-﻿using IdentityServer4.Services;
+﻿#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Services;
+#else
+using IdentityServer4.Services;
+#endif
 using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Models;
 

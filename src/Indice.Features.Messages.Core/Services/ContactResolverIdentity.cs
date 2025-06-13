@@ -14,7 +14,7 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Messages.Core.Services;
 
-/// <summary>An implementation of <see cref="IContactService"/> that gets contact information from Indice API for IdentityServer4.</summary>
+/// <summary>An implementation of <see cref="IContactService"/> that gets contact information from Indice API for Identity Server.</summary>
 public class ContactResolverIdentity : IContactResolver
 {
     private const string TOKEN_CACHE_KEY = "campaigns_id_contact_resolver_token";

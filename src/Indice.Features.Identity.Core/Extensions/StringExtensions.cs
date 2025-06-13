@@ -4,12 +4,16 @@
 using System.Diagnostics;
 using System.Text;
 
+#if NET9_0_OR_GREATER
+namespace Duende.IdentityServer.Internal.Extensions;
+#else
 namespace IdentityServer4.Internal.Extensions;
+#endif
 
 internal static class StringExtensions
 {
     [DebuggerStepThrough]
-    public static string ToSpaceSeparatedString(this IEnumerable<string> list) {
+    public static string ToSpaceSeparatedString(this IEnumerable<string>? list) {
         if (list is null) {
             return string.Empty;
         }
@@ -21,7 +25,7 @@ internal static class StringExtensions
     }
 
     [DebuggerStepThrough]
-    public static bool IsPresent(this string value) {
+    public static bool IsPresent(this string? value) {
         return !string.IsNullOrWhiteSpace(value);
     }
 }

@@ -1,5 +1,9 @@
 ﻿using System.Globalization;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Validation;
+#else
 using IdentityServer4.Validation;
+#endif
 
 namespace Indice.Features.Identity.Core.Scopes;
 

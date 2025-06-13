@@ -45,7 +45,7 @@
         </div>
         <div class="row">
             <div class="input-group flex flex-col mb-3">
-                <span>@(!Model.Tin.IsNullOrEmpty() ? Model.Tin : '-')</span>
+                <span>@(!string.IsNullOrWhiteSpace(Model.Tin) ? Model.Tin : '-')</span>
                 <label>@Localizer["Tax identification"]</label>
             </div>
             <div class="input-group flex flex-col mb-3">

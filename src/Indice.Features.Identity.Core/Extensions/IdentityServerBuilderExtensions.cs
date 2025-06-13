@@ -1,8 +1,17 @@
 ﻿using System;
+#if NET9_0_OR_GREATER
+using IdSrvModels = Duende.IdentityServer.Models;
+using Duende.IdentityServer.EntityFramework.Entities;
+using Duende.IdentityServer.EntityFramework.Options;
+using Duende.IdentityServer.ResponseHandling;
+using Duende.IdentityServer.Services;
+#else
+using IdSrvModels = IdentityServer4.Models;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Options;
 using IdentityServer4.ResponseHandling;
 using IdentityServer4.Services;
+#endif
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Events;
@@ -113,6 +122,6 @@ public static class IdentityServerBuilderExtensions
     public static void SetupTables(this OperationalStoreOptions options) {
         options.DefaultSchema = "auth";
         options.PersistedGrants = new TableConfiguration(nameof(PersistedGrant));
-        options.DeviceFlowCodes = new TableConfiguration(nameof(IdentityServer4.Models.DeviceCode));
+        options.DeviceFlowCodes = new TableConfiguration(nameof(IdSrvModels.DeviceCode));
     }
 }
