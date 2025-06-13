@@ -1,12 +1,17 @@
-﻿using IdentityServer4.Models;
+﻿#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Models;
+using Duende.IdentityServer.Services;
+#else
+using IdentityServer4.Models;
 using IdentityServer4.Services;
+#endif
 using Indice.Events;
 using Indice.Features.Identity.Core.Events;
 
 namespace Indice.Features.Identity.Core;
 internal sealed class ClientCacheInvalidationEventHandler : IPlatformEventHandler<ClientUpdatedEvent>, IPlatformEventHandler<ClientDeletedEvent>
 {
-    public ClientCacheInvalidationEventHandler(ICache<IdentityServer4.Models.Client> cache) {
+    public ClientCacheInvalidationEventHandler(ICache<Client> cache) {
         Cache = cache;
     }
 

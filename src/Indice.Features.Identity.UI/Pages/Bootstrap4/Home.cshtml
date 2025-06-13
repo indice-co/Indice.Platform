@@ -21,7 +21,7 @@
         </div>
         @if (!User.IsAuthenticated())
         {
-            <div class="section text-left" id="welcome-to-identityserver4">
+            <div class="section text-left" id="welcome-to-identity">
                 <p class="lead">
                     @Localizer["The Identity portal gives you access to all {0} services with one account. A place to manage your user profile and account access settings. Use the links below to get started.", Localizer[Settings.Organization!]]
                 </p>
@@ -36,7 +36,7 @@
             <h3 class="py-5">
                 @Localizer["Welcome back"] @User.FindDisplayName().
             </h3>
-            <div class="section text-left" id="welcome-to-identityserver4">
+            <div class="section text-left" id="welcome-to-identity">
                 <p class="lead">@Localizer["The Identity portal gives you access to all {0} services with one account. A place to manage your user profile and account access settings. Use the links below to get started.", Localizer[Settings.Organization!]]</p>
             </div>
             <partial name="_ServiceDeck" model="Model.Services" />

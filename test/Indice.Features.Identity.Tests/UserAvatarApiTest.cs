@@ -17,9 +17,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Indice.Security;
-using IdentityServer4;
 using IdentityModel.Client;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer;
+using Duende.IdentityServer.Models;
+#else
+using IdentityServer4;
 using IdentityServer4.Models;
+#endif
 using System.Security.Claims;
 using TokenResponse = IdentityModel.Client.TokenResponse;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -199,7 +204,7 @@ public class UserAvatarApiTest : IAsyncLifetime
                 GrantType.ResourceOwnerPassword
             },
             ClientSecrets = {
-                new IdentityServer4.Models.Secret(CLIENT_SECRET.ToSha256())
+                new (CLIENT_SECRET.ToSha256())
             },
             AllowedScopes = {
                 IdentityServerConstants.StandardScopes.OpenId,

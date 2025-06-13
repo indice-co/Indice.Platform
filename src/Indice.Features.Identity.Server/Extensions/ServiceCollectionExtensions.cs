@@ -5,9 +5,15 @@ using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using FluentValidation;
 using IdentityModel;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer.ResponseHandling;
+using Duende.IdentityServer.Services;
+#else
 using IdentityServer4.EntityFramework.Services;
 using IdentityServer4.ResponseHandling;
 using IdentityServer4.Services;
+using IndiceStores = Indice.IdentityServer.EntityFramework.Storage.Stores;
+#endif
 using Indice.Configuration;
 using Indice.Events;
 using Indice.Features.Identity.Core;
@@ -37,9 +43,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.FeatureManagement;
 using Microsoft.IdentityModel.Logging;
-using IndiceStores = Indice.IdentityServer.EntityFramework.Storage.Stores;
 using Indice.Features.Identity.Core.IdentityValidation;
-using SixLabors.ImageSharp;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -151,18 +155,27 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         .AddDelegationGrantValidator()
         .AddDeviceAuthentication(options => options.AddUserDeviceStoreEntityFrameworkCore())
         .AddExtendedResourceOwnerPasswordValidator()
+#if NET9_0_OR_GREATER
+        .AddConfigurationStoreCache()
+#else
         .AddDotnet7CompatibleStores()
         // Add store decorators for caching after calling AddDotnet7CompatibleStores.
         .AddInMemoryCaching()
         .AddClientStoreCache<IndiceStores.ClientStore>()
         .AddClientStoreCacheInvalidation()
         .AddResourceStoreCache<IndiceStores.ResourceStore>()
-        .AddCorsPolicyCache<CorsPolicyService>();
+        .AddCorsPolicyCache<CorsPolicyService>()
+#endif
+        ;
         if (webHostEnvironment.IsDevelopment()) {
             IdentityModelEventSource.ShowPII = true;
             identityServerBuilder.AddDeveloperSigningCredential();
         } else {
+#if NET9_0_OR_GREATER
+            var certificate = X509CertificateLoader.LoadPkcs12FromFile(Path.Combine(webHostEnvironment.ContentRootPath, configuration["IdentityServer:SigningPfxFile"] ?? string.Empty), configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
+#else
             var certificate = new X509Certificate2(Path.Combine(webHostEnvironment.ContentRootPath, configuration["IdentityServer:SigningPfxFile"] ?? string.Empty), configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
+#endif
             identityServerBuilder.AddSigningCredential(certificate);
         }
 
