@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.1.0] - Unreleased
 ### Added 
-- This release includes an upgrade to **Duende IdentityServer7**.
+- This release includes an upgrade to **Duende IdentityServer7**. (_This only applies when running on .NET 9.0 or greater._)
 
 ### Migrations
 To apply the necessary schema changes, run the following SQL script before starting the new version:
