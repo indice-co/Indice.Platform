@@ -1,5 +1,10 @@
-﻿using IdentityServer4;
+﻿#if NET9_0_OR_GREATER
+using Duende.IdentityServer;
+using Duende.IdentityServer.Models;
+#else
+using IdentityServer4;
 using IdentityServer4.Models;
+#endif
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Models;

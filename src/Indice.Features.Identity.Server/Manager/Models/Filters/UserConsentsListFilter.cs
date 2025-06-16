@@ -1,4 +1,8 @@
-﻿using static IdentityServer4.IdentityServerConstants;
+﻿#if NET9_0_OR_GREATER
+using static Duende.IdentityServer.IdentityServerConstants;
+#else
+using static IdentityServer4.IdentityServerConstants;
+#endif
 
 namespace Indice.Features.Identity.Server.Manager.Models;
 

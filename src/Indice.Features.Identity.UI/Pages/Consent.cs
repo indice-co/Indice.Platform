@@ -1,9 +1,18 @@
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer;
+using Duende.IdentityServer.Events;
+using Duende.IdentityServer.Extensions;
+using Duende.IdentityServer.Models;
+using Duende.IdentityServer.Services;
+using Duende.IdentityServer.Validation;
+#else
 using IdentityServer4;
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Validation;
+#endif
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core.Scopes;
 using Indice.Features.Identity.UI.Models;

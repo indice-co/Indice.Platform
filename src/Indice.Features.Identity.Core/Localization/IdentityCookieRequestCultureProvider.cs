@@ -47,7 +47,8 @@ public class IdentityCookieRequestCultureProvider : CookieRequestCultureProvider
                 Expires = DateTimeOffset.UtcNow.AddYears(1),
                 IsEssential = true, // Critical setting to apply new culture.
                 Path = "/",
-                HttpOnly = false
+                HttpOnly = true,
+                Secure = httpContext.Request.IsHttps
             }
         );
         return true;

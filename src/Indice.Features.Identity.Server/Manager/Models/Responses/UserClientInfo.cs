@@ -31,7 +31,7 @@ public class UserClientInfo
     /// <param name="createdAt">The grant creation time</param>
     /// <param name="expiresAt">The grant expiration time</param>
     /// <param name="scopes">The scopes requested</param>
-    public void UpdateWith(string type, DateTime createdAt, DateTime? expiresAt, IEnumerable<string> scopes) {
+    public void UpdateWith(string type, DateTime createdAt, DateTime? expiresAt, IEnumerable<string>? scopes) {
         if (CreatedAt == default || CreatedAt > createdAt) {
             CreatedAt = createdAt;
         }
@@ -40,7 +40,7 @@ public class UserClientInfo
         } else if (ExpiresAt < expiresAt) {
             ExpiresAt = expiresAt;
         }
-        Scopes = [.. Scopes.Union(scopes)];
+        Scopes = [.. Scopes.Union(scopes ?? [])];
         Types = [.. Types.Union([type])];
     }
 }

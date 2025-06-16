@@ -34,3 +34,28 @@ This helped alot as well as debuggin the MSBuild logs using this tool here
 Without the exists condition it would not be able to exclude depending on the host project.
 
 <!-- https://stackoverflow.com/questions/5187671/including-files-with-directory-specified-separately-in-msbuild -->
+
+Add the following to your project file to generate a debug file that lists all the duplicate assets found in the project. This is useful for debugging and ensuring that no unwanted assets are included in the final build.
+```xml
+<!-- Append to FileWrites so the file will be removed on clean -->
+    <ItemGroup>
+      <DebugFile Include="$(MSBuildProjectDirectory)\wwwroot\DebugFile.txt" />
+    </ItemGroup>
+    <!-- Generate config file here -->
+    <WriteLinesToFile File="@(DebugFile)" Lines="@(DuplicateAsset->'%(RelativePath) :: %(Path) :: %(_RelativePath)')" Overwrite="true" />
+    <ItemGroup>
+      <FileWrites Include="@(DebugFile)"/>
+    </ItemGroup>
+```
+
+To debug this regex you need a list of test paths that you want to match.
+```regex
+(#\[.+\]\?)(\.[a-zA-Z]+)+(?=\.gz|\.br)(\.gz|\.br)|(#\[.+\]\?)(\.[a-zA-Z]+)+
+```
+this is a sample list of paths that you can use to test the regex
+```
+admin/assets/img/logo#[.{fingerprint=bxdwwh9ky4}]?.svg.gz
+admin/assets/img/logo#[.{fingerprint}]?.svg
+admin/assets/img/logo#[.{fingerprint=bxdwwh9ky4}]?.en.md.gz
+admin/assets/img/logo#[.{fingerprint}]?.en.md
+```

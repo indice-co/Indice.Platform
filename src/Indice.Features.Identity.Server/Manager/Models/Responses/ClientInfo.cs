@@ -1,5 +1,11 @@
 ﻿using System.Collections.Generic;
-using IdentityServer4.Models;
+#if NET9_0_OR_GREATER
+using IdSrvModels = Duende.IdentityServer.Models;
+using IdSrvEntities = Duende.IdentityServer.EntityFramework.Entities;
+#else
+using IdSrvModels = IdentityServer4.Models;
+using IdSrvEntities = IdentityServer4.EntityFramework.Entities;
+#endif
 using Indice.Types;
 
 namespace Indice.Features.Identity.Server.Manager.Models;
@@ -26,9 +32,9 @@ public class ClientInfo
     /// <summary>Specifies whether the client can be edited or not.</summary>
     public bool NonEditable { get; set; }
 
-    /// <summary>Creates a new instance of <see cref="ClientInfo"/> from a <see cref="IdentityServer4.EntityFramework.Entities.Client"/> object.</summary>
+    /// <summary>Creates a new instance of <see cref="ClientInfo"/> from a <see cref="IdSrvEntities.Client"/> object.</summary>
     /// <param name="client">The client instance.</param>
-    public static ClientInfo FromClient(IdentityServer4.EntityFramework.Entities.Client client) => new() {
+    public static ClientInfo FromClient(IdSrvEntities.Client client) => new() {
         ClientId = client.ClientId,
         ClientName = client.ClientName,
         ClientUri = client.ClientUri,
@@ -58,18 +64,18 @@ public class SingleClientInfo : ClientInfo
     /// <summary>Gets or sets a salt value used in pair-wise subjectId generation for users of this client.</summary>
     public string? PairWiseSubjectSalt { get; set; }
     /// <summary>Specifies whether the access token is a reference token or a self contained JWT token.</summary>
-    public AccessTokenType? AccessTokenType { get; set; }
+    public IdSrvModels.AccessTokenType? AccessTokenType { get; set; }
     /// <summary>
     /// ReUse: the refresh token handle will stay the same when refreshing tokens. 
     /// OneTime: the refresh token handle will be updated when refreshing tokens.
     /// </summary>
-    public TokenUsage RefreshTokenUsage { get; set; }
+    public IdSrvModels.TokenUsage RefreshTokenUsage { get; set; }
     /// <summary>
     /// Absolute: the refresh token will expire on a fixed point in time (specified by the AbsoluteRefreshTokenLifetime) 
     /// Sliding: when refreshing the token, the lifetime of the refresh token will be renewed (by the amount specified in SlidingRefreshTokenLifetime).
     /// The lifetime will not exceed AbsoluteRefreshTokenLifetime.
     /// </summary>
-    public TokenExpiration RefreshTokenExpiration { get; set; }
+    public IdSrvModels.TokenExpiration RefreshTokenExpiration { get; set; }
     /// <summary>Gets or sets a value indicating whether to allow offline access.</summary>
     public bool? AllowOfflineAccess { get; set; }
     /// <summary>Gets or sets a value indicating whether the access token (and its claims) should be updated on a refresh token request.</summary>

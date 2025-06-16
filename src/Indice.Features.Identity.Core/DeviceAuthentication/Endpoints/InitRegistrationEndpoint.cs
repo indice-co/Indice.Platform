@@ -1,4 +1,14 @@
 ﻿using IdentityModel;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer;
+using Duende.IdentityServer.Extensions;
+using Duende.IdentityServer.Hosting;
+using Duende.IdentityServer.Models;
+using Duende.IdentityServer.ResponseHandling;
+using Duende.IdentityServer.Services;
+using Duende.IdentityServer.Stores;
+using Duende.IdentityServer.Validation;
+#else
 using IdentityServer4;
 using IdentityServer4.Extensions;
 using IdentityServer4.Hosting;
@@ -7,6 +17,7 @@ using IdentityServer4.ResponseHandling;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.Validation;
+#endif
 using Indice.AspNetCore.Extensions;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
@@ -59,7 +70,7 @@ internal class InitRegistrationEndpoint : IEndpointHandler
     public IdentityMessageDescriber IdentityMessageDescriber { get; }
     public DeviceAuthenticationOptions DeviceAuthenticationOptions { get; }
 
-    public async Task<IEndpointResult> ProcessAsync(HttpContext httpContext) {
+    public async Task<IEndpointResult?> ProcessAsync(HttpContext httpContext) {
         Logger.LogInformation($"[{nameof(InitRegistrationEndpoint)}] Started processing trusted device registration initiation endpoint.");
         var isPostRequest = HttpMethods.IsPost(httpContext.Request.Method);
         var isApplicationFormContentType = httpContext.Request.HasApplicationFormContentType();
@@ -76,7 +87,7 @@ internal class InitRegistrationEndpoint : IEndpointHandler
         var parameters = (await httpContext.Request.ReadFormAsync()).AsNameValueCollection();
         var requestValidationResult = await Request.Validate(parameters, tokenUsageResult.Token);
         if (requestValidationResult.IsError) {
-            return Error(requestValidationResult.Error, requestValidationResult.ErrorDescription);
+            return Error(requestValidationResult.Error!, requestValidationResult.ErrorDescription);
         }
         // Ensure device is not already registered or belongs to any other user.
         var existingDevice = await UserDeviceStore.GetByDeviceId(requestValidationResult.DeviceId);
@@ -94,7 +105,7 @@ internal class InitRegistrationEndpoint : IEndpointHandler
             return Error(OidcConstants.ProtectedResourceErrors.InvalidToken, "Identity resources could be validated.");
         }
         var requestedClaimTypes = resources.IdentityResources.SelectMany(x => x.UserClaims).Distinct();
-        var profileDataRequestContext = new ProfileDataRequestContext(requestValidationResult.Principal, requestValidationResult.Client, IdentityServerConstants.ProfileDataCallers.UserInfoEndpoint, requestedClaimTypes) {
+        var profileDataRequestContext = new ProfileDataRequestContext(requestValidationResult.Principal!, requestValidationResult.Client!, IdentityServerConstants.ProfileDataCallers.UserInfoEndpoint, requestedClaimTypes) {
             RequestedResources = validatedResources
         };
         var phoneNumberClaim = profileDataRequestContext.Subject.FindFirst(JwtClaimTypes.PhoneNumber);

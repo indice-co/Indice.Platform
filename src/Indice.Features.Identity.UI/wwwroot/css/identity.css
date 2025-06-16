@@ -1943,6 +1943,7 @@ li.idp a {
     color: #ffffff;
     background-color: #4285F4;
     border-color: #4285F4;
+    position: relative;
 }
 
 .idp-google a:not(.remove-idp).btn-google:hover {
@@ -1966,7 +1967,7 @@ li.idp a {
     background-repeat: no-repeat;
     background-position: 10px center;
     background-size: 24px;
-    margin-bottom: 5px;
+    margin-left: 0 !important;
 }
 
 .idp-google.row a:not(.remove-idp).btn-google::after {

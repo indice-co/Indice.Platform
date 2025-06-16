@@ -1,15 +1,17 @@
 ﻿using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Extensions;
+#else
 using IdentityServer4.Extensions;
+#endif
 using Indice.Security;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.Routing;
-using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.UI.TagHelpers;

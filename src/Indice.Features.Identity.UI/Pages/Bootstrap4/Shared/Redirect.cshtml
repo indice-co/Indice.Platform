@@ -1,7 +1,0 @@
-@model RedirectViewModel
-@inject IIdentityViewLocalizer Localizer
-
-<h1>@Localizer["You are now being returned to the application."]</h1>
-<p>@Localizer["Once complete, you may close this tab."]</p>
-<meta http-equiv="refresh" content="0;url=@Model.RedirectUri" data-url="@Model.RedirectUri" />
-<script type="text/javascript" src="~/js/signin-redirect.js" csp-nonce="true"></script>

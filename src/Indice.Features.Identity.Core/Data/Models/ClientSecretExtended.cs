@@ -1,9 +1,13 @@
 ﻿using System.Text.Json;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer.EntityFramework.Entities;
+#else
 using IdentityServer4.EntityFramework.Entities;
+#endif
 
 namespace Indice.Features.Identity.Core.Data.Models;
 
-/// <summary>Extends the IdentityServer4 <see cref="IdentityServer4.EntityFramework.Entities.ClientSecret"/> table.</summary>
+/// <summary>Extends the Duende.IdentityServer <see cref="ClientSecret"/> table.</summary>
 public class ClientSecretExtended
 {
     /// <summary>The id of the client.</summary>

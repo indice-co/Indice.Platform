@@ -10,6 +10,8 @@
     <StaticWebAssetsDisableProjectBuildPropsFileGeneration>true</StaticWebAssetsDisableProjectBuildPropsFileGeneration>
     <StaticWebAssetsDisableProjectBuildMultiTargetingPropsFileGeneration>true</StaticWebAssetsDisableProjectBuildMultiTargetingPropsFileGeneration>
     <StaticWebAssetsDisableProjectBuildTransitivePropsFileGeneration>true</StaticWebAssetsDisableProjectBuildTransitivePropsFileGeneration>
+    <StaticWebAssetFingerprintingEnabled>true</StaticWebAssetFingerprintingEnabled>
+    <StaticWebAssetsFingerprintContent>true</StaticWebAssetsFingerprintContent>
   </PropertyGroup>
   
   <ItemGroup>
@@ -46,12 +48,12 @@
     </Exec>
     <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js/npm is required to build this project. To continue, please install Node.js from https://nodejs.org/ or Visual Studio Installer, and then restart your command prompt or IDE." />
   </Target>
-  <Target Name="CopyLibs" BeforeTargets="PreBuildEvent">
+  <Target Name="CopyLibs" AfterTargets="NpmInstall">
     <Exec Command="npm run gulp -- copy:libs" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
       <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
     </Exec>
   </Target>
-  <Target Name="Sass" BeforeTargets="PreBuildEvent">
+  <Target Name="Sass" AfterTargets="NpmInstall">
     <Exec Command="npm run gulp -- sass" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
       <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
     </Exec>

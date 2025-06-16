@@ -1,5 +1,10 @@
-﻿using IdentityServer4.Events;
+﻿#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Events;
+using Duende.IdentityServer.Services;
+#else
+using IdentityServer4.Events;
 using IdentityServer4.Services;
+#endif
 using Indice.Features.Identity.SignInLogs.Enrichers;
 using Indice.Features.Identity.SignInLogs.Models;
 

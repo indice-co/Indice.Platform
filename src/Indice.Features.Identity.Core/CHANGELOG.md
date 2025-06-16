@@ -14,6 +14,18 @@ To apply the necessary schema changes, run the following SQL script before start
 
 [Duende SQL migration script](https://github.com/indice-co/Indice.Platform/blob/develop/docs/migrate-idsrv-4-to-7.sql)
 
+## [8.0.0] - 2025-06-01
+
+### Changed Validation Rule codes 
+
+|Old Code|New Code|
+|--|---|
+|PasswordContainsUserName|PasswordIdenticalToUserName|
+|PasswordHistory | PasswordRecentlyUsed|
+|PasswordIsBlacklisted | PasswordIsCommon|
+|PasswordContainsNonUnicodeCharacters | PasswordHasNonLatinChars|
+|PasswordContainsNotAllowedCharacters | PasswordContainsNotAllowedChars|
+
 ## [8.0.0-rc26] - 2025-04-22
 ### Added 
 - Support for confugurable per user Two Factor enforcement policy.

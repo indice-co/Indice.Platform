@@ -1,7 +1,12 @@
 ﻿using System.Security.Claims;
 using IdentityModel;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Models;
+using Duende.IdentityServer.Validation;
+#else
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
+#endif
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Totp;
 using Indice.Services;
@@ -53,7 +58,7 @@ public sealed class OtpAuthenticateExtensionGrantValidator : IExtensionGrantVali
             return;
         }
         /* 3. Check if given access token contains a subject. */
-        var subject = tokenValidationResult.Claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Subject)?.Value;
+        var subject = tokenValidationResult.Claims?.FirstOrDefault(x => x.Type == JwtClaimTypes.Subject)?.Value;
         if (string.IsNullOrWhiteSpace(subject)) {
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Claim 'sub' was not found.");
             return;
@@ -104,7 +109,7 @@ public sealed class OtpAuthenticateExtensionGrantValidator : IExtensionGrantVali
             return;
         }
         /* If OTP verification code is valid add the same claims that were present in the token and a new one to mark that OTP verification has been successfully completed. */
-        var claims = tokenValidationResult.Claims.ToList();
+        var claims = tokenValidationResult.Claims?.ToList();
         context.Result = new GrantValidationResult(subject, GrantType, claims);
     }
 }

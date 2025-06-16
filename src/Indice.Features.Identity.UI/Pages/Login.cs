@@ -1,9 +1,16 @@
 using System.Security.Claims;
 using IdentityModel;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer;
+using Duende.IdentityServer.Models;
+using Duende.IdentityServer.Services;
+using Duende.IdentityServer.Stores;
+#else
 using IdentityServer4;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
+#endif
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
@@ -226,7 +233,7 @@ public abstract class BaseLoginModel : BasePageModel
             if (client is not null) {
                 allowLocal = client.EnableLocalLogin;
                 if (client.IdentityProviderRestrictions is not null && client.IdentityProviderRestrictions.Any()) {
-                    providers = providers.Where(provider => !client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme)).ToList();
+                    providers = providers.Where(provider => !client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme!)).ToList();
                 }
             }
         }
