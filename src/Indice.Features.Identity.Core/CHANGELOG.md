@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.1.0] - Unreleased
+### Added 
+- This release includes an upgrade to **Duende IdentityServer7**. (_This only applies when running on .NET 9.0 or greater._)
+
+### Migrations
+To apply the necessary schema changes, run the following SQL script before starting the new version:
+
+[Duende SQL migration script](https://github.com/indice-co/Indice.Platform/blob/develop/docs/migrate-idsrv-4-to-7.sql)
+
 ## [8.0.0] - 2025-06-01
 
 ### Changed Validation Rule codes 
@@ -16,8 +25,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 |PasswordIsBlacklisted | PasswordIsCommon|
 |PasswordContainsNonUnicodeCharacters | PasswordHasNonLatinChars|
 |PasswordContainsNotAllowedCharacters | PasswordContainsNotAllowedChars|
- 
-
 
 ## [8.0.0-rc26] - 2025-04-22
 ### Added 
