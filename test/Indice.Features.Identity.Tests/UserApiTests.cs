@@ -55,7 +55,7 @@ public class UserApiTests : IAsyncLifetime
                     .AddInMemoryPersistedGrants();
             // indice stuff
             services.AddDefaultPlatformEventService();
-            services.AddPlatformEventHandler<UserCreatedEvent, UserCreatedAssetionHanbdler>();
+            services.AddPlatformEventHandler<UserCreatedEvent, UserCreatedAssertionHanbdler>();
             services.AddEndpointParameterFluentValidation();
             services.AddOutputCache();
             services.AddLogging();
@@ -121,11 +121,11 @@ public class UserApiTests : IAsyncLifetime
         return Task.CompletedTask;
     }
 
-    public class UserCreatedAssetionHanbdler : IPlatformEventHandler<UserCreatedEvent>
+    public class UserCreatedAssertionHanbdler : IPlatformEventHandler<UserCreatedEvent>
     {
         public Task Handle(UserCreatedEvent @event, PlatformEventArgs args) {
             args.ThrowOnError = true;
-            //Assert.Equal(4, @event.User.Claims.Count);
+            Assert.Equal(4, @event.User.Claims.Count);
             return Task.CompletedTask;
         }
     }
