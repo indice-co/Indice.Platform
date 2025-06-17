@@ -63,7 +63,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         EmailAsUserName = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.User)}", nameof(EmailAsUserName)) ?? false;
         RequirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedEmail)) ?? false;
         RequirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedPhoneNumber)) ?? false;
-        
+
     }
 
     /// <summary>Returns an <see cref="IQueryable{Device}"/> collection of devices.</summary>
@@ -186,7 +186,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         var result = await base.ChangePhoneNumberAsync(user, phoneNumber, token);
         if (result.Succeeded) {
             await _eventService.Publish(new PhoneNumberConfirmedEvent(UserEventContext.InitializeFromUser(user)));
-            
+
         }
         return result;
     }
@@ -211,23 +211,18 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     public override async Task<IdentityResult> ChangeEmailAsync(TUser user, string newEmail, string token) {
         ArgumentNullException.ThrowIfNull(user);
         var previousValue = user.Email;
-        var result = IdentityResult.Success;
-        if (EmailAsUserName) {
-            // Make sure the token is valid and the stamp matches before updating the username
-            if (!await VerifyUserTokenAsync(user, Options.Tokens.ChangeEmailTokenProvider, GetChangeEmailTokenPurpose(newEmail), token).ConfigureAwait(false)) {
-                return IdentityResult.Failed(ErrorDescriber.InvalidToken());
-            }
-            // change the username first if possible to match the new email so that unique constraints are enforced on the userstore before going forward.
-            result = await SetUserNameAsync(user, newEmail);
-            if (!result.Succeeded) {
-                return result;
-            }
-        }
         // do the default behavior that will update the email verify the new email and create a new security stamp.
-        result = await base.ChangeEmailAsync(user, newEmail, token);
+        var result = await base.ChangeEmailAsync(user, newEmail, token);
         if (result.Succeeded) {
             // publish the event that the email has changed.
             await _eventService.Publish(new UserEmailChangedEvent(UserEventContext.InitializeFromUser(user), previousValue!));
+            if (EmailAsUserName) {
+                // change the username first if possible to match the new email so that unique constraints are enforced on the userstore before going forward.
+                result = await SetUserNameAsync(user, newEmail);
+                if (!result.Succeeded) {
+                    return result;
+                }
+            }
         }
         return result;
     }
@@ -687,8 +682,8 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <summary>
     /// The <see cref="IdentityErrorDescriber"/> used to generate error messages.
     /// </summary>
-    public new ExtendedIdentityErrorDescriber ErrorDescriber { 
-        get => (ExtendedIdentityErrorDescriber)base.ErrorDescriber; 
+    public new ExtendedIdentityErrorDescriber ErrorDescriber {
+        get => (ExtendedIdentityErrorDescriber)base.ErrorDescriber;
         set => base.ErrorDescriber = value;
     }
 
