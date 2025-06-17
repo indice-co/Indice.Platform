@@ -13,7 +13,7 @@ public class CallingCodesProvider
     /// <summary>Creates a new instance of <see cref="CallingCodesProvider"/>.</summary>
     /// <param name="configuration">The application configuration.</param>
     public CallingCodesProvider(IConfiguration configuration) {
-        _supportedCountries = configuration.GetSection($"{nameof(IdentityOptions)}:User:PhoneNumberCountries").Get<List<SupportedCountry>>() ?? new List<SupportedCountry>();
+        _supportedCountries = configuration.GetSection($"{nameof(IdentityOptions)}:User:PhoneNumberCountries").Get<List<SupportedCountry>>() ?? [];
     }
 
     /// <summary> Retrieves all the supported countries. Defaults to GR if not configured. </summary>

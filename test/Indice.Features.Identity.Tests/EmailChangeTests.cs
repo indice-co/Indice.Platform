@@ -28,23 +28,22 @@ public class EmailChangeTests
                 ["IdentityOptions:User:EmailAsUserName"] = "true"
             });
         });
-        builder.ConfigureServices(services => {
+        builder.ConfigureServices((ctx, services) => {
             services.TryAddTransient<IPlatformEventService, DefaultPlatformEventService>();
-            var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
             services.AddTransient<IUserRequirementProvider<User>, UserRequirementProviderNoOp>();
-            services.AddTotpServiceFactory(configuration)
+            services.AddTotpServiceFactory(ctx.Configuration)
                     .AddSmsServiceNoop()
                     .AddPushNotificationServiceNoop()
                     .AddLocalization()
                     .AddDistributedMemoryCache()
                     .AddDbContext<ExtendedIdentityDbContext<User, Role>>(builder => builder.UseInMemoryDatabase(Guid.NewGuid().ToString()))
                     .AddIdentity<User, Role>()
-                    .AddDefaultTokenProviders() // <-- Add this line
+                    .AddDefaultTokenProviders()
                     .AddExtendedUserManager()
                     .AddExtendedSignInManager()
                     .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
                     .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
-                    .AddExtendedPhoneNumberTokenProvider(configuration)
+                    .AddExtendedPhoneNumberTokenProvider(ctx.Configuration)
                     .AddIdentityMessageDescriber<IdentityMessageDescriber>();
         });
         builder.Configure(app => { });
