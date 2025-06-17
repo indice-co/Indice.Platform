@@ -108,12 +108,7 @@ internal static class UserHandlers
                     AccessFailedCount = user.AccessFailedCount,
                     LastSignInDate = user.LastSignInDate,
                     PasswordExpirationDate = user.PasswordExpirationDate,
-                    Claims = ct == null ? user.Claims : user.Claims.Concat(new List<BasicClaimInfo> {
-                        new() {
-                            Type = claimType,
-                            Value = ct.ClaimValue
-                        }
-                    }).ToList()
+                    Claims = UserInfo.MergeClaims(user.Claims, claimType, ct.ClaimValue)
                 };
         }
 

@@ -101,7 +101,7 @@ public class UserHandlersTests : IAsyncLifetime
         };
         UserListFilter filter = new();
         // execute
-        _ = await UserHandlers.GetUsers(identityDbContext, options, filter, ["locale"]);
+        _ = await UserHandlers.GetUsers(identityDbContext, options, filter, ["locale", "customer_code"]);
         Assert.True(true);
     }
 
