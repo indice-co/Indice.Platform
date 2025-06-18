@@ -8,7 +8,7 @@
       <VersionPrefixBase>$(VersionPrefixMajor).0</VersionPrefixBase>
       
       <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
-      <VersionPrefixIdentity>$(VersionPrefixBase).2</VersionPrefixIdentity>
+      <VersionPrefixIdentity>$(VersionPrefixBase).3</VersionPrefixIdentity>
       <VersionPrefixIdentityUI>$(VersionPrefixBase).1</VersionPrefixIdentityUI>
       <VersionPrefixCases>$(VersionPrefixBase).1</VersionPrefixCases>
       <VersionPrefixMessages>$(VersionPrefixBase).1</VersionPrefixMessages>
