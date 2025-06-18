@@ -142,7 +142,7 @@ public class ExtendedTokenResponseGenerator : TokenResponseGenerator
                 Subject = request.ValidatedRequest.Subject,
                 ValidatedResources = validatedResources,
                 AccessTokenToHash = tokenResponse.AccessToken,
-                ValidatedRequest = request.ValidatedRequest
+                ValidatedRequest = request.ValidatedRequest,
             };
             var idToken = await TokenService.CreateIdentityTokenAsync(tokenRequest);
             var jwt = await TokenService.CreateSecurityTokenAsync(idToken);

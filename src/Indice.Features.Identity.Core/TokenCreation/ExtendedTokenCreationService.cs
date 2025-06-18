@@ -1,28 +1,19 @@
-﻿using IdentityModel;
-#if NET9_0_OR_GREATER
-using Duende.IdentityServer;
-using Duende.IdentityServer.Configuration;
-using Duende.IdentityServer.Services;
-using Duende.IdentityServer.Models;
-using Duende.IdentityServer.Internal.Extensions;
-using Duende.IdentityServer.Extensions;
-#else
+﻿#if !NET9_0_OR_GREATER
 using IdentityServer4;
 using IdentityServer4.Configuration;
 using IdentityServer4.Services;
 using IdentityServer4.Models;
 using IdentityServer4.Internal.Extensions;
 using IdentityServer4.Extensions;
-#endif
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Globalization;
+using IdentityModel;
 
 namespace Indice.Features.Identity.Core.TokenCreation;
-// TODO: revisit this extension to see if it is already implemented in the Duende version of the library.
 /// <inheritdoc />
 public class ExtendedTokenCreationService : ITokenCreationService
 {
@@ -202,3 +193,5 @@ public class ExtendedTokenCreationService : ITokenCreationService
         return Task.FromResult(handler.WriteToken(jwt));
     }
 }
+
+#endif
