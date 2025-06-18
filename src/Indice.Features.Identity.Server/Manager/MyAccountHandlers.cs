@@ -354,7 +354,8 @@ internal static partial class MyAccountHandlers
             ReturnUrl = request.ReturnUrl,
             Subject = userManager.MessageDescriber.ForgotPasswordMessageSubject,
             Token = code,
-            User = user
+            User = user,
+            Url = linkGenerator.GetUriByPage(httpContext, "/ForgotPasswordConfirmation", values: new { email = request.Email, token = code, request.ReturnUrl })
         };
         await emailService.SendAsync(message => {
             var builder = message
@@ -364,8 +365,7 @@ internal static partial class MyAccountHandlers
                 builder.UsingTemplate(endpointOptions.Value.Email.ForgotPasswordTemplate)
                        .WithData(data);
             } else {
-                var url = linkGenerator.GetUriByPage(httpContext, "/ForgotPasswordConfirmation", values: new { email = request.Email, token = code, request.ReturnUrl });
-                builder.WithBody(userManager.MessageDescriber.ForgotPasswordMessageBody(user, code, url));
+                builder.WithBody(userManager.MessageDescriber.ForgotPasswordMessageBody(user, data.Token, data.Url));
             }
         });
         return TypedResults.NoContent();
