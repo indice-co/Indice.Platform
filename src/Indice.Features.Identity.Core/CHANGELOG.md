@@ -10,9 +10,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - This release includes an upgrade to **Duende IdentityServer7**. (_This only applies when running on .NET 9.0 or greater._)
 
 ### Migrations
-To apply the necessary schema changes, run the following SQL script before starting the new version:
+1. **Duende Schema**:  To apply the necessary schema changes, run the following SQL script before starting the new version:
 
-[Duende SQL migration script](https://github.com/indice-co/Indice.Platform/blob/develop/docs/migrate-idsrv-4-to-7.sql)
+   [Duende SQL migration script](https://github.com/indice-co/Indice.Platform/blob/develop/docs/migrate-idsrv-4-to-7.sql)
+1. **Identity Schema**:  For aspent core Identity database schema on EFCore 9.0 there are some indexes to apply.
+   
+   ```sql
+   CREATE UNIQUE NONCLUSTERED INDEX [RoleNameIndex]
+       ON [auth].[Role]([NormalizedName] ASC) WHERE ([NormalizedName] IS NOT NULL);
+   GO
+      
+   CREATE NONCLUSTERED INDEX [IX_RoleClaim_RoleId]
+       ON [auth].[RoleClaim]([RoleId] ASC);
+   GO
+   
+   CREATE NONCLUSTERED INDEX [EmailIndex]
+       ON [auth].[User]([NormalizedEmail] ASC);
+   GO
+   
+   CREATE UNIQUE NONCLUSTERED INDEX [UserNameIndex]
+       ON [auth].[User]([NormalizedUserName] ASC) WHERE ([NormalizedUserName] IS NOT NULL);
+   GO
+   
+   CREATE NONCLUSTERED INDEX [IX_UserClaim_UserId]
+       ON [auth].[UserClaim]([UserId] ASC);
+   GO
+   
+   CREATE NONCLUSTERED INDEX [IX_UserDevice_DeviceId]
+       ON [auth].[UserDevice]([DeviceId] ASC);
+   GO
+   
+   CREATE NONCLUSTERED INDEX [IX_UserDevice_UserId]
+       ON [auth].[UserDevice]([UserId] ASC);
+   GO
+   
+   CREATE NONCLUSTERED INDEX [IX_UserLogin_UserId]
+       ON [auth].[UserLogin]([UserId] ASC);
+   GO
+   
+   CREATE NONCLUSTERED INDEX [IX_UserPassword_UserId]
+       ON [auth].[UserPassword]([UserId] ASC);
+   GO
+   
+   CREATE NONCLUSTERED INDEX [IX_UserRole_RoleId]
+       ON [auth].[UserRole]([RoleId] ASC);
+   GO
+
+   ```
 
 ## [8.0.0] - 2025-06-01
 
