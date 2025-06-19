@@ -5,7 +5,276 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+
+## [8.1.0] - 2025-06-15
+### For performance reasons, the following indexes were added to the `case` schema in cases db.
+```sql
+
+ALTER TABLE [case].[AccessRule] WITH NOCHECK
+    ADD CONSTRAINT [FK_AccessRule_Case_R_CaseId] FOREIGN KEY ([R_CaseId]) REFERENCES [case].[Case] ([Id]);
+
+GO
+CREATE NONCLUSTERED INDEX [IX_Attachment_CaseId]
+    ON [case].[Attachment]([CaseId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Case_CaseTypeId]
+    ON [case].[Case]([CaseTypeId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Case_CheckpointId]
+    ON [case].[Case]([CheckpointId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Case_DataId]
+    ON [case].[Case]([DataId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Case_PublicCheckpointId]
+    ON [case].[Case]([PublicCheckpointId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Case_PublicDataId]
+    ON [case].[Case]([PublicDataId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_CaseApproval_CaseId]
+    ON [case].[CaseApproval]([CaseId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_CaseApproval_CommentId]
+    ON [case].[CaseApproval]([CommentId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_CaseData_CaseId]
+    ON [case].[CaseData]([CaseId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_CaseType_CategoryId]
+    ON [case].[CaseType]([CategoryId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_CaseType_Code]
+    ON [case].[CaseType]([Code] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Checkpoint_CaseId]
+    ON [case].[Checkpoint]([CaseId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Checkpoint_CheckpointTypeId]
+    ON [case].[Checkpoint]([CheckpointTypeId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_AccessRule_R_CaseId]
+    ON [case].[AccessRule]([R_CaseId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_AccessRule_R_CaseTypeId]
+    ON [case].[AccessRule]([R_CaseTypeId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_AccessRule_R_CheckpointTypeId]
+    ON [case].[AccessRule]([R_CheckpointTypeId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_CheckpointType_CaseTypeId_Code]
+    ON [case].[CheckpointType]([CaseTypeId] ASC, [Code] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Comment_AttachmentId]
+    ON [case].[Comment]([AttachmentId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Comment_CaseId]
+    ON [case].[Comment]([CaseId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_NotificationSubscription_Email]
+    ON [case].[NotificationSubscription]([Email] ASC);
+GO
+```
+
+
+### For performance reasons, the following indexes were added to the `elsa` schema in workdlow DB.
+```sql
+
+-- [Elsa].[Bookmarks]
+CREATE NONCLUSTERED INDEX [IX_Bookmark_ActivityId]
+    ON [Elsa].[Bookmarks]([ActivityId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Bookmark_ActivityType]
+    ON [Elsa].[Bookmarks]([ActivityType] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Bookmark_ActivityType_TenantId_Hash]
+    ON [Elsa].[Bookmarks]([ActivityType] ASC, [TenantId] ASC, [Hash] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Bookmark_CorrelationId]
+    ON [Elsa].[Bookmarks]([CorrelationId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Bookmark_Hash]
+    ON [Elsa].[Bookmarks]([Hash] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Bookmark_Hash_CorrelationId_TenantId]
+    ON [Elsa].[Bookmarks]([Hash] ASC, [CorrelationId] ASC, [TenantId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Bookmark_TenantId]
+    ON [Elsa].[Bookmarks]([TenantId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Bookmark_WorkflowInstanceId]
+    ON [Elsa].[Bookmarks]([WorkflowInstanceId] ASC);
+GO
+
+
+
+---[Elsa].[Triggers]
+CREATE NONCLUSTERED INDEX [IX_Trigger_ActivityId]
+    ON [Elsa].[Triggers]([ActivityId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Trigger_ActivityType]
+    ON [Elsa].[Triggers]([ActivityType] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Trigger_ActivityType_TenantId_Hash]
+    ON [Elsa].[Triggers]([ActivityType] ASC, [TenantId] ASC, [Hash] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Trigger_Hash]
+    ON [Elsa].[Triggers]([Hash] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Trigger_Hash_TenantId]
+    ON [Elsa].[Triggers]([Hash] ASC, [TenantId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Trigger_TenantId]
+    ON [Elsa].[Triggers]([TenantId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Trigger_WorkflowDefinitionId]
+    ON [Elsa].[Triggers]([WorkflowDefinitionId] ASC);
+GO
+
+
+--[Elsa].[WorkflowDefinitions]
+CREATE UNIQUE NONCLUSTERED INDEX [IX_WorkflowDefinition_DefinitionId_VersionId]
+    ON [Elsa].[WorkflowDefinitions]([DefinitionId] ASC, [Version] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_WorkflowDefinition_IsLatest]
+    ON [Elsa].[WorkflowDefinitions]([IsLatest] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_WorkflowDefinition_IsPublished]
+    ON [Elsa].[WorkflowDefinitions]([IsPublished] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_WorkflowDefinition_Name]
+    ON [Elsa].[WorkflowDefinitions]([Name] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_WorkflowDefinition_Tag]
+    ON [Elsa].[WorkflowDefinitions]([Tag] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_WorkflowDefinition_TenantId]
+    ON [Elsa].[WorkflowDefinitions]([TenantId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_WorkflowDefinition_Version]
+    ON [Elsa].[WorkflowDefinitions]([Version] ASC);
+GO
+
+--[Elsa].[WorkflowExecutionLogRecords]
+
+CREATE NONCLUSTERED INDEX [IX_WorkflowExecutionLogRecord_ActivityId]
+    ON [Elsa].[WorkflowExecutionLogRecords]([ActivityId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_WorkflowExecutionLogRecord_ActivityType]
+    ON [Elsa].[WorkflowExecutionLogRecords]([ActivityType] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_WorkflowExecutionLogRecord_TenantId]
+    ON [Elsa].[WorkflowExecutionLogRecords]([TenantId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_WorkflowExecutionLogRecord_Timestamp]
+    ON [Elsa].[WorkflowExecutionLogRecords]([Timestamp] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_WorkflowExecutionLogRecord_WorkflowInstanceId]
+    ON [Elsa].[WorkflowExecutionLogRecords]([WorkflowInstanceId] ASC);
+GO
+
+
+---[Elsa].[WorkflowInstances]
+CREATE NONCLUSTERED INDEX [IX_WorkflowInstance_ContextId]
+    ON [Elsa].[WorkflowInstances]([ContextId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_WorkflowInstance_ContextType]
+    ON [Elsa].[WorkflowInstances]([ContextType] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_WorkflowInstance_CorrelationId]
+    ON [Elsa].[WorkflowInstances]([CorrelationId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_WorkflowInstance_CreatedAt]
+    ON [Elsa].[WorkflowInstances]([CreatedAt] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_WorkflowInstance_DefinitionId]
+    ON [Elsa].[WorkflowInstances]([DefinitionId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_WorkflowInstance_DefinitionVersionId]
+    ON [Elsa].[WorkflowInstances]([DefinitionVersionId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_WorkflowInstance_FaultedAt]
+    ON [Elsa].[WorkflowInstances]([FaultedAt] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_WorkflowInstance_FinishedAt]
+    ON [Elsa].[WorkflowInstances]([FinishedAt] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_WorkflowInstance_LastExecutedAt]
+    ON [Elsa].[WorkflowInstances]([LastExecutedAt] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_WorkflowInstance_Name]
+    ON [Elsa].[WorkflowInstances]([Name] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_WorkflowInstance_TenantId]
+    ON [Elsa].[WorkflowInstances]([TenantId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_WorkflowInstance_WorkflowStatus]
+    ON [Elsa].[WorkflowInstances]([WorkflowStatus] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_WorkflowInstance_WorkflowStatus_DefinitionId]
+    ON [Elsa].[WorkflowInstances]([WorkflowStatus] ASC, [DefinitionId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_WorkflowInstance_WorkflowStatus_DefinitionId_Version]
+    ON [Elsa].[WorkflowInstances]([WorkflowStatus] ASC, [DefinitionId] ASC, [Version] ASC);
+GO
+```
+
+## [8.0.0] - [2024-02-02]
 ### Added
 - Add commentsEnabled option to caseTypeConfig, setting this to false allows for the comment input field to be hidden when an approver approves/rejects a case
 - Rename columns in Case table from Customer to Owner and Addition of OwnerTin
