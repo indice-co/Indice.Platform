@@ -1,4 +1,5 @@
-﻿using Indice.AspNetCore.Authorization;
+﻿using System.Net.Http.Json;
+using Indice.AspNetCore.Authorization;
 using Indice.Events;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
@@ -6,16 +7,16 @@ using Indice.Features.Identity.Core.Data.Stores;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Tests.Security;
-using Microsoft.AspNetCore.Routing;
+using Indice.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Xunit;
-using System.Net.Http.Json;
-using Indice.Security;
 
 namespace Indice.Features.Identity.Tests;
 public class UserApiTests : IAsyncLifetime
@@ -35,6 +36,7 @@ public class UserApiTests : IAsyncLifetime
             // configure dependencies
             services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(builder => builder.UseInMemoryDatabase("IdentityDb"));
             services.AddDbContext<ExtendedConfigurationDbContext>(builder => builder.UseInMemoryDatabase("IdentityDb"));
+            services.AddTransient(sp => new ExtendedIdentityDbContextSeedOptions<User, Role> { InitialUsers = [], CustomRoles = [] });
             // aspnet identity stuff
             services.AddIdentity<User, Role>()
                        .AddExtendedUserManager()
@@ -53,11 +55,10 @@ public class UserApiTests : IAsyncLifetime
                     .AddInMemoryPersistedGrants();
             // indice stuff
             services.AddDefaultPlatformEventService();
-            services.AddPlatformEventHandler<UserCreatedEvent, UserCreatedAssetionHanbdler>();
+            services.AddPlatformEventHandler<UserCreatedEvent, UserCreatedAssertionHanbdler>();
             services.AddEndpointParameterFluentValidation();
-
+            services.AddOutputCache();
             services.AddLogging();
-            services.AddSession();
             services.AddLocalization()
                     .AddRouting()
                     .AddAuthorization(authOptions => 
@@ -77,7 +78,7 @@ public class UserApiTests : IAsyncLifetime
             app.UseAuthentication();
             app.UseRouting();
             app.UseAuthorization();
-            app.UseSession();
+            app.UseOutputCache();
             app.UseEndpoints(routes => {
                 var idbuilder = new IdentityServerEndpointRouteBuilder(routes);
                 idbuilder.MapManageUsers();
@@ -90,12 +91,12 @@ public class UserApiTests : IAsyncLifetime
         };
     }
 
-    [Fact(Skip = "Should find what to do with session state management")]
+    [Fact]
     public async Task CreateUserHandler_ShouldEmit_UserCreatedEvent_WithPopulatedClaims_Test() {
-
+        var rand = new Random().Next(1, 100);
         var response = await _httpClient.PostAsJsonAsync("/api/users", new Server.Manager.Models.CreateUserRequest {
-            UserName = "john.doe@indice.gr",
-            Email = "john.doe@indice.gr",
+            UserName = $"john.doe{rand}@indice.gr",
+            Email = $"john.doe{rand}@indice.gr",
             Password = "password",
             BypassPasswordValidation = true,
             FirstName = "John",
@@ -106,8 +107,8 @@ public class UserApiTests : IAsyncLifetime
             ],
             Roles = ["Developer"]
         }, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
-        
-        Assert.True(response.IsSuccessStatusCode);
+        var responseJson = await response.Content.ReadAsStringAsync();
+        Assert.True(response.IsSuccessStatusCode, responseJson);
     }
 
     public async Task DisposeAsync() {
@@ -115,10 +116,12 @@ public class UserApiTests : IAsyncLifetime
     }
 
     public Task InitializeAsync() {
+        var dbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
+        dbContext.SeedInitialData();
         return Task.CompletedTask;
     }
 
-    public class UserCreatedAssetionHanbdler : IPlatformEventHandler<UserCreatedEvent>
+    public class UserCreatedAssertionHanbdler : IPlatformEventHandler<UserCreatedEvent>
     {
         public Task Handle(UserCreatedEvent @event, PlatformEventArgs args) {
             args.ThrowOnError = true;

@@ -1,13 +1,12 @@
 ﻿using IdentityModel;
-using Indice.AspNetCore.Authorization;
 using Indice.Events;
 using Indice.Features.Identity.Core;
+using Indice.Features.Identity.Core.ResponseHandling;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Server;
-using Indice.Features.Identity.Tests.Security;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -15,15 +14,25 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.HttpOverrides;
 using Xunit;
 using Indice.Security;
-using IdentityServer4;
 using IdentityModel.Client;
-using IdentityServer4.Models;
 using System.Security.Claims;
-using TokenResponse = IdentityModel.Client.TokenResponse;
-using Microsoft.AspNetCore.HttpOverrides;
 using System.Net.Http.Headers;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer;
+using Duende.IdentityServer.Models;
+using Duende.IdentityServer.ResponseHandling;
+using Duende.IdentityServer.Services;
+#else
+using IdentityServer4;
+using IdentityServer4.Models;
+using IdentityServer4.ResponseHandling;
+using IdentityServer4.Services;
+using Indice.Features.Identity.Core.TokenCreation;
+#endif
+using TokenResponse = IdentityModel.Client.TokenResponse;
 
 namespace Indice.Features.Identity.Tests;
 public class UserAvatarApiTest : IAsyncLifetime
@@ -57,10 +66,10 @@ public class UserAvatarApiTest : IAsyncLifetime
                        .AddIdentityMessageDescriber();
 
             services.AddIdentityServer()
-             .AddInMemoryIdentityResources([])
-                    .AddInMemoryApiScopes([])
-                    .AddInMemoryApiResources([])
-                    .AddInMemoryClients([])
+             .AddInMemoryIdentityResources(GetIdentityResources())
+                    .AddInMemoryApiScopes(GetApiScopes())
+                    .AddInMemoryApiResources(GetApiResources())
+                    .AddInMemoryClients(GetClients())
             .AddAspNetIdentity<User>()
             .AddInMemoryPersistedGrants()
             .AddExtendedResourceOwnerPasswordValidator()
@@ -68,11 +77,14 @@ public class UserAvatarApiTest : IAsyncLifetime
             .AddSignInLogs(options => {
                 options.UseEntityFrameworkCoreStore(dbBuilder => dbBuilder.UseInMemoryDatabase(_signInLogDatabaseName));
                 options.Enable = true;
-            })
-            ;
-
+            });
+            services.AddEmailServiceNoop();
+            services.AddSmsServiceNoop();
+            services.AddSingleton<CallingCodesProvider>();
+            services.AddEndpointParameterFluentValidation();
+            services.AddTotpServiceFactory(ctx.Configuration);
+            services.AddOutputCache();
             services.AddLogging();
-            services.AddSession();
             services.AddDefaultPlatformEventService();
             services.AddLocalization()
             .AddRouting()
@@ -82,14 +94,13 @@ public class UserAvatarApiTest : IAsyncLifetime
                             .RequireAuthenticatedUser()
                             .RequireAssertion(x => x.User.HasScope(IdentityEndpoints.SubScopes.Users) && x.User.CanReadUsers());
                 }))
-            .AddAuthentication(MockAuthenticationDefaults.AuthenticationScheme)
-            .AddJwtBearer((options) => {
-                options.ForwardDefaultSelector = (httpContext) => MockAuthenticationDefaults.AuthenticationScheme;
-            })
-                    .AddMock("IdentityServerApiAccessToken", "LocalApi", () => TestPrincipals.UserWriter);
-
-            // services.AddTransient<ITokenResponseGenerator, ExtendedTokenResponseGenerator>();
-            //services.AddTransient<ITokenCreationService, ExtendedTokenCreationService>();
+            .AddAuthentication()
+            .AddLocalApi("IdentityServerApiAccessToken", options => options.ExpectedScope = "identity");
+            
+            services.AddTransient<ITokenResponseGenerator, ExtendedTokenResponseGenerator>();
+#if !NET9_0_OR_GREATER
+            services.AddTransient<ITokenCreationService, ExtendedTokenCreationService>();
+#endif
         });
         builder.Configure(app => {
             app.UseForwardedHeaders(new() {
@@ -101,12 +112,13 @@ public class UserAvatarApiTest : IAsyncLifetime
             app.UseAuthentication();
             app.UseRouting();
             app.UseAuthorization();
-            app.UseSession();
+            app.UseOutputCache();
             app.UseEndpoints(routes => {
                 var idbuilder = new IdentityServerEndpointRouteBuilder(routes);
-                //idbuilder.MapMyAccount();
+                idbuilder.MapMyAccount();
                 idbuilder.MapManageUsers();
-            });
+                idbuilder.MapProfilePictures();
+            });   
         });
         var server = new TestServer(builder);
         var handler = server.CreateHandler();
@@ -116,7 +128,7 @@ public class UserAvatarApiTest : IAsyncLifetime
         };
     }
 
-    [Fact(Skip = "Pending to fix LoginWithPasswordGrant")]
+    [Fact]
     public async Task Upload_Profile_Image_Test() {
         var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var user = new User {
@@ -131,9 +143,8 @@ public class UserAvatarApiTest : IAsyncLifetime
         // 1. Create a new user.
         var result = await userManager.CreateAsync(user, password: "xxxxxxx", validatePassword: false);
         if (!result.Succeeded) {
-            Assert.Fail("User could not be created.");
+            Assert.Fail($"User could not be created. {string.Join(", ", result.Errors)}");
         }
-        //await userManager.AddToRoleAsync(user, BasicRoleNames.Developer);
 
         using var client = new HttpClient();
         var tokenResponse = await LoginWithPasswordGrant("someone@indice.gr", "xxxxxxx");
@@ -145,7 +156,7 @@ public class UserAvatarApiTest : IAsyncLifetime
         _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + tokenResponse.AccessToken);
         _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("multipart/form-data"));
 
-        var response = await _httpClient.PostAsync("/api/my/avatar", multipartContent);
+        var response = await _httpClient.PutAsync("/api/my/account/picture", multipartContent);
         Assert.True(response.IsSuccessStatusCode);
     }
 
@@ -157,7 +168,7 @@ public class UserAvatarApiTest : IAsyncLifetime
             Address = discoveryDocument.TokenEndpoint,
             ClientId = CLIENT_ID,
             ClientSecret = CLIENT_SECRET,
-            Scope = $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1",
+            Scope = $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} identity",
             UserName = userName,
             Password = password
         };
@@ -199,12 +210,12 @@ public class UserAvatarApiTest : IAsyncLifetime
                 GrantType.ResourceOwnerPassword
             },
             ClientSecrets = {
-                new IdentityServer4.Models.Secret(CLIENT_SECRET.ToSha256())
+                new (CLIENT_SECRET.ToSha256())
             },
             AllowedScopes = {
                 IdentityServerConstants.StandardScopes.OpenId,
                 IdentityServerConstants.StandardScopes.Phone,
-                "scope1"
+                "identity"
             },
             RequireConsent = false,
             RequirePkce = false,
@@ -220,7 +231,7 @@ public class UserAvatarApiTest : IAsyncLifetime
 
 
     private static List<ApiScope> GetApiScopes() => new() {
-        new ApiScope(name: "scope1", displayName: "Scope No. 1", userClaims: new string[] {
+        new ApiScope(name: "identity", displayName: "Scope No. 1", userClaims: new string[] {
             JwtClaimTypes.Email,
             JwtClaimTypes.EmailVerified,
             JwtClaimTypes.FamilyName,
@@ -233,8 +244,8 @@ public class UserAvatarApiTest : IAsyncLifetime
     };
 
     private static List<ApiResource> GetApiResources() => new() {
-        new ApiResource(name: "api1", displayName: "API No. 1") {
-            Scopes = { "scope1" }
+        new ApiResource(name: "identity", displayName: "API No. 1") {
+            Scopes = { "identity" }
         }
     };
     #endregion
@@ -245,6 +256,8 @@ public class UserAvatarApiTest : IAsyncLifetime
     }
 
     public Task InitializeAsync() {
+        var dbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
+        dbContext.SeedInitialData();
         return Task.CompletedTask;
     }
 }

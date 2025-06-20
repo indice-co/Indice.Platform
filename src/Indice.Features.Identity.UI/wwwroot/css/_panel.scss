@@ -251,6 +251,7 @@ li.idp {
             color: #ffffff;
             background-color: #4285F4;
             border-color: #4285F4;
+            position: relative;
 
             &:hover {
                 background-color: #4285F4CC;
@@ -273,7 +274,7 @@ li.idp {
                 background-repeat: no-repeat;
                 background-position: 10px center;
                 background-size: 24px;
-                margin-bottom: 5px;
+                margin-left: 0 !important;
             }
         }
     }

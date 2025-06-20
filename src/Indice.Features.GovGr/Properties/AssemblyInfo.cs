@@ -1,3 +1,3 @@
 using Microsoft.Extensions.Localization;
 
-[assembly:ResourceLocation("Resources")]
+[assembly: ResourceLocation("Resources")]

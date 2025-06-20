@@ -1,8 +1,14 @@
 ﻿using System.Collections.Specialized;
 using IdentityModel;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer;
+using Duende.IdentityServer.Stores;
+using Duende.IdentityServer.Validation;
+#else
 using IdentityServer4;
 using IdentityServer4.Stores;
 using IdentityServer4.Validation;
+#endif
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
 using Indice.Services;
@@ -27,7 +33,7 @@ internal class InitRegistrationRequestValidator : RequestValidatorBase<InitRegis
         // The access token needs to be valid and have at least the OpenID scope.
         var tokenValidationResult = await TokenValidator.ValidateAccessTokenAsync(accessToken, IdentityServerConstants.StandardScopes.OpenId);
         if (tokenValidationResult.IsError) {
-            return Error(tokenValidationResult.Error, "Provided access token is not valid.");
+            return Error(tokenValidationResult.Error!, "Provided access token is not valid.");
         }
         // The access token must have a 'sub' and 'client_id' claim.
         var claimsToValidate = new[] {
@@ -35,7 +41,7 @@ internal class InitRegistrationRequestValidator : RequestValidatorBase<InitRegis
             JwtClaimTypes.ClientId
         };
         foreach (var claim in claimsToValidate) {
-            var claimValue = tokenValidationResult.Claims.SingleOrDefault(x => x.Type == claim)?.Value;
+            var claimValue = tokenValidationResult.Claims!.SingleOrDefault(x => x.Type == claim)?.Value;
             if (string.IsNullOrWhiteSpace(claimValue)) {
                 return Error(OidcConstants.ProtectedResourceErrors.InvalidToken, $"Access token must contain the '{claim}' claim.");
             }
@@ -73,11 +79,11 @@ internal class InitRegistrationRequestValidator : RequestValidatorBase<InitRegis
             return Error(OidcConstants.AuthorizeErrors.UnauthorizedClient, $"Trusted device flow is not enabled for this client.");
         }
         // Find requested scopes.
-        var requestedScopes = tokenValidationResult.Claims.Where(claim => claim.Type == JwtClaimTypes.Scope).Select(claim => claim.Value).ToList();
+        var requestedScopes = tokenValidationResult.Claims!.Where(claim => claim.Type == JwtClaimTypes.Scope).Select(claim => claim.Value).ToList();
         // Create principal from incoming access token excluding protocol claims.
-        var claims = tokenValidationResult.Claims.Where(x => !Constants.ProtocolClaimsFilter.Contains(x.Type));
+        var claims = tokenValidationResult.Claims!.Where(x => !Constants.ProtocolClaimsFilter.Contains(x.Type));
         var principal = Principal.Create("TrustedDevice", claims.ToArray());
-        var userId = tokenValidationResult.Claims.Single(x => x.Type == JwtClaimTypes.Subject).Value;
+        var userId = tokenValidationResult.Claims!.Single(x => x.Type == JwtClaimTypes.Subject).Value;
         // Finally return result.
         return new InitRegistrationRequestValidationResult {
             IsError = false,

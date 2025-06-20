@@ -8,17 +8,24 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using IdentityModel;
 using IdentityModel.Client;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer;
+using Duende.IdentityServer.Models;
+using Duende.IdentityServer.ResponseHandling;
+using Duende.IdentityServer.Services;
+#else
 using IdentityServer4;
 using IdentityServer4.Models;
 using IdentityServer4.ResponseHandling;
 using IdentityServer4.Services;
+using Indice.Features.Identity.Core.TokenCreation;
+#endif
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
 using Indice.Features.Identity.Core.ImpossibleTravel;
 using Indice.Features.Identity.Core.ResponseHandling;
-using Indice.Features.Identity.Core.TokenCreation;
 using Indice.Features.Identity.Tests.Models;
 using Indice.Security;
 using Indice.Serialization;
@@ -259,7 +266,9 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
                 options.ImpossibleTravel.FlowType = ImpossibleTravelFlowType.PromptMfa;
             });
             services.AddTransient<ITokenResponseGenerator, ExtendedTokenResponseGenerator>();
+#if !NET9_0_OR_GREATER
             services.AddTransient<ITokenCreationService, ExtendedTokenCreationService>();
+#endif
         });
         builder.Configure(app => {
             app.UseForwardedHeaders(new() {
@@ -532,6 +541,10 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
             }
         });
         Assert.False(tokenResponse.IsError);
+        var access_token_base64 = tokenResponse.AccessToken;
+        var access_token = new Microsoft.IdentityModel.JsonWebTokens.JsonWebToken(access_token_base64);
+        var iat = access_token.IssuedAt;
+        Assert.NotEqual(default(DateTime), iat);
     }
 
     [Fact]

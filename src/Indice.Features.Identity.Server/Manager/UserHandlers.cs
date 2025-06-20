@@ -1,10 +1,18 @@
 ﻿using System.Security.Claims;
 using IdentityModel;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Events;
+using Duende.IdentityServer.Extensions;
+using Duende.IdentityServer.Services;
+using Duende.IdentityServer.Stores;
+using Duende.IdentityServer.Stores.Serialization;
+#else
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.Stores.Serialization;
+#endif
 using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
@@ -100,12 +108,7 @@ internal static class UserHandlers
                     AccessFailedCount = user.AccessFailedCount,
                     LastSignInDate = user.LastSignInDate,
                     PasswordExpirationDate = user.PasswordExpirationDate,
-                    Claims = ct == null ? user.Claims : user.Claims.Concat(new List<BasicClaimInfo> {
-                        new() {
-                            Type = claimType,
-                            Value = ct.ClaimValue
-                        }
-                    }).ToList()
+                    Claims = UserInfo.MergeClaims(user.Claims, claimType, ct.ClaimValue)
                 };
         }
 
@@ -487,7 +490,7 @@ internal static class UserHandlers
     ) {
         var userClients = await grants.GetAllGroupedByClientAsync(serializer, userId);
         foreach (var grantGroup in userClients) {
-            var client = await clientStore.FindClientByIdAsync(grantGroup.ClientId);
+            var client = await clientStore.FindClientByIdAsync(grantGroup.ClientId!);
             if (client != null) {
                 grantGroup.ClientId = client.ClientId;
                 grantGroup.ClientName = client.ClientName;

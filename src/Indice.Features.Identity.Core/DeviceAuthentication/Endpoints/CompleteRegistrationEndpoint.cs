@@ -1,7 +1,13 @@
 ﻿using IdentityModel;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Extensions;
+using Duende.IdentityServer.Hosting;
+using Duende.IdentityServer.ResponseHandling;
+#else
 using IdentityServer4.Extensions;
 using IdentityServer4.Hosting;
 using IdentityServer4.ResponseHandling;
+#endif
 using Indice.AspNetCore.Extensions;
 using Indice.Features.Identity.Core.DeviceAuthentication.Endpoints.Results;
 using Indice.Features.Identity.Core.DeviceAuthentication.ResponseHandling;
@@ -34,7 +40,7 @@ internal class CompleteRegistrationEndpoint : IEndpointHandler
     public ILogger<CompleteRegistrationEndpoint> Logger { get; }
     public IUserDeviceStore UserDeviceStore { get; }
 
-    public async Task<IEndpointResult> ProcessAsync(HttpContext httpContext) {
+    public async Task<IEndpointResult?> ProcessAsync(HttpContext httpContext) {
         Logger.LogInformation($"[{nameof(CompleteRegistrationEndpoint)}] Started processing trusted device registration endpoint.");
         var isPostRequest = HttpMethods.IsPost(httpContext.Request.Method);
         var isApplicationFormContentType = httpContext.Request.HasApplicationFormContentType();
@@ -51,7 +57,7 @@ internal class CompleteRegistrationEndpoint : IEndpointHandler
         var parameters = (await httpContext.Request.ReadFormAsync()).AsNameValueCollection();
         var requestValidationResult = await Request.Validate(parameters, tokenUsageResult.Token);
         if (requestValidationResult.IsError) {
-            return Error(requestValidationResult.Error, requestValidationResult.ErrorDescription);
+            return Error(requestValidationResult.Error!, requestValidationResult.ErrorDescription);
         }
         // Get device that is operating, if any.
         var existingDevice = await UserDeviceStore.GetByDeviceId(requestValidationResult.DeviceId);

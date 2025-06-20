@@ -44,14 +44,7 @@ public class ContactService : IContactService
                 return;
             }
         }
-        if (string.IsNullOrWhiteSpace(request.RecipientId)) {
-            contact = await DbContext.Contacts.FirstOrDefaultAsync(x => x.RecipientId == request.RecipientId);
-            if (contact is not null && !string.IsNullOrWhiteSpace(contact.Email) && contact.Email.Equals(request.Email, StringComparison.OrdinalIgnoreCase)) {
-                contact.MapFromCreateDistributionListContactRequest(request);
-                await DbContext.SaveChangesAsync();
-                return;
-            }
-        }
+       
         contact = Mapper.ToDbContact(request);
         contact.DistributionListContacts.Add(new DbDistributionListContact {
             ContactId = Guid.NewGuid(),

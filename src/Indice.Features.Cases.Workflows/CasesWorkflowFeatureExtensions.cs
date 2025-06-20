@@ -1,42 +1,43 @@
-﻿using Elsa;
+﻿using System;
+using Elsa;
 using Elsa.Activities.Http.Services;
 using Elsa.Activities.UserTask.Extensions;
 using Elsa.Persistence.EntityFramework.Core;
 using Elsa.Persistence.EntityFramework.Core.Extensions;
 using Elsa.Retention.Extensions;
+using Elsa.Serialization;
 using Elsa.Server.Api.Extensions;
 using Elsa.Server.Api.Mapping;
 using Elsa.Server.Api.Services;
+using IdentityModel;
 using Indice.Features.Cases.Workflows;
+using Indice.Features.Cases.Workflows.Bookmarks;
 using Indice.Features.Cases.Workflows.Data;
+using Indice.Features.Cases.Workflows.Extensions;
+using Indice.Features.Cases.Workflows.Integrations;
+using Indice.Features.Cases.Workflows.Localization;
+using Indice.Features.Cases.Workflows.Serialization;
 using Indice.Features.Cases.Workflows.Services;
+using Indice.Features.Cases.Workflows.Services.Abstractions;
 using Indice.Security;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using NodaTime;
-using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using IdentityModel;
-using Indice.Features.Cases.Workflows.Bookmarks;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.Hosting;
-using Elsa.Serialization;
-using Indice.Features.Cases.Workflows.Extensions;
-using Indice.Features.Cases.Workflows.Integrations;
-using Indice.Features.Cases.Workflows.Localization;
-using Indice.Features.Cases.Workflows.Serialization;
-using Indice.Features.Cases.Workflows.Services.Abstractions;
+using NodaTime;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -98,6 +99,9 @@ public static class CasesWorkflowFeatureExtensions
             })
             .AddEmailActivities(casesWorkflowOptions.ConfigureSmtp)
             .AddUserTaskActivities()
+            #if NET8_0
+            .AddElsaStores()
+            #endif
             .AddActivitiesFrom(typeof(CasesWorkflowOptions).Assembly);
 
             // Register consumer assembly
@@ -145,8 +149,8 @@ public static class CasesWorkflowFeatureExtensions
             options.ClientSecret = builder.Configuration.GetApiSecret("ClientSecret");
             options.Scope = builder.Configuration.GetApiResourceName();
         });
-        builder.Services.AddHttpClient<CasesManagerHttpClient>(httpClient => {
-                httpClient.BaseAddress = new Uri(builder.Configuration.GetHost()!);
+        builder.Services.AddHttpClient<CasesManagerHttpClient>((serviceProvider, httpClient) => {
+                httpClient.BaseAddress = serviceProvider.GetServerLoopbackUri();
             })
             .AddClientCredentialsTokenHandler("workflow")
             .ClearResilienceHandlers();

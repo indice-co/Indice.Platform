@@ -1,6 +1,11 @@
 ﻿using System.Security.Claims;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Models;
+using Duende.IdentityServer.Validation;
+#else
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
+#endif
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Totp;
 using Indice.Security;
@@ -44,7 +49,7 @@ public class TotpGrantValidator : IExtensionGrantValidator
             return;
         }
         // Get user's identity.
-        var sub = validationResult.Claims.FirstOrDefault(claim => claim.Type == BasicClaimTypes.Subject)?.Value;
+        var sub = validationResult.Claims?.FirstOrDefault(claim => claim.Type == BasicClaimTypes.Subject)?.Value;
         var user = new ClaimsPrincipal(new ClaimsIdentity(validationResult.Claims));
         var totpResult = await _totpServiceFactory.Create<User>().VerifyAsync(user, code, reason);
         if (!totpResult.Success) {

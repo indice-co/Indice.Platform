@@ -1,6 +1,12 @@
-﻿using IdentityServer4.Models;
+﻿#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Models;
+using Duende.IdentityServer.Services;
+using Duende.IdentityServer.Stores;
+#else
+using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
+#endif
 using Indice.Events;
 using Indice.Features.Identity.Core.Events;
 using Microsoft.AspNetCore.Http;
