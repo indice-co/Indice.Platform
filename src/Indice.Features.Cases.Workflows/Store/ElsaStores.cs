@@ -26,7 +26,6 @@ internal class ElsaStores
         }
 
     }
-
 }
 
 internal static class ElsaStoresExtensions
