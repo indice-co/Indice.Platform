@@ -13,7 +13,9 @@ public static class HttpClientFactoryExtensions
     /// <param name="serviceProvider">The <see cref="IServiceProvider"/> instance used to resolve the server and its features.</param>
     /// <returns>A <see cref="Uri"/> representing the server's loopback address with the host set to "localhost" and the internal port.</returns>
     public static Uri GetServerLoopbackUri(this IServiceProvider serviceProvider) {
-        var address = serviceProvider.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>()!.Addresses.First();
+        var address = serviceProvider.GetRequiredService<IServer>()
+                                     .Features.Get<IServerAddressesFeature>()!
+                                     .Addresses.First();
         var uriBuilder = new UriBuilder(address) {
             Host = "localhost"
         };
