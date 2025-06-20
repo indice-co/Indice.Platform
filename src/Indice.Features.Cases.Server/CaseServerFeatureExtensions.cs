@@ -66,8 +66,8 @@ public static class CaseServerFeatureExtensions
             options.ClientSecret = builder.Configuration.GetApiSecret("ClientSecret");
             options.Scope = serverOptions.RequiredScope;
         });
-        builder.Services.AddHttpClient<WorkflowHttpClient>(httpClient => {
-                httpClient.BaseAddress = new Uri(builder.Configuration.GetHost()!);
+        builder.Services.AddHttpClient<WorkflowHttpClient>((serviceProvider, httpClient) => {
+                httpClient.BaseAddress = serviceProvider.GetServerLoopbackUri();
             })
             .ClearResilienceHandlers()
             .AddClientCredentialsTokenHandler("cases");

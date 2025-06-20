@@ -1,4 +1,5 @@
-﻿using Elsa;
+﻿using System;
+using Elsa;
 using Elsa.Activities.Http.Services;
 using Elsa.Activities.UserTask.Extensions;
 using Elsa.Persistence.EntityFramework.Core;
@@ -148,8 +149,8 @@ public static class CasesWorkflowFeatureExtensions
             options.ClientSecret = builder.Configuration.GetApiSecret("ClientSecret");
             options.Scope = builder.Configuration.GetApiResourceName();
         });
-        builder.Services.AddHttpClient<CasesManagerHttpClient>(httpClient => {
-                httpClient.BaseAddress = new Uri(builder.Configuration.GetHost()!);
+        builder.Services.AddHttpClient<CasesManagerHttpClient>((serviceProvider, httpClient) => {
+                httpClient.BaseAddress = serviceProvider.GetServerLoopbackUri();
             })
             .AddClientCredentialsTokenHandler("workflow")
             .ClearResilienceHandlers();

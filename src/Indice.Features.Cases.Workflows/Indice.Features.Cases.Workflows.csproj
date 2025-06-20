@@ -17,7 +17,7 @@
     <PackageReference Include="Elsa.Retention" Version="2.15.1" />
     <PackageReference Include="Elsa.Server.Api" Version="2.15.1" />
     <PackageReference Include="JsonSchema.Net" Version="7.3.4" />
-    <PackageReference Include="Indice.Services" Version="$(VersionPrefixCore)-*" />
+    <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefixCore)-*" />
     <PackageReference Include="IdentityModel" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.6.0" />
   </ItemGroup>
@@ -33,7 +33,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.6" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Indice.Services\Indice.Services.csproj" />
+    <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="CasesResources.Designer.cs">
