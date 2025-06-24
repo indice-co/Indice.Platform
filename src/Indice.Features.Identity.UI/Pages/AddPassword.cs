@@ -4,7 +4,6 @@ using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Identity.UI.Pages;
@@ -16,24 +15,19 @@ namespace Indice.Features.Identity.UI.Pages;
 [ValidateAntiForgeryToken]
 public abstract class BaseAddPasswordModel : BasePageModel
 {
-    private readonly IStringLocalizer<BaseAddPasswordModel> _localizer;
-
     /// <summary>Creates a new instance of <see cref="BaseAddPasswordModel"/> class.</summary>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="logger">Represents a type used to perform logging.</param>
-    /// <param name="localizer">Represents a service that provides localized strings.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseAddPasswordModel(
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager,
-        ILogger<BaseAddPasswordModel> logger,
-        IStringLocalizer<BaseAddPasswordModel> localizer
+        ILogger<BaseAddPasswordModel> logger
     ) {
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         SignInManager = signInManager;
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
     }
 
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
@@ -83,7 +77,6 @@ internal class AddPasswordModel : BaseAddPasswordModel
     public AddPasswordModel(
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager,
-        ILogger<BaseAddPasswordModel> logger,
-        IStringLocalizer<BaseAddPasswordModel> localizer
-    ) : base(userManager, signInManager, logger, localizer) { }
+        ILogger<BaseAddPasswordModel> logger
+    ) : base(userManager, signInManager, logger) { }
 }

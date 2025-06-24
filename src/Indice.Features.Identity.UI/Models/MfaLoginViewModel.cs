@@ -33,6 +33,8 @@ public partial class MfaLoginViewModel<TUser> : MfaLoginInputModel where TUser :
     public string? PhoneNumberMasked => PhoneNumberAvailable ? GetMaskPhoneNumberRegex().Replace(User.PhoneNumber!, "X") : null;
     /// <summary>Indicates whether the phone number is available for the user.</summary>
     public bool PhoneNumberAvailable => !string.IsNullOrWhiteSpace(User?.PhoneNumber);
+    /// <summary>A list of all available authentication methods.</summary>
+    public AuthenticationMethod[] AvailableAuthenticationMethods { get; set; } = Array.Empty<AuthenticationMethod>();
 
     [GeneratedRegex(@"\d(?!\d{0,1}$)")]
     public static partial Regex GetMaskPhoneNumberRegex();

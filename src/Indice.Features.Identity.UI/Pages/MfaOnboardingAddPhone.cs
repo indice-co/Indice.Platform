@@ -7,7 +7,6 @@ using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -19,18 +18,13 @@ namespace Indice.Features.Identity.UI.Pages;
 [ValidateAntiForgeryToken]
 public abstract class BaseMfaOnboardingAddPhoneModel : BasePageModel
 {
-    private readonly IStringLocalizer<BaseMfaOnboardingAddPhoneModel> _localizer;
-
     /// <summary>Creates a new instance of <see cref="BaseMfaOnboardingAddPhoneModel"/> class.</summary>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
-    /// <param name="localizer">Represents a service that provides localized strings.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseMfaOnboardingAddPhoneModel(
-        ExtendedUserManager<User> userManager,
-        IStringLocalizer<BaseMfaOnboardingAddPhoneModel> localizer
+        ExtendedUserManager<User> userManager
     ) {
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-        _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
     }
 
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
@@ -51,8 +45,8 @@ public abstract class BaseMfaOnboardingAddPhoneModel : BasePageModel
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         var alert = user.PhoneNumberConfirmed
-            ? _localizer["Your phone number is already confirmed. Continue to enable MFA."]
-            : _localizer["Please select your phone number so we can verify it before we continue."];
+            ? UserManager.MessageDescriber.MfaAddPhoneValidationPhoneAlreadyConfirmed
+            : UserManager.MessageDescriber.MfaAddPhoneValidationPhoneEmpty;
         TempData.Put(TempDataKey, AlertModel.Info(alert));
         Input = View = new EnableMfaSmsViewModel {
             PhoneNumber = user.PhoneNumber,
@@ -83,7 +77,7 @@ public abstract class BaseMfaOnboardingAddPhoneModel : BasePageModel
             AddModelErrors(result);
             return Page();
         }
-        TempData.Put(TempDataKey, AlertModel.Success(_localizer["You have successfully enabled MFA for your account. Login to access your account."]));
+        TempData.Put(TempDataKey, AlertModel.Success(UserManager.MessageDescriber.MfaAddPhoneSuccessMessage));
         View.PhoneNumberConfirmed = user.PhoneNumberConfirmed;
         return Page();
     }
@@ -92,7 +86,6 @@ public abstract class BaseMfaOnboardingAddPhoneModel : BasePageModel
 internal class MfaOnboardingAddPhoneModel : BaseMfaOnboardingAddPhoneModel
 {
     public MfaOnboardingAddPhoneModel(
-        ExtendedUserManager<User> userManager,
-        IStringLocalizer<MfaOnboardingAddPhoneModel> localizer
-    ) : base(userManager, localizer) { }
+        ExtendedUserManager<User> userManager
+    ) : base(userManager) { }
 }

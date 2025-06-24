@@ -1,20 +1,25 @@
 using System.Security.Claims;
 using IdentityModel;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer;
+using Duende.IdentityServer.Models;
+using Duende.IdentityServer.Services;
+using Duende.IdentityServer.Stores;
+#else
 using IdentityServer4;
-using IdentityServer4.Events;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
+#endif
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Events;
+using Indice.Features.Identity.Core.Localization;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -35,7 +40,6 @@ public abstract class BaseLoginModel : BasePageModel
     /// <param name="events">Interface for the event service.</param>
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
     /// <param name="logger">A generic interface for logging.</param>
-    /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseLoginModel"/>.</param>
     /// <param name="identityUiOptions">Configuration options for Identity UI.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseLoginModel(
@@ -46,7 +50,6 @@ public abstract class BaseLoginModel : BasePageModel
         IEventService events,
         IIdentityServerInteractionService interaction,
         ILogger<BaseLoginModel> logger,
-        IStringLocalizer localizer,
         IOptions<IdentityUIOptions> identityUiOptions
     ) : base() {
         SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
@@ -57,7 +60,6 @@ public abstract class BaseLoginModel : BasePageModel
         Interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         IdentityUIOptions = identityUiOptions?.Value ?? throw new ArgumentNullException(nameof(identityUiOptions));
-        Localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
     }
 
     /// <summary>Retrieval of client configuration.</summary>
@@ -76,8 +78,6 @@ public abstract class BaseLoginModel : BasePageModel
     protected ExtendedUserManager<User> UserManager { get; }
     /// <summary>Configuration options for Identity UI.</summary>
     protected IdentityUIOptions IdentityUIOptions { get; }
-    /// <summary>Login String Localizer.</summary>
-    protected IStringLocalizer Localizer { get; }
     /// <summary>The current principal's username.</summary>
     public string? UserName => User.FindFirstValue(JwtClaimTypes.Name);
     /// <summary>Login view model.</summary>
@@ -129,61 +129,67 @@ public abstract class BaseLoginModel : BasePageModel
                 return Redirect("/");
             }
         }
-        if (ModelState.IsValid) {
-            // Validate username/password against database.
-            var result = await SignInManager.PasswordSignInAsync(Input.UserName!, Input.Password!, IdentityUIOptions.AllowRememberLogin && Input.RememberLogin, lockoutOnFailure: true);
-            var user = await UserManager.FindByNameAsync(Input.UserName!);
-            if (result.Succeeded) {
-                // Replace locale Claim only if it has a different value configured.
-                var localeClaim = user!.Claims.FirstOrDefault(x => x.ClaimType == JwtClaimTypes.Locale && x.ClaimValue == RequestCulture.Culture.TwoLetterISOLanguageName);
-                if (localeClaim is null) {
-                    await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.Locale, RequestCulture.Culture.TwoLetterISOLanguageName);
-                }
-                Logger.LogInformation("User '{UserName}' with email {Email} was successfully logged in.", user.UserName, user.Email);
-                if (context is not null) {
-                    if (context.IsNativeClient()) {
-                        // The client is native, so this change in how to return the response is for better UX for the end user.
-                        return this.LoadingPage("Redirect", Input.ReturnUrl ?? "/");
-                    }
-                    // We can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null.
-                    return Redirect(Input.ReturnUrl ?? "/");
-                }
-                // Request for a local page.
-                if (string.IsNullOrEmpty(Input.ReturnUrl)) {
-                    return Redirect("/");
-                } else if (IsValidReturnUrl(Input.ReturnUrl)) {
-                    return Redirect(Input.ReturnUrl);
-                } else {
-                    // User might have clicked on a malicious link - should be logged.
-                    Logger.LogError("User '{UserName}' might have clicked a malicious link during login: {ReturnUrl}.", Input.UserName!, Input.ReturnUrl);
-                    throw new Exception("Invalid return URL.");
-                }
-            }
-            if (result.IsLockedOut) {
-                Logger.LogWarning("User '{UserName}' was locked out after {WrongLoginsAttempts} unsuccessful login attempts.", Input.UserName, user?.AccessFailedCount);
-                await Events.RaiseAsync(new ExtendedUserLoginFailureEvent(Input.UserName!, "User locked out.", subjectId: user?.Id, clientId: context?.Client?.ClientId, clientName: context?.Client?.ClientName));
-                ModelState.AddModelError(string.Empty, "Your account is temporarily locked. Please contact system administrator.");
-            }
-            if (result.RequiresTwoFactor) {
-                Logger.LogWarning("User '{UserName}' requires two factor authentication.", Input.UserName);
-                var redirectUrl = Url.PageLink("/Mfa", values: new { Input.ReturnUrl });
-                return Redirect(redirectUrl!);
-            }
-            if (result.RequiresValidation()) {
-                Logger.LogWarning("User '{UserName}' requires extended validation.", Input.UserName);
-                var requirement = await UserActivityProvider.GetNextAsync(HttpContext, user!);
-                var redirectUrl = GetRedirectUrl(requirement, Input.ReturnUrl);
-                return Redirect(redirectUrl!);
-            }
-            Logger.LogWarning("User '{UserName}' entered invalid credentials during login.", Input.UserName);
-            await Events.RaiseAsync(new ExtendedUserLoginFailureEvent(Input.UserName!, "Invalid credentials.", subjectId: user?.Id, clientId: context?.Client?.ClientId, clientName: context?.Client?.ClientName));
-            ModelState.AddModelError(string.Empty, Localizer["Please check your credentials."]);
-        } else {
-            ModelState.AddModelError(string.Empty, Localizer["Please check your credentials."]);
+        if (!ModelState.IsValid) {
+            ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.LoginValidationInvalidCredentials);
+
+            // Something went wrong, show form with error.
+            View = await BuildLoginViewModelAsync(Input);
+            return Page();
         }
-        // Something went wrong, show form with error.
+        // Validate username/password against database.
+        var result = await SignInManager.PasswordSignInAsync(Input.UserName!, Input.Password!, IdentityUIOptions.AllowRememberLogin && Input.RememberLogin, lockoutOnFailure: true);
+        var user = await UserManager.FindByNameAsync(Input.UserName!);
+        if (result.Succeeded) {
+            // Replace locale Claim only if it has a different value configured.
+            var localeClaim = user!.Claims.FirstOrDefault(x => x.ClaimType == JwtClaimTypes.Locale);
+            if (localeClaim is null) {
+                await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.Locale, RequestCulture.Culture.TwoLetterISOLanguageName);
+            } else {
+                new IdentityCookieRequestCultureProvider().SetLanguage(HttpContext, localeClaim.ClaimValue);
+            }
+            Logger.LogInformation("User '{UserName}' with email {Email} was successfully logged in.", user.UserName, user.Email);
+            if (context is not null) {
+                if (context.IsNativeClient()) {
+                    // The client is native, so this change in how to return the response is for better UX for the end user.
+                    return this.LoadingPage("Redirect", Input.ReturnUrl ?? "/");
+                }
+                // We can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null.
+                return Redirect(Input.ReturnUrl ?? "/");
+            }
+            // Request for a local page.
+            if (string.IsNullOrEmpty(Input.ReturnUrl)) {
+                return Redirect("/");
+            } else if (IsValidReturnUrl(Input.ReturnUrl)) {
+                return Redirect(Input.ReturnUrl);
+            } else {
+                // User might have clicked on a malicious link - should be logged.
+                Logger.LogError("User '{UserName}' might have clicked a malicious link during login: {ReturnUrl}.", Input.UserName!, Input.ReturnUrl);
+                throw new Exception("Invalid return URL.");
+            }
+        }
+        else if (result.IsLockedOut) {
+            Logger.LogWarning("User '{UserName}' was locked out after {WrongLoginsAttempts} unsuccessful login attempts.", Input.UserName, user?.AccessFailedCount);
+            await Events.RaiseAsync(new ExtendedUserLoginFailureEvent(Input.UserName!, "User locked out.", subjectId: user?.Id, clientId: context?.Client?.ClientId, clientName: context?.Client?.ClientName));
+            ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.LoginErrorLockedMessage);
+            View = await BuildLoginViewModelAsync(Input);
+            return Page();
+        } else if (result.RequiresTwoFactor) {
+            Logger.LogWarning("User '{UserName}' requires two factor authentication.", Input.UserName);
+            var redirectUrl = Url.PageLink("/Mfa", values: new { Input.ReturnUrl });
+            return Redirect(redirectUrl!);
+        } else if (result.RequiresValidation()) {
+            Logger.LogWarning("User '{UserName}' requires extended validation.", Input.UserName);
+            var requirement = await UserActivityProvider.GetNextAsync(HttpContext, user!);
+            var redirectUrl = GetRedirectUrl(requirement, Input.ReturnUrl);
+            return Redirect(redirectUrl!);
+        }
+        // If we got this far, something failed, redisplay form. Highly unlikely to happen, but we handle it anyway.
+        Logger.LogWarning("User '{UserName}' entered invalid credentials during login.", Input.UserName);
+        await Events.RaiseAsync(new ExtendedUserLoginFailureEvent(Input.UserName!, "Invalid credentials.", subjectId: user?.Id, clientId: context?.Client?.ClientId, clientName: context?.Client?.ClientName));
+        ModelState.AddModelError(string.Empty, UserManager.MessageDescriber.LoginValidationInvalidCredentials);
         View = await BuildLoginViewModelAsync(Input);
         return Page();
+
     }
 
     /// <summary>>Gets the page to redirect based on the <see cref="UserValidationRequirement"/>.</summary>
@@ -227,7 +233,7 @@ public abstract class BaseLoginModel : BasePageModel
             if (client is not null) {
                 allowLocal = client.EnableLocalLogin;
                 if (client.IdentityProviderRestrictions is not null && client.IdentityProviderRestrictions.Any()) {
-                    providers = providers.Where(provider => !client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme)).ToList();
+                    providers = providers.Where(provider => !client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme!)).ToList();
                 }
             }
         }
@@ -263,7 +269,6 @@ internal class LoginModel : BaseLoginModel
         IEventService events,
         IIdentityServerInteractionService interaction,
         ILogger<LoginModel> logger,
-        IStringLocalizer<LoginModel> localizer,
         IOptions<IdentityUIOptions> identityUiOptions
-    ) : base(signInManager, userManager, schemeProvider, clientStore, events, interaction, logger, localizer, identityUiOptions) { }
+    ) : base(signInManager, userManager, schemeProvider, clientStore, events, interaction, logger, identityUiOptions) { }
 }

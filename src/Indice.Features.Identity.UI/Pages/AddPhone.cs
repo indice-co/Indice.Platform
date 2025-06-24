@@ -7,7 +7,6 @@ using Indice.Features.Identity.UI.Models;
 using Indice.Globalization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.UI.Pages;
@@ -20,19 +19,15 @@ namespace Indice.Features.Identity.UI.Pages;
 [ValidateAntiForgeryToken]
 public abstract class BaseAddPhoneModel : BasePageModel
 {
-    private readonly IStringLocalizer<BaseAddPhoneModel> _localizer;
 
     /// <summary>Creates a new instance of <see cref="BaseAddEmailModel"/> class.</summary>
-    /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseAddEmailModel"/>.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="identityUiOptions">Configuration options for Identity UI.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseAddPhoneModel(
-        IStringLocalizer<BaseAddPhoneModel> localizer,
         ExtendedUserManager<User> userManager,
         IOptions<IdentityUIOptions> identityUiOptions
     ) : base() {
-        _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         IdentityUiOptions = identityUiOptions?.Value ?? throw new ArgumentNullException(nameof(identityUiOptions));
     }
@@ -56,7 +51,7 @@ public abstract class BaseAddPhoneModel : BasePageModel
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         
         TempData.Put(TempDataKey, new AlertModel {
-            Message = _localizer["Please select your phone number so we can verify it before we continue."],
+            Message =  UserManager.MessageDescriber.AddPhoneValidationPhoneEmpty,
             AlertType = AlertType.Info
         });
         _ = PhoneNumber.TryParse(user.PhoneNumber!, out var phone);
@@ -89,8 +84,7 @@ public abstract class BaseAddPhoneModel : BasePageModel
 internal class AddPhoneModel : BaseAddPhoneModel
 {
     public AddPhoneModel(
-        IStringLocalizer<AddPhoneModel> localizer,
         ExtendedUserManager<User> userManager,
         IOptions<IdentityUIOptions> identityUiOptions
-    ) : base(localizer, userManager, identityUiOptions) { }
+    ) : base(userManager, identityUiOptions) { }
 }

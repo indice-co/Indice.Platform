@@ -1,6 +1,10 @@
 ﻿using System.Security.Claims;
 using IdentityModel;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Models;
+#else
 using IdentityServer4.Models;
+#endif
 using Indice.Features.Identity.Core.DeviceAuthentication.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Stores;
 using Indice.Features.Identity.Core.DeviceAuthentication.Validation;

@@ -49,14 +49,14 @@ internal class PersistLogsHostedService : BackgroundService
                 }, cancellationToken: stoppingToken)
                 .Filter(logEntry => logEntry is not null)
                 .PipeAsync(async logEntry => {
-                    await _eventService.Publish(new SignInLogCreatedEvent(logEntry));
+                    await _eventService.Publish(new SignInLogCreatedEvent(logEntry!));
                     return logEntry;
                 }, cancellationToken: stoppingToken)
                 .Batch(_signInLogOptions.DequeueBatchSize)
                 .WithTimeout(_signInLogOptions.DequeueTimeoutInMilliseconds)
                 .ReadAllAsync(stoppingToken);
             await foreach (var logEntryBatch in events) {
-                await signInLogStore.CreateManyAsync(logEntryBatch, stoppingToken);
+                await signInLogStore.CreateManyAsync(logEntryBatch!, stoppingToken);
             }
         }
     }

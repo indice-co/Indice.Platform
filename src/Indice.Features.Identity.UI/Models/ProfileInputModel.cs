@@ -28,6 +28,8 @@ public class ProfileInputModel
     public string? DeveloperTotp { get; set; }
     /// <summary>The time zone information of the user.</summary>
     public string? ZoneInfo { get; set; }
+    /// <summary>The two letter ISO language preference of the user.</summary>
+    public string? Locale { get; set; }
 
     /// <summary>A calculated field that holds the <see cref="PhoneNumber"/> padded with its international <seealso cref="CallingCode"/>.</summary>
     public string? PhoneNumberWithCallingCode => string.IsNullOrWhiteSpace(CallingCode) ? PhoneNumber : $"{CallingCode} {PhoneNumber}";
@@ -36,3 +38,13 @@ public class ProfileInputModel
     public string? DisplayName => string.IsNullOrWhiteSpace(FirstName) ? UserName : (FirstName + " " + LastName).Trim();
 }
 
+/// <summary>
+/// Represents the input model for specifying a user's language preference.
+/// </summary>
+/// <remarks>This model is typically used to capture the user's preferred language in a two-letter ISO
+/// format.</remarks>
+public class ProfileLanguagePreferenceInputModel
+{
+    /// <summary>The two letter ISO language preference of the user.</summary>
+    public string? Locale { get; set; }
+}

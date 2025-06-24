@@ -1,6 +1,11 @@
 ﻿using IdentityModel;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer;
+using Duende.IdentityServer.EntityFramework.Entities;
+#else
 using IdentityServer4;
 using IdentityServer4.EntityFramework.Entities;
+#endif
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Server.Manager.Models;

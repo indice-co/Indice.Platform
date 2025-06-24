@@ -63,7 +63,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         EmailAsUserName = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.User)}", nameof(EmailAsUserName)) ?? false;
         RequirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedEmail)) ?? false;
         RequirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedPhoneNumber)) ?? false;
-        
+
     }
 
     /// <summary>Returns an <see cref="IQueryable{Device}"/> collection of devices.</summary>
@@ -186,7 +186,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         var result = await base.ChangePhoneNumberAsync(user, phoneNumber, token);
         if (result.Succeeded) {
             await _eventService.Publish(new PhoneNumberConfirmedEvent(UserEventContext.InitializeFromUser(user)));
-            
+
         }
         return result;
     }
@@ -205,6 +205,28 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         var result = await base.SetTwoFactorEnabledAsync(user, enabled);
         return result;
     }
+
+
+    /// <inheritdoc/>
+    public override async Task<IdentityResult> ChangeEmailAsync(TUser user, string newEmail, string token) {
+        ArgumentNullException.ThrowIfNull(user);
+        var previousValue = user.Email;
+        // do the default behavior that will update the email verify the new email and create a new security stamp.
+        var result = await base.ChangeEmailAsync(user, newEmail, token);
+        if (result.Succeeded) {
+            // publish the event that the email has changed.
+            await _eventService.Publish(new UserEmailChangedEvent(UserEventContext.InitializeFromUser(user), previousValue!));
+            if (EmailAsUserName) {
+                // change the username first if possible to match the new email so that unique constraints are enforced on the userstore before going forward.
+                result = await SetUserNameAsync(user, newEmail);
+                if (!result.Succeeded) {
+                    return result;
+                }
+            }
+        }
+        return result;
+    }
+
     #endregion
 
     #region Custom Methods
@@ -654,6 +676,15 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     public async Task<(Stream? Stream, string ContentType, bool Exists)> FindPictureByKeyAsync(string pictureKey, string? contentType = null, int? size = null) {
         var pictureStore = GetPictureStore();
         return await pictureStore!.FindUserPictureByKeyAsync(pictureKey, contentType, size);
+    }
+
+
+    /// <summary>
+    /// The <see cref="IdentityErrorDescriber"/> used to generate error messages.
+    /// </summary>
+    public new ExtendedIdentityErrorDescriber ErrorDescriber {
+        get => (ExtendedIdentityErrorDescriber)base.ErrorDescriber;
+        set => base.ErrorDescriber = value;
     }
 
     #region Helper Methods

@@ -32,6 +32,9 @@ public abstract class AuthenticationMethod
     /// <summary>Authentication method security level.</summary>
     public AuthenticationMethodSecurityLevel SecurityLevel { get; protected set; }
 
+    /// <summary>Gets the code for the authentication method.</summary>
+    public abstract string Code { get; }
+
     /// <summary>Determines whether the authentication method supports the use of a delivery channel.</summary>
     public bool SupportsDeliveryChannel() => typeof(IAuthenticationMethodWithChannel).IsAssignableFrom(GetType());
 
@@ -89,6 +92,29 @@ public class SmsAuthenticationMethod : AuthenticationMethod, IAuthenticationMeth
     public TotpDeliveryChannel DeliveryChannel { get; } = TotpDeliveryChannel.Sms;
     /// <inheritdoc />
     public string TokenProvider { get; } = TokenOptions.DefaultPhoneProvider;
+    /// <inheritdoc />
+    public override string Code => "Sms";
+}
+
+/// <summary>SMS authentication method.</summary>
+public class ViberAuthenticationMethod : AuthenticationMethod, IAuthenticationMethodWithChannel, IAuthenticationMethodWithTokenProvider
+{
+    /// <summary>Creates a new instance of <see cref="ViberAuthenticationMethod"/> class.</summary>
+    /// <param name="displayName">The name for the UI.</param>
+    /// <param name="description">A detailed description.</param>
+    /// <param name="supportsMfa">Determines whether this authentication method participates in the MFA step.</param>
+    /// <param name="enabled">Determines whether this authentication method is enabled.</param>
+    public ViberAuthenticationMethod(string displayName, string description, bool supportsMfa = true, bool enabled = true) : base(displayName, description, supportsMfa, enabled) {
+        Type = AuthenticationMethodType.PhoneNumber;
+        SecurityLevel = AuthenticationMethodSecurityLevel.Medium;
+    }
+
+    /// <inheritdoc />
+    public TotpDeliveryChannel DeliveryChannel { get; } = TotpDeliveryChannel.Viber;
+    /// <inheritdoc />
+    public string TokenProvider { get; } = TokenOptions.DefaultPhoneProvider;
+    /// <inheritdoc />
+    public override string Code => "Viber";
 }
 
 /// <summary>FIDO2 authentication method.</summary>
@@ -103,6 +129,8 @@ public class Fido2AuthenticationMethod : AuthenticationMethod
         Type = AuthenticationMethodType.Fido2;
         SecurityLevel = AuthenticationMethodSecurityLevel.High;
     }
+    /// <inheritdoc />
+    public override string Code => "Fido2";
 }
 
 /// <summary>Authenticator app authentication method.</summary>
@@ -119,6 +147,8 @@ public class AuthenticatorAppAuthenticationMethod : AuthenticationMethod, IAuthe
     }
     /// <inheritdoc />
     public string TokenProvider => TokenOptions.DefaultAuthenticatorProvider;
+    /// <inheritdoc />
+    public override string Code => "AuthenticatorApp";
 }
 
 /// <summary>Trusted device authentication method.</summary>
@@ -140,6 +170,8 @@ public class TrustedDeviceAuthenticationMethod : AuthenticationMethod, IAuthenti
     public IEnumerable<UserDevice> Devices { get; } = new List<UserDevice>();
     /// <inheritdoc />
     public string TokenProvider => TokenOptions.DefaultPhoneProvider;
+    /// <inheritdoc />
+    public override string Code => "TrustedDevice";
 }
 
 /// <summary>Email authentication method.</summary>
@@ -159,4 +191,6 @@ public class EmailAuthenticationMethod : AuthenticationMethod, IAuthenticationMe
     public string TokenProvider => TokenOptions.DefaultEmailProvider;
     /// <inheritdoc />
     public TotpDeliveryChannel DeliveryChannel => TotpDeliveryChannel.Email;
+    /// <inheritdoc />
+    public override string Code => "Email";
 }

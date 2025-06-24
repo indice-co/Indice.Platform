@@ -24,7 +24,7 @@ internal static class AdminCasesApi
         group.WithTags("AdminCases");
         group.WithGroupName(options.GroupName);
 
-        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
+        var allowedScopes = new[] { options.RequiredScope }.FilterOutNulls().ToArray();
         group.RequireAuthorization(policy => policy
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes("Bearer")
@@ -80,7 +80,7 @@ internal static class AdminCasesApi
         group.MapPatch("{caseId}/metadata", AdminCasesHandlers.PatchCaseMetadata)
             .WithName(nameof(AdminCasesHandlers.PatchCaseMetadata))
             .WithSummary("Patches the metadata of a case.")
-            .RequireAuthorization(policy => policy.RequireCasesRecordAccess(CasesAccessLevel.Manage)); 
+            .RequireAuthorization(policy => policy.RequireCasesRecordAccess(CasesAccessLevel.Manage));
 
         group.MapPost("{caseId}/comment", AdminCasesHandlers.AdminAddComment)
             .WithName(nameof(AdminCasesHandlers.AdminAddComment))

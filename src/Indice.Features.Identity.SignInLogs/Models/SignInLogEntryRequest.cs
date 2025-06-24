@@ -6,5 +6,5 @@ public class SignInLogEntryRequest
     /// <summary>Indicates whether we need to mark the specified log entry for review.</summary>
     public bool Review { get; set; }
     /// <summary>An optional comment when a log entry is marked for review.</summary>
-    public string ReviewComment { get; set; }
+    public string? ReviewComment { get; set; }
 }

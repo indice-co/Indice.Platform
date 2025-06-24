@@ -241,7 +241,7 @@ internal static class IntegrationHandlers
     /// <summary>JsonPatchDataRequest</summary>
     public class JsonPatchDataRequest
     {
-        public List<PatchJsonPathRequest> JsonPatch { get; set; }
+        public List<PatchJsonPathRequest> JsonPatch { get; set; } = [];
         public bool PatchPublicData { get; set; }
     }
 
@@ -255,7 +255,7 @@ internal static class IntegrationHandlers
         public string? Reason { get; set; }
 
         /// <summary>Actor responsible for this action.</summary>
-        public UserActor WorkflowActor { get; set; }
+        public UserActor WorkflowActor { get; set; } = null!;
     }
 
     /// <summary>WorkflowAddApprovalWithCommentRequest</summary>
@@ -268,7 +268,7 @@ internal static class IntegrationHandlers
         public string? Reason { get; set; }
 
         /// <summary>Actor responsible for this action.</summary>
-        public UserActor WorkflowActor { get; set; }
+        public UserActor WorkflowActor { get; set; } = null!;
 
         /// <summary>Comment Private or not.</summary>
         public bool PrivateComment { get; set; }

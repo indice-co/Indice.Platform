@@ -94,6 +94,17 @@ public static class IndiceServicesServiceCollectionExtensions
         return new EmailServiceBuilder(services);
     }
 
+    /// <summary>Adds an implementation of <see cref="IEmailService"/> that uses Brevo to send emails.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    public static EmailServiceBuilder AddEmailServiceBrevo(this IServiceCollection services, IConfiguration configuration) {
+        services.Configure<EmailServiceBrevoSettings>(configuration.GetSection(EmailServiceBrevoSettings.Name));
+        services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceBrevoSettings>>().Value);
+        services.AddHttpClient<IEmailService, EmailServiceBrevo>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
+        services.AddHtmlRenderingEngineNoop();
+        return new EmailServiceBuilder(services);
+    }
+
     /// <summary>Registers a rendering engine to be used by the <see cref="IEmailService"/> implementation.</summary>
     /// <typeparam name="THtmlRenderingEngine">The concrete type of <see cref="IHtmlRenderingEngine"/> to use.</typeparam>
     /// <param name="builder">Builder class for <see cref="IEmailService"/>.</param>

@@ -1,15 +1,17 @@
 ﻿using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Extensions;
+#else
 using IdentityServer4.Extensions;
+#endif
 using Indice.Security;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.Routing;
-using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.UI.TagHelpers;
@@ -29,6 +31,7 @@ public class ProfilePictureImageTagHelper : UrlResolutionTagHelper
     private const string ProfilePictureAttributeName = "profile-pic";
     private const string ProfilePictureIdAttributeName = "profile-pic-id";
     private const string ProfilePictureBackgroundColorAttributeName = "profile-pic-background";
+    private const string ProfilePictureForegroundColorAttributeName = "profile-pic-foreground";
     private const string ProfileDisplayNameAttributeName = "profile-display-name";
     private readonly IOptions<IdentityUIOptions> _UiOptions;
 
@@ -77,6 +80,15 @@ public class ProfilePictureImageTagHelper : UrlResolutionTagHelper
     public string? BackgroundColor { get; set; }
 
     /// <summary>
+    /// Foreground color for fallback image. Example CECECE.
+    /// </summary>
+    /// <remarks>
+    /// Optional
+    /// </remarks>
+    [HtmlAttributeName(ProfilePictureForegroundColorAttributeName)]
+    public string? ForegroundColor { get; set; }
+
+    /// <summary>
     /// Users picture requested size.
     /// </summary>
     /// <remarks>
@@ -104,19 +116,20 @@ public class ProfilePictureImageTagHelper : UrlResolutionTagHelper
         var url = new StringBuilder("~/");
         var displayName = DisplayName ?? User.FindDisplayName();
         var backgroundColor = BackgroundColor?.TrimStart('#') ?? _UiOptions.Value.AvatarColorHex;
+        var foregroundColor = ForegroundColor?.TrimStart('#');
         if (User.IsAuthenticated()) {
             url.Append("api/my/account/picture");
             if (Size.HasValue) {
                 url.Append($"/{Size}");
             }
-            var fallBackUrl = new Uri($"/avatar/{displayName}/{Size ?? 128}/{backgroundColor}.webp", UriKind.RelativeOrAbsolute);
+            var fallBackUrl = new Uri($"/avatar/{displayName}/{Size ?? 128}/{backgroundColor}.webp?foreground={foregroundColor}", UriKind.RelativeOrAbsolute);
             url.Append($"?d={UriHelper.Encode(fallBackUrl)}");
         } else {
             url.Append($"pictures/{PictureId}");
             if (Size.HasValue) {
                 url.Append($"/{Size}");
             }
-            var fallBackUrl = new Uri($"/avatar/{displayName}/{Size ?? 128}/{backgroundColor}.webp", UriKind.RelativeOrAbsolute);
+            var fallBackUrl = new Uri($"/avatar/{displayName}/{Size ?? 128}/{backgroundColor}.webp?foreground={foregroundColor}", UriKind.RelativeOrAbsolute);
             url.Append($"?d={UriHelper.Encode(fallBackUrl)}");
         }
         output.Attributes.Add("src", url.ToString());

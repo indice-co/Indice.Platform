@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ConfirmationEmailSubject" xml:space="preserve">
-    <value>Επιβεβαίωση λογαριασμού</value>
-  </data>
   <data name="DeviceAlreadyTrusted" xml:space="preserve">
     <value>Η συσκευή είναι ήδη εγγεγραμένη.</value>
   </data>
@@ -133,16 +130,13 @@
     <value>Το email έχει ήδη επιβαιωθεί.</value>
   </data>
   <data name="EmailUpdateMessageBody" xml:space="preserve">
-    <value>Ο κωδικός επιβεβαίωσης για το email είναι {0}.</value>
+    <value>Ο κωδικός επιβεβαίωσης της ηλεκτρονικής σας διεύθυνσης είναι {0}.</value>
   </data>
   <data name="EmailUpdateMessageSubject" xml:space="preserve">
-    <value>Παρακαλώ επιβεβαιώστε το λογαριαμό σας.</value>
+    <value>Επιβεβαίωση λογαριασμού.</value>
   </data>
   <data name="ForgotPasswordMessageBody" xml:space="preserve">
-    <value>Ακολουθήστε αυτόν τον σύνδεσμο για να επαληθεύσετε το email σας &lt;a href="{0}" &gt;{1}&lt;a&gt;</value>
-  </data>
-  <data name="ForgotPasswordMessageSubject" xml:space="preserve">
-    <value>Ξέχασα τον κωδικό</value>
+    <value>Παρακαλούμε δημιουργήστε το νέο σας κωδικό  &lt;a href="{0}" &gt;ακολουθώντας τον εξής σύνδεσμο&lt;a&gt;</value>
   </data>
   <data name="ImpossibleTravelOtpMessage" xml:space="preserve">
     <value>Ύποπτη προσπάθεια σύνδεσης. Ο κωδικός OTP είναι {0}.</value>
@@ -171,54 +165,6 @@
   <data name="OtpSecuredValidatorOtpSubject" xml:space="preserve">
     <value>Επιβεβαίωση OTP</value>
   </data>
-  <data name="PasswordContainsNotAllowedChars" xml:space="preserve">
-    <value>Ο κωδικός σας περιέχει μη επιτρεπτούς χαρακτήρες.</value>
-  </data>
-  <data name="PasswordContainsNotAllowedCharsRequirement" xml:space="preserve">
-    <value>Χαρακτήρες που δεν επιτρέπονται.</value>
-  </data>
-  <data name="PasswordHasNonLatinChars" xml:space="preserve">
-    <value>Ο κωδικός δεν μπορεί να περιέχει μη Λατινικούς χαρακτήρες. </value>
-  </data>
-  <data name="PasswordHasNonLatinCharsRequirement" xml:space="preserve">
-    <value>Δεν περιέχει μη Λατινικούς χαρακτήρες. </value>
-  </data>
-  <data name="PasswordIdenticalToUserName" xml:space="preserve">
-    <value>Ο κωδικός πρόσβασής σας είναι πολύ παρόμοιος με το όνομα χρήστη, γεγονός που μπορεί να θέσει τον λογαριασμό σας σε κίνδυνο.</value>
-  </data>
-  <data name="PasswordIdenticalToUserNameRequirement" xml:space="preserve">
-    <value>Δεν περιέχει κομάτι του ονόματος χρήστη.</value>
-  </data>
-  <data name="PasswordIsCommon" xml:space="preserve">
-    <value>Ο κωδικός που επιλέξατε είναι αδύναμος. Παρακαλώ εισαγάγετε έναν πιο σύνθετο κωδικό για μεγαλύτερη ασφάλεια.</value>
-  </data>
-  <data name="PasswordIsCommonRequirement" xml:space="preserve">
-    <value>Ο κωδικός που επιλέξατε είναι ισχυρός.</value>
-  </data>
-  <data name="PasswordRecentlyUsed" xml:space="preserve">
-    <value>Αυτός ο κωδικός πρόσβασης έχει χρησιμοποιηθεί πρόσφατα. Είναι καλή πρακτική να μην επαναχρησιμοποιείτε τον προηγούμενο κωδικό σας.</value>
-  </data>
-  <data name="PasswordRecentlyUsedRequirement" xml:space="preserve">
-    <value>Δεν έχει χρησιμοποιηθεί πρόσφατα.</value>
-  </data>
-  <data name="PasswordRequiresDigitRequirement" xml:space="preserve">
-    <value>Έναν αριθμητικό χαρακτήρα</value>
-  </data>
-  <data name="PasswordRequiresLowerRequirement" xml:space="preserve">
-    <value>Ένα πεζό γράμμα.</value>
-  </data>
-  <data name="PasswordRequiresNonAlphanumericRequirement" xml:space="preserve">
-    <value>Ένας μη αλφαριθμητικός χαρακτήρας.</value>
-  </data>
-  <data name="PasswordRequiresUniqueCharsRequirement" xml:space="preserve">
-    <value>Απαιτούνται {0} ειδικοί χαρακτήρες</value>
-  </data>
-  <data name="PasswordRequiresUpperRequirement" xml:space="preserve">
-    <value>Ένα κεφαλαίο γράμμα.</value>
-  </data>
-  <data name="PasswordTooShortRequirement" xml:space="preserve">
-    <value>Πρέπει να έχει τουλάχιστον {0} χαρακτήρες.</value>
-  </data>
   <data name="PhoneNumberAlreadyConfirmed" xml:space="preserve">
     <value>Ο αριθμός τηλεφώνου του χρήστη έχει ήδη επιβεβαιωθεί.</value>
   </data>
@@ -240,10 +186,94 @@
   <data name="UserAlreadyHasPhoneNumber" xml:space="preserve">
     <value>Ο χρήστης έχει ήδη τον αριθμό τηλεφώνου '{0}'.</value>
   </data>
+  <data name="ConfirmationEmailSubject" xml:space="preserve">
+    <value>Επιβεβαίωση λογαριασμού</value>
+  </data>
   <data name="PhoneVerificationSmsSubject" xml:space="preserve">
     <value>Επιβεβαιώστε τον αριθμό τηλεφώνου</value>
   </data>
   <data name="PhoneVerificationSmsBody" xml:space="preserve">
     <value>ΚΩΔΙΚΟΣ OTP: {0} ΓΙΑ ΕΠΙΒΕΒΑΙΩΣΗ ΑΡΙΘΜΟΥ ΤΗΛΕΦΩΝΟΥ. Ο ΚΩΔΙΚΟΣ ΕΧΕΙ ΙΣΧΥ ΓΙΑ 2 ΛΕΠΤΑ.</value>
+  </data>
+  <data name="ConfirmationEmailChangeSubject" xml:space="preserve">
+    <value>Επιβεβαίωση αλλαγής Email</value>
+  </data>
+  <data name="EmailChangeMessageBody" xml:space="preserve">
+    <value>Ο κωδικός επιβεβαίωσης της ηλεκτρονικής σας διεύθυνσης είναι {0}.</value>
+  </data>
+  <data name="PhoneChangeVerificationSmsSubject" xml:space="preserve">
+    <value>Επιβεβαιώστε τον νέο αριθμό τηλεφώνου σας</value>
+  </data>
+  <data name="PhoneChangeVerificationSmsBody" xml:space="preserve">
+    <value>ΚΩΔΙΚΟΣ OTP: {0} ΓΙΑ ΕΠΙΒΕΒΑΙΩΣΗ ΑΡΙΘΜΟΥ ΤΗΛΕΦΩΝΟΥ. Ο ΚΩΔΙΚΟΣ ΕΧΕΙ ΙΣΧΥ ΓΙΑ 2 ΛΕΠΤΑ.</value>
+  </data>
+  <data name="PhoneNumberChangeVerificationMessage" xml:space="preserve">
+    <value>Ο κωδικός επιβεβαίωσης μέσω SMS είναι {0}.</value>
+  </data>
+  <data name="RegisterEmailSubject" xml:space="preserve">
+    <value>Καλωσήρθατε στην υπηρεσία {0}!</value>
+  </data>
+  <data name="PasswordChangedEventSubject" xml:space="preserve">
+    <value>Αλλαγή κωδικού πρόσβασης</value>
+  </data>
+  <data name="SecurityNotificationDefaultSubject" xml:space="preserve">
+    <value>Ειδοποίηση ασφαλείας για {0}</value>
+  </data>
+  <data name="AddEmailValidationEmailEmpty" xml:space="preserve">
+    <value>Παρακαλώ εισάγετε τη διεύθυνση email σας για να την επιβεβαιώσουμε πριν προχωρήσουμε.</value>
+  </data>
+  <data name="AddEmailConfirmationEmailSend" xml:space="preserve">
+    <value>Ένα email επιβεβαίωσης έχει αποσταλεί στην παρακάτω διεύθυνση.</value>
+  </data>
+  <data name="AddPhoneValidationPhoneEmpty" xml:space="preserve">
+    <value>Παρακαλώ επιλέξτε τον αριθμό τηλεφώνου σας για να τον επιβεβαιώσουμε πριν προχωρήσουμε.</value>
+  </data>
+  <data name="ForgotPasswordMessageSubject" xml:space="preserve">
+    <value>Ανάκτηση κωδικού</value>
+  </data>
+  <data name="ForgotPasswordConfirmationError" xml:space="preserve">
+    <value>Σφάλμα</value>
+  </data>
+  <data name="LoginValidationInvalidCredentials" xml:space="preserve">
+    <value>Παρακαλώ ελέγξτε τα στοιχεία εισόδου σας.</value>
+  </data>
+  <data name="MfaAddPhoneValidationPhoneEmpty" xml:space="preserve">
+    <value>Παρακαλώ επιλέξετε το αριθμό τηλεφώνου σας για να το επιβεβαιώσουμε πριν προχωρήσουμε.</value>
+  </data>
+  <data name="MfaAddPhoneSuccessMessage" xml:space="preserve">
+    <value>Έχετε επιτυχώς ενεργοποιήσει το MFA για το λογαριασμό σας. Συνδεθείτε για να εισέλθετε στο λογαριασμό σας.</value>
+  </data>
+  <data name="MfaAddPhoneValidationPhoneAlreadyConfirmed" xml:space="preserve">
+    <value>Ο αριθμός τηλεφώνου είναι ήδη επιβεβαιωμένος. Συνεχίστε για να ενεργοποιήσετε το MFA.</value>
+  </data>
+  <data name="MfaVerifyPhoneValidationMissingPhone" xml:space="preserve">
+    <value>Παρακαλώ εισάγετε τον κωδικό που λάβατε στο κινητό σας τηλέφωνο.</value>
+  </data>
+  <data name="MfaVerifyPhoneSuccessMessage" xml:space="preserve">
+    <value>Ο αριθμός τηλεφώνου σας επιβεβαιώθηκε επιτυχώς. Παρακαλώ πατήστε το κουμπί 'Επόμενο' για να συνεχίσετε.</value>
+  </data>
+  <data name="PasswordChangedSuccessfully" xml:space="preserve">
+    <value>Ο κωδικός σας έχει αλλάξει με επιτυχία. Παρακαλώ πατήστε το κουμπί 'Επόμενο' για να συνεχίσετε.</value>
+  </data>
+  <data name="ProfileExternalLoginAddedSuccessMessage" xml:space="preserve">
+    <value>Ο εξωτερικός λογαριασμός προστέθηκε στο προφίλ με επιτυχία.</value>
+  </data>
+  <data name="RegisterPhoneConfirmationPrompt" xml:space="preserve">
+    <value>Παρακαλώ εισάγετε τον κωδικό που λάβατε στο κινητό σας τηλέφωνο.</value>
+  </data>
+  <data name="MfaSmsSubject" xml:space="preserve">
+    <value>Είσοδος με OTP</value>
+  </data>
+  <data name="MfaSmsBody" xml:space="preserve">
+    <value>Ο κωδικός OTP για είσοδο είναι: {0}</value>
+  </data>
+  <data name="MfaValidationError" xml:space="preserve">
+    <value>Ο κωδικός OTP δεν είναι έγκυρος.</value>
+  </data>
+  <data name="LoginErrorLockedMessage" xml:space="preserve">
+    <value>Ο λογαριασμός σας είναι προσωρινά κλειδωμένος. Παρακαλώ επικοινωνήστε με έναν διαχειριστή του συστήματος.</value>
+  </data>
+  <data name="PasswordExpiredMessage" xml:space="preserve">
+    <value>Ο κωδικός σας έχει λήξει. Παρακαλώ επιλέξτε ένα νέο κωδικό.</value>
   </data>
 </root>

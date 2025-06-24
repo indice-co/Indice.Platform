@@ -24,4 +24,8 @@
       <LastGenOutput>StringLocalizerTestsTranslations.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
+  </ItemGroup>
 </Project>

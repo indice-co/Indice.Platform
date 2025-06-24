@@ -2,6 +2,9 @@ using Indice.Features.Cases.Workflows.Models;
 
 namespace Indice.Features.Cases.Workflows.Integrations;
 
+/// <summary>
+/// Extensions for cases management to map <see cref="Actor"/> to <see cref="UserActor"/>. 
+/// </summary>
 public static class CasesManager_Extensions
 {
     /// <summary>Simple mapping from Workflow <see cref="Actor"/> to <see cref="UserActor"/></summary>

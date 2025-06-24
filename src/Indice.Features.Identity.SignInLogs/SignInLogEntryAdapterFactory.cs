@@ -1,4 +1,8 @@
-﻿using IdentityServer4.Events;
+﻿#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Events;
+#else
+using IdentityServer4.Events;
+#endif
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.SignInLogs.Models;
 
@@ -9,7 +13,7 @@ internal class SignInLogEntryAdapterFactory
 {
     /// <summary>Creates an <see cref="SignInLogEntry"/> instance given an <see cref="Event"/> instance.</summary>
     /// <param name="event">Models base class for events raised from IdentityServer.</param>
-    public static SignInLogEntry Create(Event @event) {
+    public static SignInLogEntry? Create(Event @event) {
         if (@event is null) {
             return default;
         }

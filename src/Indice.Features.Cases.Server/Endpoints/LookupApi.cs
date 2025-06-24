@@ -22,7 +22,7 @@ internal static class LookupApi
         group.WithTags("Lookup");
         group.WithGroupName(options.GroupName);
 
-        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
+        var allowedScopes = new[] { options.RequiredScope }.FilterOutNulls().ToArray();
 
         group.RequireAuthorization(policy => policy
             .RequireAuthenticatedUser()

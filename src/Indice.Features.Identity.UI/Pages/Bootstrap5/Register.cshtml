@@ -180,6 +180,17 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="mb-3">
+                    <label class="checkbox">
+                        <input asp-for="Input.HasConsentedToCommercialCommunications" type="checkbox" />
+                        @Localizer["I consent to the use of my contact information, including my email address, for the purpose of receiving commercial communications, promotional materials, and marketing updates from the organization. I understand that I may withdraw my consent at any time."]
+                    </label>
+                    <span asp-validation-for="Input.HasConsentedToCommercialCommunications" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
         <div class="row align-items-center">
             <div class="col-md-6 col-12">
                 <div class="mb-3">

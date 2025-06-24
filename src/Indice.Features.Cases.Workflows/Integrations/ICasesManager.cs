@@ -116,13 +116,13 @@ public class Message
 public class File
 {
     /// <summary>Name of the file</summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
     
     /// <summary>Content of the file.</summary>
-    public byte[] Data { get; set; }
+    public byte[] Data { get; set; } = null!;
     
     /// <summary>Content type of the file.</summary>
-    public string ContentType { get; set; }
+    public string ContentType { get; set; } = null!;
     
     /// <summary>File Constructor.</summary>
     public File() {}

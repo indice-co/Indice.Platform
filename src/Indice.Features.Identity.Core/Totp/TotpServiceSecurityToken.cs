@@ -56,7 +56,7 @@ public sealed class TotpServiceSecurityToken : TotpServiceBase
         message = _localizer[message, token];
         var cacheKey = $"{nameof(TotpServiceSecurityToken)}:{phoneNumber}:{channel}:{token}:{purpose}";
         if (await CacheKeyExistsAsync(cacheKey)) {
-            return TotpResult.RateLimitedResult(_localizer["Last token has not expired yet. Please wait a few seconds and try again."]);
+            return TotpResult.RateLimitedResult(_localizer["Last token has not expired yet. Please wait a few seconds and try again."], await GetCacheKeyExpirationAsync(cacheKey));
         }
         await SendToChannelAsync(
             channel,

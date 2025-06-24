@@ -1,14 +1,20 @@
-﻿using IdentityServer4.ResponseHandling;
+﻿#if NET9_0_OR_GREATER
+using Duende.IdentityServer.ResponseHandling;
+using Duende.IdentityServer.Services;
+using Duende.IdentityServer.Stores;
+using Duende.IdentityServer.Validation;
+#else
+using IdentityServer4.ResponseHandling;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.Validation;
+#endif
 using Indice.Features.Identity.Core.Scopes;
 using Indice.Features.Identity.Server;
-using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
-/// <summary>Builder extension methods for IdentityServer4 forwarding the method calls without loosing the reference to <see cref="IExtendedIdentityServerBuilder"/>.</summary>
+/// <summary>Builder extension methods for IdentityServer forwarding the method calls without loosing the reference to <see cref="IExtendedIdentityServerBuilder"/>.</summary>
 public static class IdentityServerBuilderAdapterExtensions
 {
     /// <summary>Adds the extension grant validator.</summary>
@@ -108,7 +114,6 @@ public static class IdentityServerBuilderAdapterExtensions
         IdentityServerBuilderExtensionsAdditional.AddPersistedGrantStore<T>(builder);
         return builder;
     }
-
     /// <summary>Adds a CORS policy service.</summary>
     /// <typeparam name="T">The type of the concrete scope store class that is registered in DI.</typeparam>
     /// <param name="builder">Builder for configuring the Indice Identity Server.</param>
@@ -224,6 +229,18 @@ public static class IdentityServerBuilderAdapterExtensions
         return builder;
     }
 
+    /// <summary>
+    /// Adds a custom user session.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="builder">The builder.</param>
+    /// <returns></returns>
+    public static IExtendedIdentityServerBuilder AddUserSession<T>(this IExtendedIdentityServerBuilder builder) where T : class, IUserSession {
+        IdentityServerBuilderExtensionsAdditional.AddUserSession<T>(builder);
+        return builder;
+    }
+
+#if !NET9_0_OR_GREATER
     /// <summary>Adds a custom authorization request parameter store.</summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="builder">Builder for configuring the Indice Identity Server.</param>
@@ -232,15 +249,101 @@ public static class IdentityServerBuilderAdapterExtensions
         IdentityServerBuilderExtensionsAdditional.AddAuthorizationParametersMessageStore<T>(builder);
         return builder;
     }
+#endif
 
-    /// <summary>Adds a custom user session.</summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="builder">Builder for configuring the Indice Identity Server.</param>
+
+
+#if NET9_0_OR_GREATER
+    /// <summary>
+    /// Adds a signing key store.
+    /// </summary>
+    /// <typeparam name="T">The type of the concrete store that is registered in DI.</typeparam>
+    /// <param name="builder">The builder.</param>
     /// <returns>The builder.</returns>
-    public static IExtendedIdentityServerBuilder AddUserSession<T>(this IExtendedIdentityServerBuilder builder) where T : class, IUserSession {
-        IdentityServerBuilderExtensionsAdditional.AddUserSession<T>(builder);
+    public static IExtendedIdentityServerBuilder AddSigningKeyStore<T>(this IExtendedIdentityServerBuilder builder) where T : class, ISigningKeyStore {
+        IdentityServerBuilderExtensionsAdditional.AddSigningKeyStore<T>(builder);
         return builder;
     }
+
+    /// <summary>
+    /// Adds a pushed authorization request store.
+    /// </summary>
+    /// <typeparam name="T">The type of the concrete store that is registered in DI.</typeparam>
+    /// <param name="builder">The builder.</param>
+    /// <returns>The builder.</returns>
+    public static IExtendedIdentityServerBuilder AddPushedAuthorizationRequestStore<T>(this IExtendedIdentityServerBuilder builder) where T : class, IPushedAuthorizationRequestStore {
+        IdentityServerBuilderExtensionsAdditional.AddPushedAuthorizationRequestStore<T>(builder);
+        return builder;
+    }
+
+    /// <summary>
+    /// Adds an IdentityProvider configuration validator.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="builder">The builder.</param>
+    /// <returns></returns>
+    public static IExtendedIdentityServerBuilder AddIdentityProviderConfigurationValidator<T>(this IExtendedIdentityServerBuilder builder) where T : class, IIdentityProviderConfigurationValidator {
+        IdentityServerBuilderExtensionsAdditional.AddIdentityProviderConfigurationValidator<T>(builder);
+        return builder;
+    }
+
+    /// <summary>
+    /// Adds configuration for the HttpClient used for back-channel logout notifications.
+    /// </summary>
+    /// <param name="builder">The builder.</param>
+    /// <param name="configureClient">The configuration callback.</param>
+    /// <returns></returns>
+    public static IHttpClientBuilder AddBackChannelLogoutHttpClient(this IExtendedIdentityServerBuilder builder, Action<HttpClient>? configureClient = null) {
+        var httpBuilder = IdentityServerBuilderExtensionsAdditional.AddBackChannelLogoutHttpClient(builder);
+        return httpBuilder;
+    }
+
+    /// <summary>
+    /// Adds configuration for the HttpClient used for JWT request_uri requests.
+    /// </summary>
+    /// <param name="builder">The builder.</param>
+    /// <param name="configureClient">The configuration callback.</param>
+    /// <returns></returns>
+    public static IHttpClientBuilder AddJwtRequestUriHttpClient(this IExtendedIdentityServerBuilder builder, Action<HttpClient>? configureClient = null) {
+        var httpBuilder = IdentityServerBuilderExtensionsAdditional.AddJwtRequestUriHttpClient(builder);
+        return httpBuilder;
+    }
+
+
+    /// <summary>
+    /// Adds an identity provider store.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="builder">The builder.</param>
+    /// <returns></returns>
+    public static IExtendedIdentityServerBuilder AddIdentityProviderStore<T>(this IExtendedIdentityServerBuilder builder) where T : class, IIdentityProviderStore {
+        IdentityServerBuilderExtensionsAdditional.AddIdentityProviderStore<T>(builder);
+        return builder;
+    }
+
+
+    /// <summary>
+    /// Adds the backchannel login user validator.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="builder">The builder.</param>
+    /// <returns></returns>
+    public static IExtendedIdentityServerBuilder AddBackchannelAuthenticationUserValidator<T>(this IExtendedIdentityServerBuilder builder) where T : class, IBackchannelAuthenticationUserValidator {
+        IdentityServerBuilderExtensionsAdditional.AddBackchannelAuthenticationUserValidator<T>(builder);
+        return builder;
+    }
+
+    /// <summary>
+    /// Adds the user notification service for backchannel login requests.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="builder">The builder.</param>
+    /// <returns></returns>
+    public static IExtendedIdentityServerBuilder AddBackchannelAuthenticationUserNotificationService<T>(this IExtendedIdentityServerBuilder builder) where T : class, IBackchannelAuthenticationUserNotificationService {
+        IdentityServerBuilderExtensionsAdditional.AddBackchannelAuthenticationUserNotificationService<T>(builder);
+        return builder;
+    }
+#endif
 
     /// <summary>Adds the scope metadata endpoint that will resolve the scope display name/description. Default configuration.</summary>
     /// <typeparam name="TScopeMetadataService">The type of provided implementation of <see cref="IParsedScopeMetadataService"/>.</typeparam>

@@ -1,7 +1,6 @@
-﻿using System.Net.Mime;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using FluentValidation;
-using FluentValidation.AspNetCore;
+using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Swagger;
 using Indice.Events;
 using Indice.Features.Media.AspNetCore;
@@ -52,6 +51,7 @@ public static class MessageFeatureExtensions
             options.DatabaseSchema = apiOptions.DatabaseSchema;
             options.UserClaimType = apiOptions.UserClaimType;
             options.GroupName = apiOptions.InboxGroupName;
+            options.CampaignStatisticOptions = apiOptions.CampaignStatisticOptions;
         });
     }
 
@@ -116,6 +116,12 @@ public static class MessageFeatureExtensions
             options.GroupName = apiOptions.GroupName;
         });
         services.AddSingleton(new DatabaseSchemaNameResolver(apiOptions.DatabaseSchema));
+
+        services.Configure<CampaignStatisticOptions>(opt => {
+            opt.EnableStatics = apiOptions.CampaignStatisticOptions.EnableStatics;
+        });
+        services.AddSingleton<CampaignEventQueue>();
+        services.AddSingleton<IHostedService, CampaignEventHandler>();
         return services;
     }
 
@@ -153,7 +159,6 @@ public static class MessageFeatureExtensions
             }
         });
         // Register validators.
-        services.AddFluentValidationAutoValidation();
         services.AddValidatorsFromAssemblyContaining<CreateCampaignRequestValidator>();
         // Register framework services.
         services.AddResponseCaching();
@@ -176,6 +181,7 @@ public static class MessageFeatureExtensions
         Action<IServiceProvider, DbContextOptionsBuilder> sqlServerConfiguration = (serviceProvider, builder) => builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("MessagesDb"));
         services.AddDbContext<CampaignsDbContext>(baseOptions.ConfigureDbContext ?? sqlServerConfiguration);
         services.AddHostedService<DbInitializerHostedService>();
+
         return services;
     }
 

@@ -1,13 +1,22 @@
-﻿using System.Linq;
-using System.Security.Claims;
-using System.Text.RegularExpressions;
+﻿using System.Security.Claims;
 using IdentityModel;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Events;
+using Duende.IdentityServer.Extensions;
+using Duende.IdentityServer.Models;
+using Duende.IdentityServer.Services;
+using Duende.IdentityServer.Stores;
+using Duende.IdentityServer.Stores.Serialization;
+using static Duende.IdentityServer.IdentityServerConstants;
+#else 
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.Stores.Serialization;
+using static IdentityServer4.IdentityServerConstants;
+#endif
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
@@ -21,11 +30,11 @@ using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
-using static IdentityServer4.IdentityServerConstants;
 
 namespace Indice.Features.Identity.Server.Manager;
 
@@ -34,6 +43,8 @@ internal static partial class MyAccountHandlers
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> UpdateEmail(
         ExtendedUserManager<User> userManager,
         IOptions<ExtendedEndpointOptions> endpointOptions,
+        LinkGenerator linkGenerator,
+        HttpContext httpContext,
         ClaimsPrincipal currentUser,
         IEmailService emailService,
         UpdateUserEmailRequest request
@@ -59,12 +70,14 @@ internal static partial class MyAccountHandlers
                 .To(user.Email!)
                 .WithSubject(userManager.MessageDescriber.UpdateEmailMessageSubject);
             if (!string.IsNullOrWhiteSpace(endpointOptions.Value.Email.UpdateEmailTemplate)) {
-                var data = new IdentityApiEmailData {
+                var data = new EmailChangeEmailModel {
                     DisplayName = currentUser.FindDisplayName() ?? user.UserName,
                     ReturnUrl = request.ReturnUrl,
                     Subject = userManager.MessageDescriber.UpdateEmailMessageSubject,
                     Token = token,
-                    User = user
+                    Url = linkGenerator.GetUriByPage(httpContext, "/ConfirmEmail", values: new { userId = user.Id, token, email = request.Email, request.ReturnUrl }),
+                    User = user,
+                    NewEmail = request.Email
                 };
                 builder.UsingTemplate(endpointOptions.Value.Email.UpdateEmailTemplate)
                        .WithData(data);
@@ -94,6 +107,72 @@ internal static partial class MyAccountHandlers
             );
         }
         var result = await userManager.ConfirmEmailAsync(user, request.Token!);
+        if (!result.Succeeded) {
+            return TypedResults.ValidationProblem(result.Errors.ToDictionary());
+        }
+        return TypedResults.NoContent();
+    }
+
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> EmailChange(
+        ExtendedUserManager<User> userManager,
+        IOptions<ExtendedEndpointOptions> endpointOptions,
+        LinkGenerator linkGenerator,
+        HttpContext httpContext,
+        ClaimsPrincipal currentUser,
+        IEmailService emailService,
+        ChangeUserEmailRequest request
+    ) {
+        var user = await userManager.GetUserAsync(currentUser);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        var currentEmail = await userManager.GetEmailAsync(user);
+        if (currentEmail is not null && currentEmail.Equals(request.Email, StringComparison.OrdinalIgnoreCase) && await userManager.IsEmailConfirmedAsync(user)) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.Email).ToLower(), userManager.MessageDescriber.EmailAlreadyExists(request.Email)));
+        }
+        var token = await userManager.GenerateChangeEmailTokenAsync(user, request.Email);
+        await emailService.SendAsync(message => {
+            var builder = message
+                .To(request.Email)
+                .WithSubject(userManager.MessageDescriber.ConfirmationEmailChangeSubject);
+            if (!string.IsNullOrWhiteSpace(endpointOptions.Value.Email.UpdateEmailTemplate)) {
+                var data = new EmailChangeEmailModel {
+                    DisplayName = currentUser.FindDisplayName() ?? user.UserName,
+                    ReturnUrl = request.ReturnUrl,
+                    Subject = userManager.MessageDescriber.ConfirmationEmailChangeSubject,
+                    Token = token,
+                    Url = linkGenerator.GetUriByPage(httpContext, "/ConfirmEmailChange", values: new { userId = user.Id, token, email = request.Email, request.ReturnUrl }),
+                    User = user,
+                    NewEmail = request.Email
+                };
+                builder.UsingTemplate(endpointOptions.Value.Email.ChangeEmailTemplate)
+                       .WithData(data);
+            } else {
+                builder.WithBody(userManager.MessageDescriber.ChangeEmailMessageBody(user, token, request.Email, request.ReturnUrl));
+            }
+        });
+        return TypedResults.NoContent();
+    }
+
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> ConfirmEmailChange(
+        ExtendedUserManager<User> userManager,
+        ClaimsPrincipal currentUser,
+        ConfirmEmailChangeRequest request
+    ) {
+        var userId = currentUser.FindFirstValue(JwtClaimTypes.Subject);
+        var user = await userManager.Users
+                                    .Include(x => x.Claims)
+                                    .Where(x => x.Id == userId)
+                                    .SingleOrDefaultAsync();
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        if (user.Email == request.Email && user.EmailConfirmed) {
+            return TypedResults.ValidationProblem(
+                ValidationErrors.AddError(nameof(request.Token).ToLower(), userManager.MessageDescriber.EmailAlreadyConfirmed)
+            );
+        }
+        var result = await userManager.ChangeEmailAsync(user, request.Email!, request.Token!);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
@@ -131,6 +210,29 @@ internal static partial class MyAccountHandlers
         return TypedResults.NoContent();
     }
 
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> PhoneNumberChange(
+        ExtendedUserManager<User> userManager,
+        IOptions<ExtendedEndpointOptions> endpointOptions,
+        ClaimsPrincipal currentUser,
+        ISmsServiceFactory smsServiceFactory,
+        ChangeUserPhoneNumberRequest request
+    ) {
+        var user = await userManager.GetUserAsync(currentUser);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        var currentPhoneNumber = user.PhoneNumber ?? string.Empty;
+        if (currentPhoneNumber.Equals(request.PhoneNumber, StringComparison.OrdinalIgnoreCase) && await userManager.IsPhoneNumberConfirmedAsync(user)) {
+            return TypedResults.ValidationProblem(
+                ValidationErrors.AddError(nameof(request.PhoneNumber).ToLower(), userManager.MessageDescriber.UserAlreadyHasPhoneNumber(request.PhoneNumber))
+            );
+        }
+        var smsService = smsServiceFactory.Create(request.DeliveryChannel!) ?? throw new Exception($"No concrete implementation of {nameof(ISmsService)} is registered.");
+        var token = await userManager.GenerateChangePhoneNumberTokenAsync(user, request.PhoneNumber!);
+        await smsService.SendAsync(request.PhoneNumber!, string.Empty, userManager.MessageDescriber.PhoneNumberChangeVerificationMessage(token));
+        return TypedResults.NoContent();
+    }
+
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> ConfirmPhoneNumber(
         ExtendedUserManager<User> userManager,
         ClaimsPrincipal currentUser,
@@ -150,6 +252,26 @@ internal static partial class MyAccountHandlers
             );
         }
         var result = await userManager.ChangePhoneNumberAsync(user, user.PhoneNumber!, request.Token!);
+        if (!result.Succeeded) {
+            return TypedResults.ValidationProblem(result.Errors.ToDictionary());
+        }
+        return TypedResults.NoContent();
+    }
+
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> ConfirmPhoneNumberChange(
+        ExtendedUserManager<User> userManager,
+        ClaimsPrincipal currentUser,
+        ConfirmPhoneNumberChangeRequest request
+    ) {
+        var userId = currentUser.FindFirstValue(JwtClaimTypes.Subject);
+        var user = await userManager
+            .Users
+            .Include(x => x.Claims)
+            .SingleOrDefaultAsync(x => x.Id == userId);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        var result = await userManager.ChangePhoneNumberAsync(user, request.PhoneNumber!, request.Token!);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
@@ -213,6 +335,8 @@ internal static partial class MyAccountHandlers
         ClaimsPrincipal currentUser,
         IOptions<ExtendedEndpointOptions> endpointOptions,
         IEmailService emailService,
+        LinkGenerator linkGenerator,
+        HttpContext httpContext,
         ForgotPasswordRequest request
     ) {
         if (string.IsNullOrEmpty(request.Email)) {
@@ -225,12 +349,13 @@ internal static partial class MyAccountHandlers
             return TypedResults.NoContent();
         }
         var code = await userManager.GeneratePasswordResetTokenAsync(user);
-        var data = new IdentityApiEmailData {
+        var data = new EmailChangeEmailModel {
             DisplayName = currentUser.FindDisplayName() ?? user.UserName,
             ReturnUrl = request.ReturnUrl,
             Subject = userManager.MessageDescriber.ForgotPasswordMessageSubject,
             Token = code,
-            User = user
+            User = user,
+            Url = linkGenerator.GetUriByPage(httpContext, "/ForgotPasswordConfirmation", values: new { email = request.Email, token = code, request.ReturnUrl })
         };
         await emailService.SendAsync(message => {
             var builder = message
@@ -240,7 +365,7 @@ internal static partial class MyAccountHandlers
                 builder.UsingTemplate(endpointOptions.Value.Email.ForgotPasswordTemplate)
                        .WithData(data);
             } else {
-                builder.WithBody(userManager.MessageDescriber.ForgotPasswordMessageBody(user, code));
+                builder.WithBody(userManager.MessageDescriber.ForgotPasswordMessageBody(user, data.Token, data.Url));
             }
         });
         return TypedResults.NoContent();
@@ -610,14 +735,10 @@ internal static partial class MyAccountHandlers
                 UserId = user.Id
             });
         }
-        user.Claims.Add(new IdentityUserClaim<string> {
-            ClaimType = BasicClaimTypes.ConsentCommercial,
-            ClaimValue = request.HasAcceptedTerms ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
-            UserId = user.Id
-        });
+
         user.Claims.Add(new IdentityUserClaim<string> {
             ClaimType = BasicClaimTypes.ConsentTerms,
-            ClaimValue = request.HasReadPrivacyPolicy ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
+            ClaimValue = request.HasReadPrivacyPolicy && request.HasAcceptedTerms ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
             UserId = user.Id
         });
         user.Claims.Add(new IdentityUserClaim<string> {
@@ -625,37 +746,45 @@ internal static partial class MyAccountHandlers
             ClaimValue = $"{DateTime.UtcNow:O}",
             UserId = user.Id
         });
-        user.Claims.Add(new IdentityUserClaim<string> {
-            ClaimType = BasicClaimTypes.ConsentCommercialDate,
-            ClaimValue = $"{DateTime.UtcNow:O}",
-            UserId = user.Id
-        });
+
+        if (request.HasConsentedToCommercialCommunications) {
+            user.Claims.Add(new() {
+                ClaimType = BasicClaimTypes.ConsentCommercial,
+                ClaimValue = request.HasConsentedToCommercialCommunications ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
+                UserId = user.Id
+            });
+            user.Claims.Add(new() {
+                ClaimType = BasicClaimTypes.ConsentCommercialDate,
+                ClaimValue = $"{DateTime.UtcNow:O}",
+                UserId = user.Id
+            });
+        }
         return user;
     }
 
     private static IDictionary<string, (string Description, string? Hint)> GetAvailableRules(this ExtendedUserManager<User> userManager, bool userAvailable, bool userNameAvailable) {
         var result = new Dictionary<string, (string Description, string? Hint)>();
         var passwordOptions = userManager.Options.Password;
-        var errorDescriber = userManager.ErrorDescriber as ExtendedIdentityErrorDescriber;
+        var errorDescriber = userManager.ErrorDescriber;
         var messageDescriber = userManager.MessageDescriber;
         result.Add(nameof(IdentityErrorDescriber.PasswordTooShort),
-            (userManager.ErrorDescriber.PasswordTooShort(passwordOptions.RequiredLength).Description, Hint: errorDescriber?.PasswordTooShortRequirement(passwordOptions.RequiredLength)));
+            (userManager.ErrorDescriber.PasswordTooShort(passwordOptions.RequiredLength).Description, Hint: errorDescriber.PasswordTooShortRequirement(passwordOptions.RequiredLength)));
         if (passwordOptions.RequiredUniqueChars > 1) {
             result.Add(nameof(IdentityErrorDescriber.PasswordRequiresUniqueChars),
-                (userManager.ErrorDescriber.PasswordRequiresUniqueChars(passwordOptions.RequiredUniqueChars).Description, Hint: errorDescriber?.PasswordRequiresUniqueCharsRequirement(passwordOptions.RequiredUniqueChars)));
+                (userManager.ErrorDescriber.PasswordRequiresUniqueChars(passwordOptions.RequiredUniqueChars).Description, Hint: errorDescriber.PasswordRequiresUniqueCharsRequirement(passwordOptions.RequiredUniqueChars)));
         }
         if (passwordOptions.RequireNonAlphanumeric) {
             result.Add(nameof(IdentityErrorDescriber.PasswordRequiresNonAlphanumeric),
-                (userManager.ErrorDescriber.PasswordRequiresNonAlphanumeric().Description, Hint: errorDescriber?.PasswordRequiresNonAlphanumericRequirement));
+                (userManager.ErrorDescriber.PasswordRequiresNonAlphanumeric().Description, Hint: errorDescriber.PasswordRequiresNonAlphanumericRequirement()));
         }
         if (passwordOptions.RequireDigit) {
-            result.Add(nameof(IdentityErrorDescriber.PasswordRequiresDigit), (userManager.ErrorDescriber.PasswordRequiresDigit().Description, Hint: errorDescriber?.PasswordRequiresDigitRequirement));
+            result.Add(nameof(IdentityErrorDescriber.PasswordRequiresDigit), (userManager.ErrorDescriber.PasswordRequiresDigit().Description, Hint: errorDescriber.PasswordRequiresDigitRequirement()));
         }
         if (passwordOptions.RequireLowercase) {
-            result.Add(nameof(IdentityErrorDescriber.PasswordRequiresLower), (userManager.ErrorDescriber.PasswordRequiresLower().Description, Hint: errorDescriber?.PasswordRequiresLowerRequirement));
+            result.Add(nameof(IdentityErrorDescriber.PasswordRequiresLower), (userManager.ErrorDescriber.PasswordRequiresLower().Description, Hint: errorDescriber.PasswordRequiresLowerRequirement()));
         }
         if (passwordOptions.RequireUppercase) {
-            result.Add(nameof(IdentityErrorDescriber.PasswordRequiresUpper), (userManager.ErrorDescriber.PasswordRequiresUpper().Description, Hint: errorDescriber?.PasswordRequiresUpperRequirement));
+            result.Add(nameof(IdentityErrorDescriber.PasswordRequiresUpper), (userManager.ErrorDescriber.PasswordRequiresUpper().Description, Hint: errorDescriber.PasswordRequiresUpperRequirement()));
         }
         var validators = userManager.PasswordValidators;
         foreach (var validator in validators) {
@@ -663,26 +792,26 @@ internal static partial class MyAccountHandlers
             validatorType = validatorType.IsGenericType ? validatorType.GetGenericTypeDefinition() : validatorType;
             var isNonCommonPasswordValidator = validatorType == typeof(NonCommonPasswordValidator) || validatorType == typeof(NonCommonPasswordValidator<>);
             if (isNonCommonPasswordValidator) {
-                result.Add(NonCommonPasswordValidator.ErrorDescriber, (Description: messageDescriber.PasswordIsCommon, Hint: messageDescriber.PasswordIsCommonRequirement));
+                result.Add(nameof(ExtendedIdentityErrorDescriber.PasswordIsCommon), (errorDescriber.PasswordIsCommon().Description, Hint: errorDescriber.PasswordIsCommonRequirement()));
             }
             var isUserNameAsPasswordValidator = validatorType == typeof(UserNameAsPasswordValidator) || validatorType == typeof(UserNameAsPasswordValidator<>);
             if (isUserNameAsPasswordValidator && userNameAvailable) {
-                result.Add(UserNameAsPasswordValidator.ErrorDescriber, (Description: messageDescriber.PasswordIdenticalToUserName, Hint: messageDescriber.PasswordIdenticalToUserNameRequirement));
+                result.Add(nameof(ExtendedIdentityErrorDescriber.PasswordIdenticalToUserName), (errorDescriber.PasswordIdenticalToUserName().Description, Hint: errorDescriber.PasswordIdenticalToUserNameRequirement()));
             }
             var isPreviousPasswordAwareValidator = validatorType == typeof(PreviousPasswordAwareValidator)
                 || validatorType == typeof(PreviousPasswordAwareValidator<>)
                 || validatorType == typeof(PreviousPasswordAwareValidator<,>)
                 || validatorType == typeof(PreviousPasswordAwareValidator<,,>);
             if (isPreviousPasswordAwareValidator && userAvailable) {
-                result.Add(PreviousPasswordAwareValidator.ErrorDescriber, (Description: messageDescriber.PasswordRecentlyUsed, Hint: messageDescriber.PasswordRecentlyUsedRequirement));
+                result.Add(nameof(ExtendedIdentityErrorDescriber.PasswordRecentlyUsed), (errorDescriber.PasswordRecentlyUsed().Description, Hint: errorDescriber.PasswordRecentlyUsedRequirement()));
             }
             var isUnicodeCharactersPasswordValidator = validatorType == typeof(UnicodeCharactersPasswordValidator) || validatorType == typeof(UnicodeCharactersPasswordValidator<>);
             if (isUnicodeCharactersPasswordValidator) {
-                result.Add(UnicodeCharactersPasswordValidator.ErrorDescriber, (Description: messageDescriber.PasswordHasNonLatinChars, Hint: messageDescriber.PasswordHasNonLatinCharsRequirement));
+                result.Add(nameof(ExtendedIdentityErrorDescriber.PasswordHasNonLatinChars), (errorDescriber.PasswordHasNonLatinChars().Description, Hint: errorDescriber.PasswordHasNonLatinCharsRequirement()));
             }
             var isNotAllowedCharactersPasswordValidator = validatorType == typeof(AllowedCharactersPasswordValidator) || validatorType == typeof(AllowedCharactersPasswordValidator<>);
             if (isNotAllowedCharactersPasswordValidator) {
-                result.Add(AllowedCharactersPasswordValidator.ErrorDescriber, (Description: messageDescriber.PasswordContainsNotAllowedChars, Hint: messageDescriber.PasswordContainsNotAllowedCharsRequirement));
+                result.Add(nameof(ExtendedIdentityErrorDescriber.PasswordContainsNotAllowedChars), (errorDescriber.PasswordContainsNotAllowedChars().Description, Hint: errorDescriber.PasswordContainsNotAllowedCharsRequirement()));
             }
         }
         return result;
@@ -725,7 +854,7 @@ internal static partial class MyAccountHandlers
                                           switch (grant.Type) {
                                               case PersistedGrantTypes.UserConsent:
                                                   var consent = serializer.Deserialize<Consent>(grant.Data);
-                                                  info.UpdateWith(PersistedGrantTypes.UserConsent, consent.CreationTime, consent.Expiration, consent.Scopes);
+                                                  info.UpdateWith(PersistedGrantTypes.UserConsent, consent.CreationTime, consent.Expiration, consent.Scopes!);
                                                   info.Grants.Add(new UserGrantInfo {
                                                       Type = PersistedGrantTypes.UserConsent,
                                                       SessionId = grant.SessionId,
@@ -745,6 +874,18 @@ internal static partial class MyAccountHandlers
                                                   break;
                                               case PersistedGrantTypes.RefreshToken:
                                                   var refresh = serializer.Deserialize<RefreshToken>(grant.Data);
+#if NET9_0_OR_GREATER
+                                                  info.UpdateWith(PersistedGrantTypes.RefreshToken, refresh.CreationTime, refresh.CreationTime.AddSeconds(refresh.Lifetime), refresh.AuthorizedScopes);
+                                                  info.Grants.Add(new UserGrantInfo {
+                                                      Type = PersistedGrantTypes.RefreshToken,
+                                                      SessionId = grant.SessionId,
+                                                      CreatedAt = refresh.CreationTime,
+                                                      ExpiresAt = refresh.CreationTime.AddSeconds(refresh.Lifetime),
+                                                      TokenId = refresh.AccessTokens.SelectMany(x => x.Value.Claims)?.FirstOrDefault(x => x.Type == JwtClaimTypes.JwtId)?.Value,
+                                                      DeviceId = refresh.AccessTokens.SelectMany(x => x.Value.Claims)?.FirstOrDefault(x => x.Type == BasicClaimTypes.DeviceId)?.Value,
+                                                      IpAddress = refresh.AccessTokens.SelectMany(x => x.Value.Claims)?.FirstOrDefault(x => x.Type == BasicClaimTypes.IPAddress)?.Value,
+                                                  });
+#else
                                                   info.UpdateWith(PersistedGrantTypes.RefreshToken, refresh.CreationTime, refresh.CreationTime.AddSeconds(refresh.Lifetime), refresh.Scopes);
                                                   info.Grants.Add(new UserGrantInfo {
                                                       Type = PersistedGrantTypes.RefreshToken,
@@ -755,6 +896,7 @@ internal static partial class MyAccountHandlers
                                                       DeviceId = refresh.AccessToken?.Claims?.FirstOrDefault(x => x.Type == BasicClaimTypes.DeviceId)?.Value,
                                                       IpAddress = refresh.AccessToken?.Claims?.FirstOrDefault(x => x.Type == BasicClaimTypes.IPAddress)?.Value,
                                                   });
+#endif
                                                   break;
                                               case PersistedGrantTypes.ReferenceToken:
                                                   var token = serializer.Deserialize<Token>(grant.Data);
