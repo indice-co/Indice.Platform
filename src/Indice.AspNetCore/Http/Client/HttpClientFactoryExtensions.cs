@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting.Server;
+﻿using System.Net;
+using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.Configuration;
 
@@ -21,7 +22,7 @@ public static class HttpClientFactoryExtensions
             return null;
         }
 
-        var uriBuilder = new UriBuilder(address) {
+        var uriBuilder = new UriBuilder(address.Replace("+", "0.0.0.0")) {
             Host = "localhost"
         };
         return uriBuilder.Uri;
