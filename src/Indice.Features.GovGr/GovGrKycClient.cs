@@ -79,7 +79,11 @@ internal class GovGrKycClient : IKycService
         // https://stackoverflow.com/a/65352811/19162333
         certificatePemString = certificatePemString.Replace("-----BEGIN CERTIFICATE-----", null).Replace("-----END CERTIFICATE-----", null);
         var certificateByteArray = Convert.FromBase64String(certificatePemString);
+#if NET9_0_OR_GREATER
+        var certificate = X509CertificateLoader.LoadCertificate(certificateByteArray);
+#else
         var certificate = new X509Certificate2(certificateByteArray);
+#endif
         // use X509 certificate to create a signatureProvider
         var securityKey = new X509SecurityKey(certificate);
         var cryptoProviderFactory = securityKey.CryptoProviderFactory;
