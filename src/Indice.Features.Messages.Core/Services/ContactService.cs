@@ -44,7 +44,7 @@ public class ContactService : IContactService
                 return;
             }
         }
-       
+
         contact = Mapper.ToDbContact(request);
         contact.DistributionListContacts.Add(new DbDistributionListContact {
             ContactId = Guid.NewGuid(),
@@ -151,6 +151,22 @@ public class ContactService : IContactService
         if (filter?.RecipientId is not null) {
             query = query.Where(x => x.RecipientId!.ToLower() == filter.RecipientId.ToLower());
         }
+
+        if (!string.IsNullOrWhiteSpace(options.Search)) {
+            var searchTerm = options.Search.Trim().ToLowerInvariant();
+            if (int.TryParse(searchTerm, out var number)) {
+                query = query.Where(x => x.RecipientId!.Contains(number.ToString())
+                                      || x.PhoneNumber!.Contains(number.ToString()));
+            } else if (Guid.TryParse(searchTerm, out var guid)) {
+                query = query.Where(x => x.RecipientId!.ToLower() == searchTerm);
+            } else {
+                query = query.Where(x => x.FirstName!.ToLower().Contains(searchTerm) ||
+                                    x.LastName!.ToLower().Contains(searchTerm) ||
+                                   (x.Email != null && x.Email.ToLower().Contains(searchTerm)) ||
+                                   (x.PhoneNumber != null && x.PhoneNumber.ToLower().Contains(searchTerm)));
+            }
+        }
+
         return await query.Select(Mapper.ProjectToContact).ToResultSetAsync(options);
     }
 
