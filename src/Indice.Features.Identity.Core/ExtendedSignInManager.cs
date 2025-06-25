@@ -431,6 +431,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
                 device.IsTrusted = true;
                 device.TrustActivationDate ??= DateTimeOffset.UtcNow;
                 device.MfaSessionExpirationDate = DateTimeOffset.UtcNow.AddDays(MfaRememberDurationInDays);
+                device.LastSignInDate = DateTimeOffset.UtcNow;
                 await ExtendedUserManager.UpdateDeviceAsync(user, device);
             } else {
                 var userAgentHeader = Context.Request.Headers[HeaderNames.UserAgent];

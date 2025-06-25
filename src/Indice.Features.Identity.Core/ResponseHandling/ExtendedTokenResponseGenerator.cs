@@ -48,7 +48,9 @@ public class ExtendedTokenResponseGenerator : TokenResponseGenerator
 #if NET9_0_OR_GREATER
         IClock clock,
 #else
+#pragma warning disable CS0618 // Type or member is obsolete
         ISystemClock clock,
+#pragma warning restore CS0618 // Type or member is obsolete
 #endif
         ITokenService tokenService,
         IRefreshTokenService refreshTokenService,
