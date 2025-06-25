@@ -25,7 +25,7 @@ public class DbCaseAccessRule
 
     public static Expression<Func<DbCaseAccessRule, bool>> AccessMatchPredicate(string? userId, List<string> userRoles, string? groupId) {
         return x =>
-            (userId != null && x.MemberUserId == userId.ToString()) ||
+            (userId != null && x.MemberUserId == userId) ||
             (userRoles.Any() && userRoles.Contains(x.MemberRole!)) ||
             (groupId != null && x.MemberGroupId == groupId);
     }
