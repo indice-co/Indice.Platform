@@ -388,6 +388,8 @@ public class CustomGrantsIntegrationTests : IAsyncLifetime
         if (!response.IsSuccessStatusCode) {
             Assert.Fail("Device could not be created.");
         }
+        var dbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
+        await dbContext.Entry(TestUser).ReloadAsync();
         // 3. Change username. 
         var result = await userManager.SetUserNameAsync(TestUser, "someone_new@indice.gr");
         if (!result.Succeeded) {
