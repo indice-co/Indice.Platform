@@ -15,6 +15,7 @@ public class PasswordExpiredInputModelValidator : AbstractValidator<PasswordExpi
     public PasswordExpiredInputModelValidator(IStringLocalizer<PasswordExpiredInputModelValidator> localizer) {
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         RuleFor(x => x.NewPassword).NotEmpty().WithName(_localizer["New Password"]);
-        RuleFor(x => x.NewPasswordConfirmation).NotEmpty().Equal(x => x.NewPassword).WithMessage(_localizer["Field 'New Password Confirmation' should value a value equal to 'New Password'."]);
+        RuleFor(x => x.NewPasswordConfirmation).NotEmpty().WithName(_localizer["New Password Confirmation"]);
+        RuleFor(x => x.NewPasswordConfirmation).Equal(x => x.NewPassword).WithMessage(_localizer["Field 'New Password Confirmation' should value a value equal to 'New Password'."]);
     }
 }
