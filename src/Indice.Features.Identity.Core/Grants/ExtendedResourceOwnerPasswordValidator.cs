@@ -89,6 +89,7 @@ public class ExtendedResourceOwnerPasswordValidator<TUser>(
                 clientName: context.Request.Client.ClientName,
                 authenticationMethods: [context.Result.Subject.Identity?.AuthenticationType!]
             ));
+        await _userManager.SetLastSignInDateAsync(user, DateTimeOffset.UtcNow);
         } else {
             await _eventService.RaiseAsync(new ExtendedUserLoginFailureEvent(
                 user.UserName!,

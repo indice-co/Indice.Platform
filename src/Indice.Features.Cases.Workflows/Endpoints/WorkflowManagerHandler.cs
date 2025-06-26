@@ -87,7 +87,7 @@ internal static class WorkflowManagerHandler
     ) {
         ArgumentOutOfRangeException.ThrowIfEqual(request.CaseId, Guid.Empty);
         ArgumentNullException.ThrowIfNull(request.Actor);
-        ArgumentNullException.ThrowIfNull(request.ActionId);
+        ArgumentOutOfRangeException.ThrowIfEqual(request.ActionId, Guid.Empty); 
         
         var executedWorkflow = await actionInvoker.ExecuteWorkflowsAsync(request.CaseId, request, cancellationToken);
         if (!executedWorkflow.Any()) {

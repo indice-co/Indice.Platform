@@ -44,7 +44,7 @@ public class RedirectToHostRewriteRule : IRule
                 return;
             }
         }
-        var newHost = Host.HasValue ? Host : new HostString(requestHost.Value.Replace("www", string.Empty));
+        var newHost = Host.HasValue ? Host : new HostString(requestHost.Value!.Replace("www", string.Empty));
         var newPath = $"{newHost.Value}{request.PathBase}{request.Path}{request.QueryString}";
         var response = context.HttpContext.Response;
         response.StatusCode = StatusCode;
