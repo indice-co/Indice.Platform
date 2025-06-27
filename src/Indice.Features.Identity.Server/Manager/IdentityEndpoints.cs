@@ -54,7 +54,7 @@ public static partial class IdentityEndpoints
     }
 
     /// <summary>Rate limiting config for Identity Server API.</summary>
-    internal static partial class RateLimiter 
+    internal static partial class RateLimiter
     {
         public static IReadOnlyList<string> Endpoints { get; } = new List<string> {
             "account/forgot-password",
@@ -64,7 +64,11 @@ public static partial class IdentityEndpoints
             "account/validate-password",
             "totp",
             "account/calling-codes",
-            "my/account/picture"
+            "my/account/picture",
+            "my/account/email",
+            "my/account/phone-number",
+            "my/account/email/change",
+            "my/account/phone-number/change"
         };
 
         public static class Policies
@@ -77,7 +81,10 @@ public static partial class IdentityEndpoints
             public static readonly string Totp = Endpoints[5];
             public static readonly string CallingCodes = Endpoints[6];
             public static readonly string UploadPicture = Endpoints[7];
-            
+            public static readonly string UpdateEmail = Endpoints[8];
+            public static readonly string UpdatePhoneNumber = Endpoints[9];
+            public static readonly string ChangeEmail = Endpoints[10];
+            public static readonly string ChangePhoneNumber = Endpoints[11];
         }
     }
 }

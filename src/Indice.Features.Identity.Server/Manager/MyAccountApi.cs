@@ -32,6 +32,7 @@ public static class MyAccountApi
              .WithName(nameof(MyAccountHandlers.UpdateEmail))
              .WithSummary("Updates the email of the current user.")
              .WithParameterValidation<UpdateUserEmailRequest>()
+             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.UpdateEmail)
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/email/confirmation", MyAccountHandlers.ConfirmEmail)
@@ -44,6 +45,7 @@ public static class MyAccountApi
              .WithName(nameof(MyAccountHandlers.UpdatePhoneNumber))
              .WithSummary("Requests a phone number change for the current user.")
              .WithParameterValidation<UpdateUserPhoneNumberRequest>()
+             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.UpdatePhoneNumber)
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/phone-number/confirmation", MyAccountHandlers.ConfirmPhoneNumber)
@@ -56,6 +58,7 @@ public static class MyAccountApi
              .WithName(nameof(MyAccountHandlers.EmailChange))
              .WithSummary("Request email change for the current user.")
              .WithParameterValidation<ChangeUserEmailRequest>()
+             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.ChangeEmail)
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/email/change-confirmation", MyAccountHandlers.ConfirmEmailChange)
@@ -68,6 +71,7 @@ public static class MyAccountApi
              .WithName(nameof(MyAccountHandlers.PhoneNumberChange))
              .WithSummary("Requests phone number change for the current user.")
              .WithParameterValidation<ChangeUserPhoneNumberRequest>()
+             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.ChangePhoneNumber)
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/phone-number/change-confirmation", MyAccountHandlers.ConfirmPhoneNumberChange)
