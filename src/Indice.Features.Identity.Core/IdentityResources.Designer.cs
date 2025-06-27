@@ -520,6 +520,402 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Email.
+        /// </summary>
+        internal static string UI_Validator_AddEmail_Email_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_AddEmail_Email_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Password Confirmation.
+        /// </summary>
+        internal static string UI_Validator_AddPassword_ConfirmPassword_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_AddPassword_ConfirmPassword_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New Password.
+        /// </summary>
+        internal static string UI_Validator_AddPassword_NewPassword_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_AddPassword_NewPassword_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Calling Code.
+        /// </summary>
+        internal static string UI_Validator_AddPhone_CallingCode_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_AddPhone_CallingCode_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Phone Number.
+        /// </summary>
+        internal static string UI_Validator_AddPhone_PhoneNumber_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_AddPhone_PhoneNumber_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The field &apos;Phone Number&apos; has invalid format..
+        /// </summary>
+        internal static string UI_Validator_AddPhone_PhoneNumber_InvalidFormat {
+            get {
+                return ResourceManager.GetString("UI_Validator_AddPhone_PhoneNumber_InvalidFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New Password.
+        /// </summary>
+        internal static string UI_Validator_ChangePassword_NewPassword_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_ChangePassword_NewPassword_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Old Password.
+        /// </summary>
+        internal static string UI_Validator_ChangePassword_OldPassword_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_ChangePassword_OldPassword_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Phone Number.
+        /// </summary>
+        internal static string UI_Validator_EnableMfaSms_PhoneNumber_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_EnableMfaSms_PhoneNumber_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The field &apos;Phone Number&apos; has invalid format..
+        /// </summary>
+        internal static string UI_Validator_EnableMfaSms_PhoneNumber_InvalidFormat {
+            get {
+                return ResourceManager.GetString("UI_Validator_EnableMfaSms_PhoneNumber_InvalidFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Email.
+        /// </summary>
+        internal static string UI_Validator_ForgotPassword_Email_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_ForgotPassword_Email_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Email.
+        /// </summary>
+        internal static string UI_Validator_ForgotPasswordConfirmation_Email_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_ForgotPasswordConfirmation_Email_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New Password.
+        /// </summary>
+        internal static string UI_Validator_ForgotPasswordConfirmation_NewPassword_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_ForgotPasswordConfirmation_NewPassword_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Token.
+        /// </summary>
+        internal static string UI_Validator_ForgotPasswordConfirmation_Token_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_ForgotPasswordConfirmation_Token_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Password.
+        /// </summary>
+        internal static string UI_Validator_Login_Password_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_Login_Password_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User Name.
+        /// </summary>
+        internal static string UI_Validator_Login_UserName_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_Login_UserName_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Selected Authentication Method.
+        /// </summary>
+        internal static string UI_Validator_MfaOnboarding_SelectedAuthenticationMethod_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_MfaOnboarding_SelectedAuthenticationMethod_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please select one of the available authentication methods..
+        /// </summary>
+        internal static string UI_Validator_MfaOnboarding_SelectedAuthenticationMethod_Required {
+            get {
+                return ResourceManager.GetString("UI_Validator_MfaOnboarding_SelectedAuthenticationMethod_Required", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Field &apos;New Password&apos; should not be empty..
+        /// </summary>
+        internal static string UI_Validator_PasswordExpired_NewPassword_Empty_Error {
+            get {
+                return ResourceManager.GetString("UI_Validator_PasswordExpired_NewPassword_Empty_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Field &apos;New Password Confirmation&apos; should not be empty..
+        /// </summary>
+        internal static string UI_Validator_PasswordExpired_NewPasswordConfirmation_Empty_Error {
+            get {
+                return ResourceManager.GetString("UI_Validator_PasswordExpired_NewPasswordConfirmation_Empty_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Field &apos;New Password Confirmation&apos; should value a value equal to &apos;New Password&apos;..
+        /// </summary>
+        internal static string UI_Validator_PasswordExpired_NewPasswordConfirmation_Mismatch_Error {
+            get {
+                return ResourceManager.GetString("UI_Validator_PasswordExpired_NewPasswordConfirmation_Mismatch_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Calling Code.
+        /// </summary>
+        internal static string UI_Validator_Profile_CallingCode_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_Profile_CallingCode_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Email.
+        /// </summary>
+        internal static string UI_Validator_Profile_Email_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_Profile_Email_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mobile phone.
+        /// </summary>
+        internal static string UI_Validator_Profile_PhoneNumber_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_Profile_PhoneNumber_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The field &apos;Mobile phone&apos; has invalid format..
+        /// </summary>
+        internal static string UI_Validator_Profile_PhoneNumber_InvalidFormat {
+            get {
+                return ResourceManager.GetString("UI_Validator_Profile_PhoneNumber_InvalidFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tin.
+        /// </summary>
+        internal static string UI_Validator_Profile_Tin_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_Profile_Tin_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid Tax Code..
+        /// </summary>
+        internal static string UI_Validator_Profile_Tin_InvalidFormat {
+            get {
+                return ResourceManager.GetString("UI_Validator_Profile_Tin_InvalidFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Username.
+        /// </summary>
+        internal static string UI_Validator_Profile_UserName_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_Profile_UserName_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Field &apos;Username&apos; can accept digits, uppercase or lowercase latin characters and the symbols -._@+.
+        /// </summary>
+        internal static string UI_Validator_Profile_UserName_InvalidFormat {
+            get {
+                return ResourceManager.GetString("UI_Validator_Profile_UserName_InvalidFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You must accept the service &apos;terms of use&apos;..
+        /// </summary>
+        internal static string UI_Validator_Register_AcceptTerms_Message {
+            get {
+                return ResourceManager.GetString("UI_Validator_Register_AcceptTerms_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Calling Code.
+        /// </summary>
+        internal static string UI_Validator_Register_CallingCode_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_Register_CallingCode_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This email already exists. Please use a different email..
+        /// </summary>
+        internal static string UI_Validator_Register_Email_AlreadyExists {
+            get {
+                return ResourceManager.GetString("UI_Validator_Register_Email_AlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Email.
+        /// </summary>
+        internal static string UI_Validator_Register_Email_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_Register_Email_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to First name.
+        /// </summary>
+        internal static string UI_Validator_Register_FirstName_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_Register_FirstName_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Last name.
+        /// </summary>
+        internal static string UI_Validator_Register_LastName_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_Register_LastName_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Password.
+        /// </summary>
+        internal static string UI_Validator_Register_Password_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_Register_Password_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The field &apos;Phone Number&apos; has invalid format..
+        /// </summary>
+        internal static string UI_Validator_Register_PhoneNumber_InvalidFormat {
+            get {
+                return ResourceManager.GetString("UI_Validator_Register_PhoneNumber_InvalidFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You must be informed about privacy policy..
+        /// </summary>
+        internal static string UI_Validator_Register_ReadPrivacyPolicy_Message {
+            get {
+                return ResourceManager.GetString("UI_Validator_Register_ReadPrivacyPolicy_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This username already exists. Please use a different one..
+        /// </summary>
+        internal static string UI_Validator_Register_UserName_AlreadyExists {
+            get {
+                return ResourceManager.GetString("UI_Validator_Register_UserName_AlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Username.
+        /// </summary>
+        internal static string UI_Validator_Register_UserName_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_Register_UserName_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Field &apos;Username&apos; can accept digits, uppercase or lowercase latin characters and the symbols -._@+.
+        /// </summary>
+        internal static string UI_Validator_Register_UserName_InvalidFormat {
+            get {
+                return ResourceManager.GetString("UI_Validator_Register_UserName_InvalidFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Code.
+        /// </summary>
+        internal static string UI_Validator_VerifyPhone_Code_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_VerifyPhone_Code_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Phone Number.
+        /// </summary>
+        internal static string UI_Validator_VerifyPhone_PhoneNumber_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_VerifyPhone_PhoneNumber_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The field &apos;Phone Number&apos; has invalid format..
+        /// </summary>
+        internal static string UI_Validator_VerifyPhone_PhoneNumber_InvalidFormat {
+            get {
+                return ResourceManager.GetString("UI_Validator_VerifyPhone_PhoneNumber_InvalidFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to User already has email &apos;{0}&apos;..
         /// </summary>
         internal static string UserAlreadyHasEmail {
