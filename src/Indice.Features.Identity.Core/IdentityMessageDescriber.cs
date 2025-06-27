@@ -128,4 +128,8 @@ public class IdentityMessageDescriber
     /// <summary>Login error message when user is locked out.</summary>
     public virtual string LoginErrorLockedMessage => IdentityResources.LoginErrorLockedMessage;
 
+    /// <summary>Gets the field name used for validating the "New Password" input in the Add Password UI.</summary>
+    public virtual string UI_Validator_AddPassword_NewPassword_FieldName => IdentityResources.UI_Validator_AddPassword_NewPassword_FieldName;
+    /// <summary>Gets the field name used for the "Confirm Password" validation in the Add Password UI.</summary>
+    public virtual string UI_Validator_AddPassword_ConfirmPassword_FieldName => IdentityResources.UI_Validator_AddPassword_ConfirmPassword_FieldName;
 }

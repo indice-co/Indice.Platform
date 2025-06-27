@@ -520,6 +520,24 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Password Confirmation.
+        /// </summary>
+        internal static string UI_Validator_AddPassword_ConfirmPassword_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_AddPassword_ConfirmPassword_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New Password.
+        /// </summary>
+        internal static string UI_Validator_AddPassword_NewPassword_FieldName {
+            get {
+                return ResourceManager.GetString("UI_Validator_AddPassword_NewPassword_FieldName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to User already has email &apos;{0}&apos;..
         /// </summary>
         internal static string UserAlreadyHasEmail {

@@ -276,4 +276,10 @@
   <data name="PasswordExpiredMessage" xml:space="preserve">
     <value>Ο κωδικός σας έχει λήξει. Παρακαλώ επιλέξτε ένα νέο κωδικό.</value>
   </data>
+  <data name="UI_Validator_AddPassword_NewPassword_FieldName" xml:space="preserve">
+    <value>Νέος Κωδικός</value>
+  </data>
+  <data name="UI_Validator_AddPassword_ConfirmPassword_FieldName" xml:space="preserve">
+    <value>Επιβεβαίωση Kωδικού</value>
+  </data>
 </root>
