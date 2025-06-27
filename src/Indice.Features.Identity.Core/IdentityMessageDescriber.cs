@@ -128,4 +128,130 @@ public class IdentityMessageDescriber
     /// <summary>Login error message when user is locked out.</summary>
     public virtual string LoginErrorLockedMessage => IdentityResources.LoginErrorLockedMessage;
 
+    #region Add Password UI
+    /// <summary>Gets the field name used for validating the "New Password" input in the Add Password UI.</summary>
+    public virtual string UI_Validator_AddPassword_NewPassword_FieldName => IdentityResources.UI_Validator_AddPassword_NewPassword_FieldName;
+    /// <summary>Gets the field name used for the "Confirm Password" validation in the Add Password UI.</summary>
+    public virtual string UI_Validator_AddPassword_ConfirmPassword_FieldName => IdentityResources.UI_Validator_AddPassword_ConfirmPassword_FieldName;
+    #endregion
+
+    #region Password Expired UI
+    /// <summary>The message displayed when the new password field is empty in the Password Expired UI.</summary>
+    public virtual string UI_Validator_PasswordExpired_NewPassword_Empty_Error => IdentityResources.UI_Validator_PasswordExpired_NewPassword_Empty_Error;
+    /// <summary>The message displayed when the new password confirmation field is empty in the Password Expired UI.</summary>
+    public virtual string UI_Validator_PasswordExpired_NewPasswordConfirmation_Empty_Error => IdentityResources.UI_Validator_PasswordExpired_NewPasswordConfirmation_Empty_Error;
+    /// <summary>The message displayed when the new password confirmation does not match the new password in the Password Expired UI.</summary>
+    public virtual string UI_Validator_PasswordExpired_NewPasswordConfirmation_Mismatch_Error => IdentityResources.UI_Validator_PasswordExpired_NewPasswordConfirmation_Mismatch_Error;
+    #endregion
+
+    #region Add Email UI
+    /// <summary>Gets the field name used for validating the "New Password" input in the Password Expired UI.</summary>
+    public virtual string UI_Validator_AddEmail_Email_FieldName => IdentityResources.UI_Validator_AddEmail_Email_FieldName;
+    #endregion
+
+    #region Add Phone UI
+    /// <summary>Gets the field name used for validating the "Phone Number" input in the Add Phone UI.</summary>
+    public virtual string UI_Validator_AddPhone_CallingCode_FieldName => IdentityResources.UI_Validator_AddPhone_CallingCode_FieldName;
+    /// <summary>Gets the field name used for validating the "Phone Number" input in the Add Phone UI.</summary>
+    public virtual string UI_Validator_AddPhone_PhoneNumber_FieldName => IdentityResources.UI_Validator_AddPhone_PhoneNumber_FieldName;
+    /// <summary>Gets the error message displayed when the phone number format is invalid in the Add Phone UI.</summary>
+    public virtual string UI_Validator_AddPhone_PhoneNumber_InvalidFormat => IdentityResources.UI_Validator_AddPhone_PhoneNumber_InvalidFormat;
+    #endregion
+
+    #region Change Password UI
+    /// <summary>Gets the field name used for validating the "Old Password" input in the Change Password UI.</summary>
+    public virtual string UI_Validator_ChangePassword_OldPassword_FieldName => IdentityResources.UI_Validator_ChangePassword_OldPassword_FieldName;
+    /// <summary>Gets the field name used for validating the "New Password" input in the Change Password UI.</summary>
+    public virtual string UI_Validator_ChangePassword_NewPassword_FieldName => IdentityResources.UI_Validator_ChangePassword_NewPassword_FieldName;
+    #endregion
+
+    #region Enable Mfa Sms UI
+    /// <summary>Gets the field name used for validating the "Phone Number" input in the Enable MFA SMS UI.</summary>
+    public virtual string UI_Validator_EnableMfaSms_PhoneNumber_FieldName => IdentityResources.UI_Validator_EnableMfaSms_PhoneNumber_FieldName;
+    /// <summary>Gets the error message displayed when the phone number format is invalid in the Enable MFA SMS UI.</summary>
+    public virtual string UI_Validator_EnableMfaSms_PhoneNumber_InvalidFormat => IdentityResources.UI_Validator_EnableMfaSms_PhoneNumber_InvalidFormat;
+    #endregion
+
+    #region Forgot Password Confirmation UI
+    /// <summary>Gets the field name used for validating the "Email" input in the Forgot Password Confirmation UI.</summary>
+    public virtual string UI_Validator_ForgotPasswordConfirmation_Email_FieldName => IdentityResources.UI_Validator_ForgotPasswordConfirmation_Email_FieldName;
+    /// <summary>Gets the field name used for validating the "New Password" input in the Forgot Password Confirmation UI.</summary>
+    public virtual string UI_Validator_ForgotPasswordConfirmation_NewPassword_FieldName => IdentityResources.UI_Validator_ForgotPasswordConfirmation_NewPassword_FieldName;
+    /// <summary>Gets the field name used for validating the "Token" input in the Forgot Password Confirmation UI.</summary>
+    public virtual string UI_Validator_ForgotPasswordConfirmation_Token_FieldName => IdentityResources.UI_Validator_ForgotPasswordConfirmation_Token_FieldName;
+    #endregion
+
+    #region Forgot Password UI
+    /// <summary>Gets the field name used for validating the "Email" input in the Forgot Password UI.</summary>
+    public virtual string UI_Validator_ForgotPassword_Email_FieldName => IdentityResources.UI_Validator_ForgotPassword_Email_FieldName;
+    #endregion
+
+    #region Login UI
+    /// <summary>Gets the field name used for validating the "UserName" input in the Login UI.</summary>
+    public virtual string UI_Validator_Login_UserName_FieldName => IdentityResources.UI_Validator_Login_UserName_FieldName;
+    /// <summary>Gets the field name used for validating the "Password" input in the Login UI.</summary>
+    public virtual string UI_Validator_Login_Password_FieldName => IdentityResources.UI_Validator_Login_Password_FieldName;
+    #endregion
+
+    #region Mfa Onboarding UI
+    /// <summary>Gets the field name used for validating the "SelectedAuthenticationMethod" input in the Mfa Onboarding UI.</summary>
+    public virtual string UI_Validator_MfaOnboarding_SelectedAuthenticationMethod_FieldName => IdentityResources.UI_Validator_MfaOnboarding_SelectedAuthenticationMethod_FieldName;
+    /// <summary>Gets the error message displayed when the "SelectedAuthenticationMethod" input is required in the Mfa Onboarding UI.</summary>
+    public virtual string UI_Validator_MfaOnboarding_SelectedAuthenticationMethod_Required => IdentityResources.UI_Validator_MfaOnboarding_SelectedAuthenticationMethod_Required;
+    #endregion
+
+    #region Profile UI
+    /// <summary>Gets the field name used for validating the "UserName" input in the Profile UI.</summary>
+    public virtual string UI_Validator_Profile_UserName_FieldName => IdentityResources.UI_Validator_Profile_UserName_FieldName;
+    /// <summary>Gets the error message displayed when the "UserName" input is invalid in the Profile UI.</summary>
+    public virtual string UI_Validator_Profile_UserName_InvalidFormat => IdentityResources.UI_Validator_Profile_UserName_InvalidFormat;
+    /// <summary>Gets the field name used for validating the "Email" input in the Profile UI.</summary>
+    public virtual string UI_Validator_Profile_Email_FieldName => IdentityResources.UI_Validator_Profile_Email_FieldName;
+    /// <summary>Gets the field name used for validating the "CallingCode" input in the Profile UI.</summary>
+    public virtual string UI_Validator_Profile_CallingCode_FieldName => IdentityResources.UI_Validator_Profile_CallingCode_FieldName;
+    /// <summary>Gets the field name used for validating the "PhoneNumberWithCallingCode" input in the Profile UI.</summary>
+    public virtual string UI_Validator_Profile_PhoneNumber_FieldName => IdentityResources.UI_Validator_Profile_PhoneNumber_FieldName;
+    /// <summary>Gets the error message displayed when the "PhoneNumberWithCallingCode" input is invalid in the Profile UI.</summary>
+    public virtual string UI_Validator_Profile_PhoneNumber_InvalidFormat => IdentityResources.UI_Validator_Profile_PhoneNumber_InvalidFormat;
+    /// <summary>Gets the field name used for validating the "Tin" input in the Profile UI.</summary>
+    public virtual string UI_Validator_Profile_Tin_FieldName => IdentityResources.UI_Validator_Profile_Tin_FieldName;
+    /// <summary>Gets the error message displayed when the "Tin" input is invalid in the Profile UI.</summary>
+    public virtual string UI_Validator_Profile_Tin_InvalidFormat => IdentityResources.UI_Validator_Profile_Tin_InvalidFormat;
+    #endregion
+
+    #region Register UI
+    /// <summary>Gets the field name used for validating the "FirstName" input in the Register UI.</summary>
+    public virtual string UI_Validator_Register_FirstName_FieldName => IdentityResources.UI_Validator_Register_FirstName_FieldName;
+    /// <summary>Gets the field name used for validating the "LastName" input in the Register UI.</summary>
+    public virtual string UI_Validator_Register_LastName_FieldName => IdentityResources.UI_Validator_Register_LastName_FieldName;
+    /// <summary>Gets the field name used for validating the "UserName" input in the Register UI.</summary>
+    public virtual string UI_Validator_Register_UserName_FieldName => IdentityResources.UI_Validator_Register_UserName_FieldName;
+    /// <summary>Gets the error message displayed when the "UserName" input is invalid in the Register UI.</summary>
+    public virtual string UI_Validator_Register_UserName_InvalidFormat => IdentityResources.UI_Validator_Register_UserName_InvalidFormat;
+    /// <summary>Gets the error message displayed when the "UserName" already exists.</summary>
+    public virtual string UI_Validator_Register_UserName_AlreadyExists => IdentityResources.UI_Validator_Register_UserName_AlreadyExists;
+    /// <summary>Gets the field name used for validating the "Password" input in the Register UI.</summary>
+    public virtual string UI_Validator_Register_Password_FieldName => IdentityResources.UI_Validator_Register_Password_FieldName;
+    /// <summary>Gets the field name used for validating the "Email" input in the Register UI.</summary>
+    public virtual string UI_Validator_Register_Email_FieldName => IdentityResources.UI_Validator_Register_Email_FieldName;
+    /// <summary>Gets the error message displayed when the "Email" already exists.</summary>
+    public virtual string UI_Validator_Register_Email_AlreadyExists => IdentityResources.UI_Validator_Register_Email_AlreadyExists;
+    /// <summary>Gets the error message displayed when the "Terms" are not accepted in the Register UI.</summary>
+    public virtual string UI_Validator_Register_AcceptTerms_Message => IdentityResources.UI_Validator_Register_AcceptTerms_Message;
+    /// <summary>Gets the error message displayed when the "Privacy Policy" is not read in the Register UI.</summary>
+    public virtual string UI_Validator_Register_ReadPrivacyPolicy_Message => IdentityResources.UI_Validator_Register_ReadPrivacyPolicy_Message;
+    /// <summary>Gets the field name used for validating the "CallingCode" input in the Register UI.</summary>
+    public virtual string UI_Validator_Register_CallingCode_FieldName => IdentityResources.UI_Validator_Register_CallingCode_FieldName;
+    /// <summary>Gets the error message displayed when the "PhoneNumberWithCallingCode" input is invalid in the Register UI.</summary>
+    public virtual string UI_Validator_Register_PhoneNumber_InvalidFormat => IdentityResources.UI_Validator_Register_PhoneNumber_InvalidFormat;
+    #endregion
+
+    #region Verify Phone UI
+    /// <summary>Gets the field name used for validating the "PhoneNumber" input in the Verify Phone UI.</summary>
+    public virtual string UI_Validator_VerifyPhone_PhoneNumber_FieldName => IdentityResources.UI_Validator_VerifyPhone_PhoneNumber_FieldName;
+    /// <summary>Gets the error message displayed when the "PhoneNumber" input is invalid in the Verify Phone UI.</summary>
+    public virtual string UI_Validator_VerifyPhone_PhoneNumber_InvalidFormat => IdentityResources.UI_Validator_VerifyPhone_PhoneNumber_InvalidFormat;
+    /// <summary>Gets the field name used for validating the "Code" input in the Verify Phone UI.</summary>
+    public virtual string UI_Validator_VerifyPhone_Code_FieldName => IdentityResources.UI_Validator_VerifyPhone_Code_FieldName;
+    #endregion
 }
