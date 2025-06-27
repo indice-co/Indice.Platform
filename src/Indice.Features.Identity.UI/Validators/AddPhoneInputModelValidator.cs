@@ -10,24 +10,21 @@ namespace Indice.Features.Identity.UI.Validators;
 /// <summary>Validator for <see cref="AddPhoneInputModel"/> class.</summary>
 public class AddPhoneInputModelValidator : AbstractValidator<AddPhoneInputModel>
 {
-    private readonly IStringLocalizer<AddPhoneInputModelValidator> _localizer;
-
     /// <summary>Creates a new instance of <see cref="AddPhoneInputModelValidator"/> class.</summary>
-    /// <param name="localizer">Represents a service that provides localized strings.</param>
+    /// <param name="describer"> The <see cref="IdentityMessageDescriber"/> used to describe validation messages.</param>
     /// <param name="configuration">Represents the configuration element.</param>
     /// <param name="callingCodesProvider">The provider for the supported calling codes.</param>
     /// <param name="identityUiOptions">Configuration options for Identity UI.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public AddPhoneInputModelValidator(
-        IStringLocalizer<AddPhoneInputModelValidator> localizer, 
+        IdentityMessageDescriber describer,
         IConfiguration configuration, 
         CallingCodesProvider callingCodesProvider,
         IOptions<IdentityUIOptions> identityUiOptions
     ) {
-        _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         if (identityUiOptions.Value.EnablePhoneNumberCallingCodes) {
-            RuleFor(x => x.CallingCode).NotEmpty().WithName(_localizer["Calling Code"]);
+            RuleFor(x => x.CallingCode).NotEmpty().WithName(describer.UI_Validator_AddPhone_CallingCode_FieldName);
         }
-        RuleFor(x => x.PhoneNumberWithCallingCode).NotEmpty().WithName(_localizer["Phone Number"]).UserPhoneNumber(configuration, callingCodesProvider).WithMessage(_localizer["The field '{PropertyName}' has invalid format."]);
+        RuleFor(x => x.PhoneNumberWithCallingCode).NotEmpty().WithName(describer.UI_Validator_AddPhone_PhoneNumber_FieldName).UserPhoneNumber(configuration, callingCodesProvider).WithMessage(describer.UI_Validator_AddPhone_PhoneNumber_InvalidFormat);
     }
 }

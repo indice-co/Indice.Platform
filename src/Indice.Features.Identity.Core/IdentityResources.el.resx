@@ -282,4 +282,130 @@
   <data name="UI_Validator_AddPassword_ConfirmPassword_FieldName" xml:space="preserve">
     <value>Επιβεβαίωση Kωδικού</value>
   </data>
+  <data name="UI_Validator_PasswordExpired_NewPassword_Empty_Error" xml:space="preserve">
+    <value>Το πεδίο 'Νέος Κωδικός' δεν πρέπει να είναι κενό.</value>
+  </data>
+  <data name="UI_Validator_PasswordExpired_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>Το πεδίο 'Επιβεβαίωση Νέου Κωδικού' δεν πρέπει να είναι κενό.</value>
+  </data>
+  <data name="UI_Validator_PasswordExpired_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>Το πεδίο 'Επιβεβαίωση Νέου Κωδικού' πρέπει να έχει τιμή ίση με το πεδίο 'Νέος Κωδικός'.</value>
+  </data>
+  <data name="UI_Validator_AddEmail_Email_FieldName" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="UI_Validator_AddPhone_CallingCode_FieldName" xml:space="preserve">
+    <value>Κωδικός Τηλεφώνου</value>
+  </data>
+  <data name="UI_Validator_AddPhone_PhoneNumber_FieldName" xml:space="preserve">
+    <value>Αριθμός Τηλεφώνου</value>
+  </data>
+  <data name="UI_Validator_AddPhone_PhoneNumber_InvalidFormat" xml:space="preserve">
+    <value>Ο αριθμός τηλεφώνου δεν έχει αποδεκτή μορφή.</value>
+  </data>
+  <data name="UI_Validator_ChangePassword_OldPassword_FieldName" xml:space="preserve">
+    <value>Παλιός Κωδικός</value>
+  </data>
+  <data name="UI_Validator_ChangePassword_NewPassword_FieldName" xml:space="preserve">
+    <value>Νέος Κωδικός</value>
+  </data>
+  <data name="UI_Validator_EnableMfaSms_PhoneNumber_FieldName" xml:space="preserve">
+    <value>Αριθμός Τηλεφώνου</value>
+  </data>
+  <data name="UI_Validator_EnableMfaSms_PhoneNumber_InvalidFormat" xml:space="preserve">
+    <value>Ο αριθμός τηλεφώνου δεν έχει αποδεκτή μορφή.</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_Email_FieldName" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPassword_FieldName" xml:space="preserve">
+    <value>Νέος Κωδικός</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_Token_FieldName" xml:space="preserve">
+    <value>Token</value>
+  </data>
+  <data name="UI_Validator_ForgotPassword_Email_FieldName" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="UI_Validator_Login_UserName_FieldName" xml:space="preserve">
+    <value>Όνομα χρήστη</value>
+  </data>
+  <data name="UI_Validator_Login_Password_FieldName" xml:space="preserve">
+    <value>Κωδικός</value>
+  </data>
+  <data name="UI_Validator_MfaOnboarding_SelectedAuthenticationMethod_FieldName" xml:space="preserve">
+    <value>Επιλεγμένη Μέθοδος Ταυτοποίησης</value>
+  </data>
+  <data name="UI_Validator_MfaOnboarding_SelectedAuthenticationMethod_Required" xml:space="preserve">
+    <value>Παρακαλώ επιλέξτε μία από τις διαθέσιμες μεθόδους ελέγχου ταυτοποίησης.</value>
+  </data>
+  <data name="UI_Validator_Profile_UserName_FieldName" xml:space="preserve">
+    <value>Όνομα χρήστη</value>
+  </data>
+  <data name="UI_Validator_Profile_UserName_InvalidFormat" xml:space="preserve">
+    <value>Το πεδίο 'Όνομα χρήστη' δέχεται νούμερα, κεφαλαίους και πεζούς λατινικούς χαρακτήρες καθώς και τα σύμβολα -._@+</value>
+  </data>
+  <data name="UI_Validator_Profile_Email_FieldName" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="UI_Validator_Profile_CallingCode_FieldName" xml:space="preserve">
+    <value>Κωδικός Τηλεφώνου</value>
+  </data>
+  <data name="UI_Validator_Profile_PhoneNumber_FieldName" xml:space="preserve">
+    <value>Κινητό τηλέφωνο</value>
+  </data>
+  <data name="UI_Validator_Profile_PhoneNumber_InvalidFormat" xml:space="preserve">
+    <value>Το κινητό τηλέφωνο δεν έχει αποδεκτή μορφή.</value>
+  </data>
+  <data name="UI_Validator_Profile_Tin_FieldName" xml:space="preserve">
+    <value>Α.Φ.Μ</value>
+  </data>
+  <data name="UI_Validator_Profile_Tin_InvalidFormat" xml:space="preserve">
+    <value>Το πεδίο 'Α.Φ.Μ' δεν έιναι έγκυρο</value>
+  </data>
+  <data name="UI_Validator_Register_UserName_InvalidFormat" xml:space="preserve">
+    <value>Το πεδίο '{PropertyName}' δέχεται νούμερα, κεφαλαίους και πεζούς λατινικούς χαρακτήρες καθώς και τα σύμβολα -._@+</value>
+  </data>
+  <data name="UI_Validator_Register_UserName_AlreadyExists" xml:space="preserve">
+    <value>Το όνομα χρήστη που εισάγατε έχει χρησιμοποιηθεί ήδη. Θα πρέπει να επιλέξετε διαφορετικό.</value>
+  </data>
+  <data name="UI_Validator_Register_Email_AlreadyExists" xml:space="preserve">
+    <value>Το email που εισάγατε έχει χρησιμοποιηθεί ήδη. Θα πρέπει να επιλέξετε διαφορετικό email.</value>
+  </data>
+  <data name="UI_Validator_Register_AcceptTerms_Message" xml:space="preserve">
+    <value>Θα πρέπει να αποδεχτείτε τους όρους χρήσης της υπηρεσίας.</value>
+  </data>
+  <data name="UI_Validator_Register_ReadPrivacyPolicy_Message" xml:space="preserve">
+    <value>Θα πρέπει να έχετε ενημερωθεί σχετικά με την πολιτική προστασίας.</value>
+  </data>
+  <data name="UI_Validator_Register_PhoneNumber_InvalidFormat" xml:space="preserve">
+    <value>Το κινητό τηλέφωνο δεν έχει αποδεκτή μορφή.</value>
+  </data>
+  <data name="UI_Validator_Register_FirstName_FieldName" xml:space="preserve">
+    <value>Όνομα</value>
+  </data>
+  <data name="UI_Validator_Register_LastName_FieldName" xml:space="preserve">
+    <value>Επίθετο</value>
+  </data>
+  <data name="UI_Validator_Register_UserName_FieldName" xml:space="preserve">
+    <value>Όνομα Χρήστη</value>
+  </data>
+  <data name="UI_Validator_Register_Password_FieldName" xml:space="preserve">
+    <value>Κωδικός πρόσβασης</value>
+  </data>
+  <data name="UI_Validator_Register_Email_FieldName" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="UI_Validator_Register_CallingCode_FieldName" xml:space="preserve">
+    <value>Κωδικός Τηλεφώνου</value>
+  </data>
+  <data name="UI_Validator_VerifyPhone_PhoneNumber_FieldName" xml:space="preserve">
+    <value>Αριθμός Τηλεφώνου</value>
+  </data>
+  <data name="UI_Validator_VerifyPhone_PhoneNumber_InvalidFormat" xml:space="preserve">
+    <value>Το κινητό τηλέφωνο δεν έχει αποδεκτή μορφή.</value>
+  </data>
+  <data name="UI_Validator_VerifyPhone_Code_FieldName" xml:space="preserve">
+    <value>Κωδικός</value>
+  </data>
 </root>
