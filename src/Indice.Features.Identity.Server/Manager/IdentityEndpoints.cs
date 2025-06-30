@@ -92,7 +92,7 @@ public static partial class IdentityEndpoints
             public static readonly string EmailConfirmation = Endpoints[12];
             public static readonly string PhoneNumberConfirmation = Endpoints[13];
             public static readonly string EmailChangeConfirmation = Endpoints[14];
-            public static readonly string ChangePhoneNumber = Endpoints[15];
+            public static readonly string ChangePhoneNumberConfirmation = Endpoints[15];
         }
     }
 }
