@@ -39,6 +39,7 @@ public static class MyAccountApi
              .WithName(nameof(MyAccountHandlers.ConfirmEmail))
              .WithSummary("Confirms the email address of a given user.")
              .WithParameterValidation<ConfirmEmailRequest>()
+             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.EmailConfirmation)
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/phone-number", MyAccountHandlers.UpdatePhoneNumber)
@@ -52,6 +53,7 @@ public static class MyAccountApi
              .WithName(nameof(MyAccountHandlers.ConfirmPhoneNumber))
              .WithSummary("Confirms the phone number of the user, using the OTP token.")
              .WithParameterValidation<ConfirmPhoneNumberRequest>()
+             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.PhoneNumberConfirmation)
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/email/change", MyAccountHandlers.EmailChange)
@@ -65,6 +67,7 @@ public static class MyAccountApi
              .WithName(nameof(MyAccountHandlers.ConfirmEmailChange))
              .WithSummary("Confirms the email address change of the current user and saves.")
              .WithParameterValidation<ConfirmEmailChangeRequest>()
+             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.EmailChangeConfirmation)
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/phone-number/change", MyAccountHandlers.PhoneNumberChange)
@@ -78,6 +81,7 @@ public static class MyAccountApi
              .WithName(nameof(MyAccountHandlers.ConfirmPhoneNumberChange))
              .WithSummary("Confirms the phone number change via OTP for the current user and saves.")
              .WithParameterValidation<ConfirmPhoneNumberChangeRequest>()
+             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.ChangePhoneNumberConfirmation)
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/block", MyAccountHandlers.BlockAccount)
