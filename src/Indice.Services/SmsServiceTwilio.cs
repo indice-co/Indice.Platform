@@ -60,11 +60,11 @@ public class SmsServiceTwilio : ISmsService
         }
 
         var requestUri = $"{TWILIO_BASE_URL}/Accounts/{Settings.AccountSid}/Messages.json";
-        var content = new FormUrlEncodedContent(new Dictionary<string, string> {
+        using var content = new FormUrlEncodedContent(new Dictionary<string, string> {
             ["To"] = phone.ToString("D"),
             ["From"] = sender?.Id ?? Settings.SenderPhoneNumber!,
             ["Body"] = body ?? string.Empty
-        });
+        }) ;
 
         HttpResponseMessage httpResponse;
         try {
