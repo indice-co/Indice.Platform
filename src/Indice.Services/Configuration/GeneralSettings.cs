@@ -33,6 +33,4 @@ public class GeneralSettings
     public Dictionary<string, string>? Endpoints { get; set; }
     /// <summary>A flag that indicates whether to enable HSTS (HTTP Strict Transport Security).</summary>
     public bool HstsEnabled { get; set; }
-    /// <summary>Identity server license key</summary>
-    public string? IdentityLicenceKey { get; set; }
 }

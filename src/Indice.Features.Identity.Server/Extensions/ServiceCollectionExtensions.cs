@@ -140,7 +140,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             options.UserInteraction.ErrorIdParameter = "errorId";
             options.EmitScopesAsSpaceDelimitedStringInJwt = true;
 #if NET9_0_OR_GREATER
-            options.LicenseKey = configuration.GetLicenseKey();
+            options.LicenseKey = configuration.GetIdentityOption<string?>(ExtendedIdentityServerOptions.Name, "DuendeLicenseKey");
 #endif
 
         })
