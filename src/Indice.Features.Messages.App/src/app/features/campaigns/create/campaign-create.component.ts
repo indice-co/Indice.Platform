@@ -41,6 +41,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
   public templateData: any;
   public metaItems: HeaderMetaItem[] | null = [];
   public content: { [key: string]: MessageContent; } | undefined;
+  public hasTemplateLoaded: boolean = false;
 
   public get okLabel(): string {
     return this._stepper.currentStep?.isLast
@@ -60,6 +61,11 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
 
   public ngAfterViewChecked(): void {
     this._changeDetector.detectChanges();
+  }
+
+  public onTemplateSelected(templateId: string | undefined): void {
+    this.templateId = templateId;
+    this.hasTemplateLoaded = false;
   }
 
   public onSubmitCampaign(): void {
@@ -92,13 +98,16 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
   }
 
   public onStepperStepChanged(event: StepSelectedEvent) {
-    if (event.selectedIndex === 1) {
-      if (this.templateId) {
-        this._api.getTemplateById(this.templateId).subscribe((template: Template) => {
-          this.content = template.content;
-          this.templateData = template.data;
-        });
-      }
+    let isInContentStep = event.selectedIndex === 1;
+    let templateNotLoaded = !this.hasTemplateLoaded;
+    let hasSelectedTemplate = !!this.templateId;
+
+    if (isInContentStep && templateNotLoaded && hasSelectedTemplate) {
+      this._api.getTemplateById(this.templateId!).subscribe((template: Template) => {
+        this.content = template.content;
+        this.templateData = template.data;
+        this.hasTemplateLoaded = true;
+      });
     }
     this.previewData.title = this._basicInfoStep.title.value;
     this.previewData.type = this._basicInfoStep.type.value?.text;
