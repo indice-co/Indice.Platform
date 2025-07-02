@@ -308,7 +308,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             if (RequireMfaWhenUserHasTrustedBrowserButExpiredPassword && user.HasExpiredPassword()) {
                 return false;
             }
-            var isRemembered = device.MfaSessionActive() || (device.IsTrusted && RememberTrustedBrowserAcrossSessions);
+            var isRemembered = device.MfaSessionActive();
             return isRemembered;
         }
         return false;
@@ -428,30 +428,12 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         if (PersistTrustedBrowsers && !string.IsNullOrWhiteSpace(deviceId.Value)) {
             var device = await ExtendedUserManager.GetDeviceByIdAsync(user, deviceId.Value);
             if (device is not null) {
-                device.IsTrusted = true;
-                device.TrustActivationDate ??= DateTimeOffset.UtcNow;
-                device.MfaSessionExpirationDate = DateTimeOffset.UtcNow.AddDays(MfaRememberDurationInDays);
-                device.LastSignInDate = DateTimeOffset.UtcNow;
+                device.RenewTrust(MfaRememberDurationInDays);
                 await ExtendedUserManager.UpdateDeviceAsync(user, device);
             } else {
                 var userAgentHeader = Context.Request.Headers[HeaderNames.UserAgent];
-                var userAgent = new UserAgent(userAgentHeader!);
-                var now = DateTimeOffset.UtcNow;
-                device = new UserDevice {
-                    ClientType = DeviceClientType.Browser,
-                    DateCreated = now,
-                    DeviceId = deviceId.Value,
-                    IsTrusted = true,
-                    LastSignInDate = now,
-                    MfaSessionExpirationDate = now.AddDays(90),
-                    Model = userAgent.DeviceModel,
-                    Name = userAgent.DisplayName,
-                    OsVersion = userAgent.Os,
-                    Platform = userAgent.DevicePlatform,
-                    TrustActivationDate = now,
-                    User = user,
-                    UserId = user.Id
-                };
+                device = UserDevice.FromUserAgent(userAgentHeader!, deviceId, user.Id, MfaRememberDurationInDays);
+                device.User = user;
                 await ExtendedUserManager.CreateDeviceAsync(user, device);
             }
         }
