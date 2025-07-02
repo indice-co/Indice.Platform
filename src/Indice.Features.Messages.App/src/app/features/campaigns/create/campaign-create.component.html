@@ -31,7 +31,8 @@
                                 <lib-step [stepControl]="basicInfoStep.form">
                                     <ng-template libStepLabel>Γενικα</ng-template>
                                     <ng-template libStepInfo>Βασικές πληροφορίες</ng-template>
-                                    <app-campaign-basic-info (templateSelected)="templateId = $event"
+                                    <app-campaign-basic-info (templateSelected)="onTemplateSelected($event)"
+                                                             [hasTemplateLoaded]="hasTemplateLoaded"
                                                              #basicInfoStep>
                                     </app-campaign-basic-info>
                                 </lib-step>

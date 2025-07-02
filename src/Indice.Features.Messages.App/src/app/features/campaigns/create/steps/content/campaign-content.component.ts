@@ -1,4 +1,4 @@
-import { AfterContentChecked, AfterContentInit, AfterViewChecked, AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewChecked, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { AbstractControl, FormGroup, FormControl, Validators, FormBuilder, FormArray } from '@angular/forms';
 
 import Handlebars from "handlebars";
@@ -12,8 +12,6 @@ import { map } from 'rxjs/operators';
 import { SettingsStore } from 'src/app/features/settings/settings-store.service';
 import { MediaFile } from 'src/app/core/services/media-api.service';
 import { FileUtilitiesService } from 'src/app/shared/services/file-utilities.service';
-import { settings } from 'src/app/core/models/settings';
-import { CodeEditor } from '@acrodata/code-editor';
 import { languages } from '@codemirror/language-data';
 
 // codew mirror

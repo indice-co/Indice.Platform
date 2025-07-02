@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControl, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 
 import { MenuOption } from '@indice/ng-components';
@@ -16,7 +16,8 @@ export class CampaignBasicInfoComponent implements OnInit {
         private _datePipe: DatePipe
     ) { }
 
-    // Input & Output parameters
+  // Input & Output parameters
+    @Input() public hasTemplateLoaded: any = {};
     @Output() public templateSelected: EventEmitter<string | undefined> = new EventEmitter<string | undefined>();
     // Form Controls
     public get title(): AbstractControl { return this.form.get('title')!; }
@@ -73,7 +74,7 @@ export class CampaignBasicInfoComponent implements OnInit {
             if (!this.actionLinkHref.value) {
                 this.actionLinkHref.setValue("https://www.indice.gr");
             }
-            event.data.forEach((channel: string) => channelsFormArray.push(new FormControl(channel)));
+          event.data.forEach((channel: string) => channelsFormArray.push(new FormControl(channel)));
         } else {
             this.template.setValue(null);
         }
