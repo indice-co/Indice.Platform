@@ -98,14 +98,16 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
   }
 
   public onStepperStepChanged(event: StepSelectedEvent) {
-    if (event.selectedIndex === 1 && !this.hasTemplateLoaded) {
-      if (this.templateId) {
-        this._api.getTemplateById(this.templateId).subscribe((template: Template) => {
-          this.content = template.content;
-          this.templateData = template.data;
-          this.hasTemplateLoaded = true;
-        });
-      }
+    let isInContentStep = event.selectedIndex === 1;
+    let templateNotLoaded = !this.hasTemplateLoaded;
+    let hasSelectedTemplate = !!this.templateId;
+
+    if (isInContentStep && templateNotLoaded && hasSelectedTemplate) {
+      this._api.getTemplateById(this.templateId!).subscribe((template: Template) => {
+        this.content = template.content;
+        this.templateData = template.data;
+        this.hasTemplateLoaded = true;
+      });
     }
     this.previewData.title = this._basicInfoStep.title.value;
     this.previewData.type = this._basicInfoStep.type.value?.text;
