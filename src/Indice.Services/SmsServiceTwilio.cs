@@ -35,14 +35,16 @@ public class SmsServiceTwilio : ISmsService
         if (string.IsNullOrWhiteSpace(Settings.AccountSid)) {
             throw new ArgumentException("AccountSid must not be empty.", nameof(Settings.AccountSid));
         }
-        if (string.IsNullOrWhiteSpace(Settings.AuthToken)) {
-            throw new ArgumentException("AuthToken must not be empty.", nameof(Settings.AuthToken));
-        }
-        if (string.IsNullOrWhiteSpace(Settings.SenderPhoneNumber)) {
-            throw new ArgumentException("SenderPhoneNumber must not be empty.", nameof(Settings.SenderPhoneNumber));
+        if (string.IsNullOrWhiteSpace(Settings.Secret)) {
+            throw new ArgumentException("ApiKeySecret must not be empty.", nameof(Settings.Secret));
         }
 
-        var authToken = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{Settings.AccountSid}:{Settings.AuthToken}"));
+        string credentials = !string.IsNullOrWhiteSpace(Settings.ApiKey)
+                            ? $"{Settings.ApiKey}:{Settings.Secret}"
+                            : $"{Settings.AccountSid}:{Settings.Secret}";
+
+        string authToken = Convert.ToBase64String(Encoding.ASCII.GetBytes(credentials));
+
         HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authToken);
         HttpClient.DefaultRequestHeaders.Add("Accept", MediaTypeNames.Application.Json);
     }
@@ -60,11 +62,24 @@ public class SmsServiceTwilio : ISmsService
         }
 
         var requestUri = $"{TWILIO_BASE_URL}/Accounts/{Settings.AccountSid}/Messages.json";
-        using var content = new FormUrlEncodedContent(new Dictionary<string, string> {
+
+        var formFields = new Dictionary<string, string> {
             ["To"] = phone.ToString("D"),
-            ["From"] = sender?.Id ?? Settings.SenderPhoneNumber!,
             ["Body"] = body ?? string.Empty
-        }) ;
+        };
+
+        // Use MessagingServiceSid if present; otherwise use From number
+        if (!string.IsNullOrWhiteSpace(Settings.MessagingServiceSid)) {
+            formFields["MessagingServiceSid"] = Settings.MessagingServiceSid!;
+        } else {
+            var from = sender?.Id ?? Settings.SenderPhoneNumber;
+            if (string.IsNullOrWhiteSpace(from)) {
+                throw new ArgumentException("SenderPhoneNumber or MessagingServiceSid must be provided.");
+            }
+            formFields["From"] = from;
+        }
+
+        using var content = new FormUrlEncodedContent(formFields);
 
         HttpResponseMessage httpResponse;
         try {
@@ -112,12 +127,14 @@ public class SmsServiceTwilio : ISmsService
 /// <summary>Extra settings class for configuring TWILIO SMS service client. </summary>
 public class SmsServiceTwilioSettings : SmsServiceSettings
 {
+    /// <summary>The Secret.</summary>
+    public string? Secret { get; set; }
     /// <summary>The Account Sid.</summary>
     public string? AccountSid { get; set; }
-    /// <summary>The AuthToken.</summary>
-    public string? AuthToken { get; set; }
     /// <summary>The Sender Phone Number.</summary>
     public string? SenderPhoneNumber { get; set; }
+    /// <summary>The Messaging Service Sid.</summary>
+    public string? MessagingServiceSid { get; set; }
 }
 
 internal class TwilioSmsResponse
