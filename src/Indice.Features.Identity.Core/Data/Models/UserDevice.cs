@@ -1,4 +1,6 @@
 ﻿using Indice.Types;
+using Indice.Features.Identity.Core.Types;
+using Indice.Features.Identity.Core.Models;
 
 namespace Indice.Features.Identity.Core.Data.Models;
 
@@ -61,9 +63,63 @@ public class UserDevice
     /// <summary>The date until the client is remembered by the system and MFA is not asked.</summary>
     public DateTimeOffset? MfaSessionExpirationDate { get; set; }
     /// <summary>Determines whether the device has an active MFA session. This is the period of time that the device is remembered by the system and MFA is not asked.</summary>
-    public bool MfaSessionActive() => !MfaSessionExpirationDate.HasValue || MfaSessionExpirationDate >= DateTimeOffset.UtcNow;
+    public bool MfaSessionActive() => IsTrusted && (!MfaSessionExpirationDate.HasValue || MfaSessionExpirationDate >= DateTimeOffset.UtcNow);
+
+    /// <summary>
+    /// Renews the trust relationship by updating trust-related properties and extending the multi-factor authentication
+    /// (MFA) session expiration.
+    /// </summary>
+    /// <remarks>This method ensures that the trust relationship is activated if it is not already active. It
+    /// updates the trust activation date, the last sign-in date, and the MFA session expiration date based on the
+    /// provided or default reference time.</remarks>
+    /// <param name="mfaRememberDurationInDays">The number of days to extend the MFA session expiration from the current time.</param>
+    /// <param name="asOfDate">An optional date and time to use as the reference point for the operation. If not provided, the current UTC time
+    /// is used.</param>
+    public void RenewTrust(int mfaRememberDurationInDays, DateTimeOffset? asOfDate = null) {
+        asOfDate ??= DateTimeOffset.UtcNow;
+        TrustActivationDate ??= asOfDate;
+        if (!IsTrusted) {
+            IsTrusted = true;
+            TrustActivationDate = asOfDate;
+        }
+        MfaSessionExpirationDate = asOfDate.Value.AddDays(mfaRememberDurationInDays);
+        LastSignInDate = asOfDate;
+    }
+
     /// <summary>The user associated with this device.</summary>
     public virtual User? User { get; set; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="userAgentHeader"></param>
+    /// <param name="deviceId"></param>
+    /// <param name="userId"></param>
+    /// <param name="mfaRememberDurationInDays"></param>
+    /// <param name="asOfDate"></param>
+    /// <param name="deviceClientType"></param>
+    /// <returns></returns>
+    public static UserDevice FromUserAgent(string userAgentHeader, MfaDeviceIdentifier deviceId, string userId, int mfaRememberDurationInDays, DateTimeOffset? asOfDate = null, DeviceClientType? deviceClientType = DeviceClientType.Browser) {
+        ArgumentNullException.ThrowIfNull(userAgentHeader);
+        ArgumentNullException.ThrowIfNull(deviceId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(deviceId.Value);
+        var userAgent = new UserAgent(userAgentHeader);
+        asOfDate ??= DateTimeOffset.UtcNow;
+        return new UserDevice {
+            ClientType = deviceClientType,
+            DateCreated = asOfDate.Value,
+            DeviceId = deviceId.Value!,
+            IsTrusted = true,
+            LastSignInDate = asOfDate,
+            MfaSessionExpirationDate = asOfDate.Value.AddDays(mfaRememberDurationInDays),
+            Model = userAgent.DeviceModel,
+            Name = userAgent.DisplayName,
+            OsVersion = userAgent.Os,
+            Platform = userAgent.DevicePlatform,
+            TrustActivationDate = asOfDate,
+            UserId = userId
+        };
+    }   
 }
 
 /// <summary>Models the way a device interacts with the identity system for trusted authorization.</summary>

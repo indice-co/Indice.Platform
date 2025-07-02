@@ -239,7 +239,7 @@ public class MessageService : IMessageService
 
         if (searchTerm?.Length > 2) {
             query = DbContext.Database.IsSqlServer() ?
-             query.Where(x => JsonFunctions.JsonValue(x.Message.Content, $"$.{channelKindKey.ToLower()}.title").Contains(searchTerm)) :
+             query.Where(x => JsonFunctions.JsonValue(x.Message!.Content, $"$.{channelKindKey.ToLower()}.title").Contains(searchTerm)) :
              query.Where(x => x.Campaign.Title.Contains(searchTerm));
         }
 

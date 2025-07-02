@@ -671,7 +671,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     }
 
     public async Task<bool> PublishData(Guid caseId) {
-        ArgumentNullException.ThrowIfNull(caseId);
+        ArgumentOutOfRangeException.ThrowIfEqual(caseId, default);
         var @case = await DbContext.Cases.FirstOrDefaultAsync(p => p.Id == caseId);
         if (@case is null) {
             return false;

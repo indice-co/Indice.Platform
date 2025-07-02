@@ -1,7 +1,5 @@
 ﻿using System.Security.Claims;
-using IdentityModel;
 using Indice.Events;
-using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
 using Indice.Features.Identity.Core.Events;
@@ -10,7 +8,6 @@ using Indice.Features.Identity.Core.Models;
 using Indice.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -20,7 +17,6 @@ namespace Indice.Features.Identity.Core;
 /// <typeparam name="TUser"></typeparam>
 public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
 {
-    private readonly IServiceProvider _serviceProvider;
     private readonly IPlatformEventService _eventService;
 
     /// <summary>Creates a new instance of <see cref="ExtendedUserManager{TUser}"/>.</summary>
@@ -51,7 +47,6 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         IConfiguration configuration
     ) : base(userStore, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, serviceProvider, logger) {
         _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
-        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         MessageDescriber = identityMessageDescriber ?? throw new ArgumentNullException(nameof(identityMessageDescriber));
         DefaultAllowedRegisteredDevices = configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.User)}:Devices", nameof(DefaultAllowedRegisteredDevices));
         MaxAllowedRegisteredDevices = configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.User)}:Devices", nameof(MaxAllowedRegisteredDevices));
