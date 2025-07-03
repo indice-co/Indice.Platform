@@ -11,6 +11,8 @@ public class ExtendedIdentityServerOptions
     public string? SigningPfxFile { get; set; }
     /// <summary>Signing .pfx password.</summary>
     public string? SigningPfxPass { get; set; }
+    ///<summary>Duende licence key</summary>
+    public string? DuendeLicenseKey { get; set; }
     /// <summary>Callback to configure the Identity DbContext. If not set then SQL Server is selected by default using <strong>IdentityDb</strong> as connection string name.</summary>
     public Action<DbContextOptionsBuilder>? ConfigureIdentityDbContext { get; set; }
     /// <summary>Callback to configure the DbContext for configuration store. If not set then SQL Server is selected by default using <strong>ConfigurationDb</strong> as connection string name.</summary>

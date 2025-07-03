@@ -120,6 +120,7 @@ public static class IConfigurationExtensions
     /// <remarks>Checks either the <strong>General:AuthorityInternal</strong> or <strong>General:Authority</strong> option in appsettings.json file. Depends up on the <paramref name="tryInternal"/> parameter.</remarks>
     public static string GetAuthorityMetadata(this IConfiguration configuration, bool tryInternal = false) => $"{GetAuthority(configuration, tryInternal)}/.well-known/openid-configuration";
 
+
     /// <summary>Get an object class that represents all the configuration for an Api.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns><see cref="ApiSettings"/></returns>
