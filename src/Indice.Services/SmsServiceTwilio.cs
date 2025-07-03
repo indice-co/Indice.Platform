@@ -35,13 +35,14 @@ public class SmsServiceTwilio : ISmsService
         if (string.IsNullOrWhiteSpace(Settings.AccountSid)) {
             throw new ArgumentException("AccountSid must not be empty.", nameof(Settings.AccountSid));
         }
-        if (string.IsNullOrWhiteSpace(Settings.Secret)) {
-            throw new ArgumentException("ApiKeySecret must not be empty.", nameof(Settings.Secret));
+        if ((string.IsNullOrWhiteSpace(Settings.Secret) || string.IsNullOrWhiteSpace(Settings.ApiKey)) &&
+            (string.IsNullOrWhiteSpace(Settings.AccountSid) || string.IsNullOrWhiteSpace(Settings.AuthToken)) ) {
+            throw new ArgumentException("At least one of the parameter pairs (ApiKey, Secret) or (AccountSid, AuthToken) must be specified.");
         }
 
-        string credentials = !string.IsNullOrWhiteSpace(Settings.ApiKey)
+        string credentials = !string.IsNullOrWhiteSpace(Settings.ApiKey) && !string.IsNullOrWhiteSpace(Settings.Secret)
                             ? $"{Settings.ApiKey}:{Settings.Secret}"
-                            : $"{Settings.AccountSid}:{Settings.Secret}";
+                            : $"{Settings.AccountSid}:{Settings.AuthToken}";
 
         string authToken = Convert.ToBase64String(Encoding.ASCII.GetBytes(credentials));
 
@@ -125,12 +126,18 @@ public class SmsServiceTwilio : ISmsService
 }
 
 /// <summary>Extra settings class for configuring TWILIO SMS service client. </summary>
-public class SmsServiceTwilioSettings : SmsServiceSettings
+public class SmsServiceTwilioSettings
 {
+    /// <summary>Key in the configuration.</summary>
+    public static readonly string Name = "Sms";
+    /// <summary>The API key.</summary>
+    public string? ApiKey { get; set; }
     /// <summary>The Secret.</summary>
     public string? Secret { get; set; }
     /// <summary>The Account Sid.</summary>
     public string? AccountSid { get; set; }
+    /// <summary>The Auth Token.</summary>
+    public string? AuthToken { get; set; }
     /// <summary>The Sender Phone Number.</summary>
     public string? SenderPhoneNumber { get; set; }
     /// <summary>The Messaging Service Sid.</summary>
