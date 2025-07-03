@@ -127,6 +127,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
 #if !NET9_0_OR_GREATER
         services.AddTransient<ITokenCreationService, ExtendedTokenCreationService>();
 #endif
+
         var identityServerBuilder = services.AddIdentityServer(options => {
             options.IssuerUri = configuration.GetHost();
             options.Events.RaiseErrorEvents = true;
@@ -138,6 +139,10 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             options.UserInteraction.ErrorUrl = "/error";
             options.UserInteraction.ErrorIdParameter = "errorId";
             options.EmitScopesAsSpaceDelimitedStringInJwt = true;
+#if NET9_0_OR_GREATER
+            options.LicenseKey = configuration.GetIdentityOption<string?>(ExtendedIdentityServerOptions.Name, "DuendeLicenseKey");
+#endif
+
         })
         .AddConfigurationStore<ExtendedConfigurationDbContext>(options => {
             options.SetupTables();
@@ -174,6 +179,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             identityServerBuilder.AddDeveloperSigningCredential();
         } else {
 #if NET9_0_OR_GREATER
+
             var certificate = X509CertificateLoader.LoadPkcs12FromFile(Path.Combine(webHostEnvironment.ContentRootPath, configuration["IdentityServer:SigningPfxFile"] ?? string.Empty), configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
 #else
             var certificate = new X509Certificate2(Path.Combine(webHostEnvironment.ContentRootPath, configuration["IdentityServer:SigningPfxFile"] ?? string.Empty), configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
