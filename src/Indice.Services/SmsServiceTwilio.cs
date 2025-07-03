@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Indice.Extensions;
 using Indice.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -32,21 +33,10 @@ public class SmsServiceTwilio : ISmsService
         HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-        if (string.IsNullOrWhiteSpace(Settings.AccountSid)) {
-            throw new ArgumentException("AccountSid must not be empty.", nameof(Settings.AccountSid));
-        }
-        if ((string.IsNullOrWhiteSpace(Settings.Secret) || string.IsNullOrWhiteSpace(Settings.ApiKey)) &&
-            (string.IsNullOrWhiteSpace(Settings.AccountSid) || string.IsNullOrWhiteSpace(Settings.AuthToken)) ) {
-            throw new ArgumentException("At least one of the parameter pairs (ApiKey, Secret) or (AccountSid, AuthToken) must be specified.");
-        }
+        ArgumentException.ThrowIfNullOrWhiteSpace(Settings.AccountSid);
 
-        string credentials = !string.IsNullOrWhiteSpace(Settings.ApiKey) && !string.IsNullOrWhiteSpace(Settings.Secret)
-                            ? $"{Settings.ApiKey}:{Settings.Secret}"
-                            : $"{Settings.AccountSid}:{Settings.AuthToken}";
-
-        string authToken = Convert.ToBase64String(Encoding.ASCII.GetBytes(credentials));
-
-        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authToken);
+        var credentials = Settings.GetCredentinals();
+        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", credentials);
         HttpClient.DefaultRequestHeaders.Add("Accept", MediaTypeNames.Application.Json);
     }
 
@@ -61,6 +51,9 @@ public class SmsServiceTwilio : ISmsService
         if (!PhoneNumber.TryParse(destination, out var phone)) {
             throw new ArgumentException("Invalid recipient phone number.", nameof(destination));
         }
+        if (string.IsNullOrWhiteSpace(Settings.SenderPhoneNumber) && string.IsNullOrWhiteSpace(Settings.MessagingServiceSid)) {
+            throw new ArgumentException("SenderPhoneNumber or MessagingServiceSid must be provided.");
+        }
 
         var requestUri = $"{TWILIO_BASE_URL}/Accounts/{Settings.AccountSid}/Messages.json";
 
@@ -73,11 +66,7 @@ public class SmsServiceTwilio : ISmsService
         if (!string.IsNullOrWhiteSpace(Settings.MessagingServiceSid)) {
             formFields["MessagingServiceSid"] = Settings.MessagingServiceSid!;
         } else {
-            var from = sender?.Id ?? Settings.SenderPhoneNumber;
-            if (string.IsNullOrWhiteSpace(from)) {
-                throw new ArgumentException("SenderPhoneNumber or MessagingServiceSid must be provided.");
-            }
-            formFields["From"] = from;
+            formFields["From"] = sender?.Id ?? Settings.SenderPhoneNumber!;
         }
 
         using var content = new FormUrlEncodedContent(formFields);
@@ -142,6 +131,17 @@ public class SmsServiceTwilioSettings
     public string? SenderPhoneNumber { get; set; }
     /// <summary>The Messaging Service Sid.</summary>
     public string? MessagingServiceSid { get; set; }
+
+    /// <summary>Gets the credentials in Base64UrlSafe format.</summary>
+    public string GetCredentinals() {
+
+        var credentials = this switch {
+            _ when !string.IsNullOrWhiteSpace(ApiKey) && !string.IsNullOrWhiteSpace(Secret) => $"{Uri.EscapeDataString(ApiKey)}:{Uri.EscapeDataString(Secret)}",
+            _ when !string.IsNullOrWhiteSpace(AccountSid) && !string.IsNullOrWhiteSpace(AuthToken) => $"{Uri.EscapeDataString(AccountSid)}:{Uri.EscapeDataString(AuthToken!)}",
+            _ => throw new ArgumentException("At least one of the parameter pairs (ApiKey, Secret) or (AuthToken) must be specified.")
+        };
+        return Encoding.ASCII.GetBytes(credentials).ToBase64UrlSafe();
+    }
 }
 
 internal class TwilioSmsResponse
