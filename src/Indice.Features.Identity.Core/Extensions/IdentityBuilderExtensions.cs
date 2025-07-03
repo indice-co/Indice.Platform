@@ -263,8 +263,8 @@ public static class IdentityBuilderExtensions {
     /// </summary>
     /// <param name="builder">instance</param>
     /// <returns>The current <see cref="IdentityBuilder"/> instance.</returns>
-    public static IdentityBuilder AddExtendedCleanUpService(this IdentityBuilder builder) {
-        builder.Services.AddTransient<ITokenCleanupService, ExtendedTokenCleanupService>();
+    public static IdentityBuilder AddFastCleanUpService(this IdentityBuilder builder) {
+        builder.Services.AddTransient<ITokenCleanupService, FastTokenCleanupService>();
         return builder;
     }
 #endif
