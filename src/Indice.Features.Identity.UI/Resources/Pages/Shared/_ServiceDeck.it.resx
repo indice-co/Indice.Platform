@@ -120,16 +120,4 @@
   <data name="Sign in" xml:space="preserve">
     <value>Accedi</value>
   </data>
-  <data name="Agents Portal" xml:space="preserve">
-    <value>Portale Agenti</value>
-  </data>
-  <data name="Clients Portal" xml:space="preserve">
-    <value>Portale Clienti</value>
-  </data>
-  <data name="Group Policies" xml:space="preserve">
-    <value>Polizze Collettive</value>
-  </data>
-  <data name="Intranet" xml:space="preserve">
-    <value>Intranet</value>
-  </data>
 </root>

@@ -126,13 +126,4 @@
   <data name="This service email contains information related to your account." xml:space="preserve">
     <value>La presente email di servizio contiene informazioni relative al suo account.</value>
   </data>
-  <data name="doValue S.p.A." xml:space="preserve">
-    <value>doValue S.p.A.</value>
-  </data>
-  <data name="https://dovalue.it/en" xml:space="preserve">
-    <value>https://dovalue.it/it</value>
-  </data>
-  <data name="Viale dell'Agricoltura 7 37135, Verona VR" xml:space="preserve">
-    <value>Viale dell'Agricoltura 7 37135, Verona VR</value>
-  </data>
 </root>

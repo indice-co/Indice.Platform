@@ -132,7 +132,4 @@
   <data name="You are now logged out" xml:space="preserve">
     <value>Sessione terminata con successo</value>
   </data>
-  <data name="You will be redirected back to the portal automatically." xml:space="preserve">
-    <value>Verrete reindirizzati automaticamente al portale.</value>
-  </data>
 </root>

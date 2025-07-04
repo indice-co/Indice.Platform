@@ -153,13 +153,4 @@
   <data name="Welcome to the {0} Digital Services &lt;strong&gt;Portal&lt;/strong&gt;" xml:space="preserve">
     <value>Benvenuto nel &lt;strong&gt;Portale&lt;/strong&gt; Servizi Digitali di {0}</value>
   </data>
-  <data name="Check and revoke your &lt;a class=&quot;reference external&quot; href=&quot;/grants&quot;&gt;authorized applications&lt;/a&gt;." xml:space="preserve">
-    <value>Check and revoke your &lt;a class="reference external" href="/grants"&gt;authorized applications&lt;/a&gt;.</value>
-  </data>
-  <data name="You are in the {0} Identity Server. A place to manage your user profile and account access settings. Use the links below to get started." xml:space="preserve">
-    <value>You are in the {0} Identity Server. A place to manage your user profile and account access settings. Use the links below to get started.</value>
-  </data>
-  <data name="Home" xml:space="preserve">
-    <value>Home</value>
-  </data>
 </root>

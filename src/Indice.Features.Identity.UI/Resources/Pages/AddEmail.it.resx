@@ -126,16 +126,4 @@
   <data name="Verify email" xml:space="preserve">
     <value>Verifica email</value>
   </data>
-  <data name="A confirmation email has been sent to the address below." xml:space="preserve">
-    <value>Una email di conferma è stata inviata all’indirizzo inserito</value>
-  </data>
-  <data name="My Portal" xml:space="preserve">
-    <value>Il mio portale</value>
-  </data>
-  <data name="Please enter your email address so we can verify it before we continue." xml:space="preserve">
-    <value>Inserire l’indirizzo email per verificarne l’autenticità</value>
-  </data>
-  <data name="Εmail Account confirmation" xml:space="preserve">
-    <value>Conferma indirizzo e-mail</value>
-  </data>
 </root>

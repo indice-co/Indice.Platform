@@ -129,10 +129,4 @@
   <data name="Setup an additional authentication method." xml:space="preserve">
     <value>Configura un metodo di autenticazione aggiuntivo.</value>
   </data>
-  <data name="Click one of the authentication methods below and then press NEXT" xml:space="preserve">
-    <value>Clicca uno dei metodi di autenticazione qui sotto e poi premi AVANTI</value>
-  </data>
-  <data name="Setup an additional authentication method" xml:space="preserve">
-    <value>Configura un metodo di autenticazione aggiuntivo</value>
-  </data>
 </root>

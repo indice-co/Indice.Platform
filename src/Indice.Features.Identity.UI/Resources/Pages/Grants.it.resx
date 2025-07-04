@@ -120,14 +120,17 @@
   <data name="Below is the list of applications you have given access to and the names of the resources they have access to." xml:space="preserve">
     <value>Below is the list of applications you have given access to and the names of the resources they have access to.</value>
   </data>
-  <data name="Client Application Access" xml:space="preserve">
-    <value>Client Application Access</value>
+  <data name="Client logo" xml:space="preserve">
+    <value>Client logo</value>
   </data>
   <data name="Created:" xml:space="preserve">
     <value>Created:</value>
   </data>
   <data name="Expires on" xml:space="preserve">
     <value>Expires on</value>
+  </data>
+  <data name="Grants" xml:space="preserve">
+    <value>Grants</value>
   </data>
   <data name="Revoke Access" xml:space="preserve">
     <value>Revoke Access</value>

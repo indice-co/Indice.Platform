@@ -150,28 +150,4 @@
   <data name="Username" xml:space="preserve">
     <value>Nome utente</value>
   </data>
-  <data name="Connect with Indice" xml:space="preserve">
-    <value>Connect with Indice</value>
-  </data>
-  <data name="Connect with Microsoft" xml:space="preserve">
-    <value>Connect with Microsoft</value>
-  </data>
-  <data name="Enter My Account" xml:space="preserve">
-    <value>Enter My Account</value>
-  </data>
-  <data name="login with" xml:space="preserve">
-    <value>login with</value>
-  </data>
-  <data name="My Portal" xml:space="preserve">
-    <value>Il mio portale</value>
-  </data>
-  <data name="Password reset code" xml:space="preserve">
-    <value>Password reset code</value>
-  </data>
-  <data name="Please check your credentials." xml:space="preserve">
-    <value>Verificate le vostre credenziali.</value>
-  </data>
-  <data name="Register" xml:space="preserve">
-    <value>Register</value>
-  </data>
 </root>

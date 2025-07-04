@@ -120,17 +120,8 @@
   <data name="Code" xml:space="preserve">
     <value>Codice</value>
   </data>
-  <data name="My Portal" xml:space="preserve">
-    <value>Il mio portale</value>
-  </data>
   <data name="Next" xml:space="preserve">
     <value>Avanti</value>
-  </data>
-  <data name="OTP is valid till:" xml:space="preserve">
-    <value>OTP valido per:</value>
-  </data>
-  <data name="Please enter the code that you have received at your mobile phone" xml:space="preserve">
-    <value>Per favore inserisci il codice che hai ricevuto al numero di telefono indicato</value>
   </data>
   <data name="Resend" xml:space="preserve">
     <value>Reinvia</value>
@@ -140,8 +131,5 @@
   </data>
   <data name="Verify phone number" xml:space="preserve">
     <value>Verifica del numero di telefono</value>
-  </data>
-  <data name="Your phone number was successfully validated. Please press the 'Next' button to continue." xml:space="preserve">
-    <value>Il tuo numero di telefono è stato convalidato con successo. Premi il pulsante “Avanti” per continuare.</value>
   </data>
 </root>

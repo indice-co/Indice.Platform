@@ -159,16 +159,4 @@
   <data name="Your email is already verified. Thank you" xml:space="preserve">
     <value>La tua email è già stata verificata. Grazie</value>
   </data>
-  <data name="Go back" xml:space="preserve">
-    <value>Torna indietro</value>
-  </data>
-  <data name="My Portal" xml:space="preserve">
-    <value>Il mio portale</value>
-  </data>
-  <data name="Please log in and resend the link." xml:space="preserve">
-    <value>Accedi e invia nuovamente il link.</value>
-  </data>
-  <data name="Εmail Account confirmation" xml:space="preserve">
-    <value>Conferma dell’account email</value>
-  </data>
 </root>

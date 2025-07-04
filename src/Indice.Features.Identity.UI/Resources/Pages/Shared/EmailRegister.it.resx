@@ -147,28 +147,4 @@
   <data name="Thank you for joining!" xml:space="preserve">
     <value>Grazie per esserti unito a noi!</value>
   </data>
-  <data name="doValue Italy" xml:space="preserve">
-    <value>doValue Italy</value>
-  </data>
-  <data name="Hello" xml:space="preserve">
-    <value>Hello</value>
-  </data>
-  <data name="in the registration box as a new user of the My Portal" xml:space="preserve">
-    <value>in the registration box as a new user of the My Portal</value>
-  </data>
-  <data name="Thank You" xml:space="preserve">
-    <value>Thank You</value>
-  </data>
-  <data name="To complete your registration you will need to verify your email address by clicking" xml:space="preserve">
-    <value>To complete your registration you will need to verify your email address by clicking</value>
-  </data>
-  <data name="Welcome to" xml:space="preserve">
-    <value>Welcome to</value>
-  </data>
-  <data name="You have provided email address" xml:space="preserve">
-    <value>You have provided email address</value>
-  </data>
-  <data name="Εmail Account confirmation" xml:space="preserve">
-    <value>Εmail Account confirmation</value>
-  </data>
 </root>

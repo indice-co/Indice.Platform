@@ -192,37 +192,4 @@
   <data name="Your profile was updated successfully." xml:space="preserve">
     <value>Your profile was updated successfully.</value>
   </data>
-  <data name="Basic" xml:space="preserve">
-    <value>Basic</value>
-  </data>
-  <data name="Choose..." xml:space="preserve">
-    <value>Choose...</value>
-  </data>
-  <data name="Connect with Indice" xml:space="preserve">
-    <value>Connect with Indice</value>
-  </data>
-  <data name="Details" xml:space="preserve">
-    <value>Details</value>
-  </data>
-  <data name="I consent to the registration and processing of the above personal details for my contact and service from the {0}." xml:space="preserve">
-    <value>I consent to the registration and processing of the above personal details for my contact and service from the {0}.</value>
-  </data>
-  <data name="Manage Profile" xml:space="preserve">
-    <value>Manage Profile</value>
-  </data>
-  <data name="Partner Id" xml:space="preserve">
-    <value>Partner Id</value>
-  </data>
-  <data name="The external login was added." xml:space="preserve">
-    <value>The external login was added.</value>
-  </data>
-  <data name="The external login was removed." xml:space="preserve">
-    <value>The external login was removed.</value>
-  </data>
-  <data name="Timezone" xml:space="preserve">
-    <value>Timezone</value>
-  </data>
-  <data name="We will contact you on your last confirmed email until you verify your new one." xml:space="preserve">
-    <value>We will contact you on your last confirmed email until you verify your new one.</value>
-  </data>
 </root>
