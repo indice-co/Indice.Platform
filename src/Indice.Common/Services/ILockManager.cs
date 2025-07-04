@@ -212,6 +212,7 @@ public static class ILockManagerExtensions
                 }
             }
             // Create a new linked cancellation token source, so if either the original token is canceled or the lease cannot be renewed, then the leader task can be canceled.
+            linkedTokenSource?.Dispose();
             linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             // The role instance that is executing the following code is now the leader.
             using (lockResult.Lock) {

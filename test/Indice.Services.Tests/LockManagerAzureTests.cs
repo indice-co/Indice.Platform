@@ -67,4 +67,13 @@ public class LockManagerAzureTests
         var @lock = await _LockManager.Renew(message.Name, message.LeaseId);
         await Task.Delay(TimeSpan.FromSeconds(10));
     }
+
+    [Fact(Skip = "Only for debug purposes")]
+    public async Task FunctionLockingExclusiveRunTest() {
+        var operation = "MasterProductImportExclusive"; // using a random name :)
+        await _LockManager.ExclusiveRun(operation, async (token) => {
+            await Task.Delay(TimeSpan.FromSeconds(10), token);
+            Console.WriteLine("operation run...");
+        }, cancellationToken: default);
+    }
 }
