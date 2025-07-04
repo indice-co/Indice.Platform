@@ -26,10 +26,10 @@ public class EmailServiceSendGrid : IEmailService
         HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         HtmlRenderingEngine = htmlRenderingEngine ?? throw new ArgumentNullException(nameof(htmlRenderingEngine));
         if (HttpClient.BaseAddress == null) {
-            HttpClient.BaseAddress = new Uri(Settings.Api.TrimEnd('/') + "/");
+            HttpClient.BaseAddress = new Uri($"{Settings.Api.TrimEnd('/')}/");
         }
-        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Settings.ApiKey
-            ?? throw new ArgumentNullException(nameof(Settings.ApiKey)));
+        ArgumentException.ThrowIfNullOrWhiteSpace(Settings.ApiKey);
+        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Settings.ApiKey);
     }
 
     private EmailServiceSendGridSettings Settings { get; }

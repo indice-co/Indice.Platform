@@ -7,11 +7,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Identity.Core.TokenCleanup;
 /// <inheritdoc/>
-public class ExtendedTokenCleanupService : TokenCleanupService
+public class FastTokenCleanupService : TokenCleanupService
 {
     private readonly OperationalStoreOptions _options;
     private readonly IPersistedGrantDbContext _persistedGrantDbContext;
-    private readonly ILogger<ExtendedTokenCleanupService> _logger;
+    private readonly ILogger<FastTokenCleanupService> _logger;
 
     /// <summary>
     /// Constructor for TokenCleanupService.
@@ -20,11 +20,11 @@ public class ExtendedTokenCleanupService : TokenCleanupService
     /// <param name="persistedGrantDbContext"></param>
     /// <param name="operationalStoreNotification"></param>
     /// <param name="logger"></param>
-    public ExtendedTokenCleanupService(
+    public FastTokenCleanupService(
         OperationalStoreOptions options,
         IPersistedGrantDbContext persistedGrantDbContext,
-        ILogger<ExtendedTokenCleanupService> logger,
-        IOperationalStoreNotification operationalStoreNotification = null) :
+        ILogger<FastTokenCleanupService> logger,
+        IOperationalStoreNotification? operationalStoreNotification = null) :
         base(options, persistedGrantDbContext, logger, operationalStoreNotification) {
         _options = options ?? throw new ArgumentNullException(nameof(options));
         if (_options.TokenCleanupBatchSize < 1) {

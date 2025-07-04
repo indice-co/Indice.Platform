@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Indice.Extensions;
 using Indice.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -32,18 +33,10 @@ public class SmsServiceTwilio : ISmsService
         HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-        if (string.IsNullOrWhiteSpace(Settings.AccountSid)) {
-            throw new ArgumentException("AccountSid must not be empty.", nameof(Settings.AccountSid));
-        }
-        if (string.IsNullOrWhiteSpace(Settings.AuthToken)) {
-            throw new ArgumentException("AuthToken must not be empty.", nameof(Settings.AuthToken));
-        }
-        if (string.IsNullOrWhiteSpace(Settings.SenderPhoneNumber)) {
-            throw new ArgumentException("SenderPhoneNumber must not be empty.", nameof(Settings.SenderPhoneNumber));
-        }
+        ArgumentException.ThrowIfNullOrWhiteSpace(Settings.AccountSid);
 
-        var authToken = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{Settings.AccountSid}:{Settings.AuthToken}"));
-        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authToken);
+        var credentials = Settings.GetCredentinals();
+        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", credentials);
         HttpClient.DefaultRequestHeaders.Add("Accept", MediaTypeNames.Application.Json);
     }
 
@@ -58,13 +51,25 @@ public class SmsServiceTwilio : ISmsService
         if (!PhoneNumber.TryParse(destination, out var phone)) {
             throw new ArgumentException("Invalid recipient phone number.", nameof(destination));
         }
+        if (string.IsNullOrWhiteSpace(Settings.SenderPhoneNumber) && string.IsNullOrWhiteSpace(Settings.MessagingServiceSid)) {
+            throw new ArgumentException("SenderPhoneNumber or MessagingServiceSid must be provided.");
+        }
 
         var requestUri = $"{TWILIO_BASE_URL}/Accounts/{Settings.AccountSid}/Messages.json";
-        using var content = new FormUrlEncodedContent(new Dictionary<string, string> {
+
+        var formFields = new Dictionary<string, string> {
             ["To"] = phone.ToString("D"),
-            ["From"] = sender?.Id ?? Settings.SenderPhoneNumber!,
             ["Body"] = body ?? string.Empty
-        }) ;
+        };
+
+        // Use MessagingServiceSid if present; otherwise use From number
+        if (!string.IsNullOrWhiteSpace(Settings.MessagingServiceSid)) {
+            formFields["MessagingServiceSid"] = Settings.MessagingServiceSid!;
+        } else {
+            formFields["From"] = sender?.Id ?? Settings.SenderPhoneNumber!;
+        }
+
+        using var content = new FormUrlEncodedContent(formFields);
 
         HttpResponseMessage httpResponse;
         try {
@@ -110,14 +115,33 @@ public class SmsServiceTwilio : ISmsService
 }
 
 /// <summary>Extra settings class for configuring TWILIO SMS service client. </summary>
-public class SmsServiceTwilioSettings : SmsServiceSettings
+public class SmsServiceTwilioSettings
 {
+    /// <summary>Key in the configuration.</summary>
+    public static readonly string Name = "Sms";
+    /// <summary>The API key.</summary>
+    public string? ApiKey { get; set; }
+    /// <summary>The Secret.</summary>
+    public string? Secret { get; set; }
     /// <summary>The Account Sid.</summary>
     public string? AccountSid { get; set; }
-    /// <summary>The AuthToken.</summary>
+    /// <summary>The Auth Token.</summary>
     public string? AuthToken { get; set; }
     /// <summary>The Sender Phone Number.</summary>
     public string? SenderPhoneNumber { get; set; }
+    /// <summary>The Messaging Service Sid.</summary>
+    public string? MessagingServiceSid { get; set; }
+
+    /// <summary>Gets the credentials in Base64UrlSafe format.</summary>
+    public string GetCredentinals() {
+
+        var credentials = this switch {
+            _ when !string.IsNullOrWhiteSpace(ApiKey) && !string.IsNullOrWhiteSpace(Secret) => $"{Uri.EscapeDataString(ApiKey)}:{Uri.EscapeDataString(Secret)}",
+            _ when !string.IsNullOrWhiteSpace(AccountSid) && !string.IsNullOrWhiteSpace(AuthToken) => $"{Uri.EscapeDataString(AccountSid)}:{Uri.EscapeDataString(AuthToken!)}",
+            _ => throw new ArgumentException("At least one of the parameter pairs (ApiKey, Secret) or (AuthToken) must be specified.")
+        };
+        return Encoding.ASCII.GetBytes(credentials).ToBase64UrlSafe();
+    }
 }
 
 internal class TwilioSmsResponse
