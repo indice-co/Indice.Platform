@@ -74,6 +74,9 @@ public class LockManagerAzureTests
         await _LockManager.ExclusiveRun(operation, async (token) => {
             await Task.Delay(TimeSpan.FromSeconds(10), token);
             Console.WriteLine("operation run...");
-        }, cancellationToken: default);
+        }, cancellationToken: default, new ExclusiveRunOptions {
+            LockDuration = 30,
+            RetryIntervalInSeconds = null
+        });
     }
 }
