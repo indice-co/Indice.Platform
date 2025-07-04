@@ -212,7 +212,6 @@ public static class ILockManagerExtensions
                 }
             }
             // Create a new linked cancellation token source, so if either the original token is canceled or the lease cannot be renewed, then the leader task can be canceled.
-            linkedTokenSource?.Dispose();
             linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             // The role instance that is executing the following code is now the leader.
             using (lockResult.Lock) {
@@ -239,7 +238,7 @@ public static class ILockManagerExtensions
     /// <param name="taskName">A name for the task to run.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>The task that represents the asynchronous operation result for running the specified delegate.</returns>
-    public static Task ExclusiveRun(this ILockManager manager, string taskName, Func<CancellationToken, Task> task, CancellationToken cancellationToken) => 
+    public static Task ExclusiveRun(this ILockManager manager, string taskName, Func<CancellationToken, Task> task, CancellationToken cancellationToken) =>
         manager.ExclusiveRun(taskName, task, cancellationToken, ExclusiveRunOptions.Default());
 }
 
@@ -292,7 +291,7 @@ public class ExclusiveRunOptions
     /// </summary>
     public int? RetryIntervalInSeconds {
         get => _retryIntervalInSeconds;
-        set { 
+        set {
             _retryIntervalInSeconds = value;
             if (value <= 0) {
                 _retryIntervalInSeconds = 1;
@@ -301,7 +300,7 @@ public class ExclusiveRunOptions
     }
 
     /// <summary>Gets the default configuration for <see cref="ExclusiveRunOptions"/>.</summary>
-    public static ExclusiveRunOptions Default() => new() { 
+    public static ExclusiveRunOptions Default() => new() {
         LockDuration = DEFAULT_LOCK_DURATION_IN_SECONDS,
         _retryIntervalInSeconds = null
     };
