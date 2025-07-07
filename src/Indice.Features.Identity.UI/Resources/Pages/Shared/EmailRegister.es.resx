@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="here" xml:space="preserve">
+    <value>aquí</value>
+  </data>
+  <data name="Hi" xml:space="preserve">
+    <value>Hola</value>
+  </data>
+  <data name="If you did not create an account, you can safely ignore this email." xml:space="preserve">
+    <value>Si no creó una cuenta, puede ignorar este correo electrónico de forma segura.</value>
+  </data>
+  <data name="To complete your registration, please confirm your email address by clicking" xml:space="preserve">
+    <value>Para completar su registro, confirme su dirección de correo electrónico haciendo clic</value>
+  </data>
+  <data name="to get verified" xml:space="preserve">
+    <value>para verificarlo</value>
+  </data>
+  <data name="We need you to verify your email. Please click" xml:space="preserve">
+    <value>Necesitamos que verifique su correo electrónico. Por favor haga clic</value>
+  </data>
+  <data name="Welcome to {0}! Please confirm your email to get started." xml:space="preserve">
+    <value>¡Bienvenido a {0}! Por favor confirme su correo electrónico para comenzar.</value>
+  </data>
+  <data name="Welcome to {0}! We’re excited to have you on board." xml:space="preserve">
+    <value>¡Bienvenido a {0}! Nos alegra tenerle con nosotros.</value>
+  </data>
+  <data name="Sincerely" xml:space="preserve">
+    <value>Atentamente</value>
+  </data>
+  <data name="Thank you for joining!" xml:space="preserve">
+    <value>¡Gracias por unirse!</value>
+  </data>
+</root>
