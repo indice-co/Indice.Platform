@@ -175,6 +175,49 @@ public class SmsTests
         Assert.Null(error);
     }
 
+    [Theory(Skip = "Sensitive Data"))]
+    [InlineData("", "Hello from INDICE", "", "", "", "", "")]
+    public async Task TestSmsUpSms(string phoneNumber, string body,string apiKey, string reportUrl, string sender, string concat, string fake) {
+
+        var inMemorySettings = new Dictionary<string, string> {
+            ["Sms:ApiKey"] = apiKey
+        };
+
+        if (!string.IsNullOrWhiteSpace(reportUrl)) {
+            inMemorySettings["Sms:ReportUrl"] = reportUrl;
+        }
+        if (!string.IsNullOrWhiteSpace(concat)) {
+            inMemorySettings["Sms:Concat"] = concat;
+        }
+        if (!string.IsNullOrWhiteSpace(sender)) {
+            inMemorySettings["Sms:Sender"] = sender;
+        }
+        if (!string.IsNullOrWhiteSpace(fake)) {
+            inMemorySettings["Sms:Fake"] = fake;
+        }
+
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(inMemorySettings)
+            .Build();
+
+        var collection = new ServiceCollection()
+          .AddSingleton(configuration)
+          .AddOptions()
+          .Configure<SmsServiceSmsUpSettings>(configuration.GetSection(SmsServiceSmsUpSettings.Name))
+          .AddSmsServiceSmsUp(configuration);
+
+        var serviceProvider = collection.BuildServiceProvider();
+        var error = default(Exception);
+
+        try {
+            var service = serviceProvider.GetRequiredService<ISmsService>();
+            await service.SendAsync(phoneNumber, "subject", body);
+        } catch (Exception smsServiceException) {
+            error = smsServiceException;
+        }
+        Assert.Null(error);
+    }
+
     [Theory(Skip = "Sensitive Data")]
     [InlineData("", "", "", "Test Subject", "Test Body", "Test")]
     public async Task TestMstatSms(string apiToken, string phoneNumber, string sender, string subject, string body, string senderName) {
