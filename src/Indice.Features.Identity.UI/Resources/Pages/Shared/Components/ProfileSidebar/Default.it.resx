@@ -117,58 +117,73 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Already have an account?" xml:space="preserve">
-    <value>Έχετε ήδη λογαριασμό;</value>
+  <data name="A confirmation email has been sent to {0}." xml:space="preserve">
+    <value>È stata inviata una email di conferma a {0}.</value>
+  </data>
+  <data name="An email has been sent to your new email address in order to confirm it." xml:space="preserve">
+    <value>È stata inviata una email al tuo nuovo indirizzo per confermarlo.</value>
+  </data>
+  <data name="Birth date" xml:space="preserve">
+    <value>Data di nascita</value>
   </data>
   <data name="Calling Code" xml:space="preserve">
-    <value>Κωδικός Τηλεφώνου</value>
+    <value>Prefisso telefonico</value>
   </data>
-  <data name="Choose a username and a password of your choice. You can periodically change your password or whenever you wish to." xml:space="preserve">
-    <value>Επιλέξτε ένα όνομα χρήστη και έναν κωδικό πρόσβασης της προτίμησής σας. Έχετε τη δυνατότητα να αλλάξετε τον κωδικό σας σε περιοδικά διαστήματα ή όποτε το επιθυμείτε.</value>
+  <data name="Confirmation" xml:space="preserve">
+    <value>Conferma</value>
   </data>
-  <data name="Choose an email and a password of your choice. You can periodically change your password or whenever you wish to." xml:space="preserve">
-    <value>Επιλέξτε ένα email και έναν κωδικό πρόσβασης της προτίμησής σας. Έχετε τη δυνατότητα να αλλάξετε τον κωδικό σας σε περιοδικά διαστήματα ή όποτε το επιθυμείτε.</value>
+  <data name="Confirmation email delivery failed. Please contact system administrator." xml:space="preserve">
+    <value>La consegna dell’email di conferma non è riuscita. Si prega di contattare l’amministratore di sistema.</value>
+  </data>
+  <data name="Connect a new provider" xml:space="preserve">
+    <value>Connetti un nuovo provider</value>
+  </data>
+  <data name="Developer TOTP" xml:space="preserve">
+    <value>TOTP sviluppatore</value>
+  </data>
+  <data name="Existing providers" xml:space="preserve">
+    <value>Provider esistenti</value>
+  </data>
+  <data name="External providers" xml:space="preserve">
+    <value>Provider esterni</value>
   </data>
   <data name="First name" xml:space="preserve">
-    <value>Όνομα</value>
+    <value>Nome</value>
   </data>
   <data name="here" xml:space="preserve">
-    <value>εδώ</value>
+    <value>qui</value>
   </data>
-  <data name="I consent to the registration and processing of the above personal details for my contact and service as they are defined" xml:space="preserve">
-    <value>Έχω ενημερωθεί για την επεξεργασία των προσωπικών μου δεδομένων και συναινώ σε αυτήν, όπως ειδικά αυτή ορίζεται</value>
-  </data>
-  <data name="I have read and accept the &lt;a href=&quot;/terms&quot; target=&quot;_blank&quot;&gt;Terms of service&lt;/a&gt; and the &lt;a href=&quot;/privacy&quot; target=&quot;_blank&quot;&gt;privacy policy&lt;/a&gt;." xml:space="preserve">
-    <value>Διάβασα και αποδέχομαι τους &lt;a href="/terms" target="_blank"&gt;όρους χρήσης&lt;/a&gt;.</value>
-  </data>
-  <data name="I consent to the use of my contact information, including my email address, for the purpose of receiving commercial communications, promotional materials, and marketing updates from the organization. I understand that I may withdraw my consent at any time." xml:space="preserve">
-    <value>Συναινώ στη χρήση των στοιχείων επικοινωνίας μου, συμπεριλαμβανομένης της διεύθυνσης email μου, για σκοπούς λήψης εμπορικών επικοινωνιών, προωθητικού υλικού και ενημερώσεων μάρκετινγκ από τον οργανισμό. Κατανοώ ότι μπορώ να ανακαλέσω τη συγκατάθεσή μου οποιαδήποτε στιγμή.</value>
-  </data>
-  <data name="Join us" xml:space="preserve">
-    <value>Εγγραφή</value>
+  <data name="I have been informed about the processing of my personal data and I consent to it, as specifically defined" xml:space="preserve">
+    <value>Sono stato informato sul trattamento dei miei dati personali e acconsento a quanto specificamente definito</value>
   </data>
   <data name="Last name" xml:space="preserve">
-    <value>Επίθετο</value>
-  </data>
-  <data name="OR" xml:space="preserve">
-    <value>Ή</value>
-  </data>
-  <data name="Password" xml:space="preserve">
-    <value>Κωδικός πρόσβασης</value>
+    <value>Cognome</value>
   </data>
   <data name="Phone number" xml:space="preserve">
-    <value>Αριθμός τηλεφώνου</value>
+    <value>Numero di telefono</value>
   </data>
-  <data name="Sign up" xml:space="preserve">
-    <value>Εγγραφή Χρήστη</value>
+  <data name="Profile" xml:space="preserve">
+    <value>Profilo</value>
   </data>
-  <data name="These credentials are personal. Please remember them and do not reveal in any way (i.e orally, written, email) in third parties." xml:space="preserve">
-    <value>Οι κωδικοί αυτοί είναι προσωπικοί. Παρακαλούμε να τους απομνημονεύσετε και να μην τους αποκαλύψετε κατά οποιοδήποτε τρόπο (π.χ. προφορικά, γραπτώς, e-mail) σε τρίτους.</value>
+  <data name="Remove" xml:space="preserve">
+    <value>Rimuovi</value>
   </data>
-  <data name="Timezone" xml:space="preserve">
-    <value>Ζώνη ώρας</value>
+  <data name="Save" xml:space="preserve">
+    <value>Salva</value>
+  </data>
+  <data name="Tax identification" xml:space="preserve">
+    <value>Codice fiscale</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>Sconosciuto</value>
   </data>
   <data name="Username" xml:space="preserve">
-    <value>Όνομα Χρήστη</value>
+    <value>Nome utente</value>
+  </data>
+  <data name="Your new email verification is still pending." xml:space="preserve">
+    <value>La verifica del tuo nuovo indirizzo email è ancora in sospeso.</value>
+  </data>
+  <data name="Your profile was updated successfully." xml:space="preserve">
+    <value>Il tuo profilo è stato aggiornato con successo.</value>
   </data>
 </root>

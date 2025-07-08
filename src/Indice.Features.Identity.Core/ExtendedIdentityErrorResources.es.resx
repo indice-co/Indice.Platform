@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="DuplicateUserName" xml:space="preserve">
+    <value>El nombre de usuario '{0}' ya está en uso.</value>
+    <comment>validation error</comment>
+  </data>
+  <data name="PasswordContainsNotAllowedChars" xml:space="preserve">
+    <value>Su contraseña contiene caracteres no permitidos.</value>
+    <comment>validation error</comment>
+  </data>
+  <data name="PasswordContainsNotAllowedCharsRequirement" xml:space="preserve">
+    <value>Caracteres no permitidos.</value>
+    <comment>hint</comment>
+  </data>
+  <data name="PasswordExpiredMessage" xml:space="preserve">
+    <value>Su contraseña ha expirado. Por favor, elija una nueva contraseña.</value>
+  </data>
+  <data name="PasswordHasNonLatinChars" xml:space="preserve">
+    <value>La contraseña no puede contener caracteres no latinos.</value>
+    <comment>validation error</comment>
+  </data>
+  <data name="PasswordHasNonLatinCharsRequirement" xml:space="preserve">
+    <value>No contiene caracteres no latinos.</value>
+    <comment>hint</comment>
+  </data>
+  <data name="PasswordIdenticalToUserName" xml:space="preserve">
+    <value>Su contraseña se parece mucho a su nombre de usuario, lo que puede llevar a que su cuenta sea hackeada.</value>
+    <comment>validation error</comment>
+  </data>
+  <data name="PasswordIdenticalToUserNameRequirement" xml:space="preserve">
+    <value>No contiene parte de su nombre de usuario.</value>
+    <comment>hint</comment>
+  </data>
+  <data name="PasswordIsCommon" xml:space="preserve">
+    <value>La contraseña es muy fácil de adivinar, por favor elija una más compleja.</value>
+    <comment>validation error</comment>
+  </data>
+  <data name="PasswordIsCommonRequirement" xml:space="preserve">
+    <value>No es fácil de adivinar.</value>
+    <comment>hint</comment>
+  </data>
+  <data name="PasswordRecentlyUsed" xml:space="preserve">
+    <value>Esta contraseña se ha utilizado recientemente. Es una buena práctica no reutilizar su contraseña anterior.</value>
+    <comment>validation error</comment>
+  </data>
+  <data name="PasswordRecentlyUsedRequirement" xml:space="preserve">
+    <value>No utilizada recientemente.</value>
+    <comment>hint</comment>
+  </data>
+  <data name="PasswordRequiresDigit" xml:space="preserve">
+    <value>Las contraseñas deben tener al menos un dígito ('0'-'9').</value>
+    <comment>validation error</comment>
+  </data>
+  <data name="PasswordRequiresDigitRequirement" xml:space="preserve">
+    <value>Un carácter numérico.</value>
+    <comment>hint</comment>
+  </data>
+  <data name="PasswordRequiresLower" xml:space="preserve">
+    <value>Las contraseñas deben tener al menos una letra minúscula ('a'-'z').</value>
+    <comment>validation error</comment>
+  </data>
+  <data name="PasswordRequiresLowerRequirement" xml:space="preserve">
+    <value>Una letra minúscula.</value>
+    <comment>hint</comment>
+  </data>
+  <data name="PasswordRequiresNonAlphanumeric" xml:space="preserve">
+    <value>Las contraseñas deben tener al menos un carácter no alfanumérico.</value>
+    <comment>validation error</comment>
+  </data>
+  <data name="PasswordRequiresNonAlphanumericRequirement" xml:space="preserve">
+    <value>Un carácter no alfanumérico.</value>
+    <comment>hint</comment>
+  </data>
+  <data name="PasswordRequiresUniqueChars" xml:space="preserve">
+    <value>Las contraseñas deben usar al menos {0} caracteres diferentes.</value>
+    <comment>validation error</comment>
+  </data>
+  <data name="PasswordRequiresUniqueCharsRequirement" xml:space="preserve">
+    <value>Se requieren {0} caracteres únicos.</value>
+    <comment>hint</comment>
+  </data>
+  <data name="PasswordRequiresUpper" xml:space="preserve">
+    <value>Las contraseñas deben tener al menos una letra mayúscula ('A'-'Z').</value>
+    <comment>validation error</comment>
+  </data>
+  <data name="PasswordRequiresUpperRequirement" xml:space="preserve">
+    <value>Una letra mayúscula.</value>
+    <comment>hint</comment>
+  </data>
+  <data name="PasswordTooShort" xml:space="preserve">
+    <value>Las contraseñas deben tener al menos {0} caracteres.</value>
+    <comment>validation error</comment>
+  </data>
+  <data name="PasswordTooShortRequirement" xml:space="preserve">
+    <value>Al menos {0} caracteres de longitud.</value>
+    <comment>hint</comment>
+  </data>
+</root>
