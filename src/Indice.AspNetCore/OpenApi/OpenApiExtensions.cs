@@ -23,6 +23,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// metadata settings are properly integrated into the OpenAPI specification.</remarks>
 public static class OpenApiExtensions
 {
+
     /// <summary>
     /// Adds a transformer to the OpenAPI document that populates the document's metadata, such as contact and license
     /// information, based on the application's configuration.
@@ -316,6 +317,34 @@ public static class OpenApiExtensions
         return options;
     }
 
+    /// <summary>
+    /// Adds extra header parameters to the OpenAPI operation descriptions based on metadata.
+    /// </summary>
+    /// <remarks>This method scans the endpoint metadata for instances of <see
+    /// cref="ExtraHeaderParameterMetadata"/> and adds corresponding header parameters to the OpenAPI operation
+    /// descriptions. Each header parameter is optional and includes its name, description, and location in the request. 
+    /// An example for that would be the Requires Totp endpoint filter
+    /// headers.</remarks>
+    /// <param name="options">The <see cref="OpenApiOptions"/> instance to which the header parameters will be added.</param>
+    /// <returns>The updated <see cref="OpenApiOptions"/> instance with the extra header parameters configured.</returns>
+    public static OpenApiOptions AddExtraHeaderParameters(this OpenApiOptions options) {
+        ArgumentNullException.ThrowIfNull(options);
+        options.AddOperationTransformer((operation, context, cancellationToken) => {
+            var extraHeaderParams = context.Description.ActionDescriptor.EndpointMetadata.OfType<ExtraHeaderParameterMetadata>();
+            foreach (var item in extraHeaderParams) {
+                operation.Parameters.Add(new OpenApiParameter {
+                    Name = item.HeaderName,
+                    In = ParameterLocation.Header,
+                    Description = item.Description,
+                    Required = item.Required,
+                    Schema = new() { Type = "string" }
+                });
+            }
+            return Task.CompletedTask;
+        });
+        return options;
+    }
+
     private static OpenApiOptions AddSecurityRequirements(this OpenApiOptions options, string schemeId) {
         ArgumentNullException.ThrowIfNull(options);
         ArgumentException.ThrowIfNullOrWhiteSpace(schemeId);
@@ -350,4 +379,11 @@ public static class OpenApiExtensions
         return scopes;
     }
 }
+
+/// <summary>
+/// Represents endpoint metadata indicating an OpenApi endpoint requires an extra header to be displayed.
+/// </summary>
+/// <remarks>This will be used to expose a header.</remarks>
+public record ExtraHeaderParameterMetadata(string HeaderName, bool required, string? Description = null);
+
 #endif

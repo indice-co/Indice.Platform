@@ -6,6 +6,7 @@ using Indice.Features.Identity.Core.Totp;
 using Indice.Features.Identity.Server.Options;
 using Indice.Security;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using static Microsoft.AspNetCore.Http.RequireOtpFilterExtensions;
@@ -33,14 +34,17 @@ public static class RequireOtpFilterExtensions
     /// <returns>The builder.</returns>
     public static TBuilder RequireOtp<TBuilder>(this TBuilder builder, Action<RequireOtpPolicy>? configureAction = null) where TBuilder : IEndpointConventionBuilder {
         builder.Add(endpointBuilder => {
+            var policy = new RequireOtpPolicy();
+            configureAction?.Invoke(policy);
             // We can respond with problem details if there's a validation error.
             endpointBuilder.Metadata.Add(new ProducesResponseTypeMetadata(StatusCodes.Status400BadRequest, typeof(HttpValidationProblemDetails), ["application/problem+json"]));
+#if NET9_0_OR_GREATER
+            endpointBuilder.Metadata.Add(new ExtraHeaderParameterMetadata(policy.HeaderName, required: false, "The TOTP code"));
+#endif
             endpointBuilder.FilterFactories.Add((context, next) => {
                 return new EndpointFilterDelegate(async (invocationContext) => {
                     var httpContext = invocationContext.HttpContext;
                     var principal = httpContext.User;
-                    var policy = new RequireOtpPolicy();
-                    configureAction?.Invoke(policy);
                     if (principal is null || !principal.Identity!.IsAuthenticated) {
                         return Results.ValidationProblem(ValidationErrors.AddError("Forbidden", "Authenticated user is required"), detail: "Principal is not present or not authenticated.");
                     }
@@ -137,13 +141,13 @@ public sealed class RequireOtpPolicy
     /// <summary>The name of the header that contains the TOTP code.</summary>
     public string HeaderName { get; set; } = DEFAULT_HEADER_NAME;
 
-    /// <summary>Determines how the TOTP message is created.</summary>
+    /// <summary>Delegate. Determines how the TOTP message is created.</summary>
     public GetTotpPurpose ResolvePurpose { get; private set; } = (servicePrincipal, principal, subject, phoneNumber, state) => $"{nameof(RequireOtpPolicy)}:{subject}:{phoneNumber}";
 
-    /// <summary>Retrieves the TOTP message template. Defaults to RequiresOtpMessage </summary>
+    /// <summary>Delegate. Retrieves the TOTP message template. Defaults to RequiresOtpMessage </summary>
     public GetTotpMessageTemplate ResolveMessageTemplate { get; private set; } = (servicePrincipal, principal, state) => servicePrincipal.GetRequiredService<IdentityMessageDescriber>().RequiresOtpMessage();
 
-    /// <summary>Retrieves the TOTP message template. Defaults to RequiresOtpMessage </summary>
+    /// <summary>Delegate. Gets state for current user </summary>
     public GetUserState? GetUserState { get; private set; }
 
     /// <summary>Perform custom validation.</summary>
