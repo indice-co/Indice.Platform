@@ -82,11 +82,30 @@ public class SmsServiceSmsUp : ISmsService
 
         var response = JsonSerializer.Deserialize<SmsApiResponse>(responseContent, GetJsonSerializerOptions())!;
         var result = response.Result;
+        var error = result?.FirstOrDefault();
 
-        if (result == null || result.FirstOrDefault()?.Status != "ok") {
-            Logger.LogWarning("SmsUp error: {ErrorId} - {ErrorMsg}", result?.FirstOrDefault()?.ErrorId ?? response.ErrorId, result?.FirstOrDefault()?.ErrorMsg ?? response.ErrorMsg);
-            throw new SmsServiceException($"SmsUp error: {result?.FirstOrDefault()?.ErrorMsg ?? response.ErrorMsg}");
-        }else {
+
+        if (error == null || error.Status != "ok") {
+            var errorId = error?.ErrorId ?? response.ErrorId;
+            var errorMsg = error?.ErrorMsg ?? response.ErrorMsg;
+            Logger.LogWarning("SmsUp error: {ErrorId} - {ErrorMsg}", errorId, errorMsg);
+            string userFriendlyMessage = errorId switch {
+                "INVALID_CONTENT_TYPE" => "Invalid content type. Ensure 'application/json' is used.",
+                "JSON_PARSE_ERROR" => "Malformed JSON. Check your request format.",
+                "MISSING_PARAMS" => "Request is missing mandatory parameters.",
+                "BAD_PARAMS" => "One or more parameters are invalid.",
+                "UNAUTHORIZED" => "Invalid API key or blocked IP. Check your API access settings.",
+                "INVALID_SENDER" => "The sender value is not allowed.",
+                "INVALID_DESTINATION" => "Invalid recipient number format. Must be MSISDN format.",
+                "INVALID_TEXT" => "Message text is empty or corrupted.",
+                "INVALID_DATETIME" => "Datetime format must be: YYYY-MM-DD HH:MM:SS.",
+                "NOT_ENOUGH_BALANCE" => "Insufficient balance to send SMS.",
+                "LIMIT_EXCEEDED" => "Exceeded maximum SMS messages per batch (1000).",
+                _ => errorMsg ?? "Unknown error occurred."
+            };
+
+            throw new SmsServiceException($"SmsUp error [{errorId}]: {userFriendlyMessage}");
+        }  else {
             var messageIds = string.Join(",", result.Select(r => r.SmsId));
             return new SendReceipt(messageIds, DateTimeOffset.UtcNow);
         }          
