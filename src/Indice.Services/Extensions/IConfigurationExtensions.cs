@@ -18,6 +18,14 @@ public static class IConfigurationExtensions
     /// <remarks>Checks for the <strong>General:UseHttpsRedirection</strong> option in appsettings.json file. When true you can register HttpsPolicyBuilderExtensions.UseHttpsRedirection(IApplicationBuilder) middleware.</remarks>
     public static bool UseHttpsRedirection(this IConfiguration configuration) => configuration.GetSection(GeneralSettings.Name).GetValue<bool>(nameof(GeneralSettings.UseHttpsRedirection));
 
+    /// <summary>
+    /// Determines whether client certificate forwarding is enabled based on the configuration settings. 
+    /// </summary>
+    /// <remarks>This allows client certificates to be loaded behind a reverse proxy, such as Nginx or Apache, which is useful in scenarios where the application is hosted behind a load balancer or reverse proxy that handles SSL termination.</remarks>
+    /// <param name="configuration">The configuration instance to retrieve the setting from.</param>
+    /// <returns><see langword="true"/> if certificate forwarding is enabled; otherwise, <see langword="false"/>.</returns>
+    public static bool UseCertificateForwarding(this IConfiguration configuration) => configuration.GetSection(GeneralSettings.Name).GetValue<bool>(nameof(GeneralSettings.UseCertificateForwarding));
+
     /// <summary>A flag that indicates whether to redirect the setting that is defined in <see cref="GeneralSettings.Host"/>.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns>True if specified flag is set to true, otherwise false.</returns>
@@ -111,6 +119,7 @@ public static class IConfigurationExtensions
     /// <returns>Example can be https://idp.example.com/.well-known/openid-configuration</returns>
     /// <remarks>Checks either the <strong>General:AuthorityInternal</strong> or <strong>General:Authority</strong> option in appsettings.json file. Depends up on the <paramref name="tryInternal"/> parameter.</remarks>
     public static string GetAuthorityMetadata(this IConfiguration configuration, bool tryInternal = false) => $"{GetAuthority(configuration, tryInternal)}/.well-known/openid-configuration";
+
 
     /// <summary>Get an object class that represents all the configuration for an Api.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>

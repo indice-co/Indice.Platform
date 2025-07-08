@@ -16,7 +16,7 @@ public class LockManagerAzure : ILockManager
     /// <summary>
     /// Azure maximum duration a lock lease can be acquired for
     /// </summary>
-    private const int MAX_LOCK_DURATION_SECONDS = 60;
+    private const int MAX_LOCK_DURATION_SECONDS = 59;
 
     /// <summary>The default name of the storage connection string.</summary>
     public const string CONNECTION_STRING_NAME = "StorageConnection";

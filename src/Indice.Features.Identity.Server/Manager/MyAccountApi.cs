@@ -32,48 +32,56 @@ public static class MyAccountApi
              .WithName(nameof(MyAccountHandlers.UpdateEmail))
              .WithSummary("Updates the email of the current user.")
              .WithParameterValidation<UpdateUserEmailRequest>()
+             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.UpdateEmail)
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/email/confirmation", MyAccountHandlers.ConfirmEmail)
              .WithName(nameof(MyAccountHandlers.ConfirmEmail))
              .WithSummary("Confirms the email address of a given user.")
              .WithParameterValidation<ConfirmEmailRequest>()
+             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.EmailConfirmation)
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/phone-number", MyAccountHandlers.UpdatePhoneNumber)
              .WithName(nameof(MyAccountHandlers.UpdatePhoneNumber))
              .WithSummary("Requests a phone number change for the current user.")
              .WithParameterValidation<UpdateUserPhoneNumberRequest>()
+             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.UpdatePhoneNumber)
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/phone-number/confirmation", MyAccountHandlers.ConfirmPhoneNumber)
              .WithName(nameof(MyAccountHandlers.ConfirmPhoneNumber))
              .WithSummary("Confirms the phone number of the user, using the OTP token.")
              .WithParameterValidation<ConfirmPhoneNumberRequest>()
+             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.PhoneNumberConfirmation)
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/email/change", MyAccountHandlers.EmailChange)
              .WithName(nameof(MyAccountHandlers.EmailChange))
              .WithSummary("Request email change for the current user.")
              .WithParameterValidation<ChangeUserEmailRequest>()
+             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.ChangeEmail)
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/email/change-confirmation", MyAccountHandlers.ConfirmEmailChange)
              .WithName(nameof(MyAccountHandlers.ConfirmEmailChange))
              .WithSummary("Confirms the email address change of the current user and saves.")
              .WithParameterValidation<ConfirmEmailChangeRequest>()
+             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.EmailChangeConfirmation)
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/phone-number/change", MyAccountHandlers.PhoneNumberChange)
              .WithName(nameof(MyAccountHandlers.PhoneNumberChange))
              .WithSummary("Requests phone number change for the current user.")
              .WithParameterValidation<ChangeUserPhoneNumberRequest>()
+             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.ChangePhoneNumber)
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/phone-number/change-confirmation", MyAccountHandlers.ConfirmPhoneNumberChange)
              .WithName(nameof(MyAccountHandlers.ConfirmPhoneNumberChange))
              .WithSummary("Confirms the phone number change via OTP for the current user and saves.")
              .WithParameterValidation<ConfirmPhoneNumberChangeRequest>()
+             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.ChangePhoneNumberConfirmation)
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/block", MyAccountHandlers.BlockAccount)

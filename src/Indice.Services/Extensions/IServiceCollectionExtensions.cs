@@ -136,6 +136,19 @@ public static class IndiceServicesServiceCollectionExtensions
         return services;
     }
 
+    /// <summary>Adds an implementation of <see cref="ISmsService"/> using Twilio SMS service gateway.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <param name="configure">Configure the available options. Null to use defaults.</param>
+    public static IServiceCollection AddSmsServiceTwilio(this IServiceCollection services, IConfiguration configuration, Action<SmsServiceTwilioSettings>? configure = null) {
+        services.Configure<SmsServiceTwilioSettings>(configuration.GetSection(SmsServiceSettings.Name));
+        services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
+        var options = new SmsServiceTwilioSettings();
+        configure?.Invoke(options);
+        services.AddHttpClient<ISmsService, SmsServiceTwilio>();
+        return services;
+    }
+
     /// <summary>Adds an implementation of <see cref="ISmsService"/> using Apifon SMS service gateway.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>

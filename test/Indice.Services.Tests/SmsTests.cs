@@ -134,6 +134,48 @@ public class SmsTests
     }
 
     [Theory(Skip = "Sensitive Data")]
+    [InlineData("", "Hello from INDICE", "", "", "", "", "", "")]
+    public async Task TestTwilioSms(string phoneNumber, string body, string accountSid, string apiKey, string secret, string sender, string authToken, string messagingServiceSid) {
+        
+        var inMemorySettings = new Dictionary<string, string> {
+            ["Sms:AccountSid"] = accountSid
+        };
+        // Use MessagingServiceSid if present; otherwise use From number
+        if (!string.IsNullOrWhiteSpace(messagingServiceSid)) {
+            inMemorySettings["Sms:MessagingServiceSid"] = messagingServiceSid;
+        } else {
+            inMemorySettings["Sms:SenderPhoneNumber"] = sender;
+        }
+        // Use Secret and ApiKey if present; otherwise use AuthToken number
+        if (!string.IsNullOrWhiteSpace(secret) && !string.IsNullOrWhiteSpace(apiKey)) {
+            inMemorySettings["Sms:ApiKey"] = apiKey;
+            inMemorySettings["Sms:Secret"] = secret;
+        } else {
+            inMemorySettings["Sms:AuthToken"] = authToken;
+        }
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(inMemorySettings)
+            .Build();
+
+        var collection = new ServiceCollection()
+          .AddSingleton(configuration)
+          .AddOptions()
+          .Configure<SmsServiceTwilioSettings>(configuration.GetSection(SmsServiceTwilioSettings.Name))
+          .AddSmsServiceTwilio(configuration);
+
+        var serviceProvider = collection.BuildServiceProvider();
+        var error = default(Exception);
+
+        try {
+            var service = serviceProvider.GetRequiredService<ISmsService>();
+            await service.SendAsync(phoneNumber, "subject", body);
+        } catch (Exception smsServiceException) {
+            error = smsServiceException;
+        }
+        Assert.Null(error);
+    }
+
+    [Theory(Skip = "Sensitive Data")]
     [InlineData("", "", "", "Test Subject", "Test Body", "Test")]
     public async Task TestMstatSms(string apiToken, string phoneNumber, string sender, string subject, string body, string senderName) {
 

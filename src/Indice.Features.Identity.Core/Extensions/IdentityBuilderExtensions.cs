@@ -13,6 +13,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+#if NET9_0_OR_GREATER
+using Indice.Features.Identity.Core.TokenCleanup;
+using Duende.IdentityServer.EntityFramework;
+#endif
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -251,4 +255,17 @@ public static class IdentityBuilderExtensions {
         builder.AddExtendedErrorDescriber<ExtendedIdentityErrorDescriber>();
         return builder;
     }
+
+#if NET9_0_OR_GREATER
+    /// <summary>
+    /// Registers an alternative implementation of <see cref="TokenCleanupService"/>   
+    /// that user an alternative way to delete records and removes events. 
+    /// </summary>
+    /// <param name="builder">instance</param>
+    /// <returns>The current <see cref="IdentityBuilder"/> instance.</returns>
+    public static IdentityBuilder AddFastCleanUpService(this IdentityBuilder builder) {
+        builder.Services.AddTransient<ITokenCleanupService, FastTokenCleanupService>();
+        return builder;
+    }
+#endif
 }
