@@ -38,7 +38,7 @@ public static class RequireOtpFilterExtensions
             // We can respond with problem details if there's a validation error.
             endpointBuilder.Metadata.Add(new ProducesResponseTypeMetadata(StatusCodes.Status400BadRequest, typeof(HttpValidationProblemDetails), ["application/problem+json"]));
 #if NET9_0_OR_GREATER
-            endpointBuilder.Metadata.Add(new ExtraHeaderParameterMetadata(policy.HeaderName, required: false, "The TOTP code"));
+            endpointBuilder.Metadata.Add(new ExtraHeaderParameterMetadata(policy.HeaderName, Required: false, "The TOTP code"));
 #endif
             endpointBuilder.FilterFactories.Add((context, next) => {
                 return new EndpointFilterDelegate(async (invocationContext) => {

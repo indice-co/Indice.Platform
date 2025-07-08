@@ -381,6 +381,6 @@ public static class OpenApiExtensions
 /// Represents endpoint metadata indicating an OpenApi endpoint requires an extra header to be displayed.
 /// </summary>
 /// <remarks>This will be used to expose a header.</remarks>
-public record ExtraHeaderParameterMetadata(string HeaderName, bool required, string? Description = null);
+public record ExtraHeaderParameterMetadata(string HeaderName, bool Required, string? Description = null);
 
 #endif
