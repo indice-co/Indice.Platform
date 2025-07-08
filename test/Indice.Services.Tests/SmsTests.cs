@@ -175,7 +175,7 @@ public class SmsTests
         Assert.Null(error);
     }
 
-    [Theory(Skip = "Sensitive Data"))]
+    [Theory(Skip = "Sensitive Data")]
     [InlineData("", "Hello from INDICE", "", "", "", "", "")]
     public async Task TestSmsUpSms(string phoneNumber, string body,string apiKey, string reportUrl, string sender, string concat, string fake) {
 
