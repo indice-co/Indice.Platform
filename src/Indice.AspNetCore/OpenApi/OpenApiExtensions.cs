@@ -32,8 +32,9 @@ public static class OpenApiExtensions
     /// settings, the corresponding fields in the OpenAPI document will remain unset.</remarks>
     /// <param name="options">The <see cref="OpenApiOptions"/> instance to which the transformer will be added. Cannot be <see
     /// langword="null"/>.</param>
+    /// <param name="documentTitle">Specify the document title explicitly. If null the title will be populated from configuration.</param>
     /// <returns>The updated <see cref="OpenApiOptions"/> instance with the document transformer applied.</returns>
-    public static OpenApiOptions AddDocumentInfo(this OpenApiOptions options) {
+    public static OpenApiOptions AddDocumentInfo(this OpenApiOptions options, string? documentTitle = null) {
         ArgumentNullException.ThrowIfNull(options);
         options.AddDocumentTransformer((document, context, cancellationToken) => {
             var configuration = context.ApplicationServices.GetRequiredService<IConfiguration>();
@@ -42,8 +43,9 @@ public static class OpenApiExtensions
             var contact = apiSettings.Contact == null ? null : new OpenApiContact { Name = apiSettings.Contact.Name, Url = new Uri(apiSettings.Contact.Url!), Email = apiSettings.Contact.Email };
             document.Info.Contact = contact;
             document.Info.License = license;
-            if (!string.IsNullOrWhiteSpace(apiSettings.FriendlyName)) { 
-                document.Info.Title = apiSettings.FriendlyName;
+            var title = documentTitle ?? apiSettings.FriendlyName;
+            if (!string.IsNullOrWhiteSpace(title)) { 
+                document.Info.Title = title;
             }
             return Task.CompletedTask;
         });
