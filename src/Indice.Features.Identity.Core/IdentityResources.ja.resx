@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="DeviceAlreadyTrusted" xml:space="preserve">
+    <value>このデバイスは既に登録されています。</value>
+  </data>
+  <data name="DevicePendingTrustActivation" xml:space="preserve">
+    <value>デバイス登録の確認が保留中です。</value>
+  </data>
+  <data name="DeviceRegistrationOtpCode" xml:space="preserve">
+    <value>デバイス {0} の登録用OTPコードは {1} です。</value>
+  </data>
+  <data name="EmailAlreadyConfirmed" xml:space="preserve">
+    <value>メールアドレスは既に確認されています。</value>
+  </data>
+  <data name="EmailUpdateMessageBody" xml:space="preserve">
+    <value>メールアドレス確認コードは {0} です。</value>
+  </data>
+  <data name="EmailUpdateMessageSubject" xml:space="preserve">
+    <value>アカウント確認</value>
+  </data>
+  <data name="ForgotPasswordMessageBody" xml:space="preserve">
+    <value>新しいパスワードを作成するには、&lt;a href="{0}"&gt;このリンク&lt;/a&gt;をクリックしてください。</value>
+  </data>
+  <data name="ImpossibleTravelOtpMessage" xml:space="preserve">
+    <value>不審なログイン試行。OTPコードは {0} です。</value>
+  </data>
+  <data name="ImpossibleTravelOtpSubject" xml:space="preserve">
+    <value>新しい場所からの不審なログイン試行</value>
+  </data>
+  <data name="InsufficientNumberOfDevices" xml:space="preserve">
+    <value>ユーザーは少なくとも1台のデバイスを持っている必要があります。</value>
+  </data>
+  <data name="InvalidPhoneNumber" xml:space="preserve">
+    <value>電話番号 '{0}' は無効です。</value>
+  </data>
+  <data name="LargeNumberOfDevices" xml:space="preserve">
+    <value>最大デバイス数を {0} に設定できません。最大許容値は {1} です。</value>
+  </data>
+  <data name="LargeNumberOfUserDevices" xml:space="preserve">
+    <value>ユーザーは既に {0} 台のデバイスを持っています。最大数を {1} に設定できません。</value>
+  </data>
+  <data name="MaxNumberOfDevices" xml:space="preserve">
+    <value>登録済みデバイスの最大数に達しました。</value>
+  </data>
+  <data name="OtpSecuredValidatorOtpBody" xml:space="preserve">
+    <value>確認コードは '{0}' です。</value>
+  </data>
+  <data name="OtpSecuredValidatorOtpSubject" xml:space="preserve">
+    <value>OTP確認</value>
+  </data>
+  <data name="PhoneNumberAlreadyConfirmed" xml:space="preserve">
+    <value>ユーザーの電話番号は既に確認されています。</value>
+  </data>
+  <data name="PhoneNumberVerificationMessage" xml:space="preserve">
+    <value>SMSによる確認コードは {0} です。</value>
+  </data>
+  <data name="RequiresOtpMessage" xml:space="preserve">
+    <value>OTPコードは {0} です。</value>
+  </data>
+  <data name="TrustedDeviceRequiresOtpMessage" xml:space="preserve">
+    <value>OTPコードは {0} です。</value>
+  </data>
+  <data name="TrustedDevicesLimitReached" xml:space="preserve">
+    <value>信頼できるデバイスの最大数に達しました。</value>
+  </data>
+  <data name="UserAlreadyHasEmail" xml:space="preserve">
+    <value>ユーザーは既にメールアドレス '{0}' を持っています。</value>
+  </data>
+  <data name="UserAlreadyHasPhoneNumber" xml:space="preserve">
+    <value>ユーザーは既に電話番号 '{0}' を持っています。</value>
+  </data>
+  <data name="ConfirmationEmailSubject" xml:space="preserve">
+    <value>アカウント確認</value>
+  </data>
+  <data name="PhoneVerificationSmsSubject" xml:space="preserve">
+    <value>電話番号を確認してください</value>
+  </data>
+  <data name="PhoneVerificationSmsBody" xml:space="preserve">
+    <value>OTPコード: {0} 電話番号確認用。コードの有効期限は2分です。</value>
+  </data>
+  <data name="ConfirmationEmailChangeSubject" xml:space="preserve">
+    <value>メールアドレス変更の確認</value>
+  </data>
+  <data name="EmailChangeMessageBody" xml:space="preserve">
+    <value>メールアドレス確認コードは {0} です。</value>
+  </data>
+  <data name="PhoneChangeVerificationSmsSubject" xml:space="preserve">
+    <value>新しい電話番号を確認してください</value>
+  </data>
+  <data name="PhoneChangeVerificationSmsBody" xml:space="preserve">
+    <value>OTPコード: {0} 電話番号確認用。コードの有効期限は2分です。</value>
+  </data>
+  <data name="PhoneNumberChangeVerificationMessage" xml:space="preserve">
+    <value>SMSによる確認コードは {0} です。</value>
+  </data>
+  <data name="RegisterEmailSubject" xml:space="preserve">
+    <value>{0} サービスへようこそ！</value>
+  </data>
+  <data name="PasswordChangedEventSubject" xml:space="preserve">
+    <value>パスワード変更</value>
+  </data>
+  <data name="SecurityNotificationDefaultSubject" xml:space="preserve">
+    <value>{0} のセキュリティ通知</value>
+  </data>
+  <data name="AddEmailValidationEmailEmpty" xml:space="preserve">
+    <value>続行する前にメールアドレスを入力して確認してください。</value>
+  </data>
+  <data name="AddEmailConfirmationEmailSend" xml:space="preserve">
+    <value>確認メールが下記アドレスに送信されました。</value>
+  </data>
+  <data name="AddPhoneValidationPhoneEmpty" xml:space="preserve">
+    <value>続行する前に電話番号を選択して確認してください。</value>
+  </data>
+  <data name="ForgotPasswordMessageSubject" xml:space="preserve">
+    <value>パスワードのリセット</value>
+  </data>
+  <data name="ForgotPasswordConfirmationError" xml:space="preserve">
+    <value>エラー</value>
+  </data>
+  <data name="LoginValidationInvalidCredentials" xml:space="preserve">
+    <value>ログイン情報を確認してください。</value>
+  </data>
+  <data name="MfaAddPhoneValidationPhoneEmpty" xml:space="preserve">
+    <value>続行する前に電話番号を選択して確認してください。</value>
+  </data>
+  <data name="MfaAddPhoneSuccessMessage" xml:space="preserve">
+    <value>アカウントのMFAが正常に有効化されました。ログインしてアカウントにアクセスしてください。</value>
+  </data>
+  <data name="MfaAddPhoneValidationPhoneAlreadyConfirmed" xml:space="preserve">
+    <value>電話番号は既に確認済みです。MFAを有効化するには続行してください。</value>
+  </data>
+  <data name="MfaVerifyPhoneValidationMissingPhone" xml:space="preserve">
+    <value>携帯電話に届いたコードを入力してください。</value>
+  </data>
+  <data name="MfaVerifyPhoneSuccessMessage" xml:space="preserve">
+    <value>電話番号が正常に確認されました。「次へ」ボタンを押して続行してください。</value>
+  </data>
+  <data name="PasswordChangedSuccessfully" xml:space="preserve">
+    <value>パスワードが正常に変更されました。「次へ」ボタンを押して続行してください。</value>
+  </data>
+  <data name="ProfileExternalLoginAddedSuccessMessage" xml:space="preserve">
+    <value>外部アカウントがプロフィールに正常に追加されました。</value>
+  </data>
+  <data name="RegisterPhoneConfirmationPrompt" xml:space="preserve">
+    <value>携帯電話に届いたコードを入力してください。</value>
+  </data>
+  <data name="MfaSmsSubject" xml:space="preserve">
+    <value>OTPでサインイン</value>
+  </data>
+  <data name="MfaSmsBody" xml:space="preserve">
+    <value>サインイン用OTPコード: {0}</value>
+  </data>
+  <data name="MfaValidationError" xml:space="preserve">
+    <value>OTPコードが無効です。</value>
+  </data>
+  <data name="LoginErrorLockedMessage" xml:space="preserve">
+    <value>アカウントは一時的にロックされています。システム管理者に連絡してください。</value>
+  </data>
+  <data name="PasswordExpiredMessage" xml:space="preserve">
+    <value>パスワードの有効期限が切れています。新しいパスワードを選択してください。</value>
+  </data>
+  <data name="UI_Validator_AddPassword_NewPassword_FieldName" xml:space="preserve">
+    <value>新しいパスワード</value>
+  </data>
+  <data name="UI_Validator_AddPassword_ConfirmPassword_FieldName" xml:space="preserve">
+    <value>パスワード確認</value>
+  </data>
+  <data name="UI_Validator_PasswordExpired_NewPassword_Empty_Error" xml:space="preserve">
+    <value>'新しいパスワード' フィールドは空にできません。</value>
+  </data>
+  <data name="UI_Validator_PasswordExpired_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>'新しいパスワード確認' フィールドは空にできません。</value>
+  </data>
+  <data name="UI_Validator_PasswordExpired_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>'新しいパスワード確認' フィールドは '新しいパスワード' フィールドと一致する必要があります。</value>
+  </data>
+  <data name="UI_Validator_AddEmail_Email_FieldName" xml:space="preserve">
+    <value>メールアドレス</value>
+  </data>
+  <data name="UI_Validator_AddPhone_CallingCode_FieldName" xml:space="preserve">
+    <value>電話コード</value>
+  </data>
+  <data name="UI_Validator_AddPhone_PhoneNumber_FieldName" xml:space="preserve">
+    <value>電話番号</value>
+  </data>
+  <data name="UI_Validator_AddPhone_PhoneNumber_InvalidFormat" xml:space="preserve">
+    <value>電話番号の形式が正しくありません。</value>
+  </data>
+  <data name="UI_Validator_ChangePassword_OldPassword_FieldName" xml:space="preserve">
+    <value>現在のパスワード</value>
+  </data>
+  <data name="UI_Validator_ChangePassword_NewPassword_FieldName" xml:space="preserve">
+    <value>新しいパスワード</value>
+  </data>
+  <data name="UI_Validator_EnableMfaSms_PhoneNumber_FieldName" xml:space="preserve">
+    <value>電話番号</value>
+  </data>
+  <data name="UI_Validator_EnableMfaSms_PhoneNumber_InvalidFormat" xml:space="preserve">
+    <value>電話番号の形式が正しくありません。</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_Email_FieldName" xml:space="preserve">
+    <value>メールアドレス</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPassword_FieldName" xml:space="preserve">
+    <value>新しいパスワード</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_Token_FieldName" xml:space="preserve">
+    <value>トークン</value>
+  </data>
+  <data name="UI_Validator_ForgotPassword_Email_FieldName" xml:space="preserve">
+    <value>メールアドレス</value>
+  </data>
+  <data name="UI_Validator_Login_UserName_FieldName" xml:space="preserve">
+    <value>ユーザー名</value>
+  </data>
+  <data name="UI_Validator_Login_Password_FieldName" xml:space="preserve">
+    <value>パスワード</value>
+  </data>
+  <data name="UI_Validator_MfaOnboarding_SelectedAuthenticationMethod_FieldName" xml:space="preserve">
+    <value>選択した認証方法</value>
+  </data>
+  <data name="UI_Validator_MfaOnboarding_SelectedAuthenticationMethod_Required" xml:space="preserve">
+    <value>利用可能な認証方法のいずれかを選択してください。</value>
+  </data>
+  <data name="UI_Validator_Profile_UserName_FieldName" xml:space="preserve">
+    <value>ユーザー名</value>
+  </data>
+  <data name="UI_Validator_Profile_UserName_InvalidFormat" xml:space="preserve">
+    <value>'ユーザー名' フィールドは数字、大文字・小文字のラテン文字、記号 -._@+ を受け付けます。</value>
+  </data>
+  <data name="UI_Validator_Profile_Email_FieldName" xml:space="preserve">
+    <value>メールアドレス</value>
+  </data>
+  <data name="UI_Validator_Profile_CallingCode_FieldName" xml:space="preserve">
+    <value>電話コード</value>
+  </data>
+  <data name="UI_Validator_Profile_PhoneNumber_FieldName" xml:space="preserve">
+    <value>携帯電話</value>
+  </data>
+  <data name="UI_Validator_Profile_PhoneNumber_InvalidFormat" xml:space="preserve">
+    <value>携帯電話の形式が正しくありません。</value>
+  </data>
+  <data name="UI_Validator_Profile_Tin_FieldName" xml:space="preserve">
+    <value>納税者番号</value>
+  </data>
+  <data name="UI_Validator_Profile_Tin_InvalidFormat" xml:space="preserve">
+    <value>'納税者番号' フィールドが無効です。</value>
+  </data>
+  <data name="UI_Validator_Register_UserName_InvalidFormat" xml:space="preserve">
+    <value>'{PropertyName}' フィールドは数字、大文字・小文字のラテン文字、記号 -._@+ を受け付けます。</value>
+  </data>
+  <data name="UI_Validator_Register_UserName_AlreadyExists" xml:space="preserve">
+    <value>入力したユーザー名は既に使用されています。別のユーザー名を選択してください。</value>
+  </data>
+  <data name="UI_Validator_Register_Email_AlreadyExists" xml:space="preserve">
+    <value>入力したメールアドレスは既に使用されています。別のメールアドレスを選択してください。</value>
+  </data>
+  <data name="UI_Validator_Register_AcceptTerms_Message" xml:space="preserve">
+    <value>サービス利用規約に同意する必要があります。</value>
+  </data>
+  <data name="UI_Validator_Register_ReadPrivacyPolicy_Message" xml:space="preserve">
+    <value>プライバシーポリシーを確認する必要があります。</value>
+  </data>
+  <data name="UI_Validator_Register_PhoneNumber_InvalidFormat" xml:space="preserve">
+    <value>携帯電話の形式が正しくありません。</value>
+  </data>
+  <data name="UI_Validator_Register_FirstName_FieldName" xml:space="preserve">
+    <value>名</value>
+  </data>
+  <data name="UI_Validator_Register_LastName_FieldName" xml:space="preserve">
+    <value>姓</value>
+  </data>
+  <data name="UI_Validator_Register_UserName_FieldName" xml:space="preserve">
+    <value>ユーザー名</value>
+  </data>
+  <data name="UI_Validator_Register_Password_FieldName" xml:space="preserve">
+    <value>パスワード</value>
+  </data>
+  <data name="UI_Validator_Register_Email_FieldName" xml:space="preserve">
+    <value>メールアドレス</value>
+  </data>
+  <data name="UI_Validator_Register_CallingCode_FieldName" xml:space="preserve">
+    <value>電話コード</value>
+  </data>
+  <data name="UI_Validator_VerifyPhone_PhoneNumber_FieldName" xml:space="preserve">
+    <value>電話番号</value>
+  </data>
+  <data name="UI_Validator_VerifyPhone_PhoneNumber_InvalidFormat" xml:space="preserve">
+    <value>携帯電話の形式が正しくありません。</value>
+  </data>
+  <data name="UI_Validator_VerifyPhone_Code_FieldName" xml:space="preserve">
+    <value>コード</value>
+  </data>
+</root>

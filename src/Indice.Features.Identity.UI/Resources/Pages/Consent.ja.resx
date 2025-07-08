@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Accept" xml:space="preserve">
+    <value>承諾</value>
+  </data>
+  <data name="app" xml:space="preserve">
+    <value>アプリ</value>
+  </data>
+  <data name="Application Access" xml:space="preserve">
+    <value>アプリケーションアクセス</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="code" xml:space="preserve">
+    <value>コード</value>
+  </data>
+  <data name="Consent" xml:space="preserve">
+    <value>同意</value>
+  </data>
+  <data name="Personal Information" xml:space="preserve">
+    <value>個人情報</value>
+  </data>
+  <data name="Remember My Decision" xml:space="preserve">
+    <value>決定を記憶する</value>
+  </data>
+  <data name="Security code" xml:space="preserve">
+    <value>セキュリティコード</value>
+  </data>
+  <data name="send" xml:space="preserve">
+    <value>送信</value>
+  </data>
+  <data name="This" xml:space="preserve">
+    <value>この</value>
+  </data>
+  <data name="This app would like to" xml:space="preserve">
+    <value>このアプリは次のことを希望します</value>
+  </data>
+  <data name="to your phone" xml:space="preserve">
+    <value>あなたの携帯電話へ</value>
+  </data>
+  <data name="Uncheck the permissions you do not wish to grant." xml:space="preserve">
+    <value>許可したくない権限のチェックを外してください。</value>
+  </data>
+  <data name="would like to" xml:space="preserve">
+    <value>希望します</value>
+  </data>
+</root>

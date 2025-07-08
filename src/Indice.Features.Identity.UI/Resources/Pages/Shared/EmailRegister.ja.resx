@@ -118,33 +118,33 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="here" xml:space="preserve">
-    <value>aquí</value>
+    <value>こちら</value>
   </data>
   <data name="Hi" xml:space="preserve">
-    <value>Hola</value>
+    <value>こんにちは</value>
   </data>
   <data name="If you did not create an account, you can safely ignore this email." xml:space="preserve">
-    <value>Si no creó una cuenta, puede ignorar este correo electrónico de forma segura.</value>
+    <value>アカウントを作成していない場合は、このメールを無視してください。</value>
   </data>
   <data name="To complete your registration, please confirm your email address by clicking" xml:space="preserve">
-    <value>Para completar su registro, confirme su dirección de correo electrónico haciendo clic</value>
+    <value>登録を完了するには、メールアドレスを確認してください。</value>
   </data>
   <data name="to get verified" xml:space="preserve">
-    <value>para verificarlo</value>
+    <value>認証するために</value>
   </data>
   <data name="We need you to verify your email. Please click" xml:space="preserve">
-    <value>Necesitamos que verifique su correo electrónico. Por favor haga clic</value>
+    <value>メールアドレスの確認が必要です。クリックしてください</value>
   </data>
   <data name="Welcome to {0}! Please confirm your email to get started." xml:space="preserve">
-    <value>¡Bienvenido a {0}! Por favor confirme su correo electrónico para comenzar.</value>
+    <value>{0} へようこそ！ご利用開始のためにメールアドレスを確認してください。</value>
   </data>
   <data name="Welcome to {0}! We’re excited to have you on board." xml:space="preserve">
-    <value>¡Bienvenido a {0}! Nos alegra tenerle con nosotros.</value>
+    <value>{0} へようこそ！ご参加いただきありがとうございます。</value>
   </data>
   <data name="Sincerely" xml:space="preserve">
-    <value>Atentamente</value>
+    <value>敬具</value>
   </data>
   <data name="Thank you for joining!" xml:space="preserve">
-    <value>¡Gracias por unirse!</value>
+    <value>ご参加ありがとうございます！</value>
   </data>
 </root>
