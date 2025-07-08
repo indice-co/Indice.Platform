@@ -30,7 +30,8 @@ public static class ClientsApi
             .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
         );
-        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes) // obsolete, use WithOpenApiSecurityRequirement instead
+             .WithOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized);
 
