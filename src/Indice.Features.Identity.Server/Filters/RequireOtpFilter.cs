@@ -6,7 +6,6 @@ using Indice.Features.Identity.Core.Totp;
 using Indice.Features.Identity.Server.Options;
 using Indice.Security;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using static Microsoft.AspNetCore.Http.RequireOtpFilterExtensions;

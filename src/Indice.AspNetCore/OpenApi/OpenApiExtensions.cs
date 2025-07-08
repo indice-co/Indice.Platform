@@ -1,12 +1,9 @@
 ﻿#if NET9_0_OR_GREATER
-using System.Linq;
-using Azure;
 using Indice.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Models;
-using Polly;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
