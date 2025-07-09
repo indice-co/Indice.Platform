@@ -63,7 +63,7 @@ public class SmsServiceSmsUp : ISmsService
         };
 
         var requestJson = JsonSerializer.Serialize(request, GetJsonSerializerOptions());
-        var content = new StringContent(requestJson, Encoding.UTF8, MediaTypeNames.Application.Json);
+        using var content = new StringContent(requestJson, Encoding.UTF8, MediaTypeNames.Application.Json);
 
         HttpResponseMessage httpResponse;
         try {
