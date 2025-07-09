@@ -1,6 +1,11 @@
 ﻿#if NET9_0_OR_GREATER
+using System.Collections.Immutable;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Indice.Configuration;
+using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Models;
@@ -9,6 +14,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 // useful resources
 //https://www.youtube.com/watch?v=pkQdwbYPRP4
+//https://github.com/mikekistler/aspnet-transformer-gallery
 
 /// <summary>
 /// Provides extension methods for configuring OpenAPI options, including security schemes and document metadata.
@@ -42,21 +48,64 @@ public static class OpenApiExtensions
             document.Info.Contact = contact;
             document.Info.License = license;
             var title = documentTitle ?? apiSettings.FriendlyName;
-            if (!string.IsNullOrWhiteSpace(title)) { 
+            if (!string.IsNullOrWhiteSpace(title)) {
                 document.Info.Title = title;
             }
             return Task.CompletedTask;
         });
-        options.AddOperationTransformer((operation, context, cancellationToken) => {
-            if (context.Description.ActionDescriptor.EndpointMetadata.OfType<OpenApiSecurityRequirement>().Any() &&
-                !context.Description.ActionDescriptor.EndpointMetadata.OfType<IAllowAnonymous>().Any()) {
-                var securityRequirements = context.Description.ActionDescriptor.EndpointMetadata.OfType<OpenApiSecurityRequirement>();
-                operation.Security = [.. securityRequirements];
+
+        //options.MapType<dynamic>(new () { Type = "object" });
+        //options.MapType<JsonNode>(new () { Type = "object" });
+        //options.MapType<JsonElement>(new() { Type = "object" });
+        options.MapType<Stream>(new() { Type = "string", Format = "binary" });
+        options.MapType<IFormFile>(new() { Type = "string", Format = "binary" });
+        options.MapType<FilterClause>(new() { Type = "string" });
+        options.MapType<GeoPoint>(new() { Type = "string" });
+        options.MapType<Base64Id>(new() { Type = "string" });
+        options.MapType<GuidOrAlias>(new() { Type = "string" });
+        options.MapType<Base64Host>(new() { Type = "string" });
+        options.AddSchemaTransformer(TypeTransformer.TransformAsync);
+        options.AddEndpointSecurityRequirementsTransformer();
+        options.AddProblemResponseTransformer();
+        options.AddNullableTransformer();
+        options.AddDocumentTransformer<CanonicalDocumentTransformer>();
+        return options;
+    }
+
+    /// <summary>
+    /// Maps the specified type to the provided OpenAPI schema.
+    /// </summary>
+    /// <remarks>This method associates the specified type <typeparamref name="T"/> with the given OpenAPI
+    /// schema. It is typically used to customize the schema representation for a specific type in OpenAPI
+    /// documentation.</remarks>
+    /// <typeparam name="T">The type to be mapped to the OpenAPI schema.</typeparam>
+    /// <param name="options">The <see cref="OpenApiOptions"/> instance to configure.</param>
+    /// <param name="schema">The <see cref="OpenApiSchema"/> to which the type will be mapped. Cannot be <see langword="null"/>.</param>
+    /// <returns>The same <see cref="OpenApiOptions"/> instance passed as the <paramref name="options"/> parameter, allowing for
+    /// method chaining.</returns>
+    public static OpenApiOptions MapType<T>(this OpenApiOptions options, OpenApiSchema schema) {
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(schema);
+        TypeTransformer.MapType<T>(schema);
+        return options;
+    }
+    /// <summary>
+    /// Adds a document transformer to sort the endpoints (paths) in the OpenAPI document alphabetically.
+    /// </summary>
+    /// <remarks>This method modifies the OpenAPI document by sorting its paths alphabetically based on their
+    /// keys. It ensures that the paths in the document are ordered consistently, which can be useful for improving
+    /// readability or ensuring deterministic output in scenarios where path order matters.</remarks>
+    /// <param name="options">The <see cref="OpenApiOptions"/> instance to which the transformer is added.</param>
+    /// <returns>The updated <see cref="OpenApiOptions"/> instance with the sorting transformer applied.</returns>
+    public static OpenApiOptions SortByPath(this OpenApiOptions options) =>
+        options.AddDocumentTransformer((document, context, cancellationToken) => {
+            var paths = document.Paths.ToImmutableSortedDictionary();
+            document.Paths.Clear();
+            foreach (var item in paths) {
+                document.Paths.Add(item.Key, item.Value);
             }
             return Task.CompletedTask;
         });
-        return options;
-    }
 
     /// <summary>
     /// Configures the OpenAPI options to use the OAuth2 Authorization Code flow for authentication.
@@ -347,8 +396,8 @@ public static class OpenApiExtensions
         ArgumentException.ThrowIfNullOrWhiteSpace(schemeId);
 
         options.AddOperationTransformer((operation, context, cancellationToken) => {
-            if (operation.Security.Count == 0 && 
-                context.Description.ActionDescriptor.EndpointMetadata.OfType<IAuthorizeData>().Any() && 
+            if (operation.Security.Count == 0 &&
+                context.Description.ActionDescriptor.EndpointMetadata.OfType<IAuthorizeData>().Any() &&
                 !context.Description.ActionDescriptor.EndpointMetadata.OfType<IAllowAnonymous>().Any()) {
                 var configuration = context.ApplicationServices.GetRequiredService<IConfiguration>();
                 var apiSettings = configuration.GetApiSettings() ?? new ApiSettings();
