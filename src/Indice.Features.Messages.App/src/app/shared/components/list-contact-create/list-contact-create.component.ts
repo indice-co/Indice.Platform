@@ -1,5 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
-import { ComboboxComponent } from '@indice/ng-components';
+import { ComboboxComponent, EnhancedComboboxComponent } from '@indice/ng-components';
+import { lastValueFrom } from 'rxjs';
 import { settings } from 'src/app/core/models/settings';
 import { MessagesApiClient, Contact, ContactResultSet } from 'src/app/core/services/messages-api.service';
 
@@ -9,7 +10,7 @@ import { MessagesApiClient, Contact, ContactResultSet } from 'src/app/core/servi
 })
 export class ListContactCreateComponent implements AfterViewInit {
 
-  @ViewChild('contactsCombobox', { static: false }) public contactsCombobox!: ComboboxComponent;
+  @ViewChild('contactsCombobox', { static: false }) public contactsCombobox!: EnhancedComboboxComponent;
 
   @Output() onSubmit: EventEmitter<Contact[]> = new EventEmitter<Contact[]>();
   @Output() onCancel: EventEmitter<Contact[]> = new EventEmitter<Contact[]>();
@@ -26,20 +27,60 @@ export class ListContactCreateComponent implements AfterViewInit {
   public get anyContactEditing() {
       return false;
   }
-  public savedContacts: Contact[] = [];
+    public savedContacts: Contact[] = [];
 
-public onContactsSearch(searchTerm: string | undefined): void {
-    this.isLoading = true;
-    this._api
-      .getContacts(1, 10, 'email', searchTerm, undefined, undefined, undefined, undefined, true)
-        .subscribe((contacts: ContactResultSet) => {
-            this.contacts = contacts.items || [];
-            this.contacts.forEach((contact: Contact, index: number) => {
-                (<any>contact)['_index'] = index;
-            });
+    public displayShowMoreOption: boolean = false;
+    private _page: number = 1;
+    private _pageSize: number = 2;
+    private _lastSearchTerm: string | undefined = undefined;
+
+    public async onContactsSearch(searchTerm: string | undefined): Promise<void> {
+        this._page = 1;
+        this._lastSearchTerm = searchTerm;
+        this.isLoading = true;
+
+        try {
+            const fetchedContacts = await this._fetchContacts(this._lastSearchTerm);
+            if (!!fetchedContacts.items) {
+                this.contacts = fetchedContacts.items;
+                this.contacts.forEach((contact: Contact, index: number) => {
+                    (<any>contact)['_index'] = index;
+                });
+                this.displayShowMoreOption = fetchedContacts.items.length === this._pageSize;
+            }
+        } catch (error) {
+            console.error('Error fetching contacts:', error);
+        } finally {
             this.isLoading = false;
-        });
-}
+        }
+    }
+
+    public async onShowMore(): Promise<void> {
+        this._page++;
+        this.isLoading = true;
+
+        try {
+            const fetchedContacts = await this._fetchContacts(this._lastSearchTerm);
+            if (!!fetchedContacts.items) {
+                this.contacts = [...this.contacts, ...fetchedContacts.items];
+                this.contacts.forEach((contact: Contact, index: number) => {
+                    (<any>contact)['_index'] = index;
+                });
+                this.displayShowMoreOption = fetchedContacts.items.length === this._pageSize;
+            }
+        } catch (error) {
+            console.error('Error fetching more contacts:', error);
+        } finally {
+            this.isLoading = false;
+        }
+    }
+
+    private _fetchContacts(searchTerm: string | undefined): Promise<ContactResultSet> {
+        return lastValueFrom(
+            this._api.getContacts(this._page, this._pageSize, 'email', searchTerm, undefined, undefined, undefined, undefined, true)
+        );
+    }
+
 
 public onContactSelected(contact: Contact): void { }
 
