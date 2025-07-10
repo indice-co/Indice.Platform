@@ -21,13 +21,13 @@ internal static class TypeTransformer
             OpenApiSchema transformedSchema = transforms[context.JsonTypeInfo.Type];
             schema.Type = transformedSchema.Type;
             schema.Format = transformedSchema.Format;
-            schema.Annotations.Clear();
+            schema.Annotations?.Clear();
         }
         if (context.ParameterDescription is not null && transforms.ContainsKey(context.ParameterDescription.Type)) {
             OpenApiSchema transformedSchema = transforms[context.ParameterDescription.Type];
             schema.Type = transformedSchema.Type;
             schema.Format = transformedSchema.Format;
-            schema.Annotations.Clear();
+            schema.Annotations?.Clear();
         }
         if (schema.Properties is not null) {
             foreach (var property in schema.Properties) {

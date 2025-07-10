@@ -54,9 +54,9 @@ public static class OpenApiExtensions
             return Task.CompletedTask;
         });
 
-        //options.MapType<dynamic>(new () { Type = "object" });
-        //options.MapType<JsonNode>(new () { Type = "object" });
-        //options.MapType<JsonElement>(new() { Type = "object" });
+        options.MapType<dynamic>(new () { Type = "object" });
+        options.MapType<JsonNode>(new () { Type = "object" });
+        options.MapType<JsonElement>(new() { Type = "object" });
         options.MapType<Stream>(new() { Type = "string", Format = "binary" });
         options.MapType<IFormFile>(new() { Type = "string", Format = "binary" });
         options.MapType<FilterClause>(new() { Type = "string" });
@@ -64,6 +64,7 @@ public static class OpenApiExtensions
         options.MapType<Base64Id>(new() { Type = "string" });
         options.MapType<GuidOrAlias>(new() { Type = "string" });
         options.MapType<Base64Host>(new() { Type = "string" });
+
         options.AddSchemaTransformer(TypeTransformer.TransformAsync);
         options.AddEndpointSecurityRequirementsTransformer();
         options.AddNullableTransformer();
