@@ -66,7 +66,6 @@ public static class OpenApiExtensions
         options.MapType<Base64Host>(new() { Type = "string" });
         options.AddSchemaTransformer(TypeTransformer.TransformAsync);
         options.AddEndpointSecurityRequirementsTransformer();
-        options.AddProblemResponseTransformer();
         options.AddNullableTransformer();
         options.AddDocumentTransformer<CanonicalDocumentTransformer>();
         return options;
