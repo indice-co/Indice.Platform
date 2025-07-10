@@ -1,7 +1,5 @@
 #if NET9_0_OR_GREATER
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.Extensions.Azure;
-using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 
 namespace Microsoft.Extensions.DependencyInjection;
