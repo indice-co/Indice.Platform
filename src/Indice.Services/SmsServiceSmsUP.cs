@@ -33,6 +33,9 @@ public class SmsServiceSmsUp : ISmsService
         HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
+        ArgumentException.ThrowIfNullOrWhiteSpace(Settings.ApiKey);
+
+
         HttpClient.DefaultRequestHeaders.Accept.Clear();
         HttpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     }
@@ -45,21 +48,39 @@ public class SmsServiceSmsUp : ISmsService
         if (!PhoneNumber.TryParse(destination, out var phone))
             throw new ArgumentException("Invalid recipient phone number.", nameof(destination));
 
+        var recipients = (destination.Trim() ?? string.Empty).Split([","], StringSplitOptions.RemoveEmptyEntries).Select(part => part.Trim()).ToArray();
+
+        if (recipients == null) {
+            throw new ArgumentNullException(nameof(recipients));
+        }
+        if (recipients.Length == 0) {
+            throw new ArgumentException("Recipients list is empty.", nameof(recipients));
+        }
+        recipients = recipients.Select(recipient => {
+            if (!PhoneNumber.TryParse(recipient, out var phone)) {
+                throw new ArgumentException("Invalid recipients. Recipients should be valid phone numbers", nameof(recipients));
+            }
+            return phone.ToString("D");
+        })
+        .ToArray();
+
+        List<SmsUpMessage> messages = new List<SmsUpMessage>();
+        foreach (var recipient in recipients) {
+            SmsUpMessage smsUpMessage = new SmsUpMessage {
+                From = sender?.Id ?? Settings.Sender!, // fallback sender
+                To = recipient,
+                Text = body ?? subject ?? string.Empty,
+                Custom = Guid.NewGuid().ToString()
+            };
+            messages.Add(smsUpMessage);
+        }
+
         var request = new SmsUpRequest {
             ApiKey = Settings.ApiKey!,
             ReportUrl = Settings.ReportUrl,
             Concat = Settings.Concat,
             Fake = Settings.Fake,
-            Messages = new List<SmsUpMessage>
-            {
-                new SmsUpMessage
-                {
-                    From = sender?.Id ?? Settings.Sender!, // fallback sender
-                    To = phone.ToString("D"),
-                    Text = body ?? subject ?? string.Empty,
-                    Custom = Guid.NewGuid().ToString()
-                }
-            }
+            Messages = messages
         };
 
         var requestJson = JsonSerializer.Serialize(request, GetJsonSerializerOptions());
@@ -69,9 +90,12 @@ public class SmsServiceSmsUp : ISmsService
         try {
             Logger.LogInformation("Sending SMS via smsUp to {To}", phone.ToString("D"));
             httpResponse = await HttpClient.PostAsync(SMSUP_BASE_URL, content);
-        } catch (Exception ex) {
-            Logger.LogError(ex, "Error sending SMS");
-            throw new SmsServiceException("Error occurred while sending SMS", ex);
+        } catch (HttpRequestException ex) {
+            Logger.LogError(ex, "Network error occurred while sending SMS");
+            throw new SmsServiceException("Network error occurred while sending SMS", ex);
+        } catch (TaskCanceledException ex) {
+            Logger.LogError(ex, "Request timed out while sending SMS");
+            throw new SmsServiceException("Request timed out while sending SMS", ex);
         }
 
         var responseContent = await httpResponse.Content.ReadAsStringAsync();
@@ -82,34 +106,27 @@ public class SmsServiceSmsUp : ISmsService
 
         var response = JsonSerializer.Deserialize<SmsApiResponse>(responseContent, GetJsonSerializerOptions())!;
         var result = response.Result;
-        var error = result?.FirstOrDefault();
+        if (result == null) {
+            Logger.LogWarning("SmsUp response result is null.");
+            throw new SmsServiceException("SmsUp response result is null.");
+        }
+        var error = result.FirstOrDefault();
 
 
         if (error == null || error.Status != "ok") {
-            var errorId = error?.ErrorId ?? response.ErrorId;
-            var errorMsg = error?.ErrorMsg ?? response.ErrorMsg;
+            var errorId = error?.GetEffectiveErrorId(response);
+            var errorMsg = error?.GetEffectiveErrorMsg(response);
             Logger.LogWarning("SmsUp error: {ErrorId} - {ErrorMsg}", errorId, errorMsg);
-            string userFriendlyMessage = errorId switch {
-                "INVALID_CONTENT_TYPE" => "Invalid content type. Ensure 'application/json' is used.",
-                "JSON_PARSE_ERROR" => "Malformed JSON. Check your request format.",
-                "MISSING_PARAMS" => "Request is missing mandatory parameters.",
-                "BAD_PARAMS" => "One or more parameters are invalid.",
-                "UNAUTHORIZED" => "Invalid API key or blocked IP. Check your API access settings.",
-                "INVALID_SENDER" => "The sender value is not allowed.",
-                "INVALID_DESTINATION" => "Invalid recipient number format. Must be MSISDN format.",
-                "INVALID_TEXT" => "Message text is empty or corrupted.",
-                "INVALID_DATETIME" => "Datetime format must be: YYYY-MM-DD HH:MM:SS.",
-                "NOT_ENOUGH_BALANCE" => "Insufficient balance to send SMS.",
-                "LIMIT_EXCEEDED" => "Exceeded maximum SMS messages per batch (1000).",
-                _ => errorMsg ?? "Unknown error occurred."
-            };
+            var userFriendlyMessage = error?.GetUserFriendlyError() ?? "Unknown error occurred.";
 
             throw new SmsServiceException($"SmsUp error [{errorId}]: {userFriendlyMessage}");
-        }  else {
+        } else {
             var messageIds = string.Join(",", result.Select(r => r.SmsId));
             return new SendReceipt(messageIds, DateTimeOffset.UtcNow);
-        }          
+        }
     }
+
+
 
     /// <summary>Checks the implementation if supports the given <paramref name="deliveryChannel"/>.</summary>
     /// <param name="deliveryChannel">A string representing the delivery channel. i.e 'SMS'</param>
@@ -139,7 +156,7 @@ public class SmsServiceSmsUpSettings
     public int Concat { get; set; } = 1;
 
     /// <summary>Sender.</summary>
-    public string? Sender {  get; set; }
+    public string? Sender { get; set; }
 
     /// <summary>With value 0 the message is sent. For testing purposes Fake must be 1.</summary>
     public int Fake { get; set; } = 0;
@@ -224,4 +241,24 @@ internal class SmsApiResultItem
 
     [JsonPropertyName("error_msg")]
     public string? ErrorMsg { get; set; }
+    public string GetEffectiveErrorId(SmsApiResponse response) =>
+       !string.IsNullOrWhiteSpace(ErrorId) ? ErrorId : response.ErrorId ?? string.Empty;
+    public string GetEffectiveErrorMsg(SmsApiResponse response) =>
+        !string.IsNullOrWhiteSpace(ErrorMsg) ? ErrorMsg : response.ErrorMsg ?? string.Empty;
+
+    public string GetUserFriendlyError()
+        => ErrorId switch {
+            "INVALID_CONTENT_TYPE" => "Invalid content type. Ensure 'application/json' is used.",
+            "JSON_PARSE_ERROR" => "Malformed JSON. Check your request format.",
+            "MISSING_PARAMS" => "Request is missing mandatory parameters.",
+            "BAD_PARAMS" => "One or more parameters are invalid.",
+            "UNAUTHORIZED" => "Invalid API key or blocked IP. Check your API access settings.",
+            "INVALID_SENDER" => "The sender value is not allowed.",
+            "INVALID_DESTINATION" => "Invalid recipient number format. Must be MSISDN format.",
+            "INVALID_TEXT" => "Message text is empty or corrupted.",
+            "INVALID_DATETIME" => "Datetime format must be: YYYY-MM-DD HH:MM:SS.",
+            "NOT_ENOUGH_BALANCE" => "Insufficient balance to send SMS.",
+            "LIMIT_EXCEEDED" => "Exceeded maximum SMS messages per batch (1000).",
+            _ => ErrorMsg ?? "Unknown error occurred."
+        };
 }
