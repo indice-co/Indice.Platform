@@ -1,5 +1,5 @@
-import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
-import { ComboboxComponent, EnhancedComboboxComponent } from '@indice/ng-components';
+import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Output, ViewChild } from '@angular/core';
+import { EnhancedComboboxComponent } from '@indice/ng-components';
 import { lastValueFrom } from 'rxjs';
 import { settings } from 'src/app/core/models/settings';
 import { MessagesApiClient, Contact, ContactResultSet } from 'src/app/core/services/messages-api.service';
@@ -102,7 +102,7 @@ export class ListContactCreateComponent implements AfterViewInit {
             return;
         }
         const contact = new Contact();
-        searchTerm = searchTerm.trim()
+        searchTerm = searchTerm.trim();
         if (validateEmail(searchTerm)) {
             contact.email = searchTerm;
         } else {
