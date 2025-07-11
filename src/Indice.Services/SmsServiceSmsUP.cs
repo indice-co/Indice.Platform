@@ -1,11 +1,8 @@
-﻿using System.Globalization;
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using System.Net.Mime;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Indice.Extensions;
 using Indice.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -34,7 +31,7 @@ public class SmsServiceSmsUp : ISmsService
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         ArgumentException.ThrowIfNullOrWhiteSpace(Settings.ApiKey);
-
+        ArgumentException.ThrowIfNullOrWhiteSpace(Settings.Sender);
 
         HttpClient.DefaultRequestHeaders.Accept.Clear();
         HttpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -48,33 +45,25 @@ public class SmsServiceSmsUp : ISmsService
         if (!PhoneNumber.TryParse(destination, out var phone))
             throw new ArgumentException("Invalid recipient phone number.", nameof(destination));
 
-        var recipients = (destination.Trim() ?? string.Empty).Split([","], StringSplitOptions.RemoveEmptyEntries).Select(part => part.Trim()).ToArray();
-
-        if (recipients == null) {
-            throw new ArgumentNullException(nameof(recipients));
-        }
+        var recipients = destination.Trim().Split([","], StringSplitOptions.RemoveEmptyEntries).Select(part => part.Trim()).ToArray();
         if (recipients.Length == 0) {
-            throw new ArgumentException("Recipients list is empty.", nameof(recipients));
+            throw new ArgumentNullException(destination, "Recipients list is empty");
         }
         recipients = recipients.Select(recipient => {
             if (!PhoneNumber.TryParse(recipient, out var phone)) {
-                throw new ArgumentException("Invalid recipients. Recipients should be valid phone numbers", nameof(recipients));
+                throw new ArgumentException("Invalid recipients. Recipients should be valid phone numbers", destination);
             }
             return phone.ToString("D");
         })
         .ToArray();
 
-        List<SmsUpMessage> messages = new List<SmsUpMessage>();
-        foreach (var recipient in recipients) {
-            SmsUpMessage smsUpMessage = new SmsUpMessage {
-                From = sender?.Id ?? Settings.Sender!, // fallback sender
-                To = recipient,
-                Text = body ?? subject ?? string.Empty,
-                Custom = Guid.NewGuid().ToString()
-            };
-            messages.Add(smsUpMessage);
-        }
-
+        var messages = recipients.Select(recipient =>
+                                            new SmsUpMessage {
+                                                From = sender?.Id ?? Settings.Sender!, // fallback sender
+                                                To = recipient,
+                                                Text = body ?? subject ?? string.Empty,
+                                                Custom = Guid.NewGuid().ToString()
+                                            }).ToList();
         var request = new SmsUpRequest {
             ApiKey = Settings.ApiKey!,
             ReportUrl = Settings.ReportUrl,
