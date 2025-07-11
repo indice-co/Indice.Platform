@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { Subscription } from 'rxjs';
 import { Contact, MessagesApiClient, UpdateContactRequest } from 'src/app/core/services/messages-api.service';
-import { settings } from 'src/app/core/models/settings';
+
 
 @Component({
   selector: 'app-contact-edit',
