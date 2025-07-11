@@ -50,8 +50,8 @@ public static class OpenApiExtensions
             return Task.CompletedTask;
         });
         options.AddMappedTypeTransformer();
-        options.AddNullableTransformer();
         options.AddFluentValidationTransformer();
+        options.AddNullableTransformer();
         options.AddEndpointSecurityRequirementsTransformer();
         options.AddDocumentTransformer<CanonicalDocumentTransformer>();
         return options;

@@ -18,6 +18,7 @@ internal static class MappedTypeTransformer
     }
 
     public static OpenApiOptions AddMappedTypeTransformer(this OpenApiOptions options) {
+        options.MapType<object>(new() { Type = "object" });
         options.MapType<JsonNode>(new() { Type = "object" });
         options.MapType<JsonElement>(new() { Type = "object" });
         options.MapType<Stream>(new() { Type = "string", Format = "binary" });
