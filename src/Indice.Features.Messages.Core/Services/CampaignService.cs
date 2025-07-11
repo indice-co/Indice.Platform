@@ -7,6 +7,7 @@ using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Indice.Features.Messages.Core.Services;
 
@@ -155,5 +156,31 @@ public class CampaignService : ICampaignService
         campaign.Published = true;
         await DbContext.SaveChangesAsync();
         return Mapper.ToCampaign(campaign);
+    }
+
+    /// <inheritdoc />
+    public Task<ResultSet<Campaign>> GetListForContact(ListOptions<CampaignListFilter> options, Guid contactId) {
+        var contactCampaignsQuery = from o in DbContext.Campaigns
+                                    join c in DbContext.ContactDistributionLists on o.DistributionListId equals c.DistributionListId
+                                    where c.ContactId == contactId
+                                    select o;
+        var query = contactCampaignsQuery
+               .Include(x => x.Type)
+               .Include(x => x.DistributionList)
+               .AsNoTracking()
+               .Select(Mapper.ProjectToCampaign);
+
+
+        if (!string.IsNullOrEmpty(options.Search) && options.Search.Length > 2) {
+            var searchTerm = options.Search.Trim();
+            query = query.Where(x => x.Title != null && x.Title.Contains(searchTerm));
+        }
+        if (options.Filter.MessageChannelKind.HasValue) {
+            query = query.Where(x => x.MessageChannelKind.HasFlag(options.Filter.MessageChannelKind.Value));
+        }
+        if (options.Filter.Published.HasValue) {
+            query = query.Where(x => x.Published == options.Filter.Published.Value);
+        }
+        return query.ToResultSetAsync(options);
     }
 }
