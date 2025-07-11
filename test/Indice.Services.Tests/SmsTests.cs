@@ -44,7 +44,9 @@ public class SmsTests
             ["Sms:Sender"] = sender,
             ["Sms:SenderName"] = senderName,
             ["Sms:TestMode"] = true.ToString(),
-            ["Sms:EnableUrlShortener"] = true.ToString()
+            ["Sms:EnableUrlShortener"] = true.ToString(),
+            ["Sms:WebhookUrl"] = string.Empty,
+            ["Sms:WebhookSecret"] = string.Empty
         };
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(inMemorySettings)
@@ -57,15 +59,15 @@ public class SmsTests
 
 
         var serviceProvider = collection.BuildServiceProvider();
-        var excepion = default(Exception);
+        var exception = default(Exception);
 
         try {
             var service = serviceProvider.GetRequiredService<ISmsService>();
             await service.SendAsync(phoneNumber, subject, body);
         } catch (Exception smsServiceException) {
-            excepion = smsServiceException;
+            exception = smsServiceException;
         }
-        Assert.Null(excepion);
+        Assert.Null(exception);
     }
 
     [Theory(Skip = "Sensitive Data")]
