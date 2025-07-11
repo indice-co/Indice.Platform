@@ -117,58 +117,46 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Already have an account?" xml:space="preserve">
-    <value>Έχετε ήδη λογαριασμό;</value>
+  <data name="Click" xml:space="preserve">
+    <value>Clicca</value>
   </data>
-  <data name="Calling Code" xml:space="preserve">
-    <value>Κωδικός Τηλεφώνου</value>
+  <data name="Email Confirmation" xml:space="preserve">
+    <value>Conferma Email</value>
   </data>
-  <data name="Choose a username and a password of your choice. You can periodically change your password or whenever you wish to." xml:space="preserve">
-    <value>Επιλέξτε ένα όνομα χρήστη και έναν κωδικό πρόσβασης της προτίμησής σας. Έχετε τη δυνατότητα να αλλάξετε τον κωδικό σας σε περιοδικά διαστήματα ή όποτε το επιθυμείτε.</value>
-  </data>
-  <data name="Choose an email and a password of your choice. You can periodically change your password or whenever you wish to." xml:space="preserve">
-    <value>Επιλέξτε ένα email και έναν κωδικό πρόσβασης της προτίμησής σας. Έχετε τη δυνατότητα να αλλάξετε τον κωδικό σας σε περιοδικά διαστήματα ή όποτε το επιθυμείτε.</value>
-  </data>
-  <data name="First name" xml:space="preserve">
-    <value>Όνομα</value>
+  <data name="Email verification link has expired." xml:space="preserve">
+    <value>Il link di verifica email è scaduto.</value>
   </data>
   <data name="here" xml:space="preserve">
-    <value>εδώ</value>
+    <value>qui</value>
   </data>
-  <data name="I consent to the registration and processing of the above personal details for my contact and service as they are defined" xml:space="preserve">
-    <value>Έχω ενημερωθεί για την επεξεργασία των προσωπικών μου δεδομένων και συναινώ σε αυτήν, όπως ειδικά αυτή ορίζεται</value>
+  <data name="If you feel you got this error by mistake, simply click" xml:space="preserve">
+    <value>Se pensi che questo errore sia stato generato per sbaglio, clicca semplicemente</value>
   </data>
-  <data name="I have read and accept the &lt;a href=&quot;/terms&quot; target=&quot;_blank&quot;&gt;Terms of service&lt;/a&gt; and the &lt;a href=&quot;/privacy&quot; target=&quot;_blank&quot;&gt;privacy policy&lt;/a&gt;." xml:space="preserve">
-    <value>Διάβασα και αποδέχομαι τους &lt;a href="/terms" target="_blank"&gt;όρους χρήσης&lt;/a&gt;.</value>
+  <data name="No action was taken." xml:space="preserve">
+    <value>Nessuna azione è stata eseguita.</value>
   </data>
-  <data name="I consent to the use of my contact information, including my email address, for the purpose of receiving commercial communications, promotional materials, and marketing updates from the organization. I understand that I may withdraw my consent at any time." xml:space="preserve">
-    <value>Συναινώ στη χρήση των στοιχείων επικοινωνίας μου, συμπεριλαμβανομένης της διεύθυνσης email μου, για σκοπούς λήψης εμπορικών επικοινωνιών, προωθητικού υλικού και ενημερώσεων μάρκετινγκ από τον οργανισμό. Κατανοώ ότι μπορώ να ανακαλέσω τη συγκατάθεσή μου οποιαδήποτε στιγμή.</value>
+  <data name="Please log in and resend the link" xml:space="preserve">
+    <value>Accedi e reinvia il link, per favore</value>
   </data>
-  <data name="Join us" xml:space="preserve">
-    <value>Εγγραφή</value>
+  <data name="This may take a moment. Click on the link below to verify your email address." xml:space="preserve">
+    <value>Questo potrebbe richiedere qualche istante. Clicca sul link qui sotto per verificare il tuo indirizzo email.</value>
   </data>
-  <data name="Last name" xml:space="preserve">
-    <value>Επίθετο</value>
+  <data name="to sign in or go back." xml:space="preserve">
+    <value>per accedere o tornare indietro.</value>
   </data>
-  <data name="OR" xml:space="preserve">
-    <value>Ή</value>
+  <data name="Verify" xml:space="preserve">
+    <value>Verifica</value>
   </data>
-  <data name="Password" xml:space="preserve">
-    <value>Κωδικός πρόσβασης</value>
+  <data name="Verifying your email." xml:space="preserve">
+    <value>Verifica del tuo indirizzo email in corso.</value>
   </data>
-  <data name="Phone number" xml:space="preserve">
-    <value>Αριθμός τηλεφώνου</value>
+  <data name="You can now close this browse window." xml:space="preserve">
+    <value>Ora è possibile chiudere questa finestra</value>
   </data>
-  <data name="Sign up" xml:space="preserve">
-    <value>Εγγραφή Χρήστη</value>
+  <data name="Your email has been successfully confirmed." xml:space="preserve">
+    <value>La tua email è stata confermata con successo</value>
   </data>
-  <data name="These credentials are personal. Please remember them and do not reveal in any way (i.e orally, written, email) in third parties." xml:space="preserve">
-    <value>Οι κωδικοί αυτοί είναι προσωπικοί. Παρακαλούμε να τους απομνημονεύσετε και να μην τους αποκαλύψετε κατά οποιοδήποτε τρόπο (π.χ. προφορικά, γραπτώς, e-mail) σε τρίτους.</value>
-  </data>
-  <data name="Timezone" xml:space="preserve">
-    <value>Ζώνη ώρας</value>
-  </data>
-  <data name="Username" xml:space="preserve">
-    <value>Όνομα Χρήστη</value>
+  <data name="Your email is already verified. Thank you" xml:space="preserve">
+    <value>La tua email è già stata verificata. Grazie</value>
   </data>
 </root>

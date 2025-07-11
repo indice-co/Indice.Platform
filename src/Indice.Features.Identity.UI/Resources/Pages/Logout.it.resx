@@ -117,58 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Already have an account?" xml:space="preserve">
-    <value>Έχετε ήδη λογαριασμό;</value>
+  <data name="Logout" xml:space="preserve">
+    <value>Disconnetti</value>
   </data>
-  <data name="Calling Code" xml:space="preserve">
-    <value>Κωδικός Τηλεφώνου</value>
+  <data name="Would you like to logout?" xml:space="preserve">
+    <value>Desidera effettuare il logout?</value>
   </data>
-  <data name="Choose a username and a password of your choice. You can periodically change your password or whenever you wish to." xml:space="preserve">
-    <value>Επιλέξτε ένα όνομα χρήστη και έναν κωδικό πρόσβασης της προτίμησής σας. Έχετε τη δυνατότητα να αλλάξετε τον κωδικό σας σε περιοδικά διαστήματα ή όποτε το επιθυμείτε.</value>
-  </data>
-  <data name="Choose an email and a password of your choice. You can periodically change your password or whenever you wish to." xml:space="preserve">
-    <value>Επιλέξτε ένα email και έναν κωδικό πρόσβασης της προτίμησής σας. Έχετε τη δυνατότητα να αλλάξετε τον κωδικό σας σε περιοδικά διαστήματα ή όποτε το επιθυμείτε.</value>
-  </data>
-  <data name="First name" xml:space="preserve">
-    <value>Όνομα</value>
-  </data>
-  <data name="here" xml:space="preserve">
-    <value>εδώ</value>
-  </data>
-  <data name="I consent to the registration and processing of the above personal details for my contact and service as they are defined" xml:space="preserve">
-    <value>Έχω ενημερωθεί για την επεξεργασία των προσωπικών μου δεδομένων και συναινώ σε αυτήν, όπως ειδικά αυτή ορίζεται</value>
-  </data>
-  <data name="I have read and accept the &lt;a href=&quot;/terms&quot; target=&quot;_blank&quot;&gt;Terms of service&lt;/a&gt; and the &lt;a href=&quot;/privacy&quot; target=&quot;_blank&quot;&gt;privacy policy&lt;/a&gt;." xml:space="preserve">
-    <value>Διάβασα και αποδέχομαι τους &lt;a href="/terms" target="_blank"&gt;όρους χρήσης&lt;/a&gt;.</value>
-  </data>
-  <data name="I consent to the use of my contact information, including my email address, for the purpose of receiving commercial communications, promotional materials, and marketing updates from the organization. I understand that I may withdraw my consent at any time." xml:space="preserve">
-    <value>Συναινώ στη χρήση των στοιχείων επικοινωνίας μου, συμπεριλαμβανομένης της διεύθυνσης email μου, για σκοπούς λήψης εμπορικών επικοινωνιών, προωθητικού υλικού και ενημερώσεων μάρκετινγκ από τον οργανισμό. Κατανοώ ότι μπορώ να ανακαλέσω τη συγκατάθεσή μου οποιαδήποτε στιγμή.</value>
-  </data>
-  <data name="Join us" xml:space="preserve">
-    <value>Εγγραφή</value>
-  </data>
-  <data name="Last name" xml:space="preserve">
-    <value>Επίθετο</value>
-  </data>
-  <data name="OR" xml:space="preserve">
-    <value>Ή</value>
-  </data>
-  <data name="Password" xml:space="preserve">
-    <value>Κωδικός πρόσβασης</value>
-  </data>
-  <data name="Phone number" xml:space="preserve">
-    <value>Αριθμός τηλεφώνου</value>
-  </data>
-  <data name="Sign up" xml:space="preserve">
-    <value>Εγγραφή Χρήστη</value>
-  </data>
-  <data name="These credentials are personal. Please remember them and do not reveal in any way (i.e orally, written, email) in third parties." xml:space="preserve">
-    <value>Οι κωδικοί αυτοί είναι προσωπικοί. Παρακαλούμε να τους απομνημονεύσετε και να μην τους αποκαλύψετε κατά οποιοδήποτε τρόπο (π.χ. προφορικά, γραπτώς, e-mail) σε τρίτους.</value>
-  </data>
-  <data name="Timezone" xml:space="preserve">
-    <value>Ζώνη ώρας</value>
-  </data>
-  <data name="Username" xml:space="preserve">
-    <value>Όνομα Χρήστη</value>
+  <data name="Yes" xml:space="preserve">
+    <value>Sì</value>
   </data>
 </root>
