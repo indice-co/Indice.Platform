@@ -1,5 +1,4 @@
 #if NET9_0_OR_GREATER
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi.Any;
 using System.Text.Json.Serialization.Metadata;

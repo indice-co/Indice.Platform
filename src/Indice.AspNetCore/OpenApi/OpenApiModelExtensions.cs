@@ -2,10 +2,10 @@
 using System.Reflection;
 using Microsoft.OpenApi.Any;
 
-namespace Indice.AspNetCore.Swagger;
+namespace Microsoft.OpenApi.Models;
 
-/// <summary>Extensions over Open Api</summary>
-public static class OpenApiExtensions
+/// <summary>Extensions over Open Api to generate example models </summary>
+public static class OpenApiModelExtensions
 {
     /// <summary>Converts an instance to an OpenApi counterpart.</summary>
     /// <typeparam name="T"></typeparam>

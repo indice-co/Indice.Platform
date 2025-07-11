@@ -1,11 +1,7 @@
 ﻿#if NET9_0_OR_GREATER
 using System.Collections.Immutable;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 using Indice.Configuration;
-using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Models;
@@ -53,21 +49,10 @@ public static class OpenApiExtensions
             }
             return Task.CompletedTask;
         });
-
-        options.MapType<dynamic>(new () { Type = "object" });
-        options.MapType<JsonNode>(new () { Type = "object" });
-        options.MapType<JsonElement>(new() { Type = "object" });
-        options.MapType<Stream>(new() { Type = "string", Format = "binary" });
-        options.MapType<IFormFile>(new() { Type = "string", Format = "binary" });
-        options.MapType<FilterClause>(new() { Type = "string" });
-        options.MapType<GeoPoint>(new() { Type = "string" });
-        options.MapType<Base64Id>(new() { Type = "string" });
-        options.MapType<GuidOrAlias>(new() { Type = "string" });
-        options.MapType<Base64Host>(new() { Type = "string" });
-
-        options.AddSchemaTransformer(TypeTransformer.TransformAsync);
-        options.AddEndpointSecurityRequirementsTransformer();
+        options.AddMappedTypeTransformer();
         options.AddNullableTransformer();
+        options.AddFluentValidationTransformer();
+        options.AddEndpointSecurityRequirementsTransformer();
         options.AddDocumentTransformer<CanonicalDocumentTransformer>();
         return options;
     }
@@ -86,7 +71,7 @@ public static class OpenApiExtensions
     public static OpenApiOptions MapType<T>(this OpenApiOptions options, OpenApiSchema schema) {
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(schema);
-        TypeTransformer.MapType<T>(schema);
+        MappedTypeTransformer.MapType<T>(schema);
         return options;
     }
     /// <summary>
