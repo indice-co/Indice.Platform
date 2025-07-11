@@ -1,10 +1,7 @@
 ﻿#if NET9_0_OR_GREATER
-using System.Text.Json.Serialization.Metadata;
-using System.Text.RegularExpressions;
 using FluentValidation;
 using FluentValidation.Internal;
 using FluentValidation.Validators;
-using Humanizer;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi.Models;
 
