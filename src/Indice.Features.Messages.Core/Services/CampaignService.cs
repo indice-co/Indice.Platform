@@ -175,7 +175,7 @@ public class CampaignService : ICampaignService
             var searchTerm = options.Search.Trim();
             query = query.Where(x => x.Title != null && x.Title.Contains(searchTerm));
         }
-        if (options.Filter.MessageChannelKind.HasValue) {
+        if (options.Filter?.MessageChannelKind.HasValue == true) {
             query = query.Where(x => x.MessageChannelKind.HasFlag(options.Filter.MessageChannelKind.Value));
         }
         if (options.Filter.Published.HasValue) {
