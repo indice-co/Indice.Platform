@@ -1,5 +1,6 @@
 ﻿#if NET9_0_OR_GREATER
 using System.Collections.Immutable;
+using Indice.AspNetCore.OpenApi.Transformers;
 using Indice.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.OpenApi;
@@ -52,6 +53,7 @@ public static class OpenApiExtensions
         options.AddMappedTypeTransformer();
         options.AddFluentValidationTransformer();
         options.AddNullableTransformer();
+        options.AddNamingConvensionTransformer();
         options.AddEnumTransformer();
         options.AddEndpointSecurityRequirementsTransformer();
         options.AddDocumentTransformer<CanonicalDocumentTransformer>();
