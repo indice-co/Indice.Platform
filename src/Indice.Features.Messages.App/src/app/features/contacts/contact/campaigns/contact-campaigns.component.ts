@@ -41,7 +41,7 @@ export class ContactCampaignsComponent extends BaseListComponent<Campaign> imple
 
   public loadItems(): Observable<IResultSet<Campaign> | null | undefined> {
     return this._api
-      .getContactCampaigns(this._contactId, this.page, this.pageSize, this.sortdir === 'asc' ? this.sort! : this.sort + '-', this.search || undefined, undefined, undefined)
+      .getCampaigns(this.page, this.pageSize, this.sortdir === 'asc' ? this.sort! : this.sort + '-', this.search || undefined, undefined, undefined, this._contactId)
       .pipe(map((result: CampaignResultSet) => (result as IResultSet<Campaign>)));
   }
 

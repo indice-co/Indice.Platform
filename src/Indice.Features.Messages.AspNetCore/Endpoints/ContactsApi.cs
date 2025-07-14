@@ -48,11 +48,6 @@ internal static class ContactsApi
              .WithSummary("Gets the contact with the specified id.")
              .WithDescription(ContactsHandlers.GET_CONTACT_BY_ID_DESCRIPTION);
 
-        group.MapGet("{contactId}/campaigns", ContactsHandlers.GetContactCampaigns)
-             .WithName(nameof(ContactsHandlers.GetContactCampaigns))
-             .WithSummary("Gets the contact with the specified id.")
-             .WithDescription(ContactsHandlers.GET_CONTACT_CAMPAIGNS_DESCRIPTION);
-
         group.MapPost(string.Empty, ContactsHandlers.CreateContact)
              .WithName(nameof(ContactsHandlers.CreateContact))
              .WithSummary("Creates a new contact in the store.")

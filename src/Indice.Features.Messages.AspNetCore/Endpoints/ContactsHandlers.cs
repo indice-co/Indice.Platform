@@ -69,14 +69,6 @@ internal static class ContactsHandlers
         return TypedResults.NoContent();
     }
 
-    public static async Task<Ok<ResultSet<Campaign>>> GetContactCampaigns(
-        ICampaignService campaignService,
-        Guid contactId,
-        [AsParameters] ListOptions options,
-        [AsParameters] CampaignListFilter filter) {
-        return TypedResults.Ok(await campaignService.GetListForContact(ListOptions.Create(options, filter), contactId));
-    }
-
     #region Descriptions
     public static readonly string GET_CONTACTS_DESCRIPTION = @"
 Retrieves the list of all contacts using the provided ListOptions.
@@ -112,14 +104,6 @@ Updates an existing contact in the store or adds a new contact with data from an
 
 Parameters:
 - recepientId: The unique ID of the recepient.
-";
-
-    public static readonly string GET_CONTACT_CAMPAIGNS_DESCRIPTION = @"
-Retrieves the list of all campaigns of the specified contact using the provided ListOptions.
-
-Parameters:
-- options: List parameters used to navigate through collections, including sort, search, page number, and page size.
-- contactId: The unique ID of the contact to retrieve.
 ";
     #endregion
 }
