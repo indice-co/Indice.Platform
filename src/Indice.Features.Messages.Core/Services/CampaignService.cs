@@ -36,7 +36,7 @@ public class CampaignService : ICampaignService
                 .Include(x => x.DistributionList)
                 .AsNoTracking();
 
-        if (options.Filter.ContactId.HasValue) {
+        if (options.Filter?.ContactId.HasValue == true) {
             query = from o in query
                     join c in DbContext.ContactDistributionLists on o.DistributionListId equals c.DistributionListId
                     where c.ContactId == options.Filter.ContactId.Value
@@ -49,10 +49,10 @@ public class CampaignService : ICampaignService
             var searchTerm = options.Search.Trim();
             projectedQuery = projectedQuery.Where(x => x.Title != null && x.Title.Contains(searchTerm));
         }
-        if (options.Filter.MessageChannelKind.HasValue) {
+        if (options.Filter?.MessageChannelKind.HasValue == true) {
             projectedQuery = projectedQuery.Where(x => x.MessageChannelKind.HasFlag(options.Filter.MessageChannelKind.Value));
         }
-        if (options.Filter.Published.HasValue) {
+        if (options.Filter?.Published.HasValue == true) {
             projectedQuery = projectedQuery.Where(x => x.Published == options.Filter.Published.Value);
         }
         return projectedQuery.ToResultSetAsync(options);
