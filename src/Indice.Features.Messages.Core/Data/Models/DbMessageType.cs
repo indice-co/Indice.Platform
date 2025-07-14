@@ -14,4 +14,6 @@ public class DbMessageType
     public string? Alias { get; set; }
     /// <summary>The kind of the notification allowed .</summary>
     public MessageTypeClassification Classification { get; set; }
+    /// <summary>The description of the message type.</summary> 
+    public ICollection<DbCommunicationPreferenceMessageType> ContactPreferenceMessageTypes { get; set; } = new List<DbCommunicationPreferenceMessageType>();
 }
