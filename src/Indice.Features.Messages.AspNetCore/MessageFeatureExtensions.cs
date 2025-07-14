@@ -134,19 +134,13 @@ public static class MessageFeatureExtensions
     internal static IServiceCollection AddCampaignCore(this IServiceCollection services, CampaignOptionsBase baseOptions) {
         // Post configure JSON options.
         services.PostConfigure<JsonOptions>(options => {
-            var enumFlagsConverterExists = options.JsonSerializerOptions.Converters.Any(converter => converter.GetType() == typeof(JsonStringArrayEnumFlagsConverterFactory));
-            if (!enumFlagsConverterExists) {
-                options.JsonSerializerOptions.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
-            }
+            options.JsonSerializerOptions.AddFlagsArraySupport();
             if (!options.JsonSerializerOptions.Converters.Any(converter => converter.GetType() == typeof(TypeConverterJsonAdapterFactory))) {
                 options.JsonSerializerOptions.Converters.Add(new TypeConverterJsonAdapterFactory());
             }
         }); 
         services.PostConfigure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => {
-            var enumFlagsConverterExists = options.SerializerOptions.Converters.Any(converter => converter.GetType() == typeof(JsonStringArrayEnumFlagsConverterFactory));
-            if (!enumFlagsConverterExists) {
-                options.SerializerOptions.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
-            }
+            options.SerializerOptions.AddFlagsArraySupport();
             if (!options.SerializerOptions.Converters.Any(converter => converter.GetType() == typeof(TypeConverterJsonAdapterFactory))) {
                 options.SerializerOptions.Converters.Add(new TypeConverterJsonAdapterFactory());
             }
