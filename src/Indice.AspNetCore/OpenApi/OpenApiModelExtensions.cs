@@ -74,10 +74,10 @@ public static class OpenApiModelExtensions
         return null;
     }
 
-    private static bool IsDictionary(Type type) =>
+    internal static bool IsDictionary(this Type type) =>
         type.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IDictionary<,>)).Any();
 
-    private static bool IsPrimitive(Type type) =>
+    internal static bool IsPrimitive(this Type type) =>
         type.IsValueType || type.IsPrimitive || type.IsEnum || type == typeof(string);
 
     private static IOpenApiPrimitive? GetStructValue(Type type, object value) {

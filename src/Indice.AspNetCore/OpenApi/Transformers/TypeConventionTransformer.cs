@@ -46,28 +46,7 @@ internal static class TypeConventionTransformer
 
     private static bool CanTransform(OpenApiSchema schema, Type type) {
         type = Nullable.GetUnderlyingType(type) ?? type;
-        return schema.Properties.Count > 0 && type is not null && !IsSimpleType(type);
-    }
-
-    private static readonly Type[] PrimitiveLikeTypes = [
-    
-                typeof(string),
-                typeof(decimal),
-                typeof(DateTime),
-                typeof(DateTimeOffset),
-                typeof(TimeSpan),
-                typeof(Guid)
-    ];
-
-    /// <summary>
-    /// Determine whether a type is simple (Primitive, String, Decimal, DateTime, etc) 
-    /// or complex (i.e. structs, Enums, custom class with public properties and methods).
-    /// Returns false for structs and Enums
-    /// </summary>
-    /// <param name="type">System.Type</param>
-    /// <returns> boolean value indicating whether the type is simple or not</returns>
-    public static bool IsSimpleType(this Type type) {
-        return type.IsPrimitive || type.IsValueType || PrimitiveLikeTypes.Contains(type);
+        return schema.Properties.Count > 0 && type is not null && !type.IsPrimitive() && !type.IsDictionary();
     }
 }
 #endif
