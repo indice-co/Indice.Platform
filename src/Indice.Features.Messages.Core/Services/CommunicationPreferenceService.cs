@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Indice.Features.Messages.Core.Data;
+﻿using Indice.Features.Messages.Core.Data;
+using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Indice.Features.Messages.Core.Services;
-internal class CommunicationPreferenceService : ICommunicationPreferenceService
+
+/// <inheritdoc/>
+public class CommunicationPreferenceService : ICommunicationPreferenceService
 {
     private readonly CampaignsDbContext _dbContext;
 
@@ -22,45 +19,85 @@ internal class CommunicationPreferenceService : ICommunicationPreferenceService
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
-
+    /// <inheritdoc/>
     public async Task<CommunicationPreference> GetPreferences(string recipientId) {
-        var messageTypes = _dbContext.MessageTypes.AsNoTracking().Where(x=>x.Classification == MessageTypeClassification.Commercial);
-
-
-        var result = await _dbContext.CommunicationPreferences
-                            .Include(x => x.MessageTypeCommunicationPreferences)
-                            .LeftJoin(messageTypes, cp => cp.MessageTypeCommunicationPreferences.Select(m => m.Type.Id),
-                            mt => mt.Id, (cp, mt) => new {
-                                cp.RecipientId,
-                                cp.Locale,
-                                MessageTypeCommunicationPreferences = cp.MessageTypeCommunicationPreferences
-                                    .Where(m => m.Type.Id == mt.Id)
-                                    .Select(m => new {
-                                        m.CommunicationPreferences,
-                                        Type = new {
-                                            m.Type.Id,
-                                            m.Type.Name,
-                                            m.Type.Alias,
-                                            m.Type.Classification
-                                        }
-                                    }).ToList()
-                            })
-                     .Where(x => x.RecipientId == recipientId)
-                     .AsNoTracking();
-        if (result is not null) {
-            return result;
+        var messageTypes = await _dbContext.MessageTypes
+                                     .AsNoTracking()
+                                     .Where(x => x.Classification == MessageTypeClassification.Commercial).ToListAsync();
+        var recipientPreferences = await _dbContext.CommunicationPreferences
+                                            .Include(x => x.MessageTypeCommunicationPreferences)
+                                            .ThenInclude(up => up.MessageType)
+                                            .AsNoTracking()
+                                            .SingleOrDefaultAsync(x => x.RecipientId == recipientId);
+        if (recipientPreferences == null) {
+            return new CommunicationPreference {
+                Locale = "en",
+                MessageTypeCommunicationPreferences = messageTypes.Select(x =>
+                new CommunicationMessageTypePreference() {
+                    Alias = x.Alias,
+                    Name = x.Name,
+                    CommunicationPreferences = ContactChannelKind.Any
+                }).ToList(),
+            };
         }
-
-        
+        //remove deleted
+        recipientPreferences.MessageTypeCommunicationPreferences.RemoveAll(x => !messageTypes.Any(mt => mt.Id == x.TypeId));
+        //add new types
+        var missing = messageTypes.Where(x => !recipientPreferences.MessageTypeCommunicationPreferences.Any(mt => mt.TypeId == x.Id)).Select(cmt =>
+            new DbCommunicationPreferenceMessageType() {
+                CommunicationPreferences = ContactChannelKind.Any,
+                MessageType = cmt
+            });
+        recipientPreferences.MessageTypeCommunicationPreferences.AddRange(missing);
 
         return new CommunicationPreference {
-            RecipientId = recipientId,
-            Locale = "en-US", // Default locale if not found
-            MessageTypeCommunicationPreferences = new List<CommunicationMessageTypePreference>()
+            Locale = recipientPreferences.Locale,
+            MessageTypeCommunicationPreferences = recipientPreferences.MessageTypeCommunicationPreferences.Select(x => new CommunicationMessageTypePreference() {
+                Alias = x.MessageType.Alias,
+                Name = x.MessageType.Name,
+                CommunicationPreferences = x.CommunicationPreferences
+            }).ToList(),
         };
     }
 
-    public Task Update(string recipientId, UpdateCommunicationPreferenceRequest request) {
-        throw new NotImplementedException();
+    /// <inheritdoc/>
+    public async Task Update(string recipientId, UpdateCommunicationPreferenceRequest request) {
+        var recipientPreferences = await _dbContext.CommunicationPreferences
+                                           .Include(x => x.MessageTypeCommunicationPreferences)
+                                           .ThenInclude(up => up.MessageType)
+                                           .SingleOrDefaultAsync(x => x.RecipientId == recipientId);
+        var messageTypes = await _dbContext.MessageTypes
+                                     .AsNoTracking()
+                                     .Where(x => x.Classification == MessageTypeClassification.Commercial).ToListAsync();
+        if (recipientPreferences == null) {
+            recipientPreferences = new DbCommunicationPreference() {
+                RecipientId = recipientId,
+                Locale = request.Locale,
+                MessageTypeCommunicationPreferences = messageTypes.Select(x =>
+                    new DbCommunicationPreferenceMessageType() {
+                        TypeId = x.Id,
+                        CommunicationPreferences = request.CommunicationPreferencesPerMessageType.FirstOrDefault(mt => mt.TypeId == x.Alias)?.CommunicationPreferences ?? ContactChannelKind.Any,
+                    }).ToList()
+            };
+
+            await _dbContext.CommunicationPreferences.AddAsync(recipientPreferences);
+            await _dbContext.SaveChangesAsync();
+            return;
+        }
+
+        recipientPreferences.Locale = request.Locale;
+        //remove deleted
+        recipientPreferences.MessageTypeCommunicationPreferences.RemoveAll(x => !messageTypes.Any(mt => mt.Id == x.TypeId));
+        //update existing
+        recipientPreferences.MessageTypeCommunicationPreferences.ForEach(x => x.CommunicationPreferences = request.CommunicationPreferencesPerMessageType.FirstOrDefault(mt => mt.TypeId == x.MessageType.Alias)?.CommunicationPreferences ?? ContactChannelKind.Any);
+        //add new types
+        var missing = messageTypes.Where(x => !recipientPreferences.MessageTypeCommunicationPreferences.Any(mt => mt.TypeId == x.Id)).Select(cmt =>
+            new DbCommunicationPreferenceMessageType() {
+                CommunicationPreferenceId = recipientPreferences.Id,
+                CommunicationPreferences = ContactChannelKind.Any,
+                MessageType = cmt
+            });
+        recipientPreferences.MessageTypeCommunicationPreferences.AddRange(missing);
+        await _dbContext.SaveChangesAsync();
     }
 }

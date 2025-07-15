@@ -23,13 +23,13 @@ public class DbCommunicationPreferenceMessageTypeMap : IEntityTypeConfiguration<
         // Configure table name.
         builder.ToTable("CommunicationPreferenceMessageType", SchemaName);
         // Configure composite primary key.
-        builder.HasKey(x => new { x.DBContactPreferenceId, x.TypeId });
+        builder.HasKey(x => new { x.CommunicationPreferenceId, x.TypeId });
         // Configure properties.
-        builder.Property(x => x.DBContactPreferenceId).IsRequired();
+        builder.Property(x => x.CommunicationPreferenceId).IsRequired();
         builder.Property(x => x.TypeId).IsRequired();
         builder.Property(x => x.CommunicationPreferences).HasDefaultValue(ContactChannelKind.Any);
         // Configure relationships.
-        builder.HasOne(x => x.CommunicationPreference).WithMany(x => x.MessageTypeCommunicationPreferences).HasForeignKey(x => x.DBContactPreferenceId);
-        builder.HasOne(x => x.Type).WithMany(x => x.ContactPreferenceMessageTypes).HasForeignKey(x => x.TypeId);
+        builder.HasOne(x => x.CommunicationPreference).WithMany(x => x.MessageTypeCommunicationPreferences).HasForeignKey(x => x.CommunicationPreferenceId);
+        builder.HasOne(x => x.MessageType).WithMany(x => x.ContactPreferenceMessageTypes).HasForeignKey(x => x.TypeId);
     }
 }

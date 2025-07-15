@@ -4,7 +4,7 @@
 public class DbCommunicationPreference
 {
     /// <summary>The unique id of the contact preference.</summary>
-    public required Guid Id { get; set; } = Guid.NewGuid();
+    public Guid Id { get; set; } = Guid.NewGuid();
     /// <summary>The recipient correlation code.</summary>
     public required string RecipientId { get; set; }
     /// <summary>Contact's locale.</summary>

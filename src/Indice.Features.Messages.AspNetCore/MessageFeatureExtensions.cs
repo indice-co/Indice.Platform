@@ -170,6 +170,7 @@ public static class MessageFeatureExtensions
         services.TryAddTransient<IMessageSenderService, MessageSenderService>();
         services.TryAddTransient<IDistributionListService, DistributionListService>();
         services.TryAddTransient<IMessageService, MessageService>();
+        services.TryAddTransient<ICommunicationPreferenceService, CommunicationPreferenceService>();
         services.TryAddScoped<IUserNameAccessor, UserNameFromClaimsAccessor>();
         services.TryAddScoped<UserNameAccessorAggregate>();
         services.TryAddTransient<IFileService, FileServiceNoop>();

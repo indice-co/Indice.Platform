@@ -1,9 +1,11 @@
-﻿using Indice.Features.Messages.Core.Models;
+﻿using System.Security.Claims;
+using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Messages.AspNetCore.Endpoints;
 
@@ -69,6 +71,20 @@ internal static class ContactsHandlers
         return TypedResults.NoContent();
     }
 
+    public static async Task<Results<Ok<CommunicationPreference>, NotFound>> GetCommunicationPreferences(
+        IContactService contactService,
+         ICommunicationPreferenceService communicationPreferenceService,
+         Guid contactId
+     ) {
+        var contact = await contactService.GetById(contactId);
+        if (contact is null || string.IsNullOrWhiteSpace(contact.RecipientId)) {
+            return TypedResults.NotFound();
+        }
+        var preferences = await communicationPreferenceService.GetPreferences(contact.RecipientId);
+        return TypedResults.Ok(preferences);
+    }
+
+
     #region Descriptions
     public static readonly string GET_CONTACTS_DESCRIPTION = @"
 Retrieves the list of all contacts using the provided ListOptions.
@@ -105,7 +121,9 @@ Updates an existing contact in the store or adds a new contact with data from an
 Parameters:
 - recepientId: The unique ID of the recepient.
 ";
-
+    public static readonly string GET_CONTACT_COMMUNICATION_PREFERENCES = @"
+Retrieves the communication preferences for a specific contact.
+";
 
     #endregion
 }
