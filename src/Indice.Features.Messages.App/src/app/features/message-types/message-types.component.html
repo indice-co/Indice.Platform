@@ -17,7 +17,15 @@
                  (sortChanged)="sortChanged($event)"
                  (sortdirChanged)="sortdirChanged($event)">
     <lib-list-column title="ΟΝΟΜΑ" [full-width]="true">
-      <ng-template let-item>{{ item.name }}</ng-template>
+      <ng-template let-item>
+        <a title="Επεξεργασία τύπου"
+           [routerLinkActive]="['']"
+           [routerLinkActiveOptions]="{ exact: true }"
+           [routerLink]="['', { outlets: { rightpane: ['edit-message-type', item.id] } }]"
+           class="text-blue-600">
+          {{ item.name }}
+          </a>
+      </ng-template>
     </lib-list-column>
     <lib-list-column title="ALIAS"  [full-width]="true">
       <ng-template let-item>{{ item.alias}}</ng-template>
@@ -27,7 +35,7 @@
     </lib-list-column>
     <lib-list-column title="ΕΝΕΡΓΕΙΕΣ">
       <ng-template let-item>
-        <a title="Επεξεργασία τύπου"
+        <!--<a title="Επεξεργασία τύπου"
            [routerLinkActive]="['']"
            [routerLinkActiveOptions]="{ exact: true }"
            [routerLink]="['', { outlets: { rightpane: ['edit-message-type', item.id] } }]"
@@ -41,7 +49,7 @@
                   d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
                   clip-rule="evenodd" />
           </svg>
-        </a>
+        </a>-->
         <button title="Διαγραφή τύπου"
                 type="button"
                 (click)="deleteConfirmation(item)"

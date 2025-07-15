@@ -34,19 +34,28 @@ public class CampaignService : ICampaignService
                 .Campaigns
                 .Include(x => x.Type)
                 .Include(x => x.DistributionList)
-                .AsNoTracking()
-                .Select(Mapper.ProjectToCampaign);
+                .AsNoTracking();
+
+        if (options.Filter?.ContactId.HasValue == true) {
+            query = from o in query
+                    join c in DbContext.ContactDistributionLists on o.DistributionListId equals c.DistributionListId
+                    where c.ContactId == options.Filter.ContactId.Value
+                    select o;
+        }
+
+        var projectedQuery = query.Select(Mapper.ProjectToCampaign);
+
         if (!string.IsNullOrEmpty(options.Search) && options.Search.Length > 2) {
             var searchTerm = options.Search.Trim();
-            query = query.Where(x => x.Title != null && x.Title.Contains(searchTerm));
+            projectedQuery = projectedQuery.Where(x => x.Title != null && x.Title.Contains(searchTerm));
         }
-        if (options.Filter.MessageChannelKind.HasValue) {
-            query = query.Where(x => x.MessageChannelKind.HasFlag(options.Filter.MessageChannelKind.Value));
+        if (options.Filter?.MessageChannelKind.HasValue == true) {
+            projectedQuery = projectedQuery.Where(x => x.MessageChannelKind.HasFlag(options.Filter.MessageChannelKind.Value));
         }
-        if (options.Filter.Published.HasValue) {
-            query = query.Where(x => x.Published == options.Filter.Published.Value);
+        if (options.Filter?.Published.HasValue == true) {
+            projectedQuery = projectedQuery.Where(x => x.Published == options.Filter.Published.Value);
         }
-        return query.ToResultSetAsync(options);
+        return projectedQuery.ToResultSetAsync(options);
     }
 
     /// <inheritdoc />

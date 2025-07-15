@@ -4,7 +4,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { Subscription } from 'rxjs';
 import { Contact, MessagesApiClient, UpdateContactRequest } from 'src/app/core/services/messages-api.service';
-import { settings } from 'src/app/core/models/settings';
 
 @Component({
     selector: 'app-distribution-list-contact-edit',
@@ -17,11 +16,11 @@ export class DistributionListContactEditComponent implements OnInit, AfterViewIn
     private _distributionListId: string = '';
 
     constructor(
-        private _changeDetector: ChangeDetectorRef,
-        private _api: MessagesApiClient,
-        private _router: Router,
-        private _activatedRoute: ActivatedRoute,
-        @Inject(ToasterService) private _toaster: ToasterService
+        private readonly _changeDetector: ChangeDetectorRef,
+        private readonly _api: MessagesApiClient,
+        private readonly _router: Router,
+        private readonly _activatedRoute: ActivatedRoute,
+        @Inject(ToasterService) private readonly _toaster: ToasterService
     ) { }
 
     @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
