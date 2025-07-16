@@ -103,14 +103,6 @@ public static class JsonStringArrayEnumFlagsExtensions
             options.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
             //options.TypeInfoResolverChain.Insert(0, new JsonStringArrayEnumFlagsTypeInfoResolver());
             
-            //options.TypeInfoResolver = options.TypeInfoResolver?.WithAddedModifier(jsonTypeInfo => {
-                //foreach (var jsonPropertyInfo in jsonTypeInfo.Properties) {
-                //    if (!jsonPropertyInfo.PropertyType.IsFlagsEnum()) {
-                //        continue;
-                //    }
-                //    jsonPropertyInfo.CustomConverter = new JsonStringArrayEnumFlagsConverterFactory().CreateConverter(jsonPropertyInfo.PropertyType, options);
-                //}
-            //});
         }
         return options;
     }

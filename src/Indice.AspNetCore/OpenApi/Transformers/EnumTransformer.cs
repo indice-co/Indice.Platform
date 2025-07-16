@@ -1,6 +1,5 @@
 ﻿#if NET9_0_OR_GREATER
 using System.Text.Json.Serialization.Metadata;
-using System.Text.RegularExpressions;
 using Indice.Extensions;
 using Indice.Serialization;
 using Microsoft.AspNetCore.OpenApi;

@@ -5,11 +5,13 @@ using System.Text.Json.Serialization.Metadata;
 using System.Text.RegularExpressions;
 
 namespace Microsoft.Extensions.DependencyInjection;
-// This transformer attempts to coalesce nullable and non-nullable schemas by removing the `nullable` property
-// wherever nullability is already implied by the `required` property.
-// It also removes `null` from enum values if present.
-// Finally, it removes the "NullableOf" prefix from schema reference IDs if present, being careful to preserve
-// the original reference ID for non-nullable types.
+/// <summary>
+/// This transformer attempts to coalesce nullable and non-nullable schemas by removing the `nullable` property
+/// wherever nullability is already implied by the `required` property.
+/// It also removes `null` from enum values if present.
+/// Finally, it removes the "NullableOf" prefix from schema reference IDs if present, being careful to preserve
+/// the original reference ID for non-nullable types.
+/// </summary>
 internal static class NullableTransformer
 {
     internal class ChainedDelegate(Func<JsonTypeInfo, string?> next)
