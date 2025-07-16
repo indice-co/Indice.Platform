@@ -25,7 +25,7 @@ internal static class TypeConventionTransformer
         }
     }
     public static OpenApiOptions AddConventionsTransformer(this OpenApiOptions options) {
-        
+
         var chainedDelegate = new ChainedDelegate(options.CreateSchemaReferenceId);
         options.CreateSchemaReferenceId = chainedDelegate.Invoke;
 
@@ -41,13 +41,42 @@ internal static class TypeConventionTransformer
             schema.AdditionalPropertiesAllowed = false;
         }
         if (schema.Type == "array" && string.IsNullOrEmpty(schema.Items?.Type)) {
+            var itemSchema = new OpenApiSchema() { };
             // element type switch.
+
+            switch (context.JsonTypeInfo.ElementType) {
+                case Type t when t == typeof(int):
+                    itemSchema.Type = "integer";
+                    itemSchema.Format = "int32";
+                    break;
+                case Type t when t == typeof(decimal) || t == typeof(double):
+                    itemSchema.Type = "number";
+                    itemSchema.Format = "double";
+                    break;
+                case Type t when t == typeof(DateTime):
+                    itemSchema.Type = "string";
+                    itemSchema.Format = "date-time";
+                    break;
+                case Type t when t == typeof(string):
+                    itemSchema.Type = "string";
+                    break;
+
+                case Type t when t.IsEnum:
+                    itemSchema.Annotations = new Dictionary<string, object> {
+                        ["x-schema-key"] = t.Name
+                    };
+                    break;
+                default:
+                    
+                    break;
+            }
+            schema.Items = new OpenApiSchema(itemSchema);
         }
         return Task.CompletedTask;
     }
 
     private static bool CanTransform(OpenApiSchema schema, Type? type) {
-        if (type is null) { 
+        if (type is null) {
             return false;
         }
         type = Nullable.GetUnderlyingType(type) ?? type;
