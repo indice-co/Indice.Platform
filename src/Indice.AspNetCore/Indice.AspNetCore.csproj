@@ -17,7 +17,7 @@
     <PackageReference Include="Markdig" Version="0.41.2" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.10" />
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="9.0.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="9.0.3" />
     <PackageReference Include="IdentityModel" Version="7.0.0" />
     <PackageReference Include="JsonSchema.Net.Generation" Version="5.0.3" />
     <PackageReference Include="MiniValidation" Version="0.9.2" />

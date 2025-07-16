@@ -40,6 +40,9 @@ internal static class TypeConventionTransformer
         if (CanTransform(schema, context.JsonTypeInfo.Type)) {
             schema.AdditionalPropertiesAllowed = false;
         }
+        if (schema.Type == "array" && string.IsNullOrEmpty(schema.Items?.Type)) {
+            // element type switch.
+        }
         return Task.CompletedTask;
     }
 
