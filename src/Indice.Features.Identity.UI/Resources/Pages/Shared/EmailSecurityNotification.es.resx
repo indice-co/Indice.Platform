@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="(It may not match the exact location)" xml:space="preserve">
+    <value>(puede que no coincida con la ubicación exacta)</value>
+  </data>
+  <data name="Device" xml:space="preserve">
+    <value>Dispositivo</value>
+  </data>
+  <data name="Event details:" xml:space="preserve">
+    <value>Detalles del evento:</value>
+    <comment>Detalles</comment>
+  </data>
+  <data name="Event time" xml:space="preserve">
+    <value>Hora del evento</value>
+  </data>
+  <data name="Hi" xml:space="preserve">
+    <value>Estimado/a</value>
+  </data>
+  <data name="If you did not perform this action, please contact support immediately." xml:space="preserve">
+    <value>Si no realizó esta acción, póngase en contacto con el soporte inmediatamente.</value>
+  </data>
+  <data name="Location" xml:space="preserve">
+    <value>Ubicación</value>
+  </data>
+  <data name="Sincerely" xml:space="preserve">
+    <value>Atentamente</value>
+  </data>
+  <data name="We wanted to let you know that a security-related event occurred on your account." xml:space="preserve">
+    <value>Queríamos informarle que se produjo un evento relacionado con la seguridad en su cuenta.</value>
+  </data>
+</root>

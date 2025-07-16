@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Don't have an account?" xml:space="preserve">
+    <value>¿No tienes una cuenta?</value>
+  </data>
+  <data name="Forgot password?" xml:space="preserve">
+    <value>¿Olvidaste tu contraseña?</value>
+  </data>
+  <data name="Invalid login request" xml:space="preserve">
+    <value>Solicitud de inicio de sesión no válida</value>
+  </data>
+  <data name="Join us" xml:space="preserve">
+    <value>Nuevo usuario</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>Iniciar sesión</value>
+  </data>
+  <data name="OR" xml:space="preserve">
+    <value>O</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Contraseña</value>
+  </data>
+  <data name="Remember me" xml:space="preserve">
+    <value>Recuérdame</value>
+  </data>
+  <data name="Sign in" xml:space="preserve">
+    <value>Iniciar sesión</value>
+  </data>
+  <data name="There are no login schemes configured for this client." xml:space="preserve">
+    <value>No hay esquemas de inicio de sesión configurados para este cliente.</value>
+  </data>
+  <data name="Username" xml:space="preserve">
+    <value>Nombre de usuario</value>
+  </data>
+</root>

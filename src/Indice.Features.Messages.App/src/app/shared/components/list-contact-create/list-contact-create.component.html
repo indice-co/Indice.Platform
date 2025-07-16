@@ -4,16 +4,20 @@
                 <div class="col-span-4">
                     <label for="distribution-list-contact-name"
                            class="field-label">Όνομα (*)</label>
-                    <lib-combobox id="distribution-list-contact-name"  autocomplete="off"
-                                  [items]="contacts"
-                                  [itemTemplate]="itemTemplate"
-                                  [selectedItemTemplate]="selectedItemTemplate"
-                                  [noResultsTemplate]="noResultsTemplate"
-                                  [busy]="isLoading"
-                                  (onSearch)="onContactsSearch($event)"
-                                  (onItemSelected)="onContactSelected($event)"
-                                  #contactsCombobox>
-                    </lib-combobox>
+                    <app-enhanced-combobox id="distribution-list-contact-name" autocomplete="off"
+                                           [items]="contacts"
+                                           [itemTemplate]="itemTemplate"
+                                           [selectedItemTemplate]="selectedItemTemplate"
+                                           [noResultsTemplate]="noResultsTemplate"
+                                           [busy]="isLoading"
+                                           (onSearch)="onContactsSearch($event)"
+                                           (onItemSelected)="onContactSelected($event)"
+                                           [displayShowMoreOption]="displayShowMoreOption"
+                                           (onShowMore)="onShowMore()"
+                                           #contactsCombobox>
+
+                    </app-enhanced-combobox>
+
                 </div>
             </div>
             <button type="submit"
