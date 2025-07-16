@@ -67,6 +67,7 @@ internal class JsonStringArrayEnumFlagsConverter<TEnum> : JsonConverter<TEnum>
 /// <summary>
 /// This resolver is used to ensure that the JSON type information for enum flags is correctly handled
 /// </summary>
+/// <remarks>This breaks serialization as of dotnet9.0 and will not work. Keep this as a referemce</remarks>
 public class JsonStringArrayEnumFlagsTypeInfoResolver : IJsonTypeInfoResolver
 {
     /// <inheritdoc />
@@ -82,8 +83,8 @@ public class JsonStringArrayEnumFlagsTypeInfoResolver : IJsonTypeInfoResolver
         }
         var listType = typeof(List<>).MakeGenericType(enumType!);
         var typeInfoList = options.GetTypeInfo(listType);
-        var typeInfo = options.GetTypeInfo(enumType!);
-        return typeInfo;
+        //var typeInfo = options.GetTypeInfo(enumType!);
+        return typeInfoList;
     }
 }
 
