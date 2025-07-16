@@ -44,8 +44,9 @@ public class CampaignService : ICampaignService
         }
 
 
-        if (options.Filter?.MessageChannelKind.HasValue == true) {
-            query = query.Where(x => x.MessageChannelKind.HasFlag(options.Filter.MessageChannelKind.Value));
+        if (options.Filter?.MessageChannelKind?.Length > 0) {
+            var kind = options.Filter.MessageChannelKind.ToFlags();
+            query = query.Where(x => x.MessageChannelKind.HasFlag(kind));
         }
 
         var projectedQuery = query.Select(Mapper.ProjectToCampaign);
