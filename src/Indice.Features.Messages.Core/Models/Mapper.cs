@@ -20,7 +20,7 @@ internal static class Mapper
         UpdatedAt = campaign.UpdatedAt,
         UpdatedBy = campaign.UpdatedBy,
         Data = campaign.Data,
-        MessageChannelKind = campaign.MessageChannelKind,
+        MessageChannelKind = campaign.MessageChannelKind.ToList(),
         DistributionList = campaign.DistributionList != null ? new DistributionList {
             CreatedAt = campaign.DistributionList.CreatedAt,
             CreatedBy = campaign.DistributionList.CreatedBy,
@@ -105,7 +105,7 @@ internal static class Mapper
         UpdatedAt = campaign.UpdatedAt,
         UpdatedBy = campaign.UpdatedBy,
         Data = campaign.Data,
-        MessageChannelKind = campaign.MessageChannelKind,
+        MessageChannelKind = campaign.MessageChannelKind.ToList(),
         DistributionList = campaign.DistributionList != null ? new DistributionList {
             CreatedAt = campaign.DistributionList.CreatedAt,
             CreatedBy = campaign.DistributionList.CreatedBy,

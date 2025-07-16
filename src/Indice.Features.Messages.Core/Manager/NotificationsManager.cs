@@ -198,9 +198,8 @@ public class NotificationsManager(
             }
             request.Data ??= template.Data;
             var content = template.Content;
-            if (request.MessageTemplateChannels.HasValue && request.MessageTemplateChannels != MessageChannelKind.None) {
-                var channels = request.MessageTemplateChannels.Value
-                                    .GetFlagValues()
+            if (request.MessageTemplateChannels?.Count > 0) {
+                var channels = request.MessageTemplateChannels
                                     .Select(f => f.ToString())
                                     .ToHashSet(StringComparer.OrdinalIgnoreCase);
                 content = new (template.Content.Where(cnt => channels.Contains(cnt.Key)));

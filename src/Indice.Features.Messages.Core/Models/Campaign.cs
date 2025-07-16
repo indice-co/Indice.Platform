@@ -26,7 +26,7 @@ public class Campaign
     /// <summary>The distribution list of the campaign.</summary>
     public DistributionList? DistributionList { get; set; }
     /// <summary>The delivery channel of a campaign.</summary>
-    public MessageChannelKind MessageChannelKind { get; set; }
+    public List<MessageChannelKind> MessageChannelKind { get; set; } = [];
     /// <summary>The base href to access the media.</summary>
     public string? MediaBaseHref { get; set; }
     /// <summary>Optional data for the campaign.</summary>
