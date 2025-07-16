@@ -16,6408 +16,6591 @@ import { HttpClient, HttpHeaders, HttpResponse, HttpResponseBase } from '@angula
 export const MESSAGES_API_BASE_URL = new InjectionToken<string>('MESSAGES_API_BASE_URL');
 
 export interface IMessagesApiClient {
-  /**
-   * Gets the list of all campaigns using the provided ListOptions.
-   * @param page (optional) 
-   * @param size (optional) 
-   * @param sort (optional) 
-   * @param search (optional) 
-   * @param messageChannelKind (optional) 
-   * @param published (optional) 
-   * @param contactId (optional) 
-   * @return OK
-   */
-  getCampaigns(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, messageChannelKind?: MessageChannelKind[] | undefined, published?: boolean | undefined, contactId?: string | undefined): Observable<CampaignResultSet>;
-  /**
-   * Creates a new campaign.
+    /**
+     * Gets the list of all campaigns using the provided ListOptions.
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @param messageChannelKind (optional) 
+     * @param published (optional) 
+     * @param contactId (optional) 
+     * @return OK
+     */
+    getCampaigns(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, messageChannelKind?: MessageChannelKind[] | undefined, published?: boolean | undefined, contactId?: string | undefined): Observable<CampaignResultSet>;
+    /**
+     * Creates a new campaign.
    * @return Created
-   */
+     */
   createCampaign(body: CreateCampaignRequest): Observable<CreateCampaignResult>;
-  /**
-   * Gets a campaign with the specified id.
-   * @return OK
-   */
-  getCampaignById(campaignId: string): Observable<CampaignDetails>;
-  /**
-   * Updates an existing unpublished campaign.
+    /**
+     * Gets a campaign with the specified id.
+     * @return OK
+     */
+    getCampaignById(campaignId: string): Observable<CampaignDetails>;
+    /**
+     * Updates an existing unpublished campaign.
    * @return No Content
-   */
-  updateCampaign(campaignId: string, body: UpdateCampaignRequest): Observable<void>;
-  /**
-   * Permanently deletes a campaign.
+     */
+    updateCampaign(campaignId: string, body: UpdateCampaignRequest): Observable<void>;
+    /**
+     * Permanently deletes a campaign.
    * @return No Content
-   */
-  deleteCampaign(campaignId: string): Observable<void>;
-  /**
-   * Uploads an attachment for the specified campaign.
-   * @param file (optional) 
-   * @return OK
-   */
-  uploadCampaignAttachment(campaignId: string, file?: FileParameter | undefined): Observable<AttachmentLink>;
-  /**
-   * Deletes the camapaign attachment
+     */
+    deleteCampaign(campaignId: string): Observable<void>;
+    /**
+     * Uploads an attachment for the specified campaign.
+     * @param file (optional) 
+     * @return OK
+     */
+    uploadCampaignAttachment(campaignId: string, file?: FileParameter | undefined): Observable<AttachmentLink>;
+    /**
+     * Deletes the camapaign attachment
    * @return No Content
-   */
-  deleteCampaignAttachment(campaignId: string, attachmentId: string): Observable<void>;
-  /**
-   * Publishes a campaign.
+     */
+    deleteCampaignAttachment(campaignId: string, attachmentId: string): Observable<void>;
+    /**
+     * Publishes a campaign.
    * @return No Content
-   */
-  publishCampaign(campaignId: string): Observable<void>;
-  /**
-   * Gets the statistics for a specified campaign.
-   * @return OK
-   */
-  getCampaignStatistics(campaignId: string): Observable<CampaignStatistics>;
-  /**
-   * Gets the statistics for a specified campaign in the form of an Excel file.
-   * @return OK
-   */
-  exportCampaignStatistics(campaignId: string): Observable<CampaignStatistics>;
-  /**
-   * Gets the list of all contacts using the provided ListOptions.
-   * @param page (optional) 
-   * @param size (optional) 
-   * @param sort (optional) 
-   * @param search (optional) 
-   * @param distributionListId (optional) 
-   * @param recipientId (optional) 
-   * @param email (optional) 
-   * @param phoneNumber (optional) 
-   * @param resolve (optional) 
-   * @return OK
-   */
-  getContacts(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, distributionListId?: string | undefined, recipientId?: string | undefined, email?: string | undefined, phoneNumber?: string | undefined, resolve?: boolean | undefined): Observable<ContactResultSet>;
-  /**
-   * Creates a new contact in the store.
-   * @return OK
-   */
-  createContact(body: CreateContactRequest): Observable<Contact>;
-  /**
-   * Gets the contact with the specified id.
-   * @return OK
-   */
-  getContactById(contactId: string): Observable<Contact>;
-  /**
-   * Updates the specified contact in the store.
+     */
+    publishCampaign(campaignId: string): Observable<void>;
+    /**
+     * Gets the statistics for a specified campaign.
+     * @return OK
+     */
+    getCampaignStatistics(campaignId: string): Observable<CampaignStatistics>;
+    /**
+     * Gets the statistics for a specified campaign in the form of an Excel file.
+     * @return OK
+     */
+    exportCampaignStatistics(campaignId: string): Observable<CampaignStatistics>;
+    /**
+     * Gets the list of all contacts using the provided ListOptions.
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @param distributionListId (optional) 
+     * @param recipientId (optional) 
+     * @param email (optional) 
+     * @param phoneNumber (optional) 
+     * @param resolve (optional) 
+     * @return OK
+     */
+    getContacts(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, distributionListId?: string | undefined, recipientId?: string | undefined, email?: string | undefined, phoneNumber?: string | undefined, resolve?: boolean | undefined): Observable<ContactResultSet>;
+    /**
+     * Creates a new contact in the store.
+     * @return OK
+     */
+    createContact(body: CreateContactRequest): Observable<Contact>;
+    /**
+     * Gets the contact with the specified id.
+     * @return OK
+     */
+    getContactById(contactId: string): Observable<Contact>;
+    /**
+     * Updates the specified contact in the store.
    * @return No Content
-   */
-  updateContact(contactId: string, body: UpdateContactRequest): Observable<void>;
-  /**
-   * Add or Updates a contact that matches the recepientId.
+     */
+    updateContact(contactId: string, body: UpdateContactRequest): Observable<void>;
+    /**
+     * Add or Updates a contact that matches the recepientId.
    * @return No Content
-   */
-  refreshContact(recipientId: string): Observable<void>;
-  /**
-   * Gets the list of available campaign types.
-   * @param page (optional) 
-   * @param size (optional) 
-   * @param sort (optional) 
-   * @param search (optional) 
-   * @param isSystemGenerated (optional) 
-   * @return OK
-   */
-  getDistributionLists(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, isSystemGenerated?: boolean | undefined): Observable<DistributionListResultSet>;
-  /**
-   * Creates a new distribution list.
+     */
+    refreshContact(recipientId: string): Observable<void>;
+    /**
+     * Gets the list of available campaign types.
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @param isSystemGenerated (optional) 
+     * @return OK
+     */
+    getDistributionLists(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, isSystemGenerated?: boolean | undefined): Observable<DistributionListResultSet>;
+    /**
+     * Creates a new distribution list.
    * @return Created
-   */
+     */
   createDistributionList(body: CreateDistributionListRequest): Observable<DistributionList>;
-  /**
-   * Gets a distribution list by it's unique id.
-   * @return OK
-   */
-  getDistributionListById(distributionListId: string): Observable<DistributionList>;
-  /**
-   * Permanently deletes a distribution list.
+    /**
+     * Gets a distribution list by it's unique id.
+     * @return OK
+     */
+    getDistributionListById(distributionListId: string): Observable<DistributionList>;
+    /**
+     * Permanently deletes a distribution list.
    * @return No Content
-   */
-  deleteDistributionList(distributionListId: string): Observable<void>;
-  /**
-   * Updates an existing distribution list.
+     */
+    deleteDistributionList(distributionListId: string): Observable<void>;
+    /**
+     * Updates an existing distribution list.
    * @return No Content
-   */
-  updateDistributionList(distributionListId: string, body: UpdateDistributionListRequest): Observable<void>;
-  /**
-   * Gets the contacts of a given distribution list.
-   * @param page (optional) 
-   * @param size (optional) 
-   * @param sort (optional) 
-   * @param search (optional) 
-   * @return OK
-   */
-  getDistributionListContacts(distributionListId: string, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ContactResultSet>;
-  /**
-   * Adds a new or existing contact in the specified distribution list.
+     */
+    updateDistributionList(distributionListId: string, body: UpdateDistributionListRequest): Observable<void>;
+    /**
+     * Gets the contacts of a given distribution list.
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @return OK
+     */
+    getDistributionListContacts(distributionListId: string, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ContactResultSet>;
+    /**
+     * Adds a new or existing contact in the specified distribution list.
    * @return No Content
-   */
-  addContactToDistributionList(distributionListId: string, body: CreateDistributionListContactRequest): Observable<void>;
-  /**
-   * Removes an existing contact from the specified distribution list.
+     */
+    addContactToDistributionList(distributionListId: string, body: CreateDistributionListContactRequest): Observable<void>;
+    /**
+     * Removes an existing contact from the specified distribution list.
    * @return No Content
-   */
-  removeContactFromDistributionList(distributionListId: string, contactId: string): Observable<void>;
-  /**
-   * Bulk exports contacts from a specified distribution list in CSV file.
-   * @return OK
-   */
-  bulkExportContactsFromDistributionList(distributionListId: string): Observable<FileResponse>;
-  /**
-   * Bulk imports contacts in a specified distribution list.
-   * @param file (optional) 
-   * @return OK
-   */
-  bulkImportContactsToDistributionList(distributionListId: string, file?: FileParameter | undefined): Observable<ContactsImportResult>;
-  /**
-   * Gets the list of available message senders.
-   * @param page (optional) 
-   * @param size (optional) 
-   * @param sort (optional) 
-   * @param search (optional) 
-   * @param isDefault (optional) 
-   * @return OK
-   */
-  getMessageSenders(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, isDefault?: boolean | undefined): Observable<MessageSenderResultSet>;
-  /**
-   * Creates a new message sender.
+     */
+    removeContactFromDistributionList(distributionListId: string, contactId: string): Observable<void>;
+    /**
+     * Bulk exports contacts from a specified distribution list in CSV file.
+     * @return OK
+     */
+    bulkExportContactsFromDistributionList(distributionListId: string): Observable<FileResponse>;
+    /**
+     * Bulk imports contacts in a specified distribution list.
+     * @param file (optional) 
+     * @return OK
+     */
+    bulkImportContactsToDistributionList(distributionListId: string, file?: FileParameter | undefined): Observable<ContactsImportResult>;
+    /**
+     * Gets the list of available message senders.
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @param isDefault (optional) 
+     * @return OK
+     */
+    getMessageSenders(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, isDefault?: boolean | undefined): Observable<MessageSenderResultSet>;
+    /**
+     * Creates a new message sender.
    * @return Created
-   */
+     */
   createMessageSender(body: CreateMessageSenderRequest): Observable<MessageSender>;
-  /**
-   * Gets a message sender by its unique ID.
-   * @return OK
-   */
-  getMessageSenderById(senderId: string): Observable<MessageSender>;
-  /**
-   * Updates an existing message sender.
+    /**
+     * Gets a message sender by its unique ID.
+     * @return OK
+     */
+    getMessageSenderById(senderId: string): Observable<MessageSender>;
+    /**
+     * Updates an existing message sender.
    * @return No Content
-   */
-  updateMessageSender(senderId: string, body: UpdateMessageSenderRequest): Observable<void>;
-  /**
-   * Permanently deletes a message sender.
+     */
+    updateMessageSender(senderId: string, body: UpdateMessageSenderRequest): Observable<void>;
+    /**
+     * Permanently deletes a message sender.
    * @return No Content
-   */
-  deleteMessageSender(senderId: string): Observable<void>;
-  /**
-   * Gets the list of available message types.
-   * @param page (optional) 
-   * @param size (optional) 
-   * @param sort (optional) 
-   * @param search (optional) 
-   * @return OK
-   */
-  getMessageTypes(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<MessageTypeResultSet>;
-  /**
-   * Creates a new message type.
+     */
+    deleteMessageSender(senderId: string): Observable<void>;
+    /**
+     * Gets the list of available message types.
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @return OK
+     */
+    getMessageTypes(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<MessageTypeResultSet>;
+    /**
+     * Creates a new message type.
    * @return Created
-   */
+     */
   createMessageType(body: CreateMessageTypeRequest): Observable<MessageType>;
-  /**
-   * Gets a message type by its unique ID.
-   * @return OK
-   */
-  getMessageTypeById(typeId: string): Observable<MessageType>;
-  /**
-   * Updates an existing message type.
+    /**
+     * Gets a message type by its unique ID.
+     * @return OK
+     */
+    getMessageTypeById(typeId: string): Observable<MessageType>;
+    /**
+     * Updates an existing message type.
    * @return No Content
-   */
-  updateMessageType(typeId: string, body: UpdateMessageTypeRequest): Observable<void>;
-  /**
-   * Permanently deletes a message type.
+     */
+    updateMessageType(typeId: string, body: UpdateMessageTypeRequest): Observable<void>;
+    /**
+     * Permanently deletes a message type.
    * @return No Content
-   */
-  deleteMessageType(typeId: string): Observable<void>;
-  /**
-   * Gets the list of all templates using the provided ListOptions.
-   * @param page (optional) 
-   * @param size (optional) 
-   * @param sort (optional) 
-   * @param search (optional) 
-   * @return OK
-   */
-  getTemplates(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<TemplateListItemResultSet>;
-  /**
-   * Creates a new template in the store.
+     */
+    deleteMessageType(typeId: string): Observable<void>;
+    /**
+     * Gets the list of all templates using the provided ListOptions.
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @return OK
+     */
+    getTemplates(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<TemplateListItemResultSet>;
+    /**
+     * Creates a new template in the store.
    * @return Created
-   */
+     */
   createTemplate(body: CreateTemplateRequest): Observable<Template>;
-  /**
-   * Gets a template by its unique id.
-   * @return OK
-   */
-  getTemplateById(templateId: string): Observable<Template>;
-  /**
-   * Updates an existing template.
+    /**
+     * Gets a template by its unique id.
+     * @return OK
+     */
+    getTemplateById(templateId: string): Observable<Template>;
+    /**
+     * Updates an existing template.
    * @return No Content
-   */
-  updateTemplate(templateId: string, body: UpdateTemplateRequest): Observable<void>;
-  /**
-   * Permanently deletes a template from the store.
+     */
+    updateTemplate(templateId: string, body: UpdateTemplateRequest): Observable<void>;
+    /**
+     * Permanently deletes a template from the store.
    * @return No Content
-   */
-  deleteTemplate(templateId: string): Observable<void>;
-  /**
-   * Updates in an existing template user respect of user preferences flag.
+     */
+    deleteTemplate(templateId: string): Observable<void>;
+    /**
+     * Updates in an existing template user respect of user preferences flag.
    * @return No Content
-   */
-  updateTemplateUserPreferences(templateId: string, body: UpdateTemplateUserPreferencesRequest): Observable<void>;
+     */
+    updateTemplateUserPreferences(templateId: string, body: UpdateTemplateUserPreferencesRequest): Observable<void>;
 }
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class MessagesApiClient implements IMessagesApiClient {
-  private http: HttpClient;
-  private baseUrl: string;
-  protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
-  constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(MESSAGES_API_BASE_URL) baseUrl?: string) {
-    this.http = http;
-    this.baseUrl = baseUrl ?? "";
-  }
-
-  /**
-   * Gets the list of all campaigns using the provided ListOptions.
-   * @param page (optional) 
-   * @param size (optional) 
-   * @param sort (optional) 
-   * @param search (optional) 
-   * @param messageChannelKind (optional) 
-   * @param published (optional) 
-   * @param contactId (optional) 
-   * @return OK
-   */
-  getCampaigns(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, messageChannelKind?: MessageChannelKind[] | undefined, published?: boolean | undefined, contactId?: string | undefined): Observable<CampaignResultSet> {
-    let url_ = this.baseUrl + "/campaigns?";
-    if (page === null)
-      throw new Error("The parameter 'page' cannot be null.");
-    else if (page !== undefined)
-      url_ += "Page=" + encodeURIComponent("" + page) + "&";
-    if (size === null)
-      throw new Error("The parameter 'size' cannot be null.");
-    else if (size !== undefined)
-      url_ += "Size=" + encodeURIComponent("" + size) + "&";
-    if (sort === null)
-      throw new Error("The parameter 'sort' cannot be null.");
-    else if (sort !== undefined)
-      url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
-    if (search === null)
-      throw new Error("The parameter 'search' cannot be null.");
-    else if (search !== undefined)
-      url_ += "Search=" + encodeURIComponent("" + search) + "&";
-    if (messageChannelKind === null)
-      throw new Error("The parameter 'messageChannelKind' cannot be null.");
-    else if (messageChannelKind !== undefined)
-      messageChannelKind && messageChannelKind.forEach(item => { url_ += "MessageChannelKind=" + encodeURIComponent("" + item) + "&"; });
-    if (published === null)
-      throw new Error("The parameter 'published' cannot be null.");
-    else if (published !== undefined)
-      url_ += "Published=" + encodeURIComponent("" + published) + "&";
-    if (contactId !== undefined)
-      url_ += "ContactId=" + encodeURIComponent("" + contactId) + "&";
-    url_ = url_.replace(/[?&]$/, "");
-
-    let options_: any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
-
-    return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processGetCampaigns(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processGetCampaigns(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<CampaignResultSet>;
-        }
-      } else
-        return _observableThrow(response_) as any as Observable<CampaignResultSet>;
-    }));
-  }
-
-  protected processGetCampaigns(response: HttpResponseBase): Observable<CampaignResultSet> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 200) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = CampaignResultSet.fromJS(resultData200);
-        return _observableOf(result200);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(MESSAGES_API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Creates a new campaign.
+    /**
+     * Gets the list of all campaigns using the provided ListOptions.
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @param messageChannelKind (optional) 
+     * @param published (optional) 
+     * @param contactId (optional) 
+     * @return OK
+     */
+    getCampaigns(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, messageChannelKind?: MessageChannelKind[] | undefined, published?: boolean | undefined, contactId?: string | undefined): Observable<CampaignResultSet> {
+    let url_ = this.baseUrl + "/campaigns?";
+        if (page === null)
+            throw new Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (size === null)
+            throw new Error("The parameter 'size' cannot be null.");
+        else if (size !== undefined)
+            url_ += "Size=" + encodeURIComponent("" + size) + "&";
+        if (sort === null)
+            throw new Error("The parameter 'sort' cannot be null.");
+        else if (sort !== undefined)
+            url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
+        if (search === null)
+            throw new Error("The parameter 'search' cannot be null.");
+        else if (search !== undefined)
+            url_ += "Search=" + encodeURIComponent("" + search) + "&";
+        if (messageChannelKind === null)
+            throw new Error("The parameter 'messageChannelKind' cannot be null.");
+        else if (messageChannelKind !== undefined)
+            messageChannelKind && messageChannelKind.forEach(item => { url_ += "MessageChannelKind=" + encodeURIComponent("" + item) + "&"; });
+        if (published === null)
+            throw new Error("The parameter 'published' cannot be null.");
+        else if (published !== undefined)
+            url_ += "Published=" + encodeURIComponent("" + published) + "&";
+    if (contactId !== undefined)
+            url_ += "ContactId=" + encodeURIComponent("" + contactId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCampaigns(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCampaigns(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CampaignResultSet>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CampaignResultSet>;
+        }));
+    }
+
+    protected processGetCampaigns(response: HttpResponseBase): Observable<CampaignResultSet> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CampaignResultSet.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Creates a new campaign.
    * @return Created
-   */
+     */
   createCampaign(body: CreateCampaignRequest): Observable<CreateCampaignResult> {
     let url_ = this.baseUrl + "/campaigns";
-    url_ = url_.replace(/[?&]$/, "");
+        url_ = url_.replace(/[?&]$/, "");
 
-    const content_ = JSON.stringify(body);
+        const content_ = JSON.stringify(body);
 
-    let options_: any = {
-      body: content_,
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      })
-    };
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
 
-    return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processCreateCampaign(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processCreateCampaign(response_ as any);
-        } catch (e) {
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreateCampaign(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreateCampaign(response_ as any);
+                } catch (e) {
           return _observableThrow(e) as any as Observable<CreateCampaignResult>;
-        }
-      } else
+                }
+            } else
         return _observableThrow(response_) as any as Observable<CreateCampaignResult>;
-    }));
-  }
+        }));
+    }
 
   protected processCreateCampaign(response: HttpResponseBase): Observable<CreateCampaignResult> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
 
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 201) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result201: any = null;
-        let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result201 = CreateCampaignResult.fromJS(resultData201);
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 201) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result201 = CreateCampaignResult.fromJS(resultData201);
         return _observableOf(result201);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
-    }
-    return _observableOf(null as any);
-  }
-
-  /**
-   * Gets a campaign with the specified id.
-   * @return OK
-   */
-  getCampaignById(campaignId: string): Observable<CampaignDetails> {
-    let url_ = this.baseUrl + "/campaigns/{campaignId}";
-    if (campaignId === undefined || campaignId === null)
-      throw new Error("The parameter 'campaignId' must be defined.");
-    url_ = url_.replace("{campaignId}", encodeURIComponent("" + campaignId));
-    url_ = url_.replace(/[?&]$/, "");
-
-    let options_: any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
-
-    return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processGetCampaignById(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processGetCampaignById(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<CampaignDetails>;
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
         }
-      } else
-        return _observableThrow(response_) as any as Observable<CampaignDetails>;
-    }));
-  }
-
-  protected processGetCampaignById(response: HttpResponseBase): Observable<CampaignDetails> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 200) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = CampaignDetails.fromJS(resultData200);
-        return _observableOf(result200);
-      }));
-    } else if (status === 404) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("Not Found", status, _responseText, _headers);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
-    }
-    return _observableOf(null as any);
-  }
-
-  /**
-   * Updates an existing unpublished campaign.
-   * @return No Content
-   */
-  updateCampaign(campaignId: string, body: UpdateCampaignRequest): Observable<void> {
-    let url_ = this.baseUrl + "/campaigns/{campaignId}";
-    if (campaignId === undefined || campaignId === null)
-      throw new Error("The parameter 'campaignId' must be defined.");
-    url_ = url_.replace("{campaignId}", encodeURIComponent("" + campaignId));
-    url_ = url_.replace(/[?&]$/, "");
-
-    const content_ = JSON.stringify(body);
-
-    let options_: any = {
-      body: content_,
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Content-Type": "application/json",
-      })
-    };
-
-    return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processUpdateCampaign(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processUpdateCampaign(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<void>;
-        }
-      } else
-        return _observableThrow(response_) as any as Observable<void>;
-    }));
-  }
-
-  protected processUpdateCampaign(response: HttpResponseBase): Observable<void> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
         return _observableOf(null as any);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Permanently deletes a campaign.
-   * @return No Content
-   */
-  deleteCampaign(campaignId: string): Observable<void> {
+    /**
+     * Gets a campaign with the specified id.
+     * @return OK
+     */
+    getCampaignById(campaignId: string): Observable<CampaignDetails> {
     let url_ = this.baseUrl + "/campaigns/{campaignId}";
-    if (campaignId === undefined || campaignId === null)
-      throw new Error("The parameter 'campaignId' must be defined.");
-    url_ = url_.replace("{campaignId}", encodeURIComponent("" + campaignId));
-    url_ = url_.replace(/[?&]$/, "");
+        if (campaignId === undefined || campaignId === null)
+            throw new Error("The parameter 'campaignId' must be defined.");
+        url_ = url_.replace("{campaignId}", encodeURIComponent("" + campaignId));
+        url_ = url_.replace(/[?&]$/, "");
 
-    let options_: any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-      })
-    };
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
 
-    return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processDeleteCampaign(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processDeleteCampaign(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<void>;
-        }
-      } else
-        return _observableThrow(response_) as any as Observable<void>;
-    }));
-  }
-
-  protected processDeleteCampaign(response: HttpResponseBase): Observable<void> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return _observableOf(null as any);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCampaignById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCampaignById(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CampaignDetails>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CampaignDetails>;
+        }));
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Uploads an attachment for the specified campaign.
-   * @param file (optional) 
-   * @return OK
-   */
-  uploadCampaignAttachment(campaignId: string, file?: FileParameter | undefined): Observable<AttachmentLink> {
+    protected processGetCampaignById(response: HttpResponseBase): Observable<CampaignDetails> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CampaignDetails.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Updates an existing unpublished campaign.
+   * @return No Content
+     */
+    updateCampaign(campaignId: string, body: UpdateCampaignRequest): Observable<void> {
+    let url_ = this.baseUrl + "/campaigns/{campaignId}";
+        if (campaignId === undefined || campaignId === null)
+            throw new Error("The parameter 'campaignId' must be defined.");
+        url_ = url_.replace("{campaignId}", encodeURIComponent("" + campaignId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateCampaign(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateCampaign(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUpdateCampaign(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Permanently deletes a campaign.
+   * @return No Content
+     */
+    deleteCampaign(campaignId: string): Observable<void> {
+    let url_ = this.baseUrl + "/campaigns/{campaignId}";
+        if (campaignId === undefined || campaignId === null)
+            throw new Error("The parameter 'campaignId' must be defined.");
+        url_ = url_.replace("{campaignId}", encodeURIComponent("" + campaignId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteCampaign(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteCampaign(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDeleteCampaign(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Uploads an attachment for the specified campaign.
+     * @param file (optional) 
+     * @return OK
+     */
+    uploadCampaignAttachment(campaignId: string, file?: FileParameter | undefined): Observable<AttachmentLink> {
     let url_ = this.baseUrl + "/campaigns/{campaignId}/attachment";
-    if (campaignId === undefined || campaignId === null)
-      throw new Error("The parameter 'campaignId' must be defined.");
-    url_ = url_.replace("{campaignId}", encodeURIComponent("" + campaignId));
-    url_ = url_.replace(/[?&]$/, "");
+        if (campaignId === undefined || campaignId === null)
+            throw new Error("The parameter 'campaignId' must be defined.");
+        url_ = url_.replace("{campaignId}", encodeURIComponent("" + campaignId));
+        url_ = url_.replace(/[?&]$/, "");
 
-    const content_ = new FormData();
-    if (file === null || file === undefined)
-      throw new Error("The parameter 'file' cannot be null.");
-    else
-      content_.append("file", file.data, file.fileName ? file.fileName : "file");
+        const content_ = new FormData();
+        if (file === null || file === undefined)
+            throw new Error("The parameter 'file' cannot be null.");
+        else
+            content_.append("file", file.data, file.fileName ? file.fileName : "file");
 
-    let options_: any = {
-      body: content_,
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
 
-    return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processUploadCampaignAttachment(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processUploadCampaignAttachment(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<AttachmentLink>;
-        }
-      } else
-        return _observableThrow(response_) as any as Observable<AttachmentLink>;
-    }));
-  }
-
-  protected processUploadCampaignAttachment(response: HttpResponseBase): Observable<AttachmentLink> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 200) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = AttachmentLink.fromJS(resultData200);
-        return _observableOf(result200);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUploadCampaignAttachment(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUploadCampaignAttachment(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<AttachmentLink>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<AttachmentLink>;
+        }));
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Deletes the camapaign attachment
+    protected processUploadCampaignAttachment(response: HttpResponseBase): Observable<AttachmentLink> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AttachmentLink.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Deletes the camapaign attachment
    * @return No Content
-   */
-  deleteCampaignAttachment(campaignId: string, attachmentId: string): Observable<void> {
+     */
+    deleteCampaignAttachment(campaignId: string, attachmentId: string): Observable<void> {
     let url_ = this.baseUrl + "/campaigns/{campaignId}/attachments/{attachmentId}";
-    if (campaignId === undefined || campaignId === null)
-      throw new Error("The parameter 'campaignId' must be defined.");
-    url_ = url_.replace("{campaignId}", encodeURIComponent("" + campaignId));
-    if (attachmentId === undefined || attachmentId === null)
-      throw new Error("The parameter 'attachmentId' must be defined.");
-    url_ = url_.replace("{attachmentId}", encodeURIComponent("" + attachmentId));
-    url_ = url_.replace(/[?&]$/, "");
+        if (campaignId === undefined || campaignId === null)
+            throw new Error("The parameter 'campaignId' must be defined.");
+        url_ = url_.replace("{campaignId}", encodeURIComponent("" + campaignId));
+        if (attachmentId === undefined || attachmentId === null)
+            throw new Error("The parameter 'attachmentId' must be defined.");
+        url_ = url_.replace("{attachmentId}", encodeURIComponent("" + attachmentId));
+        url_ = url_.replace(/[?&]$/, "");
 
-    let options_: any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-      })
-    };
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
 
-    return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processDeleteCampaignAttachment(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processDeleteCampaignAttachment(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<void>;
-        }
-      } else
-        return _observableThrow(response_) as any as Observable<void>;
-    }));
-  }
-
-  protected processDeleteCampaignAttachment(response: HttpResponseBase): Observable<void> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return _observableOf(null as any);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteCampaignAttachment(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteCampaignAttachment(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Publishes a campaign.
+    protected processDeleteCampaignAttachment(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Publishes a campaign.
    * @return No Content
-   */
-  publishCampaign(campaignId: string): Observable<void> {
+     */
+    publishCampaign(campaignId: string): Observable<void> {
     let url_ = this.baseUrl + "/campaigns/{campaignId}/publish";
-    if (campaignId === undefined || campaignId === null)
-      throw new Error("The parameter 'campaignId' must be defined.");
-    url_ = url_.replace("{campaignId}", encodeURIComponent("" + campaignId));
-    url_ = url_.replace(/[?&]$/, "");
+        if (campaignId === undefined || campaignId === null)
+            throw new Error("The parameter 'campaignId' must be defined.");
+        url_ = url_.replace("{campaignId}", encodeURIComponent("" + campaignId));
+        url_ = url_.replace(/[?&]$/, "");
 
-    let options_: any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-      })
-    };
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
 
-    return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processPublishCampaign(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processPublishCampaign(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<void>;
-        }
-      } else
-        return _observableThrow(response_) as any as Observable<void>;
-    }));
-  }
-
-  protected processPublishCampaign(response: HttpResponseBase): Observable<void> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return _observableOf(null as any);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPublishCampaign(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPublishCampaign(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Gets the statistics for a specified campaign.
-   * @return OK
-   */
-  getCampaignStatistics(campaignId: string): Observable<CampaignStatistics> {
+    protected processPublishCampaign(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Gets the statistics for a specified campaign.
+     * @return OK
+     */
+    getCampaignStatistics(campaignId: string): Observable<CampaignStatistics> {
     let url_ = this.baseUrl + "/campaigns/{campaignId}/statistics";
-    if (campaignId === undefined || campaignId === null)
-      throw new Error("The parameter 'campaignId' must be defined.");
-    url_ = url_.replace("{campaignId}", encodeURIComponent("" + campaignId));
-    url_ = url_.replace(/[?&]$/, "");
+        if (campaignId === undefined || campaignId === null)
+            throw new Error("The parameter 'campaignId' must be defined.");
+        url_ = url_.replace("{campaignId}", encodeURIComponent("" + campaignId));
+        url_ = url_.replace(/[?&]$/, "");
 
-    let options_: any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
 
-    return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processGetCampaignStatistics(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processGetCampaignStatistics(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<CampaignStatistics>;
-        }
-      } else
-        return _observableThrow(response_) as any as Observable<CampaignStatistics>;
-    }));
-  }
-
-  protected processGetCampaignStatistics(response: HttpResponseBase): Observable<CampaignStatistics> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 200) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = CampaignStatistics.fromJS(resultData200);
-        return _observableOf(result200);
-      }));
-    } else if (status === 404) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("Not Found", status, _responseText, _headers);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCampaignStatistics(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCampaignStatistics(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CampaignStatistics>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CampaignStatistics>;
+        }));
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Gets the statistics for a specified campaign in the form of an Excel file.
-   * @return OK
-   */
-  exportCampaignStatistics(campaignId: string): Observable<CampaignStatistics> {
+    protected processGetCampaignStatistics(response: HttpResponseBase): Observable<CampaignStatistics> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CampaignStatistics.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Gets the statistics for a specified campaign in the form of an Excel file.
+     * @return OK
+     */
+    exportCampaignStatistics(campaignId: string): Observable<CampaignStatistics> {
     let url_ = this.baseUrl + "/campaigns/{campaignId}/statistics/export";
-    if (campaignId === undefined || campaignId === null)
-      throw new Error("The parameter 'campaignId' must be defined.");
-    url_ = url_.replace("{campaignId}", encodeURIComponent("" + campaignId));
-    url_ = url_.replace(/[?&]$/, "");
+        if (campaignId === undefined || campaignId === null)
+            throw new Error("The parameter 'campaignId' must be defined.");
+        url_ = url_.replace("{campaignId}", encodeURIComponent("" + campaignId));
+        url_ = url_.replace(/[?&]$/, "");
 
-    let options_: any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
 
-    return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processExportCampaignStatistics(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processExportCampaignStatistics(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<CampaignStatistics>;
-        }
-      } else
-        return _observableThrow(response_) as any as Observable<CampaignStatistics>;
-    }));
-  }
-
-  protected processExportCampaignStatistics(response: HttpResponseBase): Observable<CampaignStatistics> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 200) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = CampaignStatistics.fromJS(resultData200);
-        return _observableOf(result200);
-      }));
-    } else if (status === 404) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("Not Found", status, _responseText, _headers);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processExportCampaignStatistics(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processExportCampaignStatistics(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CampaignStatistics>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CampaignStatistics>;
+        }));
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Gets the list of all contacts using the provided ListOptions.
-   * @param page (optional) 
-   * @param size (optional) 
-   * @param sort (optional) 
-   * @param search (optional) 
-   * @param distributionListId (optional) 
-   * @param recipientId (optional) 
-   * @param email (optional) 
-   * @param phoneNumber (optional) 
-   * @param resolve (optional) 
-   * @return OK
-   */
-  getContacts(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, distributionListId?: string | undefined, recipientId?: string | undefined, email?: string | undefined, phoneNumber?: string | undefined, resolve?: boolean | undefined): Observable<ContactResultSet> {
+    protected processExportCampaignStatistics(response: HttpResponseBase): Observable<CampaignStatistics> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CampaignStatistics.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Gets the list of all contacts using the provided ListOptions.
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @param distributionListId (optional) 
+     * @param recipientId (optional) 
+     * @param email (optional) 
+     * @param phoneNumber (optional) 
+     * @param resolve (optional) 
+     * @return OK
+     */
+    getContacts(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, distributionListId?: string | undefined, recipientId?: string | undefined, email?: string | undefined, phoneNumber?: string | undefined, resolve?: boolean | undefined): Observable<ContactResultSet> {
     let url_ = this.baseUrl + "/contacts?";
-    if (page === null)
-      throw new Error("The parameter 'page' cannot be null.");
-    else if (page !== undefined)
-      url_ += "Page=" + encodeURIComponent("" + page) + "&";
-    if (size === null)
-      throw new Error("The parameter 'size' cannot be null.");
-    else if (size !== undefined)
-      url_ += "Size=" + encodeURIComponent("" + size) + "&";
-    if (sort === null)
-      throw new Error("The parameter 'sort' cannot be null.");
-    else if (sort !== undefined)
-      url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
-    if (search === null)
-      throw new Error("The parameter 'search' cannot be null.");
-    else if (search !== undefined)
-      url_ += "Search=" + encodeURIComponent("" + search) + "&";
-    if (distributionListId === null)
-      throw new Error("The parameter 'distributionListId' cannot be null.");
-    else if (distributionListId !== undefined)
-      url_ += "DistributionListId=" + encodeURIComponent("" + distributionListId) + "&";
-    if (recipientId === null)
-      throw new Error("The parameter 'recipientId' cannot be null.");
-    else if (recipientId !== undefined)
-      url_ += "RecipientId=" + encodeURIComponent("" + recipientId) + "&";
-    if (email === null)
-      throw new Error("The parameter 'email' cannot be null.");
-    else if (email !== undefined)
-      url_ += "Email=" + encodeURIComponent("" + email) + "&";
-    if (phoneNumber === null)
-      throw new Error("The parameter 'phoneNumber' cannot be null.");
-    else if (phoneNumber !== undefined)
-      url_ += "PhoneNumber=" + encodeURIComponent("" + phoneNumber) + "&";
-    if (resolve === null)
-      throw new Error("The parameter 'resolve' cannot be null.");
-    else if (resolve !== undefined)
-      url_ += "resolve=" + encodeURIComponent("" + resolve) + "&";
-    url_ = url_.replace(/[?&]$/, "");
+        if (page === null)
+            throw new Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (size === null)
+            throw new Error("The parameter 'size' cannot be null.");
+        else if (size !== undefined)
+            url_ += "Size=" + encodeURIComponent("" + size) + "&";
+        if (sort === null)
+            throw new Error("The parameter 'sort' cannot be null.");
+        else if (sort !== undefined)
+            url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
+        if (search === null)
+            throw new Error("The parameter 'search' cannot be null.");
+        else if (search !== undefined)
+            url_ += "Search=" + encodeURIComponent("" + search) + "&";
+        if (distributionListId === null)
+            throw new Error("The parameter 'distributionListId' cannot be null.");
+        else if (distributionListId !== undefined)
+            url_ += "DistributionListId=" + encodeURIComponent("" + distributionListId) + "&";
+        if (recipientId === null)
+            throw new Error("The parameter 'recipientId' cannot be null.");
+        else if (recipientId !== undefined)
+            url_ += "RecipientId=" + encodeURIComponent("" + recipientId) + "&";
+        if (email === null)
+            throw new Error("The parameter 'email' cannot be null.");
+        else if (email !== undefined)
+            url_ += "Email=" + encodeURIComponent("" + email) + "&";
+        if (phoneNumber === null)
+            throw new Error("The parameter 'phoneNumber' cannot be null.");
+        else if (phoneNumber !== undefined)
+            url_ += "PhoneNumber=" + encodeURIComponent("" + phoneNumber) + "&";
+        if (resolve === null)
+            throw new Error("The parameter 'resolve' cannot be null.");
+        else if (resolve !== undefined)
+            url_ += "resolve=" + encodeURIComponent("" + resolve) + "&";
+        url_ = url_.replace(/[?&]$/, "");
 
-    let options_: any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
 
-    return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processGetContacts(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processGetContacts(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<ContactResultSet>;
-        }
-      } else
-        return _observableThrow(response_) as any as Observable<ContactResultSet>;
-    }));
-  }
-
-  protected processGetContacts(response: HttpResponseBase): Observable<ContactResultSet> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 200) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = ContactResultSet.fromJS(resultData200);
-        return _observableOf(result200);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetContacts(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetContacts(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ContactResultSet>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ContactResultSet>;
+        }));
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Creates a new contact in the store.
-   * @return OK
-   */
-  createContact(body: CreateContactRequest): Observable<Contact> {
+    protected processGetContacts(response: HttpResponseBase): Observable<ContactResultSet> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ContactResultSet.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Creates a new contact in the store.
+     * @return OK
+     */
+    createContact(body: CreateContactRequest): Observable<Contact> {
     let url_ = this.baseUrl + "/contacts";
-    url_ = url_.replace(/[?&]$/, "");
+        url_ = url_.replace(/[?&]$/, "");
 
-    const content_ = JSON.stringify(body);
+        const content_ = JSON.stringify(body);
 
-    let options_: any = {
-      body: content_,
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      })
-    };
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
 
-    return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processCreateContact(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processCreateContact(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<Contact>;
-        }
-      } else
-        return _observableThrow(response_) as any as Observable<Contact>;
-    }));
-  }
-
-  protected processCreateContact(response: HttpResponseBase): Observable<Contact> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 200) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = Contact.fromJS(resultData200);
-        return _observableOf(result200);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreateContact(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreateContact(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<Contact>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<Contact>;
+        }));
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Gets the contact with the specified id.
-   * @return OK
-   */
-  getContactById(contactId: string): Observable<Contact> {
-    let url_ = this.baseUrl + "/contacts/{contactId}";
-    if (contactId === undefined || contactId === null)
-      throw new Error("The parameter 'contactId' must be defined.");
-    url_ = url_.replace("{contactId}", encodeURIComponent("" + contactId));
-    url_ = url_.replace(/[?&]$/, "");
+    protected processCreateContact(response: HttpResponseBase): Observable<Contact> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
 
-    let options_: any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
-
-    return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processGetContactById(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processGetContactById(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<Contact>;
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Contact.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
         }
-      } else
-        return _observableThrow(response_) as any as Observable<Contact>;
-    }));
-  }
-
-  protected processGetContactById(response: HttpResponseBase): Observable<Contact> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 200) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = Contact.fromJS(resultData200);
-        return _observableOf(result200);
-      }));
-    } else if (status === 404) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("Not Found", status, _responseText, _headers);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
-    }
-    return _observableOf(null as any);
-  }
-
-  /**
-   * Updates the specified contact in the store.
-   * @return No Content
-   */
-  updateContact(contactId: string, body: UpdateContactRequest): Observable<void> {
-    let url_ = this.baseUrl + "/contacts/{contactId}";
-    if (contactId === undefined || contactId === null)
-      throw new Error("The parameter 'contactId' must be defined.");
-    url_ = url_.replace("{contactId}", encodeURIComponent("" + contactId));
-    url_ = url_.replace(/[?&]$/, "");
-
-    const content_ = JSON.stringify(body);
-
-    let options_: any = {
-      body: content_,
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Content-Type": "application/json",
-      })
-    };
-
-    return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processUpdateContact(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processUpdateContact(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<void>;
-        }
-      } else
-        return _observableThrow(response_) as any as Observable<void>;
-    }));
-  }
-
-  protected processUpdateContact(response: HttpResponseBase): Observable<void> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
         return _observableOf(null as any);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Add or Updates a contact that matches the recepientId.
+    /**
+     * Gets the contact with the specified id.
+     * @return OK
+     */
+    getContactById(contactId: string): Observable<Contact> {
+    let url_ = this.baseUrl + "/contacts/{contactId}";
+        if (contactId === undefined || contactId === null)
+            throw new Error("The parameter 'contactId' must be defined.");
+        url_ = url_.replace("{contactId}", encodeURIComponent("" + contactId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetContactById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetContactById(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<Contact>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<Contact>;
+        }));
+    }
+
+    protected processGetContactById(response: HttpResponseBase): Observable<Contact> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Contact.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Updates the specified contact in the store.
    * @return No Content
-   */
-  refreshContact(recipientId: string): Observable<void> {
+     */
+    updateContact(contactId: string, body: UpdateContactRequest): Observable<void> {
+    let url_ = this.baseUrl + "/contacts/{contactId}";
+        if (contactId === undefined || contactId === null)
+            throw new Error("The parameter 'contactId' must be defined.");
+        url_ = url_.replace("{contactId}", encodeURIComponent("" + contactId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateContact(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateContact(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUpdateContact(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Get contact communication preferences.
+     * @return OK
+     */
+    getCommunicationPreferences(contactId: string): Observable<CommunicationPreference> {
+        let url_ = this.baseUrl + "/contacts/{contactId}/communication-preferences";
+        if (contactId === undefined || contactId === null)
+            throw new Error("The parameter 'contactId' must be defined.");
+        url_ = url_.replace("{contactId}", encodeURIComponent("" + contactId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCommunicationPreferences(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCommunicationPreferences(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CommunicationPreference>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CommunicationPreference>;
+        }));
+    }
+
+    protected processGetCommunicationPreferences(response: HttpResponseBase): Observable<CommunicationPreference> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CommunicationPreference.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Add or Updates a contact that matches the recepientId.
+   * @return No Content
+     */
+    refreshContact(recipientId: string): Observable<void> {
     let url_ = this.baseUrl + "/contacts/{recipientId}/refresh";
-    if (recipientId === undefined || recipientId === null)
-      throw new Error("The parameter 'recipientId' must be defined.");
-    url_ = url_.replace("{recipientId}", encodeURIComponent("" + recipientId));
-    url_ = url_.replace(/[?&]$/, "");
+        if (recipientId === undefined || recipientId === null)
+            throw new Error("The parameter 'recipientId' must be defined.");
+        url_ = url_.replace("{recipientId}", encodeURIComponent("" + recipientId));
+        url_ = url_.replace(/[?&]$/, "");
 
-    let options_: any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-      })
-    };
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
 
-    return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processRefreshContact(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processRefreshContact(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<void>;
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRefreshContact(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRefreshContact(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processRefreshContact(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
         }
-      } else
-        return _observableThrow(response_) as any as Observable<void>;
-    }));
-  }
-
-  protected processRefreshContact(response: HttpResponseBase): Observable<void> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = ProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
         return _observableOf(null as any);
-      }));
-    } else if (status === 404) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("Not Found", status, _responseText, _headers);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Gets the list of available campaign types.
-   * @param page (optional) 
-   * @param size (optional) 
-   * @param sort (optional) 
-   * @param search (optional) 
-   * @param isSystemGenerated (optional) 
-   * @return OK
-   */
-  getDistributionLists(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, isSystemGenerated?: boolean | undefined): Observable<DistributionListResultSet> {
+    /**
+     * Gets the list of available campaign types.
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @param isSystemGenerated (optional) 
+     * @return OK
+     */
+    getDistributionLists(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, isSystemGenerated?: boolean | undefined): Observable<DistributionListResultSet> {
     let url_ = this.baseUrl + "/distribution-lists?";
-    if (page === null)
-      throw new Error("The parameter 'page' cannot be null.");
-    else if (page !== undefined)
-      url_ += "Page=" + encodeURIComponent("" + page) + "&";
-    if (size === null)
-      throw new Error("The parameter 'size' cannot be null.");
-    else if (size !== undefined)
-      url_ += "Size=" + encodeURIComponent("" + size) + "&";
-    if (sort === null)
-      throw new Error("The parameter 'sort' cannot be null.");
-    else if (sort !== undefined)
-      url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
-    if (search === null)
-      throw new Error("The parameter 'search' cannot be null.");
-    else if (search !== undefined)
-      url_ += "Search=" + encodeURIComponent("" + search) + "&";
-    if (isSystemGenerated === null)
-      throw new Error("The parameter 'isSystemGenerated' cannot be null.");
-    else if (isSystemGenerated !== undefined)
-      url_ += "IsSystemGenerated=" + encodeURIComponent("" + isSystemGenerated) + "&";
-    url_ = url_.replace(/[?&]$/, "");
+        if (page === null)
+            throw new Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (size === null)
+            throw new Error("The parameter 'size' cannot be null.");
+        else if (size !== undefined)
+            url_ += "Size=" + encodeURIComponent("" + size) + "&";
+        if (sort === null)
+            throw new Error("The parameter 'sort' cannot be null.");
+        else if (sort !== undefined)
+            url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
+        if (search === null)
+            throw new Error("The parameter 'search' cannot be null.");
+        else if (search !== undefined)
+            url_ += "Search=" + encodeURIComponent("" + search) + "&";
+        if (isSystemGenerated === null)
+            throw new Error("The parameter 'isSystemGenerated' cannot be null.");
+        else if (isSystemGenerated !== undefined)
+            url_ += "IsSystemGenerated=" + encodeURIComponent("" + isSystemGenerated) + "&";
+        url_ = url_.replace(/[?&]$/, "");
 
-    let options_: any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
 
-    return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processGetDistributionLists(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processGetDistributionLists(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<DistributionListResultSet>;
-        }
-      } else
-        return _observableThrow(response_) as any as Observable<DistributionListResultSet>;
-    }));
-  }
-
-  protected processGetDistributionLists(response: HttpResponseBase): Observable<DistributionListResultSet> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 200) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = DistributionListResultSet.fromJS(resultData200);
-        return _observableOf(result200);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetDistributionLists(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetDistributionLists(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<DistributionListResultSet>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<DistributionListResultSet>;
+        }));
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Creates a new distribution list.
+    protected processGetDistributionLists(response: HttpResponseBase): Observable<DistributionListResultSet> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DistributionListResultSet.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Creates a new distribution list.
    * @return Created
-   */
+     */
   createDistributionList(body: CreateDistributionListRequest): Observable<DistributionList> {
     let url_ = this.baseUrl + "/distribution-lists";
-    url_ = url_.replace(/[?&]$/, "");
+        url_ = url_.replace(/[?&]$/, "");
 
-    const content_ = JSON.stringify(body);
+        const content_ = JSON.stringify(body);
 
-    let options_: any = {
-      body: content_,
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      })
-    };
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
 
-    return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processCreateDistributionList(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processCreateDistributionList(response_ as any);
-        } catch (e) {
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreateDistributionList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreateDistributionList(response_ as any);
+                } catch (e) {
           return _observableThrow(e) as any as Observable<DistributionList>;
-        }
-      } else
+                }
+            } else
         return _observableThrow(response_) as any as Observable<DistributionList>;
-    }));
-  }
+        }));
+    }
 
   protected processCreateDistributionList(response: HttpResponseBase): Observable<DistributionList> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
 
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 201) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result201: any = null;
-        let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result201 = DistributionList.fromJS(resultData201);
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 201) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result201 = DistributionList.fromJS(resultData201);
         return _observableOf(result201);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
-    }
-    return _observableOf(null as any);
-  }
-
-  /**
-   * Gets a distribution list by it's unique id.
-   * @return OK
-   */
-  getDistributionListById(distributionListId: string): Observable<DistributionList> {
-    let url_ = this.baseUrl + "/distribution-lists/{distributionListId}";
-    if (distributionListId === undefined || distributionListId === null)
-      throw new Error("The parameter 'distributionListId' must be defined.");
-    url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
-    url_ = url_.replace(/[?&]$/, "");
-
-    let options_: any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
-
-    return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processGetDistributionListById(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processGetDistributionListById(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<DistributionList>;
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
         }
-      } else
-        return _observableThrow(response_) as any as Observable<DistributionList>;
-    }));
-  }
-
-  protected processGetDistributionListById(response: HttpResponseBase): Observable<DistributionList> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 200) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = DistributionList.fromJS(resultData200);
-        return _observableOf(result200);
-      }));
-    } else if (status === 404) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("Not Found", status, _responseText, _headers);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
-    }
-    return _observableOf(null as any);
-  }
-
-  /**
-   * Permanently deletes a distribution list.
-   * @return No Content
-   */
-  deleteDistributionList(distributionListId: string): Observable<void> {
-    let url_ = this.baseUrl + "/distribution-lists/{distributionListId}";
-    if (distributionListId === undefined || distributionListId === null)
-      throw new Error("The parameter 'distributionListId' must be defined.");
-    url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
-    url_ = url_.replace(/[?&]$/, "");
-
-    let options_: any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-      })
-    };
-
-    return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processDeleteDistributionList(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processDeleteDistributionList(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<void>;
-        }
-      } else
-        return _observableThrow(response_) as any as Observable<void>;
-    }));
-  }
-
-  protected processDeleteDistributionList(response: HttpResponseBase): Observable<void> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
         return _observableOf(null as any);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Updates an existing distribution list.
-   * @return No Content
-   */
-  updateDistributionList(distributionListId: string, body: UpdateDistributionListRequest): Observable<void> {
+    /**
+     * Gets a distribution list by it's unique id.
+     * @return OK
+     */
+    getDistributionListById(distributionListId: string): Observable<DistributionList> {
     let url_ = this.baseUrl + "/distribution-lists/{distributionListId}";
-    if (distributionListId === undefined || distributionListId === null)
-      throw new Error("The parameter 'distributionListId' must be defined.");
-    url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
-    url_ = url_.replace(/[?&]$/, "");
+        if (distributionListId === undefined || distributionListId === null)
+            throw new Error("The parameter 'distributionListId' must be defined.");
+        url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
+        url_ = url_.replace(/[?&]$/, "");
 
-    const content_ = JSON.stringify(body);
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
 
-    let options_: any = {
-      body: content_,
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Content-Type": "application/json",
-      })
-    };
-
-    return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processUpdateDistributionList(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processUpdateDistributionList(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<void>;
-        }
-      } else
-        return _observableThrow(response_) as any as Observable<void>;
-    }));
-  }
-
-  protected processUpdateDistributionList(response: HttpResponseBase): Observable<void> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return _observableOf(null as any);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetDistributionListById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetDistributionListById(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<DistributionList>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<DistributionList>;
+        }));
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Gets the contacts of a given distribution list.
-   * @param page (optional) 
-   * @param size (optional) 
-   * @param sort (optional) 
-   * @param search (optional) 
-   * @return OK
-   */
-  getDistributionListContacts(distributionListId: string, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ContactResultSet> {
+    protected processGetDistributionListById(response: HttpResponseBase): Observable<DistributionList> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DistributionList.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Permanently deletes a distribution list.
+   * @return No Content
+     */
+    deleteDistributionList(distributionListId: string): Observable<void> {
+    let url_ = this.baseUrl + "/distribution-lists/{distributionListId}";
+        if (distributionListId === undefined || distributionListId === null)
+            throw new Error("The parameter 'distributionListId' must be defined.");
+        url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteDistributionList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteDistributionList(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDeleteDistributionList(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Updates an existing distribution list.
+   * @return No Content
+     */
+    updateDistributionList(distributionListId: string, body: UpdateDistributionListRequest): Observable<void> {
+    let url_ = this.baseUrl + "/distribution-lists/{distributionListId}";
+        if (distributionListId === undefined || distributionListId === null)
+            throw new Error("The parameter 'distributionListId' must be defined.");
+        url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateDistributionList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateDistributionList(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUpdateDistributionList(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Gets the contacts of a given distribution list.
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @return OK
+     */
+    getDistributionListContacts(distributionListId: string, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ContactResultSet> {
     let url_ = this.baseUrl + "/distribution-lists/{distributionListId}/contacts?";
-    if (distributionListId === undefined || distributionListId === null)
-      throw new Error("The parameter 'distributionListId' must be defined.");
-    url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
-    if (page === null)
-      throw new Error("The parameter 'page' cannot be null.");
-    else if (page !== undefined)
-      url_ += "Page=" + encodeURIComponent("" + page) + "&";
-    if (size === null)
-      throw new Error("The parameter 'size' cannot be null.");
-    else if (size !== undefined)
-      url_ += "Size=" + encodeURIComponent("" + size) + "&";
-    if (sort === null)
-      throw new Error("The parameter 'sort' cannot be null.");
-    else if (sort !== undefined)
-      url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
-    if (search === null)
-      throw new Error("The parameter 'search' cannot be null.");
-    else if (search !== undefined)
-      url_ += "Search=" + encodeURIComponent("" + search) + "&";
-    url_ = url_.replace(/[?&]$/, "");
+        if (distributionListId === undefined || distributionListId === null)
+            throw new Error("The parameter 'distributionListId' must be defined.");
+        url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
+        if (page === null)
+            throw new Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (size === null)
+            throw new Error("The parameter 'size' cannot be null.");
+        else if (size !== undefined)
+            url_ += "Size=" + encodeURIComponent("" + size) + "&";
+        if (sort === null)
+            throw new Error("The parameter 'sort' cannot be null.");
+        else if (sort !== undefined)
+            url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
+        if (search === null)
+            throw new Error("The parameter 'search' cannot be null.");
+        else if (search !== undefined)
+            url_ += "Search=" + encodeURIComponent("" + search) + "&";
+        url_ = url_.replace(/[?&]$/, "");
 
-    let options_: any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
 
-    return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processGetDistributionListContacts(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processGetDistributionListContacts(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<ContactResultSet>;
-        }
-      } else
-        return _observableThrow(response_) as any as Observable<ContactResultSet>;
-    }));
-  }
-
-  protected processGetDistributionListContacts(response: HttpResponseBase): Observable<ContactResultSet> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 200) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = ContactResultSet.fromJS(resultData200);
-        return _observableOf(result200);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetDistributionListContacts(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetDistributionListContacts(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ContactResultSet>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ContactResultSet>;
+        }));
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Adds a new or existing contact in the specified distribution list.
+    protected processGetDistributionListContacts(response: HttpResponseBase): Observable<ContactResultSet> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ContactResultSet.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Adds a new or existing contact in the specified distribution list.
    * @return No Content
-   */
-  addContactToDistributionList(distributionListId: string, body: CreateDistributionListContactRequest): Observable<void> {
+     */
+    addContactToDistributionList(distributionListId: string, body: CreateDistributionListContactRequest): Observable<void> {
     let url_ = this.baseUrl + "/distribution-lists/{distributionListId}/contacts";
-    if (distributionListId === undefined || distributionListId === null)
-      throw new Error("The parameter 'distributionListId' must be defined.");
-    url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
-    url_ = url_.replace(/[?&]$/, "");
+        if (distributionListId === undefined || distributionListId === null)
+            throw new Error("The parameter 'distributionListId' must be defined.");
+        url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
+        url_ = url_.replace(/[?&]$/, "");
 
-    const content_ = JSON.stringify(body);
+        const content_ = JSON.stringify(body);
 
-    let options_: any = {
-      body: content_,
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Content-Type": "application/json",
-      })
-    };
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
 
-    return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processAddContactToDistributionList(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processAddContactToDistributionList(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<void>;
-        }
-      } else
-        return _observableThrow(response_) as any as Observable<void>;
-    }));
-  }
-
-  protected processAddContactToDistributionList(response: HttpResponseBase): Observable<void> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return _observableOf(null as any);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddContactToDistributionList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddContactToDistributionList(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Removes an existing contact from the specified distribution list.
+    protected processAddContactToDistributionList(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Removes an existing contact from the specified distribution list.
    * @return No Content
-   */
-  removeContactFromDistributionList(distributionListId: string, contactId: string): Observable<void> {
+     */
+    removeContactFromDistributionList(distributionListId: string, contactId: string): Observable<void> {
     let url_ = this.baseUrl + "/distribution-lists/{distributionListId}/contacts/{contactId}";
-    if (distributionListId === undefined || distributionListId === null)
-      throw new Error("The parameter 'distributionListId' must be defined.");
-    url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
-    if (contactId === undefined || contactId === null)
-      throw new Error("The parameter 'contactId' must be defined.");
-    url_ = url_.replace("{contactId}", encodeURIComponent("" + contactId));
-    url_ = url_.replace(/[?&]$/, "");
+        if (distributionListId === undefined || distributionListId === null)
+            throw new Error("The parameter 'distributionListId' must be defined.");
+        url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
+        if (contactId === undefined || contactId === null)
+            throw new Error("The parameter 'contactId' must be defined.");
+        url_ = url_.replace("{contactId}", encodeURIComponent("" + contactId));
+        url_ = url_.replace(/[?&]$/, "");
 
-    let options_: any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-      })
-    };
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
 
-    return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processRemoveContactFromDistributionList(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processRemoveContactFromDistributionList(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<void>;
-        }
-      } else
-        return _observableThrow(response_) as any as Observable<void>;
-    }));
-  }
-
-  protected processRemoveContactFromDistributionList(response: HttpResponseBase): Observable<void> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return _observableOf(null as any);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRemoveContactFromDistributionList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRemoveContactFromDistributionList(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Bulk exports contacts from a specified distribution list in CSV file.
-   * @return OK
-   */
-  bulkExportContactsFromDistributionList(distributionListId: string): Observable<FileResponse> {
-    let url_ = this.baseUrl + "/distribution-lists/{distributionListId}/export";
-    if (distributionListId === undefined || distributionListId === null)
-      throw new Error("The parameter 'distributionListId' must be defined.");
-    url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
-    url_ = url_.replace(/[?&]$/, "");
+    protected processRemoveContactFromDistributionList(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
 
-    let options_: any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/octet-stream"
-      })
-    };
-
-    return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processBulkExportContactsFromDistributionList(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processBulkExportContactsFromDistributionList(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<FileResponse>;
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
         }
-      } else
-        return _observableThrow(response_) as any as Observable<FileResponse>;
-    }));
-  }
+        return _observableOf(null as any);
+    }
 
-  protected processBulkExportContactsFromDistributionList(response: HttpResponseBase): Observable<FileResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
+    /**
+     * Bulk exports contacts from a specified distribution list in CSV file.
+     * @return OK
+     */
+    bulkExportContactsFromDistributionList(distributionListId: string): Observable<FileResponse> {
+    let url_ = this.baseUrl + "/distribution-lists/{distributionListId}/export";
+        if (distributionListId === undefined || distributionListId === null)
+            throw new Error("The parameter 'distributionListId' must be defined.");
+        url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
+        url_ = url_.replace(/[?&]$/, "");
 
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/octet-stream"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processBulkExportContactsFromDistributionList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processBulkExportContactsFromDistributionList(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<FileResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<FileResponse>;
+        }));
+    }
+
+    protected processBulkExportContactsFromDistributionList(response: HttpResponseBase): Observable<FileResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
     } else if (status === 404) {
       return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
         return throwException("Not Found", status, _responseText, _headers);
       }));
-    } else if (status === 200 || status === 206) {
-      const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-      let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
-      let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-      if (fileName) {
-        fileName = decodeURIComponent(fileName);
-      } else {
-        fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-        fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-      }
-      return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
+        } else if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
+            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+            if (fileName) {
+                fileName = decodeURIComponent(fileName);
+            } else {
+                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            }
+            return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Bulk imports contacts in a specified distribution list.
-   * @param file (optional) 
-   * @return OK
-   */
-  bulkImportContactsToDistributionList(distributionListId: string, file?: FileParameter | undefined): Observable<ContactsImportResult> {
+    /**
+     * Bulk imports contacts in a specified distribution list.
+     * @param file (optional) 
+     * @return OK
+     */
+    bulkImportContactsToDistributionList(distributionListId: string, file?: FileParameter | undefined): Observable<ContactsImportResult> {
     let url_ = this.baseUrl + "/distribution-lists/{distributionListId}/import";
-    if (distributionListId === undefined || distributionListId === null)
-      throw new Error("The parameter 'distributionListId' must be defined.");
-    url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
-    url_ = url_.replace(/[?&]$/, "");
+        if (distributionListId === undefined || distributionListId === null)
+            throw new Error("The parameter 'distributionListId' must be defined.");
+        url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
+        url_ = url_.replace(/[?&]$/, "");
 
-    const content_ = new FormData();
-    if (file === null || file === undefined)
-      throw new Error("The parameter 'file' cannot be null.");
-    else
-      content_.append("file", file.data, file.fileName ? file.fileName : "file");
+        const content_ = new FormData();
+        if (file === null || file === undefined)
+            throw new Error("The parameter 'file' cannot be null.");
+        else
+            content_.append("file", file.data, file.fileName ? file.fileName : "file");
 
-    let options_: any = {
-      body: content_,
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
 
-    return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processBulkImportContactsToDistributionList(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processBulkImportContactsToDistributionList(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<ContactsImportResult>;
-        }
-      } else
-        return _observableThrow(response_) as any as Observable<ContactsImportResult>;
-    }));
-  }
-
-  protected processBulkImportContactsToDistributionList(response: HttpResponseBase): Observable<ContactsImportResult> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 200) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = ContactsImportResult.fromJS(resultData200);
-        return _observableOf(result200);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processBulkImportContactsToDistributionList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processBulkImportContactsToDistributionList(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ContactsImportResult>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ContactsImportResult>;
+        }));
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Gets the list of available message senders.
-   * @param page (optional) 
-   * @param size (optional) 
-   * @param sort (optional) 
-   * @param search (optional) 
-   * @param isDefault (optional) 
-   * @return OK
-   */
-  getMessageSenders(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, isDefault?: boolean | undefined): Observable<MessageSenderResultSet> {
+    protected processBulkImportContactsToDistributionList(response: HttpResponseBase): Observable<ContactsImportResult> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ContactsImportResult.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Gets the list of available message senders.
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @param isDefault (optional) 
+     * @return OK
+     */
+    getMessageSenders(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, isDefault?: boolean | undefined): Observable<MessageSenderResultSet> {
     let url_ = this.baseUrl + "/message-senders?";
-    if (page === null)
-      throw new Error("The parameter 'page' cannot be null.");
-    else if (page !== undefined)
-      url_ += "Page=" + encodeURIComponent("" + page) + "&";
-    if (size === null)
-      throw new Error("The parameter 'size' cannot be null.");
-    else if (size !== undefined)
-      url_ += "Size=" + encodeURIComponent("" + size) + "&";
-    if (sort === null)
-      throw new Error("The parameter 'sort' cannot be null.");
-    else if (sort !== undefined)
-      url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
-    if (search === null)
-      throw new Error("The parameter 'search' cannot be null.");
-    else if (search !== undefined)
-      url_ += "Search=" + encodeURIComponent("" + search) + "&";
-    if (isDefault === null)
-      throw new Error("The parameter 'isDefault' cannot be null.");
-    else if (isDefault !== undefined)
-      url_ += "IsDefault=" + encodeURIComponent("" + isDefault) + "&";
-    url_ = url_.replace(/[?&]$/, "");
+        if (page === null)
+            throw new Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (size === null)
+            throw new Error("The parameter 'size' cannot be null.");
+        else if (size !== undefined)
+            url_ += "Size=" + encodeURIComponent("" + size) + "&";
+        if (sort === null)
+            throw new Error("The parameter 'sort' cannot be null.");
+        else if (sort !== undefined)
+            url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
+        if (search === null)
+            throw new Error("The parameter 'search' cannot be null.");
+        else if (search !== undefined)
+            url_ += "Search=" + encodeURIComponent("" + search) + "&";
+        if (isDefault === null)
+            throw new Error("The parameter 'isDefault' cannot be null.");
+        else if (isDefault !== undefined)
+            url_ += "IsDefault=" + encodeURIComponent("" + isDefault) + "&";
+        url_ = url_.replace(/[?&]$/, "");
 
-    let options_: any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
 
-    return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processGetMessageSenders(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processGetMessageSenders(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<MessageSenderResultSet>;
-        }
-      } else
-        return _observableThrow(response_) as any as Observable<MessageSenderResultSet>;
-    }));
-  }
-
-  protected processGetMessageSenders(response: HttpResponseBase): Observable<MessageSenderResultSet> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 200) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = MessageSenderResultSet.fromJS(resultData200);
-        return _observableOf(result200);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetMessageSenders(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetMessageSenders(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MessageSenderResultSet>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MessageSenderResultSet>;
+        }));
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Creates a new message sender.
+    protected processGetMessageSenders(response: HttpResponseBase): Observable<MessageSenderResultSet> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MessageSenderResultSet.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Creates a new message sender.
    * @return Created
-   */
+     */
   createMessageSender(body: CreateMessageSenderRequest): Observable<MessageSender> {
     let url_ = this.baseUrl + "/message-senders";
-    url_ = url_.replace(/[?&]$/, "");
+        url_ = url_.replace(/[?&]$/, "");
 
-    const content_ = JSON.stringify(body);
+        const content_ = JSON.stringify(body);
 
-    let options_: any = {
-      body: content_,
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      })
-    };
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
 
-    return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processCreateMessageSender(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processCreateMessageSender(response_ as any);
-        } catch (e) {
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreateMessageSender(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreateMessageSender(response_ as any);
+                } catch (e) {
           return _observableThrow(e) as any as Observable<MessageSender>;
-        }
-      } else
+                }
+            } else
         return _observableThrow(response_) as any as Observable<MessageSender>;
-    }));
-  }
+        }));
+    }
 
   protected processCreateMessageSender(response: HttpResponseBase): Observable<MessageSender> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
 
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 201) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result201: any = null;
-        let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result201 = MessageSender.fromJS(resultData201);
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 201) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result201 = MessageSender.fromJS(resultData201);
         return _observableOf(result201);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
-    }
-    return _observableOf(null as any);
-  }
-
-  /**
-   * Gets a message sender by its unique ID.
-   * @return OK
-   */
-  getMessageSenderById(senderId: string): Observable<MessageSender> {
-    let url_ = this.baseUrl + "/message-senders/{senderId}";
-    if (senderId === undefined || senderId === null)
-      throw new Error("The parameter 'senderId' must be defined.");
-    url_ = url_.replace("{senderId}", encodeURIComponent("" + senderId));
-    url_ = url_.replace(/[?&]$/, "");
-
-    let options_: any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
-
-    return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processGetMessageSenderById(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processGetMessageSenderById(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<MessageSender>;
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
         }
-      } else
-        return _observableThrow(response_) as any as Observable<MessageSender>;
-    }));
-  }
-
-  protected processGetMessageSenderById(response: HttpResponseBase): Observable<MessageSender> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 200) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = MessageSender.fromJS(resultData200);
-        return _observableOf(result200);
-      }));
-    } else if (status === 404) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("Not Found", status, _responseText, _headers);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
-    }
-    return _observableOf(null as any);
-  }
-
-  /**
-   * Updates an existing message sender.
-   * @return No Content
-   */
-  updateMessageSender(senderId: string, body: UpdateMessageSenderRequest): Observable<void> {
-    let url_ = this.baseUrl + "/message-senders/{senderId}";
-    if (senderId === undefined || senderId === null)
-      throw new Error("The parameter 'senderId' must be defined.");
-    url_ = url_.replace("{senderId}", encodeURIComponent("" + senderId));
-    url_ = url_.replace(/[?&]$/, "");
-
-    const content_ = JSON.stringify(body);
-
-    let options_: any = {
-      body: content_,
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Content-Type": "application/json",
-      })
-    };
-
-    return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processUpdateMessageSender(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processUpdateMessageSender(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<void>;
-        }
-      } else
-        return _observableThrow(response_) as any as Observable<void>;
-    }));
-  }
-
-  protected processUpdateMessageSender(response: HttpResponseBase): Observable<void> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
         return _observableOf(null as any);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Permanently deletes a message sender.
-   * @return No Content
-   */
-  deleteMessageSender(senderId: string): Observable<void> {
+    /**
+     * Gets a message sender by its unique ID.
+     * @return OK
+     */
+    getMessageSenderById(senderId: string): Observable<MessageSender> {
     let url_ = this.baseUrl + "/message-senders/{senderId}";
-    if (senderId === undefined || senderId === null)
-      throw new Error("The parameter 'senderId' must be defined.");
-    url_ = url_.replace("{senderId}", encodeURIComponent("" + senderId));
-    url_ = url_.replace(/[?&]$/, "");
+        if (senderId === undefined || senderId === null)
+            throw new Error("The parameter 'senderId' must be defined.");
+        url_ = url_.replace("{senderId}", encodeURIComponent("" + senderId));
+        url_ = url_.replace(/[?&]$/, "");
 
-    let options_: any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-      })
-    };
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
 
-    return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processDeleteMessageSender(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processDeleteMessageSender(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<void>;
-        }
-      } else
-        return _observableThrow(response_) as any as Observable<void>;
-    }));
-  }
-
-  protected processDeleteMessageSender(response: HttpResponseBase): Observable<void> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return _observableOf(null as any);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetMessageSenderById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetMessageSenderById(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MessageSender>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MessageSender>;
+        }));
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Gets the list of available message types.
-   * @param page (optional) 
-   * @param size (optional) 
-   * @param sort (optional) 
-   * @param search (optional) 
-   * @return OK
-   */
-  getMessageTypes(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<MessageTypeResultSet> {
+    protected processGetMessageSenderById(response: HttpResponseBase): Observable<MessageSender> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MessageSender.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Updates an existing message sender.
+   * @return No Content
+     */
+    updateMessageSender(senderId: string, body: UpdateMessageSenderRequest): Observable<void> {
+    let url_ = this.baseUrl + "/message-senders/{senderId}";
+        if (senderId === undefined || senderId === null)
+            throw new Error("The parameter 'senderId' must be defined.");
+        url_ = url_.replace("{senderId}", encodeURIComponent("" + senderId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateMessageSender(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateMessageSender(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUpdateMessageSender(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Permanently deletes a message sender.
+   * @return No Content
+     */
+    deleteMessageSender(senderId: string): Observable<void> {
+    let url_ = this.baseUrl + "/message-senders/{senderId}";
+        if (senderId === undefined || senderId === null)
+            throw new Error("The parameter 'senderId' must be defined.");
+        url_ = url_.replace("{senderId}", encodeURIComponent("" + senderId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteMessageSender(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteMessageSender(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDeleteMessageSender(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Gets the list of available message types.
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @return OK
+     */
+    getMessageTypes(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<MessageTypeResultSet> {
     let url_ = this.baseUrl + "/message-types?";
-    if (page === null)
-      throw new Error("The parameter 'page' cannot be null.");
-    else if (page !== undefined)
-      url_ += "Page=" + encodeURIComponent("" + page) + "&";
-    if (size === null)
-      throw new Error("The parameter 'size' cannot be null.");
-    else if (size !== undefined)
-      url_ += "Size=" + encodeURIComponent("" + size) + "&";
-    if (sort === null)
-      throw new Error("The parameter 'sort' cannot be null.");
-    else if (sort !== undefined)
-      url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
-    if (search === null)
-      throw new Error("The parameter 'search' cannot be null.");
-    else if (search !== undefined)
-      url_ += "Search=" + encodeURIComponent("" + search) + "&";
-    url_ = url_.replace(/[?&]$/, "");
+        if (page === null)
+            throw new Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (size === null)
+            throw new Error("The parameter 'size' cannot be null.");
+        else if (size !== undefined)
+            url_ += "Size=" + encodeURIComponent("" + size) + "&";
+        if (sort === null)
+            throw new Error("The parameter 'sort' cannot be null.");
+        else if (sort !== undefined)
+            url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
+        if (search === null)
+            throw new Error("The parameter 'search' cannot be null.");
+        else if (search !== undefined)
+            url_ += "Search=" + encodeURIComponent("" + search) + "&";
+        url_ = url_.replace(/[?&]$/, "");
 
-    let options_: any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
 
-    return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processGetMessageTypes(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processGetMessageTypes(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<MessageTypeResultSet>;
-        }
-      } else
-        return _observableThrow(response_) as any as Observable<MessageTypeResultSet>;
-    }));
-  }
-
-  protected processGetMessageTypes(response: HttpResponseBase): Observable<MessageTypeResultSet> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 200) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = MessageTypeResultSet.fromJS(resultData200);
-        return _observableOf(result200);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetMessageTypes(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetMessageTypes(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MessageTypeResultSet>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MessageTypeResultSet>;
+        }));
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Creates a new message type.
+    protected processGetMessageTypes(response: HttpResponseBase): Observable<MessageTypeResultSet> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MessageTypeResultSet.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Creates a new message type.
    * @return Created
-   */
+     */
   createMessageType(body: CreateMessageTypeRequest): Observable<MessageType> {
     let url_ = this.baseUrl + "/message-types";
-    url_ = url_.replace(/[?&]$/, "");
+        url_ = url_.replace(/[?&]$/, "");
 
-    const content_ = JSON.stringify(body);
+        const content_ = JSON.stringify(body);
 
-    let options_: any = {
-      body: content_,
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      })
-    };
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
 
-    return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processCreateMessageType(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processCreateMessageType(response_ as any);
-        } catch (e) {
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreateMessageType(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreateMessageType(response_ as any);
+                } catch (e) {
           return _observableThrow(e) as any as Observable<MessageType>;
-        }
-      } else
+                }
+            } else
         return _observableThrow(response_) as any as Observable<MessageType>;
-    }));
-  }
+        }));
+    }
 
   protected processCreateMessageType(response: HttpResponseBase): Observable<MessageType> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
 
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 201) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result201: any = null;
-        let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result201 = MessageType.fromJS(resultData201);
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 201) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result201 = MessageType.fromJS(resultData201);
         return _observableOf(result201);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
-    }
-    return _observableOf(null as any);
-  }
-
-  /**
-   * Gets a message type by its unique ID.
-   * @return OK
-   */
-  getMessageTypeById(typeId: string): Observable<MessageType> {
-    let url_ = this.baseUrl + "/message-types/{typeId}";
-    if (typeId === undefined || typeId === null)
-      throw new Error("The parameter 'typeId' must be defined.");
-    url_ = url_.replace("{typeId}", encodeURIComponent("" + typeId));
-    url_ = url_.replace(/[?&]$/, "");
-
-    let options_: any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
-
-    return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processGetMessageTypeById(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processGetMessageTypeById(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<MessageType>;
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
         }
-      } else
-        return _observableThrow(response_) as any as Observable<MessageType>;
-    }));
-  }
-
-  protected processGetMessageTypeById(response: HttpResponseBase): Observable<MessageType> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 200) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = MessageType.fromJS(resultData200);
-        return _observableOf(result200);
-      }));
-    } else if (status === 404) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("Not Found", status, _responseText, _headers);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
-    }
-    return _observableOf(null as any);
-  }
-
-  /**
-   * Updates an existing message type.
-   * @return No Content
-   */
-  updateMessageType(typeId: string, body: UpdateMessageTypeRequest): Observable<void> {
-    let url_ = this.baseUrl + "/message-types/{typeId}";
-    if (typeId === undefined || typeId === null)
-      throw new Error("The parameter 'typeId' must be defined.");
-    url_ = url_.replace("{typeId}", encodeURIComponent("" + typeId));
-    url_ = url_.replace(/[?&]$/, "");
-
-    const content_ = JSON.stringify(body);
-
-    let options_: any = {
-      body: content_,
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Content-Type": "application/json",
-      })
-    };
-
-    return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processUpdateMessageType(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processUpdateMessageType(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<void>;
-        }
-      } else
-        return _observableThrow(response_) as any as Observable<void>;
-    }));
-  }
-
-  protected processUpdateMessageType(response: HttpResponseBase): Observable<void> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
         return _observableOf(null as any);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Permanently deletes a message type.
-   * @return No Content
-   */
-  deleteMessageType(typeId: string): Observable<void> {
+    /**
+     * Gets a message type by its unique ID.
+     * @return OK
+     */
+    getMessageTypeById(typeId: string): Observable<MessageType> {
     let url_ = this.baseUrl + "/message-types/{typeId}";
-    if (typeId === undefined || typeId === null)
-      throw new Error("The parameter 'typeId' must be defined.");
-    url_ = url_.replace("{typeId}", encodeURIComponent("" + typeId));
-    url_ = url_.replace(/[?&]$/, "");
+        if (typeId === undefined || typeId === null)
+            throw new Error("The parameter 'typeId' must be defined.");
+        url_ = url_.replace("{typeId}", encodeURIComponent("" + typeId));
+        url_ = url_.replace(/[?&]$/, "");
 
-    let options_: any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-      })
-    };
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
 
-    return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processDeleteMessageType(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processDeleteMessageType(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<void>;
-        }
-      } else
-        return _observableThrow(response_) as any as Observable<void>;
-    }));
-  }
-
-  protected processDeleteMessageType(response: HttpResponseBase): Observable<void> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return _observableOf(null as any);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetMessageTypeById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetMessageTypeById(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MessageType>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MessageType>;
+        }));
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Gets the list of all templates using the provided ListOptions.
-   * @param page (optional) 
-   * @param size (optional) 
-   * @param sort (optional) 
-   * @param search (optional) 
-   * @return OK
-   */
-  getTemplates(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<TemplateListItemResultSet> {
+    protected processGetMessageTypeById(response: HttpResponseBase): Observable<MessageType> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MessageType.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Updates an existing message type.
+   * @return No Content
+     */
+    updateMessageType(typeId: string, body: UpdateMessageTypeRequest): Observable<void> {
+    let url_ = this.baseUrl + "/message-types/{typeId}";
+        if (typeId === undefined || typeId === null)
+            throw new Error("The parameter 'typeId' must be defined.");
+        url_ = url_.replace("{typeId}", encodeURIComponent("" + typeId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateMessageType(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateMessageType(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUpdateMessageType(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Permanently deletes a message type.
+   * @return No Content
+     */
+    deleteMessageType(typeId: string): Observable<void> {
+    let url_ = this.baseUrl + "/message-types/{typeId}";
+        if (typeId === undefined || typeId === null)
+            throw new Error("The parameter 'typeId' must be defined.");
+        url_ = url_.replace("{typeId}", encodeURIComponent("" + typeId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteMessageType(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteMessageType(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDeleteMessageType(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Gets the list of all templates using the provided ListOptions.
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @return OK
+     */
+    getTemplates(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<TemplateListItemResultSet> {
     let url_ = this.baseUrl + "/templates?";
-    if (page === null)
-      throw new Error("The parameter 'page' cannot be null.");
-    else if (page !== undefined)
-      url_ += "Page=" + encodeURIComponent("" + page) + "&";
-    if (size === null)
-      throw new Error("The parameter 'size' cannot be null.");
-    else if (size !== undefined)
-      url_ += "Size=" + encodeURIComponent("" + size) + "&";
-    if (sort === null)
-      throw new Error("The parameter 'sort' cannot be null.");
-    else if (sort !== undefined)
-      url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
-    if (search === null)
-      throw new Error("The parameter 'search' cannot be null.");
-    else if (search !== undefined)
-      url_ += "Search=" + encodeURIComponent("" + search) + "&";
-    url_ = url_.replace(/[?&]$/, "");
+        if (page === null)
+            throw new Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (size === null)
+            throw new Error("The parameter 'size' cannot be null.");
+        else if (size !== undefined)
+            url_ += "Size=" + encodeURIComponent("" + size) + "&";
+        if (sort === null)
+            throw new Error("The parameter 'sort' cannot be null.");
+        else if (sort !== undefined)
+            url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
+        if (search === null)
+            throw new Error("The parameter 'search' cannot be null.");
+        else if (search !== undefined)
+            url_ += "Search=" + encodeURIComponent("" + search) + "&";
+        url_ = url_.replace(/[?&]$/, "");
 
-    let options_: any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
 
-    return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processGetTemplates(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processGetTemplates(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<TemplateListItemResultSet>;
-        }
-      } else
-        return _observableThrow(response_) as any as Observable<TemplateListItemResultSet>;
-    }));
-  }
-
-  protected processGetTemplates(response: HttpResponseBase): Observable<TemplateListItemResultSet> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 200) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = TemplateListItemResultSet.fromJS(resultData200);
-        return _observableOf(result200);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetTemplates(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetTemplates(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<TemplateListItemResultSet>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<TemplateListItemResultSet>;
+        }));
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Creates a new template in the store.
+    protected processGetTemplates(response: HttpResponseBase): Observable<TemplateListItemResultSet> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = TemplateListItemResultSet.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Creates a new template in the store.
    * @return Created
-   */
+     */
   createTemplate(body: CreateTemplateRequest): Observable<Template> {
     let url_ = this.baseUrl + "/templates";
-    url_ = url_.replace(/[?&]$/, "");
+        url_ = url_.replace(/[?&]$/, "");
 
-    const content_ = JSON.stringify(body);
+        const content_ = JSON.stringify(body);
 
-    let options_: any = {
-      body: content_,
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      })
-    };
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
 
-    return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processCreateTemplate(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processCreateTemplate(response_ as any);
-        } catch (e) {
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreateTemplate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreateTemplate(response_ as any);
+                } catch (e) {
           return _observableThrow(e) as any as Observable<Template>;
-        }
-      } else
+                }
+            } else
         return _observableThrow(response_) as any as Observable<Template>;
-    }));
-  }
+        }));
+    }
 
   protected processCreateTemplate(response: HttpResponseBase): Observable<Template> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
 
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 201) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result201: any = null;
-        let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result201 = Template.fromJS(resultData201);
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 201) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result201 = Template.fromJS(resultData201);
         return _observableOf(result201);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
-    }
-    return _observableOf(null as any);
-  }
-
-  /**
-   * Gets a template by its unique id.
-   * @return OK
-   */
-  getTemplateById(templateId: string): Observable<Template> {
-    let url_ = this.baseUrl + "/templates/{templateId}";
-    if (templateId === undefined || templateId === null)
-      throw new Error("The parameter 'templateId' must be defined.");
-    url_ = url_.replace("{templateId}", encodeURIComponent("" + templateId));
-    url_ = url_.replace(/[?&]$/, "");
-
-    let options_: any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
-
-    return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processGetTemplateById(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processGetTemplateById(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<Template>;
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
         }
-      } else
-        return _observableThrow(response_) as any as Observable<Template>;
-    }));
-  }
-
-  protected processGetTemplateById(response: HttpResponseBase): Observable<Template> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 200) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = Template.fromJS(resultData200);
-        return _observableOf(result200);
-      }));
-    } else if (status === 404) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("Not Found", status, _responseText, _headers);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
-    }
-    return _observableOf(null as any);
-  }
-
-  /**
-   * Updates an existing template.
-   * @return No Content
-   */
-  updateTemplate(templateId: string, body: UpdateTemplateRequest): Observable<void> {
-    let url_ = this.baseUrl + "/templates/{templateId}";
-    if (templateId === undefined || templateId === null)
-      throw new Error("The parameter 'templateId' must be defined.");
-    url_ = url_.replace("{templateId}", encodeURIComponent("" + templateId));
-    url_ = url_.replace(/[?&]$/, "");
-
-    const content_ = JSON.stringify(body);
-
-    let options_: any = {
-      body: content_,
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Content-Type": "application/json",
-      })
-    };
-
-    return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processUpdateTemplate(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processUpdateTemplate(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<void>;
-        }
-      } else
-        return _observableThrow(response_) as any as Observable<void>;
-    }));
-  }
-
-  protected processUpdateTemplate(response: HttpResponseBase): Observable<void> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
         return _observableOf(null as any);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Permanently deletes a template from the store.
-   * @return No Content
-   */
-  deleteTemplate(templateId: string): Observable<void> {
+    /**
+     * Gets a template by its unique id.
+     * @return OK
+     */
+    getTemplateById(templateId: string): Observable<Template> {
     let url_ = this.baseUrl + "/templates/{templateId}";
-    if (templateId === undefined || templateId === null)
-      throw new Error("The parameter 'templateId' must be defined.");
-    url_ = url_.replace("{templateId}", encodeURIComponent("" + templateId));
-    url_ = url_.replace(/[?&]$/, "");
+        if (templateId === undefined || templateId === null)
+            throw new Error("The parameter 'templateId' must be defined.");
+        url_ = url_.replace("{templateId}", encodeURIComponent("" + templateId));
+        url_ = url_.replace(/[?&]$/, "");
 
-    let options_: any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-      })
-    };
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
 
-    return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processDeleteTemplate(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processDeleteTemplate(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<void>;
-        }
-      } else
-        return _observableThrow(response_) as any as Observable<void>;
-    }));
-  }
-
-  protected processDeleteTemplate(response: HttpResponseBase): Observable<void> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return _observableOf(null as any);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetTemplateById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetTemplateById(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<Template>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<Template>;
+        }));
     }
-    return _observableOf(null as any);
-  }
 
-  /**
-   * Updates in an existing template user respect of user preferences flag.
+    protected processGetTemplateById(response: HttpResponseBase): Observable<Template> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Template.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Updates an existing template.
    * @return No Content
-   */
-  updateTemplateUserPreferences(templateId: string, body: UpdateTemplateUserPreferencesRequest): Observable<void> {
+     */
+    updateTemplate(templateId: string, body: UpdateTemplateRequest): Observable<void> {
+    let url_ = this.baseUrl + "/templates/{templateId}";
+        if (templateId === undefined || templateId === null)
+            throw new Error("The parameter 'templateId' must be defined.");
+        url_ = url_.replace("{templateId}", encodeURIComponent("" + templateId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateTemplate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateTemplate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUpdateTemplate(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Permanently deletes a template from the store.
+   * @return No Content
+     */
+    deleteTemplate(templateId: string): Observable<void> {
+    let url_ = this.baseUrl + "/templates/{templateId}";
+        if (templateId === undefined || templateId === null)
+            throw new Error("The parameter 'templateId' must be defined.");
+        url_ = url_.replace("{templateId}", encodeURIComponent("" + templateId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteTemplate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteTemplate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDeleteTemplate(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Updates in an existing template user respect of user preferences flag.
+   * @return No Content
+     */
+    updateTemplateUserPreferences(templateId: string, body: UpdateTemplateUserPreferencesRequest): Observable<void> {
     let url_ = this.baseUrl + "/templates/{templateId}/user-preferences";
-    if (templateId === undefined || templateId === null)
-      throw new Error("The parameter 'templateId' must be defined.");
-    url_ = url_.replace("{templateId}", encodeURIComponent("" + templateId));
-    url_ = url_.replace(/[?&]$/, "");
+        if (templateId === undefined || templateId === null)
+            throw new Error("The parameter 'templateId' must be defined.");
+        url_ = url_.replace("{templateId}", encodeURIComponent("" + templateId));
+        url_ = url_.replace(/[?&]$/, "");
 
-    const content_ = JSON.stringify(body);
+        const content_ = JSON.stringify(body);
 
-    let options_: any = {
-      body: content_,
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Content-Type": "application/json",
-      })
-    };
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
 
-    return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_: any) => {
-      return this.processUpdateTemplateUserPreferences(response_);
-    })).pipe(_observableCatch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processUpdateTemplateUserPreferences(response_ as any);
-        } catch (e) {
-          return _observableThrow(e) as any as Observable<void>;
-        }
-      } else
-        return _observableThrow(response_) as any as Observable<void>;
-    }));
-  }
-
-  protected processUpdateTemplateUserPreferences(response: HttpResponseBase): Observable<void> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); } }
-    if (status === 400) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = HttpValidationProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-      }));
-    } else if (status === 401) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-      }));
-    } else if (status === 403) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result403: any = null;
-        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result403 = ProblemDetails.fromJS(resultData403);
-        return throwException("Forbidden", status, _responseText, _headers, result403);
-      }));
-    } else if (status === 500) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = ProblemDetails.fromJS(resultData500);
-        return throwException("Internal Server Error", status, _responseText, _headers, result500);
-      }));
-    } else if (status === 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return _observableOf(null as any);
-      }));
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      }));
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateTemplateUserPreferences(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateTemplateUserPreferences(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
     }
-    return _observableOf(null as any);
-  }
+
+    protected processUpdateTemplateUserPreferences(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
 }
 
 export class AttachmentLink implements IAttachmentLink {
-  id?: string;
-  permaLink?: string | undefined;
-  label?: string | undefined;
-  size?: number;
-  readonly sizeText?: string | undefined;
-  contentType?: string | undefined;
+    id?: string;
+    permaLink?: string | undefined;
+    label?: string | undefined;
+    size?: number;
+    readonly sizeText?: string | undefined;
+    contentType?: string | undefined;
 
-  constructor(data?: IAttachmentLink) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IAttachmentLink) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.id = _data["id"];
-      this.permaLink = _data["permaLink"];
-      this.label = _data["label"];
-      this.size = _data["size"];
-      (<any>this).sizeText = _data["sizeText"];
-      this.contentType = _data["contentType"];
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.permaLink = _data["permaLink"];
+            this.label = _data["label"];
+            this.size = _data["size"];
+            (<any>this).sizeText = _data["sizeText"];
+            this.contentType = _data["contentType"];
+        }
     }
-  }
 
-  static fromJS(data: any): AttachmentLink {
-    data = typeof data === 'object' ? data : {};
-    let result = new AttachmentLink();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): AttachmentLink {
+        data = typeof data === 'object' ? data : {};
+        let result = new AttachmentLink();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["permaLink"] = this.permaLink;
-    data["label"] = this.label;
-    data["size"] = this.size;
-    data["sizeText"] = this.sizeText;
-    data["contentType"] = this.contentType;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["permaLink"] = this.permaLink;
+        data["label"] = this.label;
+        data["size"] = this.size;
+        data["sizeText"] = this.sizeText;
+        data["contentType"] = this.contentType;
+        return data;
+    }
 }
 
 export interface IAttachmentLink {
-  id?: string;
-  permaLink?: string | undefined;
-  label?: string | undefined;
-  size?: number;
-  sizeText?: string | undefined;
-  contentType?: string | undefined;
+    id?: string;
+    permaLink?: string | undefined;
+    label?: string | undefined;
+    size?: number;
+    sizeText?: string | undefined;
+    contentType?: string | undefined;
 }
 
 export class BulkCreateDistributionListContactsRequest implements IBulkCreateDistributionListContactsRequest {
-  file!: string;
+    file!: string;
 
-  constructor(data?: IBulkCreateDistributionListContactsRequest) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IBulkCreateDistributionListContactsRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.file = _data["file"];
+    init(_data?: any) {
+        if (_data) {
+            this.file = _data["file"];
+        }
     }
-  }
 
-  static fromJS(data: any): BulkCreateDistributionListContactsRequest {
-    data = typeof data === 'object' ? data : {};
-    let result = new BulkCreateDistributionListContactsRequest();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): BulkCreateDistributionListContactsRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new BulkCreateDistributionListContactsRequest();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["file"] = this.file;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["file"] = this.file;
+        return data;
+    }
 }
 
 export interface IBulkCreateDistributionListContactsRequest {
-  file: string;
+    file: string;
 }
 
 export class Campaign implements ICampaign {
-  id?: string;
-  title?: string | undefined;
-  content?: { [key: string]: MessageContent; } | undefined;
-  actionLink?: Hyperlink;
-  published?: boolean;
-  ignoreUserPreferences?: boolean;
-  activePeriod?: Period;
-  isGlobal?: boolean;
-  type?: MessageType;
-  distributionList?: DistributionList;
-  messageChannelKind?: MessageChannelKind[];
-  mediaBaseHref?: string | undefined;
-  data?: any | undefined;
-  createdBy?: string | undefined;
-  createdAt?: Date;
-  updatedBy?: string | undefined;
-  updatedAt?: Date | undefined;
+    id?: string;
+    title?: string | undefined;
+    content?: { [key: string]: MessageContent; } | undefined;
+    actionLink?: Hyperlink;
+    published?: boolean;
+    ignoreUserPreferences?: boolean;
+    activePeriod?: Period;
+    isGlobal?: boolean;
+    type?: MessageType;
+    distributionList?: DistributionList;
+    messageChannelKind?: MessageChannelKind[];
+    mediaBaseHref?: string | undefined;
+    data?: any | undefined;
+    createdBy?: string | undefined;
+    createdAt?: Date;
+    updatedBy?: string | undefined;
+    updatedAt?: Date | undefined;
 
-  constructor(data?: ICampaign) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.id = _data["id"];
-      this.title = _data["title"];
-      if (_data["content"]) {
-        this.content = {} as any;
-        for (let key in _data["content"]) {
-          if (_data["content"].hasOwnProperty(key))
-            (<any>this.content)![key] = _data["content"][key] ? MessageContent.fromJS(_data["content"][key]) : new MessageContent();
+    constructor(data?: ICampaign) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
         }
-      }
-      this.actionLink = _data["actionLink"] ? Hyperlink.fromJS(_data["actionLink"]) : <any>undefined;
-      this.published = _data["published"];
-      this.ignoreUserPreferences = _data["ignoreUserPreferences"];
-      this.activePeriod = _data["activePeriod"] ? Period.fromJS(_data["activePeriod"]) : <any>undefined;
-      this.isGlobal = _data["isGlobal"];
-      this.type = _data["type"] ? MessageType.fromJS(_data["type"]) : <any>undefined;
-      this.distributionList = _data["distributionList"] ? DistributionList.fromJS(_data["distributionList"]) : <any>undefined;
-      if (Array.isArray(_data["messageChannelKind"])) {
-        this.messageChannelKind = [] as any;
-        for (let item of _data["messageChannelKind"])
-          this.messageChannelKind!.push(item);
-      }
-      this.mediaBaseHref = _data["mediaBaseHref"];
-      this.data = _data["data"];
-      this.createdBy = _data["createdBy"];
-      this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
-      this.updatedBy = _data["updatedBy"];
-      this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
     }
-  }
 
-  static fromJS(data: any): Campaign {
-    data = typeof data === 'object' ? data : {};
-    let result = new Campaign();
-    result.init(data);
-    return result;
-  }
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.title = _data["title"];
+            if (_data["content"]) {
+                this.content = {} as any;
+                for (let key in _data["content"]) {
+                    if (_data["content"].hasOwnProperty(key))
+                        (<any>this.content)![key] = _data["content"][key] ? MessageContent.fromJS(_data["content"][key]) : new MessageContent();
+                }
+            }
+            this.actionLink = _data["actionLink"] ? Hyperlink.fromJS(_data["actionLink"]) : <any>undefined;
+            this.published = _data["published"];
+            this.ignoreUserPreferences = _data["ignoreUserPreferences"];
+            this.activePeriod = _data["activePeriod"] ? Period.fromJS(_data["activePeriod"]) : <any>undefined;
+            this.isGlobal = _data["isGlobal"];
+            this.type = _data["type"] ? MessageType.fromJS(_data["type"]) : <any>undefined;
+            this.distributionList = _data["distributionList"] ? DistributionList.fromJS(_data["distributionList"]) : <any>undefined;
+            if (Array.isArray(_data["messageChannelKind"])) {
+                this.messageChannelKind = [] as any;
+                for (let item of _data["messageChannelKind"])
+                    this.messageChannelKind!.push(item);
+            }
+            this.mediaBaseHref = _data["mediaBaseHref"];
+            this.data = _data["data"];
+            this.createdBy = _data["createdBy"];
+            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+            this.updatedBy = _data["updatedBy"];
+            this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
+        }
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["title"] = this.title;
-    if (this.content) {
-      data["content"] = {};
-      for (let key in this.content) {
-        if (this.content.hasOwnProperty(key))
-          (<any>data["content"])[key] = this.content[key] ? this.content[key].toJSON() : <any>undefined;
-      }
+    static fromJS(data: any): Campaign {
+        data = typeof data === 'object' ? data : {};
+        let result = new Campaign();
+        result.init(data);
+        return result;
     }
-    data["actionLink"] = this.actionLink ? this.actionLink.toJSON() : <any>undefined;
-    data["published"] = this.published;
-    data["ignoreUserPreferences"] = this.ignoreUserPreferences;
-    data["activePeriod"] = this.activePeriod ? this.activePeriod.toJSON() : <any>undefined;
-    data["isGlobal"] = this.isGlobal;
-    data["type"] = this.type ? this.type.toJSON() : <any>undefined;
-    data["distributionList"] = this.distributionList ? this.distributionList.toJSON() : <any>undefined;
-    if (Array.isArray(this.messageChannelKind)) {
-      data["messageChannelKind"] = [];
-      for (let item of this.messageChannelKind)
-        data["messageChannelKind"].push(item);
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["title"] = this.title;
+        if (this.content) {
+            data["content"] = {};
+            for (let key in this.content) {
+                if (this.content.hasOwnProperty(key))
+                    (<any>data["content"])[key] = this.content[key] ? this.content[key].toJSON() : <any>undefined;
+            }
+        }
+        data["actionLink"] = this.actionLink ? this.actionLink.toJSON() : <any>undefined;
+        data["published"] = this.published;
+        data["ignoreUserPreferences"] = this.ignoreUserPreferences;
+        data["activePeriod"] = this.activePeriod ? this.activePeriod.toJSON() : <any>undefined;
+        data["isGlobal"] = this.isGlobal;
+        data["type"] = this.type ? this.type.toJSON() : <any>undefined;
+        data["distributionList"] = this.distributionList ? this.distributionList.toJSON() : <any>undefined;
+        if (Array.isArray(this.messageChannelKind)) {
+            data["messageChannelKind"] = [];
+            for (let item of this.messageChannelKind)
+                data["messageChannelKind"].push(item);
+        }
+        data["mediaBaseHref"] = this.mediaBaseHref;
+        data["data"] = this.data;
+        data["createdBy"] = this.createdBy;
+        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+        data["updatedBy"] = this.updatedBy;
+        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
+        return data;
     }
-    data["mediaBaseHref"] = this.mediaBaseHref;
-    data["data"] = this.data;
-    data["createdBy"] = this.createdBy;
-    data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
-    data["updatedBy"] = this.updatedBy;
-    data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
-    return data;
-  }
 }
 
 export interface ICampaign {
-  id?: string;
-  title?: string | undefined;
-  content?: { [key: string]: MessageContent; } | undefined;
-  actionLink?: Hyperlink;
-  published?: boolean;
-  ignoreUserPreferences?: boolean;
-  activePeriod?: Period;
-  isGlobal?: boolean;
-  type?: MessageType;
-  distributionList?: DistributionList;
-  messageChannelKind?: MessageChannelKind[];
-  mediaBaseHref?: string | undefined;
-  data?: any | undefined;
-  createdBy?: string | undefined;
-  createdAt?: Date;
-  updatedBy?: string | undefined;
-  updatedAt?: Date | undefined;
+    id?: string;
+    title?: string | undefined;
+    content?: { [key: string]: MessageContent; } | undefined;
+    actionLink?: Hyperlink;
+    published?: boolean;
+    ignoreUserPreferences?: boolean;
+    activePeriod?: Period;
+    isGlobal?: boolean;
+    type?: MessageType;
+    distributionList?: DistributionList;
+    messageChannelKind?: MessageChannelKind[];
+    mediaBaseHref?: string | undefined;
+    data?: any | undefined;
+    createdBy?: string | undefined;
+    createdAt?: Date;
+    updatedBy?: string | undefined;
+    updatedAt?: Date | undefined;
 }
 
 export class CampaignDetails implements ICampaignDetails {
-  id?: string;
-  title?: string | undefined;
-  content?: { [key: string]: MessageContent; } | undefined;
-  actionLink?: Hyperlink;
-  published?: boolean;
-  ignoreUserPreferences?: boolean;
-  activePeriod?: Period;
-  isGlobal?: boolean;
-  type?: MessageType;
-  distributionList?: DistributionList;
-  messageChannelKind?: MessageChannelKind[];
-  mediaBaseHref?: string | undefined;
-  data?: any | undefined;
-  createdBy?: string | undefined;
-  createdAt?: Date;
-  updatedBy?: string | undefined;
-  updatedAt?: Date | undefined;
-  attachment?: AttachmentLink;
+    id?: string;
+    title?: string | undefined;
+    content?: { [key: string]: MessageContent; } | undefined;
+    actionLink?: Hyperlink;
+    published?: boolean;
+    ignoreUserPreferences?: boolean;
+    activePeriod?: Period;
+    isGlobal?: boolean;
+    type?: MessageType;
+    distributionList?: DistributionList;
+    messageChannelKind?: MessageChannelKind[];
+    mediaBaseHref?: string | undefined;
+    data?: any | undefined;
+    createdBy?: string | undefined;
+    createdAt?: Date;
+    updatedBy?: string | undefined;
+    updatedAt?: Date | undefined;
+    attachment?: AttachmentLink;
 
-  constructor(data?: ICampaignDetails) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.id = _data["id"];
-      this.title = _data["title"];
-      if (_data["content"]) {
-        this.content = {} as any;
-        for (let key in _data["content"]) {
-          if (_data["content"].hasOwnProperty(key))
-            (<any>this.content)![key] = _data["content"][key] ? MessageContent.fromJS(_data["content"][key]) : new MessageContent();
+    constructor(data?: ICampaignDetails) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
         }
-      }
-      this.actionLink = _data["actionLink"] ? Hyperlink.fromJS(_data["actionLink"]) : <any>undefined;
-      this.published = _data["published"];
-      this.ignoreUserPreferences = _data["ignoreUserPreferences"];
-      this.activePeriod = _data["activePeriod"] ? Period.fromJS(_data["activePeriod"]) : <any>undefined;
-      this.isGlobal = _data["isGlobal"];
-      this.type = _data["type"] ? MessageType.fromJS(_data["type"]) : <any>undefined;
-      this.distributionList = _data["distributionList"] ? DistributionList.fromJS(_data["distributionList"]) : <any>undefined;
-      if (Array.isArray(_data["messageChannelKind"])) {
-        this.messageChannelKind = [] as any;
-        for (let item of _data["messageChannelKind"])
-          this.messageChannelKind!.push(item);
-      }
-      this.mediaBaseHref = _data["mediaBaseHref"];
-      this.data = _data["data"];
-      this.createdBy = _data["createdBy"];
-      this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
-      this.updatedBy = _data["updatedBy"];
-      this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
-      this.attachment = _data["attachment"] ? AttachmentLink.fromJS(_data["attachment"]) : <any>undefined;
     }
-  }
 
-  static fromJS(data: any): CampaignDetails {
-    data = typeof data === 'object' ? data : {};
-    let result = new CampaignDetails();
-    result.init(data);
-    return result;
-  }
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.title = _data["title"];
+            if (_data["content"]) {
+                this.content = {} as any;
+                for (let key in _data["content"]) {
+                    if (_data["content"].hasOwnProperty(key))
+                        (<any>this.content)![key] = _data["content"][key] ? MessageContent.fromJS(_data["content"][key]) : new MessageContent();
+                }
+            }
+            this.actionLink = _data["actionLink"] ? Hyperlink.fromJS(_data["actionLink"]) : <any>undefined;
+            this.published = _data["published"];
+            this.ignoreUserPreferences = _data["ignoreUserPreferences"];
+            this.activePeriod = _data["activePeriod"] ? Period.fromJS(_data["activePeriod"]) : <any>undefined;
+            this.isGlobal = _data["isGlobal"];
+            this.type = _data["type"] ? MessageType.fromJS(_data["type"]) : <any>undefined;
+            this.distributionList = _data["distributionList"] ? DistributionList.fromJS(_data["distributionList"]) : <any>undefined;
+            if (Array.isArray(_data["messageChannelKind"])) {
+                this.messageChannelKind = [] as any;
+                for (let item of _data["messageChannelKind"])
+                    this.messageChannelKind!.push(item);
+            }
+            this.mediaBaseHref = _data["mediaBaseHref"];
+            this.data = _data["data"];
+            this.createdBy = _data["createdBy"];
+            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+            this.updatedBy = _data["updatedBy"];
+            this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
+            this.attachment = _data["attachment"] ? AttachmentLink.fromJS(_data["attachment"]) : <any>undefined;
+        }
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["title"] = this.title;
-    if (this.content) {
-      data["content"] = {};
-      for (let key in this.content) {
-        if (this.content.hasOwnProperty(key))
-          (<any>data["content"])[key] = this.content[key] ? this.content[key].toJSON() : <any>undefined;
-      }
+    static fromJS(data: any): CampaignDetails {
+        data = typeof data === 'object' ? data : {};
+        let result = new CampaignDetails();
+        result.init(data);
+        return result;
     }
-    data["actionLink"] = this.actionLink ? this.actionLink.toJSON() : <any>undefined;
-    data["published"] = this.published;
-    data["ignoreUserPreferences"] = this.ignoreUserPreferences;
-    data["activePeriod"] = this.activePeriod ? this.activePeriod.toJSON() : <any>undefined;
-    data["isGlobal"] = this.isGlobal;
-    data["type"] = this.type ? this.type.toJSON() : <any>undefined;
-    data["distributionList"] = this.distributionList ? this.distributionList.toJSON() : <any>undefined;
-    if (Array.isArray(this.messageChannelKind)) {
-      data["messageChannelKind"] = [];
-      for (let item of this.messageChannelKind)
-        data["messageChannelKind"].push(item);
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["title"] = this.title;
+        if (this.content) {
+            data["content"] = {};
+            for (let key in this.content) {
+                if (this.content.hasOwnProperty(key))
+                    (<any>data["content"])[key] = this.content[key] ? this.content[key].toJSON() : <any>undefined;
+            }
+        }
+        data["actionLink"] = this.actionLink ? this.actionLink.toJSON() : <any>undefined;
+        data["published"] = this.published;
+        data["ignoreUserPreferences"] = this.ignoreUserPreferences;
+        data["activePeriod"] = this.activePeriod ? this.activePeriod.toJSON() : <any>undefined;
+        data["isGlobal"] = this.isGlobal;
+        data["type"] = this.type ? this.type.toJSON() : <any>undefined;
+        data["distributionList"] = this.distributionList ? this.distributionList.toJSON() : <any>undefined;
+        if (Array.isArray(this.messageChannelKind)) {
+            data["messageChannelKind"] = [];
+            for (let item of this.messageChannelKind)
+                data["messageChannelKind"].push(item);
+        }
+        data["mediaBaseHref"] = this.mediaBaseHref;
+        data["data"] = this.data;
+        data["createdBy"] = this.createdBy;
+        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+        data["updatedBy"] = this.updatedBy;
+        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
+        data["attachment"] = this.attachment ? this.attachment.toJSON() : <any>undefined;
+        return data;
     }
-    data["mediaBaseHref"] = this.mediaBaseHref;
-    data["data"] = this.data;
-    data["createdBy"] = this.createdBy;
-    data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
-    data["updatedBy"] = this.updatedBy;
-    data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
-    data["attachment"] = this.attachment ? this.attachment.toJSON() : <any>undefined;
-    return data;
-  }
 }
 
 export interface ICampaignDetails {
-  id?: string;
-  title?: string | undefined;
-  content?: { [key: string]: MessageContent; } | undefined;
-  actionLink?: Hyperlink;
-  published?: boolean;
-  ignoreUserPreferences?: boolean;
-  activePeriod?: Period;
-  isGlobal?: boolean;
-  type?: MessageType;
-  distributionList?: DistributionList;
-  messageChannelKind?: MessageChannelKind[];
-  mediaBaseHref?: string | undefined;
-  data?: any | undefined;
-  createdBy?: string | undefined;
-  createdAt?: Date;
-  updatedBy?: string | undefined;
-  updatedAt?: Date | undefined;
-  attachment?: AttachmentLink;
+    id?: string;
+    title?: string | undefined;
+    content?: { [key: string]: MessageContent; } | undefined;
+    actionLink?: Hyperlink;
+    published?: boolean;
+    ignoreUserPreferences?: boolean;
+    activePeriod?: Period;
+    isGlobal?: boolean;
+    type?: MessageType;
+    distributionList?: DistributionList;
+    messageChannelKind?: MessageChannelKind[];
+    mediaBaseHref?: string | undefined;
+    data?: any | undefined;
+    createdBy?: string | undefined;
+    createdAt?: Date;
+    updatedBy?: string | undefined;
+    updatedAt?: Date | undefined;
+    attachment?: AttachmentLink;
 }
 
 export class CampaignResultSet implements ICampaignResultSet {
-  count?: number;
-  items?: Campaign[] | undefined;
+    count?: number;
+    items?: Campaign[] | undefined;
 
-  constructor(data?: ICampaignResultSet) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: ICampaignResultSet) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.count = _data["count"];
-      if (Array.isArray(_data["items"])) {
-        this.items = [] as any;
-        for (let item of _data["items"])
-          this.items!.push(Campaign.fromJS(item));
-      }
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(Campaign.fromJS(item));
+            }
+        }
     }
-  }
 
-  static fromJS(data: any): CampaignResultSet {
-    data = typeof data === 'object' ? data : {};
-    let result = new CampaignResultSet();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["count"] = this.count;
-    if (Array.isArray(this.items)) {
-      data["items"] = [];
-      for (let item of this.items)
-        data["items"].push(item ? item.toJSON() : <any>undefined);
+    static fromJS(data: any): CampaignResultSet {
+        data = typeof data === 'object' ? data : {};
+        let result = new CampaignResultSet();
+        result.init(data);
+        return result;
     }
-    return data;
-  }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : <any>undefined);
+        }
+        return data;
+    }
 }
 
 export interface ICampaignResultSet {
-  count?: number;
-  items?: Campaign[] | undefined;
+    count?: number;
+    items?: Campaign[] | undefined;
 }
 
 export class CampaignStatistics implements ICampaignStatistics {
-  title?: string | undefined;
-  readCount?: number;
-  notReadCount?: number | undefined;
-  deletedCount?: number;
-  callToActionCount?: number;
-  lastUpdated?: Date;
+    title?: string | undefined;
+    readCount?: number;
+    notReadCount?: number | undefined;
+    deletedCount?: number;
+    callToActionCount?: number;
+    lastUpdated?: Date;
 
-  constructor(data?: ICampaignStatistics) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: ICampaignStatistics) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.title = _data["title"];
-      this.readCount = _data["readCount"];
-      this.notReadCount = _data["notReadCount"];
-      this.deletedCount = _data["deletedCount"];
-      this.callToActionCount = _data["callToActionCount"];
-      this.lastUpdated = _data["lastUpdated"] ? new Date(_data["lastUpdated"].toString()) : <any>undefined;
+    init(_data?: any) {
+        if (_data) {
+            this.title = _data["title"];
+            this.readCount = _data["readCount"];
+            this.notReadCount = _data["notReadCount"];
+            this.deletedCount = _data["deletedCount"];
+            this.callToActionCount = _data["callToActionCount"];
+            this.lastUpdated = _data["lastUpdated"] ? new Date(_data["lastUpdated"].toString()) : <any>undefined;
+        }
     }
-  }
 
-  static fromJS(data: any): CampaignStatistics {
-    data = typeof data === 'object' ? data : {};
-    let result = new CampaignStatistics();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): CampaignStatistics {
+        data = typeof data === 'object' ? data : {};
+        let result = new CampaignStatistics();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["title"] = this.title;
-    data["readCount"] = this.readCount;
-    data["notReadCount"] = this.notReadCount;
-    data["deletedCount"] = this.deletedCount;
-    data["callToActionCount"] = this.callToActionCount;
-    data["lastUpdated"] = this.lastUpdated ? this.lastUpdated.toISOString() : <any>undefined;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["title"] = this.title;
+        data["readCount"] = this.readCount;
+        data["notReadCount"] = this.notReadCount;
+        data["deletedCount"] = this.deletedCount;
+        data["callToActionCount"] = this.callToActionCount;
+        data["lastUpdated"] = this.lastUpdated ? this.lastUpdated.toISOString() : <any>undefined;
+        return data;
+    }
 }
 
 export interface ICampaignStatistics {
-  title?: string | undefined;
-  readCount?: number;
-  notReadCount?: number | undefined;
-  deletedCount?: number;
-  callToActionCount?: number;
-  lastUpdated?: Date;
+    title?: string | undefined;
+    readCount?: number;
+    notReadCount?: number | undefined;
+    deletedCount?: number;
+    callToActionCount?: number;
+    lastUpdated?: Date;
+}
+
+export class CommunicationMessageTypePreference implements ICommunicationMessageTypePreference {
+    name?: string | undefined;
+    alias?: string | undefined;
+    communicationPreferences?: CommunicationPreferences[];
+
+    constructor(data?: ICommunicationMessageTypePreference) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.alias = _data["alias"];
+            if (Array.isArray(_data["communicationPreferences"])) {
+                this.communicationPreferences = [] as any;
+                for (let item of _data["communicationPreferences"])
+                    this.communicationPreferences!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): CommunicationMessageTypePreference {
+        data = typeof data === 'object' ? data : {};
+        let result = new CommunicationMessageTypePreference();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["alias"] = this.alias;
+        if (Array.isArray(this.communicationPreferences)) {
+            data["communicationPreferences"] = [];
+            for (let item of this.communicationPreferences)
+                data["communicationPreferences"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface ICommunicationMessageTypePreference {
+    name?: string | undefined;
+    alias?: string | undefined;
+    communicationPreferences?: CommunicationPreferences[];
+}
+
+export class CommunicationPreference implements ICommunicationPreference {
+    locale?: string | undefined;
+    messageTypeCommunicationPreferences?: CommunicationMessageTypePreference[] | undefined;
+
+    constructor(data?: ICommunicationPreference) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.locale = _data["locale"];
+            if (Array.isArray(_data["messageTypeCommunicationPreferences"])) {
+                this.messageTypeCommunicationPreferences = [] as any;
+                for (let item of _data["messageTypeCommunicationPreferences"])
+                    this.messageTypeCommunicationPreferences!.push(CommunicationMessageTypePreference.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CommunicationPreference {
+        data = typeof data === 'object' ? data : {};
+        let result = new CommunicationPreference();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["locale"] = this.locale;
+        if (Array.isArray(this.messageTypeCommunicationPreferences)) {
+            data["messageTypeCommunicationPreferences"] = [];
+            for (let item of this.messageTypeCommunicationPreferences)
+                data["messageTypeCommunicationPreferences"].push(item ? item.toJSON() : <any>undefined);
+        }
+        return data;
+    }
+}
+
+export interface ICommunicationPreference {
+    locale?: string | undefined;
+    messageTypeCommunicationPreferences?: CommunicationMessageTypePreference[] | undefined;
 }
 
 export class Contact implements IContact {
-  readonly id?: string | undefined;
-  recipientId?: string | undefined;
-  salutation?: string | undefined;
-  firstName?: string | undefined;
-  lastName?: string | undefined;
-  fullName?: string | undefined;
-  email?: string | undefined;
-  phoneNumber?: string | undefined;
-  locale?: string | undefined;
-  communicationPreferences?: CommunicationPreferences[];
-  consentCommercial?: boolean;
-  unsubscribed?: boolean | undefined;
-  updatedAt?: Date | undefined;
-  readonly isAnonymous?: boolean;
+    readonly id?: string | undefined;
+    recipientId?: string | undefined;
+    salutation?: string | undefined;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    fullName?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+    locale?: string | undefined;
+    communicationPreferences?: CommunicationPreferences[];
+    consentCommercial?: boolean;
+    unsubscribed?: boolean | undefined;
+    updatedAt?: Date | undefined;
+    readonly isAnonymous?: boolean;
 
-  constructor(data?: IContact) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IContact) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      (<any>this).id = _data["id"];
-      this.recipientId = _data["recipientId"];
-      this.salutation = _data["salutation"];
-      this.firstName = _data["firstName"];
-      this.lastName = _data["lastName"];
-      this.fullName = _data["fullName"];
-      this.email = _data["email"];
-      this.phoneNumber = _data["phoneNumber"];
-      this.locale = _data["locale"];
-      if (Array.isArray(_data["communicationPreferences"])) {
-        this.communicationPreferences = [] as any;
-        for (let item of _data["communicationPreferences"])
-          this.communicationPreferences!.push(item);
-      }
-      this.consentCommercial = _data["consentCommercial"];
-      this.unsubscribed = _data["unsubscribed"];
-      this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
-      (<any>this).isAnonymous = _data["isAnonymous"];
+    init(_data?: any) {
+        if (_data) {
+            (<any>this).id = _data["id"];
+            this.recipientId = _data["recipientId"];
+            this.salutation = _data["salutation"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.fullName = _data["fullName"];
+            this.email = _data["email"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.locale = _data["locale"];
+            if (Array.isArray(_data["communicationPreferences"])) {
+                this.communicationPreferences = [] as any;
+                for (let item of _data["communicationPreferences"])
+                    this.communicationPreferences!.push(item);
+            }
+            this.consentCommercial = _data["consentCommercial"];
+            this.unsubscribed = _data["unsubscribed"];
+            this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
+            (<any>this).isAnonymous = _data["isAnonymous"];
+        }
     }
-  }
 
-  static fromJS(data: any): Contact {
-    data = typeof data === 'object' ? data : {};
-    let result = new Contact();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["recipientId"] = this.recipientId;
-    data["salutation"] = this.salutation;
-    data["firstName"] = this.firstName;
-    data["lastName"] = this.lastName;
-    data["fullName"] = this.fullName;
-    data["email"] = this.email;
-    data["phoneNumber"] = this.phoneNumber;
-    data["locale"] = this.locale;
-    if (Array.isArray(this.communicationPreferences)) {
-      data["communicationPreferences"] = [];
-      for (let item of this.communicationPreferences)
-        data["communicationPreferences"].push(item);
+    static fromJS(data: any): Contact {
+        data = typeof data === 'object' ? data : {};
+        let result = new Contact();
+        result.init(data);
+        return result;
     }
-    data["consentCommercial"] = this.consentCommercial;
-    data["unsubscribed"] = this.unsubscribed;
-    data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
-    data["isAnonymous"] = this.isAnonymous;
-    return data;
-  }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["recipientId"] = this.recipientId;
+        data["salutation"] = this.salutation;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["fullName"] = this.fullName;
+        data["email"] = this.email;
+        data["phoneNumber"] = this.phoneNumber;
+        data["locale"] = this.locale;
+        if (Array.isArray(this.communicationPreferences)) {
+            data["communicationPreferences"] = [];
+            for (let item of this.communicationPreferences)
+                data["communicationPreferences"].push(item);
+        }
+        data["consentCommercial"] = this.consentCommercial;
+        data["unsubscribed"] = this.unsubscribed;
+        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
+        data["isAnonymous"] = this.isAnonymous;
+        return data;
+    }
 }
 
 export interface IContact {
-  id?: string | undefined;
-  recipientId?: string | undefined;
-  salutation?: string | undefined;
-  firstName?: string | undefined;
-  lastName?: string | undefined;
-  fullName?: string | undefined;
-  email?: string | undefined;
-  phoneNumber?: string | undefined;
-  locale?: string | undefined;
-  communicationPreferences?: CommunicationPreferences[];
-  consentCommercial?: boolean;
-  unsubscribed?: boolean | undefined;
-  updatedAt?: Date | undefined;
-  isAnonymous?: boolean;
+    id?: string | undefined;
+    recipientId?: string | undefined;
+    salutation?: string | undefined;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    fullName?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+    locale?: string | undefined;
+    communicationPreferences?: CommunicationPreferences[];
+    consentCommercial?: boolean;
+    unsubscribed?: boolean | undefined;
+    updatedAt?: Date | undefined;
+    isAnonymous?: boolean;
 }
 
 export class ContactAnonymous implements IContactAnonymous {
-  recipientId?: string | undefined;
-  salutation?: string | undefined;
-  firstName?: string | undefined;
-  lastName?: string | undefined;
-  fullName?: string | undefined;
-  email?: string | undefined;
-  phoneNumber?: string | undefined;
+    recipientId?: string | undefined;
+    salutation?: string | undefined;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    fullName?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
 
-  constructor(data?: IContactAnonymous) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IContactAnonymous) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.recipientId = _data["recipientId"];
-      this.salutation = _data["salutation"];
-      this.firstName = _data["firstName"];
-      this.lastName = _data["lastName"];
-      this.fullName = _data["fullName"];
-      this.email = _data["email"];
-      this.phoneNumber = _data["phoneNumber"];
+    init(_data?: any) {
+        if (_data) {
+            this.recipientId = _data["recipientId"];
+            this.salutation = _data["salutation"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.fullName = _data["fullName"];
+            this.email = _data["email"];
+            this.phoneNumber = _data["phoneNumber"];
+        }
     }
-  }
 
-  static fromJS(data: any): ContactAnonymous {
-    data = typeof data === 'object' ? data : {};
-    let result = new ContactAnonymous();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): ContactAnonymous {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContactAnonymous();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["recipientId"] = this.recipientId;
-    data["salutation"] = this.salutation;
-    data["firstName"] = this.firstName;
-    data["lastName"] = this.lastName;
-    data["fullName"] = this.fullName;
-    data["email"] = this.email;
-    data["phoneNumber"] = this.phoneNumber;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["recipientId"] = this.recipientId;
+        data["salutation"] = this.salutation;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["fullName"] = this.fullName;
+        data["email"] = this.email;
+        data["phoneNumber"] = this.phoneNumber;
+        return data;
+    }
 }
 
 export interface IContactAnonymous {
-  recipientId?: string | undefined;
-  salutation?: string | undefined;
-  firstName?: string | undefined;
-  lastName?: string | undefined;
-  fullName?: string | undefined;
-  email?: string | undefined;
-  phoneNumber?: string | undefined;
+    recipientId?: string | undefined;
+    salutation?: string | undefined;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    fullName?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
 }
 
 export class ContactResultSet implements IContactResultSet {
-  count?: number;
-  items?: Contact[] | undefined;
+    count?: number;
+    items?: Contact[] | undefined;
 
-  constructor(data?: IContactResultSet) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IContactResultSet) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.count = _data["count"];
-      if (Array.isArray(_data["items"])) {
-        this.items = [] as any;
-        for (let item of _data["items"])
-          this.items!.push(Contact.fromJS(item));
-      }
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(Contact.fromJS(item));
+            }
+        }
     }
-  }
 
-  static fromJS(data: any): ContactResultSet {
-    data = typeof data === 'object' ? data : {};
-    let result = new ContactResultSet();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["count"] = this.count;
-    if (Array.isArray(this.items)) {
-      data["items"] = [];
-      for (let item of this.items)
-        data["items"].push(item ? item.toJSON() : <any>undefined);
+    static fromJS(data: any): ContactResultSet {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContactResultSet();
+        result.init(data);
+        return result;
     }
-    return data;
-  }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : <any>undefined);
+        }
+        return data;
+    }
 }
 
 export interface IContactResultSet {
-  count?: number;
-  items?: Contact[] | undefined;
+    count?: number;
+    items?: Contact[] | undefined;
 }
 
 export class ContactsImportResult implements IContactsImportResult {
-  contactsAdded?: number;
-  contactsUpdated?: number;
-  errors?: string[] | undefined;
+    contactsAdded?: number;
+    contactsUpdated?: number;
+    errors?: string[] | undefined;
 
-  constructor(data?: IContactsImportResult) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IContactsImportResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.contactsAdded = _data["contactsAdded"];
-      this.contactsUpdated = _data["contactsUpdated"];
-      if (Array.isArray(_data["errors"])) {
-        this.errors = [] as any;
-        for (let item of _data["errors"])
-          this.errors!.push(item);
-      }
+    init(_data?: any) {
+        if (_data) {
+            this.contactsAdded = _data["contactsAdded"];
+            this.contactsUpdated = _data["contactsUpdated"];
+            if (Array.isArray(_data["errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["errors"])
+                    this.errors!.push(item);
+            }
+        }
     }
-  }
 
-  static fromJS(data: any): ContactsImportResult {
-    data = typeof data === 'object' ? data : {};
-    let result = new ContactsImportResult();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["contactsAdded"] = this.contactsAdded;
-    data["contactsUpdated"] = this.contactsUpdated;
-    if (Array.isArray(this.errors)) {
-      data["errors"] = [];
-      for (let item of this.errors)
-        data["errors"].push(item);
+    static fromJS(data: any): ContactsImportResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContactsImportResult();
+        result.init(data);
+        return result;
     }
-    return data;
-  }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["contactsAdded"] = this.contactsAdded;
+        data["contactsUpdated"] = this.contactsUpdated;
+        if (Array.isArray(this.errors)) {
+            data["errors"] = [];
+            for (let item of this.errors)
+                data["errors"].push(item);
+        }
+        return data;
+    }
 }
 
 export interface IContactsImportResult {
-  contactsAdded?: number;
-  contactsUpdated?: number;
-  errors?: string[] | undefined;
+    contactsAdded?: number;
+    contactsUpdated?: number;
+    errors?: string[] | undefined;
 }
 
 export class CreateCampaignRequest implements ICreateCampaignRequest {
-  isGlobal?: boolean;
-  title?: string;
-  content?: { [key: string]: MessageContent; } | undefined;
-  actionLink?: Hyperlink;
-  activePeriod?: Period;
-  mediaBaseHref?: string | undefined;
-  typeId?: string | undefined;
-  recipientListId?: string | undefined;
-  messageTemplateId?: string | undefined;
-  data?: any | undefined;
-  messageTemplateChannels?: MessageChannelKind[];
-  published?: boolean;
-  ignoreUserPreferences?: boolean | undefined;
-  recipientIds?: string[] | undefined;
-  recipients?: ContactAnonymous[] | undefined;
+    isGlobal?: boolean;
+    title?: string;
+    content?: { [key: string]: MessageContent; } | undefined;
+    actionLink?: Hyperlink;
+    activePeriod?: Period;
+    mediaBaseHref?: string | undefined;
+    typeId?: string | undefined;
+    recipientListId?: string | undefined;
+    messageTemplateId?: string | undefined;
+    data?: any | undefined;
+    messageTemplateChannels?: MessageChannelKind[];
+    published?: boolean;
+    ignoreUserPreferences?: boolean | undefined;
+    recipientIds?: string[] | undefined;
+    recipients?: ContactAnonymous[] | undefined;
 
-  constructor(data?: ICreateCampaignRequest) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.isGlobal = _data["isGlobal"];
-      this.title = _data["title"];
-      if (_data["content"]) {
-        this.content = {} as any;
-        for (let key in _data["content"]) {
-          if (_data["content"].hasOwnProperty(key))
-            (<any>this.content)![key] = _data["content"][key] ? MessageContent.fromJS(_data["content"][key]) : new MessageContent();
+    constructor(data?: ICreateCampaignRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
         }
-      }
-      this.actionLink = _data["actionLink"] ? Hyperlink.fromJS(_data["actionLink"]) : <any>undefined;
-      this.activePeriod = _data["activePeriod"] ? Period.fromJS(_data["activePeriod"]) : <any>undefined;
-      this.mediaBaseHref = _data["mediaBaseHref"];
-      this.typeId = _data["typeId"];
-      this.recipientListId = _data["recipientListId"];
-      this.messageTemplateId = _data["messageTemplateId"];
-      this.data = _data["data"];
-      if (Array.isArray(_data["messageTemplateChannels"])) {
-        this.messageTemplateChannels = [] as any;
-        for (let item of _data["messageTemplateChannels"])
-          this.messageTemplateChannels!.push(item);
-      }
-      this.published = _data["published"];
-      this.ignoreUserPreferences = _data["ignoreUserPreferences"];
-      if (Array.isArray(_data["recipientIds"])) {
-        this.recipientIds = [] as any;
-        for (let item of _data["recipientIds"])
-          this.recipientIds!.push(item);
-      }
-      if (Array.isArray(_data["recipients"])) {
-        this.recipients = [] as any;
-        for (let item of _data["recipients"])
-          this.recipients!.push(ContactAnonymous.fromJS(item));
-      }
     }
-  }
 
-  static fromJS(data: any): CreateCampaignRequest {
-    data = typeof data === 'object' ? data : {};
-    let result = new CreateCampaignRequest();
-    result.init(data);
-    return result;
-  }
+    init(_data?: any) {
+        if (_data) {
+            this.isGlobal = _data["isGlobal"];
+            this.title = _data["title"];
+            if (_data["content"]) {
+                this.content = {} as any;
+                for (let key in _data["content"]) {
+                    if (_data["content"].hasOwnProperty(key))
+                        (<any>this.content)![key] = _data["content"][key] ? MessageContent.fromJS(_data["content"][key]) : new MessageContent();
+                }
+            }
+            this.actionLink = _data["actionLink"] ? Hyperlink.fromJS(_data["actionLink"]) : <any>undefined;
+            this.activePeriod = _data["activePeriod"] ? Period.fromJS(_data["activePeriod"]) : <any>undefined;
+            this.mediaBaseHref = _data["mediaBaseHref"];
+            this.typeId = _data["typeId"];
+            this.recipientListId = _data["recipientListId"];
+            this.messageTemplateId = _data["messageTemplateId"];
+            this.data = _data["data"];
+            if (Array.isArray(_data["messageTemplateChannels"])) {
+                this.messageTemplateChannels = [] as any;
+                for (let item of _data["messageTemplateChannels"])
+                    this.messageTemplateChannels!.push(item);
+            }
+            this.published = _data["published"];
+            this.ignoreUserPreferences = _data["ignoreUserPreferences"];
+            if (Array.isArray(_data["recipientIds"])) {
+                this.recipientIds = [] as any;
+                for (let item of _data["recipientIds"])
+                    this.recipientIds!.push(item);
+            }
+            if (Array.isArray(_data["recipients"])) {
+                this.recipients = [] as any;
+                for (let item of _data["recipients"])
+                    this.recipients!.push(ContactAnonymous.fromJS(item));
+            }
+        }
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["isGlobal"] = this.isGlobal;
-    data["title"] = this.title;
-    if (this.content) {
-      data["content"] = {};
-      for (let key in this.content) {
-        if (this.content.hasOwnProperty(key))
-          (<any>data["content"])[key] = this.content[key] ? this.content[key].toJSON() : <any>undefined;
-      }
+    static fromJS(data: any): CreateCampaignRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateCampaignRequest();
+        result.init(data);
+        return result;
     }
-    data["actionLink"] = this.actionLink ? this.actionLink.toJSON() : <any>undefined;
-    data["activePeriod"] = this.activePeriod ? this.activePeriod.toJSON() : <any>undefined;
-    data["mediaBaseHref"] = this.mediaBaseHref;
-    data["typeId"] = this.typeId;
-    data["recipientListId"] = this.recipientListId;
-    data["messageTemplateId"] = this.messageTemplateId;
-    data["data"] = this.data;
-    if (Array.isArray(this.messageTemplateChannels)) {
-      data["messageTemplateChannels"] = [];
-      for (let item of this.messageTemplateChannels)
-        data["messageTemplateChannels"].push(item);
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["isGlobal"] = this.isGlobal;
+        data["title"] = this.title;
+        if (this.content) {
+            data["content"] = {};
+            for (let key in this.content) {
+                if (this.content.hasOwnProperty(key))
+                    (<any>data["content"])[key] = this.content[key] ? this.content[key].toJSON() : <any>undefined;
+            }
+        }
+        data["actionLink"] = this.actionLink ? this.actionLink.toJSON() : <any>undefined;
+        data["activePeriod"] = this.activePeriod ? this.activePeriod.toJSON() : <any>undefined;
+        data["mediaBaseHref"] = this.mediaBaseHref;
+        data["typeId"] = this.typeId;
+        data["recipientListId"] = this.recipientListId;
+        data["messageTemplateId"] = this.messageTemplateId;
+        data["data"] = this.data;
+        if (Array.isArray(this.messageTemplateChannels)) {
+            data["messageTemplateChannels"] = [];
+            for (let item of this.messageTemplateChannels)
+                data["messageTemplateChannels"].push(item);
+        }
+        data["published"] = this.published;
+        data["ignoreUserPreferences"] = this.ignoreUserPreferences;
+        if (Array.isArray(this.recipientIds)) {
+            data["recipientIds"] = [];
+            for (let item of this.recipientIds)
+                data["recipientIds"].push(item);
+        }
+        if (Array.isArray(this.recipients)) {
+            data["recipients"] = [];
+            for (let item of this.recipients)
+                data["recipients"].push(item ? item.toJSON() : <any>undefined);
+        }
+        return data;
     }
-    data["published"] = this.published;
-    data["ignoreUserPreferences"] = this.ignoreUserPreferences;
-    if (Array.isArray(this.recipientIds)) {
-      data["recipientIds"] = [];
-      for (let item of this.recipientIds)
-        data["recipientIds"].push(item);
-    }
-    if (Array.isArray(this.recipients)) {
-      data["recipients"] = [];
-      for (let item of this.recipients)
-        data["recipients"].push(item ? item.toJSON() : <any>undefined);
-    }
-    return data;
-  }
 }
 
 export interface ICreateCampaignRequest {
-  isGlobal?: boolean;
-  title?: string;
-  content?: { [key: string]: MessageContent; } | undefined;
-  actionLink?: Hyperlink;
-  activePeriod?: Period;
-  mediaBaseHref?: string | undefined;
-  typeId?: string | undefined;
-  recipientListId?: string | undefined;
-  messageTemplateId?: string | undefined;
-  data?: any | undefined;
-  messageTemplateChannels?: MessageChannelKind[];
-  published?: boolean;
-  ignoreUserPreferences?: boolean | undefined;
-  recipientIds?: string[] | undefined;
-  recipients?: ContactAnonymous[] | undefined;
+    isGlobal?: boolean;
+    title?: string;
+    content?: { [key: string]: MessageContent; } | undefined;
+    actionLink?: Hyperlink;
+    activePeriod?: Period;
+    mediaBaseHref?: string | undefined;
+    typeId?: string | undefined;
+    recipientListId?: string | undefined;
+    messageTemplateId?: string | undefined;
+    data?: any | undefined;
+    messageTemplateChannels?: MessageChannelKind[];
+    published?: boolean;
+    ignoreUserPreferences?: boolean | undefined;
+    recipientIds?: string[] | undefined;
+    recipients?: ContactAnonymous[] | undefined;
 }
 
 export class CreateCampaignResult implements ICreateCampaignResult {
-  readonly succeeded?: boolean;
-  readonly errors?: string[] | undefined;
-  readonly campaignId?: string;
+    readonly succeeded?: boolean;
+    readonly errors?: string[] | undefined;
+    readonly campaignId?: string;
 
-  constructor(data?: ICreateCampaignResult) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: ICreateCampaignResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      (<any>this).succeeded = _data["succeeded"];
-      if (Array.isArray(_data["errors"])) {
-        (<any>this).errors = [] as any;
-        for (let item of _data["errors"])
-          (<any>this).errors!.push(item);
-      }
-      (<any>this).campaignId = _data["campaignId"];
+    init(_data?: any) {
+        if (_data) {
+            (<any>this).succeeded = _data["succeeded"];
+            if (Array.isArray(_data["errors"])) {
+                (<any>this).errors = [] as any;
+                for (let item of _data["errors"])
+                    (<any>this).errors!.push(item);
+            }
+            (<any>this).campaignId = _data["campaignId"];
+        }
     }
-  }
 
-  static fromJS(data: any): CreateCampaignResult {
-    data = typeof data === 'object' ? data : {};
-    let result = new CreateCampaignResult();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["succeeded"] = this.succeeded;
-    if (Array.isArray(this.errors)) {
-      data["errors"] = [];
-      for (let item of this.errors)
-        data["errors"].push(item);
+    static fromJS(data: any): CreateCampaignResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateCampaignResult();
+        result.init(data);
+        return result;
     }
-    data["campaignId"] = this.campaignId;
-    return data;
-  }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["succeeded"] = this.succeeded;
+        if (Array.isArray(this.errors)) {
+            data["errors"] = [];
+            for (let item of this.errors)
+                data["errors"].push(item);
+        }
+        data["campaignId"] = this.campaignId;
+        return data;
+    }
 }
 
 export interface ICreateCampaignResult {
-  succeeded?: boolean;
-  errors?: string[] | undefined;
-  campaignId?: string;
+    succeeded?: boolean;
+    errors?: string[] | undefined;
+    campaignId?: string;
 }
 
 export class CreateContactRequest implements ICreateContactRequest {
-  recipientId?: string | undefined;
-  salutation?: string | undefined;
-  firstName?: string | undefined;
-  lastName?: string | undefined;
-  fullName?: string | undefined;
-  email?: string | undefined;
-  phoneNumber?: string | undefined;
-  locale?: string | undefined;
-  communicationPreferences?: CommunicationPreferences[];
-  consentCommercial?: boolean;
+    recipientId?: string | undefined;
+    salutation?: string | undefined;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    fullName?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+    locale?: string | undefined;
+    communicationPreferences?: CommunicationPreferences[];
+    consentCommercial?: boolean;
 
-  constructor(data?: ICreateContactRequest) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: ICreateContactRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.recipientId = _data["recipientId"];
-      this.salutation = _data["salutation"];
-      this.firstName = _data["firstName"];
-      this.lastName = _data["lastName"];
-      this.fullName = _data["fullName"];
-      this.email = _data["email"];
-      this.phoneNumber = _data["phoneNumber"];
-      this.locale = _data["locale"];
-      if (Array.isArray(_data["communicationPreferences"])) {
-        this.communicationPreferences = [] as any;
-        for (let item of _data["communicationPreferences"])
-          this.communicationPreferences!.push(item);
-      }
-      this.consentCommercial = _data["consentCommercial"];
+    init(_data?: any) {
+        if (_data) {
+            this.recipientId = _data["recipientId"];
+            this.salutation = _data["salutation"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.fullName = _data["fullName"];
+            this.email = _data["email"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.locale = _data["locale"];
+            if (Array.isArray(_data["communicationPreferences"])) {
+                this.communicationPreferences = [] as any;
+                for (let item of _data["communicationPreferences"])
+                    this.communicationPreferences!.push(item);
+            }
+            this.consentCommercial = _data["consentCommercial"];
+        }
     }
-  }
 
-  static fromJS(data: any): CreateContactRequest {
-    data = typeof data === 'object' ? data : {};
-    let result = new CreateContactRequest();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["recipientId"] = this.recipientId;
-    data["salutation"] = this.salutation;
-    data["firstName"] = this.firstName;
-    data["lastName"] = this.lastName;
-    data["fullName"] = this.fullName;
-    data["email"] = this.email;
-    data["phoneNumber"] = this.phoneNumber;
-    data["locale"] = this.locale;
-    if (Array.isArray(this.communicationPreferences)) {
-      data["communicationPreferences"] = [];
-      for (let item of this.communicationPreferences)
-        data["communicationPreferences"].push(item);
+    static fromJS(data: any): CreateContactRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateContactRequest();
+        result.init(data);
+        return result;
     }
-    data["consentCommercial"] = this.consentCommercial;
-    return data;
-  }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["recipientId"] = this.recipientId;
+        data["salutation"] = this.salutation;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["fullName"] = this.fullName;
+        data["email"] = this.email;
+        data["phoneNumber"] = this.phoneNumber;
+        data["locale"] = this.locale;
+        if (Array.isArray(this.communicationPreferences)) {
+            data["communicationPreferences"] = [];
+            for (let item of this.communicationPreferences)
+                data["communicationPreferences"].push(item);
+        }
+        data["consentCommercial"] = this.consentCommercial;
+        return data;
+    }
 }
 
 export interface ICreateContactRequest {
-  recipientId?: string | undefined;
-  salutation?: string | undefined;
-  firstName?: string | undefined;
-  lastName?: string | undefined;
-  fullName?: string | undefined;
-  email?: string | undefined;
-  phoneNumber?: string | undefined;
-  locale?: string | undefined;
-  communicationPreferences?: CommunicationPreferences[];
-  consentCommercial?: boolean;
+    recipientId?: string | undefined;
+    salutation?: string | undefined;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    fullName?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+    locale?: string | undefined;
+    communicationPreferences?: CommunicationPreferences[];
+    consentCommercial?: boolean;
 }
 
 export class CreateDistributionListContactRequest implements ICreateDistributionListContactRequest {
-  recipientId?: string | undefined;
-  salutation?: string | undefined;
-  firstName?: string | undefined;
-  lastName?: string | undefined;
-  fullName?: string;
-  email?: string | undefined;
-  phoneNumber?: string | undefined;
-  locale?: string | undefined;
-  communicationPreferences?: CommunicationPreferences[];
-  consentCommercial?: boolean;
-  contactId?: string | undefined;
+    recipientId?: string | undefined;
+    salutation?: string | undefined;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    fullName?: string;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+    locale?: string | undefined;
+    communicationPreferences?: CommunicationPreferences[];
+    consentCommercial?: boolean;
+    contactId?: string | undefined;
 
-  constructor(data?: ICreateDistributionListContactRequest) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: ICreateDistributionListContactRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.recipientId = _data["recipientId"];
-      this.salutation = _data["salutation"];
-      this.firstName = _data["firstName"];
-      this.lastName = _data["lastName"];
-      this.fullName = _data["fullName"];
-      this.email = _data["email"];
-      this.phoneNumber = _data["phoneNumber"];
-      this.locale = _data["locale"];
-      if (Array.isArray(_data["communicationPreferences"])) {
-        this.communicationPreferences = [] as any;
-        for (let item of _data["communicationPreferences"])
-          this.communicationPreferences!.push(item);
-      }
-      this.consentCommercial = _data["consentCommercial"];
-      this.contactId = _data["contactId"];
+    init(_data?: any) {
+        if (_data) {
+            this.recipientId = _data["recipientId"];
+            this.salutation = _data["salutation"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.fullName = _data["fullName"];
+            this.email = _data["email"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.locale = _data["locale"];
+            if (Array.isArray(_data["communicationPreferences"])) {
+                this.communicationPreferences = [] as any;
+                for (let item of _data["communicationPreferences"])
+                    this.communicationPreferences!.push(item);
+            }
+            this.consentCommercial = _data["consentCommercial"];
+            this.contactId = _data["contactId"];
+        }
     }
-  }
 
-  static fromJS(data: any): CreateDistributionListContactRequest {
-    data = typeof data === 'object' ? data : {};
-    let result = new CreateDistributionListContactRequest();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["recipientId"] = this.recipientId;
-    data["salutation"] = this.salutation;
-    data["firstName"] = this.firstName;
-    data["lastName"] = this.lastName;
-    data["fullName"] = this.fullName;
-    data["email"] = this.email;
-    data["phoneNumber"] = this.phoneNumber;
-    data["locale"] = this.locale;
-    if (Array.isArray(this.communicationPreferences)) {
-      data["communicationPreferences"] = [];
-      for (let item of this.communicationPreferences)
-        data["communicationPreferences"].push(item);
+    static fromJS(data: any): CreateDistributionListContactRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateDistributionListContactRequest();
+        result.init(data);
+        return result;
     }
-    data["consentCommercial"] = this.consentCommercial;
-    data["contactId"] = this.contactId;
-    return data;
-  }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["recipientId"] = this.recipientId;
+        data["salutation"] = this.salutation;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["fullName"] = this.fullName;
+        data["email"] = this.email;
+        data["phoneNumber"] = this.phoneNumber;
+        data["locale"] = this.locale;
+        if (Array.isArray(this.communicationPreferences)) {
+            data["communicationPreferences"] = [];
+            for (let item of this.communicationPreferences)
+                data["communicationPreferences"].push(item);
+        }
+        data["consentCommercial"] = this.consentCommercial;
+        data["contactId"] = this.contactId;
+        return data;
+    }
 }
 
 export interface ICreateDistributionListContactRequest {
-  recipientId?: string | undefined;
-  salutation?: string | undefined;
-  firstName?: string | undefined;
-  lastName?: string | undefined;
-  fullName?: string;
-  email?: string | undefined;
-  phoneNumber?: string | undefined;
-  locale?: string | undefined;
-  communicationPreferences?: CommunicationPreferences[];
-  consentCommercial?: boolean;
-  contactId?: string | undefined;
+    recipientId?: string | undefined;
+    salutation?: string | undefined;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    fullName?: string;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+    locale?: string | undefined;
+    communicationPreferences?: CommunicationPreferences[];
+    consentCommercial?: boolean;
+    contactId?: string | undefined;
 }
 
 export class CreateDistributionListRequest implements ICreateDistributionListRequest {
-  name?: string;
+    name?: string;
 
-  constructor(data?: ICreateDistributionListRequest) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: ICreateDistributionListRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.name = _data["name"];
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+        }
     }
-  }
 
-  static fromJS(data: any): CreateDistributionListRequest {
-    data = typeof data === 'object' ? data : {};
-    let result = new CreateDistributionListRequest();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): CreateDistributionListRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateDistributionListRequest();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["name"] = this.name;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        return data;
+    }
 }
 
 export interface ICreateDistributionListRequest {
-  name?: string;
+    name?: string;
 }
 
 export class CreateMessageSenderRequest implements ICreateMessageSenderRequest {
-  sender?: string | undefined;
-  displayName?: string | undefined;
-  isDefault?: boolean;
+    sender?: string | undefined;
+    displayName?: string | undefined;
+    isDefault?: boolean;
 
-  constructor(data?: ICreateMessageSenderRequest) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: ICreateMessageSenderRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.sender = _data["sender"];
-      this.displayName = _data["displayName"];
-      this.isDefault = _data["isDefault"];
+    init(_data?: any) {
+        if (_data) {
+            this.sender = _data["sender"];
+            this.displayName = _data["displayName"];
+            this.isDefault = _data["isDefault"];
+        }
     }
-  }
 
-  static fromJS(data: any): CreateMessageSenderRequest {
-    data = typeof data === 'object' ? data : {};
-    let result = new CreateMessageSenderRequest();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): CreateMessageSenderRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateMessageSenderRequest();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["sender"] = this.sender;
-    data["displayName"] = this.displayName;
-    data["isDefault"] = this.isDefault;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["sender"] = this.sender;
+        data["displayName"] = this.displayName;
+        data["isDefault"] = this.isDefault;
+        return data;
+    }
 }
 
 export interface ICreateMessageSenderRequest {
-  sender?: string | undefined;
-  displayName?: string | undefined;
-  isDefault?: boolean;
+    sender?: string | undefined;
+    displayName?: string | undefined;
+    isDefault?: boolean;
 }
 
 export class CreateMessageTypeRequest implements ICreateMessageTypeRequest {
-  name?: string;
-  alias?: string | undefined;
-  classification?: MessageTypeClassification;
+    name?: string;
+    alias?: string | undefined;
+    classification?: MessageTypeClassification;
 
-  constructor(data?: ICreateMessageTypeRequest) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: ICreateMessageTypeRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.name = _data["name"];
-      this.alias = _data["alias"];
-      this.classification = _data["classification"];
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.alias = _data["alias"];
+            this.classification = _data["classification"];
+        }
     }
-  }
 
-  static fromJS(data: any): CreateMessageTypeRequest {
-    data = typeof data === 'object' ? data : {};
-    let result = new CreateMessageTypeRequest();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): CreateMessageTypeRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateMessageTypeRequest();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["name"] = this.name;
-    data["alias"] = this.alias;
-    data["classification"] = this.classification;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["alias"] = this.alias;
+        data["classification"] = this.classification;
+        return data;
+    }
 }
 
 export interface ICreateMessageTypeRequest {
-  name?: string;
-  alias?: string | undefined;
-  classification?: MessageTypeClassification;
+    name?: string;
+    alias?: string | undefined;
+    classification?: MessageTypeClassification;
 }
 
 export class CreateTemplateRequest implements ICreateTemplateRequest {
-  name?: string;
-  alias?: string | undefined;
-  ignoreUserPreferences?: boolean;
-  content?: { [key: string]: MessageContent; } | undefined;
-  data?: any | undefined;
+    name?: string;
+    alias?: string | undefined;
+    ignoreUserPreferences?: boolean;
+    content?: { [key: string]: MessageContent; } | undefined;
+    data?: any | undefined;
 
-  constructor(data?: ICreateTemplateRequest) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.name = _data["name"];
-      this.alias = _data["alias"];
-      this.ignoreUserPreferences = _data["ignoreUserPreferences"];
-      if (_data["content"]) {
-        this.content = {} as any;
-        for (let key in _data["content"]) {
-          if (_data["content"].hasOwnProperty(key))
-            (<any>this.content)![key] = _data["content"][key] ? MessageContent.fromJS(_data["content"][key]) : new MessageContent();
+    constructor(data?: ICreateTemplateRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
         }
-      }
-      this.data = _data["data"];
     }
-  }
 
-  static fromJS(data: any): CreateTemplateRequest {
-    data = typeof data === 'object' ? data : {};
-    let result = new CreateTemplateRequest();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["name"] = this.name;
-    data["alias"] = this.alias;
-    data["ignoreUserPreferences"] = this.ignoreUserPreferences;
-    if (this.content) {
-      data["content"] = {};
-      for (let key in this.content) {
-        if (this.content.hasOwnProperty(key))
-          (<any>data["content"])[key] = this.content[key] ? this.content[key].toJSON() : <any>undefined;
-      }
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.alias = _data["alias"];
+            this.ignoreUserPreferences = _data["ignoreUserPreferences"];
+            if (_data["content"]) {
+                this.content = {} as any;
+                for (let key in _data["content"]) {
+                    if (_data["content"].hasOwnProperty(key))
+                        (<any>this.content)![key] = _data["content"][key] ? MessageContent.fromJS(_data["content"][key]) : new MessageContent();
+                }
+            }
+            this.data = _data["data"];
+        }
     }
-    data["data"] = this.data;
-    return data;
-  }
+
+    static fromJS(data: any): CreateTemplateRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateTemplateRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["alias"] = this.alias;
+        data["ignoreUserPreferences"] = this.ignoreUserPreferences;
+        if (this.content) {
+            data["content"] = {};
+            for (let key in this.content) {
+                if (this.content.hasOwnProperty(key))
+                    (<any>data["content"])[key] = this.content[key] ? this.content[key].toJSON() : <any>undefined;
+            }
+        }
+        data["data"] = this.data;
+        return data;
+    }
 }
 
 export interface ICreateTemplateRequest {
-  name?: string;
-  alias?: string | undefined;
-  ignoreUserPreferences?: boolean;
-  content?: { [key: string]: MessageContent; } | undefined;
-  data?: any | undefined;
+    name?: string;
+    alias?: string | undefined;
+    ignoreUserPreferences?: boolean;
+    content?: { [key: string]: MessageContent; } | undefined;
+    data?: any | undefined;
 }
 
 export class DistributionList implements IDistributionList {
-  id?: string;
-  name?: string | undefined;
-  createdBy?: string | undefined;
-  createdAt?: Date;
-  updatedBy?: string | undefined;
-  updatedAt?: Date | undefined;
-  contactsAttachment?: AttachmentLink;
+    id?: string;
+    name?: string | undefined;
+    createdBy?: string | undefined;
+    createdAt?: Date;
+    updatedBy?: string | undefined;
+    updatedAt?: Date | undefined;
 
-  constructor(data?: IDistributionList) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IDistributionList) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.id = _data["id"];
-      this.name = _data["name"];
-      this.createdBy = _data["createdBy"];
-      this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
-      this.updatedBy = _data["updatedBy"];
-      this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
-      this.contactsAttachment = _data["contactsAttachment"] ? AttachmentLink.fromJS(_data["contactsAttachment"]) : <any>undefined;
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.createdBy = _data["createdBy"];
+            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+            this.updatedBy = _data["updatedBy"];
+            this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
+        }
     }
-  }
 
-  static fromJS(data: any): DistributionList {
-    data = typeof data === 'object' ? data : {};
-    let result = new DistributionList();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): DistributionList {
+        data = typeof data === 'object' ? data : {};
+        let result = new DistributionList();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["name"] = this.name;
-    data["createdBy"] = this.createdBy;
-    data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
-    data["updatedBy"] = this.updatedBy;
-    data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
-    data["contactsAttachment"] = this.contactsAttachment ? this.contactsAttachment.toJSON() : <any>undefined;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["createdBy"] = this.createdBy;
+        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+        data["updatedBy"] = this.updatedBy;
+        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
+        return data;
+    }
 }
 
 export interface IDistributionList {
-  id?: string;
-  name?: string | undefined;
-  createdBy?: string | undefined;
-  createdAt?: Date;
-  updatedBy?: string | undefined;
-  updatedAt?: Date | undefined;
-  contactsAttachment?: AttachmentLink;
+    id?: string;
+    name?: string | undefined;
+    createdBy?: string | undefined;
+    createdAt?: Date;
+    updatedBy?: string | undefined;
+    updatedAt?: Date | undefined;
 }
 
 export class DistributionListResultSet implements IDistributionListResultSet {
-  count?: number;
-  items?: DistributionList[] | undefined;
+    count?: number;
+    items?: DistributionList[] | undefined;
 
-  constructor(data?: IDistributionListResultSet) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IDistributionListResultSet) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.count = _data["count"];
-      if (Array.isArray(_data["items"])) {
-        this.items = [] as any;
-        for (let item of _data["items"])
-          this.items!.push(DistributionList.fromJS(item));
-      }
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(DistributionList.fromJS(item));
+            }
+        }
     }
-  }
 
-  static fromJS(data: any): DistributionListResultSet {
-    data = typeof data === 'object' ? data : {};
-    let result = new DistributionListResultSet();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["count"] = this.count;
-    if (Array.isArray(this.items)) {
-      data["items"] = [];
-      for (let item of this.items)
-        data["items"].push(item ? item.toJSON() : <any>undefined);
+    static fromJS(data: any): DistributionListResultSet {
+        data = typeof data === 'object' ? data : {};
+        let result = new DistributionListResultSet();
+        result.init(data);
+        return result;
     }
-    return data;
-  }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : <any>undefined);
+        }
+        return data;
+    }
 }
 
 export interface IDistributionListResultSet {
-  count?: number;
-  items?: DistributionList[] | undefined;
+    count?: number;
+    items?: DistributionList[] | undefined;
 }
 
 export class HttpValidationProblemDetails implements IHttpValidationProblemDetails {
-  type?: string | undefined;
-  title?: string | undefined;
-  status?: number | undefined;
-  detail?: string | undefined;
-  instance?: string | undefined;
-  errors?: { [key: string]: string[]; } | undefined;
+    type?: string | undefined;
+    title?: string | undefined;
+    status?: number | undefined;
+    detail?: string | undefined;
+    instance?: string | undefined;
+    errors?: { [key: string]: string[]; } | undefined;
 
-  [key: string]: any;
+    [key: string]: any;
 
-  constructor(data?: IHttpValidationProblemDetails) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      for (var property in _data) {
-        if (_data.hasOwnProperty(property))
-          this[property] = _data[property];
-      }
-      this.type = _data["type"];
-      this.title = _data["title"];
-      this.status = _data["status"];
-      this.detail = _data["detail"];
-      this.instance = _data["instance"];
-      if (_data["errors"]) {
-        this.errors = {} as any;
-        for (let key in _data["errors"]) {
-          if (_data["errors"].hasOwnProperty(key))
-            (<any>this.errors)![key] = _data["errors"][key] !== undefined ? _data["errors"][key] : [];
+    constructor(data?: IHttpValidationProblemDetails) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
         }
-      }
     }
-  }
 
-  static fromJS(data: any): HttpValidationProblemDetails {
-    data = typeof data === 'object' ? data : {};
-    let result = new HttpValidationProblemDetails();
-    result.init(data);
-    return result;
-  }
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.type = _data["type"];
+            this.title = _data["title"];
+            this.status = _data["status"];
+            this.detail = _data["detail"];
+            this.instance = _data["instance"];
+            if (_data["errors"]) {
+                this.errors = {} as any;
+                for (let key in _data["errors"]) {
+                    if (_data["errors"].hasOwnProperty(key))
+                        (<any>this.errors)![key] = _data["errors"][key] !== undefined ? _data["errors"][key] : [];
+                }
+            }
+        }
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    for (var property in this) {
-      if (this.hasOwnProperty(property))
-        data[property] = this[property];
+    static fromJS(data: any): HttpValidationProblemDetails {
+        data = typeof data === 'object' ? data : {};
+        let result = new HttpValidationProblemDetails();
+        result.init(data);
+        return result;
     }
-    data["type"] = this.type;
-    data["title"] = this.title;
-    data["status"] = this.status;
-    data["detail"] = this.detail;
-    data["instance"] = this.instance;
-    if (this.errors) {
-      data["errors"] = {};
-      for (let key in this.errors) {
-        if (this.errors.hasOwnProperty(key))
-          (<any>data["errors"])[key] = (<any>this.errors)[key];
-      }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["type"] = this.type;
+        data["title"] = this.title;
+        data["status"] = this.status;
+        data["detail"] = this.detail;
+        data["instance"] = this.instance;
+        if (this.errors) {
+            data["errors"] = {};
+            for (let key in this.errors) {
+                if (this.errors.hasOwnProperty(key))
+                    (<any>data["errors"])[key] = (<any>this.errors)[key];
+            }
+        }
+        return data;
     }
-    return data;
-  }
 }
 
 export interface IHttpValidationProblemDetails {
-  type?: string | undefined;
-  title?: string | undefined;
-  status?: number | undefined;
-  detail?: string | undefined;
-  instance?: string | undefined;
-  errors?: { [key: string]: string[]; } | undefined;
+    type?: string | undefined;
+    title?: string | undefined;
+    status?: number | undefined;
+    detail?: string | undefined;
+    instance?: string | undefined;
+    errors?: { [key: string]: string[]; } | undefined;
 
-  [key: string]: any;
+    [key: string]: any;
 }
 
 export class Hyperlink implements IHyperlink {
-  text?: string | undefined;
-  href?: string | undefined;
+    text?: string | undefined;
+    href?: string | undefined;
 
-  constructor(data?: IHyperlink) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IHyperlink) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.text = _data["text"];
-      this.href = _data["href"];
+    init(_data?: any) {
+        if (_data) {
+            this.text = _data["text"];
+            this.href = _data["href"];
+        }
     }
-  }
 
-  static fromJS(data: any): Hyperlink {
-    data = typeof data === 'object' ? data : {};
-    let result = new Hyperlink();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): Hyperlink {
+        data = typeof data === 'object' ? data : {};
+        let result = new Hyperlink();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["text"] = this.text;
-    data["href"] = this.href;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["text"] = this.text;
+        data["href"] = this.href;
+        return data;
+    }
 }
 
 export interface IHyperlink {
-  text?: string | undefined;
-  href?: string | undefined;
+    text?: string | undefined;
+    href?: string | undefined;
 }
 
 export class MessageContent implements IMessageContent {
-  sender?: MessageSender;
-  title?: string | undefined;
-  body?: string | undefined;
+    sender?: MessageSender;
+    title?: string | undefined;
+    body?: string | undefined;
 
-  constructor(data?: IMessageContent) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IMessageContent) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.sender = _data["sender"] ? MessageSender.fromJS(_data["sender"]) : <any>undefined;
-      this.title = _data["title"];
-      this.body = _data["body"];
+    init(_data?: any) {
+        if (_data) {
+            this.sender = _data["sender"] ? MessageSender.fromJS(_data["sender"]) : <any>undefined;
+            this.title = _data["title"];
+            this.body = _data["body"];
+        }
     }
-  }
 
-  static fromJS(data: any): MessageContent {
-    data = typeof data === 'object' ? data : {};
-    let result = new MessageContent();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): MessageContent {
+        data = typeof data === 'object' ? data : {};
+        let result = new MessageContent();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["sender"] = this.sender ? this.sender.toJSON() : <any>undefined;
-    data["title"] = this.title;
-    data["body"] = this.body;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["sender"] = this.sender ? this.sender.toJSON() : <any>undefined;
+        data["title"] = this.title;
+        data["body"] = this.body;
+        return data;
+    }
 }
 
 export interface IMessageContent {
-  sender?: MessageSender;
-  title?: string | undefined;
-  body?: string | undefined;
+    sender?: MessageSender;
+    title?: string | undefined;
+    body?: string | undefined;
 }
 
 export class MessageSender implements IMessageSender {
-  id?: string;
-  sender?: string | undefined;
-  displayName?: string | undefined;
-  createdBy?: string | undefined;
-  createdAt?: Date | undefined;
-  updatedBy?: string | undefined;
-  updatedAt?: Date | undefined;
-  isDefault?: boolean;
-  readonly isEmpty?: boolean;
+    id?: string;
+    sender?: string | undefined;
+    displayName?: string | undefined;
+    createdBy?: string | undefined;
+    createdAt?: Date | undefined;
+    updatedBy?: string | undefined;
+    updatedAt?: Date | undefined;
+    isDefault?: boolean;
+    readonly isEmpty?: boolean;
 
-  constructor(data?: IMessageSender) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IMessageSender) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.id = _data["id"];
-      this.sender = _data["sender"];
-      this.displayName = _data["displayName"];
-      this.createdBy = _data["createdBy"];
-      this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
-      this.updatedBy = _data["updatedBy"];
-      this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
-      this.isDefault = _data["isDefault"];
-      (<any>this).isEmpty = _data["isEmpty"];
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.sender = _data["sender"];
+            this.displayName = _data["displayName"];
+            this.createdBy = _data["createdBy"];
+            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+            this.updatedBy = _data["updatedBy"];
+            this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
+            this.isDefault = _data["isDefault"];
+            (<any>this).isEmpty = _data["isEmpty"];
+        }
     }
-  }
 
-  static fromJS(data: any): MessageSender {
-    data = typeof data === 'object' ? data : {};
-    let result = new MessageSender();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): MessageSender {
+        data = typeof data === 'object' ? data : {};
+        let result = new MessageSender();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["sender"] = this.sender;
-    data["displayName"] = this.displayName;
-    data["createdBy"] = this.createdBy;
-    data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
-    data["updatedBy"] = this.updatedBy;
-    data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
-    data["isDefault"] = this.isDefault;
-    data["isEmpty"] = this.isEmpty;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["sender"] = this.sender;
+        data["displayName"] = this.displayName;
+        data["createdBy"] = this.createdBy;
+        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+        data["updatedBy"] = this.updatedBy;
+        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
+        data["isDefault"] = this.isDefault;
+        data["isEmpty"] = this.isEmpty;
+        return data;
+    }
 }
 
 export interface IMessageSender {
-  id?: string;
-  sender?: string | undefined;
-  displayName?: string | undefined;
-  createdBy?: string | undefined;
-  createdAt?: Date | undefined;
-  updatedBy?: string | undefined;
-  updatedAt?: Date | undefined;
-  isDefault?: boolean;
-  isEmpty?: boolean;
+    id?: string;
+    sender?: string | undefined;
+    displayName?: string | undefined;
+    createdBy?: string | undefined;
+    createdAt?: Date | undefined;
+    updatedBy?: string | undefined;
+    updatedAt?: Date | undefined;
+    isDefault?: boolean;
+    isEmpty?: boolean;
 }
 
 export class MessageSenderResultSet implements IMessageSenderResultSet {
-  count?: number;
-  items?: MessageSender[] | undefined;
+    count?: number;
+    items?: MessageSender[] | undefined;
 
-  constructor(data?: IMessageSenderResultSet) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IMessageSenderResultSet) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.count = _data["count"];
-      if (Array.isArray(_data["items"])) {
-        this.items = [] as any;
-        for (let item of _data["items"])
-          this.items!.push(MessageSender.fromJS(item));
-      }
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(MessageSender.fromJS(item));
+            }
+        }
     }
-  }
 
-  static fromJS(data: any): MessageSenderResultSet {
-    data = typeof data === 'object' ? data : {};
-    let result = new MessageSenderResultSet();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["count"] = this.count;
-    if (Array.isArray(this.items)) {
-      data["items"] = [];
-      for (let item of this.items)
-        data["items"].push(item ? item.toJSON() : <any>undefined);
+    static fromJS(data: any): MessageSenderResultSet {
+        data = typeof data === 'object' ? data : {};
+        let result = new MessageSenderResultSet();
+        result.init(data);
+        return result;
     }
-    return data;
-  }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : <any>undefined);
+        }
+        return data;
+    }
 }
 
 export interface IMessageSenderResultSet {
-  count?: number;
-  items?: MessageSender[] | undefined;
+    count?: number;
+    items?: MessageSender[] | undefined;
 }
 
 export class MessageType implements IMessageType {
-  id?: string;
-  name?: string | undefined;
-  alias?: string | undefined;
-  classification?: MessageTypeClassification;
+    id?: string;
+    name?: string | undefined;
+    alias?: string | undefined;
+    classification?: MessageTypeClassification;
 
-  constructor(data?: IMessageType) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IMessageType) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.id = _data["id"];
-      this.name = _data["name"];
-      this.alias = _data["alias"];
-      this.classification = _data["classification"];
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.alias = _data["alias"];
+            this.classification = _data["classification"];
+        }
     }
-  }
 
-  static fromJS(data: any): MessageType {
-    data = typeof data === 'object' ? data : {};
-    let result = new MessageType();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): MessageType {
+        data = typeof data === 'object' ? data : {};
+        let result = new MessageType();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["name"] = this.name;
-    data["alias"] = this.alias;
-    data["classification"] = this.classification;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["alias"] = this.alias;
+        data["classification"] = this.classification;
+        return data;
+    }
 }
 
 export interface IMessageType {
-  id?: string;
-  name?: string | undefined;
-  alias?: string | undefined;
-  classification?: MessageTypeClassification;
+    id?: string;
+    name?: string | undefined;
+    alias?: string | undefined;
+    classification?: MessageTypeClassification;
 }
 
 export enum MessageTypeClassification {
-  System = "System",
-  Commercial = "Commercial",
+    System = "System",
+    Commercial = "Commercial",
 }
 
 export class MessageTypeResultSet implements IMessageTypeResultSet {
-  count?: number;
-  items?: MessageType[] | undefined;
+    count?: number;
+    items?: MessageType[] | undefined;
 
-  constructor(data?: IMessageTypeResultSet) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IMessageTypeResultSet) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.count = _data["count"];
-      if (Array.isArray(_data["items"])) {
-        this.items = [] as any;
-        for (let item of _data["items"])
-          this.items!.push(MessageType.fromJS(item));
-      }
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(MessageType.fromJS(item));
+            }
+        }
     }
-  }
 
-  static fromJS(data: any): MessageTypeResultSet {
-    data = typeof data === 'object' ? data : {};
-    let result = new MessageTypeResultSet();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["count"] = this.count;
-    if (Array.isArray(this.items)) {
-      data["items"] = [];
-      for (let item of this.items)
-        data["items"].push(item ? item.toJSON() : <any>undefined);
+    static fromJS(data: any): MessageTypeResultSet {
+        data = typeof data === 'object' ? data : {};
+        let result = new MessageTypeResultSet();
+        result.init(data);
+        return result;
     }
-    return data;
-  }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : <any>undefined);
+        }
+        return data;
+    }
 }
 
 export interface IMessageTypeResultSet {
-  count?: number;
-  items?: MessageType[] | undefined;
+    count?: number;
+    items?: MessageType[] | undefined;
 }
 
 export class Period implements IPeriod {
-  from?: Date | undefined;
-  to?: Date | undefined;
+    from?: Date | undefined;
+    to?: Date | undefined;
 
-  constructor(data?: IPeriod) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IPeriod) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.from = _data["from"] ? new Date(_data["from"].toString()) : <any>undefined;
-      this.to = _data["to"] ? new Date(_data["to"].toString()) : <any>undefined;
+    init(_data?: any) {
+        if (_data) {
+            this.from = _data["from"] ? new Date(_data["from"].toString()) : <any>undefined;
+            this.to = _data["to"] ? new Date(_data["to"].toString()) : <any>undefined;
+        }
     }
-  }
 
-  static fromJS(data: any): Period {
-    data = typeof data === 'object' ? data : {};
-    let result = new Period();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): Period {
+        data = typeof data === 'object' ? data : {};
+        let result = new Period();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["from"] = this.from ? this.from.toISOString() : <any>undefined;
-    data["to"] = this.to ? this.to.toISOString() : <any>undefined;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["from"] = this.from ? this.from.toISOString() : <any>undefined;
+        data["to"] = this.to ? this.to.toISOString() : <any>undefined;
+        return data;
+    }
 }
 
 export interface IPeriod {
-  from?: Date | undefined;
-  to?: Date | undefined;
+    from?: Date | undefined;
+    to?: Date | undefined;
 }
 
 export class ProblemDetails implements IProblemDetails {
-  type?: string | undefined;
-  title?: string | undefined;
-  status?: number | undefined;
-  detail?: string | undefined;
-  instance?: string | undefined;
+    type?: string | undefined;
+    title?: string | undefined;
+    status?: number | undefined;
+    detail?: string | undefined;
+    instance?: string | undefined;
 
-  [key: string]: any;
+    [key: string]: any;
 
-  constructor(data?: IProblemDetails) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IProblemDetails) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      for (var property in _data) {
-        if (_data.hasOwnProperty(property))
-          this[property] = _data[property];
-      }
-      this.type = _data["type"];
-      this.title = _data["title"];
-      this.status = _data["status"];
-      this.detail = _data["detail"];
-      this.instance = _data["instance"];
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.type = _data["type"];
+            this.title = _data["title"];
+            this.status = _data["status"];
+            this.detail = _data["detail"];
+            this.instance = _data["instance"];
+        }
     }
-  }
 
-  static fromJS(data: any): ProblemDetails {
-    data = typeof data === 'object' ? data : {};
-    let result = new ProblemDetails();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    for (var property in this) {
-      if (this.hasOwnProperty(property))
-        data[property] = this[property];
+    static fromJS(data: any): ProblemDetails {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProblemDetails();
+        result.init(data);
+        return result;
     }
-    data["type"] = this.type;
-    data["title"] = this.title;
-    data["status"] = this.status;
-    data["detail"] = this.detail;
-    data["instance"] = this.instance;
-    return data;
-  }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["type"] = this.type;
+        data["title"] = this.title;
+        data["status"] = this.status;
+        data["detail"] = this.detail;
+        data["instance"] = this.instance;
+        return data;
+    }
 }
 
 export interface IProblemDetails {
-  type?: string | undefined;
-  title?: string | undefined;
-  status?: number | undefined;
-  detail?: string | undefined;
-  instance?: string | undefined;
+    type?: string | undefined;
+    title?: string | undefined;
+    status?: number | undefined;
+    detail?: string | undefined;
+    instance?: string | undefined;
 
-  [key: string]: any;
+    [key: string]: any;
 }
 
 export class Template implements ITemplate {
-  id?: string;
-  name?: string | undefined;
-  alias?: string | undefined;
-  ignoreUserPreferences?: boolean;
-  createdBy?: string | undefined;
-  createdAt?: Date;
-  updatedBy?: string | undefined;
-  updatedAt?: Date | undefined;
-  content?: { [key: string]: MessageContent; } | undefined;
-  data?: any | undefined;
+    id?: string;
+    name?: string | undefined;
+    alias?: string | undefined;
+    ignoreUserPreferences?: boolean;
+    createdBy?: string | undefined;
+    createdAt?: Date;
+    updatedBy?: string | undefined;
+    updatedAt?: Date | undefined;
+    content?: { [key: string]: MessageContent; } | undefined;
+    data?: any | undefined;
 
-  constructor(data?: ITemplate) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.id = _data["id"];
-      this.name = _data["name"];
-      this.alias = _data["alias"];
-      this.ignoreUserPreferences = _data["ignoreUserPreferences"];
-      this.createdBy = _data["createdBy"];
-      this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
-      this.updatedBy = _data["updatedBy"];
-      this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
-      if (_data["content"]) {
-        this.content = {} as any;
-        for (let key in _data["content"]) {
-          if (_data["content"].hasOwnProperty(key))
-            (<any>this.content)![key] = _data["content"][key] ? MessageContent.fromJS(_data["content"][key]) : new MessageContent();
+    constructor(data?: ITemplate) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
         }
-      }
-      this.data = _data["data"];
     }
-  }
 
-  static fromJS(data: any): Template {
-    data = typeof data === 'object' ? data : {};
-    let result = new Template();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["name"] = this.name;
-    data["alias"] = this.alias;
-    data["ignoreUserPreferences"] = this.ignoreUserPreferences;
-    data["createdBy"] = this.createdBy;
-    data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
-    data["updatedBy"] = this.updatedBy;
-    data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
-    if (this.content) {
-      data["content"] = {};
-      for (let key in this.content) {
-        if (this.content.hasOwnProperty(key))
-          (<any>data["content"])[key] = this.content[key] ? this.content[key].toJSON() : <any>undefined;
-      }
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.alias = _data["alias"];
+            this.ignoreUserPreferences = _data["ignoreUserPreferences"];
+            this.createdBy = _data["createdBy"];
+            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+            this.updatedBy = _data["updatedBy"];
+            this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
+            if (_data["content"]) {
+                this.content = {} as any;
+                for (let key in _data["content"]) {
+                    if (_data["content"].hasOwnProperty(key))
+                        (<any>this.content)![key] = _data["content"][key] ? MessageContent.fromJS(_data["content"][key]) : new MessageContent();
+                }
+            }
+            this.data = _data["data"];
+        }
     }
-    data["data"] = this.data;
-    return data;
-  }
+
+    static fromJS(data: any): Template {
+        data = typeof data === 'object' ? data : {};
+        let result = new Template();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["alias"] = this.alias;
+        data["ignoreUserPreferences"] = this.ignoreUserPreferences;
+        data["createdBy"] = this.createdBy;
+        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+        data["updatedBy"] = this.updatedBy;
+        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
+        if (this.content) {
+            data["content"] = {};
+            for (let key in this.content) {
+                if (this.content.hasOwnProperty(key))
+                    (<any>data["content"])[key] = this.content[key] ? this.content[key].toJSON() : <any>undefined;
+            }
+        }
+        data["data"] = this.data;
+        return data;
+    }
 }
 
 export interface ITemplate {
-  id?: string;
-  name?: string | undefined;
-  alias?: string | undefined;
-  ignoreUserPreferences?: boolean;
-  createdBy?: string | undefined;
-  createdAt?: Date;
-  updatedBy?: string | undefined;
-  updatedAt?: Date | undefined;
-  content?: { [key: string]: MessageContent; } | undefined;
-  data?: any | undefined;
+    id?: string;
+    name?: string | undefined;
+    alias?: string | undefined;
+    ignoreUserPreferences?: boolean;
+    createdBy?: string | undefined;
+    createdAt?: Date;
+    updatedBy?: string | undefined;
+    updatedAt?: Date | undefined;
+    content?: { [key: string]: MessageContent; } | undefined;
+    data?: any | undefined;
 }
 
 export class TemplateListItem implements ITemplateListItem {
-  id?: string;
-  name?: string | undefined;
-  alias?: string | undefined;
-  ignoreUserPreferences?: boolean;
-  createdBy?: string | undefined;
-  createdAt?: Date;
-  updatedBy?: string | undefined;
-  updatedAt?: Date | undefined;
-  channels?: MessageChannelKind[];
+    id?: string;
+    name?: string | undefined;
+    alias?: string | undefined;
+    ignoreUserPreferences?: boolean;
+    createdBy?: string | undefined;
+    createdAt?: Date;
+    updatedBy?: string | undefined;
+    updatedAt?: Date | undefined;
+    channels?: MessageChannelKind[];
 
-  constructor(data?: ITemplateListItem) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: ITemplateListItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.id = _data["id"];
-      this.name = _data["name"];
-      this.alias = _data["alias"];
-      this.ignoreUserPreferences = _data["ignoreUserPreferences"];
-      this.createdBy = _data["createdBy"];
-      this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
-      this.updatedBy = _data["updatedBy"];
-      this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
-      if (Array.isArray(_data["channels"])) {
-        this.channels = [] as any;
-        for (let item of _data["channels"])
-          this.channels!.push(item);
-      }
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.alias = _data["alias"];
+            this.ignoreUserPreferences = _data["ignoreUserPreferences"];
+            this.createdBy = _data["createdBy"];
+            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+            this.updatedBy = _data["updatedBy"];
+            this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
+            if (Array.isArray(_data["channels"])) {
+                this.channels = [] as any;
+                for (let item of _data["channels"])
+                    this.channels!.push(item);
+            }
+        }
     }
-  }
 
-  static fromJS(data: any): TemplateListItem {
-    data = typeof data === 'object' ? data : {};
-    let result = new TemplateListItem();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["name"] = this.name;
-    data["alias"] = this.alias;
-    data["ignoreUserPreferences"] = this.ignoreUserPreferences;
-    data["createdBy"] = this.createdBy;
-    data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
-    data["updatedBy"] = this.updatedBy;
-    data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
-    if (Array.isArray(this.channels)) {
-      data["channels"] = [];
-      for (let item of this.channels)
-        data["channels"].push(item);
+    static fromJS(data: any): TemplateListItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new TemplateListItem();
+        result.init(data);
+        return result;
     }
-    return data;
-  }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["alias"] = this.alias;
+        data["ignoreUserPreferences"] = this.ignoreUserPreferences;
+        data["createdBy"] = this.createdBy;
+        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+        data["updatedBy"] = this.updatedBy;
+        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
+        if (Array.isArray(this.channels)) {
+            data["channels"] = [];
+            for (let item of this.channels)
+                data["channels"].push(item);
+        }
+        return data;
+    }
 }
 
 export interface ITemplateListItem {
-  id?: string;
-  name?: string | undefined;
-  alias?: string | undefined;
-  ignoreUserPreferences?: boolean;
-  createdBy?: string | undefined;
-  createdAt?: Date;
-  updatedBy?: string | undefined;
-  updatedAt?: Date | undefined;
-  channels?: MessageChannelKind[];
+    id?: string;
+    name?: string | undefined;
+    alias?: string | undefined;
+    ignoreUserPreferences?: boolean;
+    createdBy?: string | undefined;
+    createdAt?: Date;
+    updatedBy?: string | undefined;
+    updatedAt?: Date | undefined;
+    channels?: MessageChannelKind[];
 }
 
 export class TemplateListItemResultSet implements ITemplateListItemResultSet {
-  count?: number;
-  items?: TemplateListItem[] | undefined;
+    count?: number;
+    items?: TemplateListItem[] | undefined;
 
-  constructor(data?: ITemplateListItemResultSet) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: ITemplateListItemResultSet) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.count = _data["count"];
-      if (Array.isArray(_data["items"])) {
-        this.items = [] as any;
-        for (let item of _data["items"])
-          this.items!.push(TemplateListItem.fromJS(item));
-      }
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(TemplateListItem.fromJS(item));
+            }
+        }
     }
-  }
 
-  static fromJS(data: any): TemplateListItemResultSet {
-    data = typeof data === 'object' ? data : {};
-    let result = new TemplateListItemResultSet();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["count"] = this.count;
-    if (Array.isArray(this.items)) {
-      data["items"] = [];
-      for (let item of this.items)
-        data["items"].push(item ? item.toJSON() : <any>undefined);
+    static fromJS(data: any): TemplateListItemResultSet {
+        data = typeof data === 'object' ? data : {};
+        let result = new TemplateListItemResultSet();
+        result.init(data);
+        return result;
     }
-    return data;
-  }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : <any>undefined);
+        }
+        return data;
+    }
 }
 
 export interface ITemplateListItemResultSet {
-  count?: number;
-  items?: TemplateListItem[] | undefined;
+    count?: number;
+    items?: TemplateListItem[] | undefined;
 }
 
 export class UpdateCampaignRequest implements IUpdateCampaignRequest {
-  isGlobal?: boolean;
-  title?: string;
-  content?: { [key: string]: MessageContent; } | undefined;
-  actionLink?: Hyperlink;
-  activePeriod?: Period;
-  mediaBaseHref?: string | undefined;
-  typeId?: string | undefined;
-  recipientListId?: string | undefined;
-  messageTemplateId?: string | undefined;
-  data?: any | undefined;
-  messageTemplateChannels?: MessageChannelKind[];
+    isGlobal?: boolean;
+    title?: string;
+    content?: { [key: string]: MessageContent; } | undefined;
+    actionLink?: Hyperlink;
+    activePeriod?: Period;
+    mediaBaseHref?: string | undefined;
+    typeId?: string | undefined;
+    recipientListId?: string | undefined;
+    messageTemplateId?: string | undefined;
+    data?: any | undefined;
+    messageTemplateChannels?: MessageChannelKind[];
 
-  constructor(data?: IUpdateCampaignRequest) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.isGlobal = _data["isGlobal"];
-      this.title = _data["title"];
-      if (_data["content"]) {
-        this.content = {} as any;
-        for (let key in _data["content"]) {
-          if (_data["content"].hasOwnProperty(key))
-            (<any>this.content)![key] = _data["content"][key] ? MessageContent.fromJS(_data["content"][key]) : new MessageContent();
+    constructor(data?: IUpdateCampaignRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
         }
-      }
-      this.actionLink = _data["actionLink"] ? Hyperlink.fromJS(_data["actionLink"]) : <any>undefined;
-      this.activePeriod = _data["activePeriod"] ? Period.fromJS(_data["activePeriod"]) : <any>undefined;
-      this.mediaBaseHref = _data["mediaBaseHref"];
-      this.typeId = _data["typeId"];
-      this.recipientListId = _data["recipientListId"];
-      this.messageTemplateId = _data["messageTemplateId"];
-      this.data = _data["data"];
-      if (Array.isArray(_data["messageTemplateChannels"])) {
-        this.messageTemplateChannels = [] as any;
-        for (let item of _data["messageTemplateChannels"])
-          this.messageTemplateChannels!.push(item);
-      }
     }
-  }
 
-  static fromJS(data: any): UpdateCampaignRequest {
-    data = typeof data === 'object' ? data : {};
-    let result = new UpdateCampaignRequest();
-    result.init(data);
-    return result;
-  }
+    init(_data?: any) {
+        if (_data) {
+            this.isGlobal = _data["isGlobal"];
+            this.title = _data["title"];
+            if (_data["content"]) {
+                this.content = {} as any;
+                for (let key in _data["content"]) {
+                    if (_data["content"].hasOwnProperty(key))
+                        (<any>this.content)![key] = _data["content"][key] ? MessageContent.fromJS(_data["content"][key]) : new MessageContent();
+                }
+            }
+            this.actionLink = _data["actionLink"] ? Hyperlink.fromJS(_data["actionLink"]) : <any>undefined;
+            this.activePeriod = _data["activePeriod"] ? Period.fromJS(_data["activePeriod"]) : <any>undefined;
+            this.mediaBaseHref = _data["mediaBaseHref"];
+            this.typeId = _data["typeId"];
+            this.recipientListId = _data["recipientListId"];
+            this.messageTemplateId = _data["messageTemplateId"];
+            this.data = _data["data"];
+            if (Array.isArray(_data["messageTemplateChannels"])) {
+                this.messageTemplateChannels = [] as any;
+                for (let item of _data["messageTemplateChannels"])
+                    this.messageTemplateChannels!.push(item);
+            }
+        }
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["isGlobal"] = this.isGlobal;
-    data["title"] = this.title;
-    if (this.content) {
-      data["content"] = {};
-      for (let key in this.content) {
-        if (this.content.hasOwnProperty(key))
-          (<any>data["content"])[key] = this.content[key] ? this.content[key].toJSON() : <any>undefined;
-      }
+    static fromJS(data: any): UpdateCampaignRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateCampaignRequest();
+        result.init(data);
+        return result;
     }
-    data["actionLink"] = this.actionLink ? this.actionLink.toJSON() : <any>undefined;
-    data["activePeriod"] = this.activePeriod ? this.activePeriod.toJSON() : <any>undefined;
-    data["mediaBaseHref"] = this.mediaBaseHref;
-    data["typeId"] = this.typeId;
-    data["recipientListId"] = this.recipientListId;
-    data["messageTemplateId"] = this.messageTemplateId;
-    data["data"] = this.data;
-    if (Array.isArray(this.messageTemplateChannels)) {
-      data["messageTemplateChannels"] = [];
-      for (let item of this.messageTemplateChannels)
-        data["messageTemplateChannels"].push(item);
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["isGlobal"] = this.isGlobal;
+        data["title"] = this.title;
+        if (this.content) {
+            data["content"] = {};
+            for (let key in this.content) {
+                if (this.content.hasOwnProperty(key))
+                    (<any>data["content"])[key] = this.content[key] ? this.content[key].toJSON() : <any>undefined;
+            }
+        }
+        data["actionLink"] = this.actionLink ? this.actionLink.toJSON() : <any>undefined;
+        data["activePeriod"] = this.activePeriod ? this.activePeriod.toJSON() : <any>undefined;
+        data["mediaBaseHref"] = this.mediaBaseHref;
+        data["typeId"] = this.typeId;
+        data["recipientListId"] = this.recipientListId;
+        data["messageTemplateId"] = this.messageTemplateId;
+        data["data"] = this.data;
+        if (Array.isArray(this.messageTemplateChannels)) {
+            data["messageTemplateChannels"] = [];
+            for (let item of this.messageTemplateChannels)
+                data["messageTemplateChannels"].push(item);
+        }
+        return data;
     }
-    return data;
-  }
 }
 
 export interface IUpdateCampaignRequest {
-  isGlobal?: boolean;
-  title?: string;
-  content?: { [key: string]: MessageContent; } | undefined;
-  actionLink?: Hyperlink;
-  activePeriod?: Period;
-  mediaBaseHref?: string | undefined;
-  typeId?: string | undefined;
-  recipientListId?: string | undefined;
-  messageTemplateId?: string | undefined;
-  data?: any | undefined;
-  messageTemplateChannels?: MessageChannelKind[];
+    isGlobal?: boolean;
+    title?: string;
+    content?: { [key: string]: MessageContent; } | undefined;
+    actionLink?: Hyperlink;
+    activePeriod?: Period;
+    mediaBaseHref?: string | undefined;
+    typeId?: string | undefined;
+    recipientListId?: string | undefined;
+    messageTemplateId?: string | undefined;
+    data?: any | undefined;
+    messageTemplateChannels?: MessageChannelKind[];
 }
 
 export class UpdateContactRequest implements IUpdateContactRequest {
-  recipientId?: string | undefined;
-  salutation?: string | undefined;
-  firstName?: string | undefined;
-  lastName?: string | undefined;
-  fullName?: string | undefined;
-  email?: string | undefined;
-  phoneNumber?: string | undefined;
-  locale?: string | undefined;
-  communicationPreferences?: CommunicationPreferences[];
-  consentCommercial?: boolean;
-  distributionListId?: string | undefined;
+    recipientId?: string | undefined;
+    salutation?: string | undefined;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    fullName?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+    locale?: string | undefined;
+    communicationPreferences?: CommunicationPreferences[];
+    consentCommercial?: boolean;
+    distributionListId?: string | undefined;
 
-  constructor(data?: IUpdateContactRequest) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IUpdateContactRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.recipientId = _data["recipientId"];
-      this.salutation = _data["salutation"];
-      this.firstName = _data["firstName"];
-      this.lastName = _data["lastName"];
-      this.fullName = _data["fullName"];
-      this.email = _data["email"];
-      this.phoneNumber = _data["phoneNumber"];
-      this.locale = _data["locale"];
-      if (Array.isArray(_data["communicationPreferences"])) {
-        this.communicationPreferences = [] as any;
-        for (let item of _data["communicationPreferences"])
-          this.communicationPreferences!.push(item);
-      }
-      this.consentCommercial = _data["consentCommercial"];
-      this.distributionListId = _data["distributionListId"];
+    init(_data?: any) {
+        if (_data) {
+            this.recipientId = _data["recipientId"];
+            this.salutation = _data["salutation"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.fullName = _data["fullName"];
+            this.email = _data["email"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.locale = _data["locale"];
+            if (Array.isArray(_data["communicationPreferences"])) {
+                this.communicationPreferences = [] as any;
+                for (let item of _data["communicationPreferences"])
+                    this.communicationPreferences!.push(item);
+            }
+            this.consentCommercial = _data["consentCommercial"];
+            this.distributionListId = _data["distributionListId"];
+        }
     }
-  }
 
-  static fromJS(data: any): UpdateContactRequest {
-    data = typeof data === 'object' ? data : {};
-    let result = new UpdateContactRequest();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["recipientId"] = this.recipientId;
-    data["salutation"] = this.salutation;
-    data["firstName"] = this.firstName;
-    data["lastName"] = this.lastName;
-    data["fullName"] = this.fullName;
-    data["email"] = this.email;
-    data["phoneNumber"] = this.phoneNumber;
-    data["locale"] = this.locale;
-    if (Array.isArray(this.communicationPreferences)) {
-      data["communicationPreferences"] = [];
-      for (let item of this.communicationPreferences)
-        data["communicationPreferences"].push(item);
+    static fromJS(data: any): UpdateContactRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateContactRequest();
+        result.init(data);
+        return result;
     }
-    data["consentCommercial"] = this.consentCommercial;
-    data["distributionListId"] = this.distributionListId;
-    return data;
-  }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["recipientId"] = this.recipientId;
+        data["salutation"] = this.salutation;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["fullName"] = this.fullName;
+        data["email"] = this.email;
+        data["phoneNumber"] = this.phoneNumber;
+        data["locale"] = this.locale;
+        if (Array.isArray(this.communicationPreferences)) {
+            data["communicationPreferences"] = [];
+            for (let item of this.communicationPreferences)
+                data["communicationPreferences"].push(item);
+        }
+        data["consentCommercial"] = this.consentCommercial;
+        data["distributionListId"] = this.distributionListId;
+        return data;
+    }
 }
 
 export interface IUpdateContactRequest {
-  recipientId?: string | undefined;
-  salutation?: string | undefined;
-  firstName?: string | undefined;
-  lastName?: string | undefined;
-  fullName?: string | undefined;
-  email?: string | undefined;
-  phoneNumber?: string | undefined;
-  locale?: string | undefined;
-  communicationPreferences?: CommunicationPreferences[];
-  consentCommercial?: boolean;
-  distributionListId?: string | undefined;
+    recipientId?: string | undefined;
+    salutation?: string | undefined;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    fullName?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+    locale?: string | undefined;
+    communicationPreferences?: CommunicationPreferences[];
+    consentCommercial?: boolean;
+    distributionListId?: string | undefined;
 }
 
 export class UpdateDistributionListRequest implements IUpdateDistributionListRequest {
-  name?: string;
+    name?: string;
 
-  constructor(data?: IUpdateDistributionListRequest) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IUpdateDistributionListRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.name = _data["name"];
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+        }
     }
-  }
 
-  static fromJS(data: any): UpdateDistributionListRequest {
-    data = typeof data === 'object' ? data : {};
-    let result = new UpdateDistributionListRequest();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): UpdateDistributionListRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateDistributionListRequest();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["name"] = this.name;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        return data;
+    }
 }
 
 export interface IUpdateDistributionListRequest {
-  name?: string;
+    name?: string;
 }
 
 export class UpdateMessageSenderRequest implements IUpdateMessageSenderRequest {
-  sender?: string | undefined;
-  displayName?: string | undefined;
-  isDefault?: boolean;
+    sender?: string | undefined;
+    displayName?: string | undefined;
+    isDefault?: boolean;
 
-  constructor(data?: IUpdateMessageSenderRequest) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IUpdateMessageSenderRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.sender = _data["sender"];
-      this.displayName = _data["displayName"];
-      this.isDefault = _data["isDefault"];
+    init(_data?: any) {
+        if (_data) {
+            this.sender = _data["sender"];
+            this.displayName = _data["displayName"];
+            this.isDefault = _data["isDefault"];
+        }
     }
-  }
 
-  static fromJS(data: any): UpdateMessageSenderRequest {
-    data = typeof data === 'object' ? data : {};
-    let result = new UpdateMessageSenderRequest();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): UpdateMessageSenderRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateMessageSenderRequest();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["sender"] = this.sender;
-    data["displayName"] = this.displayName;
-    data["isDefault"] = this.isDefault;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["sender"] = this.sender;
+        data["displayName"] = this.displayName;
+        data["isDefault"] = this.isDefault;
+        return data;
+    }
 }
 
 export interface IUpdateMessageSenderRequest {
-  sender?: string | undefined;
-  displayName?: string | undefined;
-  isDefault?: boolean;
+    sender?: string | undefined;
+    displayName?: string | undefined;
+    isDefault?: boolean;
 }
 
 export class UpdateMessageTypeRequest implements IUpdateMessageTypeRequest {
-  name?: string;
-  alias?: string | undefined;
-  classification?: MessageTypeClassification;
+    name?: string;
+    alias?: string | undefined;
+    classification?: MessageTypeClassification;
 
-  constructor(data?: IUpdateMessageTypeRequest) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IUpdateMessageTypeRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.name = _data["name"];
-      this.alias = _data["alias"];
-      this.classification = _data["classification"];
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.alias = _data["alias"];
+            this.classification = _data["classification"];
+        }
     }
-  }
 
-  static fromJS(data: any): UpdateMessageTypeRequest {
-    data = typeof data === 'object' ? data : {};
-    let result = new UpdateMessageTypeRequest();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): UpdateMessageTypeRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateMessageTypeRequest();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["name"] = this.name;
-    data["alias"] = this.alias;
-    data["classification"] = this.classification;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["alias"] = this.alias;
+        data["classification"] = this.classification;
+        return data;
+    }
 }
 
 export interface IUpdateMessageTypeRequest {
-  name?: string;
-  alias?: string | undefined;
-  classification?: MessageTypeClassification;
+    name?: string;
+    alias?: string | undefined;
+    classification?: MessageTypeClassification;
 }
 
 export class UpdateTemplateRequest implements IUpdateTemplateRequest {
-  name?: string | undefined;
-  alias?: string | undefined;
-  content?: { [key: string]: MessageContent; } | undefined;
-  data?: any | undefined;
+    name?: string | undefined;
+    alias?: string | undefined;
+    content?: { [key: string]: MessageContent; } | undefined;
+    data?: any | undefined;
 
-  constructor(data?: IUpdateTemplateRequest) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(_data?: any) {
-    if (_data) {
-      this.name = _data["name"];
-      this.alias = _data["alias"];
-      if (_data["content"]) {
-        this.content = {} as any;
-        for (let key in _data["content"]) {
-          if (_data["content"].hasOwnProperty(key))
-            (<any>this.content)![key] = _data["content"][key] ? MessageContent.fromJS(_data["content"][key]) : new MessageContent();
+    constructor(data?: IUpdateTemplateRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
         }
-      }
-      this.data = _data["data"];
     }
-  }
 
-  static fromJS(data: any): UpdateTemplateRequest {
-    data = typeof data === 'object' ? data : {};
-    let result = new UpdateTemplateRequest();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["name"] = this.name;
-    data["alias"] = this.alias;
-    if (this.content) {
-      data["content"] = {};
-      for (let key in this.content) {
-        if (this.content.hasOwnProperty(key))
-          (<any>data["content"])[key] = this.content[key] ? this.content[key].toJSON() : <any>undefined;
-      }
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.alias = _data["alias"];
+            if (_data["content"]) {
+                this.content = {} as any;
+                for (let key in _data["content"]) {
+                    if (_data["content"].hasOwnProperty(key))
+                        (<any>this.content)![key] = _data["content"][key] ? MessageContent.fromJS(_data["content"][key]) : new MessageContent();
+                }
+            }
+            this.data = _data["data"];
+        }
     }
-    data["data"] = this.data;
-    return data;
-  }
+
+    static fromJS(data: any): UpdateTemplateRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateTemplateRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["alias"] = this.alias;
+        if (this.content) {
+            data["content"] = {};
+            for (let key in this.content) {
+                if (this.content.hasOwnProperty(key))
+                    (<any>data["content"])[key] = this.content[key] ? this.content[key].toJSON() : <any>undefined;
+            }
+        }
+        data["data"] = this.data;
+        return data;
+    }
 }
 
 export interface IUpdateTemplateRequest {
-  name?: string | undefined;
-  alias?: string | undefined;
-  content?: { [key: string]: MessageContent; } | undefined;
-  data?: any | undefined;
+    name?: string | undefined;
+    alias?: string | undefined;
+    content?: { [key: string]: MessageContent; } | undefined;
+    data?: any | undefined;
 }
 
 export class UpdateTemplateUserPreferencesRequest implements IUpdateTemplateUserPreferencesRequest {
-  ignoreUserPreferences?: boolean;
+    ignoreUserPreferences?: boolean;
 
-  constructor(data?: IUpdateTemplateUserPreferencesRequest) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IUpdateTemplateUserPreferencesRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.ignoreUserPreferences = _data["ignoreUserPreferences"];
+    init(_data?: any) {
+        if (_data) {
+            this.ignoreUserPreferences = _data["ignoreUserPreferences"];
+        }
     }
-  }
 
-  static fromJS(data: any): UpdateTemplateUserPreferencesRequest {
-    data = typeof data === 'object' ? data : {};
-    let result = new UpdateTemplateUserPreferencesRequest();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): UpdateTemplateUserPreferencesRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateTemplateUserPreferencesRequest();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["ignoreUserPreferences"] = this.ignoreUserPreferences;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ignoreUserPreferences"] = this.ignoreUserPreferences;
+        return data;
+    }
 }
 
 export interface IUpdateTemplateUserPreferencesRequest {
-  ignoreUserPreferences?: boolean;
+    ignoreUserPreferences?: boolean;
 }
 
 export class UploadFileRequest implements IUploadFileRequest {
-  file!: string;
+    file!: string;
 
-  constructor(data?: IUploadFileRequest) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IUploadFileRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(_data?: any) {
-    if (_data) {
-      this.file = _data["file"];
+    init(_data?: any) {
+        if (_data) {
+            this.file = _data["file"];
+        }
     }
-  }
 
-  static fromJS(data: any): UploadFileRequest {
-    data = typeof data === 'object' ? data : {};
-    let result = new UploadFileRequest();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): UploadFileRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UploadFileRequest();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["file"] = this.file;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["file"] = this.file;
+        return data;
+    }
 }
 
 export interface IUploadFileRequest {
-  file: string;
+    file: string;
 }
 
 export enum MessageChannelKind {
-  None = "None",
-  Inbox = "Inbox",
-  PushNotification = "PushNotification",
-  Email = "Email",
-  SMS = "SMS",
+    None = "None",
+    Inbox = "Inbox",
+    PushNotification = "PushNotification",
+    Email = "Email",
+    SMS = "SMS",
 }
 
 export enum CommunicationPreferences {
-  Any = "Any",
-  Email = "Email",
-  SMS = "SMS",
-  PushNotification = "PushNotification",
+    Any = "Any",
+    Email = "Email",
+    SMS = "SMS",
+    PushNotification = "PushNotification",
 }
 
 export interface FileResponse {
-  data: Blob;
-  status: number;
-  fileName?: string;
-  headers?: { [name: string]: any };
+    data: Blob;
+    status: number;
+    fileName?: string;
+    headers?: { [name: string]: any };
 }
 
 export class SwaggerException extends Error {
-  override message: string;
-  status: number;
-  response: string;
-  headers: { [key: string]: any; };
-  result: any;
+    override message: string;
+    status: number;
+    response: string;
+    headers: { [key: string]: any; };
+    result: any;
 
-  constructor(message: string, status: number, response: string, headers: { [key: string]: any; }, result: any) {
-    super();
+    constructor(message: string, status: number, response: string, headers: { [key: string]: any; }, result: any) {
+        super();
 
-    this.message = message;
-    this.status = status;
-    this.response = response;
-    this.headers = headers;
-    this.result = result;
-  }
+        this.message = message;
+        this.status = status;
+        this.response = response;
+        this.headers = headers;
+        this.result = result;
+    }
 
-  protected isSwaggerException = true;
+    protected isSwaggerException = true;
 
-  static isSwaggerException(obj: any): obj is SwaggerException {
-    return obj.isSwaggerException === true;
-  }
+    static isSwaggerException(obj: any): obj is SwaggerException {
+        return obj.isSwaggerException === true;
+    }
 }
 
 function throwException(message: string, status: number, response: string, headers: { [key: string]: any; }, result?: any): Observable<any> {
-  if (result !== null && result !== undefined)
-    return _observableThrow(result);
-  else
-    return _observableThrow(new SwaggerException(message, status, response, headers, null));
+    if (result !== null && result !== undefined)
+        return _observableThrow(result);
+    else
+        return _observableThrow(new SwaggerException(message, status, response, headers, null));
 }
 
 function blobToText(blob: any): Observable<string> {
-  return new Observable<string>((observer: any) => {
-    if (!blob) {
-      observer.next("");
-      observer.complete();
-    } else {
-      let reader = new FileReader();
-      reader.onload = event => {
-        observer.next((event.target as any).result);
-        observer.complete();
-      };
-      reader.readAsText(blob);
-    }
-  });
+    return new Observable<string>((observer: any) => {
+        if (!blob) {
+            observer.next("");
+            observer.complete();
+        } else {
+            let reader = new FileReader();
+            reader.onload = event => {
+                observer.next((event.target as any).result);
+                observer.complete();
+            };
+            reader.readAsText(blob);
+        }
+    });
 }
 
 export interface FileParameter {

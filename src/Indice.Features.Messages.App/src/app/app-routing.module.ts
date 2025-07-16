@@ -49,6 +49,7 @@ import { ContactComponent } from './features/contacts/contact/contact.component'
 import { ContactDetailsComponent } from './features/contacts/contact/details/contact-details.component';
 import { ContactCampaignsComponent } from './features/contacts/contact/campaigns/contact-campaigns.component';
 import { ContactEditComponent } from './features/contacts/contact/details/edit/contact-edit.component';
+import { ContactPreferencesComponent } from './features/contacts/contact/preferences/contact-preferences.component';
 
 const routes: Routes = [
   { path: 'auth-callback', component: AuthCallbackComponent },
@@ -119,8 +120,9 @@ const routes: Routes = [
             data: { breadcrumb: { title: 'Επεξεργασία' } },
             children: [
               { path: '', redirectTo: 'contact-details', pathMatch: 'full' },
-              { path: 'contact-details', component: ContactDetailsComponent, data: { breadcrumb: { title: 'Βασικές Πληροφορίες' } } },
-              { path: 'contact-campaigns', component: ContactCampaignsComponent, data: { breadcrumb: { title: 'Καμπάνιες' } } }
+              { path: 'contact-details', component: ContactDetailsComponent, data: { breadcrumb: { title: 'Βασικές πληροφορίες' } } },
+              { path: 'contact-campaigns', component: ContactCampaignsComponent, data: { breadcrumb: { title: 'Καμπάνιες' } } },
+              { path: 'contact-preferences', component: ContactPreferencesComponent, data: { breadcrumb: { title: 'Στοιχεία επικοινωνίας' } } }
             ]
           },
         ]

@@ -1,0 +1,53 @@
+<section aria-labelledby="applicant-information-title">
+  <div class="bg-white shadow sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6">
+      <div class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+        <div class="sm:col-span-1">
+          <h2 id="applicant-information-title"
+              class="text-lg leading-6 font-medium text-gray-900">
+            Στοιχεία Επικοινωνίας
+          </h2>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+      <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Γλώσσα επικοινωνίας</dt>
+          <dd class="mt-1 text-sm text-gray-900">{{ communicationPreference?.locale || '-' }}</dd>
+        </div>
+      </dl>
+    </div>
+    <div class="view-container">
+      <table class="list-view-table">
+        <thead class="list-view-thead">
+          <tr>
+            <th scope="col" class="list-view-th">
+              Τύποι Μηνυμάτων
+            </th>
+            <th scope="col" class="list-view-th">Email</th>
+            <th scope="col" class="list-view-th">Sms</th>
+            <th scope="col" class="list-view-th">Push Nofication</th>
+          </tr>
+        </thead>
+        <tbody class="list-view-tbody">
+          <tr *ngFor="let preference of communicationPreference!.messageTypeCommunicationPreferences"
+              class="list-view-tr">
+            <td class="list-view-td">
+              {{preference.name}}
+            </td>
+            <td class="list-view-td">
+              <span [innerHtml]="hasEmail(preference.communicationPreferences!, communicationPreferencesEnum.Email) | beautifyBoolean"></span>
+            </td>
+            <td class="list-view-td">
+              <span [innerHtml]="hasEmail(preference.communicationPreferences!, communicationPreferencesEnum.SMS) | beautifyBoolean"></span>
+            </td>
+            <td class="list-view-td">
+              <span [innerHtml]="hasEmail(preference.communicationPreferences!, communicationPreferencesEnum.PushNotification) | beautifyBoolean"></span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
