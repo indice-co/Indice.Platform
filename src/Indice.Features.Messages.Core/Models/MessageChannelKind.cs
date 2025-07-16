@@ -33,9 +33,9 @@ public static class MessageChannelKindExtensions
     public static List<MessageChannelKind> ToList(this MessageChannelKind enumValue) {
         var result = new List<MessageChannelKind>();
         if (enumValue.IsSet()) {
-            foreach (var value in Enum.GetValues(typeof(MessageChannelKind))) {
-                if (enumValue.HasFlag((MessageChannelKind)value)) {
-                    result.Add((MessageChannelKind)value);
+            foreach (MessageChannelKind value in Enum.GetValues(typeof(MessageChannelKind))) {
+                if (MessageChannelKind.None != value && enumValue.HasFlag(value)) {
+                    result.Add(value);
                 }
             }
         }
