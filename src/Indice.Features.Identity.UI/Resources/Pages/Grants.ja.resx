@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Below is the list of applications you have given access to and the names of the resources they have access to." xml:space="preserve">
+    <value>以下は、アクセスを許可したアプリケーションと、そのアプリケーションがアクセスできるリソースの一覧です。</value>
+  </data>
+  <data name="Client logo" xml:space="preserve">
+    <value>クライアントロゴ</value>
+  </data>
+  <data name="Created:" xml:space="preserve">
+    <value>作成日：</value>
+  </data>
+  <data name="Expires on" xml:space="preserve">
+    <value>有効期限</value>
+  </data>
+  <data name="Grants" xml:space="preserve">
+    <value>許可</value>
+  </data>
+  <data name="Revoke Access" xml:space="preserve">
+    <value>アクセスを取り消す</value>
+  </data>
+  <data name="You have not provided access to any applications" xml:space="preserve">
+    <value>どのアプリケーションにもアクセスを許可していません。</value>
+  </data>
+</root>

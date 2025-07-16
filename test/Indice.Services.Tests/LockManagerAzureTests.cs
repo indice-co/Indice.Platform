@@ -67,4 +67,36 @@ public class LockManagerAzureTests
         var @lock = await _LockManager.Renew(message.Name, message.LeaseId);
         await Task.Delay(TimeSpan.FromSeconds(10));
     }
+
+    [Fact(Skip = "Only for debug purposes")]
+    public async Task FunctionLockingExclusiveRunTest() {
+        var operation = "MasterProductImportExclusive"; // using a random name :)
+        await _LockManager.ExclusiveRun(operation, async (token) => {
+            await Task.Delay(TimeSpan.FromSeconds(10), token);
+            Console.WriteLine("operation run...");
+        }, cancellationToken: default, new ExclusiveRunOptions {
+            LockDuration = 30,
+            RetryIntervalInSeconds = null
+        });
+    }
+
+    [Fact(Skip = "Only for debug purposes")]
+    public async Task FunctionLockingExclusiveRun_WillNotEnter_NeverEndingLoop_Test() {
+        var operation = "MasterProductImportExclusive"; // using a random name :)
+
+        var source = new CancellationTokenSource();
+        source.CancelAfter(TimeSpan.FromSeconds(2));
+
+        using var lock1 = await _LockManager.AcquireLock(operation, TimeSpan.FromSeconds(59));
+
+        var exclusiveRunTask = _LockManager.ExclusiveRun(operation, async (token) => {
+            await Task.Delay(TimeSpan.FromSeconds(1), token);
+            Console.WriteLine("operation run...");
+        }, cancellationToken: source.Token, new ExclusiveRunOptions {
+            LockDuration = 30,
+            RetryIntervalInSeconds = 1
+        });
+
+        await Assert.ThrowsAsync<TaskCanceledException>(async () => await exclusiveRunTask);
+    }
 }

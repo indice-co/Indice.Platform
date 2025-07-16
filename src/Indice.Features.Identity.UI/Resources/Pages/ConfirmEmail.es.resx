@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Click" xml:space="preserve">
+    <value>Haga clic</value>
+  </data>
+  <data name="Email Confirmation" xml:space="preserve">
+    <value>Confirmación de correo electrónico</value>
+  </data>
+  <data name="Email verification link has expired." xml:space="preserve">
+    <value>El enlace de verificación de correo electrónico ha expirado.</value>
+  </data>
+  <data name="here" xml:space="preserve">
+    <value>aquí</value>
+  </data>
+  <data name="If you feel you got this error by mistake, simply click" xml:space="preserve">
+    <value>Si cree que ha recibido este error por error, simplemente haga clic</value>
+  </data>
+  <data name="No action was taken." xml:space="preserve">
+    <value>No se realizó ninguna acción.</value>
+  </data>
+  <data name="Please log in and resend the link" xml:space="preserve">
+    <value>Por favor, inicie sesión y reenvíe el enlace</value>
+  </data>
+  <data name="This may take a moment. Click on the link below to verify your email address." xml:space="preserve">
+    <value>Esto puede tardar un momento. Haga clic en el enlace de abajo para verificar su dirección de correo electrónico.</value>
+  </data>
+  <data name="to sign in or go back." xml:space="preserve">
+    <value>para iniciar sesión o volver atrás.</value>
+  </data>
+  <data name="Verify" xml:space="preserve">
+    <value>Verificar</value>
+  </data>
+  <data name="Verifying your email." xml:space="preserve">
+    <value>Verificando su correo electrónico.</value>
+  </data>
+  <data name="You can now close this browse window." xml:space="preserve">
+    <value>Ahora puede cerrar esta ventana del navegador.</value>
+  </data>
+  <data name="Your email has been successfully confirmed." xml:space="preserve">
+    <value>Su correo electrónico ha sido confirmado con éxito.</value>
+  </data>
+  <data name="Your email is already verified. Thank you" xml:space="preserve">
+    <value>Su correo electrónico ya está verificado. Gracias</value>
+  </data>
+</root>

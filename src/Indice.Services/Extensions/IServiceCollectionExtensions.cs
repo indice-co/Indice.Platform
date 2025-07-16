@@ -149,6 +149,19 @@ public static class IndiceServicesServiceCollectionExtensions
         return services;
     }
 
+    /// <summary>Adds an implementation of <see cref="ISmsService"/> using SmSUp SMS service gateway.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <param name="configure">Configure the available options. Null to use defaults.</param>
+    public static IServiceCollection AddSmsServiceSmsUp(this IServiceCollection services, IConfiguration configuration, Action<SmsServiceSmsUpSettings>? configure = null) {
+        services.Configure<SmsServiceSmsUpSettings>(configuration.GetSection(SmsServiceSettings.Name));
+        services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
+        var options = new SmsServiceSmsUpSettings();
+        configure?.Invoke(options);
+        services.AddHttpClient<ISmsService, SmsServiceSmsUp>();
+        return services;
+    }
+
     /// <summary>Adds an implementation of <see cref="ISmsService"/> using Apifon SMS service gateway.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
