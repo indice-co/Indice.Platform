@@ -1,4 +1,5 @@
-﻿using Indice.Features.Messages.Core.Models;
+﻿using System.Linq;
+using Indice.Features.Messages.Core.Models;
 using Indice.Types;
 
 namespace Indice.Features.Messages.Core.Events;
@@ -48,7 +49,7 @@ public class CampaignCreatedEvent
         ActivePeriod = campaign.ActivePeriod,
         Content = campaign.Content,
         Data = campaign.Data,
-        MessageChannelKind = campaign.MessageChannelKind,
+        MessageChannelKind = campaign.MessageChannelKind.ToFlags(),
         IgnoreUserPreferences = campaign.IgnoreUserPreferences,
         DistributionListId = campaign.DistributionList?.Id,
         Id = campaign.Id,

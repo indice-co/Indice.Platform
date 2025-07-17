@@ -117,6 +117,9 @@ public static class SwaggerConfig
     /// <param name="settings">General settings for an ASP.NET Core application.</param>
     /// <param name="scopeOrGroup">The URL segment that the child scope will live under.</param>
     /// <param name="description">An API description.</param>
+#if NET9_0_OR_GREATER
+    [Obsolete("Use AddOpenApi() extensions insted instead. Support for configuring via swashbuckle will be removed in a future release.")]
+#endif
     public static OpenApiInfo AddDoc(this SwaggerGenOptions options, GeneralSettings settings, string scopeOrGroup, string description) {
         var apiSettings = settings?.Api ?? new ApiSettings();
         var version = $"v{apiSettings.DefaultVersion}";

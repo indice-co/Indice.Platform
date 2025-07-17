@@ -43,14 +43,17 @@ public class CampaignService : ICampaignService
                     select o;
         }
 
+
+        if (options.Filter?.MessageChannelKind?.Length > 0) {
+            var kind = options.Filter.MessageChannelKind.ToFlags();
+            query = query.Where(x => x.MessageChannelKind.HasFlag(kind));
+        }
+
         var projectedQuery = query.Select(Mapper.ProjectToCampaign);
 
         if (!string.IsNullOrEmpty(options.Search) && options.Search.Length > 2) {
             var searchTerm = options.Search.Trim();
             projectedQuery = projectedQuery.Where(x => x.Title != null && x.Title.Contains(searchTerm));
-        }
-        if (options.Filter?.MessageChannelKind.HasValue == true) {
-            projectedQuery = projectedQuery.Where(x => x.MessageChannelKind.HasFlag(options.Filter.MessageChannelKind.Value));
         }
         if (options.Filter?.Published.HasValue == true) {
             projectedQuery = projectedQuery.Where(x => x.Published == options.Filter.Published.Value);

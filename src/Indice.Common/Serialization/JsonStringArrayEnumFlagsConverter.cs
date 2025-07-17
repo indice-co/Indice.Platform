@@ -1,6 +1,6 @@
-﻿using System.Diagnostics;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using Indice.Extensions;
 
 namespace Indice.Serialization;
@@ -60,5 +60,51 @@ internal class JsonStringArrayEnumFlagsConverter<TEnum> : JsonConverter<TEnum>
             writer.WriteStringValue(enumValue.Trim());
         }
         writer.WriteEndArray();
+    }
+
+}
+
+/// <summary>
+/// This resolver is used to ensure that the JSON type information for enum flags is correctly handled
+/// </summary>
+/// <remarks>This breaks serialization as of dotnet9.0 and will not work. Keep this as a referemce</remarks>
+public class JsonStringArrayEnumFlagsTypeInfoResolver : IJsonTypeInfoResolver
+{
+    /// <inheritdoc />
+    public JsonTypeInfo? GetTypeInfo(Type type, JsonSerializerOptions options) {
+        if (!type.IsFlagsEnum()) {
+            return null;
+        }
+        
+        var enumType = Nullable.GetUnderlyingType(type);
+        var isNullable = enumType != null;
+        if (!isNullable) {
+            enumType = type;
+        }
+        var listType = typeof(List<>).MakeGenericType(enumType!);
+        var typeInfoList = options.GetTypeInfo(listType);
+        //var typeInfo = options.GetTypeInfo(enumType!);
+        return typeInfoList;
+    }
+}
+
+/// <summary>
+/// Extensions for <see cref="JsonSerializerOptions"/> to add support for serializing and deserializing enum flags as string arrays.
+/// </summary>
+public static class JsonStringArrayEnumFlagsExtensions
+{
+    /// <summary>
+    /// Adds support for serializing and deserializing enum flags as string arrays in JSON.
+    /// </summary>
+    /// <param name="options">The json serializer options to configure</param>
+    /// <returns>The options for further configuration</returns>
+    public static JsonSerializerOptions AddEnumFlagsSupport(this JsonSerializerOptions options) {
+        if (!options.Converters.OfType<JsonStringArrayEnumFlagsConverterFactory>().Any()) {
+            // register the factory converter only once
+            options.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
+            //options.TypeInfoResolverChain.Insert(0, new JsonStringArrayEnumFlagsTypeInfoResolver());
+            
+        }
+        return options;
     }
 }

@@ -33,7 +33,7 @@ internal static class AdminQueriesApi
             .RequireCasesAccess(CasesAccessLevel.Manage)
         ).WithHandledException<BusinessException>();
         
-        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized)

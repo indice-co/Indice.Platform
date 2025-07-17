@@ -99,15 +99,17 @@ public class ExtendedTokenResponseGenerator : TokenResponseGenerator
             if (client is null) {
                 throw new InvalidOperationException("Client does not exist anymore.");
             }
+#if NET9_0_OR_GREATER
+            var validatedResources = request.ValidatedRequest.ValidatedResources;
+#else
             var parsedScopesResult = ScopeParser.ParseScopeValues(request.ValidatedRequest.RequestedScopes!);
-            //var validatedResources = await Resources.CreateResourceValidationResult(parsedScopesResult);
-            var validatedResources = await CreateResourceValidationResult(Resources, parsedScopesResult);
-            //new ResourceValidationResult(parsedScopesResult, client, request.ValidatedRequest.RequestedScopes);
+            var validatedResources = await Resources.CreateResourceValidationResult(parsedScopesResult);
+#endif
             var tokenRequest = new TokenCreationRequest {
                 Subject = request.ValidatedRequest.Subject,
-                ValidatedResources = validatedResources,
+                ValidatedResources =  validatedResources,
                 AccessTokenToHash = tokenResponse.AccessToken,
-                ValidatedRequest = request.ValidatedRequest
+                ValidatedRequest = request.ValidatedRequest,
             };
             var idToken = await TokenService.CreateIdentityTokenAsync(tokenRequest);
             var jwt = await TokenService.CreateSecurityTokenAsync(idToken);
@@ -138,32 +140,23 @@ public class ExtendedTokenResponseGenerator : TokenResponseGenerator
             if (client is null) {
                 throw new InvalidOperationException("Client does not exist anymore.");
             }
-            var parsedScopesResult = ScopeParser.ParseScopeValues(request.ValidatedRequest.RequestedScopes!);
-            var validatedResources = await CreateResourceValidationResult(Resources, parsedScopesResult);
+#if NET9_0_OR_GREATER
+            var validatedResources = request.ValidatedRequest.ValidatedResources;
+#else
+            var parsedScopesResult = ScopeParser.ParseScopeValues(request.ValidatedRequest.RequestedScopes);
+            var validatedResources = await Resources.CreateResourceValidationResult(parsedScopesResult);
+#endif
             var tokenRequest = new TokenCreationRequest {
                 Subject = request.ValidatedRequest.Subject,
                 ValidatedResources = validatedResources,
                 AccessTokenToHash = tokenResponse.AccessToken,
                 ValidatedRequest = request.ValidatedRequest,
             };
+
             var idToken = await TokenService.CreateIdentityTokenAsync(tokenRequest);
             var jwt = await TokenService.CreateSecurityTokenAsync(idToken);
             tokenResponse.IdentityToken = jwt;
         }
         return tokenResponse;
-    }
-
-
-    /// <summary>
-    /// Creates a resource validation result.
-    /// </summary>
-    /// <param name="store">The store.</param>
-    /// <param name="parsedScopesResult">The parsed scopes.</param>
-    /// <returns></returns>
-    protected static async Task<ResourceValidationResult> CreateResourceValidationResult(IResourceStore store, ParsedScopesResult parsedScopesResult) {
-        var validScopeValues = parsedScopesResult.ParsedScopes;
-        var scopes = validScopeValues.Select(x => x.ParsedName).ToArray();
-        var resources = await store.FindEnabledResourcesByScopeAsync(scopes);
-        return new ResourceValidationResult(resources, validScopeValues);
     }
 }

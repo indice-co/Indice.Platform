@@ -135,7 +135,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
         var expectedContentMessageKinds = createTemplateRequest.Content.Select(cnt => cnt.Key);
         Assert.Equal(expectedContentMessageKinds.Count(), actualContentMessageKinds.Count());
         Assert.Equal(expectedContentMessageKinds.Count(), expectedContentMessageKinds.Intersect(actualContentMessageKinds).Count());
-        Assert.Equal(expectedContentMessageKinds.Count(), campaignDetails.MessageChannelKind.GetFlagValues().Count());
+        Assert.Equal(expectedContentMessageKinds.Count(), campaignDetails.MessageChannelKind.Count());
     }
 
     [Fact]
@@ -170,7 +170,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
             Published = false,
             RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"],
             MessageTemplateId = new GuidOrAlias(templateAlias),
-            MessageTemplateChannels = MessageChannelKind.Email | MessageChannelKind.PushNotification
+            MessageTemplateChannels = [MessageChannelKind.Email, MessageChannelKind.PushNotification]
         };
         var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
         var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));
@@ -195,10 +195,10 @@ public class MessagesIntegrationTests : IAsyncLifetime
 
         Assert.NotNull(campaignDetails);
         var actualContentMessageKinds = campaignDetails.Content.Select(cnt => cnt.Key);
-        var expectedContentMessageKinds = createCampaignRequest.MessageTemplateChannels.Value.GetFlagValues().Select(v => v.ToString());
+        var expectedContentMessageKinds = createCampaignRequest.MessageTemplateChannels.Select(v => v.ToString());
         Assert.Equal(expectedContentMessageKinds.Count(), actualContentMessageKinds.Count());
         Assert.Equal(expectedContentMessageKinds.Count(), expectedContentMessageKinds.Intersect(actualContentMessageKinds).Count());
-        Assert.Equal(expectedContentMessageKinds.Count(), campaignDetails.MessageChannelKind.GetFlagValues().Count());
+        Assert.Equal(expectedContentMessageKinds.Count(), campaignDetails.MessageChannelKind.Count());
     }
 
     [Fact]
@@ -233,7 +233,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
             Published = false,
             RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"],
             MessageTemplateId = new GuidOrAlias(templateAlias),
-            MessageTemplateChannels = MessageChannelKind.Email | MessageChannelKind.Inbox
+            MessageTemplateChannels = [MessageChannelKind.Email, MessageChannelKind.Inbox]
         };
         var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
         var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));
@@ -261,7 +261,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
         var expectedContentMessageKinds = new string[] { MessageChannelKind.Email.ToString() };
         Assert.Equal(expectedContentMessageKinds.Count(), actualContentMessageKinds.Count());
         Assert.Equal(expectedContentMessageKinds.Count(), expectedContentMessageKinds.Intersect(actualContentMessageKinds).Count());
-        Assert.Equal(expectedContentMessageKinds.Count(), campaignDetails.MessageChannelKind.GetFlagValues().Count());
+        Assert.Equal(expectedContentMessageKinds.Count(), campaignDetails.MessageChannelKind.Count());
     }
 
     [Fact]
@@ -295,7 +295,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
             Published = false,
             RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"],
             MessageTemplateId = new GuidOrAlias(templateAlias),
-            MessageTemplateChannels = MessageChannelKind.Inbox | MessageChannelKind.SMS
+            MessageTemplateChannels = [MessageChannelKind.Inbox, MessageChannelKind.SMS]
         };
         var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
         var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));

@@ -33,74 +33,74 @@ public static class MyAccountApi
              .WithSummary("Updates the email of the current user.")
              .WithParameterValidation<UpdateUserEmailRequest>()
              .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.UpdateEmail)
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/email/confirmation", MyAccountHandlers.ConfirmEmail)
              .WithName(nameof(MyAccountHandlers.ConfirmEmail))
              .WithSummary("Confirms the email address of a given user.")
              .WithParameterValidation<ConfirmEmailRequest>()
              .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.EmailConfirmation)
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/phone-number", MyAccountHandlers.UpdatePhoneNumber)
              .WithName(nameof(MyAccountHandlers.UpdatePhoneNumber))
              .WithSummary("Requests a phone number change for the current user.")
              .WithParameterValidation<UpdateUserPhoneNumberRequest>()
              .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.UpdatePhoneNumber)
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/phone-number/confirmation", MyAccountHandlers.ConfirmPhoneNumber)
              .WithName(nameof(MyAccountHandlers.ConfirmPhoneNumber))
              .WithSummary("Confirms the phone number of the user, using the OTP token.")
              .WithParameterValidation<ConfirmPhoneNumberRequest>()
              .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.PhoneNumberConfirmation)
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/email/change", MyAccountHandlers.EmailChange)
              .WithName(nameof(MyAccountHandlers.EmailChange))
              .WithSummary("Request email change for the current user.")
              .WithParameterValidation<ChangeUserEmailRequest>()
              .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.ChangeEmail)
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/email/change-confirmation", MyAccountHandlers.ConfirmEmailChange)
              .WithName(nameof(MyAccountHandlers.ConfirmEmailChange))
              .WithSummary("Confirms the email address change of the current user and saves.")
              .WithParameterValidation<ConfirmEmailChangeRequest>()
              .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.EmailChangeConfirmation)
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/phone-number/change", MyAccountHandlers.PhoneNumberChange)
              .WithName(nameof(MyAccountHandlers.PhoneNumberChange))
              .WithSummary("Requests phone number change for the current user.")
              .WithParameterValidation<ChangeUserPhoneNumberRequest>()
              .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.ChangePhoneNumber)
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/phone-number/change-confirmation", MyAccountHandlers.ConfirmPhoneNumberChange)
              .WithName(nameof(MyAccountHandlers.ConfirmPhoneNumberChange))
              .WithSummary("Confirms the phone number change via OTP for the current user and saves.")
              .WithParameterValidation<ConfirmPhoneNumberChangeRequest>()
              .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.ChangePhoneNumberConfirmation)
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/block", MyAccountHandlers.BlockAccount)
              .WithName(nameof(MyAccountHandlers.BlockAccount))
              .WithSummary("Blocks a user account.")
              .WithParameterValidation<SetUserBlockRequest>()
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/username", MyAccountHandlers.UpdateUserName)
              .WithName(nameof(MyAccountHandlers.UpdateUserName))
              .WithSummary("Changes the username for the current user.")
              .WithParameterValidation<UpdateUserNameRequest>()
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/password", MyAccountHandlers.UpdatePassword)
              .WithName(nameof(MyAccountHandlers.UpdatePassword))
              .WithSummary("Changes the password for the current user, but requires the old password to be present.")
              .WithParameterValidation<ChangePasswordRequest>()
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPost("account/forgot-password", MyAccountHandlers.ForgotPassword)
              .WithName(nameof(MyAccountHandlers.ForgotPassword))
@@ -120,56 +120,56 @@ public static class MyAccountApi
              .WithName(nameof(MyAccountHandlers.UpdatePasswordExpirationPolicy))
              .WithSummary("Updates the password expiration policy.")
              .WithParameterValidation<UpdatePasswordExpirationPolicyRequest>()
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/max-devices-count", MyAccountHandlers.UpdateMaxDevicesCount)
              .WithName(nameof(MyAccountHandlers.UpdateMaxDevicesCount))
              .WithSummary("Updates the max devices count.")
              .WithParameterValidation<UpdateMaxDevicesCountRequest>()
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapGet("my/account/claims", MyAccountHandlers.GetClaims)
              .WithName(nameof(MyAccountHandlers.GetClaims))
              .WithSummary("Gets the claims of the user.")
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapGet("my/account/grants", MyAccountHandlers.GetConsents)
              .WithName(nameof(MyAccountHandlers.GetConsents))
              .WithSummary("Gets the consents given by the user.")
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapDelete("my/account/grants/{clientId}", MyAccountHandlers.RevokeConsents)
              .WithName(nameof(MyAccountHandlers.RevokeConsents))
              .WithSummary("Revokes all a user's consents and grants for a client.")
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapDelete("my/account/grants", MyAccountHandlers.RevokeAllConsents)
              .WithName(nameof(MyAccountHandlers.RevokeAllConsents))
              .WithSummary("Revokes all a user's consents and grants for all clients.")
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPost("my/account/claims", MyAccountHandlers.AddClaims)
              .WithName(nameof(MyAccountHandlers.AddClaims))
              .WithSummary("Adds the requested claims on the current user's account.")
              .WithParameterValidation<IEnumerable<CreateClaimRequest>>()
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPatch("my/account/claims", MyAccountHandlers.PatchClaims)
              .WithName(nameof(MyAccountHandlers.PatchClaims))
              .WithSummary("Upserts the requested claims on the current user's account.")
              .WithParameterValidation<IEnumerable<CreateClaimRequest>>()
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/claims/{claimId:int}", MyAccountHandlers.UpdateClaim)
              .WithName(nameof(MyAccountHandlers.UpdateClaim))
              .WithSummary("Updates the specified claim for the current user.")
              .WithParameterValidation<UpdateUserClaimRequest>()
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapDelete("my/account", MyAccountHandlers.DeleteAccount)
              .WithName(nameof(MyAccountHandlers.DeleteAccount))
              .WithSummary("Permanently deletes current user's account.")
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapGet("account/password-options", MyAccountHandlers.GetPasswordOptions)
              .WithName(nameof(MyAccountHandlers.GetPasswordOptions))
@@ -196,7 +196,7 @@ public static class MyAccountApi
              .WithName(nameof(MyAccountHandlers.Register))
              .WithSummary("Self-service user registration endpoint.")
              .WithParameterValidation<RegisterRequest>()
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapGet("account/calling-codes", MyAccountHandlers.GetSupportedCallingCodes)
              .WithName(nameof(MyAccountHandlers.GetSupportedCallingCodes))

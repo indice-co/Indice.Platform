@@ -2,10 +2,10 @@
 using System.Reflection;
 using Microsoft.OpenApi.Any;
 
-namespace Indice.AspNetCore.Swagger;
+namespace Microsoft.OpenApi.Models;
 
-/// <summary>Extensions over Open Api</summary>
-public static class OpenApiExtensions
+/// <summary>Extensions over Open Api to generate example models </summary>
+public static class OpenApiModelExtensions
 {
     /// <summary>Converts an instance to an OpenApi counterpart.</summary>
     /// <typeparam name="T"></typeparam>
@@ -74,10 +74,10 @@ public static class OpenApiExtensions
         return null;
     }
 
-    private static bool IsDictionary(Type type) =>
+    internal static bool IsDictionary(this Type type) =>
         type.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IDictionary<,>)).Any();
 
-    private static bool IsPrimitive(Type type) =>
+    internal static bool IsPrimitive(this Type type) =>
         type.IsValueType || type.IsPrimitive || type.IsEnum || type == typeof(string);
 
     private static IOpenApiPrimitive? GetStructValue(Type type, object value) {

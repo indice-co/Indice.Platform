@@ -4,7 +4,7 @@
 public class CampaignListFilter
 {
     /// <summary>The delivery channel of a campaign.</summary>
-    public MessageChannelKind? MessageChannelKind { get; set; }
+    public MessageChannelKind[]? MessageChannelKind { get; set; }
     /// <summary>Determines if a campaign is published.</summary>
     public bool? Published { get; set; }
     /// <summary>The ID of the contact to filter campaigns by.</summary>
