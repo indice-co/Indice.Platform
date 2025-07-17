@@ -40,6 +40,10 @@ public interface IContactService
     /// <param name="id">The id of the distribution list.</param>
     /// <param name="contactId">The unique id of the contact.</param>
     Task RemoveFromDistributionList(Guid id, Guid contactId);
+
+    /// <summary>Gets a contact by it's recipient id.</summary>
+    /// <param name="recipientId">The id of the recipient.</param>
+    Task<Contact?> GetByRecipientId(string? recipientId);
 }
 
 /// <summary>Extensions on the <see cref="IContactService"/></summary>
@@ -71,16 +75,16 @@ public static class IContactServiceExtensions
         return (await contactService.GetList(options)).Items.FirstOrDefault();
     }
 
-    /// <summary>Gets a contact by it's recipient id.</summary>
-    /// <param name="contactService">The <see cref="IContactService"/> to extend.</param>
-    /// <param name="recipientId">The id of the recipient.</param>
-    /// <returns></returns>
-    public async static Task<Contact?> FindByRecipientId(this IContactService contactService, string? recipientId) {
-        if (string.IsNullOrEmpty(recipientId)) {
-            throw new ArgumentNullException(nameof(recipientId));
-        }
-        var options = new ListOptions<ContactListFilter> { Size = 1 };
-        options.Filter.RecipientId = recipientId;
-        return (await contactService.GetList(options)).Items.FirstOrDefault();
-    }
+    ///// <summary>Gets a contact by it's recipient id.</summary>
+    ///// <param name="contactService">The <see cref="IContactService"/> to extend.</param>
+    ///// <param name="recipientId">The id of the recipient.</param>
+    ///// <returns></returns>
+    //public async static Task<Contact?> FindByRecipientId(this IContactService contactService, string? recipientId) {
+    //    if (string.IsNullOrEmpty(recipientId)) {
+    //        throw new ArgumentNullException(nameof(recipientId));
+    //    }
+    //    var options = new ListOptions<ContactListFilter> { Size = 1 };
+    //    options.Filter.RecipientId = recipientId;
+    //    return (await contactService.GetList(options)).Items.FirstOrDefault();
+    //}
 }

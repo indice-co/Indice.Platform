@@ -7,7 +7,7 @@ public interface ICommunicationPreferenceService
 {
     /// <summary>Gets recipient preferences.</summary>
     /// <param name="recipientId">The id of the recipient.</param>
-    Task<CommunicationPreference> GetPreferences(string recipientId);
+    Task<RecepientPreference> GetPreferences(string recipientId);
     /// <summary>Updates an existing campaign.</summary>
     /// <param name="recipientId">The id of the recipient.</param>
     /// <param name="request">The data for the communication preferences.</param>

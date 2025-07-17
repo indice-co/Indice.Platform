@@ -4,6 +4,7 @@ using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Features.Messages.Core.Data;
@@ -41,9 +42,9 @@ public class CampaignsDbContext : DbContext
     public DbSet<DbDistributionListContact> ContactDistributionLists { get; set; }
 
     /// <summary>Contact communication preferences</summary>
-    public DbSet<DbCommunicationPreference> CommunicationPreferences { get; set; }
+    public DbSet<DbRecipientPreference> RecipientPreferences { get; set; }
     /// <summary>Contacts table.</summary>
-    public DbSet<DbCommunicationPreferenceMessageType> CommunicationPreferenceMessageTypes { get; set; }
+    public DbSet<DbRecipientCommunicationPreference> RecipientCommunicationPreferences { get; set; }
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
@@ -64,6 +65,7 @@ public class CampaignsDbContext : DbContext
         if (Database.IsSqlServer()) {
             modelBuilder.ApplyJsonFunctions();
             modelBuilder.Entity<DbAttachment>().Property(x => x.Data).HasColumnType("image");
+
         } else if (Database.IsNpgsql()) {
             modelBuilder.Entity<DbAttachment>().Property(x => x.Data).HasColumnType("bytea");
         }

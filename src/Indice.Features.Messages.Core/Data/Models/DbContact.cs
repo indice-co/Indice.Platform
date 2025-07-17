@@ -1,6 +1,4 @@
-﻿using Indice.Features.Messages.Core.Models;
-
-namespace Indice.Features.Messages.Core.Data.Models;
+﻿namespace Indice.Features.Messages.Core.Data.Models;
 
 /// <summary>Contact entity.</summary>
 public class DbContact
@@ -21,14 +19,10 @@ public class DbContact
     public string? Email { get; set; }
     /// <summary>The phone number.</summary>
     public string? PhoneNumber { get; set; }
-    /// <summary>Contact's locale.</summary>
-    public string? Locale { get; set; }
-    /// <summary>The preferred delivery channels to receive messages.</summary>
-    public ContactChannelKind CommunicationPreferences { get; set; } = ContactChannelKind.Any;
-    /// <summary>Indicates if user accepted conset to receive email.</summary>
-    public bool ConsentCommercial { get; set; }
     /// <summary>Indicates when contact info were last updated.</summary>
     public DateTimeOffset? UpdatedAt { get; set; }
     /// <summary>Contact - Distribution list join entity type.</summary>
     public List<DbDistributionListContact> DistributionListContacts { get; set; } = [];
+    /// <summary>Contact's communication settings.</summary>
+    public virtual DbRecipientPreference? CommunicationPreference { get; set; } 
 }

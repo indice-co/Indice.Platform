@@ -1,11 +1,9 @@
-﻿using System.Security.Claims;
-using Indice.Features.Messages.Core.Models;
+﻿using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Messages.AspNetCore.Endpoints;
 
@@ -60,7 +58,7 @@ internal static class ContactsHandlers
             return TypedResults.NotFound();
         }
 
-        var contact = await contactService.FindByRecipientId(recipientId);
+        var contact = await contactService.GetByRecipientId(recipientId);
         if (contact is null) {
             await contactService.Create(Mapper.ToCreateContactRequest(resolvedContact));
             return TypedResults.NoContent();
@@ -71,7 +69,7 @@ internal static class ContactsHandlers
         return TypedResults.NoContent();
     }
 
-    public static async Task<Results<Ok<CommunicationPreference>, NotFound>> GetCommunicationPreferences(
+    public static async Task<Results<Ok<RecepientPreference>, NotFound>> GetCommunicationPreferences(
         IContactService contactService,
          ICommunicationPreferenceService communicationPreferenceService,
          Guid contactId

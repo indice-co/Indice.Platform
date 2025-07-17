@@ -75,7 +75,7 @@ public class ContactService : IContactService
                     contact = await DbContext.Contacts.FirstOrDefaultAsync(x => x.RecipientId == request.RecipientId);
 
                     if (contact is not null) {
-                        await AddContactToDistributionListIfNotExists(contact, list, request);
+                        await AddContactToDistributionListIfNotExists(contact, list);
                         result.ContactsUpdated++;
                         continue;
                     }
@@ -192,7 +192,8 @@ public class ContactService : IContactService
 
     /// <inheritdoc />
     public async Task Update(Guid id, UpdateContactRequest request) {
-        var contact = await DbContext.Contacts.FindAsync(id);
+        var contact = await DbContext.Contacts
+                                    .FindAsync(id);
         if (contact is null) {
             throw MessageExceptions.ContactNotFound(id);
         }
@@ -202,10 +203,14 @@ public class ContactService : IContactService
         contact.LastName = request.LastName;
         contact.PhoneNumber = request.PhoneNumber;
         contact.Salutation = request.Salutation;
-        contact.CommunicationPreferences = request.CommunicationPreferences;
-        contact.Locale = request.Locale;
-        contact.ConsentCommercial = request.ConsentCommercial;
         contact.UpdatedAt = DateTimeOffset.UtcNow;
+        if (!string.IsNullOrEmpty(contact.RecipientId) && request.CommunicationPreference is not null) {
+            contact.CommunicationPreference ??= new DbRecipientPreference();
+            contact.CommunicationPreference.RecipientId = contact.RecipientId;
+            contact.CommunicationPreference.ConsentCommercial = request.CommunicationPreference.ConsentCommercial;
+            contact.CommunicationPreference.ConsentCommercialDate = request.CommunicationPreference.ConsentCommercialDate;
+            contact.CommunicationPreference.Locale = request.CommunicationPreference.Locale;
+        }
         await DbContext.SaveChangesAsync();
     }
 
@@ -222,7 +227,7 @@ public class ContactService : IContactService
         await DbContext.SaveChangesAsync();
     }
 
-    private async Task AddContactToDistributionListIfNotExists(DbContact contact, DbDistributionList list, CreateDistributionListContactRequest request) {
+    private async Task AddContactToDistributionListIfNotExists(DbContact contact, DbDistributionList list) {
         var associationExists = await DbContext.ContactDistributionLists.AnyAsync(x => x.ContactId == contact.Id && x.DistributionListId == list.Id);
         if (associationExists) {
             return;
@@ -240,5 +245,44 @@ public class ContactService : IContactService
             DistributionListId = list.Id
         });
         DbContext.Contacts.Add(contact);
+    }
+    /// <summary>Gets a contact by it's recipient id.</summary>
+    /// <param name="recipientId">The id of the recipient.</param>
+    /// <returns></returns>
+    public async Task<Contact?> GetByRecipientId(string? recipientId) {
+        if (string.IsNullOrWhiteSpace(recipientId))
+            return null;
+
+        return await DbContext.Contacts
+                    .Where(contact => contact.RecipientId!.ToLower() == recipientId.ToLower())
+                    .Join(DbContext.RecipientPreferences,
+                            contact => contact.RecipientId,
+                            rp => rp.RecipientId,
+                            (contact, rp) => new Contact() {
+                                Id = contact.Id,
+                                RecipientId = contact.RecipientId,
+                                Email = contact.Email,
+                                FirstName = contact.FirstName,
+                                LastName = contact.LastName,
+                                FullName = contact.FullName,
+                                PhoneNumber = contact.PhoneNumber,
+                                Salutation = contact.Salutation,
+                                UpdatedAt = contact.UpdatedAt,
+                                Preferences = rp == null ? null : new RecepientPreference() {
+                                    Locale = rp.Locale,
+                                    ConsentCommercial = rp.ConsentCommercial,
+                                    ConsentCommercialDate = rp.ConsentCommercialDate,
+                                    CommunicationPreferences = DbContext.RecipientCommunicationPreferences
+                                                               .Where(rcp => rcp.CommunicationPreferenceId == rp.Id)
+                                                               .Join(DbContext.MessageTypes,
+                                                                    rcp => rcp.TypeId,
+                                                                    mt => mt.Id,
+                                                                    (rcp, mt) => new { rcp, mt })
+                                                               .Select(x => new RecepientPreferenceCommunication() {
+                                                                   Alias = x.mt.Alias,
+                                                                   CommunicationPreferences = x.rcp.CommunicationPreferences
+                                                               }).ToList()
+                                }
+                            }).SingleOrDefaultAsync();
     }
 }

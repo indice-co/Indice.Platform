@@ -15,5 +15,5 @@ public class DbMessageType
     /// <summary>The kind of the notification allowed .</summary>
     public MessageTypeClassification Classification { get; set; }
     /// <summary>The description of the message type.</summary> 
-    public ICollection<DbCommunicationPreferenceMessageType> ContactPreferenceMessageTypes { get; set; } = new List<DbCommunicationPreferenceMessageType>();
+    public ICollection<DbRecipientCommunicationPreference> ContactPreferenceMessageTypes { get; set; } = new List<DbRecipientCommunicationPreference>();
 }

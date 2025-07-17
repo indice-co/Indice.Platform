@@ -1,14 +1,20 @@
 ﻿namespace Indice.Features.Messages.Core.Models;
 /// <summary>Models a contact preference for a recipient.</summary>
-public class CommunicationPreference
+public class RecepientPreference
 {
     /// <summary>Contact's locale.</summary>
     public string? Locale { get; set; }
+
+    /// <summary>Indicates if user accepted conset to receive email.</summary>
+    public bool ConsentCommercial { get; set; }
+
+    /// <summary>Indicates if user accepted conset to receive email.</summary>
+    public DateTimeOffset? ConsentCommercialDate { get; set; }
     /// <summary>Communication preferences per message type.</summary>
-    public List<CommunicationMessageTypePreference> MessageTypeCommunicationPreferences { get; set; } = [];
+    public List<RecepientPreferenceCommunication> CommunicationPreferences { get; set; } = [];
 }
 /// <summary>Models a contact preference for a recipient.</summary>
-public class CommunicationMessageTypePreference
+public class RecepientPreferenceCommunication
 {
     /// <summary>The name of a campaign type.</summary>
     public string? Name { get; set; }

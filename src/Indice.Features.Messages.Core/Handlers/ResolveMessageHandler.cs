@@ -59,7 +59,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         var contactNotUpdatedAWhileNow = !@event.Contact!.UpdatedAt.HasValue
             || (DateTimeOffset.UtcNow - @event.Contact.UpdatedAt.Value) > TimeSpan.FromDays(Options.ContactRetainPeriodInDays);
         if (!@event.Contact.IsAnonymous) {
-            contact = await ContactService.FindByRecipientId(@event.Contact.RecipientId);
+            contact = await ContactService.GetByRecipientId(@event.Contact.RecipientId);
             if (contact is null) {
                 contact = await ContactResolver.Resolve(@event.Contact.RecipientId);
             } else if (contactNotUpdatedAWhileNow || @event.Contact.IsEmpty) {
@@ -124,7 +124,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
             RecipientId = contact.RecipientId
         });
         var eventDispatcher = EventDispatcherFactory.Create(KeyedServiceNames.EventDispatcherServiceKey);
-        var contactChannels = campaign.ResolveAvailableChannels(contact!.CommunicationPreferences);
+        var contactChannels = campaign.ResolveAvailableChannels(contact.Preferences);
         if (contactChannels.HasFlag(MessageChannelKind.Inbox)) {
             await LogEvent(campaign, contact, MessageChannelKind.Inbox, messageId);
         }
