@@ -1,6 +1,5 @@
 ﻿#if NET9_0_OR_GREATER
 using FluentValidation;
-using FluentValidation.Internal;
 using FluentValidation.Validators;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi.Models;
@@ -27,13 +26,16 @@ internal static class FluentValidationTransformer
         if (declaringType is null) {
             return;
         }
-        Type validatorType = typeof(IValidator<>).MakeGenericType(declaringType);
-        IValidator? validator = services.GetService(validatorType) as IValidator;
+        var validatorType = typeof(IValidator<>).MakeGenericType(declaringType);
+        var validator = services.GetService(validatorType) as IValidator;
         if (validator is not null) {
-            IValidatorDescriptor descriptor = validator.CreateDescriptor();
-            ILookup<string, (IPropertyValidator Validator, IRuleComponent Options)> validationRules = descriptor.GetMembersWithValidators();
-            foreach (IGrouping<string, (IPropertyValidator Validator, IRuleComponent Options)> validationRule in validationRules) {
+            var descriptor = validator.CreateDescriptor();
+            var validationRules = descriptor.GetMembersWithValidators();
+            foreach (var validationRule in validationRules) {
                 // asume camelcase
+                if (string.IsNullOrWhiteSpace(validationRule.Key)) {
+                    continue;
+                }
                 var property = validationRule.Key[..1].ToLower() + validationRule.Key[1..];
                 // make sure
                 property = schema.Properties.Keys.Where(x => x.Equals(property, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
