@@ -98,16 +98,13 @@ public static class JsonStringArrayEnumFlagsExtensions
     /// </summary>
     /// <param name="options">The json serializer options to configure</param>
     /// <returns>The options for further configuration</returns>
-    public static JsonSerializerOptions AddEnumSupport(this JsonSerializerOptions options) {
-        if (!options.Converters.OfType<JsonStringEnumConverter>().Any()) {
-            options.Converters.Add(new JsonStringEnumConverter());
-        }
-        //if (!options.Converters.OfType<JsonStringArrayEnumFlagsConverterFactory>().Any()) {
-        //    // register the factory converter only once
-        //    options.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
-        //    //options.TypeInfoResolverChain.Insert(0, new JsonStringArrayEnumFlagsTypeInfoResolver());
+    public static JsonSerializerOptions AddEnumFlagsSupport(this JsonSerializerOptions options) {
+        if (!options.Converters.OfType<JsonStringArrayEnumFlagsConverterFactory>().Any()) {
+            // register the factory converter only once
+            options.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
+            //options.TypeInfoResolverChain.Insert(0, new JsonStringArrayEnumFlagsTypeInfoResolver());
             
-        //}
+        }
         return options;
     }
 }

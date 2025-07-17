@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using System.Text.Json.Serialization;
 using FluentValidation;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Swagger;
@@ -134,13 +135,17 @@ public static class MessageFeatureExtensions
     internal static IServiceCollection AddCampaignCore(this IServiceCollection services, CampaignOptionsBase baseOptions) {
         // Post configure JSON options.
         services.PostConfigure<JsonOptions>(options => {
-            options.JsonSerializerOptions.AddEnumSupport();
+            if (!options.JsonSerializerOptions.Converters.OfType<JsonStringEnumConverter>().Any()) {
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            }
             if (!options.JsonSerializerOptions.Converters.Any(converter => converter.GetType() == typeof(TypeConverterJsonAdapterFactory))) {
                 options.JsonSerializerOptions.Converters.Add(new TypeConverterJsonAdapterFactory());
             }
         }); 
         services.PostConfigure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => {
-            options.SerializerOptions.AddEnumSupport();
+            if (!options.SerializerOptions.Converters.OfType<JsonStringEnumConverter>().Any()) {
+                options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            }
             if (!options.SerializerOptions.Converters.Any(converter => converter.GetType() == typeof(TypeConverterJsonAdapterFactory))) {
                 options.SerializerOptions.Converters.Add(new TypeConverterJsonAdapterFactory());
             }
