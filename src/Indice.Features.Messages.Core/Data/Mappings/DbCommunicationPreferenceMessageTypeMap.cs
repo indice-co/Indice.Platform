@@ -7,9 +7,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace Indice.Features.Messages.Core.Data.Mappings;
 
 /// <summary>Configuration for <see cref="DbDistributionList"/> entity.</summary>
-public class DbCommunicationPreferenceMessageTypeMap : IEntityTypeConfiguration<DbCommunicationPreferenceMessageType>
+public class DbCommunicationPreferenceMessageTypeMap : IEntityTypeConfiguration<DbRecipientCommunicationPreference>
 {
-    /// <summary>Creates a new instance of <see cref="DbCommunicationPreferenceMessageType"/>.</summary>
+    /// <summary>Creates a new instance of <see cref="DbRecipientCommunicationPreference"/>.</summary>
     /// <param name="schemaName">The schema name.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public DbCommunicationPreferenceMessageTypeMap(string schemaName) {
@@ -19,7 +19,7 @@ public class DbCommunicationPreferenceMessageTypeMap : IEntityTypeConfiguration<
     private string SchemaName { get; }
 
     /// <inheritdoc />
-    public void Configure(EntityTypeBuilder<DbCommunicationPreferenceMessageType> builder) {
+    public void Configure(EntityTypeBuilder<DbRecipientCommunicationPreference> builder) {
         // Configure table name.
         builder.ToTable("CommunicationPreferenceMessageType", SchemaName);
         // Configure composite primary key.
@@ -29,7 +29,7 @@ public class DbCommunicationPreferenceMessageTypeMap : IEntityTypeConfiguration<
         builder.Property(x => x.TypeId).IsRequired();
         builder.Property(x => x.CommunicationPreferences).HasDefaultValue(ContactChannelKind.Any);
         // Configure relationships.
-        builder.HasOne(x => x.CommunicationPreference).WithMany(x => x.MessageTypeCommunicationPreferences).HasForeignKey(x => x.CommunicationPreferenceId);
+        builder.HasOne(x => x.CommunicationPreference).WithMany(x => x.RecepientCommunicationPreferences).HasForeignKey(x => x.CommunicationPreferenceId);
         builder.HasOne(x => x.MessageType).WithMany(x => x.ContactPreferenceMessageTypes).HasForeignKey(x => x.TypeId);
     }
 }

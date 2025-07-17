@@ -28,6 +28,7 @@
             <th scope="col" class="list-view-th">Email</th>
             <th scope="col" class="list-view-th">Sms</th>
             <th scope="col" class="list-view-th">Push Nofication</th>
+            <th scope="col" class="list-view-th">Inbox</th>
           </tr>
         </thead>
         <tbody class="list-view-tbody">
@@ -37,13 +38,16 @@
               {{preference.name}}
             </td>
             <td class="list-view-td">
-              <span [innerHtml]="hasEmail(preference.communicationPreferences!, communicationPreferencesEnum.Email) | beautifyBoolean"></span>
+              <span [innerHtml]="CheckReceivePreference(preference.communicationPreferences!, communicationPreferencesEnum.Email) | beautifyBoolean"></span>
             </td>
             <td class="list-view-td">
-              <span [innerHtml]="hasEmail(preference.communicationPreferences!, communicationPreferencesEnum.SMS) | beautifyBoolean"></span>
+              <span [innerHtml]="CheckReceivePreference(preference.communicationPreferences!, communicationPreferencesEnum.SMS) | beautifyBoolean"></span>
             </td>
             <td class="list-view-td">
-              <span [innerHtml]="hasEmail(preference.communicationPreferences!, communicationPreferencesEnum.PushNotification) | beautifyBoolean"></span>
+              <span [innerHtml]="CheckReceivePreference(preference.communicationPreferences!, communicationPreferencesEnum.PushNotification) | beautifyBoolean"></span>
+            </td>
+            <td class="list-view-td">
+              <span [innerHtml]="true | beautifyBoolean"></span>
             </td>
           </tr>
         </tbody>

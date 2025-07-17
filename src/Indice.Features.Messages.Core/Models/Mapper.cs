@@ -51,29 +51,24 @@ internal static class Mapper
         Id = contact.Id,
         LastName = contact.LastName,
         PhoneNumber = contact.PhoneNumber,
-        CommunicationPreferences = contact.CommunicationPreferences,
-        ConsentCommercial = contact.ConsentCommercial,
-        Locale = contact.Locale,
         RecipientId = contact.RecipientId,
         Salutation = contact.Salutation,
         UpdatedAt = contact.UpdatedAt,
-        Unsubscribed = contact.DistributionListContacts.Any() && contact.DistributionListContacts[0].Unsubscribed
+        Unsubscribed = contact.DistributionListContacts.Any() && contact.DistributionListContacts[0].Unsubscribed,
+        Preferences = contact.CommunicationPreference != null ? new RecepientPreference {
+            ConsentCommercial = contact.CommunicationPreference.ConsentCommercial,
+            ConsentCommercialDate = contact.CommunicationPreference.ConsentCommercialDate,
+            Locale = contact.CommunicationPreference.Locale,
+            CommunicationPreferences = contact.CommunicationPreference.RecepientCommunicationPreferences.Select(x => new RecepientPreferenceCommunication { 
+                Alias = x.MessageType.Alias, 
+                CommunicationPreferences = x.CommunicationPreferences
+            }).ToList(),   
+
+        } : null
     };
 
     public static Contact ToContact(DbContact contact) => ProjectToContact.Compile()(contact);
 
-    public static CreateContactRequest ToCreateContactRequest(Contact request) => new() {
-        Email = request.Email,
-        FirstName = request.FirstName,
-        FullName = request.FullName,
-        LastName = request.LastName,
-        PhoneNumber = request.PhoneNumber,
-        RecipientId = request.RecipientId,
-        Salutation = request.Salutation,
-        CommunicationPreferences = request.CommunicationPreferences,
-        ConsentCommercial = request.ConsentCommercial,
-        Locale = request.Locale
-    };
 
     public static UpdateContactRequest ToUpdateContactRequest(Contact request, Guid? distributionListId = null) => new() {
         DistributionListId = distributionListId,
@@ -83,9 +78,6 @@ internal static class Mapper
         LastName = request.LastName,
         PhoneNumber = request.PhoneNumber,
         Salutation = request.Salutation,
-        CommunicationPreferences = request.CommunicationPreferences,
-        ConsentCommercial = request.ConsentCommercial,
-        Locale = request.Locale
     };
 
     public readonly static Expression<Func<DbCampaign, CampaignDetails>> ProjectToCampaignDetails = campaign => new() {
@@ -154,9 +146,6 @@ internal static class Mapper
         PhoneNumber = request.PhoneNumber,
         RecipientId = request.RecipientId,
         Salutation = request.Salutation,
-        CommunicationPreferences = request.CommunicationPreferences,
-        ConsentCommercial = request.ConsentCommercial,
-        Locale = request.Locale,
         UpdatedAt = DateTimeOffset.UtcNow
     };
 
@@ -169,9 +158,6 @@ internal static class Mapper
         PhoneNumber = contact.PhoneNumber,
         RecipientId = contact.RecipientId,
         Salutation = contact.Salutation,
-        CommunicationPreferences = contact.CommunicationPreferences,
-        ConsentCommercial = contact.ConsentCommercial,
-        Locale = contact.Locale,
         UpdatedAt = DateTimeOffset.UtcNow
     };
 
@@ -182,14 +168,33 @@ internal static class Mapper
         Id = Guid.NewGuid(),
         LastName = request.LastName,
         PhoneNumber = request.PhoneNumber,
-        CommunicationPreferences = request.CommunicationPreferences,
-        Locale = request.Locale,
-        ConsentCommercial = request.ConsentCommercial,
         RecipientId = request.RecipientId,
         Salutation = request.Salutation,
-        UpdatedAt = DateTimeOffset.UtcNow
+        UpdatedAt = DateTimeOffset.UtcNow,
+        CommunicationPreference = ToDbCommunicationPreference(request)
+    };
+    public static CreateContactRequest ToCreateContactRequest(Contact request) => new() {
+        Email = request.Email,
+        FirstName = request.FirstName,
+        FullName = request.FullName,
+        LastName = request.LastName,
+        PhoneNumber = request.PhoneNumber,
+        RecipientId = request.RecipientId,
+        Salutation = request.Salutation,
+        CommunicationPreference = request.Preferences
     };
 
+    public static DbRecipientPreference? ToDbCommunicationPreference(CreateContactRequest request) {
+        if (request.CommunicationPreference is null || string.IsNullOrEmpty(request.RecipientId))
+            return null;
+        return new DbRecipientPreference {
+            ConsentCommercial = request.CommunicationPreference.ConsentCommercial,
+            ConsentCommercialDate = request.CommunicationPreference.ConsentCommercialDate,
+            Locale = request.CommunicationPreference.Locale,
+            RecipientId = request.RecipientId,
+        };
+    }
+    
     public static CreateDistributionListContactRequest ToCreateDistributionListContactRequest(Contact contact) => new() {
         Email = contact.Email,
         FirstName = contact.FirstName,
@@ -198,9 +203,6 @@ internal static class Mapper
         LastName = contact.LastName,
         PhoneNumber = contact.PhoneNumber,
         RecipientId = contact.RecipientId,
-        CommunicationPreferences = contact.CommunicationPreferences,
-        ConsentCommercial = contact.ConsentCommercial,
-        Locale = contact.Locale,
         Salutation = contact.Salutation
     };
 
@@ -210,11 +212,8 @@ internal static class Mapper
         contact.FirstName = request.FirstName;
         contact.FullName = request.FullName;
         contact.LastName = request.LastName;
-        contact.PhoneNumber = request.PhoneNumber; 
-        contact.CommunicationPreferences = request.CommunicationPreferences;
+        contact.PhoneNumber = request.PhoneNumber;
         contact.Salutation = request.Salutation;
-        contact.Locale = request.Locale;
-        contact.ConsentCommercial = request.ConsentCommercial;
         contact.UpdatedAt = DateTimeOffset.UtcNow;
     }
 

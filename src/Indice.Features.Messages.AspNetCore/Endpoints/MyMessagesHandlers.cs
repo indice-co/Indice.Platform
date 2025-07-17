@@ -134,7 +134,7 @@ internal static class MyMessagesHandlers
         var fileResult = await CampaignsHandlers.GetFile(fileServiceFactory, "campaigns", fileGuid, format);
         return fileResult;
     }
-    public static async Task<Ok<CommunicationPreference>> GetMyCommunicationPreferences(
+    public static async Task<Ok<RecepientPreference>> GetMyCommunicationPreferences(
         ICommunicationPreferenceService communicationPreferenceService,
         IOptions<MessageInboxOptions> campaignEndpointOptions,
         ClaimsPrincipal currentUser

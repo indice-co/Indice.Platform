@@ -34,15 +34,8 @@ export class ContactPreferencesComponent implements OnInit {
     }
   }
 
-  public hasEmail(communicationPreferences: CommunicationPreferences[], option: CommunicationPreferences): boolean {
-    return communicationPreferences.indexOf(option) >= 0;  
+  public CheckReceivePreference(communicationPreferences: CommunicationPreferences[], option: CommunicationPreferences): boolean {
+    return communicationPreferences.indexOf(option) >= 0 || communicationPreferences.indexOf(CommunicationPreferences.Any) >= 0;
   }
-  public hasSMS(communicationPreferences?: CommunicationPreferences[]): boolean {
-    if (communicationPreferences === undefined) return false;
-    return communicationPreferences?.indexOf(CommunicationPreferences.SMS) >= 0;
-  }
-  public hasPush(communicationPreferences?: CommunicationPreferences[]): boolean {
-    if (communicationPreferences === undefined) return false;
-    return communicationPreferences?.indexOf(CommunicationPreferences.PushNotification) >= 0;
-  }
+  
 }
