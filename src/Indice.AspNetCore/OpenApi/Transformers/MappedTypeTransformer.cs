@@ -4,7 +4,6 @@ using System.Text.Json.Nodes;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.Azure.Amqp.Framing;
 using Microsoft.OpenApi.Models;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -25,10 +24,6 @@ internal static class MappedTypeTransformer
         options.MapType<Stream>(new() { Type = "string", Format = "binary" });
         options.MapType<IFormFile>(new() { Type = "string", Format = "binary" });
         options.MapType<IFormFileCollection>(new() { Type = "array", Items = new() { Type = "string", Format = "binary" } });
-        //options.MapType<IFormFile>(new() { Type = "string", Format = "binary", Annotations = new Dictionary<string, object>() { ["x-schema-key"] = nameof(IFormFile) } });
-        //options.MapType<IFormFileCollection>(new() { 
-        //    Type = "array", 
-        //    Items = new () { Type = "string", Format = "binary", Annotations = new Dictionary<string, object>() { ["x-schema-key"] = nameof(IFormFile) } } });
         options.MapType<FilterClause>(new() { Type = "string" });
         options.MapType<GeoPoint>(new() { Type = "string" });
         options.MapType<Base64Id>(new() { Type = "string" });
