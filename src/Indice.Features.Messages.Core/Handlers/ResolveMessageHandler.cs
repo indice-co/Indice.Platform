@@ -21,6 +21,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
     /// <param name="contactResolver">Contains information that help gather contact information from other systems.</param>
     /// <param name="contactService">A service that contains contact related operations.</param>
     /// <param name="messageService">A service that contains message related operations.</param>
+    /// <param name="recepientPreference">A service that contains recepient preferences related operations.</param>
     /// <param name="logger">A logger</param>
     /// <param name="options">Configuration for workers.</param>
     /// <param name="campaignEventQueue">Campaign event listener queue</param>
@@ -30,6 +31,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         IContactResolver contactResolver,
         IContactService contactService,
         IMessageService messageService,
+        IRecepientPreferenceService recepientPreference,
         ILogger<ResolveMessageHandler> logger,
         Microsoft.Extensions.Options.IOptions<MessageWorkerOptions> options,
         CampaignEventQueue campaignEventQueue
@@ -41,8 +43,9 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         CampaignEventQueue = campaignEventQueue;
         Options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+        _recepientPreference = recepientPreference;
     }
-
+    private readonly IRecepientPreferenceService _recepientPreference;
     private IEventDispatcherFactory EventDispatcherFactory { get; }
     private IContactResolver ContactResolver { get; }
     private IContactService ContactService { get; }
@@ -55,7 +58,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
     /// <param name="event">The event model used when a contact is resolved from an external system.</param>
     public async Task Process(ResolveMessageEvent @event) {
         var campaign = @event.Campaign;
-        Contact? contact = null;
+        ContactPreferences? contact = null;
         var contactNotUpdatedAWhileNow = !@event.Contact!.UpdatedAt.HasValue
             || (DateTimeOffset.UtcNow - @event.Contact.UpdatedAt.Value) > TimeSpan.FromDays(Options.ContactRetainPeriodInDays);
         if (!@event.Contact.IsAnonymous) {
@@ -68,9 +71,9 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         } else {
             // Anonymous contact should find by email or phone number.
             if (@event.Contact.HasEmail) {
-                contact = await ContactService.FindByEmail(@event.Contact.Email!);
+                contact = await ContactService.FindByEmail(@event.Contact.Email!) as ContactPreferences;
             } else if (@event.Contact.HasPhoneNumber) {
-                contact = await ContactService.FindByPhoneNumber(@event.Contact.PhoneNumber!);
+                contact = await ContactService.FindByPhoneNumber(@event.Contact.PhoneNumber!) as ContactPreferences;
             }
             // If found but is already anonymous try to patch with filled data.
             if (contact is not null && contact.IsAnonymous) {
@@ -81,9 +84,12 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
                 contact.Email = string.IsNullOrEmpty(contact.Email) ? @event.Contact.Email : contact.Email;
             }
         }
-        contact ??= @event.Contact;
+        contact ??= @event.Contact as ContactPreferences;
         if ((contactNotUpdatedAWhileNow || @event.Contact.IsEmpty) && contact.Id.HasValue) {
             await ContactService.Update(contact.Id.Value, Mapper.ToUpdateContactRequest(contact, campaign!.DistributionListId));
+            if (!string.IsNullOrWhiteSpace(contact.RecipientId) && contact.Preferences is not null) {
+                await _recepientPreference.UpdateContactPreferences(contact.RecipientId, contact.Preferences);
+            }
         }
         // In case this is not yet published we should stop here so no messages get sent yet.
         if (!@event.Campaign!.Published) {

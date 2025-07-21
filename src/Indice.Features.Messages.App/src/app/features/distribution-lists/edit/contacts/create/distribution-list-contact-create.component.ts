@@ -43,9 +43,9 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
         phoneNumber: contact.phoneNumber,
         recipientId: contact.recipientId,
         salutation: contact.salutation,
-        communicationPreferences: contact.communicationPreferences,
-        consentCommercial: contact.consentCommercial,
-        locale: contact.locale
+        //communicationPreferences: contact.communicationPreferences,
+        //consentCommercial: contact.consentCommercial,
+        //locale: contact.locale
       });
       return this._api.addContactToDistributionList(this._distributionListId, body);
     });

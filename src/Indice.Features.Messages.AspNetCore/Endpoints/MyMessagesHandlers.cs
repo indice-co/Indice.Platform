@@ -135,7 +135,7 @@ internal static class MyMessagesHandlers
         return fileResult;
     }
     public static async Task<Ok<RecepientPreference>> GetMyCommunicationPreferences(
-        ICommunicationPreferenceService communicationPreferenceService,
+        IRecepientPreferenceService communicationPreferenceService,
         IOptions<MessageInboxOptions> campaignEndpointOptions,
         ClaimsPrincipal currentUser
     ) {
@@ -144,10 +144,10 @@ internal static class MyMessagesHandlers
         return TypedResults.Ok(preferences);
     }
     public static async Task<NoContent> UpdateMyCommunicationPreferences(
-        ICommunicationPreferenceService communicationPreferenceService,
+        IRecepientPreferenceService communicationPreferenceService,
         IOptions<MessageInboxOptions> campaignEndpointOptions,
         ClaimsPrincipal currentUser,
-        UpdateCommunicationPreferenceRequest request
+        UpdatPreferenceRequest request
     ) {
         var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType)!;
         await communicationPreferenceService.Update(userCode, request);

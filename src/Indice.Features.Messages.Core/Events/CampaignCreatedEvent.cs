@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Indice.Features.Messages.Core.Models;
+﻿using Indice.Features.Messages.Core.Models;
 using Indice.Types;
 
 namespace Indice.Features.Messages.Core.Events;
@@ -78,17 +77,17 @@ public class CampaignCreatedEvent
             return MessageChannelKind;
 
         MessageChannelKind messageChannelKinds = MessageChannelKind.None;
-        if (typeCommunicationPreference.CommunicationPreferences.HasFlag(ContactChannelKind.PushNotification) &&
+        if (typeCommunicationPreference.Channels.Contains(ContactChannelKind.PushNotification) &&
             MessageChannelKind.HasFlag(MessageChannelKind.PushNotification)) {
             messageChannelKinds |= MessageChannelKind.PushNotification; 
         }
 
-        if (typeCommunicationPreference.CommunicationPreferences.HasFlag(ContactChannelKind.Email) &&
+        if (typeCommunicationPreference.Channels.Contains(ContactChannelKind.Email) &&
             MessageChannelKind.HasFlag(MessageChannelKind.Email)) {
             messageChannelKinds |= MessageChannelKind.Email;
         }
 
-        if (typeCommunicationPreference.CommunicationPreferences.HasFlag(ContactChannelKind.SMS) &&
+        if (typeCommunicationPreference.Channels.Contains(ContactChannelKind.SMS) &&
             MessageChannelKind.HasFlag(MessageChannelKind.SMS)) {
             messageChannelKinds |= MessageChannelKind.SMS;
         }

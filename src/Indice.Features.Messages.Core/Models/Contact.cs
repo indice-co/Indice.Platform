@@ -31,7 +31,4 @@ public class Contact
     internal bool HasPhoneNumber => !string.IsNullOrWhiteSpace(PhoneNumber);
     /// <summary>Check if the contact has email or phone.</summary>
     internal bool IsEmpty => !HasEmail && !HasPhoneNumber;
-    /// <summary>Communication Preferences </summary>
-    public RecepientPreference? Preferences { get; set; }
-
 }

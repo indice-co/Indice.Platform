@@ -54,17 +54,7 @@ internal static class Mapper
         RecipientId = contact.RecipientId,
         Salutation = contact.Salutation,
         UpdatedAt = contact.UpdatedAt,
-        Unsubscribed = contact.DistributionListContacts.Any() && contact.DistributionListContacts[0].Unsubscribed,
-        Preferences = contact.CommunicationPreference != null ? new RecepientPreference {
-            ConsentCommercial = contact.CommunicationPreference.ConsentCommercial,
-            ConsentCommercialDate = contact.CommunicationPreference.ConsentCommercialDate,
-            Locale = contact.CommunicationPreference.Locale,
-            CommunicationPreferences = contact.CommunicationPreference.RecepientCommunicationPreferences.Select(x => new RecepientPreferenceCommunication { 
-                Alias = x.MessageType.Alias, 
-                CommunicationPreferences = x.CommunicationPreferences
-            }).ToList(),   
-
-        } : null
+        Unsubscribed = contact.DistributionListContacts.Any() && contact.DistributionListContacts[0].Unsubscribed
     };
 
     public static Contact ToContact(DbContact contact) => ProjectToContact.Compile()(contact);
@@ -170,8 +160,7 @@ internal static class Mapper
         PhoneNumber = request.PhoneNumber,
         RecipientId = request.RecipientId,
         Salutation = request.Salutation,
-        UpdatedAt = DateTimeOffset.UtcNow,
-        CommunicationPreference = ToDbCommunicationPreference(request)
+        UpdatedAt = DateTimeOffset.UtcNow
     };
     public static CreateContactRequest ToCreateContactRequest(Contact request) => new() {
         Email = request.Email,
@@ -180,8 +169,16 @@ internal static class Mapper
         LastName = request.LastName,
         PhoneNumber = request.PhoneNumber,
         RecipientId = request.RecipientId,
-        Salutation = request.Salutation,
-        CommunicationPreference = request.Preferences
+        Salutation = request.Salutation
+    };
+    public static CreateContactRequest ToCreateContactRequest(ContactPreferences request) => new() {
+        Email = request.Email,
+        FirstName = request.FirstName,
+        FullName = request.FullName,
+        LastName = request.LastName,
+        PhoneNumber = request.PhoneNumber,
+        RecipientId = request.RecipientId,
+        Salutation = request.Salutation
     };
 
     public static DbRecipientPreference? ToDbCommunicationPreference(CreateContactRequest request) {
@@ -194,7 +191,7 @@ internal static class Mapper
             RecipientId = request.RecipientId,
         };
     }
-    
+
     public static CreateDistributionListContactRequest ToCreateDistributionListContactRequest(Contact contact) => new() {
         Email = contact.Email,
         FirstName = contact.FirstName,

@@ -14,7 +14,23 @@
       <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">Γλώσσα επικοινωνίας</dt>
-          <dd class="mt-1 text-sm text-gray-900">{{ communicationPreference?.locale || '-' }}</dd>
+          <dd class="mt-1 text-sm text-gray-900">{{ recepientPreference?.locale || '-' }}</dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500"></dt>
+          <dd class="mt-1 text-sm text-gray-900"></dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Αποδοχή επικοινωνίας</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <span [innerHtml]="recepientPreference?.consentCommercial | beautifyBoolean"></span>
+          </dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Ημερομηνία αποδοχής επικοινωνίας</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            {{ (recepientPreference?.consentCommercialDate | date: 'medium') }}
+          </dd>
         </div>
       </dl>
     </div>
@@ -32,19 +48,19 @@
           </tr>
         </thead>
         <tbody class="list-view-tbody">
-          <tr *ngFor="let preference of communicationPreference!.messageTypeCommunicationPreferences"
+          <tr *ngFor="let preference of recepientPreference?.communicationPreferences"
               class="list-view-tr">
             <td class="list-view-td">
               {{preference.name}}
             </td>
             <td class="list-view-td">
-              <span [innerHtml]="CheckReceivePreference(preference.communicationPreferences!, communicationPreferencesEnum.Email) | beautifyBoolean"></span>
+              <span [innerHtml]="CheckReceivePreference(preference.channels!, ContactChannelKindEnum.Email) | beautifyBoolean"></span>
             </td>
             <td class="list-view-td">
-              <span [innerHtml]="CheckReceivePreference(preference.communicationPreferences!, communicationPreferencesEnum.SMS) | beautifyBoolean"></span>
+              <span [innerHtml]="CheckReceivePreference(preference.channels!, ContactChannelKindEnum.SMS) | beautifyBoolean"></span>
             </td>
             <td class="list-view-td">
-              <span [innerHtml]="CheckReceivePreference(preference.communicationPreferences!, communicationPreferencesEnum.PushNotification) | beautifyBoolean"></span>
+              <span [innerHtml]="CheckReceivePreference(preference.channels!, ContactChannelKindEnum.PushNotification) | beautifyBoolean"></span>
             </td>
             <td class="list-view-td">
               <span [innerHtml]="true | beautifyBoolean"></span>

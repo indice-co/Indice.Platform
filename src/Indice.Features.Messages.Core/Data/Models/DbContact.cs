@@ -23,6 +23,4 @@ public class DbContact
     public DateTimeOffset? UpdatedAt { get; set; }
     /// <summary>Contact - Distribution list join entity type.</summary>
     public List<DbDistributionListContact> DistributionListContacts { get; set; } = [];
-    /// <summary>Contact's communication settings.</summary>
-    public virtual DbRecipientPreference? CommunicationPreference { get; set; } 
 }

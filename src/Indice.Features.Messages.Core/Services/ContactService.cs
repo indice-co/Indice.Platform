@@ -204,13 +204,6 @@ public class ContactService : IContactService
         contact.PhoneNumber = request.PhoneNumber;
         contact.Salutation = request.Salutation;
         contact.UpdatedAt = DateTimeOffset.UtcNow;
-        if (!string.IsNullOrEmpty(contact.RecipientId) && request.CommunicationPreference is not null) {
-            contact.CommunicationPreference ??= new DbRecipientPreference();
-            contact.CommunicationPreference.RecipientId = contact.RecipientId;
-            contact.CommunicationPreference.ConsentCommercial = request.CommunicationPreference.ConsentCommercial;
-            contact.CommunicationPreference.ConsentCommercialDate = request.CommunicationPreference.ConsentCommercialDate;
-            contact.CommunicationPreference.Locale = request.CommunicationPreference.Locale;
-        }
         await DbContext.SaveChangesAsync();
     }
 
@@ -249,7 +242,7 @@ public class ContactService : IContactService
     /// <summary>Gets a contact by it's recipient id.</summary>
     /// <param name="recipientId">The id of the recipient.</param>
     /// <returns></returns>
-    public async Task<Contact?> GetByRecipientId(string? recipientId) {
+    public async Task<ContactPreferences?> GetByRecipientId(string? recipientId) {
         if (string.IsNullOrWhiteSpace(recipientId))
             return null;
 
@@ -258,7 +251,7 @@ public class ContactService : IContactService
                     .Join(DbContext.RecipientPreferences,
                             contact => contact.RecipientId,
                             rp => rp.RecipientId,
-                            (contact, rp) => new Contact() {
+                            (contact, rp) => new ContactPreferences() {
                                 Id = contact.Id,
                                 RecipientId = contact.RecipientId,
                                 Email = contact.Email,
@@ -268,7 +261,7 @@ public class ContactService : IContactService
                                 PhoneNumber = contact.PhoneNumber,
                                 Salutation = contact.Salutation,
                                 UpdatedAt = contact.UpdatedAt,
-                                Preferences = rp == null ? null : new RecepientPreference() {
+                                Preferences = rp == null ? new RecepientPreference() : new RecepientPreference() {
                                     Locale = rp.Locale,
                                     ConsentCommercial = rp.ConsentCommercial,
                                     ConsentCommercialDate = rp.ConsentCommercialDate,
@@ -280,7 +273,7 @@ public class ContactService : IContactService
                                                                     (rcp, mt) => new { rcp, mt })
                                                                .Select(x => new RecepientPreferenceCommunication() {
                                                                    Alias = x.mt.Alias,
-                                                                   CommunicationPreferences = x.rcp.CommunicationPreferences
+                                                                   Channels = x.rcp.CommunicationPreferences.ToList()
                                                                }).ToList()
                                 }
                             }).SingleOrDefaultAsync();

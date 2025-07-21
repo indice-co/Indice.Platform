@@ -43,7 +43,7 @@ public interface IContactService
 
     /// <summary>Gets a contact by it's recipient id.</summary>
     /// <param name="recipientId">The id of the recipient.</param>
-    Task<Contact?> GetByRecipientId(string? recipientId);
+    Task<ContactPreferences?> GetByRecipientId(string? recipientId);
 }
 
 /// <summary>Extensions on the <see cref="IContactService"/></summary>

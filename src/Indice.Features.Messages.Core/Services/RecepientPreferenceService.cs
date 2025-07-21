@@ -8,14 +8,14 @@ using Microsoft.EntityFrameworkCore;
 namespace Indice.Features.Messages.Core.Services;
 
 /// <inheritdoc/>
-public class CommunicationPreferenceService : ICommunicationPreferenceService
+public class RecepientPreferenceService : IRecepientPreferenceService
 {
     private readonly CampaignsDbContext _dbContext;
 
-    /// <summary>Creates a new instance of <see cref="ContactService"/>.</summary>
-    /// <param name="dbContext">The <see cref="Microsoft.EntityFrameworkCore.DbContext"/> for Campaigns API feature.</param>
+    /// <summary>Creates a new instance of <see cref="RecepientPreferenceService"/>.</summary>
+    /// <param name="dbContext">The <see cref="DbContext"/> for Campaigns API feature.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public CommunicationPreferenceService(CampaignsDbContext dbContext) {
+    public RecepientPreferenceService(CampaignsDbContext dbContext) {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
@@ -34,7 +34,7 @@ public class CommunicationPreferenceService : ICommunicationPreferenceService
                 new RecepientPreferenceCommunication() {
                     Alias = x.Alias,
                     Name = x.Name,
-                    CommunicationPreferences = ContactChannelKind.Any
+                    Channels = [ContactChannelKind.Any]
                 }).ToList(),
             };
         }
@@ -53,13 +53,13 @@ public class CommunicationPreferenceService : ICommunicationPreferenceService
             CommunicationPreferences = recipientPreferences.RecepientCommunicationPreferences.Select(x => new RecepientPreferenceCommunication() {
                 Alias = x.MessageType.Alias,
                 Name = x.MessageType.Name,
-                CommunicationPreferences = x.CommunicationPreferences
+                Channels = x.CommunicationPreferences.ToList()
             }).ToList(),
         };
     }
 
     /// <inheritdoc/>
-    public async Task Update(string recipientId, UpdateCommunicationPreferenceRequest request) {
+    public async Task Update(string recipientId, UpdatPreferenceRequest request) {
         var recipientPreferences = await _dbContext.RecipientPreferences
                                            .Include(x => x.RecepientCommunicationPreferences)
                                            .ThenInclude(up => up.MessageType)
@@ -74,7 +74,7 @@ public class CommunicationPreferenceService : ICommunicationPreferenceService
                 RecepientCommunicationPreferences = messageTypes.Select(x =>
                     new DbRecipientCommunicationPreference() {
                         TypeId = x.Id,
-                        CommunicationPreferences = request.CommunicationPreferencesPerMessageType.FirstOrDefault(mt => mt.TypeId == x.Alias)?.CommunicationPreferences ?? ContactChannelKind.Any,
+                        CommunicationPreferences = request.CommunicationPreferences.FirstOrDefault(mt => mt.Alias == x.Alias)?.Channels.ToFlags() ?? ContactChannelKind.Any,
                     }).ToList()
             };
 
@@ -87,7 +87,7 @@ public class CommunicationPreferenceService : ICommunicationPreferenceService
         //remove deleted
         recipientPreferences.RecepientCommunicationPreferences.RemoveAll(x => !messageTypes.Any(mt => mt.Id == x.TypeId));
         //update existing
-        recipientPreferences.RecepientCommunicationPreferences.ForEach(x => x.CommunicationPreferences = request.CommunicationPreferencesPerMessageType.FirstOrDefault(mt => mt.TypeId == x.MessageType.Alias)?.CommunicationPreferences ?? ContactChannelKind.Any);
+        recipientPreferences.RecepientCommunicationPreferences.ForEach(x => x.CommunicationPreferences = request.CommunicationPreferences.FirstOrDefault(mt => mt.Alias == x.MessageType.Alias)?.Channels.ToFlags() ?? ContactChannelKind.Any);
         //add new types
         var missing = messageTypes.Where(x => !recipientPreferences.RecepientCommunicationPreferences.Any(mt => mt.TypeId == x.Id)).Select(cmt =>
             new DbRecipientCommunicationPreference() {
@@ -96,6 +96,39 @@ public class CommunicationPreferenceService : ICommunicationPreferenceService
                 MessageType = cmt
             });
         recipientPreferences.RecepientCommunicationPreferences.AddRange(missing);
+        await _dbContext.SaveChangesAsync();
+    }
+
+    ///<inheritdoc/>
+    public async Task UpdateContactPreferences(string recipientId, RecepientPreference preference) {
+        var recipientPreferences = await _dbContext.RecipientPreferences
+                                             .Include(x => x.RecepientCommunicationPreferences)
+                                             .ThenInclude(up => up.MessageType)
+                                             .SingleOrDefaultAsync(x => x.RecipientId == recipientId);
+        if (recipientPreferences == null) {
+            var messageTypes = await _dbContext.MessageTypes
+                                     .AsNoTracking()
+                                     .ToListAsync();
+            recipientPreferences = new DbRecipientPreference() {
+                RecipientId = recipientId,
+                Locale = preference.Locale,
+                ConsentCommercial = preference.ConsentCommercial,
+                ConsentCommercialDate = preference.ConsentCommercialDate,
+                RecepientCommunicationPreferences = messageTypes.Select(x =>
+                    new DbRecipientCommunicationPreference() {
+                        TypeId = x.Id,
+                        CommunicationPreferences = ContactChannelKind.Any
+                    }).ToList()
+            };
+
+            await _dbContext.RecipientPreferences.AddAsync(recipientPreferences);
+            await _dbContext.SaveChangesAsync();
+            return;
+        }
+
+        recipientPreferences.Locale = preference.Locale;
+        recipientPreferences.ConsentCommercial = preference.ConsentCommercial;
+        recipientPreferences.ConsentCommercialDate = preference.ConsentCommercialDate;
         await _dbContext.SaveChangesAsync();
     }
 }

@@ -18,10 +18,10 @@ export const MESSAGES_API_BASE_URL = new InjectionToken<string>('MESSAGES_API_BA
 export interface IMessagesApiClient {
     /**
      * Gets the list of all campaigns using the provided ListOptions.
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
+     * @param page (optional) The current page of the list. Default is 1.
+     * @param size (optional) The size of the list. Default is 100
+     * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
+     * @param search (optional) A search term used to limit the results of the list.
      * @param messageChannelKind (optional) 
      * @param published (optional) 
      * @param contactId (optional) 
@@ -30,9 +30,9 @@ export interface IMessagesApiClient {
     getCampaigns(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, messageChannelKind?: MessageChannelKind[] | undefined, published?: boolean | undefined, contactId?: string | undefined): Observable<CampaignResultSet>;
     /**
      * Creates a new campaign.
-   * @return Created
+     * @return Created
      */
-  createCampaign(body: CreateCampaignRequest): Observable<CreateCampaignResult>;
+    createCampaign(body: CreateCampaignRequest): Observable<CreateCampaignResult>;
     /**
      * Gets a campaign with the specified id.
      * @return OK
@@ -40,12 +40,12 @@ export interface IMessagesApiClient {
     getCampaignById(campaignId: string): Observable<CampaignDetails>;
     /**
      * Updates an existing unpublished campaign.
-   * @return No Content
+     * @return No Content
      */
     updateCampaign(campaignId: string, body: UpdateCampaignRequest): Observable<void>;
     /**
      * Permanently deletes a campaign.
-   * @return No Content
+     * @return No Content
      */
     deleteCampaign(campaignId: string): Observable<void>;
     /**
@@ -53,15 +53,15 @@ export interface IMessagesApiClient {
      * @param file (optional) 
      * @return OK
      */
-    uploadCampaignAttachment(campaignId: string, file?: FileParameter | undefined): Observable<AttachmentLink>;
+    uploadCampaignAttachment(campaignId: string, file?: FileParameter | null | undefined): Observable<AttachmentLink>;
     /**
      * Deletes the camapaign attachment
-   * @return No Content
+     * @return No Content
      */
     deleteCampaignAttachment(campaignId: string, attachmentId: string): Observable<void>;
     /**
      * Publishes a campaign.
-   * @return No Content
+     * @return No Content
      */
     publishCampaign(campaignId: string): Observable<void>;
     /**
@@ -76,10 +76,10 @@ export interface IMessagesApiClient {
     exportCampaignStatistics(campaignId: string): Observable<CampaignStatistics>;
     /**
      * Gets the list of all contacts using the provided ListOptions.
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
+     * @param page (optional) The current page of the list. Default is 1.
+     * @param size (optional) The size of the list. Default is 100
+     * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
+     * @param search (optional) A search term used to limit the results of the list.
      * @param distributionListId (optional) 
      * @param recipientId (optional) 
      * @param email (optional) 
@@ -100,61 +100,66 @@ export interface IMessagesApiClient {
     getContactById(contactId: string): Observable<Contact>;
     /**
      * Updates the specified contact in the store.
-   * @return No Content
+     * @return No Content
      */
     updateContact(contactId: string, body: UpdateContactRequest): Observable<void>;
     /**
+     * Get contact communication preferences.
+     * @return OK
+     */
+    getCommunicationPreferences(contactId: string): Observable<RecepientPreference>;
+    /**
      * Add or Updates a contact that matches the recepientId.
-   * @return No Content
+     * @return No Content
      */
     refreshContact(recipientId: string): Observable<void>;
     /**
      * Gets the list of available campaign types.
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
+     * @param page (optional) The current page of the list. Default is 1.
+     * @param size (optional) The size of the list. Default is 100
+     * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
+     * @param search (optional) A search term used to limit the results of the list.
      * @param isSystemGenerated (optional) 
      * @return OK
      */
     getDistributionLists(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, isSystemGenerated?: boolean | undefined): Observable<DistributionListResultSet>;
     /**
      * Creates a new distribution list.
-   * @return Created
+     * @return Created
      */
-  createDistributionList(body: CreateDistributionListRequest): Observable<DistributionList>;
+    createDistributionList(body: CreateDistributionListRequest): Observable<DistributionList>;
     /**
      * Gets a distribution list by it's unique id.
      * @return OK
      */
     getDistributionListById(distributionListId: string): Observable<DistributionList>;
     /**
-     * Permanently deletes a distribution list.
-   * @return No Content
-     */
-    deleteDistributionList(distributionListId: string): Observable<void>;
-    /**
      * Updates an existing distribution list.
-   * @return No Content
+     * @return No Content
      */
     updateDistributionList(distributionListId: string, body: UpdateDistributionListRequest): Observable<void>;
     /**
+     * Permanently deletes a distribution list.
+     * @return No Content
+     */
+    deleteDistributionList(distributionListId: string): Observable<void>;
+    /**
      * Gets the contacts of a given distribution list.
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
+     * @param page (optional) The current page of the list. Default is 1.
+     * @param size (optional) The size of the list. Default is 100
+     * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
+     * @param search (optional) A search term used to limit the results of the list.
      * @return OK
      */
     getDistributionListContacts(distributionListId: string, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ContactResultSet>;
     /**
      * Adds a new or existing contact in the specified distribution list.
-   * @return No Content
+     * @return No Content
      */
     addContactToDistributionList(distributionListId: string, body: CreateDistributionListContactRequest): Observable<void>;
     /**
      * Removes an existing contact from the specified distribution list.
-   * @return No Content
+     * @return No Content
      */
     removeContactFromDistributionList(distributionListId: string, contactId: string): Observable<void>;
     /**
@@ -167,22 +172,22 @@ export interface IMessagesApiClient {
      * @param file (optional) 
      * @return OK
      */
-    bulkImportContactsToDistributionList(distributionListId: string, file?: FileParameter | undefined): Observable<ContactsImportResult>;
+    bulkImportContactsToDistributionList(distributionListId: string, file?: FileParameter | null | undefined): Observable<ContactsImportResult>;
     /**
      * Gets the list of available message senders.
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
+     * @param page (optional) The current page of the list. Default is 1.
+     * @param size (optional) The size of the list. Default is 100
+     * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
+     * @param search (optional) A search term used to limit the results of the list.
      * @param isDefault (optional) 
      * @return OK
      */
     getMessageSenders(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, isDefault?: boolean | undefined): Observable<MessageSenderResultSet>;
     /**
      * Creates a new message sender.
-   * @return Created
+     * @return Created
      */
-  createMessageSender(body: CreateMessageSenderRequest): Observable<MessageSender>;
+    createMessageSender(body: CreateMessageSenderRequest): Observable<MessageSender>;
     /**
      * Gets a message sender by its unique ID.
      * @return OK
@@ -190,28 +195,28 @@ export interface IMessagesApiClient {
     getMessageSenderById(senderId: string): Observable<MessageSender>;
     /**
      * Updates an existing message sender.
-   * @return No Content
+     * @return No Content
      */
     updateMessageSender(senderId: string, body: UpdateMessageSenderRequest): Observable<void>;
     /**
      * Permanently deletes a message sender.
-   * @return No Content
+     * @return No Content
      */
     deleteMessageSender(senderId: string): Observable<void>;
     /**
      * Gets the list of available message types.
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
+     * @param page (optional) The current page of the list. Default is 1.
+     * @param size (optional) The size of the list. Default is 100
+     * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
+     * @param search (optional) A search term used to limit the results of the list.
      * @return OK
      */
     getMessageTypes(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<MessageTypeResultSet>;
     /**
      * Creates a new message type.
-   * @return Created
+     * @return Created
      */
-  createMessageType(body: CreateMessageTypeRequest): Observable<MessageType>;
+    createMessageType(body: CreateMessageTypeRequest): Observable<MessageType>;
     /**
      * Gets a message type by its unique ID.
      * @return OK
@@ -219,28 +224,28 @@ export interface IMessagesApiClient {
     getMessageTypeById(typeId: string): Observable<MessageType>;
     /**
      * Updates an existing message type.
-   * @return No Content
+     * @return No Content
      */
     updateMessageType(typeId: string, body: UpdateMessageTypeRequest): Observable<void>;
     /**
      * Permanently deletes a message type.
-   * @return No Content
+     * @return No Content
      */
     deleteMessageType(typeId: string): Observable<void>;
     /**
      * Gets the list of all templates using the provided ListOptions.
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
+     * @param page (optional) The current page of the list. Default is 1.
+     * @param size (optional) The size of the list. Default is 100
+     * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
+     * @param search (optional) A search term used to limit the results of the list.
      * @return OK
      */
     getTemplates(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<TemplateListItemResultSet>;
     /**
      * Creates a new template in the store.
-   * @return Created
+     * @return Created
      */
-  createTemplate(body: CreateTemplateRequest): Observable<Template>;
+    createTemplate(body: CreateTemplateRequest): Observable<Template>;
     /**
      * Gets a template by its unique id.
      * @return OK
@@ -248,17 +253,17 @@ export interface IMessagesApiClient {
     getTemplateById(templateId: string): Observable<Template>;
     /**
      * Updates an existing template.
-   * @return No Content
+     * @return No Content
      */
     updateTemplate(templateId: string, body: UpdateTemplateRequest): Observable<void>;
     /**
      * Permanently deletes a template from the store.
-   * @return No Content
+     * @return No Content
      */
     deleteTemplate(templateId: string): Observable<void>;
     /**
      * Updates in an existing template user respect of user preferences flag.
-   * @return No Content
+     * @return No Content
      */
     updateTemplateUserPreferences(templateId: string, body: UpdateTemplateUserPreferencesRequest): Observable<void>;
 }
@@ -273,22 +278,22 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(MESSAGES_API_BASE_URL) baseUrl?: string) {
         this.http = http;
-        this.baseUrl = baseUrl ?? "";
+        this.baseUrl = baseUrl ?? "https://localhost:2001/";
     }
 
     /**
      * Gets the list of all campaigns using the provided ListOptions.
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
+     * @param page (optional) The current page of the list. Default is 1.
+     * @param size (optional) The size of the list. Default is 100
+     * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
+     * @param search (optional) A search term used to limit the results of the list.
      * @param messageChannelKind (optional) 
      * @param published (optional) 
      * @param contactId (optional) 
      * @return OK
      */
     getCampaigns(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, messageChannelKind?: MessageChannelKind[] | undefined, published?: boolean | undefined, contactId?: string | undefined): Observable<CampaignResultSet> {
-    let url_ = this.baseUrl + "/campaigns?";
+        let url_ = this.baseUrl + "/campaigns?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
         else if (page !== undefined)
@@ -313,7 +318,9 @@ export class MessagesApiClient implements IMessagesApiClient {
             throw new Error("The parameter 'published' cannot be null.");
         else if (published !== undefined)
             url_ += "Published=" + encodeURIComponent("" + published) + "&";
-    if (contactId !== undefined)
+        if (contactId === null)
+            throw new Error("The parameter 'contactId' cannot be null.");
+        else if (contactId !== undefined)
             url_ += "ContactId=" + encodeURIComponent("" + contactId) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -391,10 +398,10 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     /**
      * Creates a new campaign.
-   * @return Created
+     * @return Created
      */
-  createCampaign(body: CreateCampaignRequest): Observable<CreateCampaignResult> {
-    let url_ = this.baseUrl + "/campaigns";
+    createCampaign(body: CreateCampaignRequest): Observable<CreateCampaignResult> {
+        let url_ = this.baseUrl + "/campaigns";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -416,14 +423,14 @@ export class MessagesApiClient implements IMessagesApiClient {
                 try {
                     return this.processCreateCampaign(response_ as any);
                 } catch (e) {
-          return _observableThrow(e) as any as Observable<CreateCampaignResult>;
+                    return _observableThrow(e) as any as Observable<CreateCampaignResult>;
                 }
             } else
-        return _observableThrow(response_) as any as Observable<CreateCampaignResult>;
+                return _observableThrow(response_) as any as Observable<CreateCampaignResult>;
         }));
     }
 
-  protected processCreateCampaign(response: HttpResponseBase): Observable<CreateCampaignResult> {
+    protected processCreateCampaign(response: HttpResponseBase): Observable<CreateCampaignResult> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -463,7 +470,7 @@ export class MessagesApiClient implements IMessagesApiClient {
             let result201: any = null;
             let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result201 = CreateCampaignResult.fromJS(resultData201);
-        return _observableOf(result201);
+            return _observableOf(result201);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -478,7 +485,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @return OK
      */
     getCampaignById(campaignId: string): Observable<CampaignDetails> {
-    let url_ = this.baseUrl + "/campaigns/{campaignId}";
+        let url_ = this.baseUrl + "/campaigns/{campaignId}";
         if (campaignId === undefined || campaignId === null)
             throw new Error("The parameter 'campaignId' must be defined.");
         url_ = url_.replace("{campaignId}", encodeURIComponent("" + campaignId));
@@ -562,10 +569,10 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     /**
      * Updates an existing unpublished campaign.
-   * @return No Content
+     * @return No Content
      */
     updateCampaign(campaignId: string, body: UpdateCampaignRequest): Observable<void> {
-    let url_ = this.baseUrl + "/campaigns/{campaignId}";
+        let url_ = this.baseUrl + "/campaigns/{campaignId}";
         if (campaignId === undefined || campaignId === null)
             throw new Error("The parameter 'campaignId' must be defined.");
         url_ = url_.replace("{campaignId}", encodeURIComponent("" + campaignId));
@@ -645,10 +652,10 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     /**
      * Permanently deletes a campaign.
-   * @return No Content
+     * @return No Content
      */
     deleteCampaign(campaignId: string): Observable<void> {
-    let url_ = this.baseUrl + "/campaigns/{campaignId}";
+        let url_ = this.baseUrl + "/campaigns/{campaignId}";
         if (campaignId === undefined || campaignId === null)
             throw new Error("The parameter 'campaignId' must be defined.");
         url_ = url_.replace("{campaignId}", encodeURIComponent("" + campaignId));
@@ -727,17 +734,15 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @param file (optional) 
      * @return OK
      */
-    uploadCampaignAttachment(campaignId: string, file?: FileParameter | undefined): Observable<AttachmentLink> {
-    let url_ = this.baseUrl + "/campaigns/{campaignId}/attachment";
+    uploadCampaignAttachment(campaignId: string, file?: FileParameter | null | undefined): Observable<AttachmentLink> {
+        let url_ = this.baseUrl + "/campaigns/{campaignId}/attachment";
         if (campaignId === undefined || campaignId === null)
             throw new Error("The parameter 'campaignId' must be defined.");
         url_ = url_.replace("{campaignId}", encodeURIComponent("" + campaignId));
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = new FormData();
-        if (file === null || file === undefined)
-            throw new Error("The parameter 'file' cannot be null.");
-        else
+        if (file !== null && file !== undefined)
             content_.append("file", file.data, file.fileName ? file.fileName : "file");
 
         let options_ : any = {
@@ -815,10 +820,10 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     /**
      * Deletes the camapaign attachment
-   * @return No Content
+     * @return No Content
      */
     deleteCampaignAttachment(campaignId: string, attachmentId: string): Observable<void> {
-    let url_ = this.baseUrl + "/campaigns/{campaignId}/attachments/{attachmentId}";
+        let url_ = this.baseUrl + "/campaigns/{campaignId}/attachments/{attachmentId}";
         if (campaignId === undefined || campaignId === null)
             throw new Error("The parameter 'campaignId' must be defined.");
         url_ = url_.replace("{campaignId}", encodeURIComponent("" + campaignId));
@@ -897,10 +902,10 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     /**
      * Publishes a campaign.
-   * @return No Content
+     * @return No Content
      */
     publishCampaign(campaignId: string): Observable<void> {
-    let url_ = this.baseUrl + "/campaigns/{campaignId}/publish";
+        let url_ = this.baseUrl + "/campaigns/{campaignId}/publish";
         if (campaignId === undefined || campaignId === null)
             throw new Error("The parameter 'campaignId' must be defined.");
         url_ = url_.replace("{campaignId}", encodeURIComponent("" + campaignId));
@@ -979,7 +984,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @return OK
      */
     getCampaignStatistics(campaignId: string): Observable<CampaignStatistics> {
-    let url_ = this.baseUrl + "/campaigns/{campaignId}/statistics";
+        let url_ = this.baseUrl + "/campaigns/{campaignId}/statistics";
         if (campaignId === undefined || campaignId === null)
             throw new Error("The parameter 'campaignId' must be defined.");
         url_ = url_.replace("{campaignId}", encodeURIComponent("" + campaignId));
@@ -1066,7 +1071,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @return OK
      */
     exportCampaignStatistics(campaignId: string): Observable<CampaignStatistics> {
-    let url_ = this.baseUrl + "/campaigns/{campaignId}/statistics/export";
+        let url_ = this.baseUrl + "/campaigns/{campaignId}/statistics/export";
         if (campaignId === undefined || campaignId === null)
             throw new Error("The parameter 'campaignId' must be defined.");
         url_ = url_.replace("{campaignId}", encodeURIComponent("" + campaignId));
@@ -1150,10 +1155,10 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     /**
      * Gets the list of all contacts using the provided ListOptions.
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
+     * @param page (optional) The current page of the list. Default is 1.
+     * @param size (optional) The size of the list. Default is 100
+     * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
+     * @param search (optional) A search term used to limit the results of the list.
      * @param distributionListId (optional) 
      * @param recipientId (optional) 
      * @param email (optional) 
@@ -1162,7 +1167,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @return OK
      */
     getContacts(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, distributionListId?: string | undefined, recipientId?: string | undefined, email?: string | undefined, phoneNumber?: string | undefined, resolve?: boolean | undefined): Observable<ContactResultSet> {
-    let url_ = this.baseUrl + "/contacts?";
+        let url_ = this.baseUrl + "/contacts?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
         else if (page !== undefined)
@@ -1278,7 +1283,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @return OK
      */
     createContact(body: CreateContactRequest): Observable<Contact> {
-    let url_ = this.baseUrl + "/contacts";
+        let url_ = this.baseUrl + "/contacts";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -1362,7 +1367,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @return OK
      */
     getContactById(contactId: string): Observable<Contact> {
-    let url_ = this.baseUrl + "/contacts/{contactId}";
+        let url_ = this.baseUrl + "/contacts/{contactId}";
         if (contactId === undefined || contactId === null)
             throw new Error("The parameter 'contactId' must be defined.");
         url_ = url_.replace("{contactId}", encodeURIComponent("" + contactId));
@@ -1446,10 +1451,10 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     /**
      * Updates the specified contact in the store.
-   * @return No Content
+     * @return No Content
      */
     updateContact(contactId: string, body: UpdateContactRequest): Observable<void> {
-    let url_ = this.baseUrl + "/contacts/{contactId}";
+        let url_ = this.baseUrl + "/contacts/{contactId}";
         if (contactId === undefined || contactId === null)
             throw new Error("The parameter 'contactId' must be defined.");
         url_ = url_.replace("{contactId}", encodeURIComponent("" + contactId));
@@ -1531,7 +1536,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * Get contact communication preferences.
      * @return OK
      */
-    getCommunicationPreferences(contactId: string): Observable<CommunicationPreference> {
+    getCommunicationPreferences(contactId: string): Observable<RecepientPreference> {
         let url_ = this.baseUrl + "/contacts/{contactId}/communication-preferences";
         if (contactId === undefined || contactId === null)
             throw new Error("The parameter 'contactId' must be defined.");
@@ -1553,14 +1558,14 @@ export class MessagesApiClient implements IMessagesApiClient {
                 try {
                     return this.processGetCommunicationPreferences(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<CommunicationPreference>;
+                    return _observableThrow(e) as any as Observable<RecepientPreference>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<CommunicationPreference>;
+                return _observableThrow(response_) as any as Observable<RecepientPreference>;
         }));
     }
 
-    protected processGetCommunicationPreferences(response: HttpResponseBase): Observable<CommunicationPreference> {
+    protected processGetCommunicationPreferences(response: HttpResponseBase): Observable<RecepientPreference> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1599,7 +1604,7 @@ export class MessagesApiClient implements IMessagesApiClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = CommunicationPreference.fromJS(resultData200);
+            result200 = RecepientPreference.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 404) {
@@ -1616,10 +1621,10 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     /**
      * Add or Updates a contact that matches the recepientId.
-   * @return No Content
+     * @return No Content
      */
     refreshContact(recipientId: string): Observable<void> {
-    let url_ = this.baseUrl + "/contacts/{recipientId}/refresh";
+        let url_ = this.baseUrl + "/contacts/{recipientId}/refresh";
         if (recipientId === undefined || recipientId === null)
             throw new Error("The parameter 'recipientId' must be defined.");
         url_ = url_.replace("{recipientId}", encodeURIComponent("" + recipientId));
@@ -1699,15 +1704,15 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     /**
      * Gets the list of available campaign types.
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
+     * @param page (optional) The current page of the list. Default is 1.
+     * @param size (optional) The size of the list. Default is 100
+     * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
+     * @param search (optional) A search term used to limit the results of the list.
      * @param isSystemGenerated (optional) 
      * @return OK
      */
     getDistributionLists(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, isSystemGenerated?: boolean | undefined): Observable<DistributionListResultSet> {
-    let url_ = this.baseUrl + "/distribution-lists?";
+        let url_ = this.baseUrl + "/distribution-lists?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
         else if (page !== undefined)
@@ -1804,10 +1809,10 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     /**
      * Creates a new distribution list.
-   * @return Created
+     * @return Created
      */
-  createDistributionList(body: CreateDistributionListRequest): Observable<DistributionList> {
-    let url_ = this.baseUrl + "/distribution-lists";
+    createDistributionList(body: CreateDistributionListRequest): Observable<DistributionList> {
+        let url_ = this.baseUrl + "/distribution-lists";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -1829,14 +1834,14 @@ export class MessagesApiClient implements IMessagesApiClient {
                 try {
                     return this.processCreateDistributionList(response_ as any);
                 } catch (e) {
-          return _observableThrow(e) as any as Observable<DistributionList>;
+                    return _observableThrow(e) as any as Observable<DistributionList>;
                 }
             } else
-        return _observableThrow(response_) as any as Observable<DistributionList>;
+                return _observableThrow(response_) as any as Observable<DistributionList>;
         }));
     }
 
-  protected processCreateDistributionList(response: HttpResponseBase): Observable<DistributionList> {
+    protected processCreateDistributionList(response: HttpResponseBase): Observable<DistributionList> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1876,7 +1881,7 @@ export class MessagesApiClient implements IMessagesApiClient {
             let result201: any = null;
             let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result201 = DistributionList.fromJS(resultData201);
-        return _observableOf(result201);
+            return _observableOf(result201);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -1891,7 +1896,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @return OK
      */
     getDistributionListById(distributionListId: string): Observable<DistributionList> {
-    let url_ = this.baseUrl + "/distribution-lists/{distributionListId}";
+        let url_ = this.baseUrl + "/distribution-lists/{distributionListId}";
         if (distributionListId === undefined || distributionListId === null)
             throw new Error("The parameter 'distributionListId' must be defined.");
         url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
@@ -1974,90 +1979,11 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * Permanently deletes a distribution list.
-   * @return No Content
-     */
-    deleteDistributionList(distributionListId: string): Observable<void> {
-    let url_ = this.baseUrl + "/distribution-lists/{distributionListId}";
-        if (distributionListId === undefined || distributionListId === null)
-            throw new Error("The parameter 'distributionListId' must be defined.");
-        url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-            })
-        };
-
-        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processDeleteDistributionList(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processDeleteDistributionList(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<void>;
-        }));
-    }
-
-    protected processDeleteDistributionList(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = HttpValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    /**
      * Updates an existing distribution list.
-   * @return No Content
+     * @return No Content
      */
     updateDistributionList(distributionListId: string, body: UpdateDistributionListRequest): Observable<void> {
-    let url_ = this.baseUrl + "/distribution-lists/{distributionListId}";
+        let url_ = this.baseUrl + "/distribution-lists/{distributionListId}";
         if (distributionListId === undefined || distributionListId === null)
             throw new Error("The parameter 'distributionListId' must be defined.");
         url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
@@ -2136,15 +2062,94 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
+     * Permanently deletes a distribution list.
+     * @return No Content
+     */
+    deleteDistributionList(distributionListId: string): Observable<void> {
+        let url_ = this.baseUrl + "/distribution-lists/{distributionListId}";
+        if (distributionListId === undefined || distributionListId === null)
+            throw new Error("The parameter 'distributionListId' must be defined.");
+        url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteDistributionList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteDistributionList(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDeleteDistributionList(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * Gets the contacts of a given distribution list.
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
+     * @param page (optional) The current page of the list. Default is 1.
+     * @param size (optional) The size of the list. Default is 100
+     * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
+     * @param search (optional) A search term used to limit the results of the list.
      * @return OK
      */
     getDistributionListContacts(distributionListId: string, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ContactResultSet> {
-    let url_ = this.baseUrl + "/distribution-lists/{distributionListId}/contacts?";
+        let url_ = this.baseUrl + "/distribution-lists/{distributionListId}/contacts?";
         if (distributionListId === undefined || distributionListId === null)
             throw new Error("The parameter 'distributionListId' must be defined.");
         url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
@@ -2240,10 +2245,10 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     /**
      * Adds a new or existing contact in the specified distribution list.
-   * @return No Content
+     * @return No Content
      */
     addContactToDistributionList(distributionListId: string, body: CreateDistributionListContactRequest): Observable<void> {
-    let url_ = this.baseUrl + "/distribution-lists/{distributionListId}/contacts";
+        let url_ = this.baseUrl + "/distribution-lists/{distributionListId}/contacts";
         if (distributionListId === undefined || distributionListId === null)
             throw new Error("The parameter 'distributionListId' must be defined.");
         url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
@@ -2323,10 +2328,10 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     /**
      * Removes an existing contact from the specified distribution list.
-   * @return No Content
+     * @return No Content
      */
     removeContactFromDistributionList(distributionListId: string, contactId: string): Observable<void> {
-    let url_ = this.baseUrl + "/distribution-lists/{distributionListId}/contacts/{contactId}";
+        let url_ = this.baseUrl + "/distribution-lists/{distributionListId}/contacts/{contactId}";
         if (distributionListId === undefined || distributionListId === null)
             throw new Error("The parameter 'distributionListId' must be defined.");
         url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
@@ -2408,7 +2413,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @return OK
      */
     bulkExportContactsFromDistributionList(distributionListId: string): Observable<FileResponse> {
-    let url_ = this.baseUrl + "/distribution-lists/{distributionListId}/export";
+        let url_ = this.baseUrl + "/distribution-lists/{distributionListId}/export";
         if (distributionListId === undefined || distributionListId === null)
             throw new Error("The parameter 'distributionListId' must be defined.");
         url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
@@ -2471,10 +2476,10 @@ export class MessagesApiClient implements IMessagesApiClient {
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Internal Server Error", status, _responseText, _headers, result500);
             }));
-    } else if (status === 404) {
-      return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-        return throwException("Not Found", status, _responseText, _headers);
-      }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
         } else if (status === 200 || status === 206) {
             const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
             let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
@@ -2499,17 +2504,15 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @param file (optional) 
      * @return OK
      */
-    bulkImportContactsToDistributionList(distributionListId: string, file?: FileParameter | undefined): Observable<ContactsImportResult> {
-    let url_ = this.baseUrl + "/distribution-lists/{distributionListId}/import";
+    bulkImportContactsToDistributionList(distributionListId: string, file?: FileParameter | null | undefined): Observable<ContactsImportResult> {
+        let url_ = this.baseUrl + "/distribution-lists/{distributionListId}/import";
         if (distributionListId === undefined || distributionListId === null)
             throw new Error("The parameter 'distributionListId' must be defined.");
         url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = new FormData();
-        if (file === null || file === undefined)
-            throw new Error("The parameter 'file' cannot be null.");
-        else
+        if (file !== null && file !== undefined)
             content_.append("file", file.data, file.fileName ? file.fileName : "file");
 
         let options_ : any = {
@@ -2587,15 +2590,15 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     /**
      * Gets the list of available message senders.
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
+     * @param page (optional) The current page of the list. Default is 1.
+     * @param size (optional) The size of the list. Default is 100
+     * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
+     * @param search (optional) A search term used to limit the results of the list.
      * @param isDefault (optional) 
      * @return OK
      */
     getMessageSenders(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, isDefault?: boolean | undefined): Observable<MessageSenderResultSet> {
-    let url_ = this.baseUrl + "/message-senders?";
+        let url_ = this.baseUrl + "/message-senders?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
         else if (page !== undefined)
@@ -2692,10 +2695,10 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     /**
      * Creates a new message sender.
-   * @return Created
+     * @return Created
      */
-  createMessageSender(body: CreateMessageSenderRequest): Observable<MessageSender> {
-    let url_ = this.baseUrl + "/message-senders";
+    createMessageSender(body: CreateMessageSenderRequest): Observable<MessageSender> {
+        let url_ = this.baseUrl + "/message-senders";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -2717,14 +2720,14 @@ export class MessagesApiClient implements IMessagesApiClient {
                 try {
                     return this.processCreateMessageSender(response_ as any);
                 } catch (e) {
-          return _observableThrow(e) as any as Observable<MessageSender>;
+                    return _observableThrow(e) as any as Observable<MessageSender>;
                 }
             } else
-        return _observableThrow(response_) as any as Observable<MessageSender>;
+                return _observableThrow(response_) as any as Observable<MessageSender>;
         }));
     }
 
-  protected processCreateMessageSender(response: HttpResponseBase): Observable<MessageSender> {
+    protected processCreateMessageSender(response: HttpResponseBase): Observable<MessageSender> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -2764,7 +2767,7 @@ export class MessagesApiClient implements IMessagesApiClient {
             let result201: any = null;
             let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result201 = MessageSender.fromJS(resultData201);
-        return _observableOf(result201);
+            return _observableOf(result201);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -2779,7 +2782,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @return OK
      */
     getMessageSenderById(senderId: string): Observable<MessageSender> {
-    let url_ = this.baseUrl + "/message-senders/{senderId}";
+        let url_ = this.baseUrl + "/message-senders/{senderId}";
         if (senderId === undefined || senderId === null)
             throw new Error("The parameter 'senderId' must be defined.");
         url_ = url_.replace("{senderId}", encodeURIComponent("" + senderId));
@@ -2863,10 +2866,10 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     /**
      * Updates an existing message sender.
-   * @return No Content
+     * @return No Content
      */
     updateMessageSender(senderId: string, body: UpdateMessageSenderRequest): Observable<void> {
-    let url_ = this.baseUrl + "/message-senders/{senderId}";
+        let url_ = this.baseUrl + "/message-senders/{senderId}";
         if (senderId === undefined || senderId === null)
             throw new Error("The parameter 'senderId' must be defined.");
         url_ = url_.replace("{senderId}", encodeURIComponent("" + senderId));
@@ -2946,10 +2949,10 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     /**
      * Permanently deletes a message sender.
-   * @return No Content
+     * @return No Content
      */
     deleteMessageSender(senderId: string): Observable<void> {
-    let url_ = this.baseUrl + "/message-senders/{senderId}";
+        let url_ = this.baseUrl + "/message-senders/{senderId}";
         if (senderId === undefined || senderId === null)
             throw new Error("The parameter 'senderId' must be defined.");
         url_ = url_.replace("{senderId}", encodeURIComponent("" + senderId));
@@ -3025,14 +3028,14 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     /**
      * Gets the list of available message types.
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
+     * @param page (optional) The current page of the list. Default is 1.
+     * @param size (optional) The size of the list. Default is 100
+     * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
+     * @param search (optional) A search term used to limit the results of the list.
      * @return OK
      */
     getMessageTypes(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<MessageTypeResultSet> {
-    let url_ = this.baseUrl + "/message-types?";
+        let url_ = this.baseUrl + "/message-types?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
         else if (page !== undefined)
@@ -3125,10 +3128,10 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     /**
      * Creates a new message type.
-   * @return Created
+     * @return Created
      */
-  createMessageType(body: CreateMessageTypeRequest): Observable<MessageType> {
-    let url_ = this.baseUrl + "/message-types";
+    createMessageType(body: CreateMessageTypeRequest): Observable<MessageType> {
+        let url_ = this.baseUrl + "/message-types";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -3150,14 +3153,14 @@ export class MessagesApiClient implements IMessagesApiClient {
                 try {
                     return this.processCreateMessageType(response_ as any);
                 } catch (e) {
-          return _observableThrow(e) as any as Observable<MessageType>;
+                    return _observableThrow(e) as any as Observable<MessageType>;
                 }
             } else
-        return _observableThrow(response_) as any as Observable<MessageType>;
+                return _observableThrow(response_) as any as Observable<MessageType>;
         }));
     }
 
-  protected processCreateMessageType(response: HttpResponseBase): Observable<MessageType> {
+    protected processCreateMessageType(response: HttpResponseBase): Observable<MessageType> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -3197,7 +3200,7 @@ export class MessagesApiClient implements IMessagesApiClient {
             let result201: any = null;
             let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result201 = MessageType.fromJS(resultData201);
-        return _observableOf(result201);
+            return _observableOf(result201);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -3212,7 +3215,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @return OK
      */
     getMessageTypeById(typeId: string): Observable<MessageType> {
-    let url_ = this.baseUrl + "/message-types/{typeId}";
+        let url_ = this.baseUrl + "/message-types/{typeId}";
         if (typeId === undefined || typeId === null)
             throw new Error("The parameter 'typeId' must be defined.");
         url_ = url_.replace("{typeId}", encodeURIComponent("" + typeId));
@@ -3296,10 +3299,10 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     /**
      * Updates an existing message type.
-   * @return No Content
+     * @return No Content
      */
     updateMessageType(typeId: string, body: UpdateMessageTypeRequest): Observable<void> {
-    let url_ = this.baseUrl + "/message-types/{typeId}";
+        let url_ = this.baseUrl + "/message-types/{typeId}";
         if (typeId === undefined || typeId === null)
             throw new Error("The parameter 'typeId' must be defined.");
         url_ = url_.replace("{typeId}", encodeURIComponent("" + typeId));
@@ -3379,10 +3382,10 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     /**
      * Permanently deletes a message type.
-   * @return No Content
+     * @return No Content
      */
     deleteMessageType(typeId: string): Observable<void> {
-    let url_ = this.baseUrl + "/message-types/{typeId}";
+        let url_ = this.baseUrl + "/message-types/{typeId}";
         if (typeId === undefined || typeId === null)
             throw new Error("The parameter 'typeId' must be defined.");
         url_ = url_.replace("{typeId}", encodeURIComponent("" + typeId));
@@ -3458,14 +3461,14 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     /**
      * Gets the list of all templates using the provided ListOptions.
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
+     * @param page (optional) The current page of the list. Default is 1.
+     * @param size (optional) The size of the list. Default is 100
+     * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
+     * @param search (optional) A search term used to limit the results of the list.
      * @return OK
      */
     getTemplates(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<TemplateListItemResultSet> {
-    let url_ = this.baseUrl + "/templates?";
+        let url_ = this.baseUrl + "/templates?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
         else if (page !== undefined)
@@ -3558,10 +3561,10 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     /**
      * Creates a new template in the store.
-   * @return Created
+     * @return Created
      */
-  createTemplate(body: CreateTemplateRequest): Observable<Template> {
-    let url_ = this.baseUrl + "/templates";
+    createTemplate(body: CreateTemplateRequest): Observable<Template> {
+        let url_ = this.baseUrl + "/templates";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -3583,14 +3586,14 @@ export class MessagesApiClient implements IMessagesApiClient {
                 try {
                     return this.processCreateTemplate(response_ as any);
                 } catch (e) {
-          return _observableThrow(e) as any as Observable<Template>;
+                    return _observableThrow(e) as any as Observable<Template>;
                 }
             } else
-        return _observableThrow(response_) as any as Observable<Template>;
+                return _observableThrow(response_) as any as Observable<Template>;
         }));
     }
 
-  protected processCreateTemplate(response: HttpResponseBase): Observable<Template> {
+    protected processCreateTemplate(response: HttpResponseBase): Observable<Template> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -3630,7 +3633,7 @@ export class MessagesApiClient implements IMessagesApiClient {
             let result201: any = null;
             let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result201 = Template.fromJS(resultData201);
-        return _observableOf(result201);
+            return _observableOf(result201);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -3645,7 +3648,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @return OK
      */
     getTemplateById(templateId: string): Observable<Template> {
-    let url_ = this.baseUrl + "/templates/{templateId}";
+        let url_ = this.baseUrl + "/templates/{templateId}";
         if (templateId === undefined || templateId === null)
             throw new Error("The parameter 'templateId' must be defined.");
         url_ = url_.replace("{templateId}", encodeURIComponent("" + templateId));
@@ -3729,10 +3732,10 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     /**
      * Updates an existing template.
-   * @return No Content
+     * @return No Content
      */
     updateTemplate(templateId: string, body: UpdateTemplateRequest): Observable<void> {
-    let url_ = this.baseUrl + "/templates/{templateId}";
+        let url_ = this.baseUrl + "/templates/{templateId}";
         if (templateId === undefined || templateId === null)
             throw new Error("The parameter 'templateId' must be defined.");
         url_ = url_.replace("{templateId}", encodeURIComponent("" + templateId));
@@ -3812,10 +3815,10 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     /**
      * Permanently deletes a template from the store.
-   * @return No Content
+     * @return No Content
      */
     deleteTemplate(templateId: string): Observable<void> {
-    let url_ = this.baseUrl + "/templates/{templateId}";
+        let url_ = this.baseUrl + "/templates/{templateId}";
         if (templateId === undefined || templateId === null)
             throw new Error("The parameter 'templateId' must be defined.");
         url_ = url_.replace("{templateId}", encodeURIComponent("" + templateId));
@@ -3891,10 +3894,10 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     /**
      * Updates in an existing template user respect of user preferences flag.
-   * @return No Content
+     * @return No Content
      */
     updateTemplateUserPreferences(templateId: string, body: UpdateTemplateUserPreferencesRequest): Observable<void> {
-    let url_ = this.baseUrl + "/templates/{templateId}/user-preferences";
+        let url_ = this.baseUrl + "/templates/{templateId}/user-preferences";
         if (templateId === undefined || templateId === null)
             throw new Error("The parameter 'templateId' must be defined.");
         url_ = url_.replace("{templateId}", encodeURIComponent("" + templateId));
@@ -3975,11 +3978,11 @@ export class MessagesApiClient implements IMessagesApiClient {
 
 export class AttachmentLink implements IAttachmentLink {
     id?: string;
-    permaLink?: string | undefined;
-    label?: string | undefined;
+    permaLink?: string;
+    label?: string;
     size?: number;
-    readonly sizeText?: string | undefined;
-    contentType?: string | undefined;
+    sizeText?: string;
+    contentType?: string;
 
     constructor(data?: IAttachmentLink) {
         if (data) {
@@ -3996,7 +3999,7 @@ export class AttachmentLink implements IAttachmentLink {
             this.permaLink = _data["permaLink"];
             this.label = _data["label"];
             this.size = _data["size"];
-            (<any>this).sizeText = _data["sizeText"];
+            this.sizeText = _data["sizeText"];
             this.contentType = _data["contentType"];
         }
     }
@@ -4022,15 +4025,15 @@ export class AttachmentLink implements IAttachmentLink {
 
 export interface IAttachmentLink {
     id?: string;
-    permaLink?: string | undefined;
-    label?: string | undefined;
+    permaLink?: string;
+    label?: string;
     size?: number;
-    sizeText?: string | undefined;
-    contentType?: string | undefined;
+    sizeText?: string;
+    contentType?: string;
 }
 
 export class BulkCreateDistributionListContactsRequest implements IBulkCreateDistributionListContactsRequest {
-    file!: string;
+    file!: string | undefined;
 
     constructor(data?: IBulkCreateDistributionListContactsRequest) {
         if (data) {
@@ -4062,13 +4065,13 @@ export class BulkCreateDistributionListContactsRequest implements IBulkCreateDis
 }
 
 export interface IBulkCreateDistributionListContactsRequest {
-    file: string;
+    file: string | undefined;
 }
 
 export class Campaign implements ICampaign {
     id?: string;
-    title?: string | undefined;
-    content?: { [key: string]: MessageContent; } | undefined;
+    title?: string;
+    content?: { [key: string]: MessageContent; };
     actionLink?: Hyperlink;
     published?: boolean;
     ignoreUserPreferences?: boolean;
@@ -4077,12 +4080,12 @@ export class Campaign implements ICampaign {
     type?: MessageType;
     distributionList?: DistributionList;
     messageChannelKind?: MessageChannelKind[];
-    mediaBaseHref?: string | undefined;
-    data?: any | undefined;
-    createdBy?: string | undefined;
+    mediaBaseHref?: string;
+    data?: any;
+    createdBy?: string;
     createdAt?: Date;
-    updatedBy?: string | undefined;
-    updatedAt?: Date | undefined;
+    updatedBy?: string;
+    updatedAt?: Date;
 
     constructor(data?: ICampaign) {
         if (data) {
@@ -4167,8 +4170,8 @@ export class Campaign implements ICampaign {
 
 export interface ICampaign {
     id?: string;
-    title?: string | undefined;
-    content?: { [key: string]: MessageContent; } | undefined;
+    title?: string;
+    content?: { [key: string]: MessageContent; };
     actionLink?: Hyperlink;
     published?: boolean;
     ignoreUserPreferences?: boolean;
@@ -4177,18 +4180,19 @@ export interface ICampaign {
     type?: MessageType;
     distributionList?: DistributionList;
     messageChannelKind?: MessageChannelKind[];
-    mediaBaseHref?: string | undefined;
-    data?: any | undefined;
-    createdBy?: string | undefined;
+    mediaBaseHref?: string;
+    data?: any;
+    createdBy?: string;
     createdAt?: Date;
-    updatedBy?: string | undefined;
-    updatedAt?: Date | undefined;
+    updatedBy?: string;
+    updatedAt?: Date;
 }
 
 export class CampaignDetails implements ICampaignDetails {
+    attachment?: AttachmentLink;
     id?: string;
-    title?: string | undefined;
-    content?: { [key: string]: MessageContent; } | undefined;
+    title?: string;
+    content?: { [key: string]: MessageContent; };
     actionLink?: Hyperlink;
     published?: boolean;
     ignoreUserPreferences?: boolean;
@@ -4197,13 +4201,12 @@ export class CampaignDetails implements ICampaignDetails {
     type?: MessageType;
     distributionList?: DistributionList;
     messageChannelKind?: MessageChannelKind[];
-    mediaBaseHref?: string | undefined;
-    data?: any | undefined;
-    createdBy?: string | undefined;
+    mediaBaseHref?: string;
+    data?: any;
+    createdBy?: string;
     createdAt?: Date;
-    updatedBy?: string | undefined;
-    updatedAt?: Date | undefined;
-    attachment?: AttachmentLink;
+    updatedBy?: string;
+    updatedAt?: Date;
 
     constructor(data?: ICampaignDetails) {
         if (data) {
@@ -4216,6 +4219,7 @@ export class CampaignDetails implements ICampaignDetails {
 
     init(_data?: any) {
         if (_data) {
+            this.attachment = _data["attachment"] ? AttachmentLink.fromJS(_data["attachment"]) : <any>undefined;
             this.id = _data["id"];
             this.title = _data["title"];
             if (_data["content"]) {
@@ -4243,7 +4247,6 @@ export class CampaignDetails implements ICampaignDetails {
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
             this.updatedBy = _data["updatedBy"];
             this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
-            this.attachment = _data["attachment"] ? AttachmentLink.fromJS(_data["attachment"]) : <any>undefined;
         }
     }
 
@@ -4256,6 +4259,7 @@ export class CampaignDetails implements ICampaignDetails {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["attachment"] = this.attachment ? this.attachment.toJSON() : <any>undefined;
         data["id"] = this.id;
         data["title"] = this.title;
         if (this.content) {
@@ -4283,15 +4287,15 @@ export class CampaignDetails implements ICampaignDetails {
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
         data["updatedBy"] = this.updatedBy;
         data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
-        data["attachment"] = this.attachment ? this.attachment.toJSON() : <any>undefined;
         return data;
     }
 }
 
 export interface ICampaignDetails {
+    attachment?: AttachmentLink;
     id?: string;
-    title?: string | undefined;
-    content?: { [key: string]: MessageContent; } | undefined;
+    title?: string;
+    content?: { [key: string]: MessageContent; };
     actionLink?: Hyperlink;
     published?: boolean;
     ignoreUserPreferences?: boolean;
@@ -4300,18 +4304,17 @@ export interface ICampaignDetails {
     type?: MessageType;
     distributionList?: DistributionList;
     messageChannelKind?: MessageChannelKind[];
-    mediaBaseHref?: string | undefined;
-    data?: any | undefined;
-    createdBy?: string | undefined;
+    mediaBaseHref?: string;
+    data?: any;
+    createdBy?: string;
     createdAt?: Date;
-    updatedBy?: string | undefined;
-    updatedAt?: Date | undefined;
-    attachment?: AttachmentLink;
+    updatedBy?: string;
+    updatedAt?: Date;
 }
 
 export class CampaignResultSet implements ICampaignResultSet {
     count?: number;
-    items?: Campaign[] | undefined;
+    items?: Campaign[];
 
     constructor(data?: ICampaignResultSet) {
         if (data) {
@@ -4354,13 +4357,13 @@ export class CampaignResultSet implements ICampaignResultSet {
 
 export interface ICampaignResultSet {
     count?: number;
-    items?: Campaign[] | undefined;
+    items?: Campaign[];
 }
 
 export class CampaignStatistics implements ICampaignStatistics {
-    title?: string | undefined;
+    title?: string;
     readCount?: number;
-    notReadCount?: number | undefined;
+    notReadCount?: number;
     deletedCount?: number;
     callToActionCount?: number;
     lastUpdated?: Date;
@@ -4405,129 +4408,26 @@ export class CampaignStatistics implements ICampaignStatistics {
 }
 
 export interface ICampaignStatistics {
-    title?: string | undefined;
+    title?: string;
     readCount?: number;
-    notReadCount?: number | undefined;
+    notReadCount?: number;
     deletedCount?: number;
     callToActionCount?: number;
     lastUpdated?: Date;
 }
 
-export class CommunicationMessageTypePreference implements ICommunicationMessageTypePreference {
-    name?: string | undefined;
-    alias?: string | undefined;
-    communicationPreferences?: CommunicationPreferences[];
-
-    constructor(data?: ICommunicationMessageTypePreference) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.name = _data["name"];
-            this.alias = _data["alias"];
-            if (Array.isArray(_data["communicationPreferences"])) {
-                this.communicationPreferences = [] as any;
-                for (let item of _data["communicationPreferences"])
-                    this.communicationPreferences!.push(item);
-            }
-        }
-    }
-
-    static fromJS(data: any): CommunicationMessageTypePreference {
-        data = typeof data === 'object' ? data : {};
-        let result = new CommunicationMessageTypePreference();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
-        data["alias"] = this.alias;
-        if (Array.isArray(this.communicationPreferences)) {
-            data["communicationPreferences"] = [];
-            for (let item of this.communicationPreferences)
-                data["communicationPreferences"].push(item);
-        }
-        return data;
-    }
-}
-
-export interface ICommunicationMessageTypePreference {
-    name?: string | undefined;
-    alias?: string | undefined;
-    communicationPreferences?: CommunicationPreferences[];
-}
-
-export class CommunicationPreference implements ICommunicationPreference {
-    locale?: string | undefined;
-    messageTypeCommunicationPreferences?: CommunicationMessageTypePreference[] | undefined;
-
-    constructor(data?: ICommunicationPreference) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.locale = _data["locale"];
-            if (Array.isArray(_data["messageTypeCommunicationPreferences"])) {
-                this.messageTypeCommunicationPreferences = [] as any;
-                for (let item of _data["messageTypeCommunicationPreferences"])
-                    this.messageTypeCommunicationPreferences!.push(CommunicationMessageTypePreference.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): CommunicationPreference {
-        data = typeof data === 'object' ? data : {};
-        let result = new CommunicationPreference();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["locale"] = this.locale;
-        if (Array.isArray(this.messageTypeCommunicationPreferences)) {
-            data["messageTypeCommunicationPreferences"] = [];
-            for (let item of this.messageTypeCommunicationPreferences)
-                data["messageTypeCommunicationPreferences"].push(item ? item.toJSON() : <any>undefined);
-        }
-        return data;
-    }
-}
-
-export interface ICommunicationPreference {
-    locale?: string | undefined;
-    messageTypeCommunicationPreferences?: CommunicationMessageTypePreference[] | undefined;
-}
-
 export class Contact implements IContact {
-    readonly id?: string | undefined;
-    recipientId?: string | undefined;
-    salutation?: string | undefined;
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    fullName?: string | undefined;
-    email?: string | undefined;
-    phoneNumber?: string | undefined;
-    locale?: string | undefined;
-    communicationPreferences?: CommunicationPreferences[];
-    consentCommercial?: boolean;
-    unsubscribed?: boolean | undefined;
-    updatedAt?: Date | undefined;
-    readonly isAnonymous?: boolean;
+    id?: string;
+    recipientId?: string;
+    salutation?: string;
+    firstName?: string;
+    lastName?: string;
+    fullName?: string;
+    email?: string;
+    phoneNumber?: string;
+    unsubscribed?: boolean;
+    updatedAt?: Date;
+    isAnonymous?: boolean;
 
     constructor(data?: IContact) {
         if (data) {
@@ -4540,7 +4440,7 @@ export class Contact implements IContact {
 
     init(_data?: any) {
         if (_data) {
-            (<any>this).id = _data["id"];
+            this.id = _data["id"];
             this.recipientId = _data["recipientId"];
             this.salutation = _data["salutation"];
             this.firstName = _data["firstName"];
@@ -4548,16 +4448,9 @@ export class Contact implements IContact {
             this.fullName = _data["fullName"];
             this.email = _data["email"];
             this.phoneNumber = _data["phoneNumber"];
-            this.locale = _data["locale"];
-            if (Array.isArray(_data["communicationPreferences"])) {
-                this.communicationPreferences = [] as any;
-                for (let item of _data["communicationPreferences"])
-                    this.communicationPreferences!.push(item);
-            }
-            this.consentCommercial = _data["consentCommercial"];
             this.unsubscribed = _data["unsubscribed"];
             this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
-            (<any>this).isAnonymous = _data["isAnonymous"];
+            this.isAnonymous = _data["isAnonymous"];
         }
     }
 
@@ -4578,13 +4471,6 @@ export class Contact implements IContact {
         data["fullName"] = this.fullName;
         data["email"] = this.email;
         data["phoneNumber"] = this.phoneNumber;
-        data["locale"] = this.locale;
-        if (Array.isArray(this.communicationPreferences)) {
-            data["communicationPreferences"] = [];
-            for (let item of this.communicationPreferences)
-                data["communicationPreferences"].push(item);
-        }
-        data["consentCommercial"] = this.consentCommercial;
         data["unsubscribed"] = this.unsubscribed;
         data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
         data["isAnonymous"] = this.isAnonymous;
@@ -4593,30 +4479,27 @@ export class Contact implements IContact {
 }
 
 export interface IContact {
-    id?: string | undefined;
-    recipientId?: string | undefined;
-    salutation?: string | undefined;
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    fullName?: string | undefined;
-    email?: string | undefined;
-    phoneNumber?: string | undefined;
-    locale?: string | undefined;
-    communicationPreferences?: CommunicationPreferences[];
-    consentCommercial?: boolean;
-    unsubscribed?: boolean | undefined;
-    updatedAt?: Date | undefined;
+    id?: string;
+    recipientId?: string;
+    salutation?: string;
+    firstName?: string;
+    lastName?: string;
+    fullName?: string;
+    email?: string;
+    phoneNumber?: string;
+    unsubscribed?: boolean;
+    updatedAt?: Date;
     isAnonymous?: boolean;
 }
 
 export class ContactAnonymous implements IContactAnonymous {
-    recipientId?: string | undefined;
-    salutation?: string | undefined;
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    fullName?: string | undefined;
-    email?: string | undefined;
-    phoneNumber?: string | undefined;
+    recipientId?: string;
+    salutation?: string;
+    firstName?: string;
+    lastName?: string;
+    fullName?: string;
+    email?: string;
+    phoneNumber?: string;
 
     constructor(data?: IContactAnonymous) {
         if (data) {
@@ -4660,18 +4543,25 @@ export class ContactAnonymous implements IContactAnonymous {
 }
 
 export interface IContactAnonymous {
-    recipientId?: string | undefined;
-    salutation?: string | undefined;
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    fullName?: string | undefined;
-    email?: string | undefined;
-    phoneNumber?: string | undefined;
+    recipientId?: string;
+    salutation?: string;
+    firstName?: string;
+    lastName?: string;
+    fullName?: string;
+    email?: string;
+    phoneNumber?: string;
+}
+
+export enum ContactChannelKind {
+    Any = "Any",
+    Email = "Email",
+    SMS = "SMS",
+    PushNotification = "PushNotification",
 }
 
 export class ContactResultSet implements IContactResultSet {
     count?: number;
-    items?: Contact[] | undefined;
+    items?: Contact[];
 
     constructor(data?: IContactResultSet) {
         if (data) {
@@ -4714,13 +4604,13 @@ export class ContactResultSet implements IContactResultSet {
 
 export interface IContactResultSet {
     count?: number;
-    items?: Contact[] | undefined;
+    items?: Contact[];
 }
 
 export class ContactsImportResult implements IContactsImportResult {
     contactsAdded?: number;
     contactsUpdated?: number;
-    errors?: string[] | undefined;
+    errors?: string[];
 
     constructor(data?: IContactsImportResult) {
         if (data) {
@@ -4766,25 +4656,25 @@ export class ContactsImportResult implements IContactsImportResult {
 export interface IContactsImportResult {
     contactsAdded?: number;
     contactsUpdated?: number;
-    errors?: string[] | undefined;
+    errors?: string[];
 }
 
 export class CreateCampaignRequest implements ICreateCampaignRequest {
+    published?: boolean;
+    ignoreUserPreferences?: boolean;
+    recipientIds?: string[];
+    recipients?: ContactAnonymous[];
     isGlobal?: boolean;
     title?: string;
-    content?: { [key: string]: MessageContent; } | undefined;
+    content?: { [key: string]: MessageContent; };
     actionLink?: Hyperlink;
     activePeriod?: Period;
-    mediaBaseHref?: string | undefined;
-    typeId?: string | undefined;
-    recipientListId?: string | undefined;
-    messageTemplateId?: string | undefined;
-    data?: any | undefined;
+    mediaBaseHref?: string;
+    typeId?: string;
+    recipientListId?: string;
+    messageTemplateId?: string;
+    data?: any;
     messageTemplateChannels?: MessageChannelKind[];
-    published?: boolean;
-    ignoreUserPreferences?: boolean | undefined;
-    recipientIds?: string[] | undefined;
-    recipients?: ContactAnonymous[] | undefined;
 
     constructor(data?: ICreateCampaignRequest) {
         if (data) {
@@ -4797,6 +4687,18 @@ export class CreateCampaignRequest implements ICreateCampaignRequest {
 
     init(_data?: any) {
         if (_data) {
+            this.published = _data["published"];
+            this.ignoreUserPreferences = _data["ignoreUserPreferences"];
+            if (Array.isArray(_data["recipientIds"])) {
+                this.recipientIds = [] as any;
+                for (let item of _data["recipientIds"])
+                    this.recipientIds!.push(item);
+            }
+            if (Array.isArray(_data["recipients"])) {
+                this.recipients = [] as any;
+                for (let item of _data["recipients"])
+                    this.recipients!.push(ContactAnonymous.fromJS(item));
+            }
             this.isGlobal = _data["isGlobal"];
             this.title = _data["title"];
             if (_data["content"]) {
@@ -4818,18 +4720,6 @@ export class CreateCampaignRequest implements ICreateCampaignRequest {
                 for (let item of _data["messageTemplateChannels"])
                     this.messageTemplateChannels!.push(item);
             }
-            this.published = _data["published"];
-            this.ignoreUserPreferences = _data["ignoreUserPreferences"];
-            if (Array.isArray(_data["recipientIds"])) {
-                this.recipientIds = [] as any;
-                for (let item of _data["recipientIds"])
-                    this.recipientIds!.push(item);
-            }
-            if (Array.isArray(_data["recipients"])) {
-                this.recipients = [] as any;
-                for (let item of _data["recipients"])
-                    this.recipients!.push(ContactAnonymous.fromJS(item));
-            }
         }
     }
 
@@ -4842,6 +4732,18 @@ export class CreateCampaignRequest implements ICreateCampaignRequest {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["published"] = this.published;
+        data["ignoreUserPreferences"] = this.ignoreUserPreferences;
+        if (Array.isArray(this.recipientIds)) {
+            data["recipientIds"] = [];
+            for (let item of this.recipientIds)
+                data["recipientIds"].push(item);
+        }
+        if (Array.isArray(this.recipients)) {
+            data["recipients"] = [];
+            for (let item of this.recipients)
+                data["recipients"].push(item ? item.toJSON() : <any>undefined);
+        }
         data["isGlobal"] = this.isGlobal;
         data["title"] = this.title;
         if (this.content) {
@@ -4863,44 +4765,32 @@ export class CreateCampaignRequest implements ICreateCampaignRequest {
             for (let item of this.messageTemplateChannels)
                 data["messageTemplateChannels"].push(item);
         }
-        data["published"] = this.published;
-        data["ignoreUserPreferences"] = this.ignoreUserPreferences;
-        if (Array.isArray(this.recipientIds)) {
-            data["recipientIds"] = [];
-            for (let item of this.recipientIds)
-                data["recipientIds"].push(item);
-        }
-        if (Array.isArray(this.recipients)) {
-            data["recipients"] = [];
-            for (let item of this.recipients)
-                data["recipients"].push(item ? item.toJSON() : <any>undefined);
-        }
         return data;
     }
 }
 
 export interface ICreateCampaignRequest {
+    published?: boolean;
+    ignoreUserPreferences?: boolean;
+    recipientIds?: string[];
+    recipients?: ContactAnonymous[];
     isGlobal?: boolean;
     title?: string;
-    content?: { [key: string]: MessageContent; } | undefined;
+    content?: { [key: string]: MessageContent; };
     actionLink?: Hyperlink;
     activePeriod?: Period;
-    mediaBaseHref?: string | undefined;
-    typeId?: string | undefined;
-    recipientListId?: string | undefined;
-    messageTemplateId?: string | undefined;
-    data?: any | undefined;
+    mediaBaseHref?: string;
+    typeId?: string;
+    recipientListId?: string;
+    messageTemplateId?: string;
+    data?: any;
     messageTemplateChannels?: MessageChannelKind[];
-    published?: boolean;
-    ignoreUserPreferences?: boolean | undefined;
-    recipientIds?: string[] | undefined;
-    recipients?: ContactAnonymous[] | undefined;
 }
 
 export class CreateCampaignResult implements ICreateCampaignResult {
-    readonly succeeded?: boolean;
-    readonly errors?: string[] | undefined;
-    readonly campaignId?: string;
+    campaignId?: string;
+    succeeded?: boolean;
+    errors?: string[];
 
     constructor(data?: ICreateCampaignResult) {
         if (data) {
@@ -4913,13 +4803,13 @@ export class CreateCampaignResult implements ICreateCampaignResult {
 
     init(_data?: any) {
         if (_data) {
-            (<any>this).succeeded = _data["succeeded"];
+            this.campaignId = _data["campaignId"];
+            this.succeeded = _data["succeeded"];
             if (Array.isArray(_data["errors"])) {
-                (<any>this).errors = [] as any;
+                this.errors = [] as any;
                 for (let item of _data["errors"])
-                    (<any>this).errors!.push(item);
+                    this.errors!.push(item);
             }
-            (<any>this).campaignId = _data["campaignId"];
         }
     }
 
@@ -4932,34 +4822,32 @@ export class CreateCampaignResult implements ICreateCampaignResult {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["campaignId"] = this.campaignId;
         data["succeeded"] = this.succeeded;
         if (Array.isArray(this.errors)) {
             data["errors"] = [];
             for (let item of this.errors)
                 data["errors"].push(item);
         }
-        data["campaignId"] = this.campaignId;
         return data;
     }
 }
 
 export interface ICreateCampaignResult {
-    succeeded?: boolean;
-    errors?: string[] | undefined;
     campaignId?: string;
+    succeeded?: boolean;
+    errors?: string[];
 }
 
 export class CreateContactRequest implements ICreateContactRequest {
-    recipientId?: string | undefined;
-    salutation?: string | undefined;
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    fullName?: string | undefined;
-    email?: string | undefined;
-    phoneNumber?: string | undefined;
-    locale?: string | undefined;
-    communicationPreferences?: CommunicationPreferences[];
-    consentCommercial?: boolean;
+    communicationPreference?: RecepientPreference;
+    recipientId?: string;
+    salutation?: string;
+    firstName?: string;
+    lastName?: string;
+    fullName?: string;
+    email?: string;
+    phoneNumber?: string;
 
     constructor(data?: ICreateContactRequest) {
         if (data) {
@@ -4972,6 +4860,7 @@ export class CreateContactRequest implements ICreateContactRequest {
 
     init(_data?: any) {
         if (_data) {
+            this.communicationPreference = _data["communicationPreference"] ? RecepientPreference.fromJS(_data["communicationPreference"]) : <any>undefined;
             this.recipientId = _data["recipientId"];
             this.salutation = _data["salutation"];
             this.firstName = _data["firstName"];
@@ -4979,13 +4868,6 @@ export class CreateContactRequest implements ICreateContactRequest {
             this.fullName = _data["fullName"];
             this.email = _data["email"];
             this.phoneNumber = _data["phoneNumber"];
-            this.locale = _data["locale"];
-            if (Array.isArray(_data["communicationPreferences"])) {
-                this.communicationPreferences = [] as any;
-                for (let item of _data["communicationPreferences"])
-                    this.communicationPreferences!.push(item);
-            }
-            this.consentCommercial = _data["consentCommercial"];
         }
     }
 
@@ -4998,6 +4880,7 @@ export class CreateContactRequest implements ICreateContactRequest {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["communicationPreference"] = this.communicationPreference ? this.communicationPreference.toJSON() : <any>undefined;
         data["recipientId"] = this.recipientId;
         data["salutation"] = this.salutation;
         data["firstName"] = this.firstName;
@@ -5005,42 +4888,31 @@ export class CreateContactRequest implements ICreateContactRequest {
         data["fullName"] = this.fullName;
         data["email"] = this.email;
         data["phoneNumber"] = this.phoneNumber;
-        data["locale"] = this.locale;
-        if (Array.isArray(this.communicationPreferences)) {
-            data["communicationPreferences"] = [];
-            for (let item of this.communicationPreferences)
-                data["communicationPreferences"].push(item);
-        }
-        data["consentCommercial"] = this.consentCommercial;
         return data;
     }
 }
 
 export interface ICreateContactRequest {
-    recipientId?: string | undefined;
-    salutation?: string | undefined;
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    fullName?: string | undefined;
-    email?: string | undefined;
-    phoneNumber?: string | undefined;
-    locale?: string | undefined;
-    communicationPreferences?: CommunicationPreferences[];
-    consentCommercial?: boolean;
+    communicationPreference?: RecepientPreference;
+    recipientId?: string;
+    salutation?: string;
+    firstName?: string;
+    lastName?: string;
+    fullName?: string;
+    email?: string;
+    phoneNumber?: string;
 }
 
 export class CreateDistributionListContactRequest implements ICreateDistributionListContactRequest {
-    recipientId?: string | undefined;
-    salutation?: string | undefined;
-    firstName?: string | undefined;
-    lastName?: string | undefined;
+    contactId?: string;
+    communicationPreference?: RecepientPreference;
+    recipientId?: string;
+    salutation?: string;
+    firstName?: string;
+    lastName?: string;
     fullName?: string;
-    email?: string | undefined;
-    phoneNumber?: string | undefined;
-    locale?: string | undefined;
-    communicationPreferences?: CommunicationPreferences[];
-    consentCommercial?: boolean;
-    contactId?: string | undefined;
+    email?: string;
+    phoneNumber?: string;
 
     constructor(data?: ICreateDistributionListContactRequest) {
         if (data) {
@@ -5053,6 +4925,8 @@ export class CreateDistributionListContactRequest implements ICreateDistribution
 
     init(_data?: any) {
         if (_data) {
+            this.contactId = _data["contactId"];
+            this.communicationPreference = _data["communicationPreference"] ? RecepientPreference.fromJS(_data["communicationPreference"]) : <any>undefined;
             this.recipientId = _data["recipientId"];
             this.salutation = _data["salutation"];
             this.firstName = _data["firstName"];
@@ -5060,14 +4934,6 @@ export class CreateDistributionListContactRequest implements ICreateDistribution
             this.fullName = _data["fullName"];
             this.email = _data["email"];
             this.phoneNumber = _data["phoneNumber"];
-            this.locale = _data["locale"];
-            if (Array.isArray(_data["communicationPreferences"])) {
-                this.communicationPreferences = [] as any;
-                for (let item of _data["communicationPreferences"])
-                    this.communicationPreferences!.push(item);
-            }
-            this.consentCommercial = _data["consentCommercial"];
-            this.contactId = _data["contactId"];
         }
     }
 
@@ -5080,6 +4946,8 @@ export class CreateDistributionListContactRequest implements ICreateDistribution
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["contactId"] = this.contactId;
+        data["communicationPreference"] = this.communicationPreference ? this.communicationPreference.toJSON() : <any>undefined;
         data["recipientId"] = this.recipientId;
         data["salutation"] = this.salutation;
         data["firstName"] = this.firstName;
@@ -5087,30 +4955,20 @@ export class CreateDistributionListContactRequest implements ICreateDistribution
         data["fullName"] = this.fullName;
         data["email"] = this.email;
         data["phoneNumber"] = this.phoneNumber;
-        data["locale"] = this.locale;
-        if (Array.isArray(this.communicationPreferences)) {
-            data["communicationPreferences"] = [];
-            for (let item of this.communicationPreferences)
-                data["communicationPreferences"].push(item);
-        }
-        data["consentCommercial"] = this.consentCommercial;
-        data["contactId"] = this.contactId;
         return data;
     }
 }
 
 export interface ICreateDistributionListContactRequest {
-    recipientId?: string | undefined;
-    salutation?: string | undefined;
-    firstName?: string | undefined;
-    lastName?: string | undefined;
+    contactId?: string;
+    communicationPreference?: RecepientPreference;
+    recipientId?: string;
+    salutation?: string;
+    firstName?: string;
+    lastName?: string;
     fullName?: string;
-    email?: string | undefined;
-    phoneNumber?: string | undefined;
-    locale?: string | undefined;
-    communicationPreferences?: CommunicationPreferences[];
-    consentCommercial?: boolean;
-    contactId?: string | undefined;
+    email?: string;
+    phoneNumber?: string;
 }
 
 export class CreateDistributionListRequest implements ICreateDistributionListRequest {
@@ -5150,8 +5008,8 @@ export interface ICreateDistributionListRequest {
 }
 
 export class CreateMessageSenderRequest implements ICreateMessageSenderRequest {
-    sender?: string | undefined;
-    displayName?: string | undefined;
+    sender?: string;
+    displayName?: string;
     isDefault?: boolean;
 
     constructor(data?: ICreateMessageSenderRequest) {
@@ -5188,14 +5046,14 @@ export class CreateMessageSenderRequest implements ICreateMessageSenderRequest {
 }
 
 export interface ICreateMessageSenderRequest {
-    sender?: string | undefined;
-    displayName?: string | undefined;
+    sender?: string;
+    displayName?: string;
     isDefault?: boolean;
 }
 
 export class CreateMessageTypeRequest implements ICreateMessageTypeRequest {
     name?: string;
-    alias?: string | undefined;
+    alias?: string;
     classification?: MessageTypeClassification;
 
     constructor(data?: ICreateMessageTypeRequest) {
@@ -5233,16 +5091,16 @@ export class CreateMessageTypeRequest implements ICreateMessageTypeRequest {
 
 export interface ICreateMessageTypeRequest {
     name?: string;
-    alias?: string | undefined;
+    alias?: string;
     classification?: MessageTypeClassification;
 }
 
 export class CreateTemplateRequest implements ICreateTemplateRequest {
     name?: string;
-    alias?: string | undefined;
+    alias?: string;
     ignoreUserPreferences?: boolean;
-    content?: { [key: string]: MessageContent; } | undefined;
-    data?: any | undefined;
+    content?: { [key: string]: MessageContent; };
+    data?: any;
 
     constructor(data?: ICreateTemplateRequest) {
         if (data) {
@@ -5295,19 +5153,19 @@ export class CreateTemplateRequest implements ICreateTemplateRequest {
 
 export interface ICreateTemplateRequest {
     name?: string;
-    alias?: string | undefined;
+    alias?: string;
     ignoreUserPreferences?: boolean;
-    content?: { [key: string]: MessageContent; } | undefined;
-    data?: any | undefined;
+    content?: { [key: string]: MessageContent; };
+    data?: any;
 }
 
 export class DistributionList implements IDistributionList {
     id?: string;
-    name?: string | undefined;
-    createdBy?: string | undefined;
+    name?: string;
+    createdBy?: string;
     createdAt?: Date;
-    updatedBy?: string | undefined;
-    updatedAt?: Date | undefined;
+    updatedBy?: string;
+    updatedAt?: Date;
 
     constructor(data?: IDistributionList) {
         if (data) {
@@ -5350,16 +5208,16 @@ export class DistributionList implements IDistributionList {
 
 export interface IDistributionList {
     id?: string;
-    name?: string | undefined;
-    createdBy?: string | undefined;
+    name?: string;
+    createdBy?: string;
     createdAt?: Date;
-    updatedBy?: string | undefined;
-    updatedAt?: Date | undefined;
+    updatedBy?: string;
+    updatedAt?: Date;
 }
 
 export class DistributionListResultSet implements IDistributionListResultSet {
     count?: number;
-    items?: DistributionList[] | undefined;
+    items?: DistributionList[];
 
     constructor(data?: IDistributionListResultSet) {
         if (data) {
@@ -5402,16 +5260,16 @@ export class DistributionListResultSet implements IDistributionListResultSet {
 
 export interface IDistributionListResultSet {
     count?: number;
-    items?: DistributionList[] | undefined;
+    items?: DistributionList[];
 }
 
 export class HttpValidationProblemDetails implements IHttpValidationProblemDetails {
-    type?: string | undefined;
-    title?: string | undefined;
-    status?: number | undefined;
-    detail?: string | undefined;
-    instance?: string | undefined;
-    errors?: { [key: string]: string[]; } | undefined;
+    type?: string;
+    title?: string;
+    status?: number;
+    detail?: string;
+    instance?: string;
+    errors?: { [key: string]: string[]; };
 
     [key: string]: any;
 
@@ -5475,19 +5333,19 @@ export class HttpValidationProblemDetails implements IHttpValidationProblemDetai
 }
 
 export interface IHttpValidationProblemDetails {
-    type?: string | undefined;
-    title?: string | undefined;
-    status?: number | undefined;
-    detail?: string | undefined;
-    instance?: string | undefined;
-    errors?: { [key: string]: string[]; } | undefined;
+    type?: string;
+    title?: string;
+    status?: number;
+    detail?: string;
+    instance?: string;
+    errors?: { [key: string]: string[]; };
 
     [key: string]: any;
 }
 
 export class Hyperlink implements IHyperlink {
-    text?: string | undefined;
-    href?: string | undefined;
+    text?: string;
+    href?: string;
 
     constructor(data?: IHyperlink) {
         if (data) {
@@ -5521,14 +5379,22 @@ export class Hyperlink implements IHyperlink {
 }
 
 export interface IHyperlink {
-    text?: string | undefined;
-    href?: string | undefined;
+    text?: string;
+    href?: string;
+}
+
+export enum MessageChannelKind {
+    None = "None",
+    Inbox = "Inbox",
+    PushNotification = "PushNotification",
+    Email = "Email",
+    SMS = "SMS",
 }
 
 export class MessageContent implements IMessageContent {
     sender?: MessageSender;
-    title?: string | undefined;
-    body?: string | undefined;
+    title?: string;
+    body?: string;
 
     constructor(data?: IMessageContent) {
         if (data) {
@@ -5565,20 +5431,20 @@ export class MessageContent implements IMessageContent {
 
 export interface IMessageContent {
     sender?: MessageSender;
-    title?: string | undefined;
-    body?: string | undefined;
+    title?: string;
+    body?: string;
 }
 
 export class MessageSender implements IMessageSender {
     id?: string;
-    sender?: string | undefined;
-    displayName?: string | undefined;
-    createdBy?: string | undefined;
-    createdAt?: Date | undefined;
-    updatedBy?: string | undefined;
-    updatedAt?: Date | undefined;
+    sender?: string;
+    displayName?: string;
+    createdBy?: string;
+    createdAt?: Date;
+    updatedBy?: string;
+    updatedAt?: Date;
     isDefault?: boolean;
-    readonly isEmpty?: boolean;
+    isEmpty?: boolean;
 
     constructor(data?: IMessageSender) {
         if (data) {
@@ -5599,7 +5465,7 @@ export class MessageSender implements IMessageSender {
             this.updatedBy = _data["updatedBy"];
             this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
             this.isDefault = _data["isDefault"];
-            (<any>this).isEmpty = _data["isEmpty"];
+            this.isEmpty = _data["isEmpty"];
         }
     }
 
@@ -5627,19 +5493,19 @@ export class MessageSender implements IMessageSender {
 
 export interface IMessageSender {
     id?: string;
-    sender?: string | undefined;
-    displayName?: string | undefined;
-    createdBy?: string | undefined;
-    createdAt?: Date | undefined;
-    updatedBy?: string | undefined;
-    updatedAt?: Date | undefined;
+    sender?: string;
+    displayName?: string;
+    createdBy?: string;
+    createdAt?: Date;
+    updatedBy?: string;
+    updatedAt?: Date;
     isDefault?: boolean;
     isEmpty?: boolean;
 }
 
 export class MessageSenderResultSet implements IMessageSenderResultSet {
     count?: number;
-    items?: MessageSender[] | undefined;
+    items?: MessageSender[];
 
     constructor(data?: IMessageSenderResultSet) {
         if (data) {
@@ -5682,13 +5548,13 @@ export class MessageSenderResultSet implements IMessageSenderResultSet {
 
 export interface IMessageSenderResultSet {
     count?: number;
-    items?: MessageSender[] | undefined;
+    items?: MessageSender[];
 }
 
 export class MessageType implements IMessageType {
     id?: string;
-    name?: string | undefined;
-    alias?: string | undefined;
+    name?: string;
+    alias?: string;
     classification?: MessageTypeClassification;
 
     constructor(data?: IMessageType) {
@@ -5728,8 +5594,8 @@ export class MessageType implements IMessageType {
 
 export interface IMessageType {
     id?: string;
-    name?: string | undefined;
-    alias?: string | undefined;
+    name?: string;
+    alias?: string;
     classification?: MessageTypeClassification;
 }
 
@@ -5740,7 +5606,7 @@ export enum MessageTypeClassification {
 
 export class MessageTypeResultSet implements IMessageTypeResultSet {
     count?: number;
-    items?: MessageType[] | undefined;
+    items?: MessageType[];
 
     constructor(data?: IMessageTypeResultSet) {
         if (data) {
@@ -5783,12 +5649,12 @@ export class MessageTypeResultSet implements IMessageTypeResultSet {
 
 export interface IMessageTypeResultSet {
     count?: number;
-    items?: MessageType[] | undefined;
+    items?: MessageType[];
 }
 
 export class Period implements IPeriod {
-    from?: Date | undefined;
-    to?: Date | undefined;
+    from?: Date;
+    to?: Date;
 
     constructor(data?: IPeriod) {
         if (data) {
@@ -5822,16 +5688,16 @@ export class Period implements IPeriod {
 }
 
 export interface IPeriod {
-    from?: Date | undefined;
-    to?: Date | undefined;
+    from?: Date;
+    to?: Date;
 }
 
 export class ProblemDetails implements IProblemDetails {
-    type?: string | undefined;
-    title?: string | undefined;
-    status?: number | undefined;
-    detail?: string | undefined;
-    instance?: string | undefined;
+    type?: string;
+    title?: string;
+    status?: number;
+    detail?: string;
+    instance?: string;
 
     [key: string]: any;
 
@@ -5881,26 +5747,134 @@ export class ProblemDetails implements IProblemDetails {
 }
 
 export interface IProblemDetails {
-    type?: string | undefined;
-    title?: string | undefined;
-    status?: number | undefined;
-    detail?: string | undefined;
-    instance?: string | undefined;
+    type?: string;
+    title?: string;
+    status?: number;
+    detail?: string;
+    instance?: string;
 
     [key: string]: any;
 }
 
+export class RecepientPreference implements IRecepientPreference {
+    locale?: string;
+    consentCommercial?: boolean;
+    consentCommercialDate?: Date;
+    communicationPreferences?: RecepientPreferenceCommunication[];
+
+    constructor(data?: IRecepientPreference) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.locale = _data["locale"];
+            this.consentCommercial = _data["consentCommercial"];
+            this.consentCommercialDate = _data["consentCommercialDate"] ? new Date(_data["consentCommercialDate"].toString()) : <any>undefined;
+            if (Array.isArray(_data["communicationPreferences"])) {
+                this.communicationPreferences = [] as any;
+                for (let item of _data["communicationPreferences"])
+                    this.communicationPreferences!.push(RecepientPreferenceCommunication.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): RecepientPreference {
+        data = typeof data === 'object' ? data : {};
+        let result = new RecepientPreference();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["locale"] = this.locale;
+        data["consentCommercial"] = this.consentCommercial;
+        data["consentCommercialDate"] = this.consentCommercialDate ? this.consentCommercialDate.toISOString() : <any>undefined;
+        if (Array.isArray(this.communicationPreferences)) {
+            data["communicationPreferences"] = [];
+            for (let item of this.communicationPreferences)
+                data["communicationPreferences"].push(item ? item.toJSON() : <any>undefined);
+        }
+        return data;
+    }
+}
+
+export interface IRecepientPreference {
+    locale?: string;
+    consentCommercial?: boolean;
+    consentCommercialDate?: Date;
+    communicationPreferences?: RecepientPreferenceCommunication[];
+}
+
+export class RecepientPreferenceCommunication implements IRecepientPreferenceCommunication {
+    name?: string;
+    alias?: string;
+    channels?: ContactChannelKind[];
+
+    constructor(data?: IRecepientPreferenceCommunication) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.alias = _data["alias"];
+            if (Array.isArray(_data["channels"])) {
+                this.channels = [] as any;
+                for (let item of _data["channels"])
+                    this.channels!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): RecepientPreferenceCommunication {
+        data = typeof data === 'object' ? data : {};
+        let result = new RecepientPreferenceCommunication();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["alias"] = this.alias;
+        if (Array.isArray(this.channels)) {
+            data["channels"] = [];
+            for (let item of this.channels)
+                data["channels"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IRecepientPreferenceCommunication {
+    name?: string;
+    alias?: string;
+    channels?: ContactChannelKind[];
+}
+
 export class Template implements ITemplate {
+    content?: { [key: string]: MessageContent; };
+    data?: any;
     id?: string;
-    name?: string | undefined;
-    alias?: string | undefined;
+    name?: string;
+    alias?: string;
     ignoreUserPreferences?: boolean;
-    createdBy?: string | undefined;
+    createdBy?: string;
     createdAt?: Date;
-    updatedBy?: string | undefined;
-    updatedAt?: Date | undefined;
-    content?: { [key: string]: MessageContent; } | undefined;
-    data?: any | undefined;
+    updatedBy?: string;
+    updatedAt?: Date;
 
     constructor(data?: ITemplate) {
         if (data) {
@@ -5913,14 +5887,6 @@ export class Template implements ITemplate {
 
     init(_data?: any) {
         if (_data) {
-            this.id = _data["id"];
-            this.name = _data["name"];
-            this.alias = _data["alias"];
-            this.ignoreUserPreferences = _data["ignoreUserPreferences"];
-            this.createdBy = _data["createdBy"];
-            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
-            this.updatedBy = _data["updatedBy"];
-            this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
             if (_data["content"]) {
                 this.content = {} as any;
                 for (let key in _data["content"]) {
@@ -5929,6 +5895,14 @@ export class Template implements ITemplate {
                 }
             }
             this.data = _data["data"];
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.alias = _data["alias"];
+            this.ignoreUserPreferences = _data["ignoreUserPreferences"];
+            this.createdBy = _data["createdBy"];
+            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+            this.updatedBy = _data["updatedBy"];
+            this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
         }
     }
 
@@ -5941,14 +5915,6 @@ export class Template implements ITemplate {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["name"] = this.name;
-        data["alias"] = this.alias;
-        data["ignoreUserPreferences"] = this.ignoreUserPreferences;
-        data["createdBy"] = this.createdBy;
-        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
-        data["updatedBy"] = this.updatedBy;
-        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
         if (this.content) {
             data["content"] = {};
             for (let key in this.content) {
@@ -5957,33 +5923,41 @@ export class Template implements ITemplate {
             }
         }
         data["data"] = this.data;
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["alias"] = this.alias;
+        data["ignoreUserPreferences"] = this.ignoreUserPreferences;
+        data["createdBy"] = this.createdBy;
+        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+        data["updatedBy"] = this.updatedBy;
+        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
         return data;
     }
 }
 
 export interface ITemplate {
+    content?: { [key: string]: MessageContent; };
+    data?: any;
     id?: string;
-    name?: string | undefined;
-    alias?: string | undefined;
+    name?: string;
+    alias?: string;
     ignoreUserPreferences?: boolean;
-    createdBy?: string | undefined;
+    createdBy?: string;
     createdAt?: Date;
-    updatedBy?: string | undefined;
-    updatedAt?: Date | undefined;
-    content?: { [key: string]: MessageContent; } | undefined;
-    data?: any | undefined;
+    updatedBy?: string;
+    updatedAt?: Date;
 }
 
 export class TemplateListItem implements ITemplateListItem {
-    id?: string;
-    name?: string | undefined;
-    alias?: string | undefined;
-    ignoreUserPreferences?: boolean;
-    createdBy?: string | undefined;
-    createdAt?: Date;
-    updatedBy?: string | undefined;
-    updatedAt?: Date | undefined;
     channels?: MessageChannelKind[];
+    id?: string;
+    name?: string;
+    alias?: string;
+    ignoreUserPreferences?: boolean;
+    createdBy?: string;
+    createdAt?: Date;
+    updatedBy?: string;
+    updatedAt?: Date;
 
     constructor(data?: ITemplateListItem) {
         if (data) {
@@ -5996,6 +5970,11 @@ export class TemplateListItem implements ITemplateListItem {
 
     init(_data?: any) {
         if (_data) {
+            if (Array.isArray(_data["channels"])) {
+                this.channels = [] as any;
+                for (let item of _data["channels"])
+                    this.channels!.push(item);
+            }
             this.id = _data["id"];
             this.name = _data["name"];
             this.alias = _data["alias"];
@@ -6004,11 +5983,6 @@ export class TemplateListItem implements ITemplateListItem {
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
             this.updatedBy = _data["updatedBy"];
             this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
-            if (Array.isArray(_data["channels"])) {
-                this.channels = [] as any;
-                for (let item of _data["channels"])
-                    this.channels!.push(item);
-            }
         }
     }
 
@@ -6021,6 +5995,11 @@ export class TemplateListItem implements ITemplateListItem {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.channels)) {
+            data["channels"] = [];
+            for (let item of this.channels)
+                data["channels"].push(item);
+        }
         data["id"] = this.id;
         data["name"] = this.name;
         data["alias"] = this.alias;
@@ -6029,30 +6008,25 @@ export class TemplateListItem implements ITemplateListItem {
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
         data["updatedBy"] = this.updatedBy;
         data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
-        if (Array.isArray(this.channels)) {
-            data["channels"] = [];
-            for (let item of this.channels)
-                data["channels"].push(item);
-        }
         return data;
     }
 }
 
 export interface ITemplateListItem {
-    id?: string;
-    name?: string | undefined;
-    alias?: string | undefined;
-    ignoreUserPreferences?: boolean;
-    createdBy?: string | undefined;
-    createdAt?: Date;
-    updatedBy?: string | undefined;
-    updatedAt?: Date | undefined;
     channels?: MessageChannelKind[];
+    id?: string;
+    name?: string;
+    alias?: string;
+    ignoreUserPreferences?: boolean;
+    createdBy?: string;
+    createdAt?: Date;
+    updatedBy?: string;
+    updatedAt?: Date;
 }
 
 export class TemplateListItemResultSet implements ITemplateListItemResultSet {
     count?: number;
-    items?: TemplateListItem[] | undefined;
+    items?: TemplateListItem[];
 
     constructor(data?: ITemplateListItemResultSet) {
         if (data) {
@@ -6095,20 +6069,20 @@ export class TemplateListItemResultSet implements ITemplateListItemResultSet {
 
 export interface ITemplateListItemResultSet {
     count?: number;
-    items?: TemplateListItem[] | undefined;
+    items?: TemplateListItem[];
 }
 
 export class UpdateCampaignRequest implements IUpdateCampaignRequest {
     isGlobal?: boolean;
     title?: string;
-    content?: { [key: string]: MessageContent; } | undefined;
+    content?: { [key: string]: MessageContent; };
     actionLink?: Hyperlink;
     activePeriod?: Period;
-    mediaBaseHref?: string | undefined;
-    typeId?: string | undefined;
-    recipientListId?: string | undefined;
-    messageTemplateId?: string | undefined;
-    data?: any | undefined;
+    mediaBaseHref?: string;
+    typeId?: string;
+    recipientListId?: string;
+    messageTemplateId?: string;
+    data?: any;
     messageTemplateChannels?: MessageChannelKind[];
 
     constructor(data?: IUpdateCampaignRequest) {
@@ -6183,29 +6157,27 @@ export class UpdateCampaignRequest implements IUpdateCampaignRequest {
 export interface IUpdateCampaignRequest {
     isGlobal?: boolean;
     title?: string;
-    content?: { [key: string]: MessageContent; } | undefined;
+    content?: { [key: string]: MessageContent; };
     actionLink?: Hyperlink;
     activePeriod?: Period;
-    mediaBaseHref?: string | undefined;
-    typeId?: string | undefined;
-    recipientListId?: string | undefined;
-    messageTemplateId?: string | undefined;
-    data?: any | undefined;
+    mediaBaseHref?: string;
+    typeId?: string;
+    recipientListId?: string;
+    messageTemplateId?: string;
+    data?: any;
     messageTemplateChannels?: MessageChannelKind[];
 }
 
 export class UpdateContactRequest implements IUpdateContactRequest {
-    recipientId?: string | undefined;
-    salutation?: string | undefined;
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    fullName?: string | undefined;
-    email?: string | undefined;
-    phoneNumber?: string | undefined;
-    locale?: string | undefined;
-    communicationPreferences?: CommunicationPreferences[];
-    consentCommercial?: boolean;
-    distributionListId?: string | undefined;
+    recipientId?: string;
+    salutation?: string;
+    firstName?: string;
+    lastName?: string;
+    fullName?: string;
+    email?: string;
+    phoneNumber?: string;
+    distributionListId?: string;
+    communicationPreference?: RecepientPreference;
 
     constructor(data?: IUpdateContactRequest) {
         if (data) {
@@ -6225,14 +6197,8 @@ export class UpdateContactRequest implements IUpdateContactRequest {
             this.fullName = _data["fullName"];
             this.email = _data["email"];
             this.phoneNumber = _data["phoneNumber"];
-            this.locale = _data["locale"];
-            if (Array.isArray(_data["communicationPreferences"])) {
-                this.communicationPreferences = [] as any;
-                for (let item of _data["communicationPreferences"])
-                    this.communicationPreferences!.push(item);
-            }
-            this.consentCommercial = _data["consentCommercial"];
             this.distributionListId = _data["distributionListId"];
+            this.communicationPreference = _data["communicationPreference"] ? RecepientPreference.fromJS(_data["communicationPreference"]) : <any>undefined;
         }
     }
 
@@ -6252,30 +6218,22 @@ export class UpdateContactRequest implements IUpdateContactRequest {
         data["fullName"] = this.fullName;
         data["email"] = this.email;
         data["phoneNumber"] = this.phoneNumber;
-        data["locale"] = this.locale;
-        if (Array.isArray(this.communicationPreferences)) {
-            data["communicationPreferences"] = [];
-            for (let item of this.communicationPreferences)
-                data["communicationPreferences"].push(item);
-        }
-        data["consentCommercial"] = this.consentCommercial;
         data["distributionListId"] = this.distributionListId;
+        data["communicationPreference"] = this.communicationPreference ? this.communicationPreference.toJSON() : <any>undefined;
         return data;
     }
 }
 
 export interface IUpdateContactRequest {
-    recipientId?: string | undefined;
-    salutation?: string | undefined;
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    fullName?: string | undefined;
-    email?: string | undefined;
-    phoneNumber?: string | undefined;
-    locale?: string | undefined;
-    communicationPreferences?: CommunicationPreferences[];
-    consentCommercial?: boolean;
-    distributionListId?: string | undefined;
+    recipientId?: string;
+    salutation?: string;
+    firstName?: string;
+    lastName?: string;
+    fullName?: string;
+    email?: string;
+    phoneNumber?: string;
+    distributionListId?: string;
+    communicationPreference?: RecepientPreference;
 }
 
 export class UpdateDistributionListRequest implements IUpdateDistributionListRequest {
@@ -6315,8 +6273,8 @@ export interface IUpdateDistributionListRequest {
 }
 
 export class UpdateMessageSenderRequest implements IUpdateMessageSenderRequest {
-    sender?: string | undefined;
-    displayName?: string | undefined;
+    sender?: string;
+    displayName?: string;
     isDefault?: boolean;
 
     constructor(data?: IUpdateMessageSenderRequest) {
@@ -6353,14 +6311,14 @@ export class UpdateMessageSenderRequest implements IUpdateMessageSenderRequest {
 }
 
 export interface IUpdateMessageSenderRequest {
-    sender?: string | undefined;
-    displayName?: string | undefined;
+    sender?: string;
+    displayName?: string;
     isDefault?: boolean;
 }
 
 export class UpdateMessageTypeRequest implements IUpdateMessageTypeRequest {
     name?: string;
-    alias?: string | undefined;
+    alias?: string;
     classification?: MessageTypeClassification;
 
     constructor(data?: IUpdateMessageTypeRequest) {
@@ -6398,15 +6356,15 @@ export class UpdateMessageTypeRequest implements IUpdateMessageTypeRequest {
 
 export interface IUpdateMessageTypeRequest {
     name?: string;
-    alias?: string | undefined;
+    alias?: string;
     classification?: MessageTypeClassification;
 }
 
 export class UpdateTemplateRequest implements IUpdateTemplateRequest {
-    name?: string | undefined;
-    alias?: string | undefined;
-    content?: { [key: string]: MessageContent; } | undefined;
-    data?: any | undefined;
+    name?: string;
+    alias?: string;
+    content?: { [key: string]: MessageContent; };
+    data?: any;
 
     constructor(data?: IUpdateTemplateRequest) {
         if (data) {
@@ -6456,10 +6414,10 @@ export class UpdateTemplateRequest implements IUpdateTemplateRequest {
 }
 
 export interface IUpdateTemplateRequest {
-    name?: string | undefined;
-    alias?: string | undefined;
-    content?: { [key: string]: MessageContent; } | undefined;
-    data?: any | undefined;
+    name?: string;
+    alias?: string;
+    content?: { [key: string]: MessageContent; };
+    data?: any;
 }
 
 export class UpdateTemplateUserPreferencesRequest implements IUpdateTemplateUserPreferencesRequest {
@@ -6499,7 +6457,7 @@ export interface IUpdateTemplateUserPreferencesRequest {
 }
 
 export class UploadFileRequest implements IUploadFileRequest {
-    file!: string;
+    file!: string | undefined;
 
     constructor(data?: IUploadFileRequest) {
         if (data) {
@@ -6531,22 +6489,7 @@ export class UploadFileRequest implements IUploadFileRequest {
 }
 
 export interface IUploadFileRequest {
-    file: string;
-}
-
-export enum MessageChannelKind {
-    None = "None",
-    Inbox = "Inbox",
-    PushNotification = "PushNotification",
-    Email = "Email",
-    SMS = "SMS",
-}
-
-export enum CommunicationPreferences {
-    Any = "Any",
-    Email = "Email",
-    SMS = "SMS",
-    PushNotification = "PushNotification",
+    file: string | undefined;
 }
 
 export interface FileResponse {
@@ -6602,7 +6545,6 @@ function blobToText(blob: any): Observable<string> {
         }
     });
 }
-
 export interface FileParameter {
   data: any;
   fileName: string;

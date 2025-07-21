@@ -12,8 +12,8 @@ import { Contact, ContactResultSet, MessagesApiClient } from 'src/app/core/servi
 export class ContactsListComponent extends BaseListComponent<Contact> implements OnInit {
   constructor(
     route: ActivatedRoute,
-    private _router: Router,
-    private _api: MessagesApiClient
+    private readonly _router: Router,
+    private readonly _api: MessagesApiClient
     
   ) {
     super(route, _router);

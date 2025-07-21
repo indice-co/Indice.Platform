@@ -4,10 +4,8 @@ public class RecepientPreference
 {
     /// <summary>Contact's locale.</summary>
     public string? Locale { get; set; }
-
     /// <summary>Indicates if user accepted conset to receive email.</summary>
     public bool ConsentCommercial { get; set; }
-
     /// <summary>Indicates if user accepted conset to receive email.</summary>
     public DateTimeOffset? ConsentCommercialDate { get; set; }
     /// <summary>Communication preferences per message type.</summary>
@@ -21,5 +19,5 @@ public class RecepientPreferenceCommunication
     /// <summary>The alias of a campaign type.</summary>
     public string? Alias { get; set; }
     /// <summary>The preferred delivery channels to receive messages.</summary>
-    public ContactChannelKind CommunicationPreferences { get; set; } = ContactChannelKind.Any;
+    public List<ContactChannelKind> Channels { get; set; } = [ContactChannelKind.Any];
 }

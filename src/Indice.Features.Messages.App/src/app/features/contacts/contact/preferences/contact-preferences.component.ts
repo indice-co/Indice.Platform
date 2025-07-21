@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { CommunicationPreference, CommunicationPreferences, Contact, MessagesApiClient } from 'src/app/core/services/messages-api.service';
+import { RecepientPreference, ContactChannelKind, Contact, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { ContactStore } from '../contact-store.service';
 
 @Component({
@@ -10,8 +10,8 @@ import { ContactStore } from '../contact-store.service';
 })
 export class ContactPreferencesComponent implements OnInit {
   private _contactId: string | undefined;
-  communicationPreference: CommunicationPreference | undefined;
-  protected communicationPreferencesEnum = CommunicationPreferences;
+  recepientPreference: RecepientPreference | undefined;
+  protected ContactChannelKindEnum = ContactChannelKind;
 
   constructor(
     private readonly _ContactStore: ContactStore,
@@ -28,14 +28,14 @@ export class ContactPreferencesComponent implements OnInit {
         this._contact = item;
         console.log(item);
       });
-      this._api.getCommunicationPreferences(this._contactId).subscribe((communicationPreference: CommunicationPreference) => {
-        this.communicationPreference = communicationPreference;
+      this._api.getCommunicationPreferences(this._contactId).subscribe((communicationPreference: RecepientPreference) => {
+        this.recepientPreference = communicationPreference;
       });
     }
   }
 
-  public CheckReceivePreference(communicationPreferences: CommunicationPreferences[], option: CommunicationPreferences): boolean {
-    return communicationPreferences.indexOf(option) >= 0 || communicationPreferences.indexOf(CommunicationPreferences.Any) >= 0;
+  public CheckReceivePreference(communicationPreferences: ContactChannelKind[], option: ContactChannelKind): boolean {
+    return communicationPreferences.indexOf(option) >= 0 || communicationPreferences.indexOf(ContactChannelKind.Any) >= 0;
   }
   
 }
