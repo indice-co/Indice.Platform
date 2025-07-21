@@ -1,6 +1,5 @@
 ﻿#if NET9_0_OR_GREATER
 using System.ComponentModel;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
@@ -62,10 +61,12 @@ internal static class EnumTransformer
                 writeDescriptions |= !string.IsNullOrWhiteSpace(fields[enumNames[i]].Description);
             }
             schema.Extensions.Add("x-enum-varnames", openApiNameArray);
-            if (writeDescriptions) { 
+            if (writeDescriptions) {
                 schema.Extensions.Add("x-enum-descriptions", openApiDescArray);
             }
             schema.Enum = openApiValueArray;
+        } else if(isString) { 
+            schema.Enum = schema.Enum.Where(e => (e as OpenApiString)!.Value != null).ToList();
         }
         return Task.CompletedTask;
     }

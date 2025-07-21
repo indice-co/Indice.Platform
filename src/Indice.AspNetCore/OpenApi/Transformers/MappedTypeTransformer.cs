@@ -23,7 +23,7 @@ internal static class MappedTypeTransformer
         options.MapType<JsonElement>(new() { Type = "object" });
         options.MapType<Stream>(new() { Type = "string", Format = "binary" });
         options.MapType<IFormFile>(new() { Type = "string", Format = "binary" });
-        options.MapType<IFormFileCollection>(new() { Type = "array", Items = new () { Type = "string", Format = "binary" } });
+        options.MapType<IFormFileCollection>(new() { Type = "array", Items = new() { Type = "string", Format = "binary" } });
         options.MapType<FilterClause>(new() { Type = "string" });
         options.MapType<GeoPoint>(new() { Type = "string" });
         options.MapType<Base64Id>(new() { Type = "string" });
