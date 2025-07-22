@@ -245,37 +245,75 @@ public class ContactService : IContactService
     public async Task<ContactPreferences?> GetByRecipientId(string? recipientId) {
         if (string.IsNullOrWhiteSpace(recipientId))
             return null;
-
-        return await DbContext.Contacts
-                    .Where(contact => contact.RecipientId!.ToLower() == recipientId.ToLower())
-                    .Join(DbContext.RecipientPreferences,
-                            contact => contact.RecipientId,
-                            rp => rp.RecipientId,
-                            (contact, rp) => new ContactPreferences() {
-                                Id = contact.Id,
-                                RecipientId = contact.RecipientId,
-                                Email = contact.Email,
-                                FirstName = contact.FirstName,
-                                LastName = contact.LastName,
-                                FullName = contact.FullName,
-                                PhoneNumber = contact.PhoneNumber,
-                                Salutation = contact.Salutation,
-                                UpdatedAt = contact.UpdatedAt,
-                                Preferences = rp == null ? new RecepientPreference() : new RecepientPreference() {
-                                    Locale = rp.Locale,
-                                    ConsentCommercial = rp.ConsentCommercial,
-                                    ConsentCommercialDate = rp.ConsentCommercialDate,
-                                    CommunicationPreferences = DbContext.RecipientCommunicationPreferences
-                                                               .Where(rcp => rcp.CommunicationPreferenceId == rp.Id)
-                                                               .Join(DbContext.MessageTypes,
-                                                                    rcp => rcp.TypeId,
-                                                                    mt => mt.Id,
-                                                                    (rcp, mt) => new { rcp, mt })
-                                                               .Select(x => new RecepientPreferenceCommunication() {
-                                                                   Alias = x.mt.Alias,
-                                                                   Channels = x.rcp.CommunicationPreferences.ToList()
-                                                               }).ToList()
-                                }
-                            }).SingleOrDefaultAsync();
+        //var query = DbContext.Contacts.Where(contact => contact.RecipientId == recipientId)
+        //            .Join(DbContext.RecipientPreferences,
+        //                    contact => contact.RecipientId,
+        //                    rp => rp.RecipientId,
+        //                    (contact, rp) => new ContactPreferences() {
+        //                        Id = contact.Id,
+        //                        RecipientId = contact.RecipientId,
+        //                        Email = contact.Email,
+        //                        FirstName = contact.FirstName,
+        //                        LastName = contact.LastName,
+        //                        FullName = contact.FullName,
+        //                        PhoneNumber = contact.PhoneNumber,
+        //                        Salutation = contact.Salutation,
+        //                        UpdatedAt = contact.UpdatedAt,
+        //                        Preferences = rp == null ? new RecepientPreference() : new RecepientPreference() {
+        //                            Locale = rp.Locale,
+        //                            ConsentCommercial = rp.ConsentCommercial,
+        //                            ConsentCommercialDate = rp.ConsentCommercialDate,
+        //                            CommunicationPreferences = DbContext.RecipientCommunicationPreferences
+        //                                                       .Where(rcp => rcp.CommunicationPreferenceId == rp.Id)
+        //                                                       .Join(DbContext.MessageTypes,
+        //                                                            rcp => rcp.TypeId,
+        //                                                            mt => mt.Id,
+        //                                                            (rcp, mt) => new { rcp, mt })
+        //                                                       .Select(x => new RecepientPreferenceCommunication() {
+        //                                                           Alias = x.mt.Alias,
+        //                                                           Channels = x.rcp.CommunicationPreferences.ToList()
+        //                                                       }).ToList()
+        //                        }
+        //                    });
+        var query = DbContext.Contacts
+    .Where(contact => contact.RecipientId == recipientId)
+    .GroupJoin(
+        DbContext.RecipientPreferences,
+        contact => contact.RecipientId,
+        rp => rp.RecipientId,
+        (contact, rps) => new { contact, rps }
+    )
+    .SelectMany(
+        x => x.rps.DefaultIfEmpty(),
+        (x, rp) => new ContactPreferences {
+            Id = x.contact.Id,
+            RecipientId = x.contact.RecipientId,
+            Email = x.contact.Email,
+            FirstName = x.contact.FirstName,
+            LastName = x.contact.LastName,
+            FullName = x.contact.FullName,
+            PhoneNumber = x.contact.PhoneNumber,
+            Salutation = x.contact.Salutation,
+            UpdatedAt = x.contact.UpdatedAt,
+            Preferences = rp == null ? new RecepientPreference() : new RecepientPreference {
+                Locale = rp.Locale,
+                ConsentCommercial = rp.ConsentCommercial,
+                ConsentCommercialDate = rp.ConsentCommercialDate,
+                CommunicationPreferences = DbContext.RecipientCommunicationPreferences
+                    .Where(rcp => rcp.CommunicationPreferenceId == rp.Id)
+                    .Join(
+                        DbContext.MessageTypes,
+                        rcp => rcp.TypeId,
+                        mt => mt.Id,
+                        (rcp, mt) => new { rcp, mt }
+                    )
+                    .Select(x => new RecepientPreferenceCommunication {
+                        Alias = x.mt.Alias,
+                        Channels = x.rcp.CommunicationPreferences.ToList()
+                    })
+                    .ToList()
+            }
+        });
+        return await query.SingleOrDefaultAsync();
     }
 }

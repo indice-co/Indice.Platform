@@ -75,16 +75,16 @@ public static class IContactServiceExtensions
         return (await contactService.GetList(options)).Items.FirstOrDefault();
     }
 
-    ///// <summary>Gets a contact by it's recipient id.</summary>
-    ///// <param name="contactService">The <see cref="IContactService"/> to extend.</param>
-    ///// <param name="recipientId">The id of the recipient.</param>
-    ///// <returns></returns>
-    //public async static Task<Contact?> FindByRecipientId(this IContactService contactService, string? recipientId) {
-    //    if (string.IsNullOrEmpty(recipientId)) {
-    //        throw new ArgumentNullException(nameof(recipientId));
-    //    }
-    //    var options = new ListOptions<ContactListFilter> { Size = 1 };
-    //    options.Filter.RecipientId = recipientId;
-    //    return (await contactService.GetList(options)).Items.FirstOrDefault();
-    //}
+    /// <summary>Gets a contact by it's recipient id.</summary>
+    /// <param name="contactService">The <see cref="IContactService"/> to extend.</param>
+    /// <param name="recipientId">The id of the recipient.</param>
+    /// <returns></returns>
+    public async static Task<Contact?> FindByRecipientId(this IContactService contactService, string? recipientId) {
+        if (string.IsNullOrEmpty(recipientId)) {
+            throw new ArgumentNullException(nameof(recipientId));
+        }
+        var options = new ListOptions<ContactListFilter> { Size = 1 };
+        options.Filter.RecipientId = recipientId;
+        return (await contactService.GetList(options)).Items.FirstOrDefault();
+    }
 }

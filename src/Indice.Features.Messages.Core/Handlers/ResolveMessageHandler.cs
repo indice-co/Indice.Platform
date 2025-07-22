@@ -57,23 +57,34 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
     /// <summary>Decides whether to insert or update a resolved contact.</summary>
     /// <param name="event">The event model used when a contact is resolved from an external system.</param>
     public async Task Process(ResolveMessageEvent @event) {
-        var campaign = @event.Campaign;
+        var campaign = @event.Campaign!;
+        var contact = await GetCampaignContactWithPreferences(@event, campaign);
+        // In case this is not yet published we should stop here so no messages get sent yet.
+        if (!@event.Campaign!.Published) {
+            return;
+        }
+        // Make substitution to message content using contact resolved data.
+        GenerateMessageContent(campaign, contact);
+        
+        await CreateMessageAndDispatch(@event, campaign, contact);
+    }
+
+
+    private async Task<ContactPreferences> GetCampaignContactWithPreferences(ResolveMessageEvent @event, CampaignCreatedEvent campaign) {
         ContactPreferences? contact = null;
         var contactNotUpdatedAWhileNow = !@event.Contact!.UpdatedAt.HasValue
-            || (DateTimeOffset.UtcNow - @event.Contact.UpdatedAt.Value) > TimeSpan.FromDays(Options.ContactRetainPeriodInDays);
+                                       || (DateTimeOffset.UtcNow - @event.Contact.UpdatedAt.Value) > TimeSpan.FromDays(Options.ContactRetainPeriodInDays);
         if (!@event.Contact.IsAnonymous) {
             contact = await ContactService.GetByRecipientId(@event.Contact.RecipientId);
-            if (contact is null) {
-                contact = await ContactResolver.Resolve(@event.Contact.RecipientId);
-            } else if (contactNotUpdatedAWhileNow || @event.Contact.IsEmpty) {
-                contact = await ContactResolver.Patch(@event.Contact.RecipientId, contact);
+            if (contactNotUpdatedAWhileNow || @event.Contact.IsEmpty) {
+                contact = await ContactResolver.Patch(@event.Contact.RecipientId, contact!);
             }
         } else {
             // Anonymous contact should find by email or phone number.
             if (@event.Contact.HasEmail) {
-                contact = await ContactService.FindByEmail(@event.Contact.Email!) as ContactPreferences;
+                contact = (await ContactService.FindByEmail(@event.Contact.Email!)).ToContactPreferences();
             } else if (@event.Contact.HasPhoneNumber) {
-                contact = await ContactService.FindByPhoneNumber(@event.Contact.PhoneNumber!) as ContactPreferences;
+                contact = (await ContactService.FindByPhoneNumber(@event.Contact.PhoneNumber!)).ToContactPreferences();
             }
             // If found but is already anonymous try to patch with filled data.
             if (contact is not null && contact.IsAnonymous) {
@@ -84,18 +95,28 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
                 contact.Email = string.IsNullOrEmpty(contact.Email) ? @event.Contact.Email : contact.Email;
             }
         }
-        contact ??= @event.Contact as ContactPreferences;
+        contact ??= @event.Contact.ToContactPreferences();
         if ((contactNotUpdatedAWhileNow || @event.Contact.IsEmpty) && contact.Id.HasValue) {
             await ContactService.Update(contact.Id.Value, Mapper.ToUpdateContactRequest(contact, campaign!.DistributionListId));
             if (!string.IsNullOrWhiteSpace(contact.RecipientId) && contact.Preferences is not null) {
                 await _recepientPreference.UpdateContactPreferences(contact.RecipientId, contact.Preferences);
             }
         }
-        // In case this is not yet published we should stop here so no messages get sent yet.
-        if (!@event.Campaign!.Published) {
-            return;
-        }
-        // Make substitution to message content using contact resolved data.
+
+        return contact;
+    }
+
+    private async Task LogEvent(CampaignCreatedEvent campaign, Contact contact, MessageChannelKind kind, Guid messageId) {
+        await CampaignEventQueue.EnqueueAsync(new MessageEvent() {
+            CampaignId = campaign.Id,
+            ContactId = contact.Id!.Value,
+            MessageId = messageId,
+            Type = MessageEventType.Created.ToString(),
+            Channel = kind.ToString()
+        });
+    }
+
+    private static void GenerateMessageContent(CampaignCreatedEvent campaign, ContactPreferences? contact) {
         var handlebars = Handlebars.Create();
         handlebars.Configuration.TextEncoder = new HtmlEncoder();
         handlebars.Configuration.UseJson();
@@ -122,6 +143,9 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
             messageContent.Title = handlebars.Compile(content.Value.Title)(templateData);
             messageContent.Body = handlebars.Compile(content.Value.Body)(templateData);
         }
+    }
+
+    private async Task CreateMessageAndDispatch(ResolveMessageEvent @event, CampaignCreatedEvent campaign, ContactPreferences contact) {
         // Persist message with merged contents.
         var messageId = await MessageService.Create(new CreateMessageRequest {
             CampaignId = campaign.Id,
@@ -151,13 +175,4 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         }
     }
 
-    private async Task LogEvent(CampaignCreatedEvent campaign, Contact contact, MessageChannelKind kind, Guid messageId) {
-        await CampaignEventQueue.EnqueueAsync(new MessageEvent() {
-            CampaignId = campaign.Id,
-            ContactId = contact.Id!.Value,
-            MessageId = messageId,
-            Type = MessageEventType.Created.ToString(),
-            Channel = kind.ToString()
-        });
-    }
 }
