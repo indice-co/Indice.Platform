@@ -207,7 +207,7 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
           ? (result as (m: any) => T)(model)
           : result as T;
       } catch {
-        console.warn(`Could not evaluate option "${name}":`, raw);
+        // Ignore errors in evaluation, fallback to default
       }
     }
 
