@@ -40,7 +40,7 @@ import { ContactDetailsComponent } from './features/contacts/contact/details/con
 import { ContactCampaignsComponent } from './features/contacts/contact/campaigns/contact-campaigns.component';
 import { ContactEditComponent } from './features/contacts/contact/details/edit/contact-edit.component';
 import { ContactPreferencesComponent } from './features/contacts/contact/preferences/contact-preferences.component';
-
+import { ContactCreateComponent } from './features/contacts/contact/create/contact-create.component';
 import { HighlightModule, HIGHLIGHT_OPTIONS } from 'ngx-highlightjs';
 import { HomeComponent } from './features/home/home.component';
 import { HttpStatusComponent } from './shared/components/http-status/http-status.component';
@@ -153,6 +153,7 @@ if (app.settings.tenantId) {
     ContactCampaignsComponent,
     ContactEditComponent,
     ContactPreferencesComponent,
+    ContactCreateComponent,
     HomeComponent,
     LocalDropDownMenuComponent,
     LogOutComponent,

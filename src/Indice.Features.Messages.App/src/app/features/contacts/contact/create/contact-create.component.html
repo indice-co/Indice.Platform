@@ -2,10 +2,10 @@
                       [ok-close-dialog]="false"
                       [ok-label]="'Προσθήκη'"
                       [cancel-label]="'Κλείσιμο'"
-                      (ok)="distributionListContactCreateComponent.submit()"
+                      (ok)="contactCreateComponent.submit()"
                       [disabled]="submitInProgress"
                       #sideViewLayout>
     <div class="mt-4">
-        <app-list-contact-create #distributionListContactCreateComponent (onSubmit)="onSubmit($event)"></app-list-contact-create>
+        <app-list-contact-create #contactCreateComponent (onSubmit)="onSubmit($event)"></app-list-contact-create>
     </div>
 </lib-side-view-layout>

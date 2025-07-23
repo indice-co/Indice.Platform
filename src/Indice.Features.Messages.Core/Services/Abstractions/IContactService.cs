@@ -24,8 +24,8 @@ public interface IContactService
     Task AddToDistributionList(Guid id, CreateDistributionListContactRequest request);
     /// <summary>Bulk imports contacts to an existing distribution list.</summary>
     /// <param name="id"></param>
-    /// <param name="request"></param>
-    Task<ContactsImportResult> BulkAddToDistributionList(Guid id, IEnumerable<CreateDistributionListContactRequest> request);
+    /// <param name="requestList"></param>
+    Task<ContactsImportResult> BulkAddToDistributionList(Guid id, IEnumerable<CreateDistributionListContactRequest> requestList);
     /// <summary>Creates a new contact.</summary>
     /// <param name="request">The data for the contact to create.</param>
     Task<Contact> Create(CreateContactRequest request);

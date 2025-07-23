@@ -10,7 +10,7 @@ import { ListContactCreateComponent } from 'src/app/shared/components/list-conta
   templateUrl: './distribution-list-contact-create.component.html'
 })
 export class DistributionListContactCreateComponent implements OnInit, AfterViewInit {
-  @ViewChild('contactCreateComponent', { static: false }) public contactCreateComponent!: ListContactCreateComponent;
+  @ViewChild('distributionListContactCreateComponent', { static: false }) public distributionListContactCreateComponent!: ListContactCreateComponent;
 
   private _distributionListId: string = '';
 
