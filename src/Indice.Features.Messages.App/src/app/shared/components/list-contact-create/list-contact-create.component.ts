@@ -31,7 +31,7 @@ export class ListContactCreateComponent implements AfterViewInit {
 
     public displayShowMoreOption: boolean = false;
     private _page: number = 1;
-    private _pageSize: number = 2;
+    private _pageSize: number = 6;
     private _lastSearchTerm: string | undefined = undefined;
 
     public async onContactsSearch(searchTerm: string | undefined): Promise<void> {
