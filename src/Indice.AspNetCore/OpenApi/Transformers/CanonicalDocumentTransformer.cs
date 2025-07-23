@@ -4,8 +4,10 @@ using Microsoft.OpenApi.Models;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
-// OpenAPI Document Transformer to convert the document to a canonical form
-internal class CanonicalDocumentTransformer : IOpenApiDocumentTransformer
+/// <summary>
+/// OpenAPI Document Transformer to convert the document to a canonical form. Orders paths, operations, and tags.
+/// </summary>
+public class CanonicalDocumentTransformer : IOpenApiDocumentTransformer
 {
     private class OperationTypeComparer : IComparer<OperationType>
     {
@@ -25,6 +27,7 @@ internal class CanonicalDocumentTransformer : IOpenApiDocumentTransformer
         }
     }
 
+    /// <inheritdoc/>
     public Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken) {
         // Sort the paths by key
         var sortedPaths = document.Paths.OrderBy(p => p.Key).ToDictionary(p => p.Key, p => p.Value);

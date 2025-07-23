@@ -1,16 +1,19 @@
 ﻿#if NET9_0_OR_GREATER
-
-using System.Collections;
-using System.Data;
-using System.Security.Cryptography.Xml;
 using System.Text.Json.Serialization.Metadata;
 using System.Text.RegularExpressions;
 using Indice.Types;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi.Models;
 
-namespace Indice.AspNetCore.OpenApi.Transformers;
-internal static class TypeConventionTransformer
+namespace Microsoft.Extensions.DependencyInjection;
+
+/// <summary>
+/// Provides methods for transforming type conventions in OpenAPI schema generation.
+/// </summary>
+/// <remarks>This class includes functionality to modify schema reference IDs and apply custom transformations to
+/// OpenAPI schemas based on specific type conventions. It is designed to be used with OpenAPI options to enhance schema
+/// generation for APIs.</remarks>
+public static class TypeConventionTransformer
 {
     internal class ChainedDelegate(Func<JsonTypeInfo, string?> next)
     {
@@ -24,6 +27,11 @@ internal static class TypeConventionTransformer
             return result;
         }
     }
+    /// <summary>
+    /// Adds a indice conventions transformer to the OpenAPI options.
+    /// </summary>
+    /// <param name="options">The open api options to configure</param>
+    /// <returns>the options for further configuration</returns>
     public static OpenApiOptions AddConventionsTransformer(this OpenApiOptions options) {
 
         var chainedDelegate = new ChainedDelegate(options.CreateSchemaReferenceId);
@@ -35,42 +43,10 @@ internal static class TypeConventionTransformer
     }
 
 
-    public static Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken cancellationToken) {
+    internal static Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken cancellationToken) {
         // If transforms contains the schema's type, set the schema type and format from the transform schema
         if (CanTransform(schema, context.JsonTypeInfo.Type)) {
             schema.AdditionalPropertiesAllowed = false;
-        }
-        if (schema.Type == "array" && string.IsNullOrEmpty(schema.Items?.Type)) {
-            var itemSchema = new OpenApiSchema() { };
-            // element type switch.
-
-            switch (context.JsonTypeInfo.ElementType) {
-                case Type t when t == typeof(int):
-                    itemSchema.Type = "integer";
-                    itemSchema.Format = "int32";
-                    break;
-                case Type t when t == typeof(decimal) || t == typeof(double):
-                    itemSchema.Type = "number";
-                    itemSchema.Format = "double";
-                    break;
-                case Type t when t == typeof(DateTime):
-                    itemSchema.Type = "string";
-                    itemSchema.Format = "date-time";
-                    break;
-                case Type t when t == typeof(string):
-                    itemSchema.Type = "string";
-                    break;
-
-                case Type t when t.IsEnum:
-                    itemSchema.Annotations = new Dictionary<string, object> {
-                        ["x-schema-key"] = t.Name
-                    };
-                    break;
-                default:
-                    
-                    break;
-            }
-            schema.Items = new OpenApiSchema(itemSchema);
         }
         return Task.CompletedTask;
     }
