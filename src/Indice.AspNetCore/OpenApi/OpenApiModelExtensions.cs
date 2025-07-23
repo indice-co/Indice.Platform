@@ -102,9 +102,9 @@ public static class OpenApiModelExtensions
         };
     }
 
-    private static Type? GetAnyElementType(Type type) {
+    internal static Type? GetAnyElementType(this Type type) {
         // Type is Array. Short-circuit if you expect lots of arrays.
-        if (type.IsArray) {
+        if (type.IsArray || type.HasElementType) {
             return type.GetElementType();
         }
         // Type is IEnumerable<T>.

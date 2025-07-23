@@ -34,40 +34,41 @@ internal static class EnumTransformer
     }
 
     private static Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken cancellationToken) {
-        var type = Nullable.GetUnderlyingType(context.JsonTypeInfo.Type) ?? context.JsonTypeInfo.Type;
-        if (!type.IsEnum && !context.JsonTypeInfo.Type.IsFlagsEnum()) {
+        //if (schema.Type == "array" && context.JsonTypeInfo.ElementType?.IsEnum == true) {
+        //    schema.Items.Annotations ??= new Dictionary<string, object>();
+        //    schema.Items.Annotations?.Clear();
+        //    schema.Items.Annotations!.Add("x-schema-id", context.JsonTypeInfo.ElementType.Name);
+        //}
+        var enumType = Nullable.GetUnderlyingType(context.JsonTypeInfo.Type) ?? context.JsonTypeInfo.Type;
+        if (!enumType.IsEnum || schema.Extensions.Count > 0) {
             return Task.CompletedTask;
         }
         var isString = context.JsonTypeInfo.Options.Converters.OfType<JsonStringEnumConverter>().Any();
 
-        var enumType = Nullable.GetUnderlyingType(context.JsonTypeInfo.Type) ?? context.JsonTypeInfo.Type;
         schema.Type = isString ? "string" : "integer";
         schema.Format = null;
-        if (schema.Enum is null || schema.Enum.Count == 0) {
-            var fields = enumType.GetFields(BindingFlags.Public | BindingFlags.Static).ToDictionary(x => x.Name, x => new {
-                Name = x.GetCustomAttribute<JsonStringEnumMemberNameAttribute>()?.Name ?? x.GetCustomAttribute<EnumMemberAttribute>()?.Value ?? x.Name,
-                x.GetCustomAttribute<DescriptionAttribute>()?.Description
-            });
-            var enumNames = Enum.GetNames(enumType);
-            var enumValues = Enum.GetValuesAsUnderlyingType(enumType).Cast<object>().Select(Convert.ToInt32).ToArray();
-            var openApiValueArray = new OpenApiArray();
-            var openApiNameArray = new OpenApiArray();
-            var openApiDescArray = new OpenApiArray();
-            bool writeDescriptions = false;
-            for (int i = 0; i < enumValues.Length; i++) {
-                openApiValueArray.Add(isString ? new OpenApiString(fields[enumNames[i]].Name) : new OpenApiInteger(enumValues[i]));
-                openApiNameArray.Add(new OpenApiString(enumNames[i]));
-                openApiDescArray.Add(new OpenApiString(fields[enumNames[i]].Description));
-                writeDescriptions |= !string.IsNullOrWhiteSpace(fields[enumNames[i]].Description);
-            }
-            schema.Extensions.Add("x-enum-varnames", openApiNameArray);
-            if (writeDescriptions) {
-                schema.Extensions.Add("x-enum-descriptions", openApiDescArray);
-            }
-            schema.Enum = openApiValueArray;
-        } else if(isString) { 
-            schema.Enum = schema.Enum.Where(e => (e as OpenApiString)!.Value != null).ToList();
+        var fields = enumType.GetFields(BindingFlags.Public | BindingFlags.Static).ToDictionary(x => x.Name, x => new {
+            Name = x.GetCustomAttribute<JsonStringEnumMemberNameAttribute>()?.Name ?? x.GetCustomAttribute<EnumMemberAttribute>()?.Value ?? x.Name,
+            x.GetCustomAttribute<DescriptionAttribute>()?.Description
+        });
+        var enumNames = Enum.GetNames(enumType);
+        var enumValues = Enum.GetValuesAsUnderlyingType(enumType).Cast<object>().Select(Convert.ToInt32).ToArray();
+        var openApiValueArray = new OpenApiArray();
+        var openApiNameArray = new OpenApiArray();
+        var openApiDescArray = new OpenApiArray();
+        bool writeDescriptions = false;
+        for (int i = 0; i < enumValues.Length; i++) {
+            openApiValueArray.Add(isString ? new OpenApiString(fields[enumNames[i]].Name) : new OpenApiInteger(enumValues[i]));
+            openApiNameArray.Add(new OpenApiString(enumNames[i]));
+            openApiDescArray.Add(new OpenApiString(fields[enumNames[i]].Description));
+            writeDescriptions |= !string.IsNullOrWhiteSpace(fields[enumNames[i]].Description);
         }
+        schema.Extensions.Add("x-enum-varnames", openApiNameArray);
+        if (writeDescriptions) {
+            schema.Extensions.Add("x-enum-descriptions", openApiDescArray);
+        }
+        schema.Enum = openApiValueArray;
+
         return Task.CompletedTask;
     }
 
