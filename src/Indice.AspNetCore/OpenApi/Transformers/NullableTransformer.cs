@@ -30,17 +30,54 @@ internal static class NullableTransformer
     public static OpenApiOptions AddNullableTransformer(this OpenApiOptions options) {
         options.AddSchemaTransformer((schema, context, cancellationToken) => {
             if (schema.Properties is not null) {
-                foreach (var property in schema.Properties) {
-                    if (schema.Required?.Contains(property.Key) != true) {
-                        property.Value.Nullable = false;
+                foreach (var jsonProperty in context.JsonTypeInfo.Properties) {
+                    if (!schema.Properties.TryGetValue(jsonProperty.Name, out var property)) {
+                        continue;
+                    }
+                    if (schema.Required?.Contains(jsonProperty.Name) != true) {
+                        property!.Nullable = false;
+                    }
+                    var nullableType = Nullable.GetUnderlyingType(jsonProperty.PropertyType);
+                    if (nullableType is not null) {
+                        property!.Nullable = true;
+                        property.Type ??= nullableType.Name switch
+                        {
+                            "Int32" => "integer",
+                            "Int64" => "integer",
+                            "Double" => "number",
+                            "Single" => "number",
+                            "Decimal" => "number",
+                            "Boolean" => "boolean",
+                            "String" => "string",
+                            "DateTime" => "string",
+                            "DateTimeOffset" => "string",
+                            "Guid" => "string",
+                            _ => null
+                        }; 
+                        property.Format ??= nullableType.Name switch {
+                            "Int32" => "int32",
+                            "Int64" => "int64",
+                            "Double" => "double",
+                            "Single" => "float",
+                            "Decimal" => "double",
+                            "Boolean" => null,
+                            "String" => null,
+                            "DateTime" => "date-time",
+                            "DateTimeOffset" => "date-time",
+                            "Guid" => "uuid",
+                            _ => null
+                        };
+                    }
+                    if (property!.Annotations?.Any() == true) {
+                        property.Nullable = false;
                     }
                     // Also need to remove `null` from enum values if present
-                    if (property.Value.Enum is not null) {
-                        property.Value.Enum = property.Value.Enum.Where(e => (e as OpenApiString)!.Value != null).ToList();
+                    if (property.Enum is not null) {
+                        property.Enum = property.Enum.Where(e => (e as OpenApiString)!.Value != null).ToList();
                     }
                     // And remove default value of null if set
-                    if (property.Value.Default is OpenApiNull) {
-                        property.Value.Default = null;
+                    if (property.Default is OpenApiNull) {
+                        property.Default = null;
                     }
                 }
             }

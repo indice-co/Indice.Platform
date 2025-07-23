@@ -5,9 +5,23 @@ using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi.Models;
 
 namespace Microsoft.Extensions.DependencyInjection;
-internal static class FluentValidationTransformer
+/// <summary>
+/// Provides functionality to integrate FluentValidation-based schema transformations into OpenAPI schema generation.
+/// </summary>
+/// <remarks>This class contains methods to enhance OpenAPI schema generation by applying validation rules defined
+/// in FluentValidation. It is typically used to annotate OpenAPI schemas with constraints such as required fields,
+/// length limits, and value ranges based on FluentValidation validators.</remarks>
+public static class FluentValidationTransformer
 {
     
+    /// <summary>
+    /// Adds a FluentValidation-based schema transformer to the specified OpenAPI options.
+    /// </summary>
+    /// <remarks>This method integrates a schema transformer that leverages FluentValidation to modify OpenAPI
+    /// schemas. It is typically used to enhance schema generation by applying validation rules defined in
+    /// FluentValidation.</remarks>
+    /// <param name="options">The <see cref="OpenApiOptions"/> instance to which the transformer will be added.</param>
+    /// <returns>The <see cref="OpenApiOptions"/> instance with the FluentValidation transformer added.</returns>
     public static OpenApiOptions AddFluentValidationTransformer(this OpenApiOptions options) {
         options.AddSchemaTransformer(TransformAsync);
         return options;
