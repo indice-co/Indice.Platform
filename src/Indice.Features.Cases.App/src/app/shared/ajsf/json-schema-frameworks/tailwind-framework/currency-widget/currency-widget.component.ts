@@ -76,11 +76,11 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
 
     const controlValue = this.formControl.value;
     // Initialize displayValue if necessary
-    if ((controlValue === undefined || controlValue === null) && !this.disableDefaultValue) {
+    if (controlValue == null && !this.disableDefaultValue) {
       this.formControl.setValue(this.defaultValue);
     }
 
-    if (controlValue !== undefined && controlValue !== null) {
+    if (controlValue != null) {
       this.displayValue = this.formatForDisplay(controlValue);
     }
     this.lastValue = this.displayValue;
@@ -95,7 +95,7 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
   updateValue(event: any) {
     const inputEl = event.target as HTMLInputElement;
     const inputValue = inputEl.value;
-    if(this.allowNegativeNumbers && inputValue.startsWith('-') && inputValue.length === 1) {
+    if(this.allowNegativeNumbers && inputValue === '-') {
       this.lastValue = inputValue; // keep as last valid state
       this.jsf.updateValue(this, (this.required ? 0 : undefined)); // clear the value
       return; // allow single '-' character
@@ -115,7 +115,7 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
       return;
     }
     // Check decimal precision
-    const precision = this.getNumberPrecision(normalisedForNaNCheck);
+    const precision = normalisedForNaNCheck.split('.')?.[1]?.length ?? 0;
     if (precision > this.decimalPlaces) {
       // Revert visual field to previous value and bail out
       inputEl.value = this.lastValue;
@@ -132,15 +132,9 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
     this.lastValue = inputValue; // keep as last valid state
     this.jsf.updateValue(this, floatValue);
   }
-
-  private getNumberPrecision(value: string): number {
-    const parts = value.split('.');
-    return parts.length > 1 ? parts[1].length : 0;
-  }
-
   private getNormalizedNumberOrDefault(value: string): string | undefined {
-    if (value === undefined || value === null) {
-      return undefined;
+    if (value == null) {
+      return;
     }
     const normalized = value.replace(/[.]/g, '').replace(/[,]/g, '.');
     return isNaN(Number(normalized)) ? undefined : normalized;
