@@ -44,7 +44,7 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
   defaultValue = 0;
   /*--------*/
 
-  private locale = this.translateService.currentLang || 'el-GR'; // Default to Greek locale
+  private locale = 'el-GR'; // Default to Greek locale
 
   // This is the placeholder for the mask input. The actual control value is a hidden input
   public displayValue = '';
@@ -59,7 +59,7 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.optionsFromLayout();
     this.jsf.initializeControl(this);
-
+    this.locale = this.translateService.currentLang || this.locale; // Use current language or default to Greek
     const controlValue = this.formControl.value;
     // Initialize displayValue if necessary
     if (controlValue == null && !this.disableDefaultValue) {
@@ -121,10 +121,10 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
     let result = parseFloat(sanitizedInput);
 
     if (!round) {
-      result = Math.floor(result * Math.pow(10, decimalPlaces)) / Math.pow(10, decimalPlaces); // Round to the specified decimal places
+      result = Math.floor(result * Math.pow(10, decimalPlaces)) / Math.pow(10, decimalPlaces); // Truncate to the specified decimal places
     }
     if (isNegative) {
-      result = - result; // Apply negative sign if applicable
+      result = -result; // Apply negative sign if applicable
     }
     return isNaN(result) ? undefined : result;
   }
