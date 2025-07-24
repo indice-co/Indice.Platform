@@ -19,6 +19,7 @@
          [name]="'mask' + controlName"
          [readonly]="options?.readonly ? 'readonly' : null"
          type="text"
+         (blur)="onBlur($event)"
          [(ngModel)]="displayValue"
          (input)="updateValue($event)">
   <datalist *ngIf="options?.typeahead?.source"
