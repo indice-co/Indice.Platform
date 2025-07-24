@@ -44,7 +44,8 @@ public class RecepientPreferenceService : IRecepientPreferenceService
         var missing = messageTypes.Where(x => !recipientPreferences.RecepientCommunicationPreferences.Any(mt => mt.TypeId == x.Id)).Select(cmt =>
             new DbRecipientCommunicationPreference() {
                 CommunicationPreferences = ContactChannelKind.Any,
-                MessageType = cmt
+                MessageType = cmt,
+                UpdatedAt = DateTimeOffset.UtcNow
             });
         recipientPreferences.RecepientCommunicationPreferences.AddRange(missing);
 
@@ -77,6 +78,7 @@ public class RecepientPreferenceService : IRecepientPreferenceService
                     new DbRecipientCommunicationPreference() {
                         TypeId = x.Id,
                         CommunicationPreferences = request.CommunicationPreferences.FirstOrDefault(mt => mt.Alias == x.Alias)?.Channels.ToFlags() ?? ContactChannelKind.Any,
+                        UpdatedAt = DateTimeOffset.UtcNow
                     }).ToList()
             };
 
@@ -95,7 +97,8 @@ public class RecepientPreferenceService : IRecepientPreferenceService
             new DbRecipientCommunicationPreference() {
                 CommunicationPreferenceId = recipientPreferences.Id,
                 CommunicationPreferences = ContactChannelKind.Any,
-                MessageType = cmt
+                MessageType = cmt,
+                UpdatedAt = DateTimeOffset.UtcNow
             });
         recipientPreferences.RecepientCommunicationPreferences.AddRange(missing);
         await _dbContext.SaveChangesAsync();
@@ -116,10 +119,12 @@ public class RecepientPreferenceService : IRecepientPreferenceService
                 Locale = preference.Locale,
                 ConsentCommercial = preference.ConsentCommercial,
                 ConsentCommercialDate = preference.ConsentCommercialDate,
+                UpdatedAt = DateTimeOffset.UtcNow,
                 RecepientCommunicationPreferences = messageTypes.Select(x =>
                     new DbRecipientCommunicationPreference() {
                         TypeId = x.Id,
-                        CommunicationPreferences = ContactChannelKind.Any
+                        CommunicationPreferences = ContactChannelKind.Any,
+                        UpdatedAt = DateTimeOffset.UtcNow
                     }).ToList()
             };
 

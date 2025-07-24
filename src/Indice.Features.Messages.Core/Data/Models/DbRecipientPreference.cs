@@ -15,4 +15,6 @@ public class DbRecipientPreference
     public DateTimeOffset? ConsentCommercialDate { get; set; }
     /// <summary>Communication preferences per message type.</summary>
     public List<DbRecipientCommunicationPreference> RecepientCommunicationPreferences { get; set; } = [];
+    /// <summary>Indicates when record was last updated.</summary>
+    public DateTimeOffset? UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

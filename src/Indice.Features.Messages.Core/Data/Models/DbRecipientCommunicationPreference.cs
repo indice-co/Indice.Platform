@@ -14,5 +14,7 @@ public class DbRecipientCommunicationPreference
     /// <summary>The type details of the campaign.</summary>
     public virtual DbMessageType MessageType { get; set; } = null!;
     /// <summary>The contact preference that this message type is associated with.</summary>
-    public virtual DbRecipientPreference CommunicationPreference { get; set; } = null!;
+    public virtual DbRecipientPreference CommunicationPreference { get; set; } = null!; 
+    /// <summary>Indicates when record was last updated.</summary>
+    public DateTimeOffset? UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

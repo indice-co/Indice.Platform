@@ -189,6 +189,7 @@ internal static class Mapper
             ConsentCommercialDate = request.CommunicationPreference.ConsentCommercialDate,
             Locale = request.CommunicationPreference.Locale,
             RecipientId = request.RecipientId,
+            UpdatedAt = DateTimeOffset.UtcNow
         };
     }
 

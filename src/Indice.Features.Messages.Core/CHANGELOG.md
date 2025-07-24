@@ -15,7 +15,8 @@ CREATE TABLE [#schema#].[CommunicationPreference] (
     [RecipientId]           NVARCHAR (64)      NOT NULL,
     [Locale]                NVARCHAR (16)      NULL,
     [ConsentCommercial]     BIT                NOT NULL,
-    [ConsentCommercialDate] DATETIMEOFFSET (7) NULL,
+    [ConsentCommercialDate] DATETIMEOFFSET (7) NULL,,
+	[UpdatedAt] [datetimeoffset](7) NULL,
     CONSTRAINT [PK_CommunicationPreference] PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 GO
@@ -28,7 +29,8 @@ GO
 CREATE TABLE [#schema#].[CommunicationPreferenceMessageType] (
     [CommunicationPreferenceId] UNIQUEIDENTIFIER NOT NULL,
     [TypeId]                    UNIQUEIDENTIFIER NOT NULL,
-    [CommunicationPreferences]  TINYINT          DEFAULT (CONVERT([tinyint],(0))) NOT NULL,
+    [CommunicationPreferences]  TINYINT          DEFAULT (CONVERT([tinyint],(0))) NOT NULL,,
+	[UpdatedAt] [datetimeoffset](7) NULL,
     CONSTRAINT [PK_CommunicationPreferenceMessageType] PRIMARY KEY CLUSTERED ([CommunicationPreferenceId] ASC, [TypeId] ASC),
     CONSTRAINT [FK_CommunicationPreferenceMessageType_CommunicationPreference_CommunicationPreferenceId] FOREIGN KEY ([CommunicationPreferenceId]) REFERENCES [#schema#].[CommunicationPreference] ([Id]) ON DELETE CASCADE,
     CONSTRAINT [FK_CommunicationPreferenceMessageType_MessageType_TypeId] FOREIGN KEY ([TypeId]) REFERENCES [#schema#].[MessageType] ([Id]) ON DELETE CASCADE
@@ -71,10 +73,9 @@ In case that you have used communication preferences in your project, you need t
 
 The last step is to drop the prefernece columns from the `Contact` table.
 ```sql
-ALTER TABLE [cmp].[Contact] 
-	DROP COLUMN [CommunicationPreferences], 
-	COLUMN [ConsentCommercial], 
-	COLUMN [Locale];
+ALTER TABLE [#schema#].[Contact] DROP CONSTRAINT [DF__Contact__Communi__38996AB5];
+ALTER TABLE [#schema#].[Contact] DROP CONSTRAINT [DF__Contact__Consent__398D8EEE];
+ALTER TABLE [#schema#].[Contact] DROP COLUMN [CommunicationPreferences], COLUMN [ConsentCommercial], COLUMN [Locale];
 ```
 
 ## [8.1.0] - 2025-06-15
