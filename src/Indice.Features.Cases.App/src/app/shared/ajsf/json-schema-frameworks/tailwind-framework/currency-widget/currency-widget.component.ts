@@ -42,28 +42,12 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
     * Defaults to 0, meaning the input will show '0' if no other value is provided.
   */
   defaultValue = 0;
-  /**
-    * Whether the input is required.
-    * Defaults to false, meaning the input is not mandatory.
-  */
-  required = false;
   /*--------*/
 
-  private get allowedCharRegex(): RegExp {
-    // ^[\d,]$   → a single digit or comma
-    // ^[-\d,]$  → a minus OR a digit OR a comma
-    return this.allowNegativeNumbers
-      ? /^[-\d.,]$/   // hyphen first or escaped so it’s not a range
-      : /^[\d.,]$/;
-  }
-
   private locale = this.translateService.currentLang || 'el-GR'; // Default to Greek locale
-  // Get the decimal and thousands separators based on the locale
-  private decimalSeparator = (1.1).toLocaleString(this.locale).replace(/\d/g, '');
-  private thousandsSeparator = (1000).toLocaleString(this.locale).replace(/\d/g, '');
 
   // This is the placeholder for the mask input. The actual control value is a hidden input
-  displayValue = '';
+  public displayValue = '';
   private lastValue = '';
   // Specify type parameter for better type safety
   private destroy$ = new Subject<void>();
@@ -83,7 +67,10 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
     }
 
     if (controlValue != null) {
-      this.displayValue = this.numberToLocaleString(controlValue);
+      this.displayValue = controlValue.toLocaleString(this.locale, {
+        minimumFractionDigits: this.decimalPlaces,
+        maximumFractionDigits: this.decimalPlaces
+      });
     }
     this.lastValue = this.displayValue;
   }
@@ -97,51 +84,25 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
   updateValue(event: any) {
     const inputEl = event.target as HTMLInputElement;
     const inputValue = inputEl.value;
-    if(this.allowNegativeNumbers && inputValue === '-') {
-      this.lastValue = this.numberToLocaleString(0); // keep as last valid state
-      this.jsf.updateValue(this, (this.required ? 0 : undefined)); // clear the value
-      return; // allow single '-' character
-    }
-    // allowed characters validation
-    if (event.data !== null && !this.allowedCharRegex.test(event.data)) {
-      inputEl.value = this.lastValue; // revert to last valid value
+    // allow single '-' character
+    // Accept but don't commit
+    if (this.allowNegativeNumbers && inputValue === '-') {
       return;
     }
 
     // business validation
     // Early exit – empty or non‑numeric input (after removing separators)
-    const inputNumber = this.numberFromLocaleString(inputValue);
-    // If the normalized value is undefined, revert to last valid value
+    const inputNumber = CurrencyWidgetComponent.fromLocaleString(this.locale, inputValue, this.decimalPlaces, this.allowNegativeNumbers);
+    // If the value is undefined we reset
     if (inputNumber === undefined) {
       this.lastValue = '';
       return;
     }
-    // Check decimal precision by turning the input into a decimal literal
-    const precision = inputNumber.toString().split('.')?.[1]?.length ?? 0;
-    if (precision > this.decimalPlaces) {
-      // Revert visual field to previous value and bail out
-      inputEl.value = this.lastValue;
-      return;
-    }
-
-    if (!this.allowNegativeNumbers && inputNumber < 0) {
-      inputEl.value = this.lastValue;
-      return;
-    }
-
-    this.lastValue = this.numberToLocaleString(inputNumber); // keep as last valid state
+    this.lastValue = inputNumber.toLocaleString(this.locale, {
+      minimumFractionDigits: this.decimalPlaces,
+      maximumFractionDigits: this.decimalPlaces
+    });
     this.jsf.updateValue(this, inputNumber);
-
-    //Cut extra trailing zeros
-    if (inputEl.value.includes(this.decimalSeparator)) {
-      const parts = inputEl.value.split(this.decimalSeparator);
-      if (parts[1]) {
-        // Remove trailing zeros from the decimal part
-        parts[1] = parts[1].slice(0, this.decimalPlaces);
-        inputEl.value = parts.join(this.decimalSeparator); // Update the input value
-        this.displayValue = parts.join(this.decimalSeparator); // Update the display value
-      }
-    }
   }
 
   onBlur($event: FocusEvent) {
@@ -149,34 +110,23 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
     inputEl.value = this.lastValue;
   }
 
-  /**
-   * Formats a numeric value for display, respecting locale & separators
-  */
-  private numberToLocaleString(value: number): string {
-    return value
-      .toLocaleString(this.locale, {
-        minimumFractionDigits: this.decimalPlaces,
-        maximumFractionDigits: this.decimalPlaces
-      });
-  }
-
-  /**
-   * Parses a localized numeric string and returns a number.
-   * If the input is invalid, returns undefined.
-   */
-  private numberFromLocaleString(inputText: string): number | undefined {
+  private static fromLocaleString(locale: string, inputText: string, decimalPlaces: number, allowNegativeNumbers: boolean = true, round: boolean = false): number | undefined {
     if (!inputText?.trim()) {
       return;
     }
-    const sanitizedInput = parseFloat(
-      inputText
-        // remove every thousands separator (e.g. "1.234,56" -> "1234,56")
-        .replace(new RegExp(`\\${this.thousandsSeparator}`, 'g'), '')
-        // convert *the* decimal separator to a dot (e.g. "1234,56" -> "1234.56")
-        .replace(new RegExp(`\\${this.decimalSeparator}`), '.')   // only one decimal point allowed
-    );
+    // This is locale dependent, e.g. in Greek it is a comma (,) while in US it is a dot (.)
+    const decimalSeparator = (1.1).toLocaleString(locale).replace(/\d/g, '');
+    const isNegative = allowNegativeNumbers && inputText[0] === '-';
+    const sanitizedInput = inputText.replace(new RegExp(`[^\\${decimalSeparator}|\\d]`, 'g'), '').replace(decimalSeparator, '.');
+    let result = parseFloat(sanitizedInput);
 
-    return isNaN(sanitizedInput) ? undefined : sanitizedInput;
+    if (!round) {
+      result = Math.floor(result * Math.pow(10, decimalPlaces)) / Math.pow(10, decimalPlaces); // Round to the specified decimal places
+    }
+    if (isNegative) {
+      result = - result; // Apply negative sign if applicable
+    }
+    return isNaN(result) ? undefined : result;
   }
 
   /**
@@ -187,8 +137,7 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
 
     // Boolean options
     this.allowNegativeNumbers = this.resolveOption<boolean>('allowNegativeNumbers');
-    this.disableDefaultValue  = this.resolveOption<boolean>('disableDefaultValue');
-    this.required = this.resolveOption<boolean>('required');
+    this.disableDefaultValue = this.resolveOption<boolean>('disableDefaultValue');
 
     // Numeric options
     this.decimalPlaces = this.resolveOption<number>('decimalPlaces');
