@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ViewChild } from '
 import { Router } from '@angular/router';
 
 import { forkJoin } from 'rxjs';
-import { ContactPreferences, CreateContactRequest, CreateDistributionListContactRequest, MessagesApiClient } from 'src/app/core/services/messages-api.service';
+import { ContactPreferences, CreateContactRequest, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { ListContactCreateComponent } from 'src/app/shared/components/list-contact-create/list-contact-create.component';
 
 @Component({
