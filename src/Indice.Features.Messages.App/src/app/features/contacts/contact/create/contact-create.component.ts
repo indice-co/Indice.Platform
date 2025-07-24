@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ViewChild } from '
 import { Router } from '@angular/router';
 
 import { forkJoin } from 'rxjs';
-import { Contact, CreateContactRequest, CreateDistributionListContactRequest, MessagesApiClient } from 'src/app/core/services/messages-api.service';
+import { ContactPreferences, CreateContactRequest, CreateDistributionListContactRequest, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { ListContactCreateComponent } from 'src/app/shared/components/list-contact-create/list-contact-create.component';
 
 @Component({
@@ -27,10 +27,10 @@ export class ContactCreateComponent implements OnInit, AfterViewInit {
     this._changeDetector.detectChanges();
   }
 
-  public onSubmit(contacts: Contact[]): void {
+  public onSubmit(contacts: ContactPreferences[]): void {
     if (!contacts) return;
     this.submitInProgress = true;
-    var tasks = contacts.map((contact: Contact) => {
+    var tasks = contacts.map((contact: ContactPreferences) => {
       const body = new CreateContactRequest({
         email: contact.email,
         firstName: contact.firstName,
@@ -38,7 +38,8 @@ export class ContactCreateComponent implements OnInit, AfterViewInit {
         lastName: contact.lastName,
         phoneNumber: contact.phoneNumber,
         recipientId: contact.recipientId,
-        salutation: contact.salutation
+        salutation: contact.salutation,
+        communicationPreference: contact.preferences
       });
       return this._api.createContact(body);
     });

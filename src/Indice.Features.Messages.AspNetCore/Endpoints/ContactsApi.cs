@@ -43,6 +43,12 @@ internal static class ContactsApi
              .WithSummary("Gets the list of all contacts using the provided ListOptions.")
              .WithDescription(ContactsHandlers.GET_CONTACTS_DESCRIPTION);
 
+
+        group.MapGet("resolved", ContactsHandlers.GetResolvedContacts)
+             .WithName(nameof(ContactsHandlers.GetResolvedContacts))
+             .WithSummary("Gets the list of all contacts from the remote store.")
+             .WithDescription(ContactsHandlers.GET_RESOLVED_CONTACTS_DESCRIPTION);
+
         group.MapGet("{contactId}", ContactsHandlers.GetContactById)
              .WithName(nameof(ContactsHandlers.GetContactById))
              .WithSummary("Gets the contact with the specified id.")

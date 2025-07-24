@@ -18,24 +18,15 @@ public enum ContactChannelKind : byte
 public static class ContactChannelKindExtensions
 {
     /// <summary>
-    /// Checks if the <see cref="ContactChannelKind"/> is set to a value other than <see cref="ContactChannelKind.None"/>.
-    /// </summary>
-    /// <param name="enumValue"></param>
-    /// <returns></returns>
-    public static bool IsSet(this ContactChannelKind enumValue) => enumValue != ContactChannelKind.Any;
-
-    /// <summary>
     /// Checks if the <see cref="ContactChannelKind"/> has a specific flag set. 
     /// </summary>
     /// <param name="enumValue"></param>
     /// <returns></returns>
     public static List<ContactChannelKind> ToList(this ContactChannelKind enumValue) {
         var result = new List<ContactChannelKind>();
-        if (enumValue.IsSet()) {
-            foreach (ContactChannelKind value in Enum.GetValues(typeof(ContactChannelKind))) {
-                if (ContactChannelKind.Any != value && enumValue.HasFlag(value)) {
-                    result.Add(value);
-                }
+        foreach (ContactChannelKind value in Enum.GetValues(typeof(ContactChannelKind))) {
+            if (enumValue.HasFlag(value)) {
+                result.Add(value);
             }
         }
         return result;

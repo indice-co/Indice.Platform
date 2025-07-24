@@ -84,10 +84,9 @@ export interface IMessagesApiClient {
      * @param recipientId (optional) 
      * @param email (optional) 
      * @param phoneNumber (optional) 
-     * @param resolve (optional) 
      * @return OK
      */
-    getContacts(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, distributionListId?: string | undefined, recipientId?: string | undefined, email?: string | undefined, phoneNumber?: string | undefined, resolve?: boolean | undefined): Observable<ContactResultSet>;
+    getContacts(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, distributionListId?: string | undefined, recipientId?: string | undefined, email?: string | undefined, phoneNumber?: string | undefined): Observable<ContactResultSet>;
     /**
      * Creates a new contact in the store.
      * @return OK
@@ -113,6 +112,19 @@ export interface IMessagesApiClient {
      * @return No Content
      */
     refreshContact(recipientId: string): Observable<void>;
+    /**
+     * Gets the list of all contacts from the remote store.
+     * @param page (optional) The current page of the list. Default is 1.
+     * @param size (optional) The size of the list. Default is 100
+     * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
+     * @param search (optional) A search term used to limit the results of the list.
+     * @param distributionListId (optional) 
+     * @param recipientId (optional) 
+     * @param email (optional) 
+     * @param phoneNumber (optional) 
+     * @return OK
+     */
+    getResolvedContacts(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, distributionListId?: string | undefined, recipientId?: string | undefined, email?: string | undefined, phoneNumber?: string | undefined): Observable<ContactPreferencesResultSet>;
     /**
      * Gets the list of available campaign types.
      * @param page (optional) The current page of the list. Default is 1.
@@ -1163,10 +1175,9 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @param recipientId (optional) 
      * @param email (optional) 
      * @param phoneNumber (optional) 
-     * @param resolve (optional) 
      * @return OK
      */
-    getContacts(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, distributionListId?: string | undefined, recipientId?: string | undefined, email?: string | undefined, phoneNumber?: string | undefined, resolve?: boolean | undefined): Observable<ContactResultSet> {
+    getContacts(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, distributionListId?: string | undefined, recipientId?: string | undefined, email?: string | undefined, phoneNumber?: string | undefined): Observable<ContactResultSet> {
         let url_ = this.baseUrl + "/contacts?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
@@ -1200,10 +1211,6 @@ export class MessagesApiClient implements IMessagesApiClient {
             throw new Error("The parameter 'phoneNumber' cannot be null.");
         else if (phoneNumber !== undefined)
             url_ += "PhoneNumber=" + encodeURIComponent("" + phoneNumber) + "&";
-        if (resolve === null)
-            throw new Error("The parameter 'resolve' cannot be null.");
-        else if (resolve !== undefined)
-            url_ += "resolve=" + encodeURIComponent("" + resolve) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -1693,6 +1700,126 @@ export class MessagesApiClient implements IMessagesApiClient {
         } else if (status === 404) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Gets the list of all contacts from the remote store.
+     * @param page (optional) The current page of the list. Default is 1.
+     * @param size (optional) The size of the list. Default is 100
+     * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
+     * @param search (optional) A search term used to limit the results of the list.
+     * @param distributionListId (optional) 
+     * @param recipientId (optional) 
+     * @param email (optional) 
+     * @param phoneNumber (optional) 
+     * @return OK
+     */
+    getResolvedContacts(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, distributionListId?: string | undefined, recipientId?: string | undefined, email?: string | undefined, phoneNumber?: string | undefined): Observable<ContactPreferencesResultSet> {
+        let url_ = this.baseUrl + "/contacts/resolved?";
+        if (page === null)
+            throw new Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (size === null)
+            throw new Error("The parameter 'size' cannot be null.");
+        else if (size !== undefined)
+            url_ += "Size=" + encodeURIComponent("" + size) + "&";
+        if (sort === null)
+            throw new Error("The parameter 'sort' cannot be null.");
+        else if (sort !== undefined)
+            url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
+        if (search === null)
+            throw new Error("The parameter 'search' cannot be null.");
+        else if (search !== undefined)
+            url_ += "Search=" + encodeURIComponent("" + search) + "&";
+        if (distributionListId === null)
+            throw new Error("The parameter 'distributionListId' cannot be null.");
+        else if (distributionListId !== undefined)
+            url_ += "DistributionListId=" + encodeURIComponent("" + distributionListId) + "&";
+        if (recipientId === null)
+            throw new Error("The parameter 'recipientId' cannot be null.");
+        else if (recipientId !== undefined)
+            url_ += "RecipientId=" + encodeURIComponent("" + recipientId) + "&";
+        if (email === null)
+            throw new Error("The parameter 'email' cannot be null.");
+        else if (email !== undefined)
+            url_ += "Email=" + encodeURIComponent("" + email) + "&";
+        if (phoneNumber === null)
+            throw new Error("The parameter 'phoneNumber' cannot be null.");
+        else if (phoneNumber !== undefined)
+            url_ += "PhoneNumber=" + encodeURIComponent("" + phoneNumber) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetResolvedContacts(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetResolvedContacts(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ContactPreferencesResultSet>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ContactPreferencesResultSet>;
+        }));
+    }
+
+    protected processGetResolvedContacts(response: HttpResponseBase): Observable<ContactPreferencesResultSet> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ContactPreferencesResultSet.fromJS(resultData200);
+            return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -4559,6 +4686,134 @@ export enum ContactChannelKind {
     PushNotification = "PushNotification",
 }
 
+export class ContactPreferences implements IContactPreferences {
+    preferences?: RecepientPreference;
+    id?: string;
+    recipientId?: string;
+    salutation?: string;
+    firstName?: string;
+    lastName?: string;
+    fullName?: string;
+    email?: string;
+    phoneNumber?: string;
+    unsubscribed?: boolean;
+    updatedAt?: Date;
+    isAnonymous?: boolean;
+
+    constructor(data?: IContactPreferences) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.preferences = _data["preferences"] ? RecepientPreference.fromJS(_data["preferences"]) : <any>undefined;
+            this.id = _data["id"];
+            this.recipientId = _data["recipientId"];
+            this.salutation = _data["salutation"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.fullName = _data["fullName"];
+            this.email = _data["email"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.unsubscribed = _data["unsubscribed"];
+            this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
+            this.isAnonymous = _data["isAnonymous"];
+        }
+    }
+
+    static fromJS(data: any): ContactPreferences {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContactPreferences();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["preferences"] = this.preferences ? this.preferences.toJSON() : <any>undefined;
+        data["id"] = this.id;
+        data["recipientId"] = this.recipientId;
+        data["salutation"] = this.salutation;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["fullName"] = this.fullName;
+        data["email"] = this.email;
+        data["phoneNumber"] = this.phoneNumber;
+        data["unsubscribed"] = this.unsubscribed;
+        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
+        data["isAnonymous"] = this.isAnonymous;
+        return data;
+    }
+}
+
+export interface IContactPreferences {
+    preferences?: RecepientPreference;
+    id?: string;
+    recipientId?: string;
+    salutation?: string;
+    firstName?: string;
+    lastName?: string;
+    fullName?: string;
+    email?: string;
+    phoneNumber?: string;
+    unsubscribed?: boolean;
+    updatedAt?: Date;
+    isAnonymous?: boolean;
+}
+
+export class ContactPreferencesResultSet implements IContactPreferencesResultSet {
+    count?: number;
+    items?: ContactPreferences[];
+
+    constructor(data?: IContactPreferencesResultSet) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(ContactPreferences.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ContactPreferencesResultSet {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContactPreferencesResultSet();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : <any>undefined);
+        }
+        return data;
+    }
+}
+
+export interface IContactPreferencesResultSet {
+    count?: number;
+    items?: ContactPreferences[];
+}
+
 export class ContactResultSet implements IContactResultSet {
     count?: number;
     items?: Contact[];
@@ -4670,9 +4925,9 @@ export class CreateCampaignRequest implements ICreateCampaignRequest {
     actionLink?: Hyperlink;
     activePeriod?: Period;
     mediaBaseHref?: string;
-    typeId?: string;
+    typeId?: string | undefined;
     recipientListId?: string;
-    messageTemplateId?: string;
+    messageTemplateId?: string | undefined;
     data?: any;
     messageTemplateChannels?: MessageChannelKind[];
 
@@ -4780,9 +5035,9 @@ export interface ICreateCampaignRequest {
     actionLink?: Hyperlink;
     activePeriod?: Period;
     mediaBaseHref?: string;
-    typeId?: string;
+    typeId?: string | undefined;
     recipientListId?: string;
-    messageTemplateId?: string;
+    messageTemplateId?: string | undefined;
     data?: any;
     messageTemplateChannels?: MessageChannelKind[];
 }
@@ -4905,6 +5160,7 @@ export interface ICreateContactRequest {
 
 export class CreateDistributionListContactRequest implements ICreateDistributionListContactRequest {
     contactId?: string;
+    preferences?: RecepientPreference;
     communicationPreference?: RecepientPreference;
     recipientId?: string;
     salutation?: string;
@@ -4926,6 +5182,7 @@ export class CreateDistributionListContactRequest implements ICreateDistribution
     init(_data?: any) {
         if (_data) {
             this.contactId = _data["contactId"];
+            this.preferences = _data["preferences"] ? RecepientPreference.fromJS(_data["preferences"]) : <any>undefined;
             this.communicationPreference = _data["communicationPreference"] ? RecepientPreference.fromJS(_data["communicationPreference"]) : <any>undefined;
             this.recipientId = _data["recipientId"];
             this.salutation = _data["salutation"];
@@ -4947,6 +5204,7 @@ export class CreateDistributionListContactRequest implements ICreateDistribution
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["contactId"] = this.contactId;
+        data["preferences"] = this.preferences ? this.preferences.toJSON() : <any>undefined;
         data["communicationPreference"] = this.communicationPreference ? this.communicationPreference.toJSON() : <any>undefined;
         data["recipientId"] = this.recipientId;
         data["salutation"] = this.salutation;
@@ -4961,6 +5219,7 @@ export class CreateDistributionListContactRequest implements ICreateDistribution
 
 export interface ICreateDistributionListContactRequest {
     contactId?: string;
+    preferences?: RecepientPreference;
     communicationPreference?: RecepientPreference;
     recipientId?: string;
     salutation?: string;
@@ -5269,7 +5528,7 @@ export class HttpValidationProblemDetails implements IHttpValidationProblemDetai
     status?: number;
     detail?: string;
     instance?: string;
-    errors?: { [key: string]: string[]; };
+    errors?: { [key: string]: any[]; };
 
     [key: string]: any;
 
@@ -5338,7 +5597,7 @@ export interface IHttpValidationProblemDetails {
     status?: number;
     detail?: string;
     instance?: string;
-    errors?: { [key: string]: string[]; };
+    errors?: { [key: string]: any[]; };
 
     [key: string]: any;
 }
@@ -6079,9 +6338,9 @@ export class UpdateCampaignRequest implements IUpdateCampaignRequest {
     actionLink?: Hyperlink;
     activePeriod?: Period;
     mediaBaseHref?: string;
-    typeId?: string;
+    typeId?: string | undefined;
     recipientListId?: string;
-    messageTemplateId?: string;
+    messageTemplateId?: string | undefined;
     data?: any;
     messageTemplateChannels?: MessageChannelKind[];
 
@@ -6161,9 +6420,9 @@ export interface IUpdateCampaignRequest {
     actionLink?: Hyperlink;
     activePeriod?: Period;
     mediaBaseHref?: string;
-    typeId?: string;
+    typeId?: string | undefined;
     recipientListId?: string;
-    messageTemplateId?: string;
+    messageTemplateId?: string | undefined;
     data?: any;
     messageTemplateChannels?: MessageChannelKind[];
 }

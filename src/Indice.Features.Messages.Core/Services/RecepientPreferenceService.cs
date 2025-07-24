@@ -50,6 +50,8 @@ public class RecepientPreferenceService : IRecepientPreferenceService
 
         return new RecepientPreference {
             Locale = recipientPreferences.Locale,
+            ConsentCommercial = recipientPreferences.ConsentCommercial,
+            ConsentCommercialDate = recipientPreferences.ConsentCommercialDate,
             CommunicationPreferences = recipientPreferences.RecepientCommunicationPreferences.Select(x => new RecepientPreferenceCommunication() {
                 Alias = x.MessageType.Alias,
                 Name = x.MessageType.Name,

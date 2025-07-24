@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ViewChild } from '
 import { Router } from '@angular/router';
 
 import { forkJoin } from 'rxjs';
-import { Contact, CreateDistributionListContactRequest, MessagesApiClient } from 'src/app/core/services/messages-api.service';
+import { ContactPreferences, CreateDistributionListContactRequest, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { ListContactCreateComponent } from 'src/app/shared/components/list-contact-create/list-contact-create.component';
 
 @Component({
@@ -30,10 +30,10 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
     this._changeDetector.detectChanges();
   }
 
-  public onSubmit(contacts: Contact[]): void {
+  public onSubmit(contacts: ContactPreferences[]): void {
     if (!contacts) return;
     this.submitInProgress = true;
-    var tasks = contacts.map((contact: Contact) => {
+    var tasks = contacts.map((contact: ContactPreferences) => {
       const body = new CreateDistributionListContactRequest({
         email: contact.email,
         firstName: contact.firstName,
@@ -43,9 +43,7 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
         phoneNumber: contact.phoneNumber,
         recipientId: contact.recipientId,
         salutation: contact.salutation,
-        //communicationPreferences: contact.communicationPreferences,
-        //consentCommercial: contact.consentCommercial,
-        //locale: contact.locale
+        communicationPreference: contact.preferences
       });
       return this._api.addContactToDistributionList(this._distributionListId, body);
     });

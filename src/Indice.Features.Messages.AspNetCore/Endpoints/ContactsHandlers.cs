@@ -11,28 +11,24 @@ internal static class ContactsHandlers
 {
     public static async Task<Ok<ResultSet<Contact>>> GetContacts(
         IContactService contactService,
-        IContactResolver contactResolver,
         [AsParameters] ListOptions options,
-        [AsParameters] ContactListFilter filter,
-        bool? resolve) {
-
-        ResultSet<Contact> contacts;
-        if (resolve == true) {
-            var resolveContacts = await contactResolver.Find(new ListOptions {
-                Page = options.Page,
-                Search = options.Search,
-                Size = options.Size,
-                Sort = options.Sort
-            });
-            contacts = new ResultSet<Contact> {
-                Items = resolveContacts.Items,
-                Count = resolveContacts.Count
-            };
-        } else {
-            contacts = await contactService.GetList(ListOptions.Create(options, filter));
-        }
+        [AsParameters] ContactListFilter filter) {
+        var contacts = await contactService.GetList(ListOptions.Create(options, filter));
         return TypedResults.Ok(contacts);
     }
+    public static async Task<Ok<ResultSet<ContactPreferences>>> GetResolvedContacts(
+       IContactResolver contactResolver,
+       [AsParameters] ListOptions options,
+       [AsParameters] ContactListFilter filter) {
+        var contacts = await contactResolver.Find(new ListOptions {
+            Page = options.Page,
+            Search = options.Search,
+            Size = options.Size,
+            Sort = options.Sort
+        });
+        return TypedResults.Ok(contacts);
+    }
+
 
     public static async Task<Results<Ok<Contact>, NotFound>> GetContactById(IContactService contactService, Guid contactId) {
         var contact = await contactService.GetById(contactId);
@@ -42,12 +38,23 @@ internal static class ContactsHandlers
         return TypedResults.Ok(contact);
     }
 
-    public static async Task<Ok<Contact>> CreateContact(IContactService contactService, CreateContactRequest request) {
+    public static async Task<Ok<Contact>> CreateContact(IContactService contactService,
+        IRecepientPreferenceService recepientPreferenceService,
+        CreateContactRequest request) {
+        if (!string.IsNullOrWhiteSpace(request.RecipientId) && request.CommunicationPreference is not null) {
+            await recepientPreferenceService.UpdateContactPreferences(request.RecipientId, request.CommunicationPreference);
+        }
         var contact = await contactService.Create(request);
         return TypedResults.Ok(contact);
     }
 
-    public static async Task<NoContent> UpdateContact(IContactService contactService, Guid contactId, UpdateContactRequest request) {
+    public static async Task<NoContent> UpdateContact(IContactService contactService,
+        IRecepientPreferenceService recepientPreferenceService,
+        Guid contactId,
+        UpdateContactRequest request) {
+        if (!string.IsNullOrWhiteSpace(request.RecipientId) && request.CommunicationPreference is not null) {
+            await recepientPreferenceService.UpdateContactPreferences(request.RecipientId, request.CommunicationPreference);
+        }
         await contactService.Update(contactId, request);
         return TypedResults.NoContent();
     }
@@ -97,7 +104,12 @@ Retrieves the list of all contacts using the provided ListOptions.
 
 Parameters:
 - options: List parameters used to navigate through collections, including sort, search, page number, and page size.
-- resolve: Determines whether to use the contact resolver service for additional processing; set to true to resolve contacts, or false to retrieve directly from contactService.
+";
+    public static readonly string GET_RESOLVED_CONTACTS_DESCRIPTION = @"
+Retrieves the list of all contacts from the remote store using the provided ListOptions.
+
+Parameters:
+- options: List parameters used to navigate through collections, including sort, search, page number, and page size.
 ";
 
     public static readonly string GET_CONTACT_BY_ID_DESCRIPTION = @"

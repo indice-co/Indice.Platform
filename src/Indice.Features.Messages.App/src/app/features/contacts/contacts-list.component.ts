@@ -41,7 +41,7 @@ export class ContactsListComponent extends BaseListComponent<Contact> implements
   public loadItems(): Observable<IResultSet<Contact> | null | undefined> {
     return this._api
       .getContacts(this.page, this.pageSize, this.sortdir === 'asc' ? this.sort! : this.sort + '-', this.search || undefined, undefined, undefined, undefined,
-        undefined, false)
+        undefined)
       .pipe(map((result: ContactResultSet) => (result as IResultSet<Contact>)));
   }
 
