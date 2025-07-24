@@ -6,6 +6,77 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [8.1.7] - 2025-07-24
+### Added support to persist communication preferences for users.
+The following migration script is needed to add the `CommunicationPreference` and `CommunicationPreferenceMessageType` tables.
+```sql
+CREATE TABLE [#schema#].[CommunicationPreference] (
+    [Id]                    UNIQUEIDENTIFIER   NOT NULL,
+    [RecipientId]           NVARCHAR (64)      NOT NULL,
+    [Locale]                NVARCHAR (16)      NULL,
+    [ConsentCommercial]     BIT                NOT NULL,
+    [ConsentCommercialDate] DATETIMEOFFSET (7) NULL,
+    CONSTRAINT [PK_CommunicationPreference] PRIMARY KEY CLUSTERED ([Id] ASC)
+);
+GO
+
+CREATE UNIQUE NONCLUSTERED INDEX [IX_CommunicationPreference_RecipientId]
+    ON [#schema#].[CommunicationPreference]([RecipientId] ASC);
+GO
+
+
+CREATE TABLE [#schema#].[CommunicationPreferenceMessageType] (
+    [CommunicationPreferenceId] UNIQUEIDENTIFIER NOT NULL,
+    [TypeId]                    UNIQUEIDENTIFIER NOT NULL,
+    [CommunicationPreferences]  TINYINT          DEFAULT (CONVERT([tinyint],(0))) NOT NULL,
+    CONSTRAINT [PK_CommunicationPreferenceMessageType] PRIMARY KEY CLUSTERED ([CommunicationPreferenceId] ASC, [TypeId] ASC),
+    CONSTRAINT [FK_CommunicationPreferenceMessageType_CommunicationPreference_CommunicationPreferenceId] FOREIGN KEY ([CommunicationPreferenceId]) REFERENCES [#schema#].[CommunicationPreference] ([Id]) ON DELETE CASCADE,
+    CONSTRAINT [FK_CommunicationPreferenceMessageType_MessageType_TypeId] FOREIGN KEY ([TypeId]) REFERENCES [#schema#].[MessageType] ([Id]) ON DELETE CASCADE
+);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_CommunicationPreferenceMessageType_TypeId]
+    ON [#schema#].[CommunicationPreferenceMessageType]([TypeId] ASC);
+GO
+
+```
+
+In case that you have used communication preferences in your project, you need to run the following migration script to populate the `CommunicationPreference` and `CommunicationPreferenceMessageType` tables.
+```sql
+
+    INSERT INTO [#schema#].[CommunicationPreference]
+           ([Id]
+           ,[RecipientId]
+           ,[Locale]
+           ,[ConsentCommercial])
+    SELECT NEWID(),  RecipientId, Locale, ConsentCommercial
+    FROM [#schema#].[Contact] AS CT
+    WHERE RecipientId IS NOT null
+    AND NOT EXISTS (SELECT TOP 1 1 FROM  [#schema#].[CommunicationPreference] WHERE RecipientId = ct.RecipientId)
+
+
+    INSERT INTO [#schema#].[CommunicationPreferenceMessageType]
+           ([CommunicationPreferenceId]
+           ,[TypeId]
+           ,[CommunicationPreferences])
+    SELECT cp.ID, MT.ID, CT.CommunicationPreferences
+    FROM [#schema#].[Contact] AS CT
+    INNER JOIN [#schema#].[CommunicationPreference] as cp
+    ON cp.[RecipientId] = CT.RecipientId
+    CROSS JOIN [#schema#].[MessageType] as MT
+    WHERE CT.RecipientId IS NOT null
+    AND NOT EXISTS (
+    SELECT TOP 1 1 FROM  [#schema#].[CommunicationPreferenceMessageType] WHERE [CommunicationPreferenceId] = cp.ID AND [TypeId] = MT.ID)
+```
+
+The last step is to drop the prefernece columns from the `Contact` table.
+```sql
+ALTER TABLE [cmp].[Contact] 
+	DROP COLUMN [CommunicationPreferences], 
+	COLUMN [ConsentCommercial], 
+	COLUMN [Locale];
+```
+
 ## [8.1.0] - 2025-06-15
 ### For performance reasons, the following indexes were added to the `media` schema in cases db.
 ```sql
