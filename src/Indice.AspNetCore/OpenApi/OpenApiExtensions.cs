@@ -53,6 +53,7 @@ public static class OpenApiExtensions
         options.AddFluentValidationTransformer();
         options.AddNullableTransformer();
         options.AddConventionsTransformer();
+        options.AddDictionaryTransformer();
         options.AddArrayTransformer();
         options.AddEnumTransformer();
         options.AddEndpointSecurityRequirementsTransformer();

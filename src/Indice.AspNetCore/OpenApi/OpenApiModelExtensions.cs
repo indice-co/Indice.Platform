@@ -75,7 +75,7 @@ public static class OpenApiModelExtensions
     }
 
     internal static bool IsDictionary(this Type type) =>
-        type.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IDictionary<,>)).Any();
+        type.GetInterfaces().Concat([type]).Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IDictionary<,>)).Any();
 
     internal static bool IsPrimitive(this Type type) =>
         type.IsValueType || type.IsPrimitive || type.IsEnum || type == typeof(string);
@@ -100,6 +100,11 @@ public static class OpenApiModelExtensions
             { } t when t.IsValueType && !t.IsPrimitive && !t.Namespace!.StartsWith("System") && !t.IsEnum => new OpenApiString($"{value}"),
             _ => default
         };
+    }
+
+    internal static bool TryGetAnyElementType(this Type type, out Type? elementType) {
+        elementType = type.GetAnyElementType();
+        return elementType != null;
     }
 
     internal static Type? GetAnyElementType(this Type type) {

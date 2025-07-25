@@ -1,4 +1,5 @@
 #if NET9_0_OR_GREATER
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Indice.Types;
@@ -17,8 +18,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// apply these mappings during schema generation and transformation.</remarks>
 public static class MappedTypeTransformer
 {
-    internal static Dictionary<Type, OpenApiSchema> transforms = new Dictionary<Type, OpenApiSchema>();
-    internal static Dictionary<string, Type> transformsMap = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
+    internal static Dictionary<Type, OpenApiSchema> transforms = new ();
 
     /// <summary>
     /// Maps a specified type to an OpenAPI schema definition.
@@ -30,7 +30,6 @@ public static class MappedTypeTransformer
     /// name="T"/>.</param>
     public static void MapType<T>(OpenApiSchema schema) {
         transforms[typeof(T)] = schema;
-        transformsMap[typeof(T).Name] = typeof(T);
     }
 
 
@@ -65,15 +64,33 @@ public static class MappedTypeTransformer
             TransformSchema(schema, context.JsonTypeInfo.Type);
         }
         if (schema.Properties is not null) {
-            foreach (var property in schema.Properties) {
-                if (property.Value.Annotations?.TryGetValue("x-schema-id", out var schemaId) == true &&
-                    transformsMap.TryGetValue($"{schemaId}", out var type)) {
-                    TransformSchema(property.Value, type);
+            foreach (var jsonProperty in context.JsonTypeInfo.Properties) {
+                if (!schema.Properties.TryGetValue(jsonProperty.Name, out var property)) {
+                    continue;
+                }
+                // If transforms contains the property type, set the property schema type and format from the transform schema
+                if (transforms.ContainsKey(jsonProperty.PropertyType)) {
+                    TransformSchema(property, jsonProperty.PropertyType);
+                    continue;
+                }
+                if (property.Type == "array" && jsonProperty.PropertyType.TryGetAnyElementType(out var elementType) && transforms.ContainsKey(elementType!)) {
+                    schema.Items ??= new OpenApiSchema();
+                    TransformSchema(property.Items, elementType!);
+                    continue;
                 }
             }
         }
-        if (context.ParameterDescription is not null && transforms.ContainsKey(context.ParameterDescription.Type)) {
+        if (context.ParameterDescription is not null && 
+            transforms.ContainsKey(context.ParameterDescription.Type)) {
             TransformSchema(schema, context.ParameterDescription.Type);
+            return Task.CompletedTask;
+        }
+        if (context.ParameterDescription is not null && schema.Type == "array" && 
+            context.ParameterDescription.Type.TryGetAnyElementType(out var parameterElementType) && 
+            transforms.ContainsKey(parameterElementType!)) {
+            schema.Items ??= new OpenApiSchema();
+            TransformSchema(schema.Items, parameterElementType!);
+            return Task.CompletedTask;
         }
         if (context.JsonPropertyInfo is not null && transforms.ContainsKey(context.JsonPropertyInfo.PropertyType)) {
             TransformSchema(schema, context.JsonPropertyInfo.PropertyType);
