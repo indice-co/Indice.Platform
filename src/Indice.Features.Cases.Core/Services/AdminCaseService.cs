@@ -1,12 +1,8 @@
 ﻿using System.Globalization;
 using System.Linq.Expressions;
-using System.Security.Claims;
-using System.Text.Json;
 using System.Text.Json.Nodes;
-using System.Text.RegularExpressions;
 using Indice.Events;
 using Indice.Features.Cases.Core.Data;
-using Indice.Features.Cases.Core.Data.Models;
 using Indice.Features.Cases.Core.Events;
 using Indice.Features.Cases.Core.Exceptions;
 using Indice.Features.Cases.Core.Models;
