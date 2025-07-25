@@ -9,7 +9,7 @@ import { Subject } from 'rxjs';
   templateUrl: './currency-widget.component.html',
   styleUrls: ['./currency-widget.component.scss']
 })
-export class CurrencyWidgetComponent implements OnInit, OnDestroy {
+export class CurrencyWidgetComponent implements OnInit {
   formControl!: FormControl;
   controlName: string | undefined;
   controlValue: string | undefined;
@@ -49,8 +49,6 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
   // This is the placeholder for the mask input. The actual control value is a hidden input
   public displayValue = '';
   private lastValue = '';
-  // Specify type parameter for better type safety
-  private destroy$ = new Subject<void>();
   constructor(
     private jsf: JsonSchemaFormService,
     private translateService: TranslateService
@@ -73,12 +71,6 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
       });
     }
     this.lastValue = this.displayValue;
-  }
-
-  ngOnDestroy() {
-    // Emit undefined to ensure type safety
-    this.destroy$.next(undefined);
-    this.destroy$.complete();
   }
 
   updateValue(event: any) {
