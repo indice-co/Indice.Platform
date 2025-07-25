@@ -40,7 +40,7 @@ internal abstract class BaseCaseMessageService
         var newCheckpointType = await DbContext.CheckpointTypes
             .AsQueryable()
             .SingleOrDefaultAsync(x => x.Code == message.CheckpointTypeName && x.CaseTypeId == caseType.Id);
-        if (newCheckpointType == null) {
+        if (!string.IsNullOrWhiteSpace(message.CheckpointTypeName) && newCheckpointType == null) {
             throw new BusinessException($"Invalid checkpoint. Not checkpoint was found for the current case with name {message.CheckpointTypeName}.");
         }
 
