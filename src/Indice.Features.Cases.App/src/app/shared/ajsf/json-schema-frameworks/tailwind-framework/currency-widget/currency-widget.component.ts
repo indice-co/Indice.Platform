@@ -88,6 +88,7 @@ export class CurrencyWidgetComponent implements OnInit {
     // If the value is undefined we reset
     if (inputNumber === undefined) {
       this.lastValue = '';
+      this.jsf.updateValue(this, null);
       return;
     }
     this.lastValue = inputNumber.toLocaleString(this.locale, {
