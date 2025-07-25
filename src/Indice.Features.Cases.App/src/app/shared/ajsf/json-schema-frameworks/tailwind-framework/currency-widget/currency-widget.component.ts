@@ -36,7 +36,7 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
     * Whether to disable the default value.
     * Defaults to false, meaning the input will show a default value of 0 if not set by the user.
   */
-  enableDefaultValue = true;
+  enableDefaultValue = false;
   /**
     * The default value to show in the input if no value is set.
     * Defaults to 0, meaning the input will show '0' if no other value is provided.
@@ -62,7 +62,7 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
     this.locale = this.translateService.currentLang || this.locale; // Use current language or default to Greek
     const controlValue = this.formControl.value;
     // Initialize displayValue if necessary
-    if (controlValue == null && !this.enableDefaultValue) {
+    if (controlValue == null && this.enableDefaultValue) {
       this.formControl.setValue(this.defaultValue);
     }
 
