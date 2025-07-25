@@ -136,60 +136,12 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
     this.options = this.layoutNode.options || {};
 
     // Boolean options
-    this.allowNegativeNumbers = this.resolveOption<boolean>('allowNegativeNumbers');
-    this.disableDefaultValue = this.resolveOption<boolean>('disableDefaultValue');
+    this.allowNegativeNumbers = this.options.allowNegativeNumbers;
+    this.disableDefaultValue = this.options.disableDefaultValue;
 
     // Numeric options
-    this.decimalPlaces = this.resolveOption<number>('decimalPlaces');
-    this.defaultValue = this.resolveOption<number>('defaultValue');
+    this.decimalPlaces = this.options.decimalPlaces;
+    this.defaultValue = this.options.defaultValue;
   }
 
-  /**
-   * Resolves the final value for a single option.
-   *
-   * The option can be:
-   *  - A literal value (`true`, `10`, `'|'`, …)
-   *  - A function receiving the current model (`model => model.taxRate`)
-   *  - A JS expression in a string (`"model.amount * 1.24"`)
-   *
-   * If the option is missing we fall back to the default declared as a
-   * class‑level property.
-   */
-  private resolveOption<T>(name: keyof CurrencyWidgetComponent): T {
-    const raw = this.options[name as string] as OptionValue<T>;
-    if (raw == null) {                       // handles undefined & null
-      return (this as any)[name];
-    }
-
-    const model = this.jsf.getData();
-
-    // 1. Raw is a real function object
-    if (typeof raw === 'function') {
-      return (raw as (m: any) => T)(model);
-    }
-
-    // 2. Raw is a string – evaluate once
-    if (typeof raw === 'string') {
-      try {
-        const result = (new Function('model', `return (${raw});`))(model);
-
-        // If the result is still a function, call it
-        return typeof result === 'function'
-          ? (result as (m: any) => T)(model)
-          : result as T;
-      } catch {
-        // Ignore errors in evaluation, fallback to default
-      }
-    }
-
-    // 3. Fallback literal
-    return raw as T;
-  }
 }
-/**
- * Helper type describing what we accept as an option value:
- * - a literal value (number | string | boolean)
- * - a function receiving the model
- * - a string containing an evaluable JS expression
- */
-type OptionValue<T> = T | ((model: any) => T) | string | null | undefined;
