@@ -36,7 +36,7 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
     * Whether to disable the default value.
     * Defaults to false, meaning the input will show a default value of 0 if not set by the user.
   */
-  disableDefaultValue = false;
+  enableDefaultValue = true;
   /**
     * The default value to show in the input if no value is set.
     * Defaults to 0, meaning the input will show '0' if no other value is provided.
@@ -62,7 +62,7 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
     this.locale = this.translateService.currentLang || this.locale; // Use current language or default to Greek
     const controlValue = this.formControl.value;
     // Initialize displayValue if necessary
-    if (controlValue == null && !this.disableDefaultValue) {
+    if (controlValue == null && !this.enableDefaultValue) {
       this.formControl.setValue(this.defaultValue);
     }
 
@@ -136,12 +136,12 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
     this.options = this.layoutNode.options || {};
 
     // Boolean options
-    this.allowNegativeNumbers = this.options.allowNegativeNumbers;
-    this.disableDefaultValue = this.options.disableDefaultValue;
+    this.allowNegativeNumbers = this.options.allowNegativeNumbers !== undefined ? this.options.allowNegativeNumbers : this.allowNegativeNumbers;
+    this.enableDefaultValue = this.options.enableDefaultValue !== undefined ? this.options.enableDefaultValue : this.enableDefaultValue;
 
     // Numeric options
-    this.decimalPlaces = this.options.decimalPlaces;
-    this.defaultValue = this.options.defaultValue;
+    this.decimalPlaces = this.options.decimalPlaces !== undefined ? this.options.decimalPlaces : this.decimalPlaces;
+    this.defaultValue = this.options.defaultValue !== undefined ? this.options.defaultValue : this.defaultValue;
   }
 
 }
