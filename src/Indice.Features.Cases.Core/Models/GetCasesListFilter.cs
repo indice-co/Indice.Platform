@@ -10,10 +10,14 @@ namespace Indice.Features.Cases.Core.Models;
 public class GetCasesListFilter
 {
     /// <summary>The Id of the customer to filter.</summary>
-    public List<FilterClause> CustomerIds { get; set; } = [];
+    public FilterClause[]? OwnerIds { get; set; } = [];
 
     /// <summary>The name of the customer to filter.</summary>
-    public List<FilterClause> CustomerNames { get; set; } = [];
+    public FilterClause[]? OwnerNames { get; set; } = [];
+
+
+    /// <summary>The Tax Identification Number of the customer to filter.</summary>
+    public FilterClause[]? OwnerTins { get; set; } = [];
 
     /// <summary>The created date of the case, starting from, to filter.</summary>
     public DateTimeOffset? From { get; set; }
@@ -21,26 +25,33 @@ public class GetCasesListFilter
     /// <summary>The creation date of the case, ending to, to filter.</summary>
     public DateTimeOffset? To { get; set; }
 
+    /// <summary>Show all cases or fetch only mine.</summary>
+    /// <remarks>The flag is only used for system clients and admins </remarks>
+    public bool? ShowAll { get; set; }
+
     /// <summary>The list of case type codes to filter.</summary>
-    public List<FilterClause> CaseTypeCodes { get; set; } = [];
+    public FilterClause[]? CaseTypeCodes { get; set; } = [];
 
     /// <summary>The list of checkpoint type Ids to filter.</summary>
-    internal List<FilterClause> CheckpointTypeIds { get; set; } = [];
+    internal FilterClause[]? CheckpointTypeIds { get; set; } = [];
 
     /// <summary>The list of checkpoint type codes to filter.</summary>
-    public List<FilterClause> CheckpointTypeCodes { get; set; } = [];
+    public FilterClause[]? CheckpointTypeCodes { get; set; } = [];
 
     /// <summary>The list of groupIds to filter.</summary>
-    public List<FilterClause> GroupIds { get; set; } = [];
+    public FilterClause[]? GroupIds { get; set; } = [];
 
     /// <summary>Construct filter clauses based on the metadata you are adding to the cases in your installation.</summary>
-    public List<FilterClause> Metadata { get; set; } = [];
+    public FilterClause[]? Metadata { get; set; } = [];
 
     /// <summary>The reference number of the case to filter.</summary>
-    public List<FilterClause> ReferenceNumbers { get; set; } = [];
+    public FilterClause[]? ReferenceNumbers { get; set; } = [];
 
     /// <summary>Construct filter clauses based on case data.</summary>
-    public List<FilterClause> Data { get; set; } = [];
+    public FilterClause[]? Data { get; set; } = [];
     /// <summary>Determines whether case data should be included in result.</summary>
-    public bool IncludeData { get; set; }
+    public bool? IncludeData { get; set; }
+
+    /// <summary>The user Id assigned to case.</summary>
+    public string? AssignedTo { get; set; }
 }

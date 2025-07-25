@@ -1,7 +1,6 @@
 ﻿using System.Globalization;
 using System.Linq.Expressions;
 using System.Security.Claims;
-using System.Text.RegularExpressions;
 using Indice.Events;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Data.Models;
@@ -19,7 +18,6 @@ namespace Indice.Features.Cases.Core.Services;
 internal class MyCaseService : BaseCaseService, IMyCaseService
 {
     private const string SchemaSelector = "frontend";
-    private readonly ICaseTypeService _caseTypeService;
     private readonly IPlatformEventService _platformEventService;
     private readonly IMyCaseMessageService _caseMessageService;
     private readonly IJsonTranslationService _jsonTranslationService;
@@ -28,22 +26,20 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
     public MyCaseService(
         CasesDbContext dbContext,
         IOptions<CasesOptions> options,
-        ICaseTypeService caseTypeService,
         IPlatformEventService platformEventService,
         IMyCaseMessageService caseMessageService,
         IJsonTranslationService jsonTranslationService,
         CaseSharedResourceService caseSharedResourceService) : base(dbContext, options) {
-        _caseTypeService = caseTypeService ?? throw new ArgumentNullException(nameof(caseTypeService));
         _platformEventService = platformEventService ?? throw new ArgumentNullException(nameof(platformEventService));
         _caseMessageService = caseMessageService ?? throw new ArgumentNullException(nameof(caseMessageService));
         _jsonTranslationService = jsonTranslationService ?? throw new ArgumentNullException(nameof(jsonTranslationService));
         _caseSharedResourceService = caseSharedResourceService;
     }
 
-    public async Task<CreateCaseResponse> CreateDraft(ClaimsPrincipal user,
+    public async Task<CreateCaseResponse> CreateDraft(UserActor user,
         string caseTypeCode,
         string? groupId,
-        CustomerMeta? customer,
+        ContactMeta? customer,
         Dictionary<string, string> metadata,
         string? channel) {
         ArgumentNullException.ThrowIfNull(user);
@@ -61,39 +57,46 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
 
         return new CreateCaseResponse {
             Id = entity.Id,
-            Created = entity.CreatedBy!.When!.Value
+            Created = entity.CreatedBy.When!.Value
         };
     }
 
-    public async Task UpdateData(ClaimsPrincipal user, Guid caseId, dynamic data) {
+    public async Task UpdateData(UserActor user, Guid caseId, dynamic data) {
         if (user == null) throw new ArgumentNullException(nameof(user));
         if (caseId == default) throw new ArgumentNullException(nameof(caseId));
-        if (data == null) throw new ArgumentNullException(nameof(data));
+        if (data is null) throw new ArgumentNullException(nameof(data));
         await _caseMessageService.Send(caseId, user, new Message { Data = data });
     }
 
-    public async Task Submit(ClaimsPrincipal user, Guid caseId) {
+    public async Task Submit(UserActor user, Guid caseId) {
         if (caseId == default) throw new ArgumentNullException(nameof(caseId));
 
         var @case = await GetDbCaseForCustomer(caseId, user);
         if (!@case.Draft) {
-            throw new Exception("Case status is not draft."); // todo proper exception (BadRequest)
+            throw new BusinessException("Case status is not draft."); // todo proper exception (BadRequest)
         }
 
         @case.Draft = false;
         await DbContext.SaveChangesAsync();
         // TODO: check mapping for event payload
-        await _platformEventService.Publish(new CaseSubmittedEvent(new Case { Id = @case.Id } , @case.CaseType.Code));
+        await _platformEventService.Publish(new CaseSubmittedEvent(
+            new Case { Id = @case.Id },
+            @case.CaseType.Code,
+            new UserActor {
+                Id = @case.CreatedBy.Id!,
+                Reference = @case.Owner.Reference,
+                GroupId = user.GroupId,
+                Name = @case.CreatedBy.Name,
+                Tin = user.Tin,
+                Email = @case.CreatedBy.Email,
+                CurrentCulture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName
+            }));
     }
 
-    public async Task<Case?> GetCaseById(ClaimsPrincipal user, Guid caseId) {
-        var userId = user.FindSubjectIdOrClientId()!;
+    public async Task<Case?> GetCaseById(Guid caseId) {
         var query =
-            from c in GetCasesInternal(userId, includeAttachmentData: true, SchemaSelector)
-            let isCustomer = userId == c.CustomerId
-            let isCreator = userId == c.CreatedById
-            let isOwner = isCustomer || isCreator
-            where c.Id == caseId && isOwner
+            from c in GetCasesInternal(true, includeAttachmentData: true, SchemaSelector)
+            where c.Id == caseId 
             select c;
 
         var @case = await query.FirstOrDefaultAsync();
@@ -103,18 +106,18 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
 
         // the customer should be able to see only cases that have been created from him/herself!
         if (@case.Channel == CasesCoreConstants.Channels.Agent) {
-            throw new Exception("Case not found.");
+            throw new BusinessException("Case not found.");
         }
 
         @case.CaseType = TranslateCaseType(@case.CaseType, CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
         return @case;
     }
 
-    public async Task<ResultSet<MyCasePartial>> GetCases(ClaimsPrincipal user, ListOptions<GetMyCasesListFilter> options) {
-        var userId = user.FindSubjectIdOrClientId();
+    public async Task<ResultSet<MyCasePartial>> GetCases(UserActor user, ListOptions<GetMyCasesListFilter> options) {
+        
         var dbCaseQueryable = DbContext.Cases
             .AsQueryable()
-            .Where(p => (p.CreatedBy.Id == userId || p.Customer.UserId == userId) && p.PublicCheckpoint.CheckpointType.Status != CaseStatus.Deleted)
+            .Where(p => (p.CreatedBy.Id == user.Id || p.Owner.UserId == user.Id) && p.PublicCheckpoint.CheckpointType.Status != CaseStatus.Deleted)
             .Where(options.Filter.Metadata!);
 
         // We do not return draft cases as a default behaviour either when
@@ -129,18 +132,18 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             dbCaseQueryable = dbCaseQueryable.Where(p => !p.Draft);
         }
 
-        foreach (var tag in options.Filter?.CaseTypeTags ?? new List<string>()) {
+        foreach (var tag in options.Filter?.CaseTypeTags ?? []) {
             // If there are more than 1 tag, the linq will be translated into "WHERE [Tag] LIKE %tag1% AND [Tag] LIKE %tag2% ..."
             dbCaseQueryable = dbCaseQueryable.Where(dbCase => EF.Functions.Like(dbCase.CaseType.Tags, $"%{tag}%"));
         }
 
         // filter ReferenceNumbers
-        if (options.Filter!.ReferenceNumbers is not null) {
+        if (options.Filter?.ReferenceNumbers is { Length: > 0 }) {
             dbCaseQueryable = dbCaseQueryable.Where(dbCase => dbCase.ReferenceNumber.HasValue && options.Filter.ReferenceNumbers.Contains(dbCase.ReferenceNumber.Value));
         }
 
         // filter Statuses
-        if (options.Filter?.Statuses is { Count: > 0 }) {
+        if (options.Filter?.Statuses is { Length: > 0 }) {
             var expressions = options.Filter.Statuses.Select(status => (Expression<Func<DbCase, bool>>)(c => c.PublicCheckpoint.CheckpointType.Status == status));
             // Aggregate the expressions with OR that resolves to SQL: dbCase.PublicCheckpoint.CheckpointType.Status == status1 OR == status2 etc
             var aggregatedExpression = expressions.Aggregate((expression, next) => {
@@ -168,7 +171,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         }
 
         // filter by Checkpoint Code
-        if (options.Filter?.Checkpoints is { Count: > 0 }) {
+        if (options.Filter?.Checkpoints is { Length: > 0 }) {
             var expressions = options.Filter.Checkpoints.Select(checkpoints => (Expression<Func<DbCase, bool>>)(c => c.PublicCheckpoint.CheckpointType.Code == checkpoints));
             // Aggregate the expressions with OR that resolves to SQL: dbCase.PublicCheckpoint.CheckpointType.Code == checkpoint1 OR == checkpoint2 etc
             var aggregatedExpression = expressions.Aggregate((expression, next) => {
@@ -179,7 +182,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         }
 
         // filter CaseTypeCodes
-        if (options.Filter?.CaseTypeCodes is { Count: > 0 }) {
+        if (options.Filter?.CaseTypeCodes is { Length: > 0 }) {
             dbCaseQueryable = dbCaseQueryable.Where(c => options.Filter.CaseTypeCodes.Contains(c.CaseType.Code));
         }
 
@@ -203,7 +206,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
                                          Metadata = c.Metadata,
                                          Message = reasonMessage,
                                          Translations = c.CaseType.Translations,
-                                         Data = options.Filter!.IncludeData ? c.Data.Data : null
+                                         Data = options.Filter!.IncludeData == true ? c.Data.Data : null
                                      };
         // sorting option
         if (string.IsNullOrEmpty(options.Sort)) {
@@ -242,12 +245,12 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         if (caseTypeCode == null) throw new ArgumentNullException(nameof(caseTypeCode));
         var dbCaseType = await GetCaseTypeInternal(caseTypeCode);
         if (dbCaseType == null) {
-            throw new Exception("Case type not found."); // todo  proper exception & handle from problemConfig (NotFound)
+            throw new BusinessException("Case type not found."); // todo  proper exception & handle from problemConfig (NotFound)
         }
 
         var caseType = new CaseTypePartial {
             Code = dbCaseType.Code,
-            DataSchema = GetSingleOrMultiple(SchemaSelector, dbCaseType.DataSchema),
+            DataSchema = GetSingleOrMultiple(SchemaSelector, dbCaseType.DataSchema)!,
             Layout = GetSingleOrMultiple(SchemaSelector, dbCaseType.Layout),
             LayoutTranslations = dbCaseType.LayoutTranslations,
             Title = dbCaseType.Title,
@@ -264,7 +267,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         var caseTypesQueryable = DbContext.CaseTypes
             .AsQueryable();
 
-        foreach (var tag in options.Filter?.CaseTypeTags ?? new List<string>()) {
+        foreach (var tag in options.Filter?.CaseTypeTags ?? []) {
             // If there are more than 1 tag, the linq will be translated into "WHERE [Tag] LIKE %tag1% AND [Tag] LIKE %tag2% ..."
             caseTypesQueryable = caseTypesQueryable.Where(caseType => EF.Functions.Like(caseType.Tags, $"%{tag}%"));
         }
@@ -283,7 +286,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
                     Order = dbCaseType.Category.Order,
                     Translations = dbCaseType.Category.Translations
                 },
-                DataSchema = GetSingleOrMultiple(SchemaSelector, dbCaseType.DataSchema),
+                DataSchema = GetSingleOrMultiple(SchemaSelector, dbCaseType.DataSchema)!,
                 Layout = GetSingleOrMultiple(SchemaSelector, dbCaseType.Layout),
                 LayoutTranslations = dbCaseType.LayoutTranslations,
                 Code = dbCaseType.Code,
@@ -307,7 +310,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
     private CaseTypePartial TranslateCaseType(CaseTypePartial caseTypePartial, string culture, bool includeTranslations) {
         var caseType = caseTypePartial.Translate(culture, includeTranslations);
         caseType.Layout = _jsonTranslationService.Translate(caseType.Layout, caseTypePartial.LayoutTranslations, CultureInfo.CurrentCulture.TwoLetterISOLanguageName);
-        caseType.DataSchema = _jsonTranslationService.Translate(caseType.DataSchema, caseTypePartial.LayoutTranslations, CultureInfo.CurrentCulture.TwoLetterISOLanguageName);
+        caseType.DataSchema = _jsonTranslationService.Translate(caseType.DataSchema, caseTypePartial.LayoutTranslations, CultureInfo.CurrentCulture.TwoLetterISOLanguageName)!;
         return caseType;
     }
 }

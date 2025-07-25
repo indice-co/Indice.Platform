@@ -26,7 +26,7 @@ internal class AvatarController : ControllerBase
     /// <param name="foreground">The foreground color to use.</param>
     /// <param name="circular">Determines whether the tile will be circular or square. Defaults to false (square)</param>
     /// <returns></returns>
-    [HttpGet("{fullname}.{ext?}"), ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "foreground", "circular", "v" })]
+    [HttpGet("{fullname}.{ext?}"), ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = [ "foreground", "circular", "v" ])]
     [AllowAnonymous]
     public IActionResult GetAvatar([FromRoute] string fullname, [FromRoute] string ext, [FromQuery] string foreground, [FromQuery] bool circular) => GetAvatar(fullname, size:null, background:null, ext, foreground: null, circular);
 
@@ -61,7 +61,7 @@ internal class AvatarController : ControllerBase
     /// <returns></returns>
     [HttpGet("{fullname}/{size}/{background}.{ext?}"), ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "foreground", "circular", "v" })]
     [AllowAnonymous]
-    public IActionResult GetAvatar([FromRoute] string fullname, [FromRoute] int? size, [FromRoute] string background, [FromRoute] string ext, [FromQuery] string foreground, [FromQuery] bool circular) {
+    public IActionResult GetAvatar([FromRoute] string fullname, [FromRoute] int? size, [FromRoute] string? background, [FromRoute] string? ext, [FromQuery] string? foreground, [FromQuery] bool circular) {
         if (string.IsNullOrWhiteSpace(fullname)) {
             return BadRequest();
         }
@@ -78,7 +78,7 @@ internal class AvatarController : ControllerBase
                 lastName = fullname.Trim().Remove(0, firstName.Length).TrimStart();
             }
         }
-        return GetAvatar(firstName, lastName, size, ext, background, foreground, circular, null);
+        return GetAvatar(firstName, lastName!, size, ext, background, foreground, circular, null);
     }
 
     /// <summary>Creates an avatar based on first and last name plus parameters</summary>
@@ -91,9 +91,9 @@ internal class AvatarController : ControllerBase
     /// <param name="circular">Determines whether the tile will be circular or square. Defaults to false (square)</param>
     /// <param name="v">Use for cache busting.</param>
     /// <returns></returns>
-    [HttpGet, ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "firstname", "lastname", "size", "ext", "background", "foreground", "circular", "v" })]
+    [HttpGet, ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = [ "firstname", "lastname", "size", "ext", "background", "foreground", "circular", "v" ])]
     [AllowAnonymous]
-    public IActionResult GetAvatar([FromQuery] string firstName, [FromQuery] string lastName, [FromQuery] int? size, [FromQuery] string ext, [FromQuery] string background, [FromQuery] string foreground, [FromQuery] bool circular, [FromQuery] string v) {
+    public IActionResult GetAvatar([FromQuery] string firstName, [FromQuery] string? lastName, [FromQuery] int? size, [FromQuery] string? ext, [FromQuery] string? background, [FromQuery] string? foreground, [FromQuery] bool circular, [FromQuery] string? v) {
         if (string.IsNullOrWhiteSpace(firstName) && string.IsNullOrWhiteSpace(lastName)) {
             ModelState.AddModelError(nameof(firstName), "Must provide with first or last name.");
             return BadRequest(ModelState);
@@ -113,10 +113,7 @@ internal class AvatarController : ControllerBase
         };
         var data = new MemoryStream();
         AvatarGenerator.Generate(data, firstName, lastName, size ?? 192, contentType, background, foreground, circular);
-        var hash = string.Empty;
-        using (var md5 = MD5.Create()) {
-            hash = md5.ComputeHash(Encoding.UTF8.GetBytes($"{firstName} {lastName}")).ToBase64UrlSafe();
-        }
+        var hash = MD5.HashData(Encoding.UTF8.GetBytes($"{firstName} {lastName}")).ToBase64UrlSafe();
         return File(data, contentType, DateTimeOffset.UtcNow, new EntityTagHeaderValue($"\"{hash}\""));
     }
 }

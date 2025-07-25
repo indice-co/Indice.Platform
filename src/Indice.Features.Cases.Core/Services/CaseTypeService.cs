@@ -49,11 +49,11 @@ internal class CaseTypeService : ICaseTypeService
                 LayoutTranslations = x.LayoutTranslations,
                 Order = x.Order,
                 Tags = x.Tags,
-                Title = x.Title!,
+                Title = x.Title,
                 Translations = x.Translations
             })
             .FirstOrDefaultAsync();
-        return caseType ?? throw new Exception("CaseType is invalid."); // todo proper exception;
+        return caseType ?? throw new BusinessException("CaseType is invalid."); // todo proper exception;
     }
 
     public async Task<CaseType> Get(Guid id) {
@@ -63,15 +63,12 @@ internal class CaseTypeService : ICaseTypeService
         return await GetCaseTypeDetailsById(id);
     }
 
-    public async Task<ResultSet<CaseTypePartial>> Get(ClaimsPrincipal user, bool canCreate) {
-        if (user.IsAdmin()) {
+    public async Task<ResultSet<CaseTypePartial>> Get(UserActor user, bool canCreate) {
+        if (user.IsAdmin) {
             return await GetAdminCaseTypes(canCreate);
         }
 
-        var roleClaims = user.Claims
-            .Where(c => c.Type == BasicClaimTypes.Role)
-            .Select(c => c.Value)
-            .ToList();
+        var roleClaims = user.Roles;
 
         var caseTypeIds = canCreate ? await GetCaseTypeIdsForCaseCreation(roleClaims) : await GetCaseTypeIds(roleClaims);
 
@@ -116,7 +113,7 @@ internal class CaseTypeService : ICaseTypeService
         var newCaseType = new DbCaseType {
             Id = Guid.NewGuid(),
             Code = caseType.Code,
-            Title = caseType.Title,
+            Title = caseType.Title!,
             Description = caseType.Description,
             DataSchema = caseType.DataSchema,
             Layout = caseType.Layout,
@@ -175,7 +172,7 @@ internal class CaseTypeService : ICaseTypeService
             .FirstOrDefaultAsync(p => p.Id == caseTypeId);
 
         if (dbCaseType is null) {
-            throw new Exception("CaseType is invalid.");
+            throw new ValidationException("CaseType is invalid.");
         } 
 
         var caseTypeRoles = await _dbContext.CaseAccessRules
@@ -233,7 +230,7 @@ internal class CaseTypeService : ICaseTypeService
         }
 
         // Update case type entity
-        dbCaseType.Title = caseType.Title;
+        dbCaseType.Title = caseType.Title!;
         dbCaseType.Description = caseType.Description;
         dbCaseType.DataSchema = caseType.DataSchema;
         dbCaseType.Layout = caseType.Layout;

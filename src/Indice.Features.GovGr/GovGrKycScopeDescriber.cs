@@ -16,7 +16,7 @@ public class GovGrKycScopeDescriber
     }
 
     /// <inheritdoc />
-    public List<ScopeDescription> GetDescriptions(IStringLocalizer localizer = null) {
+    public List<ScopeDescription> GetDescriptions(IStringLocalizer? localizer = null) {
         var loc = localizer ?? _localizer;
         return new List<ScopeDescription> {
             new ScopeDescription {

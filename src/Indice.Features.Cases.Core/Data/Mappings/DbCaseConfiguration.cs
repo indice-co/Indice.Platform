@@ -18,25 +18,29 @@ internal class DbCaseConfiguration : IEntityTypeConfiguration<DbCase>
             .OwnsOneAudit(p => p.AssignedTo);
         builder
             .OwnsOne(
-                p => p.Customer,
+                p => p.Owner,
                 actionBuilder => {
-                    var prefix = nameof(DbCase.Customer);
+                    var prefix = nameof(DbCase.Owner);
                     actionBuilder
                         .Property(p => p.UserId)
-                        .HasColumnName($"{prefix}{nameof(DbCase.Customer.UserId)}")
+                        .HasColumnName($"{prefix}{nameof(DbCase.Owner.UserId)}")
                         .HasMaxLength(TextSizePresets.S64);
                     actionBuilder
-                        .Property(p => p.CustomerId)
-                        .HasColumnName($"{prefix}{nameof(DbCase.Customer.CustomerId)}")
+                        .Property(p => p.Reference)
+                        .HasColumnName($"{prefix}{nameof(DbCase.Owner.Reference)}")
                         .HasMaxLength(TextSizePresets.M128);
                     actionBuilder
                         .Property(p => p.FirstName)
-                        .HasColumnName($"{prefix}{nameof(DbCase.Customer.FirstName)}")
+                        .HasColumnName($"{prefix}{nameof(DbCase.Owner.FirstName)}")
                         .HasMaxLength(TextSizePresets.M128);
                     actionBuilder
                         .Property(p => p.LastName)
-                        .HasColumnName($"{prefix}{nameof(DbCase.Customer.LastName)}")
+                        .HasColumnName($"{prefix}{nameof(DbCase.Owner.LastName)}")
                         .HasMaxLength(TextSizePresets.M128);
+                    actionBuilder
+                        .Property(p => p.Tin)
+                        .HasColumnName($"{prefix}{nameof(DbCase.Owner.Tin)}")
+                        .HasMaxLength(TextSizePresets.S32);
                     actionBuilder
                         .Ignore(p => p.FullName);
                 });
@@ -69,7 +73,7 @@ internal class DbCaseConfiguration : IEntityTypeConfiguration<DbCase>
             .OnDelete(DeleteBehavior.NoAction);
         builder
            .Property(c => c.Metadata)
-           .HasRequiredJsonConversion();
+           .HasJsonConversion();
         builder
             .Property(c => c.Channel)
             .IsRequired()

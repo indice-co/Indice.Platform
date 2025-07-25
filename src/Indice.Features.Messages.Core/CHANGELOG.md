@@ -5,6 +5,125 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [8.1.0] - 2025-06-15
+### For performance reasons, the following indexes were added to the `media` schema in cases db.
+```sql
+
+CREATE NONCLUSTERED INDEX [IX_MediaFile_FolderId]
+    ON [media].[MediaFile]([FolderId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_MediaFile_Name]
+    ON [media].[MediaFile]([Name] ASC);
+GO
+
+CREATE UNIQUE NONCLUSTERED INDEX [IX_MediaFile_Path]
+    ON [media].[MediaFile]([Path] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_MediaFolder_Name]
+    ON [media].[MediaFolder]([Name] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_MediaFolder_ParentId]
+    ON [media].[MediaFolder]([ParentId] ASC);
+GO
+
+CREATE UNIQUE NONCLUSTERED INDEX [IX_MediaFolder_Path]
+    ON [media].[MediaFolder]([Path] ASC);
+GO
+
+```
+### For performance reasons, the following indexes were added to the `messaging` schema in cases db.
+```sql
+
+CREATE NONCLUSTERED INDEX [IX_Campaign_AttachmentId]
+    ON [#Schema#].[Campaign]([AttachmentId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Campaign_DistributionListId]
+    ON [#Schema#].[Campaign]([DistributionListId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Campaign_TypeId]
+    ON [#Schema#].[Campaign]([TypeId] ASC);
+GO
+
+
+CREATE UNIQUE NONCLUSTERED INDEX [IX_Contact_RecipientId]
+    ON [#Schema#].[Contact]([RecipientId] ASC) WHERE ([RecipientId] IS NOT NULL);
+GO
+
+
+CREATE UNIQUE NONCLUSTERED INDEX [IX_Contact_RecipientId]
+    ON [#Schema#].[Contact]([RecipientId] ASC) WHERE ([RecipientId] IS NOT NULL);
+GO
+
+CREATE UNIQUE NONCLUSTERED INDEX [IX_DistributionList_Name]
+    ON [#Schema#].[DistributionList]([Name] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_DistributionListContact_DistributionListId]
+    ON [#Schema#].[DistributionListContact]([DistributionListId] ASC);
+GO
+
+
+CREATE NONCLUSTERED INDEX [IX_Hit_CampaignId]
+    ON [#Schema#].[Hit]([CampaignId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Message_CampaignId]
+    ON [#Schema#].[Message]([CampaignId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Message_RecipientId]
+    ON [#Schema#].[Message]([RecipientId] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_MessageSender_Sender]
+    ON [#Schema#].[MessageSender]([Sender] ASC);
+GO
+CREATE UNIQUE NONCLUSTERED INDEX [IX_MessageType_Alias]
+    ON [#Schema#].[MessageType]([Alias] ASC) WHERE ([Alias] IS NOT NULL);
+GO
+
+CREATE UNIQUE NONCLUSTERED INDEX [IX_MessageType_Name]
+    ON [#Schema#].[MessageType]([Name] ASC);
+GO
+
+
+CREATE UNIQUE NONCLUSTERED INDEX [IX_Template_Alias]
+    ON [#Schema#].[Template]([Alias] ASC) WHERE ([Alias] IS NOT NULL);
+GO
+
+CREATE UNIQUE NONCLUSTERED INDEX [IX_Template_Name]
+    ON [#Schema#].[Template]([Name] ASC);
+GO
+
+
+```
+
+
+## [8.0.0-rc32] - 2025-05-25
+- Added support for logging message events.
+```sql		
+CREATE TABLE [#Schema#].[MessageEvent](
+	[Id] [uniqueidentifier] NOT NULL,
+	[CampaignId] [uniqueidentifier] NOT NULL,
+	[ContactId] [uniqueidentifier] NOT NULL,
+	[MessageId] [uniqueidentifier] NULL,
+	[Type] [nvarchar](64) NOT NULL,
+	[Channel] [nvarchar](64) NOT NULL,
+	[CreatedOn] [datetimeoffset](7) NOT NULL,
+ CONSTRAINT [PK_MessageEvent] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+```
+
 ## [8.0.0] - 2024-12-03
 - Added support for persisting User communication channel preferences, locale and Consent.
 - Campaign and Template define whether user communication preferences must be ingored if needed. 
@@ -30,6 +149,8 @@ ALTER TABLE [#Schema#].[MessageType]
 ADD Classification TINYINT DEFAULT(0) NOT NULL;		
 GO
  ```		
+
+
 
 ## [7.27.0] - 2024-07-26
 ### Added

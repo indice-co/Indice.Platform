@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Numerics;
+using System.Security.Claims;
 using Indice.Features.Identity.Core.Data.Models;
 using Microsoft.AspNetCore.Identity;
 
@@ -18,6 +19,11 @@ public interface IExtendedUserStore<TUser> where TUser : User
     /// to when their password will need to be changed. This settings is only for new users created any only if no explicit password policy is set.
     /// </summary>
     PasswordExpirationPolicy? PasswordExpirationPolicy { get; }
+    /// <summary>
+    /// The two factor policy is the default setting that every new user created by the <see cref="UserManager{TUser}"/> will inherit in regards
+    /// to when their requirement or not for enrolling in two factor authentication. This settings is only for new users created any only if no explicit TwoFactor policy is set.
+    /// </summary>
+    MfaPolicy? TwoFactorPolicy { get; }
     /// <summary>Sets the password expiration policy for the specified user.</summary>
     /// <param name="user">The user whose password expiration policy to set.</param>
     /// <param name="policy">The password expiration policy to set.</param>

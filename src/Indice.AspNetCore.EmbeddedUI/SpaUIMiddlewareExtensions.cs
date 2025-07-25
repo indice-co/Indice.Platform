@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
 using Indice.AspNetCore.EmbeddedUI;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.Builder;
 
@@ -15,9 +17,13 @@ public static class SpaUIMiddlewareExtensions
     /// <param name="optionsAction">Options for configuring <see cref="SpaUIMiddleware{TOptions}"/> middleware.</param>
     public static IApplicationBuilder UseSpaUI<TOptions>(this IApplicationBuilder builder, string embeddedUIRoot = "spa-ui-dist", Assembly? assembly = null, Action<TOptions>? optionsAction = null) where TOptions : SpaUIOptions, new() {
         assembly ??= Assembly.GetCallingAssembly();
+        var configuration = builder.ApplicationServices.GetRequiredService<IConfiguration>();
         var options = new TOptions {
-            Version = assembly.GetName().Version!.ToString(fieldCount: 3)
+            Version = assembly.GetName().Version!.ToString(fieldCount: 3),
+            Authority = configuration["General:Authority"],
+            Host = configuration["General:Host"]
         };
+
         optionsAction?.Invoke(options);
         if (options.Enabled) {
             builder.UseMiddleware<SpaUIMiddleware<TOptions>>(options, embeddedUIRoot, assembly);

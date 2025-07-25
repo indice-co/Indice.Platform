@@ -1,0 +1,411 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="DeviceAlreadyTrusted" xml:space="preserve">
+    <value>Η συσκευή είναι ήδη εγγεγραμένη.</value>
+  </data>
+  <data name="DevicePendingTrustActivation" xml:space="preserve">
+    <value>Εκκρεμή η επιβεβαίωση της εγγραφής της συσκευής.</value>
+  </data>
+  <data name="DeviceRegistrationOtpCode" xml:space="preserve">
+    <value>Ο κωδικός OTP για την εγγραφή της συκευής {0} είναι {1}</value>
+  </data>
+  <data name="EmailAlreadyConfirmed" xml:space="preserve">
+    <value>Το email έχει ήδη επιβαιωθεί.</value>
+  </data>
+  <data name="EmailUpdateMessageBody" xml:space="preserve">
+    <value>Ο κωδικός επιβεβαίωσης της ηλεκτρονικής σας διεύθυνσης είναι {0}.</value>
+  </data>
+  <data name="EmailUpdateMessageSubject" xml:space="preserve">
+    <value>Επιβεβαίωση λογαριασμού.</value>
+  </data>
+  <data name="ForgotPasswordMessageBody" xml:space="preserve">
+    <value>Παρακαλούμε δημιουργήστε το νέο σας κωδικό  &lt;a href="{0}" &gt;ακολουθώντας τον εξής σύνδεσμο&lt;a&gt;</value>
+  </data>
+  <data name="ImpossibleTravelOtpMessage" xml:space="preserve">
+    <value>Ύποπτη προσπάθεια σύνδεσης. Ο κωδικός OTP είναι {0}.</value>
+  </data>
+  <data name="ImpossibleTravelOtpSubject" xml:space="preserve">
+    <value>Ύποπτη προσπάθεια σύνδεσης από νέα τοποθεσία.</value>
+  </data>
+  <data name="InsufficientNumberOfDevices" xml:space="preserve">
+    <value>Ο χρήστης πρέπει να έχει τουλάχιστον 1 συσκευή.</value>
+  </data>
+  <data name="InvalidPhoneNumber" xml:space="preserve">
+    <value>Ο αριθμός τηλεφώνου '{0}' δεν είναι έγκυρος,</value>
+  </data>
+  <data name="LargeNumberOfDevices" xml:space="preserve">
+    <value>Δεν μπορείτε να ορίσετε τον μέγιστο αριθμό συσκευών σε {0}. Η μέγιστη επιτρεπτή τιμή είναι {1}.</value>
+  </data>
+  <data name="LargeNumberOfUserDevices" xml:space="preserve">
+    <value>Ο χρήστης έχει ήδη {0} συσκευές. Δεν μπορείτε να ορίστε το μέγιστο αριθμό σε {1}.</value>
+  </data>
+  <data name="MaxNumberOfDevices" xml:space="preserve">
+    <value>Έχετε φτάσει το μέγιστο επιτρεπτό αριθμό εγγεγραμένων συσκευών.</value>
+  </data>
+  <data name="OtpSecuredValidatorOtpBody" xml:space="preserve">
+    <value>Ο κωδικός επιβεβαίωσης είναι '{0}'.</value>
+  </data>
+  <data name="OtpSecuredValidatorOtpSubject" xml:space="preserve">
+    <value>Επιβεβαίωση OTP</value>
+  </data>
+  <data name="PhoneNumberAlreadyConfirmed" xml:space="preserve">
+    <value>Ο αριθμός τηλεφώνου του χρήστη έχει ήδη επιβεβαιωθεί.</value>
+  </data>
+  <data name="PhoneNumberVerificationMessage" xml:space="preserve">
+    <value>Ο κωδικός επιβεβαίωσης μέσω SMS είναι {0}.</value>
+  </data>
+  <data name="RequiresOtpMessage" xml:space="preserve">
+    <value>Ο κωδικός OTP είναι {0}.</value>
+  </data>
+  <data name="TrustedDeviceRequiresOtpMessage" xml:space="preserve">
+    <value>Ο κωδικός OTP είναι {0}.</value>
+  </data>
+  <data name="TrustedDevicesLimitReached" xml:space="preserve">
+    <value>Έχετε φτάσει στον μέγιστο αριθμό αξιόπιστων συσκευών.</value>
+  </data>
+  <data name="UserAlreadyHasEmail" xml:space="preserve">
+    <value>Ο χρήστης έχει ήδη το email '{0}'.</value>
+  </data>
+  <data name="UserAlreadyHasPhoneNumber" xml:space="preserve">
+    <value>Ο χρήστης έχει ήδη τον αριθμό τηλεφώνου '{0}'.</value>
+  </data>
+  <data name="ConfirmationEmailSubject" xml:space="preserve">
+    <value>Επιβεβαίωση λογαριασμού</value>
+  </data>
+  <data name="PhoneVerificationSmsSubject" xml:space="preserve">
+    <value>Επιβεβαιώστε τον αριθμό τηλεφώνου</value>
+  </data>
+  <data name="PhoneVerificationSmsBody" xml:space="preserve">
+    <value>ΚΩΔΙΚΟΣ OTP: {0} ΓΙΑ ΕΠΙΒΕΒΑΙΩΣΗ ΑΡΙΘΜΟΥ ΤΗΛΕΦΩΝΟΥ. Ο ΚΩΔΙΚΟΣ ΕΧΕΙ ΙΣΧΥ ΓΙΑ 2 ΛΕΠΤΑ.</value>
+  </data>
+  <data name="ConfirmationEmailChangeSubject" xml:space="preserve">
+    <value>Επιβεβαίωση αλλαγής Email</value>
+  </data>
+  <data name="EmailChangeMessageBody" xml:space="preserve">
+    <value>Ο κωδικός επιβεβαίωσης της ηλεκτρονικής σας διεύθυνσης είναι {0}.</value>
+  </data>
+  <data name="PhoneChangeVerificationSmsSubject" xml:space="preserve">
+    <value>Επιβεβαιώστε τον νέο αριθμό τηλεφώνου σας</value>
+  </data>
+  <data name="PhoneChangeVerificationSmsBody" xml:space="preserve">
+    <value>ΚΩΔΙΚΟΣ OTP: {0} ΓΙΑ ΕΠΙΒΕΒΑΙΩΣΗ ΑΡΙΘΜΟΥ ΤΗΛΕΦΩΝΟΥ. Ο ΚΩΔΙΚΟΣ ΕΧΕΙ ΙΣΧΥ ΓΙΑ 2 ΛΕΠΤΑ.</value>
+  </data>
+  <data name="PhoneNumberChangeVerificationMessage" xml:space="preserve">
+    <value>Ο κωδικός επιβεβαίωσης μέσω SMS είναι {0}.</value>
+  </data>
+  <data name="RegisterEmailSubject" xml:space="preserve">
+    <value>Καλωσήρθατε στην υπηρεσία {0}!</value>
+  </data>
+  <data name="PasswordChangedEventSubject" xml:space="preserve">
+    <value>Αλλαγή κωδικού πρόσβασης</value>
+  </data>
+  <data name="SecurityNotificationDefaultSubject" xml:space="preserve">
+    <value>Ειδοποίηση ασφαλείας για {0}</value>
+  </data>
+  <data name="AddEmailValidationEmailEmpty" xml:space="preserve">
+    <value>Παρακαλώ εισάγετε τη διεύθυνση email σας για να την επιβεβαιώσουμε πριν προχωρήσουμε.</value>
+  </data>
+  <data name="AddEmailConfirmationEmailSend" xml:space="preserve">
+    <value>Ένα email επιβεβαίωσης έχει αποσταλεί στην παρακάτω διεύθυνση.</value>
+  </data>
+  <data name="AddPhoneValidationPhoneEmpty" xml:space="preserve">
+    <value>Παρακαλώ επιλέξτε τον αριθμό τηλεφώνου σας για να τον επιβεβαιώσουμε πριν προχωρήσουμε.</value>
+  </data>
+  <data name="ForgotPasswordMessageSubject" xml:space="preserve">
+    <value>Ανάκτηση κωδικού</value>
+  </data>
+  <data name="ForgotPasswordConfirmationError" xml:space="preserve">
+    <value>Σφάλμα</value>
+  </data>
+  <data name="LoginValidationInvalidCredentials" xml:space="preserve">
+    <value>Παρακαλώ ελέγξτε τα στοιχεία εισόδου σας.</value>
+  </data>
+  <data name="MfaAddPhoneValidationPhoneEmpty" xml:space="preserve">
+    <value>Παρακαλώ επιλέξετε το αριθμό τηλεφώνου σας για να το επιβεβαιώσουμε πριν προχωρήσουμε.</value>
+  </data>
+  <data name="MfaAddPhoneSuccessMessage" xml:space="preserve">
+    <value>Έχετε επιτυχώς ενεργοποιήσει το MFA για το λογαριασμό σας. Συνδεθείτε για να εισέλθετε στο λογαριασμό σας.</value>
+  </data>
+  <data name="MfaAddPhoneValidationPhoneAlreadyConfirmed" xml:space="preserve">
+    <value>Ο αριθμός τηλεφώνου είναι ήδη επιβεβαιωμένος. Συνεχίστε για να ενεργοποιήσετε το MFA.</value>
+  </data>
+  <data name="MfaVerifyPhoneValidationMissingPhone" xml:space="preserve">
+    <value>Παρακαλώ εισάγετε τον κωδικό που λάβατε στο κινητό σας τηλέφωνο.</value>
+  </data>
+  <data name="MfaVerifyPhoneSuccessMessage" xml:space="preserve">
+    <value>Ο αριθμός τηλεφώνου σας επιβεβαιώθηκε επιτυχώς. Παρακαλώ πατήστε το κουμπί 'Επόμενο' για να συνεχίσετε.</value>
+  </data>
+  <data name="PasswordChangedSuccessfully" xml:space="preserve">
+    <value>Ο κωδικός σας έχει αλλάξει με επιτυχία. Παρακαλώ πατήστε το κουμπί 'Επόμενο' για να συνεχίσετε.</value>
+  </data>
+  <data name="ProfileExternalLoginAddedSuccessMessage" xml:space="preserve">
+    <value>Ο εξωτερικός λογαριασμός προστέθηκε στο προφίλ με επιτυχία.</value>
+  </data>
+  <data name="RegisterPhoneConfirmationPrompt" xml:space="preserve">
+    <value>Παρακαλώ εισάγετε τον κωδικό που λάβατε στο κινητό σας τηλέφωνο.</value>
+  </data>
+  <data name="MfaSmsSubject" xml:space="preserve">
+    <value>Είσοδος με OTP</value>
+  </data>
+  <data name="MfaSmsBody" xml:space="preserve">
+    <value>Ο κωδικός OTP για είσοδο είναι: {0}</value>
+  </data>
+  <data name="MfaValidationError" xml:space="preserve">
+    <value>Ο κωδικός OTP δεν είναι έγκυρος.</value>
+  </data>
+  <data name="LoginErrorLockedMessage" xml:space="preserve">
+    <value>Ο λογαριασμός σας είναι προσωρινά κλειδωμένος. Παρακαλώ επικοινωνήστε με έναν διαχειριστή του συστήματος.</value>
+  </data>
+  <data name="PasswordExpiredMessage" xml:space="preserve">
+    <value>Ο κωδικός σας έχει λήξει. Παρακαλώ επιλέξτε ένα νέο κωδικό.</value>
+  </data>
+  <data name="UI_Validator_AddPassword_NewPassword_FieldName" xml:space="preserve">
+    <value>Νέος Κωδικός</value>
+  </data>
+  <data name="UI_Validator_AddPassword_ConfirmPassword_FieldName" xml:space="preserve">
+    <value>Επιβεβαίωση Kωδικού</value>
+  </data>
+  <data name="UI_Validator_PasswordExpired_NewPassword_Empty_Error" xml:space="preserve">
+    <value>Το πεδίο 'Νέος Κωδικός' δεν πρέπει να είναι κενό.</value>
+  </data>
+  <data name="UI_Validator_PasswordExpired_NewPasswordConfirmation_Empty_Error" xml:space="preserve">
+    <value>Το πεδίο 'Επιβεβαίωση Νέου Κωδικού' δεν πρέπει να είναι κενό.</value>
+  </data>
+  <data name="UI_Validator_PasswordExpired_NewPasswordConfirmation_Mismatch_Error" xml:space="preserve">
+    <value>Το πεδίο 'Επιβεβαίωση Νέου Κωδικού' πρέπει να έχει τιμή ίση με το πεδίο 'Νέος Κωδικός'.</value>
+  </data>
+  <data name="UI_Validator_AddEmail_Email_FieldName" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="UI_Validator_AddPhone_CallingCode_FieldName" xml:space="preserve">
+    <value>Κωδικός Τηλεφώνου</value>
+  </data>
+  <data name="UI_Validator_AddPhone_PhoneNumber_FieldName" xml:space="preserve">
+    <value>Αριθμός Τηλεφώνου</value>
+  </data>
+  <data name="UI_Validator_AddPhone_PhoneNumber_InvalidFormat" xml:space="preserve">
+    <value>Ο αριθμός τηλεφώνου δεν έχει αποδεκτή μορφή.</value>
+  </data>
+  <data name="UI_Validator_ChangePassword_OldPassword_FieldName" xml:space="preserve">
+    <value>Παλιός Κωδικός</value>
+  </data>
+  <data name="UI_Validator_ChangePassword_NewPassword_FieldName" xml:space="preserve">
+    <value>Νέος Κωδικός</value>
+  </data>
+  <data name="UI_Validator_EnableMfaSms_PhoneNumber_FieldName" xml:space="preserve">
+    <value>Αριθμός Τηλεφώνου</value>
+  </data>
+  <data name="UI_Validator_EnableMfaSms_PhoneNumber_InvalidFormat" xml:space="preserve">
+    <value>Ο αριθμός τηλεφώνου δεν έχει αποδεκτή μορφή.</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_Email_FieldName" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_NewPassword_FieldName" xml:space="preserve">
+    <value>Νέος Κωδικός</value>
+  </data>
+  <data name="UI_Validator_ForgotPasswordConfirmation_Token_FieldName" xml:space="preserve">
+    <value>Token</value>
+  </data>
+  <data name="UI_Validator_ForgotPassword_Email_FieldName" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="UI_Validator_Login_UserName_FieldName" xml:space="preserve">
+    <value>Όνομα χρήστη</value>
+  </data>
+  <data name="UI_Validator_Login_Password_FieldName" xml:space="preserve">
+    <value>Κωδικός</value>
+  </data>
+  <data name="UI_Validator_MfaOnboarding_SelectedAuthenticationMethod_FieldName" xml:space="preserve">
+    <value>Επιλεγμένη Μέθοδος Ταυτοποίησης</value>
+  </data>
+  <data name="UI_Validator_MfaOnboarding_SelectedAuthenticationMethod_Required" xml:space="preserve">
+    <value>Παρακαλώ επιλέξτε μία από τις διαθέσιμες μεθόδους ελέγχου ταυτοποίησης.</value>
+  </data>
+  <data name="UI_Validator_Profile_UserName_FieldName" xml:space="preserve">
+    <value>Όνομα χρήστη</value>
+  </data>
+  <data name="UI_Validator_Profile_UserName_InvalidFormat" xml:space="preserve">
+    <value>Το πεδίο 'Όνομα χρήστη' δέχεται νούμερα, κεφαλαίους και πεζούς λατινικούς χαρακτήρες καθώς και τα σύμβολα -._@+</value>
+  </data>
+  <data name="UI_Validator_Profile_Email_FieldName" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="UI_Validator_Profile_CallingCode_FieldName" xml:space="preserve">
+    <value>Κωδικός Τηλεφώνου</value>
+  </data>
+  <data name="UI_Validator_Profile_PhoneNumber_FieldName" xml:space="preserve">
+    <value>Κινητό τηλέφωνο</value>
+  </data>
+  <data name="UI_Validator_Profile_PhoneNumber_InvalidFormat" xml:space="preserve">
+    <value>Το κινητό τηλέφωνο δεν έχει αποδεκτή μορφή.</value>
+  </data>
+  <data name="UI_Validator_Profile_Tin_FieldName" xml:space="preserve">
+    <value>Α.Φ.Μ</value>
+  </data>
+  <data name="UI_Validator_Profile_Tin_InvalidFormat" xml:space="preserve">
+    <value>Το πεδίο 'Α.Φ.Μ' δεν έιναι έγκυρο</value>
+  </data>
+  <data name="UI_Validator_Register_UserName_InvalidFormat" xml:space="preserve">
+    <value>Το πεδίο '{PropertyName}' δέχεται νούμερα, κεφαλαίους και πεζούς λατινικούς χαρακτήρες καθώς και τα σύμβολα -._@+</value>
+  </data>
+  <data name="UI_Validator_Register_UserName_AlreadyExists" xml:space="preserve">
+    <value>Το όνομα χρήστη που εισάγατε έχει χρησιμοποιηθεί ήδη. Θα πρέπει να επιλέξετε διαφορετικό.</value>
+  </data>
+  <data name="UI_Validator_Register_Email_AlreadyExists" xml:space="preserve">
+    <value>Το email που εισάγατε έχει χρησιμοποιηθεί ήδη. Θα πρέπει να επιλέξετε διαφορετικό email.</value>
+  </data>
+  <data name="UI_Validator_Register_AcceptTerms_Message" xml:space="preserve">
+    <value>Θα πρέπει να αποδεχτείτε τους όρους χρήσης της υπηρεσίας.</value>
+  </data>
+  <data name="UI_Validator_Register_ReadPrivacyPolicy_Message" xml:space="preserve">
+    <value>Θα πρέπει να έχετε ενημερωθεί σχετικά με την πολιτική προστασίας.</value>
+  </data>
+  <data name="UI_Validator_Register_PhoneNumber_InvalidFormat" xml:space="preserve">
+    <value>Το κινητό τηλέφωνο δεν έχει αποδεκτή μορφή.</value>
+  </data>
+  <data name="UI_Validator_Register_FirstName_FieldName" xml:space="preserve">
+    <value>Όνομα</value>
+  </data>
+  <data name="UI_Validator_Register_LastName_FieldName" xml:space="preserve">
+    <value>Επίθετο</value>
+  </data>
+  <data name="UI_Validator_Register_UserName_FieldName" xml:space="preserve">
+    <value>Όνομα Χρήστη</value>
+  </data>
+  <data name="UI_Validator_Register_Password_FieldName" xml:space="preserve">
+    <value>Κωδικός πρόσβασης</value>
+  </data>
+  <data name="UI_Validator_Register_Email_FieldName" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="UI_Validator_Register_CallingCode_FieldName" xml:space="preserve">
+    <value>Κωδικός Τηλεφώνου</value>
+  </data>
+  <data name="UI_Validator_VerifyPhone_PhoneNumber_FieldName" xml:space="preserve">
+    <value>Αριθμός Τηλεφώνου</value>
+  </data>
+  <data name="UI_Validator_VerifyPhone_PhoneNumber_InvalidFormat" xml:space="preserve">
+    <value>Το κινητό τηλέφωνο δεν έχει αποδεκτή μορφή.</value>
+  </data>
+  <data name="UI_Validator_VerifyPhone_Code_FieldName" xml:space="preserve">
+    <value>Κωδικός</value>
+  </data>
+</root>

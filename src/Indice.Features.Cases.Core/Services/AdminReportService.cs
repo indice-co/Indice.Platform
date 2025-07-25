@@ -25,7 +25,7 @@ internal class AdminReportService : IAdminReportService
         _caseTypeService = caseTypeService ?? throw new ArgumentNullException(nameof(caseTypeService));
     }
 
-    public async Task<List<GroupByReportResult>> GenerateReport(ClaimsPrincipal user, ReportTag reportTag) {
+    public async Task<List<GroupByReportResult>> GenerateReport(UserActor user, ReportTag reportTag) {
         var query = _dbContext.Cases
             .AsNoTracking()
             .Where(c => !c.Draft) // filter out draft cases
@@ -53,26 +53,25 @@ internal class AdminReportService : IAdminReportService
         try {
             query = await _memberAuthorizationProvider.GetCaseMembership(query, user);
         } catch (ResourceUnauthorizedException) {
-            return new List<GroupByReportResult>();
+            return [];
         }
-        var groupByReportResult = new List<GroupByReportResult>();
-        var caseTypes = new ResultSet<CaseTypePartial>();
+        List<GroupByReportResult> groupByReportResult;
+        var caseTypes = await _caseTypeService.Get(user, false);
+        var allowedCaseTypeIds = caseTypes.Items.Select(x => x.Id).ToList();
+        query = query.Where(x => allowedCaseTypeIds.Contains(x.CaseType.Id));
         switch (reportTag) {
             case ReportTag.GroupedByCasetype:
                 groupByReportResult = await GetCasesGroupedByCaseType(query);
-                caseTypes = await _caseTypeService.Get(user, false);
                 // translate
                 groupByReportResult.ForEach(x => x.Label = caseTypes.Items.First(c => c.Code == x.Label).Title!);
                 return groupByReportResult;
             case ReportTag.AgentGroupedByCasetype:
                 groupByReportResult = await GetAgentCasesGroupedByCaseType(query);
-                caseTypes = await _caseTypeService.Get(user, false);
                 // translate
                 groupByReportResult.ForEach(x => x.Label = caseTypes.Items.First(c => c.Code == x.Label).Title!);
                 return groupByReportResult;
             case ReportTag.CustomerGroupedByCasetype:
                 groupByReportResult = await GetCustomerCasesGroupedByCaseType(query);
-                caseTypes = await _caseTypeService.Get(user, false);
                 // translate
                 groupByReportResult.ForEach(x => x.Label = caseTypes.Items.First(c => c.Code == x.Label).Title!);
                 return groupByReportResult;

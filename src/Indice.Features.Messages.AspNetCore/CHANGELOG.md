@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.0.0-rc16] - 2025-02-11
+
+### Added
+Messaging now supports alias for Templates & Message types. 
+The alias can also be used to create a campaign by passing the alias to TypeId or TemplateId
+
+```sql
+--Add new alias column
+ALTER TABLE [msg].[Template]  
+ADD [Alias] [nvarchar](64) NULL
+
+--Create Index for alias
+CREATE UNIQUE NONCLUSTERED INDEX [IX_Template_Alias] ON [cmp].[Template]
+(
+	[Alias] ASC
+)
+WHERE ([Alias] IS NOT NULL)
+WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+--Add new alias column
+ALTER TABLE [cmp].[MessageType]
+ADD [Alias] [nvarchar](64) NULL
+
+--Create Index for alias
+CREATE UNIQUE NONCLUSTERED INDEX [IX_MessageType_Alias] ON [cmp].[MessageType]
+(
+	[Alias] ASC
+)
+WHERE ([Alias] IS NOT NULL)
+WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+```
 ## [7.43.0] - 2024-10-05
 
 ### Added 

@@ -1,5 +1,5 @@
-﻿using System.Security.Claims;
-using System.Text.Json;
+﻿using System.Text.Json;
+using System.Text.Json.Nodes;
 using Indice.Features.Cases.Core.Data;
 using Indice.Features.Cases.Core.Data.Models;
 using Indice.Features.Cases.Core.Models;
@@ -35,36 +35,34 @@ internal abstract class BaseCaseService
     /// <param name="selectorProperty"></param>
     /// <param name="json"></param>
     /// <returns>string schema</returns>
-    protected static string? GetSingleOrMultiple(string? selectorProperty, string? json) {
-        if (!string.IsNullOrEmpty(selectorProperty) && !string.IsNullOrEmpty(json)) {
-            using (var document = JsonDocument.Parse(json)) {
-                if (document.RootElement.ValueKind == JsonValueKind.Object && document.RootElement.TryGetProperty(selectorProperty, out var node)) {
-                    return node.ToString();
-                }
-            }
+    protected static JsonNode? GetSingleOrMultiple(string? selectorProperty, JsonNode? json) {
+        if (!string.IsNullOrEmpty(selectorProperty) &&
+            json is not null &&
+            json.GetValueKind() == JsonValueKind.Object &&
+            json[selectorProperty!] is not null) {
+            return json[selectorProperty!];
         }
         return json;
     }
 
     /// <summary>Create a IQueryable from a <see cref="DbCase"/> projected to a <see cref="Case"/>.</summary>
-    /// /// <param name="userId">The Id of the user</param>
+    /// <param name="fetchPublicData">Indicates if it should get private or public data</param>
     /// <param name="includeAttachmentData">Include the attachment binary data to the response.</param>
     /// <param name="schemaKey">The schemaKey for the case type JSON schema/layout. Can be "frontend", "backoffice" or null</param>
-    protected IQueryable<Case> GetCasesInternal(string userId, bool includeAttachmentData = false, string? schemaKey = null) {
+    protected IQueryable<Case> GetCasesInternal(bool fetchPublicData, bool includeAttachmentData = false, string? schemaKey = null) {
         var query =
             from c in DbContext.Cases.AsQueryable().AsNoTracking()
-            let isCustomer = userId == c.Customer.UserId
             select new Case {
                 Id = c.Id,
                 ReferenceNumber = c.ReferenceNumber,
                 CheckpointType = new CheckpointType {
-                    Id = isCustomer ? c.PublicCheckpoint.CheckpointType.Id : c.Checkpoint.CheckpointType.Id,
-                    Status = isCustomer ? c.PublicCheckpoint.CheckpointType.Status : c.Checkpoint.CheckpointType.Status,
-                    Code = isCustomer ? c.PublicCheckpoint.CheckpointType.Code : c.Checkpoint.CheckpointType.Code,
-                    Title = isCustomer ? c.PublicCheckpoint.CheckpointType.Title : c.Checkpoint.CheckpointType.Title,
-                    Description = isCustomer ? c.PublicCheckpoint.CheckpointType.Description : c.Checkpoint.CheckpointType.Description,
-                    Translations = 
-                        isCustomer ? c.PublicCheckpoint.CheckpointType.Translations : c.Checkpoint.CheckpointType.Translations,
+                    Id = fetchPublicData ? c.PublicCheckpoint.CheckpointType.Id : c.Checkpoint.CheckpointType.Id,
+                    Status = fetchPublicData ? c.PublicCheckpoint.CheckpointType.Status : c.Checkpoint.CheckpointType.Status,
+                    Code = fetchPublicData ? c.PublicCheckpoint.CheckpointType.Code : c.Checkpoint.CheckpointType.Code,
+                    Title = fetchPublicData ? c.PublicCheckpoint.CheckpointType.Title : c.Checkpoint.CheckpointType.Title,
+                    Description = fetchPublicData ? c.PublicCheckpoint.CheckpointType.Description : c.Checkpoint.CheckpointType.Description,
+                    Translations =
+                        fetchPublicData ? c.PublicCheckpoint.CheckpointType.Translations : c.Checkpoint.CheckpointType.Translations,
                 },
                 CreatedByWhen = c.CreatedBy.When,
                 CreatedById = c.CreatedBy.Id,
@@ -74,16 +72,17 @@ internal abstract class BaseCaseService
                     Code = c.CaseType.Code,
                     Title = c.CaseType.Title,
                     Id = c.CaseType.Id,
-                    DataSchema = GetSingleOrMultiple(schemaKey, c.CaseType.DataSchema),
+                    DataSchema = GetSingleOrMultiple(schemaKey, c.CaseType.DataSchema)!,
                     Layout = GetSingleOrMultiple(schemaKey, c.CaseType.Layout),
                     LayoutTranslations = c.CaseType.LayoutTranslations,
                     Translations = c.CaseType.Translations,
                     Tags = c.CaseType.Tags,
                     Config = GetSingleOrMultiple(schemaKey, c.CaseType.Config)
                 },
-                CustomerId = c.Customer.CustomerId,
-                CustomerName = c.Customer.FullName,
-                UserId = c.Customer.UserId,
+                OwnerId = c.Owner.Reference,
+                OwnerName = c.Owner.FullName,
+                OwnerTin = c.Owner.Tin,
+                UserId = c.Owner.UserId,
                 GroupId = c.GroupId,
                 Metadata = c.Metadata,
                 Attachments = c.Attachments.Select(attachment => new CaseAttachment {
@@ -91,9 +90,9 @@ internal abstract class BaseCaseService
                     FileName = attachment.Name,
                     ContentType = attachment.ContentType,
                     FileExtension = attachment.FileExtension,
-                    Data = includeAttachmentData == true ? attachment.Data : null
+                    Data = includeAttachmentData ? attachment.Data : null
                 }).ToList(),
-                Data = isCustomer ? c.PublicData.Data : c.Data.Data,
+                Data = fetchPublicData ? c.PublicData.Data : c.Data.Data,
                 AssignedToName = c.AssignedTo!.Name,
                 Channel = c.Channel,
                 Draft = c.Draft,
@@ -106,18 +105,18 @@ internal abstract class BaseCaseService
         return query;
     }
 
-    /// <summary>Get the case as requested by a Customer. Case must match <see cref="DbCase.CreatedBy"/> with the <see cref="ClaimsPrincipal"/> of the customer.</summary>
+    /// <summary>Get the case as requested by a Customer. Case must match <see cref="DbCase.CreatedBy"/> with the <see cref="UserActor"/> of the customer.</summary>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="customer">The customer that initiated the request.</param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    protected async Task<DbCase> GetDbCaseForCustomer(Guid caseId, ClaimsPrincipal customer) {
-        var userId = customer.FindSubjectIdOrClientId();
+    protected async Task<DbCase> GetDbCaseForCustomer(Guid caseId, UserActor customer) {
+        var userId = customer.Id;
         var @case = await DbContext.Cases
             .Include(c => c.CaseType)
-            .FirstOrDefaultAsync(p => p.Id == caseId && (p.CreatedBy.Id == userId || p.Customer.UserId == userId));
+            .FirstOrDefaultAsync(p => p.Id == caseId && (p.CreatedBy.Id == userId || p.Owner.UserId == userId));
         if (@case == null) {
-            throw new Exception("Case not found."); // todo  proper exception & handle from problemConfig (NotFound)
+            throw new BusinessException("Case not found."); // todo  proper exception & handle from problemConfig (NotFound)
         }
         return @case;
     }
@@ -137,13 +136,13 @@ internal abstract class BaseCaseService
     /// <returns></returns>
     protected async Task<DbCase> CreateDraftInternal(
         ICaseMessageService caseMessageService,
-        ClaimsPrincipal user,
+        UserActor user,
         DbCaseType caseType,
         string? groupId,
-        CustomerMeta? customer,
+        ContactMeta? customer,
         Dictionary<string, string> metadata,
         string channel,
-        ClaimsPrincipal? assignee = null) {
+        UserActor? assignee = null) {
         if (user is null) throw new ArgumentNullException(nameof(user));
         if (caseType == null) throw new ArgumentNullException(nameof(caseType));
         if (string.IsNullOrEmpty(channel)) throw new ArgumentNullException(nameof(channel));
@@ -155,7 +154,7 @@ internal abstract class BaseCaseService
             CaseTypeId = caseType.Id,
             Priority = Priority.Normal,
             GroupId = groupId,
-            Customer = customer ?? new(),
+            Owner = customer ?? new(),
             CreatedBy = userMeta,
             Metadata = metadata,
             Draft = true,

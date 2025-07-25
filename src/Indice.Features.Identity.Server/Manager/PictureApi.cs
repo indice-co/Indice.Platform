@@ -1,7 +1,4 @@
-﻿using System.Security.Claims;
-using Bogus.DataSets;
-using Indice.AspNetCore.Filters;
-using Indice.Extensions;
+﻿using Indice.Extensions;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Manager;
 using Indice.Features.Identity.Server.Manager.Models;
@@ -50,7 +47,7 @@ public static class PictureApi
         group.MapDelete("my/account/picture", PictureHandlers.ClearMyPicture)
              .WithName(nameof(PictureHandlers.ClearMyPicture))
              .WithSummary("Clear profile picture from the current user.")
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         var getMyPicture = routes.MapGroup($"{options.ApiPrefix}");
         getMyPicture.WithTags("MyAccount");
@@ -64,22 +61,22 @@ public static class PictureApi
         getMyPicture.MapGet("my/account/picture", PictureHandlers.GetMyPicture)
             .WithName(nameof(PictureHandlers.GetMyPicture))
             .WithSummary("Get my profile picture.")
-            .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+            .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         getMyPicture.MapGet("my/account/picture/{size}", PictureHandlers.GetMyPictureSize)
             .WithName(nameof(PictureHandlers.GetMyPictureSize))
             .WithSummary("Get my profile picture.")
-            .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+            .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         getMyPicture.MapGet("my/account/picture.{format:regex(jpg|png|webp)}", PictureHandlers.GetMyPictureFormat)
             .WithName(nameof(PictureHandlers.GetMyPictureFormat))
             .WithSummary("Get my profile picture.")
-            .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+            .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         getMyPicture.MapGet("my/account/picture/{size}.{format:regex(jpg|png|webp)}", PictureHandlers.GetMyPictureSizeFormat)
             .WithName(nameof(PictureHandlers.GetMyPictureSizeFormat))
             .WithSummary("Get my profile picture.")
-            .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+            .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
         if (!options.Avatar.Enabled) { // disable only public access
             return routes;
         }

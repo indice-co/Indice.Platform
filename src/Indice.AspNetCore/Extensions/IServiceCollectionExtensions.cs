@@ -26,7 +26,7 @@ public static class ServiceCollectionExtensions
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configureAction">Configuration action.</param>
     /// <remarks>Better use the more complete version <see cref="AddSecurityHeaders(IServiceCollection, Action{SecurityHeadersPolicy})"/></remarks>
-    public static IServiceCollection AddCsp(this IServiceCollection services, Action<CSP> configureAction = null) {
+    public static IServiceCollection AddCsp(this IServiceCollection services, Action<CSP>? configureAction = null) {
         var cspPolicy = CSP.DefaultPolicy.Clone();
         configureAction?.Invoke(cspPolicy);
         services.AddSecurityHeaders(policy => {
@@ -41,7 +41,7 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configureAction">Configuration action.</param>
-    public static IServiceCollection AddSecurityHeaders(this IServiceCollection services, Action<SecurityHeadersPolicy> configureAction = null) {
+    public static IServiceCollection AddSecurityHeaders(this IServiceCollection services, Action<SecurityHeadersPolicy>? configureAction = null) {
         var policy = new SecurityHeadersPolicy();
         configureAction?.Invoke(policy);
         services.TryAddSingleton(policy);
@@ -53,7 +53,7 @@ public static class ServiceCollectionExtensions
     /// <param name="configuration">Configuration</param>
     /// <param name="sectionName">Configuration section name.</param>
     /// <remarks>Better use the more complete version <see cref="AddSecurityHeaders(IServiceCollection, Action{SecurityHeadersPolicy})"/>.</remarks>
-    public static CSP FromConfiguration(this CSP policy, IConfiguration configuration, string sectionName = null) {
+    public static CSP FromConfiguration(this CSP policy, IConfiguration configuration, string? sectionName = null) {
         configuration.Bind(nameof(CSP), policy);
         return policy;
     }
@@ -82,21 +82,21 @@ public static class ServiceCollectionExtensions
     /// <summary>Configures the Data Protection API for the application by using Azure Storage.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configure">Configures the available options. Null to use defaults.</param>
-    public static IServiceCollection AddDataProtectionAzure(this IServiceCollection services, Action<AzureDataProtectionOptions> configure = null) {
+    public static IServiceCollection AddDataProtectionAzure(this IServiceCollection services, Action<AzureDataProtectionOptions>? configure = null) {
         services.TryAddSingleton(typeof(IDataProtectionEncryptor<>), typeof(DataProtectionEncryptor<>));
         var serviceProvider = services.BuildServiceProvider();
         var hostingEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
         var environmentName = Regex.Replace(hostingEnvironment.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
         const int defaultKeyLifetime = 90;
         var options = new AzureDataProtectionOptions {
-            StorageConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("StorageConnection"),
+            StorageConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("StorageConnection")!,
             ContainerName = environmentName,
             ApplicationName = hostingEnvironment.ApplicationName,
-            KeyLifetime = defaultKeyLifetime
+            KeyLifetime = defaultKeyLifetime,
+            Services = services
         };
-        options.Services = services;
         configure?.Invoke(options);
-        options.Services = null;
+        options.Services = null!;
         if (options.KeyLifetime <= 0) {
             options.KeyLifetime = defaultKeyLifetime;
         }
@@ -126,7 +126,7 @@ public static class ServiceCollectionExtensions
     /// <summary>Configures the Data Protection API for the application by using the file system.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configure">Configures the available options. Null to use defaults.</param>
-    public static IServiceCollection AddDataProtectionLocal(this IServiceCollection services, Action<LocalDataProtectionOptions> configure = null) {
+    public static IServiceCollection AddDataProtectionLocal(this IServiceCollection services, Action<LocalDataProtectionOptions>? configure = null) {
         var serviceProvider = services.BuildServiceProvider();
         var hostingEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
         const int defaultKeyLifetime = 90;
@@ -136,11 +136,11 @@ public static class ServiceCollectionExtensions
                 EncryptionAlgorithm = EncryptionAlgorithm.AES_256_GCM,
                 ValidationAlgorithm = ValidationAlgorithm.HMACSHA512
             },
-            KeyLifetime = defaultKeyLifetime
+            KeyLifetime = defaultKeyLifetime,
+            Services = services
         };
-        options.Services = services;
         configure?.Invoke(options);
-        options.Services = null;
+        options.Services = null!;
         if (options.KeyLifetime <= 0) {
             options.KeyLifetime = defaultKeyLifetime;
         }
@@ -174,7 +174,7 @@ public static class ServiceCollectionExtensions
     /// <summary>Reads the data protection options directly from configuration.</summary>
     /// <param name="options">Options for configuring ASP.NET Core DataProtection API using local file system.</param>
     /// <param name="section">The section to use in search for settings regarding data protection. Default section used is <see cref="LocalDataProtectionOptions.Name"/>.</param>
-    public static LocalDataProtectionOptions FromConfiguration(this LocalDataProtectionOptions options, string section = null) {
+    public static LocalDataProtectionOptions FromConfiguration(this LocalDataProtectionOptions options, string? section = null) {
         var serviceProvider = options.Services.BuildServiceProvider();
         var configuration = serviceProvider.GetRequiredService<IConfiguration>();
         configuration.Bind(section ?? LocalDataProtectionOptions.Name, options);
@@ -184,7 +184,7 @@ public static class ServiceCollectionExtensions
     /// <summary>Reads the data protection options directly from configuration.</summary>
     /// <param name="options">Options for configuring ASP.NET Core DataProtection API using Azure Blob Storage infrastructure.</param>
     /// <param name="section">The section to use in search for settings regarding data protection. Default section used is <see cref="LocalDataProtectionOptions.Name"/>.</param>
-    public static AzureDataProtectionOptions FromConfiguration(this AzureDataProtectionOptions options, string section = null) {
+    public static AzureDataProtectionOptions FromConfiguration(this AzureDataProtectionOptions options, string? section = null) {
         var serviceProvider = options.Services.BuildServiceProvider();
         var configuration = serviceProvider.GetRequiredService<IConfiguration>();
         configuration.Bind(section ?? AzureDataProtectionOptions.Name, options);
@@ -213,7 +213,7 @@ public static class ServiceCollectionExtensions
     /// <param name="services">The service collection.</param>
     /// <param name="configureAction">The action to configure. Use null for default options.</param>
     /// <returns></returns>
-    public static IServiceCollection AddLimitUpload(this IServiceCollection services, Action<LimitUploadOptions> configureAction = null) {
+    public static IServiceCollection AddLimitUpload(this IServiceCollection services, Action<LimitUploadOptions>? configureAction = null) {
         var options = new LimitUploadOptions();
         configureAction?.Invoke(options);
         

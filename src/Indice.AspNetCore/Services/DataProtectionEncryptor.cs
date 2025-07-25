@@ -17,7 +17,7 @@ public class DataProtectionEncryptor<T> : IDataProtectionEncryptor<T> where T : 
         if (provider == null) {
             throw new ArgumentNullException(nameof(provider));
         }
-        _protector = provider.CreateProtector(typeof(T).FullName);
+        _protector = provider.CreateProtector(typeof(T).FullName!);
         _serializerOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
     }
 
@@ -32,10 +32,10 @@ public class DataProtectionEncryptor<T> : IDataProtectionEncryptor<T> where T : 
     /// <param name="encryptedText">A piece of plaintext data to decrypt.</param>
     /// <param name="object">Returns an object of the specified type that was decrypted.</param>
     /// <returns>Return true if the decryption process completes successfully.</returns>
-    public bool TryDecrypt(string encryptedText, out T @object) {
+    public bool TryDecrypt(string encryptedText, out T? @object) {
         try {
             var decryptedText = _protector.Unprotect(encryptedText);
-            @object = JsonSerializer.Deserialize<T>(decryptedText, _serializerOptions);
+            @object = JsonSerializer.Deserialize<T>(decryptedText, _serializerOptions)!;
             return true;
         } catch (Exception) {
             @object = default;

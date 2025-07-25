@@ -1,85 +1,86 @@
-name: "CodeQL"
+name: Branch protection
+
+permissions:
+  contents: read
 
 on:
-  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [ develop ]
 
 jobs:
-  analyze:
-    name: Analyze
+  run-build:
+    name: .NET Build
+    if: always()
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Dotnet build
+        id: dotnet-build
+        uses: ./.github/workflows/composites/build-action
+        with:
+          dotnetCacheKey: dotnet-build-${{ github.sha }}
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
+
+  run-dotnet-tests:
+    needs: [run-build]
+    if: always()
+    name: .NET Tests
     runs-on: windows-latest
     permissions:
+      contents: read
       actions: read
+      checks: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Dotnet test
+        id: dotnet-test
+        uses: ./.github/workflows/composites/test-action
+        with:
+          dotnetCacheKey: dotnet-build-${{ github.sha }}
+
+  run-codeql-csharp:
+    if: always()
+    needs: [run-build]
+    name: CodeQL (C#)
+    runs-on: windows-latest
+    permissions:
       contents: read
       security-events: write
-
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [ 'csharp', 'javascript-typescript' ]
-
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-    # Clone repository
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      - name: CodeQL (C#)
+        id: codeql-csharp
+        uses: ./.github/workflows/composites/codeql-csharp
+        with:
+          dotnetCacheKey: dotnet-build-${{ github.sha }}
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
 
-    # Setup CodeQL + .NET SDK + Node.js
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
-      with:
-        languages: ${{ matrix.language }}
-        config-file: ./.github/workflows/codeql/codeql-config.yml
+  run-codeql-javascript:
+    if: always()
+    needs: [run-build]
+    name: CodeQL (JavaScript)
+    runs-on: windows-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-    - name: Use .NET 8
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 8.0.x
-        source-url: https://api.nuget.org/v3/index.json
-      env:
-        NUGET_AUTH_TOKEN: ${{secrets.NUGET_AUTH_TOKEN}}
-
-    # Setup Node.js
-    - name: Use Node.js 20.x
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
-
-    # Build the solution
-    - name: NPM Install + Build Cases UI
-      run: |
-        cd src/Indice.Features.Cases.App
-        npm install --force
-        npm run build:template
+      - name: CodeQL (JavaScript)
+        id: codeql-js
+        uses: ./.github/workflows/composites/codeql-js
+        with:
+          dotnetCacheKey: dotnet-build-${{ github.sha }}
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
         
-    - name: NPM Install + Build Admin UI
-      run: |
-        cd src/Indice.Features.Identity.AdminUI.App
-        npm install --force
-        npm run build:template
-        
-    - name: NPM Install + Build Messages UI
-      run: |
-        cd src/Indice.Features.Messages.App
-        npm install --force
-        npm run build:template
-    - name: Create Nuget directory
-      shell: pwsh
-      run: |
-        if (!(Test-Path -Path ".\.nuget" ))
-        {
-          New-Item -ItemType "directory" -Path ".\.nuget"
-        }
-        if (!(Test-Path -Path ".\.nuget\packages" ))
-        {
-          New-Item -ItemType "directory" -Path ".\.nuget\packages"
-        }
-    - name: Restore Nuget packages + Build
-      run: ./build.ps1
-    
-    # Execute the actual CodeQL analysis
-    - name: Execute CodeQL analysis
-      uses: github/codeql-action/analyze@v2
-      with:
-        category: "/language:${{matrix.language}}"

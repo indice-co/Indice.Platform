@@ -1,7 +1,12 @@
 using System.Security.Claims;
 using IdentityModel;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Extensions;
+using Duende.IdentityServer.Services;
+#else
 using IdentityServer4.Extensions;
 using IdentityServer4.Services;
+#endif
 using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
@@ -86,10 +91,14 @@ public abstract class BaseChallengeModel : BasePageModel
         if (localeClaim is null) {
             await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.Locale, RequestCulture.Culture.TwoLetterISOLanguageName);
         }
-        var redirectUrl = GetRedirectUrl(result, returnUrl);
-        if (redirectUrl is not null) {
-            return Redirect(redirectUrl);
+        if (result.RequiresTwoFactor) {
+            var redirectUrl = Url.PageLink("/Mfa", values: new { returnUrl });
+            return Redirect(redirectUrl!);
         }
+        if (result.RequiresValidation()) {
+            return RedirectToPage("/AddEmail", new { returnUrl });
+        }
+
         // Check if external login is in the context of an OIDC request.
         var context = await Interaction.GetAuthorizationContextAsync(returnUrl);
         if (context is not null) {
@@ -109,7 +118,7 @@ public abstract class BaseChallengeModel : BasePageModel
         await Task.CompletedTask;
         var claims = externalLoginInfo.Principal.Claims.ToList();
         TempData.Put("UserDetails", new AssociateViewModel {
-            UserName = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Email)?.Value,
+            UserName = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Email)?.Value ?? claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Name)?.Value,
             Email = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Email)?.Value ?? string.Empty,
             FirstName = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value ?? string.Empty,
             LastName = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value ?? string.Empty,

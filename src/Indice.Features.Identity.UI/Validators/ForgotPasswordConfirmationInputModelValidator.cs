@@ -1,21 +1,18 @@
 ﻿using FluentValidation;
+using Indice.Features.Identity.Core;
 using Indice.Features.Identity.UI.Models;
-using Microsoft.Extensions.Localization;
 
 namespace Indice.Features.Identity.UI.Validators;
 
 /// <summary>Validator for <see cref="ForgotPasswordInputModel"/> class.</summary>
 public class ForgotPasswordConfirmationInputModelValidator : AbstractValidator<ForgotPasswordConfirmationInputModel>
 {
-    private readonly IStringLocalizer<ForgotPasswordConfirmationInputModelValidator> _localizer;
-
-    /// <summary>Creates a new instance of <see cref="ForgotPasswordConfirmationInputModelValidator"/> class.</summary>
-    /// <param name="localizer">Represents a service that provides localized strings.</param>
+    /// <summary>Creates a new instance of <see cref="ForgotPasswordConfirmationInputModelValidator"/> class.</summary>'
+    /// <param name="describer">The <see cref="IdentityMessageDescriber"/> used to provide localized error messages.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public ForgotPasswordConfirmationInputModelValidator(IStringLocalizer<ForgotPasswordConfirmationInputModelValidator> localizer) {
-        _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
-        RuleFor(x => x.Email).NotEmpty().EmailAddress();
-        RuleFor(x => x.NewPassword).NotEmpty().WithName(_localizer["New Password"]);
-        RuleFor(x => x.Token).NotEmpty();
+    public ForgotPasswordConfirmationInputModelValidator(IdentityMessageDescriber describer) {
+        RuleFor(x => x.Email).NotEmpty().EmailAddress().WithName(describer.UI_Validator_ForgotPasswordConfirmation_Email_FieldName);
+        RuleFor(x => x.NewPassword).NotEmpty().WithName(describer.UI_Validator_ForgotPasswordConfirmation_NewPassword_FieldName);
+        RuleFor(x => x.Token).NotEmpty().WithName(describer.UI_Validator_ForgotPasswordConfirmation_Token_FieldName);
     }
 }

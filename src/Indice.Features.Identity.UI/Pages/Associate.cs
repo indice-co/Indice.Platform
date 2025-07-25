@@ -78,6 +78,7 @@ public abstract class BaseAssociateModel : BasePageModel
         await AddExtraClaims(claims);
         var user = await FindOrCreateUser(Input.UserName!, Input.PhoneNumber, claims);
         await UserManager.AddLoginAsync(user, new UserLoginInfo(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, externalLoginInfo.ProviderDisplayName ?? externalLoginInfo.LoginProvider));
+        TempData.Remove("UserDetails");
         return RedirectToPage("/Challenge", "Callback", new {
             returnUrl = Input.ReturnUrl
         });

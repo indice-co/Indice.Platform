@@ -14,7 +14,7 @@ public class WorkPublisherOptions
     }
 
     internal IServiceCollection Services { get; }
-    internal Type QueueStoreType { get; set; }
+    internal Type? QueueStoreType { get; set; }
     /// <summary>Gets the <see cref="JsonSerializerOptions"/> used internally whenever a payload needs to be persisted. </summary>
     public WorkerJsonOptions JsonOptions { get; }
 }

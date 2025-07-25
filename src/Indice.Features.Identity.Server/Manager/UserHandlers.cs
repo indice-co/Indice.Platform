@@ -1,7 +1,18 @@
 ﻿using System.Security.Claims;
 using IdentityModel;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Events;
+using Duende.IdentityServer.Extensions;
+using Duende.IdentityServer.Services;
+using Duende.IdentityServer.Stores;
+using Duende.IdentityServer.Stores.Serialization;
+#else
+using IdentityServer4.Events;
+using IdentityServer4.Extensions;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
+using IdentityServer4.Stores.Serialization;
+#endif
 using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
@@ -56,6 +67,7 @@ internal static class UserHandlers
                 LockoutEnabled = user.LockoutEnabled,
                 LockoutEnd = user.LockoutEnd,
                 TwoFactorEnabled = user.TwoFactorEnabled,
+                TwoFactorPolicy = user.TwoFactorPolicy,
                 Blocked = user.Blocked,
                 PasswordExpirationPolicy = user.PasswordExpirationPolicy,
                 IsAdmin = user.Admin,
@@ -63,7 +75,7 @@ internal static class UserHandlers
                 LastSignInDate = user.LastSignInDate,
                 PasswordExpirationDate = user.PasswordExpirationDate
             };
-        if (expandClaims?.Length > 3) {
+        if (expandClaims?.Length > 4) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(expandClaims), "Cannot expand more than three claim types"));
         }
         foreach (var claimType in expandClaims ?? []) {
@@ -89,18 +101,14 @@ internal static class UserHandlers
                     LockoutEnabled = user.LockoutEnabled,
                     LockoutEnd = user.LockoutEnd,
                     TwoFactorEnabled = user.TwoFactorEnabled,
+                    TwoFactorPolicy = user.TwoFactorPolicy,
                     Blocked = user.Blocked,
                     PasswordExpirationPolicy = user.PasswordExpirationPolicy,
                     IsAdmin = user.IsAdmin,
                     AccessFailedCount = user.AccessFailedCount,
                     LastSignInDate = user.LastSignInDate,
                     PasswordExpirationDate = user.PasswordExpirationDate,
-                    Claims = ct == null ? user.Claims : user.Claims.Concat(new List<BasicClaimInfo> {
-                        new() {
-                            Type = claimType,
-                            Value = ct.ClaimValue
-                        }
-                    }).ToList()
+                    Claims = UserInfo.MergeClaims(user.Claims, claimType, ct.ClaimValue)
                 };
         }
 
@@ -132,6 +140,7 @@ internal static class UserHandlers
                 PhoneNumber = user.PhoneNumber,
                 PhoneNumberConfirmed = user.PhoneNumberConfirmed,
                 TwoFactorEnabled = user.TwoFactorEnabled,
+                TwoFactorPolicy = user.TwoFactorPolicy,
                 UserName = user.UserName,
                 Blocked = user.Blocked,
                 PasswordExpirationPolicy = user.PasswordExpirationPolicy,
@@ -185,6 +194,7 @@ internal static class UserHandlers
             PhoneNumber = request.PhoneNumber,
             PhoneNumberConfirmed = request.PhoneNumberConfirmed ?? false,
             TwoFactorEnabled = request.TwoFactorEnabled ?? false,
+            TwoFactorPolicy = request.TwoFactorPolicy,
             UserName = request.UserName,
         };
         IdentityResult? result = null;
@@ -257,6 +267,7 @@ internal static class UserHandlers
         user.Email = request.Email;
         user.PhoneNumber = request.PhoneNumber;
         user.TwoFactorEnabled = request.TwoFactorEnabled;
+        user.TwoFactorPolicy = request.TwoFactorPolicy;
         user.PasswordExpirationPolicy = request.PasswordExpirationPolicy;
         user.Admin = request.IsAdmin;
         user.EmailConfirmed = request.EmailConfirmed;
@@ -472,30 +483,44 @@ internal static class UserHandlers
 
     internal static async Task<Ok<ResultSet<UserClientInfo>>> GetUserApplications(
         IPersistedGrantService persistedGrantService,
+        IPersistedGrantStore grants,
+        IPersistentGrantSerializer serializer,
         IClientStore clientStore,
         string userId
     ) {
-        var userGrants = await persistedGrantService.GetAllGrantsAsync(userId);
-        var clients = new List<UserClientInfo>();
-        foreach (var grant in userGrants) {
-            var client = await clientStore.FindClientByIdAsync(grant.ClientId);
+        var userClients = await grants.GetAllGroupedByClientAsync(serializer, userId);
+        foreach (var grantGroup in userClients) {
+            var client = await clientStore.FindClientByIdAsync(grantGroup.ClientId!);
             if (client != null) {
-                clients.Add(new UserClientInfo {
-                    ClientId = client.ClientId,
-                    ClientName = client.ClientName,
-                    ClientUri = client.ClientUri,
-                    Description = client.Description,
-                    LogoUri = client.LogoUri,
-                    RequireConsent = client.RequireConsent,
-                    AllowRememberConsent = client.AllowRememberConsent,
-                    Enabled = client.Enabled,
-                    CreatedAt = grant.CreationTime,
-                    ExpiresAt = grant.Expiration,
-                    Scopes = grant.Scopes
-                });
+                grantGroup.ClientId = client.ClientId;
+                grantGroup.ClientName = client.ClientName;
+                grantGroup.ClientUri = client.ClientUri;
+                grantGroup.Description = client.Description;
+                grantGroup.LogoUri = client.LogoUri;
             }
         }
-        return TypedResults.Ok(clients.ToResultSet());
+        return TypedResults.Ok(userClients.ToResultSet());
+    }
+
+    internal static async Task<Results<NoContent, NotFound>> RevokeUserApplicationAccess(
+        ExtendedUserManager<User> userManager,
+        IPersistedGrantService grants,
+        IEventService events,
+        string userId,
+        string clientId) {
+        await grants.RemoveAllGrantsAsync(userId, clientId);
+        await events.RaiseAsync(new GrantsRevokedEvent(userId, clientId));
+        return TypedResults.NoContent();
+    }
+
+    internal static async Task<Results<NoContent, NotFound>> RevokeAllUserApplicationAccess(
+        ExtendedUserManager<User> userManager,
+        IPersistedGrantService grants,
+        IEventService events,
+        string userId) {
+        await grants.RemoveAllGrantsAsync(userId);
+        await events.RaiseAsync(new GrantsRevokedEvent(userId, null));
+        return TypedResults.NoContent();
     }
 
     internal static async Task<Ok<ResultSet<DeviceInfo>>> GetUserDevices(
@@ -535,7 +560,7 @@ internal static class UserHandlers
         if (user == null) {
             return TypedResults.NotFound();
         }
-        var device = await userManager.GetDeviceByIdAsync(user, userId);
+        var device = await userManager.GetDeviceByIdAsync(user, deviceId);
         if (device == null) {
             return TypedResults.NotFound();
         }

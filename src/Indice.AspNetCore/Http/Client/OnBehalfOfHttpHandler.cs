@@ -1,4 +1,3 @@
-#nullable enable
 using IdentityModel.Client;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Reflection;
@@ -219,4 +218,3 @@ public static class OnBehalfOfHttpHandlerExtensions
             options.TokenEndpoint = $"{configuration.GetAuthority(tryInternal: true)!.TrimEnd('/')}/connect/token";
         });
 }
-#nullable disable

@@ -1,9 +1,18 @@
-﻿using IdentityServer4;
+﻿#if NET9_0_OR_GREATER
+using Duende.IdentityServer;
+using Duende.IdentityServer.EntityFramework.Interfaces;
+using Duende.IdentityServer.Models;
+using Duende.IdentityServer.Services;
+using Duende.IdentityServer.Stores.Serialization;
+using Duende.IdentityServer.Validation;
+#else
+using IdentityServer4;
 using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Stores.Serialization;
 using IdentityServer4.Validation;
+#endif
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Identity.Core.Scopes;

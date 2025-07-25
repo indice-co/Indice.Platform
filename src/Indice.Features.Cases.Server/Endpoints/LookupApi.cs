@@ -1,14 +1,18 @@
-﻿using Indice.Security;
+﻿using Indice.Features.Cases.Server;
+using Indice.Features.Cases.Server.Authorization;
+using Indice.Features.Cases.Server.Endpoints;
+using Indice.Security;
+using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Indice.Features.Cases.Server.Endpoints;
+namespace Microsoft.AspNetCore.Routing;
 
 /// <summary>Manage lookups for the case types.</summary>
-public static class LookupApi
+internal static class LookupApi
 {
     /// <summary>Maps lookup endpoint.</summary>
     public static IEndpointRouteBuilder MapLookup(this IEndpointRouteBuilder routes) {
@@ -18,21 +22,23 @@ public static class LookupApi
         group.WithTags("Lookup");
         group.WithGroupName(options.GroupName);
 
-        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
+        var allowedScopes = new[] { options.RequiredScope }.FilterOutNulls().ToArray();
 
         group.RequireAuthorization(policy => policy
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes("Bearer")
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-        );//.RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
-        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+            .RequireCasesAccess(CasesAccessLevel.Manage)
+        ).WithHandledException<BusinessException>();
+        
+        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized)
              .ProducesProblem(StatusCodes.Status403Forbidden);
         
-        group.MapGet("{lookupName}", LookupHandler.GetLookup)
-             .WithName(nameof(LookupHandler.GetLookup))
+        group.MapGet("{lookupName}", LookupHandlers.GetLookup)
+             .WithName(nameof(LookupHandlers.GetLookup))
              .WithSummary("Get a lookup result by lookupName and options.");
         
         return group;

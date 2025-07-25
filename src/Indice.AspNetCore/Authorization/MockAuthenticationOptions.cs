@@ -17,5 +17,5 @@ public class MockAuthenticationOptions : AuthenticationSchemeOptions
     /// <summary>
     /// The factory function that will create the current user to be set to the <see cref="HttpContext"/>
     /// </summary>
-    public Func<ClaimsPrincipal> CreatePrincipal { get; set; }
+    public Func<ClaimsPrincipal> CreatePrincipal { get; set; } = null!;
 }

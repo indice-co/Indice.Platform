@@ -52,11 +52,11 @@ public class RequestResponseLoggingMiddleware
     public static Task DefaultLoggingHandler(ILogger logger, RequestProfilerModel model) {
         var statusCode = model.HttpContext.Response.StatusCode;
         if (statusCode >= 500) {
-            logger.LogError(LOG_MESSAGE_FORMAT, model.Duration, model.HostUri, model.RequestTarget, model.StatusCode, model.RequestBody, model.ResponseBody);
+            logger.LogError(LOG_MESSAGE_FORMAT, model.Duration, model.HostUri?.ReplaceLineEndings(), model.RequestTarget?.ReplaceLineEndings(), model.StatusCode, model.RequestBody?.ReplaceLineEndings(), model.ResponseBody?.ReplaceLineEndings());
         } else if (statusCode >= 400) {
-            logger.LogWarning(LOG_MESSAGE_FORMAT, model.Duration, model.HostUri, model.RequestTarget, model.StatusCode, model.RequestBody, model.ResponseBody);
+            logger.LogWarning(LOG_MESSAGE_FORMAT, model.Duration, model.HostUri?.ReplaceLineEndings(), model.RequestTarget?.ReplaceLineEndings(), model.StatusCode, model.RequestBody?.ReplaceLineEndings(), model.ResponseBody?.ReplaceLineEndings());
         } else {
-            logger.LogInformation(LOG_MESSAGE_FORMAT, model.Duration, model.HostUri, model.RequestTarget, model.StatusCode, model.RequestBody, model.ResponseBody);
+            logger.LogInformation(LOG_MESSAGE_FORMAT, model.Duration, model.HostUri?.ReplaceLineEndings(), model.RequestTarget?.ReplaceLineEndings(), model.StatusCode, model.RequestBody?.ReplaceLineEndings(), model.ResponseBody?.ReplaceLineEndings());
         }
         return Task.CompletedTask;
     }
@@ -92,9 +92,9 @@ public class RequestProfilerModel
     /// <summary>The <see cref="Microsoft.AspNetCore.Http.HttpContext"/> when the request happended.</summary>
     public HttpContext HttpContext { get; }
     /// <summary>The request message.</summary>
-    public string RequestBody { get; private set; }
+    public string? RequestBody { get; private set; }
     /// <summary>Τhe response message.</summary>
-    public string ResponseBody { get; private set; }
+    public string? ResponseBody { get; private set; }
 
     /// <summary>Takes a snapshot of the current request body.</summary>
     /// <returns></returns>
@@ -125,7 +125,7 @@ public class RequestProfilerModel
     /// <summary>Takes a snapshot of the response body.</summary>
     /// <param name="next"></param>
     /// <param name="allowedContentTypes"></param>
-    internal async Task<bool> NextAndSnapResponceBody(RequestDelegate next, List<string> allowedContentTypes = null) {
+    internal async Task<bool> NextAndSnapResponceBody(RequestDelegate next, List<string>? allowedContentTypes = null) {
         var originalBody = HttpContext.Response.Body;
         using var newResponseBody = new MemoryStream();
         HttpContext.Response.Body = newResponseBody;

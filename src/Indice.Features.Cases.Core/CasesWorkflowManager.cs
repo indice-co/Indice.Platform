@@ -14,34 +14,35 @@ public interface ICasesWorkflowManager
     /// <param name="user">The current user</param>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="request">The approval request.</param>
-    /// <returns>The <see cref="CasesWorkflowResult"/> indicating success or failure of the operation</returns>
-    Task<CasesWorkflowResult> SubmitApprovalAsync(ClaimsPrincipal user, Guid caseId, ApprovalRequest request);
+    /// <returns>The <see cref="WorkflowInvocationResult"/> indicating success or failure of the operation</returns>
+    Task<WorkflowInvocationResult> InvokeApprovalAsync(UserActor user, Guid caseId, ApprovalRequest request);
 
     /// <summary>Invoke the assign activity to assign the case to the caller user.</summary>
     /// <param name="user">The current user</param>
     /// <param name="caseId">The Id of the case.</param>
-    /// <returns>The <see cref="CasesWorkflowResult"/> indicating success or failure of the operation</returns>
-    Task<CasesWorkflowResult> AssignCaseAsync(ClaimsPrincipal user, Guid caseId);
+    /// <returns>The <see cref="WorkflowInvocationResult"/> indicating success or failure of the operation</returns>
+    Task<WorkflowInvocationResult> InvokeAssignmentAsync(Guid caseId, UserActor user);
 
     /// <summary>Invoke the edit activity to edit the data of the case.</summary>
     /// <param name="user">The current user</param>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="request">The case data in json format.</param>
-    /// <returns>The <see cref="CasesWorkflowResult"/> indicating success or failure of the operation</returns>
-    Task<CasesWorkflowResult> EditCaseAsync(ClaimsPrincipal user, Guid caseId, EditCaseRequest request);
+    /// <param name="comment">The comment added.</param>
+    /// <returns>The <see cref="WorkflowInvocationResult"/> indicating success or failure of the operation</returns>
+    Task<WorkflowInvocationResult> InvokeEditAsync(UserActor user, Guid caseId, string? comment, EditCaseRequest request);
 
     /// <summary>Invoke the action activity to trigger a business action for the case.</summary>
     /// <param name="user">The current user</param>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="request">The action request.</param>
-    /// <returns>The <see cref="CasesWorkflowResult"/> indicating success or failure of the operation</returns>
-    Task<CasesWorkflowResult> TriggerActionAsync(ClaimsPrincipal user, Guid caseId, ActionRequest request);
+    /// <returns>The <see cref="WorkflowInvocationResult"/> indicating success or failure of the operation</returns>
+    Task<WorkflowInvocationResult> TriggerActionAsync(UserActor user, Guid caseId, ActionRequest request);
 
     /// <summary>Query the list of available reasons to select from indicating why an approval request for a case was rejected.</summary>
     /// <param name="user">The current user</param>
     /// <param name="caseId">The Id of the case.</param>
     /// <returns>The list of reasons indicating why an approval request was rejected</returns>
-    Task<List<RejectReason>> GetApprovalRejectOptionsListAsync(ClaimsPrincipal user, Guid caseId);
+    Task<List<RejectReason>> GetApprovalRejectOptionsListAsync(UserActor user, Guid caseId);
 
     /// <summary>Gets the available trigger actions for the given <paramref name="caseId"/> according to the current user and a bookmark list.</summary>
     /// <remarks>Bookmarks are used to filter out actions depending on annotations that have been assigned on the </remarks>
@@ -51,15 +52,26 @@ public interface ICasesWorkflowManager
     /// <param name="bookmarks">Any bookmarks to find (usualy the roles)</param>
     /// <param name="lastApprovedById">Last case approver userid if any</param>
     /// <returns></returns>
-    Task<CaseActions> GetAvailableActionsAsync(ClaimsPrincipal user, Guid caseId, string? assignedToId, string[] bookmarks, string? lastApprovedById = null);
+    Task<CaseActions> GetAvailableActionsAsync(UserActor user, Guid caseId, string? assignedToId, string[] bookmarks, string? lastApprovedById = null);
 
     /// <summary>Gets the available trigger actions for the given <paramref name="caseId"/> according to the current user and a bookmark list.</summary>
     /// <remarks>Bookmarks are used to filter out actions depending on annotations that have been assigned on the </remarks>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="caseTypeCode">The case type code. Will be used as a bookmark</param>
-    /// <returns>The <see cref="CasesWorkflowResult"/> indicating success or failure of the operation</returns>
-    Task<CasesWorkflowResult> StartWorkflowAsync(Guid caseId, string caseTypeCode);
+    /// <param name="workflowActor">The actor meta starting thr workflow.</param>
+    /// <returns>The <see cref="WorkflowInvocationResult"/> indicating success or failure of the operation</returns>
+    Task<WorkflowInvocationResult> StartWorkflowAsync(Guid caseId, string caseTypeCode, UserActor workflowActor);
+
+    /// <summary>Gets the available trigger actions for the given <paramref name="caseId"/> regardless of the current user. Authorization happens on the cases host.</summary>
+    /// <param name="caseId">The Id of the case.</param>
+    Task<IWorkflowActions> GetActionsByCaseId(Guid caseId);
 }
+
+/// <summary>The interface that represents the list of available actions in the workflow.</summary>
+public interface IWorkflowActions { }
+
+/// <summary>An empty implementation of available actions.</summary>
+public class DefaultWorkflowActions  : IWorkflowActions { }
 
 /// <summary>
 /// The result record that represents the outcome of a case workflow trigger.
@@ -67,7 +79,7 @@ public interface ICasesWorkflowManager
 /// <param name="Success">Indicating success or failure of the given operation</param>
 /// <param name="CollectedWorkflows">A lightweight information regarding the collected worklow instances if any</param>
 /// <param name="Message">A message related to the current operation</param>
-public record CasesWorkflowResult(bool Success, List<CasesCollectedWorkflow> CollectedWorkflows, string? Message = null);
+public record WorkflowInvocationResult(bool Success, List<CasesCollectedWorkflow> CollectedWorkflows, string? Message = null);
 
 /// <summary>
 /// Represents a workflow that was either found in the database, or instantiated on the fly for initial execution.
@@ -82,36 +94,40 @@ public record CasesCollectedWorkflow(string WorkflowInstanceId, string? Activity
 internal class DefaultCasesWorkflowManager : ICasesWorkflowManager
 {
     /// <inheritdoc/>
-    public Task<CasesWorkflowResult> AssignCaseAsync(ClaimsPrincipal user, Guid caseId) {
-        return Task.FromResult(new CasesWorkflowResult(Success: false, [], "Not implemented"));
+    public Task<WorkflowInvocationResult> InvokeApprovalAsync(UserActor user, Guid caseId, ApprovalRequest request) {
+        return Task.FromResult(new WorkflowInvocationResult(Success: false, [], "Not implemented"));
     }
-
+    
     /// <inheritdoc/>
-    public Task<CasesWorkflowResult> EditCaseAsync(ClaimsPrincipal user, Guid caseId, EditCaseRequest request) {
-        return Task.FromResult(new CasesWorkflowResult(Success: false, [], "Not implemented"));
+    public Task<WorkflowInvocationResult> InvokeEditAsync(UserActor user, Guid caseId, string? comment, EditCaseRequest request) {
+        return Task.FromResult(new WorkflowInvocationResult(Success: false, [], "Not implemented"));
+    }
+    
+    /// <inheritdoc/>
+    public Task<WorkflowInvocationResult> InvokeAssignmentAsync(Guid caseId, UserActor user) {
+        return Task.FromResult(new WorkflowInvocationResult(Success: false, [], "Not implemented"));
     }
 
-    public Task<List<RejectReason>> GetApprovalRejectOptionsListAsync(ClaimsPrincipal user, Guid caseId) {
+    public Task<List<RejectReason>> GetApprovalRejectOptionsListAsync(UserActor user, Guid caseId) {
         return Task.FromResult(new List<RejectReason>());
     }
 
     /// <inheritdoc/>
-    public Task<CasesWorkflowResult> SubmitApprovalAsync(ClaimsPrincipal user, Guid caseId, ApprovalRequest request) {
-        return Task.FromResult(new CasesWorkflowResult(Success: false, [], "Not implemented"));
+    public Task<WorkflowInvocationResult> TriggerActionAsync(UserActor user, Guid caseId, ActionRequest request) {
+        return Task.FromResult(new WorkflowInvocationResult(Success: false, [], "Not implemented"));
     }
 
     /// <inheritdoc/>
-    public Task<CasesWorkflowResult> TriggerActionAsync(ClaimsPrincipal user, Guid caseId, ActionRequest request) {
-        return Task.FromResult(new CasesWorkflowResult(Success: false, [], "Not implemented"));
-    }
-
-    /// <inheritdoc/>
-    public Task<CaseActions> GetAvailableActionsAsync(ClaimsPrincipal user, Guid caseId, string? assignedToId, string[] bookmarks, string? lastApprovedById = null) {
+    public Task<CaseActions> GetAvailableActionsAsync(UserActor user, Guid caseId, string? assignedToId, string[] bookmarks, string? lastApprovedById = null) {
         return Task.FromResult(new CaseActions());
     }
 
-    public Task<CasesWorkflowResult> StartWorkflowAsync(Guid caseId, string caseTypeCode) {
-        return Task.FromResult(new CasesWorkflowResult(Success: false, [], "Not implemented"));
+    public Task<WorkflowInvocationResult> StartWorkflowAsync(Guid caseId, string caseTypeCode, UserActor workflowActor) {
+        return Task.FromResult(new WorkflowInvocationResult(Success: false, [], "Not implemented"));
+    }
+
+    public Task<IWorkflowActions> GetActionsByCaseId(Guid caseId) {
+        return Task.FromResult<IWorkflowActions>(new DefaultWorkflowActions());
     }
 }
 

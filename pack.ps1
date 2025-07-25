@@ -15,7 +15,7 @@ dotnet pack src/Indice.Features.Identity.Core/Indice.Features.Identity.Core.cspr
 dotnet pack src/Indice.Features.Identity.UI/Indice.Features.Identity.UI.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Identity.SignInLogs/Indice.Features.Identity.SignInLogs.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Cases.Core/Indice.Features.Cases.Core.csproj --no-restore --no-build -c Release -o ./artifacts
-dotnet pack src/Indice.Features.Cases.AspNetCore/Indice.Features.Cases.AspNetCore.csproj --no-restore --no-build -c Release -o ./artifacts
+dotnet pack src/Indice.Features.Cases.Workflows/Indice.Features.Cases.Workflows.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Cases.Server/Indice.Features.Cases.Server.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Cases.UI/Indice.Features.Cases.UI.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.GovGr/Indice.Features.GovGr.csproj --no-restore --no-build -c Release -o ./artifacts
@@ -31,5 +31,6 @@ dotnet pack src/Indice.Features.Multitenancy.Worker.Azure/Indice.Features.Multit
 dotnet pack src/Indice.Features.Risk.Core/Indice.Features.Risk.Core.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Risk.Server/Indice.Features.Risk.Server.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Risk.UI/Indice.Features.Risk.UI.csproj --no-restore --no-build -c Release -o ./artifacts
+dotnet pack src/Indice.Functions.Builder/Indice.Functions.Builder.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Hosting/Indice.Hosting.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Services/Indice.Services.csproj --no-restore --no-build -c Release -o ./artifacts

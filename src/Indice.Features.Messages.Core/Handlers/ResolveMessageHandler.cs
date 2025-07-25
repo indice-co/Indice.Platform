@@ -1,9 +1,10 @@
 ﻿using System.Text.Json;
 using HandlebarsDotNet;
-using Indice.Features.Messages.Core.Data.Models;
+using HandlebarsDotNet.Extension.Json;
 using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
+using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Serialization;
 using Indice.Services;
@@ -22,6 +23,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
     /// <param name="messageService">A service that contains message related operations.</param>
     /// <param name="logger">A logger</param>
     /// <param name="options">Configuration for workers.</param>
+    /// <param name="campaignEventQueue">Campaign event listener queue</param>
     /// <exception cref="ArgumentNullException"></exception>
     public ResolveMessageHandler(
         IEventDispatcherFactory eventDispatcherFactory,
@@ -29,13 +31,15 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         IContactService contactService,
         IMessageService messageService,
         ILogger<ResolveMessageHandler> logger,
-        Microsoft.Extensions.Options.IOptions<MessageWorkerOptions> options
+        Microsoft.Extensions.Options.IOptions<MessageWorkerOptions> options,
+        CampaignEventQueue campaignEventQueue
     ) {
         EventDispatcherFactory = eventDispatcherFactory ?? throw new ArgumentNullException(nameof(eventDispatcherFactory));
         ContactResolver = contactResolver ?? throw new ArgumentNullException(nameof(contactResolver));
         ContactService = contactService ?? throw new ArgumentNullException(nameof(contactService));
         MessageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        CampaignEventQueue = campaignEventQueue;
         Options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
 
@@ -44,14 +48,15 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
     private IContactService ContactService { get; }
     private IMessageService MessageService { get; }
     private ILogger<ResolveMessageHandler> Logger { get; }
+    private CampaignEventQueue CampaignEventQueue { get; }
     private MessageWorkerOptions Options { get; }
 
     /// <summary>Decides whether to insert or update a resolved contact.</summary>
     /// <param name="event">The event model used when a contact is resolved from an external system.</param>
     public async Task Process(ResolveMessageEvent @event) {
         var campaign = @event.Campaign;
-        Contact contact = null;
-        var contactNotUpdatedAWhileNow = !@event.Contact.UpdatedAt.HasValue
+        Contact? contact = null;
+        var contactNotUpdatedAWhileNow = !@event.Contact!.UpdatedAt.HasValue
             || (DateTimeOffset.UtcNow - @event.Contact.UpdatedAt.Value) > TimeSpan.FromDays(Options.ContactRetainPeriodInDays);
         if (!@event.Contact.IsAnonymous) {
             contact = await ContactService.FindByRecipientId(@event.Contact.RecipientId);
@@ -63,9 +68,9 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         } else {
             // Anonymous contact should find by email or phone number.
             if (@event.Contact.HasEmail) {
-                contact = await ContactService.FindByEmail(@event.Contact.Email);
+                contact = await ContactService.FindByEmail(@event.Contact.Email!);
             } else if (@event.Contact.HasPhoneNumber) {
-                contact = await ContactService.FindByPhoneNumber(@event.Contact.PhoneNumber);
+                contact = await ContactService.FindByPhoneNumber(@event.Contact.PhoneNumber!);
             }
             // If found but is already anonymous try to patch with filled data.
             if (contact is not null && contact.IsAnonymous) {
@@ -78,16 +83,17 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         }
         contact ??= @event.Contact;
         if ((contactNotUpdatedAWhileNow || @event.Contact.IsEmpty) && contact.Id.HasValue) {
-            await ContactService.Update(contact.Id.Value, Mapper.ToUpdateContactRequest(contact, campaign.DistributionListId));
+            await ContactService.Update(contact.Id.Value, Mapper.ToUpdateContactRequest(contact, campaign!.DistributionListId));
         }
         // In case this is not yet published we should stop here so no messages get sent yet.
-        if (!@event.Campaign.Published) {
+        if (!@event.Campaign!.Published) {
             return;
         }
         // Make substitution to message content using contact resolved data.
         var handlebars = Handlebars.Create();
         handlebars.Configuration.TextEncoder = new HtmlEncoder();
-        foreach (var content in campaign.Content) {
+        handlebars.Configuration.UseJson();
+        foreach (var content in campaign!.Content) {
             dynamic templateData = new {
                 id = campaign.Id,
                 title = campaign.Title,
@@ -100,10 +106,10 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
                 mediaBaseHref = campaign.MediaBaseHref,
                 now = DateTimeOffset.UtcNow,
                 contact = contact is not null
-                    ? JsonSerializer.Deserialize<System.Text.Json.Nodes.JsonNode>(JsonSerializer.Serialize(contact, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings())
+                    ? JsonDocument.Parse(JsonSerializer.Serialize(contact, JsonSerializerOptionDefaults.GetDefaultSettings()))
                     : null,
                 data = campaign.Data is not null && (campaign.Data is not string || !string.IsNullOrWhiteSpace(campaign.Data))
-                    ? JsonSerializer.Deserialize<System.Text.Json.Nodes.JsonNode>(campaign.Data, JsonSerializerOptionDefaults.GetDefaultSettings())
+                    ? JsonDocument.Parse(JsonSerializer.Serialize(campaign.Data, JsonSerializerOptionDefaults.GetDefaultSettings()))
                     : null
             };
             var messageContent = campaign.Content[content.Key];
@@ -113,25 +119,39 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         // Persist message with merged contents.
         var messageId = await MessageService.Create(new CreateMessageRequest {
             CampaignId = campaign.Id,
-            ContactId = contact.Id,
+            ContactId = contact!.Id,
             Content = campaign.Content,
             RecipientId = contact.RecipientId
         });
-
         var eventDispatcher = EventDispatcherFactory.Create(KeyedServiceNames.EventDispatcherServiceKey);
-        var contactChannels = campaign.ResolveAvailableChannels(contact.CommunicationPreferences);
+        var contactChannels = campaign.ResolveAvailableChannels(contact!.CommunicationPreferences);
+        if (contactChannels.HasFlag(MessageChannelKind.Inbox)) {
+            await LogEvent(campaign, contact, MessageChannelKind.Inbox, messageId);
+        }
         if (contactChannels.HasFlag(MessageChannelKind.PushNotification)) {
+            await LogEvent(campaign, contact, MessageChannelKind.PushNotification, messageId);
             await eventDispatcher.RaiseEventAsync(SendPushNotificationEvent.FromContactResolutionEvent(@event, contact, broadcast: false, messageId: messageId),
                 options => options.WrapInEnvelope().At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendPushNotification));
         }
         if (contactChannels.HasFlag(MessageChannelKind.Email)) {
-            await eventDispatcher.RaiseEventAsync(SendEmailEvent.FromContactResolutionEvent(@event, contact, broadcast: false),
+            await LogEvent(campaign, contact, MessageChannelKind.Email, messageId);
+            await eventDispatcher.RaiseEventAsync(SendEmailEvent.FromContactResolutionEvent(@event, contact, messageId, broadcast: false),
                 options => options.WrapInEnvelope().At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendEmail));
         }
         if (contactChannels.HasFlag(MessageChannelKind.SMS)) {
-            await eventDispatcher.RaiseEventAsync(SendSmsEvent.FromContactResolutionEvent(@event, contact, broadcast: false),
+            await LogEvent(campaign, contact, MessageChannelKind.SMS, messageId);
+            await eventDispatcher.RaiseEventAsync(SendSmsEvent.FromContactResolutionEvent(@event, contact, messageId, broadcast: false),
                 options => options.WrapInEnvelope().At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendSms));
         }
     }
 
+    private async Task LogEvent(CampaignCreatedEvent campaign, Contact contact, MessageChannelKind kind, Guid messageId) {
+        await CampaignEventQueue.EnqueueAsync(new MessageEvent() {
+            CampaignId = campaign.Id,
+            ContactId = contact.Id!.Value,
+            MessageId = messageId,
+            Type = MessageEventType.Created.ToString(),
+            Channel = kind.ToString()
+        });
+    }
 }

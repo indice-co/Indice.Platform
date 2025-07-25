@@ -10,7 +10,7 @@ public class CreateCampaignRequest : CampaignRequestBase
     /// <summary>Determines if a campaign must ignore user communication preferences.</summary>
     public bool? IgnoreUserPreferences { get; set; }
     /// <summary>Defines a list of user identifiers that constitutes the audience of the campaign.</summary>
-    public List<string> RecipientIds { get; set; } = [];
+    public List<string>? RecipientIds { get; set; }
     /// <summary>Defines a list of attachmentids already uploaded to the campaign database. These will be assiciated with the campaign.</summary>
     internal List<Guid> AttachmentIds { get; set; } = [];
     /// <summary>

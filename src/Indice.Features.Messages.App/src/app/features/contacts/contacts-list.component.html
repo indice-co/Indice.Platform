@@ -1,0 +1,43 @@
+<lib-view-layout title="Επαφές"
+                 [busy]="!items"
+                 [actions]="actions"
+                 [meta-items]="metaItems"
+                 (onAction)="actionHandler($event)"
+                 (onSearch)="searchChanged($event)">
+
+  <lib-list-view [items]="items"
+                 [page]="page"
+                 [page-size]="pageSize"
+                 [count]="count"
+                 [sort-options]="sortOptions"
+                 [sort]="sort"
+                 [sort-dir]="sortdir"
+                 [busy]="!items"
+                 (pageChanged)="pageChanged($event)"
+                 (pageSizeChanged)="pageSizeChanged($event)"
+                 (sortChanged)="sortChanged($event)"
+                 (sortdirChanged)="sortdirChanged($event)">
+    <lib-list-column title="ΟΝΟΜΑ">
+      <ng-template let-item>
+        <a href="#"
+           [routerLink]="[item.id]"
+           class="text-blue-600">
+          {{ item.fullName }}
+        </a>
+      </ng-template>
+    </lib-list-column>
+    <lib-list-column title="e-mail">
+      <ng-template let-item>{{ item.email }}</ng-template>
+    </lib-list-column>
+    <lib-list-column title="Τηλέφωνο">
+      <ng-template let-item>{{ item.phoneNumber }}</ng-template>
+    </lib-list-column>
+    <lib-list-column title="Κωδικός πελάτη">
+      <ng-template let-item>{{ item.recipientId }}</ng-template>
+    </lib-list-column>
+    <lib-list-column title="ΤΡΟΠΟΠΟΙΗΘΗΚΕ"
+                     [full-width]="true">
+      <ng-template let-item>{{ !item.updatedAt ? '-' : (item.updatedAt | date: 'medium') }}</ng-template>
+    </lib-list-column>
+  </lib-list-view>
+</lib-view-layout>

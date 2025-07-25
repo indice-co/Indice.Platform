@@ -29,9 +29,9 @@ public class MessageQueueEF<T> : IMessageQueue<T> where T : class
     // https://thinkrethink.net/2017/10/02/implement-pessimistic-concurrency-in-entity-framework-core/
     // For pessimistic concurrency check the link above.
     /// <inheritdoc/>
-    public async Task<QMessage<T>> Dequeue() {
+    public async Task<QMessage<T>?> Dequeue() {
         var successfullLock = false;
-        DbQMessage message;
+        DbQMessage? message;
         do {
             message = await GetAvailableItems().FirstOrDefaultAsync();
             if (message == null) {
@@ -85,9 +85,9 @@ public class MessageQueueEF<T> : IMessageQueue<T> where T : class
     }
 
     /// <inheritdoc/>
-    public async Task<T> Peek() {
+    public async Task<T?> Peek() {
         var message = await GetAvailableItems().SingleOrDefaultAsync();
-        return JsonSerializer.Deserialize<T>(message.Payload, _jsonSerializerOptions);
+        return JsonSerializer.Deserialize<T>(message?.Payload!, _jsonSerializerOptions);
     }
 
     /// <inheritdoc/>

@@ -21,13 +21,13 @@ public static class UsersApi
         group.WithTags("Users");
         group.WithGroupName("identity");
         // Add security requirements, all incoming requests to this API *must* be authenticated with a valid user.
-        var allowedScopes = new[] { options.ApiScope, IdentityEndpoints.SubScopes.Users }.Where(x => x != null).Cast<string>().ToArray();
+        var allowedScopes = new[] { options.ApiScope, IdentityEndpoints.SubScopes.Users }.FilterOutNulls().ToArray();
         group.RequireAuthorization(policy => policy
              .RequireAuthenticatedUser()
              .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
              .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
         );
-        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status401Unauthorized)
              .ProducesProblem(StatusCodes.Status403Forbidden)
              .ProducesProblem(StatusCodes.Status500InternalServerError);
@@ -101,6 +101,16 @@ public static class UsersApi
              .WithName(nameof(UserHandlers.GetUserApplications))
              .WithSummary("Gets a list of the applications the user has given consent to or currently has IdentityServer side tokens for.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
+
+        group.MapDelete("{userId}/applications/{clientId}", UserHandlers.RevokeUserApplicationAccess)
+             .WithName(nameof(UserHandlers.RevokeUserApplicationAccess))
+             .WithSummary("Revokes all a user's consents and grants for a client.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
+
+        group.MapDelete("{userId}/applications", UserHandlers.RevokeAllUserApplicationAccess)
+             .WithName(nameof(UserHandlers.RevokeAllUserApplicationAccess))
+             .WithSummary("Revokes all a user's consents and grants for all clients.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
 
         group.MapGet("{userId}/devices", UserHandlers.GetUserDevices)
              .WithName(nameof(UserHandlers.GetUserDevices))

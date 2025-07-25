@@ -2,8 +2,16 @@
   <!-- This will remove any duplicate assets found on the Host web application and the UI project. Host always wins-->
   <Target Name="RemoveIdentityDuplicateAssets">
     <ItemGroup>
-      <StaticWebAsset Remove="@(StaticWebAsset)" Condition="%(SourceId) == 'Indice.Features.Identity.UI' And Exists($([System.IO.Path]::GetFullPath($(MSBuildProjectDirectory)/wwwroot%(StaticWebAsset.BasePath)%(StaticWebAsset.RelativePath))))" />
+      <_DuplicateAssetCandidate Include="@(StaticWebAsset)" Condition="%(SourceId) == 'Indice.Features.Identity.UI'">
+        <_RelativePath>$([System.Text.RegularExpressions.Regex]::Replace('%(RelativePath)', '(#\[.+\]\?)(\.[a-zA-Z]+)+(?=\.gz|\.br)(\.gz|\.br)|(#\[.+\]\?)(\.[a-zA-Z]+)+', '$2$5'))</_RelativePath>
+        <Path>$([System.IO.Path]::GetFullPath($(MSBuildProjectDirectory)/wwwroot%(BasePath)%(_DuplicateAssetCandidate._RelativePath)))</Path>
+      </_DuplicateAssetCandidate>
+      <DuplicateAsset Include="@(_DuplicateAssetCandidate)" Condition="Exists(%(Path))"></DuplicateAsset>
     </ItemGroup>
+    <ItemGroup>
+      <StaticWebAsset Remove="@(DuplicateAsset)" />
+    </ItemGroup>
+    
   </Target>
   <Target Name="IdentityUIScssImportsGeneration" BeforeTargets="PreBuildEvent"  Condition="$(IdentityUIScssImportsEnable) == 'true'">
     <ItemGroup>

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
-using System.Reflection;
 using System.Security.Claims;
+using Azure.Messaging.ServiceBus;
+using Azure.Messaging.ServiceBus.Administration;
 using Indice.Configuration;
 using Indice.Events;
 using Indice.Services;
@@ -93,6 +94,17 @@ public static class IndiceServicesServiceCollectionExtensions
         return new EmailServiceBuilder(services);
     }
 
+    /// <summary>Adds an implementation of <see cref="IEmailService"/> that uses Brevo to send emails.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    public static EmailServiceBuilder AddEmailServiceBrevo(this IServiceCollection services, IConfiguration configuration) {
+        services.Configure<EmailServiceBrevoSettings>(configuration.GetSection(EmailServiceBrevoSettings.Name));
+        services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceBrevoSettings>>().Value);
+        services.AddHttpClient<IEmailService, EmailServiceBrevo>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
+        services.AddHtmlRenderingEngineNoop();
+        return new EmailServiceBuilder(services);
+    }
+
     /// <summary>Registers a rendering engine to be used by the <see cref="IEmailService"/> implementation.</summary>
     /// <typeparam name="THtmlRenderingEngine">The concrete type of <see cref="IHtmlRenderingEngine"/> to use.</typeparam>
     /// <param name="builder">Builder class for <see cref="IEmailService"/>.</param>
@@ -108,6 +120,45 @@ public static class IndiceServicesServiceCollectionExtensions
         services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
         services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
         services.AddHttpClient<ISmsService, SmsServiceYuboto>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
+        return services;
+    }
+
+    /// <summary>Adds an implementation of <see cref="ISmsService"/> using Vonage SMS service gateway.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <param name="configure">Configure the available options. Null to use defaults.</param>
+    public static IServiceCollection AddSmsServiceVonage(this IServiceCollection services, IConfiguration configuration, Action<SmsServiceVonageSettings>? configure = null) {
+        services.Configure<SmsServiceVonageSettings>(configuration.GetSection(SmsServiceSettings.Name));
+        services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
+        var options = new SmsServiceVonageSettings();
+        configure?.Invoke(options);
+        services.AddHttpClient<ISmsService, SmsServiceVonage>();
+        return services;
+    }
+
+    /// <summary>Adds an implementation of <see cref="ISmsService"/> using Twilio SMS service gateway.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <param name="configure">Configure the available options. Null to use defaults.</param>
+    public static IServiceCollection AddSmsServiceTwilio(this IServiceCollection services, IConfiguration configuration, Action<SmsServiceTwilioSettings>? configure = null) {
+        services.Configure<SmsServiceTwilioSettings>(configuration.GetSection(SmsServiceSettings.Name));
+        services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
+        var options = new SmsServiceTwilioSettings();
+        configure?.Invoke(options);
+        services.AddHttpClient<ISmsService, SmsServiceTwilio>();
+        return services;
+    }
+
+    /// <summary>Adds an implementation of <see cref="ISmsService"/> using SmSUp SMS service gateway.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <param name="configure">Configure the available options. Null to use defaults.</param>
+    public static IServiceCollection AddSmsServiceSmsUp(this IServiceCollection services, IConfiguration configuration, Action<SmsServiceSmsUpSettings>? configure = null) {
+        services.Configure<SmsServiceSmsUpSettings>(configuration.GetSection(SmsServiceSettings.Name));
+        services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
+        var options = new SmsServiceSmsUpSettings();
+        configure?.Invoke(options);
+        services.AddHttpClient<ISmsService, SmsServiceSmsUp>();
         return services;
     }
 
@@ -235,6 +286,43 @@ public static class IndiceServicesServiceCollectionExtensions
         return services.AddKeyedTransient<IEventDispatcher, EventDispatcherAzure>(serviceKey: name, implementationFactory: (serviceProvider, serviceKey) => GetEventDispatcherAzure(serviceProvider, configure));
     }
 
+    /// <summary>The factory that creates the default instance and configuration for <see cref="EventDispatcherAzure"/>.</summary>
+    private static readonly Func<object?, IServiceProvider, Action<IServiceProvider, EventDispatcherAzureServiceBusOptions>?, EventDispatcherAzureServiceBus> GetEventDispatcherAzureServiceBus = (serviceKey, serviceProvider, configure) => {
+        var options = new EventDispatcherAzureServiceBusOptions {
+            ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME),
+            Enabled = true,
+            EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
+            ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!)
+        };
+        configure?.Invoke(serviceProvider, options);
+        return new EventDispatcherAzureServiceBus(
+            new ServiceBusClient(connectionString: options.ConnectionString),
+            options.CreateQueueIfNotExists ? new ServiceBusAdministrationClient(connectionString: options.ConnectionString) : null,
+            options.EnvironmentName,
+            options.Enabled,
+            options.UseCompression,
+            options.ClaimsPrincipalSelector,
+            options.TenantIdSelector!
+        );
+    };
+
+    /// <summary>Adds <see cref="IEventDispatcher"/> using Azure ServiceBus as a queuing mechanism.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="configure">Configure the available options. Null to use defaults.</param>
+    public static IServiceCollection AddEventDispatcherAzureServiceBus(this IServiceCollection services, Action<IServiceProvider, EventDispatcherAzureServiceBusOptions>? configure = null) {
+        services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
+        return services.AddSingleton<IEventDispatcher, EventDispatcherAzureServiceBus>(serviceProvider => GetEventDispatcherAzureServiceBus(null, serviceProvider, configure));
+    }
+
+    /// <summary>Adds <see cref="IEventDispatcher"/> using Azure ServiceBus as a queuing mechanism.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="name">The key under which the specified implementation is registered.</param>
+    /// <param name="configure">Configure the available options. Null to use defaults.</param>
+    public static IServiceCollection AddEventDispatcherAzureServiceBus(this IServiceCollection services, string name, Action<IServiceProvider, EventDispatcherAzureServiceBusOptions>? configure = null) {
+        services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
+        return services.AddKeyedSingleton<IEventDispatcher, EventDispatcherAzureServiceBus>(serviceKey: name, implementationFactory: (serviceProvider, serviceKey) => GetEventDispatcherAzureServiceBus(name, serviceProvider, configure));
+    }
+
     /// <summary>Adds <see cref="IEventDispatcher"/> using an in-memory <seealso cref="Queue"/> as a backing store.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     public static IServiceCollection AddEventDispatcherInMemory(this IServiceCollection services) {
@@ -272,6 +360,17 @@ public static class IndiceServicesServiceCollectionExtensions
         where TEvent : IPlatformEvent
         where TEventHandler : class, IPlatformEventHandler<TEvent> {
         services.AddTransient(typeof(IPlatformEventHandler<TEvent>), typeof(TEventHandler));
+        return services;
+    }
+
+    /// <summary>Try to register an implementation of <see cref="IPlatformEventHandler{TEvent}"/> for the specified event type if not already exists.</summary>
+    /// <typeparam name="TEvent">The type of the event to handler.</typeparam>
+    /// <typeparam name="TEventHandler">The handler to user for the specified event.</typeparam>
+    /// <param name="services">The services available in the application.</param>
+    public static IServiceCollection TryAddPlatformEventHandler<TEvent, TEventHandler>(this IServiceCollection services)
+        where TEvent : IPlatformEvent
+        where TEventHandler : class, IPlatformEventHandler<TEvent> {
+        services.TryAddTransient(typeof(IPlatformEventHandler<TEvent>), typeof(TEventHandler));
         return services;
     }
 }

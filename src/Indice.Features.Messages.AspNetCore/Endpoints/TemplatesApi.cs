@@ -32,7 +32,7 @@ internal static class TemplatesApi
                                            .RequireCampaignsManagement()
                                            .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
 
-        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.WithHandledException<BusinessException>()
              .ProducesProblem(StatusCodes.Status401Unauthorized)
@@ -58,6 +58,12 @@ internal static class TemplatesApi
         group.MapPut("{templateId}", TemplatesHandlers.UpdateTemplate)
              .WithName(nameof(TemplatesHandlers.UpdateTemplate))
              .WithSummary("Updates an existing template.")
+             .WithDescription(TemplatesHandlers.UPDATE_TEMPLATE_DESCRIPTION)
+             .WithParameterValidation<UpdateTemplateRequest>();
+
+        group.MapPut("{templateId}/user-preferences", TemplatesHandlers.UpdateTemplateUserPreferences)
+             .WithName(nameof(TemplatesHandlers.UpdateTemplateUserPreferences))
+             .WithSummary("Updates in an existing template user respect of user preferences flag.")
              .WithDescription(TemplatesHandlers.UPDATE_TEMPLATE_DESCRIPTION)
              .WithParameterValidation<UpdateTemplateRequest>();
 

@@ -10,38 +10,46 @@ namespace Indice.Features.Identity.Core.Extensions;
 /// <summary>Helper methods on <see cref="HttpContent"/>.</summary>
 public static class HttpContextExtensions
 {
-    /// <summary>Tries to resolve the device id using the <see cref="HttpContext"/>.</summary>
+    /// <summary>Tries to resolve the device id using the current http request. <see cref="HttpContext"/>.</summary>
     /// <param name="httpContext">Encapsulates all HTTP-specific information about an individual HTTP request.</param>
     public static MfaDeviceIdentifier ResolveDeviceId(this HttpContext? httpContext) {
         var request = httpContext?.Request;
         if (request is not null) {
-            return new MfaDeviceIdentifier(GetDeviceId(httpContext!), GetRegistrationId(httpContext!));
+            return new MfaDeviceIdentifier(FindDeviceId(httpContext!), FindRegistrationId(httpContext!));
         }
         return MfaDeviceIdentifier.Empty;
     }
 
-    private static string? GetDeviceId(HttpContext httpContext) {
-        if (httpContext is null) {
-            throw new ArgumentNullException(nameof(httpContext));
-        }
+    private static string? FindDeviceId(HttpContext httpContext) {
+        ArgumentNullException.ThrowIfNull(httpContext);
         var deviceId = default(StringValues);
-        var hasDeviceId = httpContext.Request.HasFormContentType && (
+        var found = httpContext.Request.HasFormContentType && (
             httpContext.Request.Form.TryGetValue("DeviceId", out deviceId) ||
             httpContext.Request.Form.TryGetValue("Input.DeviceId", out deviceId) ||
             httpContext.Request.Form.TryGetValue(RegistrationRequestParameters.DeviceId, out deviceId) 
-        ) && !string.IsNullOrWhiteSpace(deviceId);
-        if (!hasDeviceId && httpContext.Items.TryGetValue("deviceId", out var deviceIdObject)) {
-            deviceId = deviceIdObject?.ToString();
-            hasDeviceId = !string.IsNullOrWhiteSpace(deviceId);
+        ) && MfaDeviceIdentifier.ValidateDeviceId(deviceId);
+        if (found) {
+            return deviceId.ToString();
         }
-        if (!hasDeviceId) {
-            deviceId = httpContext.User.FindFirstValue(BasicClaimTypes.DeviceId);
-            hasDeviceId = !string.IsNullOrWhiteSpace(deviceId);
+        if (httpContext.Items.TryGetValue("deviceId", out var deviceIdObject) && MfaDeviceIdentifier.ValidateDeviceId(deviceIdObject?.ToString())) {
+            return deviceIdObject!.ToString();
         }
-        return hasDeviceId ? deviceId.ToString() : default;
+        if (httpContext.User is not null) {
+            return FindDeviceId(httpContext.User);
+        }
+        return null;
     }
 
-    private static Guid? GetRegistrationId(HttpContext httpContext) {
+    private static string? FindDeviceId(ClaimsPrincipal claimsPrincipal) {
+        ArgumentNullException.ThrowIfNull(claimsPrincipal);
+        var deviceId = claimsPrincipal.FindFirstValue(BasicClaimTypes.DeviceId);
+        if (!MfaDeviceIdentifier.ValidateDeviceId(deviceId)) {
+            return null;
+        }
+        return deviceId!.Trim();
+    }
+
+    private static Guid? FindRegistrationId(HttpContext httpContext) {
         var registrationId = default(Guid);
         var hasRegistrationId = httpContext.Request.HasFormContentType &&
                                 httpContext.Request.Form.TryGetValue(RegistrationRequestParameters.RegistrationId, out var registrationIdText) &&

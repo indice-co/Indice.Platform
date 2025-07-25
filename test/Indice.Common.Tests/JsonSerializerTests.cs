@@ -198,9 +198,9 @@ public class JsonSerializerTests
         RoundtripSerialize(new PocoValue<TimeSpan?> { Value = new TimeSpan(2, 30, 12) }, options);
         RoundtripSerialize(new PocoValue<TimeSpan> { Value = new TimeSpan(2, 30, 12) }, options);
         RoundtripSerialize(new PocoValue<TimeSpan?>(), options);
-        options = new JsonSerializerOptions {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
+        //options = new JsonSerializerOptions {
+        //    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        //};
     }
 
     [Fact]
@@ -300,7 +300,7 @@ public class JsonSerializerTests
         } }";
         dynamic json = JsonSerializer.Deserialize<dynamic>(jsonText, settings);
         var text = JsonSerializer.Serialize(json, settings);
-        Assert.True(true);
+        Assert.False(string.IsNullOrEmpty(text));
     }
 
 

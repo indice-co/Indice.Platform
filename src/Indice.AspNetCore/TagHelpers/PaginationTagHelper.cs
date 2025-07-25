@@ -23,11 +23,11 @@ public class PaginationTagHelper : TagHelper
 
     /// <summary>The view context.</summary>
     [ViewContext]
-    public ViewContext ViewContext { get; set; }
+    public ViewContext? ViewContext { get; set; }
 
     /// <summary>All the current <see cref="ListOptions"/>.</summary>
     [HtmlAttributeName("list-options")]
-    public ListOptions Options { get; set; }
+    public ListOptions? Options { get; set; }
 
     /// <summary>The total <see cref="Count"/> of records.</summary>
     [HtmlAttributeName("count")]
@@ -38,7 +38,7 @@ public class PaginationTagHelper : TagHelper
     public int Window { get; set; } = MINIMUM_WINDOW;
 
     /// <summary>The total number of <see cref="Pages"/>.</summary>
-    protected int Pages => Options.GetPagesFor(Count);
+    protected int Pages => Options?.GetPagesFor(Count) ?? 0;
     /// <summary>The HTML generator</summary>
     protected readonly IHtmlGenerator Generator;
 
@@ -98,8 +98,8 @@ public class PaginationTagHelper : TagHelper
         }
     }
 
-    private IHtmlContent PageLink(bool enabled, string content, int page, string cssClass, string title = null) {
-        var active = Options.Page == page;
+    private IHtmlContent PageLink(bool enabled, string content, int page, string? cssClass, string? title = null) {
+        var active = Options!.Page == page;
         var routeValues = Options.ToDictionary(new { Page = page }).AsRouteValues();
         var container = new TagBuilder("li");
         container.AddCssClass("page-item");
@@ -109,7 +109,7 @@ public class PaginationTagHelper : TagHelper
         if (null != title) {
             container.MergeAttribute("title", title);
         }
-        var anchorTag = Generator.GenerateActionLink(ViewContext, string.Empty, null, null, null, null, null, routeValues.ToRouteValueDictionary(), null);
+        var anchorTag = Generator.GenerateActionLink(ViewContext, string.Empty, null, null, null, null, null, routeValues!.ToRouteValueDictionary(), null);
         anchorTag.AddCssClass("page-link");
         if (active) {
             container.AddCssClass("active");

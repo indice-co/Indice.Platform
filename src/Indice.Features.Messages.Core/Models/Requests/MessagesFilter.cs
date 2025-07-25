@@ -4,7 +4,7 @@
 public class MessagesFilter
 {
     /// <summary>The id of a campaign type.</summary>
-    public Guid[] TypeId { get; set; } = Array.Empty<Guid>();
+    public Guid[]? TypeId { get; set; }
     /// <summary>Active from.</summary>
     public DateTimeOffset? ActiveFrom { get; set; }
     /// <summary>Active to.</summary>

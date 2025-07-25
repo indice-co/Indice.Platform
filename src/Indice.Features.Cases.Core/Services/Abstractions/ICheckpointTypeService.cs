@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using Indice.Features.Cases.Core.Models;
 using Indice.Features.Cases.Core.Models.Responses;
 
 namespace Indice.Features.Cases.Core.Services.Abstractions;
@@ -11,5 +12,5 @@ public interface ICheckpointTypeService
     /// </summary>
     /// <param name="user">The user to filter the case types.</param>
     /// <returns></returns>
-    Task<List<CheckpointType>> GetDistinctCheckpointTypes(ClaimsPrincipal user);
+    Task<List<CheckpointType>> GetDistinctCheckpointTypes(UserActor user);
 }

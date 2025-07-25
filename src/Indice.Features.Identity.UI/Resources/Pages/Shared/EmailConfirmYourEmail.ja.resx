@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Account confirmation" xml:space="preserve">
+    <value>アカウント確認</value>
+  </data>
+  <data name="here" xml:space="preserve">
+    <value>こちら</value>
+  </data>
+  <data name="Hi" xml:space="preserve">
+    <value>こんにちは</value>
+  </data>
+  <data name="Sincerely" xml:space="preserve">
+    <value>敬具</value>
+  </data>
+  <data name="Thanks" xml:space="preserve">
+    <value>ありがとうございます</value>
+  </data>
+  <data name="to get verified" xml:space="preserve">
+    <value>認証するために</value>
+  </data>
+  <data name="We need you to verify your email. Please click" xml:space="preserve">
+    <value>メールアドレスの確認が必要です。クリックしてください</value>
+  </data>
+</root>

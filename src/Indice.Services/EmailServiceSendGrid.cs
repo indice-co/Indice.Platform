@@ -26,10 +26,10 @@ public class EmailServiceSendGrid : IEmailService
         HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         HtmlRenderingEngine = htmlRenderingEngine ?? throw new ArgumentNullException(nameof(htmlRenderingEngine));
         if (HttpClient.BaseAddress == null) {
-            HttpClient.BaseAddress = new Uri(Settings.Api.TrimEnd('/') + "/");
+            HttpClient.BaseAddress = new Uri($"{Settings.Api.TrimEnd('/')}/");
         }
-        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Settings.ApiKey
-            ?? throw new ArgumentNullException(nameof(Settings.ApiKey)));
+        ArgumentException.ThrowIfNullOrWhiteSpace(Settings.ApiKey);
+        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Settings.ApiKey);
     }
 
     private EmailServiceSendGridSettings Settings { get; }
@@ -78,7 +78,7 @@ public class EmailServiceSendGrid : IEmailService
         var response = await HttpClient.PostAsync("mail/send", new StringContent(requestJson, Encoding.UTF8, MediaTypeNames.Application.Json));
         if (!response.IsSuccessStatusCode) {
             var content = await response.Content.ReadAsStringAsync();
-            throw new SendGridException($"SendGrid service could not send email to recipients '{string.Join(", ", recipients)}'. Error is: '{content}'.");
+            throw new EmailServiceException($"SendGrid service could not send email to recipients '{string.Join(", ", recipients)}'. Error is: '{content}'.");
         }
         var messageId = Guid.NewGuid().ToString();
         if (response.Headers.Contains("X-Message-ID")) {
@@ -103,19 +103,6 @@ public class EmailServiceSendGridSettings
     public string? ApiKey { get; set; }
     /// <summary>The SendGrid API URL (ex. https://api.sendgrid.com/v3/).</summary>
     public string Api { get; set; } = "https://api.sendgrid.com/v3/";
-}
-
-/// <summary>Exception for SendGrid email service failure.</summary>
-public class SendGridException : Exception
-{
-    /// <inheritdoc />
-    public SendGridException() {
-
-    }
-    /// <inheritdoc />
-    public SendGridException(string message) : base(message) {
-
-    }
 }
 
 #region SendGrid models

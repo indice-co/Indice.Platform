@@ -24,6 +24,7 @@ internal class DbCaseTypeConfiguration : IEntityTypeConfiguration<DbCaseType>
             .IsRequired();
         builder
             .Property(p => p.DataSchema)
+            .HasRequiredJsonConversion()
             .IsRequired();
         builder
             .Property(p => p.Description)
@@ -35,9 +36,11 @@ internal class DbCaseTypeConfiguration : IEntityTypeConfiguration<DbCaseType>
             .IsRequired(false);
         builder
             .Property(p => p.Layout)
+            .HasJsonConversion()
             .IsRequired(false);
         builder
             .Property(p => p.LayoutTranslations)
+            .HasJsonConversion()
             .IsRequired(false);
         builder
             .Property(p => p.Tags)
@@ -45,10 +48,23 @@ internal class DbCaseTypeConfiguration : IEntityTypeConfiguration<DbCaseType>
             .IsRequired(false);
         builder
             .Property(p => p.Config)
+            .HasJsonConversion()
             .IsRequired(false);
         builder
             .Property(p => p.CanCreateRoles)
             .HasMaxLength(TextSizePresets.M256)
             .IsRequired(false);
+        builder
+            .Property(p => p.GridFilterConfig)
+            .HasJsonConversion()
+            .IsRequired(false);
+        builder
+            .Property(p => p.GridColumnConfig)
+            .HasJsonConversion()
+            .IsRequired(false);
+        builder
+           .Property(p => p.IsMenuItem)
+           .HasDefaultValue(false);
+        
     }
 }

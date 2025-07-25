@@ -6,9 +6,9 @@ namespace Indice.Features.Messages.Core.Events;
 public class ResolveMessageEvent
 {
     /// <summary>The event model used when a new campaign is created.</summary>
-    public CampaignCreatedEvent Campaign { get; set; }
+    public CampaignCreatedEvent? Campaign { get; set; }
     /// <summary>The distribution list of the campaign.</summary>
-    public Contact Contact { get; set; }
+    public Contact? Contact { get; set; }
 
     /// <summary>Creates a <see cref="ResolveMessageEvent"/> instance from a <see cref="CampaignCreatedEvent"/> instance.</summary>
     /// <param name="campaign">Models a campaign.</param>

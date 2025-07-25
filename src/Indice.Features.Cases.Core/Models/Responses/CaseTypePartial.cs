@@ -1,4 +1,6 @@
-﻿using Indice.Types;
+﻿using System.Text.Json.Nodes;
+using Indice.Features.Cases.Core.Serialization;
+using Indice.Types;
 
 namespace Indice.Features.Cases.Core.Models.Responses;
 
@@ -18,19 +20,22 @@ public class CaseTypePartial
     public string? Description { get; set; }
 
     /// <summary>The case type json schema.</summary>
-    public string? DataSchema { get; set; }
+    [Newtonsoft.Json.JsonConverter(typeof(JsonNodeToJsonObjectAdapterConverter))] 
+    public JsonNode DataSchema { get; set; } = null!;
 
     /// <summary>The layout for the data schema.</summary>
-    public string? Layout { get; set; }
+    [Newtonsoft.Json.JsonConverter(typeof(JsonNodeToJsonObjectAdapterConverter))]
+    public JsonNode? Layout { get; set; }
 
     /// <summary>The layout translations for the data schema.</summary>
-    public string? LayoutTranslations { get; set; }
+    public Dictionary<string, string>? LayoutTranslations { get; set; }
 
     /// <summary>The case type tags.</summary>
     public string? Tags { get; set; }
 
     /// <summary>The case type configuration.</summary>
-    public string? Config { get; set; }
+    [Newtonsoft.Json.JsonConverter(typeof(JsonNodeToJsonObjectAdapterConverter))]
+    public JsonNode? Config { get; set; }
 
     /// <summary>The order which the case type will be shown.</summary>
     public int? Order { get; set; }
@@ -48,10 +53,12 @@ public class CaseTypePartial
     public bool IsMenuItem { get; set; }
 
     /// <summary>The filter configuration for the cases of the specified case type.</summary>
-    public string? GridFilterConfig { get; set; }
+    [Newtonsoft.Json.JsonConverter(typeof(JsonNodeToJsonObjectAdapterConverter))]
+    public JsonNode? GridFilterConfig { get; set; }
 
     /// <summary>The column configuration for the cases of the specified case type.</summary>
-    public string? GridColumnConfig { get; set; }
+    [Newtonsoft.Json.JsonConverter(typeof(JsonNodeToJsonObjectAdapterConverter))]
+    public JsonNode? GridColumnConfig { get; set; }
 
     #region Methods
 

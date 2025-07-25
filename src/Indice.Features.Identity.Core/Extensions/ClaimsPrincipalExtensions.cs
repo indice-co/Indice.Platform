@@ -17,11 +17,11 @@ public static class ClaimsPrincipalExtensions
         return principal?.Identities != null && principal.Identities.Any(x => x.AuthenticationType == authenticationScheme); 
     }
 
-    /// <summary>Returns true if the principal is partially signed in with the <see cref="ExtendedIdentityConstants.ExtendedValidationUserIdScheme"/>.</summary>
+    /// <summary>Returns true if the principal is partially signed in with the <see cref="ExtendedIdentityConstants.ExtendedValidationScheme"/>.</summary>
     /// <param name="principal">The <see cref="ClaimsPrincipal"/> instance.</param>
     /// <returns>True if the user is logged in with specified identity and scheme.</returns>
     public static bool IsSignedInPartially(this ClaimsPrincipal principal) =>
-        principal.IsSignedInWithScheme(ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
+        principal.IsSignedInWithScheme(ExtendedIdentityConstants.ExtendedValidationScheme);
 
     /// <summary>Checks if the current principal can read users data.</summary>
     /// <param name="principal">The current principal.</param>

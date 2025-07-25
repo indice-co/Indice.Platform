@@ -89,7 +89,7 @@ internal class SpaIndexFileInfo : IFileInfo
             ["%(ApiBase)"] = _options.ApiBase.TrimEnd('/'),
             ["%(Path)"] = _options.Path!.TrimEnd('/'),
             ["%(HeadContent)"] = _options.HeadContent,
-            ["%(Culture)"] = CultureInfo.CurrentCulture.TwoLetterISOLanguageName,
+            ["%(Culture)"] = CultureInfo.InvariantCulture.TwoLetterISOLanguageName.Equals(CultureInfo.CurrentCulture.TwoLetterISOLanguageName) ? "el" : CultureInfo.CurrentCulture.TwoLetterISOLanguageName,
             ["%(ProductVersion)"] = _options.Version,
             ["%(Scopes)"] = _options.Scope,
             ["%(PostLogoutRedirectUri)"] = _options.PostLogoutRedirectUri?.Trim('/') ?? string.Empty,

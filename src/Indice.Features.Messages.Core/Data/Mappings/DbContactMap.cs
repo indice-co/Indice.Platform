@@ -32,7 +32,7 @@ public class DbContactMap : IEntityTypeConfiguration<DbContact>
         builder.Property(x => x.Email).HasMaxLength(TextSizePresets.S64);
         builder.Property(x => x.RecipientId).HasMaxLength(TextSizePresets.S64);
         builder.Property(x => x.Locale).HasMaxLength(TextSizePresets.S16);
-        builder.Property(x => x.CommunicationPreferences).HasDefaultValue(ContactCommunicationChannelKind.Any);
+        builder.Property(x => x.CommunicationPreferences).HasDefaultValue(ContactChannelKind.Any);
         builder.Property(x => x.ConsentCommercial).HasDefaultValue(false);
         // Configure indexes.
         builder.HasIndex(x => x.RecipientId).IsUnique(true);

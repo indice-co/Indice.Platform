@@ -11,13 +11,5 @@ public class AddCaseAccessRuleRequest
     /// <summary>User that will have  permission for the case.</summary>
     public string? MemberUserId { get; set; }
     /// <summary>Access level for member on the case.</summary>
-    public int AccessLevel { get; set; }
-
-    /// <summary>
-    /// Validates the request, so that at least one of <see cref="MemberRole"/>, <see cref="MemberGroupId"/>,
-    /// <see cref="MemberUserId"/> is specified. Whitespaces are allowed.
-    /// </summary>
-    public bool IsValid() =>
-        !(string.IsNullOrEmpty(MemberRole) && string.IsNullOrEmpty(MemberGroupId) && string.IsNullOrEmpty(MemberUserId));
-    
+    public int AccessLevel { get; set; }   
 }

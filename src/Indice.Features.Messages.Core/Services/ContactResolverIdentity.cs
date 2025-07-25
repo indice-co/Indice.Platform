@@ -14,7 +14,7 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Messages.Core.Services;
 
-/// <summary>An implementation of <see cref="IContactService"/> that gets contact information from Indice API for IdentityServer4.</summary>
+/// <summary>An implementation of <see cref="IContactService"/> that gets contact information from Indice API for Identity Server.</summary>
 public class ContactResolverIdentity : IContactResolver
 {
     private const string TOKEN_CACHE_KEY = "campaigns_id_contact_resolver_token";
@@ -34,8 +34,12 @@ public class ContactResolverIdentity : IContactResolver
     private ContactResolverIdentityOptions Options { get; }
     private IDistributedCache Cache { get; }
 
+
     /// <inheritdoc />
-    public async Task<ResultSet<Contact>> Find(ListOptions options) {
+    public Task<ResultSet<Contact>> Find(ListOptions options) => FindInternal(options);
+
+    
+    internal async Task<ResultSet<Contact>> FindInternal(ListOptions options, string? recipientId = null) {
         var accessToken = await GetAccessToken();
         HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         var uriBuilder = new UriBuilder("api/users") {
@@ -47,29 +51,36 @@ public class ContactResolverIdentity : IContactResolver
         queryString[nameof(ListOptions.Search)] = options.Search;
         queryString[nameof(ListOptions.Size)] = options.Size.ToString();
         queryString[nameof(ListOptions.Sort)] = options.Sort;
-        queryString.Add("expandClaims", BasicClaimTypes.ConsentCommercial);
-        queryString.Add("expandClaims", BasicClaimTypes.Locale);
-        queryString.Add("expandClaims", BasicClaimTypes.CommunicationPreferences);
-        
+        if (!string.IsNullOrWhiteSpace(recipientId)) {
+            if (Options.HasCustomRecipientId) {
+                queryString.Add("claimType", Options.UserClaimType);
+                queryString.Add("claimValue", recipientId);
+            } else {
+                queryString.Add("UserId", recipientId);
+            }
+        }
         if (Options.HasCustomRecipientId) {
             queryString.Add("expandClaims", Options.UserClaimType);
         }
+        queryString.Add("expandClaims", BasicClaimTypes.CommunicationPreferences);
+        queryString.Add("expandClaims", BasicClaimTypes.ConsentCommercial);
+        queryString.Add("expandClaims", BasicClaimTypes.Locale);
         uriBuilder.Query = queryString.ToString();
         var response = await HttpClient.GetAsync($"/{uriBuilder}");
         response.EnsureSuccessStatusCode();
         var responseJson = await response.Content.ReadAsStringAsync();
-        var identityUserList = JsonSerializer.Deserialize<ResultSet<IdentityUserListItemResponse>>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var identityUserList = JsonSerializer.Deserialize<ResultSet<IdentityUserListItemResponse>>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings())!;
         return new ResultSet<Contact> {
             Count = identityUserList.Count,
             Items = identityUserList.Items.Select(identityUser => new Contact {
-                RecipientId = Options.HasCustomRecipientId ? (identityUser.Claims?.FirstOrDefault()?.Value ?? identityUser.Id) : identityUser.Id,
+                RecipientId = Options.HasCustomRecipientId ? (FindClaimValue(identityUser.Claims, Options.UserClaimType) ?? identityUser.Id) : identityUser.Id,
                 Email = identityUser.Email,
                 PhoneNumber = identityUser.PhoneNumber,
                 FirstName = identityUser.FirstName,
                 LastName = identityUser.LastName,
                 FullName = !string.IsNullOrEmpty(identityUser.FirstName) && !string.IsNullOrEmpty(identityUser.LastName) ? $"{identityUser.FirstName} {identityUser.LastName}" : null,
                 CommunicationPreferences = GetCommunicationPreferences(identityUser.Claims),
-                Locale = GetLocale(identityUser.Claims),
+                Locale = FindClaimValue(identityUser.Claims, BasicClaimTypes.Locale),
                 ConsentCommercial = GetCommercialConsent(identityUser.Claims)
             })
             .ToArray()
@@ -77,27 +88,32 @@ public class ContactResolverIdentity : IContactResolver
     }
 
     /// <inheritdoc />
-    public async Task<Contact> Resolve(string id) {
-        if (string.IsNullOrWhiteSpace(id)) {
+    public async Task<Contact?> Resolve(string? recipientId) {
+        if (string.IsNullOrWhiteSpace(recipientId)) {
             return default;
+        }
+        // in case we have a custom claim for user recipient id we cannot use the get by id endpoint
+        // so redirect the call to the find endpoint.
+        if (Options.HasCustomRecipientId) { 
+            return (await FindInternal(new ListOptions(), recipientId)).Items.FirstOrDefault();
         }
         var accessToken = await GetAccessToken();
         HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-        var response = await HttpClient.GetAsync($"api/users/{id}");
+        var response = await HttpClient.GetAsync($"api/users/{recipientId}");
         if (response.StatusCode == HttpStatusCode.NotFound) {
             return default;
         }
         response.EnsureSuccessStatusCode();
         var responseJson = await response.Content.ReadAsStringAsync();
-        var identityUser = JsonSerializer.Deserialize<IdentityUserSingleResponse>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var identityUser = JsonSerializer.Deserialize<IdentityUserSingleResponse>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings())!;
         var contact = new Contact {
             RecipientId = identityUser.Id,
             Email = identityUser.Email,
             PhoneNumber = identityUser.PhoneNumber,
-            FirstName = identityUser.Claims.FirstOrDefault(x => x.Type == BasicClaimTypes.GivenName)?.Value,
-            LastName = identityUser.Claims.FirstOrDefault(x => x.Type == BasicClaimTypes.FamilyName)?.Value,
+            FirstName = FindClaimValue(identityUser.Claims, BasicClaimTypes.GivenName),
+            LastName = FindClaimValue(identityUser.Claims, BasicClaimTypes.FamilyName),
             CommunicationPreferences = GetCommunicationPreferences(identityUser.Claims),
-            Locale = GetLocale(identityUser.Claims),
+            Locale = FindClaimValue(identityUser.Claims, BasicClaimTypes.Locale),
             ConsentCommercial = GetCommercialConsent(identityUser.Claims)
         };
         if (!string.IsNullOrEmpty(contact.FirstName) && !string.IsNullOrEmpty(contact.LastName)) {
@@ -106,27 +122,21 @@ public class ContactResolverIdentity : IContactResolver
         return contact;
     }
 
-    private static ContactCommunicationChannelKind GetCommunicationPreferences(IEnumerable<IdentityUserClaimResponse> claims) {
-
+    private static ContactChannelKind GetCommunicationPreferences(IEnumerable<IdentityUserClaimResponse>? claims) {
+        if (claims == null)
+            return ContactChannelKind.Any;
         var communicationPreferences = claims.FirstOrDefault(x => x.Type == BasicClaimTypes.CommunicationPreferences);
         if (communicationPreferences == null)
-            return ContactCommunicationChannelKind.Any;
-        return Enum.Parse<ContactCommunicationChannelKind>(communicationPreferences.Value, ignoreCase: true);
+            return ContactChannelKind.Any;
+        return Enum.Parse<ContactChannelKind>(communicationPreferences.Value!, ignoreCase: true);
     }
 
-    private static string GetLocale(IEnumerable<IdentityUserClaimResponse> claims) {
-        var userLocale = claims.FirstOrDefault(x => x.Type == BasicClaimTypes.Locale);
-        if (userLocale == null)
-            return null;
-        return userLocale.Value;
-    }
+    private static string? FindClaimValue(IEnumerable<IdentityUserClaimResponse>? claims, string claimType) => 
+        claims?.FirstOrDefault(x => x.Type == claimType)?.Value;
 
-    private static bool GetCommercialConsent(IEnumerable<IdentityUserClaimResponse> claims) {
-        var consent = claims.FirstOrDefault(x => x.Type == BasicClaimTypes.ConsentCommercial);
-        if (consent == null)
-            return false;
-        return consent.Value.ToLower() == bool.TrueString.ToLower();
-    }
+    private static bool GetCommercialConsent(IEnumerable<IdentityUserClaimResponse>? claims) =>
+        claims?.Where(x => x.Type == BasicClaimTypes.ConsentCommercial && bool.TrueString.Equals(x.Value, StringComparison.CurrentCultureIgnoreCase))
+               .Any() ?? false;
 
     private async Task<string> GetAccessToken() {
         var accessToken = await Cache.GetStringAsync(TOKEN_CACHE_KEY);
@@ -135,46 +145,26 @@ public class ContactResolverIdentity : IContactResolver
         }
         var response = await HttpClient.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest {
             Address = $"{Options.BaseAddress}connect/token",
-            ClientId = Options.ClientId,
+            ClientId = Options.ClientId!,
             ClientSecret = Options.ClientSecret,
             Scope = "identity identity:users"
         });
         if (response.IsError) {
-            throw response.Exception;
+            throw response.Exception!;
         }
         accessToken = response.AccessToken;
-        await Cache.SetStringAsync(TOKEN_CACHE_KEY, accessToken, new DistributedCacheEntryOptions {
+        await Cache.SetStringAsync(TOKEN_CACHE_KEY, accessToken!, new DistributedCacheEntryOptions {
             AbsoluteExpiration = DateTimeOffset.UtcNow.AddSeconds(response.ExpiresIn - 60)
         });
-        return accessToken;
+        return accessToken!;
     }
 
-    private class IdentityUserSingleResponse
+    private sealed record IdentityUserSingleResponse(string Id, string? Email, string? PhoneNumber, IEnumerable<IdentityUserClaimResponse> Claims);
+
+    private sealed record IdentityUserListItemResponse(string Id, string? FirstName, string? LastName, string? Email, string? PhoneNumber)
     {
-        public string Id { get; set; }
-        public string Email { get; set; }
-        public string PhoneNumber { get; set; }
-        public IEnumerable<IdentityUserClaimResponse> Claims { get; set; } = new List<IdentityUserClaimResponse>();
-
-
+        public IEnumerable<IdentityUserClaimResponse> Claims { get; set; } = [];
     }
 
-    private class IdentityUserListItemResponse
-    {
-        public string Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Email { get; set; }
-        public string PhoneNumber { get; set; }
-        public IEnumerable<IdentityUserClaimResponse> Claims { get; set; } = new List<IdentityUserClaimResponse>();
-    }
-
-    private class IdentityUserClaimResponse
-    {
-        public int Id { get; set; }
-        public string Type { get; set; }
-        public string Value { get; set; }
-    }
-
-
+    private sealed record IdentityUserClaimResponse(int Id, string? Type, string? Value);
 }

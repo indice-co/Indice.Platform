@@ -10,9 +10,9 @@ public class JsonSchemaGeneratorTests
     public void TestJsonSchemaGeneratorFromClrType() {
         var schema = typeof(TestClassWithConventions).ToJsonSchema();
         var json = schema.AsJsonString();
+        Assert.False(string.IsNullOrEmpty(json));
     }
 
-    [Json.Schema.Generation.Nullable(false)]
     public class TestClassWithConventions
     {
         [Json.Schema.Generation.Nullable(false)]

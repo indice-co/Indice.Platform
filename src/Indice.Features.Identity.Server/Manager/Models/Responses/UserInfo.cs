@@ -1,4 +1,5 @@
-﻿using Indice.Features.Identity.Core.Data.Models;
+﻿using Indice.Features.Identity.Core;
+using Indice.Features.Identity.Core.Data.Models;
 
 namespace Indice.Features.Identity.Server.Manager.Models;
 
@@ -47,6 +48,9 @@ public class BasicUserInfo
     public bool PhoneNumberConfirmed { get; set; }
     /// <summary>Indicates whether two-factor authentication is enabled for the user.</summary>
     public bool TwoFactorEnabled { get; set; }
+    /// <summary>Indicates whether the user should enroll for the two factor authentication.</summary>
+    /// <remarks>In case this is empty or null then the two factor is optional.</remarks>
+    public MfaPolicy? TwoFactorPolicy { get; set; }
     /// <summary>The date-time where the user was created in the system.</summary>
     public DateTimeOffset CreateDate { get; set; }
     /// <summary>The date-time where the lockout period ends.</summary>
@@ -82,6 +86,24 @@ public class UserInfo : BasicUserInfo
     public string? LastName { get; set; }
     /// <summary>User metadata expressed as claims.</summary>
     public List<BasicClaimInfo> Claims { get; set; } = new List<BasicClaimInfo>();
+
+    /// <summary>
+    /// Merges the specified claims with an additional claim of the given type and value.
+    /// </summary>
+    /// <param name="claims">The collection of existing claims to merge.</param>
+    /// <param name="claimType">The type of the additional claim to add.</param>
+    /// <param name="claimValue">The value of the additional claim to add. If <see langword="null"/>, the method returns the original collection
+    /// unchanged.</param>
+    /// <returns>A new list containing the original claims and the additional claim, if <paramref name="claimValue"/> is not <see
+    /// langword="null"/>. If <paramref name="claimValue"/> is <see langword="null"/>, the original collection is
+    /// returned as a list.</returns>
+    /// <remarks>Used for client side EF evaluation of dynamicly projected claims.</remarks>
+    public static List<BasicClaimInfo> MergeClaims(IEnumerable<BasicClaimInfo> claims, string claimType, string? claimValue) {
+        if (claimValue == null) {
+            return [.. claims];
+        }
+        return [.. claims, new() { Type = claimType, Value = claimValue }];
+    }
 }
 
 /// <summary>Extension methods that are used to convert from <see cref="User"/> type to other DTOs.</summary>

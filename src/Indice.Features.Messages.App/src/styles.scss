@@ -1,8 +1,12 @@
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
-@import '../node_modules/@indice/ng-components/_styles.scss';
-@import '~highlight.js/styles/github.css';
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+@import "../node_modules/@indice/ng-components/_styles.scss";
+@import "~highlight.js/styles/github.css";
+
+:root {
+  --ng-progress-color: #ffc107; //amber
+}
 
 @layer components {
   .btn-info {
@@ -28,7 +32,7 @@
   .vertical-navigation-link-base {
     @apply flex items-center px-3 py-2 text-sm font-medium rounded-md;
   }
-  
+
   .vertical-navigation-link {
     @apply text-gray-600 hover:bg-gray-50 hover:text-gray-900;
   }
@@ -52,7 +56,6 @@
   .basic-modal-accept-success {
     @apply text-green-700 bg-green-100 hover:bg-green-200 focus:ring-green-500;
   }
-
 }
 
 .toggle-button-container-inner-true {
@@ -66,9 +69,9 @@
   padding: 0;
   margin: -1px;
   overflow: hidden;
-  clip: rect(0,0,0,0);
+  clip: rect(0, 0, 0, 0);
   white-space: nowrap;
-  border-width: 0
+  border-width: 0;
 }
 
 textarea.code-editor {
@@ -120,7 +123,7 @@ textarea.code-editor:focus {
 .list-view-container-inner {
   @apply overflow-x-auto;
 }
-.tox-promotion{
+.tox-promotion {
   display: none !important;
 }
 .tox-tinymce {

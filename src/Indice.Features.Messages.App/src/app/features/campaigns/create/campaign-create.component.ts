@@ -8,10 +8,10 @@ import { CampaignContentComponent } from './steps/content/campaign-content.compo
 import { CampaignPreview } from './steps/preview/campaign-preview';
 import { CampaignPreviewComponent } from './steps/preview/campaign-preview.component';
 import { CampaignRecipientsComponent } from './steps/recipients/campaign-recipients.component';
-import { CreateCampaignRequest, MessagesApiClient, Period, Hyperlink, Campaign, MessageContent, Template, AttachmentLink, CreateCampaignResult } from 'src/app/core/services/messages-api.service';
+import { CreateCampaignRequest, MessagesApiClient, Period, Hyperlink, MessageContent, Template, CreateCampaignResult } from 'src/app/core/services/messages-api.service';
 import { CampaignAttachmentsComponent } from './steps/attachments/campaign-attachments.component';
-import { map, mergeMap } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { catchError, map, mergeMap } from 'rxjs/operators';
+import { EMPTY, of } from 'rxjs';
 
 @Component({
   selector: 'app-campaign-create',
@@ -41,6 +41,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
   public templateData: any;
   public metaItems: HeaderMetaItem[] | null = [];
   public content: { [key: string]: MessageContent; } | undefined;
+  public hasTemplateLoaded: boolean = false;
 
   public get okLabel(): string {
     return this._stepper.currentStep?.isLast
@@ -62,6 +63,11 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
     this._changeDetector.detectChanges();
   }
 
+  public onTemplateSelected(templateId: string | undefined): void {
+    this.templateId = templateId;
+    this.hasTemplateLoaded = false;
+  }
+
   public onSubmitCampaign(): void {
     const isLastStep = this._stepper.currentStep?.isLast;
     if (!isLastStep) {
@@ -72,7 +78,12 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
     const data = this._prepareDataToSubmit();
     this._api
       .createCampaign(data)
-      .pipe(mergeMap((result: CreateCampaignResult) => {
+      .pipe(
+        catchError((error: any) => {
+          this.submitInProgress = false;
+          return EMPTY;
+        }),
+        mergeMap((result: CreateCampaignResult) => {
         return this._attachmentsStep.attachment.value && result.campaignId
           ? this._api.uploadCampaignAttachment(result.campaignId, this._attachmentsStep.attachment.value).pipe(map(() => result))
           : of(result)
@@ -87,13 +98,16 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
   }
 
   public onStepperStepChanged(event: StepSelectedEvent) {
-    if (event.selectedIndex === 1) {
-      if (this.templateId) {
-        this._api.getTemplateById(this.templateId).subscribe((template: Template) => {
-          this.content = template.content;
-          this.templateData = template.data;
-        });
-      }
+    let isInContentStep = event.selectedIndex === 1;
+    let templateNotLoaded = !this.hasTemplateLoaded;
+    let hasSelectedTemplate = !!this.templateId;
+
+    if (isInContentStep && templateNotLoaded && hasSelectedTemplate) {
+      this._api.getTemplateById(this.templateId!).subscribe((template: Template) => {
+        this.content = template.content;
+        this.templateData = template.data;
+        this.hasTemplateLoaded = true;
+      });
     }
     this.previewData.title = this._basicInfoStep.title.value;
     this.previewData.type = this._basicInfoStep.type.value?.text;
@@ -129,7 +143,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
       published: this._previewStep.model.published,
       ignoreUserPreferences: this._previewStep.model.ignoreUserPreferences,
       title: this._basicInfoStep.title.value,
-      data: JSON.parse(this._contentStep.data.value),
+      data:  JSON.parse(this._contentStep.data.value || '{}'),
       mediaBaseHref: this._contentStep.additionalData.mediaBaseHref,
       typeId: this._basicInfoStep.type.value?.value || undefined,
       recipientIds: this._recipientsStep.recipientIds.value ? this._recipientsStep.recipientIds.value.split('\n') : null,

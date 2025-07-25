@@ -1,41 +1,47 @@
-﻿using Indice.Security;
+﻿using Indice.Features.Cases.Server;
+using Indice.Features.Cases.Server.Authorization;
+using Indice.Features.Cases.Server.Endpoints;
+using Indice.Security;
+using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Indice.Features.Cases.Server.Endpoints;
+namespace Microsoft.AspNetCore.Routing;
+
 /// <summary>Manage check point types.</summary>
-public static class AdminCheckpointTypesApi
+internal static class AdminCheckpointTypesApi
 {
     /// <summary>Maps admin check point types endpoint.</summary>
     public static IEndpointRouteBuilder MapAdminCheckpointTypes(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<CaseServerOptions>>().Value;
-        
+
         var group = routes.MapGroup($"{options.PathPrefix.Value!.Trim('/')}/manage/checkpoint-types");
-        
+
         group.WithTags("AdminCheckpointTypes");
         group.WithGroupName(options.GroupName);
 
-        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).Cast<string>().ToArray();
+        var allowedScopes = new[] { options.RequiredScope }.FilterOutNulls().ToArray();
 
-        group.RequireAuthorization(policy => policy
+        group.RequireAuthorization(pb => pb
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes("Bearer")
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-        );//.RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
-        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+            .RequireCasesAccess(CasesAccessLevel.Manage)
+        ).WithHandledException<BusinessException>();
         
-        group.ProducesProblem(StatusCodes.Status500InternalServerError)
-             .ProducesProblem(StatusCodes.Status401Unauthorized)
-             .ProducesProblem(StatusCodes.Status403Forbidden)
-             .ProducesProblem(StatusCodes.Status400BadRequest);
-        
-        group.MapGet("", AdminCheckpointTypesHandler.GetDistinctCheckpointTypes)
-             .WithName(nameof(AdminCheckpointTypesHandler.GetDistinctCheckpointTypes))
-             .WithSummary("Get the distinct checkpoint types grouped by code.");
-        
+        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
+
+        group.ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        group.MapGet(string.Empty, AdminCheckpointTypesHandlers.GetDistinctCheckpointTypes)
+            .WithName(nameof(AdminCheckpointTypesHandlers.GetDistinctCheckpointTypes))
+            .WithSummary("Get the distinct checkpoint types grouped by code.");
+
         return group;
     }
 }

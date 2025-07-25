@@ -36,13 +36,15 @@ public class SmsTests
 
     [Theory(Skip = "Sensitive Data")]
     [InlineData("", "", "", "Indice", "Indice", "Test Subject", "Test Body")]
+    [InlineData("", "", "", "Indice", "Indice", "Test Subject", "Welcome to https://www.indice.gr! You can manage you account here: https://my.indice.com.")]
     public async Task TestApifonSms(string apiKey, string token, string phoneNumber, string sender, string senderName, string subject, string body) {
         var inMemorySettings = new Dictionary<string, string> {
             ["Sms:ApiKey"] = apiKey,
             ["Sms:Token"] = token,
             ["Sms:Sender"] = sender,
             ["Sms:SenderName"] = senderName,
-            ["Sms:TestMode"] = true.ToString()
+            ["Sms:TestMode"] = true.ToString(),
+            ["Sms:EnableUrlShortener"] = true.ToString()
         };
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(inMemorySettings)
@@ -52,11 +54,11 @@ public class SmsTests
             .AddOptions()
             .Configure<SmsServiceApifonSettings>(configuration.GetSection(SmsServiceApifonSettings.Name))
             .AddSmsServiceApifon(configuration);
-        
+
 
         var serviceProvider = collection.BuildServiceProvider();
         var excepion = default(Exception);
-        
+
         try {
             var service = serviceProvider.GetRequiredService<ISmsService>();
             await service.SendAsync(phoneNumber, subject, body);
@@ -68,13 +70,15 @@ public class SmsTests
 
     [Theory(Skip = "Sensitive Data")]
     [InlineData("", "", "", "Indice", "Indice", "Test from ApifonIM", "Apifon Viber message body")]
+    [InlineData("", "", "", "Indice", "Indice", "Test from ApifonIM", "Welcome to https://www.indice.gr! You can manage you account here: https://my.indice.com.")]
     public async Task TestApifonIM(string apiKey, string token, string phoneNumber, string sender, string senderName, string subject, string body) {
         var inMemorySettings = new Dictionary<string, string> {
             ["Sms:ApiKey"] = apiKey,
             ["Sms:Token"] = token,
             ["Sms:Sender"] = sender,
             ["Sms:SenderName"] = senderName,
-            ["Sms:TestMode"] = true.ToString()
+            ["Sms:TestMode"] = true.ToString(),
+            ["Sms:EnableUrlShortener"] = true.ToString()
         };
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(inMemorySettings)
@@ -91,6 +95,123 @@ public class SmsTests
         try {
             var service = serviceProvider.GetRequiredService<ISmsService>();
             await service.SendAsync(phoneNumber, subject, body);
+        } catch (Exception smsServiceException) {
+            error = smsServiceException;
+        }
+        Assert.Null(error);
+    }
+
+    [Theory(Skip = "Sensitive Data")]
+    [InlineData("", "Hello from INDICE", "", "", "Indice")]
+    public async Task TestVonageSms(string phoneNumber, string body, string apiKey, string signatureSecret, string sender) {
+        var inMemorySettings = new Dictionary<string, string> {
+            ["Sms:ApiKey"] = apiKey,
+            ["Sms:SignatureSecret"] = signatureSecret,
+            ["Sms:Sender"] = sender,
+            ["Sms:SenderName"] = sender,
+            ["Sms:TestMode"] = true.ToString(),
+        };
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(inMemorySettings)
+            .Build();
+
+        var collection = new ServiceCollection()
+          .AddSingleton(configuration)
+          .AddOptions()
+          .Configure<SmsServiceVonageSettings>(configuration.GetSection(SmsServiceVonageSettings.Name))
+          .AddSmsServiceVonage(configuration);
+
+        var serviceProvider = collection.BuildServiceProvider();
+        var error = default(Exception);
+
+        try {
+            var service = serviceProvider.GetRequiredService<ISmsService>();
+            await service.SendAsync(phoneNumber, "subject", body);
+        } catch (Exception smsServiceException) {
+            error = smsServiceException;
+        }
+        Assert.Null(error);
+    }
+
+    [Theory(Skip = "Sensitive Data")]
+    [InlineData("", "Hello from INDICE", "", "", "", "", "", "")]
+    public async Task TestTwilioSms(string phoneNumber, string body, string accountSid, string apiKey, string secret, string sender, string authToken, string messagingServiceSid) {
+        
+        var inMemorySettings = new Dictionary<string, string> {
+            ["Sms:AccountSid"] = accountSid
+        };
+        // Use MessagingServiceSid if present; otherwise use From number
+        if (!string.IsNullOrWhiteSpace(messagingServiceSid)) {
+            inMemorySettings["Sms:MessagingServiceSid"] = messagingServiceSid;
+        } else {
+            inMemorySettings["Sms:SenderPhoneNumber"] = sender;
+        }
+        // Use Secret and ApiKey if present; otherwise use AuthToken number
+        if (!string.IsNullOrWhiteSpace(secret) && !string.IsNullOrWhiteSpace(apiKey)) {
+            inMemorySettings["Sms:ApiKey"] = apiKey;
+            inMemorySettings["Sms:Secret"] = secret;
+        } else {
+            inMemorySettings["Sms:AuthToken"] = authToken;
+        }
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(inMemorySettings)
+            .Build();
+
+        var collection = new ServiceCollection()
+          .AddSingleton(configuration)
+          .AddOptions()
+          .Configure<SmsServiceTwilioSettings>(configuration.GetSection(SmsServiceTwilioSettings.Name))
+          .AddSmsServiceTwilio(configuration);
+
+        var serviceProvider = collection.BuildServiceProvider();
+        var error = default(Exception);
+
+        try {
+            var service = serviceProvider.GetRequiredService<ISmsService>();
+            await service.SendAsync(phoneNumber, "subject", body);
+        } catch (Exception smsServiceException) {
+            error = smsServiceException;
+        }
+        Assert.Null(error);
+    }
+
+    [Theory(Skip = "Sensitive Data")]
+    [InlineData("", "Hello from INDICE", "", "", "", "", "")]
+    public async Task TestSmsUpSms(string phoneNumber, string body,string apiKey, string reportUrl, string sender, string concat, string fake) {
+
+        var inMemorySettings = new Dictionary<string, string> {
+            ["Sms:ApiKey"] = apiKey
+        };
+
+        if (!string.IsNullOrWhiteSpace(reportUrl)) {
+            inMemorySettings["Sms:ReportUrl"] = reportUrl;
+        }
+        if (!string.IsNullOrWhiteSpace(concat)) {
+            inMemorySettings["Sms:Concat"] = concat;
+        }
+        if (!string.IsNullOrWhiteSpace(sender)) {
+            inMemorySettings["Sms:Sender"] = sender;
+        }
+        if (!string.IsNullOrWhiteSpace(fake)) {
+            inMemorySettings["Sms:Fake"] = fake;
+        }
+
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(inMemorySettings)
+            .Build();
+
+        var collection = new ServiceCollection()
+          .AddSingleton(configuration)
+          .AddOptions()
+          .Configure<SmsServiceSmsUpSettings>(configuration.GetSection(SmsServiceSmsUpSettings.Name))
+          .AddSmsServiceSmsUp(configuration);
+
+        var serviceProvider = collection.BuildServiceProvider();
+        var error = default(Exception);
+
+        try {
+            var service = serviceProvider.GetRequiredService<ISmsService>();
+            await service.SendAsync(phoneNumber, "subject", body);
         } catch (Exception smsServiceException) {
             error = smsServiceException;
         }

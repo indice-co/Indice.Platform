@@ -34,7 +34,7 @@ public class EndpointTests : IAsyncLifetime
             });
         });
         builder.ConfigureServices(services => {
-            var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
+            
             services.AddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
             services.AddRouting();
 

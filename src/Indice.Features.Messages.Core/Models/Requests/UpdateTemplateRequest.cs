@@ -4,9 +4,11 @@
 public class UpdateTemplateRequest
 {
     /// <summary>The name of the template.</summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
+    /// <summary>The alias of the template.</summary>
+    public string? Alias { get; set; }
     /// <summary>The content of the template.</summary>
     public MessageContentDictionary Content { get; set; } = new();
     /// <summary>Sample data for the template</summary>
-    public dynamic Data { get; set; }
+    public dynamic? Data { get; set; }
 }

@@ -7,7 +7,6 @@ using Indice.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Identity.UI.Pages;
@@ -19,24 +18,19 @@ namespace Indice.Features.Identity.UI.Pages;
 [ValidateAntiForgeryToken]
 public abstract class BaseForgotPasswordModel : BasePageModel
 {
-    private readonly IStringLocalizer<BaseForgotPasswordModel> _localizer;
-
     /// <summary>Creates a new instance of <see cref="BaseForgotPasswordModel"/> class.</summary>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="logger">Represents a type used to perform logging.</param>
     /// <param name="emailService">Abstraction for sending email through different providers and implementations. SMTP, SparkPost, Mailchimp etc.</param>
-    /// <param name="localizer">Represents a service that provides localized strings.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseForgotPasswordModel(
         ExtendedUserManager<User> userManager,
         ILogger<BaseForgotPasswordModel> logger,
-        IEmailService emailService,
-        IStringLocalizer<BaseForgotPasswordModel> localizer
+        IEmailService emailService
     ) {
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         EmailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
-        _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
     }
 
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
@@ -78,10 +72,12 @@ public abstract class BaseForgotPasswordModel : BasePageModel
         }
         var token = await UserManager.GeneratePasswordResetTokenAsync(user);
         var callbackUrl = Url.PageLink("/ForgotPasswordConfirmation", values: new { email = user.Email, token, client_id = HttpContext.GetClientIdFromReturnUrl() });
-        Logger.LogDebug("{PageTitle}: Confirmation token is {Token}", "Forgot password", token);
+
+        var maskedToken = token.Length > 4 ? string.Concat(token.AsSpan(0, 2), new string('*', token.Length - 4), token.AsSpan(token.Length - 2)) : token;
+        Logger.LogDebug("{PageTitle}: Confirmation token is {Token}", "Forgot password", maskedToken);
         await EmailService.SendAsync(builder =>
             builder.To(user.Email!)
-                   .WithSubject(_localizer["Forgot password"])
+                   .WithSubject(UserManager.MessageDescriber.ForgotPasswordMessageSubject)
                    .UsingTemplate("EmailForgotPassword")
                    .WithData(new {
                        UserName = User.FindDisplayName() ?? user.UserName,
@@ -97,7 +93,6 @@ internal class ForgotPasswordModel : BaseForgotPasswordModel
     public ForgotPasswordModel(
         ExtendedUserManager<User> userManager,
         ILogger<ForgotPasswordModel> logger,
-        IEmailService emailService,
-        IStringLocalizer<ForgotPasswordModel> localizer
-    ) : base(userManager, logger, emailService, localizer) { }
+        IEmailService emailService
+    ) : base(userManager, logger, emailService) { }
 }

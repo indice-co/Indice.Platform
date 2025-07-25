@@ -1,7 +1,13 @@
 ﻿using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
+using System.Text.Unicode;
 using Indice.Features.Cases.Core.Services.Abstractions;
+using Indice.Types;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Primitives;
 
 namespace Indice.Features.Cases.Core.Services;
 
@@ -11,7 +17,7 @@ public class JsonTranslationService : IJsonTranslationService
     private readonly string _primaryLanguage;
 
     /// <summary>The properties where the translate method will search and update their values.</summary>
-    private readonly List<string> _translatableProperties = [
+    private static readonly List<string> _translatableProperties = [
         "title",
         "placeholder",
         "required",
@@ -26,24 +32,24 @@ public class JsonTranslationService : IJsonTranslationService
     }
 
     /// <inheritdoc />
-    public string? Translate(string? jsonSource, string? jsonTranslations, string language) {
-        if (string.IsNullOrEmpty(jsonSource) || string.IsNullOrEmpty(jsonTranslations)) {
+    public JsonNode? Translate(JsonNode? jsonSource, Dictionary<string, string>? jsonTranslations, string language) {
+        if (jsonSource is null || jsonTranslations is null) {
             return jsonSource;
         }
-
-        if (string.IsNullOrEmpty(language)) {
-            throw new ArgumentNullException(language, nameof(language));
-        }
-
+        ArgumentException.ThrowIfNullOrWhiteSpace(language);
         if (language == _primaryLanguage) {
             return jsonSource;
         }
-
-        var translations = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonTranslations);
-        if (translations == null) {
-            throw new ArgumentNullException(nameof(translations), "Layout translations cannot be parsed.");
+        if (jsonSource.GetValueKind() == JsonValueKind.String) { // fix for string implicit conversions
+            jsonSource = JsonNode.Parse(jsonSource.GetValue<string>())!;
         }
+        var options = new JsonSerializerOptions(JsonSerializerDefaults.Web) {
+            Encoder = JavaScriptEncoder.Create(UnicodeRanges.GreekExtended, UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic),
+        };
+        return JsonNode.Parse(Translate(jsonSource.ToJsonString(options), jsonTranslations));
+    }
 
+    private static string Translate(string jsonSource, Dictionary<string, string> translations) {
         // Create a Json Writer to help us create the new JSON object with the translated values
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);
@@ -106,7 +112,6 @@ public class JsonTranslationService : IJsonTranslationService
         }
 
         writer.Flush();
-        var json = Encoding.UTF8.GetString(stream.ToArray());
-        return json;
+        return Encoding.UTF8.GetString(stream.ToArray());
     }
 }

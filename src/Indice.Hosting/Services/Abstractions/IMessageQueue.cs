@@ -8,7 +8,7 @@ public interface IMessageQueue<T> where T : class
 {
     /// <summary>Removes and returns the object at the beginning of the <see cref="IMessageQueue{T}"/>.</summary>
     /// <returns>The object that is removed from the beginning of the <see cref="IMessageQueue{T}"/>.</returns>
-    Task<QMessage<T>> Dequeue();
+    Task<QMessage<T>?> Dequeue();
     /// <summary>Adds an object to the end of the <see cref="IMessageQueue{T}"/>.</summary>
     /// <param name="item">The object to add to the <see cref="IMessageQueue{T}"/>.</param>
     /// <param name="isPoison">Marks the given <paramref name="item"/> as poison message.</param>
@@ -18,7 +18,7 @@ public interface IMessageQueue<T> where T : class
     Task EnqueueRange(IEnumerable<QMessage<T>> items);
     /// <summary>Returns the object at the beginning of the <see cref="IMessageQueue{T}"/> without removing it.</summary>
     /// <returns>The object at the beginning of the <see cref="IMessageQueue{T}"/>.</returns>
-    Task<T> Peek();
+    Task<T?> Peek();
     /// <summary>Gets the number of elements contained in the <see cref="IMessageQueue{T}"/>.</summary>
     /// <returns>The number of elements contained in the <see cref="IMessageQueue{T}"/>.</returns>
     Task<int> Count();
@@ -33,7 +33,7 @@ public static class IMessageQueueExtensions
     /// <summary>Shorthand dequeue to extract the payload directly.</summary>
     /// <typeparam name="T">The type of message.</typeparam>
     /// <param name="queue">The message queue.</param>
-    public static async Task<T> DequeueValue<T>(this IMessageQueue<T> queue) where T : class => (await queue.Dequeue())?.Value;
+    public static async Task<T?> DequeueValue<T>(this IMessageQueue<T> queue) where T : class => (await queue.Dequeue())?.Value;
 
     /// <summary>Enqueue a new item.</summary>
     /// <typeparam name="T">The type of message.</typeparam>

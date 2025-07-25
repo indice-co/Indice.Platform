@@ -1,4 +1,5 @@
-﻿using Indice.Features.Identity.Core;
+﻿using System.Diagnostics.CodeAnalysis;
+using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
@@ -12,35 +13,35 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+#if NET9_0_OR_GREATER
+using Indice.Features.Identity.Core.TokenCleanup;
+using Duende.IdentityServer.EntityFramework;
+#endif
 
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>Extensions on <see cref="IdentityBuilder"/>.</summary>
-public static class IdentityBuilderExtensions
-{
+public static class IdentityBuilderExtensions {
     /// <summary>Registers an instance of <see cref="ExtendedSignInManager{TUser}"/> along with required dependencies.</summary>
     /// <typeparam name="TUser">The type of <see cref="User"/> used by the identity system.</typeparam>
     /// <param name="builder">The type of builder for configuring identity services.</param>
     public static IdentityBuilder AddExtendedSignInManager<TUser>(this IdentityBuilder builder) where TUser : User {
         static Action<CookieAuthenticationOptions> AuthCookie(string cookieName) => options => {
-            options.Cookie.Name = cookieName;
-            options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
             options.LoginPath = new PathString("/login");
             options.LogoutPath = new PathString("/logout");
             options.AccessDeniedPath = new PathString("/403");
+            options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SameSite = SameSiteMode.None;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            options.Cookie.Name = cookieName;
         };
         builder.Services
                .AddAuthentication()
-               .AddCookie(ExtendedIdentityConstants.ExtendedValidationUserIdScheme, AuthCookie(ExtendedIdentityConstants.ExtendedValidationUserIdScheme))
-               .AddCookie(ExtendedIdentityConstants.MfaOnboardingScheme, AuthCookie(ExtendedIdentityConstants.MfaOnboardingScheme));
-        builder.Services.Configure<CookieAuthenticationOptions>(IdentityConstants.TwoFactorUserIdScheme, options => {
-            AuthCookie(IdentityConstants.TwoFactorUserIdScheme)(options);
-            options.LoginPath = new PathString("/login-with-2fa");
-        });
+               .AddCookie(ExtendedIdentityConstants.ExtendedValidationScheme, AuthCookie(ExtendedIdentityConstants.ExtendedValidationCookieName));
         builder.Services.TryAddTransient<IAuthenticationMethodProvider, AuthenticationMethodProviderInMemory>();
         builder.Services.TryAddSingleton<ISignInGuard<TUser>, SignInGuardNoOp<TUser>>();
         builder.AddSignInManager<ExtendedSignInManager<TUser>>();
-        builder.Services.TryAddScoped<IUserStateProvider<TUser>, DefaultUserStateProvider<TUser>>();
         return builder;
     }
 
@@ -173,7 +174,7 @@ public static class IdentityBuilderExtensions
     /// <param name="otherAuthenticationMethods">The authentication methods to apply in the identity system.</param>
     /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
     public static IdentityBuilder AddAuthenticationMethodProvider(this IdentityBuilder builder, AuthenticationMethod authenticationMethod, params AuthenticationMethod[] otherAuthenticationMethods) {
-        var allMethods = (otherAuthenticationMethods ?? Array.Empty<AuthenticationMethod>()).Prepend(authenticationMethod);
+        var allMethods = (otherAuthenticationMethods ?? []).Prepend(authenticationMethod);
         foreach (var method in allMethods) {
             builder.Services.AddSingleton(method);
         }
@@ -225,8 +226,8 @@ public static class IdentityBuilderExtensions
 
     /// <summary>Adds an overridden implementation of <see cref="IdentityMessageDescriber"/>.</summary>
     /// <param name="builder">Helper functions for configuring identity services.</param>
-    /// <remarks>The <see cref="LocalizedIdentityMessageDescriber"/> is registered.</remarks>
-    public static IdentityBuilder AddIdentityMessageDescriber(this IdentityBuilder builder) => builder.AddIdentityMessageDescriber<LocalizedIdentityMessageDescriber>();
+    /// <remarks>The <see cref="IdentityMessageDescriber"/> is registered to defaults.</remarks>
+    public static IdentityBuilder AddIdentityMessageDescriber(this IdentityBuilder builder) => builder.AddIdentityMessageDescriber<IdentityMessageDescriber>();
 
     /// <summary>Adds an overridden implementation of <see cref="IdentityMessageDescriber"/>.</summary>
     /// <typeparam name="TDescriber">The type of message describer.</typeparam>
@@ -236,8 +237,35 @@ public static class IdentityBuilderExtensions
         return builder;
     }
 
+    /// <summary>
+    /// Adds an <see cref="ExtendedIdentityErrorDescriber"/>.
+    /// </summary>
+    /// <typeparam name="TDescriber">The type of the error describer.</typeparam>
+    /// <returns>The current <see cref="IdentityBuilder"/> instance.</returns>
+    public static IdentityBuilder AddExtendedErrorDescriber<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TDescriber>(this IdentityBuilder builder) where TDescriber : ExtendedIdentityErrorDescriber {
+        builder.Services.AddScoped<IdentityErrorDescriber, TDescriber>();
+        builder.Services.AddScoped<ExtendedIdentityErrorDescriber, TDescriber>();
+        return builder;
+    }
+
     /// <summary>Adds an <see cref="IdentityErrorDescriber"/>.</summary>
     /// <returns>The current <see cref="IdentityBuilder"/> instance.</returns>
-    /// <remarks>The <see cref="LocalizedIdentityErrorDescriber"/> is registered.</remarks>
-    public static IdentityBuilder AddErrorDescriber(this IdentityBuilder builder) => builder.AddErrorDescriber<LocalizedIdentityErrorDescriber>();
+    /// <remarks>The <see cref="ExtendedIdentityErrorDescriber"/> is registered.</remarks>
+    public static IdentityBuilder AddExtendedErrorDescriber(this IdentityBuilder builder) {
+        builder.AddExtendedErrorDescriber<ExtendedIdentityErrorDescriber>();
+        return builder;
+    }
+
+#if NET9_0_OR_GREATER
+    /// <summary>
+    /// Registers an alternative implementation of <see cref="TokenCleanupService"/>   
+    /// that user an alternative way to delete records and removes events. 
+    /// </summary>
+    /// <param name="builder">instance</param>
+    /// <returns>The current <see cref="IdentityBuilder"/> instance.</returns>
+    public static IdentityBuilder AddFastCleanUpService(this IdentityBuilder builder) {
+        builder.Services.AddTransient<ITokenCleanupService, FastTokenCleanupService>();
+        return builder;
+    }
+#endif
 }

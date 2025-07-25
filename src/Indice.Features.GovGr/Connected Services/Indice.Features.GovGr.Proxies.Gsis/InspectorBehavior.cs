@@ -25,15 +25,15 @@ public class InspectorBehavior : IEndpointBehavior
 /// <summary>Message inspector used to apply the required header before sending the message.</summary>
 public class MessageInspector : IClientMessageInspector
 {
-    private string _username;
-    private string _password;
+    private readonly string _username;
+    private readonly string _password;
     /// <summary>Creates a MessageInspector</summary>
     public MessageInspector(string username, string password) {
         _username = username ?? throw new ArgumentNullException(nameof(username));
         _password = password ?? throw new ArgumentNullException(nameof(password));
     }
     void IClientMessageInspector.AfterReceiveReply(ref Message reply, object correlationState) { }
-    object IClientMessageInspector.BeforeSendRequest(ref Message request, IClientChannel channel) {
+    object? IClientMessageInspector.BeforeSendRequest(ref Message request, IClientChannel channel) {
         var header = new Header { UsernameToken = new UsernameToken() { Username = _username, Password = _password } };
         var messageHeader = new MessageHeader<Header>() { Actor = "", Content = header };
         request.Headers.Add(messageHeader.GetUntypedHeader("Security", "ns1"));
@@ -46,15 +46,15 @@ public class MessageInspector : IClientMessageInspector
 class Header
 {
     [DataMember]
-    public UsernameToken UsernameToken { get; set; }
+    public UsernameToken UsernameToken { get; set; } = null!;
 }
 /// <summary>Authentication credentials</summary>
 public class UsernameToken
 {
     /// <summary>Username</summary>
     [DataMember]
-    public string Username { get; set; }
+    public string Username { get; set; } = null!;
     /// <summary>Password</summary>
     [DataMember]
-    public string Password { get; set; }
+    public string Password { get; set; } = null!;
 }

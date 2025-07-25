@@ -10,3 +10,4 @@ paths-ignore:
   - '**/Indice.Features.Risk.App/dist/**'
   - '**/obj/**'
   - 'test/**'
+  - '.github/**'

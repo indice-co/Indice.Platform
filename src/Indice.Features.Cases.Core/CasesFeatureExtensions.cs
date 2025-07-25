@@ -12,6 +12,7 @@ using Indice.Features.Cases.Core.Events.Handlers;
 using System.Security.Claims;
 using Indice.Features.Cases.Core;
 using Indice.Events;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -26,7 +27,7 @@ public static class CasesFeatureExtensions
     /// <param name="configureAction">The optional configuration action.</param>
     public static IServiceCollection AddCasesCore(this IServiceCollection services, Action<CasesOptions>? configureAction = null) {
         // Configure options given by the consumer.
-        var casesOptions = new CasesOptions();
+        var casesOptions = new CasesOptions(services);
         configureAction?.Invoke(casesOptions);
         CasesClaimsPrincipalExtensions.Scope = casesOptions.RequiredScope;
         services.Configure<CasesOptions>(options => {
@@ -36,18 +37,20 @@ public static class CasesFeatureExtensions
             options.GroupIdClaimType = casesOptions.GroupIdClaimType;
             options.ReferenceNumberEnabled = casesOptions.ReferenceNumberEnabled;
             options.RequiredScope = casesOptions.RequiredScope;
+            options.ByPassAccessRulesForElevatedUsers = casesOptions.ByPassAccessRulesForElevatedUsers;
             options.ConfigureDbSeed = casesOptions.ConfigureDbSeed;
         });
 
-        var seedOptions = new CasesDbIntialDataOptions([], []);
+        var seedOptions = new CasesDbIntialDataOptions();
         casesOptions.ConfigureDbSeed?.Invoke(seedOptions);
 
         services.Configure<CasesDbIntialDataOptions>(options => {
             options.CaseTypes.AddRange(seedOptions.CaseTypes);
+            options.Cases.AddRange(seedOptions.Cases);
         });
         // Register no op services.
         services.AddLookupService<NoOpLookupService>(nameof(NoOpLookupService)); // needed for factory instantiation
-        services.TryAddTransient<ICustomerIntegrationService, NoOpCustomerIntegrationService>();
+        services.TryAddTransient<IContactProvider, NoOpContactProvider>();
         services.TryAddTransient<ICasePdfService, NoOpCasePdfService>();
         services.AddHtmlRenderingEngineNoop(); // used by the CasesTemplate service
 
@@ -81,7 +84,7 @@ public static class CasesFeatureExtensions
         services.AddDefaultPlatformEventService();
 
         // Register internal handlers
-        services.AddPlatformEventHandler<CaseSubmittedEvent, StartWorkflowHandler>();
+        services.TryAddPlatformEventHandler<CaseSubmittedEvent, StartWorkflowHandler>();
 
         // Register application DbContext.
         services.AddDbContext<CasesDbContext>(casesOptions.ConfigureDbContext ?? ((sp, builder) => builder.UseSqlServer(sp.GetRequiredService<IConfiguration>().GetConnectionString("CasesDb"))));
@@ -157,5 +160,20 @@ public static class CasesFeatureExtensions
     public static void AddLookupService<TLookupService>(this IServiceCollection services, string key)
         where TLookupService : class, ILookupService {
         services.AddKeyedTransient<ILookupService, TLookupService>(key);
+    }
+
+    /// <summary>
+    /// Configure the <see cref="IContactProvider"/> to use an Identity server backed implementation.
+    /// </summary>
+    /// <param name="options">The options to configure</param>
+    /// <param name="configureAction">The configure action</param>
+    public static void UseContactProviderIdentity(this CasesOptions options, Action<ContactProviderIdentityOptions> configureAction) {
+        options.Services.Configure(configureAction);
+        options.Services.AddDistributedMemoryCache();
+        options.Services.AddHttpClient<IContactProvider, ContactProviderIdentityServer>((sp, httpClient) => {
+            var providerOptions = sp.GetRequiredService<IOptions<ContactProviderIdentityOptions>>().Value;
+            var configuration = sp.GetRequiredService<IConfiguration>();
+            httpClient.BaseAddress = providerOptions.BaseAddress ?? new Uri(configuration.GetAuthority(tryInternal: true)!);
+        });
     }
 }

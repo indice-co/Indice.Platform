@@ -8,9 +8,10 @@ public static class TypeExtensions
 {
     /// <summary>Determines whether a type is decorated with <see cref="FlagsAttribute"/>.</summary>
     /// <param name="type">The type to check.</param>
+    /// <remarks>Also checks for nullable flag enums.</remarks>
     public static bool IsFlagsEnum(this Type type) =>
-        (type.IsEnum && type.GetCustomAttributes(typeof(FlagsAttribute), inherit: false).Any()) ||
-        (Nullable.GetUnderlyingType(type)?.IsEnum == true && Nullable.GetUnderlyingType(type)!.GetCustomAttributes(typeof(FlagsAttribute), inherit: false).Any());
+        (type.IsEnum && type.GetCustomAttributes(typeof(FlagsAttribute), inherit: false).Length != 0) ||
+        (Nullable.GetUnderlyingType(type)?.IsEnum == true && Nullable.GetUnderlyingType(type)!.GetCustomAttributes(typeof(FlagsAttribute), inherit: false).Length != 0);
 
     
     /// <summary>Determines whether a type is anonymous.</summary>

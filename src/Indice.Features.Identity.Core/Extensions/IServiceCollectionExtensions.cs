@@ -16,17 +16,11 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// <summary>Extensions to configure the <see cref="IServiceCollection"/> of an ASP.NET Core application.</summary>
 public static class IServiceCollectionExtensions
 {
-    /// <summary>Configures the cookie used by <see cref="ExtendedIdentityConstants.ExtendedValidationUserIdScheme"/>.</summary>
+    /// <summary>Configures the cookie used by <see cref="ExtendedIdentityConstants.ExtendedValidationScheme"/>.</summary>
     /// <param name="services">The services available in the application.</param>
     /// <param name="configure">An action to configure the <see cref="CookieAuthenticationOptions"/>.</param>
     public static IServiceCollection ConfigureExtendedValidationCookie(this IServiceCollection services, Action<CookieAuthenticationOptions> configure)
-        => services.Configure(ExtendedIdentityConstants.ExtendedValidationUserIdScheme, configure);
-
-    /// <summary>Configures the cookie used by <see cref="ExtendedIdentityConstants.MfaOnboardingScheme"/>.</summary>
-    /// <param name="services">The services available in the application.</param>
-    /// <param name="configure">An action to configure the <see cref="CookieAuthenticationOptions"/>.</param>
-    public static IServiceCollection ConfigureMfaOnboardingCookie(this IServiceCollection services, Action<CookieAuthenticationOptions> configure)
-        => services.Configure(ExtendedIdentityConstants.MfaOnboardingScheme, configure);
+        => services.Configure(ExtendedIdentityConstants.ExtendedValidationScheme, configure);
 
     /// <summary>Configures <see cref="RazorViewEngineOptions"/> by adding the <see cref="ClientAwareViewLocationExpander"/> in the list of available <see cref="IViewLocationExpander"/>.</summary>
     /// <param name="services">The services available in the application.</param>

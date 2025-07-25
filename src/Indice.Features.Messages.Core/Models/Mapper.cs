@@ -10,7 +10,7 @@ namespace Indice.Features.Messages.Core.Models;
 
 internal static class Mapper
 {
-    public static Expression<Func<DbCampaign, Campaign>> ProjectToCampaign = campaign => new() {
+    public readonly static Expression<Func<DbCampaign, Campaign>> ProjectToCampaign = campaign => new() {
         ActionLink = campaign.ActionLink,
         MediaBaseHref = campaign.MediaBaseHref,
         ActivePeriod = campaign.ActivePeriod,
@@ -20,7 +20,7 @@ internal static class Mapper
         UpdatedAt = campaign.UpdatedAt,
         UpdatedBy = campaign.UpdatedBy,
         Data = campaign.Data,
-        MessageChannelKind = campaign.MessageChannelKind,
+        MessageChannelKind = campaign.MessageChannelKind.ToList(),
         DistributionList = campaign.DistributionList != null ? new DistributionList {
             CreatedAt = campaign.DistributionList.CreatedAt,
             CreatedBy = campaign.DistributionList.CreatedBy,
@@ -37,13 +37,14 @@ internal static class Mapper
         Type = campaign.Type != null ? new MessageType {
             Id = campaign.Type.Id,
             Name = campaign.Type.Name,
+            Alias = campaign.Type.Alias,
             Classification = campaign.Type.Classification
         } : null
     };
 
     public static Campaign ToCampaign(DbCampaign campaign) => ProjectToCampaign.Compile()(campaign);
 
-    public static Expression<Func<DbContact, Contact>> ProjectToContact = contact => new() {
+    public readonly static Expression<Func<DbContact, Contact>> ProjectToContact = contact => new() {
         Email = contact.Email,
         FirstName = contact.FirstName,
         FullName = contact.FullName,
@@ -87,7 +88,7 @@ internal static class Mapper
         Locale = request.Locale
     };
 
-    public static Expression<Func<DbCampaign, CampaignDetails>> ProjectToCampaignDetails = campaign => new() {
+    public readonly static Expression<Func<DbCampaign, CampaignDetails>> ProjectToCampaignDetails = campaign => new() {
         ActionLink = campaign.ActionLink,
         MediaBaseHref = campaign.MediaBaseHref,
         ActivePeriod = campaign.ActivePeriod,
@@ -96,7 +97,7 @@ internal static class Mapper
             ContentType = campaign.Attachment.ContentType,
             Label = campaign.Attachment.Name,
             Size = campaign.Attachment.ContentLength,
-            PermaLink = $"/campaigns/attachments/{(Base64Id)campaign.Attachment.Guid}.{Path.GetExtension(campaign.Attachment.Name).TrimStart('.')}"
+            PermaLink = $"/campaigns/attachments/{(Base64Id)campaign.Attachment.Guid}.{Path.GetExtension(campaign.Attachment.Name)!.TrimStart('.')}"
         } : null,
         Content = campaign.Content ?? new(),
         CreatedAt = campaign.CreatedAt,
@@ -104,7 +105,7 @@ internal static class Mapper
         UpdatedAt = campaign.UpdatedAt,
         UpdatedBy = campaign.UpdatedBy,
         Data = campaign.Data,
-        MessageChannelKind = campaign.MessageChannelKind,
+        MessageChannelKind = campaign.MessageChannelKind.ToList(),
         DistributionList = campaign.DistributionList != null ? new DistributionList {
             CreatedAt = campaign.DistributionList.CreatedAt,
             CreatedBy = campaign.DistributionList.CreatedBy,
@@ -119,6 +120,7 @@ internal static class Mapper
         Type = campaign.Type != null ? new MessageType {
             Id = campaign.Type.Id,
             Name = campaign.Type.Name,
+            Alias = campaign.Type.Alias,
             Classification = campaign.Type.Classification
         } : null
     };
@@ -157,6 +159,7 @@ internal static class Mapper
         Locale = request.Locale,
         UpdatedAt = DateTimeOffset.UtcNow
     };
+
     public static DbContact ToDbContact(Contact contact) => new() {
         Email = contact.Email,
         FirstName = contact.FirstName,
@@ -170,20 +173,6 @@ internal static class Mapper
         ConsentCommercial = contact.ConsentCommercial,
         Locale = contact.Locale,
         UpdatedAt = DateTimeOffset.UtcNow
-    };
-
-    public static CreateDistributionListContactRequest ToCreateDistributionListContactRequest(Contact contact) => new() {
-        Email = contact.Email,
-        FirstName = contact.FirstName,
-        FullName = contact.FullName,
-        ContactId = contact.Id,
-        LastName = contact.LastName,
-        PhoneNumber = contact.PhoneNumber,
-        RecipientId = contact.RecipientId,
-        CommunicationPreferences = contact.CommunicationPreferences,
-        ConsentCommercial = contact.ConsentCommercial,
-        Locale = contact.Locale,
-        Salutation = contact.Salutation
     };
 
     public static DbContact ToDbContact(CreateContactRequest request) => new() {
@@ -201,15 +190,29 @@ internal static class Mapper
         UpdatedAt = DateTimeOffset.UtcNow
     };
 
+    public static CreateDistributionListContactRequest ToCreateDistributionListContactRequest(Contact contact) => new() {
+        Email = contact.Email,
+        FirstName = contact.FirstName,
+        FullName = contact.FullName,
+        ContactId = contact.Id,
+        LastName = contact.LastName,
+        PhoneNumber = contact.PhoneNumber,
+        RecipientId = contact.RecipientId,
+        CommunicationPreferences = contact.CommunicationPreferences,
+        ConsentCommercial = contact.ConsentCommercial,
+        Locale = contact.Locale,
+        Salutation = contact.Salutation
+    };
+
     public static void MapFromCreateDistributionListContactRequest(this DbContact contact, CreateDistributionListContactRequest request) {
+        contact.RecipientId = request.RecipientId;
         contact.Email = request.Email;
         contact.FirstName = request.FirstName;
         contact.FullName = request.FullName;
         contact.LastName = request.LastName;
-        contact.PhoneNumber = request.PhoneNumber;
-        contact.RecipientId = request.RecipientId;
-        contact.Salutation = request.Salutation;
+        contact.PhoneNumber = request.PhoneNumber; 
         contact.CommunicationPreferences = request.CommunicationPreferences;
+        contact.Salutation = request.Salutation;
         contact.Locale = request.Locale;
         contact.ConsentCommercial = request.ConsentCommercial;
         contact.UpdatedAt = DateTimeOffset.UtcNow;
@@ -234,7 +237,7 @@ internal static class Mapper
         DistributionListId = request.RecipientListId,
         IsGlobal = request.IsGlobal,
         Published = request.Published,
-        RecipientIds = request.RecipientIds,
+        RecipientIds = request.RecipientIds ?? [],
         Recipients = request.Recipients,
         Title = request.Title,
         Type = request.TypeId.HasValue ? new MessageType { Id = request.TypeId.Value } : null
@@ -248,11 +251,11 @@ internal static class Mapper
         RecipientListId = command.DistributionListId,
         IsGlobal = command.IsGlobal,
         Published = command.Published,
-        RecipientIds = command.RecipientIds,
+        RecipientIds = command.RecipientIds ?? [],
         Recipients = command.Recipients,
         Title = command.Title,
         TypeId = command.Type?.Id
     };
 
-    public static ExpandoObject ToExpandoObject(object value) => value.ToExpandoObject();
+    public static ExpandoObject? ToExpandoObject(object value) => value.ToExpandoObject();
 }

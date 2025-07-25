@@ -22,8 +22,12 @@ export class FileUtilitiesService {
         return '../../../assets/images/pdf-icon.png';
       case '.pptx': 
         return '../../../assets/images/pptx-icon.png';
-      default:
-        return file.permaLink + `?size=${size || ''}`;
+      default: {
+        if (size) {
+          return settings.api_url + '/media-root' + file.path + `?size=${size}`;
+        }
+        return file.permaLink;
+      }
     }
   }
 

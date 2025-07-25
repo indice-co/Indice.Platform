@@ -23,7 +23,7 @@ public class UserNameAsPasswordValidatorTests
         var configurationBuilder = new ConfigurationBuilder().AddInMemoryCollection(new List<KeyValuePair<string, string>> {
             new KeyValuePair<string, string>($"{nameof(PasswordOptions)}:{nameof(UserNameAsPasswordValidator<User>.MaxAllowedUserNameSubset)}", "3")
         });
-        var validator = new UserNameAsPasswordValidator<User>(configurationBuilder.Build(), new IdentityMessageDescriber());
+        var validator = new UserNameAsPasswordValidator<User>(configurationBuilder.Build());
         var identityResult = await validator.ValidateAsync(null, new User { UserName = UserName }, password);
         Assert.False(identityResult.Succeeded);
     }
@@ -44,7 +44,7 @@ public class UserNameAsPasswordValidatorTests
         var configurationBuilder = new ConfigurationBuilder().AddInMemoryCollection(new List<KeyValuePair<string, string>> {
             new KeyValuePair<string, string>($"{nameof(PasswordOptions)}:{nameof(UserNameAsPasswordValidator<User>.MaxAllowedUserNameSubset)}", "3")
         });
-        var validator = new UserNameAsPasswordValidator<User>(configurationBuilder.Build(), new IdentityMessageDescriber());
+        var validator = new UserNameAsPasswordValidator<User>(configurationBuilder.Build());
         var identityResult = await validator.ValidateAsync(null, new User { UserName = UserName }, password);
         Assert.True(identityResult.Succeeded);
     }

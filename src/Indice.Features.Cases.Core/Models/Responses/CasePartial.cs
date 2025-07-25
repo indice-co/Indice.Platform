@@ -14,14 +14,18 @@ public class CasePartial
     /// <remarks>To enable set to <see langword="true"/> the <strong>ReferenceNumberEnabled</strong> flag</remarks>
     public int? ReferenceNumber { get; set; }
 
-    /// <summary>The Id of the customer as provided from integration services (core or 3rd party).</summary>
-    public string? CustomerId { get; set; }
+    /// <summary>The Id of the customer/ or contact as provided from integration services (core or 3rd party).</summary>
+    /// <remarks>Correlation reference.</remarks>
+    public string? OwnerId { get; set; }
+
+    /// <summary>The full name of the owner/customer.</summary>
+    public string? OwnerName { get; set; }
+
+    /// <summary>The Tax identification number of the owner/customer.</summary>
+    public string? OwnerTin { get; set; }
 
     /// <summary>The Id of the user as provided from our Identity server.</summary>
     public string? UserId { get; set; }
-
-    /// <summary>The full name of the customer.</summary>
-    public string? CustomerName { get; set; }
 
     /// <summary>The created date of the case.</summary>
     public DateTimeOffset? CreatedByWhen { get; set; }
@@ -39,7 +43,7 @@ public class CasePartial
     public CaseTypePartial CaseType { get; set; } = null!;
 
     /// <summary>The case metadata as provided from the client or integrator.</summary>
-    public Dictionary<string, string> Metadata { get; set; } = [];
+    public Dictionary<string, string>? Metadata { get; set; }
 
     /// <summary>The Id of the group the case belongs.</summary>
     public string? GroupId { get; set; }

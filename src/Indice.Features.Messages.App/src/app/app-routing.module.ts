@@ -13,6 +13,7 @@ import { CampaignReportsComponent } from './features/campaigns/edit/reports/camp
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
 import { CommonAppShellConfig } from './shell.config';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
+import { DistributionListImportContactsComponent } from './features/distribution-lists/import-contacts/distribution-list-import-contacts.component';
 import { DistributionListContactCreateComponent } from './features/distribution-lists/edit/contacts/create/distribution-list-contact-create.component';
 import { DistributionListContactEditComponent } from './features/distribution-lists/edit/contacts/edit/distribution-list-contact-edit.component';
 import { DistributionListContactsComponent } from './features/distribution-lists/edit/contacts/distribution-list-contacts.component';
@@ -43,6 +44,11 @@ import { DocumentEditComponent } from './features/media-library/document-edit/do
 import { DocumentEditRightpaneComponent } from './features/media-library/document-edit/rightpane/document-edit-rightpane.component';
 import { FolderEditComponent } from './features/media-library/folder-edit/folder-edit.component';
 import { MediaSettingEditComponent } from './features/settings/media/edit/media-setting-edit.component';
+import { ContactsListComponent } from './features/contacts/contacts-list.component';
+import { ContactComponent } from './features/contacts/contact/contact.component';
+import { ContactDetailsComponent } from './features/contacts/contact/details/contact-details.component';
+import { ContactCampaignsComponent } from './features/contacts/contact/campaigns/contact-campaigns.component';
+import { ContactEditComponent } from './features/contacts/contact/details/edit/contact-edit.component';
 
 const routes: Routes = [
   { path: 'auth-callback', component: AuthCallbackComponent },
@@ -103,6 +109,21 @@ const routes: Routes = [
             ]
           },
         ]
+      }, {
+        path: 'contacts',
+        data: { breadcrumb: { title: 'Επαφές' } },
+        children: [
+          { path: '', component: ContactsListComponent, pathMatch: 'full' },
+          {
+            path: ':contactId', component: ContactComponent,
+            data: { breadcrumb: { title: 'Επεξεργασία' } },
+            children: [
+              { path: '', redirectTo: 'contact-details', pathMatch: 'full' },
+              { path: 'contact-details', component: ContactDetailsComponent, data: { breadcrumb: { title: 'Βασικές Πληροφορίες' } } },
+              { path: 'contact-campaigns', component: ContactCampaignsComponent, data: { breadcrumb: { title: 'Καμπάνιες' } } }
+            ]
+          },
+        ]
       },
       { 
         path: 'templates', 
@@ -148,8 +169,10 @@ const routes: Routes = [
   { path: 'edit-campaign-attachments', canActivate: [AuthGuardService], component: CampaignAttachmentsEditRightpaneComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'edit-distribution-list', canActivate: [AuthGuardService], component: DistributionListDetailsEditRightpaneComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'create-distribution-list', canActivate: [AuthGuardService], component: DistributionListCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
+  { path: 'import-contacts', canActivate: [AuthGuardService], component: DistributionListImportContactsComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'create-contact', canActivate: [AuthGuardService], component: DistributionListContactCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'edit-contact/:contactId', canActivate: [AuthGuardService], component: DistributionListContactEditComponent, outlet: 'rightpane', pathMatch: 'prefix' },
+  { path: 'update-contact/:contactId', canActivate: [AuthGuardService], component: ContactEditComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'edit-template', canActivate: [AuthGuardService], component: TemplateDetailsEditRightpaneComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'create-message-type', canActivate: [AuthGuardService], component: MessageTypeCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'create-message-sender', canActivate: [AuthGuardService], component: EmailSendersCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },

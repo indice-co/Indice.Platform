@@ -15,8 +15,10 @@ internal class CasesCoreConstants
     /// <summary>Default database schema.</summary>
     public const string DatabaseSchema = "case";
 
-    /// <summary>The default groupId claim type.</summary>
-    public static string DefaultGroupIdClaimType = "groupId";
+    /// <summary>The default groupId claim type. Would be <strong>groupId</strong></summary>
+    public static string DefaultGroupIdClaimType = "group_id";
+    /// <summary>The default contact reference claim type. Would be <strong>customer_code</strong></summary>
+    public static string DefaultReferenceIdClaimType = "customer_code";
 
     /// <summary>The default language key that will be used at <see cref="IJsonTranslationService"/>.</summary>
     public static string DefaultTranslationLanguage = "el";

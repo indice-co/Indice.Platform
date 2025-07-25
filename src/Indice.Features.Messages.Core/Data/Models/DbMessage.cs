@@ -8,7 +8,7 @@ public class DbMessage
     /// <summary>The unique identifier of the user message.</summary>
     public Guid Id { get; set; }
     /// <summary>The id of the recipient.</summary>
-    public string RecipientId { get; set; }
+    public string? RecipientId { get; set; }
     /// <summary>The id of the contact.</summary>
     public Guid? ContactId { get; set; }
     /// <summary>Determines if a message is deleted by the user.</summary>
@@ -24,5 +24,5 @@ public class DbMessage
     /// <summary>Foreign key to the campaign.</summary>
     public Guid CampaignId { get; set; }
     /// <summary>Navigation property pointing to the campaign.</summary>
-    public virtual DbCampaign Campaign { get; set; }
+    public virtual DbCampaign Campaign { get; set; } = null!;
 }

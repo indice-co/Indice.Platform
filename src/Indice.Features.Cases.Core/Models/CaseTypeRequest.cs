@@ -1,4 +1,5 @@
-﻿using Indice.Features.Cases.Core.Models.Responses;
+﻿using System.Text.Json.Nodes;
+using Indice.Features.Cases.Core.Models.Responses;
 using Indice.Types;
 
 namespace Indice.Features.Cases.Core.Models;
@@ -19,22 +20,22 @@ public class CaseTypeRequest
     public string? Description { get; set; }
 
     /// <summary>The Data Schema of the case type</summary>
-    public string? DataSchema { get; set; }
+    public JsonNode DataSchema { get; set; } = null!;
 
     /// <summary>the Layout of the case type</summary>
-    public string? Layout { get; set; }
+    public JsonNode? Layout { get; set; }
 
     /// <summary>The Translation for the case type</summary>
     public TranslationDictionary<CaseTypeTranslation>? Translations { get; set; }
 
     /// <summary>The Translation for the layout</summary>
-    public string? LayoutTranslations { get; set; }
+    public Dictionary<string, string>? LayoutTranslations { get; set; }
 
     /// <summary>The case type tags.</summary>
     public string? Tags { get; set; }
 
     /// <summary>The case type configuration.</summary>
-    public string? Config { get; set; }
+    public JsonNode? Config { get; set; }
 
     /// <summary>The allowed Roles that can create a new Case.</summary>
     public string? CanCreateRoles { get; set; }
@@ -46,8 +47,8 @@ public class CaseTypeRequest
     public bool IsMenuItem { get; set; }
 
     /// <summary>The filter configuration for the cases of the specified case type.</summary>
-    public string? GridFilterConfig { get; set; }
+    public JsonNode? GridFilterConfig { get; set; }
 
     /// <summary>The column configuration for the cases of the specified case type.</summary>
-    public string? GridColumnConfig { get; set; }
+    public JsonNode? GridColumnConfig { get; set; }
 }

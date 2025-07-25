@@ -25,6 +25,7 @@ export class UserProfilePictureComponent implements OnDestroy {
 
   @Input() public userId: string;
   @Input() public displayName: string;
+  @Input() public editable: boolean;
 
   modalRef: NgbModalRef;
 

@@ -6,7 +6,7 @@ using Microsoft.Extensions.Localization;
 
 namespace Indice.Features.Identity.Core.Totp;
 
-/// <summary></summary>
+/// <summary>Service for sending TOTP codes.</summary>
 public sealed class TotpServiceSecurityToken : TotpServiceBase
 {
     private readonly Rfc6238AuthenticationService _rfc6238AuthenticationService;
@@ -56,7 +56,7 @@ public sealed class TotpServiceSecurityToken : TotpServiceBase
         message = _localizer[message, token];
         var cacheKey = $"{nameof(TotpServiceSecurityToken)}:{phoneNumber}:{channel}:{token}:{purpose}";
         if (await CacheKeyExistsAsync(cacheKey)) {
-            return TotpResult.ErrorResult(_localizer["Last token has not expired yet. Please wait a few seconds and try again."]);
+            return TotpResult.RateLimitedResult(_localizer["Last token has not expired yet. Please wait a few seconds and try again."], await GetCacheKeyExpirationAsync(cacheKey));
         }
         await SendToChannelAsync(
             channel,
@@ -85,11 +85,11 @@ public sealed class TotpServiceSecurityToken : TotpServiceBase
     ) {
         purpose ??= TotpConstants.TokenGenerationPurpose.StrongCustomerAuthentication;
         if (!int.TryParse(code, out var codeInt)) {
-            return Task.FromResult(TotpResult.ErrorResult(_localizer["Totp must be an integer value."]));
+            return Task.FromResult(TotpResult.InvalidFormatResult(_localizer["Totp must be an integer value."]));
         }
         var modifier = GetModifier(purpose, phoneNumber);
         var encodedToken = Encoding.Unicode.GetBytes(securityToken);
         var isValidTotp = _rfc6238AuthenticationService.ValidateCode(encodedToken, codeInt, modifier);
-        return Task.FromResult(isValidTotp ? TotpResult.SuccessResult : TotpResult.ErrorResult(_localizer["The verification code is invalid."]));
+        return Task.FromResult(isValidTotp ? TotpResult.SuccessResult : TotpResult.InvalidCodeResult(_localizer["The verification code is invalid."]));
     }
 }

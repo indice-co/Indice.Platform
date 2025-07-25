@@ -1,10 +1,14 @@
-﻿using System.Text;
+﻿using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 using Indice.AspNetCore.Authorization;
+using Indice.Extensions;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
+using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
+using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Features.Messages.Tests.Mocks;
 using Indice.Features.Messages.Tests.Security;
 using Indice.Serialization;
@@ -73,6 +77,239 @@ public class MessagesIntegrationTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Create_Template_And_Create_Campaign__No_Channels_Specified__Success() {
+        //arrange
+        string templateAlias = "my dummy template";
+        var createTemplateRequest = new CreateTemplateRequest {
+            Name = "My Welcome Email", Alias = templateAlias,
+            Content = new MessageContentDictionary(
+                new Dictionary<MessageChannelKind, MessageContent> {
+                    [MessageChannelKind.Email] = new MessageContent("Email Test Message", "Test Message Content: {{data.localization.description_key}}"),
+                    [MessageChannelKind.PushNotification] = new MessageContent("Push Test Message", "Test Message Content: {{data.localization.description_key}}"),
+                    [MessageChannelKind.SMS] = new MessageContent("SMS Test Message", "Test Message Content: {{data.localization.description_key}}")
+                }
+            ),
+            Data = new {
+                localization = new {
+                    description_key = "This is a description"
+                }
+            }
+        };
+        var createTemplatePayload = JsonSerializer.Serialize(createTemplateRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var createTemplateResponse = await _httpClient.PostAsync("/api/templates", new StringContent(createTemplatePayload, Encoding.UTF8, "application/json"));
+
+        //action
+        var createCampaignRequest = new CreateCampaignRequest {
+            Title = "Test Campaign",
+            ActivePeriod = new Types.Period {
+                From = DateTimeOffset.UtcNow,
+                To = DateTimeOffset.UtcNow.AddDays(1)
+            },
+            Published = false,
+            RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"],
+            MessageTemplateId = new GuidOrAlias(templateAlias)
+        };
+        var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));
+        var createCampaignResponseJson = await createCampaignResponse.Content.ReadAsStringAsync();
+        if (!createCampaignResponse.IsSuccessStatusCode) {
+            _output.WriteLine(createCampaignResponseJson);
+        }
+
+        //assert
+        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location.PathAndQuery);
+        var getCampaignResponseJson = await getCampaignResponse.Content.ReadAsStringAsync();
+        if (!getCampaignResponse.IsSuccessStatusCode) {
+            _output.WriteLine(getCampaignResponseJson);
+        }
+
+        Assert.True(createCampaignResponse.IsSuccessStatusCode);
+        Assert.True(getCampaignResponse.IsSuccessStatusCode);
+
+        var serializationOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
+        serializationOptions.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
+        var campaignDetails = JsonSerializer.Deserialize<CampaignDetails>(getCampaignResponseJson, serializationOptions);
+
+        Assert.NotNull(campaignDetails);
+        var actualContentMessageKinds = campaignDetails.Content.Select(cnt => cnt.Key);
+        var expectedContentMessageKinds = createTemplateRequest.Content.Select(cnt => cnt.Key);
+        Assert.Equal(expectedContentMessageKinds.Count(), actualContentMessageKinds.Count());
+        Assert.Equal(expectedContentMessageKinds.Count(), expectedContentMessageKinds.Intersect(actualContentMessageKinds).Count());
+        Assert.Equal(expectedContentMessageKinds.Count(), campaignDetails.MessageChannelKind.Count());
+    }
+
+    [Fact]
+    public async Task Create_Template_And_Create_Campaign__Channels_Specified__Success() {
+        //arrange
+        string templateAlias = "my dummy template";
+        var createTemplateRequest = new CreateTemplateRequest {
+            Name = "My Welcome Email", Alias = templateAlias,
+            Content = new MessageContentDictionary(
+                new Dictionary<MessageChannelKind, MessageContent> {
+                    [MessageChannelKind.Email] = new MessageContent("Email Test Message", "Test Message Content: {{data.localization.description_key}}"),
+                    [MessageChannelKind.PushNotification] = new MessageContent("Push Test Message", "Test Message Content: {{data.localization.description_key}}"),
+                    [MessageChannelKind.SMS] = new MessageContent("SMS Test Message", "Test Message Content: {{data.localization.description_key}}")
+                }
+            ),
+            Data = new {
+                localization = new {
+                    description_key = "This is a description"
+                }
+            }
+        };
+        var createTemplatePayload = JsonSerializer.Serialize(createTemplateRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var createTemplateResponse = await _httpClient.PostAsync("/api/templates", new StringContent(createTemplatePayload, Encoding.UTF8, "application/json"));
+
+        //action
+        var createCampaignRequest = new CreateCampaignRequest {
+            Title = "Test Campaign",
+            ActivePeriod = new Types.Period {
+                From = DateTimeOffset.UtcNow,
+                To = DateTimeOffset.UtcNow.AddDays(1)
+            },
+            Published = false,
+            RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"],
+            MessageTemplateId = new GuidOrAlias(templateAlias),
+            MessageTemplateChannels = [MessageChannelKind.Email, MessageChannelKind.PushNotification]
+        };
+        var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));
+        var createCampaignResponseJson = await createCampaignResponse.Content.ReadAsStringAsync();
+        if (!createCampaignResponse.IsSuccessStatusCode) {
+            _output.WriteLine(createCampaignResponseJson);
+        }
+
+        //assert
+        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location.PathAndQuery);
+        var getCampaignResponseJson = await getCampaignResponse.Content.ReadAsStringAsync();
+        if (!getCampaignResponse.IsSuccessStatusCode) {
+            _output.WriteLine(getCampaignResponseJson);
+        }
+
+        Assert.True(createCampaignResponse.IsSuccessStatusCode);
+        Assert.True(getCampaignResponse.IsSuccessStatusCode);
+
+        var serializationOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
+        serializationOptions.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
+        var campaignDetails = JsonSerializer.Deserialize<CampaignDetails>(getCampaignResponseJson, serializationOptions);
+
+        Assert.NotNull(campaignDetails);
+        var actualContentMessageKinds = campaignDetails.Content.Select(cnt => cnt.Key);
+        var expectedContentMessageKinds = createCampaignRequest.MessageTemplateChannels.Select(v => v.ToString());
+        Assert.Equal(expectedContentMessageKinds.Count(), actualContentMessageKinds.Count());
+        Assert.Equal(expectedContentMessageKinds.Count(), expectedContentMessageKinds.Intersect(actualContentMessageKinds).Count());
+        Assert.Equal(expectedContentMessageKinds.Count(), campaignDetails.MessageChannelKind.Count());
+    }
+
+    [Fact]
+    public async Task Create_Template_And_Create_Campaign__Channels_Specified__Subset_Success() {
+        //arrange
+        string templateAlias = "my dummy template";
+        var createTemplateRequest = new CreateTemplateRequest {
+            Name = "My Welcome Email", Alias = templateAlias,
+            Content = new MessageContentDictionary(
+                new Dictionary<MessageChannelKind, MessageContent> {
+                    [MessageChannelKind.Email] = new MessageContent("Email Test Message", "Test Message Content: {{data.localization.description_key}}"),
+                    [MessageChannelKind.PushNotification] = new MessageContent("Push Test Message", "Test Message Content: {{data.localization.description_key}}"),
+                    [MessageChannelKind.SMS] = new MessageContent("SMS Test Message", "Test Message Content: {{data.localization.description_key}}")
+                }
+            ),
+            Data = new {
+                localization = new {
+                    description_key = "This is a description"
+                }
+            }
+        };
+        var createTemplatePayload = JsonSerializer.Serialize(createTemplateRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var createTemplateResponse = await _httpClient.PostAsync("/api/templates", new StringContent(createTemplatePayload, Encoding.UTF8, "application/json"));
+
+        //action
+        var createCampaignRequest = new CreateCampaignRequest {
+            Title = "Test Campaign",
+            ActivePeriod = new Types.Period {
+                From = DateTimeOffset.UtcNow,
+                To = DateTimeOffset.UtcNow.AddDays(1)
+            },
+            Published = false,
+            RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"],
+            MessageTemplateId = new GuidOrAlias(templateAlias),
+            MessageTemplateChannels = [MessageChannelKind.Email, MessageChannelKind.Inbox]
+        };
+        var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));
+        var createCampaignResponseJson = await createCampaignResponse.Content.ReadAsStringAsync();
+        if (!createCampaignResponse.IsSuccessStatusCode) {
+            _output.WriteLine(createCampaignResponseJson);
+        }
+
+        //assert
+        var getCampaignResponse = await _httpClient.GetAsync(createCampaignResponse.Headers.Location.PathAndQuery);
+        var getCampaignResponseJson = await getCampaignResponse.Content.ReadAsStringAsync();
+        if (!getCampaignResponse.IsSuccessStatusCode) {
+            _output.WriteLine(getCampaignResponseJson);
+        }
+
+        Assert.True(createCampaignResponse.IsSuccessStatusCode);
+        Assert.True(getCampaignResponse.IsSuccessStatusCode);
+
+        var serializationOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
+        serializationOptions.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
+        var campaignDetails = JsonSerializer.Deserialize<CampaignDetails>(getCampaignResponseJson, serializationOptions);
+
+        Assert.NotNull(campaignDetails);
+        var actualContentMessageKinds = campaignDetails.Content.Select(cnt => cnt.Key);
+        var expectedContentMessageKinds = new string[] { MessageChannelKind.Email.ToString() };
+        Assert.Equal(expectedContentMessageKinds.Count(), actualContentMessageKinds.Count());
+        Assert.Equal(expectedContentMessageKinds.Count(), expectedContentMessageKinds.Intersect(actualContentMessageKinds).Count());
+        Assert.Equal(expectedContentMessageKinds.Count(), campaignDetails.MessageChannelKind.Count());
+    }
+
+    [Fact]
+    public async Task Create_Template_And_Create_Campaign__Channels_Specified__No_Intersection_Failure() {
+        //arrange
+        string templateAlias = "my dummy template";
+        var createTemplateRequest = new CreateTemplateRequest {
+            Name = "My Welcome Email", Alias = templateAlias,
+            Content = new MessageContentDictionary(
+                new Dictionary<MessageChannelKind, MessageContent> {
+                    [MessageChannelKind.Email] = new MessageContent("Email Test Message", "Test Message Content: {{data.localization.description_key}}"),
+                    [MessageChannelKind.PushNotification] = new MessageContent("Push Test Message", "Test Message Content: {{data.localization.description_key}}")
+                }
+            ),
+            Data = new {
+                localization = new {
+                    description_key = "This is a description"
+                }
+            }
+        };
+        var createTemplatePayload = JsonSerializer.Serialize(createTemplateRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var createTemplateResponse = await _httpClient.PostAsync("/api/templates", new StringContent(createTemplatePayload, Encoding.UTF8, "application/json"));
+
+        //action
+        var createCampaignRequest = new CreateCampaignRequest {
+            Title = "Test Campaign",
+            ActivePeriod = new Types.Period {
+                From = DateTimeOffset.UtcNow,
+                To = DateTimeOffset.UtcNow.AddDays(1)
+            },
+            Published = false,
+            RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"],
+            MessageTemplateId = new GuidOrAlias(templateAlias),
+            MessageTemplateChannels = [MessageChannelKind.Inbox, MessageChannelKind.SMS]
+        };
+        var createCampaignPayload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(createCampaignPayload, Encoding.UTF8, "application/json"));
+        var createCampaignResponseJson = await createCampaignResponse.Content.ReadAsStringAsync();
+        if (!createCampaignResponse.IsSuccessStatusCode) {
+            _output.WriteLine(createCampaignResponseJson);
+        }
+
+        //assert
+        Assert.Equal(System.Net.HttpStatusCode.BadRequest, createCampaignResponse.StatusCode);
+        Assert.Contains($"Content was empty after applying the messageTemplateChannels to the selected Template with Id:({templateAlias})", createCampaignResponseJson);
+    }
+
+    [Fact]
     public async Task Create_And_Retrieve_Campaign_By_Location_Header_Success() {
         //Create the Campaign
         var createCampaignRequest = new CreateCampaignRequest {
@@ -127,6 +364,132 @@ public class MessagesIntegrationTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task BulkAddToDistributionList_ExistingContactByRecipientId_AddsIfNotExists() {
+        //Create distribution list
+        var createDistributionListRequest = new CreateDistributionListRequest {
+            Name = "Test-Distribution-List"
+        };
+        var createDistributionListPayload = JsonSerializer.Serialize(createDistributionListRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var createDistributionListResponse = await _httpClient.PostAsync("/api/distribution-lists", new StringContent(createDistributionListPayload, Encoding.UTF8, "application/json"));
+        var createDistributionListResponseJson = await createDistributionListResponse.Content.ReadAsStringAsync();
+        if (!createDistributionListResponse.IsSuccessStatusCode) {
+            _output.WriteLine(createDistributionListResponseJson);
+        }
+
+        var distributionListLocation = createDistributionListResponse.Headers.Location;
+        var distributionListId = Guid.Parse(distributionListLocation!.Segments.Last());
+
+        // Generate import request
+        var csvLines = new[]
+        {
+            "RecipientId,Salutation,FirstName,LastName,FullName,Email,PhoneNumber,Locale",
+            "ABC123,Mr,John,Doe,John Doe,test@example.com,1234567890,en-US"
+        };
+        var csvContent = string.Join("\n", csvLines);
+        var csvBytes = Encoding.UTF8.GetBytes(csvContent);
+        var byteArrayContent = new ByteArrayContent(csvBytes);
+        byteArrayContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
+
+        var form = new MultipartFormDataContent {
+            { byteArrayContent, "File", "contacts.csv" }
+        };
+
+        var response = await _httpClient.PostAsync($"{createDistributionListResponse.Headers.Location.PathAndQuery}/import", form);
+
+        var context = _serviceProvider.GetRequiredService<CampaignsDbContext>();
+        var contactInDb = await context.Contacts.FirstOrDefaultAsync(c => c.RecipientId == "ABC123");
+        Assert.NotNull(contactInDb);
+        Assert.Equal("test@example.com", contactInDb!.Email);
+
+        var link = await context.ContactDistributionLists
+            .FirstOrDefaultAsync(x => x.DistributionListId == distributionListId && x.ContactId == contactInDb.Id);
+
+        Assert.NotNull(link);
+    }
+
+    [Fact]
+    public async Task BulkAddToDistributionList_ExistingContactByEmailWithoutRecipientId_UpdatesContact() {
+        var context = _serviceProvider.GetRequiredService<CampaignsDbContext>();
+        var list = new DbDistributionList { Id = Guid.NewGuid(), Name = "test-list", CreatedBy = "user1" };
+        var contact = new DbContact {
+            Email = "match@example.com",
+            FirstName = "Old",
+            LastName = "Name",
+            RecipientId = null
+        };
+        context.DistributionLists.Add(list);
+        context.Contacts.Add(contact);
+        await context.SaveChangesAsync();
+
+        var link = new DbDistributionListContact {
+            ContactId = contact.Id,
+            DistributionListId = list.Id
+        };
+        context.ContactDistributionLists.Add(link);
+        await context.SaveChangesAsync();
+
+        var requests = new List<CreateDistributionListContactRequest>
+        {
+            new()
+            {
+                RecipientId = null,
+                Email = "match@example.com",
+                FirstName = "Updated",
+                LastName = "Name",
+                PhoneNumber = "1234567890"
+            }
+        };
+
+        var service = _serviceProvider.GetRequiredService<IContactService>();
+        await service.BulkAddToDistributionList(list.Id, requests);
+
+        var updated = await context.Contacts.FirstOrDefaultAsync(c => c.Email == "match@example.com");
+        Assert.NotNull(updated);
+        Assert.Equal("Updated", updated!.FirstName);
+        Assert.Equal("1234567890", updated.PhoneNumber);
+    }
+
+    [Fact]
+    public async Task BulkAddToDistributionList_ExistingContactByRecipientId_AlreadyLinked_SkipsAdd() {
+        var context = _serviceProvider.GetRequiredService<CampaignsDbContext>();
+        var list = new DbDistributionList { Id = Guid.NewGuid(), Name = "test-list2", CreatedBy = "user1" };
+        var contact = new DbContact {
+            RecipientId = "EXIST123",
+            Email = "exist@example.com",
+            FirstName = "Already",
+            LastName = "There"
+        };
+        context.DistributionLists.Add(list);
+        context.Contacts.Add(contact);
+        await context.SaveChangesAsync();
+
+        var link = new DbDistributionListContact {
+            ContactId = contact.Id,
+            DistributionListId = list.Id
+        };
+        context.ContactDistributionLists.Add(link);
+        await context.SaveChangesAsync();
+
+        var requests = new List<CreateDistributionListContactRequest>
+        {
+            new()
+            {
+                RecipientId = "EXIST123",
+                Email = "exist@example.com",
+                FirstName = "Should",
+                LastName = "BeIgnored"
+            }
+        };
+
+        var service = _serviceProvider.GetRequiredService<IContactService>();
+        await service.BulkAddToDistributionList(list.Id, requests);
+
+        var duplicates = await context.ContactDistributionLists
+            .CountAsync(x => x.ContactId == contact.Id && x.DistributionListId == list.Id);
+        Assert.Equal(1, duplicates);
+    }
+
+    [Fact]
     public async Task Create_Distribution_List_And_Add_Contacts_With_Comminication_Preferences_Success() {
         //Create Distribution List
         var createDistributionListRequest = new CreateDistributionListRequest {
@@ -147,7 +510,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
             Email = "test@email.gr",
             PhoneNumber = "1234567890",
             Salutation = "Mr",
-            CommunicationPreferences = ContactCommunicationChannelKind.Any | ContactCommunicationChannelKind.Email
+            CommunicationPreferences = ContactChannelKind.Any | ContactChannelKind.Email
         };
         var addContactPayload = JsonSerializer.Serialize(addContactRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
         var addContactResponse = await _httpClient.PostAsync($"{createDistributionListResponse.Headers.Location.PathAndQuery}/contacts", new StringContent(addContactPayload, Encoding.UTF8, "application/json"));

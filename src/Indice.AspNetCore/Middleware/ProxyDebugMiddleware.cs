@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -54,4 +53,3 @@ public static class ProxyDebugExtensions
         return endpoints.MapGet(pattern, pipeline);
     }
 }
-#nullable disable

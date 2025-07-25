@@ -1,4 +1,4 @@
-import { AfterContentChecked, AfterContentInit, AfterViewChecked, AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewChecked, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { AbstractControl, FormGroup, FormControl, Validators, FormBuilder, FormArray } from '@angular/forms';
 
 import Handlebars from "handlebars";
@@ -12,8 +12,6 @@ import { map } from 'rxjs/operators';
 import { SettingsStore } from 'src/app/features/settings/settings-store.service';
 import { MediaFile } from 'src/app/core/services/media-api.service';
 import { FileUtilitiesService } from 'src/app/shared/services/file-utilities.service';
-import { settings } from 'src/app/core/models/settings';
-import { CodeEditor } from '@acrodata/code-editor';
 import { languages } from '@codemirror/language-data';
 
 // codew mirror
@@ -153,7 +151,7 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
           this.channelsContent.push(channelForm);
           if (index === 0) {
             this._setSubjectPreview(content.title);
-            this._setBodyPreview(content.body);
+            this._setBodyPreview(content.body, channel);
           }
         }
         index++;
@@ -212,8 +210,9 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
     }
     const subject = formGroup.controls['subject'].value;
     const body = formGroup.controls['body'].value;
+    const channel = formGroup.controls['channel'].value;
     this._setSubjectPreview(subject);
-    this._setBodyPreview(body);
+    this._setBodyPreview(body, channel);
   }
 
   public onCampaignMetadataInput(event: any): void {
@@ -229,12 +228,13 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
 
   public onBodyInput(content: FormGroup): void {
     const body = content.controls['body'].value;
-    this._setBodyPreview(body);
+    const channel = content.controls['channel'].value;
+    this._setBodyPreview(body, channel);
   }
 
-  public onBodyInputValue(body: any): void {
+  public onBodyInputValue(body: any, channel: any): void {
     
-    this._setBodyPreview(body);
+    this._setBodyPreview(body, channel);
   }
 
   public openMediaLibraryInNewTab() {
@@ -277,12 +277,17 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
       this.subjectPreview = template(this.samplePayload);
     } catch (error) { }
   }
-  private _setBodyPreview(value: string | undefined): void {
+  private _setBodyPreview(value: string | undefined, channel?: any): void {
     if (!value) {
       this.bodyPreview = '';
     }
     try {
       const template = Handlebars.compile(value);
+      const isPlainText = channel?.toLowerCase() != 'email' && channel?.toLowerCase() != 'inbox'
+      if (isPlainText) {
+          this.bodyPreview = `<pre style="white-space: pre-wrap">${template(this.samplePayload)}</pre>`;
+          return;
+      }
       this.bodyPreview = template(this.samplePayload);
     } catch (error) { }
   }

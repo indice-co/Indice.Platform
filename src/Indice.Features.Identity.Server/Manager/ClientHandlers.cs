@@ -4,11 +4,17 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using Humanizer;
 using IdentityModel;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer;
+using Duende.IdentityServer.Extensions;
+using IdSrvModels = Duende.IdentityServer.Models;
+using IdSrvEntities = Duende.IdentityServer.EntityFramework.Entities;
+#else
 using IdentityServer4;
-using IdentityServer4.EntityFramework.Entities;
-using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Extensions;
-using IdentityServer4.Models;
+using IdSrvModels = IdentityServer4.Models;
+using IdSrvEntities = IdentityServer4.EntityFramework.Entities;
+#endif
 using Indice.AspNetCore.Extensions;
 using Indice.Events;
 using Indice.Features.Identity.Core;
@@ -25,8 +31,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Client = IdentityServer4.EntityFramework.Entities.Client;
-using ClientClaim = IdentityServer4.EntityFramework.Entities.ClientClaim;
+using Org.BouncyCastle.Asn1.X9;
 
 namespace Indice.Features.Identity.Server.Manager;
 
@@ -76,7 +81,7 @@ internal static class ClientHandlers
                 UserSsoLifetime = x.UserSsoLifetime,
                 FrontChannelLogoutUri = x.FrontChannelLogoutUri,
                 PairWiseSubjectSalt = x.PairWiseSubjectSalt,
-                AccessTokenType = (IdentityServer4.Models.AccessTokenType)x.AccessTokenType,
+                AccessTokenType = (IdSrvModels.AccessTokenType)x.AccessTokenType,
                 FrontChannelLogoutSessionRequired = x.FrontChannelLogoutSessionRequired,
                 IncludeJwtId = x.IncludeJwtId,
                 AllowAccessTokensViaBrowser = x.AllowAccessTokensViaBrowser,
@@ -90,8 +95,8 @@ internal static class ClientHandlers
                 AbsoluteRefreshTokenLifetime = x.AbsoluteRefreshTokenLifetime,
                 AllowOfflineAccess = x.AllowOfflineAccess,
                 NonEditable = x.NonEditable,
-                RefreshTokenExpiration = (IdentityServer4.Models.TokenExpiration)x.RefreshTokenExpiration,
-                RefreshTokenUsage = (IdentityServer4.Models.TokenUsage)x.RefreshTokenUsage,
+                RefreshTokenExpiration = (IdSrvModels.TokenExpiration)x.RefreshTokenExpiration,
+                RefreshTokenUsage = (IdSrvModels.TokenUsage)x.RefreshTokenUsage,
                 UpdateAccessTokenClaimsOnRefresh = x.UpdateAccessTokenClaimsOnRefresh,
                 BackChannelLogoutUri = x.BackChannelLogoutUri,
                 BackChannelLogoutSessionRequired = x.BackChannelLogoutSessionRequired,
@@ -143,9 +148,17 @@ internal static class ClientHandlers
         IConfiguration configuration,
         ClaimsPrincipal currentUser,
         CreateClientRequest request) {
+        
         if (request is null) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(string.Empty, "Request body cannot be null."));
         }
+        // sanitaze whitespace sensitive data
+        request.ClientId = request.ClientId.Trim();
+        request.RedirectUri = request.RedirectUri?.Trim();
+        request.ClientUri = request.ClientUri?.Trim();
+        request.LogoUri = request.LogoUri?.Trim();
+        request.PostLogoutRedirectUri = request.PostLogoutRedirectUri?.Trim();
+
         var clientIdExists = (await configurationDbContext.Clients.CountAsync(x => x.ClientId == request.ClientId)) > 0;
         if (clientIdExists) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.ClientId).Camelize(), $"Client with id '{request.ClientId}' already exists."));
@@ -162,7 +175,10 @@ internal static class ClientHandlers
         return TypedResults.CreatedAtRoute(response, nameof(GetClient), new { clientId = client.ClientId });
     }
 
-    internal static async Task<Results<NoContent, NotFound>> UpdateClient(ExtendedConfigurationDbContext configurationDbContext, string clientId, UpdateClientRequest request) {
+    internal static async Task<Results<NoContent, NotFound>> UpdateClient(
+        ExtendedConfigurationDbContext configurationDbContext,
+        IPlatformEventService eventService,
+        string clientId, UpdateClientRequest request) {
         var client = await configurationDbContext.Clients.Include(x => x.Properties).Include(x => x.IdentityProviderRestrictions).SingleOrDefaultAsync(x => x.ClientId == clientId);
         if (client == null) {
             return TypedResults.NotFound();
@@ -178,10 +194,10 @@ internal static class ClientHandlers
         client.AlwaysSendClientClaims = request.AlwaysSendClientClaims;
         client.AuthorizationCodeLifetime = request.AuthorizationCodeLifetime;
         client.BackChannelLogoutSessionRequired = request.BackChannelLogoutSessionRequired;
-        client.BackChannelLogoutUri = request.BackChannelLogoutUri;
+        client.BackChannelLogoutUri = request.BackChannelLogoutUri?.Trim();
         client.ClientClaimsPrefix = request.ClientClaimsPrefix;
         client.ClientName = request.ClientName;
-        client.ClientUri = request.ClientUri;
+        client.ClientUri = request.ClientUri?.Trim();
         client.ConsentLifetime = request.ConsentLifetime;
         client.Description = request.Description;
         client.DeviceCodeLifetime = request.DeviceCodeLifetime;
@@ -190,7 +206,7 @@ internal static class ClientHandlers
         client.FrontChannelLogoutUri = request.FrontChannelLogoutUri;
         client.IdentityTokenLifetime = request.IdentityTokenLifetime;
         client.IncludeJwtId = request.IncludeJwtId;
-        client.LogoUri = request.LogoUri;
+        client.LogoUri = request.LogoUri?.Trim();
         client.PairWiseSubjectSalt = request.PairWiseSubjectSalt;
         client.RefreshTokenExpiration = (int)request.RefreshTokenExpiration;
         client.RefreshTokenUsage = (int)request.RefreshTokenUsage;
@@ -204,7 +220,7 @@ internal static class ClientHandlers
             client.EnableLocalLogin = request.EnableLocalLogin.Value;
         }
         client.IdentityProviderRestrictions.RemoveAll(x => true);
-        client.IdentityProviderRestrictions.AddRange(request.IdentityProviderRestrictions.Select(provider => new ClientIdPRestriction {
+        client.IdentityProviderRestrictions.AddRange(request.IdentityProviderRestrictions.Select(provider => new IdSrvEntities.ClientIdPRestriction {
             Provider = provider,
             Client = client
         }));
@@ -215,24 +231,27 @@ internal static class ClientHandlers
             clientTranslations.Value = request.Translations.ToJson() ?? string.Empty;
         }
         await configurationDbContext.SaveChangesAsync();
+        await eventService.Publish(new ClientUpdatedEvent(ClientEventContext.InitializeFromClient(client)));
         return TypedResults.NoContent();
     }
 
-    internal static async Task<Results<Ok<ClaimInfo>, NotFound, ValidationProblem>> AddClientClaim(ExtendedConfigurationDbContext configurationDbContext, string clientId, CreateClaimRequest request) {
+    internal static async Task<Results<Ok<ClaimInfo>, NotFound, ValidationProblem>> AddClientClaim(
+        ExtendedConfigurationDbContext configurationDbContext,
+        IPlatformEventService eventService, 
+        string clientId, CreateClaimRequest request) {
         var client = await configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
         if (client == null) {
             return TypedResults.NotFound();
         }
-        var claimToAdd = new ClientClaim {
+        var claimToAdd = new IdSrvEntities.ClientClaim {
             Client = client,
             ClientId = client.Id,
             Type = request.Type,
             Value = request.Value
         };
-        client.Claims = new List<ClientClaim> {
-            claimToAdd
-        };
+        client.Claims = [claimToAdd];
         await configurationDbContext.SaveChangesAsync();
+        await eventService.Publish(new ClientUpdatedEvent(ClientEventContext.InitializeFromClient(client)));
         return TypedResults.Ok(new ClaimInfo {
             Id = claimToAdd.Id,
             Type = claimToAdd.Type,
@@ -240,22 +259,29 @@ internal static class ClientHandlers
         });
     }
 
-    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteClientClaim(ExtendedConfigurationDbContext configurationDbContext, string clientId, int claimId) {
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteClientClaim(
+        ExtendedConfigurationDbContext configurationDbContext,
+        IPlatformEventService eventService, 
+        string clientId, int claimId) {
         var client = await configurationDbContext.Clients.Include(x => x.Claims).SingleOrDefaultAsync(x => x.ClientId == clientId);
         if (client == null) {
             return TypedResults.NotFound();
         }
-        client.Claims ??= new List<ClientClaim>();
+        client.Claims ??= [];
         var claimToRemove = client.Claims.SingleOrDefault(x => x.Id == claimId);
         if (claimToRemove == null) {
             return TypedResults.NotFound();
         }
         client.Claims.Remove(claimToRemove);
         await configurationDbContext.SaveChangesAsync();
+        await eventService.Publish(new ClientUpdatedEvent(ClientEventContext.InitializeFromClient(client)));
         return TypedResults.NoContent();
     }
 
-    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> UpdateClientUrls(ExtendedConfigurationDbContext configurationDbContext, string clientId, UpdateClientUrls request) {
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> UpdateClientUrls(
+        ExtendedConfigurationDbContext configurationDbContext, 
+        IPlatformEventService eventService, 
+        string clientId, UpdateClientUrls request) {
         var client = await configurationDbContext
             .Clients
             .Include(x => x.AllowedCorsOrigins)
@@ -269,49 +295,53 @@ internal static class ClientHandlers
         client.RedirectUris?.RemoveAll(x => true);
         client.PostLogoutRedirectUris?.RemoveAll(x => true);
         if (request.AllowedCorsOrigins?.Count() > 0) {
-            client.AllowedCorsOrigins!.AddRange(request.AllowedCorsOrigins.Select(x => new ClientCorsOrigin {
+            client.AllowedCorsOrigins!.AddRange(request.AllowedCorsOrigins.Select(x => new IdSrvEntities.ClientCorsOrigin {
                 ClientId = client.Id,
-                Origin = x.TrimEnd('/')
+                Origin = x.Trim().TrimEnd('/')
             }));
         }
         if (request.RedirectUris?.Count() > 0) {
-            client.RedirectUris!.AddRange(request.RedirectUris.Select(x => new ClientRedirectUri {
+            client.RedirectUris!.AddRange(request.RedirectUris.Select(x => new IdSrvEntities.ClientRedirectUri {
                 ClientId = client.Id,
-                RedirectUri = x
+                RedirectUri = x.Trim()
             }));
         }
         if (request.PostLogoutRedirectUris?.Count() > 0) {
-            client.PostLogoutRedirectUris!.AddRange(request.PostLogoutRedirectUris.Select(x => new ClientPostLogoutRedirectUri {
+            client.PostLogoutRedirectUris!.AddRange(request.PostLogoutRedirectUris.Select(x => new IdSrvEntities.ClientPostLogoutRedirectUri {
                 ClientId = client.Id,
-                PostLogoutRedirectUri = x
+                PostLogoutRedirectUri = x.Trim()
             }));
         }
         await configurationDbContext.SaveChangesAsync();
+        await eventService.Publish(new ClientUpdatedEvent(ClientEventContext.InitializeFromClient(client)));
         return TypedResults.NoContent();
     }
 
-    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> AddClientResources(ExtendedConfigurationDbContext configurationDbContext, string clientId, string[] resources) {
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> AddClientResources(
+        ExtendedConfigurationDbContext configurationDbContext, 
+        IPlatformEventService eventService, 
+        string clientId, string[] resources) {
         var client = await configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
         if (client == null) {
             return TypedResults.NotFound();
         }
-        resources ??= Array.Empty<string>();
-        client.AllowedScopes = new List<ClientScope>();
-        client.AllowedScopes.AddRange(resources.Select(x => new ClientScope {
-            ClientId = client.Id,
-            Scope = x
-        }));
+        resources ??= [];
+        client.AllowedScopes = [.. resources.Select(x => new IdSrvEntities.ClientScope { ClientId = client.Id, Scope = x })];
         await configurationDbContext.SaveChangesAsync();
+        await eventService.Publish(new ClientUpdatedEvent(ClientEventContext.InitializeFromClient(client)));
         return TypedResults.NoContent();
     }
 
-    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteClientResource(ExtendedConfigurationDbContext configurationDbContext, string clientId, string[] resources) {
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteClientResource(
+        ExtendedConfigurationDbContext configurationDbContext,
+        IPlatformEventService eventService, 
+        string clientId, string[] resources) {
         var client = await configurationDbContext.Clients.Include(x => x.AllowedScopes).SingleOrDefaultAsync(x => x.ClientId == clientId);
         if (client == null) {
             return TypedResults.NotFound();
         }
-        resources ??= Array.Empty<string>();
-        client.AllowedScopes ??= new List<ClientScope>();
+        resources ??= [];
+        client.AllowedScopes ??= [];
         var resourcesToRemove = client.AllowedScopes.Where(x => resources.Contains(x.Scope)).ToList();
         if (resourcesToRemove == null) {
             return TypedResults.NotFound();
@@ -320,40 +350,47 @@ internal static class ClientHandlers
             client.AllowedScopes.Remove(resource);
         }
         await configurationDbContext.SaveChangesAsync();
+        await eventService.Publish(new ClientUpdatedEvent(ClientEventContext.InitializeFromClient(client)));
         return TypedResults.NoContent();
     }
 
-    internal static async Task<Results<Ok<GrantTypeInfo>, NotFound, ValidationProblem>> AddClientGrantType(ExtendedConfigurationDbContext configurationDbContext, string clientId, string grantType) {
+    internal static async Task<Results<Ok<GrantTypeInfo>, NotFound, ValidationProblem>> AddClientGrantType(
+        ExtendedConfigurationDbContext configurationDbContext,
+        IPlatformEventService eventService, 
+        string clientId, string grantType) {
         var client = await configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
         if (client == null) {
             return TypedResults.NotFound();
         }
-        var grantTypeToAdd = new ClientGrantType {
+        var grantTypeToAdd = new IdSrvEntities.ClientGrantType {
             GrantType = grantType,
             ClientId = client.Id
         };
-        client.AllowedGrantTypes = new List<ClientGrantType> {
-            grantTypeToAdd
-        };
+        client.AllowedGrantTypes = [grantTypeToAdd];
         await configurationDbContext.SaveChangesAsync();
+        await eventService.Publish(new ClientUpdatedEvent(ClientEventContext.InitializeFromClient(client)));
         return TypedResults.Ok(new GrantTypeInfo {
             Id = grantTypeToAdd.Id,
             Name = grantTypeToAdd.GrantType
         });
     }
 
-    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteClientGrantType(ExtendedConfigurationDbContext configurationDbContext, string clientId, string grantType) {
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteClientGrantType(
+        ExtendedConfigurationDbContext configurationDbContext,
+        IPlatformEventService eventService, 
+        string clientId, string grantType) {
         var client = await configurationDbContext.Clients.Include(x => x.AllowedGrantTypes).SingleOrDefaultAsync(x => x.ClientId == clientId);
         if (client == null) {
             return TypedResults.NotFound();
         }
-        client.AllowedGrantTypes ??= new List<ClientGrantType>();
+        client.AllowedGrantTypes ??= [];
         var grantTypeToRemove = client.AllowedGrantTypes.SingleOrDefault(x => x.GrantType == grantType);
         if (grantTypeToRemove == null) {
             return TypedResults.NotFound();
         }
         client.AllowedGrantTypes.Remove(grantTypeToRemove);
         await configurationDbContext.SaveChangesAsync();
+        await eventService.Publish(new ClientUpdatedEvent(ClientEventContext.InitializeFromClient(client)));
         return TypedResults.NoContent();
     }
 
@@ -362,14 +399,14 @@ internal static class ClientHandlers
         if (client is null) {
             return TypedResults.NotFound();
         }
-        var newSecret = new ClientSecret {
+        var newSecret = new IdSrvEntities.ClientSecret {
             Description = request.Description,
             Value = request.Value!.ToSha256(),
             Expiration = request.Expiration,
             Type = IdentityServerConstants.SecretTypes.SharedSecret,
             ClientId = client.Id
         };
-        client.ClientSecrets = new List<ClientSecret> { newSecret };
+        client.ClientSecrets = [newSecret];
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.Ok(new SecretInfo {
             Id = newSecret.Id,
@@ -382,16 +419,21 @@ internal static class ClientHandlers
 
     internal static async Task<Results<Ok<SecretInfo>, NotFound, ValidationProblem>> UploadCertificate(ExtendedConfigurationDbContext configurationDbContext, string clientId, CertificateUploadRequest request) {
         if (request?.File == null) {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["file"] = new[] { "Please upload a certificate." } });
+            return TypedResults.ValidationProblem(ValidationErrors.AddError("file", "Please upload a certificate."));
         }
         var memoryStream = new MemoryStream();
         X509Certificate2 certificate;
         try {
             await request.File.CopyToAsync(memoryStream);
             var certificateBytes = memoryStream.ToArray();
+#if NET9_0_OR_GREATER
+            certificate = X509CertificateLoader.LoadPkcs12(certificateBytes, request.Password);
+#else
             certificate = new X509Certificate2(certificateBytes, request.Password);
+#endif
+
         } catch (CryptographicException) {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["file"] = new[] { "Uploaded certificate is not valid." } });
+            return TypedResults.ValidationProblem(ValidationErrors.AddError("file", "Uploaded certificate is not valid."));
         } finally {
             await memoryStream.DisposeAsync();
         }
@@ -399,14 +441,14 @@ internal static class ClientHandlers
         if (client == null) {
             return TypedResults.NotFound();
         }
-        var newSecret = new ClientSecret {
+        var newSecret = new IdSrvEntities.ClientSecret {
             Description = certificate.Subject,
             Value = Convert.ToBase64String(certificate.GetRawCertData()),
             Expiration = DateTime.Parse(certificate.GetExpirationDateString()),
             Type = IdentityServerConstants.SecretTypes.X509CertificateBase64,
             ClientId = client.Id
         };
-        client.ClientSecrets = new List<ClientSecret> { newSecret };
+        client.ClientSecrets = [newSecret];
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.Ok(new SecretInfo {
             Id = newSecret.Id,
@@ -419,16 +461,20 @@ internal static class ClientHandlers
 
     internal static async Task<Results<Ok<SecretInfoBase>, NotFound, ValidationProblem>> GetCertificateMetadata(CertificateUploadRequest request) {
         if (request?.File == null) {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["file"] = new[] { "Please upload a certificate." } });
+            return TypedResults.ValidationProblem(ValidationErrors.AddError("file", "Please upload a certificate."));
         }
         var memoryStream = new MemoryStream();
         X509Certificate2 certificate;
         try {
             await request.File.CopyToAsync(memoryStream);
             var certificateBytes = memoryStream.ToArray();
+#if NET9_0_OR_GREATER
+            certificate = X509CertificateLoader.LoadPkcs12(certificateBytes, request.Password);
+#else
             certificate = new X509Certificate2(certificateBytes, request.Password);
+#endif
         } catch (CryptographicException) {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["file"] = new[] { "Uploaded certificate is not valid." } });
+            return TypedResults.ValidationProblem(ValidationErrors.AddError("file", "Uploaded certificate is not valid."));
         } finally {
             await memoryStream.DisposeAsync();
         }
@@ -451,12 +497,16 @@ internal static class ClientHandlers
             return TypedResults.NotFound();
         }
         if (clientSecret.Type != IdentityServerConstants.SecretTypes.X509CertificateBase64) {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["type"] = new[] { $"A secret of type {clientSecret.Type} cannot be downloaded." } });
+            return TypedResults.ValidationProblem(ValidationErrors.AddError("type", $"A secret of type {clientSecret.Type} cannot be downloaded."));
         }
         X509Certificate2? certificate = null;
         byte[] certificateBytes;
         try {
+#if NET9_0_OR_GREATER
+            certificate = X509CertificateLoader.LoadCertificate(Convert.FromBase64String(clientSecret.Value));
+#else
             certificate = new X509Certificate2(Convert.FromBase64String(clientSecret.Value));
+#endif
             certificateBytes = certificate.Export(X509ContentType.Cert);
         } catch (CryptographicException) {
             throw;
@@ -471,9 +521,7 @@ internal static class ClientHandlers
         if (client == null) {
             return TypedResults.NotFound();
         }
-        if (client.ClientSecrets == null) {
-            client.ClientSecrets = new List<ClientSecret>();
-        }
+        client.ClientSecrets ??= [];
         var secretToRemove = client.ClientSecrets.SingleOrDefault(x => x.Id == secretId);
         if (secretToRemove == null) {
             return TypedResults.NotFound();
@@ -483,13 +531,17 @@ internal static class ClientHandlers
         return TypedResults.NoContent();
     }
 
-    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteClient(ExtendedConfigurationDbContext configurationDbContext, string clientId) {
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteClient(
+        ExtendedConfigurationDbContext configurationDbContext,
+        IPlatformEventService eventService,
+        string clientId) {
         var client = await configurationDbContext.Clients.AsNoTracking().SingleOrDefaultAsync(x => x.ClientId == clientId);
         if (client == null) {
             return TypedResults.NotFound();
         }
         configurationDbContext.Clients.Remove(client);
         await configurationDbContext.SaveChangesAsync();
+        await eventService.Publish(new ClientDeletedEvent(ClientEventContext.InitializeFromClient(client)));
         return TypedResults.NoContent();
     }
 
@@ -503,7 +555,7 @@ internal static class ClientHandlers
             .Where(x => x.ClientId == clientId)
             .SingleOrDefaultAsync();
         if (client is null) {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { [nameof(Client.Id).Camelize()] = new[] { "Requested client does not exist." } });
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(clientId), "Requested client does not exist."));
         }
         var themeConfig = client.Properties.Where(x => x.Key == ClientPropertyKeys.ThemeConfig).FirstOrDefault();
         return TypedResults.Ok(new ClientThemeConfigResponse {
@@ -521,12 +573,12 @@ internal static class ClientHandlers
             .Where(x => x.ClientId == clientId)
             .SingleOrDefaultAsync();
         if (client is null) {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { [nameof(Client.Id).Camelize()] = new[] { "Requested client does not exist." } });
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(clientId), "Requested client does not exist."));
         }
         var themeConfig = client.Properties.Where(x => x.Key == ClientPropertyKeys.ThemeConfig).FirstOrDefault();
         var themeConfigValue = JsonSerializer.Serialize(request, JsonSerializerOptionDefaults.GetDefaultSettings());
         if (themeConfig is null) {
-            client.Properties.Add(new ClientProperty {
+            client.Properties.Add(new IdSrvEntities.ClientProperty {
                 Client = client,
                 ClientId = client.Id,
                 Key = ClientPropertyKeys.ThemeConfig,
@@ -539,14 +591,20 @@ internal static class ClientHandlers
         return TypedResults.NoContent();
     }
 
-    private static string GetClientSecretValue(ClientSecret clientSecret) {
+    private static string GetClientSecretValue(IdSrvEntities.ClientSecret clientSecret) {
         switch (clientSecret.Type) {
             case IdentityServerConstants.SecretTypes.SharedSecret:
             case IdentityServerConstants.SecretTypes.JsonWebKey:
                 return $"{clientSecret.Value.Substring(0, 3)}***********";
             case IdentityServerConstants.SecretTypes.X509CertificateBase64:
                 var certificateData = Convert.FromBase64String(clientSecret.Value);
-                using (var certificate = new X509Certificate2(certificateData)) {
+
+#if NET9_0_OR_GREATER
+                var certificate = X509CertificateLoader.LoadCertificate(certificateData);
+#else
+                var certificate = new X509Certificate2(certificateData);
+#endif
+                using (certificate) {
                     return $"Thumbprint: {certificate.Thumbprint}, Expiration Date: {certificate.GetExpirationDateString()}";
                 }
             case IdentityServerConstants.SecretTypes.X509CertificateName:
@@ -557,8 +615,8 @@ internal static class ClientHandlers
         }
     }
 
-    private static Client CreateForType(ClientType clientType, string authorityUri, CreateClientRequest clientRequest) {
-        var client = new Client {
+    private static IdSrvEntities.Client CreateForType(ClientType clientType, string authorityUri, CreateClientRequest clientRequest) {
+        var client = new IdSrvEntities.Client {
             ClientId = clientRequest.ClientId,
             ClientName = clientRequest.ClientName,
             Description = clientRequest.Description,
@@ -566,22 +624,20 @@ internal static class ClientHandlers
             LogoUri = clientRequest.LogoUri,
             RequireConsent = clientRequest.RequireConsent,
             BackChannelLogoutSessionRequired = true,
-            AllowedScopes = clientRequest.IdentityResources.Union(clientRequest.ApiResources).Select(scope => new ClientScope { Scope = scope }).ToList(),
+            AllowedScopes = clientRequest.IdentityResources.Union(clientRequest.ApiResources)
+                                                           .Select(scope => new IdSrvEntities.ClientScope { Scope = scope })
+                                                           .ToList(),
             EnableLocalLogin = true,
             Enabled = true
         };
         if (!string.IsNullOrEmpty(clientRequest.RedirectUri)) {
-            client.RedirectUris = new List<ClientRedirectUri> {
-                new ClientRedirectUri { RedirectUri = clientRequest.RedirectUri }
-            };
+            client.RedirectUris = [new () { RedirectUri = clientRequest.RedirectUri }];
         }
         if (!string.IsNullOrEmpty(clientRequest.PostLogoutRedirectUri)) {
-            client.PostLogoutRedirectUris = new List<ClientPostLogoutRedirectUri> {
-                new ClientPostLogoutRedirectUri { PostLogoutRedirectUri = clientRequest.PostLogoutRedirectUri }
-            };
+            client.PostLogoutRedirectUris = [new () { PostLogoutRedirectUri = clientRequest.PostLogoutRedirectUri }];
         }
-        if (clientRequest.Secrets.Any()) {
-            client.ClientSecrets = clientRequest.Secrets.Select(x => new ClientSecret {
+        if (clientRequest.Secrets.Count != 0) {
+            client.ClientSecrets = clientRequest.Secrets.Select(x => new IdSrvEntities.ClientSecret {
                 Type = IdentityServerConstants.SecretTypes.SharedSecret,
                 Description = x.Description,
                 Expiration = x.Expiration,
@@ -594,65 +650,33 @@ internal static class ClientHandlers
         }
         switch (clientType) {
             case ClientType.SPA:
-                client.AllowedGrantTypes = new List<ClientGrantType> {
-                    new ClientGrantType {
-                        GrantType = GrantType.AuthorizationCode
-                    }
-                };
+                client.AllowedGrantTypes = [new() { GrantType = IdSrvModels.GrantType.AuthorizationCode }];
                 client.RequirePkce = true;
                 client.RequireClientSecret = false;
-                client.AllowedCorsOrigins = new List<ClientCorsOrigin> {
-                    new ClientCorsOrigin {
-                        Origin = clientRequest.ClientUri ?? authorityUri
-                    }
-                };
+                client.AllowedCorsOrigins = [new() { Origin = clientRequest.ClientUri ?? authorityUri }];
                 break;
             case ClientType.WebApp:
-                client.AllowedGrantTypes = new List<ClientGrantType> {
-                    new ClientGrantType {
-                        GrantType = GrantType.Hybrid
-                    }
-                };
+                client.AllowedGrantTypes = [new() { GrantType = IdSrvModels.GrantType.Hybrid }];
                 client.RequirePkce = true;
                 break;
             case ClientType.Native:
-                client.AllowedGrantTypes = new List<ClientGrantType> {
-                    new ClientGrantType {
-                        GrantType = GrantType.AuthorizationCode
-                    }
-                };
+                client.AllowedGrantTypes = [new() { GrantType = IdSrvModels.GrantType.AuthorizationCode }];
                 client.RequirePkce = true;
                 client.RequireClientSecret = false;
                 break;
             case ClientType.Machine:
-                client.AllowedGrantTypes = new List<ClientGrantType> {
-                    new ClientGrantType {
-                        GrantType = GrantType.ClientCredentials
-                    }
-                };
+                client.AllowedGrantTypes = [new() { GrantType = IdSrvModels.GrantType.ClientCredentials }];
                 client.RequireConsent = false;
                 break;
             case ClientType.Device:
-                client.AllowedGrantTypes = new List<ClientGrantType> {
-                    new ClientGrantType {
-                        GrantType = GrantType.DeviceFlow
-                    }
-                };
+                client.AllowedGrantTypes = [new() { GrantType = IdSrvModels.GrantType.DeviceFlow }];
                 break;
             case ClientType.SPALegacy:
-                client.AllowedGrantTypes = new List<ClientGrantType> {
-                    new ClientGrantType {
-                        GrantType = GrantType.Implicit
-                    }
-                };
+                client.AllowedGrantTypes = [new () { GrantType = IdSrvModels.GrantType.Implicit }];
                 client.RequirePkce = false;
                 client.RequireClientSecret = false;
                 client.AllowAccessTokensViaBrowser = true;
-                client.AllowedCorsOrigins = new List<ClientCorsOrigin> {
-                    new ClientCorsOrigin {
-                        Origin = clientRequest.ClientUri ?? authorityUri
-                    }
-                };
+                client.AllowedCorsOrigins = [new () { Origin = clientRequest.ClientUri ?? authorityUri }];
                 break;
             default:
                 throw new ArgumentNullException(nameof(clientType), "Cannot determine the type of the client.");
@@ -660,9 +684,9 @@ internal static class ClientHandlers
         return client;
     }
 
-    private static void AddClientTranslations(Client client, string? translations) {
-        client.Properties ??= new List<ClientProperty>();
-        client.Properties.Add(new ClientProperty {
+    private static void AddClientTranslations(IdSrvEntities.Client client, string? translations) {
+        client.Properties ??= [];
+        client.Properties.Add(new IdSrvEntities.ClientProperty {
             Key = ClientPropertyKeys.Translation,
             Value = translations ?? string.Empty,
             Client = client

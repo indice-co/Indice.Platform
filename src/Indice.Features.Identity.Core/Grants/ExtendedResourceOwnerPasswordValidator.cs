@@ -1,10 +1,15 @@
-﻿using System.Net.Http;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Text;
 using IdentityModel;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Models;
+using Duende.IdentityServer.Services;
+using Duende.IdentityServer.Validation;
+#else
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Validation;
+#endif
 using Indice.AspNetCore.Extensions;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
@@ -14,7 +19,6 @@ using Indice.Features.Identity.Core.Totp;
 using Indice.Security;
 using Indice.Services;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Identity.Core.Grants;
@@ -39,15 +43,15 @@ public class ExtendedResourceOwnerPasswordValidator<TUser>(
     private readonly ExtendedUserManager<TUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 
     private readonly IDictionary<string, string> _errors = new Dictionary<string, string> {
-        { ResourceOwnerPasswordErrorCodes.LockedOut, "User is locked out." },
-        { ResourceOwnerPasswordErrorCodes.NotAllowed, "User is not allowed." },
-        { ResourceOwnerPasswordErrorCodes.InvalidCredentials, "User provided invalid credentials." },
-        { ResourceOwnerPasswordErrorCodes.NotFound, "User was not found." },
-        { ResourceOwnerPasswordErrorCodes.Blocked, "User is blocked." },
-        { ResourceOwnerPasswordErrorCodes.Traveler, "User's login is suspicious." },
-        { ResourceOwnerPasswordErrorCodes.NotMobileClient, "Client is not a mobile device." },
-        { ResourceOwnerPasswordErrorCodes.MissingDeviceId, "Device id is missing." },
-        { ResourceOwnerPasswordErrorCodes.DeviceNotFound, "Device was not found." }
+        [ResourceOwnerPasswordErrorCodes.LockedOut] = "User is locked out.",
+        [ResourceOwnerPasswordErrorCodes.NotAllowed] = "User is not allowed.",
+        [ResourceOwnerPasswordErrorCodes.InvalidCredentials] = "User provided invalid credentials.",
+        [ResourceOwnerPasswordErrorCodes.NotFound] = "User was not found.",
+        [ResourceOwnerPasswordErrorCodes.Blocked] = "User is blocked.",
+        [ResourceOwnerPasswordErrorCodes.Traveler] = "User's login is suspicious",
+        [ResourceOwnerPasswordErrorCodes.NotMobileClient] = "Client is not a mobile device",
+        [ResourceOwnerPasswordErrorCodes.MissingDeviceId] = "Device id is missing.",
+        [ResourceOwnerPasswordErrorCodes.DeviceNotFound] = "Device was not found."
     };
 
     /// <inheritdoc />
@@ -85,6 +89,7 @@ public class ExtendedResourceOwnerPasswordValidator<TUser>(
                 clientName: context.Request.Client.ClientName,
                 authenticationMethods: [context.Result.Subject.Identity?.AuthenticationType!]
             ));
+        await _userManager.SetLastSignInDateAsync(user, DateTimeOffset.UtcNow);
         } else {
             await _eventService.RaiseAsync(new ExtendedUserLoginFailureEvent(
                 user.UserName!,
@@ -231,7 +236,7 @@ public class IdentityResourceOwnerPasswordValidator<TUser>(
             await _userManager.ResetAccessFailedCountAsync(context.User);
         }
         var subject = await _userManager.GetUserIdAsync(context.User);
-        var ip = _httpContextAccessor.HttpContext.GetClientIpAddress();
+        var ip = _httpContextAccessor.HttpContext!.GetClientIpAddress();
         var claims = new List<Claim>();
         if (ip is not null) {
             claims.Add(new Claim(BasicClaimTypes.IPAddress, ip.ToString()));

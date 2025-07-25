@@ -10,7 +10,7 @@ public class CreateDraftCaseRequest
     public string? GroupId { get; set; }
 
     /// <summary>The Customer metadata.</summary>
-    public CustomerMeta? Customer { get; set; }
+    public ContactMeta? Owner { get; set; }
 
     /// <summary>A list of case metadata in key value pairs</summary>
     public Dictionary<string, string> Metadata { get; set; } = [];

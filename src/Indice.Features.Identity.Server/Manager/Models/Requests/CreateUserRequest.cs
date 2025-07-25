@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 
 namespace Indice.Features.Identity.Server.Manager.Models;
@@ -31,6 +32,9 @@ public class CreateUserRequest
     public bool? BypassPasswordValidation { get; set; }
     /// <summary>Gets or sets a flag indicating if two factor authentication is enabled for this user.</summary>
     public bool? TwoFactorEnabled { get; set; }
+    /// <summary>Indicates whether the user should enroll for the two factor authentication.</summary>
+    /// <remarks>In case this is empty or null then the two factor is optional.</remarks>
+    public MfaPolicy? TwoFactorPolicy { get; set; }
     /// <summary>Dynamic claims that have been marked as required.</summary>
     public List<BasicClaimInfo> Claims { get; set; } = new List<BasicClaimInfo>();
     /// <summary>The names of the roles that the user will be added to.</summary>

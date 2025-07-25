@@ -1,5 +1,8 @@
 name: "Publish to NuGet"
 
+permissions:
+  contents: read
+
 on:
   workflow_dispatch:
   # push:
@@ -9,17 +12,23 @@ on:
 
 jobs:
   build:
-
+    permissions:
+      actions: read
+      checks: write
     runs-on: windows-2022
-
     steps:
     # Checkout
+    - name: Harden Runner
+      uses: step-security/harden-runner@002fdce3c6a235733a90a27c80493a3241e56863 # v2.12.1
+      with:
+        egress-policy: audit
+
     - name: Checkout Repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
     
     #Setup .NET Core
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.2.3
       with:
         dotnet-version: 8.x
         source-url: https://api.nuget.org/v3/index.json
@@ -28,42 +37,18 @@ jobs:
         
     # Setup Node.js
     - name: Use Node.js 20.x
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
       with:
         node-version: 20
-  
-    # Npm Install and build Identity UI
+
+    # Necessary for gulp tasks
     - name: NPM Install and Build Identity UI
       run: |
         cd src/Indice.Features.Identity.UI
         npm install --force
         npm run gulp -- copy:libs
         npm run gulp -- sass
-
-    # Npm Install Cases
-    - name: NPM Install Cases
-      run: |
-        cd src/Indice.Features.Cases.App
-        npm install
-
-    # Npm Install AdminUI
-    - name: NPM Install AdminUI
-      run: |
-        cd src/Indice.Features.Identity.AdminUI.App
-        npm install
-
-    # # Npm Install Messages
-    - name: NPM Install Messages
-      run: |
-        cd src/Indice.Features.Messages.App
-        npm install
-
-    # # Npm Install Risk App
-    - name: NPM Install Risk
-      run: |
-        cd src/Indice.Features.Risk.App
-        npm install
-
+  
     #Create .nuget dir
     - name: Create .nuget dir
       shell: pwsh
@@ -87,14 +72,13 @@ jobs:
     - name: Dotnet build
       run: dotnet build Indice.Platform.slnf --no-restore --configuration Release
      
-  
     # TEST 
     - name: Test with dotnet
       run: dotnet test --no-build --configuration Release --logger trx --results-directory "TestResults"
     
     # TEST REPORT
     - name: Test Reporter
-      uses: dorny/test-reporter@v1.9.1
+      uses: dorny/test-reporter@890a17cecf52a379fc869ab770a71657660be727 # v2.1.0
       if: always()
       with:
         name: DotNET Tests
@@ -107,5 +91,5 @@ jobs:
       run: ./pack.ps1
 
     # Push to NuGet
-    - name: Push generated package to GitHub registry
+    - name: Push nuget packages
       run: dotnet nuget push '**/Indice*.nupkg' --skip-duplicate -k ${{ secrets.NUGET_AUTH_TOKEN }}

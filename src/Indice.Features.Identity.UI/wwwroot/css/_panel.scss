@@ -251,6 +251,7 @@ li.idp {
             color: #ffffff;
             background-color: #4285F4;
             border-color: #4285F4;
+            position: relative;
 
             &:hover {
                 background-color: #4285F4CC;
@@ -273,7 +274,7 @@ li.idp {
                 background-repeat: no-repeat;
                 background-position: 10px center;
                 background-size: 24px;
-                margin-bottom: 5px;
+                margin-left: 0 !important;
             }
         }
     }
@@ -291,10 +292,10 @@ li.idp {
 
 .idp-apple {
     a:not(.remove-idp) {
-        background-size: 45px;
+        background-size: 24px;
         background-image: url(../img/idps/Apple.svg);
         background-repeat: no-repeat;
-        background-position: left center;
+        background-position: 10px center;
         padding-left: 36px;
         width: 100%;
         margin-bottom: 5px;
@@ -336,6 +337,51 @@ li.idp {
 
             &:hover {
                 background-color: rgba(0,0,0,0.09);
+            }
+        }
+    }
+}
+
+.idp-govgr {
+    background-color: rgb(0, 51, 117);
+
+    a {
+        background-image: url(../img/idps/GovGr.svg);
+        background-repeat: no-repeat;
+        background-position: 12px center;
+        padding-left: 36px;
+        width: 100%;
+
+        &:active {
+            background-image: url(../img/idps/GovGr.svg);
+        }
+
+        &:not([disabled]) {
+            &:not(.disabled) {
+                &:active {
+                    background-image: url(../img/idps/GovGr.svg);
+                }
+            }
+        }
+
+        &.btn-outline-govgr {
+            color: $microsoft-gray;
+            background-color: transparent;
+            border-color: $microsoft-gray;
+
+            &:hover {
+                color: #fff;
+                background-color: $microsoft-gray;
+            }
+        }
+
+        &.btn-govgr {
+            color: #fff;
+            background-color: rgb(0, 51, 117);
+
+
+            &:hover {
+                background-color: rgb(0, 51, 117, 0.8);
             }
         }
     }

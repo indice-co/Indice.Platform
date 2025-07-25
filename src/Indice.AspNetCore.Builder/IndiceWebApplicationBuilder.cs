@@ -41,6 +41,9 @@ public class IndiceWebApplicationBuilder : IHostApplicationBuilder
 
     /// <inheritdoc/>
     public IServiceCollection Services => InnerBuilder.Services;
+    
+    /// <inheritdoc/>
+    public ConfigureWebHostBuilder WebHost => InnerBuilder.WebHost;
 
     /// <inheritdoc/>
     void IHostApplicationBuilder.ConfigureContainer<TContainerBuilder>(IServiceProviderFactory<TContainerBuilder> factory, Action<TContainerBuilder>? configure) =>
@@ -59,17 +62,12 @@ public class IndiceWebApplicationBuilder : IHostApplicationBuilder
     public WebApplication Build() {
         var app = InnerBuilder.Build();
 
+        if (app.Configuration.UseCertificateForwarding()) {
+            app.UseCertificateForwarding();
+        }
         if (app.Configuration.ProxyEnabled()) {
             app.UseForwardedHeaders();
             app.UseHttpMethodOverride();
-        }
-
-        app.UseExceptionHandler();
-        app.UseStatusCodePages();
-        app.UseAuthentication();
-        app.UseAuthorization();
-        if (app.Environment.IsDevelopment()) {
-            app.UseDeveloperExceptionPage();
         }
         if (app.Configuration.UseRedirectToHost()) {
             var rewrite = new RewriteOptions();
@@ -82,8 +80,16 @@ public class IndiceWebApplicationBuilder : IHostApplicationBuilder
         if (app.Configuration.HstsEnabled()) {
             app.UseHsts();
         }
-        app.UseRequestLocalization();
+
         app.UseCors();
+        app.UseExceptionHandler();
+        app.UseStatusCodePages();
+        app.UseAuthentication();
+        app.UseAuthorization();
+        if (app.Environment.IsDevelopment()) {
+            app.UseDeveloperExceptionPage();
+        }
+        app.UseRequestLocalization();
         return app;
     }
 

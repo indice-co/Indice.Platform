@@ -10,13 +10,13 @@ public class ScheduledTask<TState> where TState : class
     /// <summary>The id.</summary>
     public string Id { get; set; } = Guid.NewGuid().ToString();
     /// <summary>The worker id.</summary>
-    public string WorkerId { get; set; }
+    public string? WorkerId { get; set; }
     /// <summary>Task group.</summary>
-    public string Group { get; set; }
+    public string? Group { get; set; }
     /// <summary>Task name.</summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
     /// <summary>The type name.</summary>
-    public string Type { get; set; }
+    public string Type { get; set; } = null!;
     /// <summary>The date.</summary>
     public DateTimeOffset LastExecution { get; set; }
     /// <summary>The date.</summary>
@@ -26,11 +26,11 @@ public class ScheduledTask<TState> where TState : class
     /// <summary>The status.</summary>
     public ScheduledTaskStatus Status { get; set; }
     /// <summary>The errors.</summary>
-    public string Errors { get; set; }
+    public string? Errors { get; set; }
     /// <summary>The last time an error occurred.</summary>
     public DateTimeOffset? LastErrorDate { get; set; }
     /// <summary>The payload.</summary>
-    public TState State { get; set; }
+    public TState State { get; set; } = null!;
     /// <summary>The status.</summary>
     public double Progress { get; set; }
     /// <summary>If this is set to false the schedule will be disabled</summary>

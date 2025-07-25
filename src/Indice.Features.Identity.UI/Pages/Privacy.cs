@@ -15,7 +15,7 @@ public abstract class BasePrivacyModel : BaseArticlePageModel
     /// <summary>Privacy page GET handler.</summary>
     public virtual async Task<IActionResult> OnGetAsync() {
         if (!string.IsNullOrWhiteSpace(UiOptions.PrivacyUrl) && Uri.IsWellFormedUriString(UiOptions.PrivacyUrl, UriKind.Absolute)) {
-            return Redirect(UiOptions.PrivacyUrl);
+            return await ExternalArticle(UiOptions.PrivacyUrl, Raw);
         }
         return await Article("Privacy Policy", "~/legal/privacy-policy.md", Raw);
     }

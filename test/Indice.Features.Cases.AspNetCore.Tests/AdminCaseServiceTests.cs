@@ -15,7 +15,7 @@ using NSubstitute;
 
 namespace Indice.Features.Cases.Tests;
 
-public class AdminCaseServiceTests : IDisposable
+public class AdminCaseServiceTests : IAsyncLifetime
 {
     public AdminCaseServiceTests() {
         var inMemorySettings = new Dictionary<string, string> {
@@ -37,16 +37,10 @@ public class AdminCaseServiceTests : IDisposable
 
     public ServiceProvider ServiceProvider { get; }
 
-    [Fact(Skip = "IQueryable throws exception, needs fixing")]
+    [Fact(Skip = "Not ready yet")]
     public async Task GetCases() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
         var options = ServiceProvider.GetRequiredService<IOptions<CasesOptions>>();
-        if (await dbContext.Database.EnsureCreatedAsync() || !dbContext.Cases.Any()) {
-            // seed here.
-            await dbContext.SeedAsync();
-        }
-
-        var mockCaseTypeService = Substitute.For<ICaseTypeService>();
         var mockCaseEventService = Substitute.For<IPlatformEventService>();
         var mockCaseAuthorization = Substitute.For<ICaseAuthorizationProvider>();
         var mockAdminCaseMessage = Substitute.For<IAdminCaseMessageService>();
@@ -55,7 +49,6 @@ public class AdminCaseServiceTests : IDisposable
             dbContext,
             options,
             mockCaseAuthorization,
-            mockCaseTypeService,
             mockAdminCaseMessage,
             mockCaseEventService
         );
@@ -67,22 +60,13 @@ public class AdminCaseServiceTests : IDisposable
                 Data = [(FilterClause)"data.customerId::Contains::(string)667"]
             }
         };
-        var result = await adminCaseService.GetCases(Admin(), listOptions);
+        var result = await adminCaseService.GetCases(Admin().UserToActor(options.Value), listOptions);
 
         Assert.NotEmpty(result.Items);
     }
-
-    public void Dispose() {
-        var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
-        dbContext.Database.EnsureDeleted();
-        ServiceProvider.Dispose();
-    }
-
-
-
     private static ClaimsPrincipal Admin() {
         var claims = new List<Claim> {
-            new Claim(BasicClaimTypes.Scope, CasesApiConstants.Scope),
+            new Claim(BasicClaimTypes.Scope, CasesCoreConstants.DefaultScopeName),
             new Claim(BasicClaimTypes.Subject, "CE21AF5A-FEDD-4BD6-BAE3-B7473E8A219D"),
             new Claim(BasicClaimTypes.Email, "Case API"),
             new Claim(BasicClaimTypes.GivenName, "Case API"),
@@ -91,5 +75,19 @@ public class AdminCaseServiceTests : IDisposable
         };
         var identity = new ClaimsIdentity(claims, "Basic"); // By setting "Basic" we are making the identity "Authenticated" so we can user user.IsAuthenticated() property later in our code
         return new ClaimsPrincipal(identity);
+    }
+
+    public async Task InitializeAsync() {
+        var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>(); 
+        if (await dbContext.Database.EnsureCreatedAsync() || !dbContext.Cases.Any()) {
+            // seed here.
+            await dbContext.SeedAsync();
+        }
+    }
+
+    public async Task DisposeAsync() {
+        var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
+        await dbContext.Database.EnsureDeletedAsync();
+        await ServiceProvider.DisposeAsync();
     }
 }

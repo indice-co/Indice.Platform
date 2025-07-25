@@ -24,16 +24,14 @@
         </div>
         <div class="mb-3">
             <div class="row m-0 w-100">
-                <div class="col-12 py-1">
-                    @if (!string.IsNullOrEmpty(Model.View.NextStepUrl))
-                    {
-                        <a class="btn btn-info w-100" href="@Model.View.NextStepUrl">@Localizer["Next"]</a>
-                    }
-                    else
-                    {
-                        <button class="btn btn-info w-100" type="submit">@Localizer["Save"]</button>
-                    }
-                </div>
+                @if (!string.IsNullOrEmpty(Model.View.NextStepUrl))
+                {
+                    <a class="btn btn-info w-100" href="@Model.View.NextStepUrl">@Localizer["Next"]</a>
+                }
+                else
+                {
+                    <button class="btn btn-info w-100" type="submit">@Localizer["Save"]</button>
+                }
             </div>
         </div>
     </form>

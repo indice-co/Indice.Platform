@@ -27,7 +27,7 @@ internal class QuartzJobRunner : IJob
         try {
             using (var scope = _serviceProvider.CreateScope()) {
                 var jobType = context.JobDetail.JobType;
-                var job = scope.ServiceProvider.GetRequiredService(jobType) as IJob;
+                var job = (IJob)scope.ServiceProvider.GetRequiredService(jobType);
                 await job.Execute(context);
             }
         } catch (Exception exception) {

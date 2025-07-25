@@ -1,6 +1,7 @@
 import { CaseTypeUpdateService } from '../case-type-update.service';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { map, switchMap, tap } from 'rxjs';
 import { CasesApiService, CaseTypeRequest } from 'src/app/core/services/cases-api.service';
 
 @Component({
@@ -28,12 +29,11 @@ export class CaseTypeEditComponent implements OnInit {
     private caseTypesService: CaseTypeUpdateService) { }
 
   ngOnInit(): void {
-    this.route.params.subscribe(params => {
-      this.caseTypeId = params.caseTypeId;
-      this._api.getCaseTypeById(this.caseTypeId).subscribe(caseType => {
-        this.data = caseType;
-      });
-    });
+      this.route.params
+          .pipe(tap(params => this.caseTypeId = params.caseTypeId),
+                switchMap(params => this._api.getCaseTypeById(params.caseTypeId)))
+          .pipe(tap(caseType => this.data = caseType))
+          .subscribe();
   }
 
   onSubmit(event: any): void {

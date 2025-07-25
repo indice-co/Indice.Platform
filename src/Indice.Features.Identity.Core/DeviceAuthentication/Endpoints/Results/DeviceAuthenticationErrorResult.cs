@@ -1,6 +1,12 @@
-﻿using IdentityServer4.Extensions;
+﻿#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Extensions;
+using Duende.IdentityServer.Hosting;
+using Duende.IdentityServer.ResponseHandling;
+#else
+using IdentityServer4.Extensions;
 using IdentityServer4.Hosting;
 using IdentityServer4.ResponseHandling;
+#endif
 using Microsoft.AspNetCore.Http;
 
 namespace Indice.Features.Identity.Core.DeviceAuthentication.Endpoints.Results;

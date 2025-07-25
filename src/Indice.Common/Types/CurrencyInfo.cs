@@ -38,7 +38,7 @@ public class CurrencyInfo : IFormatProvider, ICustomFormatter
                     }
                 }
             } catch {
-                ;
+                //skip
             }
         }
         Currencies = currencies!.Values.OrderByDescending(ci => ci.IsCommon).ThenBy(ci => ci.IsCommon ? "0" : ci.Name).ToArray();
@@ -116,13 +116,7 @@ public class CurrencyInfo : IFormatProvider, ICustomFormatter
     public string Format(string? format, object? arg, IFormatProvider? formatProvider) {
         if (arg is double || arg is decimal || arg is int || arg is long || arg is short) {
             var numberFormatInfo = (NumberFormatInfo)GetFormat(typeof(NumberFormatInfo))!;
-            if (string.IsNullOrEmpty(format)) {
-                // By default, format doubles to 3 decimal places.
-                return string.Format(numberFormatInfo, "C", arg);
-            } else {
-                // If user supplied own format use it.
-                return ((double)arg).ToString(format, numberFormatInfo);
-            }
+            return ((double)arg).ToString(string.IsNullOrEmpty(format) ? "C" : format, numberFormatInfo);
         }
         // Format everything else normally.
         if (arg is IFormattable formattable) {
@@ -192,5 +186,5 @@ public class FractionInfo
     public int DecimalPlaces => (int)Math.Log10(Denominator);
     /// <summary>String representation.</summary>
     /// <returns></returns>
-    public override string ToString() => string.Format("{0} ({1})", Name, Symbol, Denominator);
+    public override string ToString() => string.Format("{0} ({1})", Name, Symbol);//, Denominator
 }

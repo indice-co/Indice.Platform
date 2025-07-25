@@ -29,13 +29,14 @@ public class ClientIpRestrictionMiddleware
     /// <param name="httpContext">Encapsulates all HTTP-specific information about an individual HTTP request.</param>
     public async Task Invoke(HttpContext httpContext) {
         if (!_options.Disabled && _options.TryMatch(httpContext, out var ipSafeList)) {
-            var remoteIp = httpContext.Connection.RemoteIpAddress;
+            var remoteIp = httpContext.Connection.RemoteIpAddress!;
+
             _logger.LogDebug("Request from Remote IP address: {RemoteIp}", remoteIp);
 
-            var bytes = remoteIp.GetAddressBytes();
+            var bytes = remoteIp?.GetAddressBytes();
             var badIp = true;
-            foreach (var address in ipSafeList) {
-                if (address.SequenceEqual(bytes)) {
+            foreach (var address in ipSafeList!) {
+                if (address.SequenceEqual(bytes!)) {
                     badIp = false;
                     break;
                 }
@@ -48,6 +49,8 @@ public class ClientIpRestrictionMiddleware
                 return;
             }
         }
-        await _next?.Invoke(httpContext);
+        if (_next is null)
+            return;
+        await _next.Invoke(httpContext);
     }
 }

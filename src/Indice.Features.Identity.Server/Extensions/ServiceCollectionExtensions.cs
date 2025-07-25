@@ -5,21 +5,26 @@ using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using FluentValidation;
 using IdentityModel;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer.ResponseHandling;
+using Duende.IdentityServer.Services;
+#else
 using IdentityServer4.EntityFramework.Services;
 using IdentityServer4.ResponseHandling;
 using IdentityServer4.Services;
+using IndiceStores = Indice.IdentityServer.EntityFramework.Storage.Stores;
+using Indice.Features.Identity.Core.TokenCreation;
+#endif
 using Indice.Configuration;
 using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.ResponseHandling;
-using Indice.Features.Identity.Core.TokenCreation;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Options;
 using Indice.Features.Identity.Server.Totp.Models;
 using Indice.Features.Identity.Server.Totp.Validators;
-using Indice.AspNetCore.Filters;
 using Indice.Security;
 using Indice.Serialization;
 using Indice.Services;
@@ -38,7 +43,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.FeatureManagement;
 using Microsoft.IdentityModel.Logging;
-using IndiceStores = Indice.IdentityServer.EntityFramework.Storage.Stores;
+using Indice.Features.Identity.Core.IdentityValidation;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -73,14 +78,9 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         services.AddTotpServiceFactory(configuration);
         var identityBuilder = services.AddIdentityDefaults(configuration);
         var identityServerBuilder = services.AddIdentityServerDefaults(configuration, environment, options.ConfigureConfigurationDbContext, options.ConfigurePersistedGrantDbContext);
-        services.AddAuthenticationDefaults();
+        services.AddAuthenticationDefaults(configuration);
         options.ConfigureIdentityDbContext ??= dbBuilder => dbBuilder.UseSqlServer(configuration.GetConnectionString("IdentityDb"));
         services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(options.ConfigureIdentityDbContext);
-        services.AddSession(options => {
-            options.IdleTimeout = TimeSpan.FromMinutes(10);
-            options.Cookie.HttpOnly = true;
-            options.Cookie.IsEssential = true;
-        });
         return new ExtendedIdentityServerBuilder(identityServerBuilder, identityBuilder, configuration, environment);
     }
 
@@ -93,12 +93,16 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         services.AddExternalProviderClaimsTransformation();
         services.Configure<CookieTempDataProviderOptions>(options => {
             options.Cookie.Expiration = TimeSpan.FromMinutes(30);
-        });
-        services.Configure<CookieAuthenticationOptions>(IdentityConstants.TwoFactorRememberMeScheme, options => {
-            options.ExpireTimeSpan = TimeSpan.FromDays(configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "RememberDurationInDays") ?? ExtendedSignInManager<User>.DEFAULT_MFA_REMEMBER_DURATION_IN_DAYS);
+            options.Cookie.Name = ExtendedIdentityConstants.TempDataCookieName;
         });
         services.TryAddScoped<IdentityMessageDescriber>();
         services.TryAddScoped<CallingCodesProvider>();
+        services.TryAddScoped<IUserRequirementProvider<User>, DefaultUserRequirementProvider<User>>();
+        services.AddScoped<IIdentityValidationActivity, RequiresTermsAcceptanceActivity>();
+        services.AddScoped<IIdentityValidationActivity, RequiresMfaOnboardingActivity>();
+        services.AddScoped<IIdentityValidationActivity, RequiresEmailVerificationActivity>();
+        services.AddScoped<IIdentityValidationActivity, RequiresPhoneNumberVerificationActivity>();
+        services.AddScoped<IIdentityValidationActivity, RequiresPasswordChangeActivity>();
         return services.AddIdentity<User, Role>()
                        .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
                        .AddExtendedUserManager()
@@ -107,7 +111,9 @@ public static class IdentityServerEndpointServiceCollectionExtensions
                        .AddClaimsPrincipalFactory<ExtendedUserClaimsPrincipalFactory<User, Role>>()
                        .AddDefaultTokenProviders()
                        .AddExtendedPhoneNumberTokenProvider(configuration)
-                       .AddExtendedEmailTokenProvider(configuration);
+                       .AddExtendedEmailTokenProvider(configuration)
+                       .AddExtendedErrorDescriber()
+                       .AddIdentityMessageDescriber();
     }
 
     private static IIdentityServerBuilder AddIdentityServerDefaults(
@@ -118,7 +124,10 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         Action<DbContextOptionsBuilder>? configurePersistedGrantDbContext
     ) {
         services.AddTransient<ITokenResponseGenerator, ExtendedTokenResponseGenerator>();
+#if !NET9_0_OR_GREATER
         services.AddTransient<ITokenCreationService, ExtendedTokenCreationService>();
+#endif
+
         var identityServerBuilder = services.AddIdentityServer(options => {
             options.IssuerUri = configuration.GetHost();
             options.Events.RaiseErrorEvents = true;
@@ -130,6 +139,10 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             options.UserInteraction.ErrorUrl = "/error";
             options.UserInteraction.ErrorIdParameter = "errorId";
             options.EmitScopesAsSpaceDelimitedStringInJwt = true;
+#if NET9_0_OR_GREATER
+            options.LicenseKey = configuration.GetIdentityOption<string?>(ExtendedIdentityServerOptions.Name, "DuendeLicenseKey");
+#endif
+
         })
         .AddConfigurationStore<ExtendedConfigurationDbContext>(options => {
             options.SetupTables();
@@ -149,42 +162,61 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         .AddDelegationGrantValidator()
         .AddDeviceAuthentication(options => options.AddUserDeviceStoreEntityFrameworkCore())
         .AddExtendedResourceOwnerPasswordValidator()
+#if NET9_0_OR_GREATER
+        .AddConfigurationStoreCache()
+#else
         .AddDotnet7CompatibleStores()
         // Add store decorators for caching after calling AddDotnet7CompatibleStores.
         .AddInMemoryCaching()
         .AddClientStoreCache<IndiceStores.ClientStore>()
+        .AddClientStoreCacheInvalidation()
         .AddResourceStoreCache<IndiceStores.ResourceStore>()
-        .AddCorsPolicyCache<CorsPolicyService>();
+        .AddCorsPolicyCache<CorsPolicyService>()
+#endif
+        ;
         if (webHostEnvironment.IsDevelopment()) {
             IdentityModelEventSource.ShowPII = true;
             identityServerBuilder.AddDeveloperSigningCredential();
         } else {
+#if NET9_0_OR_GREATER
+
+            var certificate = X509CertificateLoader.LoadPkcs12FromFile(Path.Combine(webHostEnvironment.ContentRootPath, configuration["IdentityServer:SigningPfxFile"] ?? string.Empty), configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
+#else
             var certificate = new X509Certificate2(Path.Combine(webHostEnvironment.ContentRootPath, configuration["IdentityServer:SigningPfxFile"] ?? string.Empty), configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
+#endif
             identityServerBuilder.AddSigningCredential(certificate);
         }
 
         return identityServerBuilder;
     }
 
-    private static AuthenticationBuilder AddAuthenticationDefaults(this IServiceCollection services) {
+    private static AuthenticationBuilder AddAuthenticationDefaults(this IServiceCollection services, IConfiguration configuration) {
         var authBuilder = services.AddAuthentication();
-        static Action<CookieAuthenticationOptions> AuthCookie() => options => {
+        static Action<CookieAuthenticationOptions> AuthCookie(string cookieName) => options => {
             options.LoginPath = new PathString("/login");
             options.LogoutPath = new PathString("/logout");
             options.AccessDeniedPath = new PathString("/403");
             options.Cookie.HttpOnly = true;
             options.Cookie.SameSite = SameSiteMode.None;
             options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            options.Cookie.Name = cookieName;
         };
-        services.ConfigureApplicationCookie(AuthCookie());
-        services.ConfigureExtendedValidationCookie(AuthCookie());
+        services.ConfigureApplicationCookie(AuthCookie(ExtendedIdentityConstants.ApplicationCookieName));
+        services.ConfigureExtendedValidationCookie(AuthCookie(ExtendedIdentityConstants.ExtendedValidationCookieName));
+        services.ConfigureExternalCookie(AuthCookie(ExtendedIdentityConstants.ExternalCookieName));
+        
         services.Configure<CookieAuthenticationOptions>(IdentityConstants.TwoFactorUserIdScheme, options => {
-            options.Cookie.Name = IdentityConstants.TwoFactorUserIdScheme;
+            options.Cookie.Name = ExtendedIdentityConstants.TwoFactorCookieName;
             options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
-            options.LoginPath = new PathString("/login-with-2fa");
+            options.LoginPath = new PathString("/login");
             options.LogoutPath = new PathString("/logout");
             options.AccessDeniedPath = new PathString("/403");
         });
+        services.Configure<CookieAuthenticationOptions>(IdentityConstants.TwoFactorRememberMeScheme, options => {
+            options.Cookie.Name = ExtendedIdentityConstants.TwoFactorRememberMeCookieName;
+            options.ExpireTimeSpan = TimeSpan.FromDays(configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "RememberDurationInDays") ?? ExtendedSignInManager<User>.DEFAULT_MFA_REMEMBER_DURATION_IN_DAYS);
+        });
+        services.AddAntiforgery(options => options.Cookie.Name = ExtendedIdentityConstants.AntiforgeryCookieName);
         return authBuilder;
     }
 
@@ -199,14 +231,6 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         }); // Configure anti-forgery token options.
         builder.Services.Configure<ExtendedEndpointOptions>(options => builder.Configuration.GetSection(ExtendedEndpointOptions.Name).Bind(options));
         builder.Services.PostConfigure<ExtendedEndpointOptions>(options => configureAction?.Invoke(options));
-        builder.Services.Configure<CacheResourceFilterOptions>(options => builder.Configuration.GetSection(CacheResourceFilterOptions.Name).Bind(options)); // Configure options for CacheResourceFilter.
-        builder.Services.PostConfigure<CacheResourceFilterOptions>(options => {
-            var endpointOptions = new ExtendedEndpointOptions {
-                DisableCache = options.DisableCache
-            };
-            configureAction?.Invoke(endpointOptions);
-            options.DisableCache = endpointOptions.DisableCache;
-        });
         builder.Services.ConfigureHttpJsonOptions(options => {
             options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             options.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;

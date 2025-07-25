@@ -46,7 +46,7 @@ public static class MediaLibraryFeatureExtensions
         services.TryAddScoped<IFileServiceFactory, DefaultFileServiceFactory>(); // registers default fileservice factory plus no op fileservice
         // Register validators
         services.AddEndpointParameterFluentValidation(typeof(MediaLibraryApi).Assembly);
-        if (!apiOptions.UseSoftDelete) {
+        if (apiOptions.UseSoftDelete) {
             services.AddHostedService<FoldersCleanUpHostedService>();
             services.AddHostedService<FilesCleanUpHostedService>();
         }
@@ -54,7 +54,9 @@ public static class MediaLibraryFeatureExtensions
         services.AddPlatformEventHandler<FolderRenameCommand, FolderRenameCommandHandler>();
         services.AddSingleton(new DatabaseSchemaNameResolver(apiOptions.DatabaseSchema));
         // Register application DbContext.
-        services.AddDbContext<MediaDbContext>(apiOptions.ConfigureDbContext ?? ((serviceProvider, builder) => builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("MediaLibraryDbConnection"))));
+        services.AddDbContext<MediaDbContext>(apiOptions.ConfigureDbContext ??
+             new Action<IServiceProvider, DbContextOptionsBuilder>((serviceProvider, builder) =>
+                builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("MediaLibraryDbConnection"))));
 
         services.AddDistributedMemoryCache();
         // Register Default Policy Provider.

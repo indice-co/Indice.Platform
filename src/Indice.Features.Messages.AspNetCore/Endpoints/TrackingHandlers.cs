@@ -19,7 +19,7 @@ internal static class TrackingHandlers
             return TypedResults.NotFound();
         }
         await campaignService.UpdateHit(campaignId);
-        return TypedResults.Redirect(campaign.ActionLink.Href);
+        return TypedResults.Redirect(campaign.ActionLink!.Href!);
     }
 
     #region Descriptions

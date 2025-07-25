@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System.Text.Json.Nodes;
+﻿using System.Text.Json.Nodes;
 using System.Text.Json;
 using Json.Schema.Generation.Intents;
 using Json.Schema.Generation;
@@ -13,12 +12,11 @@ public static class JsonSchemaNetExtensions
 {
     /// <summary>Generates JSON schema for a given C# class using a new untested library :)</summary>
     /// <param name="type">Class type</param>
-    /// <param name="nullability">If json schema will inclue nullable annotation for members. Defaults to <see cref="Nullability.AllowForNullableValueTypes"/></param>
+    
     /// <returns>A string containing JSON schema for a given class type.</returns>
-    public static JsonSchema ToJsonSchema(this Type type, Nullability nullability = Nullability.AllowForNullableValueTypes) {
+    public static JsonSchema ToJsonSchema(this Type type) {
         var configuration = new SchemaGeneratorConfiguration {
-            PropertyNameResolver = Json.Schema.Generation.PropertyNameResolvers.CamelCase,
-            Nullability = nullability,
+            PropertyNameResolver = Json.Schema.Generation.PropertyNameResolvers.CamelCase
         };
         configuration.Generators.Add(new EnumSchemaGenerator());
         configuration.Generators.Add(new DateTimeSchemaGenerator());
@@ -73,5 +71,3 @@ internal class DateTimeSchemaGenerator : ISchemaGenerator
         context.Intents.Add(new FormatIntent(Formats.DateTime));
     }
 }
-
-#nullable disable

@@ -29,8 +29,6 @@ public class TranslationEndpointTests : IAsyncLifetime
             });
         });
         builder.ConfigureServices(services => {
-            var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
-            
             services.AddRouting();
 
             services.AddTranslationGraph((o) => {
@@ -58,7 +56,7 @@ public class TranslationEndpointTests : IAsyncLifetime
 
     #region Facts
 
-    [Fact (Skip = "Work in progress")]
+    [Fact(Skip = "Work in progress")]
     public async Task Test_GetTranslation_From_Multiple_Sources() {
         var getTranslationsAsync = async (string routePattern) => {
             var response = await _httpClient.GetAsync(routePattern);
@@ -70,7 +68,7 @@ public class TranslationEndpointTests : IAsyncLifetime
             Assert.True(response.IsSuccessStatusCode);
             return json;
         };
-        var defaultJson = await getTranslationsAsync("/http-translations.el.json");
+        _ = await getTranslationsAsync("/http-translations.el.json");
     }
     #endregion
 

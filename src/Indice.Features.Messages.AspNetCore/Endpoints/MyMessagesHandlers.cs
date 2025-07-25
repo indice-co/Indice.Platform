@@ -1,4 +1,5 @@
 ﻿using Indice.Features.Messages.Core;
+using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
@@ -13,7 +14,7 @@ namespace Indice.Features.Messages.AspNetCore.Endpoints;
 
 internal static class MyMessagesHandlers
 {
-    
+
     public static async Task<Ok<ResultSet<Message>>> GetMessages(
         [AsParameters] ListOptions options,
         [AsParameters] MessagesFilter filter,
@@ -21,10 +22,10 @@ internal static class MyMessagesHandlers
         IOptions<MessageInboxOptions> campaignEndpointOptions,
         ClaimsPrincipal currentUser
     ) {
-        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType);
+        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType)!;
         var messages = await messageService.GetList(userCode, ListOptions.Create(options, filter));
 
-        return TypedResults.Ok(messages); 
+        return TypedResults.Ok(messages);
     }
 
     public static async Task<Ok<ResultSet<MessageType>>> GetInboxMessageTypes(
@@ -42,7 +43,7 @@ internal static class MyMessagesHandlers
         MessageChannelKind? channel,
         ClaimsPrincipal currentUser
     ) {
-        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType);
+        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType)!;
         var message = await messageService.GetById(messageId, userCode, channel);
         if (message is null) {
             return TypedResults.NotFound();
@@ -57,8 +58,60 @@ internal static class MyMessagesHandlers
         Guid messageId,
         ClaimsPrincipal currentUser
     ) {
-        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType);
+        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType)!;
         await messageService.MarkAsRead(messageId, userCode);
+        return TypedResults.NoContent();
+    }
+
+    public static async Task<NoContent> MarkAllAsRead(
+        string? searchTerm,
+        [AsParameters] MessagesFilter filter,
+        IEventDispatcherFactory eventDispatcherFactory,
+        IOptions<MessageInboxOptions> campaignEndpointOptions,
+        ClaimsPrincipal currentUser
+    ) {
+        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType)!;
+        var eventDispatcher = eventDispatcherFactory.Create(Core.KeyedServiceNames.EventDispatcherServiceKey);
+        await eventDispatcher.RaiseEventAsync(
+            new MarkMessagesReadEvent {
+                UserCode = userCode,
+                SearchTerm = searchTerm,
+                Filter = filter
+            },
+            builder => builder.WrapInEnvelope().WithQueueName(EventNames.MarkAllAsRead)
+        );
+        return TypedResults.NoContent();
+    }
+
+    public static async Task<NoContent> MarkAllAsUnRead(
+        string? searchTerm,
+        [AsParameters] MessagesFilter filter,
+        IEventDispatcherFactory eventDispatcherFactory,
+        IOptions<MessageInboxOptions> campaignEndpointOptions,
+        ClaimsPrincipal currentUser
+    ) {
+        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType)!;
+        var eventDispatcher = eventDispatcherFactory.Create(Core.KeyedServiceNames.EventDispatcherServiceKey);
+        await eventDispatcher.RaiseEventAsync(
+            new MarkMessagesUnreadEvent {
+                UserCode = userCode,
+                SearchTerm = searchTerm,
+                Filter = filter
+            },
+            builder => builder.WrapInEnvelope().WithQueueName(EventNames.MarkAllAsUnread)
+        );
+        return TypedResults.NoContent();
+    }
+
+
+    public static async Task<NoContent> MarkMessageAsUnread(
+        IMessageService messageService,
+        IOptions<MessageInboxOptions> campaignEndpointOptions,
+        Guid messageId,
+        ClaimsPrincipal currentUser
+    ) {
+        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType)!;
+        await messageService.MarkAsUnread(messageId, userCode);
         return TypedResults.NoContent();
     }
 
@@ -68,7 +121,7 @@ internal static class MyMessagesHandlers
         Guid messageId,
         ClaimsPrincipal currentUser
     ) {
-        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType);
+        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType)!;
         await messageService.MarkAsDeleted(messageId, userCode);
         return TypedResults.NoContent();
     }
@@ -89,14 +142,14 @@ Parameters:
 - options: List parameters used to navigate through collections, including sort, search, page number, and page size.
 ";
 
-public static readonly string GET_INBOX_MESSAGE_TYPES_DESCRIPTION = @"
+    public static readonly string GET_INBOX_MESSAGE_TYPES_DESCRIPTION = @"
 Gets the list of available campaign types.
 
 Parameters:
 - options: List parameters used to navigate through collections, including sort, search, page number, and page size.
 ";
 
-public static readonly string GET_MESSAGE_BY_ID_DESCRIPTION = @"
+    public static readonly string GET_MESSAGE_BY_ID_DESCRIPTION = @"
 Gets the message with the specified ID.
 
 Parameters:
@@ -104,21 +157,35 @@ Parameters:
 - channel: The channel of the message.
 ";
 
-public static readonly string MARK_MESSAGE_AS_READ_DESCRIPTION = @"
+    public static readonly string MARK_MESSAGE_AS_READ_DESCRIPTION = @"
 Marks the specified message as read.
 
 Parameters:
 - messageId: The ID of the message.
 ";
+    public static readonly string MARK_ALL_MESSAGE_AS_READ_DESCRIPTION = @"
+Marks all user messages as read.
+";
 
-public static readonly string DELETE_MESSAGE_DESCRIPTION = @"
+    public static readonly string MARK_ALL_MESSAGE_AS_UNREAD_DESCRIPTION = @"
+Marks all user messages as unread.
+";
+
+    public static readonly string MARK_MESSAGE_AS_UNREAD_DESCRIPTION = @"
+Marks the specified message as unread.
+
+Parameters:
+- messageId: The ID of the message.
+";
+
+    public static readonly string DELETE_MESSAGE_DESCRIPTION = @"
 Marks the specified message as deleted.
 
 Parameters:
 - messageId: The ID of the message.
 ";
 
-public static readonly string GET_MESSAGE_ATTACHMENT_DESCRIPTION = @"
+    public static readonly string GET_MESSAGE_ATTACHMENT_DESCRIPTION = @"
 Gets the attachment associated with a campaign.
 
 Parameters:

@@ -29,7 +29,7 @@ public class TotpServiceTests
         builder.ConfigureServices(services => {
             services.TryAddTransient<IPlatformEventService, DefaultPlatformEventService>();
             var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
-            services.AddTransient<IUserStateProvider<User>, UserStateProviderNoop>();
+            services.AddTransient<IUserRequirementProvider<User>, UserRequirementProviderNoOp>();
             services.AddTotpServiceFactory(configuration)
                     .AddSmsServiceNoop()
                     .AddPushNotificationServiceNoop()

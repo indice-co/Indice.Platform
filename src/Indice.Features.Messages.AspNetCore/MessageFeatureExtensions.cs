@@ -1,10 +1,11 @@
-﻿using System.Net.Mime;
-using System.Security.Claims;
+﻿using System.Security.Claims;
+using System.Text.Json.Serialization;
 using FluentValidation;
-using FluentValidation.AspNetCore;
+using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Swagger;
 using Indice.Events;
 using Indice.Features.Media.AspNetCore;
+using Indice.Features.Media.AspNetCore.Services.Hosting;
 using Indice.Features.Messages.AspNetCore.Authorization;
 using Indice.Features.Messages.AspNetCore.Services;
 using Indice.Features.Messages.Core;
@@ -51,6 +52,7 @@ public static class MessageFeatureExtensions
             options.DatabaseSchema = apiOptions.DatabaseSchema;
             options.UserClaimType = apiOptions.UserClaimType;
             options.GroupName = apiOptions.InboxGroupName;
+            options.CampaignStatisticOptions = apiOptions.CampaignStatisticOptions;
         });
     }
 
@@ -115,6 +117,12 @@ public static class MessageFeatureExtensions
             options.GroupName = apiOptions.GroupName;
         });
         services.AddSingleton(new DatabaseSchemaNameResolver(apiOptions.DatabaseSchema));
+
+        services.Configure<CampaignStatisticOptions>(opt => {
+            opt.EnableStatics = apiOptions.CampaignStatisticOptions.EnableStatics;
+        });
+        services.AddSingleton<CampaignEventQueue>();
+        services.AddSingleton<IHostedService, CampaignEventHandler>();
         return services;
     }
 
@@ -127,26 +135,29 @@ public static class MessageFeatureExtensions
     internal static IServiceCollection AddCampaignCore(this IServiceCollection services, CampaignOptionsBase baseOptions) {
         // Post configure JSON options.
         services.PostConfigure<JsonOptions>(options => {
-            var enumFlagsConverterExists = options.JsonSerializerOptions.Converters.Any(converter => converter.GetType() == typeof(JsonStringArrayEnumFlagsConverterFactory));
-            if (!enumFlagsConverterExists) {
-                options.JsonSerializerOptions.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
+            if (!options.JsonSerializerOptions.Converters.OfType<JsonStringEnumConverter>().Any()) {
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            }
+            if (!options.JsonSerializerOptions.Converters.Any(converter => converter.GetType() == typeof(TypeConverterJsonAdapterFactory))) {
+                options.JsonSerializerOptions.Converters.Add(new TypeConverterJsonAdapterFactory());
             }
         }); 
         services.PostConfigure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => {
-            var enumFlagsConverterExists = options.SerializerOptions.Converters.Any(converter => converter.GetType() == typeof(JsonStringArrayEnumFlagsConverterFactory));
-            if (!enumFlagsConverterExists) {
-                options.SerializerOptions.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
+            if (!options.SerializerOptions.Converters.OfType<JsonStringEnumConverter>().Any()) {
+                options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            }
+            if (!options.SerializerOptions.Converters.Any(converter => converter.GetType() == typeof(TypeConverterJsonAdapterFactory))) {
+                options.SerializerOptions.Converters.Add(new TypeConverterJsonAdapterFactory());
             }
         });
         // Post configure Swagger options.
-        services.PostConfigure<SwaggerGenOptions>(options => {
-            var enumFlagsSchemaFilterExists = options.SchemaFilterDescriptors.Any(x => x.Type == typeof(EnumFlagsSchemaFilter));
-            if (!enumFlagsSchemaFilterExists) {
-                options.SchemaFilter<EnumFlagsSchemaFilter>();
-            }
-        });
+        //services.PostConfigure<SwaggerGenOptions>(options => {
+        //    var enumFlagsSchemaFilterExists = options.SchemaFilterDescriptors.Any(x => x.Type == typeof(EnumFlagsSchemaFilter));
+        //    if (!enumFlagsSchemaFilterExists) {
+        //        options.SchemaFilter<EnumFlagsSchemaFilter>();
+        //    }
+        //});
         // Register validators.
-        services.AddFluentValidationAutoValidation();
         services.AddValidatorsFromAssemblyContaining<CreateCampaignRequestValidator>();
         // Register framework services.
         services.AddResponseCaching();
@@ -168,6 +179,8 @@ public static class MessageFeatureExtensions
         // Register application DbContext.
         Action<IServiceProvider, DbContextOptionsBuilder> sqlServerConfiguration = (serviceProvider, builder) => builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("MessagesDb"));
         services.AddDbContext<CampaignsDbContext>(baseOptions.ConfigureDbContext ?? sqlServerConfiguration);
+        services.AddHostedService<DbInitializerHostedService>();
+
         return services;
     }
 
@@ -175,7 +188,7 @@ public static class MessageFeatureExtensions
     /// <param name="options">Options used to configure the Campaigns API feature.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static void UseFilesLocal(this CampaignOptionsBase options, Action<FileServiceLocalOptions>? configure = null) =>
-        options.Services.AddFiles(options => options.AddFileSystem(Indice.Features.Messages.Core.KeyedServiceNames.FileServiceKey, configure));
+        options.Services!.AddFiles(options => options.AddFileSystem(Indice.Features.Messages.Core.KeyedServiceNames.FileServiceKey, configure));
 
     /// <summary>Adds <see cref="IFileService"/> using Azure Blob Storage as the backing store.</summary>
     /// <param name="options">Options used to configure the Campaigns API feature.</param>
@@ -185,13 +198,21 @@ public static class MessageFeatureExtensions
             options.ContainerName = string.IsNullOrEmpty(options.ContainerName) ? "messaging" : $"{options.ContainerName}-messaging";
             configure?.Invoke(options);
         };
-        options.Services.AddFiles(options => options.AddAzureStorage(Indice.Features.Messages.Core.KeyedServiceNames.FileServiceKey, defaultConfigureAction));
+        options.Services!.AddFiles(options => options.AddAzureStorage(Indice.Features.Messages.Core.KeyedServiceNames.FileServiceKey, defaultConfigureAction));
     }
 
     /// <summary>Configures that campaign contact information will be resolved by contacting the Identity Server instance.</summary>
     /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
     /// <param name="configure">Delegate used to configure <see cref="ContactResolverIdentity"/> service.</param>
     public static MessageEndpointOptions UseIdentityContactResolver(this MessageEndpointOptions options, Action<ContactResolverIdentityOptions> configure) {
+        UseIdentityContactResolverInternal(options, configure);
+        return options;
+    }
+
+    /// <summary>Configures that campaign contact information will be resolved by contacting the Identity Server instance.</summary>
+    /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
+    /// <param name="configure">Delegate used to configure <see cref="ContactResolverIdentity"/> service.</param>
+    public static MessageManagementOptions UseIdentityContactResolver(this MessageManagementOptions options, Action<ContactResolverIdentityOptions> configure) {
         UseIdentityContactResolverInternal(options, configure);
         return options;
     }
@@ -204,11 +225,20 @@ public static class MessageFeatureExtensions
         return options;
     }
 
+    /// <summary>Adds a custom contact resolver that discovers contact information from a third-party system.</summary>
+    /// <typeparam name="TContactResolver">The concrete type of <see cref="IContactResolver"/>.</typeparam>
+    /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
+    public static MessageManagementOptions UseContactResolver<TContactResolver>(this MessageManagementOptions options) where TContactResolver : IContactResolver {
+        UseContactResolverInternal<TContactResolver>(options);
+        return options;
+    }
+
     /// <summary>Adds <see cref="IEventDispatcher"/> using Azure Storage as a queuing mechanism.</summary>
     /// <param name="options">Options used to configure the Campaigns API feature.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static void UseEventDispatcherAzure(this MessageEndpointOptions options, Action<IServiceProvider, MessageEventDispatcherAzureOptions>? configure = null) {
-        options.Services.AddEventDispatcherAzure(Indice.Features.Messages.Core.KeyedServiceNames.EventDispatcherServiceKey, (serviceProvider, options) => {
+        options.Services!.AddEventDispatcherAzure(Indice.Features.Messages.Core.KeyedServiceNames.EventDispatcherServiceKey, 
+            (serviceProvider, options) => {
             var eventDispatcherOptions = new MessageEventDispatcherAzureOptions {
                 ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME),
                 Enabled = true,
@@ -226,36 +256,44 @@ public static class MessageFeatureExtensions
         });
     }
 
+    /// <summary>Adds <see cref="IEventDispatcher"/> using Azure Storage as a queuing mechanism.</summary>
+    /// <param name="options">Options used to configure the Campaigns API feature.</param>
+    /// <param name="configure">Configure the available options. Null to use defaults.</param>
+    public static void UseEventDispatcherAzureServiceBus(this MessageEndpointOptions options, Action<IServiceProvider, MessageEventDispatcherAzureOptions>? configure = null) {
+        options.Services!.AddEventDispatcherAzureServiceBus(Indice.Features.Messages.Core.KeyedServiceNames.EventDispatcherServiceKey,
+            (serviceProvider, options) => {
+                var eventDispatcherOptions = new MessageEventDispatcherAzureOptions {
+                    ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzureServiceBus.CONNECTION_STRING_NAME),
+                    Enabled = true,
+                    EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
+                    ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current!)
+                };
+                configure?.Invoke(serviceProvider, eventDispatcherOptions);
+                options.ClaimsPrincipalSelector = eventDispatcherOptions.ClaimsPrincipalSelector;
+                options.ConnectionString = eventDispatcherOptions.ConnectionString;
+                options.Enabled = eventDispatcherOptions.Enabled;
+                options.EnvironmentName = eventDispatcherOptions.EnvironmentName;
+                options.TenantIdSelector = eventDispatcherOptions.TenantIdSelector;
+                options.UseCompression = false;
+            });
+    }
+
     /// <summary>Adds the Media Library feature.</summary>
     /// <param name="options">Options used to configure the Media API feature.</param>
     /// <param name="configureAction">Configure the available options. Null to use defaults.</param>
     public static void UseMediaLibrary(this CampaignOptionsBase options, Action<Indice.Features.Media.AspNetCore.MediaApiOptions>? configureAction = null) {
-        options.Services.AddMediaLibrary(configureAction);
+        options.Services!.AddMediaLibrary(configureAction);
     }
 
-    /// <summary>Configures that campaign contact information will be resolved by contacting the Identity Server instance.</summary>
-    /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
-    /// <param name="configure">Delegate used to configure <see cref="ContactResolverIdentity"/> service.</param>
-    public static MessageManagementOptions UseIdentityContactResolver(this MessageManagementOptions options, Action<ContactResolverIdentityOptions> configure) {
-        UseIdentityContactResolverInternal(options, configure);
-        return options;
-    }
 
-    /// <summary>Adds a custom contact resolver that discovers contact information from a third-party system.</summary>
-    /// <typeparam name="TContactResolver">The concrete type of <see cref="IContactResolver"/>.</typeparam>
-    /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
-    public static MessageManagementOptions UseContactResolver<TContactResolver>(this MessageManagementOptions options) where TContactResolver : IContactResolver {
-        UseContactResolverInternal<TContactResolver>(options);
-        return options;
-    }
 
     /// <summary>Adds multi-tenancy capabilities in the Messages API endpoints.</summary>
     /// <param name="options">Options used to configure the Messages API feature.</param>
     /// <param name="accessLevel">The minimum access level required.</param>
     public static MessageEndpointOptions UseMultiTenancy(this MessageEndpointOptions options, int accessLevel) {
         // Configure authorization. It's important to register the authorization policy provider at this point.
-        options.Services.AddAuthorization(policy => policy.AddMultitenantCampaignsManagementPolicy(accessLevel, options.RequiredScope));
-        options.Services.Configure<MessageMultitenancyOptions>(options => options.AccessLevel = accessLevel);
+        options.Services!.AddAuthorization(policy => policy.AddMultitenantCampaignsManagementPolicy(accessLevel, options.RequiredScope));
+        options.Services!.Configure<MessageMultitenancyOptions>(options => options.AccessLevel = accessLevel);
         return options;
     }
 
@@ -264,26 +302,26 @@ public static class MessageFeatureExtensions
     /// <param name="accessLevel">The minimum access level required.</param>
     public static MessageManagementOptions UseMultiTenancy(this MessageManagementOptions options, int accessLevel) {
         // Configure authorization. It's important to register the authorization policy provider at this point.
-        options.Services.AddAuthorization(policy => policy.AddMultitenantCampaignsManagementPolicy(accessLevel, options.RequiredScope));
-        options.Services.Configure<MessageMultitenancyOptions>(options => options.AccessLevel = accessLevel);
+        options.Services!.AddAuthorization(policy => policy.AddMultitenantCampaignsManagementPolicy(accessLevel, options.RequiredScope));
+        options.Services!.Configure<MessageMultitenancyOptions>(options => options.AccessLevel = accessLevel);
         return options;
     }
     private static void UseIdentityContactResolverInternal(CampaignOptionsBase options, Action<ContactResolverIdentityOptions> configure) {
         var serviceOptions = new ContactResolverIdentityOptions();
         serviceOptions.UserClaimType = options.UserClaimType;
         configure.Invoke(serviceOptions);
-        options.Services.Configure<ContactResolverIdentityOptions>(config => {
+        options.Services!.Configure<ContactResolverIdentityOptions>(config => {
             config.BaseAddress = serviceOptions.BaseAddress;
             config.ClientId = serviceOptions.ClientId;
             config.ClientSecret = serviceOptions.ClientSecret;
             config.UserClaimType = serviceOptions.UserClaimType;
         });
-        options.Services.AddDistributedMemoryCache();
-        options.Services.AddHttpClient<IContactResolver, ContactResolverIdentity>(httpClient => {
+        options.Services!.AddDistributedMemoryCache();
+        options.Services!.AddHttpClient<IContactResolver, ContactResolverIdentity>(httpClient => {
             httpClient.BaseAddress = serviceOptions.BaseAddress;
         });
     }
 
     private static void UseContactResolverInternal<TContactResolver>(CampaignOptionsBase options) where TContactResolver : IContactResolver =>
-        options.Services.AddTransient(typeof(IContactResolver), typeof(TContactResolver));
+        options.Services!.AddTransient(typeof(IContactResolver), typeof(TContactResolver));
 }

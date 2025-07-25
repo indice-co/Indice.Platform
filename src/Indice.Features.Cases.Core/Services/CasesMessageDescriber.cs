@@ -13,4 +13,11 @@ public class CasesMessageDescriber
     /// <summary>The comment to show at timeline when an agent tries to bypass four-eyes principle.</summary>
     public virtual string BlockPreviousApproverComment
         => string.Format(CasesResources.Culture, CasesResources.BlockPreviousApproverComment);
+    
+    /// <summary>Block Previous approver comment with culture</summary>
+    public string BlockPreviousApproverCommentWithCulture(string culture)
+    {
+        var cultureInfo = new System.Globalization.CultureInfo(culture);
+        return string.Format(cultureInfo, CasesResources.BlockPreviousApproverComment);
+    }
 }

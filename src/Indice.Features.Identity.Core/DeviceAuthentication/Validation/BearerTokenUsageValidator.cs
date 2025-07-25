@@ -2,7 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using IdentityModel;
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Validation;
+#else
 using IdentityServer4.Validation;
+#endif
 using Indice.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -58,7 +62,7 @@ internal class BearerTokenUsageValidator
                 };
             }
         } else {
-            _logger.LogTrace("[{ClassName}] Unexpected header format: '{Header}'.", nameof(BearerTokenUsageValidator), header);
+            _logger.LogTrace("[{ClassName}] Unexpected header format: '{Header}'.", nameof(BearerTokenUsageValidator), header?.ReplaceLineEndings());
         }
         return new BearerTokenUsageValidationResult();
     }

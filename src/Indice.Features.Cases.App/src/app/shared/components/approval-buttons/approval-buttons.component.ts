@@ -81,7 +81,7 @@ export class ApprovalButtonsComponent implements OnInit {
   private caseDecision(action: Approval): void {
     this.buttonsDisabled = true;
     const approvalRequest = new ApprovalRequest({ action: action, comment: this.comment });
-    this._api.submitApproval(this.caseId!, undefined, approvalRequest)
+    this._api.submitApproval(this.caseId!, approvalRequest)
       .subscribe(_ => {
         if (action === 'Approve') {
           this._toaster.show(ToastType.Success, undefined, `Η υπόθεση εγκρίθηκε.`, 5000);

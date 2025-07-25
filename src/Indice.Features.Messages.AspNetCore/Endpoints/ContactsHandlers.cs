@@ -105,7 +105,5 @@ Updates an existing contact in the store or adds a new contact with data from an
 Parameters:
 - recepientId: The unique ID of the recepient.
 ";
-
-
     #endregion
 }

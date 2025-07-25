@@ -1,6 +1,7 @@
 ﻿using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Totp;
 using Indice.Features.Identity.Server.Totp.Models;
+using Indice.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -20,13 +21,15 @@ public static class TotpApi
                            .RequireAuthorization(policy => policy
                               .RequireAuthenticatedUser()
                               .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
+                              .RequireClaim(BasicClaimTypes.Scope, IdentityEndpoints.SubScopes.Totp)
                            )
                            .ProducesProblem(StatusCodes.Status401Unauthorized)
                            .ProducesProblem(StatusCodes.Status403Forbidden)
                            .ProducesProblem(StatusCodes.Status500InternalServerError)
                            .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.Totp);
-        var allowedScopes = new[] { options.ApiScope }.Where(x => x != null).Cast<string>().ToArray();
-        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+
+        var allowedScopes = new[] { options.ApiScope, IdentityEndpoints.SubScopes.Totp }.FilterOutNulls().ToArray();
+        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         // POST: /api/totp
         group.MapPost(string.Empty, TotpHandlers.Send)

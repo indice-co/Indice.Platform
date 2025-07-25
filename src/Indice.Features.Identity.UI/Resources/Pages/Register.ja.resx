@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Already have an account?" xml:space="preserve">
+    <value>すでにアカウントをお持ちですか？</value>
+  </data>
+  <data name="Calling Code" xml:space="preserve">
+    <value>国番号</value>
+  </data>
+  <data name="Choose a username and a password of your choice. You can periodically change your password or whenever you wish to." xml:space="preserve">
+    <value>ご希望のユーザー名とパスワードを選択してください。パスワードは定期的または任意のタイミングで変更できます。</value>
+  </data>
+  <data name="Choose an email and a password of your choice. You can periodically change your password or whenever you wish to." xml:space="preserve">
+    <value>ご希望のメールアドレスとパスワードを選択してください。パスワードは定期的または任意のタイミングで変更できます。</value>
+  </data>
+  <data name="First name" xml:space="preserve">
+    <value>名</value>
+  </data>
+  <data name="here" xml:space="preserve">
+    <value>こちら</value>
+  </data>
+  <data name="I consent to the registration and processing of the above personal details for my contact and service as they are defined" xml:space="preserve">
+    <value>上記の個人情報の登録および処理に同意します。</value>
+  </data>
+  <data name="I have read and accept the &lt;a href=&quot;/terms&quot; target=&quot;_blank&quot;&gt;Terms of service&lt;/a&gt; and the &lt;a href=&quot;/privacy&quot; target=&quot;_blank&quot;&gt;privacy policy&lt;/a&gt;." xml:space="preserve">
+    <value>&lt;a href="/terms" target="_blank"&gt;利用規約&lt;/a&gt;および&lt;a href="/privacy" target="_blank"&gt;プライバシーポリシー&lt;/a&gt;を読み、同意します。</value>
+  </data>
+  <data name="I consent to the use of my contact information, including my email address, for the purpose of receiving commercial communications, promotional materials, and marketing updates from the organization. I understand that I may withdraw my consent at any time." xml:space="preserve">
+    <value>商業的な連絡、プロモーション資料、マーケティング情報の受信目的で、メールアドレスを含む連絡先情報の利用に同意します。いつでも同意を撤回できます。</value>
+  </data>
+  <data name="Join us" xml:space="preserve">
+    <value>参加する</value>
+  </data>
+  <data name="Last name" xml:space="preserve">
+    <value>姓</value>
+  </data>
+  <data name="OR" xml:space="preserve">
+    <value>または</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>パスワード</value>
+  </data>
+  <data name="Phone number" xml:space="preserve">
+    <value>電話番号</value>
+  </data>
+  <data name="Sign up" xml:space="preserve">
+    <value>登録</value>
+  </data>
+  <data name="These credentials are personal. Please remember them and do not reveal in any way (i.e orally, written, email) in third parties." xml:space="preserve">
+    <value>これらの認証情報は個人用です。必ず覚えておき、第三者に口頭・書面・メール等で絶対に教えないでください。</value>
+  </data>
+  <data name="Timezone" xml:space="preserve">
+    <value>タイムゾーン</value>
+  </data>
+  <data name="Username" xml:space="preserve">
+    <value>ユーザー名</value>
+  </data>
+</root>

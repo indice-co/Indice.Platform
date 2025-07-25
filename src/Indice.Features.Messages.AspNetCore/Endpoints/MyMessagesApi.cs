@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Indice.Features.Messages.AspNetCore.Endpoints;
 using Microsoft.Extensions.Options;
 using Indice.Features.Messages.Core;
+using Indice.Types;
 
 namespace Microsoft.AspNetCore.Routing;
 
@@ -17,17 +18,18 @@ internal static class MyMessagesApi
     public static RouteGroupBuilder MapMyMessages(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<MessageInboxOptions>>().Value;
         var group = routes.MapGroup(options.PathPrefix.Length > 1 ? options.PathPrefix.TrimEnd('/') : options.PathPrefix);
-        if (!string.IsNullOrEmpty(options.GroupName)) { 
+        if (!string.IsNullOrEmpty(options.GroupName)) {
             group.WithGroupName(options.GroupName);
         }
         group.WithTags("MyMessages");
-        
+
         group.RequireAuthorization(pb => pb.AddAuthenticationSchemes(MessagesApi.AuthenticationScheme)
                                            .RequireAuthenticatedUser());
 
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2");
 
-        group.ProducesProblem(StatusCodes.Status401Unauthorized)
+        group.WithHandledException<BusinessException>()
+             .ProducesProblem(StatusCodes.Status401Unauthorized)
              .ProducesProblem(StatusCodes.Status403Forbidden)
              .ProducesProblem(StatusCodes.Status500InternalServerError);
 
@@ -45,6 +47,22 @@ internal static class MyMessagesApi
              .WithName(nameof(MyMessagesHandlers.MarkMessageAsRead))
              .WithSummary("Marks the specified message as read.")
              .WithDescription(MyMessagesHandlers.MARK_MESSAGE_AS_READ_DESCRIPTION);
+
+        group.MapPut("my/messages/all/read/{searchTerm}", MyMessagesHandlers.MarkAllAsRead)
+             .WithName(nameof(MyMessagesHandlers.MarkAllAsRead))
+             .WithSummary("Marks all user messages as read.")
+             .WithDescription(MyMessagesHandlers.MARK_ALL_MESSAGE_AS_READ_DESCRIPTION);
+
+        group.MapPut("my/messages/all/unread/{searchTerm}", MyMessagesHandlers.MarkAllAsUnRead)
+             .WithName(nameof(MyMessagesHandlers.MarkAllAsUnRead))
+             .WithSummary("Marks all user messages as unread.")
+             .WithDescription(MyMessagesHandlers.MARK_ALL_MESSAGE_AS_UNREAD_DESCRIPTION);
+
+
+        group.MapPut("my/messages/{messageId}/unread", MyMessagesHandlers.MarkMessageAsUnread)
+             .WithName(nameof(MyMessagesHandlers.MarkMessageAsUnread))
+             .WithSummary("Marks the specified message as read.")
+             .WithDescription(MyMessagesHandlers.MARK_MESSAGE_AS_UNREAD_DESCRIPTION);
 
         group.MapDelete("my/messages/{messageId}", MyMessagesHandlers.DeleteMessage)
              .WithName(nameof(MyMessagesHandlers.DeleteMessage))

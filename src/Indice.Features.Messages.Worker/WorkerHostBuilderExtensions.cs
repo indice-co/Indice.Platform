@@ -147,7 +147,7 @@ public static class WorkerHostBuilderExtensions
         options.Services.AddEmailServiceSmtp(configuration);
         options.Services.AddSingleton(serviceProvider => {
             var smtpSettings = serviceProvider.GetRequiredService<IOptions<EmailServiceSettings>>().Value;
-            return new Func<EmailProviderInfo>(() => new EmailProviderInfo(smtpSettings.Sender, smtpSettings.SenderName));
+            return new Func<EmailProviderInfo>(() => new EmailProviderInfo(smtpSettings.Sender!, smtpSettings.SenderName!));
         });
         return options;
     }
@@ -159,7 +159,7 @@ public static class WorkerHostBuilderExtensions
         options.Services.AddEmailServiceSparkPost(configuration);
         options.Services.AddSingleton(serviceProvider => {
             var sparkPostSettings = serviceProvider.GetRequiredService<IOptions<EmailServiceSparkPostSettings>>().Value;
-            return new Func<EmailProviderInfo>(() => new EmailProviderInfo(sparkPostSettings.Sender, sparkPostSettings.SenderName));
+            return new Func<EmailProviderInfo>(() => new EmailProviderInfo(sparkPostSettings.Sender!, sparkPostSettings.SenderName!));
         });
         return options;
     }
