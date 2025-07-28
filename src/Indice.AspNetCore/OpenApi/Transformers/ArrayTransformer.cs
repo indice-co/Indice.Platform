@@ -43,12 +43,10 @@ public static class ArrayTransformer
 
         if (context.ParameterDescription is not null && schema.Type == "array") {
             FixEmptyArraySchemas(schema, context.ParameterDescription.Type);
-            return Task.CompletedTask;
         }
 
         if (context.ParameterDescription is null && context.JsonPropertyInfo is null && schema.Type == "array") {
             FixEmptyArraySchemas(schema, context.JsonTypeInfo.Type);
-            return Task.CompletedTask;
         }
 
         return Task.CompletedTask;
