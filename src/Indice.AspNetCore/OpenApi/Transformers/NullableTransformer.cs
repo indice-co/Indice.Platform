@@ -34,9 +34,6 @@ internal static class NullableTransformer
                     if (!schema.Properties.TryGetValue(jsonProperty.Name, out var property)) {
                         continue;
                     }
-                    if (schema.Required?.Contains(jsonProperty.Name) != true) {
-                        property!.Nullable = false;
-                    }
                     var nullableType = Nullable.GetUnderlyingType(jsonProperty.PropertyType);
                    
                     property!.Nullable = (nullableType is not null) || jsonProperty.IsGetNullable;
@@ -67,6 +64,9 @@ internal static class NullableTransformer
                         "Guid" => "uuid",
                         _ => null
                     };
+                    if (schema.Required?.Contains(jsonProperty.Name) == true) {
+                        property!.Nullable = false;
+                    }
                     if (property!.Annotations?.Any(x => x.Value != null) == true) {
                         property.Nullable = false;
                     }

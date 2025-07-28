@@ -43,17 +43,19 @@ public static class ArrayTransformer
 
         if (context.ParameterDescription is not null && schema.Type == "array") {
             FixEmptyArraySchemas(schema, context.ParameterDescription.Type);
+            return Task.CompletedTask;
         }
 
         if (context.ParameterDescription is null && context.JsonPropertyInfo is null && schema.Type == "array") {
             FixEmptyArraySchemas(schema, context.JsonTypeInfo.Type);
+            return Task.CompletedTask;
         }
 
         return Task.CompletedTask;
     }
     internal static Dictionary<Type, OpenApiSchema> transforms = new Dictionary<Type, OpenApiSchema>();
     private static void FixEmptyArraySchemas(OpenApiSchema schema, Type type) {
-        var canTransform = schema.Type == "array";
+        var canTransform = schema.Type == "array" && schema.Items?.Type == null && schema.Items?.Annotations.Any(x => x.Value != null) != true;
         if (!canTransform) {
             return;
         }
