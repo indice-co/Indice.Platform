@@ -38,36 +38,35 @@ internal static class NullableTransformer
                         property!.Nullable = false;
                     }
                     var nullableType = Nullable.GetUnderlyingType(jsonProperty.PropertyType);
-                    if (nullableType is not null) {
-                        property!.Nullable = true;
-                        property.Type ??= nullableType.Name switch
-                        {
-                            "Int32" => "integer",
-                            "Int64" => "integer",
-                            "Double" => "number",
-                            "Single" => "number",
-                            "Decimal" => "number",
-                            "Boolean" => "boolean",
-                            "String" => "string",
-                            "DateTime" => "string",
-                            "DateTimeOffset" => "string",
-                            "Guid" => "string",
-                            _ => null
-                        }; 
-                        property.Format ??= nullableType.Name switch {
-                            "Int32" => "int32",
-                            "Int64" => "int64",
-                            "Double" => "double",
-                            "Single" => "float",
-                            "Decimal" => "double",
-                            "Boolean" => null,
-                            "String" => null,
-                            "DateTime" => "date-time",
-                            "DateTimeOffset" => "date-time",
-                            "Guid" => "uuid",
-                            _ => null
-                        };
-                    }
+                   
+                    property!.Nullable = nullableType is not null;
+                    property.Type ??= (nullableType ?? jsonProperty.PropertyType).Name switch
+                    {
+                        "Int32" => "integer",
+                        "Int64" => "integer",
+                        "Double" => "number",
+                        "Single" => "number",
+                        "Decimal" => "number",
+                        "Boolean" => "boolean",
+                        "String" => "string",
+                        "DateTime" => "string",
+                        "DateTimeOffset" => "string",
+                        "Guid" => "string",
+                        _ => null
+                    }; 
+                    property.Format ??= (nullableType ?? jsonProperty.PropertyType).Name switch {
+                        "Int32" => "int32",
+                        "Int64" => "int64",
+                        "Double" => "double",
+                        "Single" => "float",
+                        "Decimal" => "double",
+                        "Boolean" => null,
+                        "String" => null,
+                        "DateTime" => "date-time",
+                        "DateTimeOffset" => "date-time",
+                        "Guid" => "uuid",
+                        _ => null
+                    };
                     if (property!.Annotations?.Any() == true) {
                         property.Nullable = false;
                     }
