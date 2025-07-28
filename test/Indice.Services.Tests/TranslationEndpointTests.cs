@@ -24,7 +24,7 @@ public class TranslationEndpointTests : IAsyncLifetime
         _output = output;
         var builder = new WebHostBuilder();
         builder.ConfigureAppConfiguration(builder => {
-            builder.AddInMemoryCollection(new Dictionary<string, string> {
+            builder.AddInMemoryCollection(new Dictionary<string, string?> {
                 ["MySection:MyKey"] = "TestValue"
             });
         });
@@ -33,7 +33,7 @@ public class TranslationEndpointTests : IAsyncLifetime
 
             services.AddTranslationGraph((o) => {
                 o.DefaultTranslationsBaseName = "Resources.TranslationsApi";
-                o.DefaultTranslationsLocation = typeof(EndpointTests).Assembly.GetName().Name;
+                o.DefaultTranslationsLocation = typeof(EndpointTests).Assembly.GetName().Name!;
                 o.AddResource("https://yourdomainhere.com", "/http-translations.{lang:culture}.json", translationsLocation: "/api/translations.{0}.json"); // alternate assemby different resex. different path
             });
             services.AddDecorator<IStringLocalizerFactory, HttpStringLocalizerFactory>();
@@ -41,7 +41,6 @@ public class TranslationEndpointTests : IAsyncLifetime
             services.Configure<HttpStringLocalizerOptions>(options => {
                 options.HttpLocations.Add("https://yourdomainhere.com/api/translations.{0}.json");
             });
-            _serviceProvider = services.BuildServiceProvider();
         });
         builder.Configure(app => {
             app.UseRouting();
@@ -52,6 +51,7 @@ public class TranslationEndpointTests : IAsyncLifetime
         _httpClient = new HttpClient(handler) {
             BaseAddress = new Uri(BASE_URL)
         };
+        _serviceProvider = (ServiceProvider)server.Services;
     }
 
     #region Facts

@@ -10,7 +10,7 @@ public class EventDispatcherOptionsBuilderTests
         var builder = new EventDispatcherRaiseOptionsBuilder();
         var options = builder.UsingPrincipal(new ClaimsPrincipal(
                                  new ClaimsIdentity(
-                                     new List<Claim> { new Claim("first_name", "Jack") })
+                                     [new Claim("first_name", "Jack")])
                                  )
                              )
                              .Delay(TimeSpan.FromHours(1))
@@ -18,7 +18,7 @@ public class EventDispatcherOptionsBuilderTests
                              .WithQueueName("invoice-created")
                              .PrependEnvironmentInQueueName(false)
                              .Build();
-        Assert.Equal("Jack", options.ClaimsPrincipal.FindFirstValue("first_name"));
+        Assert.Equal("Jack", options.ClaimsPrincipal!.FindFirstValue("first_name"));
         Assert.Equal(TimeSpan.FromHours(1), options.VisibilityTimeout);
         Assert.False(options.Wrap);
         Assert.Equal("invoice-created", options.QueueName);

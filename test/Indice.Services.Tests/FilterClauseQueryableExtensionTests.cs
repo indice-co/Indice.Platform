@@ -13,7 +13,7 @@ namespace Indice.Services.Tests;
 public class FilterClauseQueryableExtensionTests : IAsyncLifetime
 {
     public FilterClauseQueryableExtensionTests() {
-        var inMemorySettings = new Dictionary<string, string> {
+        var inMemorySettings = new Dictionary<string, string?> {
             ["ConnectionStrings:TestDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=Indice.FilterClause.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true",
             //...populate as needed for the test
         };
@@ -48,7 +48,7 @@ public class FilterClauseQueryableExtensionTests : IAsyncLifetime
     public async Task PrimitiveCollection_Contains_Translates_ToDatabaseQuery_Test() {
         var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
 
-        var query = dbContext.Dummies.Where(x => x.Tags.Contains("yellow"));
+        var query = dbContext.Dummies.Where(x => x.Tags!.Contains("yellow"));
         var results = await query.ToListAsync();
         Assert.Equal(2, results.Count);
     }
@@ -102,9 +102,9 @@ public class DummyDbContext : DbContext
             return false;
         }
         Dummies.AddRange(
-                new Dummy { Name = "Κωνσταντίνος", Tags = ["red", "yellow", "blue"], Extras = new { Id = 5 }, ModernExtras = JsonSerializer.SerializeToNode(new { Id = 5 }), Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos", ["Surname"] = "Panos" }, Data = new DummyItem { DisplayName = "Κωνσταντίνος Θέρης", Enabled = true, Order = 7, BirthDate = new DateTime(1981, 01, 28), Balance = 100.0, Period = new Period { From = DateTime.Now.AddDays(-10), To = DateTime.Now.AddDays(10) } } },
-                new Dummy { Name = "Γιώργος", Tags = ["yellow", "violet"], Extras = new { Id = 15 }, ModernExtras = JsonSerializer.SerializeToNode(new { Id = 5 }), Data = new DummyItem { DisplayName = "Γιώργος Τζάς", Enabled = false, Order = -14, BirthDate = new DateTime(1989, 10, 24), Balance = 360.23 } },
-                new Dummy { Name = "Γιάννης", Tags = ["blue", "magenta"], Extras = new { Id = 7 }, ModernExtras = JsonSerializer.SerializeToNode(new { Id = 5 }), Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos" }, Data = new DummyItem { DisplayName = "Γιάννης Νές", Enabled = true, Order = 2, BirthDate = new DateTime(1971, 12, 1), Balance = 1260.23 } }
+                new Dummy { Name = "Κωνσταντίνος", Tags = ["red", "yellow", "blue"], Extras = new { Id = 5 }, ModernExtras = JsonSerializer.SerializeToNode(new { Id = 5 })!, Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos", ["Surname"] = "Panos" }, Data = new DummyItem { DisplayName = "Κωνσταντίνος Θέρης", Enabled = true, Order = 7, BirthDate = new DateTime(1981, 01, 28), Balance = 100.0, Period = new Period { From = DateTime.Now.AddDays(-10), To = DateTime.Now.AddDays(10) } } },
+                new Dummy { Name = "Γιώργος", Tags = ["yellow", "violet"], Extras = new { Id = 15 }, ModernExtras = JsonSerializer.SerializeToNode(new { Id = 5 })!, Data = new DummyItem { DisplayName = "Γιώργος Τζάς", Enabled = false, Order = -14, BirthDate = new DateTime(1989, 10, 24), Balance = 360.23 } },
+                new Dummy { Name = "Γιάννης", Tags = ["blue", "magenta"], Extras = new { Id = 7 }, ModernExtras = JsonSerializer.SerializeToNode(new { Id = 5 })!, Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos" }, Data = new DummyItem { DisplayName = "Γιάννης Νές", Enabled = true, Order = 2, BirthDate = new DateTime(1971, 12, 1), Balance = 1260.23 } }
             );
         await SaveChangesAsync();
         return true;
@@ -130,7 +130,7 @@ public class DummyItem
     public DateTime? BirthDate { get; set; }
     public int Order { get; set; }
     public bool Enabled { get; set; }
-    public string DisplayName { get; set; }
+    public string? DisplayName { get; set; }
     public double Balance { get; set; }
     public Period Period { get; set; } = new Period();
 }
@@ -138,10 +138,10 @@ public class DummyItem
 public class Dummy
 {
     public Guid Id { get; set; }
-    public string Name { get; set; }
-    public dynamic Extras { get; set; }
-    public JsonNode ModernExtras { get; set; }
-    public DummyItem Data { get; set; }
-    public List<string> Tags { get; set; }
-    public Dictionary<string, string> Metadata { get; set; }
+    public string? Name { get; set; } = null!;
+    public dynamic? Extras { get; set; }
+    public JsonNode? ModernExtras { get; set; }
+    public DummyItem? Data { get; set; }
+    public List<string>? Tags { get; set; }
+    public Dictionary<string, string>? Metadata { get; set; }
 }
