@@ -7,7 +7,7 @@ public class CreditorReferenceTests
 {
     [Fact]
     public void FailsWhenReferencesAreInvalid() {
-        Assert.Throws<ArgumentException>(() => CreditorReference.Create(null));
+        Assert.Throws<ArgumentException>(() => CreditorReference.Create(null!));
         Assert.Throws<ArgumentException>(() => CreditorReference.Create("123456789", "123456789", "123456789"));
     }
 
@@ -46,7 +46,7 @@ public class CreditorReferenceTests
 
     [Fact]
     public void CanAddPaddingToChecksum() {
-        var rf = CreditorReference.Create(new string[] { "912648", "1", "790774".PadLeft(14, '0') });
+        var rf = CreditorReference.Create(["912648", "1", "790774".PadLeft(14, '0')]);
         Assert.Equal("RF08912648100000000790774", rf.ElectronicFormat);
     }
 }

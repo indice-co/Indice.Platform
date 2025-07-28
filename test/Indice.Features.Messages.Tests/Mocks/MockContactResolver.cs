@@ -20,7 +20,7 @@ internal class MockContactResolver : IContactResolver
         return Task.FromResult(_contacts.ToResultSet());
     }
 
-    public Task<Contact> Resolve(string recipientId) {
+    public Task<Contact?> Resolve(string? recipientId) {
         return Task.FromResult(_contacts.FirstOrDefault(i => i.RecipientId == recipientId));
     }
 }

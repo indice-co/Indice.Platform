@@ -53,7 +53,7 @@ public static class ArrayTransformer
     }
     internal static Dictionary<Type, OpenApiSchema> transforms = new Dictionary<Type, OpenApiSchema>();
     private static void FixEmptyArraySchemas(OpenApiSchema schema, Type type) {
-        var canTransform = schema.Type == "array";
+        var canTransform = schema.Type == "array" && schema.Items?.Type == null && schema.Items?.Annotations.Any(x => x.Value != null) != true;
         if (!canTransform) {
             return;
         }

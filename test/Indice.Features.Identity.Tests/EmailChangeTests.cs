@@ -24,7 +24,7 @@ public class EmailChangeTests
     public EmailChangeTests() {
         var builder = new WebHostBuilder();
         builder.ConfigureAppConfiguration(builder => {
-            builder.AddInMemoryCollection(new Dictionary<string, string> {
+            builder.AddInMemoryCollection(new Dictionary<string, string?> {
                 ["IdentityOptions:User:EmailAsUserName"] = "true"
             });
         });

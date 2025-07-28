@@ -12,7 +12,7 @@ namespace Indice.Features.Identity.Tests;
 public class IdentityValidationActivityTests : IAsyncLifetime
 {
     public IdentityValidationActivityTests() {
-        var inMemorySettings = new Dictionary<string, string> {
+        var inMemorySettings = new Dictionary<string, string?> {
             ["IdentityOptions:SignIn:RequirePostSignInConfirmedEmail"] = "true",
             ["IdentityOptions:SignIn:RequirePostSignInConfirmedPhoneNumber"] = "true",
             ["IdentityOptions:SignIn:Mfa:Policy"] = "Default",
@@ -60,7 +60,7 @@ public class IdentityValidationActivityTests : IAsyncLifetime
         var request = new UserValidationActivityContext(user, httpContext);
         await pipeline.HandleAsync(request);
 
-        Assert.Equal(UserActivityRequirementKind.RequiresEmailVerification, request.Result.Kind);
+        Assert.Equal(UserActivityRequirementKind.RequiresEmailVerification, request.Result?.Kind);
     }
 
     public Task InitializeAsync() {

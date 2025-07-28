@@ -28,7 +28,7 @@ public class UserApiTests : IAsyncLifetime
     public UserApiTests() {
         var builder = new WebHostBuilder();
         builder.ConfigureAppConfiguration(configurationBuilder => {
-            configurationBuilder.AddInMemoryCollection(new Dictionary<string, string> {
+            configurationBuilder.AddInMemoryCollection(new Dictionary<string, string?> {
                  ["test"] = "test"
              });
         });
@@ -74,7 +74,6 @@ public class UserApiTests : IAsyncLifetime
                     .AddMock("IdentityServerApiAccessToken", "LocalApi", () => TestPrincipals.UserWriter);
         });
         builder.Configure(app => {
-            _serviceProvider = app.ApplicationServices as ServiceProvider;
             app.UseAuthentication();
             app.UseRouting();
             app.UseAuthorization();
@@ -89,6 +88,7 @@ public class UserApiTests : IAsyncLifetime
         _httpClient = new HttpClient(handler) {
             BaseAddress = new Uri("https://server")
         };
+        _serviceProvider = (ServiceProvider)server.Services;
     }
 
     [Fact]

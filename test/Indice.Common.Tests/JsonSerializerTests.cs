@@ -3,7 +3,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Indice.Serialization;
 using Indice.Types;
-using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace Indice.Common.Tests;
@@ -36,8 +35,8 @@ public class JsonSerializerTests
         var jsonExpected = "{\"point\":\"37.9888529,23.7037796\",\"id\":\"UJbzBBXwMUiFktLYLnBYnw\"}";
         var json = JsonSerializer.Serialize(model, options);
         Assert.Equal(jsonExpected, json);
-        var output = JsonSerializer.Deserialize<TestTypeConverters>(json, options);
-        Assert.Equal(model.Point.Latitude, output.Point.Latitude);
+        var output = JsonSerializer.Deserialize<TestTypeConverters>(json, options)!;
+        Assert.Equal(model.Point.Latitude, output.Point!.Latitude);
         Assert.Equal(model.Id, output.Id);
     }
 
@@ -64,8 +63,8 @@ public class JsonSerializerTests
         var jsonExpected = "{\"point\":\"37.9888529,23.7037796\",\"id\":\"UJbzBBXwMUiFktLYLnBYnw\",\"filters\":[\"person.name::In::(String)Constantinos, George\"],\"mystery\":{\"firstName\":\"Constantinos\",\"lastName\":\"Leftheris\"}}";
         var json = JsonSerializer.Serialize(model, options);
         Assert.Equal(jsonExpected, json);
-        var output = JsonSerializer.Deserialize<TestTypeConverters>(json, options);
-        Assert.Equal(model.Point.Latitude, output.Point.Latitude);
+        var output = JsonSerializer.Deserialize<TestTypeConverters>(json, options)!;
+        Assert.Equal(model.Point.Latitude, output.Point!.Latitude);
         Assert.Equal(model.Id, output.Id);
         var json2 = JsonSerializer.Serialize(output, options);
         Assert.Equal(json, json2);
@@ -89,8 +88,8 @@ public class JsonSerializerTests
         var jsonExpected = "{\"point\":\"37.9888529,23.7037796\",\"pointList\":[\"37.9888529,23.7037796\",\"37.9689383,23.7309977\"]}";
         var json = JsonSerializer.Serialize(model, options);
         Assert.Equal(jsonExpected, json);
-        var output = JsonSerializer.Deserialize<TestModel>(json, options);
-        Assert.Equal(model.Point.Latitude, output.Point.Latitude);
+        var output = JsonSerializer.Deserialize<TestModel>(json, options)!;
+        Assert.Equal(model.Point.Latitude, output.Point!.Latitude);
     }
 
     [Fact]
@@ -110,7 +109,7 @@ public class JsonSerializerTests
         options.Converters.Add(new ValueTupleJsonConverterFactory());
         var jsonString = JsonSerializer.Serialize(objectWithValueTuple, options);
         Console.WriteLine(jsonString);
-        var roundTrip = JsonSerializer.Deserialize<WeatherForecastValueTuple>(jsonString, options);
+        var roundTrip = JsonSerializer.Deserialize<WeatherForecastValueTuple>(jsonString, options)!;
         Assert.Equal((3, 7), roundTrip.Location);
         Assert.Equal(new ValueTuple<string>("FOO"), roundTrip.Temp);
     }
@@ -184,7 +183,7 @@ public class JsonSerializerTests
         var expectedJson = "{\"person\":\"37.9888529,23.7037796\",\"pointList\":{\"point\":\"37.9888529,23.7037796\",\"pointList\":[\"37.9888529,23.7037796\",\"37.9689383,23.7309977\"]}}";
         var actualJson = JsonSerializer.Serialize(model, options);
         Assert.Equal(expectedJson, actualJson);
-        var modelDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(actualJson, options);
+        var modelDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(actualJson, options)!;
         Assert.Equal("\"37.9888529,23.7037796\"", ((JsonElement)modelDictionary["person"]).GetRawText());
     }
 
@@ -211,7 +210,7 @@ public class JsonSerializerTests
         options.Converters.Add(new JsonFloatToInt32Converter());
 
         var data = "{ \"year\": 2020.0 }";
-        var obj = JsonSerializer.Deserialize<FloatingIntegerIssue>(data, options);
+        var obj = JsonSerializer.Deserialize<FloatingIntegerIssue>(data, options)!;
         Assert.Equal(2020, obj.Year);
     }
 
@@ -298,7 +297,7 @@ public class JsonSerializerTests
             ],
             ""SyncErrors"": null
         } }";
-        dynamic json = JsonSerializer.Deserialize<dynamic>(jsonText, settings);
+        dynamic json = JsonSerializer.Deserialize<dynamic>(jsonText, settings)!;
         var text = JsonSerializer.Serialize(json, settings);
         Assert.False(string.IsNullOrEmpty(text));
     }
@@ -323,27 +322,27 @@ public class JsonSerializerTests
     private static void RoundtripSerialize<T>(PocoValue<T> source, JsonSerializerOptions options) {
         var json = JsonSerializer.Serialize(source, options);
         var result = JsonSerializer.Deserialize<PocoValue<T>>(json, options);
-        Assert.Equal(source.Value, result.Value);
+        Assert.Equal(source.Value, result!.Value);
     }
 
     public class TestTypeConverters
     {
-        public GeoPoint Point { get; set; }
+        public GeoPoint? Point { get; set; }
         public Base64Id Id { get; set; }
-        public FilterClause[] Filters { get; set; }
-        public object Mystery { get; set; }
+        public FilterClause[]? Filters { get; set; }
+        public object? Mystery { get; set; }
     }
 
     public class TestModel
     {
-        public GeoPoint Point { get; set; }
-        public List<GeoPoint> PointList { get; set; }
+        public GeoPoint? Point { get; set; }
+        public List<GeoPoint>? PointList { get; set; }
     }
 
     public class TheMystery
     {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
     }
 
     public class WeatherForecastValueTuple
@@ -359,10 +358,13 @@ public class JsonSerializerTests
         public (List<int>, string) Beta { get; set; }
     }
 
+#nullable disable
     public class PocoValue<T>
     {
         public T Value { get; set; }
     }
+
+#nullable restore
 
     public enum MusicGenre : int
     {
@@ -376,9 +378,9 @@ public class JsonSerializerTests
 
     public class MusicTrack
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public MusicGenre Genre { get; set; }
-        public string Artist { get; set; }
+        public string? Artist { get; set; }
         public DateTimeOffset ReleaseDate { get; set; }
     }
 

@@ -26,5 +26,5 @@ public class CampaignRequestBase
     /// <summary>Optional data for the campaign.</summary>
     public dynamic? Data { get; set; }
     /// <summary>If exists, it overrides the Channels collection of the specified template. </summary>
-    public List<MessageChannelKind> MessageTemplateChannels { get; set; }
+    public List<MessageChannelKind> MessageTemplateChannels { get; set; } = [];
 }

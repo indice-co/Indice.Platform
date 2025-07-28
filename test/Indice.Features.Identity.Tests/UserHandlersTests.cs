@@ -7,7 +7,6 @@ using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Server.Manager;
 using Indice.Features.Identity.Server.Manager.Models;
 using Indice.Types;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,7 +18,7 @@ public class UserHandlersTests : IAsyncLifetime
     private readonly ServiceProvider _serviceProvider;
 
     public UserHandlersTests() {
-        var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string> {
+        var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?> {
             ["ConnectionStrings:TestDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=Indice.FilterClause.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true",
         }).Build();
         var services = new ServiceCollection();
