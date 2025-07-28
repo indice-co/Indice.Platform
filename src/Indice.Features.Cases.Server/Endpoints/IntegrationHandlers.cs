@@ -234,7 +234,7 @@ internal static class IntegrationHandlers
     /// <summary>PatchDataRequest</summary>
     public class PatchDataRequest
     {
-        public JsonNode CaseData { get; set; }
+        public JsonNode CaseData { get; set; } = null!;
         public bool PatchPublicData { get; set; }
     }
 

@@ -15,7 +15,7 @@ namespace Indice.Features.Identity.Tests;
 public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
 {
     public AuthenticationMethodProviderInMemoryTests() {
-        var inMemorySettings = new Dictionary<string, string> {
+        var inMemorySettings = new Dictionary<string, string?> {
             ["IdentityOptions:SignIn:RequirePostSignInConfirmedEmail"] = "true",
             ["IdentityOptions:SignIn:RequirePostSignInConfirmedPhoneNumber"] = "true",
             ["IdentityOptions:SignIn:Mfa:Policy"] = "Default",
@@ -103,7 +103,7 @@ public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
         var methods = await authenticationMethodProvider.GetAllMethodsForUserAsync(user);
         Assert.Single(methods);
         var defaultMethod = await authenticationMethodProvider.FindMethodForUserOrDefaultAsync(user);
-        Assert.Equal(methods[0].Type, defaultMethod.Type);
+        Assert.Equal(methods[0].Type, defaultMethod?.Type);
     }
 
     [Fact]
@@ -137,7 +137,7 @@ public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
         var methods = await authenticationMethodProvider.GetAllMethodsForUserAsync(user);
         Assert.Equal(2, methods.Length);
         var defaultMethod = await authenticationMethodProvider.FindMethodForUserOrDefaultAsync(user);
-        Assert.Equal(methods[0].Type, defaultMethod.Type);
+        Assert.Equal(methods[0].Type, defaultMethod?.Type);
     }
 
     [Fact]
@@ -172,8 +172,8 @@ public class AuthenticationMethodProviderInMemoryTests : IAsyncLifetime
         var methods = await authenticationMethodProvider.GetAllMethodsForUserAsync(user);
         Assert.Equal(3, methods.Length);
         var selectedMethod = await authenticationMethodProvider.FindMethodForUserOrDefaultAsync(user, TotpDeliveryChannel.Viber);
-        Assert.NotEqual(methods[0].Type, selectedMethod.Type);
-        Assert.Equal(TotpDeliveryChannel.Viber, selectedMethod.GetDeliveryChannel());
+        Assert.NotEqual(methods[0].Type, selectedMethod?.Type);
+        Assert.Equal(TotpDeliveryChannel.Viber, selectedMethod?.GetDeliveryChannel());
     }
 
     public Task InitializeAsync() {

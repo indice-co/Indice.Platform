@@ -11,7 +11,7 @@ public class UnicodeCharactersPasswordValidatorTests
     private readonly IConfiguration _configuration;
 
     public UnicodeCharactersPasswordValidatorTests() {
-        var inMemorySettings = new Dictionary<string, string> {
+        var inMemorySettings = new Dictionary<string, string?> {
             {$"IdentityOptions:Password:{nameof(UnicodeCharactersPasswordValidator.AllowUnicodeCharacters)}", bool.FalseString}
         };
         _configuration = new ConfigurationBuilder().AddInMemoryCollection(inMemorySettings).Build();
@@ -23,7 +23,7 @@ public class UnicodeCharactersPasswordValidatorTests
     [InlineData("K1$ e")]
     public async Task CheckInvalidPasswords(string password) {
         var validator = new UnicodeCharactersPasswordValidator<User>(_configuration);
-        var identityResult = await validator.ValidateAsync(null, new User(), password);
+        var identityResult = await validator.ValidateAsync(null!, new User(), password);
         Assert.False(identityResult.Succeeded);
     }
 
@@ -31,7 +31,7 @@ public class UnicodeCharactersPasswordValidatorTests
     [InlineData(@"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+-={}[]:"";',./<>?")]
     public async Task CheckValidPasswords(string password) {
         var validator = new UnicodeCharactersPasswordValidator<User>(_configuration);
-        var identityResult = await validator.ValidateAsync(null, new User(), password);
+        var identityResult = await validator.ValidateAsync(null!, new User(), password);
         Assert.True(identityResult.Succeeded);
     }
 }
