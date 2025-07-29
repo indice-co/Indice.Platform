@@ -49,9 +49,9 @@ public static class OpenApiExtensions
             }
             return Task.CompletedTask;
         });
+        options.AddNullableTransformer();
         options.AddMappedTypeTransformer();
         options.AddFluentValidationTransformer();
-        options.AddNullableTransformer();
         options.AddConventionsTransformer();
         options.AddDictionaryTransformer();
         options.AddArrayTransformer();

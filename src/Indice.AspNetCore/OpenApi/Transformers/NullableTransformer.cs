@@ -37,8 +37,8 @@ internal static class NullableTransformer
                     var nullableType = Nullable.GetUnderlyingType(jsonProperty.PropertyType);
                    
                     property!.Nullable = (nullableType is not null) || jsonProperty.IsGetNullable;
-                    property.Type ??= (nullableType ?? jsonProperty.PropertyType).Name switch
-                    {
+                    property.Type ??= (nullableType ?? jsonProperty.PropertyType).Name switch {
+                        "Int16" => "integer",
                         "Int32" => "integer",
                         "Int64" => "integer",
                         "Double" => "number",
@@ -52,6 +52,7 @@ internal static class NullableTransformer
                         _ => null
                     }; 
                     property.Format ??= (nullableType ?? jsonProperty.PropertyType).Name switch {
+                        "Int16" => null,
                         "Int32" => "int32",
                         "Int64" => "int64",
                         "Double" => "double",
@@ -67,7 +68,7 @@ internal static class NullableTransformer
                     if (schema.Required?.Contains(jsonProperty.Name) == true) {
                         property!.Nullable = false;
                     }
-                    if (property!.Annotations?.Any(x => x.Value != null) == true) {
+                    if (property!.Annotations?.Any() == true) {
                         property.Nullable = false;
                     }
                     // Also need to remove `null` from enum values if present
