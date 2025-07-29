@@ -1,7 +1,7 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { HeaderMetaItem, ViewLayoutComponent } from '@indice/ng-components';
+import { HeaderMetaItem, IShellConfig, ViewLayoutComponent } from '@indice/ng-components';
 import { DistributionList } from 'src/app/core/services/messages-api.service';
 import { DistributionListEditStore } from './distribution-list-edit-store.service';
 
@@ -12,12 +12,13 @@ import { DistributionListEditStore } from './distribution-list-edit-store.servic
 export class DistributionListEditComponent implements OnInit, AfterViewChecked {
     @ViewChild('layout', { static: true }) private _layout!: ViewLayoutComponent;
     private _distributionListId?: string;
-
-    constructor(
+  
+  constructor(
         private _activatedRoute: ActivatedRoute,
         private _changeDetector: ChangeDetectorRef,
         private _distributionListStore: DistributionListEditStore
-    ) { }
+  ) {
+  }
 
     public submitInProgress = false;
     public distributionList: DistributionList | undefined;

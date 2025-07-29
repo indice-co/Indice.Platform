@@ -1,0 +1,20 @@
+<nav class="bg-white border-b border-gray-200 flex"
+     aria-label="Breadcrumb">
+  <ol class="w-full mx-auto px-4 flex space-x-4 sm:px-6 lg:px-8">
+    <li class="flex" *ngFor="let item of breadcrumb; let i = index">
+      <div class="flex items-center">
+        <ng-container *ngTemplateOutlet="i === 0 ? homeTemplate : linkTemplate; context: { value: item }"></ng-container>
+      </div>
+    </li>
+  </ol>
+</nav>
+<ng-template let-value="value"
+             #homeTemplate>
+  
+    Home:  {{ value.title }}
+  
+</ng-template>
+<ng-template let-value="value"
+             #linkTemplate>
+  Page:  {{ value.title }}
+</ng-template>

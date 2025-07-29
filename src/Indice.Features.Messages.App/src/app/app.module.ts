@@ -12,6 +12,7 @@ import { AppLinks } from './app.links';
 import { AppRoutingModule } from './app-routing.module';
 import { BadRequestInterceptor } from './core/bad-request-interceptor';
 import { BasicModalComponent } from './shared/components/basic-modal/basic-modal.component';
+import { BreadcrumbComponent } from './shared/components/breadcrumb/breadcrumb.component';
 import { BeautifyBooleanPipe } from './shared/pipes.services';
 import { CampaignBasicInfoComponent } from './features/campaigns/create/steps/basic-info/campaign-basic-info.component';
 import { CampaignContentComponent } from './features/campaigns/create/steps/content/campaign-content.component';
@@ -124,6 +125,7 @@ if (app.settings.tenantId) {
   declarations: [
     AppComponent,
     BasicModalComponent,
+    BreadcrumbComponent,
     BeautifyBooleanPipe,
     CampaignBasicInfoComponent,
     CampaignContentComponent,
