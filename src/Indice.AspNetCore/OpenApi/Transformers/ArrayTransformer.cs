@@ -118,11 +118,6 @@ public static class ArrayTransformer
                 break;
             default:
                 if (elementType is not null && transforms.TryGetValue(elementType!, out var cachedSchema)) {
-            //        if (cachedSchema.Properties.Count > 0 && itemSchema.Properties.Count == 0) {
-            //            cachedSchema.Properties.ToList().ForEach(kvp => {
-            //                itemSchema.Properties.Add(kvp.Key, kvp.Value);
-            //            });
-            //        }
                     itemSchema.Reference = new OpenApiReference {
                         Type = ReferenceType.Schema,
                         Id = cachedSchema.Reference?.Id ?? cachedSchema.Annotations?["x-schema-id"]?.ToString() ?? elementType.Name
