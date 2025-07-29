@@ -23,7 +23,7 @@ public interface IPushNotificationService
     /// <param name="tags">Tags are used to route notifications to the correct set of device handles.</param>
     /// <param name="data">Data passed to mobile client, not visible to notification toast.</param>
     /// <param name="classification">The notification's type.</param>
-    Task SendAsync(string title, string? body, IList<PushNotificationTag>? tags, string? data = null, string? classification = null);
+    Task<SendReceipt> SendAsync(string title, string? body, IList<PushNotificationTag>? tags, string? data = null, string? classification = null);
 }
 
 /// <summary>Extensions for <see cref="IPushNotificationService"/>.</summary>
