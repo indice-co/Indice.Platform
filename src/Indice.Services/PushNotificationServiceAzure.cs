@@ -100,7 +100,7 @@ public class PushNotificationServiceAzure : IPushNotificationService
         if (!string.IsNullOrEmpty(classification)) {
             properties.Add("classification", classification);
         }
-        NotificationOutcome outcome;
+        NotificationOutcome outcome = null!;
         if (tags?.Any() == true) {
             var tagsCollection = tags.Select(
                 tag => tag.Kind == PushNotificationTagKind.User || tag.Kind == PushNotificationTagKind.Unspecified
