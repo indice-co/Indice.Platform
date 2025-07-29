@@ -9,7 +9,7 @@ public class PushNotificationServiceNoop : IPushNotificationService
     public Task Register(string deviceId, string? pnsHandle, DevicePlatform devicePlatform, IList<PushNotificationTag> tags) => Task.CompletedTask;
 
     ///<inheritdoc/>
-    public Task SendAsync(string title, string? body, IList<PushNotificationTag>? tags, string? data = null, string? classification = null) => Task.CompletedTask;
+    public Task<SendReceipt> SendAsync(string title, string? body, IList<PushNotificationTag>? tags, string? data = null, string? classification = null) => Task.FromResult(new SendReceipt(string.Empty, DateTimeOffset.UtcNow));
 
     ///<inheritdoc/>
     public Task UnRegister(string deviceId) => Task.CompletedTask;
