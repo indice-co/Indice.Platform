@@ -33,7 +33,7 @@ public class EventDispatcherAzure : IEventDispatcher
     /// <param name="queueMessageEncoding">Determines how <see cref="Azure.Storage.Queues.Models.QueueMessage.Body"/> is represented in HTTP requests and responses.</param>
     /// <param name="claimsPrincipalSelector">Provides a way to access the current <see cref="ClaimsPrincipal"/> inside a service.</param>
     /// <param name="tenantIdSelector">Provides a way to access the current tenant id if any.</param>
-    public EventDispatcherAzure(string connectionString, string environmentName, bool enabled, bool useCompression, QueueMessageEncoding queueMessageEncoding, Func<ClaimsPrincipal> claimsPrincipalSelector, Func<string> tenantIdSelector) {
+    public EventDispatcherAzure(string connectionString, string environmentName, bool enabled, bool useCompression, QueueMessageEncoding queueMessageEncoding, Func<ClaimsPrincipal>? claimsPrincipalSelector, Func<string>? tenantIdSelector) {
         _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
         _environmentName = Regex.Replace(environmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
         _enabled = enabled;
