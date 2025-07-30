@@ -25,9 +25,6 @@ public static class ArrayTransformer
 
 
     internal static Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken cancellationToken) {
-        if (context.JsonTypeInfo.Properties.Count > 0) {
-            transforms.TryAdd(context.JsonTypeInfo.Type, schema);
-        }
         if (schema.Properties is not null) {
             foreach (var jsonProperty in context.JsonTypeInfo.Properties) {
                 if (!schema.Properties.TryGetValue(jsonProperty.Name, out var property)) {
@@ -52,7 +49,7 @@ public static class ArrayTransformer
 
         return Task.CompletedTask;
     }
-    internal static Dictionary<Type, OpenApiSchema> transforms = new Dictionary<Type, OpenApiSchema>();
+
     private static void FixEmptyArraySchemas(OpenApiSchema schema, Type type) {
         var canTransform = schema.Type == "array" && schema.Items?.Type == null;
         if (!canTransform) {
@@ -117,10 +114,10 @@ public static class ArrayTransformer
                 };
                 break;
             default:
-                if (elementType is not null && transforms.TryGetValue(elementType!, out var cachedSchema)) {
+                if (elementType is not null && itemSchema.Annotations?.Any(x => x.Value != null) == true) {
                     itemSchema.Reference = new OpenApiReference {
                         Type = ReferenceType.Schema,
-                        Id = cachedSchema.Reference?.Id ?? cachedSchema.Annotations?["x-schema-id"]?.ToString() ?? elementType.Name
+                        Id = itemSchema.Annotations?["x-schema-id"]?.ToString() ?? elementType.Name
                     };
                 }
                 break;

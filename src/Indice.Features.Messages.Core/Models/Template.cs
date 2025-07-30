@@ -13,7 +13,7 @@ public class Template : TemplateBase
 public class TemplateListItem : TemplateBase
 {
     /// <summary>The channels that this template supports.</summary>
-    public MessageChannelKind Channels { get; set; }
+    public List<MessageChannelKind> Channels { get; set; } = [];
 }
 
 /// <summary>Models a template's basic information.</summary>
