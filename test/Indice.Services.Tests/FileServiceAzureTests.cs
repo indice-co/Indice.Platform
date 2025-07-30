@@ -24,8 +24,8 @@ public class FileServiceAzureTests
         var contents = Encoding.UTF8.GetBytes($"This is the contents of the file. {DateTime.UtcNow:D}");
         await _FileService.SaveAsync($"uploads/{folder}/{filename}", contents);
         var properties = await _FileService.GetPropertiesAsync($"uploads/{folder}/{filename}");
-        Assert.Equal("text/plain", properties.ContentType);
-        Assert.Equal(contents.Length, properties.Length);
+        Assert.Equal("text/plain", properties?.ContentType);
+        Assert.Equal(contents.Length, properties?.Length);
         await _FileService.SaveAsync($"uploads/{folder}/{filename}", Encoding.UTF8.GetBytes("Updated contents"));
         await _FileService.DeleteAsync($"uploads");
     }

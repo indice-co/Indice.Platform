@@ -43,7 +43,7 @@ public class PolymorphicJsonConverterTests
     [Fact]
     public void DeserializePolymorphicObjectListTest() {
         var json = @"[{""firstName"": ""Kate"", ""lastName"": ""Leftheris"", ""sex"": ""Female"",""isPregnant"":true}, {""firstName"": ""Κωνσταντίνος"", ""lastName"": ""Λευθέρης"", ""sex"": ""Male""}]";
-        var people = JsonSerializer.Deserialize<Parent[]>(json, Options);
+        var people = JsonSerializer.Deserialize<Parent[]>(json, Options)!;
         Assert.IsType<Mother>(people[0]);
         Assert.IsType<Father>(people[1]);
     }
@@ -73,8 +73,8 @@ public class PolymorphicJsonConverterTests
 
     public class Person
     {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
     }
 
     public class Teacher : Person

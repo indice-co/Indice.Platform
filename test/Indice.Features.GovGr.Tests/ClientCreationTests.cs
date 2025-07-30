@@ -13,7 +13,7 @@ namespace Indice.Features.GovGr.Tests;
 public class ClientCreationTests : IDisposable
 {
     public ClientCreationTests() {
-        var inMemorySettings = new Dictionary<string, string> {
+        var inMemorySettings = new Dictionary<string, string?> {
             ["GovGr:Kyc:Environment"] = "Mock",
             ["GovGr:Kyc:ClientId"] = "ebanking",
             ["GovGr:Kyc:ClientSecret"] = "secret",
@@ -91,8 +91,8 @@ public class ClientCreationTests : IDisposable
 
         var configuration = ServiceProvider.GetRequiredService<IConfiguration>();
         var govGR = ServiceProvider.GetRequiredService<GovGrClient>();
-        var reference = await govGR.Wallet().RequestIdentificationAsync(configuration["TestGreekIdentityNumber"]);
-        var data = await govGR.Wallet().GetIdentificationAsync(reference.DeclarationId, "000000");
+        var reference = await govGR.Wallet().RequestIdentificationAsync(configuration["TestGreekIdentityNumber"]!);
+        var data = await govGR.Wallet().GetIdentificationAsync(reference.DeclarationId!, "000000");
 
         Assert.NotNull(data);
     }
@@ -101,15 +101,15 @@ public class ClientCreationTests : IDisposable
     async public Task ValidateSignature() {
         var responseJsonString = File.ReadAllText("kyc-test-response.json");
         // Deserialize KycResponse
-        var encodedResponse = JsonSerializer.Deserialize<KycHttpResponse>(responseJsonString);
+        var encodedResponse = JsonSerializer.Deserialize<KycHttpResponse>(responseJsonString)!;
         // Decode Protected
-        var protectedJsonString = encodedResponse.Protected.Base64UrlSafeDecode();
+        var protectedJsonString = encodedResponse.Protected!.Base64UrlSafeDecode();
         // Deserialize decoded Protected
         var @protected = JsonSerializer.Deserialize<Protected>(protectedJsonString);
 
         // Get Public Certificate
         var client = new HttpClient();
-        var httpResponse = await client.GetAsync(@protected.X5u);
+        var httpResponse = await client.GetAsync(@protected!.X5u);
         var certificatePemString = await httpResponse.Content.ReadAsStringAsync();
 
         // convert certificate string into X509 certificate

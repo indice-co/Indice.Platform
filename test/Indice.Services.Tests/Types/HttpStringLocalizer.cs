@@ -55,8 +55,8 @@ public class HttpStringLocalizerFactory : IStringLocalizerFactory
     public IHttpClientFactory HttpClientFactory { get; }
 
     public IStringLocalizer Create(Type resourceSource) => 
-        CanHandle(resourceSource.Namespace, resourceSource.Name) ? 
-        Create(resourceSource.Namespace, resourceSource.Name) : 
+        CanHandle(resourceSource.Namespace!, resourceSource.Name) ? 
+        Create(resourceSource.Namespace!, resourceSource.Name) : 
         Inner.Create(resourceSource);
 
     public IStringLocalizer Create(string baseName, string location) {

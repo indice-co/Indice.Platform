@@ -7,7 +7,7 @@ public class MfaDeviceIdentiyfierTests
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void MfaDeviceIdentifier_Empty(string deviceIdText) {
+    public void MfaDeviceIdentifier_Empty(string? deviceIdText) {
         var deviceId = new MfaDeviceIdentifier(deviceIdText);
         Assert.True(deviceId.IsEmpty);
         Assert.False(deviceId.HasRegistrationId);
