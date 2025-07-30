@@ -28,7 +28,9 @@ export class BreadcrumbService {
           distinctUntilChanged()
         )
         .subscribe(_ => {
-          const breadcrumb = [...this._buildBreadcrumb()];
+          const breadcrumb = this._buildBreadcrumb();
+          console.log("Contructor");
+          console.log(breadcrumb);
           this._breadcrumb$.next(breadcrumb);
         });
     }
@@ -45,25 +47,19 @@ export class BreadcrumbService {
     let homeRoute: Route | undefined;
     if (declaredHomeRoutes.length === 1) {
       homeRoute = declaredHomeRoutes[0];
-      console.log('Return1')
     } else {
-      console.log('Return2')
       homeRoute = routerConfig.find((route: Route) => route.path === '');
       if (!homeRoute) {
-        console.log('Return2.1')
         return undefined;
       }
-      console.log('Return2.2')
       const redirectionUrl = homeRoute.redirectTo;
       if (!homeRoute?.data?.breadcrumb?.title && redirectionUrl) {
         homeRoute = routerConfig.find((route: Route) => route.path === redirectionUrl);
         if (!homeRoute) {
-          console.log('Return2.3')
           return undefined;
         }
       }
     }
-    console.log('Return' + homeRoute.path )
     return new BreadcrumbItem(this._getRouteTitle(homeRoute), homeRoute.path || '');
   }
 
@@ -72,6 +68,7 @@ export class BreadcrumbService {
   }
 
   private _buildBreadcrumb(): BreadcrumbItem[] {
+    console.log("Invoke _buildBreadcrumb");
     const breadcrumb: BreadcrumbItem[] = [];
     if (this._defaultHome) {
       breadcrumb.push(this._defaultHome);
@@ -80,11 +77,16 @@ export class BreadcrumbService {
     const path = this.getPathFromUrl(url) || '';
     const activeRoute = this._findRouteFromUrl(path);
     const parentRoutes = this._findParentRoutes(activeRoute);
+    console.log("parentRoutes")
+    console.log(parentRoutes)
     breadcrumb.push(...parentRoutes);
     if (activeRoute && activeRoute?.path !== this._defaultHome?.url) {
       const routeData = this._getBreadcrumbRouteData(activeRoute);
       breadcrumb.push(new BreadcrumbItem(this._getRouteTitle(activeRoute), (routeData._fullPath || activeRoute.path || '')));
     }
+
+    console.log("breadcrumb")
+    console.log(breadcrumb)
     return breadcrumb.map((route: BreadcrumbItem) => {
       const routeSegments = route.url?.split('/') || [];
       routeSegments.forEach((segment: string, index: number) => {
@@ -103,6 +105,7 @@ export class BreadcrumbService {
     return url.split(/[?#]/)[0];
   }
   private _findRouteFromUrl(url: string): Route | undefined {
+    //console.log("Invoke _findRouteFromUrl");
     const urlSegments = url.split('/').filter((segment: string) => segment !== '');
     const routerConfig = this._router.config;
     const flattenedRouterConfig = this._flattenRoutes(routerConfig);
@@ -113,7 +116,7 @@ export class BreadcrumbService {
     const route = filteredRouterConfig.find((route: Route) => {
       const routeData = this._getBreadcrumbRouteData(route);
       const routeSegments = (routeData._fullPath || route.path)?.split('/') || [];
-      console.log("ET:"+ routeSegments);
+    
       
       let segmentsMatched = false;
       for (let i = 0; i < routeSegments.length; i++) {
@@ -129,12 +132,17 @@ export class BreadcrumbService {
   }
 
   private _findParentRoutes(activeRoute: Route | undefined, items: BreadcrumbItem[] = []): BreadcrumbItem[] {
+    console.log("Invoked _findParentRoutes"); 
     if (!activeRoute) {
       return [];
     }
     const routeData = this._getBreadcrumbRouteData(activeRoute);
     let urlSegments = (routeData._fullPath || activeRoute.path)?.split('/').filter((segment: string) => segment !== '') || [];
+    console.log("segments");
+    console.log(urlSegments)
     if (urlSegments?.length <= 1) {
+      console.log("items <=1");
+      console.log(items)
       return [...items];
     }
     const previousUrl = urlSegments.slice(0, -1).join('/');
@@ -142,14 +150,17 @@ export class BreadcrumbService {
     if (route) {
       const routeData = this._getBreadcrumbRouteData(route);
       if (routeData._level > 0 || (!route.children || route.children.length === 0)) {
-        items.push(new BreadcrumbItem(this._getRouteTitle(route), routeData._fullPath || route.path));
-        this._findParentRoutes(route, [...items]);
+        console.log("items.push" + (routeData._fullPath || route.path));
+        items = this._findParentRoutes(route, [new BreadcrumbItem(this._getRouteTitle(route), routeData._fullPath || route.path), ...items]);
       }
     }
+    console.log("items");
+    console.log(items)
     return [...items];
   }
 
   private _flattenRoutes(routes: Route[], level?: number): Route[] {
+    //console.log("Invoked _flattenRoutes"); 
     let children: Route[] = [];
     level = level || 0;
     return routes.map((route: Route) => {

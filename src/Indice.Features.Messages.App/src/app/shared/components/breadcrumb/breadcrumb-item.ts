@@ -6,7 +6,7 @@ export class BreadcrumbItem {
     public level: number;
 
     public get urlSegments(): string[] | undefined {
-        if (this.url) {
+      if (this.url) {
             return this.url?.split('/').filter(x => x !== '');
         }
         return undefined;

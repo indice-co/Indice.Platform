@@ -15,10 +15,12 @@ export class BreadcrumbComponent implements OnInit {
     public ngOnInit(): void {
         this._breadcrumbService
             .breadcrumb
-            .subscribe((breadcrumb: BreadcrumbItem[]) => {
+          .subscribe((breadcrumb: BreadcrumbItem[]) => {
+            console.log("component");
+            console.log(breadcrumb);
                 this.breadcrumb = [...breadcrumb, new BreadcrumbItem('', '')];
             });
-      //console.log("ngOnInit:" + this.breadcrumb);
+      console.log("ngOnInit:" + this.breadcrumb.length);
     }
 
     public breadcrumb: BreadcrumbItem[] = [];
