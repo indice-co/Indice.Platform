@@ -105,8 +105,16 @@ export class BreadcrumbService {
     return url.split(/[?#]/)[0];
   }
   private _findRouteFromUrl(url: string): Route | undefined {
-    //console.log("Invoke _findRouteFromUrl");
-    const urlSegments = url.split('/').filter((segment: string) => segment !== '');
+    let urlSegments = url.replace(/\(.+\)/, '') // remove any secondary outlet segments and focus on primary outlet that is the main route
+                           .split('/') // split the URL into segments
+      .filter((segment: string) => segment !== '');
+
+    const outletRegex = new RegExp("\\(([^()]+)\\)");
+    var outletPart = url.match(outletRegex)?.[1];
+    if (outletPart) {
+      //urlSegments = outletPart.replace(/.+:/, '').split('/') // split the URL into segments
+      //                        .filter((segment: string) => segment !== '');
+    }
     const routerConfig = this._router.config;
     const flattenedRouterConfig = this._flattenRoutes(routerConfig);
     const filteredRouterConfig = flattenedRouterConfig.filter((route: Route) => {
