@@ -107,7 +107,7 @@ const routes: Routes = [
             children: [
               { path: '', redirectTo: 'distribution-list-details', pathMatch: 'full' },
               { path: 'distribution-list-details', component: DistributionListDetailsEditComponent, data: { breadcrumb: { title: 'Βασικές Πληροφορίες' }} },
-              { path: 'distribution-list-contacts', component: DistributionListContactsComponent, data: { breadcrumb: { title: 'Περιεχόμενο' }} }
+              { path: 'distribution-list-contacts', component: DistributionListContactsComponent, data: { breadcrumb: { title: 'Επαφές' }} }
             ]
           },
         ]

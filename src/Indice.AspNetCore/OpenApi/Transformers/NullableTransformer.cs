@@ -12,7 +12,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// Finally, it removes the "NullableOf" prefix from schema reference IDs if present, being careful to preserve
 /// the original reference ID for non-nullable types.
 /// </summary>
-internal static class NullableTransformer
+public static class NullableTransformer
 {
     internal class ChainedDelegate(Func<JsonTypeInfo, string?> next)
     {
@@ -27,6 +27,11 @@ internal static class NullableTransformer
         }
     }
 
+    /// <summary>
+    /// Adds a transformer to the OpenApiOptions that modifies schema properties to reflect nullability 
+    /// </summary>
+    /// <param name="options">The options to configure</param>
+    /// <returns>The options for further configuration</returns>
     public static OpenApiOptions AddNullableTransformer(this OpenApiOptions options) {
         options.AddSchemaTransformer((schema, context, cancellationToken) => {
             if (schema.Properties is not null) {

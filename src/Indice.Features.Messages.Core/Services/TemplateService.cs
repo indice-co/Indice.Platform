@@ -92,7 +92,7 @@ public class TemplateService : ITemplateService
         }
         var result = await query.ToResultSetAsync(options);
         var templateItems = result.Items.Select(x => new TemplateListItem {
-            Channels = Enum.Parse<MessageChannelKind>(string.Join(',', x.Content.Select(x => x.Key)), ignoreCase: true).ToList(),
+            Channels = x.Content.Select(x => Enum.Parse<MessageChannelKind>(x.Key, ignoreCase: true)).ToList(),
             CreatedAt = x.CreatedAt,
             UpdatedAt = x.UpdatedAt,
             UpdatedBy = x.UpdatedBy,
