@@ -1,5 +1,6 @@
 ﻿#if NET9_0_OR_GREATER
 using Microsoft.AspNetCore.OpenApi;
+using Microsoft.OpenApi.Extensions;
 using Microsoft.OpenApi.Models;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -53,7 +54,7 @@ public static class ArrayTransformer
     }
     internal static Dictionary<Type, OpenApiSchema> transforms = new Dictionary<Type, OpenApiSchema>();
     private static void FixEmptyArraySchemas(OpenApiSchema schema, Type type) {
-        var canTransform = schema.Type == "array" && schema.Items?.Type == null && schema.Items?.Annotations.Any(x => x.Value != null) != true;
+        var canTransform = schema.Type == "array" && schema.Items?.Type == null;
         if (!canTransform) {
             return;
         }
@@ -117,7 +118,10 @@ public static class ArrayTransformer
                 break;
             default:
                 if (elementType is not null && transforms.TryGetValue(elementType!, out var cachedSchema)) {
-                    itemSchema = cachedSchema;
+                    itemSchema.Reference = new OpenApiReference {
+                        Type = ReferenceType.Schema,
+                        Id = cachedSchema.Reference?.Id ?? cachedSchema.Annotations?["x-schema-id"]?.ToString() ?? elementType.Name
+                    };
                 }
                 break;
         }
