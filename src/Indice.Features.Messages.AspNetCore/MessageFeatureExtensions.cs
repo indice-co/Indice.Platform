@@ -169,7 +169,6 @@ public static class MessageFeatureExtensions
         services.TryAddTransient<IMessageSenderService, MessageSenderService>();
         services.TryAddTransient<IDistributionListService, DistributionListService>();
         services.TryAddTransient<IMessageService, MessageService>();
-        services.TryAddTransient<IRecepientPreferenceService, RecepientPreferenceService>();
         services.TryAddScoped<IUserNameAccessor, UserNameFromClaimsAccessor>();
         services.TryAddScoped<UserNameAccessorAggregate>();
         services.TryAddTransient<IFileService, FileServiceNoop>();
@@ -316,6 +315,7 @@ public static class MessageFeatureExtensions
             config.ClientId = serviceOptions.ClientId;
             config.ClientSecret = serviceOptions.ClientSecret;
             config.UserClaimType = serviceOptions.UserClaimType;
+            config.ClaimsToResolve = serviceOptions.ClaimsToResolve;
         });
         options.Services!.AddDistributedMemoryCache();
         options.Services!.AddHttpClient<IContactResolver, ContactResolverIdentity>(httpClient => {

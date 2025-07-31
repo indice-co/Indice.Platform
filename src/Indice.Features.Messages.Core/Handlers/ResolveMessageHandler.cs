@@ -21,7 +21,6 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
     /// <param name="contactResolver">Contains information that help gather contact information from other systems.</param>
     /// <param name="contactService">A service that contains contact related operations.</param>
     /// <param name="messageService">A service that contains message related operations.</param>
-    /// <param name="recepientPreference">A service that contains recepient preferences related operations.</param>
     /// <param name="logger">A logger</param>
     /// <param name="options">Configuration for workers.</param>
     /// <param name="campaignEventQueue">Campaign event listener queue</param>
@@ -31,7 +30,6 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         IContactResolver contactResolver,
         IContactService contactService,
         IMessageService messageService,
-        IRecepientPreferenceService recepientPreference,
         ILogger<ResolveMessageHandler> logger,
         Microsoft.Extensions.Options.IOptions<MessageWorkerOptions> options,
         CampaignEventQueue campaignEventQueue
@@ -43,9 +41,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         CampaignEventQueue = campaignEventQueue;
         Options = options?.Value ?? throw new ArgumentNullException(nameof(options));
-        _recepientPreference = recepientPreference;
     }
-    private readonly IRecepientPreferenceService _recepientPreference;
     private IEventDispatcherFactory EventDispatcherFactory { get; }
     private IContactResolver ContactResolver { get; }
     private IContactService ContactService { get; }
@@ -99,7 +95,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         if ((contactNotUpdatedAWhileNow || @event.Contact.IsEmpty) && contact.Id.HasValue) {
             await ContactService.Update(contact.Id.Value, Mapper.ToUpdateContactRequest(contact, campaign!.DistributionListId));
             if (!string.IsNullOrWhiteSpace(contact.RecipientId) && contact.Preference is not null) {
-                await _recepientPreference.UpdateContactPreferences(contact.RecipientId, contact.Preference);
+                await ContactService.UpdateContactPreferences(contact.RecipientId, contact.Preference);
             }
         }
 

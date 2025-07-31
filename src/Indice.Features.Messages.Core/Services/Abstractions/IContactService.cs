@@ -41,6 +41,18 @@ public interface IContactService
     /// <summary>Gets a contact by it's recipient id.</summary>
     /// <param name="recipientId">The id of the recipient.</param>
     Task<Contact?> GetByRecipientId(string? recipientId);
+
+    /// <summary>Gets recipient preferences.</summary>
+    /// <param name="recipientId">The id of the recipient.</param>
+    Task<ContactPreference> GetContactPreference(string recipientId);
+    /// <summary>Updates an existing campaign.</summary>
+    /// <param name="recipientId">The id of the recipient.</param>
+    /// <param name="request">The data for the communication preferences.</param>
+    Task UpdatePreference(string recipientId, UpdatPreferenceRequest request);
+    /// <summary>Updates an existing campaign.</summary>
+    /// <param name="recipientId">The id of the recipient.</param>
+    /// <param name="preference">The data for the communication preferences.</param>
+    Task UpdateContactPreferences(string recipientId, ContactPreference preference);
 }
 
 /// <summary>Extensions on the <see cref="IContactService"/></summary>

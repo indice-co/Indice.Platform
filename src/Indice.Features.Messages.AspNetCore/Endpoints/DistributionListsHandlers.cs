@@ -46,11 +46,10 @@ internal static class DistributionListsHandlers
     }
 
     public static async Task<NoContent> AddContactToDistributionList(IContactService contactService,
-        IRecepientPreferenceService recepientPreferenceService,
         Guid distributionListId, 
         CreateDistributionListContactRequest request) {
         if (!string.IsNullOrWhiteSpace(request.RecipientId) && request.CommunicationPreference is not null) {
-            await recepientPreferenceService.UpdateContactPreferences(request.RecipientId, request.CommunicationPreference);
+            await contactService.UpdateContactPreferences(request.RecipientId, request.CommunicationPreference);
         }
         await contactService.AddToDistributionList(distributionListId, request);
         return TypedResults.NoContent();

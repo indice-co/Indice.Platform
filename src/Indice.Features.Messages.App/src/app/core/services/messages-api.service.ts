@@ -4670,6 +4670,7 @@ export class ContactPreference implements IContactPreference {
     consentCommercial?: boolean;
     consentCommercialDate?: Date;
     communication?: ContactCommunicationOption[];
+    defaultChannels?: ContactChannelOption[] | undefined;
 
     constructor(data?: IContactPreference) {
         if (data) {
@@ -4689,6 +4690,11 @@ export class ContactPreference implements IContactPreference {
                 this.communication = [] as any;
                 for (let item of _data["communication"])
                     this.communication!.push(ContactCommunicationOption.fromJS(item));
+            }
+            if (Array.isArray(_data["defaultChannels"])) {
+                this.defaultChannels = [] as any;
+                for (let item of _data["defaultChannels"])
+                    this.defaultChannels!.push(ContactChannelOption.fromJS(item));
             }
         }
     }
@@ -4710,6 +4716,11 @@ export class ContactPreference implements IContactPreference {
             for (let item of this.communication)
                 data["communication"].push(item ? item.toJSON() : <any>undefined);
         }
+        if (Array.isArray(this.defaultChannels)) {
+            data["defaultChannels"] = [];
+            for (let item of this.defaultChannels)
+                data["defaultChannels"].push(item ? item.toJSON() : <any>undefined);
+        }
         return data;
     }
 }
@@ -4719,6 +4730,7 @@ export interface IContactPreference {
     consentCommercial?: boolean;
     consentCommercialDate?: Date;
     communication?: ContactCommunicationOption[];
+    defaultChannels?: ContactChannelOption[] | undefined;
 }
 
 export class ContactResultSet implements IContactResultSet {

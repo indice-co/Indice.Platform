@@ -135,22 +135,22 @@ internal static class MyMessagesHandlers
         return fileResult;
     }
     public static async Task<Ok<ContactPreference>> GetMyCommunicationPreferences(
-        IRecepientPreferenceService communicationPreferenceService,
+        IContactService contactService,
         IOptions<MessageInboxOptions> campaignEndpointOptions,
         ClaimsPrincipal currentUser
     ) {
         var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType)!;
-        var preferences = await communicationPreferenceService.GetPreferences(userCode);
+        var preferences = await contactService.GetContactPreference(userCode);
         return TypedResults.Ok(preferences);
     }
     public static async Task<NoContent> UpdateMyCommunicationPreferences(
-        IRecepientPreferenceService communicationPreferenceService,
+        IContactService contactService,
         IOptions<MessageInboxOptions> campaignEndpointOptions,
         ClaimsPrincipal currentUser,
         UpdatPreferenceRequest request
     ) {
         var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType)!;
-        await communicationPreferenceService.Update(userCode, request);
+        await contactService.UpdatePreference(userCode, request);
         return TypedResults.NoContent();
     }
 

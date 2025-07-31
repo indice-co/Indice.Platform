@@ -27,7 +27,7 @@ public class DbContactCommunicationOptionMap : IEntityTypeConfiguration<DbContac
         // Configure properties.
         builder.Property(x => x.ContactPreferenceId).IsRequired();
         builder.Property(x => x.MessageTypeId).IsRequired();
-        builder.Property(x => x.ChannelsEnum).HasDefaultValue(ContactChannelKind.Any);
+        builder.Property(x => x.Channels).HasDefaultValue(ContactChannelKind.Any);
         // Configure relationships.
         builder.HasOne(x => x.ContactPreference).WithMany(x => x.CommunicationOptions).HasForeignKey(x => x.ContactPreferenceId);
         builder.HasOne(x => x.MessageType).WithMany().HasForeignKey(x => x.MessageTypeId);

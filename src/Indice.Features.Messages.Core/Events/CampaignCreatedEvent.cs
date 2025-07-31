@@ -74,9 +74,15 @@ public class CampaignCreatedEvent
         }
         if (IgnoreUserPreferences)
             return MessageChannelKind;
+
+        if (contactPreferences.DefaultChannels != null) {
+            return ContactChannelOption.ToMessageChannelKind(contactPreferences.DefaultChannels, defaultOption: MessageChannelKind.Inbox);
+        }
+
         var typeCommunicationPreference = contactPreferences.Communication?.FirstOrDefault(x => x.MessageTypeAlias == Type?.Alias);
         if (typeCommunicationPreference == null) {
-            return ContactChannelOption.ToMessageChannelKind(contactPreferences.DefaultChannels, defaultOption: MessageChannelKind.Inbox);
+
+            return MessageChannelKind;
         }
         MessageChannelKind messageChannelKinds = ContactChannelOption.ToMessageChannelKind(typeCommunicationPreference.Channels, defaultOption: MessageChannelKind.Inbox);
         return messageChannelKinds;

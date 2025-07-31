@@ -47,7 +47,26 @@
             <th scope="col" class="list-view-th">Inbox</th>
           </tr>
         </thead>
-        <tbody class="list-view-tbody">
+        <tbody *ngIf="recepientPreference?.defaultChannels" class="list-view-tbody">
+          <tr class="list-view-tr">
+            <td class="list-view-td">
+              Default Settings
+            </td>
+            <td class="list-view-td">
+              <span [innerHtml]="CheckReceivePreference(recepientPreference?.defaultChannels!, ContactChannelKindEnum.Email) | beautifyBoolean"></span>
+            </td>
+            <td class="list-view-td">
+              <span [innerHtml]="CheckReceivePreference(recepientPreference?.defaultChannels!, ContactChannelKindEnum.SMS) | beautifyBoolean"></span>
+            </td>
+            <td class="list-view-td">
+              <span [innerHtml]="CheckReceivePreference(recepientPreference?.defaultChannels!, ContactChannelKindEnum.PushNotification) | beautifyBoolean"></span>
+            </td>
+            <td class="list-view-td">
+              <span [innerHtml]="true | beautifyBoolean"></span>
+            </td>
+          </tr>
+        </tbody>
+        <tbody *ngIf="!recepientPreference?.defaultChannels" class="list-view-tbody">
           <tr *ngFor="let preference of recepientPreference?.communication"
               class="list-view-tr">
             <td class="list-view-td">

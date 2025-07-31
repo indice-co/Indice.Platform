@@ -18,7 +18,7 @@ public class DbContactPreference
     /// <summary>Communication preferences per message type.</summary>
     public List<DbContactCommunicationOption> CommunicationOptions { get; set; } = [];
     /// <summary>The preferred delivery channels to receive messages.</summary>
-    public ContactChannelKind DefaultChannels { get; set; } = ContactChannelKind.Any;
+    public ContactChannelKind? DefaultChannels { get; set; }
     /// <summary>Indicates when record was last updated.</summary>
     public DateTimeOffset? UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

@@ -38,28 +38,25 @@ internal static class ContactsHandlers
     }
 
     public static async Task<Ok<Contact>> CreateContact(IContactService contactService,
-        IRecepientPreferenceService recepientPreferenceService,
         CreateContactRequest request) {
         if (!string.IsNullOrWhiteSpace(request.RecipientId) && request.CommunicationPreference is not null) {
-            await recepientPreferenceService.UpdateContactPreferences(request.RecipientId, request.CommunicationPreference);
+            await contactService.UpdateContactPreferences(request.RecipientId, request.CommunicationPreference);
         }
         var contact = await contactService.Create(request);
         return TypedResults.Ok(contact);
     }
 
     public static async Task<NoContent> UpdateContact(IContactService contactService,
-        IRecepientPreferenceService recepientPreferenceService,
         Guid contactId,
         UpdateContactRequest request) {
         if (!string.IsNullOrWhiteSpace(request.RecipientId) && request.Preference is not null) {
-            await recepientPreferenceService.UpdateContactPreferences(request.RecipientId, request.Preference);
+            await contactService.UpdateContactPreferences(request.RecipientId, request.Preference);
         }
         await contactService.Update(contactId, request);
         return TypedResults.NoContent();
     }
 
     public static async Task<Results<NoContent, NotFound, ValidationProblem>> RefreshContact(IContactService contactService,
-        IRecepientPreferenceService recepientPreferenceService,
         IContactResolver contactResolver, string recipientId) {
 
         if (string.IsNullOrWhiteSpace(recipientId))
@@ -73,26 +70,25 @@ internal static class ContactsHandlers
         var contact = await contactService.GetByRecipientId(recipientId);
         if (contact is null) {
             await contactService.Create(Mapper.ToCreateContactRequest(resolvedContact));
-            await recepientPreferenceService.UpdateContactPreferences(recipientId, resolvedContact.Preference!);
+            await contactService.UpdateContactPreferences(recipientId, resolvedContact.Preference!);
             return TypedResults.NoContent();
         }
 
         resolvedContact.Id = contact.Id;
         await contactService.Update(contact.Id!.Value, Mapper.ToUpdateContactRequest(resolvedContact));
-        await recepientPreferenceService.UpdateContactPreferences(recipientId, resolvedContact.Preference!);
+        await contactService.UpdateContactPreferences(recipientId, resolvedContact.Preference!);
         return TypedResults.NoContent();
     }
 
     public static async Task<Results<Ok<ContactPreference>, NotFound>> GetCommunicationPreferences(
         IContactService contactService,
-         IRecepientPreferenceService communicationPreferenceService,
          Guid contactId
      ) {
         var contact = await contactService.GetById(contactId);
         if (contact is null || string.IsNullOrWhiteSpace(contact.RecipientId)) {
             return TypedResults.NotFound();
         }
-        var preferences = await communicationPreferenceService.GetPreferences(contact.RecipientId);
+        var preferences = await contactService.GetContactPreference(contact.RecipientId);
         return TypedResults.Ok(preferences);
     }
 

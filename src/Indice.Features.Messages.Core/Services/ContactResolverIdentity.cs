@@ -144,12 +144,12 @@ public class ContactResolverIdentity : IContactResolver
     private static bool GetCommercialConsent(IEnumerable<IdentityUserClaimResponse>? claims) =>
         claims?.Any(x => x.Type == BasicClaimTypes.ConsentCommercial && bool.TrueString.Equals(x.Value, StringComparison.CurrentCultureIgnoreCase)) ?? false;
 
-    private static List<ContactChannelOption> GetCommunicationPreferences(IEnumerable<IdentityUserClaimResponse>? claims) {
+    private static List<ContactChannelOption>? GetCommunicationPreferences(IEnumerable<IdentityUserClaimResponse>? claims) {
         if (claims == null)
-            return ContactChannelOption.FromKindFlags(ContactChannelKind.Any);
+            return null;
         var communicationPreferences = claims.FirstOrDefault(x => x.Type == BasicClaimTypes.CommunicationPreferences);
         if (communicationPreferences == null)
-            return ContactChannelOption.FromKindFlags(ContactChannelKind.Any);
+            return null;
         var enumValues = Enum.Parse<ContactChannelKind>(communicationPreferences.Value!, ignoreCase: true);
         return ContactChannelOption.FromKindFlags(enumValues);
     }

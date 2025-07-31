@@ -13,7 +13,7 @@ public class ContactPreference
     /// <summary>Communication preferences per message type.</summary>
     public List<ContactCommunicationOption> Communication { get; set; } = [];
     /// <summary>Default communication preferences</summary>
-    public List<ContactChannelOption> DefaultChannels { get; set; } = ContactChannelOption.FromKindFlags(ContactChannelKind.Any);
+    public List<ContactChannelOption>? DefaultChannels { get; set; }
 }
 
 /// <summary>Models a contact preference for a recipient.</summary>
