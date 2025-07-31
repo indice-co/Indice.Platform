@@ -260,8 +260,8 @@ public class ContactService : IContactService
                                 Locale = rp.Locale,
                                 ConsentCommercial = rp.ConsentCommercial,
                                 ConsentCommercialDate = rp.ConsentCommercialDate,
-                                Communication = DbContext.ContactCommunicationPreferences
-                                    .Where(rcp => rcp.CommunicationPreferenceId == rp.Id)
+                                Communication = DbContext.ContactCommunicationOptions
+                                    .Where(rcp => rcp.ContactPreferenceId == rp.Id)
                                     .Join(
                                         DbContext.MessageTypes,
                                         rcp => rcp.MessageTypeId,
@@ -270,7 +270,7 @@ public class ContactService : IContactService
                                     )
                                     .Select(x => new ContactCommunicationOption {
                                         MessageTypeAlias = new GuidOrAlias(x.mt.Alias ?? x.mt.Id.ToString()),
-                                        Channels = ContactChannelOption.FromKindFlags(x.rcp.CommunicationPreferences),
+                                        Channels = ContactChannelOption.FromKindFlags(x.rcp.Channels),
                                     })
                                     .ToList()
                             }

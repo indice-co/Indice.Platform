@@ -43,7 +43,7 @@ public class RecepientPreferenceService : IRecepientPreferenceService
         //add new types
         var missing = messageTypes.Where(x => !recipientPreferences.CommunicationOptions.Any(mt => mt.MessageTypeId == x.Id)).Select(cmt =>
             new DbContactCommunicationOption() {
-                CommunicationPreferences = ContactChannelKind.Any,
+                Channels = ContactChannelKind.Any,
                 MessageType = cmt,
                 UpdatedAt = DateTimeOffset.UtcNow
             });
@@ -56,7 +56,7 @@ public class RecepientPreferenceService : IRecepientPreferenceService
             Communication = recipientPreferences.CommunicationOptions.Select(x => new ContactCommunicationOption() {
                 MessageTypeAlias = new GuidOrAlias(x.MessageType.Alias ?? x.MessageTypeId.ToString()),
                 MessageTypeDisplayName = x.MessageType.Name,
-                Channels = ContactChannelOption.FromKindFlags(x.CommunicationPreferences)
+                Channels = ContactChannelOption.FromKindFlags(x.Channels)
             }).ToList(),
         };
     }
@@ -77,7 +77,7 @@ public class RecepientPreferenceService : IRecepientPreferenceService
                 CommunicationOptions = messageTypes.Select(x =>
                     new DbContactCommunicationOption() {
                         MessageTypeId = x.Id,
-                        CommunicationPreferences = request.CommunicationPreferences.FirstOrDefault(mt => mt.Alias == x.Alias)?.Channels.ToFlags() ?? ContactChannelKind.Any,
+                        Channels = request.CommunicationPreferences.FirstOrDefault(mt => mt.Alias == x.Alias)?.Channels.ToFlags() ?? ContactChannelKind.Any,
                         UpdatedAt = DateTimeOffset.UtcNow
                     }).ToList()
             };
@@ -91,12 +91,12 @@ public class RecepientPreferenceService : IRecepientPreferenceService
         //remove deleted
         recipientPreferences.CommunicationOptions.RemoveAll(x => !messageTypes.Any(mt => mt.Id == x.MessageTypeId));
         //update existing
-        recipientPreferences.CommunicationOptions.ForEach(x => x.CommunicationPreferences = request.CommunicationPreferences.FirstOrDefault(mt => mt.Alias == x.MessageType.Alias)?.Channels.ToFlags() ?? ContactChannelKind.Any);
+        recipientPreferences.CommunicationOptions.ForEach(x => x.Channels = request.CommunicationPreferences.FirstOrDefault(mt => mt.Alias == x.MessageType.Alias)?.Channels.ToFlags() ?? ContactChannelKind.Any);
         //add new types
         var missing = messageTypes.Where(x => !recipientPreferences.CommunicationOptions.Any(mt => mt.MessageTypeId == x.Id)).Select(cmt =>
             new DbContactCommunicationOption() {
-                CommunicationPreferenceId = recipientPreferences.Id,
-                CommunicationPreferences = ContactChannelKind.Any,
+                ContactPreferenceId = recipientPreferences.Id,
+                Channels = ContactChannelKind.Any,
                 MessageType = cmt,
                 UpdatedAt = DateTimeOffset.UtcNow
             });
@@ -123,7 +123,7 @@ public class RecepientPreferenceService : IRecepientPreferenceService
                 CommunicationOptions = messageTypes.Select(x =>
                     new DbContactCommunicationOption() {
                         MessageTypeId = x.Id,
-                        CommunicationPreferences = ContactChannelKind.Any,
+                        Channels = ContactChannelKind.Any,
                         UpdatedAt = DateTimeOffset.UtcNow
                     }).ToList()
             };

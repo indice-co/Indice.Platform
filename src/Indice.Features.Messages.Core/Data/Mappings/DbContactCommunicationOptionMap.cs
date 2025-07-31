@@ -23,13 +23,13 @@ public class DbContactCommunicationOptionMap : IEntityTypeConfiguration<DbContac
         // Configure table name.
         builder.ToTable("ContactCommunicationOption", SchemaName);
         // Configure composite primary key.
-        builder.HasKey(x => new { x.CommunicationPreferenceId, x.MessageTypeId });
+        builder.HasKey(x => new { x.ContactPreferenceId, x.MessageTypeId });
         // Configure properties.
-        builder.Property(x => x.CommunicationPreferenceId).IsRequired();
+        builder.Property(x => x.ContactPreferenceId).IsRequired();
         builder.Property(x => x.MessageTypeId).IsRequired();
-        builder.Property(x => x.CommunicationPreferences).HasDefaultValue(ContactChannelKind.Any);
+        builder.Property(x => x.Channels).HasDefaultValue(ContactChannelKind.Any);
         // Configure relationships.
-        builder.HasOne(x => x.ContactPreference).WithMany(x => x.CommunicationOptions).HasForeignKey(x => x.CommunicationPreferenceId);
+        builder.HasOne(x => x.ContactPreference).WithMany(x => x.CommunicationOptions).HasForeignKey(x => x.ContactPreferenceId);
         builder.HasOne(x => x.MessageType).WithMany().HasForeignKey(x => x.MessageTypeId);
     }
 }
