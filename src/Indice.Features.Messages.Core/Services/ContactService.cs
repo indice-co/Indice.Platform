@@ -133,27 +133,15 @@ public class ContactService : IContactService
         }
         var result = Mapper.ToContact(contact);
 
-        if (expandPreferences && !string.IsNullOrWhiteSpace(contact.RecipientId)) { 
-            result.Preference = (from preference in DbContext.ContactPreferences
-                                 where preference.RecipientId == contact.RecipientId
-                                 select new ContactPreference {
-                    Locale = preference.Locale,
-                    ConsentCommercial = preference.ConsentCommercial,
-                    ConsentCommercialDate = preference.ConsentCommercialDate,
-                    Communication = DbContext.MessageTypes
-                    .Select(mt => new ContactCommunicationOption {
-                        MessageTypeAlias = new GuidOrAlias(mt.Alias ?? mt.Id.ToString()),
-                        Channels = ContactChannelOption.FromKindFlags(preference.CommunicationOptions.Where(x => x.MessageTypeId == mt.Id).Select(x => x.Channels).FirstOrDefault()),
-                    })
-                    .ToList()}).FirstOrDefault() ?? 
-                new ContactPreference() { 
-                  Communication = DbContext.MessageTypes
+        if (expandPreferences && !string.IsNullOrWhiteSpace(contact.RecipientId)) {
+            result.Preference = new ContactPreference() {
+                Communication = (await DbContext.MessageTypes.ToListAsync())
                     .Select(mt => new ContactCommunicationOption {
                         MessageTypeAlias = new GuidOrAlias(mt.Alias ?? mt.Id.ToString()),
                         Channels = ContactChannelOption.FromKindFlags(ContactChannelKind.Any),
-                    })
-                    .ToList()
-                };
+                    }).ToList()
+
+            };
 
         }
 
