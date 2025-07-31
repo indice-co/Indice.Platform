@@ -29,8 +29,8 @@ internal static class ContactsHandlers
         return TypedResults.Ok(contacts);
     }
 
-    public static async Task<Results<Ok<Contact>, NotFound>> GetContactById(IContactService contactService, Guid contactId, bool expandPreferences) {
-        var contact = await contactService.GetById(contactId, expandPreferences);
+    public static async Task<Results<Ok<Contact>, NotFound>> GetContactById(IContactService contactService, Guid contactId, bool? expandPreferences = null) {
+        var contact = await contactService.GetById(contactId, expandPreferences ?? false);
         if (contact is null) {
             return TypedResults.NotFound();
         }

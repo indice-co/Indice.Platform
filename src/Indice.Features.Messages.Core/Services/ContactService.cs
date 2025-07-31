@@ -6,6 +6,7 @@ using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Indice.Features.Messages.Core.Services;
 
@@ -139,31 +140,18 @@ public class ContactService : IContactService
                     Locale = preference.Locale,
                     ConsentCommercial = preference.ConsentCommercial,
                     ConsentCommercialDate = preference.ConsentCommercialDate,
-                    Communication = DbContext.ContactCommunicationOptions
-                        .Where(rcp => rcp.ContactPreferenceId == preference.Id)
-                        .Join(
-                            DbContext.MessageTypes,
-                            rcp => rcp.MessageTypeId,
-                            mt => mt.Id,
-                            (rcp, mt) => new ContactCommunicationOption {
-                                MessageTypeAlias = new GuidOrAlias(mt.Alias ?? mt.Id.ToString()),
-                                Channels = ContactChannelOption.FromKindFlags(rcp.Channels),
-                            }
-                        )
-                        .ToList()
-                }).FirstOrDefault() ?? 
+                    Communication = DbContext.MessageTypes
+                    .Select(mt => new ContactCommunicationOption {
+                        MessageTypeAlias = new GuidOrAlias(mt.Alias ?? mt.Id.ToString()),
+                        Channels = ContactChannelOption.FromKindFlags(preference.CommunicationOptions.Where(x => x.MessageTypeId == mt.Id).Select(x => x.Channels).FirstOrDefault()),
+                    })
+                    .ToList()}).FirstOrDefault() ?? 
                 new ContactPreference() { 
-                  Communication = DbContext.ContactCommunicationOptions
-                    .Where(rcp => rcp.ContactPreferenceId == contact.Id)
-                    .Join(
-                        DbContext.MessageTypes,
-                        rcp => rcp.MessageTypeId,
-                        mt => mt.Id,
-                        (rcp, mt) => new ContactCommunicationOption {
-                            MessageTypeAlias = new GuidOrAlias(mt.Alias ?? mt.Id.ToString()),
-                            Channels = ContactChannelOption.FromKindFlags(rcp.Channels),
-                        }
-                    )
+                  Communication = DbContext.MessageTypes
+                    .Select(mt => new ContactCommunicationOption {
+                        MessageTypeAlias = new GuidOrAlias(mt.Alias ?? mt.Id.ToString()),
+                        Channels = ContactChannelOption.FromKindFlags(ContactChannelKind.Any),
+                    })
                     .ToList()
                 };
 
