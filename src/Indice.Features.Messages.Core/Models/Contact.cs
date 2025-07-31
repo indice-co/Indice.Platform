@@ -33,5 +33,5 @@ public class Contact
     internal bool IsEmpty => !HasEmail && !HasPhoneNumber;
 
     /// <summary>Communication Preferences </summary>
-    public ContactPreference Preferences { get; set; } = new ContactPreference();
+    public ContactPreference Preference { get; set; } = new ContactPreference();
 }

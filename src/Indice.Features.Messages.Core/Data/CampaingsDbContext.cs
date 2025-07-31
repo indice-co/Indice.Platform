@@ -44,7 +44,7 @@ public class CampaignsDbContext : DbContext
     /// <summary>Contact preferences</summary>
     public DbSet<DbContactPreference> ContactPreferences { get; set; }
     /// <summary>Contacts communication options.</summary>
-    public DbSet<DbContactCommunicationOption> ContactCommunicationPreferences { get; set; }
+    public DbSet<DbContactCommunicationOption> ContactCommunicationOptions { get; set; }
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder) {

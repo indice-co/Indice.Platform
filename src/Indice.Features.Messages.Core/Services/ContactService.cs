@@ -6,6 +6,7 @@ using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Indice.Features.Messages.Core.Services;
 
@@ -125,12 +126,26 @@ public class ContactService : IContactService
     }
 
     /// <inheritdoc />
-    public async Task<Contact?> GetById(Guid id, bool? expandPreferences = false) {
+    public async Task<Contact?> GetById(Guid id, bool expandPreferences = false) {
         var contact = await DbContext.Contacts.FindAsync(id);
         if (contact is null) {
             return default;
         }
-        return Mapper.ToContact(contact);
+        var result = Mapper.ToContact(contact);
+
+        if (expandPreferences && !string.IsNullOrWhiteSpace(contact.RecipientId)) {
+            result.Preference = new ContactPreference() {
+                Communication = (await DbContext.MessageTypes.ToListAsync())
+                    .Select(mt => new ContactCommunicationOption {
+                        MessageTypeAlias = new GuidOrAlias(mt.Alias ?? mt.Id.ToString()),
+                        Channels = ContactChannelOption.FromKindFlags(ContactChannelKind.Any),
+                    }).ToList()
+
+            };
+
+        }
+
+        return result;
     }
 
     /// <inheritdoc />
@@ -256,7 +271,7 @@ public class ContactService : IContactService
                             PhoneNumber = x.contact.PhoneNumber,
                             Salutation = x.contact.Salutation,
                             UpdatedAt = x.contact.UpdatedAt,
-                            Preferences = rp == null ? new ContactPreference() : new ContactPreference {
+                            Preference = rp == null ? new ContactPreference() : new ContactPreference {
                                 Locale = rp.Locale,
                                 ConsentCommercial = rp.ConsentCommercial,
                                 ConsentCommercialDate = rp.ConsentCommercialDate,
@@ -271,7 +286,7 @@ public class ContactService : IContactService
                                     )
                                     .Select(x => new ContactCommunicationOption {
                                         MessageTypeAlias = new GuidOrAlias(x.mt.Alias ?? x.mt.Id.ToString()),
-                                        Channels = ContactChannelOption.FromKindFlags(x.rcp.CommunicationPreferences),
+                                        Channels = ContactChannelOption.FromKindFlags(x.rcp.Channels),
                                     })
                                     .ToList()
                             }

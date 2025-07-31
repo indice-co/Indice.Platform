@@ -98,8 +98,8 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         contact ??= @event.Contact;
         if ((contactNotUpdatedAWhileNow || @event.Contact.IsEmpty) && contact.Id.HasValue) {
             await ContactService.Update(contact.Id.Value, Mapper.ToUpdateContactRequest(contact, campaign!.DistributionListId));
-            if (!string.IsNullOrWhiteSpace(contact.RecipientId) && contact.Preferences is not null) {
-                await _recepientPreference.UpdateContactPreferences(contact.RecipientId, contact.Preferences);
+            if (!string.IsNullOrWhiteSpace(contact.RecipientId) && contact.Preference is not null) {
+                await _recepientPreference.UpdateContactPreferences(contact.RecipientId, contact.Preference);
             }
         }
 
@@ -154,7 +154,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
             RecipientId = contact.RecipientId
         });
         var eventDispatcher = EventDispatcherFactory.Create(KeyedServiceNames.EventDispatcherServiceKey);
-        var contactChannels = campaign.ResolveAvailableChannels(contact.Preferences);
+        var contactChannels = campaign.ResolveAvailableChannels(contact.Preference);
         if (contactChannels.HasFlag(MessageChannelKind.Inbox)) {
             await LogEvent(campaign, contact, MessageChannelKind.Inbox, messageId);
         }
