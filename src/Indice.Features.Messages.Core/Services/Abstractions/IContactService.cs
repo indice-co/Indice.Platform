@@ -13,7 +13,7 @@ public interface IContactService
     /// <summary>Gets a contact by it's unique id.</summary>
     /// <param name="id">The id of the contact.</param>
     /// <param name="expandPreferences">Expands user preferences</param>
-    Task<Contact?> GetById(Guid id, bool? expandPreferences = false);
+    Task<Contact?> GetById(Guid id, bool expandPreferences = false);
     /// <summary>Adds a contact to an existing distribution list.</summary>
     /// <param name="id">The id of the distribution list.</param>
     /// <param name="request">The data for the contact to add.</param>

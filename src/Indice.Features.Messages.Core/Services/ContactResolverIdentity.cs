@@ -76,7 +76,7 @@ public class ContactResolverIdentity : IContactResolver
                 FirstName = identityUser.FirstName,
                 LastName = identityUser.LastName,
                 FullName = !string.IsNullOrEmpty(identityUser.FirstName) && !string.IsNullOrEmpty(identityUser.LastName) ? $"{identityUser.FirstName} {identityUser.LastName}" : null,
-                Preferences = new ContactPreference {
+                Preference = new ContactPreference {
                     Locale = FindClaimValue(identityUser.Claims, BasicClaimTypes.Locale),
                     ConsentCommercial = GetCommercialConsent(identityUser.Claims),
                     ConsentCommercialDate = GetCommercialConsentDate(identityUser.Claims)
@@ -111,7 +111,7 @@ public class ContactResolverIdentity : IContactResolver
             PhoneNumber = identityUser.PhoneNumber,
             FirstName = FindClaimValue(identityUser.Claims, BasicClaimTypes.GivenName),
             LastName = FindClaimValue(identityUser.Claims, BasicClaimTypes.FamilyName),
-            Preferences = new ContactPreference {
+            Preference = new ContactPreference {
                 Locale = FindClaimValue(identityUser.Claims, BasicClaimTypes.Locale),
                 ConsentCommercial = GetCommercialConsent(identityUser.Claims),
                 ConsentCommercialDate = GetCommercialConsentDate(identityUser.Claims)

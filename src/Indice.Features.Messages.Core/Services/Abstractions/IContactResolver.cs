@@ -27,7 +27,7 @@ public static class IContactResolverExtensions
             // contact id must be preserved.
             resolvedContact.Id = targetContact.Id; 
             // Preserve the communication preferences. Messaging database contact wins.
-            resolvedContact.Preferences.Communication = targetContact.Preferences.Communication;
+            resolvedContact.Preference.Communication = targetContact.Preference.Communication;
         }
         return resolvedContact;
     }

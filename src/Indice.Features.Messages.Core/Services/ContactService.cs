@@ -125,12 +125,51 @@ public class ContactService : IContactService
     }
 
     /// <inheritdoc />
-    public async Task<Contact?> GetById(Guid id) {
+    public async Task<Contact?> GetById(Guid id, bool expandPreferences = false) {
         var contact = await DbContext.Contacts.FindAsync(id);
         if (contact is null) {
             return default;
         }
-        return Mapper.ToContact(contact);
+        var result = Mapper.ToContact(contact);
+
+        if (expandPreferences && !string.IsNullOrWhiteSpace(contact.RecipientId)) { 
+            result.Preference = (from preference in DbContext.ContactPreferences
+                                 where preference.RecipientId == contact.RecipientId
+                                 select new ContactPreference {
+                    Locale = preference.Locale,
+                    ConsentCommercial = preference.ConsentCommercial,
+                    ConsentCommercialDate = preference.ConsentCommercialDate,
+                    Communication = DbContext.ContactCommunicationOptions
+                        .Where(rcp => rcp.ContactPreferenceId == preference.Id)
+                        .Join(
+                            DbContext.MessageTypes,
+                            rcp => rcp.MessageTypeId,
+                            mt => mt.Id,
+                            (rcp, mt) => new ContactCommunicationOption {
+                                MessageTypeAlias = new GuidOrAlias(mt.Alias ?? mt.Id.ToString()),
+                                Channels = ContactChannelOption.FromKindFlags(rcp.Channels),
+                            }
+                        )
+                        .ToList()
+                }).FirstOrDefault() ?? 
+                new ContactPreference() { 
+                  Communication = DbContext.ContactCommunicationOptions
+                    .Where(rcp => rcp.ContactPreferenceId == contact.Id)
+                    .Join(
+                        DbContext.MessageTypes,
+                        rcp => rcp.MessageTypeId,
+                        mt => mt.Id,
+                        (rcp, mt) => new ContactCommunicationOption {
+                            MessageTypeAlias = new GuidOrAlias(mt.Alias ?? mt.Id.ToString()),
+                            Channels = ContactChannelOption.FromKindFlags(rcp.Channels),
+                        }
+                    )
+                    .ToList()
+                };
+
+        }
+
+        return result;
     }
 
     /// <inheritdoc />
@@ -256,7 +295,7 @@ public class ContactService : IContactService
                             PhoneNumber = x.contact.PhoneNumber,
                             Salutation = x.contact.Salutation,
                             UpdatedAt = x.contact.UpdatedAt,
-                            Preferences = rp == null ? new ContactPreference() : new ContactPreference {
+                            Preference = rp == null ? new ContactPreference() : new ContactPreference {
                                 Locale = rp.Locale,
                                 ConsentCommercial = rp.ConsentCommercial,
                                 ConsentCommercialDate = rp.ConsentCommercialDate,

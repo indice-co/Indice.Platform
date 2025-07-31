@@ -29,7 +29,7 @@ internal static class ContactsHandlers
         return TypedResults.Ok(contacts);
     }
 
-    public static async Task<Results<Ok<Contact>, NotFound>> GetContactById(IContactService contactService, Guid contactId, bool? expandPreferences) {
+    public static async Task<Results<Ok<Contact>, NotFound>> GetContactById(IContactService contactService, Guid contactId, bool expandPreferences) {
         var contact = await contactService.GetById(contactId, expandPreferences);
         if (contact is null) {
             return TypedResults.NotFound();
@@ -73,13 +73,13 @@ internal static class ContactsHandlers
         var contact = await contactService.GetByRecipientId(recipientId);
         if (contact is null) {
             await contactService.Create(Mapper.ToCreateContactRequest(resolvedContact));
-            await recepientPreferenceService.UpdateContactPreferences(recipientId, resolvedContact.Preferences!);
+            await recepientPreferenceService.UpdateContactPreferences(recipientId, resolvedContact.Preference!);
             return TypedResults.NoContent();
         }
 
         resolvedContact.Id = contact.Id;
         await contactService.Update(contact.Id!.Value, Mapper.ToUpdateContactRequest(resolvedContact));
-        await recepientPreferenceService.UpdateContactPreferences(recipientId, resolvedContact.Preferences!);
+        await recepientPreferenceService.UpdateContactPreferences(recipientId, resolvedContact.Preference!);
         return TypedResults.NoContent();
     }
 
