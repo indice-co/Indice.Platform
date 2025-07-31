@@ -59,15 +59,15 @@ public class ContactResolverIdentity : IContactResolver
         if (Options.HasCustomRecipientId) {
             queryString.Add("expandClaims", Options.UserClaimType);
         }
-        queryString.Add("expandClaims", BasicClaimTypes.ConsentCommercialDate);
-        queryString.Add("expandClaims", BasicClaimTypes.ConsentCommercial);
-        queryString.Add("expandClaims", BasicClaimTypes.Locale);
+        foreach (var claim in Options.ClaimsToResolve) {
+            queryString.Add("expandClaims", claim);
+        }
         uriBuilder.Query = queryString.ToString();
         var response = await HttpClient.GetAsync($"/{uriBuilder}");
         response.EnsureSuccessStatusCode();
         var responseJson = await response.Content.ReadAsStringAsync();
         var identityUserList = JsonSerializer.Deserialize<ResultSet<IdentityUserListItemResponse>>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings())!;
-       return new ResultSet<Contact> {
+        return new ResultSet<Contact> {
             Count = identityUserList.Count,
             Items = identityUserList.Items.Select(identityUser => new Contact {
                 RecipientId = Options.HasCustomRecipientId ? (FindClaimValue(identityUser.Claims, Options.UserClaimType) ?? identityUser.Id) : identityUser.Id,
@@ -79,10 +79,11 @@ public class ContactResolverIdentity : IContactResolver
                 Preferences = new ContactPreference {
                     Locale = FindClaimValue(identityUser.Claims, BasicClaimTypes.Locale),
                     ConsentCommercial = GetCommercialConsent(identityUser.Claims),
-                    ConsentCommercialDate = GetCommercialConsentDate(identityUser.Claims)
+                    ConsentCommercialDate = GetCommercialConsentDate(identityUser.Claims),
+                    DefaultChannels = GetCommunicationPreferences(identityUser.Claims)
                 }
             })
-            .ToArray()
+             .ToArray()
         };
     }
 
@@ -105,7 +106,7 @@ public class ContactResolverIdentity : IContactResolver
         response.EnsureSuccessStatusCode();
         var responseJson = await response.Content.ReadAsStringAsync();
         var identityUser = JsonSerializer.Deserialize<IdentityUserSingleResponse>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings())!;
-        var contact = new Contact{
+        var contact = new Contact {
             RecipientId = identityUser.Id,
             Email = identityUser.Email,
             PhoneNumber = identityUser.PhoneNumber,
@@ -114,7 +115,8 @@ public class ContactResolverIdentity : IContactResolver
             Preferences = new ContactPreference {
                 Locale = FindClaimValue(identityUser.Claims, BasicClaimTypes.Locale),
                 ConsentCommercial = GetCommercialConsent(identityUser.Claims),
-                ConsentCommercialDate = GetCommercialConsentDate(identityUser.Claims)
+                ConsentCommercialDate = GetCommercialConsentDate(identityUser.Claims),
+                DefaultChannels = GetCommunicationPreferences(identityUser.Claims)
             }
         };
         if (!string.IsNullOrEmpty(contact.FirstName) && !string.IsNullOrEmpty(contact.LastName)) {
@@ -129,8 +131,8 @@ public class ContactResolverIdentity : IContactResolver
         var consentDateClaim = claims.FirstOrDefault(x => x.Type == BasicClaimTypes.ConsentCommercialDate);
         if (consentDateClaim == null)
             return null;
-        
-        if (!string.IsNullOrWhiteSpace(consentDateClaim.Value)&& DateTime.TryParse(consentDateClaim.Value, out var consentDate)) {
+
+        if (!string.IsNullOrWhiteSpace(consentDateClaim.Value) && DateTime.TryParse(consentDateClaim.Value, out var consentDate)) {
             return consentDate;
         }
         return null;
@@ -141,6 +143,16 @@ public class ContactResolverIdentity : IContactResolver
 
     private static bool GetCommercialConsent(IEnumerable<IdentityUserClaimResponse>? claims) =>
         claims?.Any(x => x.Type == BasicClaimTypes.ConsentCommercial && bool.TrueString.Equals(x.Value, StringComparison.CurrentCultureIgnoreCase)) ?? false;
+
+    private static List<ContactChannelOption> GetCommunicationPreferences(IEnumerable<IdentityUserClaimResponse>? claims) {
+        if (claims == null)
+            return ContactChannelOption.FromKindFlags(ContactChannelKind.Any);
+        var communicationPreferences = claims.FirstOrDefault(x => x.Type == BasicClaimTypes.CommunicationPreferences);
+        if (communicationPreferences == null)
+            return ContactChannelOption.FromKindFlags(ContactChannelKind.Any);
+        var enumValues = Enum.Parse<ContactChannelKind>(communicationPreferences.Value!, ignoreCase: true);
+        return ContactChannelOption.FromKindFlags(enumValues);
+    }
 
     private async Task<string> GetAccessToken() {
         var accessToken = await Cache.GetStringAsync(TOKEN_CACHE_KEY);

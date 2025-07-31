@@ -125,7 +125,7 @@ public class ContactService : IContactService
     }
 
     /// <inheritdoc />
-    public async Task<Contact?> GetById(Guid id) {
+    public async Task<Contact?> GetById(Guid id, bool? expandPreferences = false) {
         var contact = await DbContext.Contacts.FindAsync(id);
         if (contact is null) {
             return default;
@@ -260,6 +260,7 @@ public class ContactService : IContactService
                                 Locale = rp.Locale,
                                 ConsentCommercial = rp.ConsentCommercial,
                                 ConsentCommercialDate = rp.ConsentCommercialDate,
+                                DefaultChannels = ContactChannelOption.FromKindFlags(rp.DefaultCommunicationOptions),
                                 Communication = DbContext.ContactCommunicationPreferences
                                     .Where(rcp => rcp.CommunicationPreferenceId == rp.Id)
                                     .Join(

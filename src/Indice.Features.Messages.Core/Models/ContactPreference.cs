@@ -12,6 +12,8 @@ public class ContactPreference
     public DateTimeOffset? ConsentCommercialDate { get; set; }
     /// <summary>Communication preferences per message type.</summary>
     public List<ContactCommunicationOption> Communication { get; set; } = [];
+    /// <summary>Default communication preferences</summary>
+    public List<ContactChannelOption> DefaultChannels = [];
 }
 
 /// <summary>Models a contact preference for a recipient.</summary>

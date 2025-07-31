@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { RecepientPreference, ContactChannelKind, Contact, MessagesApiClient } from 'src/app/core/services/messages-api.service';
+import { ContactPreference, ContactChannelOption, ContactChannelKind, Contact, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { ContactStore } from '../contact-store.service';
 
 @Component({
@@ -10,7 +10,7 @@ import { ContactStore } from '../contact-store.service';
 })
 export class ContactPreferencesComponent implements OnInit {
   private _contactId: string | undefined;
-  recepientPreference: RecepientPreference | undefined;
+  recepientPreference: ContactPreference | undefined;
   protected ContactChannelKindEnum = ContactChannelKind;
 
   constructor(
@@ -28,14 +28,14 @@ export class ContactPreferencesComponent implements OnInit {
         this._contact = item;
         console.log(item);
       });
-      this._api.getCommunicationPreferences(this._contactId).subscribe((communicationPreference: RecepientPreference) => {
+      this._api.getCommunicationPreferences(this._contactId).subscribe((communicationPreference: ContactPreference) => {
         this.recepientPreference = communicationPreference;
       });
     }
   }
 
-  public CheckReceivePreference(communicationPreferences: ContactChannelKind[], option: ContactChannelKind): boolean {
-    return communicationPreferences.indexOf(option) >= 0 || communicationPreferences.indexOf(ContactChannelKind.Any) >= 0;
+  public CheckReceivePreference(communicationPreferences: ContactChannelOption[], option: ContactChannelKind): boolean {
+    return communicationPreferences.findIndex(obj => obj.kind === option && obj.include) >= 0;
   }
-  
+
 }

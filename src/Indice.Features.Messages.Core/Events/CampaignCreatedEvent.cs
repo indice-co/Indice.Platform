@@ -72,12 +72,13 @@ public class CampaignCreatedEvent
         if (contactPreferences is null) {
             return MessageChannelKind;
         }
-        var typeCommunicationPreference = contactPreferences.Communication?.FirstOrDefault(x => x.MessageTypeAlias == Type?.Alias);
-        if (IgnoreUserPreferences || typeCommunicationPreference == null)
+        if (IgnoreUserPreferences)
             return MessageChannelKind;
-
+        var typeCommunicationPreference = contactPreferences.Communication?.FirstOrDefault(x => x.MessageTypeAlias == Type?.Alias);
+        if (typeCommunicationPreference == null) {
+            return ContactChannelOption.ToMessageChannelKind(contactPreferences.DefaultChannels, defaultOption: MessageChannelKind.Inbox);
+        }
         MessageChannelKind messageChannelKinds = ContactChannelOption.ToMessageChannelKind(typeCommunicationPreference.Channels, defaultOption: MessageChannelKind.Inbox);
-
         return messageChannelKinds;
     }
 }

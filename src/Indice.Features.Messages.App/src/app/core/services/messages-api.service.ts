@@ -53,7 +53,7 @@ export interface IMessagesApiClient {
      * @param file (optional) 
      * @return OK
      */
-    uploadCampaignAttachment(campaignId: string, file?: FileParameter | null | undefined): Observable<AttachmentLink>;
+    uploadCampaignAttachment(campaignId: string, file?: FileParameter | undefined): Observable<AttachmentLink>;
     /**
      * Deletes the camapaign attachment
      * @return No Content
@@ -84,9 +84,10 @@ export interface IMessagesApiClient {
      * @param recipientId (optional) 
      * @param email (optional) 
      * @param phoneNumber (optional) 
+     * @param resolve (optional) 
      * @return OK
      */
-    getContacts(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, distributionListId?: string | undefined, recipientId?: string | undefined, email?: string | undefined, phoneNumber?: string | undefined): Observable<ContactResultSet>;
+    getContacts(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, distributionListId?: string | undefined, recipientId?: string | undefined, email?: string | undefined, phoneNumber?: string | undefined, resolve?: boolean | undefined): Observable<ContactResultSet>;
     /**
      * Creates a new contact in the store.
      * @return OK
@@ -94,9 +95,10 @@ export interface IMessagesApiClient {
     createContact(body: CreateContactRequest): Observable<Contact>;
     /**
      * Gets the contact with the specified id.
+     * @param expandPreferences (optional) 
      * @return OK
      */
-    getContactById(contactId: string): Observable<Contact>;
+    getContactById(contactId: string, expandPreferences?: boolean | undefined): Observable<Contact>;
     /**
      * Updates the specified contact in the store.
      * @return No Content
@@ -106,25 +108,12 @@ export interface IMessagesApiClient {
      * Get contact communication preferences.
      * @return OK
      */
-    getCommunicationPreferences(contactId: string): Observable<RecepientPreference>;
+    getCommunicationPreferences(contactId: string): Observable<ContactPreference>;
     /**
      * Add or Updates a contact that matches the recepientId.
      * @return No Content
      */
     refreshContact(recipientId: string): Observable<void>;
-    /**
-     * Gets the list of all contacts from the remote store.
-     * @param page (optional) The current page of the list. Default is 1.
-     * @param size (optional) The size of the list. Default is 100
-     * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
-     * @param search (optional) A search term used to limit the results of the list.
-     * @param distributionListId (optional) 
-     * @param recipientId (optional) 
-     * @param email (optional) 
-     * @param phoneNumber (optional) 
-     * @return OK
-     */
-    getResolvedContacts(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, distributionListId?: string | undefined, recipientId?: string | undefined, email?: string | undefined, phoneNumber?: string | undefined): Observable<ContactPreferencesResultSet>;
     /**
      * Gets the list of available campaign types.
      * @param page (optional) The current page of the list. Default is 1.
@@ -184,7 +173,7 @@ export interface IMessagesApiClient {
      * @param file (optional) 
      * @return OK
      */
-    bulkImportContactsToDistributionList(distributionListId: string, file?: FileParameter | null | undefined): Observable<ContactsImportResult>;
+    bulkImportContactsToDistributionList(distributionListId: string, file?: FileParameter | undefined): Observable<ContactsImportResult>;
     /**
      * Gets the list of available message senders.
      * @param page (optional) The current page of the list. Default is 1.
@@ -746,7 +735,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @param file (optional) 
      * @return OK
      */
-    uploadCampaignAttachment(campaignId: string, file?: FileParameter | null | undefined): Observable<AttachmentLink> {
+    uploadCampaignAttachment(campaignId: string, file?: FileParameter | undefined): Observable<AttachmentLink> {
         let url_ = this.baseUrl + "/campaigns/{campaignId}/attachment";
         if (campaignId === undefined || campaignId === null)
             throw new Error("The parameter 'campaignId' must be defined.");
@@ -754,7 +743,9 @@ export class MessagesApiClient implements IMessagesApiClient {
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = new FormData();
-        if (file !== null && file !== undefined)
+        if (file === null || file === undefined)
+            throw new Error("The parameter 'file' cannot be null.");
+        else
             content_.append("file", file.data, file.fileName ? file.fileName : "file");
 
         let options_ : any = {
@@ -1175,9 +1166,10 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @param recipientId (optional) 
      * @param email (optional) 
      * @param phoneNumber (optional) 
+     * @param resolve (optional) 
      * @return OK
      */
-    getContacts(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, distributionListId?: string | undefined, recipientId?: string | undefined, email?: string | undefined, phoneNumber?: string | undefined): Observable<ContactResultSet> {
+    getContacts(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, distributionListId?: string | undefined, recipientId?: string | undefined, email?: string | undefined, phoneNumber?: string | undefined, resolve?: boolean | undefined): Observable<ContactResultSet> {
         let url_ = this.baseUrl + "/contacts?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
@@ -1211,6 +1203,10 @@ export class MessagesApiClient implements IMessagesApiClient {
             throw new Error("The parameter 'phoneNumber' cannot be null.");
         else if (phoneNumber !== undefined)
             url_ += "PhoneNumber=" + encodeURIComponent("" + phoneNumber) + "&";
+        if (resolve === null)
+            throw new Error("The parameter 'resolve' cannot be null.");
+        else if (resolve !== undefined)
+            url_ += "resolve=" + encodeURIComponent("" + resolve) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -1371,13 +1367,18 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     /**
      * Gets the contact with the specified id.
+     * @param expandPreferences (optional) 
      * @return OK
      */
-    getContactById(contactId: string): Observable<Contact> {
-        let url_ = this.baseUrl + "/contacts/{contactId}";
+    getContactById(contactId: string, expandPreferences?: boolean | undefined): Observable<Contact> {
+        let url_ = this.baseUrl + "/contacts/{contactId}?";
         if (contactId === undefined || contactId === null)
             throw new Error("The parameter 'contactId' must be defined.");
         url_ = url_.replace("{contactId}", encodeURIComponent("" + contactId));
+        if (expandPreferences === null)
+            throw new Error("The parameter 'expandPreferences' cannot be null.");
+        else if (expandPreferences !== undefined)
+            url_ += "expandPreferences=" + encodeURIComponent("" + expandPreferences) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -1543,7 +1544,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * Get contact communication preferences.
      * @return OK
      */
-    getCommunicationPreferences(contactId: string): Observable<RecepientPreference> {
+    getCommunicationPreferences(contactId: string): Observable<ContactPreference> {
         let url_ = this.baseUrl + "/contacts/{contactId}/communication-preferences";
         if (contactId === undefined || contactId === null)
             throw new Error("The parameter 'contactId' must be defined.");
@@ -1565,14 +1566,14 @@ export class MessagesApiClient implements IMessagesApiClient {
                 try {
                     return this.processGetCommunicationPreferences(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<RecepientPreference>;
+                    return _observableThrow(e) as any as Observable<ContactPreference>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<RecepientPreference>;
+                return _observableThrow(response_) as any as Observable<ContactPreference>;
         }));
     }
 
-    protected processGetCommunicationPreferences(response: HttpResponseBase): Observable<RecepientPreference> {
+    protected processGetCommunicationPreferences(response: HttpResponseBase): Observable<ContactPreference> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1611,7 +1612,7 @@ export class MessagesApiClient implements IMessagesApiClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = RecepientPreference.fromJS(resultData200);
+            result200 = ContactPreference.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 404) {
@@ -1700,126 +1701,6 @@ export class MessagesApiClient implements IMessagesApiClient {
         } else if (status === 404) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("Not Found", status, _responseText, _headers);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    /**
-     * Gets the list of all contacts from the remote store.
-     * @param page (optional) The current page of the list. Default is 1.
-     * @param size (optional) The size of the list. Default is 100
-     * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
-     * @param search (optional) A search term used to limit the results of the list.
-     * @param distributionListId (optional) 
-     * @param recipientId (optional) 
-     * @param email (optional) 
-     * @param phoneNumber (optional) 
-     * @return OK
-     */
-    getResolvedContacts(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, distributionListId?: string | undefined, recipientId?: string | undefined, email?: string | undefined, phoneNumber?: string | undefined): Observable<ContactPreferencesResultSet> {
-        let url_ = this.baseUrl + "/contacts/resolved?";
-        if (page === null)
-            throw new Error("The parameter 'page' cannot be null.");
-        else if (page !== undefined)
-            url_ += "Page=" + encodeURIComponent("" + page) + "&";
-        if (size === null)
-            throw new Error("The parameter 'size' cannot be null.");
-        else if (size !== undefined)
-            url_ += "Size=" + encodeURIComponent("" + size) + "&";
-        if (sort === null)
-            throw new Error("The parameter 'sort' cannot be null.");
-        else if (sort !== undefined)
-            url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
-        if (search === null)
-            throw new Error("The parameter 'search' cannot be null.");
-        else if (search !== undefined)
-            url_ += "Search=" + encodeURIComponent("" + search) + "&";
-        if (distributionListId === null)
-            throw new Error("The parameter 'distributionListId' cannot be null.");
-        else if (distributionListId !== undefined)
-            url_ += "DistributionListId=" + encodeURIComponent("" + distributionListId) + "&";
-        if (recipientId === null)
-            throw new Error("The parameter 'recipientId' cannot be null.");
-        else if (recipientId !== undefined)
-            url_ += "RecipientId=" + encodeURIComponent("" + recipientId) + "&";
-        if (email === null)
-            throw new Error("The parameter 'email' cannot be null.");
-        else if (email !== undefined)
-            url_ += "Email=" + encodeURIComponent("" + email) + "&";
-        if (phoneNumber === null)
-            throw new Error("The parameter 'phoneNumber' cannot be null.");
-        else if (phoneNumber !== undefined)
-            url_ += "PhoneNumber=" + encodeURIComponent("" + phoneNumber) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetResolvedContacts(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetResolvedContacts(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<ContactPreferencesResultSet>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<ContactPreferencesResultSet>;
-        }));
-    }
-
-    protected processGetResolvedContacts(response: HttpResponseBase): Observable<ContactPreferencesResultSet> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = HttpValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ContactPreferencesResultSet.fromJS(resultData200);
-            return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -2631,7 +2512,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @param file (optional) 
      * @return OK
      */
-    bulkImportContactsToDistributionList(distributionListId: string, file?: FileParameter | null | undefined): Observable<ContactsImportResult> {
+    bulkImportContactsToDistributionList(distributionListId: string, file?: FileParameter | undefined): Observable<ContactsImportResult> {
         let url_ = this.baseUrl + "/distribution-lists/{distributionListId}/import";
         if (distributionListId === undefined || distributionListId === null)
             throw new Error("The parameter 'distributionListId' must be defined.");
@@ -2639,7 +2520,9 @@ export class MessagesApiClient implements IMessagesApiClient {
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = new FormData();
-        if (file !== null && file !== undefined)
+        if (file === null || file === undefined)
+            throw new Error("The parameter 'file' cannot be null.");
+        else
             content_.append("file", file.data, file.fileName ? file.fileName : "file");
 
         let options_ : any = {
@@ -4160,7 +4043,7 @@ export interface IAttachmentLink {
 }
 
 export class BulkCreateDistributionListContactsRequest implements IBulkCreateDistributionListContactsRequest {
-    file!: string | undefined;
+    file!: string;
 
     constructor(data?: IBulkCreateDistributionListContactsRequest) {
         if (data) {
@@ -4192,7 +4075,7 @@ export class BulkCreateDistributionListContactsRequest implements IBulkCreateDis
 }
 
 export interface IBulkCreateDistributionListContactsRequest {
-    file: string | undefined;
+    file: string;
 }
 
 export class Campaign implements ICampaign {
@@ -4555,6 +4438,7 @@ export class Contact implements IContact {
     unsubscribed?: boolean;
     updatedAt?: Date;
     isAnonymous?: boolean;
+    preferences?: ContactPreference;
 
     constructor(data?: IContact) {
         if (data) {
@@ -4578,6 +4462,7 @@ export class Contact implements IContact {
             this.unsubscribed = _data["unsubscribed"];
             this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
             this.isAnonymous = _data["isAnonymous"];
+            this.preferences = _data["preferences"] ? ContactPreference.fromJS(_data["preferences"]) : <any>undefined;
         }
     }
 
@@ -4601,6 +4486,7 @@ export class Contact implements IContact {
         data["unsubscribed"] = this.unsubscribed;
         data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
         data["isAnonymous"] = this.isAnonymous;
+        data["preferences"] = this.preferences ? this.preferences.toJSON() : <any>undefined;
         return data;
     }
 }
@@ -4617,6 +4503,7 @@ export interface IContact {
     unsubscribed?: boolean;
     updatedAt?: Date;
     isAnonymous?: boolean;
+    preferences?: ContactPreference;
 }
 
 export class ContactAnonymous implements IContactAnonymous {
@@ -4686,21 +4573,11 @@ export enum ContactChannelKind {
     PushNotification = "PushNotification",
 }
 
-export class ContactPreferences implements IContactPreferences {
-    preferences?: RecepientPreference;
-    id?: string;
-    recipientId?: string;
-    salutation?: string;
-    firstName?: string;
-    lastName?: string;
-    fullName?: string;
-    email?: string;
-    phoneNumber?: string;
-    unsubscribed?: boolean;
-    updatedAt?: Date;
-    isAnonymous?: boolean;
+export class ContactChannelOption implements IContactChannelOption {
+    kind?: ContactChannelKind;
+    include?: boolean;
 
-    constructor(data?: IContactPreferences) {
+    constructor(data?: IContactChannelOption) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -4711,66 +4588,37 @@ export class ContactPreferences implements IContactPreferences {
 
     init(_data?: any) {
         if (_data) {
-            this.preferences = _data["preferences"] ? RecepientPreference.fromJS(_data["preferences"]) : <any>undefined;
-            this.id = _data["id"];
-            this.recipientId = _data["recipientId"];
-            this.salutation = _data["salutation"];
-            this.firstName = _data["firstName"];
-            this.lastName = _data["lastName"];
-            this.fullName = _data["fullName"];
-            this.email = _data["email"];
-            this.phoneNumber = _data["phoneNumber"];
-            this.unsubscribed = _data["unsubscribed"];
-            this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
-            this.isAnonymous = _data["isAnonymous"];
+            this.kind = _data["kind"];
+            this.include = _data["include"];
         }
     }
 
-    static fromJS(data: any): ContactPreferences {
+    static fromJS(data: any): ContactChannelOption {
         data = typeof data === 'object' ? data : {};
-        let result = new ContactPreferences();
+        let result = new ContactChannelOption();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["preferences"] = this.preferences ? this.preferences.toJSON() : <any>undefined;
-        data["id"] = this.id;
-        data["recipientId"] = this.recipientId;
-        data["salutation"] = this.salutation;
-        data["firstName"] = this.firstName;
-        data["lastName"] = this.lastName;
-        data["fullName"] = this.fullName;
-        data["email"] = this.email;
-        data["phoneNumber"] = this.phoneNumber;
-        data["unsubscribed"] = this.unsubscribed;
-        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
-        data["isAnonymous"] = this.isAnonymous;
+        data["kind"] = this.kind;
+        data["include"] = this.include;
         return data;
     }
 }
 
-export interface IContactPreferences {
-    preferences?: RecepientPreference;
-    id?: string;
-    recipientId?: string;
-    salutation?: string;
-    firstName?: string;
-    lastName?: string;
-    fullName?: string;
-    email?: string;
-    phoneNumber?: string;
-    unsubscribed?: boolean;
-    updatedAt?: Date;
-    isAnonymous?: boolean;
+export interface IContactChannelOption {
+    kind?: ContactChannelKind;
+    include?: boolean;
 }
 
-export class ContactPreferencesResultSet implements IContactPreferencesResultSet {
-    count?: number;
-    items?: ContactPreferences[];
+export class ContactCommunicationOption implements IContactCommunicationOption {
+    messageTypeDisplayName?: string;
+    messageTypeAlias?: string;
+    channels?: ContactChannelOption[];
 
-    constructor(data?: IContactPreferencesResultSet) {
+    constructor(data?: IContactCommunicationOption) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -4781,37 +4629,96 @@ export class ContactPreferencesResultSet implements IContactPreferencesResultSet
 
     init(_data?: any) {
         if (_data) {
-            this.count = _data["count"];
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items!.push(ContactPreferences.fromJS(item));
+            this.messageTypeDisplayName = _data["messageTypeDisplayName"];
+            this.messageTypeAlias = _data["messageTypeAlias"];
+            if (Array.isArray(_data["channels"])) {
+                this.channels = [] as any;
+                for (let item of _data["channels"])
+                    this.channels!.push(ContactChannelOption.fromJS(item));
             }
         }
     }
 
-    static fromJS(data: any): ContactPreferencesResultSet {
+    static fromJS(data: any): ContactCommunicationOption {
         data = typeof data === 'object' ? data : {};
-        let result = new ContactPreferencesResultSet();
+        let result = new ContactCommunicationOption();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["count"] = this.count;
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item ? item.toJSON() : <any>undefined);
+        data["messageTypeDisplayName"] = this.messageTypeDisplayName;
+        data["messageTypeAlias"] = this.messageTypeAlias;
+        if (Array.isArray(this.channels)) {
+            data["channels"] = [];
+            for (let item of this.channels)
+                data["channels"].push(item ? item.toJSON() : <any>undefined);
         }
         return data;
     }
 }
 
-export interface IContactPreferencesResultSet {
-    count?: number;
-    items?: ContactPreferences[];
+export interface IContactCommunicationOption {
+    messageTypeDisplayName?: string;
+    messageTypeAlias?: string;
+    channels?: ContactChannelOption[];
+}
+
+export class ContactPreference implements IContactPreference {
+    locale?: string;
+    consentCommercial?: boolean;
+    consentCommercialDate?: Date;
+    communication?: ContactCommunicationOption[];
+
+    constructor(data?: IContactPreference) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.locale = _data["locale"];
+            this.consentCommercial = _data["consentCommercial"];
+            this.consentCommercialDate = _data["consentCommercialDate"] ? new Date(_data["consentCommercialDate"].toString()) : <any>undefined;
+            if (Array.isArray(_data["communication"])) {
+                this.communication = [] as any;
+                for (let item of _data["communication"])
+                    this.communication!.push(ContactCommunicationOption.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ContactPreference {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContactPreference();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["locale"] = this.locale;
+        data["consentCommercial"] = this.consentCommercial;
+        data["consentCommercialDate"] = this.consentCommercialDate ? this.consentCommercialDate.toISOString() : <any>undefined;
+        if (Array.isArray(this.communication)) {
+            data["communication"] = [];
+            for (let item of this.communication)
+                data["communication"].push(item ? item.toJSON() : <any>undefined);
+        }
+        return data;
+    }
+}
+
+export interface IContactPreference {
+    locale?: string;
+    consentCommercial?: boolean;
+    consentCommercialDate?: Date;
+    communication?: ContactCommunicationOption[];
 }
 
 export class ContactResultSet implements IContactResultSet {
@@ -4917,7 +4824,7 @@ export interface IContactsImportResult {
 export class CreateCampaignRequest implements ICreateCampaignRequest {
     published?: boolean;
     ignoreUserPreferences?: boolean;
-    recipientIds?: string[];
+    recipientIds?: string[] | undefined;
     recipients?: ContactAnonymous[];
     isGlobal?: boolean;
     title?: string;
@@ -5027,7 +4934,7 @@ export class CreateCampaignRequest implements ICreateCampaignRequest {
 export interface ICreateCampaignRequest {
     published?: boolean;
     ignoreUserPreferences?: boolean;
-    recipientIds?: string[];
+    recipientIds?: string[] | undefined;
     recipients?: ContactAnonymous[];
     isGlobal?: boolean;
     title?: string;
@@ -5095,7 +5002,7 @@ export interface ICreateCampaignResult {
 }
 
 export class CreateContactRequest implements ICreateContactRequest {
-    communicationPreference?: RecepientPreference;
+    communicationPreference?: ContactPreference;
     recipientId?: string;
     salutation?: string;
     firstName?: string;
@@ -5115,7 +5022,7 @@ export class CreateContactRequest implements ICreateContactRequest {
 
     init(_data?: any) {
         if (_data) {
-            this.communicationPreference = _data["communicationPreference"] ? RecepientPreference.fromJS(_data["communicationPreference"]) : <any>undefined;
+            this.communicationPreference = _data["communicationPreference"] ? ContactPreference.fromJS(_data["communicationPreference"]) : <any>undefined;
             this.recipientId = _data["recipientId"];
             this.salutation = _data["salutation"];
             this.firstName = _data["firstName"];
@@ -5148,7 +5055,7 @@ export class CreateContactRequest implements ICreateContactRequest {
 }
 
 export interface ICreateContactRequest {
-    communicationPreference?: RecepientPreference;
+    communicationPreference?: ContactPreference;
     recipientId?: string;
     salutation?: string;
     firstName?: string;
@@ -5160,8 +5067,7 @@ export interface ICreateContactRequest {
 
 export class CreateDistributionListContactRequest implements ICreateDistributionListContactRequest {
     contactId?: string;
-    preferences?: RecepientPreference;
-    communicationPreference?: RecepientPreference;
+    communicationPreference?: ContactPreference;
     recipientId?: string;
     salutation?: string;
     firstName?: string;
@@ -5182,8 +5088,7 @@ export class CreateDistributionListContactRequest implements ICreateDistribution
     init(_data?: any) {
         if (_data) {
             this.contactId = _data["contactId"];
-            this.preferences = _data["preferences"] ? RecepientPreference.fromJS(_data["preferences"]) : <any>undefined;
-            this.communicationPreference = _data["communicationPreference"] ? RecepientPreference.fromJS(_data["communicationPreference"]) : <any>undefined;
+            this.communicationPreference = _data["communicationPreference"] ? ContactPreference.fromJS(_data["communicationPreference"]) : <any>undefined;
             this.recipientId = _data["recipientId"];
             this.salutation = _data["salutation"];
             this.firstName = _data["firstName"];
@@ -5204,7 +5109,6 @@ export class CreateDistributionListContactRequest implements ICreateDistribution
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["contactId"] = this.contactId;
-        data["preferences"] = this.preferences ? this.preferences.toJSON() : <any>undefined;
         data["communicationPreference"] = this.communicationPreference ? this.communicationPreference.toJSON() : <any>undefined;
         data["recipientId"] = this.recipientId;
         data["salutation"] = this.salutation;
@@ -5219,8 +5123,7 @@ export class CreateDistributionListContactRequest implements ICreateDistribution
 
 export interface ICreateDistributionListContactRequest {
     contactId?: string;
-    preferences?: RecepientPreference;
-    communicationPreference?: RecepientPreference;
+    communicationPreference?: ContactPreference;
     recipientId?: string;
     salutation?: string;
     firstName?: string;
@@ -5528,7 +5431,7 @@ export class HttpValidationProblemDetails implements IHttpValidationProblemDetai
     status?: number;
     detail?: string;
     instance?: string;
-    errors?: { [key: string]: any[]; };
+    errors?: { [key: string]: string[]; };
 
     [key: string]: any;
 
@@ -5597,7 +5500,7 @@ export interface IHttpValidationProblemDetails {
     status?: number;
     detail?: string;
     instance?: string;
-    errors?: { [key: string]: any[]; };
+    errors?: { [key: string]: string[]; };
 
     [key: string]: any;
 }
@@ -6015,114 +5918,6 @@ export interface IProblemDetails {
     [key: string]: any;
 }
 
-export class RecepientPreference implements IRecepientPreference {
-    locale?: string;
-    consentCommercial?: boolean;
-    consentCommercialDate?: Date;
-    communicationPreferences?: RecepientPreferenceCommunication[];
-
-    constructor(data?: IRecepientPreference) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.locale = _data["locale"];
-            this.consentCommercial = _data["consentCommercial"];
-            this.consentCommercialDate = _data["consentCommercialDate"] ? new Date(_data["consentCommercialDate"].toString()) : <any>undefined;
-            if (Array.isArray(_data["communicationPreferences"])) {
-                this.communicationPreferences = [] as any;
-                for (let item of _data["communicationPreferences"])
-                    this.communicationPreferences!.push(RecepientPreferenceCommunication.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): RecepientPreference {
-        data = typeof data === 'object' ? data : {};
-        let result = new RecepientPreference();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["locale"] = this.locale;
-        data["consentCommercial"] = this.consentCommercial;
-        data["consentCommercialDate"] = this.consentCommercialDate ? this.consentCommercialDate.toISOString() : <any>undefined;
-        if (Array.isArray(this.communicationPreferences)) {
-            data["communicationPreferences"] = [];
-            for (let item of this.communicationPreferences)
-                data["communicationPreferences"].push(item ? item.toJSON() : <any>undefined);
-        }
-        return data;
-    }
-}
-
-export interface IRecepientPreference {
-    locale?: string;
-    consentCommercial?: boolean;
-    consentCommercialDate?: Date;
-    communicationPreferences?: RecepientPreferenceCommunication[];
-}
-
-export class RecepientPreferenceCommunication implements IRecepientPreferenceCommunication {
-    name?: string;
-    alias?: string;
-    channels?: ContactChannelKind[];
-
-    constructor(data?: IRecepientPreferenceCommunication) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.name = _data["name"];
-            this.alias = _data["alias"];
-            if (Array.isArray(_data["channels"])) {
-                this.channels = [] as any;
-                for (let item of _data["channels"])
-                    this.channels!.push(item);
-            }
-        }
-    }
-
-    static fromJS(data: any): RecepientPreferenceCommunication {
-        data = typeof data === 'object' ? data : {};
-        let result = new RecepientPreferenceCommunication();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
-        data["alias"] = this.alias;
-        if (Array.isArray(this.channels)) {
-            data["channels"] = [];
-            for (let item of this.channels)
-                data["channels"].push(item);
-        }
-        return data;
-    }
-}
-
-export interface IRecepientPreferenceCommunication {
-    name?: string;
-    alias?: string;
-    channels?: ContactChannelKind[];
-}
-
 export class Template implements ITemplate {
     content?: { [key: string]: MessageContent; };
     data?: any;
@@ -6436,7 +6231,7 @@ export class UpdateContactRequest implements IUpdateContactRequest {
     email?: string;
     phoneNumber?: string;
     distributionListId?: string;
-    communicationPreference?: RecepientPreference;
+    preference?: ContactPreference;
 
     constructor(data?: IUpdateContactRequest) {
         if (data) {
@@ -6457,7 +6252,7 @@ export class UpdateContactRequest implements IUpdateContactRequest {
             this.email = _data["email"];
             this.phoneNumber = _data["phoneNumber"];
             this.distributionListId = _data["distributionListId"];
-            this.communicationPreference = _data["communicationPreference"] ? RecepientPreference.fromJS(_data["communicationPreference"]) : <any>undefined;
+            this.preference = _data["preference"] ? ContactPreference.fromJS(_data["preference"]) : <any>undefined;
         }
     }
 
@@ -6478,7 +6273,7 @@ export class UpdateContactRequest implements IUpdateContactRequest {
         data["email"] = this.email;
         data["phoneNumber"] = this.phoneNumber;
         data["distributionListId"] = this.distributionListId;
-        data["communicationPreference"] = this.communicationPreference ? this.communicationPreference.toJSON() : <any>undefined;
+        data["preference"] = this.preference ? this.preference.toJSON() : <any>undefined;
         return data;
     }
 }
@@ -6492,7 +6287,7 @@ export interface IUpdateContactRequest {
     email?: string;
     phoneNumber?: string;
     distributionListId?: string;
-    communicationPreference?: RecepientPreference;
+    preference?: ContactPreference;
 }
 
 export class UpdateDistributionListRequest implements IUpdateDistributionListRequest {
@@ -6716,7 +6511,7 @@ export interface IUpdateTemplateUserPreferencesRequest {
 }
 
 export class UploadFileRequest implements IUploadFileRequest {
-    file!: string | undefined;
+    file!: string;
 
     constructor(data?: IUploadFileRequest) {
         if (data) {
@@ -6748,7 +6543,7 @@ export class UploadFileRequest implements IUploadFileRequest {
 }
 
 export interface IUploadFileRequest {
-    file: string | undefined;
+    file: string;
 }
 
 export interface FileResponse {
@@ -6803,8 +6598,7 @@ function blobToText(blob: any): Observable<string> {
             reader.readAsText(blob);
         }
     });
-}
-export interface FileParameter {
+}export interface FileParameter {
   data: any;
   fileName: string;
 }

@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Output, View
 import { EnhancedComboboxComponent } from '@indice/ng-components';
 import { lastValueFrom } from 'rxjs';
 import { settings } from 'src/app/core/models/settings';
-import { MessagesApiClient, ContactPreferencesResultSet, ContactPreferences } from 'src/app/core/services/messages-api.service';
+import { MessagesApiClient, ContactResultSet, Contact } from 'src/app/core/services/messages-api.service';
 
 @Component({
   selector: 'app-list-contact-create',
@@ -12,8 +12,8 @@ export class ListContactCreateComponent implements AfterViewInit {
 
   @ViewChild('contactsCombobox', { static: false }) public contactsCombobox!: EnhancedComboboxComponent;
 
-  @Output() onSubmit: EventEmitter<ContactPreferences[]> = new EventEmitter<ContactPreferences[]>();
-  @Output() onCancel: EventEmitter<ContactPreferences[]> = new EventEmitter<ContactPreferences[]>();
+  @Output() onSubmit: EventEmitter<Contact[]> = new EventEmitter<Contact[]>();
+  @Output() onCancel: EventEmitter<Contact[]> = new EventEmitter<Contact[]>();
 
   constructor(
     private _changeDetector: ChangeDetectorRef,
@@ -21,13 +21,13 @@ export class ListContactCreateComponent implements AfterViewInit {
   ) { }
 
   public submitInProgress = false;
-  public contacts: ContactPreferences[] = [];
+  public contacts: Contact[] = [];
   public isLoading: boolean = false;
   public avatarOrigin = (settings.api_url || "").substring(0, 4) === "http" ? new URL(settings.api_url).origin : "";
   public get anyContactEditing() {
     return false;
   }
-  public savedContacts: ContactPreferences[] = [];
+  public savedContacts: Contact[] = [];
 
   public displayShowMoreOption: boolean = false;
   private _page: number = 1;
@@ -43,7 +43,7 @@ export class ListContactCreateComponent implements AfterViewInit {
       const fetchedContacts = await this._fetchContacts(this._lastSearchTerm);
       if (!!fetchedContacts.items) {
         this.contacts = fetchedContacts.items;
-        this.contacts.forEach((contact: ContactPreferences, index: number) => {
+        this.contacts.forEach((contact: Contact, index: number) => {
           (<any>contact)['_index'] = index;
         });
         this.displayShowMoreOption = fetchedContacts.items.length === this._pageSize;
@@ -63,7 +63,7 @@ export class ListContactCreateComponent implements AfterViewInit {
       const fetchedContacts = await this._fetchContacts(this._lastSearchTerm);
       if (!!fetchedContacts.items) {
         this.contacts = [...this.contacts, ...fetchedContacts.items];
-        this.contacts.forEach((contact: ContactPreferences, index: number) => {
+        this.contacts.forEach((contact: Contact, index: number) => {
           (<any>contact)['_index'] = index;
         });
         this.displayShowMoreOption = fetchedContacts.items.length === this._pageSize;
@@ -75,14 +75,14 @@ export class ListContactCreateComponent implements AfterViewInit {
     }
   }
 
-  private _fetchContacts(searchTerm: string | undefined): Promise<ContactPreferencesResultSet> {
+  private _fetchContacts(searchTerm: string | undefined): Promise<ContactResultSet> {
     return lastValueFrom(
-      this._api.getResolvedContacts(this._page, this._pageSize, 'email', searchTerm)
+      this._api.getContacts(this._page, this._pageSize, 'email', searchTerm, undefined, undefined, undefined, undefined, true)
     );
   }
 
 
-  public onContactSelected(contact: ContactPreferences): void { }
+  public onContactSelected(contact: Contact): void { }
 
   public ngAfterViewInit(): void {
     this._changeDetector.detectChanges();
@@ -101,7 +101,7 @@ export class ListContactCreateComponent implements AfterViewInit {
     if (this.contactsCombobox.selectedItems.some(x => x.fullName === searchTerm)) {
       return;
     }
-    const contact = new ContactPreferences();
+    const contact = new Contact();
     searchTerm = searchTerm.trim();
     if (validateEmail(searchTerm)) {
       contact.email = searchTerm;
