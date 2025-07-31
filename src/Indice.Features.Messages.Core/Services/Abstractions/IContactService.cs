@@ -10,13 +10,10 @@ public interface IContactService
     /// <summary>Gets a list of all contacts in the system.</summary>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
     Task<ResultSet<Contact>> GetList(ListOptions<ContactListFilter> options);
-    /// <summary>Gets a list of all contacts of a specified distribution list.</summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    Task<Contact[]> GetByDistributionList(Guid id);
     /// <summary>Gets a contact by it's unique id.</summary>
     /// <param name="id">The id of the contact.</param>
-    Task<Contact?> GetById(Guid id);
+    /// <param name="expandPreferences">Expands user preferences</param>
+    Task<Contact?> GetById(Guid id, bool? expandPreferences = false);
     /// <summary>Adds a contact to an existing distribution list.</summary>
     /// <param name="id">The id of the distribution list.</param>
     /// <param name="request">The data for the contact to add.</param>
@@ -43,7 +40,7 @@ public interface IContactService
 
     /// <summary>Gets a contact by it's recipient id.</summary>
     /// <param name="recipientId">The id of the recipient.</param>
-    Task<ContactPreferences?> GetByRecipientId(string? recipientId);
+    Task<Contact?> GetByRecipientId(string? recipientId);
 }
 
 /// <summary>Extensions on the <see cref="IContactService"/></summary>

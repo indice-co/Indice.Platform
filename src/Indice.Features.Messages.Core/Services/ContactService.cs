@@ -170,15 +170,6 @@ public class ContactService : IContactService
         return await query.Select(Mapper.ProjectToContact).ToResultSetAsync(options);
     }
 
-    /// <inheritdoc />
-    public async Task<Contact[]> GetByDistributionList(Guid id) {
-        return await DbContext.Contacts
-            .AsNoTracking()
-            .Include(x => x.DistributionListContacts)
-            .Where(x => x.DistributionListContacts.Any(y => y.DistributionListId == id))
-            .Select(Mapper.ProjectToContact)
-            .ToArrayAsync();
-    }
 
     /// <inheritdoc />
     public async Task RemoveFromDistributionList(Guid id, Guid contactId) {
@@ -242,20 +233,20 @@ public class ContactService : IContactService
     /// <summary>Gets a contact by it's recipient id.</summary>
     /// <param name="recipientId">The id of the recipient.</param>
     /// <returns></returns>
-    public async Task<ContactPreferences?> GetByRecipientId(string? recipientId) {
+    public async Task<Contact?> GetByRecipientId(string? recipientId) {
         if (string.IsNullOrWhiteSpace(recipientId))
             return null;
         var query = DbContext.Contacts
                     .Where(contact => contact.RecipientId == recipientId)
                     .GroupJoin(
-                        DbContext.RecipientPreferences,
+                        DbContext.ContactPreferences,
                         contact => contact.RecipientId,
                         rp => rp.RecipientId,
                         (contact, rps) => new { contact, rps }
                     )
                     .SelectMany(
                         x => x.rps.DefaultIfEmpty(),
-                        (x, rp) => new ContactPreferences {
+                        (x, rp) => new Contact{
                             Id = x.contact.Id,
                             RecipientId = x.contact.RecipientId,
                             Email = x.contact.Email,
@@ -265,21 +256,21 @@ public class ContactService : IContactService
                             PhoneNumber = x.contact.PhoneNumber,
                             Salutation = x.contact.Salutation,
                             UpdatedAt = x.contact.UpdatedAt,
-                            Preferences = rp == null ? new RecepientPreference() : new RecepientPreference {
+                            Preferences = rp == null ? new ContactPreference() : new ContactPreference {
                                 Locale = rp.Locale,
                                 ConsentCommercial = rp.ConsentCommercial,
                                 ConsentCommercialDate = rp.ConsentCommercialDate,
-                                CommunicationPreferences = DbContext.RecipientCommunicationPreferences
+                                Communication = DbContext.ContactCommunicationPreferences
                                     .Where(rcp => rcp.CommunicationPreferenceId == rp.Id)
                                     .Join(
                                         DbContext.MessageTypes,
-                                        rcp => rcp.TypeId,
+                                        rcp => rcp.MessageTypeId,
                                         mt => mt.Id,
                                         (rcp, mt) => new { rcp, mt }
                                     )
-                                    .Select(x => new RecepientPreferenceCommunication {
-                                        Alias = x.mt.Alias,
-                                        Channels = x.rcp.CommunicationPreferences.ToList()
+                                    .Select(x => new ContactCommunicationOption {
+                                        MessageTypeAlias = new GuidOrAlias(x.mt.Alias ?? x.mt.Id.ToString()),
+                                        Channels = ContactChannelOption.FromKindFlags(x.rcp.CommunicationPreferences),
                                     })
                                     .ToList()
                             }

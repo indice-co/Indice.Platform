@@ -4,5 +4,5 @@
 public class CreateContactRequest : ContactRequestBase
 {
     /// <summary>Communication Preferences </summary>
-    public RecepientPreference? CommunicationPreference { get; set; }
+    public ContactPreference? CommunicationPreference { get; set; }
 }

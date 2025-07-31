@@ -41,10 +41,10 @@ public class CampaignsDbContext : DbContext
     /// <summary>A table that associates contacts and distribution lists.</summary>
     public DbSet<DbDistributionListContact> ContactDistributionLists { get; set; }
 
-    /// <summary>Contact communication preferences</summary>
-    public DbSet<DbRecipientPreference> RecipientPreferences { get; set; }
-    /// <summary>Contacts table.</summary>
-    public DbSet<DbRecipientCommunicationPreference> RecipientCommunicationPreferences { get; set; }
+    /// <summary>Contact preferences</summary>
+    public DbSet<DbContactPreference> ContactPreferences { get; set; }
+    /// <summary>Contacts communication options.</summary>
+    public DbSet<DbContactCommunicationOption> ContactCommunicationPreferences { get; set; }
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
@@ -60,8 +60,8 @@ public class CampaignsDbContext : DbContext
         modelBuilder.ApplyConfiguration(new DbMessageTypeMap(schemaName));
         modelBuilder.ApplyConfiguration(new DbTemplateMap(schemaName));
         modelBuilder.ApplyConfiguration(new DbMessageSenderMap(schemaName));
-        modelBuilder.ApplyConfiguration(new DbCommunicationPreferenceMap(schemaName));
-        modelBuilder.ApplyConfiguration(new DbCommunicationPreferenceMessageTypeMap(schemaName));
+        modelBuilder.ApplyConfiguration(new DbContactPreferenceMap(schemaName));
+        modelBuilder.ApplyConfiguration(new DbContactCommunicationOptionMap(schemaName));
         if (Database.IsSqlServer()) {
             modelBuilder.ApplyJsonFunctions();
             modelBuilder.Entity<DbAttachment>().Property(x => x.Data).HasColumnType("image");

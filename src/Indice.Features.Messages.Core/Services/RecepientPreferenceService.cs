@@ -3,6 +3,7 @@ using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
+using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Messages.Core.Services;
@@ -20,115 +21,114 @@ public class RecepientPreferenceService : IRecepientPreferenceService
     }
 
     /// <inheritdoc/>
-    public async Task<RecepientPreference> GetPreferences(string recipientId) {
+    public async Task<ContactPreference> GetPreferences(string recipientId) {
         var messageTypes = await _dbContext.MessageTypes.AsNoTracking().ToListAsync();
-        var recipientPreferences = await _dbContext.RecipientPreferences
-                                            .Include(x => x.RecepientCommunicationPreferences)
+        var recipientPreferences = await _dbContext.ContactPreferences
+                                            .Include(x => x.CommunicationOptions)
                                             .ThenInclude(up => up.MessageType)
                                             .AsNoTracking()
                                             .SingleOrDefaultAsync(x => x.RecipientId == recipientId);
         if (recipientPreferences == null) {
-            return new RecepientPreference {
+            return new ContactPreference {
                 Locale = "en",
-                CommunicationPreferences = messageTypes.Select(x =>
-                new RecepientPreferenceCommunication() {
-                    Alias = x.Alias,
-                    Name = x.Name,
-                    Channels = [ContactChannelKind.Any]
+                Communication = messageTypes.Select(x =>
+                new ContactCommunicationOption() {
+                    MessageTypeAlias = new GuidOrAlias(x.Alias ?? x.Id.ToString()),
+                    MessageTypeDisplayName = x.Name
                 }).ToList(),
             };
         }
         //remove deleted
-        recipientPreferences.RecepientCommunicationPreferences.RemoveAll(x => !messageTypes.Any(mt => mt.Id == x.TypeId));
+        recipientPreferences.CommunicationOptions.RemoveAll(x => !messageTypes.Any(mt => mt.Id == x.MessageTypeId));
         //add new types
-        var missing = messageTypes.Where(x => !recipientPreferences.RecepientCommunicationPreferences.Any(mt => mt.TypeId == x.Id)).Select(cmt =>
-            new DbRecipientCommunicationPreference() {
+        var missing = messageTypes.Where(x => !recipientPreferences.CommunicationOptions.Any(mt => mt.MessageTypeId == x.Id)).Select(cmt =>
+            new DbContactCommunicationOption() {
                 CommunicationPreferences = ContactChannelKind.Any,
                 MessageType = cmt,
                 UpdatedAt = DateTimeOffset.UtcNow
             });
-        recipientPreferences.RecepientCommunicationPreferences.AddRange(missing);
+        recipientPreferences.CommunicationOptions.AddRange(missing);
 
-        return new RecepientPreference {
+        return new ContactPreference {
             Locale = recipientPreferences.Locale,
             ConsentCommercial = recipientPreferences.ConsentCommercial,
             ConsentCommercialDate = recipientPreferences.ConsentCommercialDate,
-            CommunicationPreferences = recipientPreferences.RecepientCommunicationPreferences.Select(x => new RecepientPreferenceCommunication() {
-                Alias = x.MessageType.Alias,
-                Name = x.MessageType.Name,
-                Channels = x.CommunicationPreferences.ToList()
+            Communication = recipientPreferences.CommunicationOptions.Select(x => new ContactCommunicationOption() {
+                MessageTypeAlias = new GuidOrAlias(x.MessageType.Alias ?? x.MessageTypeId.ToString()),
+                MessageTypeDisplayName = x.MessageType.Name,
+                Channels = ContactChannelOption.FromKindFlags(x.CommunicationPreferences)
             }).ToList(),
         };
     }
 
     /// <inheritdoc/>
     public async Task Update(string recipientId, UpdatPreferenceRequest request) {
-        var recipientPreferences = await _dbContext.RecipientPreferences
-                                           .Include(x => x.RecepientCommunicationPreferences)
+        var recipientPreferences = await _dbContext.ContactPreferences
+                                           .Include(x => x.CommunicationOptions)
                                            .ThenInclude(up => up.MessageType)
                                            .SingleOrDefaultAsync(x => x.RecipientId == recipientId);
         var messageTypes = await _dbContext.MessageTypes
                                      .AsNoTracking()
                                      .ToListAsync();
         if (recipientPreferences == null) {
-            recipientPreferences = new DbRecipientPreference() {
+            recipientPreferences = new DbContactPreference() {
                 RecipientId = recipientId,
                 Locale = request.Locale,
-                RecepientCommunicationPreferences = messageTypes.Select(x =>
-                    new DbRecipientCommunicationPreference() {
-                        TypeId = x.Id,
+                CommunicationOptions = messageTypes.Select(x =>
+                    new DbContactCommunicationOption() {
+                        MessageTypeId = x.Id,
                         CommunicationPreferences = request.CommunicationPreferences.FirstOrDefault(mt => mt.Alias == x.Alias)?.Channels.ToFlags() ?? ContactChannelKind.Any,
                         UpdatedAt = DateTimeOffset.UtcNow
                     }).ToList()
             };
 
-            await _dbContext.RecipientPreferences.AddAsync(recipientPreferences);
+            await _dbContext.ContactPreferences.AddAsync(recipientPreferences);
             await _dbContext.SaveChangesAsync();
             return;
         }
 
         recipientPreferences.Locale = request.Locale;
         //remove deleted
-        recipientPreferences.RecepientCommunicationPreferences.RemoveAll(x => !messageTypes.Any(mt => mt.Id == x.TypeId));
+        recipientPreferences.CommunicationOptions.RemoveAll(x => !messageTypes.Any(mt => mt.Id == x.MessageTypeId));
         //update existing
-        recipientPreferences.RecepientCommunicationPreferences.ForEach(x => x.CommunicationPreferences = request.CommunicationPreferences.FirstOrDefault(mt => mt.Alias == x.MessageType.Alias)?.Channels.ToFlags() ?? ContactChannelKind.Any);
+        recipientPreferences.CommunicationOptions.ForEach(x => x.CommunicationPreferences = request.CommunicationPreferences.FirstOrDefault(mt => mt.Alias == x.MessageType.Alias)?.Channels.ToFlags() ?? ContactChannelKind.Any);
         //add new types
-        var missing = messageTypes.Where(x => !recipientPreferences.RecepientCommunicationPreferences.Any(mt => mt.TypeId == x.Id)).Select(cmt =>
-            new DbRecipientCommunicationPreference() {
+        var missing = messageTypes.Where(x => !recipientPreferences.CommunicationOptions.Any(mt => mt.MessageTypeId == x.Id)).Select(cmt =>
+            new DbContactCommunicationOption() {
                 CommunicationPreferenceId = recipientPreferences.Id,
                 CommunicationPreferences = ContactChannelKind.Any,
                 MessageType = cmt,
                 UpdatedAt = DateTimeOffset.UtcNow
             });
-        recipientPreferences.RecepientCommunicationPreferences.AddRange(missing);
+        recipientPreferences.CommunicationOptions.AddRange(missing);
         await _dbContext.SaveChangesAsync();
     }
 
     ///<inheritdoc/>
-    public async Task UpdateContactPreferences(string recipientId, RecepientPreference preference) {
-        var recipientPreferences = await _dbContext.RecipientPreferences
-                                             .Include(x => x.RecepientCommunicationPreferences)
+    public async Task UpdateContactPreferences(string recipientId, ContactPreference preference) {
+        var recipientPreferences = await _dbContext.ContactPreferences
+                                             .Include(x => x.CommunicationOptions)
                                              .ThenInclude(up => up.MessageType)
                                              .SingleOrDefaultAsync(x => x.RecipientId == recipientId);
         if (recipientPreferences == null) {
             var messageTypes = await _dbContext.MessageTypes
                                      .AsNoTracking()
                                      .ToListAsync();
-            recipientPreferences = new DbRecipientPreference() {
+            recipientPreferences = new DbContactPreference() {
                 RecipientId = recipientId,
                 Locale = preference.Locale,
                 ConsentCommercial = preference.ConsentCommercial,
                 ConsentCommercialDate = preference.ConsentCommercialDate,
                 UpdatedAt = DateTimeOffset.UtcNow,
-                RecepientCommunicationPreferences = messageTypes.Select(x =>
-                    new DbRecipientCommunicationPreference() {
-                        TypeId = x.Id,
+                CommunicationOptions = messageTypes.Select(x =>
+                    new DbContactCommunicationOption() {
+                        MessageTypeId = x.Id,
                         CommunicationPreferences = ContactChannelKind.Any,
                         UpdatedAt = DateTimeOffset.UtcNow
                     }).ToList()
             };
 
-            await _dbContext.RecipientPreferences.AddAsync(recipientPreferences);
+            await _dbContext.ContactPreferences.AddAsync(recipientPreferences);
             await _dbContext.SaveChangesAsync();
             return;
         }

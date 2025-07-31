@@ -1,7 +1,7 @@
 ﻿namespace Indice.Features.Messages.Core.Data.Models;
 
 /// <summary>Commnucation preferences of recipient entity.</summary>
-public class DbRecipientPreference
+public class DbContactPreference
 {
     /// <summary>The unique id of the contact preference.</summary>
     public Guid Id { get; set; } = Guid.NewGuid();
@@ -14,7 +14,7 @@ public class DbRecipientPreference
     /// <summary>Indicates if user accepted conset to receive email.</summary>
     public DateTimeOffset? ConsentCommercialDate { get; set; }
     /// <summary>Communication preferences per message type.</summary>
-    public List<DbRecipientCommunicationPreference> RecepientCommunicationPreferences { get; set; } = [];
+    public List<DbContactCommunicationOption> CommunicationOptions { get; set; } = [];
     /// <summary>Indicates when record was last updated.</summary>
     public DateTimeOffset? UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

@@ -8,8 +8,8 @@ namespace Indice.Features.Messages.Core.Services;
 public class ContactResolverNoop : IContactResolver
 {
     /// <inheritdoc />
-    public Task<ResultSet<ContactPreferences>> Find(ListOptions options) => Task.FromResult(new ResultSet<ContactPreferences>());
+    public Task<ResultSet<Contact>> Find(ListOptions options) => Task.FromResult(new ResultSet<Contact>());
 
     /// <inheritdoc />
-    public Task<ContactPreferences?> Resolve(string? recipientId) => Task.FromResult<ContactPreferences?>(null);
+    public Task<Contact?> Resolve(string? recipientId) => Task.FromResult<Contact?>(null);
 }

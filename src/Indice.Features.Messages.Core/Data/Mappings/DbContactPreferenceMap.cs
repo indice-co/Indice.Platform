@@ -6,21 +6,21 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace Indice.Features.Messages.Core.Data.Mappings;
 
 /// <summary>Configuration for <see cref="DbDistributionList"/> entity.</summary>
-public class DbCommunicationPreferenceMap : IEntityTypeConfiguration<DbRecipientPreference>
+public class DbContactPreferenceMap : IEntityTypeConfiguration<DbContactPreference>
 {
-    /// <summary>Creates a new instance of <see cref="DbRecipientPreference"/>.</summary>
+    /// <summary>Creates a new instance of <see cref="DbContactPreference"/>.</summary>
     /// <param name="schemaName">The schema name.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public DbCommunicationPreferenceMap(string schemaName) {
+    public DbContactPreferenceMap(string schemaName) {
         SchemaName = schemaName ?? throw new ArgumentNullException(nameof(schemaName));
     }
 
     private string SchemaName { get; }
 
     /// <inheritdoc />
-    public void Configure(EntityTypeBuilder<DbRecipientPreference> builder) {
+    public void Configure(EntityTypeBuilder<DbContactPreference> builder) {
         // Configure table name.
-        builder.ToTable("CommunicationPreference", SchemaName);
+        builder.ToTable("ContactPreference", SchemaName);
         // Configure primary keys.
         builder.HasKey(x => x.Id);
         // Configure properties.

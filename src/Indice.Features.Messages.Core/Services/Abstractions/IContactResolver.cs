@@ -8,10 +8,10 @@ public interface IContactResolver
 {
     /// <summary>Specifies a way to resolve a contact from an external system.</summary>
     /// <param name="recipientId">The unique id of the contact.</param>
-    Task<ContactPreferences?> Resolve(string? recipientId);
+    Task<Contact?> Resolve(string? recipientId);
     /// <summary>Searches a list of contacts, using the specified criteria, from an external system.</summary>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
-    Task<ResultSet<ContactPreferences>> Find(ListOptions options);
+    Task<ResultSet<Contact>> Find(ListOptions options);
 }
 
 /// <summary>Extensions on the <see cref="IContactResolver"/>.</summary>
@@ -20,12 +20,14 @@ public static class IContactResolverExtensions
     /// <summary>Resolves the contact and patches the given instance.</summary>
     /// <param name="resolver">The resolver.</param>
     /// <param name="recipientId">The unique id of the contact to resolve.</param>
-    /// <param name="contact">The instance to patch.</param>
-    public async static Task<ContactPreferences?> Patch(this IContactResolver resolver, string? recipientId, ContactPreferences contact) {
+    /// <param name="targetContact">The instance to patch.</param>
+    public async static Task<Contact?> Patch(this IContactResolver resolver, string? recipientId, Contact targetContact) {
         var resolvedContact = await resolver.Resolve(recipientId);
         if (resolvedContact is not null) {
-            resolvedContact.Id = contact.Id;
-            resolvedContact.Preferences.CommunicationPreferences = [.. contact.Preferences.CommunicationPreferences];
+            // contact id must be preserved.
+            resolvedContact.Id = targetContact.Id; 
+            // Preserve the communication preferences. Messaging database contact wins.
+            resolvedContact.Preferences.Communication = targetContact.Preferences.Communication;
         }
         return resolvedContact;
     }

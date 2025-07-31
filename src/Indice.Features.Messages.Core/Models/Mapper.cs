@@ -171,20 +171,11 @@ internal static class Mapper
         RecipientId = request.RecipientId,
         Salutation = request.Salutation
     };
-    public static CreateContactRequest ToCreateContactRequest(ContactPreferences request) => new() {
-        Email = request.Email,
-        FirstName = request.FirstName,
-        FullName = request.FullName,
-        LastName = request.LastName,
-        PhoneNumber = request.PhoneNumber,
-        RecipientId = request.RecipientId,
-        Salutation = request.Salutation
-    };
 
-    public static DbRecipientPreference? ToDbCommunicationPreference(CreateContactRequest request) {
+    public static DbContactPreference? ToDbCommunicationPreference(CreateContactRequest request) {
         if (request.CommunicationPreference is null || string.IsNullOrEmpty(request.RecipientId))
             return null;
-        return new DbRecipientPreference {
+        return new DbContactPreference {
             ConsentCommercial = request.CommunicationPreference.ConsentCommercial,
             ConsentCommercialDate = request.CommunicationPreference.ConsentCommercialDate,
             Locale = request.CommunicationPreference.Locale,

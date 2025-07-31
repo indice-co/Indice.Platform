@@ -70,8 +70,8 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
     }
 
 
-    private async Task<ContactPreferences> GetCampaignContactWithPreferences(ResolveMessageEvent @event, CampaignCreatedEvent campaign) {
-        ContactPreferences? contact = null;
+    private async Task<Contact> GetCampaignContactWithPreferences(ResolveMessageEvent @event, CampaignCreatedEvent campaign) {
+        Contact? contact = null;
         var contactNotUpdatedAWhileNow = !@event.Contact!.UpdatedAt.HasValue
                                        || (DateTimeOffset.UtcNow - @event.Contact.UpdatedAt.Value) > TimeSpan.FromDays(Options.ContactRetainPeriodInDays);
         if (!@event.Contact.IsAnonymous) {
@@ -82,9 +82,9 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         } else {
             // Anonymous contact should find by email or phone number.
             if (@event.Contact.HasEmail) {
-                contact = (await ContactService.FindByEmail(@event.Contact.Email!)).ToContactPreferences();
+                contact = await ContactService.FindByEmail(@event.Contact.Email!);
             } else if (@event.Contact.HasPhoneNumber) {
-                contact = (await ContactService.FindByPhoneNumber(@event.Contact.PhoneNumber!)).ToContactPreferences();
+                contact = await ContactService.FindByPhoneNumber(@event.Contact.PhoneNumber!);
             }
             // If found but is already anonymous try to patch with filled data.
             if (contact is not null && contact.IsAnonymous) {
@@ -95,7 +95,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
                 contact.Email = string.IsNullOrEmpty(contact.Email) ? @event.Contact.Email : contact.Email;
             }
         }
-        contact ??= @event.Contact.ToContactPreferences();
+        contact ??= @event.Contact;
         if ((contactNotUpdatedAWhileNow || @event.Contact.IsEmpty) && contact.Id.HasValue) {
             await ContactService.Update(contact.Id.Value, Mapper.ToUpdateContactRequest(contact, campaign!.DistributionListId));
             if (!string.IsNullOrWhiteSpace(contact.RecipientId) && contact.Preferences is not null) {
@@ -116,7 +116,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         });
     }
 
-    private static void GenerateMessageContent(CampaignCreatedEvent campaign, ContactPreferences? contact) {
+    private static void GenerateMessageContent(CampaignCreatedEvent campaign, Contact? contact) {
         var handlebars = Handlebars.Create();
         handlebars.Configuration.TextEncoder = new HtmlEncoder();
         handlebars.Configuration.UseJson();
@@ -145,7 +145,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         }
     }
 
-    private async Task CreateMessageAndDispatch(ResolveMessageEvent @event, CampaignCreatedEvent campaign, ContactPreferences contact) {
+    private async Task CreateMessageAndDispatch(ResolveMessageEvent @event, CampaignCreatedEvent campaign, Contact contact) {
         // Persist message with merged contents.
         var messageId = await MessageService.Create(new CreateMessageRequest {
             CampaignId = campaign.Id,

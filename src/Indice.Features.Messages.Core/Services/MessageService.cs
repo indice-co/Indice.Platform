@@ -140,7 +140,7 @@ public class MessageService : IMessageService
             if (contact is null) {
                 var resolvedContact = await ContactResolver.Resolve(recipientId) ??
                     throw MessageExceptions.ContantResolverNotFound(recipientId);
-                contact = (ContactPreferences)await ContactService.Create(Mapper.ToCreateContactRequest(resolvedContact));
+                contact = await ContactService.Create(Mapper.ToCreateContactRequest(resolvedContact));
             }
             dbCampaign.DistributionList.ContactDistributionLists.Add(new DbDistributionListContact {
                 DistributionListId = dbCampaign.DistributionListId!.Value,
@@ -309,7 +309,7 @@ public class MessageService : IMessageService
         userMessage.Content = handlebars.Compile(userMessage.Content)(templateData);
     }
 
-    private MessageContentDictionary GetMessageContent(DbCampaign dbCampaign, ContactPreferences? contact) {
+    private MessageContentDictionary GetMessageContent(DbCampaign dbCampaign, Contact? contact) {
         if (dbCampaign.MessageChannelKind.HasFlag(MessageChannelKind.Inbox) && dbCampaign.Content.ContainsKey(MessageChannelKind.Inbox.ToString())) {
             var handlebars = Handlebars.Create();
             handlebars.Configuration.TextEncoder = new HtmlEncoder();

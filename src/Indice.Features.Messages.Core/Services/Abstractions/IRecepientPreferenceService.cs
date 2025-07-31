@@ -7,7 +7,7 @@ public interface IRecepientPreferenceService
 {
     /// <summary>Gets recipient preferences.</summary>
     /// <param name="recipientId">The id of the recipient.</param>
-    Task<RecepientPreference> GetPreferences(string recipientId);
+    Task<ContactPreference> GetPreferences(string recipientId);
     /// <summary>Updates an existing campaign.</summary>
     /// <param name="recipientId">The id of the recipient.</param>
     /// <param name="request">The data for the communication preferences.</param>
@@ -15,5 +15,5 @@ public interface IRecepientPreferenceService
     /// <summary>Updates an existing campaign.</summary>
     /// <param name="recipientId">The id of the recipient.</param>
     /// <param name="preference">The data for the communication preferences.</param>
-    Task UpdateContactPreferences(string recipientId, RecepientPreference preference);
+    Task UpdateContactPreferences(string recipientId, ContactPreference preference);
 }

@@ -34,9 +34,9 @@ public class ContactResolverIdentity : IContactResolver
     private IDistributedCache Cache { get; }
 
     /// <inheritdoc />
-    public Task<ResultSet<ContactPreferences>> Find(ListOptions options) => FindInternal(options);
+    public Task<ResultSet<Contact>> Find(ListOptions options) => FindInternal(options);
 
-    internal async Task<ResultSet<ContactPreferences>> FindInternal(ListOptions options, string? recipientId = null) {
+    internal async Task<ResultSet<Contact>> FindInternal(ListOptions options, string? recipientId = null) {
         var accessToken = await GetAccessToken();
         HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         var uriBuilder = new UriBuilder("api/users") {
@@ -67,16 +67,16 @@ public class ContactResolverIdentity : IContactResolver
         response.EnsureSuccessStatusCode();
         var responseJson = await response.Content.ReadAsStringAsync();
         var identityUserList = JsonSerializer.Deserialize<ResultSet<IdentityUserListItemResponse>>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings())!;
-       return new ResultSet<ContactPreferences> {
+       return new ResultSet<Contact> {
             Count = identityUserList.Count,
-            Items = identityUserList.Items.Select(identityUser => new ContactPreferences {
+            Items = identityUserList.Items.Select(identityUser => new Contact {
                 RecipientId = Options.HasCustomRecipientId ? (FindClaimValue(identityUser.Claims, Options.UserClaimType) ?? identityUser.Id) : identityUser.Id,
                 Email = identityUser.Email,
                 PhoneNumber = identityUser.PhoneNumber,
                 FirstName = identityUser.FirstName,
                 LastName = identityUser.LastName,
                 FullName = !string.IsNullOrEmpty(identityUser.FirstName) && !string.IsNullOrEmpty(identityUser.LastName) ? $"{identityUser.FirstName} {identityUser.LastName}" : null,
-                Preferences = new RecepientPreference {
+                Preferences = new ContactPreference {
                     Locale = FindClaimValue(identityUser.Claims, BasicClaimTypes.Locale),
                     ConsentCommercial = GetCommercialConsent(identityUser.Claims),
                     ConsentCommercialDate = GetCommercialConsentDate(identityUser.Claims)
@@ -87,7 +87,7 @@ public class ContactResolverIdentity : IContactResolver
     }
 
     /// <inheritdoc />
-    public async Task<ContactPreferences?> Resolve(string? recipientId) {
+    public async Task<Contact?> Resolve(string? recipientId) {
         if (string.IsNullOrWhiteSpace(recipientId)) {
             return default;
         }
@@ -105,13 +105,13 @@ public class ContactResolverIdentity : IContactResolver
         response.EnsureSuccessStatusCode();
         var responseJson = await response.Content.ReadAsStringAsync();
         var identityUser = JsonSerializer.Deserialize<IdentityUserSingleResponse>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings())!;
-        var contact = new ContactPreferences {
+        var contact = new Contact{
             RecipientId = identityUser.Id,
             Email = identityUser.Email,
             PhoneNumber = identityUser.PhoneNumber,
             FirstName = FindClaimValue(identityUser.Claims, BasicClaimTypes.GivenName),
             LastName = FindClaimValue(identityUser.Claims, BasicClaimTypes.FamilyName),
-            Preferences = new RecepientPreference {
+            Preferences = new ContactPreference {
                 Locale = FindClaimValue(identityUser.Claims, BasicClaimTypes.Locale),
                 ConsentCommercial = GetCommercialConsent(identityUser.Claims),
                 ConsentCommercialDate = GetCommercialConsentDate(identityUser.Claims)

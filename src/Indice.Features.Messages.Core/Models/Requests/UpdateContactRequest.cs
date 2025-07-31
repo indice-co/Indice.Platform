@@ -20,5 +20,5 @@ public class UpdateContactRequest
     /// <summary>The id of the distribution list.</summary>
     public Guid? DistributionListId { get; set; }
     /// <summary>Communication Preferences</summary>
-    public RecepientPreference? CommunicationPreference { get; set; }
+    public ContactPreference? Preference { get; set; }
 }

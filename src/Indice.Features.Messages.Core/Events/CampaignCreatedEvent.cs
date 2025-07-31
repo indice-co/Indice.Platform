@@ -68,34 +68,16 @@ public class CampaignCreatedEvent
     /// </summary>
     /// <param name="contactPreferences">User contact preferences</param>
     /// <returns></returns>
-    public MessageChannelKind ResolveAvailableChannels(RecepientPreference? contactPreferences) {
+    public MessageChannelKind ResolveAvailableChannels(ContactPreference? contactPreferences) {
         if (contactPreferences is null) {
             return MessageChannelKind;
         }
-        var typeCommunicationPreference = contactPreferences.CommunicationPreferences?.FirstOrDefault(x => x.Alias == Type?.Alias);
+        var typeCommunicationPreference = contactPreferences.Communication?.FirstOrDefault(x => x.MessageTypeAlias == Type?.Alias);
         if (IgnoreUserPreferences || typeCommunicationPreference == null)
             return MessageChannelKind;
 
-        MessageChannelKind messageChannelKinds = MessageChannelKind.None;
-        if (typeCommunicationPreference.Channels.Contains(ContactChannelKind.PushNotification) &&
-            MessageChannelKind.HasFlag(MessageChannelKind.PushNotification)) {
-            messageChannelKinds |= MessageChannelKind.PushNotification; 
-        }
+        MessageChannelKind messageChannelKinds = ContactChannelOption.ToMessageChannelKind(typeCommunicationPreference.Channels, defaultOption: MessageChannelKind.Inbox);
 
-        if (typeCommunicationPreference.Channels.Contains(ContactChannelKind.Email) &&
-            MessageChannelKind.HasFlag(MessageChannelKind.Email)) {
-            messageChannelKinds |= MessageChannelKind.Email;
-        }
-
-        if (typeCommunicationPreference.Channels.Contains(ContactChannelKind.SMS) &&
-            MessageChannelKind.HasFlag(MessageChannelKind.SMS)) {
-            messageChannelKinds |= MessageChannelKind.SMS;
-        }
-
-        //keep inbox regardless of user preferences
-        if (MessageChannelKind.HasFlag(MessageChannelKind.Inbox)) {
-            messageChannelKinds |= MessageChannelKind.Inbox;
-        }
         return messageChannelKinds;
     }
 }
