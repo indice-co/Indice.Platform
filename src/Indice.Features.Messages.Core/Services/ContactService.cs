@@ -275,9 +275,9 @@ public class ContactService : IContactService
                                 Locale = rp.Locale,
                                 ConsentCommercial = rp.ConsentCommercial,
                                 ConsentCommercialDate = rp.ConsentCommercialDate,
-                                DefaultChannels = ContactChannelOption.FromKindFlags(rp.DefaultCommunicationOptions),
-                                Communication = DbContext.ContactCommunicationPreferences
-                                    .Where(rcp => rcp.CommunicationPreferenceId == rp.Id)
+                                DefaultChannels = ContactChannelOption.FromKindFlags(rp.DefaultChannels),
+                                Communication = DbContext.ContactCommunicationOptions
+                                    .Where(rcp => rcp.ContactPreferenceId == rp.Id)
                                     .Join(
                                         DbContext.MessageTypes,
                                         rcp => rcp.MessageTypeId,

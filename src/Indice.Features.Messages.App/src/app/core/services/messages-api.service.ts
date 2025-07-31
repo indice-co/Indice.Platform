@@ -4438,7 +4438,7 @@ export class Contact implements IContact {
     unsubscribed?: boolean;
     updatedAt?: Date;
     isAnonymous?: boolean;
-    preferences?: ContactPreference;
+    preference?: ContactPreference;
 
     constructor(data?: IContact) {
         if (data) {
@@ -4462,7 +4462,7 @@ export class Contact implements IContact {
             this.unsubscribed = _data["unsubscribed"];
             this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
             this.isAnonymous = _data["isAnonymous"];
-            this.preferences = _data["preferences"] ? ContactPreference.fromJS(_data["preferences"]) : <any>undefined;
+            this.preference = _data["preference"] ? ContactPreference.fromJS(_data["preference"]) : <any>undefined;
         }
     }
 
@@ -4486,7 +4486,7 @@ export class Contact implements IContact {
         data["unsubscribed"] = this.unsubscribed;
         data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
         data["isAnonymous"] = this.isAnonymous;
-        data["preferences"] = this.preferences ? this.preferences.toJSON() : <any>undefined;
+        data["preference"] = this.preference ? this.preference.toJSON() : <any>undefined;
         return data;
     }
 }
@@ -4503,7 +4503,7 @@ export interface IContact {
     unsubscribed?: boolean;
     updatedAt?: Date;
     isAnonymous?: boolean;
-    preferences?: ContactPreference;
+    preference?: ContactPreference;
 }
 
 export class ContactAnonymous implements IContactAnonymous {
@@ -6598,7 +6598,9 @@ function blobToText(blob: any): Observable<string> {
             reader.readAsText(blob);
         }
     });
-}export interface FileParameter {
+}
+
+export interface FileParameter {
   data: any;
   fileName: string;
 }

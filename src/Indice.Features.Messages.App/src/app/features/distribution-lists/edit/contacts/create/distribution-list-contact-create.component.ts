@@ -43,7 +43,7 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
         phoneNumber: contact.phoneNumber,
         recipientId: contact.recipientId,
         salutation: contact.salutation,
-        communicationPreference: contact.preferences
+        communicationPreference: contact.preference
       });
       return this._api.addContactToDistributionList(this._distributionListId, body);
     });
