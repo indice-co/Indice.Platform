@@ -286,7 +286,7 @@ public class ContactService : IContactService
                                     )
                                     .Select(x => new ContactCommunicationOption {
                                         MessageTypeAlias = new GuidOrAlias(x.mt.Alias ?? x.mt.Id.ToString()),
-                                        Channels = ContactChannelOption.FromKindFlags(x.rcp.Channels),
+                                        Channels = ContactChannelOption.FromKindFlags(x.rcp.ChannelsEnum),
                                     })
                                     .ToList()
                             }

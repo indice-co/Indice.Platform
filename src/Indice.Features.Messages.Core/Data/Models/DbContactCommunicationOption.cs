@@ -10,7 +10,7 @@ public class DbContactCommunicationOption
     /// <summary>Foreign key to the <see cref="DbMessageType"/>.</summary>
     public Guid MessageTypeId { get; set; }
     /// <summary>The preferred delivery channels to receive messages.</summary>
-    public ContactChannelKind Channels { get; set; } = ContactChannelKind.Any;
+    public ContactChannelKind ChannelsEnum { get; set; } = ContactChannelKind.Any;
     /// <summary>The type details of the campaign.</summary>
     public virtual DbMessageType MessageType { get; set; } = null!;
     /// <summary>The contact preference that this message type is associated with.</summary>

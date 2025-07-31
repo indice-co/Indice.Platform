@@ -13,7 +13,7 @@ public class ContactPreference
     /// <summary>Communication preferences per message type.</summary>
     public List<ContactCommunicationOption> Communication { get; set; } = [];
     /// <summary>Default communication preferences</summary>
-    public List<ContactChannelOption> DefaultChannels = [];
+    public List<ContactChannelOption> DefaultChannels { get; set; } = ContactChannelOption.FromKindFlags(ContactChannelKind.Any);
 }
 
 /// <summary>Models a contact preference for a recipient.</summary>
@@ -56,16 +56,26 @@ public class ContactChannelOption
     /// Converts a collection of <see cref="ContactChannelOption"/> to a <see cref="MessageChannelKind"/>.
     /// </summary>
     /// <param name="options">The list ti convert</param>
-    /// <param name="defaultOption">the default option to include always. Defaults to none but if passed will keep that option regardless of preferences.</param>
     /// <returns>A flags enum of <see cref="MessageChannelKind"/></returns>
-    public static MessageChannelKind ToMessageChannelKind(IEnumerable<ContactChannelOption> options, MessageChannelKind defaultOption = MessageChannelKind.None) => 
+    public static ContactChannelKind ToContactChannelKind(IEnumerable<ContactChannelOption> options) =>
         options.Where(x => x.Include)
                .Select(x => x.Kind)
-               .Aggregate(defaultOption, (messageKind, contactKind) => 
+               .ToFlags();
+
+    /// <summary>
+    /// Converts a collection of <see cref="ContactChannelOption"/> to a <see cref="MessageChannelKind"/>.
+    /// </summary>
+    /// <param name="options">The list ti convert</param>
+    /// <param name="defaultOption">the default option to include always. Defaults to none but if passed will keep that option regardless of preferences.</param>
+    /// <returns>A flags enum of <see cref="MessageChannelKind"/></returns>
+    public static MessageChannelKind ToMessageChannelKind(IEnumerable<ContactChannelOption> options, MessageChannelKind defaultOption = MessageChannelKind.None) =>
+        options.Where(x => x.Include)
+               .Select(x => x.Kind)
+               .Aggregate(defaultOption, (messageKind, contactKind) =>
                     messageKind = contactKind switch {
-                                        ContactChannelKind.Email => messageKind | MessageChannelKind.Email,
-                                        ContactChannelKind.SMS => messageKind | MessageChannelKind.SMS,
-                                        ContactChannelKind.PushNotification => messageKind | MessageChannelKind.PushNotification,
-                                        _ => messageKind
+                        ContactChannelKind.Email => messageKind | MessageChannelKind.Email,
+                        ContactChannelKind.SMS => messageKind | MessageChannelKind.SMS,
+                        ContactChannelKind.PushNotification => messageKind | MessageChannelKind.PushNotification,
+                        _ => messageKind
                     });
 }

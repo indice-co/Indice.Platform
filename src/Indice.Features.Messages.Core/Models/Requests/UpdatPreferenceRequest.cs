@@ -6,14 +6,22 @@ public class UpdatPreferenceRequest
 {
     /// <summary>Users's locale.</summary>
     public string? Locale { get; set; }
+    /// <summary>Indicates if user accepted conset to receive email.</summary>
+    public bool ConsentCommercial { get; set; }
+    /// <summary>Indicates if user accepted conset to receive email.</summary>
+    public DateTimeOffset? ConsentCommercialDate { get; set; }
     /// <summary>Recepients communication preferences per type.</summary>
     public List<UpdateMessageTypePreference> CommunicationPreferences { get; set; } = [];
+
+    /// <summary>Default communication preferences</summary>
+    public List<ContactChannelOption> DefaultChannels { get; set; } = ContactChannelOption.FromKindFlags(ContactChannelKind.Any);
 }
+
 /// <summary>Models a contact preference for a recipient.</summary>
 public class UpdateMessageTypePreference
 {
-    /// <summary>The id of the type or the Alias.</summary>
-    public string? Alias { get; set; }
+    /// <summary>The alias of a campaign type.</summary>
+    public GuidOrAlias MessageTypeAlias { get; set; }
     /// <summary>The preferred delivery channels to receive messages.</summary>
-    public List<ContactChannelKind> Channels { get; set; } = [ContactChannelKind.Any];
+    public List<ContactChannelOption> Channels { get; set; } = ContactChannelOption.FromKindFlags(ContactChannelKind.Any);
 }
