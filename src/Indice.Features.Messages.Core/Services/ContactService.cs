@@ -324,7 +324,7 @@ public class ContactService : IContactService
             ConsentCommercialDate = recipientPreferences.ConsentCommercialDate,
             DefaultChannels = recipientPreferences.DefaultChannels != null ? ContactChannelOption.FromKindFlags(recipientPreferences.DefaultChannels.Value) : null,
             Communication = recipientPreferences.CommunicationOptions.Select(x => new ContactCommunicationOption() {
-                MessageTypeAlias = new GuidOrAlias(x.MessageType.Alias ?? x.MessageTypeId.ToString()),
+                MessageTypeAlias = new GuidOrAlias(x.MessageType.Alias ?? x.MessageType.Id.ToString()),
                 MessageTypeDisplayName = x.MessageType.Name,
                 Channels = ContactChannelOption.FromKindFlags(x.Channels)
             }).ToList()
@@ -347,7 +347,7 @@ public class ContactService : IContactService
                 CommunicationOptions = messageTypes.Select(x =>
                     new DbContactCommunicationOption() {
                         MessageTypeId = x.Id,
-                        Channels = ContactChannelOption.ToContactChannelKind(request.CommunicationPreferences.FirstOrDefault(mt => mt.MessageTypeAlias == x.Alias)?.Channels ?? ContactChannelOption.FromKindFlags(ContactChannelKind.Any)),
+                        Channels = ContactChannelOption.ToContactChannelKind(request.Communication.FirstOrDefault(mt => mt.MessageTypeAlias == x.Alias || mt.MessageTypeAlias == x.Id)?.Channels ?? ContactChannelOption.FromKindFlags(ContactChannelKind.Any)),
                         UpdatedAt = DateTimeOffset.UtcNow
                     }).ToList()
             };
@@ -360,11 +360,11 @@ public class ContactService : IContactService
         recipientPreferences.Locale = request.Locale;
         recipientPreferences.ConsentCommercial = request.ConsentCommercial;
         recipientPreferences.ConsentCommercialDate = request.ConsentCommercialDate;
-        recipientPreferences.DefaultChannels = ContactChannelOption.ToContactChannelKind(request.DefaultChannels);
+        recipientPreferences.DefaultChannels = request.DefaultChannels != null? ContactChannelOption.ToContactChannelKind(request.DefaultChannels!) : null ;
         //remove deleted
         recipientPreferences.CommunicationOptions.RemoveAll(x => !messageTypes.Any(mt => mt.Id == x.MessageTypeId));
         //update existing
-        recipientPreferences.CommunicationOptions.ForEach(x => x.Channels = ContactChannelOption.ToContactChannelKind(request.CommunicationPreferences.FirstOrDefault(mt => mt.MessageTypeAlias == x.MessageType.Alias)?.Channels ?? ContactChannelOption.FromKindFlags(ContactChannelKind.Any)));
+        recipientPreferences.CommunicationOptions.ForEach(x => x.Channels = ContactChannelOption.ToContactChannelKind(request.Communication.FirstOrDefault(mt => mt.MessageTypeAlias == x.MessageType.Alias || mt.MessageTypeAlias == x.MessageType.Id)?.Channels ?? ContactChannelOption.FromKindFlags(ContactChannelKind.Any)));
         //add new types
         var missing = messageTypes.Where(x => !recipientPreferences.CommunicationOptions.Any(mt => mt.MessageTypeId == x.Id)).Select(cmt =>
             new DbContactCommunicationOption() {

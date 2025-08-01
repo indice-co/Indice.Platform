@@ -11,10 +11,10 @@ public class UpdatPreferenceRequest
     /// <summary>Indicates if user accepted conset to receive email.</summary>
     public DateTimeOffset? ConsentCommercialDate { get; set; }
     /// <summary>Recepients communication preferences per type.</summary>
-    public List<UpdateMessageTypePreference> CommunicationPreferences { get; set; } = [];
+    public List<UpdateMessageTypePreference> Communication { get; set; } = [];
 
     /// <summary>Default communication preferences</summary>
-    public List<ContactChannelOption> DefaultChannels { get; set; } = ContactChannelOption.FromKindFlags(ContactChannelKind.Any);
+    public List<ContactChannelOption>? DefaultChannels { get; set; }
 }
 
 /// <summary>Models a contact preference for a recipient.</summary>
