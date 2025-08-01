@@ -1,5 +1,6 @@
 ﻿#if NET9_0_OR_GREATER
 using Microsoft.AspNetCore.OpenApi;
+using Microsoft.OpenApi.Extensions;
 using Microsoft.OpenApi.Models;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -24,9 +25,6 @@ public static class ArrayTransformer
 
 
     internal static Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken cancellationToken) {
-        if (context.JsonTypeInfo.Properties.Count > 0) {
-            transforms.TryAdd(context.JsonTypeInfo.Type, schema);
-        }
         if (schema.Properties is not null) {
             foreach (var jsonProperty in context.JsonTypeInfo.Properties) {
                 if (!schema.Properties.TryGetValue(jsonProperty.Name, out var property)) {
@@ -51,9 +49,9 @@ public static class ArrayTransformer
 
         return Task.CompletedTask;
     }
-    internal static Dictionary<Type, OpenApiSchema> transforms = new Dictionary<Type, OpenApiSchema>();
+
     private static void FixEmptyArraySchemas(OpenApiSchema schema, Type type) {
-        var canTransform = schema.Type == "array" && schema.Items?.Type == null && schema.Items?.Annotations.Any(x => x.Value != null) != true;
+        var canTransform = schema.Type == "array" && schema.Items?.Type == null;
         if (!canTransform) {
             return;
         }
@@ -116,8 +114,11 @@ public static class ArrayTransformer
                 };
                 break;
             default:
-                if (elementType is not null && transforms.TryGetValue(elementType!, out var cachedSchema)) {
-                    itemSchema = cachedSchema;
+                if (elementType is not null && itemSchema.Annotations?.Any(x => x.Value != null) == true) {
+                    itemSchema.Reference = new OpenApiReference {
+                        Type = ReferenceType.Schema,
+                        Id = itemSchema.Annotations?["x-schema-id"]?.ToString() ?? elementType.Name
+                    };
                 }
                 break;
         }

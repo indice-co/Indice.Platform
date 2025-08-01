@@ -12,7 +12,7 @@ using Microsoft.OpenApi.Models;
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>Changes the OAS for enum flags and treats them as an array. This works in accordance with serialization by using the <see cref="JsonStringArrayEnumFlagsConverterFactory"/>.</summary>
-internal static class EnumTransformer
+public static class EnumTransformer
 {
     internal class ChainedDelegate(Func<JsonTypeInfo, string?> next)
     {
@@ -25,6 +25,12 @@ internal static class EnumTransformer
             return result;
         }
     }
+
+    /// <summary>
+    /// Adds a transformer to the OpenApiOptions that modifies enum schemas to reflect enum values and names.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <returns>The options for further configuration.</returns>
     public static OpenApiOptions AddEnumTransformer(this OpenApiOptions options) {
         options.AddSchemaTransformer(TransformAsync);
         //options.AddSchemaTransformer(TransformFlagsAsync);
@@ -34,11 +40,7 @@ internal static class EnumTransformer
     }
 
     private static Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken cancellationToken) {
-        //if (schema.Type == "array" && context.JsonTypeInfo.ElementType?.IsEnum == true) {
-        //    schema.Items.Annotations ??= new Dictionary<string, object>();
-        //    schema.Items.Annotations?.Clear();
-        //    schema.Items.Annotations!.Add("x-schema-id", context.JsonTypeInfo.ElementType.Name);
-        //}
+       
         var enumType = Nullable.GetUnderlyingType(context.JsonTypeInfo.Type) ?? context.JsonTypeInfo.Type;
         if (!enumType.IsEnum || schema.Extensions.Count > 0) {
             return Task.CompletedTask;

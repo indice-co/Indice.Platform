@@ -12,7 +12,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// Finally, it removes the "NullableOf" prefix from schema reference IDs if present, being careful to preserve
 /// the original reference ID for non-nullable types.
 /// </summary>
-internal static class NullableTransformer
+public static class NullableTransformer
 {
     internal class ChainedDelegate(Func<JsonTypeInfo, string?> next)
     {
@@ -27,6 +27,11 @@ internal static class NullableTransformer
         }
     }
 
+    /// <summary>
+    /// Adds a transformer to the OpenApiOptions that modifies schema properties to reflect nullability 
+    /// </summary>
+    /// <param name="options">The options to configure</param>
+    /// <returns>The options for further configuration</returns>
     public static OpenApiOptions AddNullableTransformer(this OpenApiOptions options) {
         options.AddSchemaTransformer((schema, context, cancellationToken) => {
             if (schema.Properties is not null) {
@@ -37,8 +42,8 @@ internal static class NullableTransformer
                     var nullableType = Nullable.GetUnderlyingType(jsonProperty.PropertyType);
                    
                     property!.Nullable = (nullableType is not null) || jsonProperty.IsGetNullable;
-                    property.Type ??= (nullableType ?? jsonProperty.PropertyType).Name switch
-                    {
+                    property.Type ??= (nullableType ?? jsonProperty.PropertyType).Name switch {
+                        "Int16" => "integer",
                         "Int32" => "integer",
                         "Int64" => "integer",
                         "Double" => "number",
@@ -52,6 +57,7 @@ internal static class NullableTransformer
                         _ => null
                     }; 
                     property.Format ??= (nullableType ?? jsonProperty.PropertyType).Name switch {
+                        "Int16" => null,
                         "Int32" => "int32",
                         "Int64" => "int64",
                         "Double" => "double",
@@ -67,7 +73,7 @@ internal static class NullableTransformer
                     if (schema.Required?.Contains(jsonProperty.Name) == true) {
                         property!.Nullable = false;
                     }
-                    if (property!.Annotations?.Any(x => x.Value != null) == true) {
+                    if (property!.Annotations?.Any() == true) {
                         property.Nullable = false;
                     }
                     // Also need to remove `null` from enum values if present
