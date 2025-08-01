@@ -327,7 +327,7 @@ public class ContactService : IContactService
                 MessageTypeAlias = new GuidOrAlias(x.MessageType.Alias ?? x.MessageTypeId.ToString()),
                 MessageTypeDisplayName = x.MessageType.Name,
                 Channels = ContactChannelOption.FromKindFlags(x.Channels)
-            }).ToList(),
+            }).ToList()
         };
     }
 
