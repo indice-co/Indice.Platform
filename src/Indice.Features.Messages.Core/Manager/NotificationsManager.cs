@@ -208,6 +208,9 @@ public class NotificationsManager(
                 }
             }
             request.Content = content;
+            if (template.MessageType is not null) {
+                request.TypeId = template.MessageType.Id;
+            }
         }
         if (request.TypeId.HasValue) {
             var messageType = await MessageTypeService.GetById(request.TypeId.Value);

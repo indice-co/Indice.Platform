@@ -77,3 +77,18 @@
   </dl>
 </ng-template>
 
+
+<ng-template #editMessageType>
+  <dl>
+      <dt class="text-sm font-medium text-gray-500">Τύπος μηνύματος</dt>
+      <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+        <lib-local-drop-down-menu id="templateType"
+                                  name="templateType"
+                                  class="w-full"
+                                  [options]="messageTypes"
+                                  [value]="selectedOption"
+                                  (change)="setType($event)">
+        </lib-local-drop-down-menu>
+      </dd>
+  </dl>
+</ng-template>

@@ -11,7 +11,7 @@ public class DbContactCommunicationOption
     public Guid MessageTypeId { get; set; }
     /// <summary>The preferred delivery channels to receive messages.</summary>
     public ContactChannelKind Channels { get; set; } = ContactChannelKind.Any;
-    /// <summary>The type details of the campaign.</summary>
+    /// <summary>The message type</summary>
     public virtual DbMessageType MessageType { get; set; } = null!;
     /// <summary>The contact preference that this message type is associated with.</summary>
     public virtual DbContactPreference ContactPreference { get; set; } = null!; 

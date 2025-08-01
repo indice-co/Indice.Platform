@@ -31,4 +31,8 @@ public interface ITemplateService
     /// <summary>Checks if a template with the provided name exists</summary>
     /// <param name="name">The name of the template.</param>
     Task<bool> ExistsByName(string name);
+    /// <summary>Updates flag Ignore User Preference to an existing template.</summary>
+    /// <param name="id">The id of the template.</param>
+    /// <param name="messageTypeId">The id for template.</param>
+    Task UpdateMessageType(Guid id, Guid? messageTypeId);
 }
