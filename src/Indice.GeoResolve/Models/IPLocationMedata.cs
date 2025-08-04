@@ -1,9 +1,10 @@
 ﻿using System.Text;
 using Indice.Types;
 
-namespace Indice.Features.Identity.Core;
+namespace Indice.GeoResolve.Models;
+
 /// <summary>Models the geolocation data that were retrieved by the incoming IP address.</summary>
-public class IPLocationMetadata
+public sealed class IPLocationMetadata
 {
     /// <summary>
     /// The IP address that was used to retrieve the geolocation data.

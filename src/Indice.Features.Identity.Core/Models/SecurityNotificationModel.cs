@@ -1,5 +1,6 @@
 ﻿using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Events.Models;
+using Indice.GeoResolve.Models;
 
 namespace Indice.Features.Identity.Core.Models;
 /// <summary>

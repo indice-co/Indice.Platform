@@ -1,6 +1,7 @@
 ﻿using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Events.Models;
+using Indice.GeoResolve.Models;
 
 namespace Indice.Features.Identity.SignInLogs.Events;
 /// <summary>

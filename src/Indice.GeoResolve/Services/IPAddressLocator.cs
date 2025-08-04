@@ -1,13 +1,15 @@
 ﻿using System.Net;
-using System.Text;
-using Indice.Features.Identity.Core;
-using Indice.Features.Identity.SignInLogs.GeoLite2;
+using Indice.Extensions;
+using Indice.GeoResolve.GeoLite2;
+using Indice.GeoResolve.Models;
 using Indice.Types;
 
-namespace Indice.Features.Identity.SignInLogs.Services;
+namespace Indice.GeoResolve.Services;
 
-/// <summary></summary>
-public sealed class IPAddressLocator
+/// <summary>
+/// Service responsible for resolving geolocation metadata given an IP address.
+/// </summary>
+public sealed class IPAddressLocator : IDisposable
 {
     private readonly CityDatabaseReader _cityDatabaseReader;
     private readonly CountryDatabaseReader _countryDatabaseReader;
@@ -23,9 +25,12 @@ public sealed class IPAddressLocator
     /// <summary>Gets various geolocation data for the given <see cref="IPAddress"/>.</summary>
     /// <param name="ipAddress">The IP address to look for.</param>
     public IPLocationMetadata GetLocationMetadata(IPAddress ipAddress) {
-        var result = new IPLocationMetadata() { 
+        var result = new IPLocationMetadata() {
             IPAddress = ipAddress.ToString(),
         };
+        if (IPAddress.IsLoopback(ipAddress) || ipAddress.IsPrivate()) {
+            return result;
+        }
         if (_cityDatabaseReader.TryCity(ipAddress, out var cityResponse)) {
             var latitude = cityResponse?.Location?.Latitude;
             var longitude = cityResponse?.Location?.Longitude;
@@ -45,5 +50,10 @@ public sealed class IPAddressLocator
         }
         return result;
     }
-}
 
+    /// <inheritdoc cref="IDisposable.Dispose"/>"
+    public void Dispose() {
+        _cityDatabaseReader?.Dispose();
+        _countryDatabaseReader?.Dispose();
+    }
+}

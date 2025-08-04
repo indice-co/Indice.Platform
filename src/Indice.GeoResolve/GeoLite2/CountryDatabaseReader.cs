@@ -1,6 +1,6 @@
 ﻿using MaxMind.GeoIP2;
 
-namespace Indice.Features.Identity.SignInLogs.GeoLite2;
+namespace Indice.GeoResolve.GeoLite2;
 
 /// <summary>
 /// A reader implementation for the GeoLite2 Country database.
@@ -9,5 +9,5 @@ public sealed class CountryDatabaseReader : DatabaseReader
 {
     /// <summary></summary>
     public CountryDatabaseReader() :
-        base(typeof(CountryDatabaseReader).Assembly.GetManifestResourceStream($"Indice.Features.Identity.SignInLogs.GeoLite2.{SignInLogOptions.GEO_LITE2_COUNTRY_FILE_NAME}")!) { }
+        base(typeof(CountryDatabaseReader).Assembly.GetManifestResourceStream($"Indice.GeoResolve.GeoLite2.{Constants.GEO_LITE2_COUNTRY_FILE_NAME}")!) { }
 }
