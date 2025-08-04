@@ -30,7 +30,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
-    <ProjectReference Include="..\Indice.GeoResolve\Indice.GeoIP.csproj" />
+    <ProjectReference Include="..\Indice.GeoIP\Indice.GeoIP.csproj" />
     <ProjectReference Include="..\Indice.Extensions.Configuration.Database\Indice.Extensions.Configuration.Database.csproj" />
   </ItemGroup>
   <ItemGroup>

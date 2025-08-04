@@ -73,7 +73,7 @@ public static class SignInLogFeatureExtensions
         services.AddDefaultFilters();
         services.AddTransient<SignInLogEntryEnricherAggregator>();
         services.AddSingleton<SignInLogEntryQueue>();
-        services.AddGeoResolver();
+        services.AddGeoIPResolver();
         // Enable feature management for this module.
         services.AddFeatureManagement(configuration.GetSection(IdentityServerFeatures.Section));
         // Add a default implementation in case one is not specified. Avoids DI errors.

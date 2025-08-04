@@ -34,7 +34,7 @@
       "src\\Indice.Functions.Builder\\Indice.Functions.Builder.csproj",
       "src\\Indice.Hosting\\Indice.Hosting.csproj",
       "src\\Indice.Services\\Indice.Services.csproj",
-      "src\\Indice.GeoResolve\\Indice.GeoResolve.csproj",
+      "src\\Indice.GeoIP\\Indice.GeoIP.csproj",
       "test\\Indice.AspNetCore.Tests\\Indice.AspNetCore.Tests.csproj",
       "test\\Indice.AspNetCore.Views\\Indice.AspNetCore.Views.csproj",
       "test\\Indice.Common.Tests\\Indice.Common.Tests.csproj",

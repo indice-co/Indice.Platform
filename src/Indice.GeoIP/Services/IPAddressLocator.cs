@@ -1,5 +1,5 @@
 ﻿using System.Net;
-using Indice.Extensions;
+using Indice.GeoIP.Extensions;
 using Indice.GeoIP.GeoLite2;
 using Indice.GeoIP.Models;
 using Indice.Types;

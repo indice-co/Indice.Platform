@@ -14,7 +14,7 @@ public static class IServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The service collection to add the services to.</param>
     /// <returns></returns>
-    public static IServiceCollection AddGeoResolver(this IServiceCollection services) {
+    public static IServiceCollection AddGeoIPResolver(this IServiceCollection services) {
         services.AddSingleton<CityDatabaseReader>();
         services.AddSingleton<CountryDatabaseReader>();
         services.AddScoped<IPAddressLocator>();
