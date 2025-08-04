@@ -35,6 +35,10 @@ internal static class TemplatesHandlers
         await templateService.UpdateIgnreUserPreferences(templateId, request.IgnoreUserPreferences);
         return TypedResults.NoContent();
     }
+    public static async Task<Results<NoContent, ValidationProblem>> UpdateTemplateMessageType(GuidOrAlias templateId, Guid? messageTemplateId, ITemplateService templateService) {
+        await templateService.UpdateMessageType(templateId, messageTemplateId);
+        return TypedResults.NoContent();
+    }
 
     public static async Task<Results<NoContent, ValidationProblem>> DeleteTemplate(GuidOrAlias templateId, ITemplateService templateService) {
         await templateService.Delete(templateId);
@@ -72,7 +76,16 @@ Parameters:
 - request: Information to update the template.
 ";
 
-    public static readonly string UPDATE_TEMPLATE_USERPREFERENCES_DESCRIPTION = @"
+    public static readonly string UPDATE_TEMPLATE_MESSAGE_TYPE = @"
+Updates an existing template message type.
+    
+Parameters:
+- templateId: The unique identifier of the template.
+- messageTypeId: The unique identifier of the message type.
+";
+    
+
+public static readonly string UPDATE_TEMPLATE_USERPREFERENCES_DESCRIPTION = @"
 Updates Ingore User preferences flag existing template.
     
 Parameters:

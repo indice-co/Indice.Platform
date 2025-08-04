@@ -31,6 +31,7 @@ public class TemplateService : ITemplateService
             IgnoreUserPreferences = request.IgnoreUserPreferences,
             Data = request.Data,
             CreatedAt = DateTimeOffset.UtcNow,
+            MessageTypeId = request.MessageTypeId
         };
         DbContext.Templates.Add(template);
         await DbContext.SaveChangesAsync();
@@ -42,6 +43,7 @@ public class TemplateService : ITemplateService
             Alias = template.Alias,
             Data = template.Data,
             CreatedAt = template.CreatedAt,
+            MessageType = template.MessageType != null ? new MessageType { Id = template.MessageType.Id, Name = template.MessageType.Name } : null,
         };
     }
 
@@ -61,8 +63,8 @@ public class TemplateService : ITemplateService
             return default;
         }
         DbTemplate? template = id.Value.IsGuid ?
-            await DbContext.Templates.FindAsync(id.Value.Uuid) :
-            await DbContext.Templates.FirstOrDefaultAsync(x => x.Alias == id.Value.Value);
+            await DbContext.Templates.Include(x => x.MessageType).FirstOrDefaultAsync(x => x.Id == id.Value.Uuid) :
+            await DbContext.Templates.Include(x => x.MessageType).FirstOrDefaultAsync(x => x.Alias == id.Value.Value);
 
         if (template is null) {
             return default;
@@ -77,13 +79,14 @@ public class TemplateService : ITemplateService
             Name = template.Name,
             Alias = template.Alias,
             IgnoreUserPreferences = template.IgnoreUserPreferences,
-            Data = template.Data
+            Data = template.Data,
+            MessageType = template.MessageType != null ? new MessageType { Id = template.MessageType.Id, Name = template.MessageType.Name } : null
         };
     }
 
     /// <inheritdoc />
     public async Task<ResultSet<TemplateListItem>> GetList(ListOptions options) {
-        var query = DbContext.Templates.AsQueryable();
+        var query = DbContext.Templates.Include(x => x.MessageType).AsQueryable();
         if (!string.IsNullOrWhiteSpace(options.Search) && options.Search.Length > 2) {
             query = query.Where(x =>
             x.Name!.ToLower().Contains(options.Search.ToLower()) ||
@@ -100,17 +103,16 @@ public class TemplateService : ITemplateService
             Id = x.Id,
             Name = x.Name,
             Alias = x.Alias,
-            IgnoreUserPreferences = x.IgnoreUserPreferences
+            IgnoreUserPreferences = x.IgnoreUserPreferences,
+            MessageType = x.MessageType != null ? new MessageType { Id = x.MessageType.Id, Name = x.MessageType.Name } : null
+
         });
         return new ResultSet<TemplateListItem>(templateItems, result.Count);
     }
 
     /// <inheritdoc />
     public async Task Update(Guid id, UpdateTemplateRequest request) {
-        var template = await DbContext.Templates.FindAsync(id);
-        if (template is null) {
-            throw MessageExceptions.TemplateNotFound(id);
-        }
+        var template = await DbContext.Templates.FindAsync(id) ?? throw MessageExceptions.TemplateNotFound(id);
         template.Alias = string.IsNullOrWhiteSpace(request.Alias) ? null : request.Alias.Trim();
         if (!string.IsNullOrWhiteSpace(template.Alias)) {
             var existingAlias = await GetById((GuidOrAlias)template.Alias);
@@ -139,4 +141,12 @@ public class TemplateService : ITemplateService
 
     /// <inheritdoc />
     public async Task<bool> ExistsByName(string name) => await DbContext.Templates.AnyAsync(x => x.Name.ToLower() == name.Trim().ToLower());
+
+    /// <inheritdoc />
+    public async Task UpdateMessageType(Guid id, Guid? messageTypeId) {
+        var template = await DbContext.Templates.FindAsync(id) ?? throw MessageExceptions.TemplateNotFound(id);
+        template.MessageTypeId = messageTypeId;
+        template.UpdatedAt = DateTime.UtcNow;
+        await DbContext.SaveChangesAsync();
+    }
 }

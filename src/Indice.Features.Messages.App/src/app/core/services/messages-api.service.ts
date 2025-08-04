@@ -263,6 +263,12 @@ export interface IMessagesApiClient {
      */
     deleteTemplate(templateId: string): Observable<void>;
     /**
+     * Updates in an existing template message type.
+     * @param messageTemplateId (optional) 
+     * @return No Content
+     */
+    updateTemplateMessageType(templateId: string, messageTemplateId?: string | undefined): Observable<void>;
+    /**
      * Updates in an existing template user respect of user preferences flag.
      * @return No Content
      */
@@ -3903,6 +3909,90 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
+     * Updates in an existing template message type.
+     * @param messageTemplateId (optional) 
+     * @return No Content
+     */
+    updateTemplateMessageType(templateId: string, messageTemplateId?: string | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/templates/{templateId}/message-type?";
+        if (templateId === undefined || templateId === null)
+            throw new Error("The parameter 'templateId' must be defined.");
+        url_ = url_.replace("{templateId}", encodeURIComponent("" + templateId));
+        if (messageTemplateId === null)
+            throw new Error("The parameter 'messageTemplateId' cannot be null.");
+        else if (messageTemplateId !== undefined)
+            url_ += "messageTemplateId=" + encodeURIComponent("" + messageTemplateId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateTemplateMessageType(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateTemplateMessageType(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUpdateTemplateMessageType(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * Updates in an existing template user respect of user preferences flag.
      * @return No Content
      */
@@ -5272,6 +5362,7 @@ export interface ICreateMessageTypeRequest {
 export class CreateTemplateRequest implements ICreateTemplateRequest {
     name?: string;
     alias?: string;
+    messageTypeId?: string;
     ignoreUserPreferences?: boolean;
     content?: { [key: string]: MessageContent; };
     data?: any;
@@ -5289,6 +5380,7 @@ export class CreateTemplateRequest implements ICreateTemplateRequest {
         if (_data) {
             this.name = _data["name"];
             this.alias = _data["alias"];
+            this.messageTypeId = _data["messageTypeId"];
             this.ignoreUserPreferences = _data["ignoreUserPreferences"];
             if (_data["content"]) {
                 this.content = {} as any;
@@ -5312,6 +5404,7 @@ export class CreateTemplateRequest implements ICreateTemplateRequest {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name;
         data["alias"] = this.alias;
+        data["messageTypeId"] = this.messageTypeId;
         data["ignoreUserPreferences"] = this.ignoreUserPreferences;
         if (this.content) {
             data["content"] = {};
@@ -5328,6 +5421,7 @@ export class CreateTemplateRequest implements ICreateTemplateRequest {
 export interface ICreateTemplateRequest {
     name?: string;
     alias?: string;
+    messageTypeId?: string;
     ignoreUserPreferences?: boolean;
     content?: { [key: string]: MessageContent; };
     data?: any;
@@ -5941,6 +6035,7 @@ export class Template implements ITemplate {
     createdAt?: Date;
     updatedBy?: string;
     updatedAt?: Date;
+    messageType?: MessageType;
 
     constructor(data?: ITemplate) {
         if (data) {
@@ -5969,6 +6064,7 @@ export class Template implements ITemplate {
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
             this.updatedBy = _data["updatedBy"];
             this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
+            this.messageType = _data["messageType"] ? MessageType.fromJS(_data["messageType"]) : <any>undefined;
         }
     }
 
@@ -5997,6 +6093,7 @@ export class Template implements ITemplate {
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
         data["updatedBy"] = this.updatedBy;
         data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
+        data["messageType"] = this.messageType ? this.messageType.toJSON() : <any>undefined;
         return data;
     }
 }
@@ -6012,6 +6109,7 @@ export interface ITemplate {
     createdAt?: Date;
     updatedBy?: string;
     updatedAt?: Date;
+    messageType?: MessageType;
 }
 
 export class TemplateListItem implements ITemplateListItem {
@@ -6024,6 +6122,7 @@ export class TemplateListItem implements ITemplateListItem {
     createdAt?: Date;
     updatedBy?: string;
     updatedAt?: Date;
+    messageType?: MessageType;
 
     constructor(data?: ITemplateListItem) {
         if (data) {
@@ -6049,6 +6148,7 @@ export class TemplateListItem implements ITemplateListItem {
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
             this.updatedBy = _data["updatedBy"];
             this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
+            this.messageType = _data["messageType"] ? MessageType.fromJS(_data["messageType"]) : <any>undefined;
         }
     }
 
@@ -6074,6 +6174,7 @@ export class TemplateListItem implements ITemplateListItem {
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
         data["updatedBy"] = this.updatedBy;
         data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
+        data["messageType"] = this.messageType ? this.messageType.toJSON() : <any>undefined;
         return data;
     }
 }
@@ -6088,6 +6189,7 @@ export interface ITemplateListItem {
     createdAt?: Date;
     updatedBy?: string;
     updatedAt?: Date;
+    messageType?: MessageType;
 }
 
 export class TemplateListItemResultSet implements ITemplateListItemResultSet {
