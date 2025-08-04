@@ -51,17 +51,17 @@ export class CampaignBasicInfoComponent implements OnInit {
 
 
   public onMessageTypeSelectionChanged(event: any): void {
+    console.log('onMessageTypeSelectionChanged');
     if (event.value) {
       this.messageType = event.value;
       this.type.setValue(event);
-      const channelsFormArray: FormArray = this.channels as FormArray;
-      channelsFormArray.clear();
-      event.data.forEach((channel: string) => channelsFormArray.push(new FormControl(channel)));
     } else {
       this.messageType = undefined;
       this.type.setValue(null);
     }
-    this.templateSelected.emit(event.value);
+    console.log('reload');
+    this.templates = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
+    this._loadTemplates();
   }
 
   public onNeedsTemplateChanged(event: any): void {
@@ -111,6 +111,7 @@ export class CampaignBasicInfoComponent implements OnInit {
   }
 
   private _loadTemplates(): void {
+    console.log(this.messageType);
     this._api
       .getTemplates(undefined, undefined, undefined, undefined, this.messageType, true)
       .pipe(map((templates: TemplateListItemResultSet) => {
