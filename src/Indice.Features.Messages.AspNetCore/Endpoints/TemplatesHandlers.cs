@@ -9,8 +9,8 @@ namespace Indice.Features.Messages.AspNetCore.Endpoints;
 
 internal static class TemplatesHandlers
 {
-    public static async Task<Ok<ResultSet<TemplateListItem>>> GetTemplates([AsParameters] ListOptions options, ITemplateService templateService) {
-        var templates = await templateService.GetList(options);
+    public static async Task<Ok<ResultSet<TemplateListItem>>> GetTemplates([AsParameters] ListOptions options, [AsParameters] TemplateListFilter filter, ITemplateService templateService) {
+        var templates = await templateService.GetList(ListOptions.Create(options, filter));
         return TypedResults.Ok(templates);
     }
 

@@ -7,6 +7,9 @@ public class DbDistributionList : DbAuditableEntity
     public Guid Id { get; set; }
     /// <summary>The name of the distribution list.</summary>
     public string Name { get; set; } = null!;
+    /// <summary>The alias of distribution list.</summary>
+    /// <remarks>Optional, but if set then the value must be Unique</remarks>
+    public string? Alias { get; set; }
     /// <summary>Contact - Distribution list join entity type.</summary>
     public List<DbDistributionListContact> ContactDistributionLists { get; set; } = [];
 }

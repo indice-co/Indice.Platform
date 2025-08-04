@@ -85,7 +85,7 @@ public class TemplateService : ITemplateService
     }
 
     /// <inheritdoc />
-    public async Task<ResultSet<TemplateListItem>> GetList(ListOptions options) {
+    public async Task<ResultSet<TemplateListItem>> GetList(ListOptions<TemplateListFilter> options) {
         var query = DbContext.Templates.Include(x => x.MessageType).AsQueryable();
         if (!string.IsNullOrWhiteSpace(options.Search) && options.Search.Length > 2) {
             query = query.Where(x =>
@@ -93,6 +93,15 @@ public class TemplateService : ITemplateService
             x.Alias!.ToLower().Contains(options.Search.ToLower())
             );
         }
+
+        if (options.Filter?.MessageTypeId is not null) {
+            query = options.Filter.IncludeItemsWithoutMessageTypeId == true
+                ? query.Where(x => x.MessageTypeId == options.Filter.MessageTypeId || x.MessageTypeId == null)
+                : query.Where(x => x.MessageTypeId == options.Filter.MessageTypeId);
+        } else if (options.Filter?.IncludeItemsWithoutMessageTypeId == true) {
+            query = query.Where(x => x.MessageTypeId == null);
+        }
+
         var result = await query.ToResultSetAsync(options);
         var templateItems = result.Items.Select(x => new TemplateListItem {
             Channels = x.Content.Select(x => Enum.Parse<MessageChannelKind>(x.Key, ignoreCase: true)).ToList(),
