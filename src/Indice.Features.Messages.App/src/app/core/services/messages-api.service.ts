@@ -239,9 +239,11 @@ export interface IMessagesApiClient {
      * @param size (optional) The size of the list. Default is 100
      * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
      * @param search (optional) A search term used to limit the results of the list.
+     * @param messageTypeId (optional) 
+     * @param includeItemsWithoutMessageTypeId (optional) 
      * @return OK
      */
-    getTemplates(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<TemplateListItemResultSet>;
+    getTemplates(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, messageTypeId?: string | undefined, includeItemsWithoutMessageTypeId?: boolean | undefined): Observable<TemplateListItemResultSet>;
     /**
      * Creates a new template in the store.
      * @return Created
@@ -3481,9 +3483,11 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @param size (optional) The size of the list. Default is 100
      * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
      * @param search (optional) A search term used to limit the results of the list.
+     * @param messageTypeId (optional) 
+     * @param includeItemsWithoutMessageTypeId (optional) 
      * @return OK
      */
-    getTemplates(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<TemplateListItemResultSet> {
+    getTemplates(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, messageTypeId?: string | undefined, includeItemsWithoutMessageTypeId?: boolean | undefined): Observable<TemplateListItemResultSet> {
         let url_ = this.baseUrl + "/templates?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
@@ -3501,6 +3505,14 @@ export class MessagesApiClient implements IMessagesApiClient {
             throw new Error("The parameter 'search' cannot be null.");
         else if (search !== undefined)
             url_ += "Search=" + encodeURIComponent("" + search) + "&";
+        if (messageTypeId === null)
+            throw new Error("The parameter 'messageTypeId' cannot be null.");
+        else if (messageTypeId !== undefined)
+            url_ += "MessageTypeId=" + encodeURIComponent("" + messageTypeId) + "&";
+        if (includeItemsWithoutMessageTypeId === null)
+            throw new Error("The parameter 'includeItemsWithoutMessageTypeId' cannot be null.");
+        else if (includeItemsWithoutMessageTypeId !== undefined)
+            url_ += "IncludeItemsWithoutMessageTypeId=" + encodeURIComponent("" + includeItemsWithoutMessageTypeId) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -5237,6 +5249,7 @@ export interface ICreateDistributionListContactRequest {
 
 export class CreateDistributionListRequest implements ICreateDistributionListRequest {
     name?: string;
+    alias?: string;
 
     constructor(data?: ICreateDistributionListRequest) {
         if (data) {
@@ -5250,6 +5263,7 @@ export class CreateDistributionListRequest implements ICreateDistributionListReq
     init(_data?: any) {
         if (_data) {
             this.name = _data["name"];
+            this.alias = _data["alias"];
         }
     }
 
@@ -5263,12 +5277,14 @@ export class CreateDistributionListRequest implements ICreateDistributionListReq
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name;
+        data["alias"] = this.alias;
         return data;
     }
 }
 
 export interface ICreateDistributionListRequest {
     name?: string;
+    alias?: string;
 }
 
 export class CreateMessageSenderRequest implements ICreateMessageSenderRequest {
@@ -5430,6 +5446,7 @@ export interface ICreateTemplateRequest {
 export class DistributionList implements IDistributionList {
     id?: string;
     name?: string;
+    alias?: string;
     createdBy?: string;
     createdAt?: Date;
     updatedBy?: string;
@@ -5448,6 +5465,7 @@ export class DistributionList implements IDistributionList {
         if (_data) {
             this.id = _data["id"];
             this.name = _data["name"];
+            this.alias = _data["alias"];
             this.createdBy = _data["createdBy"];
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
             this.updatedBy = _data["updatedBy"];
@@ -5466,6 +5484,7 @@ export class DistributionList implements IDistributionList {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["name"] = this.name;
+        data["alias"] = this.alias;
         data["createdBy"] = this.createdBy;
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
         data["updatedBy"] = this.updatedBy;
@@ -5477,6 +5496,7 @@ export class DistributionList implements IDistributionList {
 export interface IDistributionList {
     id?: string;
     name?: string;
+    alias?: string;
     createdBy?: string;
     createdAt?: Date;
     updatedBy?: string;
@@ -6406,6 +6426,7 @@ export interface IUpdateContactRequest {
 
 export class UpdateDistributionListRequest implements IUpdateDistributionListRequest {
     name?: string;
+    alias?: string;
 
     constructor(data?: IUpdateDistributionListRequest) {
         if (data) {
@@ -6419,6 +6440,7 @@ export class UpdateDistributionListRequest implements IUpdateDistributionListReq
     init(_data?: any) {
         if (_data) {
             this.name = _data["name"];
+            this.alias = _data["alias"];
         }
     }
 
@@ -6432,12 +6454,14 @@ export class UpdateDistributionListRequest implements IUpdateDistributionListReq
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name;
+        data["alias"] = this.alias;
         return data;
     }
 }
 
 export interface IUpdateDistributionListRequest {
     name?: string;
+    alias?: string;
 }
 
 export class UpdateMessageSenderRequest implements IUpdateMessageSenderRequest {

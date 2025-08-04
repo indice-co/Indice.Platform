@@ -261,6 +261,7 @@ public class NotificationsManager(
 
     /// <summary>Gets a list of all available templates.</summary>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+    /// <param name="filter">Filter parameters</param>
     /// <returns></returns>
-    public Task<ResultSet<TemplateListItem>> GetTemplates(ListOptions options) => TemplateService.GetList(options);
+    public Task<ResultSet<TemplateListItem>> GetTemplates(ListOptions options, TemplateListFilter filter) => TemplateService.GetList(ListOptions.Create(options, filter));
 }

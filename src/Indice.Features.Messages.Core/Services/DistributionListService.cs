@@ -6,6 +6,7 @@ using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Indice.Features.Messages.Core.Services;
 
@@ -92,7 +93,15 @@ public class DistributionListService : IDistributionListService
 
     /// <inheritdoc />
     public async Task<DistributionList?> GetById(GuidOrAlias? id) {
-        var list = //await DbContext.DistributionLists.FindAsync(id);
+
+        if (id == null || id.Value == null) {
+            return default;
+        }
+
+        var list = id.Value.IsGuid ?
+            await DbContext.DistributionLists.FindAsync(id.Value.Uuid) :
+            await DbContext.DistributionLists.FirstOrDefaultAsync(x => x.Alias == id.Value.Value);
+        
         if (list is null) {
             return default;
         }
