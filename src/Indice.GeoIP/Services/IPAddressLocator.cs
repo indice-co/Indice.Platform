@@ -1,10 +1,10 @@
 ﻿using System.Net;
 using Indice.Extensions;
-using Indice.GeoResolve.GeoLite2;
-using Indice.GeoResolve.Models;
+using Indice.GeoIP.GeoLite2;
+using Indice.GeoIP.Models;
 using Indice.Types;
 
-namespace Indice.GeoResolve.Services;
+namespace Indice.GeoIP.Services;
 
 /// <summary>
 /// Service responsible for resolving geolocation metadata given an IP address.

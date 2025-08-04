@@ -7,10 +7,10 @@
 
   <PropertyGroup>
     <RootNamespace>Indice</RootNamespace>
-    <VersionPrefix>$(VersionPrefixCore)</VersionPrefix>
+    <VersionPrefix>1.0.0</VersionPrefix>
   </PropertyGroup>
   <PropertyGroup Label="Package">
-    <PackageTags>AspNet;GeoLocationResolver;Utilities</PackageTags>
+    <PackageTags>AspNet;GeoIP;Utilities</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
   

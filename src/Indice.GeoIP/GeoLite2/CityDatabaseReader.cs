@@ -1,6 +1,6 @@
 ﻿using MaxMind.GeoIP2;
 
-namespace Indice.GeoResolve.GeoLite2;
+namespace Indice.GeoIP.GeoLite2;
 
 /// <summary>
 /// A reader implementation for the GeoLite2 City database. 

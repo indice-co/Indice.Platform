@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Indice.Extensions;
+namespace Indice.GeoIP.Extensions;
 
 /// <summary>
 /// Contains extension methods for <see cref="IPAddress"/>.

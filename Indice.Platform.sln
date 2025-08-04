@@ -132,7 +132,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Functions.Builder", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Hosting.Tests", "test\Indice.Hosting.Tests\Indice.Hosting.Tests.csproj", "{74669578-C4CF-4D08-BCAD-94A77E9EC9B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.GeoResolve", "src\Indice.GeoResolve\Indice.GeoResolve.csproj", "{1D99D5D3-677B-4656-A5D9-F4A357D76844}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.GeoIP", "src\Indice.GeoIP\Indice.GeoIP.csproj", "{1D99D5D3-677B-4656-A5D9-F4A357D76844}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

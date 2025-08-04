@@ -1,5 +1,5 @@
-﻿using Indice.GeoResolve.GeoLite2;
-using Indice.GeoResolve.Services;
+﻿using Indice.GeoIP.GeoLite2;
+using Indice.GeoIP.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.Extensions.Configuration;

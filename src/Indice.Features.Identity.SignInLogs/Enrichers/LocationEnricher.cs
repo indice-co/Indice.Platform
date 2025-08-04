@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Models;
-using Indice.GeoResolve.Services;
+using Indice.GeoIP.Services;
 
 namespace Indice.Features.Identity.SignInLogs.Enrichers;
 
