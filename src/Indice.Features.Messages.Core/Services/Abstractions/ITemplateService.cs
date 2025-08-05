@@ -15,7 +15,7 @@ public interface ITemplateService
     Task<Template?> GetById(GuidOrAlias? id);
     /// <summary>Gets a list of all available templates.</summary>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
-    Task<ResultSet<TemplateListItem>> GetList(ListOptions options);
+    Task<ResultSet<TemplateListItem>> GetList(ListOptions<TemplateListFilter> options);
     /// <summary>Permanently deletes a template from the store.</summary>
     /// <param name="id">The id of the template.</param>
     Task Delete(Guid id);
@@ -31,4 +31,8 @@ public interface ITemplateService
     /// <summary>Checks if a template with the provided name exists</summary>
     /// <param name="name">The name of the template.</param>
     Task<bool> ExistsByName(string name);
+    /// <summary>Updates flag Ignore User Preference to an existing template.</summary>
+    /// <param name="id">The id of the template.</param>
+    /// <param name="messageTypeId">The id for template.</param>
+    Task UpdateMessageType(Guid id, Guid? messageTypeId);
 }

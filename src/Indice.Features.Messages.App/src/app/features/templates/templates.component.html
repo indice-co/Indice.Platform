@@ -29,8 +29,11 @@
     <lib-list-column title="ALIAS">
       <ng-template let-item>{{ item.alias }}</ng-template>
     </lib-list-column>
-    <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ ΑΠΟ">
-      <ng-template let-item>{{ item.createdBy }}</ng-template>
+    <lib-list-column title="ALIAS">
+      <ng-template let-item>{{ item.alias }}</ng-template>
+    </lib-list-column>
+    <lib-list-column title="ΤΥΠΟΣ ΜΥΝΗΜΑΤΟΣ">
+      <ng-template let-item>{{ item.type?.name }}</ng-template>
     </lib-list-column>
     <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ">
       <ng-template let-item>{{ item.createdAt | date: 'medium' }}</ng-template>

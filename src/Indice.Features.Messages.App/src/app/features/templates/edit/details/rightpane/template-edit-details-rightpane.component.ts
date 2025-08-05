@@ -1,9 +1,9 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { ToasterService, ToastType } from '@indice/ng-components';
-import { EMPTY, Subscription, catchError } from 'rxjs';
+import { MenuOption, ToasterService, ToastType } from '@indice/ng-components';
+import { EMPTY, Subscription, catchError, map } from 'rxjs';
 
-import { Template } from 'src/app/core/services/messages-api.service';
+import { MessageTypeResultSet, MessagesApiClient, Template } from 'src/app/core/services/messages-api.service';
 import { TemplateEditStore } from '../../template-edit-store.service';
 import { settings } from 'src/app/core/models/settings';
 
@@ -20,15 +20,20 @@ export class TemplateDetailsEditRightpaneComponent implements OnInit, AfterViewI
     private _router: Router,
     private _activatedRoute: ActivatedRoute,
     private _changeDetector: ChangeDetectorRef,
+    private _api: MessagesApiClient,
     @Inject(ToasterService) private _toaster: ToasterService
   ) { }
 
   @ViewChild('editNameTemplate', { static: true }) public editNameTemplate!: TemplateRef<any>;
   @ViewChild('editUserPreferenceTemplate', { static: true }) public editUserPreferenceTemplate!: TemplateRef<any>;
   @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
+  @ViewChild('editMessageType', { static: true }) public editMessageType!: TemplateRef<any>;
+  
   public submitInProgress = false;
   public templateOutlet!: TemplateRef<any>;
   public model = new Template();
+  public selectedOption: MenuOption | null = null;
+  public messageTypes: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
   public action = 'editName';
   public ngOnInit(): void {
     this._templateId = this._router.url.split('/')[2];
@@ -40,7 +45,12 @@ export class TemplateDetailsEditRightpaneComponent implements OnInit, AfterViewI
   public ngAfterViewInit(): void {
     this._templateStore
       .getTemplate(this._templateId)
-      .subscribe((template: Template) => this.model = template);
+      .subscribe((template: Template) => {
+        this.model = template;
+        if (this.model?.messageType?.id) {
+          this.selectedOption = new MenuOption(this.model.messageType.name || '', this.model.messageType.id);
+        }
+      });
     this._changeDetector.detectChanges();
   }
 
@@ -53,6 +63,21 @@ export class TemplateDetailsEditRightpaneComponent implements OnInit, AfterViewI
     if (this.action == 'editUserPreference') {
       this._updateTemplateSubscription = this._templateStore
         .updateUserPreference(this._templateId, this.model)
+        .pipe(
+          catchError((error: any) => {
+            this.submitInProgress = false;
+            return EMPTY;
+          }))
+        .subscribe({
+          next: () => {
+            this.submitInProgress = false;
+            this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Το πρότυπο με όνομα '${this.model.name}' αποθηκεύτηκε με επιτυχία.`);
+            this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['templates', this._templateId]));
+          }
+        });
+    } if (this.action == 'editMessageType') {
+      this._updateTemplateSubscription = this._templateStore
+        .updateTemplateMessageType(this._templateId, this.selectedOption?.value ?? undefined)
         .pipe(
           catchError((error: any) => {
             this.submitInProgress = false;
@@ -92,7 +117,27 @@ export class TemplateDetailsEditRightpaneComponent implements OnInit, AfterViewI
         this.action = 'editUserPreference';
         this.templateOutlet = this.editUserPreferenceTemplate;
         break;
+      case 'editMessageType':
+        this.action = 'editMessageType';
+        this.templateOutlet = this.editMessageType;
+       
+        this._loadMessageTypes();
+        break;
 
     }
+  }
+
+  private _loadMessageTypes(): void {
+    this._api
+      .getMessageTypes()
+      .pipe(map((messageTypes: MessageTypeResultSet) => {
+        if (messageTypes.items) {
+          this.messageTypes.push(...messageTypes.items.map(type => new MenuOption(type.name || '', type.id)));
+        }
+      }))
+      .subscribe();
+  }
+  protected setType(event: MenuOption): void {
+    this.selectedOption = event;
   }
 }

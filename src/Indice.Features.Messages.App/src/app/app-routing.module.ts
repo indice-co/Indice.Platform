@@ -49,6 +49,8 @@ import { ContactComponent } from './features/contacts/contact/contact.component'
 import { ContactDetailsComponent } from './features/contacts/contact/details/contact-details.component';
 import { ContactCampaignsComponent } from './features/contacts/contact/campaigns/contact-campaigns.component';
 import { ContactEditComponent } from './features/contacts/contact/details/edit/contact-edit.component';
+import { ContactPreferencesComponent } from './features/contacts/contact/preferences/contact-preferences.component';
+import { ContactCreateComponent } from './features/contacts/contact/create/contact-create.component';
 
 const routes: Routes = [
   { path: 'auth-callback', component: AuthCallbackComponent },
@@ -119,8 +121,9 @@ const routes: Routes = [
             data: { breadcrumb: { title: 'Επεξεργασία' } },
             children: [
               { path: '', redirectTo: 'contact-details', pathMatch: 'full' },
-              { path: 'contact-details', component: ContactDetailsComponent, data: { breadcrumb: { title: 'Βασικές Πληροφορίες' } } },
-              { path: 'contact-campaigns', component: ContactCampaignsComponent, data: { breadcrumb: { title: 'Καμπάνιες' } } }
+              { path: 'contact-details', component: ContactDetailsComponent, data: { breadcrumb: { title: 'Βασικές πληροφορίες' } } },
+              { path: 'contact-campaigns', component: ContactCampaignsComponent, data: { breadcrumb: { title: 'Καμπάνιες' } } },
+              { path: 'contact-preferences', component: ContactPreferencesComponent, data: { breadcrumb: { title: 'Στοιχεία επικοινωνίας' } } }
             ]
           },
         ]
@@ -171,6 +174,7 @@ const routes: Routes = [
   { path: 'create-distribution-list', canActivate: [AuthGuardService], component: DistributionListCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'import-contacts', canActivate: [AuthGuardService], component: DistributionListImportContactsComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'create-contact', canActivate: [AuthGuardService], component: DistributionListContactCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
+  { path: 'create-new-contact', canActivate: [AuthGuardService], component: ContactCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'edit-contact/:contactId', canActivate: [AuthGuardService], component: DistributionListContactEditComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'update-contact/:contactId', canActivate: [AuthGuardService], component: ContactEditComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'edit-template', canActivate: [AuthGuardService], component: TemplateDetailsEditRightpaneComponent, outlet: 'rightpane', pathMatch: 'prefix' },

@@ -40,6 +40,7 @@ internal abstract class BaseCaseMessageService
         var newCheckpointType = await DbContext.CheckpointTypes
             .AsQueryable()
             .SingleOrDefaultAsync(x => x.Code == message.CheckpointTypeName && x.CaseTypeId == caseType.Id);
+
         if (!string.IsNullOrWhiteSpace(message.CheckpointTypeName) && newCheckpointType == null) {
             throw new BusinessException($"Invalid checkpoint. Not checkpoint was found for the current case with name {message.CheckpointTypeName}.");
         }
@@ -58,6 +59,7 @@ internal abstract class BaseCaseMessageService
             attachmentId = attachment.Id;
         } else if (message.FileStreamAccessor == null && message.CheckpointTypeName != null) {
             //TODO: if message has both Data and Checkpoint name, then Data does not save (check 64 line)
+            
             await AddCheckpoint(createdBy, @case, newCheckpointType!);
             if (!string.IsNullOrWhiteSpace(message.Comment)) {
                 message.PrivateComment ??= newCheckpointType!.Private;

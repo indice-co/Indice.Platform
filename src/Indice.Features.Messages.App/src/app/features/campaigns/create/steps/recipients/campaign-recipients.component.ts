@@ -12,7 +12,7 @@ import { ListContactCreateComponent } from 'src/app/shared/components/list-conta
     templateUrl: './campaign-recipients.component.html'
 })
 export class CampaignRecipientsComponent implements OnInit {
-    @ViewChild('contactCreateComponent', { static: false }) public contactCreateComponent!: ListContactCreateComponent;
+    @ViewChild('distributionListContactCreateComponent', { static: false }) public distributionListContactCreateComponent!: ListContactCreateComponent;
     @ViewChild('rightPane', { static: false }) public rightPaneComponent!: SidePaneComponent;
     constructor(private _api: MessagesApiClient) { }
 
@@ -43,7 +43,7 @@ export class CampaignRecipientsComponent implements OnInit {
         this.recipientIds.removeValidators(Validators.required);
         this.distributionList.removeValidators(Validators.required);
         this.recipients.removeValidators(Validators.required);
-        this.contactCreateComponent.reset();
+        this.distributionListContactCreateComponent.reset();
         if (value === 'distribution-list') {
             this.distributionList.setValidators(Validators.required);
             this.recipientIds.setValue(null);

@@ -510,7 +510,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
             Email = "test@email.gr",
             PhoneNumber = "1234567890",
             Salutation = "Mr",
-            CommunicationPreferences = ContactChannelKind.Any | ContactChannelKind.Email
+            //CommunicationPreferences = ContactChannelKind.Any | ContactChannelKind.Email
         };
         var addContactPayload = JsonSerializer.Serialize(addContactRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
         var addContactResponse = await _httpClient.PostAsync($"{createDistributionListResponse.Headers.Location?.PathAndQuery}/contacts", new StringContent(addContactPayload, Encoding.UTF8, "application/json"));

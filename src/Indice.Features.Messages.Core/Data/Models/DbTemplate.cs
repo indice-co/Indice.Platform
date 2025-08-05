@@ -20,4 +20,8 @@ public class DbTemplate : DbAuditableEntity
     /// <summary>Sample data for the testing the template preview.</summary>
     /// <remarks>Optional</remarks>
     public dynamic? Data { get; set; }
+    /// <summary>The id of a message type.</summary>
+    public Guid? MessageTypeId { get; set; }
+    /// <summary>The message type details of the template.</summary>
+    public virtual DbMessageType? MessageType { get; set; }
 }

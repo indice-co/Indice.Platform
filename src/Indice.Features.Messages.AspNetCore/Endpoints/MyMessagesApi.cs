@@ -80,6 +80,17 @@ internal static class MyMessagesApi
             .WithName(nameof(MyMessagesHandlers.GetInboxMessageTypes))
             .WithSummary("Gets the list of available campaign types.")
             .WithDescription(MyMessagesHandlers.GET_INBOX_MESSAGE_TYPES_DESCRIPTION);
+
+
+        group.MapGet("my/communication-preferences", MyMessagesHandlers.GetMyCommunicationPreferences)
+             .WithName(nameof(MyMessagesHandlers.GetMyCommunicationPreferences))
+             .WithSummary("Gets user communication prefereces.")
+             .WithDescription(MyMessagesHandlers.GET_COMMUNICATION_PREFERENCES_DESCRIPTION);
+
+        group.MapPut("my/communication-preferences", MyMessagesHandlers.UpdateMyCommunicationPreferences)
+             .WithName(nameof(MyMessagesHandlers.UpdateMyCommunicationPreferences))
+             .WithSummary("Updates user's communication prefereces.")
+             .WithDescription(MyMessagesHandlers.UPDATE_COMMUNICATION_PREFERENCES_DESCRIPTION);
         return group;
     }
 
