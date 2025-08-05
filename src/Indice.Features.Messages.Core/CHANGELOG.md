@@ -6,39 +6,59 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [8.1.7] - 2025-07-24
-### Added support to persist communication preferences for users.
-The following migration script is needed to add the `CommunicationPreference` and `CommunicationPreferenceMessageType` tables.
+## [8.1.10] - 2025-08-05
+
+### Added support alias in Distribution list
 ```sql
-CREATE TABLE [#schema#].[CommunicationPreference] (
+ALTER TABLE [msg].[DistributionList] 
+    ADD [Alias]     NVARCHAR (64)      NULL
+GO
+CREATE UNIQUE NONCLUSTERED INDEX [IX_DistributionList_Alias]
+    ON [msg].[DistributionList]([Alias] ASC) WHERE ([Alias] IS NOT NULL);
+GO
+```
+
+### Added support to persist communication preferences for users.
+Add Message type in template table for linking templates to message types and eventually preferences.
+```sql
+ALTER TABLE [#schema#].[Template]
+	ADD [MessageTypeId]  UNIQUEIDENTIFIER  
+ALTER TABLE [#schema#].[Template] WITH NOCHECK
+    ADD CONSTRAINT [FK_Template_MessageType_MessageTypeId] FOREIGN KEY ([MessageTypeId]) REFERENCES [msg].[MessageType] ([Id]);
+ALTER TABLE [#schema#].[Template] WITH CHECK CHECK CONSTRAINT [FK_Template_MessageType_MessageTypeId];
+```
+
+The following migration script is needed to add the `ContactPreference` and `ContactCommunicationOption` tables.
+```sql
+CREATE TABLE [#schema#].[ContactPreference] (
     [Id]                    UNIQUEIDENTIFIER   NOT NULL,
     [RecipientId]           NVARCHAR (64)      NOT NULL,
     [Locale]                NVARCHAR (16)      NULL,
     [ConsentCommercial]     BIT                NOT NULL,
-    [ConsentCommercialDate] DATETIMEOFFSET (7) NULL,,
-	[UpdatedAt] [datetimeoffset](7) NULL,
-    CONSTRAINT [PK_CommunicationPreference] PRIMARY KEY CLUSTERED ([Id] ASC)
+    [ConsentCommercialDate] DATETIMEOFFSET (7) NULL,
+    [DefaultChannels]       TINYINT            NULL,
+    [UpdatedAt]             DATETIMEOFFSET (7) NULL,
+    CONSTRAINT [PK_ContactPreference] PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 GO
 
-CREATE UNIQUE NONCLUSTERED INDEX [IX_CommunicationPreference_RecipientId]
-    ON [#schema#].[CommunicationPreference]([RecipientId] ASC);
+CREATE UNIQUE NONCLUSTERED INDEX [IX_ContactPreference_RecipientId]
+    ON [#schema#].[ContactPreference]([RecipientId] ASC);
 GO
 
-
-CREATE TABLE [#schema#].[CommunicationPreferenceMessageType] (
-    [CommunicationPreferenceId] UNIQUEIDENTIFIER NOT NULL,
-    [TypeId]                    UNIQUEIDENTIFIER NOT NULL,
-    [CommunicationPreferences]  TINYINT          DEFAULT (CONVERT([tinyint],(0))) NOT NULL,,
-	[UpdatedAt] [datetimeoffset](7) NULL,
-    CONSTRAINT [PK_CommunicationPreferenceMessageType] PRIMARY KEY CLUSTERED ([CommunicationPreferenceId] ASC, [TypeId] ASC),
-    CONSTRAINT [FK_CommunicationPreferenceMessageType_CommunicationPreference_CommunicationPreferenceId] FOREIGN KEY ([CommunicationPreferenceId]) REFERENCES [#schema#].[CommunicationPreference] ([Id]) ON DELETE CASCADE,
-    CONSTRAINT [FK_CommunicationPreferenceMessageType_MessageType_TypeId] FOREIGN KEY ([TypeId]) REFERENCES [#schema#].[MessageType] ([Id]) ON DELETE CASCADE
+CREATE TABLE [#schema#].[ContactCommunicationOption] (
+    [ContactPreferenceId] UNIQUEIDENTIFIER   NOT NULL,
+    [MessageTypeId]       UNIQUEIDENTIFIER   NOT NULL,
+    [Channels]            TINYINT            DEFAULT (CONVERT([tinyint],(0))) NOT NULL,
+    [UpdatedAt]           DATETIMEOFFSET (7) NULL,
+    CONSTRAINT [PK_ContactCommunicationOption] PRIMARY KEY CLUSTERED ([ContactPreferenceId] ASC, [MessageTypeId] ASC),
+    CONSTRAINT [FK_ContactCommunicationOption_ContactPreference_ContactPreferenceId] FOREIGN KEY ([ContactPreferenceId]) REFERENCES [#schema#].[ContactPreference] ([Id]) ON DELETE CASCADE,
+    CONSTRAINT [FK_ContactCommunicationOption_MessageType_MessageTypeId] FOREIGN KEY ([MessageTypeId]) REFERENCES [#schema#].[MessageType] ([Id]) ON DELETE CASCADE
 );
 GO
 
-CREATE NONCLUSTERED INDEX [IX_CommunicationPreferenceMessageType_TypeId]
-    ON [#schema#].[CommunicationPreferenceMessageType]([TypeId] ASC);
+CREATE NONCLUSTERED INDEX [IX_ContactCommunicationOption_MessageTypeId]
+    ON [#schema#].[ContactCommunicationOption]([MessageTypeId] ASC);
 GO
 
 ```
@@ -46,35 +66,45 @@ GO
 In case that you have used communication preferences in your project, you need to run the following migration script to populate the `CommunicationPreference` and `CommunicationPreferenceMessageType` tables.
 ```sql
 
-    INSERT INTO [#schema#].[CommunicationPreference]
-           ([Id]
-           ,[RecipientId]
-           ,[Locale]
-           ,[ConsentCommercial])
-    SELECT NEWID(),  RecipientId, Locale, ConsentCommercial
-    FROM [#schema#].[Contact] AS CT
-    WHERE RecipientId IS NOT null
-    AND NOT EXISTS (SELECT TOP 1 1 FROM  [#schema#].[CommunicationPreference] WHERE RecipientId = ct.RecipientId)
+CREATE TABLE #TempContactPreference
+(
+    [RecipientId] nvarchar(64) NOT NULL,
+    [Locale] nvarchar(16) NULL,
+    [ConsentCommercial] bit NOT NULL DEFAULT(0),
+    [DefaultChannels] TINYINT NULL
+);
+
+INSERT INTO #TempContactPreference
+    ([RecipientId]
+    ,[Locale]
+    ,[ConsentCommercial]
+    ,[DefaultChannels])
+SELECT RecipientId, Locale, ConsentCommercial,CommunicationPreferences
+FROM (
+    SELECT RecipientId, Locale, ConsentCommercial,CommunicationPreferences,
+        row_number() over (partition by RecipientId order by [UpdatedAt] desc) as rn
+    FROM [msg].[Contact]
+    WHERE NULLIF(RecipientId,'') IS NOT NULL
+) t
+WHERE rn = 1 
 
 
-    INSERT INTO [#schema#].[CommunicationPreferenceMessageType]
-           ([CommunicationPreferenceId]
-           ,[TypeId]
-           ,[CommunicationPreferences])
-    SELECT cp.ID, MT.ID, CT.CommunicationPreferences
-    FROM [#schema#].[Contact] AS CT
-    INNER JOIN [#schema#].[CommunicationPreference] as cp
-    ON cp.[RecipientId] = CT.RecipientId
-    CROSS JOIN [#schema#].[MessageType] as MT
-    WHERE CT.RecipientId IS NOT null
-    AND NOT EXISTS (
-    SELECT TOP 1 1 FROM  [#schema#].[CommunicationPreferenceMessageType] WHERE [CommunicationPreferenceId] = cp.ID AND [TypeId] = MT.ID)
+INSERT INTO [msg].[ContactPreference]
+    ([Id]
+    ,[RecipientId]
+    ,[Locale]
+    ,[ConsentCommercial])
+SELECT NEWID(),  RecipientId, Locale, ConsentCommercial
+FROM  #TempContactPreference AS CT
+WHERE NOT EXISTS (SELECT TOP 1 1 FROM  [msg].[ContactPreference] WHERE RecipientId = ct.RecipientId)
+
+
+DROP TABLE #TempContactPreference    
+
 ```
 
 The last step is to drop the prefernece columns from the `Contact` table.
 ```sql
-ALTER TABLE [#schema#].[Contact] DROP CONSTRAINT [DF__Contact__Communi__38996AB5];
-ALTER TABLE [#schema#].[Contact] DROP CONSTRAINT [DF__Contact__Consent__398D8EEE];
 ALTER TABLE [#schema#].[Contact] DROP COLUMN [CommunicationPreferences], COLUMN [ConsentCommercial], COLUMN [Locale];
 ```
 
