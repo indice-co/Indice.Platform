@@ -34,5 +34,6 @@ public class DbTemplateMap : IEntityTypeConfiguration<DbTemplate>
         // Configure indexes.
         builder.HasIndex(x => x.Name).IsUnique();
         builder.HasIndex(x => x.Alias).IsUnique();
+        builder.HasOne(x => x.MessageType).WithMany().HasForeignKey(x => x.MessageTypeId);
     }
 }

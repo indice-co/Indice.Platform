@@ -64,7 +64,7 @@ public class CampaignRequestValidator<TCampaignRequest> : AbstractValidator<TCam
 
     private bool BeExistingTypeId(GuidOrAlias? id) => _messageTypeService.GetById(id).Result is not null;
 
-    private bool BeExistingDistributionListId(Guid? id) => _distributionListService.GetById(id).Result is not null;
+    private bool BeExistingDistributionListId(GuidOrAlias? id) => _distributionListService.GetById(id).Result is not null;
 
     private bool BeExistingTemplateId(GuidOrAlias? id) => _templateService.GetById(id).Result is not null;
 }

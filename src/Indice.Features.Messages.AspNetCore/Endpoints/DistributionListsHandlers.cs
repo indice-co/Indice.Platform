@@ -1,4 +1,5 @@
-﻿using System.Net.Mime;
+﻿using System.ComponentModel;
+using System.Net.Mime;
 using Indice.Features.Messages.AspNetCore.Csv;
 using Indice.Features.Messages.AspNetCore.Requests;
 using Indice.Features.Messages.Core.Models;
@@ -7,6 +8,7 @@ using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Indice.Features.Messages.AspNetCore.Endpoints;
 
@@ -17,7 +19,9 @@ internal static class DistributionListsHandlers
         return TypedResults.Ok(lists);
     }
 
-    public static async Task<Results<Ok<DistributionList>, NotFound>> GetDistributionListById(IDistributionListService distributionListService, Guid distributionListId) {
+    public static async Task<Results<Ok<DistributionList>, NotFound>> GetDistributionListById(IDistributionListService distributionListService,
+        [Description("Guid or the alias of the distribution list")] 
+        GuidOrAlias distributionListId) {
         var list = await distributionListService.GetById(distributionListId);
         if (list is null) {
             return TypedResults.NotFound();
@@ -45,9 +49,12 @@ internal static class DistributionListsHandlers
         return TypedResults.Ok(contacts);
     }
 
-    public static async Task<NoContent> AddContactToDistributionList(IContactService contactService, 
+    public static async Task<NoContent> AddContactToDistributionList(IContactService contactService,
         Guid distributionListId, 
         CreateDistributionListContactRequest request) {
+        if (!string.IsNullOrWhiteSpace(request.RecipientId) && request.CommunicationPreference is not null) {
+            await contactService.UpdateContactPreferences(request.RecipientId, request.CommunicationPreference);
+        }
         await contactService.AddToDistributionList(distributionListId, request);
         return TypedResults.NoContent();
     }
@@ -64,8 +71,8 @@ internal static class DistributionListsHandlers
     }
 
     public static async Task<Results<FileContentHttpResult, NotFound>> BulkExportContactsFromDistributionList(IContactService contactService, Guid distributionListId) {
-        var contacts = await contactService.GetByDistributionList(distributionListId);
-        var csvBytes =  await ContactsCsvUtility.Export(contacts);
+        var contacts = await contactService.GetList(ListOptions.Create(new ListOptions { Size = 10000 }, new ContactListFilter { DistributionListId = distributionListId } ));
+        var csvBytes =  await ContactsCsvUtility.Export(contacts.Items);
         return TypedResults.File(
             fileContents: csvBytes,
             contentType: MediaTypeNames.Text.Csv,

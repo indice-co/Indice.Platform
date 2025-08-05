@@ -1,4 +1,6 @@
-﻿namespace Indice.Features.Messages.Core.Models.Requests;
+﻿using Indice.Types;
+
+namespace Indice.Features.Messages.Core.Models.Requests;
 
 /// <summary>The request model used to create a new template.</summary>
 public class CreateTemplateRequest
@@ -7,7 +9,8 @@ public class CreateTemplateRequest
     public string Name { get; set; } = null!;
     /// <summary>The alias of the template.</summary>
     public string? Alias { get; set; }
-
+    /// <summary>The alias of the template.</summary>
+    public Guid? MessageTypeId { get; set; }
     /// <summary>Determines if the taemplate to be created from this template should ignore user communication preferences.</summary>
     public bool IgnoreUserPreferences { get; set; }
     /// <summary>The content of the template.</summary>

@@ -1,0 +1,92 @@
+<section aria-labelledby="applicant-information-title">
+  <div class="bg-white shadow sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6">
+      <div class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+        <div class="sm:col-span-1">
+          <h2 id="applicant-information-title"
+              class="text-lg leading-6 font-medium text-gray-900">
+            Στοιχεία Επικοινωνίας
+          </h2>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+      <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Γλώσσα επικοινωνίας</dt>
+          <dd class="mt-1 text-sm text-gray-900">{{ recepientPreference?.locale || '-' }}</dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500"></dt>
+          <dd class="mt-1 text-sm text-gray-900"></dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Αποδοχή επικοινωνίας</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <span [innerHtml]="recepientPreference?.consentCommercial | beautifyBoolean"></span>
+          </dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Ημερομηνία αποδοχής επικοινωνίας</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            {{ (recepientPreference?.consentCommercialDate | date: 'medium') }}
+          </dd>
+        </div>
+      </dl>
+    </div>
+    <div class="view-container">
+      <table class="list-view-table">
+        <thead class="list-view-thead">
+          <tr>
+            <th scope="col" class="list-view-th">
+              Τύποι Μηνυμάτων
+            </th>
+            <th scope="col" class="list-view-th">Email</th>
+            <th scope="col" class="list-view-th">Sms</th>
+            <th scope="col" class="list-view-th">Push Nofication</th>
+            <th scope="col" class="list-view-th">Inbox</th>
+          </tr>
+        </thead>
+        <tbody *ngIf="recepientPreference?.defaultChannels" class="list-view-tbody">
+          <tr class="list-view-tr">
+            <td class="list-view-td">
+              Default Settings
+            </td>
+            <td class="list-view-td">
+              <span [innerHtml]="CheckReceivePreference(recepientPreference?.defaultChannels!, ContactChannelKindEnum.Email) | beautifyBoolean"></span>
+            </td>
+            <td class="list-view-td">
+              <span [innerHtml]="CheckReceivePreference(recepientPreference?.defaultChannels!, ContactChannelKindEnum.SMS) | beautifyBoolean"></span>
+            </td>
+            <td class="list-view-td">
+              <span [innerHtml]="CheckReceivePreference(recepientPreference?.defaultChannels!, ContactChannelKindEnum.PushNotification) | beautifyBoolean"></span>
+            </td>
+            <td class="list-view-td">
+              <span [innerHtml]="true | beautifyBoolean"></span>
+            </td>
+          </tr>
+        </tbody>
+        <tbody *ngIf="!recepientPreference?.defaultChannels" class="list-view-tbody">
+          <tr *ngFor="let preference of recepientPreference?.communication"
+              class="list-view-tr">
+            <td class="list-view-td">
+              {{preference.messageTypeDisplayName}}
+            </td>
+            <td class="list-view-td">
+              <span [innerHtml]="CheckReceivePreference(preference.channels!, ContactChannelKindEnum.Email) | beautifyBoolean"></span>
+            </td>
+            <td class="list-view-td">
+              <span [innerHtml]="CheckReceivePreference(preference.channels!, ContactChannelKindEnum.SMS) | beautifyBoolean"></span>
+            </td>
+            <td class="list-view-td">
+              <span [innerHtml]="CheckReceivePreference(preference.channels!, ContactChannelKindEnum.PushNotification) | beautifyBoolean"></span>
+            </td>
+            <td class="list-view-td">
+              <span [innerHtml]="true | beautifyBoolean"></span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

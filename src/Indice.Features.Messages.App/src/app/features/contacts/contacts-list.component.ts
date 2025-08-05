@@ -12,8 +12,8 @@ import { Contact, ContactResultSet, MessagesApiClient } from 'src/app/core/servi
 export class ContactsListComponent extends BaseListComponent<Contact> implements OnInit {
   constructor(
     route: ActivatedRoute,
-    private _router: Router,
-    private _api: MessagesApiClient
+    private readonly _router: Router,
+    private readonly _api: MessagesApiClient
     
   ) {
     super(route, _router);
@@ -30,7 +30,7 @@ export class ContactsListComponent extends BaseListComponent<Contact> implements
     ];
   }
 
-  public newItemLink: string | null = 'create-contact';
+  public newItemLink: string | null = 'create-new-contact';
   public full = true;
 
   public override ngOnInit(): void {
@@ -40,7 +40,7 @@ export class ContactsListComponent extends BaseListComponent<Contact> implements
   public loadItems(): Observable<IResultSet<Contact> | null | undefined> {
     return this._api
       .getContacts(this.page, this.pageSize, this.sortdir === 'asc' ? this.sort! : this.sort + '-', this.search || undefined, undefined, undefined, undefined,
-        undefined, false)
+        undefined)
       .pipe(map((result: ContactResultSet) => (result as IResultSet<Contact>)));
   }
 
