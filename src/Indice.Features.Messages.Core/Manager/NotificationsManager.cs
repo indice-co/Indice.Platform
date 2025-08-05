@@ -172,6 +172,13 @@ public class NotificationsManager(
             }, request.GetIncludedContacts());
             request.RecipientListId = createdList.Id;
             isNewDistributionList = true;
+        } else {
+            // If a distribution list id is set, then we check if it exists.
+            var distributionList = await DistributionListService.GetById(request.RecipientListId.Value);
+            if (distributionList is null) {
+                return CreateCampaignResult.Fail($"The specified Distribution List with Id:({request.RecipientListId}) does not exist");
+            }
+            request.RecipientListId = distributionList.Id;
         }
         // create the attachemtns
         if (request.Attachments.Any()) {
@@ -202,7 +209,7 @@ public class NotificationsManager(
                 var channels = request.MessageTemplateChannels
                                     .Select(f => f.ToString())
                                     .ToHashSet(StringComparer.OrdinalIgnoreCase);
-                content = new (template.Content.Where(cnt => channels.Contains(cnt.Key)));
+                content = new(template.Content.Where(cnt => channels.Contains(cnt.Key)));
                 if (content.Count == 0) {
                     return CreateCampaignResult.Fail($"Content was empty after applying the messageTemplateChannels to the selected Template with Id:({request.MessageTemplateId})");
                 }

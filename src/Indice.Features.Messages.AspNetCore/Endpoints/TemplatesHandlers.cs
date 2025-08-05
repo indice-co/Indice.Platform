@@ -1,4 +1,5 @@
-﻿using Indice.Features.Messages.Core.Models;
+﻿using System.ComponentModel;
+using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
@@ -27,20 +28,35 @@ internal static class TemplatesHandlers
         return TypedResults.CreatedAtRoute(createdTemplate, nameof(GetTemplateById), new { templateId = createdTemplate.Id });
     }
 
-    public static async Task<Results<NoContent, ValidationProblem>> UpdateTemplate(GuidOrAlias templateId, UpdateTemplateRequest request, ITemplateService templateService) {
+    public static async Task<Results<NoContent, ValidationProblem>> UpdateTemplate(
+        [Description("Guid or the alias of the template")]
+        GuidOrAlias templateId,
+        UpdateTemplateRequest request,
+        ITemplateService templateService) {
         await templateService.Update(templateId, request);
         return TypedResults.NoContent();
     }
-    public static async Task<Results<NoContent, ValidationProblem>> UpdateTemplateUserPreferences(GuidOrAlias templateId, UpdateTemplateUserPreferencesRequest request, ITemplateService templateService) {
+    public static async Task<Results<NoContent, ValidationProblem>> UpdateTemplateUserPreferences(
+        [Description("Guid or the alias of the template")]
+        GuidOrAlias templateId,
+        UpdateTemplateUserPreferencesRequest request,
+        ITemplateService templateService) {
         await templateService.UpdateIgnreUserPreferences(templateId, request.IgnoreUserPreferences);
         return TypedResults.NoContent();
     }
-    public static async Task<Results<NoContent, ValidationProblem>> UpdateTemplateMessageType(GuidOrAlias templateId, Guid? messageTemplateId, ITemplateService templateService) {
+    public static async Task<Results<NoContent, ValidationProblem>> UpdateTemplateMessageType(
+        [Description("Guid or the alias of the template")] 
+        GuidOrAlias templateId, 
+        Guid? messageTemplateId, 
+        ITemplateService templateService) {
         await templateService.UpdateMessageType(templateId, messageTemplateId);
         return TypedResults.NoContent();
     }
 
-    public static async Task<Results<NoContent, ValidationProblem>> DeleteTemplate(GuidOrAlias templateId, ITemplateService templateService) {
+    public static async Task<Results<NoContent, ValidationProblem>> DeleteTemplate(
+        [Description("Guid or the alias of the template")]
+        GuidOrAlias templateId, 
+        ITemplateService templateService) {
         await templateService.Delete(templateId);
         return TypedResults.NoContent();
     }
@@ -83,9 +99,9 @@ Parameters:
 - templateId: The unique identifier of the template.
 - messageTypeId: The unique identifier of the message type.
 ";
-    
 
-public static readonly string UPDATE_TEMPLATE_USERPREFERENCES_DESCRIPTION = @"
+
+    public static readonly string UPDATE_TEMPLATE_USERPREFERENCES_DESCRIPTION = @"
 Updates Ingore User preferences flag existing template.
     
 Parameters:
