@@ -61,11 +61,11 @@ internal static class CampaignsHandlers
     }
 
     public static async Task<Results<CreatedAtRoute<CreateCampaignResult>, ValidationProblem>> CreateCampaign(
-        NotificationsManager notificationsManager, 
-        IConfiguration configuration, 
+        NotificationsManager notificationsManager,
+        IConfiguration configuration,
         MediaBaseHrefResolver baseHrefResolver,
         CreateCampaignRequest request) {
-        if (string.IsNullOrWhiteSpace(request.MediaBaseHref) || 
+        if (string.IsNullOrWhiteSpace(request.MediaBaseHref) ||
             Uri.TryCreate(request!.MediaBaseHref, UriKind.RelativeOrAbsolute, out var mediaBasePath) && !mediaBasePath.IsAbsoluteUri) {
             request.MediaBaseHref = (await baseHrefResolver.ResolveBaseHrefAsync()).ToString();
         }
@@ -131,6 +131,14 @@ internal static class CampaignsHandlers
         return TypedResults.File(data, contentType, lastModified: properties.LastModified, entityTag: new EntityTagHeaderValue(properties.ETag, true));
     }
 
+    public static async Task<Ok<DashboardCounters>> GetDashboardStats(ICampaignService campaignService) {
+        var counters = new DashboardCounters {
+            CampaignsCount = (await campaignService.GetList(new ListOptions<CampaignListFilter> { Page = 1, Size = 0 })).Count,
+            CampaignsPublishedCount = (await campaignService.GetList(new ListOptions<CampaignListFilter> { Page = 1, Size = 0, Filter = new CampaignListFilter() { Published = true } })).Count,
+            CampaignsByType = await campaignService.GetDashboardCounters()
+        };
+        return TypedResults.Ok(counters);
+    }
 
     #region Descriptions
     public static readonly string GET_CAMPAIGNS_DESCRIPTION = @"

@@ -108,6 +108,10 @@ internal static class CampaignsApi
              .AllowAnonymous()
              .ExcludeFromDescription();
 
+        group.MapGet("dashboard", CampaignsHandlers.GetCampaigns)
+             .WithName(nameof(CampaignsHandlers.GetCampaigns))
+             .WithSummary("Gets the list of all campaigns using the provided ListOptions.")
+             .WithDescription(CampaignsHandlers.GET_CAMPAIGNS_DESCRIPTION);
         return group;
     }
 }

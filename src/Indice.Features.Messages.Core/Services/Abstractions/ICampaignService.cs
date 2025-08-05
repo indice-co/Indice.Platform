@@ -32,4 +32,6 @@ public interface ICampaignService
     /// <summary>Records a visit for the specified campaign.</summary>
     /// <param name="id">The id of the campaign.</param>
     Task UpdateHit(Guid id);
+    /// <summary>Gets all channel kinds send and their number.</summary>
+    Task<Dictionary<string,int>> GetDashboardCounters();
 }

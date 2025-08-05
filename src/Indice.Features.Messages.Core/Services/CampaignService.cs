@@ -5,6 +5,7 @@ using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
+using Microsoft.Azure.Amqp.Framing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -168,4 +169,10 @@ public class CampaignService : ICampaignService
         await DbContext.SaveChangesAsync();
         return Mapper.ToCampaign(campaign);
     }
+    ///<inheritdoc/>
+    public async Task<Dictionary<string, int>> GetDashboardCounters() =>
+                await DbContext.CampaignEvent.GroupBy(m => m.Channel).ToDictionaryAsync(g => g.Key, g => g.Count());
+
+
+
 }
