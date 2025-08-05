@@ -30,12 +30,13 @@ public class RiskService
     /// <param name="event">The event occurred for which to calculate the risk score.</param>
     public async Task<AggregateRuleExecutionResult> GetRiskAsync(RiskEvent @event) {
         var results = new List<RuleExecutionResult>();
-        foreach (var rule in Rules.Where(x => x.Options.Enabled)) {
+        var enabledRules = Rules.Where(x => x.Options.Enabled).ToArray();
+        foreach (var rule in enabledRules) {
             var result = await rule.ExecuteAsync(@event);
             result.RuleName = rule.Name;
             result.RiskLevel = RiskEngineOptions.RiskLevelRangeMapping.GetRiskLevel(result.RiskScore) ?? RiskLevel.None;
             results.Add(result);
         }
-        return new AggregateRuleExecutionResult(@event.Id, Rules.Count(), results, RiskEngineOptions);
+        return new AggregateRuleExecutionResult(@event.Id, enabledRules.Length, results, RiskEngineOptions);
     }
 }

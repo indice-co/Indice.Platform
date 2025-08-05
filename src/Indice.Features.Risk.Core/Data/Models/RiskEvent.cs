@@ -16,7 +16,7 @@ public class RiskEvent
     /// <summary>The name of the event.</summary>
     public string? Name { get; set; }
     /// <summary>The type of the event.</summary>
-    public string Type { get; set; } = string.Empty;
+    public string? Type { get; set; }
     /// <summary>The data of the event.</summary>
     public dynamic? Data { get; set; }
     /// <summary>The Id of the source that posted the event.</summary>

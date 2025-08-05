@@ -39,7 +39,7 @@ public class RiskDbContext : DbContext, IAppSettingsDbContext
         modelBuilder.Entity<RiskEvent>().Property(x => x.IpAddress).HasMaxLength(TextSizePresets.M128);
         modelBuilder.Entity<RiskEvent>().Property(x => x.SubjectId).HasMaxLength(TextSizePresets.M256).IsRequired();
         modelBuilder.Entity<RiskEvent>().Property(x => x.Name).HasMaxLength(TextSizePresets.M256);
-        modelBuilder.Entity<RiskEvent>().Property(x => x.Type).HasMaxLength(TextSizePresets.M256).IsRequired();
+        modelBuilder.Entity<RiskEvent>().Property(x => x.Type).HasMaxLength(TextSizePresets.M256);
         modelBuilder.Entity<RiskEvent>().Property(x => x.Data).HasJsonConversion();
         modelBuilder.Entity<RiskEvent>().Property(x => x.SourceId).HasMaxLength(TextSizePresets.M256);
         modelBuilder.Entity<RiskEvent>().Property(x => x.SourceTransId).HasMaxLength(TextSizePresets.M128);
@@ -52,7 +52,7 @@ public class RiskDbContext : DbContext, IAppSettingsDbContext
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.IpAddress).HasMaxLength(TextSizePresets.M128);
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.SubjectId).HasMaxLength(TextSizePresets.M256).IsRequired();
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.Name).HasMaxLength(TextSizePresets.M256);
-        modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.Type).HasMaxLength(TextSizePresets.M256).IsRequired();
+        modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.Type).HasMaxLength(TextSizePresets.M256);
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.Data).HasJsonConversion();
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.NumberOfRulesExecuted);
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.Results).HasJsonConversion();
