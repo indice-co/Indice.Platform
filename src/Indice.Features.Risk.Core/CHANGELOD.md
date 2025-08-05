@@ -10,8 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### The column `Type` in `RiskEvent` and `DbAggregateRuleExecutionResult` is now nullable
 ```sql
 ALTER TABLE [dbo].[RiskEvent]
-ALTER COLUMN [Type] [DataType] NULL;
+ALTER COLUMN [Type] [nvarchar(256)] NULL;
 
 ALTER TABLE [dbo].[RiskResult]
-ALTER COLUMN [Type] [DataType] NULL;
+ALTER COLUMN [Type] [nvarchar(256)] NULL;
 ```
