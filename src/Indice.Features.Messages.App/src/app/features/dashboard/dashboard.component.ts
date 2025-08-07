@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 
 import { forkJoin } from 'rxjs';
 import { HeaderMetaItem, Icons } from '@indice/ng-components';
-import { CampaignResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
+import { CampaignResultSet, DashboardCounters, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 
 @Component({
     selector: 'app-dashboard',
@@ -15,22 +15,18 @@ export class DashboardComponent implements OnInit {
         private _api: MessagesApiClient
     ) { }
 
-    public metaItems: HeaderMetaItem[] | null = [];
-    public loaded = false;
-    public campaignsCount = 0;
-    public activeCampaignsCount = 0;
+  public metaItems: HeaderMetaItem[] | null = [];
+  public loaded = false;
+  public counters: DashboardCounters | undefined;
 
     public ngOnInit(): void {
         this.metaItems = [
             { key: 'NG-LIB version :', icon: Icons.DateTime, text: new Date().toLocaleTimeString() }
-        ];
-      const campaigns$ = this._api.getCampaigns(1, 0, undefined, undefined, undefined, undefined);
-      const activeCampaigns$ = this._api.getCampaigns(1, 0, undefined, undefined, undefined, true);
-        forkJoin([campaigns$, activeCampaigns$]).subscribe((results: [CampaignResultSet, CampaignResultSet]) => {
-            this.campaignsCount = results[0].count || 0;
-            this.activeCampaignsCount = results[1].count || 0;
-            this.loaded = true;
-        });
+      ];
+      this._api.getDashboardStats().subscribe(stats => {
+        this.counters = stats;
+        this.loaded = true;
+      });
     }
 
     public navigate(path: string): void {

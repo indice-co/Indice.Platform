@@ -33,5 +33,13 @@ public interface ICampaignService
     /// <param name="id">The id of the campaign.</param>
     Task UpdateHit(Guid id);
     /// <summary>Gets all channel kinds send and their number.</summary>
-    Task<Dictionary<string,int>> GetDashboardCounters();
+    Task<Dictionary<string, int>> GetDashboardCounters();
+    /// <summary>Gets a list of all messages populated for this campaign.</summary>
+    /// <param name="id">The id of the campaign.</param>
+    /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+    Task<ResultSet<CampaignMessageResponse>> GetCampaignMessages(Guid id, ListOptions options);
+    /// <summary>Gets the details of a specific message for a campaign.</summary>
+    /// /// <param name="id">The id of the campaign.</param>
+    /// /// <param name="messageId">The id of the message.</param>
+    Task<List<CampaignMessageDetailsResponse>> GetCampaignMessageDetails(Guid id, Guid messageId);
 }

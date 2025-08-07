@@ -1,6 +1,14 @@
 <lib-view-layout title="Καλώς ήλθατε," [meta-items]="metaItems">
-    <div class="cards-deck-4">
-        <lib-kpi-tile title="Καμπανιες" [busy]="!loaded" [kpi]="campaignsCount" (tile-action)="navigate('/campaigns')"></lib-kpi-tile>
-        <lib-kpi-tile title="Ενεργες" [busy]="!loaded" [kpi]="activeCampaignsCount" (tile-action)="navigate('/campaigns')"></lib-kpi-tile>
-    </div>
+  <div class="cards-deck-4">
+    <lib-kpi-tile title="Καμπανιες" [busy]="!loaded" [kpi]="counters?.campaignsCount" (tile-action)="navigate('/campaigns')"></lib-kpi-tile>
+    <lib-kpi-tile title="Ενεργες" [busy]="!loaded" [kpi]="counters?.campaignsPublishedCount" (tile-action)="navigate('/campaigns')"></lib-kpi-tile>
+    <ng-container *ngIf="counters?.campaignsByType">
+      <lib-kpi-tile *ngFor="let entry of counters?.campaignsByType | keyvalue"
+                    [title]="entry.key"
+                    [busy]="!loaded"
+                    [kpi]="entry.value">
+      </lib-kpi-tile>
+    </ng-container>
+
+  </div>
 </lib-view-layout>

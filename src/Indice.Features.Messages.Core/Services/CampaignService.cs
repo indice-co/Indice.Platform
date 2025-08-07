@@ -1,11 +1,11 @@
 ﻿using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Data.Models;
+using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Exceptions;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
-using Microsoft.Azure.Amqp.Framing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -133,13 +133,21 @@ public class CampaignService : ICampaignService
         if (!campaign.IsGlobal) {
             notReadCount = await DbContext.Messages.AsNoTracking().CountAsync(x => x.CampaignId == id && !x.IsRead);
         }
+        var recepientsNumber = await DbContext.CampaignEvent
+                                .Where(m => m.CampaignId == id)
+                                .Select(m => m.ContactId)
+                                .Distinct()
+                                .CountAsync();
+        var countPerChanel = await DbContext.CampaignEvent.Where(x => x.CampaignId == id).GroupBy(m => m.Channel).ToDictionaryAsync(g => g.Key, g => g.Count());
         return new CampaignStatistics {
             CallToActionCount = callToActionCount,
             DeletedCount = deletedCount,
             LastUpdated = DateTime.UtcNow,
             NotReadCount = notReadCount,
             ReadCount = readCount,
-            Title = campaign.Title
+            Title = campaign.Title,
+            MessagesperChannel = countPerChanel,
+            RecipientsCount = recepientsNumber
         };
     }
 
@@ -172,7 +180,54 @@ public class CampaignService : ICampaignService
     ///<inheritdoc/>
     public async Task<Dictionary<string, int>> GetDashboardCounters() =>
                 await DbContext.CampaignEvent.GroupBy(m => m.Channel).ToDictionaryAsync(g => g.Key, g => g.Count());
-
-
-
+    ///<inheritdoc/>
+    public async Task<ResultSet<CampaignMessageResponse>> GetCampaignMessages(Guid id, ListOptions options) {
+        //TODO: Refactor this query to use the CampaignMessageResponse directly instead of grouping.
+        var query = from message in DbContext.Messages
+                    join contact in DbContext.Contacts
+                        on message.ContactId equals contact.Id
+                    join messageEvent in DbContext.CampaignEvent
+                        on message.Id equals messageEvent.MessageId
+                    where message.CampaignId == id
+                    group new { message, contact, messageEvent } by new {
+                        message.Id
+                    } into g
+                    select new CampaignMessageResponse {
+                        Id = g.First().message.Id,
+                        DeleteDate = g.First().message.DeleteDate,
+                        IsDeleted = g.First().message.IsDeleted,
+                        IsRead = g.First().message.IsRead,
+                        ReadDate = g.First().message.ReadDate,
+                        Contact = Mapper.ToContact(g.First().contact),
+                        Channels = g.Select(x => x.messageEvent).Select(x => x.Channel).ToList()
+                    };
+        return await query.ToResultSetAsync(options);
+    }///<inheritdoc/>
+    public async Task<List<CampaignMessageDetailsResponse>> GetCampaignMessageDetails(Guid id, Guid messageId) {
+        //TODO: Refactor this query to use the CampaignMessageResponse directly instead of grouping.
+        var query = from message in DbContext.Messages
+                    join contact in DbContext.Contacts
+                        on message.ContactId equals contact.Id
+                    join messageEvent in DbContext.CampaignEvent
+                        on message.Id equals messageEvent.MessageId
+                    where message.CampaignId == id && message.Id == messageId
+                    group new { message, contact, messageEvent } by new {
+                        message.Id
+                    } into g
+                    select new CampaignMessageDetailsResponse {
+                        Id = g.First().message.Id,
+                        DeleteDate = g.First().message.DeleteDate,
+                        IsDeleted = g.First().message.IsDeleted,
+                        IsRead = g.First().message.IsRead,
+                        ReadDate = g.First().message.ReadDate,
+                        Contact = Mapper.ToContact(g.First().contact),
+                        Channels = g.Select(x => x.messageEvent).Select(x => x.Channel).ToList(),
+                        Events = g.Select(x => new MessageEvent {
+                            Channel = x.messageEvent.Channel,
+                            Type = x.messageEvent.Type,
+                            CreatedOn = x.messageEvent.CreatedOn
+                        }).ToList()
+                    };
+        return await query.ToListAsync();
+    }
 }

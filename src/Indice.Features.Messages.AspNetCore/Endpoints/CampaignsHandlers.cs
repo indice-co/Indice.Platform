@@ -139,6 +139,14 @@ internal static class CampaignsHandlers
         };
         return TypedResults.Ok(counters);
     }
+    public static async Task<Ok<ResultSet<CampaignMessageResponse>>> GetCampaignMessages(ICampaignService campaignService, Guid campaignId, [AsParameters] ListOptions options) {
+        var campaigns = await campaignService.GetCampaignMessages(campaignId, options);
+        return TypedResults.Ok(campaigns);
+    }
+    public static async Task<Ok<List<CampaignMessageDetailsResponse>>> GetCampaignMessageDetails(ICampaignService campaignService, Guid campaignId, Guid messageId) {
+        var campaigns = await campaignService.GetCampaignMessageDetails(campaignId, messageId);
+        return TypedResults.Ok(campaigns);
+    }
 
     #region Descriptions
     public static readonly string GET_CAMPAIGNS_DESCRIPTION = @"
@@ -221,6 +229,22 @@ Parameters:
 - fileGuid: The ID of the attachment.
 - format: The format of the uploaded attachment extension.
 ";
+
+    public static readonly string GET_CAMPAIGN_MESSAGES = @"
+Retrieves the list of all campaign messages based on the provided ListOptions.
+
+Parameters:
+- campaignId: The ID of the campaign.
+- options: List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+";
+    public static readonly string GET_CAMPAIGN_MESSAGE_DETAILS = @"
+Retrieves the details of campaign message 
+
+Parameters:
+- campaignId: The ID of the campaign.
+- messageId: The ID of the message.
+";
+
 
     #endregion
 }
