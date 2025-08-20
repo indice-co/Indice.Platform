@@ -119,7 +119,9 @@ public class RequestProfilerModel
         using var requestStream = new MemoryStream();
         await request.Body.CopyToAsync(requestStream);
         request.Body.Seek(0, SeekOrigin.Begin);
-        RequestBody = ReadStreamInChunks(requestStream);
+        requestStream.Seek(0, SeekOrigin.Begin);
+        using var reader = new StreamReader(requestStream);
+        RequestBody = ReadStreamInChunks(reader);
     }
 
     /// <summary>Takes a snapshot of the response body.</summary>
@@ -127,25 +129,29 @@ public class RequestProfilerModel
     /// <param name="allowedContentTypes"></param>
     internal async Task<bool> NextAndSnapResponceBody(RequestDelegate next, List<string>? allowedContentTypes = null) {
         var originalBody = HttpContext.Response.Body;
-        using var newResponseBody = new MemoryStream();
-        HttpContext.Response.Body = newResponseBody;
-        await next(HttpContext);
-        newResponseBody.Seek(0, SeekOrigin.Begin);
-        await newResponseBody.CopyToAsync(originalBody);
-        newResponseBody.Seek(0, SeekOrigin.Begin);
-        var ok = allowedContentTypes == null || string.IsNullOrEmpty(HttpContext.Response.ContentType) || allowedContentTypes.Contains(HttpContext.Response.ContentType.Split(';')[0], StringComparer.OrdinalIgnoreCase);
-        if (ok) {
-            ResponseBody = ReadStreamInChunks(newResponseBody);
+        try {
+            using var newResponseBody = new MemoryStream();
+            HttpContext.Response.Body = newResponseBody;
+            await next(HttpContext);
+            newResponseBody.Seek(0, SeekOrigin.Begin);
+            await newResponseBody.CopyToAsync(originalBody);
+
+            var ok = allowedContentTypes == null || string.IsNullOrEmpty(HttpContext.Response.ContentType) || allowedContentTypes.Contains(HttpContext.Response.ContentType.Split(';')[0], StringComparer.OrdinalIgnoreCase);
+            if (ok) {
+                newResponseBody.Seek(0, SeekOrigin.Begin);
+                using var reader = new StreamReader(newResponseBody);
+                ResponseBody = ReadStreamInChunks(reader);
+            }
+            ResponseTime = DateTimeOffset.UtcNow;
+            return ok;
+        } finally {
+            HttpContext.Response.Body = originalBody;
         }
-        ResponseTime = DateTimeOffset.UtcNow;
-        return ok;
     }
 
-    private static string ReadStreamInChunks(Stream stream) {
-        stream.Seek(0, SeekOrigin.Begin);
+    private static string ReadStreamInChunks(StreamReader reader) {
         string result;
-        using (var textWriter = new StringWriter())
-        using (var reader = new StreamReader(stream)) {
+        using (var textWriter = new StringWriter()) {
             var readChunk = new char[ReadChunkBufferLength];
             int readChunkLength;
             // do while: is useful for the last iteration in case readChunkLength < chunkLength.
