@@ -10,5 +10,5 @@ public sealed class CityDatabaseReader : DatabaseReader
 {
     /// <summary></summary>
     public CityDatabaseReader() :
-        base(typeof(CityDatabaseReader).Assembly.GetManifestResourceStream($"Indice.GeoResolve.GeoLite2.{Constants.GEO_LITE2_CITY_FILE_NAME}")!) { }
+        base(typeof(CityDatabaseReader).Assembly.GetManifestResourceStream($"Indice.GeoIP.GeoLite2.{Constants.GEO_LITE2_CITY_FILE_NAME}")!) { }
 }

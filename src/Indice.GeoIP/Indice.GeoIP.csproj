@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <RootNamespace>Indice</RootNamespace>
+    <RootNamespace>Indice.GeoIP</RootNamespace>
     <VersionPrefix>$(VersionGeoIP)</VersionPrefix>
   </PropertyGroup>
   <PropertyGroup Label="Package">
