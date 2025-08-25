@@ -9,8 +9,7 @@ internal record ContactCsvRecord(
     string? LastName,
     string? FullName,
     string? Email,
-    string? PhoneNumber,
-    string? Locale
+    string? PhoneNumber
 )
 {
     public CreateDistributionListContactRequest ToCreateDistributionListContactRequest() {
@@ -21,8 +20,7 @@ internal record ContactCsvRecord(
             LastName = LastName,
             FullName = FullName,
             Email = Email,
-            PhoneNumber = PhoneNumber,
-            Locale = Locale
+            PhoneNumber = PhoneNumber
         };
     }
 
@@ -34,8 +32,8 @@ internal record ContactCsvRecord(
             contact.LastName,
             contact.FullName,
             contact.Email,
-            contact.PhoneNumber,
-            contact.Locale
+            contact.PhoneNumber
+
         );
     }
 }

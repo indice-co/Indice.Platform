@@ -33,7 +33,8 @@ export class DistributionListEditStore {
 
   public updateDistributionList(distributionListId: string, distributionList: DistributionList): Observable<void> {
     const body = new UpdateDistributionListRequest({
-      name: distributionList.name
+      name: distributionList.name,
+      alias: distributionList.alias
     });
     return this._api
       .updateDistributionList(distributionListId, body)

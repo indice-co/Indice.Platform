@@ -20,11 +20,14 @@ public static class IContactResolverExtensions
     /// <summary>Resolves the contact and patches the given instance.</summary>
     /// <param name="resolver">The resolver.</param>
     /// <param name="recipientId">The unique id of the contact to resolve.</param>
-    /// <param name="contact">The instance to patch.</param>
-    public async static Task<Contact?> Patch(this IContactResolver resolver, string? recipientId, Contact contact) {
+    /// <param name="targetContact">The instance to patch.</param>
+    public async static Task<Contact?> Patch(this IContactResolver resolver, string? recipientId, Contact targetContact) {
         var resolvedContact = await resolver.Resolve(recipientId);
         if (resolvedContact is not null) {
-            resolvedContact.Id = contact.Id;
+            // contact id must be preserved.
+            resolvedContact.Id = targetContact.Id; 
+            // Preserve the communication preferences. Messaging database contact wins.
+            resolvedContact.Preference.Communication = targetContact.Preference.Communication;
         }
         return resolvedContact;
     }

@@ -5,4 +5,6 @@ public class UpdateDistributionListRequest
 {
     /// <summary>The name of the distribution list.</summary>
     public string Name { get; set; } = null!;
+    /// <summary>The Alias of the distribution list.</summary>
+    public string? Alias { get; set; }
 }
