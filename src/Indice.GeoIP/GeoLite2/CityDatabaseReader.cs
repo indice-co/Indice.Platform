@@ -8,7 +8,9 @@ namespace Indice.GeoIP.GeoLite2;
 /// </summary>
 public sealed class CityDatabaseReader : DatabaseReader
 {
-    /// <summary></summary>
+    /// <summary>
+    /// Initializes a new instance of the CityDatabaseReader class using the embedded GeoLite2 City database file.
+    /// </summary>
     public CityDatabaseReader() :
         base(typeof(CityDatabaseReader).Assembly.GetManifestResourceStream($"Indice.GeoIP.GeoLite2.{Constants.GEO_LITE2_CITY_FILE_NAME}")!) { }
 }
