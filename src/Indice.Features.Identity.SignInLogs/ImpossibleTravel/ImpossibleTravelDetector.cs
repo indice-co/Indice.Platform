@@ -4,7 +4,7 @@ using Indice.Features.Identity.Core.ImpossibleTravel;
 using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Data;
 using Indice.Features.Identity.SignInLogs.Models;
-using Indice.GeoIP.Services;
+using Indice.GeoIP;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;

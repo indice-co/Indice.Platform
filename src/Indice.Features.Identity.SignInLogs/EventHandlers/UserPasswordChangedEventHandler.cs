@@ -14,7 +14,7 @@ using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Events.Models;
 using Indice.Features.Identity.SignInLogs.Events;
-using Indice.GeoIP.Services;
+using Indice.GeoIP;
 using Indice.Security;
 using Microsoft.AspNetCore.Http;
 
