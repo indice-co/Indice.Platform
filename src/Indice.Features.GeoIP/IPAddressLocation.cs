@@ -1,10 +1,10 @@
 ﻿using System.Text;
 using Indice.Types;
 
-namespace Indice.GeoIP;
+namespace Indice.Features.GeoIP;
 
 /// <summary>Models the geolocation data that were retrieved by the incoming IP address.</summary>
-public sealed class IPLocationMetadata
+public sealed class IPAddressLocation
 {
     /// <summary>
     /// The IP address that was used to retrieve the geolocation data.
@@ -22,7 +22,9 @@ public sealed class IPLocationMetadata
     public string? PostalCode { get; set; }
     /// <summary>The continent name.</summary>
     public string? Continent { get; set; }
-    /// <summary></summary>
+    /// <summary>
+    /// Gets or sets the geographical coordinates represented as a nullable <see cref="GeoPoint"/>.
+    /// </summary>
     public GeoPoint? Coordinates { get; set; }
 
     /// <inheritdoc/>

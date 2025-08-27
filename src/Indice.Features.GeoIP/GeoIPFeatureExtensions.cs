@@ -1,5 +1,5 @@
-﻿using Indice.GeoIP;
-using Indice.GeoIP.GeoLite2;
+﻿using Indice.Features.GeoIP;
+using Indice.Features.GeoIP.GeoLite2;
 
 namespace Microsoft.Extensions.DependencyInjection;
 

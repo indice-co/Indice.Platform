@@ -1,4 +1,4 @@
-﻿namespace Indice.GeoIP;
+﻿namespace Indice.Features.GeoIP;
 
 internal static class Constants
 {

@@ -1,6 +1,6 @@
 ﻿using MaxMind.GeoIP2;
 
-namespace Indice.GeoIP.GeoLite2;
+namespace Indice.Features.GeoIP.GeoLite2;
 
 /// <summary>
 /// A reader implementation for the GeoLite2 City database. 
@@ -12,5 +12,5 @@ public sealed class CityDatabaseReader : DatabaseReader
     /// Initializes a new instance of the CityDatabaseReader class using the embedded GeoLite2 City database file.
     /// </summary>
     public CityDatabaseReader() :
-        base(typeof(CityDatabaseReader).Assembly.GetManifestResourceStream($"Indice.GeoIP.GeoLite2.{Constants.GEO_LITE2_CITY_FILE_NAME}")!) { }
+        base(typeof(CityDatabaseReader).Assembly.GetManifestResourceStream($"Indice.Features.GeoIP.GeoLite2.{Constants.GEO_LITE2_CITY_FILE_NAME}")!) { }
 }

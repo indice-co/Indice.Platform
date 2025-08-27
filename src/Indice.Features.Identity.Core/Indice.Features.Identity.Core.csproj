@@ -9,7 +9,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefixCore)-*" />
-    <PackageReference Include="Indice.GeoIP" Version="$(VersionGeoIP)" />
+    <PackageReference Include="Indice.Features.GeoIP" Version="$(VersionGeoIP)" />
     <PackageReference Include="Indice.Extensions.Configuration.Database" Version="$(VersionPrefixCore)-*" />
     <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="4.2.1" />
     <PackageReference Include="UAParser" Version="3.1.47" />
@@ -30,7 +30,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
-    <ProjectReference Include="..\Indice.GeoIP\Indice.GeoIP.csproj" />
+    <ProjectReference Include="..\Indice.Features.GeoIP\Indice.Features.GeoIP.csproj" />
     <ProjectReference Include="..\Indice.Extensions.Configuration.Database\Indice.Extensions.Configuration.Database.csproj" />
   </ItemGroup>
   <ItemGroup>

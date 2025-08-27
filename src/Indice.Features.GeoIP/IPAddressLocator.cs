@@ -1,9 +1,9 @@
 ﻿using System.Net;
-using Indice.GeoIP.Extensions;
-using Indice.GeoIP.GeoLite2;
+using Indice.Features.GeoIP.Extensions;
+using Indice.Features.GeoIP.GeoLite2;
 using Indice.Types;
 
-namespace Indice.GeoIP;
+namespace Indice.Features.GeoIP;
 
 /// <summary>
 /// Service responsible for resolving geolocation metadata given an IP address.
@@ -23,8 +23,8 @@ public sealed class IPAddressLocator
 
     /// <summary>Gets various geolocation data for the given <see cref="IPAddress"/>.</summary>
     /// <param name="ipAddress">The IP address to look for.</param>
-    public IPLocationMetadata GetLocationMetadata(IPAddress ipAddress) {
-        var result = new IPLocationMetadata() {
+    public IPAddressLocation GetLocationMetadata(IPAddress ipAddress) {
+        var result = new IPAddressLocation() {
             IPAddress = ipAddress.ToString(),
         };
         if (IPAddress.IsLoopback(ipAddress) || ipAddress.IsPrivate()) {
