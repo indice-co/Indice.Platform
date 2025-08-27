@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   
   <PropertyGroup Label="Package">
-    <PackageTags>AspNet;GeoIP;Utilities</PackageTags>
-    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageTags>GeoIP;Utilities</PackageTags>
+    <PackageReleaseNotes>GeoLite based IP Address geolocator</PackageReleaseNotes>
     <VersionPrefix>$(VersionPrefixGeoIP)</VersionPrefix>
   </PropertyGroup>
   
