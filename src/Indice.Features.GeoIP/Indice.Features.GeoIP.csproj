@@ -1,17 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <RootNamespace>Indice.GeoIP</RootNamespace>
-    <VersionPrefix>$(VersionPrefixGeoIP)</VersionPrefix>
-  </PropertyGroup>
+  
   <PropertyGroup Label="Package">
     <PackageTags>AspNet;GeoIP;Utilities</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
+    <VersionPrefix>$(VersionPrefixGeoIP)</VersionPrefix>
   </PropertyGroup>
   
   <ItemGroup>
