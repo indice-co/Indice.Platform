@@ -1,7 +1,7 @@
 ﻿using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Events.Models;
-using Indice.GeoIP.Models;
+using Indice.GeoIP;
 
 namespace Indice.Features.Identity.SignInLogs.Events;
 /// <summary>
