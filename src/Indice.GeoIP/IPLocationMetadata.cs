@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using Indice.Types;
 
-namespace Indice.GeoIP.Models;
+namespace Indice.GeoIP;
 
 /// <summary>Models the geolocation data that were retrieved by the incoming IP address.</summary>
 public sealed class IPLocationMetadata

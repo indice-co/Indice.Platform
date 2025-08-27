@@ -1,13 +1,12 @@
 ﻿using Indice.GeoIP.GeoLite2;
-using Indice.GeoIP.Services;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.Extensions.Configuration;
+namespace Indice.GeoIP;
 
 /// <summary>
 /// Extension methods for <see cref="IServiceCollection"/> to add geolocation services.
 /// </summary>
-public static class IServiceCollectionExtensions
+public static class GeoIPFeatureExtensions
 {
     /// <summary>
     /// Adds the geolocation services to the <see cref="IServiceCollection"/>.

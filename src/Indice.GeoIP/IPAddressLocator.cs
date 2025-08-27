@@ -1,15 +1,14 @@
 ﻿using System.Net;
 using Indice.GeoIP.Extensions;
 using Indice.GeoIP.GeoLite2;
-using Indice.GeoIP.Models;
 using Indice.Types;
 
-namespace Indice.GeoIP.Services;
+namespace Indice.GeoIP;
 
 /// <summary>
 /// Service responsible for resolving geolocation metadata given an IP address.
 /// </summary>
-public sealed class IPAddressLocator : IDisposable
+public sealed class IPAddressLocator
 {
     private readonly CityDatabaseReader _cityDatabaseReader;
     private readonly CountryDatabaseReader _countryDatabaseReader;
@@ -49,11 +48,5 @@ public sealed class IPAddressLocator : IDisposable
             result.Continent = countryResponse?.Continent?.Name;
         }
         return result;
-    }
-
-    /// <inheritdoc cref="IDisposable.Dispose"/>"
-    public void Dispose() {
-        _cityDatabaseReader?.Dispose();
-        _countryDatabaseReader?.Dispose();
     }
 }
