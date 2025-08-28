@@ -31,7 +31,7 @@ internal static class ContactsApi
                                            .RequireCampaignsManagement()
                                            .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
 
-        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.WithHandledException<BusinessException>()
              .ProducesProblem(StatusCodes.Status401Unauthorized)
@@ -65,6 +65,12 @@ internal static class ContactsApi
              .WithSummary("Add or Updates a contact that matches the recepientId.")
              .WithDescription(ContactsHandlers.REFRESH_CONTACT_DESCRIPTION)
              .ProducesProblem(StatusCodes.Status400BadRequest);
+
+
+        group.MapGet("{contactId}/communication-preferences", ContactsHandlers.GetCommunicationPreferences)
+             .WithName(nameof(ContactsHandlers.GetCommunicationPreferences))
+             .WithSummary("Get contact communication preferences.")
+             .WithDescription(ContactsHandlers.GET_CONTACT_COMMUNICATION_PREFERENCES);
         return group;
     }
 }

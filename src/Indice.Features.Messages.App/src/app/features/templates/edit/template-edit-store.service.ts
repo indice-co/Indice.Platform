@@ -55,4 +55,14 @@ export class TemplateEditStore {
         map(_ => this._template = undefined)
       );
   }
+
+  public updateTemplateMessageType(templateId: string, messageTypeId: string): Observable<void> {
+    return this._api
+      .updateTemplateMessageType(templateId, messageTypeId)
+      .pipe(
+        map(_ => this._template = undefined)
+      );
+  }
+
+  
 }

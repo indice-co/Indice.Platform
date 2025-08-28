@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
@@ -13,7 +8,6 @@ using Xunit.Abstractions;
 using Microsoft.AspNetCore.Routing;
 using System.Text.Json.Nodes;
 using Indice.AspNetCore.Views;
-using Newtonsoft.Json.Linq;
 
 namespace Indice.Services.Tests;
 public class EndpointTests : IAsyncLifetime
@@ -29,7 +23,7 @@ public class EndpointTests : IAsyncLifetime
         _output = output;
         var builder = new WebHostBuilder();
         builder.ConfigureAppConfiguration(builder => {
-            builder.AddInMemoryCollection(new Dictionary<string, string> {
+            builder.AddInMemoryCollection(new Dictionary<string, string?> {
                 ["MySection:MyKey"] = "TestValue"
             });
         });
@@ -40,13 +34,12 @@ public class EndpointTests : IAsyncLifetime
 
             services.AddTranslationGraph((o) => {
                 o.DefaultTranslationsBaseName = "Resources.TranslationsApi";
-                o.DefaultTranslationsLocation = typeof(EndpointTests).Assembly.GetName().Name;
+                o.DefaultTranslationsLocation = typeof(EndpointTests).Assembly.GetName().Name!;
                 o.AddResource("Resources.Alternate.TranslationsAlternateSource"); // same assemby different resex. same path
                 o.AddResource("Resources.Alternate.TranslationsAlternateSource", "/translations-alternate.{lang:culture}.json"); // same assemby different resex. different path
                 o.AddResource("Resources.TranslationsApi", "/translations-original.{lang:culture}.json"); // same assemby different resex. different path
                 o.AddResource("TranslationsAlternateSource2", "/translations-alternate.{lang:culture}.json", translationsLocation: typeof(ViewsMarker).Assembly.GetName().Name); // alternate assemby different resex. different path
             });
-            _serviceProvider = services.BuildServiceProvider();
         });
         builder.Configure(app => {
             app.UseRouting();
@@ -57,6 +50,7 @@ public class EndpointTests : IAsyncLifetime
         _httpClient = new HttpClient(handler) {
             BaseAddress = new Uri(BASE_URL)
         };
+        _serviceProvider = (ServiceProvider)server.Services;
     }
 
     #region Facts
@@ -115,18 +109,18 @@ public class EndpointTests : IAsyncLifetime
         var alternateJson = await getTranslationsAsync("/translations-alternate.el.json");
         var originalJson = await getTranslationsAsync("/translations-original.el.json");
 
-        var translations = JsonNode.Parse(defaultJson);
-        var value = translations["alternate"]["key"]["override"].GetValue<string>();
+        var translations = JsonNode.Parse(defaultJson)!;
+        var value = translations["alternate"]!["key"]!["override"]?.GetValue<string>();
         Assert.Equal("overriden", value);
 
-        translations = JsonNode.Parse(alternateJson);
-        value = translations["alternate"]["key"]["override"].GetValue<string>();
-        var value2 = translations["alternate"]["key"]["additional"].GetValue<string>();
+        translations = JsonNode.Parse(alternateJson)!;
+        value = translations["alternate"]!["key"]!["override"]?.GetValue<string>();
+        var value2 = translations["alternate"]!["key"]!["additional"]?.GetValue<string>();
         Assert.Equal("overriden", value);
         Assert.Equal("assembly", value2);
 
-        translations = JsonNode.Parse(originalJson);
-        value = translations["alternate"]["key"]["override"].GetValue<string>();
+        translations = JsonNode.Parse(originalJson)!;
+        value = translations["alternate"]!["key"]!["override"]?.GetValue<string>();
         Assert.Equal("original", value);
     }
     #endregion

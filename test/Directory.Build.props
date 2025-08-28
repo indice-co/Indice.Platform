@@ -3,7 +3,7 @@
       <Copyright>Copyright (c) Indice</Copyright>
       <LangVersion>Latest</LangVersion>
       <ImplicitUsings>enable</ImplicitUsings>
-      <Nullable>disable</Nullable>
+      <Nullable>enable</Nullable>
       <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
       <!--<TargetFramework></TargetFramework>-->
       <IsTestProject>true</IsTestProject>

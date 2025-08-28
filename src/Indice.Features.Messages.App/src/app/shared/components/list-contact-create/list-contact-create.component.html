@@ -4,7 +4,7 @@
                 <div class="col-span-4">
                     <label for="distribution-list-contact-name"
                            class="field-label">Όνομα (*)</label>
-                    <app-enhanced-combobox id="distribution-list-contact-name" autocomplete="off"
+                    <lib-enhanced-combobox id="distribution-list-contact-name" autocomplete="off"
                                            [items]="contacts"
                                            [itemTemplate]="itemTemplate"
                                            [selectedItemTemplate]="selectedItemTemplate"
@@ -16,7 +16,7 @@
                                            (onShowMore)="onShowMore()"
                                            #contactsCombobox>
 
-                    </app-enhanced-combobox>
+                    </lib-enhanced-combobox>
 
                 </div>
             </div>

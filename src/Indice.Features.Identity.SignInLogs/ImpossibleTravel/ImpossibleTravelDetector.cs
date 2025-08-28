@@ -4,7 +4,7 @@ using Indice.Features.Identity.Core.ImpossibleTravel;
 using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Data;
 using Indice.Features.Identity.SignInLogs.Models;
-using Indice.Features.Identity.SignInLogs.Services;
+using Indice.Features.GeoIP;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -68,8 +68,7 @@ public class ImpossibleTravelDetector<TUser> : IImpossibleTravelDetector<TUser> 
         if (currentLoginCoordinates is null || previousLoginCoordinates is null) {
             return false;
         }
-        var distanceBetweenLogins = currentLoginCoordinates.Distance(previousLoginCoordinates);
-        var travelSpeed = distanceBetweenLogins / (DateTimeOffset.UtcNow - previousLogin.CreatedAt).TotalHours;
+        var travelSpeed = currentLoginCoordinates.TravelSpeed(previousLoginCoordinates, previousLogin.CreatedAt, DateTimeOffset.UtcNow);
         return travelSpeed > _signInLogOptions.ImpossibleTravel.AcceptableSpeed;
     }
 }

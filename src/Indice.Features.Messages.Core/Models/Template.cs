@@ -7,13 +7,14 @@ public class Template : TemplateBase
     public MessageContentDictionary Content { get; set; } = [];
     /// <summary>Sample data for the template</summary>
     public dynamic? Data { get; set; }
+
 }
 
 /// <summary>Models a template when retrieved on a list.</summary>
 public class TemplateListItem : TemplateBase
 {
     /// <summary>The channels that this template supports.</summary>
-    public MessageChannelKind Channels { get; set; }
+    public List<MessageChannelKind> Channels { get; set; } = [];
 }
 
 /// <summary>Models a template's basic information.</summary>
@@ -35,4 +36,6 @@ public class TemplateBase
     public string? UpdatedBy { get; set; }
     /// <summary>Specifies when a template was updated.</summary>
     public DateTimeOffset? UpdatedAt { get; set; }
+    /// <summary>The type details of the campaign.</summary>
+    public MessageType? MessageType { get; set; }
 }

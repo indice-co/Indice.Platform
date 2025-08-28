@@ -1,6 +1,6 @@
 import { LOCALE_ID, NgModule, Provider } from '@angular/core';
 import { CommonModule, DatePipe, JsonPipe, registerLocaleData } from '@angular/common';
-import { HttpClientModule, HTTP_INTERCEPTORS, withInterceptors, provideHttpClient} from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS, withInterceptors, provideHttpClient } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -34,6 +34,13 @@ import { DistributionListDetailsEditComponent } from './features/distribution-li
 import { DistributionListDetailsEditRightpaneComponent } from './features/distribution-lists/edit/details/rightpane/distribution-list-edit-details-rightpane.component';
 import { DistributionListEditComponent } from './features/distribution-lists/edit/distribution-list-edit.component';
 import { DistributionListsComponent } from './features/distribution-lists/distribution-lists.component';
+import { ContactsListComponent } from './features/contacts/contacts-list.component';
+import { ContactComponent } from './features/contacts/contact/contact.component';
+import { ContactDetailsComponent } from './features/contacts/contact/details/contact-details.component';
+import { ContactCampaignsComponent } from './features/contacts/contact/campaigns/contact-campaigns.component';
+import { ContactEditComponent } from './features/contacts/contact/details/edit/contact-edit.component';
+import { ContactPreferencesComponent } from './features/contacts/contact/preferences/contact-preferences.component';
+import { ContactCreateComponent } from './features/contacts/contact/create/contact-create.component';
 import { HighlightModule, HIGHLIGHT_OPTIONS } from 'ngx-highlightjs';
 import { HomeComponent } from './features/home/home.component';
 import { HttpStatusComponent } from './shared/components/http-status/http-status.component';
@@ -140,6 +147,13 @@ if (app.settings.tenantId) {
     DistributionListEditComponent,
     DistributionListsComponent,
     DistributionListImportContactsComponent,
+    ContactsListComponent,
+    ContactComponent,
+    ContactDetailsComponent,
+    ContactCampaignsComponent,
+    ContactEditComponent,
+    ContactPreferencesComponent,
+    ContactCreateComponent,
     HomeComponent,
     LocalDropDownMenuComponent,
     LogOutComponent,
@@ -199,4 +213,4 @@ if (app.settings.tenantId) {
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule {}
+export class AppModule { }

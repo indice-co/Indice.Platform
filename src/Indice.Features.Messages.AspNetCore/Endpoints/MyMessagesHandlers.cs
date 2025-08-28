@@ -7,6 +7,7 @@ using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
 
@@ -133,6 +134,25 @@ internal static class MyMessagesHandlers
         var fileResult = await CampaignsHandlers.GetFile(fileServiceFactory, "campaigns", fileGuid, format);
         return fileResult;
     }
+    public static async Task<Ok<ContactPreference>> GetMyCommunicationPreferences(
+        IContactService contactService,
+        IOptions<MessageInboxOptions> campaignEndpointOptions,
+        ClaimsPrincipal currentUser
+    ) {
+        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType)!;
+        var preferences = await contactService.GetContactPreference(userCode);
+        return TypedResults.Ok(preferences);
+    }
+    public static async Task<NoContent> UpdateMyCommunicationPreferences(
+        IContactService contactService,
+        IOptions<MessageInboxOptions> campaignEndpointOptions,
+        ClaimsPrincipal currentUser,
+        UpdatPreferenceRequest request
+    ) {
+        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType)!;
+        await contactService.UpdatePreference(userCode, request);
+        return TypedResults.NoContent();
+    }
 
     #region Descriptions
     public static readonly string GET_MESSAGES_DESCRIPTION = @"
@@ -192,6 +212,14 @@ Parameters:
 - fileGuid: Contains the photo's ID.
 - format: Contains the format of the uploaded attachment extension.
 ";
+
+    public static readonly string GET_COMMUNICATION_PREFERENCES_DESCRIPTION = @"Gets all user communication preferences.";
+
+    public static readonly string UPDATE_COMMUNICATION_PREFERENCES_DESCRIPTION = @"
+Updates user's communucation preferences.
+
+Parameters:
+- contactId: The unique ID of the contact to update.";
 
     #endregion
 

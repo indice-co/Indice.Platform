@@ -20,7 +20,7 @@ public class CurrencyInfoTests
         if (iso?.Length > 3) {
             Assert.Throws<ArgumentOutOfRangeException>(() => CurrencyInfo.GetByISOSymbol(iso));
         } else {
-            var currency = CurrencyInfo.GetByISOSymbol(iso);
+            var currency = CurrencyInfo.GetByISOSymbol(iso!);
             Assert.NotNull(currency);
         }
     }

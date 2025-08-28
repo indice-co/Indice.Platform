@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using System.Text.Json.Serialization;
 using FluentValidation;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Swagger;
@@ -134,30 +135,28 @@ public static class MessageFeatureExtensions
     internal static IServiceCollection AddCampaignCore(this IServiceCollection services, CampaignOptionsBase baseOptions) {
         // Post configure JSON options.
         services.PostConfigure<JsonOptions>(options => {
-            var enumFlagsConverterExists = options.JsonSerializerOptions.Converters.Any(converter => converter.GetType() == typeof(JsonStringArrayEnumFlagsConverterFactory));
-            if (!enumFlagsConverterExists) {
-                options.JsonSerializerOptions.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
+            if (!options.JsonSerializerOptions.Converters.OfType<JsonStringEnumConverter>().Any()) {
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             }
             if (!options.JsonSerializerOptions.Converters.Any(converter => converter.GetType() == typeof(TypeConverterJsonAdapterFactory))) {
                 options.JsonSerializerOptions.Converters.Add(new TypeConverterJsonAdapterFactory());
             }
         }); 
         services.PostConfigure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => {
-            var enumFlagsConverterExists = options.SerializerOptions.Converters.Any(converter => converter.GetType() == typeof(JsonStringArrayEnumFlagsConverterFactory));
-            if (!enumFlagsConverterExists) {
-                options.SerializerOptions.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
+            if (!options.SerializerOptions.Converters.OfType<JsonStringEnumConverter>().Any()) {
+                options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
             }
             if (!options.SerializerOptions.Converters.Any(converter => converter.GetType() == typeof(TypeConverterJsonAdapterFactory))) {
                 options.SerializerOptions.Converters.Add(new TypeConverterJsonAdapterFactory());
             }
         });
         // Post configure Swagger options.
-        services.PostConfigure<SwaggerGenOptions>(options => {
-            var enumFlagsSchemaFilterExists = options.SchemaFilterDescriptors.Any(x => x.Type == typeof(EnumFlagsSchemaFilter));
-            if (!enumFlagsSchemaFilterExists) {
-                options.SchemaFilter<EnumFlagsSchemaFilter>();
-            }
-        });
+        //services.PostConfigure<SwaggerGenOptions>(options => {
+        //    var enumFlagsSchemaFilterExists = options.SchemaFilterDescriptors.Any(x => x.Type == typeof(EnumFlagsSchemaFilter));
+        //    if (!enumFlagsSchemaFilterExists) {
+        //        options.SchemaFilter<EnumFlagsSchemaFilter>();
+        //    }
+        //});
         // Register validators.
         services.AddValidatorsFromAssemblyContaining<CreateCampaignRequestValidator>();
         // Register framework services.
@@ -316,6 +315,7 @@ public static class MessageFeatureExtensions
             config.ClientId = serviceOptions.ClientId;
             config.ClientSecret = serviceOptions.ClientSecret;
             config.UserClaimType = serviceOptions.UserClaimType;
+            config.ClaimsToResolve = serviceOptions.ClaimsToResolve;
         });
         options.Services!.AddDistributedMemoryCache();
         options.Services!.AddHttpClient<IContactResolver, ContactResolverIdentity>(httpClient => {

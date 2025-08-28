@@ -1,5 +1,4 @@
-﻿using Indice.Features.Identity.Core;
-using Indice.Features.Identity.Core.Data.Models;
+﻿using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.PasswordValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -20,11 +19,12 @@ public class UserNameAsPasswordValidatorTests
     [InlineData("tzas")]
     public async Task CheckInvalidPasswords(string password) {
         const string UserName = "gmanoltzas";
-        var configurationBuilder = new ConfigurationBuilder().AddInMemoryCollection(new List<KeyValuePair<string, string>> {
-            new KeyValuePair<string, string>($"{nameof(PasswordOptions)}:{nameof(UserNameAsPasswordValidator<User>.MaxAllowedUserNameSubset)}", "3")
-        });
+        var configurationBuilder = new ConfigurationBuilder().AddInMemoryCollection(
+            new Dictionary<string, string?> {
+                [$"{nameof(PasswordOptions)}:{nameof(UserNameAsPasswordValidator<User>.MaxAllowedUserNameSubset)}"] = "3"
+            });
         var validator = new UserNameAsPasswordValidator<User>(configurationBuilder.Build());
-        var identityResult = await validator.ValidateAsync(null, new User { UserName = UserName }, password);
+        var identityResult = await validator.ValidateAsync(null!, new User { UserName = UserName }, password);
         Assert.False(identityResult.Succeeded);
     }
 
@@ -41,11 +41,12 @@ public class UserNameAsPasswordValidatorTests
     [InlineData("zas")]
     public async Task CheckValidPasswords(string password) {
         const string UserName = "gmanoltzas";
-        var configurationBuilder = new ConfigurationBuilder().AddInMemoryCollection(new List<KeyValuePair<string, string>> {
-            new KeyValuePair<string, string>($"{nameof(PasswordOptions)}:{nameof(UserNameAsPasswordValidator<User>.MaxAllowedUserNameSubset)}", "3")
-        });
+        var configurationBuilder = new ConfigurationBuilder().AddInMemoryCollection(
+            new Dictionary<string, string?> {
+                [$"{nameof(PasswordOptions)}:{nameof(UserNameAsPasswordValidator<User>.MaxAllowedUserNameSubset)}"] = "3"
+            });
         var validator = new UserNameAsPasswordValidator<User>(configurationBuilder.Build());
-        var identityResult = await validator.ValidateAsync(null, new User { UserName = UserName }, password);
+        var identityResult = await validator.ValidateAsync(null!, new User { UserName = UserName }, password);
         Assert.True(identityResult.Succeeded);
     }
 }

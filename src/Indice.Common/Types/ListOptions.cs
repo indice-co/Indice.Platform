@@ -1,4 +1,6 @@
 ﻿#nullable enable
+using System.ComponentModel;
+
 namespace Indice.Types;
 
 /// <summary>List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</summary>
@@ -21,20 +23,24 @@ public class ListOptions
     }
 
     /// <summary>The current page of the list. Default is <see cref="DEFAULT_PAGE"/>.</summary>
+    [Description("The current page of the list. Default is 1.")]
     public int? Page {
         get => _page;
         set => _page = value ?? DEFAULT_PAGE;
     }
 
     /// <summary>The size of the list. Default is <see cref="DEFAULT_SIZE"/>.</summary>
+    [Description("The size of the list. Default is 100")]
     public int? Size {
         get => _size;
         set => _size = value ?? DEFAULT_SIZE;
     }
 
-    /// <summary>The property name used to sort the list.</summary>
+    /// <summary>The sort order plus the sort direction of the list. for example displayName-</summary>
+    [Description("The sort order plus the sort direction of the list. for example displayName-")]
     public string? Sort { get; set; }
     /// <summary>A search term used to limit the results of the list.</summary>
+    [Description("A search term used to limit the results of the list.")]
     public string? Search { get; set; }
 
     /// <summary>Retrieves the number of pages for a total of <paramref name="count"/> results.</summary>

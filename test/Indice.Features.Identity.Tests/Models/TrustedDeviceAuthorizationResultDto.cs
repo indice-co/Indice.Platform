@@ -5,5 +5,5 @@ namespace Indice.Features.Identity.Tests.Models;
 public class TrustedDeviceAuthorizationResultDto
 {
     [JsonPropertyName("challenge")]
-    public string Challenge { get; set; }
+    public string Challenge { get; set; } = null!;
 }

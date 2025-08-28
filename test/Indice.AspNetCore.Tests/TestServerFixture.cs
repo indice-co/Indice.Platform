@@ -8,17 +8,17 @@ namespace Indice.AspNetCore.Tests;
 
 public class TestServerFixture : WebApplicationFactory<TestStartup>
 {
-    public TService GetRequiredService<TService>() {
+    public TService GetRequiredService<TService>() where TService : notnull {
         if (Server == null) {
             CreateDefaultClient();
         }
-        return Server.Host.Services.GetRequiredService<TService>();
+        return Server!.Host.Services.GetRequiredService<TService>();
     }
 
     protected override IWebHostBuilder CreateWebHostBuilder() {
         var hostBuilder = new WebHostBuilder();
         hostBuilder.ConfigureAppConfiguration((context, builder) => {
-            context.HostingEnvironment.ApplicationName = typeof(ViewsMarker).Assembly.GetName().Name;
+            context.HostingEnvironment.ApplicationName = typeof(ViewsMarker).Assembly.GetName().Name!;
         });
         return hostBuilder.UseStartup<TestStartup>();
     }

@@ -48,7 +48,7 @@ public class CampaignCreatedEvent
         ActivePeriod = campaign.ActivePeriod,
         Content = campaign.Content,
         Data = campaign.Data,
-        MessageChannelKind = campaign.MessageChannelKind,
+        MessageChannelKind = campaign.MessageChannelKind.ToFlags(),
         IgnoreUserPreferences = campaign.IgnoreUserPreferences,
         DistributionListId = campaign.DistributionList?.Id,
         Id = campaign.Id,
@@ -68,30 +68,23 @@ public class CampaignCreatedEvent
     /// </summary>
     /// <param name="contactPreferences">User contact preferences</param>
     /// <returns></returns>
-    public MessageChannelKind ResolveAvailableChannels(ContactChannelKind contactPreferences) {
-        if (IgnoreUserPreferences || contactPreferences == ContactChannelKind.Any)
+    public MessageChannelKind ResolveAvailableChannels(ContactPreference? contactPreferences) {
+        if (contactPreferences is null) {
+            return MessageChannelKind;
+        }
+        if (IgnoreUserPreferences)
             return MessageChannelKind;
 
-        MessageChannelKind messageChannelKinds = MessageChannelKind.None;
-        if (contactPreferences.HasFlag(ContactChannelKind.PushNotification) &&
-            MessageChannelKind.HasFlag(MessageChannelKind.PushNotification)) {
-            messageChannelKinds |= MessageChannelKind.PushNotification; 
+        if (contactPreferences.DefaultChannels != null) {
+            return ContactChannelOption.ToMessageChannelKind(contactPreferences.DefaultChannels, defaultOption: MessageChannelKind.Inbox);
         }
 
-        if (contactPreferences.HasFlag(ContactChannelKind.Email) &&
-            MessageChannelKind.HasFlag(MessageChannelKind.Email)) {
-            messageChannelKinds |= MessageChannelKind.Email;
-        }
+        var typeCommunicationPreference = contactPreferences.Communication?.FirstOrDefault(x => x.MessageTypeAlias == Type?.Alias);
+        if (typeCommunicationPreference == null) {
 
-        if (contactPreferences.HasFlag(ContactChannelKind.SMS) &&
-            MessageChannelKind.HasFlag(MessageChannelKind.SMS)) {
-            messageChannelKinds |= MessageChannelKind.SMS;
+            return MessageChannelKind;
         }
-
-        //keep inbox regardless of user preferences
-        if (MessageChannelKind.HasFlag(MessageChannelKind.Inbox)) {
-            messageChannelKinds |= MessageChannelKind.Inbox;
-        }
+        MessageChannelKind messageChannelKinds = ContactChannelOption.ToMessageChannelKind(typeCommunicationPreference.Channels, defaultOption: MessageChannelKind.Inbox);
         return messageChannelKinds;
     }
 }
