@@ -50,14 +50,14 @@ export class CurrencyWidgetComponent implements OnInit {
     // allow single '-' character
     // Accept but don't commit
     if (this.allowNegativeNumbers && event.target.value === '-') {
-        return;
+      return;
     }
     // business validation
     // Early exit – empty or non‑numeric input (after removing separators)
     const inputNumber = CurrencyWidgetComponent.fromLocaleString(this.locale, event.target.value, this.decimalPlaces, this.allowNegativeNumbers);
     // If the value is undefined we do not update
     if (inputNumber === undefined && event.target.value !== '') {
-        return;
+      return;
     }
     this.jsf.updateValue(this, inputNumber);
   }
@@ -74,7 +74,7 @@ export class CurrencyWidgetComponent implements OnInit {
     }) || '';
   }
 
-  private static fromLocaleString(locale: string, inputText: string, decimalPlaces: number, allowNegativeNumbers: boolean = true, round: boolean = false): number | undefined {
+  private static fromLocaleString(locale: string, inputText: string, decimalPlaces: number, allowNegativeNumbers: boolean = true): number | undefined {
       if (!inputText?.trim()) {
           return;
       }
@@ -83,10 +83,11 @@ export class CurrencyWidgetComponent implements OnInit {
       const isNegative = allowNegativeNumbers && inputText[0] === '-';
       const sanitizedInput = inputText.replace(new RegExp(`[^\\${decimalSeparator}|\\d]`, 'g'), '').replace(decimalSeparator, '.');
       let result = parseFloat(sanitizedInput);
-  
-      if (!round) {
-          result = Math.floor(result * Math.pow(10, decimalPlaces)) / Math.pow(10, decimalPlaces); // Truncate to the specified decimal places
-      }
+      const integerPart = Math.trunc(result);
+      // Truncate to the specified decimal places
+      const floatingPart = parseFloat((result.toString().split('.')[1] || '').slice(0, decimalPlaces));
+
+      result = Number(`${integerPart}.${floatingPart}`);
       if (isNegative) {
           result = -result; // Apply negative sign if applicable
       }
