@@ -4,8 +4,8 @@
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <SpaProjectName>cases-app</SpaProjectName>
     <SpaSourceFolder>..\Indice.Features.Cases.App</SpaSourceFolder>
-    <SpaDistFolder>$(SpaSourceFolder)\dist</SpaDistFolder>    
-    <VersionPrefix>$(VersionPrefixCases)</VersionPrefix>
+    <SpaDistFolder>$(SpaSourceFolder)\dist</SpaDistFolder>
+    <VersionPrefix>7.47.3</VersionPrefix>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;Cases;CaseManagement</PackageTags>
   </PropertyGroup>
