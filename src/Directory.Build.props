@@ -4,7 +4,7 @@
       <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
       <!--<TargetFramework></TargetFramework>-->
       <VersionPrefixMajor>8</VersionPrefixMajor>
-      <VersionPrefixBase>$(VersionPrefixMajor).10</VersionPrefixBase>
+      <VersionPrefixBase>$(VersionPrefixMajor).11</VersionPrefixBase>
       
       <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
       <VersionPrefixIdentity>$(VersionPrefixBase).0</VersionPrefixIdentity>
@@ -14,6 +14,7 @@
       <VersionPrefixMultitenancy>$(VersionPrefixBase).0</VersionPrefixMultitenancy>
       <VersionPrefixRisk>$(VersionPrefixBase).0</VersionPrefixRisk>
       <VersionPrefixMedia>$(VersionPrefixBase).0</VersionPrefixMedia>
+      <VersionPrefixGeoIP>$(VersionPrefixBase).0</VersionPrefixGeoIP>
       <VersionPrefixGovGr>$(VersionPrefixBase).0</VersionPrefixGovGr>
       <VersionPrefixAspNet>$(VersionPrefixBase).0</VersionPrefixAspNet>
       <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>

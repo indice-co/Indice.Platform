@@ -1,6 +1,7 @@
 ﻿using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Events.Models;
+using Indice.Features.GeoIP;
 
 namespace Indice.Features.Identity.SignInLogs.Events;
 /// <summary>
@@ -11,7 +12,7 @@ namespace Indice.Features.Identity.SignInLogs.Events;
 public class SecurityNotificationEvent : IPlatformEvent
 {
     /// <summary>Initializes a new instance of the <see cref="SecurityNotificationEvent"/> class.</summary>
-    public SecurityNotificationEvent(string activity, UserEventContext user, IPLocationMetadata location) {
+    public SecurityNotificationEvent(string activity, UserEventContext user, IPAddressLocation location) {
         Activity = activity ?? throw new ArgumentNullException(nameof(activity));
         User = user ?? throw new ArgumentNullException(nameof(user));
         Location = location ?? throw new ArgumentNullException(nameof(user));
@@ -21,7 +22,7 @@ public class SecurityNotificationEvent : IPlatformEvent
     /// <summary>The user instance.</summary>
     public UserEventContext User { get; set; } = null!;
     /// <summary>The user's email address.</summary>
-    public IPLocationMetadata Location { get; set; } = null!;
+    public IPAddressLocation Location { get; set; } = null!;
     /// <summary>The device that initiated the password change, if any.</summary>
     public UserDeviceEventContext? Device { get; set; }
     /// <summary>The client that initiated the password change, if any.</summary>
