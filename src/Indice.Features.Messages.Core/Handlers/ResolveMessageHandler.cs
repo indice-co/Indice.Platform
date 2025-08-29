@@ -61,7 +61,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         }
         // Make substitution to message content using contact resolved data.
         GenerateMessageContent(campaign, contact);
-        
+
         await CreateMessageAndDispatch(@event, campaign, contact);
     }
 
@@ -150,7 +150,11 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
             RecipientId = contact.RecipientId
         });
         var eventDispatcher = EventDispatcherFactory.Create(KeyedServiceNames.EventDispatcherServiceKey);
-        var contactChannels = campaign.ResolveAvailableChannels(contact.Preference);
+        var contactChannels = contact.GetAvailableChannels(campaign.MessageChannelKind, campaign.IgnoreUserPreferences);
+        if (contactChannels.HasFlag(MessageChannelKind.None)) {
+            return;
+        }
+
         if (contactChannels.HasFlag(MessageChannelKind.Inbox)) {
             await LogEvent(campaign, contact, MessageChannelKind.Inbox, messageId);
         }
