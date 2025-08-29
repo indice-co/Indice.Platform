@@ -34,4 +34,45 @@ public class Contact
 
     /// <summary>Communication Preferences </summary>
     public ContactPreference Preference { get; set; } = new ContactPreference();
+
+    /// <summary>
+    /// Determines the available communication channels for a contact based on their preferences, supported channels,
+    /// and provided contact information.
+    /// </summary>
+    /// <remarks>This method evaluates the contact's communication preferences and available contact
+    /// information to determine  which channels can be used. Channels are excluded if: <list type="bullet"> <item>The
+    /// contact has explicitly excluded them in their preferences.</item> <item>The contact lacks the necessary
+    /// information for the channel (e.g., no email address for email).</item> <item>The contact is anonymous, which
+    /// excludes certain channels like push notifications.</item> </list></remarks>
+    /// <param name="campaignChannels">The set of communication channels supported by the campaign.</param>
+    /// <param name="ignoreUserPreferences">Used to ignore the user preferences and use all available channels based on contact info.</param>
+    /// <returns>A <see cref="MessageChannelKind"/> value representing the communication channels that are available for the
+    /// contact. The result is determined by filtering the campaign-supported channels based on the contact's
+    /// preferences,  available contact information, and anonymity status.</returns>
+    public MessageChannelKind GetAvailableChannels(MessageChannelKind campaignChannels, bool ignoreUserPreferences) {
+        // start with all channels that the campaign supports
+        var availableChannels = campaignChannels;
+        // remove channels that the contact does not prefer if we are not ignoring user preferences
+        if (!ignoreUserPreferences) {
+
+            var typeCommunicationPreference = Preference?.Communication?.FirstOrDefault(x => x.MessageTypeAlias == null);
+            if (typeCommunicationPreference != null) {
+                availableChannels = ContactChannelOption.ToMessageChannelKind(typeCommunicationPreference.Channels, defaultOption: availableChannels);
+            } else if (Preference?.DefaultChannels != null) {
+                availableChannels = ContactChannelOption.ToMessageChannelKind(Preference.DefaultChannels, defaultOption: availableChannels);
+
+            }
+        }
+        // remove channels that the contact does not support due to missing info
+        if (!HasEmail) {
+            availableChannels &= ~MessageChannelKind.Email;
+        }
+        if (!HasPhoneNumber) {
+            availableChannels &= ~MessageChannelKind.SMS;
+        }
+        if (IsAnonymous) {
+            availableChannels &= ~MessageChannelKind.PushNotification;
+        }
+        return availableChannels;
+    }
 }

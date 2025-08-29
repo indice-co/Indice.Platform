@@ -409,7 +409,7 @@ li.idp {
             }
         }
 
-        &.btn-outline-govgr {
+        &.btn-outline-piraeus {
             color: $microsoft-gray;
             background-color: transparent;
             border-color: $microsoft-gray;
@@ -420,13 +420,13 @@ li.idp {
             }
         }
 
-        &.btn-govgr {
+        &.btn-piraeus {
             color: #fff;
             background-color: #ffd900;
 
 
             &:hover {
-                background-color: rgba(255, 217, 0, 1);
+                background-color: rgba(255, 217, 0, 0.6);
             }
         }
     }
