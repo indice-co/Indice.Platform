@@ -386,3 +386,48 @@ li.idp {
         }
     }
 }
+
+.idp-piraeus {
+    background-color: #ffd900;
+
+    a {
+        background-image: url(../img/idps/Piraeus.svg);
+        background-repeat: no-repeat;
+        background-position: 12px center;
+        padding-left: 36px;
+        width: 100%;
+
+        &:active {
+            background-image: url(../img/idps/Piraeus.svg);
+        }
+
+        &:not([disabled]) {
+            &:not(.disabled) {
+                &:active {
+                    background-image: url(../img/idps/Piraeus.svg);
+                }
+            }
+        }
+
+        &.btn-outline-govgr {
+            color: $microsoft-gray;
+            background-color: transparent;
+            border-color: $microsoft-gray;
+
+            &:hover {
+                color: #fff;
+                background-color: $microsoft-gray;
+            }
+        }
+
+        &.btn-govgr {
+            color: #fff;
+            background-color: #ffd900;
+
+
+            &:hover {
+                background-color: rgba(255, 217, 0, 1);
+            }
+        }
+    }
+}
