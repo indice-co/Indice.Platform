@@ -216,17 +216,13 @@ public static class CasesWorkflowFeatureExtensions
                 return Newtonsoft.Json.JsonSerializer.Create(settings);
             });
         });
-        //services.AddVersionedApiExplorer(o => {
-        //    o.GroupNameFormat = "'v'VVV";
-        //    o.SubstituteApiVersionInUrl = true;
-        //});
 
         services.AddApiVersioning(
             options => {
                 options.ReportApiVersions = true;
                 options.DefaultApiVersion = ApiVersion.Default;
                 options.AssumeDefaultVersionWhenUnspecified = true;
-            });
+            }).AddMvc(); // add MVC support for API versioning sinse elsa controllers are using MVC and not minimal APIs
 
         services
             .AddSingleton<ConnectionConverter>()

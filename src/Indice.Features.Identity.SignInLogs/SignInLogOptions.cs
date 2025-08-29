@@ -9,8 +9,6 @@ public class SignInLogOptions
 {
     /// <summary>Default value for <see cref="Enable"/> property.</summary>
     public const bool DEFAULT_ENABLE = true;
-    internal static string GEO_LITE2_CITY_FILE_NAME = "GeoLite2-City.mmdb";
-    internal static string GEO_LITE2_COUNTRY_FILE_NAME = "GeoLite2-Country.mmdb";
     private string _apiPrefix = "/api";
 
     /// <summary>Creates a new instance of <see cref="SignInLogOptions"/> class.</summary>

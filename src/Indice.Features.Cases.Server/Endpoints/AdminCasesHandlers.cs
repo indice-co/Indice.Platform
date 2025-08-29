@@ -179,10 +179,10 @@ internal static class AdminCasesHandlers
         // If user is Admin, they can do everything except assign an already assigned case
         if (currentUser.IsAdmin() || currentUser.IsSystemClient()) {
             return TypedResults.Ok(new CaseActions {
-                HasAssignment = actions.AssignmentBookmarks.Count != 0 && !caseIsAssigned,
-                HasApproval = actions.ApprovalBookmarks.Count != 0,
+                HasAssignment = (actions.AssignmentBookmarks?.Count > 0) && !caseIsAssigned,
+                HasApproval = actions.ApprovalBookmarks?.Count > 0,
                 HasUnassignment = caseIsAssigned,
-                HasEdit = actions.EditBookmarks.Count != 0,
+                HasEdit = actions.EditBookmarks?.Count > 0,
                 CustomActions = actions.CustomActions?.Select(x => x.CreateFromWorkflowAction()).ToList()!
             });
         }
