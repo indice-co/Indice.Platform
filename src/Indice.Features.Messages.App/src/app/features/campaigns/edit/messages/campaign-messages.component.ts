@@ -23,11 +23,11 @@ export class CampaignMessagesComponent extends BaseListComponent<CampaignMessage
     super(route, router);
     this.view = ListViewType.Table;
     this.pageSize = 10;
-    this.sort = 'createdAt';
+    this.sort = 'createdOn';
     this.sortdir = 'asc';
     this.search = '';
     this.sortOptions = [
-      new MenuOption('Ημ/νια Δημιουργίας', 'createdAt'),
+      new MenuOption('Ημ/νια Δημιουργίας', 'id'),
       new MenuOption('Τίτλος', 'title'),
       new MenuOption('Ενεργή Από', 'activePeriod.from')
     ];

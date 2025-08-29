@@ -10,6 +10,7 @@ import { CampaignDetailsEditRightpaneComponent } from './features/campaigns/edit
 import { CampaignAttachmentsEditRightpaneComponent } from './features/campaigns/edit/details/rightpane/campaign-edit-attachments-rightpane.component';
 import { CampaignEditComponent } from './features/campaigns/edit/campaign-edit.component';
 import { CampaignReportsComponent } from './features/campaigns/edit/reports/campaign-reports.component';
+import { CampaignMessagesComponent } from './features/campaigns/edit/messages/campaign-messages.component';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
 import { CommonAppShellConfig } from './shell.config';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
@@ -90,7 +91,9 @@ const routes: Routes = [
               { path: '', redirectTo: 'campaign-details', pathMatch: 'full' },
               { path: 'campaign-details', component: CampaignDetailsEditComponent, data: { breadcrumb: { title: 'Βασικές Πληροφορίες' }} },
               { path: 'campaign-content', component: CampaignContentEditComponent, data: { breadcrumb: { title: 'Περιεχόμενο' }} },
-              { path: 'campaign-reports', component: CampaignReportsComponent, data: { breadcrumb: { title: 'Αναφορές' }} }
+              { path: 'campaign-reports', component: CampaignReportsComponent, data: { breadcrumb: { title: 'Αναφορές' }} },
+              { path: 'campaign-messages', component: CampaignMessagesComponent, data: { breadcrumb: { title: 'Ιστορικό' }} },
+              
             ]
           },
         ]

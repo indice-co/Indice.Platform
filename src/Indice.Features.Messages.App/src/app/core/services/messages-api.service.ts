@@ -4730,13 +4730,17 @@ export interface ICampaignDetails {
 
 export class CampaignMessageDetailsResponse implements ICampaignMessageDetailsResponse {
     events?: MessageEvent[];
-    id?: string;
-    isDeleted?: boolean;
-    isRead?: boolean;
-    readDate?: Date;
-    deleteDate?: Date;
-    contact?: Contact;
+    messageId?: string;
+    contactId?: string;
+    recipientId?: string;
+    salutation?: string;
+    firstName?: string;
+    lastName?: string;
+    fullName?: string;
+    email?: string;
+    phoneNumber?: string;
     channels?: string[];
+    createdOn?: Date;
 
     constructor(data?: ICampaignMessageDetailsResponse) {
         if (data) {
@@ -4754,17 +4758,21 @@ export class CampaignMessageDetailsResponse implements ICampaignMessageDetailsRe
                 for (let item of _data["events"])
                     this.events!.push(MessageEvent.fromJS(item));
             }
-            this.id = _data["id"];
-            this.isDeleted = _data["isDeleted"];
-            this.isRead = _data["isRead"];
-            this.readDate = _data["readDate"] ? new Date(_data["readDate"].toString()) : undefined as any;
-            this.deleteDate = _data["deleteDate"] ? new Date(_data["deleteDate"].toString()) : undefined as any;
-            this.contact = _data["contact"] ? Contact.fromJS(_data["contact"]) : undefined as any;
+            this.messageId = _data["messageId"];
+            this.contactId = _data["contactId"];
+            this.recipientId = _data["recipientId"];
+            this.salutation = _data["salutation"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.fullName = _data["fullName"];
+            this.email = _data["email"];
+            this.phoneNumber = _data["phoneNumber"];
             if (Array.isArray(_data["channels"])) {
                 this.channels = [] as any;
                 for (let item of _data["channels"])
                     this.channels!.push(item);
             }
+            this.createdOn = _data["createdOn"] ? new Date(_data["createdOn"].toString()) : undefined as any;
         }
     }
 
@@ -4782,40 +4790,52 @@ export class CampaignMessageDetailsResponse implements ICampaignMessageDetailsRe
             for (let item of this.events)
                 data["events"].push(item ? item.toJSON() : undefined as any);
         }
-        data["id"] = this.id;
-        data["isDeleted"] = this.isDeleted;
-        data["isRead"] = this.isRead;
-        data["readDate"] = this.readDate ? this.readDate.toISOString() : undefined as any;
-        data["deleteDate"] = this.deleteDate ? this.deleteDate.toISOString() : undefined as any;
-        data["contact"] = this.contact ? this.contact.toJSON() : undefined as any;
+        data["messageId"] = this.messageId;
+        data["contactId"] = this.contactId;
+        data["recipientId"] = this.recipientId;
+        data["salutation"] = this.salutation;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["fullName"] = this.fullName;
+        data["email"] = this.email;
+        data["phoneNumber"] = this.phoneNumber;
         if (Array.isArray(this.channels)) {
             data["channels"] = [];
             for (let item of this.channels)
                 data["channels"].push(item);
         }
+        data["createdOn"] = this.createdOn ? this.createdOn.toISOString() : undefined as any;
         return data;
     }
 }
 
 export interface ICampaignMessageDetailsResponse {
     events?: MessageEvent[];
-    id?: string;
-    isDeleted?: boolean;
-    isRead?: boolean;
-    readDate?: Date;
-    deleteDate?: Date;
-    contact?: Contact;
+    messageId?: string;
+    contactId?: string;
+    recipientId?: string;
+    salutation?: string;
+    firstName?: string;
+    lastName?: string;
+    fullName?: string;
+    email?: string;
+    phoneNumber?: string;
     channels?: string[];
+    createdOn?: Date;
 }
 
 export class CampaignMessageResponse implements ICampaignMessageResponse {
-    id?: string;
-    isDeleted?: boolean;
-    isRead?: boolean;
-    readDate?: Date;
-    deleteDate?: Date;
-    contact?: Contact;
+    messageId?: string;
+    contactId?: string;
+    recipientId?: string;
+    salutation?: string;
+    firstName?: string;
+    lastName?: string;
+    fullName?: string;
+    email?: string;
+    phoneNumber?: string;
     channels?: string[];
+    createdOn?: Date;
 
     constructor(data?: ICampaignMessageResponse) {
         if (data) {
@@ -4828,17 +4848,21 @@ export class CampaignMessageResponse implements ICampaignMessageResponse {
 
     init(_data?: any) {
         if (_data) {
-            this.id = _data["id"];
-            this.isDeleted = _data["isDeleted"];
-            this.isRead = _data["isRead"];
-            this.readDate = _data["readDate"] ? new Date(_data["readDate"].toString()) : undefined as any;
-            this.deleteDate = _data["deleteDate"] ? new Date(_data["deleteDate"].toString()) : undefined as any;
-            this.contact = _data["contact"] ? Contact.fromJS(_data["contact"]) : undefined as any;
+            this.messageId = _data["messageId"];
+            this.contactId = _data["contactId"];
+            this.recipientId = _data["recipientId"];
+            this.salutation = _data["salutation"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.fullName = _data["fullName"];
+            this.email = _data["email"];
+            this.phoneNumber = _data["phoneNumber"];
             if (Array.isArray(_data["channels"])) {
                 this.channels = [] as any;
                 for (let item of _data["channels"])
                     this.channels!.push(item);
             }
+            this.createdOn = _data["createdOn"] ? new Date(_data["createdOn"].toString()) : undefined as any;
         }
     }
 
@@ -4851,29 +4875,37 @@ export class CampaignMessageResponse implements ICampaignMessageResponse {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["isDeleted"] = this.isDeleted;
-        data["isRead"] = this.isRead;
-        data["readDate"] = this.readDate ? this.readDate.toISOString() : undefined as any;
-        data["deleteDate"] = this.deleteDate ? this.deleteDate.toISOString() : undefined as any;
-        data["contact"] = this.contact ? this.contact.toJSON() : undefined as any;
+        data["messageId"] = this.messageId;
+        data["contactId"] = this.contactId;
+        data["recipientId"] = this.recipientId;
+        data["salutation"] = this.salutation;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["fullName"] = this.fullName;
+        data["email"] = this.email;
+        data["phoneNumber"] = this.phoneNumber;
         if (Array.isArray(this.channels)) {
             data["channels"] = [];
             for (let item of this.channels)
                 data["channels"].push(item);
         }
+        data["createdOn"] = this.createdOn ? this.createdOn.toISOString() : undefined as any;
         return data;
     }
 }
 
 export interface ICampaignMessageResponse {
-    id?: string;
-    isDeleted?: boolean;
-    isRead?: boolean;
-    readDate?: Date;
-    deleteDate?: Date;
-    contact?: Contact;
+    messageId?: string;
+    contactId?: string;
+    recipientId?: string;
+    salutation?: string;
+    firstName?: string;
+    lastName?: string;
+    fullName?: string;
+    email?: string;
+    phoneNumber?: string;
     channels?: string[];
+    createdOn?: Date;
 }
 
 export class CampaignMessageResponseResultSet implements ICampaignMessageResponseResultSet {

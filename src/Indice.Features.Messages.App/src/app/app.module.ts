@@ -23,6 +23,7 @@ import { CampaignEditComponent } from './features/campaigns/edit/campaign-edit.c
 import { CampaignPreviewComponent } from './features/campaigns/create/steps/preview/campaign-preview.component';
 import { CampaignRecipientsComponent } from './features/campaigns/create/steps/recipients/campaign-recipients.component';
 import { CampaignReportsComponent } from './features/campaigns/edit/reports/campaign-reports.component';
+import { CampaignMessagesComponent } from './features/campaigns/edit/messages/campaign-messages.component';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { DistributionListImportContactsComponent } from './features/distribution-lists/import-contacts/distribution-list-import-contacts.component';
@@ -136,6 +137,7 @@ if (app.settings.tenantId) {
     CampaignPreviewComponent,
     CampaignRecipientsComponent,
     CampaignReportsComponent,
+    CampaignMessagesComponent,
     CampaignsComponent,
     DashboardComponent,
     DistributionListContactCreateComponent,

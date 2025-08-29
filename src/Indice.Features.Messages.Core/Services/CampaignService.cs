@@ -183,22 +183,24 @@ public class CampaignService : ICampaignService
     ///<inheritdoc/>
     public async Task<ResultSet<CampaignMessageResponse>> GetCampaignMessages(Guid id, ListOptions options) {
         //TODO: Refactor this query to use the CampaignMessageResponse directly instead of grouping.
-        var query = from message in DbContext.Messages
+        var query = from messageEvent in DbContext.CampaignEvent
                     join contact in DbContext.Contacts
-                        on message.ContactId equals contact.Id
-                    join messageEvent in DbContext.CampaignEvent
-                        on message.Id equals messageEvent.MessageId
-                    where message.CampaignId == id
-                    group new { message, contact, messageEvent } by new {
-                        message.Id
+                        on messageEvent.ContactId equals contact.Id
+                    where messageEvent.CampaignId == id && messageEvent.Type == "Created"
+                    group new { contact, messageEvent } by new {
+                        messageEvent.ContactId
                     } into g
                     select new CampaignMessageResponse {
-                        Id = g.First().message.Id,
-                        DeleteDate = g.First().message.DeleteDate,
-                        IsDeleted = g.First().message.IsDeleted,
-                        IsRead = g.First().message.IsRead,
-                        ReadDate = g.First().message.ReadDate,
-                        Contact = Mapper.ToContact(g.First().contact),
+                        MessageId = g.First().messageEvent.MessageId,
+                        ContactId = g.First().contact.Id,
+                        CreatedOn = g.First().messageEvent.CreatedOn,
+                        Email = g.First().contact.Email,
+                        FirstName = g.First().contact.FirstName,
+                        FullName = g.First().contact.FullName,
+                        LastName = g.First().contact.LastName,
+                        PhoneNumber = g.First().contact.PhoneNumber,
+                        RecipientId = g.First().contact.RecipientId,
+                        Salutation = g.First().contact.Salutation,
                         Channels = g.Select(x => x.messageEvent).Select(x => x.Channel).ToList()
                     };
         return await query.ToResultSetAsync(options);
@@ -215,12 +217,16 @@ public class CampaignService : ICampaignService
                         message.Id
                     } into g
                     select new CampaignMessageDetailsResponse {
-                        Id = g.First().message.Id,
-                        DeleteDate = g.First().message.DeleteDate,
-                        IsDeleted = g.First().message.IsDeleted,
-                        IsRead = g.First().message.IsRead,
-                        ReadDate = g.First().message.ReadDate,
-                        Contact = Mapper.ToContact(g.First().contact),
+                        MessageId = g.First().messageEvent.MessageId,
+                        ContactId = g.First().contact.Id,
+                        CreatedOn = g.First().messageEvent.CreatedOn,
+                        Email = g.First().contact.Email,
+                        FirstName = g.First().contact.FirstName,
+                        FullName = g.First().contact.FullName,
+                        LastName = g.First().contact.LastName,
+                        PhoneNumber = g.First().contact.PhoneNumber,
+                        RecipientId = g.First().contact.RecipientId,
+                        Salutation = g.First().contact.Salutation,
                         Channels = g.Select(x => x.messageEvent).Select(x => x.Channel).ToList(),
                         Events = g.Select(x => new MessageEvent {
                             Channel = x.messageEvent.Channel,
