@@ -1,4 +1,5 @@
-﻿using Indice.Features.Risk.Core;
+﻿using Indice.Features.GeoIP;
+using Indice.Features.Risk.Core;
 using Indice.Features.Risk.Core.Models;
 using Indice.Features.Risk.Core.Services;
 using Microsoft.AspNetCore.Http;
@@ -12,9 +13,10 @@ internal static class RiskApiHandlers
     internal static async Task<Ok<AggregateRuleExecutionResult>> GetRisk(
         [FromServices] RiskStoreService riskStoreService,
         [FromServices] RiskService riskService,
+        [FromServices] IPAddressLocator ipAddressLocator,
         [FromBody] RiskModel request
     ) {
-        var riskEvent = request.ToRiskEvent();
+        var riskEvent = request.ToRiskEvent(ipAddressLocator);
         var result = await riskService.GetRiskAsync(riskEvent);
         var riskResult = result.ToDbAggregateExecutionRiskResult(request);
         await riskStoreService.CreateRiskResultAsync(riskResult);
@@ -23,9 +25,10 @@ internal static class RiskApiHandlers
 
     internal static async Task<StatusCodeHttpResult> CreateRiskEvent(
         [FromServices] RiskStoreService riskStoreService,
+        [FromServices] IPAddressLocator ipAddressLocator,
         [FromBody] RiskModel request
     ) {
-        var riskEvent = request.ToRiskEvent();
+        var riskEvent = request.ToRiskEvent(ipAddressLocator);
         await riskStoreService.CreateRiskEventAsync(riskEvent);
         if (request.ResultId != null) {
             await riskStoreService.AddEventIdToRiskResultAsync((Guid)request.ResultId, riskEvent.Id);

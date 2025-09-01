@@ -1,4 +1,5 @@
-﻿using Indice.Configuration;
+﻿using System.Globalization;
+using Indice.Configuration;
 using Indice.EntityFrameworkCore;
 using Indice.Extensions.Configuration.Database;
 using Indice.Extensions.Configuration.Database.Data;
@@ -43,6 +44,16 @@ public class RiskDbContext : DbContext, IAppSettingsDbContext
         modelBuilder.Entity<RiskEvent>().Property(x => x.Data).HasJsonConversion();
         modelBuilder.Entity<RiskEvent>().Property(x => x.SourceId).HasMaxLength(TextSizePresets.M256);
         modelBuilder.Entity<RiskEvent>().Property(x => x.SourceTransId).HasMaxLength(TextSizePresets.M128);
+        modelBuilder.Entity<RiskEvent>().Property(x => x.Location).HasMaxLength(TextSizePresets.M256);
+        modelBuilder.Entity<RiskEvent>().Property(x => x.SessionId).HasMaxLength(TextSizePresets.M128);
+        modelBuilder.Entity<RiskEvent>()
+            .HasIndex(x => x.SessionId)
+            .HasDatabaseName("IX_RiskEvent_SessionId")
+            .HasFilter("[SessionId] IS NOT NULL");
+        // We are using 3 as length because in .net when you use CultureInfo.TwoLetterISOLanguageName
+        // it returns 3 characters (e.g. Macro-regions / “global” locales: "419" for Latin America and the Caribbean)
+        modelBuilder.Entity<RiskEvent>().Property(x => x.CountryIsoCode).HasMaxLength(3);
+        modelBuilder.Entity<RiskEvent>().Property(x => x.Coordinates);
         // Risk Result configuration.
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().ToTable("RiskResult");
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().HasKey(x => x.Id);
