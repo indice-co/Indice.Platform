@@ -151,7 +151,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         });
         var eventDispatcher = EventDispatcherFactory.Create(KeyedServiceNames.EventDispatcherServiceKey);
         var contactChannels = contact.GetAvailableChannels(campaign.MessageChannelKind, campaign.IgnoreUserPreferences);
-        if (contactChannels.HasFlag(MessageChannelKind.None)) {
+        if (contactChannels == MessageChannelKind.None) {
             return;
         }
 
