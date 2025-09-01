@@ -10,7 +10,7 @@ import { CampaignStatistics, MessagesApiClient, CampaignMessageResponseResultSet
   templateUrl: './campaign-messages.component.html'
 })
 export class CampaignMessagesComponent extends BaseListComponent<CampaignMessageResponse> implements OnInit {
-  private _campaignId: string | undefined;
+  public _campaignId: string | undefined;
   public loaded = false;
   public counters: CampaignStatistics | undefined;
 
@@ -51,5 +51,9 @@ export class CampaignMessagesComponent extends BaseListComponent<CampaignMessage
       this.search = '';
       this.refresh();
     }
+  }
+  
+  public CheckReceivePreference(communicationPreferences: string[], option: string): boolean {
+    return communicationPreferences.findIndex(obj => obj === option ) >= 0;
   }
 }

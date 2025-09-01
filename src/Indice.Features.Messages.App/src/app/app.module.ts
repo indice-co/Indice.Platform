@@ -24,6 +24,7 @@ import { CampaignPreviewComponent } from './features/campaigns/create/steps/prev
 import { CampaignRecipientsComponent } from './features/campaigns/create/steps/recipients/campaign-recipients.component';
 import { CampaignReportsComponent } from './features/campaigns/edit/reports/campaign-reports.component';
 import { CampaignMessagesComponent } from './features/campaigns/edit/messages/campaign-messages.component';
+import { CampaignMessageTimelineComponent } from './features/campaigns/edit/messages/timeline/campaign-message-timeline.component';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { DistributionListImportContactsComponent } from './features/distribution-lists/import-contacts/distribution-list-import-contacts.component';
@@ -138,6 +139,7 @@ if (app.settings.tenantId) {
     CampaignRecipientsComponent,
     CampaignReportsComponent,
     CampaignMessagesComponent,
+    CampaignMessageTimelineComponent,
     CampaignsComponent,
     DashboardComponent,
     DistributionListContactCreateComponent,
