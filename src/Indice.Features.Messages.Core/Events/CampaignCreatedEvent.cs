@@ -62,29 +62,4 @@ public class CampaignCreatedEvent
         RecipientIds = recipientIds ?? [],
         Recipients = recipients ?? []
     };
-
-    /// <summary>
-    /// Resolves availble Channels according to user preferences
-    /// </summary>
-    /// <param name="contactPreferences">User contact preferences</param>
-    /// <returns></returns>
-    public MessageChannelKind ResolveAvailableChannels(ContactPreference? contactPreferences) {
-        if (contactPreferences is null) {
-            return MessageChannelKind;
-        }
-        if (IgnoreUserPreferences)
-            return MessageChannelKind;
-
-        if (contactPreferences.DefaultChannels != null) {
-            return ContactChannelOption.ToMessageChannelKind(contactPreferences.DefaultChannels, defaultOption: MessageChannelKind.Inbox);
-        }
-
-        var typeCommunicationPreference = contactPreferences.Communication?.FirstOrDefault(x => x.MessageTypeAlias == Type?.Alias);
-        if (typeCommunicationPreference == null) {
-
-            return MessageChannelKind;
-        }
-        MessageChannelKind messageChannelKinds = ContactChannelOption.ToMessageChannelKind(typeCommunicationPreference.Channels, defaultOption: MessageChannelKind.Inbox);
-        return messageChannelKinds;
-    }
 }

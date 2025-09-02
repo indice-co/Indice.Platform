@@ -23,6 +23,9 @@ public static class IContactResolverExtensions
     /// <param name="targetContact">The instance to patch.</param>
     public async static Task<Contact?> Patch(this IContactResolver resolver, string? recipientId, Contact targetContact) {
         var resolvedContact = await resolver.Resolve(recipientId);
+        if (resolvedContact is null && targetContact.Id.HasValue) {
+            return targetContact;
+        }
         if (resolvedContact is not null) {
             // contact id must be preserved.
             resolvedContact.Id = targetContact.Id; 

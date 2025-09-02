@@ -4,12 +4,12 @@
       <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
       <!--<TargetFramework></TargetFramework>-->
       <VersionPrefixMajor>8</VersionPrefixMajor>
-      <VersionPrefixBase>$(VersionPrefixMajor).11</VersionPrefixBase>
+      <VersionPrefixBase>$(VersionPrefixMajor).13</VersionPrefixBase>
       
       <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
       <VersionPrefixIdentity>$(VersionPrefixBase).0</VersionPrefixIdentity>
       <VersionPrefixIdentityUI>$(VersionPrefixBase).0</VersionPrefixIdentityUI>
-      <VersionPrefixCases>$(VersionPrefixBase).1</VersionPrefixCases>
+      <VersionPrefixCases>$(VersionPrefixBase).0</VersionPrefixCases>
       <VersionPrefixMessages>$(VersionPrefixBase).0</VersionPrefixMessages>
       <VersionPrefixMultitenancy>$(VersionPrefixBase).0</VersionPrefixMultitenancy>
       <VersionPrefixRisk>$(VersionPrefixBase).1</VersionPrefixRisk>
@@ -19,7 +19,7 @@
       <VersionPrefixAspNet>$(VersionPrefixBase).0</VersionPrefixAspNet>
       <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
       
-      <!--<VersionSuffix>rc04</VersionSuffix>-->
+      <!--<VersionSuffix>rc04</VersionSuffix> -->
       <Authors>Constantinos Leftheris</Authors>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
       <LangVersion>Latest</LangVersion>
