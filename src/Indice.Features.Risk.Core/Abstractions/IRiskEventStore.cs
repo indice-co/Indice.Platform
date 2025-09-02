@@ -28,5 +28,12 @@ public interface IRiskEventStore
     /// Fetches risk events from the store
     /// </summary>
     /// <param name="options"></param>
-    Task<ResultSet<RiskEvent>> GetList(ListOptions<AdminRiskFilterRequest> options);
+    Task<ResultSet<RiskEvent>> GetList(ListOptions<AdminRiskEventFilterRequest> options);
+
+    /// <summary>
+    /// Fetches risk events by session id
+    /// </summary>
+    /// <param name="sessionId"></param>
+    /// <returns></returns>
+    Task<IEnumerable<RiskEvent>> GetRiskEventsBySessionId(string sessionId);
 }

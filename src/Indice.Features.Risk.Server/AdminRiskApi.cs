@@ -1,5 +1,6 @@
 ﻿using Indice.Features.Risk.Core.Data.Models;
 using Indice.Features.Risk.Core.Models;
+using Indice.Features.Risk.Core.Models.Responses;
 using Indice.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Builder;
@@ -50,6 +51,13 @@ public static class AdminRiskApi
             .WithName(nameof(AdminRiskApiHandlers.GetRiskResults))
             .WithSummary("Fetch risk results.")
             .Produces(StatusCodes.Status200OK, typeof(ResultSet<DbAggregateRuleExecutionResult>));
+
+        // GET: api/risk-events/session/{sessionId}
+        group
+            .MapGet("risk-events/session/{sessionId}", AdminRiskApiHandlers.GetRiskEventBySessionId)
+            .WithName(nameof(AdminRiskApiHandlers.GetRiskEventBySessionId))
+            .WithSummary("Fetch risk events by session id.")
+            .Produces(StatusCodes.Status200OK, typeof(IEnumerable<RiskEventDto>));
 
         // GET: api/risk-rules
         group

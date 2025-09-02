@@ -47,14 +47,19 @@ internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
         return await query.ToListAsync();
     }
 
-    public async Task<ResultSet<RiskEvent>> GetList(ListOptions<AdminRiskFilterRequest> options) {
+    public async Task<ResultSet<RiskEvent>> GetList(ListOptions<AdminRiskEventFilterRequest> options) {
         var query = _dbContext.RiskEvents.AsNoTracking().AsQueryable();
-        query = ApplyFilter(query, options.Filter.Filter);
+        query = ApplyFilter(query, options.Filter);
         return await query.ToResultSetAsync(options);
     }
 
-    private IQueryable<RiskEvent> ApplyFilter(IQueryable<RiskEvent> query, FilterClause[] filter) {
-        foreach (var clause in filter) {
+    public async Task<IEnumerable<RiskEvent>> GetRiskEventsBySessionId(string sessionId) {
+        var query = _dbContext.RiskEvents.AsNoTracking().Where(x => x.SessionId == sessionId);
+        return await query.ToListAsync();
+    }
+
+    private IQueryable<RiskEvent> ApplyFilter(IQueryable<RiskEvent> query, AdminRiskEventFilterRequest filters) {
+        foreach (var clause in filters.Filter) {
             if (string.IsNullOrWhiteSpace(clause.Member)) {
                 continue;
             }
@@ -137,7 +142,28 @@ internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
                 }
             }
         }
-
+        foreach (var countryClause in filters.CountryIsoCode) {
+            if (string.IsNullOrWhiteSpace(countryClause.Value)) {
+                continue;
+            }
+            query = countryClause.Operator switch {
+                FilterOperator.Eq => query.Where(x => x.CountryIsoCode == countryClause.Value),
+                FilterOperator.Neq => query.Where(x => x.CountryIsoCode != countryClause.Value),
+                FilterOperator.Contains => query.Where(x => x.CountryIsoCode != null && x.CountryIsoCode.Contains(countryClause.Value)),
+                _ => query
+            };
+        }
+        foreach (var sessionIdClause in filters.SessionId) {
+            if (string.IsNullOrWhiteSpace(sessionIdClause.Value)) {
+                continue;
+            }
+            query = sessionIdClause.Operator switch {
+                FilterOperator.Eq => query.Where(x => x.SessionId == sessionIdClause.Value),
+                FilterOperator.Neq => query.Where(x => x.SessionId != sessionIdClause.Value),
+                FilterOperator.Contains => query.Where(x => x.SessionId != null && x.SessionId.Contains(sessionIdClause.Value)),
+                _ => query
+            };
+        }
         return query;
     }
 }

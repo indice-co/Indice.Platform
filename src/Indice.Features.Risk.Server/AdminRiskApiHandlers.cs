@@ -15,7 +15,7 @@ internal static class AdminRiskApiHandlers
     internal static async Task<Ok<ResultSet<RiskEventDto>>> GetRiskEvents(
         [FromServices] RiskStoreService riskStoreService,
         [AsParameters] ListOptions options,
-        [AsParameters] AdminRiskFilterRequest filter
+        [AsParameters] AdminRiskEventFilterRequest filter
     ) {
         var events = await riskStoreService.GetRiskEventsAsync(ListOptions.Create(options, filter));
         var results = events.Items.Select(RiskEventDto.FromDataModel).ToResultSet(events.Count);
@@ -25,10 +25,18 @@ internal static class AdminRiskApiHandlers
     internal static async Task<Ok<ResultSet<DbAggregateRuleExecutionResult>>> GetRiskResults(
         [FromServices] RiskStoreService riskStoreService,
         [AsParameters] ListOptions options,
-        [AsParameters] AdminRiskFilterRequest filter
+        [AsParameters] AdminRiskResultFilterRequest filter
     ) {
         var results = await riskStoreService.GetRiskResultsAsync(ListOptions.Create(options, filter));
         return TypedResults.Ok(results);
+    }
+
+    internal static async Task<Ok<IEnumerable<RiskEventDto>>> GetRiskEventBySessionId(
+        [FromServices] RiskStoreService riskStoreService,
+        string sessionId
+    ) {
+        var riskEvents = await riskStoreService.GetRiskEventsBySessionIdAsync(sessionId);
+        return TypedResults.Ok(riskEvents.Select(RiskEventDto.FromDataModel));
     }
 
     internal static Ok<ResultSet<RiskRuleDto>> GetRiskRules(

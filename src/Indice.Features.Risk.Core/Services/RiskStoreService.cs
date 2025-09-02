@@ -44,7 +44,7 @@ public class RiskStoreService
     /// </summary>
     /// <param name="options"></param>
     /// <returns></returns>
-    public async Task<ResultSet<RiskEvent>> GetRiskEventsAsync(ListOptions<AdminRiskFilterRequest> options) {
+    public async Task<ResultSet<RiskEvent>> GetRiskEventsAsync(ListOptions<AdminRiskEventFilterRequest> options) {
         return await _riskEventStore.GetList(options);
     }
 
@@ -53,8 +53,17 @@ public class RiskStoreService
     /// </summary>
     /// <param name="options"></param>
     /// <returns></returns>
-    public async Task<ResultSet<DbAggregateRuleExecutionResult>> GetRiskResultsAsync(ListOptions<AdminRiskFilterRequest> options) {
+    public async Task<ResultSet<DbAggregateRuleExecutionResult>> GetRiskResultsAsync(ListOptions<AdminRiskResultFilterRequest> options) {
         return await _riskResultStore.GetList(options);
+    }
+
+    /// <summary>
+    /// Fetches risk events by session id
+    /// </summary>
+    /// <param name="sessionId">The session id associated with the risk events</param>
+    /// <returns>A collection of risk events</returns>
+    public async Task<IEnumerable<RiskEvent>> GetRiskEventsBySessionIdAsync(string sessionId) {
+        return await _riskEventStore.GetRiskEventsBySessionId(sessionId);
     }
 
     /// <summary>Adds an event Id to risk result.</summary>

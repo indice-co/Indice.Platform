@@ -16,5 +16,7 @@ internal class RiskEventStoreNoOp : IRiskEventStore
         DateTime? endDate,
         List<FilterClause>? filters) => Task.FromResult(Enumerable.Empty<RiskEvent>());
 
-    public Task<ResultSet<RiskEvent>> GetList(ListOptions<AdminRiskFilterRequest> options) => Task.FromResult(new ResultSet<RiskEvent>());
+    public Task<ResultSet<RiskEvent>> GetList(ListOptions<AdminRiskEventFilterRequest> options) => Task.FromResult(new ResultSet<RiskEvent>());
+
+    public Task<IEnumerable<RiskEvent>> GetRiskEventsBySessionId(string sessionId) => Task.FromResult<IEnumerable<RiskEvent>>([]);
 }
