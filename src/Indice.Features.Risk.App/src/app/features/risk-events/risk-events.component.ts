@@ -2,19 +2,19 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '@indice/ng-auth';
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, RouterViewAction, ViewAction } from '@indice/ng-components';
-import { FilterClause, SearchOption } from '@indice/ng-components/lib/controls/advanced-search/models';
+import { FilterClause, Operators, SearchOption } from '@indice/ng-components/lib/controls/advanced-search/models';
 import { User } from 'oidc-client-ts';
 import { Observable, Subscription } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { ParamsService } from 'src/app/core/services/params.service';
-import { RiskApiService, RiskEvent, RiskEventResultSet } from 'src/app/core/services/risk-api.service';
+import { RiskApiService, RiskEventDto, RiskEventDtoResultSet } from 'src/app/core/services/risk-api.service';
 import { DataService } from 'src/app/core/services/data.service';
 
 @Component({
     selector: 'app-risk-events',
     templateUrl: './risk-events.component.html'
 })
-export class RiskEventsComponent extends BaseListComponent<RiskEvent> implements OnInit {
+export class RiskEventsComponent extends BaseListComponent<RiskEventDto> implements OnInit {
     newItemLink: string;
     public formActions: ViewAction[] = [
         new ViewAction('refresh', 'refresh', null, Icons.Refresh, 'Ανανέωση στοιχείων')
@@ -29,8 +29,7 @@ export class RiskEventsComponent extends BaseListComponent<RiskEvent> implements
         private _router: Router,
         private _api: RiskApiService,
         private _paramsService: ParamsService,
-        private dataService: DataService) 
-    {
+        private dataService: DataService) {
         super(_route, _router);
         this.view = ListViewType.Table;
         this.pageSize = 50;
@@ -70,6 +69,16 @@ export class RiskEventsComponent extends BaseListComponent<RiskEvent> implements
                 field: 'id',
                 name: 'ΚΩΔΙΚΟΣ ΣΥΜΒΑΝΤΟΣ',
                 dataType: 'string'
+            },
+            {
+                field: 'countryIsoCode',
+                name: 'ΚΩΔΙΚΟΣ ΧΩΡΑΣ',
+                dataType: 'string'
+            },
+            {
+                field: 'sessionId',
+                name: 'ΚΩΔΙΚΟΣ ΣΥΝΕΔΡΙΑΣ (Session Id)',
+                dataType: 'string'
             }
         ];
         this.searchOptions.push(...extraSearchOptions);
@@ -78,7 +87,7 @@ export class RiskEventsComponent extends BaseListComponent<RiskEvent> implements
     openRiskDetailsPane(extraData: any): void {
         const dataJson = JSON.parse(JSON.stringify(extraData));
         this.dataService.setInputData(dataJson);
-        this._router.navigateByUrl('/risk-events(rightpane:details)', {skipLocationChange: true});
+        this._router.navigateByUrl('/risk-events(rightpane:details)', { skipLocationChange: true });
     }
 
     ngOnInit(): void {
@@ -96,10 +105,27 @@ export class RiskEventsComponent extends BaseListComponent<RiskEvent> implements
         super.ngOnInit();
     }
 
-    loadItems(): Observable<IResultSet<RiskEvent>> {
-        let extraFilters: string[] = []
+    applySessionIdFilter(item: RiskEventDto): void {
+        const sessionIdFilter = {
+            member: 'sessionId',
+            value: item.sessionId ?? '',
+            operator: 'eq',
+            dataType: 'string',
+            uiOperator: '=',
+            uiValue: item.sessionId ?? ''
+        } as FilterClause;
+        let filters = [];
+        filters.push(sessionIdFilter);
+        this.advancedSearchChanged(filters);
+    }
 
+    loadItems(): Observable<IResultSet<RiskEventDto>> {
+        let extraFilters: string[] = []
+        let countryIsoCode: string[] = []
+        let sessionId: string[] = []
         this.filters?.forEach(x => extraFilters.push(this.stringifyFilterClause(x)));
+        this.filters?.filter(x => x.member === 'countryIsoCode').forEach(x => countryIsoCode.push(this.stringifyFilterClause(x)));
+        this.filters?.filter(x => x.member === 'sessionId').forEach(x => sessionId.push(this.stringifyFilterClause(x)));
 
         this._paramsService.setParams({
             view: this.view,
@@ -113,15 +139,17 @@ export class RiskEventsComponent extends BaseListComponent<RiskEvent> implements
         return this._api
             .getRiskEvents(
                 extraFilters,
+                countryIsoCode,
+                sessionId,
                 this.page,
                 this.pageSize,
                 this.sortdir === 'asc' ? this.sort! : this.sort + '-',
                 this.search || undefined
-          
+
             )
             .pipe(
                 take(1),
-                map((result: RiskEventResultSet) => (result as IResultSet<RiskEvent>))
+                map((result: RiskEventDtoResultSet) => (result as IResultSet<RiskEventDto>))
             );
     }
 

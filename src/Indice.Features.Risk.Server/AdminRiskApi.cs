@@ -42,46 +42,38 @@ public static class AdminRiskApi
         group
             .MapGet("risk-events", AdminRiskApiHandlers.GetRiskEvents)
             .WithName(nameof(AdminRiskApiHandlers.GetRiskEvents))
-            .WithSummary("Fetch risk events.")
-            .Produces(StatusCodes.Status200OK, typeof(ResultSet<RiskEvent>));
+            .WithSummary("Fetch risk events.");
 
         // GET: api/risk-results
         group
             .MapGet("risk-results", AdminRiskApiHandlers.GetRiskResults)
             .WithName(nameof(AdminRiskApiHandlers.GetRiskResults))
-            .WithSummary("Fetch risk results.")
-            .Produces(StatusCodes.Status200OK, typeof(ResultSet<DbAggregateRuleExecutionResult>));
+            .WithSummary("Fetch risk results.");
 
         // GET: api/risk-events/session/{sessionId}
         group
             .MapGet("risk-events/session/{sessionId}", AdminRiskApiHandlers.GetRiskEventBySessionId)
             .WithName(nameof(AdminRiskApiHandlers.GetRiskEventBySessionId))
-            .WithSummary("Fetch risk events by session id.")
-            .Produces(StatusCodes.Status200OK, typeof(IEnumerable<RiskEventDto>));
+            .WithSummary("Fetch risk events by session id.");
 
         // GET: api/risk-rules
         group
             .MapGet("risk-rules", AdminRiskApiHandlers.GetRiskRules)
             .WithName(nameof(AdminRiskApiHandlers.GetRiskRules))
-            .WithSummary("Fetch registered risk rules.")
-            .Produces(StatusCodes.Status200OK, typeof(ResultSet<RiskRuleDto>));
+            .WithSummary("Fetch registered risk rules.");
 
         // GET: api/risk-rule/{ruleName}
         group
             .MapGet("risk-rule/{ruleName}", AdminRiskApiHandlers.GetRiskRuleOptions)
             .WithName(nameof(AdminRiskApiHandlers.GetRiskRuleOptions))
-            .WithSummary("Fetch the configuration options given a rule name.")
-            .Produces(StatusCodes.Status200OK, typeof(Dictionary<string, string>))
-            .Produces(StatusCodes.Status404NotFound);
+            .WithSummary("Fetch the configuration options given a rule name.");
 
         // POST: api/risk-rule/{ruleName}
         group
             .MapPost("risk-rule/{ruleName}", AdminRiskApiHandlers.UpdateRiskRuleOptions<TOptions>)
             .WithName(nameof(AdminRiskApiHandlers.UpdateRiskRuleOptions))
             .WithSummary("Update the configuration options given a rule name.")
-            .WithParameterValidation<TOptions>()
-            .Produces(StatusCodes.Status204NoContent)
-            .Produces(StatusCodes.Status400BadRequest);
+            .WithParameterValidation<TOptions>();
 
         return builder;
     }

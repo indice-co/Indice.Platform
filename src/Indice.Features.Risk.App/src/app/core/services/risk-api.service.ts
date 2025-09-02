@@ -29,7 +29,12 @@ export interface IRiskApiService {
      * @param search (optional) A search term used to limit the results of the list.
      * @return OK
      */
-    getRiskEvents(filter: string[], page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined): Observable<RiskEventResultSet>;
+    getRiskEvents(filter: string[], countryIsoCode: string[], sessionId: string[], page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined): Observable<RiskEventDtoResultSet>;
+    /**
+     * Fetch risk events by session id.
+     * @return OK
+     */
+    getRiskEventBySessionId(sessionId: string): Observable<RiskEventDto[]>;
     /**
      * Fetch risk results.
      * @param page (optional) The current page of the list. Default is 1.
@@ -167,12 +172,20 @@ export class RiskApiService implements IRiskApiService {
      * @param search (optional) A search term used to limit the results of the list.
      * @return OK
      */
-    getRiskEvents(filter: string[], page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined): Observable<RiskEventResultSet> {
+    getRiskEvents(filter: string[], countryIsoCode: string[], sessionId: string[], page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined): Observable<RiskEventDtoResultSet> {
         let url_ = this.baseUrl + "/api/risk-events?";
         if (filter === undefined || filter === null)
             throw new Error("The parameter 'filter' must be defined and cannot be null.");
         else
             filter && filter.forEach(item => { url_ += "Filter=" + encodeURIComponent("" + item) + "&"; });
+        if (countryIsoCode === undefined || countryIsoCode === null)
+            throw new Error("The parameter 'countryIsoCode' must be defined and cannot be null.");
+        else
+            countryIsoCode && countryIsoCode.forEach(item => { url_ += "CountryIsoCode=" + encodeURIComponent("" + item) + "&"; });
+        if (sessionId === undefined || sessionId === null)
+            throw new Error("The parameter 'sessionId' must be defined and cannot be null.");
+        else
+            sessionId && sessionId.forEach(item => { url_ += "SessionId=" + encodeURIComponent("" + item) + "&"; });
         if (page !== undefined && page !== null)
             url_ += "Page=" + encodeURIComponent("" + page) + "&";
         if (size !== undefined && size !== null)
@@ -198,14 +211,14 @@ export class RiskApiService implements IRiskApiService {
                 try {
                     return this.processGetRiskEvents(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<RiskEventResultSet>;
+                    return _observableThrow(e) as any as Observable<RiskEventDtoResultSet>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<RiskEventResultSet>;
+                return _observableThrow(response_) as any as Observable<RiskEventDtoResultSet>;
         }));
     }
 
-    protected processGetRiskEvents(response: HttpResponseBase): Observable<RiskEventResultSet> {
+    protected processGetRiskEvents(response: HttpResponseBase): Observable<RiskEventDtoResultSet> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -237,7 +250,7 @@ export class RiskApiService implements IRiskApiService {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = RiskEventResultSet.fromJS(resultData200);
+            result200 = RiskEventDtoResultSet.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -245,7 +258,90 @@ export class RiskApiService implements IRiskApiService {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<RiskEventResultSet>(null as any);
+        return _observableOf<RiskEventDtoResultSet>(null as any);
+    }
+
+    /**
+     * Fetch risk events by session id.
+     * @return OK
+     */
+    getRiskEventBySessionId(sessionId: string): Observable<RiskEventDto[]> {
+        let url_ = this.baseUrl + "/api/risk-events/session/{sessionId}";
+        if (sessionId === undefined || sessionId === null)
+            throw new Error("The parameter 'sessionId' must be defined.");
+        url_ = url_.replace("{sessionId}", encodeURIComponent("" + sessionId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetRiskEventBySessionId(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetRiskEventBySessionId(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RiskEventDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RiskEventDto[]>;
+        }));
+    }
+
+    protected processGetRiskEventBySessionId(response: HttpResponseBase): Observable<RiskEventDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(RiskEventDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<RiskEventDto[]>(null as any[]);
     }
 
     /**
@@ -497,7 +593,10 @@ export class RiskApiService implements IRiskApiService {
             }));
         } else if (status === 400) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("Bad Request", status, _responseText, _headers);
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
@@ -843,204 +942,6 @@ export interface IAvailableBalanceRuleOptions extends IChaniaRuleOptions {
     availableBalanceThresholdPercentage?: number | undefined;
 }
 
-export class Coordinate implements ICoordinate {
-    x?: number | undefined;
-    y?: number | undefined;
-    z?: number | undefined;
-    m?: number | undefined;
-    coordinateValue?: Coordinate | undefined;
-    readonly isValid?: boolean | undefined;
-
-    constructor(data?: ICoordinate) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.x = _data["x"];
-            this.y = _data["y"];
-            this.z = _data["z"];
-            this.m = _data["m"];
-            this.coordinateValue = _data["coordinateValue"] ? Coordinate.fromJS(_data["coordinateValue"]) : <any>undefined;
-            (<any>this).isValid = _data["isValid"];
-        }
-    }
-
-    static fromJS(data: any): Coordinate {
-        data = typeof data === 'object' ? data : {};
-        let result = new Coordinate();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["x"] = this.x;
-        data["y"] = this.y;
-        data["z"] = this.z;
-        data["m"] = this.m;
-        data["coordinateValue"] = this.coordinateValue ? this.coordinateValue.toJSON() : <any>undefined;
-        data["isValid"] = this.isValid;
-        return data;
-    }
-}
-
-export interface ICoordinate {
-    x?: number | undefined;
-    y?: number | undefined;
-    z?: number | undefined;
-    m?: number | undefined;
-    coordinateValue?: Coordinate | undefined;
-    isValid?: boolean | undefined;
-}
-
-export class CoordinateEqualityComparer implements ICoordinateEqualityComparer {
-
-    constructor(data?: ICoordinateEqualityComparer) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-    }
-
-    static fromJS(data: any): CoordinateEqualityComparer {
-        data = typeof data === 'object' ? data : {};
-        let result = new CoordinateEqualityComparer();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        return data;
-    }
-}
-
-export interface ICoordinateEqualityComparer {
-}
-
-export class CoordinateSequence implements ICoordinateSequence {
-    readonly dimension?: number | undefined;
-    readonly measures?: number | undefined;
-    readonly spatial?: number | undefined;
-    ordinates?: Ordinates | undefined;
-    readonly hasZ?: boolean | undefined;
-    readonly hasM?: boolean | undefined;
-    readonly zOrdinateIndex?: number | undefined;
-    readonly mOrdinateIndex?: number | undefined;
-    first?: Coordinate | undefined;
-    last?: Coordinate | undefined;
-    readonly count?: number | undefined;
-
-    constructor(data?: ICoordinateSequence) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            (<any>this).dimension = _data["dimension"];
-            (<any>this).measures = _data["measures"];
-            (<any>this).spatial = _data["spatial"];
-            this.ordinates = _data["ordinates"];
-            (<any>this).hasZ = _data["hasZ"];
-            (<any>this).hasM = _data["hasM"];
-            (<any>this).zOrdinateIndex = _data["zOrdinateIndex"];
-            (<any>this).mOrdinateIndex = _data["mOrdinateIndex"];
-            this.first = _data["first"] ? Coordinate.fromJS(_data["first"]) : <any>undefined;
-            this.last = _data["last"] ? Coordinate.fromJS(_data["last"]) : <any>undefined;
-            (<any>this).count = _data["count"];
-        }
-    }
-
-    static fromJS(data: any): CoordinateSequence {
-        data = typeof data === 'object' ? data : {};
-        let result = new CoordinateSequence();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["dimension"] = this.dimension;
-        data["measures"] = this.measures;
-        data["spatial"] = this.spatial;
-        data["ordinates"] = this.ordinates;
-        data["hasZ"] = this.hasZ;
-        data["hasM"] = this.hasM;
-        data["zOrdinateIndex"] = this.zOrdinateIndex;
-        data["mOrdinateIndex"] = this.mOrdinateIndex;
-        data["first"] = this.first ? this.first.toJSON() : <any>undefined;
-        data["last"] = this.last ? this.last.toJSON() : <any>undefined;
-        data["count"] = this.count;
-        return data;
-    }
-}
-
-export interface ICoordinateSequence {
-    dimension?: number | undefined;
-    measures?: number | undefined;
-    spatial?: number | undefined;
-    ordinates?: Ordinates | undefined;
-    hasZ?: boolean | undefined;
-    hasM?: boolean | undefined;
-    zOrdinateIndex?: number | undefined;
-    mOrdinateIndex?: number | undefined;
-    first?: Coordinate | undefined;
-    last?: Coordinate | undefined;
-    count?: number | undefined;
-}
-
-export class CoordinateSequenceFactory implements ICoordinateSequenceFactory {
-    ordinates?: Ordinates | undefined;
-
-    constructor(data?: ICoordinateSequenceFactory) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.ordinates = _data["ordinates"];
-        }
-    }
-
-    static fromJS(data: any): CoordinateSequenceFactory {
-        data = typeof data === 'object' ? data : {};
-        let result = new CoordinateSequenceFactory();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["ordinates"] = this.ordinates;
-        return data;
-    }
-}
-
-export interface ICoordinateSequenceFactory {
-    ordinates?: Ordinates | undefined;
-}
-
 export class DbAggregateRuleExecutionResult implements IDbAggregateRuleExecutionResult {
     id?: string | undefined;
     eventId?: string | undefined;
@@ -1229,310 +1130,6 @@ export interface IDbRuleExecutionResult {
     ruleName?: string | undefined;
 }
 
-export enum Dimension {
-    Point = "Point",
-    Curve = "Curve",
-    Surface = "Surface",
-    Collapse = "Collapse",
-    Dontcare = "Dontcare",
-    True = "True",
-    False = "False",
-}
-
-export class Envelope implements IEnvelope {
-    readonly isNull?: boolean | undefined;
-    readonly width?: number | undefined;
-    readonly height?: number | undefined;
-    readonly diameter?: number | undefined;
-    readonly minX?: number | undefined;
-    readonly maxX?: number | undefined;
-    readonly minY?: number | undefined;
-    readonly maxY?: number | undefined;
-    readonly area?: number | undefined;
-    readonly minExtent?: number | undefined;
-    readonly maxExtent?: number | undefined;
-    centre?: Coordinate | undefined;
-
-    constructor(data?: IEnvelope) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            (<any>this).isNull = _data["isNull"];
-            (<any>this).width = _data["width"];
-            (<any>this).height = _data["height"];
-            (<any>this).diameter = _data["diameter"];
-            (<any>this).minX = _data["minX"];
-            (<any>this).maxX = _data["maxX"];
-            (<any>this).minY = _data["minY"];
-            (<any>this).maxY = _data["maxY"];
-            (<any>this).area = _data["area"];
-            (<any>this).minExtent = _data["minExtent"];
-            (<any>this).maxExtent = _data["maxExtent"];
-            this.centre = _data["centre"] ? Coordinate.fromJS(_data["centre"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): Envelope {
-        data = typeof data === 'object' ? data : {};
-        let result = new Envelope();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["isNull"] = this.isNull;
-        data["width"] = this.width;
-        data["height"] = this.height;
-        data["diameter"] = this.diameter;
-        data["minX"] = this.minX;
-        data["maxX"] = this.maxX;
-        data["minY"] = this.minY;
-        data["maxY"] = this.maxY;
-        data["area"] = this.area;
-        data["minExtent"] = this.minExtent;
-        data["maxExtent"] = this.maxExtent;
-        data["centre"] = this.centre ? this.centre.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface IEnvelope {
-    isNull?: boolean | undefined;
-    width?: number | undefined;
-    height?: number | undefined;
-    diameter?: number | undefined;
-    minX?: number | undefined;
-    maxX?: number | undefined;
-    minY?: number | undefined;
-    maxY?: number | undefined;
-    area?: number | undefined;
-    minExtent?: number | undefined;
-    maxExtent?: number | undefined;
-    centre?: Coordinate | undefined;
-}
-
-export class Geometry implements IGeometry {
-    factory?: GeometryFactory | undefined;
-    userData?: any | undefined;
-    srid?: number | undefined;
-    readonly geometryType?: string | undefined;
-    ogcGeometryType?: OgcGeometryType | undefined;
-    precisionModel?: PrecisionModel | undefined;
-    coordinate?: Coordinate | undefined;
-    readonly coordinates?: Coordinate[] | undefined;
-    readonly numPoints?: number | undefined;
-    readonly numGeometries?: number | undefined;
-    readonly isSimple?: boolean | undefined;
-    readonly isValid?: boolean | undefined;
-    readonly isEmpty?: boolean | undefined;
-    readonly area?: number | undefined;
-    readonly length?: number | undefined;
-    centroid?: Point | undefined;
-    interiorPoint?: Point | undefined;
-    pointOnSurface?: Point | undefined;
-    dimension?: Dimension | undefined;
-    boundary?: Geometry | undefined;
-    boundaryDimension?: Dimension | undefined;
-    envelope?: Geometry | undefined;
-    envelopeInternal?: Envelope | undefined;
-    readonly isRectangle?: boolean | undefined;
-
-    constructor(data?: IGeometry) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.factory = _data["factory"] ? GeometryFactory.fromJS(_data["factory"]) : <any>undefined;
-            this.userData = _data["userData"];
-            this.srid = _data["srid"];
-            (<any>this).geometryType = _data["geometryType"];
-            this.ogcGeometryType = _data["ogcGeometryType"];
-            this.precisionModel = _data["precisionModel"] ? PrecisionModel.fromJS(_data["precisionModel"]) : <any>undefined;
-            this.coordinate = _data["coordinate"] ? Coordinate.fromJS(_data["coordinate"]) : <any>undefined;
-            if (Array.isArray(_data["coordinates"])) {
-                (<any>this).coordinates = [] as any;
-                for (let item of _data["coordinates"])
-                    (<any>this).coordinates!.push(Coordinate.fromJS(item));
-            }
-            (<any>this).numPoints = _data["numPoints"];
-            (<any>this).numGeometries = _data["numGeometries"];
-            (<any>this).isSimple = _data["isSimple"];
-            (<any>this).isValid = _data["isValid"];
-            (<any>this).isEmpty = _data["isEmpty"];
-            (<any>this).area = _data["area"];
-            (<any>this).length = _data["length"];
-            this.centroid = _data["centroid"] ? Point.fromJS(_data["centroid"]) : <any>undefined;
-            this.interiorPoint = _data["interiorPoint"] ? Point.fromJS(_data["interiorPoint"]) : <any>undefined;
-            this.pointOnSurface = _data["pointOnSurface"] ? Point.fromJS(_data["pointOnSurface"]) : <any>undefined;
-            this.dimension = _data["dimension"];
-            this.boundary = _data["boundary"] ? Geometry.fromJS(_data["boundary"]) : <any>undefined;
-            this.boundaryDimension = _data["boundaryDimension"];
-            this.envelope = _data["envelope"] ? Geometry.fromJS(_data["envelope"]) : <any>undefined;
-            this.envelopeInternal = _data["envelopeInternal"] ? Envelope.fromJS(_data["envelopeInternal"]) : <any>undefined;
-            (<any>this).isRectangle = _data["isRectangle"];
-        }
-    }
-
-    static fromJS(data: any): Geometry {
-        data = typeof data === 'object' ? data : {};
-        let result = new Geometry();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["factory"] = this.factory ? this.factory.toJSON() : <any>undefined;
-        data["userData"] = this.userData;
-        data["srid"] = this.srid;
-        data["geometryType"] = this.geometryType;
-        data["ogcGeometryType"] = this.ogcGeometryType;
-        data["precisionModel"] = this.precisionModel ? this.precisionModel.toJSON() : <any>undefined;
-        data["coordinate"] = this.coordinate ? this.coordinate.toJSON() : <any>undefined;
-        if (Array.isArray(this.coordinates)) {
-            data["coordinates"] = [];
-            for (let item of this.coordinates)
-                data["coordinates"].push(item ? item.toJSON() : <any>undefined);
-        }
-        data["numPoints"] = this.numPoints;
-        data["numGeometries"] = this.numGeometries;
-        data["isSimple"] = this.isSimple;
-        data["isValid"] = this.isValid;
-        data["isEmpty"] = this.isEmpty;
-        data["area"] = this.area;
-        data["length"] = this.length;
-        data["centroid"] = this.centroid ? this.centroid.toJSON() : <any>undefined;
-        data["interiorPoint"] = this.interiorPoint ? this.interiorPoint.toJSON() : <any>undefined;
-        data["pointOnSurface"] = this.pointOnSurface ? this.pointOnSurface.toJSON() : <any>undefined;
-        data["dimension"] = this.dimension;
-        data["boundary"] = this.boundary ? this.boundary.toJSON() : <any>undefined;
-        data["boundaryDimension"] = this.boundaryDimension;
-        data["envelope"] = this.envelope ? this.envelope.toJSON() : <any>undefined;
-        data["envelopeInternal"] = this.envelopeInternal ? this.envelopeInternal.toJSON() : <any>undefined;
-        data["isRectangle"] = this.isRectangle;
-        return data;
-    }
-}
-
-export interface IGeometry {
-    factory?: GeometryFactory | undefined;
-    userData?: any | undefined;
-    srid?: number | undefined;
-    geometryType?: string | undefined;
-    ogcGeometryType?: OgcGeometryType | undefined;
-    precisionModel?: PrecisionModel | undefined;
-    coordinate?: Coordinate | undefined;
-    coordinates?: Coordinate[] | undefined;
-    numPoints?: number | undefined;
-    numGeometries?: number | undefined;
-    isSimple?: boolean | undefined;
-    isValid?: boolean | undefined;
-    isEmpty?: boolean | undefined;
-    area?: number | undefined;
-    length?: number | undefined;
-    centroid?: Point | undefined;
-    interiorPoint?: Point | undefined;
-    pointOnSurface?: Point | undefined;
-    dimension?: Dimension | undefined;
-    boundary?: Geometry | undefined;
-    boundaryDimension?: Dimension | undefined;
-    envelope?: Geometry | undefined;
-    envelopeInternal?: Envelope | undefined;
-    isRectangle?: boolean | undefined;
-}
-
-export class GeometryFactory implements IGeometryFactory {
-    precisionModel?: PrecisionModel | undefined;
-    coordinateSequenceFactory?: CoordinateSequenceFactory | undefined;
-    readonly srid?: number | undefined;
-    geometryServices?: NtsGeometryServices | undefined;
-
-    constructor(data?: IGeometryFactory) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.precisionModel = _data["precisionModel"] ? PrecisionModel.fromJS(_data["precisionModel"]) : <any>undefined;
-            this.coordinateSequenceFactory = _data["coordinateSequenceFactory"] ? CoordinateSequenceFactory.fromJS(_data["coordinateSequenceFactory"]) : <any>undefined;
-            (<any>this).srid = _data["srid"];
-            this.geometryServices = _data["geometryServices"] ? NtsGeometryServices.fromJS(_data["geometryServices"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): GeometryFactory {
-        data = typeof data === 'object' ? data : {};
-        let result = new GeometryFactory();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["precisionModel"] = this.precisionModel ? this.precisionModel.toJSON() : <any>undefined;
-        data["coordinateSequenceFactory"] = this.coordinateSequenceFactory ? this.coordinateSequenceFactory.toJSON() : <any>undefined;
-        data["srid"] = this.srid;
-        data["geometryServices"] = this.geometryServices ? this.geometryServices.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface IGeometryFactory {
-    precisionModel?: PrecisionModel | undefined;
-    coordinateSequenceFactory?: CoordinateSequenceFactory | undefined;
-    srid?: number | undefined;
-    geometryServices?: NtsGeometryServices | undefined;
-}
-
-export class GeometryOverlay implements IGeometryOverlay {
-
-    constructor(data?: IGeometryOverlay) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-    }
-
-    static fromJS(data: any): GeometryOverlay {
-        data = typeof data === 'object' ? data : {};
-        let result = new GeometryOverlay();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        return data;
-    }
-}
-
-export interface IGeometryOverlay {
-}
-
 export class HistoricalTransactionsOverMinimumAmountRuleOptions extends ChaniaRuleOptions implements IHistoricalTransactionsOverMinimumAmountRuleOptions {
     minimumAmount?: number | undefined;
     daysAgo?: number | undefined;
@@ -1679,120 +1276,6 @@ export class MuleAccountRuleOptions extends ChaniaRuleOptions implements IMuleAc
 export interface IMuleAccountRuleOptions extends IChaniaRuleOptions {
 }
 
-export class NtsGeometryServices implements INtsGeometryServices {
-    geometryOverlay?: GeometryOverlay | undefined;
-    coordinateEqualityComparer?: CoordinateEqualityComparer | undefined;
-    readonly defaultSRID?: number | undefined;
-    defaultCoordinateSequenceFactory?: CoordinateSequenceFactory | undefined;
-    defaultPrecisionModel?: PrecisionModel | undefined;
-
-    constructor(data?: INtsGeometryServices) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.geometryOverlay = _data["geometryOverlay"] ? GeometryOverlay.fromJS(_data["geometryOverlay"]) : <any>undefined;
-            this.coordinateEqualityComparer = _data["coordinateEqualityComparer"] ? CoordinateEqualityComparer.fromJS(_data["coordinateEqualityComparer"]) : <any>undefined;
-            (<any>this).defaultSRID = _data["defaultSRID"];
-            this.defaultCoordinateSequenceFactory = _data["defaultCoordinateSequenceFactory"] ? CoordinateSequenceFactory.fromJS(_data["defaultCoordinateSequenceFactory"]) : <any>undefined;
-            this.defaultPrecisionModel = _data["defaultPrecisionModel"] ? PrecisionModel.fromJS(_data["defaultPrecisionModel"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): NtsGeometryServices {
-        data = typeof data === 'object' ? data : {};
-        let result = new NtsGeometryServices();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["geometryOverlay"] = this.geometryOverlay ? this.geometryOverlay.toJSON() : <any>undefined;
-        data["coordinateEqualityComparer"] = this.coordinateEqualityComparer ? this.coordinateEqualityComparer.toJSON() : <any>undefined;
-        data["defaultSRID"] = this.defaultSRID;
-        data["defaultCoordinateSequenceFactory"] = this.defaultCoordinateSequenceFactory ? this.defaultCoordinateSequenceFactory.toJSON() : <any>undefined;
-        data["defaultPrecisionModel"] = this.defaultPrecisionModel ? this.defaultPrecisionModel.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface INtsGeometryServices {
-    geometryOverlay?: GeometryOverlay | undefined;
-    coordinateEqualityComparer?: CoordinateEqualityComparer | undefined;
-    defaultSRID?: number | undefined;
-    defaultCoordinateSequenceFactory?: CoordinateSequenceFactory | undefined;
-    defaultPrecisionModel?: PrecisionModel | undefined;
-}
-
-export enum OgcGeometryType {
-    Point = "Point",
-    LineString = "LineString",
-    Polygon = "Polygon",
-    MultiPoint = "MultiPoint",
-    MultiLineString = "MultiLineString",
-    MultiPolygon = "MultiPolygon",
-    GeometryCollection = "GeometryCollection",
-    CircularString = "CircularString",
-    CompoundCurve = "CompoundCurve",
-    CurvePolygon = "CurvePolygon",
-    MultiCurve = "MultiCurve",
-    MultiSurface = "MultiSurface",
-    Curve = "Curve",
-    Surface = "Surface",
-    PolyhedralSurface = "PolyhedralSurface",
-    TIN = "TIN",
-}
-
-export enum Ordinates {
-    None = "None",
-    X = "X",
-    Y = "Y",
-    XY = "XY",
-    Z = "Z",
-    XYZ = "XYZ",
-    Spatial4 = "Spatial4",
-    Spatial5 = "Spatial5",
-    Spatial6 = "Spatial6",
-    Spatial7 = "Spatial7",
-    Spatial8 = "Spatial8",
-    Spatial9 = "Spatial9",
-    Spatial10 = "Spatial10",
-    Spatial11 = "Spatial11",
-    Spatial12 = "Spatial12",
-    Spatial13 = "Spatial13",
-    Spatial14 = "Spatial14",
-    Spatial15 = "Spatial15",
-    Spatial16 = "Spatial16",
-    AllSpatialOrdinates = "AllSpatialOrdinates",
-    M = "M",
-    XYM = "XYM",
-    XYZM = "XYZM",
-    Measure2 = "Measure2",
-    Measure3 = "Measure3",
-    Measure4 = "Measure4",
-    Measure5 = "Measure5",
-    Measure6 = "Measure6",
-    Measure7 = "Measure7",
-    Measure8 = "Measure8",
-    Measure9 = "Measure9",
-    Measure10 = "Measure10",
-    Measure11 = "Measure11",
-    Measure12 = "Measure12",
-    Measure13 = "Measure13",
-    Measure14 = "Measure14",
-    Measure15 = "Measure15",
-    Measure16 = "Measure16",
-    AllMeasureOrdinates = "AllMeasureOrdinates",
-    AllOrdinates = "AllOrdinates",
-}
-
 export class PasswordChangedRecentlyRuleOptions extends ChaniaRuleOptions implements IPasswordChangedRecentlyRuleOptions {
     daysAgo?: number | undefined;
 
@@ -1825,220 +1308,6 @@ export class PasswordChangedRecentlyRuleOptions extends ChaniaRuleOptions implem
 
 export interface IPasswordChangedRecentlyRuleOptions extends IChaniaRuleOptions {
     daysAgo?: number | undefined;
-}
-
-export class Point implements IPoint {
-    factory?: GeometryFactory | undefined;
-    userData?: any | undefined;
-    srid?: number | undefined;
-    precisionModel?: PrecisionModel | undefined;
-    readonly numGeometries?: number | undefined;
-    readonly isSimple?: boolean | undefined;
-    readonly isValid?: boolean | undefined;
-    readonly area?: number | undefined;
-    readonly length?: number | undefined;
-    centroid?: Point | undefined;
-    interiorPoint?: Point | undefined;
-    pointOnSurface?: Point | undefined;
-    envelope?: Geometry | undefined;
-    envelopeInternal?: Envelope | undefined;
-    readonly isRectangle?: boolean | undefined;
-    coordinateSequence?: CoordinateSequence | undefined;
-    readonly coordinates?: Coordinate[] | undefined;
-    readonly numPoints?: number | undefined;
-    readonly isEmpty?: boolean | undefined;
-    dimension?: Dimension | undefined;
-    boundaryDimension?: Dimension | undefined;
-    x?: number | undefined;
-    y?: number | undefined;
-    coordinate?: Coordinate | undefined;
-    readonly geometryType?: string | undefined;
-    ogcGeometryType?: OgcGeometryType | undefined;
-    boundary?: Geometry | undefined;
-    z?: number | undefined;
-    m?: number | undefined;
-
-    constructor(data?: IPoint) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.factory = _data["factory"] ? GeometryFactory.fromJS(_data["factory"]) : <any>undefined;
-            this.userData = _data["userData"];
-            this.srid = _data["srid"];
-            this.precisionModel = _data["precisionModel"] ? PrecisionModel.fromJS(_data["precisionModel"]) : <any>undefined;
-            (<any>this).numGeometries = _data["numGeometries"];
-            (<any>this).isSimple = _data["isSimple"];
-            (<any>this).isValid = _data["isValid"];
-            (<any>this).area = _data["area"];
-            (<any>this).length = _data["length"];
-            this.centroid = _data["centroid"] ? Point.fromJS(_data["centroid"]) : <any>undefined;
-            this.interiorPoint = _data["interiorPoint"] ? Point.fromJS(_data["interiorPoint"]) : <any>undefined;
-            this.pointOnSurface = _data["pointOnSurface"] ? Point.fromJS(_data["pointOnSurface"]) : <any>undefined;
-            this.envelope = _data["envelope"] ? Geometry.fromJS(_data["envelope"]) : <any>undefined;
-            this.envelopeInternal = _data["envelopeInternal"] ? Envelope.fromJS(_data["envelopeInternal"]) : <any>undefined;
-            (<any>this).isRectangle = _data["isRectangle"];
-            this.coordinateSequence = _data["coordinateSequence"] ? CoordinateSequence.fromJS(_data["coordinateSequence"]) : <any>undefined;
-            if (Array.isArray(_data["coordinates"])) {
-                (<any>this).coordinates = [] as any;
-                for (let item of _data["coordinates"])
-                    (<any>this).coordinates!.push(Coordinate.fromJS(item));
-            }
-            (<any>this).numPoints = _data["numPoints"];
-            (<any>this).isEmpty = _data["isEmpty"];
-            this.dimension = _data["dimension"];
-            this.boundaryDimension = _data["boundaryDimension"];
-            this.x = _data["x"];
-            this.y = _data["y"];
-            this.coordinate = _data["coordinate"] ? Coordinate.fromJS(_data["coordinate"]) : <any>undefined;
-            (<any>this).geometryType = _data["geometryType"];
-            this.ogcGeometryType = _data["ogcGeometryType"];
-            this.boundary = _data["boundary"] ? Geometry.fromJS(_data["boundary"]) : <any>undefined;
-            this.z = _data["z"];
-            this.m = _data["m"];
-        }
-    }
-
-    static fromJS(data: any): Point {
-        data = typeof data === 'object' ? data : {};
-        let result = new Point();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["factory"] = this.factory ? this.factory.toJSON() : <any>undefined;
-        data["userData"] = this.userData;
-        data["srid"] = this.srid;
-        data["precisionModel"] = this.precisionModel ? this.precisionModel.toJSON() : <any>undefined;
-        data["numGeometries"] = this.numGeometries;
-        data["isSimple"] = this.isSimple;
-        data["isValid"] = this.isValid;
-        data["area"] = this.area;
-        data["length"] = this.length;
-        data["centroid"] = this.centroid ? this.centroid.toJSON() : <any>undefined;
-        data["interiorPoint"] = this.interiorPoint ? this.interiorPoint.toJSON() : <any>undefined;
-        data["pointOnSurface"] = this.pointOnSurface ? this.pointOnSurface.toJSON() : <any>undefined;
-        data["envelope"] = this.envelope ? this.envelope.toJSON() : <any>undefined;
-        data["envelopeInternal"] = this.envelopeInternal ? this.envelopeInternal.toJSON() : <any>undefined;
-        data["isRectangle"] = this.isRectangle;
-        data["coordinateSequence"] = this.coordinateSequence ? this.coordinateSequence.toJSON() : <any>undefined;
-        if (Array.isArray(this.coordinates)) {
-            data["coordinates"] = [];
-            for (let item of this.coordinates)
-                data["coordinates"].push(item ? item.toJSON() : <any>undefined);
-        }
-        data["numPoints"] = this.numPoints;
-        data["isEmpty"] = this.isEmpty;
-        data["dimension"] = this.dimension;
-        data["boundaryDimension"] = this.boundaryDimension;
-        data["x"] = this.x;
-        data["y"] = this.y;
-        data["coordinate"] = this.coordinate ? this.coordinate.toJSON() : <any>undefined;
-        data["geometryType"] = this.geometryType;
-        data["ogcGeometryType"] = this.ogcGeometryType;
-        data["boundary"] = this.boundary ? this.boundary.toJSON() : <any>undefined;
-        data["z"] = this.z;
-        data["m"] = this.m;
-        return data;
-    }
-}
-
-export interface IPoint {
-    factory?: GeometryFactory | undefined;
-    userData?: any | undefined;
-    srid?: number | undefined;
-    precisionModel?: PrecisionModel | undefined;
-    numGeometries?: number | undefined;
-    isSimple?: boolean | undefined;
-    isValid?: boolean | undefined;
-    area?: number | undefined;
-    length?: number | undefined;
-    centroid?: Point | undefined;
-    interiorPoint?: Point | undefined;
-    pointOnSurface?: Point | undefined;
-    envelope?: Geometry | undefined;
-    envelopeInternal?: Envelope | undefined;
-    isRectangle?: boolean | undefined;
-    coordinateSequence?: CoordinateSequence | undefined;
-    coordinates?: Coordinate[] | undefined;
-    numPoints?: number | undefined;
-    isEmpty?: boolean | undefined;
-    dimension?: Dimension | undefined;
-    boundaryDimension?: Dimension | undefined;
-    x?: number | undefined;
-    y?: number | undefined;
-    coordinate?: Coordinate | undefined;
-    geometryType?: string | undefined;
-    ogcGeometryType?: OgcGeometryType | undefined;
-    boundary?: Geometry | undefined;
-    z?: number | undefined;
-    m?: number | undefined;
-}
-
-export class PrecisionModel implements IPrecisionModel {
-    readonly isFloating?: boolean | undefined;
-    readonly maximumSignificantDigits?: number | undefined;
-    scale?: number | undefined;
-    readonly gridSize?: number | undefined;
-    precisionModelType?: PrecisionModels | undefined;
-
-    constructor(data?: IPrecisionModel) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            (<any>this).isFloating = _data["isFloating"];
-            (<any>this).maximumSignificantDigits = _data["maximumSignificantDigits"];
-            this.scale = _data["scale"];
-            (<any>this).gridSize = _data["gridSize"];
-            this.precisionModelType = _data["precisionModelType"];
-        }
-    }
-
-    static fromJS(data: any): PrecisionModel {
-        data = typeof data === 'object' ? data : {};
-        let result = new PrecisionModel();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["isFloating"] = this.isFloating;
-        data["maximumSignificantDigits"] = this.maximumSignificantDigits;
-        data["scale"] = this.scale;
-        data["gridSize"] = this.gridSize;
-        data["precisionModelType"] = this.precisionModelType;
-        return data;
-    }
-}
-
-export interface IPrecisionModel {
-    isFloating?: boolean | undefined;
-    maximumSignificantDigits?: number | undefined;
-    scale?: number | undefined;
-    gridSize?: number | undefined;
-    precisionModelType?: PrecisionModels | undefined;
-}
-
-export enum PrecisionModels {
-    Floating = "Floating",
-    FloatingSingle = "FloatingSingle",
-    Fixed = "Fixed",
 }
 
 export class ProblemDetails implements IProblemDetails {
@@ -2105,7 +1374,7 @@ export interface IProblemDetails {
     [key: string]: any;
 }
 
-export class RiskEvent implements IRiskEvent {
+export class RiskEventDto implements IRiskEventDto {
     readonly id?: string | undefined;
     amount?: number | undefined;
     ipAddress?: string | undefined;
@@ -2119,9 +1388,9 @@ export class RiskEvent implements IRiskEvent {
     location?: string | undefined;
     sessionId?: string | undefined;
     countryIsoCode?: string | undefined;
-    coordinates?: Point | undefined;
+    coordinates?: string | undefined;
 
-    constructor(data?: IRiskEvent) {
+    constructor(data?: IRiskEventDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -2145,13 +1414,13 @@ export class RiskEvent implements IRiskEvent {
             this.location = _data["location"];
             this.sessionId = _data["sessionId"];
             this.countryIsoCode = _data["countryIsoCode"];
-            this.coordinates = _data["coordinates"] ? Point.fromJS(_data["coordinates"]) : <any>undefined;
+            this.coordinates = _data["coordinates"];
         }
     }
 
-    static fromJS(data: any): RiskEvent {
+    static fromJS(data: any): RiskEventDto {
         data = typeof data === 'object' ? data : {};
-        let result = new RiskEvent();
+        let result = new RiskEventDto();
         result.init(data);
         return result;
     }
@@ -2171,12 +1440,12 @@ export class RiskEvent implements IRiskEvent {
         data["location"] = this.location;
         data["sessionId"] = this.sessionId;
         data["countryIsoCode"] = this.countryIsoCode;
-        data["coordinates"] = this.coordinates ? this.coordinates.toJSON() : <any>undefined;
+        data["coordinates"] = this.coordinates;
         return data;
     }
 }
 
-export interface IRiskEvent {
+export interface IRiskEventDto {
     id?: string | undefined;
     amount?: number | undefined;
     ipAddress?: string | undefined;
@@ -2190,14 +1459,14 @@ export interface IRiskEvent {
     location?: string | undefined;
     sessionId?: string | undefined;
     countryIsoCode?: string | undefined;
-    coordinates?: Point | undefined;
+    coordinates?: string | undefined;
 }
 
-export class RiskEventResultSet implements IRiskEventResultSet {
+export class RiskEventDtoResultSet implements IRiskEventDtoResultSet {
     count?: number | undefined;
-    items?: RiskEvent[] | undefined;
+    items?: RiskEventDto[] | undefined;
 
-    constructor(data?: IRiskEventResultSet) {
+    constructor(data?: IRiskEventDtoResultSet) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -2212,14 +1481,14 @@ export class RiskEventResultSet implements IRiskEventResultSet {
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
-                    this.items!.push(RiskEvent.fromJS(item));
+                    this.items!.push(RiskEventDto.fromJS(item));
             }
         }
     }
 
-    static fromJS(data: any): RiskEventResultSet {
+    static fromJS(data: any): RiskEventDtoResultSet {
         data = typeof data === 'object' ? data : {};
-        let result = new RiskEventResultSet();
+        let result = new RiskEventDtoResultSet();
         result.init(data);
         return result;
     }
@@ -2236,9 +1505,9 @@ export class RiskEventResultSet implements IRiskEventResultSet {
     }
 }
 
-export interface IRiskEventResultSet {
+export interface IRiskEventDtoResultSet {
     count?: number | undefined;
-    items?: RiskEvent[] | undefined;
+    items?: RiskEventDto[] | undefined;
 }
 
 export enum RiskLevel {
