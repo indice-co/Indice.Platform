@@ -1,6 +1,7 @@
 ﻿using Indice.Features.Risk.Core.Data.Models;
 using Indice.Features.Risk.Core.Models;
 using Indice.Features.Risk.Core.Models.Requests;
+using Indice.Features.Risk.Core.Models.Responses;
 using Indice.Features.Risk.Core.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
@@ -11,12 +12,13 @@ namespace Indice.Features.Risk.Server;
 
 internal static class AdminRiskApiHandlers
 {
-    internal static async Task<Ok<ResultSet<RiskEvent>>> GetRiskEvents(
+    internal static async Task<Ok<ResultSet<RiskEventDto>>> GetRiskEvents(
         [FromServices] RiskStoreService riskStoreService,
         [AsParameters] ListOptions options,
         [AsParameters] AdminRiskFilterRequest filter
     ) {
-        var results = await riskStoreService.GetRiskEventsAsync(ListOptions.Create(options, filter));
+        var events = await riskStoreService.GetRiskEventsAsync(ListOptions.Create(options, filter));
+        var results = events.Items.Select(RiskEventDto.FromDataModel).ToResultSet(events.Count);
         return TypedResults.Ok(results);
     }
 
