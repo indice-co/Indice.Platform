@@ -28,12 +28,12 @@ export interface IRiskApiService {
      * @param search (optional) A search term used to limit the results of the list.
      * @return OK
      */
-    getRiskEvents(filter: string[], page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined): Observable<RiskEventDtoResultSet>;
+    getRiskEvents(filter: string[], page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined): Observable<RiskEventResultSet>;
     /**
      * Fetch risk events by session id.
      * @return OK
      */
-    getRiskEventBySessionId(sessionId: string): Observable<RiskEventDto[]>;
+    getRiskEventBySessionId(sessionId: string): Observable<RiskEvent[]>;
     /**
      * Fetch risk results.
      * @param page (optional) The current page of the list. Default is 1.
@@ -171,7 +171,7 @@ export class RiskApiService implements IRiskApiService {
      * @param search (optional) A search term used to limit the results of the list.
      * @return OK
      */
-    getRiskEvents(filter: string[], page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined): Observable<RiskEventDtoResultSet> {
+    getRiskEvents(filter: string[], page?: number | null | undefined, size?: number | null | undefined, sort?: string | null | undefined, search?: string | null | undefined): Observable<RiskEventResultSet> {
         let url_ = this.baseUrl + "/api/risk-events?";
         if (filter === undefined || filter === null)
             throw new globalThis.Error("The parameter 'filter' must be defined and cannot be null.");
@@ -202,14 +202,14 @@ export class RiskApiService implements IRiskApiService {
                 try {
                     return this.processGetRiskEvents(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<RiskEventDtoResultSet>;
+                    return _observableThrow(e) as any as Observable<RiskEventResultSet>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<RiskEventDtoResultSet>;
+                return _observableThrow(response_) as any as Observable<RiskEventResultSet>;
         }));
     }
 
-    protected processGetRiskEvents(response: HttpResponseBase): Observable<RiskEventDtoResultSet> {
+    protected processGetRiskEvents(response: HttpResponseBase): Observable<RiskEventResultSet> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -220,7 +220,7 @@ export class RiskApiService implements IRiskApiService {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = RiskEventDtoResultSet.fromJS(resultData200);
+            result200 = RiskEventResultSet.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 401) {
@@ -256,7 +256,7 @@ export class RiskApiService implements IRiskApiService {
      * Fetch risk events by session id.
      * @return OK
      */
-    getRiskEventBySessionId(sessionId: string): Observable<RiskEventDto[]> {
+    getRiskEventBySessionId(sessionId: string): Observable<RiskEvent[]> {
         let url_ = this.baseUrl + "/api/risk-events/session/{sessionId}";
         if (sessionId === undefined || sessionId === null)
             throw new globalThis.Error("The parameter 'sessionId' must be defined.");
@@ -278,14 +278,14 @@ export class RiskApiService implements IRiskApiService {
                 try {
                     return this.processGetRiskEventBySessionId(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<RiskEventDto[]>;
+                    return _observableThrow(e) as any as Observable<RiskEvent[]>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<RiskEventDto[]>;
+                return _observableThrow(response_) as any as Observable<RiskEvent[]>;
         }));
     }
 
-    protected processGetRiskEventBySessionId(response: HttpResponseBase): Observable<RiskEventDto[]> {
+    protected processGetRiskEventBySessionId(response: HttpResponseBase): Observable<RiskEvent[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -299,7 +299,7 @@ export class RiskApiService implements IRiskApiService {
             if (Array.isArray(resultData200)) {
                 result200 = [] as any;
                 for (let item of resultData200)
-                    result200!.push(RiskEventDto.fromJS(item));
+                    result200!.push(RiskEvent.fromJS(item));
             }
             else {
                 result200 = null as any;
@@ -1365,7 +1365,7 @@ export interface IProblemDetails {
     [key: string]: any;
 }
 
-export class RiskEventDto implements IRiskEventDto {
+export class RiskEvent implements IRiskEvent {
     readonly id?: string | undefined;
     amount?: number | undefined;
     ipAddress?: string | undefined;
@@ -1381,7 +1381,7 @@ export class RiskEventDto implements IRiskEventDto {
     countryIsoCode?: string | undefined;
     coordinates?: string | undefined;
 
-    constructor(data?: IRiskEventDto) {
+    constructor(data?: IRiskEvent) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1409,9 +1409,9 @@ export class RiskEventDto implements IRiskEventDto {
         }
     }
 
-    static fromJS(data: any): RiskEventDto {
+    static fromJS(data: any): RiskEvent {
         data = typeof data === 'object' ? data : {};
-        let result = new RiskEventDto();
+        let result = new RiskEvent();
         result.init(data);
         return result;
     }
@@ -1436,7 +1436,7 @@ export class RiskEventDto implements IRiskEventDto {
     }
 }
 
-export interface IRiskEventDto {
+export interface IRiskEvent {
     id?: string | undefined;
     amount?: number | undefined;
     ipAddress?: string | undefined;
@@ -1453,11 +1453,11 @@ export interface IRiskEventDto {
     coordinates?: string | undefined;
 }
 
-export class RiskEventDtoResultSet implements IRiskEventDtoResultSet {
+export class RiskEventResultSet implements IRiskEventResultSet {
     count?: number | undefined;
-    items?: RiskEventDto[] | undefined;
+    items?: RiskEvent[] | undefined;
 
-    constructor(data?: IRiskEventDtoResultSet) {
+    constructor(data?: IRiskEventResultSet) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1472,14 +1472,14 @@ export class RiskEventDtoResultSet implements IRiskEventDtoResultSet {
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
-                    this.items!.push(RiskEventDto.fromJS(item));
+                    this.items!.push(RiskEvent.fromJS(item));
             }
         }
     }
 
-    static fromJS(data: any): RiskEventDtoResultSet {
+    static fromJS(data: any): RiskEventResultSet {
         data = typeof data === 'object' ? data : {};
-        let result = new RiskEventDtoResultSet();
+        let result = new RiskEventResultSet();
         result.init(data);
         return result;
     }
@@ -1496,9 +1496,9 @@ export class RiskEventDtoResultSet implements IRiskEventDtoResultSet {
     }
 }
 
-export interface IRiskEventDtoResultSet {
+export interface IRiskEventResultSet {
     count?: number | undefined;
-    items?: RiskEventDto[] | undefined;
+    items?: RiskEvent[] | undefined;
 }
 
 export enum RiskLevel {

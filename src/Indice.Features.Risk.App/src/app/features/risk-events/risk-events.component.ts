@@ -7,14 +7,14 @@ import { User } from 'oidc-client-ts';
 import { Observable, Subscription } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { ParamsService } from 'src/app/core/services/params.service';
-import { RiskApiService, RiskEventDto, RiskEventDtoResultSet } from 'src/app/core/services/risk-api.service';
+import { RiskApiService, RiskEvent, RiskEventResultSet } from 'src/app/core/services/risk-api.service';
 import { DataService } from 'src/app/core/services/data.service';
 
 @Component({
     selector: 'app-risk-events',
     templateUrl: './risk-events.component.html'
 })
-export class RiskEventsComponent extends BaseListComponent<RiskEventDto> implements OnInit {
+export class RiskEventsComponent extends BaseListComponent<RiskEvent> implements OnInit {
     newItemLink: string;
     public formActions: ViewAction[] = [
         new ViewAction('refresh', 'refresh', null, Icons.Refresh, 'Ανανέωση στοιχείων')
@@ -85,12 +85,6 @@ export class RiskEventsComponent extends BaseListComponent<RiskEventDto> impleme
         this.searchOptions.push(...extraSearchOptions);
     }
 
-    openRiskDetailsPane(extraData: any): void {
-        const dataJson = JSON.parse(JSON.stringify(extraData));
-        this.dataService.setInputData(dataJson);
-        this._router.navigateByUrl('/risk-events(rightpane:details)', { skipLocationChange: true });
-    }
-
     ngOnInit(): void {
         this.authService.loadUser().subscribe((user) => {
             this.user = user;
@@ -106,7 +100,7 @@ export class RiskEventsComponent extends BaseListComponent<RiskEventDto> impleme
         super.ngOnInit();
     }
 
-    applySessionIdFilter(item: RiskEventDto): void {
+    applySessionIdFilter(item: RiskEvent): void {
         if (!item.sessionId) {
             this.toasterService.show(ToastType.Warning, 'Προσοχή', 'Το συγκεκριμένο συμβάν δεν διαθέτει κωδικό συνεδρίας (session id) για να φιλτραριστεί το αποτέλεσμα.');
             return;
@@ -124,7 +118,7 @@ export class RiskEventsComponent extends BaseListComponent<RiskEventDto> impleme
         this.advancedSearchChanged(filters);
     }
 
-    loadItems(): Observable<IResultSet<RiskEventDto>> {
+    loadItems(): Observable<IResultSet<RiskEvent>> {
         let extraFilters: string[] = [];
         this.filters?.forEach(x => extraFilters.push(this.stringifyFilterClause(x)));
 
@@ -148,7 +142,7 @@ export class RiskEventsComponent extends BaseListComponent<RiskEventDto> impleme
             )
             .pipe(
                 take(1),
-                map((result: RiskEventDtoResultSet) => (result as IResultSet<RiskEventDto>))
+                map((result: RiskEventResultSet) => (result as IResultSet<RiskEvent>))
             );
     }
 

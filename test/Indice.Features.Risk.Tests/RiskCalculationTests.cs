@@ -21,7 +21,7 @@ public class TestRule : RiskRule
         };
     }
 
-    public override ValueTask<RuleExecutionResult> ExecuteAsync(RiskEvent @event) {
+    public override ValueTask<RuleExecutionResult> ExecuteAsync(DbRiskEvent @event) {
         return ValueTask.FromResult(
             @event.Name == "Transaction" && @event.Amount >= 1000
                 ? RuleExecutionResult.HighRisk()
@@ -61,7 +61,7 @@ public class RiskCalculationTests
     [Fact]
     public async Task High_Risk_On_Transaction_Over_1000() {
         var riskManager = ServiceProvider.GetRequiredService<RiskService>();
-        var result = await riskManager.GetRiskAsync(new RiskEvent {
+        var result = await riskManager.GetRiskAsync(new DbRiskEvent {
             Amount = 1001,
             CreatedAt = DateTimeOffset.UtcNow,
             IpAddress = "127.0.0.1",
@@ -77,7 +77,7 @@ public class RiskCalculationTests
     [Fact]
     public async Task Low_Risk_On_Transaction_Under_1000() {
         var riskManager = ServiceProvider.GetRequiredService<RiskService>();
-        var result = await riskManager.GetRiskAsync(new RiskEvent {
+        var result = await riskManager.GetRiskAsync(new DbRiskEvent {
             Amount = 999,
             CreatedAt = DateTimeOffset.UtcNow,
             IpAddress = "127.0.0.1",
@@ -94,14 +94,14 @@ public class RiskCalculationTests
     public async Task Can_Create_Risk_Events() {
         const string SUBJECT_ID = "4075C988-ECDB-434D-8164-970F7DF39DC3";
         var riskManager = ServiceProvider.GetRequiredService<RiskStoreService>();
-        await riskManager.CreateRiskEventAsync(new RiskEvent {
+        await riskManager.CreateRiskEventAsync(new DbRiskEvent {
             Amount = 1001,
             CreatedAt = DateTimeOffset.UtcNow,
             IpAddress = "127.0.0.1",
             Name = "Transaction",
             SubjectId = SUBJECT_ID
         });
-        await riskManager.CreateRiskEventAsync(new RiskEvent {
+        await riskManager.CreateRiskEventAsync(new DbRiskEvent {
             Amount = null,
             CreatedAt = DateTimeOffset.UtcNow,
             IpAddress = "127.0.0.1",

@@ -9,7 +9,7 @@ public interface IRiskEventStore
 {
     /// <summary>Persists a new risk event in the store.</summary>
     /// <param name="event">The event occurred.</param>
-    Task CreateAsync(RiskEvent @event);
+    Task CreateAsync(DbRiskEvent @event);
 
     /// <summary>Returns the risk events associated with a given subject ID</summary>
     /// <param name="subjectId">The identifier of the subject (user) for which risk events are retrieved.</param>
@@ -17,7 +17,7 @@ public interface IRiskEventStore
     /// <param name="startDate">Optional. The start date from which risk events are considered.</param>
     /// <param name="endDate">Optional. The end date until which risk events are considered. If not provided, the current date is used.</param>
     /// <param name="filters">Optional. Additional filters to apply to the risk events.</param>
-    Task<IEnumerable<RiskEvent>> GetList(
+    Task<IEnumerable<DbRiskEvent>> GetList(
         string subjectId, 
         string[]? names = null,
         DateTime? startDate = null,
@@ -28,12 +28,12 @@ public interface IRiskEventStore
     /// Fetches risk events from the store
     /// </summary>
     /// <param name="options"></param>
-    Task<ResultSet<RiskEvent>> GetList(ListOptions<AdminRiskEventFilterRequest> options);
+    Task<ResultSet<DbRiskEvent>> GetList(ListOptions<AdminRiskEventFilterRequest> options);
 
     /// <summary>
     /// Fetches risk events by session id
     /// </summary>
     /// <param name="sessionId"></param>
     /// <returns></returns>
-    Task<IEnumerable<RiskEvent>> GetRiskEventsBySessionId(string sessionId);
+    Task<IEnumerable<DbRiskEvent>> GetRiskEventsBySessionId(string sessionId);
 }

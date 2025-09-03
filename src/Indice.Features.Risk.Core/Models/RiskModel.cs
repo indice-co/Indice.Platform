@@ -30,8 +30,8 @@ public class RiskModel
     /// <summary>An optional session identifier the model is associated with.</summary>
     public string? SessionId { get; set; }
 
-    /// <summary>Converts a <see cref="RiskModel"/> to a <see cref="RiskEvent"/></summary>
-    public RiskEvent ToRiskEvent(IPAddressLocator ipAddressLocator) {
+    /// <summary>Converts a <see cref="RiskModel"/> to a <see cref="DbRiskEvent"/></summary>
+    public DbRiskEvent ToRiskEvent(IPAddressLocator ipAddressLocator) {
         IPAddressLocation? location = null;
         Point? coordinates = null;
         if (System.Net.IPAddress.TryParse(IpAddress, out var ipAddress)) {

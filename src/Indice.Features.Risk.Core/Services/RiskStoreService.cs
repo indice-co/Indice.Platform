@@ -25,7 +25,7 @@ public class RiskStoreService
 
     /// <summary>Creates a new event in the store.</summary>
     /// <param name="event">The event occurred and needs to be persisted.</param>
-    public Task CreateRiskEventAsync(RiskEvent @event) =>
+    public Task CreateRiskEventAsync(DbRiskEvent @event) =>
         _riskEventStore.CreateAsync(@event);
 
     /// <summary>Creates a new risk result in the store.</summary>
@@ -36,7 +36,7 @@ public class RiskStoreService
     /// <summary>Gets the list of events using the specified criteria.</summary>
     /// <param name="subjectId">The subject id.</param>
     /// <param name="names">The event names.</param>
-    public Task<IEnumerable<RiskEvent>> GetRiskEventsAsync(string subjectId, string[]? names = null) =>
+    public Task<IEnumerable<DbRiskEvent>> GetRiskEventsAsync(string subjectId, string[]? names = null) =>
         _riskEventStore.GetList(subjectId, names);
 
     /// <summary>
@@ -44,7 +44,7 @@ public class RiskStoreService
     /// </summary>
     /// <param name="options"></param>
     /// <returns></returns>
-    public async Task<ResultSet<RiskEvent>> GetRiskEventsAsync(ListOptions<AdminRiskEventFilterRequest> options) {
+    public async Task<ResultSet<DbRiskEvent>> GetRiskEventsAsync(ListOptions<AdminRiskEventFilterRequest> options) {
         return await _riskEventStore.GetList(options);
     }
 
@@ -62,7 +62,7 @@ public class RiskStoreService
     /// </summary>
     /// <param name="sessionId">The session id associated with the risk events</param>
     /// <returns>A collection of risk events</returns>
-    public async Task<IEnumerable<RiskEvent>> GetRiskEventsBySessionIdAsync(string sessionId) {
+    public async Task<IEnumerable<DbRiskEvent>> GetRiskEventsBySessionIdAsync(string sessionId) {
         return await _riskEventStore.GetRiskEventsBySessionId(sessionId);
     }
 

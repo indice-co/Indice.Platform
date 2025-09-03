@@ -7,16 +7,16 @@ namespace Indice.Features.Risk.Core.Stores;
 
 internal class RiskEventStoreNoOp : IRiskEventStore
 {
-    public Task CreateAsync(RiskEvent @event) => Task.CompletedTask;
+    public Task CreateAsync(DbRiskEvent @event) => Task.CompletedTask;
 
-    public Task<IEnumerable<RiskEvent>> GetList(
+    public Task<IEnumerable<DbRiskEvent>> GetList(
         string subjectId, 
         string[]? types,
         DateTime? startDate,
         DateTime? endDate,
-        List<FilterClause>? filters) => Task.FromResult(Enumerable.Empty<RiskEvent>());
+        List<FilterClause>? filters) => Task.FromResult(Enumerable.Empty<DbRiskEvent>());
 
-    public Task<ResultSet<RiskEvent>> GetList(ListOptions<AdminRiskEventFilterRequest> options) => Task.FromResult(new ResultSet<RiskEvent>());
+    public Task<ResultSet<DbRiskEvent>> GetList(ListOptions<AdminRiskEventFilterRequest> options) => Task.FromResult(new ResultSet<DbRiskEvent>());
 
-    public Task<IEnumerable<RiskEvent>> GetRiskEventsBySessionId(string sessionId) => Task.FromResult<IEnumerable<RiskEvent>>([]);
+    public Task<IEnumerable<DbRiskEvent>> GetRiskEventsBySessionId(string sessionId) => Task.FromResult<IEnumerable<DbRiskEvent>>([]);
 }

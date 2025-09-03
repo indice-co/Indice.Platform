@@ -12,13 +12,13 @@ namespace Indice.Features.Risk.Server;
 
 internal static class AdminRiskApiHandlers
 {
-    internal static async Task<Ok<ResultSet<RiskEventDto>>> GetRiskEvents(
+    internal static async Task<Ok<ResultSet<RiskEvent>>> GetRiskEvents(
         [FromServices] RiskStoreService riskStoreService,
         [AsParameters] ListOptions options,
         [AsParameters] AdminRiskEventFilterRequest filter
     ) {
         var events = await riskStoreService.GetRiskEventsAsync(ListOptions.Create(options, filter));
-        var results = events.Items.Select(RiskEventDto.FromDataModel).ToResultSet(events.Count);
+        var results = events.Items.Select(RiskEvent.FromDataModel).ToResultSet(events.Count);
         return TypedResults.Ok(results);
     }
 
@@ -31,12 +31,12 @@ internal static class AdminRiskApiHandlers
         return TypedResults.Ok(results);
     }
 
-    internal static async Task<Ok<IEnumerable<RiskEventDto>>> GetRiskEventBySessionId(
+    internal static async Task<Ok<IEnumerable<RiskEvent>>> GetRiskEventBySessionId(
         [FromServices] RiskStoreService riskStoreService,
         string sessionId
     ) {
         var riskEvents = await riskStoreService.GetRiskEventsBySessionIdAsync(sessionId);
-        return TypedResults.Ok(riskEvents.Select(RiskEventDto.FromDataModel));
+        return TypedResults.Ok(riskEvents.Select(RiskEvent.FromDataModel));
     }
 
     internal static Ok<ResultSet<RiskRuleDto>> GetRiskRules(

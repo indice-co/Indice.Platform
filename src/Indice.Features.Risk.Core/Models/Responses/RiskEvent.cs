@@ -1,8 +1,16 @@
-﻿using NetTopologySuite.Geometries;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Indice.Features.Risk.Core.Data.Models;
+using Indice.Types;
 
-namespace Indice.Features.Risk.Core.Data.Models;
+namespace Indice.Features.Risk.Core.Models.Responses;
 
-/// <summary>Models an event that was ingested in the system.</summary>
+/// <summary>
+/// DTO representing a risk event.
+/// </summary>
 public class RiskEvent
 {
     /// <summary>The unique id of the event.</summary>
@@ -32,5 +40,27 @@ public class RiskEvent
     /// <summary>Two letter ISO code for the country.</summary>
     public string? CountryIsoCode { get; set; }
     /// <summary>The approximate location of the operation.</summary>
-    public Point? Coordinates { get; set; }
+    public GeoPoint? Coordinates { get; set; }
+
+    /// <summary>
+    /// Creates a new instance of <see cref="RiskEvent"/> from a <see cref="DbRiskEvent"/>.
+    /// </summary>
+    /// <param name="model">The data model.</param>
+    /// <returns></returns>
+    public static RiskEvent FromDataModel(DbRiskEvent model) => new() {
+        Id = model.Id,
+        Amount = model.Amount,
+        CreatedAt = model.CreatedAt,
+        CountryIsoCode = model.CountryIsoCode,
+        Data = model.Data,
+        IpAddress = model.IpAddress,
+        Location = model.Location,
+        Name = model.Name,
+        SourceId = model.SourceId,
+        SourceTransId = model.SourceTransId,
+        SessionId = model.SessionId,
+        SubjectId = model.SubjectId,
+        Type = model.Type,
+        Coordinates = model.Coordinates is not null ? new GeoPoint(latitude: model.Coordinates.Y, longitude: model.Coordinates.X, elevation: model.Coordinates.Z) : null
+    };
 }

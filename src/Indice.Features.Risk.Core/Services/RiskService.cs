@@ -28,7 +28,7 @@ public class RiskService
 
     /// <summary>Gets the risk score for a given event.</summary>
     /// <param name="event">The event occurred for which to calculate the risk score.</param>
-    public async Task<AggregateRuleExecutionResult> GetRiskAsync(RiskEvent @event) {
+    public async Task<AggregateRuleExecutionResult> GetRiskAsync(DbRiskEvent @event) {
         var results = new List<RuleExecutionResult>();
         foreach (var rule in Rules.Where(x => x.Options.Enabled)) {
             var result = await rule.ExecuteAsync(@event);
