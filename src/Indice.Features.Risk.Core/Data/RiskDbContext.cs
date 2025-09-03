@@ -50,8 +50,8 @@ public class RiskDbContext : DbContext, IAppSettingsDbContext
             .HasIndex(x => x.SessionId)
             .HasDatabaseName("IX_RiskEvent_SessionId")
             .HasFilter("[SessionId] IS NOT NULL");
-        // We are using 3 as length because in .net when you use CultureInfo.TwoLetterISOLanguageName
-        // it returns 3 characters (e.g. Macro-regions / “global” locales: "419" for Latin America and the Caribbean)
+        // We are using 3 as length because CountryIsoCode may store either ISO 3166-1 alpha-2 country codes (2 characters)
+        // or UN M.49 region codes (up to 3 characters, e.g., "419" for Latin America and the Caribbean).
         modelBuilder.Entity<RiskEvent>().Property(x => x.CountryIsoCode).HasMaxLength(3);
         modelBuilder.Entity<RiskEvent>().Property(x => x.Coordinates);
         // Risk Result configuration.
