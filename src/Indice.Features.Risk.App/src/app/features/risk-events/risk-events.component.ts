@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '@indice/ng-auth';
-import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, RouterViewAction, ViewAction } from '@indice/ng-components';
+import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, RouterViewAction, ToasterService, ToastType, ViewAction } from '@indice/ng-components';
 import { FilterClause, Operators, SearchOption } from '@indice/ng-components/lib/controls/advanced-search/models';
 import { User } from 'oidc-client-ts';
 import { Observable, Subscription } from 'rxjs';
@@ -29,6 +29,7 @@ export class RiskEventsComponent extends BaseListComponent<RiskEventDto> impleme
         private _router: Router,
         private _api: RiskApiService,
         private _paramsService: ParamsService,
+        private toasterService: ToasterService,
         private dataService: DataService) {
         super(_route, _router);
         this.view = ListViewType.Table;
@@ -106,13 +107,17 @@ export class RiskEventsComponent extends BaseListComponent<RiskEventDto> impleme
     }
 
     applySessionIdFilter(item: RiskEventDto): void {
+        if (!item.sessionId) {
+            this.toasterService.show(ToastType.Warning, 'Προσοχή', 'Το συγκεκριμένο συμβάν δεν διαθέτει κωδικό συνεδρίας (session id) για να φιλτραριστεί το αποτέλεσμα.');
+            return;
+        }
         const sessionIdFilter = {
             member: 'sessionId',
-            value: item.sessionId ?? '',
+            value: item.sessionId,
             operator: 'eq',
             dataType: 'string',
             uiOperator: '=',
-            uiValue: item.sessionId ?? ''
+            uiValue: item.sessionId
         } as FilterClause;
         let filters = [];
         filters.push(sessionIdFilter);
@@ -120,12 +125,8 @@ export class RiskEventsComponent extends BaseListComponent<RiskEventDto> impleme
     }
 
     loadItems(): Observable<IResultSet<RiskEventDto>> {
-        let extraFilters: string[] = []
-        let countryIsoCode: string[] = []
-        let sessionId: string[] = []
+        let extraFilters: string[] = [];
         this.filters?.forEach(x => extraFilters.push(this.stringifyFilterClause(x)));
-        this.filters?.filter(x => x.member === 'countryIsoCode').forEach(x => countryIsoCode.push(this.stringifyFilterClause(x)));
-        this.filters?.filter(x => x.member === 'sessionId').forEach(x => sessionId.push(this.stringifyFilterClause(x)));
 
         this._paramsService.setParams({
             view: this.view,
@@ -139,8 +140,6 @@ export class RiskEventsComponent extends BaseListComponent<RiskEventDto> impleme
         return this._api
             .getRiskEvents(
                 extraFilters,
-                countryIsoCode,
-                sessionId,
                 this.page,
                 this.pageSize,
                 this.sortdir === 'asc' ? this.sort! : this.sort + '-',
