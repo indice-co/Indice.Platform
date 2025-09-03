@@ -172,6 +172,13 @@ public class NotificationsManager(
             }, request.GetIncludedContacts());
             request.RecipientListId = createdList.Id;
             isNewDistributionList = true;
+        } else {
+            // If a distribution list id is set, then we check if it exists.
+            var distributionList = await DistributionListService.GetById(request.RecipientListId.Value);
+            if (distributionList is null) {
+                return CreateCampaignResult.Fail($"The specified Distribution List with Id:({request.RecipientListId}) does not exist");
+            }
+            request.RecipientListId = distributionList.Id;
         }
         // create the attachemtns
         if (request.Attachments.Any()) {
@@ -202,12 +209,15 @@ public class NotificationsManager(
                 var channels = request.MessageTemplateChannels
                                     .Select(f => f.ToString())
                                     .ToHashSet(StringComparer.OrdinalIgnoreCase);
-                content = new (template.Content.Where(cnt => channels.Contains(cnt.Key)));
+                content = new(template.Content.Where(cnt => channels.Contains(cnt.Key)));
                 if (content.Count == 0) {
                     return CreateCampaignResult.Fail($"Content was empty after applying the messageTemplateChannels to the selected Template with Id:({request.MessageTemplateId})");
                 }
             }
             request.Content = content;
+            if (template.MessageType is not null) {
+                request.TypeId = template.MessageType.Id;
+            }
         }
         if (request.TypeId.HasValue) {
             var messageType = await MessageTypeService.GetById(request.TypeId.Value);
@@ -258,6 +268,7 @@ public class NotificationsManager(
 
     /// <summary>Gets a list of all available templates.</summary>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+    /// <param name="filter">Filter parameters</param>
     /// <returns></returns>
-    public Task<ResultSet<TemplateListItem>> GetTemplates(ListOptions options) => TemplateService.GetList(options);
+    public Task<ResultSet<TemplateListItem>> GetTemplates(ListOptions options, TemplateListFilter filter) => TemplateService.GetList(ListOptions.Create(options, filter));
 }

@@ -15,8 +15,8 @@ export class ContactCampaignsComponent extends BaseListComponent<Campaign> imple
   constructor(
     route: ActivatedRoute,
     router: Router,
-    private _activatedRoute: ActivatedRoute,
-    private _api: MessagesApiClient
+    private readonly _activatedRoute: ActivatedRoute,
+    private readonly _api: MessagesApiClient
   ) {
     super(route, router);
     this.view = ListViewType.Table;

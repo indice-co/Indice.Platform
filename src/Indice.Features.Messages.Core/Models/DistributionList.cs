@@ -7,6 +7,8 @@ public class DistributionList
     public Guid Id { get; set; }
     /// <summary>The name of the distribution list.</summary>
     public string? Name { get; set; }
+    /// <summary>The alias of the distribution list.</summary>
+    public string? Alias { get; set; }
     /// <summary>Specifies the principal that created the list.</summary>
     public string? CreatedBy { get; set; }
     /// <summary>Specifies when a list was created.</summary>

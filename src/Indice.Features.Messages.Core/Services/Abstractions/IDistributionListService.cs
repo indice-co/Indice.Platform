@@ -12,8 +12,8 @@ public interface IDistributionListService
     /// <param name="contacts">Add some contacts to the list on the fly.</param>
     Task<DistributionList> Create(CreateDistributionListRequest request, IEnumerable<Contact>? contacts = null);
     /// <summary>Gets a distribution list by it's unique id.</summary>
-    /// <param name="id">The id of the distribution list.</param>
-    Task<DistributionList?> GetById(Guid? id);
+    /// <param name="id">The id or alias of the distribution list.</param>
+    Task<DistributionList?> GetById(GuidOrAlias? id);
     /// <summary>Gets a distribution list by it's name.</summary>
     /// <param name="name">The name of the distribution list.</param>
     Task<DistributionList?> GetByName(string name);

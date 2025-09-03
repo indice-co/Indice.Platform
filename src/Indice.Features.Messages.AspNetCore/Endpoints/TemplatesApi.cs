@@ -67,6 +67,13 @@ internal static class TemplatesApi
              .WithDescription(TemplatesHandlers.UPDATE_TEMPLATE_DESCRIPTION)
              .WithParameterValidation<UpdateTemplateRequest>();
 
+        group.MapPut("{templateId}/message-type", TemplatesHandlers.UpdateTemplateMessageType)
+             .WithName(nameof(TemplatesHandlers.UpdateTemplateMessageType))
+             .WithSummary("Updates in an existing template message type.")
+             .WithDescription(TemplatesHandlers.UPDATE_TEMPLATE_MESSAGE_TYPE)
+             .WithParameterValidation<UpdateTemplateRequest>();
+        
+
         group.MapDelete("{templateId}", TemplatesHandlers.DeleteTemplate)
              .WithName(nameof(TemplatesHandlers.DeleteTemplate))
              .WithSummary("Permanently deletes a template from the store.")
