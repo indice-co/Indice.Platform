@@ -45,9 +45,13 @@
                                [multiple]="false"
                                [itemTemplate]="typeItemTemplate"
                                [selectedItemTemplate]="typeSelectedItemTemplate"
+                               [busy]="messageTypesLoading"
+                               [displayShowMoreOption]="displayMessageTypesShowMoreOption"
                                (onItemSelected)="onMessageTypeSelectionChanged($event)"
                                (onSearch)="onMessageTypeSearch($event)"
+                               (onShowMore)="onMessageTypesShowMore()"
                                [equalityPredicate]="equalityPredicate"
+                               [selectedItemsFilter]="messageTypesFilter"
                                placeholder="Επιλέξτε τύπο..."
                                #typeCombobox>
         </lib-enhanced-combobox>
@@ -198,9 +202,12 @@
                                    [itemTemplate]="templateItemTemplate"
                                    [selectedItemTemplate]="templateSelectedItemTemplate"
                                    [busy]="templatesLoading"
+                                   [displayShowMoreOption]="displayTemplatesShowMoreOption"
                                    (onItemSelected)="onTemplateSelectionChanged($event)"
                                    (onSearch)="onTemplateSearch($event)"
+                                   (onShowMore)="onTemplatesShowMore()"
                                    [equalityPredicate]="equalityPredicate"
+                                   [selectedItemsFilter]="templatesFilter"
                                    placeholder="Επιλέξτε template..."
                                    #templateCombobox>
             </lib-enhanced-combobox>

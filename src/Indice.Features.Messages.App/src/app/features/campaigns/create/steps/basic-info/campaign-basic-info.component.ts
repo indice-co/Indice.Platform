@@ -1,10 +1,12 @@
 import { DatePipe } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { AbstractControl, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 
 import { MenuOption } from '@indice/ng-components';
+import { lastValueFrom } from 'rxjs';
 import { map, finalize } from 'rxjs/operators';
 import { MessagesApiClient, MessageTypeResultSet, TemplateListItemResultSet } from 'src/app/core/services/messages-api.service';
+import { EnhancedComboboxComponent } from '@indice/ng-components';
 
 @Component({
   selector: 'app-campaign-basic-info',
@@ -13,15 +15,17 @@ import { MessagesApiClient, MessageTypeResultSet, TemplateListItemResultSet } fr
 export class CampaignBasicInfoComponent implements OnInit {
   constructor(
     private _api: MessagesApiClient,
-    private _datePipe: DatePipe
+    private _datePipe: DatePipe,
+    private _changeDetector: ChangeDetectorRef
   ) { }
 
   // Input & Output parameters
   @Input() public hasTemplateLoaded: any = {};
   @Output() public templateSelected: EventEmitter<string | undefined> = new EventEmitter<string | undefined>();
+
   // Form Controls
-  @ViewChild('typeCombobox') typeCombobox: any;
-  @ViewChild('templateCombobox') templateCombobox: any;
+  @ViewChild('typeCombobox') typeCombobox!: EnhancedComboboxComponent;
+  @ViewChild('templateCombobox') templateCombobox!: EnhancedComboboxComponent;
 
   public get title(): AbstractControl { return this.form.get('title')!; }
   public get from(): AbstractControl { return this.form.get('from')!; }
@@ -32,21 +36,49 @@ export class CampaignBasicInfoComponent implements OnInit {
   public get template(): AbstractControl { return this.form.get('template')!; }
   public get needsTemplate(): AbstractControl { return this.form.get('needsTemplate')!; }
   public get channels(): AbstractControl { return this.form.get('channels')!; }
+
   // Properties
   public form!: FormGroup;
   public messageTypes: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
   public messageTypesForCombobox: any[] = [];
+  public messageTypesLoading: boolean = false;
+  public displayMessageTypesShowMoreOption: boolean = false;
+
   public templates: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
   public templatesForCombobox: any[] = [];
+  public templatesLoading: boolean = false;
+  public displayTemplatesShowMoreOption: boolean = false;
+
   public now: Date = new Date();
   public messageType?: string;
-  public templatesLoading: boolean = false;
+
+  // Paging properties
+  private _messageTypesPage: number = 1;
+  private _templatesPage: number = 1;
+  private _pageSize: number = 10;
+  private _lastMessageTypeSearchTerm: string | undefined = undefined;
+  private _lastTemplateSearchTerm: string | undefined = undefined;
 
   public equalityPredicate = (x: any, y: any) => x && y && x.value === y.value;
 
+  public messageTypesFilter = (item: any) => {
+    if (!this.typeCombobox || !this.typeCombobox.selectedItems) return true;
+    const selectedItem = this.typeCombobox.selectedItems.find((x: any) => this.equalityPredicate(x, item));
+    return selectedItem == null || selectedItem == undefined;
+  };
+
+  public templatesFilter = (item: any) => {
+    if (!this.templateCombobox || !this.templateCombobox.selectedItems) return true;
+    const selectedItem = this.templateCombobox.selectedItems.find((x: any) => this.equalityPredicate(x, item));
+    return selectedItem == null || selectedItem == undefined;
+  };
+
   public ngOnInit(): void {
     this._initForm();
-    this._loadMessageTypes();
+  }
+
+  public ngAfterViewInit(): void {
+    this._changeDetector.detectChanges();
   }
 
   public onCampaignStartInput(event: any): void {
@@ -57,9 +89,52 @@ export class CampaignBasicInfoComponent implements OnInit {
     this.to.setValue(this._datePipe.transform(event.target.value, 'yyyy-MM-ddTHH:mm'));
   }
 
-  public onMessageTypeSearch(searchTerm: string | undefined): void {
-    if (!this.messageTypesForCombobox.length) {
-      this._loadMessageTypes();
+  public async onMessageTypeSearch(searchTerm: string | undefined): Promise<void> {
+    this._messageTypesPage = 1;
+    this._lastMessageTypeSearchTerm = searchTerm;
+    this.messageTypesLoading = true;
+
+    try {
+      const fetchedMessageTypes = await this._fetchMessageTypes(this._lastMessageTypeSearchTerm);
+
+      if (fetchedMessageTypes.items) {
+        this.messageTypesForCombobox = fetchedMessageTypes.items.map(type => ({
+          label: type.name || '',
+          value: type.id,
+          toString: function () { return this.label; }
+        }));
+
+        this.displayMessageTypesShowMoreOption = fetchedMessageTypes.items.length === this._pageSize;
+      }
+    } catch (error) {
+      console.error('Error fetching message types:', error);
+    } finally {
+      this.messageTypesLoading = false;
+    }
+  }
+
+  public async onMessageTypesShowMore(): Promise<void> {
+    this._messageTypesPage++;
+    this.messageTypesLoading = true;
+
+    try {
+      const fetchedMessageTypes = await this._fetchMessageTypes(this._lastMessageTypeSearchTerm);
+
+      if (fetchedMessageTypes.items) {
+        const newItems = fetchedMessageTypes.items.map(type => ({
+          label: type.name || '',
+          value: type.id,
+          toString: function () { return this.label; }
+        }));
+
+        this.messageTypesForCombobox = [...this.messageTypesForCombobox, ...newItems];
+
+        this.displayMessageTypesShowMoreOption = fetchedMessageTypes.items.length === this._pageSize;
+      }
+    } catch (error) {
+      console.error('Error fetching more message types:', error);
+    } finally {
+      this.messageTypesLoading = false;
     }
   }
 
@@ -68,22 +143,66 @@ export class CampaignBasicInfoComponent implements OnInit {
       this.messageType = event.value;
       this.type.setValue(event);
 
-      // Reset templates when message type changes
-      this.templatesForCombobox = [];
-      if (this.templateCombobox) {
-        this.templateCombobox.selectedItems = [];
-        this.templateCombobox.value = undefined;
+      if (this.needsTemplate.value === 'yes') {
+        this.onTemplateSearch('');
       }
-      this._loadTemplates();
     } else {
       this.messageType = undefined;
       this.type.setValue(null);
+
+      if (this.needsTemplate.value === 'yes') {
+        this.onTemplateSearch('');
+      }
     }
   }
 
-  public onTemplateSearch(searchTerm: string | undefined): void {
-    if (this.needsTemplate.value === 'yes' && this.templatesForCombobox.length === 0) {
-      this._loadTemplates();
+  public async onTemplateSearch(searchTerm: string | undefined): Promise<void> {
+    this._templatesPage = 1;
+    this._lastTemplateSearchTerm = searchTerm;
+    this.templatesLoading = true;
+
+    try {
+      const fetchedTemplates = await this._fetchTemplates(this._lastTemplateSearchTerm);
+
+      if (fetchedTemplates.items) {
+        this.templatesForCombobox = fetchedTemplates.items.map(template => ({
+          label: template.name || '',
+          value: template.id,
+          data: template.channels,
+          toString: function () { return this.label; }
+        }));
+
+        this.displayTemplatesShowMoreOption = fetchedTemplates.items.length === this._pageSize;
+      }
+    } catch (error) {
+      console.error('Error fetching templates:', error);
+    } finally {
+      this.templatesLoading = false;
+    }
+  }
+
+  public async onTemplatesShowMore(): Promise<void> {
+    this._templatesPage++;
+    this.templatesLoading = true;
+
+    try {
+      const fetchedTemplates = await this._fetchTemplates(this._lastTemplateSearchTerm);
+
+      if (fetchedTemplates.items) {
+        const newItems = fetchedTemplates.items.map(template => ({
+          label: template.name || '',
+          value: template.id,
+          data: template.channels,
+          toString: function () { return this.label; }
+        }));
+
+        this.templatesForCombobox = [...this.templatesForCombobox, ...newItems];
+        this.displayTemplatesShowMoreOption = fetchedTemplates.items.length === this._pageSize;
+      }
+    } catch (error) {
+      console.error('Error fetching more templates:', error);
+    } finally {
+      this.templatesLoading = false;
     }
   }
 
@@ -117,73 +236,45 @@ export class CampaignBasicInfoComponent implements OnInit {
     const value = event.target.value;
 
     if (value === 'yes') {
-      if (this.templatesForCombobox.length === 0) {
-        this._loadTemplates();
-      }
       this.template.setValidators(Validators.required);
+      this.onTemplateSearch('');
     } else {
       this.template.removeValidators(Validators.required);
       this.template.setValue(null);
-
-      // Clear the combobox selection if it exists
-      if (this.templateCombobox) {
-        this.templateCombobox.selectedItems = [];
-        this.templateCombobox.value = undefined;
-      }
     }
 
     this.template.updateValueAndValidity();
     this.needsTemplate.setValue(value);
   }
 
-  private _loadMessageTypes(): void {
-    this._api
-      .getMessageTypes()
-      .pipe(map((messageTypes: MessageTypeResultSet) => {
-        if (messageTypes.items) {
-          // Keep the original menu options for backward compatibility
-          this.messageTypes = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
-          this.messageTypes.push(...messageTypes.items.map(type => new MenuOption(type.name || '', type.id)));
-
-          // Transform for enhanced combobox
-          this.messageTypesForCombobox = messageTypes.items.map(type => ({
-            label: type.name || '',
-            value: type.id,
-            toString: function () { return this.label; } // Add toString method for proper string representation
-          }));
-        }
-      }))
-      .subscribe();
+  private async _fetchMessageTypes(searchTerm: string | undefined): Promise<MessageTypeResultSet> {
+    return lastValueFrom(
+      this._api.getMessageTypes(
+        this._messageTypesPage,
+        this._pageSize,
+        'name+',
+        searchTerm || ''
+      )
+    );
   }
 
-  private _loadTemplates(): void {
-    this.templatesLoading = true;
+  private async _fetchTemplates(searchTerm: string | undefined): Promise<TemplateListItemResultSet> {
+    try {
 
-    this._api
-      .getTemplates(undefined, undefined, undefined, undefined, this.messageType, true)
-      .pipe(
-        map((templates: TemplateListItemResultSet) => {
-          if (templates.items) {
-            // Keep the original menu options for backward compatibility
-            this.templates = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
-            this.templates.push(...templates.items.map(template =>
-              new MenuOption(template.name || '', template.id, undefined, template.channels)
-            ));
-
-            // Transform for enhanced combobox
-            this.templatesForCombobox = templates.items.map(template => ({
-              label: template.name || '',
-              value: template.id,
-              data: template.channels,
-              toString: function () { return this.label; } // Add toString method for proper string representation
-            }));
-          }
-        }),
-        finalize(() => {
-          this.templatesLoading = false;
-        })
-      )
-      .subscribe();
+      return lastValueFrom(
+        this._api.getTemplates(
+          this._templatesPage,
+          this._pageSize,
+          'name+',
+          searchTerm || '',
+          this.messageType,
+          true
+        )
+      );
+    } catch (error) {
+      console.error('Error in _fetchTemplates:', error);
+      throw error;
+    }
   }
 
   private _initForm(): void {
