@@ -34,12 +34,16 @@ public class RiskModel
     public DbRiskEvent ToRiskEvent(IPAddressLocator ipAddressLocator) {
         IPAddressLocation? location = null;
         Point? coordinates = null;
-        if (System.Net.IPAddress.TryParse(IpAddress, out var ipAddress)) {
-            location = ipAddressLocator.GetLocationMetadata(ipAddress);
-        }
-        if (location?.Coordinates is not null) {
-            var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
-            coordinates = geometryFactory.CreatePoint(new Coordinate(location.Coordinates.Longitude, location.Coordinates.Latitude));
+        try {
+            if (System.Net.IPAddress.TryParse(IpAddress, out var ipAddress)) {
+                location = ipAddressLocator.GetLocationMetadata(ipAddress);
+            }
+            if (location?.Coordinates is not null) {
+                var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
+                coordinates = geometryFactory.CreatePoint(new Coordinate(location.Coordinates.Longitude, location.Coordinates.Latitude));
+            }
+        } catch {
+            // Do nothing. Location is optional.
         }
         return new() {
             Amount = Amount,
