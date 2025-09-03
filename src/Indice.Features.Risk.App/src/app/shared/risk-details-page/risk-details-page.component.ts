@@ -11,7 +11,7 @@ import { FilterClause } from '@indice/ng-components';
 })
 
 export class RiskDetailsPageComponent implements OnInit {
-    @Input() extraData: string;
+    @Input() object: any;
     
     constructor(private _api: RiskApiService, private activatedRoute: ActivatedRoute) {
     }
@@ -25,7 +25,7 @@ export class RiskDetailsPageComponent implements OnInit {
             dataType: 'string',
         } as FilterClause);
         this._api.getRiskEvents([idFilter], 1, 1).subscribe(event => {
-            this.extraData = event.items[0].data;
+            this.object = event.items[0];
         });
     }
 
