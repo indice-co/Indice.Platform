@@ -9,15 +9,5 @@ public class AdminRiskEventFilterRequest
     /// The list of filter clauses
     /// </summary>
     public FilterClause[] Filter { get; set; } = [];
-
-    /// <summary>
-    /// Two letter ISO codes for the countries.
-    /// </summary>
-    public FilterClause[] CountryIsoCode { get; set; } = [];
-
-    /// <summary>
-    /// The session ids for the events.
-    /// </summary>
-    public FilterClause[] SessionId { get; set; } = [];
 }
 

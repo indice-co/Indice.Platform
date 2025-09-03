@@ -141,28 +141,48 @@ internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
                         break;
                 }
             }
-        }
-        foreach (var countryClause in filters.CountryIsoCode) {
-            if (string.IsNullOrWhiteSpace(countryClause.Value)) {
-                continue;
+
+            if (clause.Member.Equals(nameof(RiskEvent.SessionId), StringComparison.OrdinalIgnoreCase)) {
+                switch (clause.Operator) {
+                    case FilterOperator.Eq:
+                        query = query.Where(x => !string.IsNullOrEmpty(x.SessionId) && x.SessionId.Equals(clause.Value));
+                        break;
+                    case FilterOperator.Neq:
+                        query = query.Where(x => !string.IsNullOrEmpty(x.SessionId) && !x.SessionId.Equals(clause.Value));
+                        break;
+                    case FilterOperator.Contains:
+                        query = query.Where(x => !string.IsNullOrEmpty(x.SessionId) && x.SessionId.Contains(clause.Value));
+                        break;
+                }
             }
-            query = countryClause.Operator switch {
-                FilterOperator.Eq => query.Where(x => x.CountryIsoCode == countryClause.Value),
-                FilterOperator.Neq => query.Where(x => x.CountryIsoCode != countryClause.Value),
-                FilterOperator.Contains => query.Where(x => x.CountryIsoCode != null && x.CountryIsoCode.Contains(countryClause.Value)),
-                _ => query
-            };
-        }
-        foreach (var sessionIdClause in filters.SessionId) {
-            if (string.IsNullOrWhiteSpace(sessionIdClause.Value)) {
-                continue;
+
+            if (clause.Member.Equals(nameof(RiskEvent.CountryIsoCode), StringComparison.OrdinalIgnoreCase)) {
+                switch (clause.Operator) {
+                    case FilterOperator.Eq:
+                        query = query.Where(x => !string.IsNullOrEmpty(x.CountryIsoCode) && x.CountryIsoCode.Equals(clause.Value, StringComparison.OrdinalIgnoreCase));
+                        break;
+                    case FilterOperator.Neq:
+                        query = query.Where(x => !string.IsNullOrEmpty(x.CountryIsoCode) && !x.CountryIsoCode.Equals(clause.Value, StringComparison.OrdinalIgnoreCase));
+                        break;
+                    case FilterOperator.Contains:
+                        query = query.Where(x => !string.IsNullOrEmpty(x.CountryIsoCode) && x.CountryIsoCode.Contains(clause.Value, StringComparison.OrdinalIgnoreCase));
+                        break;
+                }
             }
-            query = sessionIdClause.Operator switch {
-                FilterOperator.Eq => query.Where(x => x.SessionId == sessionIdClause.Value),
-                FilterOperator.Neq => query.Where(x => x.SessionId != sessionIdClause.Value),
-                FilterOperator.Contains => query.Where(x => x.SessionId != null && x.SessionId.Contains(sessionIdClause.Value)),
-                _ => query
-            };
+
+            if (clause.Member.Equals(nameof(RiskEvent.Location), StringComparison.OrdinalIgnoreCase)) {
+                switch (clause.Operator) {
+                    case FilterOperator.Eq:
+                        query = query.Where(x => !string.IsNullOrEmpty(x.Location) && x.Location.Equals(clause.Value, StringComparison.OrdinalIgnoreCase));
+                        break;
+                    case FilterOperator.Neq:
+                        query = query.Where(x => !string.IsNullOrEmpty(x.Location) && !x.Location.Equals(clause.Value, StringComparison.OrdinalIgnoreCase));
+                        break;
+                    case FilterOperator.Contains:
+                        query = query.Where(x => !string.IsNullOrEmpty(x.Location) && x.Location.Contains(clause.Value, StringComparison.OrdinalIgnoreCase));
+                        break;
+                }
+            }
         }
         return query;
     }
