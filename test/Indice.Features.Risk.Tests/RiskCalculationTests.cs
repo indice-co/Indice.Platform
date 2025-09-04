@@ -4,6 +4,7 @@ using Indice.Features.Risk.Core.Data.Models;
 using Indice.Features.Risk.Core.Enums;
 using Indice.Features.Risk.Core.Extensions;
 using Indice.Features.Risk.Core.Models;
+using Indice.Features.Risk.Core.Models.Responses;
 using Indice.Features.Risk.Core.Services;
 using Indice.Features.Risk.Core.Types;
 using Indice.Features.Risk.Core.Validators;
@@ -61,9 +62,8 @@ public class RiskCalculationTests
     [Fact]
     public async Task High_Risk_On_Transaction_Over_1000() {
         var riskManager = ServiceProvider.GetRequiredService<RiskService>();
-        var result = await riskManager.GetRiskAsync(new DbRiskEvent {
+        var result = await riskManager.GetRiskAsync(new RiskModel {
             Amount = 1001,
-            CreatedAt = DateTimeOffset.UtcNow,
             IpAddress = "127.0.0.1",
             Name = "Transaction",
             SubjectId = "4075C988-ECDB-434D-8164-970F7DF39DC3"
@@ -77,9 +77,8 @@ public class RiskCalculationTests
     [Fact]
     public async Task Low_Risk_On_Transaction_Under_1000() {
         var riskManager = ServiceProvider.GetRequiredService<RiskService>();
-        var result = await riskManager.GetRiskAsync(new DbRiskEvent {
+        var result = await riskManager.GetRiskAsync(new RiskModel {
             Amount = 999,
-            CreatedAt = DateTimeOffset.UtcNow,
             IpAddress = "127.0.0.1",
             Name = "Transaction",
             SubjectId = "4075C988-ECDB-434D-8164-970F7DF39DC3"
@@ -94,16 +93,14 @@ public class RiskCalculationTests
     public async Task Can_Create_Risk_Events() {
         const string SUBJECT_ID = "4075C988-ECDB-434D-8164-970F7DF39DC3";
         var riskManager = ServiceProvider.GetRequiredService<RiskStoreService>();
-        await riskManager.CreateRiskEventAsync(new DbRiskEvent {
+        await riskManager.CreateRiskEventAsync(new RiskModel {
             Amount = 1001,
-            CreatedAt = DateTimeOffset.UtcNow,
             IpAddress = "127.0.0.1",
             Name = "Transaction",
             SubjectId = SUBJECT_ID
         });
-        await riskManager.CreateRiskEventAsync(new DbRiskEvent {
+        await riskManager.CreateRiskEventAsync(new RiskModel {
             Amount = null,
-            CreatedAt = DateTimeOffset.UtcNow,
             IpAddress = "127.0.0.1",
             Name = "ProfileUpdate",
             SubjectId = SUBJECT_ID
