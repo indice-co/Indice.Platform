@@ -7,7 +7,7 @@ using NetTopologySuite.Geometries;
 namespace Indice.Features.Risk.Core.Models;
 
 /// <summary>Describes the risk request model</summary>
-public class RiskModel
+public record RiskModel
 {
     /// <summary>An amount relative to the event.</summary>
     public decimal? Amount { get; set; }
@@ -29,37 +29,4 @@ public class RiskModel
     public Guid? ResultId { get; set; }
     /// <summary>An optional session identifier the model is associated with.</summary>
     public string? SessionId { get; set; }
-
-    /// <summary>Converts a <see cref="RiskModel"/> to a <see cref="DbRiskEvent"/></summary>
-    public DbRiskEvent ToRiskEvent(IPAddressLocator ipAddressLocator) {
-        IPAddressLocation? location = null;
-        Point? coordinates = null;
-        try {
-            if (System.Net.IPAddress.TryParse(IpAddress, out var ipAddress)) {
-                location = ipAddressLocator.GetLocationMetadata(ipAddress);
-            }
-            if (location?.Coordinates is not null) {
-                var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
-                coordinates = geometryFactory.CreatePoint(new Coordinate(location.Coordinates.Longitude, location.Coordinates.Latitude));
-            }
-        } catch {
-            // Do nothing. Location is optional.
-        }
-        return new() {
-            Amount = Amount,
-            CreatedAt = DateTimeOffset.UtcNow,
-            Id = Guid.NewGuid(),
-            IpAddress = IpAddress,
-            Name = Name,
-            SubjectId = SubjectId,
-            Type = Type,
-            Data = Data,
-            SourceId = SourceId,
-            SourceTransId = SourceTransId,
-            SessionId = SessionId,
-            Location = location?.ToString(),
-            CountryIsoCode = location?.CountryIsoCode,
-            Coordinates = coordinates,
-        };
-    }
 }

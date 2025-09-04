@@ -41,26 +41,4 @@ public class RiskEvent
     public string? CountryIsoCode { get; set; }
     /// <summary>The approximate location of the operation.</summary>
     public GeoPoint? Coordinates { get; set; }
-
-    /// <summary>
-    /// Creates a new instance of <see cref="RiskEvent"/> from a <see cref="DbRiskEvent"/>.
-    /// </summary>
-    /// <param name="model">The data model.</param>
-    /// <returns></returns>
-    public static RiskEvent FromDataModel(DbRiskEvent model) => new() {
-        Id = model.Id,
-        Amount = model.Amount,
-        CreatedAt = model.CreatedAt,
-        CountryIsoCode = model.CountryIsoCode,
-        Data = model.Data,
-        IpAddress = model.IpAddress,
-        Location = model.Location,
-        Name = model.Name,
-        SourceId = model.SourceId,
-        SourceTransId = model.SourceTransId,
-        SessionId = model.SessionId,
-        SubjectId = model.SubjectId,
-        Type = model.Type,
-        Coordinates = model.Coordinates is not null ? new GeoPoint(latitude: model.Coordinates.Y, longitude: model.Coordinates.X, elevation: model.Coordinates.Z) : null
-    };
 }

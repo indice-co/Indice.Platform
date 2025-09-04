@@ -18,8 +18,7 @@ internal static class AdminRiskApiHandlers
         [AsParameters] AdminRiskEventFilterRequest filter
     ) {
         var events = await riskStoreService.GetRiskEventsAsync(ListOptions.Create(options, filter));
-        var results = events.Items.Select(RiskEvent.FromDataModel).ToResultSet(events.Count);
-        return TypedResults.Ok(results);
+        return TypedResults.Ok(events);
     }
 
     internal static async Task<Ok<ResultSet<DbAggregateRuleExecutionResult>>> GetRiskResults(
@@ -36,7 +35,7 @@ internal static class AdminRiskApiHandlers
         string sessionId
     ) {
         var riskEvents = await riskStoreService.GetRiskEventsBySessionIdAsync(sessionId);
-        return TypedResults.Ok(riskEvents.Select(RiskEvent.FromDataModel));
+        return TypedResults.Ok(riskEvents);
     }
 
     internal static Ok<ResultSet<RiskRuleDto>> GetRiskRules(
@@ -51,7 +50,7 @@ internal static class AdminRiskApiHandlers
         string ruleName
     ) {
         var results = await adminRuleService.GetRiskRuleOptionsAsync(ruleName);
-        return (results.Count() == 0) ? TypedResults.NotFound() : TypedResults.Ok(results);
+        return (!results.Any()) ? TypedResults.NotFound() : TypedResults.Ok(results);
     }
 
     internal static async Task<Results<NoContent, ValidationProblem>> UpdateRiskRuleOptions<TOptions>(

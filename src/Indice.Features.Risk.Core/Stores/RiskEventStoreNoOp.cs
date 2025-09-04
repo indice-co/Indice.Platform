@@ -7,10 +7,10 @@ namespace Indice.Features.Risk.Core.Stores;
 
 internal class RiskEventStoreNoOp : IRiskEventStore
 {
-    public Task CreateAsync(DbRiskEvent @event) => Task.CompletedTask;
+    public Task<DbRiskEvent> CreateAsync(DbRiskEvent @event) => Task.FromResult(@event);
 
     public Task<IEnumerable<DbRiskEvent>> GetList(
-        string subjectId, 
+        string subjectId,
         string[]? types,
         DateTime? startDate,
         DateTime? endDate,

@@ -15,13 +15,14 @@ internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
-    public async Task CreateAsync(DbRiskEvent @event) {
+    public async Task<DbRiskEvent> CreateAsync(DbRiskEvent @event) {
         _dbContext.RiskEvents.Add(@event);
         await _dbContext.SaveChangesAsync();
+        return @event;
     }
 
     public async Task<IEnumerable<DbRiskEvent>> GetList(
-        string subjectId, 
+        string subjectId,
         string[]? names,
         DateTime? startDate,
         DateTime? endDate,

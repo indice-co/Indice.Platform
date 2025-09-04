@@ -9,7 +9,7 @@ public interface IRiskEventStore
 {
     /// <summary>Persists a new risk event in the store.</summary>
     /// <param name="event">The event occurred.</param>
-    Task CreateAsync(DbRiskEvent @event);
+    Task<DbRiskEvent> CreateAsync(DbRiskEvent @event);
 
     /// <summary>Returns the risk events associated with a given subject ID</summary>
     /// <param name="subjectId">The identifier of the subject (user) for which risk events are retrieved.</param>
@@ -18,7 +18,7 @@ public interface IRiskEventStore
     /// <param name="endDate">Optional. The end date until which risk events are considered. If not provided, the current date is used.</param>
     /// <param name="filters">Optional. Additional filters to apply to the risk events.</param>
     Task<IEnumerable<DbRiskEvent>> GetList(
-        string subjectId, 
+        string subjectId,
         string[]? names = null,
         DateTime? startDate = null,
         DateTime? endDate = null,

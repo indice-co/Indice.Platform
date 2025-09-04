@@ -1,4 +1,9 @@
-﻿using NetTopologySuite.Geometries;
+﻿using Indice.Features.GeoIP;
+using Indice.Features.Risk.Core.Models;
+using Indice.Features.Risk.Core.Models.Responses;
+using Indice.Types;
+using NetTopologySuite;
+using NetTopologySuite.Geometries;
 
 namespace Indice.Features.Risk.Core.Data.Models;
 

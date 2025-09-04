@@ -13,11 +13,9 @@ internal static class RiskApiHandlers
     internal static async Task<Ok<AggregateRuleExecutionResult>> GetRisk(
         [FromServices] RiskStoreService riskStoreService,
         [FromServices] RiskService riskService,
-        [FromServices] IPAddressLocator ipAddressLocator,
         [FromBody] RiskModel request
     ) {
-        var riskEvent = request.ToRiskEvent(ipAddressLocator);
-        var result = await riskService.GetRiskAsync(riskEvent);
+        var result = await riskService.GetRiskAsync(request);
         var riskResult = result.ToDbAggregateExecutionRiskResult(request);
         await riskStoreService.CreateRiskResultAsync(riskResult);
         return TypedResults.Ok(result);
@@ -25,11 +23,9 @@ internal static class RiskApiHandlers
 
     internal static async Task<StatusCodeHttpResult> CreateRiskEvent(
         [FromServices] RiskStoreService riskStoreService,
-        [FromServices] IPAddressLocator ipAddressLocator,
         [FromBody] RiskModel request
     ) {
-        var riskEvent = request.ToRiskEvent(ipAddressLocator);
-        await riskStoreService.CreateRiskEventAsync(riskEvent);
+        var riskEvent = await riskStoreService.CreateRiskEventAsync(request);
         if (request.ResultId != null) {
             await riskStoreService.AddEventIdToRiskResultAsync((Guid)request.ResultId, riskEvent.Id);
         }
