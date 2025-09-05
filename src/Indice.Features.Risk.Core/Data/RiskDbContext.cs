@@ -33,7 +33,7 @@ public class RiskDbContext : DbContext, IAppSettingsDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
         // Risk event configuration.
-        modelBuilder.Entity<DbRiskEvent>().ToTable(nameof(DbRiskEvent));
+        modelBuilder.Entity<DbRiskEvent>().ToTable("RiskEvent");
         modelBuilder.Entity<DbRiskEvent>().HasKey(x => x.Id);
         modelBuilder.Entity<DbRiskEvent>().HasIndex(x => x.SubjectId);
         modelBuilder.Entity<DbRiskEvent>().Property(x => x.Amount).HasColumnType("money");
