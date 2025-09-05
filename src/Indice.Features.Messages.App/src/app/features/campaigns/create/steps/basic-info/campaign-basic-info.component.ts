@@ -4,7 +4,6 @@ import { AbstractControl, FormGroup, FormArray, FormControl, Validators } from '
 
 import { MenuOption } from '@indice/ng-components';
 import { lastValueFrom } from 'rxjs';
-import { map, finalize } from 'rxjs/operators';
 import { MessagesApiClient, MessageTypeResultSet, TemplateListItemResultSet } from 'src/app/core/services/messages-api.service';
 import { EnhancedComboboxComponent } from '@indice/ng-components';
 
@@ -64,13 +63,13 @@ export class CampaignBasicInfoComponent implements OnInit {
   public messageTypesFilter = (item: any) => {
     if (!this.typeCombobox || !this.typeCombobox.selectedItems) return true;
     const selectedItem = this.typeCombobox.selectedItems.find((x: any) => this.equalityPredicate(x, item));
-    return selectedItem == null || selectedItem == undefined;
+    return selectedItem == null;
   };
 
   public templatesFilter = (item: any) => {
     if (!this.templateCombobox || !this.templateCombobox.selectedItems) return true;
     const selectedItem = this.templateCombobox.selectedItems.find((x: any) => this.equalityPredicate(x, item));
-    return selectedItem == null || selectedItem == undefined;
+    return selectedItem == null;
   };
 
   public ngOnInit(): void {
