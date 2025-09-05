@@ -31,7 +31,7 @@ export class RiskResultsComponent extends BaseListComponent<DbAggregateRuleExecu
         private _router: Router,
         private _api: RiskApiService,
         private _paramsService: ParamsService,
-        private dataService: DataService) 
+        private dataService: DataService)
     {
         super(_route, _router);
         this.view = ListViewType.Table;
@@ -72,10 +72,8 @@ export class RiskResultsComponent extends BaseListComponent<DbAggregateRuleExecu
         this.searchOptions.push(...extraSearchOptions);
     }
 
-    openRiskDetailsPane(extraData: any): void {
-        const dataJson = JSON.parse(JSON.stringify(extraData));
-        this.dataService.setInputData(dataJson);
-        this._router.navigateByUrl('/risk-results(rightpane:details)', {skipLocationChange: true});
+    openRiskDetailsPane(item: DbAggregateRuleExecutionResult): void {
+         this._router.navigateByUrl(`/risk-results(rightpane:details/${item.id})`, { skipLocationChange: true });
     }
 
     inspectRiskEvent(eventId: string): void {
