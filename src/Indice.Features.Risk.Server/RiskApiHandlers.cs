@@ -26,7 +26,7 @@ internal static class RiskApiHandlers
         [FromBody] RiskModel request
     ) {
         var riskEvent = await riskStoreService.CreateRiskEventAsync(request);
-        if (request.ResultId != null) {
+        if (request.ResultId != null || request.ResultId == Guid.Empty) {
             await riskStoreService.AddEventIdToRiskResultAsync((Guid)request.ResultId, riskEvent.Id);
         }
         return TypedResults.StatusCode(StatusCodes.Status201Created);

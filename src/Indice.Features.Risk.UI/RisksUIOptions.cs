@@ -10,7 +10,7 @@ public class RisksUIOptions : SpaUIOptions
 
     /// <summary>Creates a new instance <see cref="RisksUIOptions"/>.</summary>
     public RisksUIOptions() {
-        ClientId = "risks-app";
+        ClientId = "risk-ui";
         Scope = "openid profile role email risk";
         DocumentTitle = "Risk UI";
         ConfigureIndexParameters = args => {
