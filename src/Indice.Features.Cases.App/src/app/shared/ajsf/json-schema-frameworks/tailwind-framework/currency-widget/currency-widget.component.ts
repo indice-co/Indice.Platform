@@ -63,35 +63,45 @@ export class CurrencyWidgetComponent implements OnInit {
   }
 
   onBlur($event: FocusEvent) {
-      const inputEl = $event.target as HTMLInputElement;
-      inputEl.value = CurrencyWidgetComponent.toLocaleString(this.locale, this.formControl.value, this.decimalPlaces);
+    const inputEl = $event.target as HTMLInputElement;
+    inputEl.value = CurrencyWidgetComponent.toLocaleString(this.locale, this.formControl.value, this.decimalPlaces);
   }
 
   private static toLocaleString(locale: string, value: number, decimalPlaces: number) {
     return value?.toLocaleString(locale, {
-        minimumFractionDigits: decimalPlaces,
-        maximumFractionDigits: decimalPlaces
+      minimumFractionDigits: decimalPlaces,
+      maximumFractionDigits: decimalPlaces
     }) || '';
   }
 
   private static fromLocaleString(locale: string, inputText: string, decimalPlaces: number, allowNegativeNumbers: boolean = true): number | undefined {
-      if (!inputText?.trim()) {
-          return;
-      }
-      // This is locale dependent, e.g. in Greek it is a comma (,) while in US it is a dot (.)
-      const decimalSeparator = (1.1).toLocaleString(locale).replace(/\d/g, '');
-      const isNegative = allowNegativeNumbers && inputText[0] === '-';
-      const sanitizedInput = inputText.replace(new RegExp(`[^\\${decimalSeparator}|\\d]`, 'g'), '').replace(decimalSeparator, '.');
-      let result = parseFloat(sanitizedInput);
-      const integerPart = Math.trunc(result);
-      // Truncate to the specified decimal places
-      const floatingPart = parseFloat((result.toString().split('.')[1] || '').slice(0, decimalPlaces));
+    if (!inputText?.trim()) {
+      return;
+    }
+    // This is locale dependent, e.g. in Greek it is a comma (,) while in US it is a dot (.)
+    const decimalSeparator = (1.1).toLocaleString(locale).replace(/\d/g, '');
+    const isNegative = allowNegativeNumbers && inputText[0] === '-';
+    const sanitizedInput = inputText.replace(new RegExp(`[^\\${decimalSeparator}\\d]`, 'g'), '').replace(decimalSeparator, '.');
 
-      result = Number(`${integerPart}.${floatingPart}`);
-      if (isNegative) {
-          result = -result; // Apply negative sign if applicable
-      }
-      return isNaN(result) ? undefined : result;
+    let result = parseFloat(sanitizedInput);
+
+    if (isNaN(result)) {
+      return;
+    }
+
+    // Only process fractional part if decimal places > 0 and there is one
+    if (decimalPlaces > 0 && sanitizedInput.includes('.')) {
+      const [intStr, fracStr = ''] = result.toString().split('.');
+      const truncatedFrac = fracStr.slice(0, decimalPlaces);
+      result = Number(`${intStr}.${truncatedFrac}`);
+    } else {
+      // ensure it's an integer if no decimals
+      result = Math.trunc(result);
+    }
+    if (isNegative) {
+      result = -result; // Apply negative sign if applicable
+    }
+    return isNaN(result) ? undefined : result;
   }
 
 }
