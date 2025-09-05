@@ -59,7 +59,7 @@ export class CampaignBasicInfoComponent implements OnInit {
   private _lastMessageTypeSearchTerm: string | undefined = undefined;
   private _lastTemplateSearchTerm: string | undefined = undefined;
 
-  public equalityPredicate = (x: any, y: any) => x && y && x.value === y.value;
+  public equalityPredicate = (x: any, y: any) => x && y && x.id === y.id;
 
   public messageTypesFilter = (item: any) => {
     if (!this.typeCombobox || !this.typeCombobox.selectedItems) return true;
@@ -99,9 +99,9 @@ export class CampaignBasicInfoComponent implements OnInit {
 
       if (fetchedMessageTypes.items) {
         this.messageTypesForCombobox = fetchedMessageTypes.items.map(type => ({
-          label: type.name || '',
-          value: type.id,
-          toString: function () { return this.label; }
+          name: type.name || '',
+          id: type.id,
+          toString: function () { return this.name; }
         }));
 
         this.displayMessageTypesShowMoreOption = fetchedMessageTypes.items.length === this._pageSize;
@@ -122,9 +122,9 @@ export class CampaignBasicInfoComponent implements OnInit {
 
       if (fetchedMessageTypes.items) {
         const newItems = fetchedMessageTypes.items.map(type => ({
-          label: type.name || '',
-          value: type.id,
-          toString: function () { return this.label; }
+          name: type.name || '',
+          id: type.id,
+          toString: function () { return this.name; }
         }));
 
         this.messageTypesForCombobox = [...this.messageTypesForCombobox, ...newItems];
@@ -139,8 +139,8 @@ export class CampaignBasicInfoComponent implements OnInit {
   }
 
   public onMessageTypeSelectionChanged(event: any): void {
-    if (event && event.value) {
-      this.messageType = event.value;
+    if (event && event.id) {
+      this.messageType = event.id;
       this.type.setValue(event);
     } else {
       this.messageType = undefined;
@@ -162,10 +162,10 @@ export class CampaignBasicInfoComponent implements OnInit {
 
       if (fetchedTemplates.items) {
         this.templatesForCombobox = fetchedTemplates.items.map(template => ({
-          label: template.name || '',
-          value: template.id,
-          data: template.channels,
-          toString: function () { return this.label; }
+          name: template.name || '',
+          id: template.id,
+          channels: template.channels,
+          toString: function () { return this.name; }
         }));
 
         this.displayTemplatesShowMoreOption = fetchedTemplates.items.length === this._pageSize;
@@ -186,10 +186,10 @@ export class CampaignBasicInfoComponent implements OnInit {
 
       if (fetchedTemplates.items) {
         const newItems = fetchedTemplates.items.map(template => ({
-          label: template.name || '',
-          value: template.id,
-          data: template.channels,
-          toString: function () { return this.label; }
+          name: template.name || '',
+          id: template.id,
+          channels: template.channels,
+          toString: function () { return this.name; }
         }));
 
         this.templatesForCombobox = [...this.templatesForCombobox, ...newItems];
@@ -203,7 +203,7 @@ export class CampaignBasicInfoComponent implements OnInit {
   }
 
   public onTemplateSelectionChanged(event: any): void {
-    if (event && event.value) {
+    if (event && event.id) {
       this.template.setValue(event);
 
       const channelsFormArray: FormArray = this.channels as FormArray;
@@ -217,11 +217,11 @@ export class CampaignBasicInfoComponent implements OnInit {
         this.actionLinkHref.setValue("https://www.indice.gr");
       }
 
-      if (event.data) {
-        event.data.forEach((channel: string) => channelsFormArray.push(new FormControl(channel)));
+      if (event.channels) {
+        event.channels.forEach((channel: string) => channelsFormArray.push(new FormControl(channel)));
       }
 
-      this.templateSelected.emit(event.value);
+      this.templateSelected.emit(event.id);
     } else {
       this.template.setValue(null);
       this.templateSelected.emit(undefined);
