@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '@indice/ng-auth';
-import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ToasterService, ToastType, ViewAction } from '@indice/ng-components';
+import { BaseListComponent, Icons, IndiceComponentsModule, IResultSet, ListViewType, MenuOption, ToasterService, ToastType, ViewAction } from '@indice/ng-components';
 import { FilterClause, SearchOption } from '@indice/ng-components/lib/controls/advanced-search/models';
 import { User } from 'oidc-client-ts';
 import { Observable, Subscription } from 'rxjs';
@@ -12,7 +12,7 @@ import { DataService } from 'src/app/core/services/data.service';
 
 @Component({
     selector: 'app-risk-events',
-    templateUrl: './risk-events.component.html'
+    templateUrl: './risk-events.component.html',
 })
 export class RiskEventsComponent extends BaseListComponent<RiskEvent> implements OnInit {
     newItemLink: string;
@@ -106,16 +106,15 @@ export class RiskEventsComponent extends BaseListComponent<RiskEvent> implements
             return;
         }
         const sessionIdFilter = {
-            member: 'sessionId',
-            value: item.sessionId,
-            operator: 'eq',
-            dataType: 'string',
-            uiOperator: '=',
-            uiValue: item.sessionId
+          member: 'sessionId',
+          value: item.sessionId,
+          operator: 'eq' as FilterClause.Op,
+          dataType: 'string' as FilterClause.Dt,
+          uiOperator: '=',
+          uiValue: item.sessionId
         } as FilterClause;
-        let filters = [];
-        filters.push(sessionIdFilter);
-        this.advancedSearchChanged(filters);
+        this.filters.push(sessionIdFilter);
+        this.advancedSearchChanged(this.filters);
     }
 
     loadItems(): Observable<IResultSet<RiskEvent>> {
@@ -144,6 +143,10 @@ export class RiskEventsComponent extends BaseListComponent<RiskEvent> implements
                 take(1),
                 map((result: RiskEventResultSet) => (result as IResultSet<RiskEvent>))
             );
+    }
+
+    openDetailsPane(item: RiskEvent): void {
+        this._router.navigateByUrl(`/risk-events(rightpane:details/${item.id})`, { skipLocationChange: true });
     }
 
     private stringifyFilterClause(filter: FilterClause): string {
