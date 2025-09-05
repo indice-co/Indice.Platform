@@ -142,17 +142,13 @@ export class CampaignBasicInfoComponent implements OnInit {
     if (event && event.value) {
       this.messageType = event.value;
       this.type.setValue(event);
-
-      if (this.needsTemplate.value === 'yes') {
-        this.onTemplateSearch('');
-      }
     } else {
       this.messageType = undefined;
       this.type.setValue(null);
+    }
 
-      if (this.needsTemplate.value === 'yes') {
-        this.onTemplateSearch('');
-      }
+    if (this.needsTemplate.value === 'yes') {
+      this.onTemplateSearch('');
     }
   }
 
@@ -237,12 +233,16 @@ export class CampaignBasicInfoComponent implements OnInit {
 
     if (value === 'yes') {
       this.template.setValidators(Validators.required);
+      this.template.setValue(null);
+      this.template.markAsTouched();
       this.onTemplateSearch('');
     } else {
       this.template.removeValidators(Validators.required);
       this.template.setValue(null);
     }
 
+    this.templateCombobox.selectedItems = [];
+    this.templateCombobox.value = undefined;
     this.template.updateValueAndValidity();
     this.needsTemplate.setValue(value);
   }
