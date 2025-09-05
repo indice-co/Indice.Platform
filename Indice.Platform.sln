@@ -134,6 +134,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Hosting.Tests", "tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Features.GeoIP", "src\Indice.Features.GeoIP\Indice.Features.GeoIP.csproj", "{1D99D5D3-677B-4656-A5D9-F4A357D76844}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Features.FtpServer", "src\Indice.Features.FtpServer\Indice.Features.FtpServer.csproj", "{77C96729-A824-4C20-9E38-5E421807AF1A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -344,6 +346,10 @@ Global
 		{1D99D5D3-677B-4656-A5D9-F4A357D76844}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1D99D5D3-677B-4656-A5D9-F4A357D76844}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1D99D5D3-677B-4656-A5D9-F4A357D76844}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77C96729-A824-4C20-9E38-5E421807AF1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77C96729-A824-4C20-9E38-5E421807AF1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77C96729-A824-4C20-9E38-5E421807AF1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77C96729-A824-4C20-9E38-5E421807AF1A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -398,6 +404,7 @@ Global
 		{1653F060-BABB-4840-B7D0-51ABD56474EC} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 		{74669578-C4CF-4D08-BCAD-94A77E9EC9B2} = {613A1373-9A47-42DD-A076-7F310D0440B9}
 		{1D99D5D3-677B-4656-A5D9-F4A357D76844} = {643960D9-48C5-4EA3-BED5-486CCC694947}
+		{77C96729-A824-4C20-9E38-5E421807AF1A} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C2B9151E-8A85-444E-93A9-78264FD0FE4A}

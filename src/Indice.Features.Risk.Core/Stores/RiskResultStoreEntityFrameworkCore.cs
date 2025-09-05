@@ -26,7 +26,7 @@ internal class RiskResultStoreEntityFrameworkCore : IRiskResultStore
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<ResultSet<DbAggregateRuleExecutionResult>> GetList(ListOptions<AdminRiskFilterRequest> options) {
+    public async Task<ResultSet<DbAggregateRuleExecutionResult>> GetList(ListOptions<AdminRiskResultFilterRequest> options) {
         var query = _dbContext.RiskResults.AsNoTracking().AsQueryable();
         query = ApplyFilters(query, options.Filter.Filter);
         return await query.ToResultSetAsync(options);
