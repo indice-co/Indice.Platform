@@ -36,6 +36,13 @@ public static class ResourcesApi
              .WithSummary("Returns a list of IdentityResourceInfo objects containing the total number of identity resources in the database and the data filtered according to the provided ListOptions.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsReader);
 
+
+        group.MapPost("identity", ResourceHandlers.CreateIdentityResource)
+             .WithName(nameof(ResourceHandlers.CreateIdentityResource))
+             .WithSummary("Creates a new identity resource.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
+             .WithParameterValidation<CreateResourceRequest>();
+
         group.MapGet("identity/{resourceId:int}", ResourceHandlers.GetIdentityResource)
              .WithName(nameof(ResourceHandlers.GetIdentityResource))
              .WithSummary("Gets an identity resource by it's unique id.")
@@ -45,12 +52,6 @@ public static class ResourcesApi
                                           .SetAuthorized()
                                           .SetVaryByRouteValue(["resourceId"]))
              .WithCacheTag(CacheTagPrefix, ["resourceId"]);
-
-        group.MapPost("identity/{resourceId:int}", ResourceHandlers.CreateIdentityResource)
-             .WithName(nameof(ResourceHandlers.CreateIdentityResource))
-             .WithSummary("Creates a new identity resource.")
-             .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .WithParameterValidation<CreateResourceRequest>();
 
         group.MapPut("identity/{resourceId:int}", ResourceHandlers.UpdateIdentityResource)
              .WithName(nameof(ResourceHandlers.UpdateIdentityResource))
