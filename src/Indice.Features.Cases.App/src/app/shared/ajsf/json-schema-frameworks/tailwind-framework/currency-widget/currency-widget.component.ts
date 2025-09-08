@@ -93,7 +93,7 @@ export class CurrencyWidgetComponent implements OnInit {
       if (decimalPlaces > 0 && sanitizedInput.includes('.')) {
           const [intStr, fracStr = ''] = sanitizedInput.split('.');
           const truncatedFrac = fracStr.slice(0, decimalPlaces);
-          result = Number(`${intStr}.${truncatedFrac}`);
+          result = truncatedFrac.length > 0 ? Number(`${intStr}.${truncatedFrac}`) : Number(intStr);
       } else {
           // ensure it's an integer if no decimals
           result = Math.trunc(result);
