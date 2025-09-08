@@ -82,12 +82,22 @@ export class CurrencyWidgetComponent implements OnInit {
       const decimalSeparator = (1.1).toLocaleString(locale).replace(/\d/g, '');
       const isNegative = allowNegativeNumbers && inputText[0] === '-';
       const sanitizedInput = inputText.replace(new RegExp(`[^\\${decimalSeparator}|\\d]`, 'g'), '').replace(decimalSeparator, '.');
-      let result = parseFloat(sanitizedInput);
-      const integerPart = Math.trunc(result);
-      // Truncate to the specified decimal places
-      const floatingPart = parseFloat((result.toString().split('.')[1] || '').slice(0, decimalPlaces));
 
-      result = Number(`${integerPart}.${floatingPart}`);
+      let result = parseFloat(sanitizedInput);
+
+      if (isNaN(result)) {
+          return;
+      }
+
+      // Only process fractional part if decimal places > 0 and there is one
+      if (decimalPlaces > 0 && sanitizedInput.includes('.')) {
+          const [intStr, fracStr = ''] = result.toString().split('.');
+          const truncatedFrac = fracStr.slice(0, decimalPlaces);
+          result = Number(`${intStr}.${truncatedFrac}`);
+      } else {
+          // ensure it's an integer if no decimals
+          result = Math.trunc(result);
+      }
       if (isNegative) {
           result = -result; // Apply negative sign if applicable
       }
