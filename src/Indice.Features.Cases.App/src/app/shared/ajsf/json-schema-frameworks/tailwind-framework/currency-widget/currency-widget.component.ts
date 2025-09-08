@@ -91,7 +91,7 @@ export class CurrencyWidgetComponent implements OnInit {
 
       // Only process fractional part if decimal places > 0 and there is one
       if (decimalPlaces > 0 && sanitizedInput.includes('.')) {
-          const [intStr, fracStr = ''] = result.toString().split('.');
+          const [intStr, fracStr = ''] = sanitizedInput.split('.');
           const truncatedFrac = fracStr.slice(0, decimalPlaces);
           result = Number(`${intStr}.${truncatedFrac}`);
       } else {
