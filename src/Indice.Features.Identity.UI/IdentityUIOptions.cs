@@ -124,7 +124,7 @@ public class IdentityUIOptions
 /// <param name="HttpContext">The httpContext</param>
 /// <param name="User">the user to be added to database. Already polulated from input</param>
 /// <param name="PageInput">The page input model</param>
-public record UIPageRegisteringUserContext(HttpContext HttpContext, User User, RegisterInputModel PageInput);
+public record UIPageRegisteringUserContext(HttpContext HttpContext, User User, object PageInput);
 
 /// <summary>
 /// Event handler for when a user is registering from the /register page just before it is added to the user store. 

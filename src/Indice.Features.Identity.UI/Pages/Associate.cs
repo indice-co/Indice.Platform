@@ -103,8 +103,6 @@ public abstract class BaseAssociateModel : BasePageModel
         if (phoneClaim is not null) {
             claims.Remove(phoneClaim);
         }
-        var givenNameClaim = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.GivenName);
-        var familyNameClaim = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.FamilyName);
         var email = emailClaim?.Value;
         if (!string.IsNullOrWhiteSpace(email)) {
             // Try find existing user.
@@ -132,6 +130,7 @@ public abstract class BaseAssociateModel : BasePageModel
                 UserId = userId
             });
         }
+        UiOptions.Events.OnUserRegistering?.Invoke(new UIPageRegisteringUserContext(HttpContext, newUser, Input));
         var result = await UserManager.CreateAsync(newUser);
         if (!result.Succeeded) {
             var errors = new StringBuilder();
