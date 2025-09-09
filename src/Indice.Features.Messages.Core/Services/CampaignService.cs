@@ -1,4 +1,5 @@
-﻿using Indice.Features.Messages.Core.Data;
+﻿using System.Collections.Generic;
+using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Exceptions;
@@ -204,36 +205,20 @@ public class CampaignService : ICampaignService
                         Channels = g.Select(x => x.messageEvent).Select(x => x.Channel).ToList()
                     };
         return await query.ToResultSetAsync(options);
-    }///<inheritdoc/>
-    public async Task<List<CampaignMessageDetailsResponse>> GetCampaignMessageDetails(Guid id, Guid messageId) {
-        //TODO: Refactor this query to use the CampaignMessageResponse directly instead of grouping.
-        var query = from message in DbContext.Messages
-                    join contact in DbContext.Contacts
-                        on message.ContactId equals contact.Id
-                    join messageEvent in DbContext.CampaignEvent
-                        on message.Id equals messageEvent.MessageId
-                    where message.CampaignId == id && message.Id == messageId
-                    group new { message, contact, messageEvent } by new {
-                        message.Id
-                    } into g
-                    select new CampaignMessageDetailsResponse {
-                        MessageId = g.First().messageEvent.MessageId,
-                        ContactId = g.First().contact.Id,
-                        CreatedOn = g.First().messageEvent.CreatedOn,
-                        Email = g.First().contact.Email,
-                        FirstName = g.First().contact.FirstName,
-                        FullName = g.First().contact.FullName,
-                        LastName = g.First().contact.LastName,
-                        PhoneNumber = g.First().contact.PhoneNumber,
-                        RecipientId = g.First().contact.RecipientId,
-                        Salutation = g.First().contact.Salutation,
-                        Channels = g.Select(x => x.messageEvent).Select(x => x.Channel).ToList(),
-                        Events = g.Select(x => new MessageEvent {
-                            Channel = x.messageEvent.Channel,
-                            Type = x.messageEvent.Type,
-                            CreatedOn = x.messageEvent.CreatedOn
-                        }).ToList()
-                    };
-        return await query.ToListAsync();
+    }
+
+    ///<inheritdoc/>
+    public async Task<CampaignMessageDetailsResponse> GetCampaignMessageDetails(Guid id, Guid contactId) {
+        var details = new CampaignMessageDetailsResponse();
+        details.Recipient = Mapper.ToContact(await DbContext.Contacts.AsNoTracking().FirstAsync(x => x.Id == contactId));
+        details.Events.AddRange(await DbContext.CampaignEvent
+                        .Where(x => x.CampaignId == id && x.ContactId == contactId)
+                        .Select(x => new MessageEvent {
+                            Channel = x.Channel,
+                            Type = x.Type,
+                            CreatedOn = x.CreatedOn
+                        })
+                        .ToListAsync());
+        return details;
     }
 }

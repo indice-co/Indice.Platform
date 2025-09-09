@@ -7,7 +7,7 @@
     <lib-list-column title="Id">
       <ng-template let-item>
         <a title="Στοιχεία campaign"
-            [routerLink]="['/campaigns/'+_campaignId+'/campaign-message-timeline/'+item.messageId]" 
+            [routerLink]="['/campaigns/'+_campaignId+'/campaign-message-timeline/'+item.contactId]" 
             class="text-blue-600">
           {{ item.messageId }}
         </a>
@@ -22,24 +22,30 @@
     <lib-list-column title="recipientId">
       <ng-template let-item>{{ item.recipientId }}</ng-template>
     </lib-list-column>
-    <lib-list-column title="Email">
+    
+    <lib-list-column title="Channels">
       <ng-template let-item>
-        <span [innerHtml]="CheckReceivePreference(item.channels!, 'Email') | beautifyBoolean"></span>
-      </ng-template>
-    </lib-list-column>
-    <lib-list-column title="Sms">
-      <ng-template let-item>
-        <span [innerHtml]="CheckReceivePreference(item.channels!, 'SMS') | beautifyBoolean"></span>
-      </ng-template>
-    </lib-list-column>
-    <lib-list-column title="Push Nofication">
-      <ng-template let-item>
-        <span [innerHtml]="CheckReceivePreference(item.channels!, 'PushNotification') | beautifyBoolean"></span>
-      </ng-template>
-    </lib-list-column>
-    <lib-list-column title="Inbox">
-      <ng-template let-item>
-        <span [innerHtml]="CheckReceivePreference(item.channels!, 'Inbox') | beautifyBoolean"></span>
+        <div class="flex items-center space-x-1">
+          <span [ngClass]="{ 'text-green-500': item.channels.includes('Email') }"
+                class="ml-1 text-gray-400" title="Email">
+            <i class="ms-Icon ms-Icon--Accounts"></i>
+          </span>
+
+          <span [ngClass]="{ 'text-green-500': item.channels.includes('SMS') }"
+                class="ml-1 text-gray-400" title="SMS">
+            <i class="ms-Icon ms-Icon--Chat"></i>
+          </span>
+
+          <span [ngClass]="{ 'text-green-500': item.channels.includes('Inbox') }"
+                class="ml-1 text-gray-400" title="Inbox">
+            <i class="ms-Icon ms-Icon--Inbox"></i>
+          </span>
+
+          <span [ngClass]="{ 'text-green-500': item.channels.includes('PushNotification') }"
+                class="ml-1 text-gray-400" title="Push Notification">
+            <i class="ms-Icon ms-Icon--CellPhone"></i>
+          </span>
+        </div>
       </ng-template>
     </lib-list-column>
     <lib-list-column title="Ημερομηνια" [full-width]="true">

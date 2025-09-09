@@ -94,15 +94,17 @@ const routes: Routes = [
               { path: 'campaign-content', component: CampaignContentEditComponent, data: { breadcrumb: { title: 'Περιεχόμενο' } } },
               { path: 'campaign-reports', component: CampaignReportsComponent, data: { breadcrumb: { title: 'Αναφορές' } } },
               { path: 'campaign-messages', component: CampaignMessagesComponent, data: { breadcrumb: { title: 'Ιστορικό' } } },
-              { path: 'campaign-message-timeline/:messageId', component: CampaignMessageTimelineComponent, data: { breadcrumb: { title: 'Timeline' } } }
-              // children: [
-              //   {
-              //     path: ':messageId',
-              //     component: CampaignMessageTimelineComponent,
-              //     data: { breadcrumb: { title: 'lorem1' } }
-              //   }
-              // ]
-              // }
+              // { path: 'campaign-message-timeline/:messageId', component: CampaignMessageTimelineComponent, data: { breadcrumb: { title: 'Timeline' } } }
+              { path: 'campaign-message-timeline', 
+                data: { breadcrumb: { title: 'Timeline' } } ,
+              children: [
+                { 
+                    path: ':contactId', 
+                    data: { breadcrumb: { title: 'Πληροφορίες αποστολής' } },
+                    component: CampaignMessageTimelineComponent
+                }
+              ]
+              }
             ]
           },
         ]

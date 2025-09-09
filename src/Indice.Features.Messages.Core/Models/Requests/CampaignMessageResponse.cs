@@ -31,11 +31,12 @@ public class CampaignMessageResponse
     public DateTimeOffset? CreatedOn { get; set; }
 }
 /// <summary>
-/// Represents the response containing details about campaign messages, including the message content, contact
-/// information, and associated channels.
+/// Represents the response containing details about the recepient and includes the message content per channels.
 /// </summary>
-public class CampaignMessageDetailsResponse : CampaignMessageResponse
+public class CampaignMessageDetailsResponse 
 {
+    /// <summary>The contact information of the recepient</summary>
+    public Contact Recipient { get; set; } = null!;
     /// <summary>
     /// Gets or sets the list of messages .
     /// </summary>
