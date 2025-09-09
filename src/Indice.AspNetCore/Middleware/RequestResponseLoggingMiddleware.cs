@@ -111,19 +111,6 @@ public class RequestProfilerModel
         }
     }
 
-    /// <summary>Takes a snapshot of the current request body.</summary>
-    /// <returns></returns>
-    internal async Task SnapRequestBodyOld() {
-        var request = HttpContext.Request;
-        request.EnableBuffering();
-        using var requestStream = new MemoryStream();
-        await request.Body.CopyToAsync(requestStream);
-        request.Body.Seek(0, SeekOrigin.Begin);
-        requestStream.Seek(0, SeekOrigin.Begin);
-        using var reader = new StreamReader(requestStream);
-        RequestBody = ReadStreamInChunks(reader);
-    }
-
     /// <summary>Takes a snapshot of the response body.</summary>
     /// <param name="next"></param>
     /// <param name="allowedContentTypes"></param>
