@@ -23,7 +23,7 @@ const routes: Routes = [
       { path: 'rules', component: RulesListComponent }
     ]
   },
-  { path: 'details', component: RiskDetailsPageComponent, pathMatch: 'prefix', outlet: 'rightpane', data: { paneSize: SidePaneSize.Small25 } },
+  { path: 'details/:id', component: RiskDetailsPageComponent, pathMatch: 'prefix', outlet: 'rightpane', data: { paneSize: SidePaneSize.Small25 } },
   { path: 'options', component: RuleOptionsPageComponent, pathMatch: 'prefix', outlet: 'rightpane', data: { paneSize: SidePaneSize.Small25 } },
   { path: '**', component: PageNotFoundComponent, data: { shell: { fluid: true, showHeader: false, showFooter: false } } },
 ];

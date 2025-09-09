@@ -51,6 +51,7 @@ public class GeoPoint
     /// <summary>Calculates the distance in kilometers between two <see cref="GeoPoint"/> instances using the <b>Haversine formula.</b>.</summary>
     /// <param name="geoPoint">The geographical point to calculate the distance to.</param>
     /// <remarks>https://en.wikipedia.org/wiki/Haversine_formula</remarks>
+    /// <returns>The distance in kilometers.</returns>
     public double Distance(GeoPoint geoPoint) {
         double R = 6371; // Earth radius.
         var lat = Math.PI / 180 * (geoPoint.Latitude - Latitude);
@@ -59,6 +60,24 @@ public class GeoPoint
                  Math.Cos(Math.PI / 180 * Latitude) * Math.Cos(Math.PI / 180 * geoPoint.Latitude) * Math.Sin(lng / 2) * Math.Sin(lng / 2);
         var h2 = 2 * Math.Asin(Math.Min(1, Math.Sqrt(h1)));
         return R * h2;
+    }
+
+    /// <summary>
+    /// Calculates the travel speed in kilometers per hour (km/h) between two points in time.
+    /// </summary>
+    /// <param name="geoPoint">The counterpart geographical point used to calculate the travel distance.</param>
+    /// <param name="from">The starting time of the travel period.</param>
+    /// <param name="to">The ending time of the travel period.</param>
+    /// <remarks>The travel speed will never be negative since the duration of the travel is calculated with the absolute difference in hours between <paramref name="from"/> and <paramref name="to"/> times.</remarks>
+    /// <returns>The travel speed in kilometers per hour (km/h). Returns <see cref="double.MaxValue"/> if the time interval is
+    /// zero.</returns>
+    public double TravelSpeed(GeoPoint geoPoint, DateTimeOffset from, DateTimeOffset to) {
+        var distance = Distance(geoPoint); // In kilometers.
+        var hours = Math.Abs((to - from).TotalHours);
+        if (hours == 0) {
+            return double.MaxValue;
+        }
+        return distance / hours; // In km/h.
     }
 
     /// <summary>Tries to parse the given <paramref name="latLong"/> into a <paramref name="point"/>. In case of exception it handles it and returns false.</summary>

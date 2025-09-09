@@ -50,14 +50,14 @@ export class CurrencyWidgetComponent implements OnInit {
     // allow single '-' character
     // Accept but don't commit
     if (this.allowNegativeNumbers && event.target.value === '-') {
-        return;
+      return;
     }
     // business validation
     // Early exit – empty or non‑numeric input (after removing separators)
     const inputNumber = CurrencyWidgetComponent.fromLocaleString(this.locale, event.target.value, this.decimalPlaces, this.allowNegativeNumbers);
     // If the value is undefined we do not update
     if (inputNumber === undefined && event.target.value !== '') {
-        return;
+      return;
     }
     this.jsf.updateValue(this, inputNumber);
   }
@@ -74,7 +74,7 @@ export class CurrencyWidgetComponent implements OnInit {
     }) || '';
   }
 
-  private static fromLocaleString(locale: string, inputText: string, decimalPlaces: number, allowNegativeNumbers: boolean = true, round: boolean = false): number | undefined {
+  private static fromLocaleString(locale: string, inputText: string, decimalPlaces: number, allowNegativeNumbers: boolean = true): number | undefined {
       if (!inputText?.trim()) {
           return;
       }
@@ -82,10 +82,21 @@ export class CurrencyWidgetComponent implements OnInit {
       const decimalSeparator = (1.1).toLocaleString(locale).replace(/\d/g, '');
       const isNegative = allowNegativeNumbers && inputText[0] === '-';
       const sanitizedInput = inputText.replace(new RegExp(`[^\\${decimalSeparator}|\\d]`, 'g'), '').replace(decimalSeparator, '.');
+
       let result = parseFloat(sanitizedInput);
-  
-      if (!round) {
-          result = Math.floor(result * Math.pow(10, decimalPlaces)) / Math.pow(10, decimalPlaces); // Truncate to the specified decimal places
+
+      if (isNaN(result)) {
+          return;
+      }
+
+      // Only process fractional part if decimal places > 0 and there is one
+      if (decimalPlaces > 0 && sanitizedInput.includes('.')) {
+          const [intStr, fracStr = ''] = sanitizedInput.split('.');
+          const truncatedFrac = fracStr.slice(0, decimalPlaces);
+          result = truncatedFrac.length > 0 ? Number(`${intStr}.${truncatedFrac}`) : Number(intStr);
+      } else {
+          // ensure it's an integer if no decimals
+          result = Math.trunc(result);
       }
       if (isNegative) {
           result = -result; // Apply negative sign if applicable
