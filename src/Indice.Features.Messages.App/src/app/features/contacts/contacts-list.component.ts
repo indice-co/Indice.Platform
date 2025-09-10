@@ -18,7 +18,7 @@ export class ContactsListComponent extends BaseListComponent<Contact> implements
   ) {
     super(route, _router);
     this.view = ListViewType.Table;
-    this.pageSize = 10;
+    this.pageSize = 20;
     this.sort = 'updatedAt';
     this.sortdir = 'asc';
     this.search = '';
