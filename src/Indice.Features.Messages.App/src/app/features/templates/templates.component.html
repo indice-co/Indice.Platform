@@ -27,7 +27,7 @@
       </ng-template>
     </lib-list-column>
     <lib-list-column title="ALIAS">
-      <ng-template let-item>{{ item.alias }}</ng-template>
+      <ng-template let-item><span  *ngIf="item.alias" class="badge">{{ item.alias || '-' }}</span></ng-template>
     </lib-list-column>
     <lib-list-column title="Channels">
       <ng-template let-item>
@@ -55,7 +55,11 @@
       </ng-template>
     </lib-list-column>
     <lib-list-column title="ΤΥΠΟΣ ΜΥΝΗΜΑΤΟΣ">
-      <ng-template let-item>{{ item.type?.name }}</ng-template>
+      <ng-template let-item>
+        <span *ngIf="item.messageType" title="{{item.messageType?.classification}}" class="message-type-badge {{item.messageType?.classification}}">
+          {{ item.messageType?.name || '-' }}
+        </span>
+      </ng-template>
     </lib-list-column>
     <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ">
       <ng-template let-item>{{ item.createdAt | date: 'medium' }}</ng-template>
