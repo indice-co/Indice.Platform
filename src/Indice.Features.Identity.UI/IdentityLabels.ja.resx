@@ -1,0 +1,688 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+   <data name="AcceptTerms_Reject" xml:space="preserve">
+    <value>拒否</value>
+  </data>
+  <data name="AcceptTerms_Accept" xml:space="preserve">
+    <value>同意する</value>
+  </data>
+  <data name="AcceptTerms_Terms &amp; conditions acceptance" xml:space="preserve">
+    <value>利用規約の同意</value>
+  </data>
+  <data name="AcceptTerms_Please read and accept the terms and conditions to continue." xml:space="preserve">
+    <value>続行するには、利用規約をよく読み、同意してください。</value>
+  </data>
+  <data name="AddEmail_Next" xml:space="preserve">
+    <value>次へ</value>
+  </data>
+  <data name="AddEmail_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="AddEmail_Verify email" xml:space="preserve">
+    <value>メールアドレスを確認</value>
+  </data>
+  <data name="AddPassword_Add" xml:space="preserve">
+    <value>追加</value>
+  </data>
+  <data name="AddPassword_Add Password" xml:space="preserve">
+    <value>パスワード追加</value>
+  </data>
+  <data name="AddPassword_New password" xml:space="preserve">
+    <value>新しいパスワード</value>
+  </data>
+  <data name="AddPassword_Password confirmation" xml:space="preserve">
+    <value>パスワード確認</value>
+  </data>
+  <data name="AddPassword_Password successfully added" xml:space="preserve">
+    <value>パスワードが正常に追加されました</value>
+  </data>
+  <data name="AddPassword_Process completed." xml:space="preserve">
+    <value>処理が完了しました。</value>
+  </data>
+  <data name="AddPhone_Add phone" xml:space="preserve">
+    <value>電話番号を追加</value>
+  </data>
+  <data name="AddPhone_Add phone number" xml:space="preserve">
+    <value>番号を追加</value>
+  </data>
+  <data name="AddPhone_Calling Code" xml:space="preserve">
+    <value>電話コード</value>
+  </data>
+  <data name="AddPhone_Phone number" xml:space="preserve">
+    <value>電話番号</value>
+  </data>
+  <data name="AddPhone_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="AddPhone_Add phone" xml:space="preserve">
+    <value>電話番号を追加</value>
+  </data>
+  <data name="AddPhone_Add phone number" xml:space="preserve">
+    <value>番号を追加</value>
+  </data>
+  <data name="AddPhone_Calling Code" xml:space="preserve">
+    <value>電話コード</value>
+  </data>
+  <data name="AddPhone_Phone number" xml:space="preserve">
+    <value>電話番号</value>
+  </data>
+  <data name="AddPhone_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="ChangePassword_Change" xml:space="preserve">
+    <value>変更</value>
+  </data>
+  <data name="ChangePassword_Change Password" xml:space="preserve">
+    <value>パスワード変更</value>
+  </data>
+  <data name="ChangePassword_New password" xml:space="preserve">
+    <value>新しいパスワード</value>
+  </data>
+  <data name="ChangePassword_Old password" xml:space="preserve">
+    <value>以前のパスワード</value>
+  </data>
+  <data name="ChangePassword_Password successfully changed" xml:space="preserve">
+    <value>パスワードが正常に変更されました</value>
+  </data>
+  <data name="ChangePassword_Process completed." xml:space="preserve">
+    <value>処理が完了しました。</value>
+  </data>
+  <data name="ConfirmEmail_Click" xml:space="preserve">
+    <value>クリック</value>
+  </data>
+  <data name="ConfirmEmail_Email Confirmation" xml:space="preserve">
+    <value>メール確認</value>
+  </data>
+  <data name="ConfirmEmail_Email verification link has expired." xml:space="preserve">
+    <value>メール確認リンクの有効期限が切れています。</value>
+  </data>
+  <data name="ConfirmEmail_here" xml:space="preserve">
+    <value>こちら</value>
+  </data>
+  <data name="ConfirmEmail_If you feel you got this error by mistake, simply click" xml:space="preserve">
+    <value>このエラーが誤りだと思われる場合は、単にクリックしてください</value>
+  </data>
+  <data name="ConfirmEmail_No action was taken." xml:space="preserve">
+    <value>操作は行われませんでした。</value>
+  </data>
+  <data name="ConfirmEmail_Please log in and resend the link" xml:space="preserve">
+    <value>ログインしてリンクを再送信してください。</value>
+  </data>
+  <data name="ConfirmEmail_This may take a moment. Click on the link below to verify your email address." xml:space="preserve">
+    <value>少々お待ちください。下記のリンクをクリックしてメールアドレスを確認してください。</value>
+  </data>
+  <data name="ConfirmEmail_to sign in or go back." xml:space="preserve">
+    <value>サインインまたは戻るには。</value>
+  </data>
+  <data name="ConfirmEmail_Verify" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="ConfirmEmail_Verifying your email." xml:space="preserve">
+    <value>メールを確認しています。</value>
+  </data>
+  <data name="ConfirmEmail_You can now close this browse window." xml:space="preserve">
+    <value>このウィンドウを閉じても構いません。</value>
+  </data>
+  <data name="ConfirmEmail_Your email has been successfully confirmed." xml:space="preserve">
+    <value>メールが正常に確認されました。</value>
+  </data>
+  <data name="ConfirmEmail_Your email is already verified. Thank you" xml:space="preserve">
+    <value>メールはすでに確認済みです。ありがとうございます。</value>
+  </data>
+  <data name="ConfirmEmailChange_Click" xml:space="preserve">
+    <value>クリック</value>
+  </data>
+  <data name="ConfirmEmailChange_Email Change Confirmation" xml:space="preserve">
+    <value>メール変更の確認</value>
+  </data>
+  <data name="ConfirmEmailChange_Email verification link has expired." xml:space="preserve">
+    <value>メール認証リンクの有効期限が切れています。</value>
+  </data>
+  <data name="ConfirmEmailChange_here" xml:space="preserve">
+    <value>こちら</value>
+  </data>
+  <data name="ConfirmEmailChange_If you feel you got this error by mistake, simply click" xml:space="preserve">
+    <value>このエラーが誤りだと思われる場合は、クリックしてください。</value>
+  </data>
+  <data name="ConfirmEmailChange_No action was taken." xml:space="preserve">
+    <value>操作は行われませんでした。</value>
+  </data>
+  <data name="ConfirmEmailChange_Please log in and resend the link" xml:space="preserve">
+    <value>ログインしてリンクを再送信してください。</value>
+  </data>
+  <data name="ConfirmEmailChange_This may take a moment. Click on the link below to verify your email address." xml:space="preserve">
+    <value>少々お待ちください。下記のリンクをクリックしてメールアドレスを確認してください。</value>
+  </data>
+  <data name="ConfirmEmailChange_to sign in or go back." xml:space="preserve">
+    <value>サインインまたは戻るにはこちら。</value>
+  </data>
+  <data name="ConfirmEmailChange_Verify" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="ConfirmEmailChange_Verifying your email." xml:space="preserve">
+    <value>メールアドレスを確認しています。</value>
+  </data>
+  <data name="ConfirmEmailChange_You can now close this browse window." xml:space="preserve">
+    <value>このウィンドウを閉じても構いません。</value>
+  </data>
+  <data name="ConfirmEmailChange_Your email has been successfully changed." xml:space="preserve">
+    <value>メールアドレスが正常に変更されました。</value>
+  </data>
+  <data name="ConfirmEmailChange_Your email is already verified. Thank you" xml:space="preserve">
+    <value>メールアドレスはすでに認証されています。ありがとうございます。</value>
+  </data>
+  <data name="Consent_Accept" xml:space="preserve">
+    <value>承諾</value>
+  </data>
+  <data name="Consent_app" xml:space="preserve">
+    <value>アプリ</value>
+  </data>
+  <data name="Consent_Application Access" xml:space="preserve">
+    <value>アプリケーションアクセス</value>
+  </data>
+  <data name="Consent_Cancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="Consent_code" xml:space="preserve">
+    <value>コード</value>
+  </data>
+  <data name="Consent_Consent" xml:space="preserve">
+    <value>同意</value>
+  </data>
+  <data name="Consent_Personal Information" xml:space="preserve">
+    <value>個人情報</value>
+  </data>
+  <data name="Consent_Remember My Decision" xml:space="preserve">
+    <value>決定を記憶する</value>
+  </data>
+  <data name="Consent_Security code" xml:space="preserve">
+    <value>セキュリティコード</value>
+  </data>
+  <data name="Consent_send" xml:space="preserve">
+    <value>送信</value>
+  </data>
+  <data name="Consent_This" xml:space="preserve">
+    <value>この</value>
+  </data>
+  <data name="Consent_This app would like to" xml:space="preserve">
+    <value>このアプリは次のことを希望します</value>
+  </data>
+  <data name="Consent_to your phone" xml:space="preserve">
+    <value>あなたの携帯電話へ</value>
+  </data>
+  <data name="Consent_Uncheck the permissions you do not wish to grant." xml:space="preserve">
+    <value>許可したくない権限のチェックを外してください。</value>
+  </data>
+  <data name="Consent_would like to" xml:space="preserve">
+    <value>希望します</value>
+  </data>
+  <data name="Error_Oops! Seems we encountered an error." xml:space="preserve">
+    <value>おっと！エラーが発生したようです。</value>
+  </data>
+  <data name="Error_Request Id" xml:space="preserve">
+    <value>リクエストID</value>
+  </data>
+  <data name="ForgotPassword_Forgot password" xml:space="preserve">
+    <value>パスワードをお忘れですか</value>
+  </data>
+  <data name="ForgotPassword_Request sent" xml:space="preserve">
+    <value>リクエストが送信されました</value>
+  </data>
+  <data name="ForgotPassword_Resend" xml:space="preserve">
+    <value>再送信</value>
+  </data>
+  <data name="ForgotPassword_Send" xml:space="preserve">
+    <value>送信</value>
+  </data>
+  <data name="ForgotPassword_To have your password reset, enter your username or email address below. We will then send an email containing a link to reset your password." xml:space="preserve">
+    <value>パスワードをリセットするには、下にユーザー名またはメールアドレスを入力してください。リセット用リンクを含むメールを送信します。</value>
+  </data>
+  <data name="ForgotPassword_Username" xml:space="preserve">
+    <value>ユーザー名</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_Forgot Password Confirmation" xml:space="preserve">
+    <value>パスワードリセットの確認</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_New Password" xml:space="preserve">
+    <value>新しいパスワード</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_Password changed" xml:space="preserve">
+    <value>パスワードが変更されました</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_Please &lt;a href=&quot;{0}&quot;&gt;login&lt;/a&gt; with your new password" xml:space="preserve">
+    <value>新しいパスワードで&lt;a href="{0}"&gt;ログイン&lt;/a&gt;してください</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_Please fill in your new password" xml:space="preserve">
+    <value>新しいパスワードを入力してください</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_Send" xml:space="preserve">
+    <value>送信</value>
+  </data>
+  <data name="Grants_Below is the list of applications you have given access to and the names of the resources they have access to." xml:space="preserve">
+    <value>以下は、アクセスを許可したアプリケーションと、そのアプリケーションがアクセスできるリソースの一覧です。</value>
+  </data>
+  <data name="Grants_Client logo" xml:space="preserve">
+    <value>クライアントロゴ</value>
+  </data>
+  <data name="Grants_Created:" xml:space="preserve">
+    <value>作成日：</value>
+  </data>
+  <data name="Grants_Expires on" xml:space="preserve">
+    <value>有効期限</value>
+  </data>
+  <data name="Grants_Grants" xml:space="preserve">
+    <value>許可</value>
+  </data>
+  <data name="Grants_Revoke Access" xml:space="preserve">
+    <value>アクセスを取り消す</value>
+  </data>
+  <data name="Grants_You have not provided access to any applications" xml:space="preserve">
+    <value>どのアプリケーションにもアクセスを許可していません。</value>
+  </data>
+  <data name="Home_&lt;strong&gt;Welcome&lt;/strong&gt;&lt;br&gt; to our Digital Services Portal of {0}" xml:space="preserve">
+    <value>&lt;strong&gt;ようこそ&lt;/strong&gt;&lt;br&gt; {0}のデジタルサービスポータルへ</value>
+  </data>
+  <data name="Home_authorized applications" xml:space="preserve">
+    <value>認可されたアプリケーション</value>
+  </data>
+  <data name="Home_Check and revoke your" xml:space="preserve">
+    <value>確認および取り消し</value>
+  </data>
+  <data name="Home_Digital Services" xml:space="preserve">
+    <value>デジタルサービス</value>
+  </data>
+  <data name="Home_here" xml:space="preserve">
+    <value>こちら</value>
+  </data>
+  <data name="Home_Manage your grants" xml:space="preserve">
+    <value>許可の管理</value>
+  </data>
+  <data name="Home_Please login to the application" xml:space="preserve">
+    <value>アプリケーションにログインしてください</value>
+  </data>
+  <data name="Home_Portal" xml:space="preserve">
+    <value>ポータル</value>
+  </data>
+  <data name="Home_The Identity portal gives you access to all {0} services with one account. A place to manage your user profile and account access settings. Use the links below to get started." xml:space="preserve">
+    <value>Identityポータルは1つのアカウントで{0}のすべてのサービスにアクセスできます。ユーザープロファイルやアカウント設定を管理する場所です。下記のリンクから始めてください。</value>
+  </data>
+  <data name="Home_Welcome" xml:space="preserve">
+    <value>ようこそ</value>
+  </data>
+  <data name="Home_Welcome back" xml:space="preserve">
+    <value>お帰りなさい</value>
+  </data>
+  <data name="Home_Welcome to the {0} Digital Services &lt;strong&gt;Portal&lt;/strong&gt;" xml:space="preserve">
+    <value>{0}のデジタルサービス&lt;strong&gt;ポータル&lt;/strong&gt;へようこそ</value>
+  </data>
+  <data name="LoggedOut_Click" xml:space="preserve">
+    <value>クリック</value>
+  </data>
+  <data name="LoggedOut_here" xml:space="preserve">
+    <value>こちら</value>
+  </data>
+  <data name="LoggedOut_Logout" xml:space="preserve">
+    <value>ログアウト</value>
+  </data>
+  <data name="LoggedOut_to return to the application" xml:space="preserve">
+    <value>アプリケーションに戻るには</value>
+  </data>
+  <data name="LoggedOut_You are now logged out" xml:space="preserve">
+    <value>ログアウトしました</value>
+  </data>
+  <data name="Login_Don't have an account?" xml:space="preserve">
+    <value>アカウントをお持ちでないですか？</value>
+  </data>
+  <data name="Login_Forgot password?" xml:space="preserve">
+    <value>パスワードをお忘れですか？</value>
+  </data>
+  <data name="Login_Invalid login request" xml:space="preserve">
+    <value>無効なログインリクエスト</value>
+  </data>
+  <data name="Login_Join us" xml:space="preserve">
+    <value>参加する</value>
+  </data>
+  <data name="Login_Login" xml:space="preserve">
+    <value>ログイン</value>
+  </data>
+  <data name="Login_OR" xml:space="preserve">
+    <value>または</value>
+  </data>
+  <data name="Login_Password" xml:space="preserve">
+    <value>パスワード</value>
+  </data>
+  <data name="Login_Remember me" xml:space="preserve">
+    <value>ログイン状態を保持する</value>
+  </data>
+  <data name="Login_Sign in" xml:space="preserve">
+    <value>サインイン</value>
+  </data>
+  <data name="Login_There are no login schemes configured for this client." xml:space="preserve">
+    <value>このクライアントにはログイン方式が設定されていません。</value>
+  </data>
+  <data name="Login_Username" xml:space="preserve">
+    <value>ユーザー名</value>
+  </data>
+  <data name="Logout_Logout" xml:space="preserve">
+    <value>ログアウト</value>
+  </data>
+  <data name="Logout_Would you like to logout?" xml:space="preserve">
+    <value>ログアウトしますか？</value>
+  </data>
+  <data name="Logout_Yes" xml:space="preserve">
+    <value>はい</value>
+  </data>
+  <data name="Mfa_An unexpected error occurred while sending the OTP code." xml:space="preserve">
+    <value>OTPコードの送信中に予期しないエラーが発生しました。</value>
+  </data>
+  <data name="Mfa_Authenticate" xml:space="preserve">
+    <value>認証</value>
+  </data>
+  <data name="Mfa_Authenticate yourself using:" xml:space="preserve">
+    <value>次の方法で認証してください：</value>
+  </data>
+  <data name="Mfa_Back" xml:space="preserve">
+    <value>戻る</value>
+  </data>
+  <data name="Mfa_Because you've turned on two-step verification, you need to approve request on your mobile app." xml:space="preserve">
+    <value>2段階認証を有効にしているため、モバイルアプリでリクエストを承認する必要があります。</value>
+  </data>
+  <data name="Mfa_I can't use my app right now" xml:space="preserve">
+    <value>今はアプリを使用できません</value>
+  </data>
+  <data name="Mfa_I didn't receive the notification/Resend." xml:space="preserve">
+    <value>通知が届かない/再送信</value>
+  </data>
+  <data name="Mfa_I sign in frequently here. Remember this browser." xml:space="preserve">
+    <value>ここでは頻繁にサインインします。このブラウザを記憶してください。</value>
+  </data>
+  <data name="Mfa_Login" xml:space="preserve">
+    <value>ログイン</value>
+  </data>
+  <data name="Mfa_Multifactor Authentication" xml:space="preserve">
+    <value>多要素認証</value>
+  </data>
+  <data name="Mfa_Other authentication methods..." xml:space="preserve">
+    <value>他の認証方法...</value>
+  </data>
+  <data name="Mfa_OTP Code" xml:space="preserve">
+    <value>OTPコード</value>
+  </data>
+  <data name="Mfa_Request denied" xml:space="preserve">
+    <value>リクエストが拒否されました</value>
+  </data>
+  <data name="Mfa_Resend" xml:space="preserve">
+    <value>再送信</value>
+  </data>
+  <data name="Mfa_Send another request to my app" xml:space="preserve">
+    <value>アプリに再度リクエストを送信</value>
+  </data>
+  <data name="Mfa_We sent an identity verification request to your mobile device, but you denied it." xml:space="preserve">
+    <value>モバイルデバイスに本人確認リクエストを送信しましたが、拒否されました。</value>
+  </data>
+  <data name="Mfa_We texted your phone {0}. Please enter the code to sign in." xml:space="preserve">
+    <value>電話番号{0}にコードを送信しました。サインインするにはそのコードを入力してください。</value>
+  </data>
+  <data name="MfaModel_OTP login" xml:space="preserve">
+    <value>OTPログイン</value>
+  </data>
+  <data name="MfaModel_The OTP code is not valid." xml:space="preserve">
+    <value>OTPコードが無効です。</value>
+  </data>
+  <data name="MfaModel_Your OTP code for login is: {0}" xml:space="preserve">
+    <value>ログイン用のOTPコード: {0}</value>
+  </data>
+  <data name="MfaOnBoarding_Enable MFA" xml:space="preserve">
+    <value>MFAを有効にする</value>
+  </data>
+  <data name="MfaOnBoarding_Keep your account safe" xml:space="preserve">
+    <value>アカウントを安全に保つ</value>
+  </data>
+  <data name="MfaOnBoarding_Next" xml:space="preserve">
+    <value>次へ</value>
+  </data>
+  <data name="MfaOnBoarding_Setup an additional authentication method." xml:space="preserve">
+    <value>追加の認証方法を設定してください。</value>
+  </data>
+  <data name="MfaOnBoardingAddPhone_MFA onboarding - SMS" xml:space="preserve">
+    <value>MFAオンボーディング - SMS</value>
+  </data>
+  <data name="MfaOnBoardingAddPhone_Next" xml:space="preserve">
+    <value>次へ</value>
+  </data>
+  <data name="MfaOnBoardingAddPhone_Phone number" xml:space="preserve">
+    <value>電話番号</value>
+  </data>
+  <data name="MfaOnBoardingAddPhone_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="MfaOnBoardingVerifyPhone_Code" xml:space="preserve">
+    <value>コード</value>
+  </data>
+  <data name="MfaOnBoardingVerifyPhone_Next" xml:space="preserve">
+    <value>次へ</value>
+  </data>
+  <data name="MfaOnBoardingVerifyPhone_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="MfaOnBoardingVerifyPhone_Verify phone number" xml:space="preserve">
+    <value>電話番号を確認</value>
+  </data>
+  <data name="PasswordExpired_Change password" xml:space="preserve">
+    <value>パスワードを変更</value>
+  </data>
+  <data name="PasswordExpired_New password" xml:space="preserve">
+    <value>新しいパスワード</value>
+  </data>
+  <data name="PasswordExpired_Next" xml:space="preserve">
+    <value>次へ</value>
+  </data>
+  <data name="PasswordExpired_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="PasswordExpired_Νew password confirmation" xml:space="preserve">
+    <value>新しいパスワードの確認</value>
+  </data>
+  <data name="Profile_A confirmation email has been sent to {0}." xml:space="preserve">
+    <value>{0} に確認メールが送信されました。</value>
+  </data>
+  <data name="Profile_An email has been sent to your new email address in order to confirm it." xml:space="preserve">
+    <value>新しいメールアドレスの確認のためにメールが送信されました。</value>
+  </data>
+  <data name="Profile_Birth date" xml:space="preserve">
+    <value>生年月日</value>
+  </data>
+  <data name="Profile_Calling Code" xml:space="preserve">
+    <value>国番号</value>
+  </data>
+  <data name="Profile_Confirmation" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="Profile_Confirmation email delivery failed. Please contact system administrator." xml:space="preserve">
+    <value>確認メールの配信に失敗しました。システム管理者に連絡してください。</value>
+  </data>
+  <data name="Profile_Connect a new provider" xml:space="preserve">
+    <value>新しいプロバイダーを接続</value>
+  </data>
+  <data name="Profile_Developer TOTP" xml:space="preserve">
+    <value>開発者TOTP</value>
+  </data>
+  <data name="Profile_Existing providers" xml:space="preserve">
+    <value>既存のプロバイダー</value>
+  </data>
+  <data name="Profile_External providers" xml:space="preserve">
+    <value>外部プロバイダー</value>
+  </data>
+  <data name="Profile_First name" xml:space="preserve">
+    <value>名</value>
+  </data>
+  <data name="Profile_here" xml:space="preserve">
+    <value>こちら</value>
+  </data>
+  <data name="Profile_I have been informed about the processing of my personal data and I consent to it, as specifically defined" xml:space="preserve">
+    <value>個人データの処理について説明を受け、同意します。</value>
+  </data>
+  <data name="Profile_Language" xml:space="preserve">
+    <value>言語</value>
+  </data>
+  <data name="Profile_Last name" xml:space="preserve">
+    <value>姓</value>
+  </data>
+  <data name="Profile_Phone number" xml:space="preserve">
+    <value>電話番号</value>
+  </data>
+  <data name="Profile_Preferences" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="Profile_Profile" xml:space="preserve">
+    <value>プロフィール</value>
+  </data>
+  <data name="Profile_Remove" xml:space="preserve">
+    <value>削除</value>
+  </data>
+  <data name="Profile_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Profile_Tax identification" xml:space="preserve">
+    <value>税番号</value>
+  </data>
+  <data name="Profile_Unknown" xml:space="preserve">
+    <value>不明</value>
+  </data>
+  <data name="Profile_Username" xml:space="preserve">
+    <value>ユーザー名</value>
+  </data>
+  <data name="Profile_Your new email verification is still pending." xml:space="preserve">
+    <value>新しいメールアドレスの確認がまだ完了していません。</value>
+  </data>
+  <data name="Profile_Your profile was updated successfully." xml:space="preserve">
+    <value>プロフィールが正常に更新されました。</value>
+  </data>
+  <data name="Register_Already have an account?" xml:space="preserve">
+    <value>すでにアカウントをお持ちですか？</value>
+  </data>
+  <data name="Register_Calling Code" xml:space="preserve">
+    <value>国番号</value>
+  </data>
+  <data name="Register_Choose a username and a password of your choice. You can periodically change your password or whenever you wish to." xml:space="preserve">
+    <value>ご希望のユーザー名とパスワードを選択してください。パスワードは定期的または任意のタイミングで変更できます。</value>
+  </data>
+  <data name="Register_Choose an email and a password of your choice. You can periodically change your password or whenever you wish to." xml:space="preserve">
+    <value>ご希望のメールアドレスとパスワードを選択してください。パスワードは定期的または任意のタイミングで変更できます。</value>
+  </data>
+  <data name="Register_First name" xml:space="preserve">
+    <value>名</value>
+  </data>
+  <data name="Register_here" xml:space="preserve">
+    <value>こちら</value>
+  </data>
+  <data name="Register_I consent to the registration and processing of the above personal details for my contact and service as they are defined" xml:space="preserve">
+    <value>上記の個人情報の登録および処理に同意します。</value>
+  </data>
+  <data name="Register_I have read and accept the &lt;a href=&quot;/terms&quot; target=&quot;_blank&quot;&gt;Terms of service&lt;/a&gt; and the &lt;a href=&quot;/privacy&quot; target=&quot;_blank&quot;&gt;privacy policy&lt;/a&gt;." xml:space="preserve">
+    <value>&lt;a href="/terms" target="_blank"&gt;利用規約&lt;/a&gt;および&lt;a href="/privacy" target="_blank"&gt;プライバシーポリシー&lt;/a&gt;を読み、同意します。</value>
+  </data>
+  <data name="Register_I consent to the use of my contact information, including my email address, for the purpose of receiving commercial communications, promotional materials, and marketing updates from the organization. I understand that I may withdraw my consent at any time." xml:space="preserve">
+    <value>商業的な連絡、プロモーション資料、マーケティング情報の受信目的で、メールアドレスを含む連絡先情報の利用に同意します。いつでも同意を撤回できます。</value>
+  </data>
+  <data name="Register_Join us" xml:space="preserve">
+    <value>参加する</value>
+  </data>
+  <data name="Register_Last name" xml:space="preserve">
+    <value>姓</value>
+  </data>
+  <data name="Register_OR" xml:space="preserve">
+    <value>または</value>
+  </data>
+  <data name="Register_Password" xml:space="preserve">
+    <value>パスワード</value>
+  </data>
+  <data name="Register_Phone number" xml:space="preserve">
+    <value>電話番号</value>
+  </data>
+  <data name="Register_Sign up" xml:space="preserve">
+    <value>登録</value>
+  </data>
+  <data name="Register_These credentials are personal. Please remember them and do not reveal in any way (i.e orally, written, email) in third parties." xml:space="preserve">
+    <value>これらの認証情報は個人用です。必ず覚えておき、第三者に口頭・書面・メール等で絶対に教えないでください。</value>
+  </data>
+  <data name="Register_Timezone" xml:space="preserve">
+    <value>タイムゾーン</value>
+  </data>
+  <data name="Register_Username" xml:space="preserve">
+    <value>ユーザー名</value>
+  </data>
+  <data name="VerifyPhone_Code" xml:space="preserve">
+    <value>コード</value>
+  </data>
+  <data name="VerifyPhone_Next" xml:space="preserve">
+    <value>次へ</value>
+  </data>
+  <data name="VerifyPhone_Resend" xml:space="preserve">
+    <value>再送信</value>
+  </data>
+  <data name="VerifyPhone_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="VerifyPhone_Verify phone number" xml:space="preserve">
+    <value>電話番号を確認</value>
+  </data>
+</root>

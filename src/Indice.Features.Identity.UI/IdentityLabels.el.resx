@@ -1,0 +1,673 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AcceptTerms_Reject" xml:space="preserve">
+    <value>Απόρριψη</value>
+  </data>
+  <data name="AcceptTerms_Accept" xml:space="preserve">
+    <value>Αποδοχή</value>
+  </data>
+  <data name="AcceptTerms_Terms &amp; conditions acceptance" xml:space="preserve">
+    <value>Αποδοχή όρων χρήσης</value>
+  </data>
+  <data name="AcceptTerms_Please read and accept the terms and conditions to continue." xml:space="preserve">
+    <value>Παρακαλώ διαβάστε προσεκτικά και αποδεκτείτε τους παρακάτω όρους χρήσης για να προχωρήσετε.</value>
+  </data>
+  <data name="AddEmail_Next" xml:space="preserve">
+    <value>Επόμενο</value>
+  </data>
+  <data name="AddEmail_Save" xml:space="preserve">
+    <value>Αποθήκευση</value>
+  </data>
+  <data name="AddEmail_Verify email" xml:space="preserve">
+    <value>Επιβεβαίωση email</value>
+  </data>
+  <data name="AddPassword_Add" xml:space="preserve">
+    <value>Προσθήκη</value>
+  </data>
+  <data name="AddPassword_Add Password" xml:space="preserve">
+    <value>Πρόσθηκη Κωδικού</value>
+  </data>
+  <data name="AddPassword_New password" xml:space="preserve">
+    <value>Νέος κωδικός</value>
+  </data>
+  <data name="AddPassword_Password confirmation" xml:space="preserve">
+    <value>Επιβεβαίωση κωδικού</value>
+  </data>
+  <data name="AddPassword_Password successfully added" xml:space="preserve">
+    <value>Ο κωδικός άλλαξε επιτυχώς</value>
+  </data>
+  <data name="AddPassword_Process completed." xml:space="preserve">
+    <value>Η διαδικασία ολοκληρώθηκε.</value>
+  </data>
+  <data name="AddPhone_Add phone" xml:space="preserve">
+    <value>Πρόσθήκη αριθμού τηλεφώνου</value>
+  </data>
+  <data name="AddPhone_Add phone number" xml:space="preserve">
+    <value>Προσθήκη αριθμού</value>
+  </data>
+  <data name="AddPhone_Calling Code" xml:space="preserve">
+    <value>Κωδικός Τηλεφώνου</value>
+  </data>
+  <data name="AddPhone_Phone number" xml:space="preserve">
+    <value>Αριθμός τηλεφώνου</value>
+  </data>
+  <data name="AddPhone_Save" xml:space="preserve">
+    <value>Αποθήκευση</value>
+  </data>
+  <data name="ChangePassword_Change" xml:space="preserve">
+    <value>Αλλαγή</value>
+  </data>
+  <data name="ChangePassword_Change Password" xml:space="preserve">
+    <value>Αλλαγή Κωδικού</value>
+  </data>
+  <data name="ChangePassword_New password" xml:space="preserve">
+    <value>Νέος κωδικός</value>
+  </data>
+  <data name="ChangePassword_Old password" xml:space="preserve">
+    <value>Παλιός κωδικός </value>
+  </data>
+  <data name="ChangePassword_Password successfully changed" xml:space="preserve">
+    <value>Ο κωδικός άλλαξε με επιτυχία</value>
+  </data>
+  <data name="ChangePassword_Process completed." xml:space="preserve">
+    <value>Η διαδικασία ολοκληρώθηκε</value>
+  </data>
+  <data name="ConfirmEmail_Click" xml:space="preserve">
+    <value>Πατήστε</value>
+  </data>
+  <data name="ConfirmEmail_Email Confirmation" xml:space="preserve">
+    <value>Επιβεβαίωση Email</value>
+  </data>
+  <data name="ConfirmEmail_Email verification link has expired." xml:space="preserve">
+    <value>Ο σύνδεσμος επιβεβαίωσης έχει λήξει</value>
+  </data>
+  <data name="ConfirmEmail_here" xml:space="preserve">
+    <value>εδώ</value>
+  </data>
+  <data name="ConfirmEmail_If you feel you got this error by mistake, simply click" xml:space="preserve">
+    <value>Εαν φτάσατε σε αυτή τη σελίδα κατά λάθος, απλά πατήστε</value>
+  </data>
+  <data name="ConfirmEmail_No action was taken." xml:space="preserve">
+    <value>Καμία ενέργεια δεν πραγματοποιήθηκε.</value>
+  </data>
+  <data name="ConfirmEmail_Please log in and resend the link" xml:space="preserve">
+    <value>Παρακαλώ συνδεθείτε για να ξαναστείλετε νέο σύνδεσμο.</value>
+  </data>
+  <data name="ConfirmEmail_This may take a moment. Click on the link below to verify your email address." xml:space="preserve">
+    <value>Ισως μας πάρει λίγο χρόνο. Πατήστε το σύνδεσμο παρακάτω για να επιβεβαιώσετε τη διεύθυνση ηλεκτρονικού ταχυδρομείου</value>
+  </data>
+  <data name="ConfirmEmail_to sign in or go back." xml:space="preserve">
+    <value>για να συνδεθείτε ή να πάτε πίσω.</value>
+  </data>
+  <data name="ConfirmEmail_Verify" xml:space="preserve">
+    <value>Επιβεβαίωση</value>
+  </data>
+  <data name="ConfirmEmail_Verifying your email." xml:space="preserve">
+    <value>Επιβεβαιώνουμε το email σας.</value>
+  </data>
+  <data name="ConfirmEmail_You can now close this browse window." xml:space="preserve">
+    <value>Μπορείτε τώρα να κλείσετε αυτό το παράθυρο περιήγησης.</value>
+  </data>
+  <data name="ConfirmEmail_Your email has been successfully confirmed." xml:space="preserve">
+    <value>Το email σας έχει επιβεβαιωθεί με επιτυχία.</value>
+  </data>
+  <data name="ConfirmEmail_Your email is already verified. Thank you" xml:space="preserve">
+    <value>Το email σας είναι ήδη επιβεβαιωμένο</value>
+  </data>
+  <data name="ConfirmEmailChange_Click" xml:space="preserve">
+    <value>Πατήστε</value>
+  </data>
+  <data name="ConfirmEmailChange_Email Change Confirmation" xml:space="preserve">
+    <value>Επιβεβαίωση Αλλαγής Email</value>
+  </data>
+  <data name="ConfirmEmailChange_Email verification link has expired." xml:space="preserve">
+    <value>Ο σύνδεσμος επιβεβαίωσης έχει λήξει</value>
+  </data>
+  <data name="ConfirmEmailChange_here" xml:space="preserve">
+    <value>εδώ</value>
+  </data>
+  <data name="ConfirmEmailChange_If you feel you got this error by mistake, simply click" xml:space="preserve">
+    <value>Εαν φτάσατε σε αυτή τη σελίδα κατά λάθος, απλά πατήστε</value>
+  </data>
+  <data name="ConfirmEmailChange_No action was taken." xml:space="preserve">
+    <value>Καμία ενέργεια δεν πραγματοποιήθηκε.</value>
+  </data>
+  <data name="ConfirmEmailChange_Please log in and resend the link" xml:space="preserve">
+    <value>Παρακαλώ συνδεθείτε για να ξαναστείλετε νέο σύνδεσμο.</value>
+  </data>
+  <data name="ConfirmEmailChange_This may take a moment. Click on the link below to verify your email address." xml:space="preserve">
+    <value>Ισως μας πάρει λίγο χρόνο. Πατήστε το σύνδεσμο παρακάτω για να επιβεβαιώσετε τη διεύθυνση ηλεκτρονικού ταχυδρομίου</value>
+  </data>
+  <data name="ConfirmEmailChange_to sign in or go back." xml:space="preserve">
+    <value>για να συνδεθείτε ή να πάτε πίσω.</value>
+  </data>
+  <data name="ConfirmEmailChange_Verify" xml:space="preserve">
+    <value>Επιβεβαίωση</value>
+  </data>
+  <data name="ConfirmEmailChange_Verifying your email." xml:space="preserve">
+    <value>Επιβεβαιώνουμε το email σας.</value>
+  </data>
+  <data name="ConfirmEmailChange_You can now close this browse window." xml:space="preserve">
+    <value>Μπορείτε τώρα να κλείσετε αυτό το παράθυρο περιήγησης.</value>
+  </data>
+  <data name="ConfirmEmailChange_Your email has been successfully changed." xml:space="preserve">
+    <value>Το email σας έχει αλλάξει με επιτυχία.</value>
+  </data>
+  <data name="ConfirmEmailChange_Your email is already verified. Thank you" xml:space="preserve">
+    <value>Το email σας είναι ήδη επιβεβαιωμένο</value>
+  </data>
+  <data name="Consent_Accept" xml:space="preserve">
+    <value>Αποδοχή</value>
+  </data>
+  <data name="Consent_app" xml:space="preserve">
+    <value>εφαρμογή</value>
+  </data>
+  <data name="Consent_Application Access" xml:space="preserve">
+    <value>Πρόσβαση σε υπηρεσίες</value>
+  </data>
+  <data name="Consent_Cancel" xml:space="preserve">
+    <value>Ακύρωση</value>
+  </data>
+  <data name="Consent_code" xml:space="preserve">
+    <value>Κωδικός επιβεβαίωσης</value>
+  </data>
+  <data name="Consent_Consent" xml:space="preserve">
+    <value>Συναίνεση</value>
+  </data>
+  <data name="Consent_Personal Information" xml:space="preserve">
+    <value>Προσωπικές πληροφορίες</value>
+  </data>
+  <data name="Consent_Remember My Decision" xml:space="preserve">
+    <value>Θυμήσου την απόφαση μου</value>
+  </data>
+  <data name="Consent_Security code" xml:space="preserve">
+    <value>Πρόσθετος κωδικός ασφαλείας</value>
+  </data>
+  <data name="Consent_send" xml:space="preserve">
+    <value>αποστολή</value>
+  </data>
+  <data name="Consent_This" xml:space="preserve">
+    <value>Η</value>
+  </data>
+  <data name="Consent_This app would like to" xml:space="preserve">
+    <value>Η εφαρμογή αυτή ζητά</value>
+  </data>
+  <data name="Consent_to your phone" xml:space="preserve">
+    <value>του κωδικού στο τηλέφωνό που έχετε δηλώσει</value>
+  </data>
+  <data name="Consent_Uncheck the permissions you do not wish to grant." xml:space="preserve">
+    <value>Αποεπιλέξτε τις προσβάσεις που δεν επιθυμείτε να δώσετε.</value>
+  </data>
+  <data name="Consent_would like to" xml:space="preserve">
+    <value>αυτή ζητά</value>
+  </data>
+ <data name="Error_Oops! Seems we encountered an error." xml:space="preserve">
+    <value>Λυπούμαστε. Κάποιο σφάλμα συνέβη στην εφαρμογή.</value>
+  </data>
+  <data name="Error_Request Id" xml:space="preserve">
+    <value>Κωδικός αιτήματος</value>
+  </data>
+ <data name="ForgotPassword_Forgot password" xml:space="preserve">
+    <value>Υπενθύμιση κωδικού</value>
+  </data>
+  <data name="ForgotPassword_Request sent" xml:space="preserve">
+    <value>Το αίτημα εστάλει</value>
+  </data>
+  <data name="ForgotPassword_Resend" xml:space="preserve">
+    <value>Αποστολή ξανά</value>
+  </data>
+  <data name="ForgotPassword_Send" xml:space="preserve">
+    <value>Αποστολή</value>
+  </data>
+  <data name="ForgotPassword_To have your password reset, enter your username or email address below. We will then send an email containing a link to reset your password." xml:space="preserve">
+    <value>Για να επαναφέρετε τον κωδικό σας εισάγετε το όνομα χρήστη ή το email σας παρακάτω. Θα σας αποστείλουμε ένα email με ένα σύνδεσμο για να επαναφέρετε τον κωδικό σας.</value>
+  </data>
+  <data name="ForgotPassword_Username" xml:space="preserve">
+    <value>Όνομα Χρήστη</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_Forgot Password Confirmation" xml:space="preserve">
+    <value>Επιβεβαίωση Υπενθύμισης Κωδικού</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_New Password" xml:space="preserve">
+    <value>Νέος Κωδικός</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_Password changed" xml:space="preserve">
+    <value>Ο κωδικός άλλαξε</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_Please &lt;a href=&quot;{0}&quot;&gt;login&lt;/a&gt; with your new password" xml:space="preserve">
+    <value>Παρακαλώ &lt;a href="{0}"&gt;συνδεθείτε&lt;/a&gt; χρησιμοποιόντας το νέο σας συνθηματικό.</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_Please fill in your new password" xml:space="preserve">
+    <value>Παρακαλώ εισάγετε τον νέο σας κωδικό</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_Send" xml:space="preserve">
+    <value>Αποστολή</value>
+  </data>
+  <data name="Grants_Below is the list of applications you have given access to and the names of the resources they have access to." xml:space="preserve">
+    <value>Παρακάτω θα βρείτε τη λίστα των εφαρμογών στις οποίες έχετε δώσει πρόσβαση στα δεδομένα σας.</value>
+  </data>
+  <data name="Grants_Client logo" xml:space="preserve">
+    <value>Λογότυπο εφαρμογής</value>
+  </data>
+  <data name="Grants_Created:" xml:space="preserve">
+    <value>Δημιουργήθηκε:</value>
+  </data>
+  <data name="Grants_Expires on" xml:space="preserve">
+    <value>Λήγει</value>
+  </data>
+  <data name="Grants_Grants" xml:space="preserve">
+    <value>Προσβάσεις Εφαρμογών</value>
+  </data>
+  <data name="Grants_Revoke Access" xml:space="preserve">
+    <value>Αναίρεση</value>
+  </data>
+  <data name="Grants_You have not provided access to any applications" xml:space="preserve">
+    <value>Δεν έχετε δώσει πρόσβαση σε καμία εφαρμογή</value>
+  </data>
+  <data name="Home_&lt;strong&gt;Welcome&lt;/strong&gt;&lt;br&gt; to our Digital Services Portal of {0}" xml:space="preserve">
+    <value>&lt;strong&gt;Καλωσήλθατε&lt;/strong&gt;&lt;br&gt; στην Πύλη Ψηφιακών Υπηρεσιών της {0}</value>
+  </data>
+  <data name="Home_authorized applications" xml:space="preserve">
+    <value>εξουσιοδοτημένες εφαρμογές σας</value>
+  </data>
+  <data name="Home_Check and revoke your" xml:space="preserve">
+    <value>Ελέγξτε και ανακαλέστε τις</value>
+  </data>
+  <data name="Home_Digital Services" xml:space="preserve">
+    <value>Ψηφιακών Υπηρεσιών</value>
+  </data>
+  <data name="Home_here" xml:space="preserve">
+    <value>εδώ</value>
+  </data>
+  <data name="Home_Manage your grants" xml:space="preserve">
+    <value>Προσβάσεις τρίτων εφαρμογών.</value>
+  </data>
+  <data name="Home_Please login to the application" xml:space="preserve">
+    <value>Παρακαλώ συνδεθείτε στην εφαρμογή</value>
+  </data>
+  <data name="Home_Portal" xml:space="preserve">
+    <value>Πύλη</value>
+  </data>
+  <data name="Home_The Identity portal gives you access to all {0} services with one account. A place to manage your user profile and account access settings. Use the links below to get started." xml:space="preserve">
+    <value>Η πύλη "Identity" σας δίνει πρόσβαση με ένα λογαριασμό σε όλες τις υπηρεσίες της {0}. Εδώ μπορείτε να διαχειριστείτε το προφίλ χρήστη και τις παραμέτρους πρόσβασης σας στις υπηρεσίες. Ξεκινήστε χρησιμοποιώντας τους παρακάτω συνδέσμους.</value>
+  </data>
+  <data name="Home_Welcome" xml:space="preserve">
+    <value>Καλωσήλθατε</value>
+  </data>
+  <data name="Home_Welcome back" xml:space="preserve">
+    <value>Καλώς ήλθατε</value>
+  </data>
+  <data name="Home_Welcome to the {0} Digital Services &lt;strong&gt;Portal&lt;/strong&gt;" xml:space="preserve">
+    <value>Καλωσήλθατε στην &lt;strong&gt;Πύλη&lt;/strong&gt; Ψηφιακών Υπηρεσιών της {0}</value>
+  </data>
+  <data name="LoggedOut_Click" xml:space="preserve">
+    <value>Πατήστε</value>
+  </data>
+  <data name="LoggedOut_here" xml:space="preserve">
+    <value>εδώ</value>
+  </data>
+  <data name="LoggedOut_Logout" xml:space="preserve">
+    <value>Αποσύνδεση</value>
+  </data>
+  <data name="LoggedOut_to return to the application" xml:space="preserve">
+    <value>για να επιστρέψετε στην εφαρμογή</value>
+  </data>
+  <data name="LoggedOut_You are now logged out" xml:space="preserve">
+    <value>Έχετε πλέον αποσυνδεθεί</value>
+  </data>
+  <data name="Login_Don't have an account?" xml:space="preserve">
+    <value>Δεν έχετε δημιουργήσει λογαριασμό;</value>
+  </data>
+  <data name="Login_Forgot password?" xml:space="preserve">
+    <value>Ξέχασες το κωδικό;</value>
+  </data>
+  <data name="Login_Invalid login request" xml:space="preserve">
+    <value>Μη έγκυρο αίτημα σύνδεσης</value>
+  </data>
+  <data name="Login_Join us" xml:space="preserve">
+    <value>Νέος χρήστης</value>
+  </data>
+  <data name="Login_Login" xml:space="preserve">
+    <value>Είσοδος</value>
+  </data>
+  <data name="Login_OR" xml:space="preserve">
+    <value>Ή</value>
+  </data>
+  <data name="Login_Password" xml:space="preserve">
+    <value>Κωδικός</value>
+  </data>
+  <data name="Login_Remember me" xml:space="preserve">
+    <value>Να με θυμάσαι</value>
+  </data>
+  <data name="Login_Sign in" xml:space="preserve">
+    <value>Είσοδος</value>
+  </data>
+  <data name="Login_There are no login schemes configured for this client." xml:space="preserve">
+    <value>Δεν υπάρχουν διαμορφωμένα προγράμματα σύνδεσης για αυτή την εφαρμογή.</value>
+  </data>
+  <data name="Login_Username" xml:space="preserve">
+    <value>Όνομα χρήστη</value>
+  </data>
+  <data name="Logout_Logout" xml:space="preserve">
+    <value>Αποσύνδεση</value>
+  </data>
+  <data name="Logout_Would you like to logout?" xml:space="preserve">
+    <value>Θα θέλατε να αποσυνδεθείτε;</value>
+  </data>
+  <data name="Logout_Yes" xml:space="preserve">
+    <value>Ναι</value>
+  </data>
+  <data name="Mfa_An unexpected error occurred while sending the OTP code." xml:space="preserve">
+    <value>Προέκυψε απρόσμενο σφάλμα κατά την αποστολή του κωδικού OTP.</value>
+  </data>
+  <data name="Mfa_Authenticate" xml:space="preserve">
+    <value>Επαλήθευση</value>
+  </data>
+  <data name="Mfa_Authenticate yourself using:" xml:space="preserve">
+    <value>Αυθεντικοποιήστε τον εαυτό σας μέσω:</value>
+  </data>
+  <data name="Mfa_Back" xml:space="preserve">
+    <value>Πίσω</value>
+  </data>
+  <data name="Mfa_Because you've turned on two-step verification, you need to approve request on your mobile app." xml:space="preserve">
+    <value>Επειδή έχετε ενεργοποιήσει την επαλήθευση σε δύο βήματα, πρέπει να εγκρίνετε το αίτημα στην εφαρμογή σας για κινητά.</value>
+  </data>
+  <data name="Mfa_I can't use my app right now" xml:space="preserve">
+    <value>Δεν μπορώ να χρησιμοποιήσω τη συσκευή μου αυτή τη στιγμή</value>
+  </data>
+  <data name="Mfa_I didn't receive the notification/Resend." xml:space="preserve">
+    <value>Δεν έλαβα την ειδοποίηση/Επαναποστολή.</value>
+  </data>
+  <data name="Mfa_I sign in frequently here. Remember this browser." xml:space="preserve">
+    <value>Συνδέομαι συχνά από εδώ. Να θυμάσαι αυτό το browser.</value>
+  </data>
+  <data name="Mfa_Login" xml:space="preserve">
+    <value>Είσοδος</value>
+  </data>
+  <data name="Mfa_Multifactor Authentication" xml:space="preserve">
+    <value>Επιπρόσθετος έλεγχος ταυτότητας</value>
+  </data>
+  <data name="Mfa_Other authentication methods..." xml:space="preserve">
+    <value>Άλλοι τρόποι αυθεντικοποίησης...</value>
+  </data>
+  <data name="Mfa_OTP Code" xml:space="preserve">
+    <value>Κωδικός OTP</value>
+  </data>
+  <data name="Mfa_Request denied" xml:space="preserve">
+    <value>Το αίτημα απορρίφθηκε</value>
+  </data>
+  <data name="Mfa_Resend" xml:space="preserve">
+    <value>Επαναποστολή</value>
+  </data>
+  <data name="Mfa_Send another request to my app" xml:space="preserve">
+    <value>Στείλτε ένα άλλο αίτημα στην εφαρμογή</value>
+  </data>
+  <data name="Mfa_We sent an identity verification request to your mobile device, but you denied it." xml:space="preserve">
+    <value>Στείλαμε ένα αίτημα επιβεβαίωσης στη συσκευή σας, αλλά το απορρίψατε.</value>
+  </data>
+  <data name="Mfa_We texted your phone {0}. Please enter the code to sign in." xml:space="preserve">
+    <value>Ένα μήνυμα έχει σταλεί στον αριθμό {0}. Παρακαλώ εισάγετε τον κωδικό για να συνδεθείτε.</value>
+  </data>
+  <data name="MfaModel_OTP login" xml:space="preserve">
+    <value>Είσοδος με OTP</value>
+  </data>
+  <data name="MfaModel_The OTP code is not valid." xml:space="preserve">
+    <value>Ο κωδικός OTP δεν είναι έγκυρος</value>
+  </data>
+  <data name="MfaModel_Your OTP code for login is: {0}" xml:space="preserve">
+    <value>Ο κωδικός OTP για είσοδο είναι: {0}</value>
+  </data>
+  <data name="MfaOnBoarding_Enable MFA" xml:space="preserve">
+    <value>Ενεργοποίηση MFA</value>
+  </data>
+  <data name="MfaOnBoarding_Keep your account safe" xml:space="preserve">
+    <value>Κρατήστε το λογαριασμό σας ασφαλή</value>
+  </data>
+  <data name="MfaOnBoarding_Next" xml:space="preserve">
+    <value>Επόμενο</value>
+  </data>
+  <data name="MfaOnBoarding_Setup an additional authentication method." xml:space="preserve">
+    <value>Ρυθμίστε μια πρόσθετη μέθοδο ελέγχου ταυτότητας.</value>
+  </data>
+  <data name="MfaOnBoardingAddPhone_MFA onboarding - SMS" xml:space="preserve">
+    <value>Ενεργοποίηση MFA - SMS</value>
+  </data>
+  <data name="MfaOnBoardingAddPhone_Next" xml:space="preserve">
+    <value>Επόμενο</value>
+  </data>
+  <data name="MfaOnBoardingAddPhone_Phone number" xml:space="preserve">
+    <value>Αριθμός τηλεφώνου</value>
+  </data>
+  <data name="MfaOnBoardingAddPhone_Save" xml:space="preserve">
+    <value>Αποθήκευση</value>
+  </data>
+  <data name="MfaOnBoardingVerifyPhone_Code" xml:space="preserve">
+    <value>Κωδικός</value>
+  </data>
+  <data name="MfaOnBoardingVerifyPhone_Next" xml:space="preserve">
+    <value>Επόμενο</value>
+  </data>
+  <data name="MfaOnBoardingVerifyPhone_Save" xml:space="preserve">
+    <value>Αποθήκευση</value>
+  </data>
+  <data name="MfaOnBoardingVerifyPhone_Verify phone number" xml:space="preserve">
+    <value>Επιβεβαίωση αριθμού τηλεφώνου</value>
+  </data>
+  <data name="PasswordExpired_Change password" xml:space="preserve">
+    <value>Αλλαγή κωδικού πρόσβασης</value>
+  </data>
+  <data name="PasswordExpired_New password" xml:space="preserve">
+    <value>Νέος κωδικός</value>
+  </data>
+  <data name="PasswordExpired_Next" xml:space="preserve">
+    <value>Επόμενο</value>
+  </data>
+  <data name="PasswordExpired_Save" xml:space="preserve">
+    <value>Αποθήκευση</value>
+  </data>
+  <data name="PasswordExpired_Νew password confirmation" xml:space="preserve">
+    <value>Επιβεβαίωση κωδικού</value>
+  </data>
+  <data name="Profile_A confirmation email has been sent to {0}." xml:space="preserve">
+    <value>Ένα email επιβεβαίωσης έχει σταλεί στη διεύθυνση {0}.</value>
+  </data>
+  <data name="Profile_An email has been sent to your new email address in order to confirm it." xml:space="preserve">
+    <value>Ένα email έχει σταλεί στη νέα σας διεύθυνση ώστε να το επιβεβαιώσετε.</value>
+  </data>
+  <data name="Profile_Birth date" xml:space="preserve">
+    <value>Ημερομηνία Γέννησης</value>
+  </data>
+  <data name="Profile_Calling Code" xml:space="preserve">
+    <value>Κωδικός Τηλεφώνου</value>
+  </data>
+  <data name="Profile_Confirmation" xml:space="preserve">
+    <value>Επιβεβαίωση</value>
+  </data>
+  <data name="Profile_Confirmation email delivery failed. Please contact system administrator." xml:space="preserve">
+    <value>Η αποστολή του email επιβεβαίωσης απέτυχε. Παρακαλώ επικοινωνήστε με το διαχειριστή του συστήματος.</value>
+  </data>
+  <data name="Profile_Connect a new provider" xml:space="preserve">
+    <value>Συνδέστε ένα νέο πάροχο</value>
+  </data>
+  <data name="Profile_Developer TOTP" xml:space="preserve">
+    <value>TOTP για προγραμματιστές</value>
+  </data>
+  <data name="Profile_Existing providers" xml:space="preserve">
+    <value>Υπάρχοντες πάροχοι</value>
+  </data>
+  <data name="Profile_External providers" xml:space="preserve">
+    <value>Εξωτερικοί πάροχοι</value>
+  </data>
+  <data name="Profile_First name" xml:space="preserve">
+    <value>Όνομα</value>
+  </data>
+  <data name="Profile_here" xml:space="preserve">
+    <value>εδώ</value>
+  </data>
+  <data name="Profile_I have been informed about the processing of my personal data and I consent to it, as specifically defined" xml:space="preserve">
+    <value>'Εχω ενημερωθεί για την επεξεργασία των προσωπικών μου δεδομένων και συναινώ, όπως περιγράφεται</value>
+  </data>
+  <data name="Profile_Language" xml:space="preserve">
+    <value>Γλώσσα</value>
+  </data>
+  <data name="Profile_Last name" xml:space="preserve">
+    <value>Επίθετο</value>
+  </data>
+  <data name="Profile_Phone number" xml:space="preserve">
+    <value>Αριθμός τηλεφώνου</value>
+  </data>
+  <data name="Profile_Preferences" xml:space="preserve">
+    <value>Ρυθμίσεις</value>
+  </data>
+  <data name="Profile_Profile" xml:space="preserve">
+    <value>Προφίλ</value>
+  </data>
+  <data name="Profile_Remove" xml:space="preserve">
+    <value>Αφαίρεση</value>
+  </data>
+  <data name="Profile_Save" xml:space="preserve">
+    <value>Αποθήκευση</value>
+  </data>
+  <data name="Profile_Tax identification" xml:space="preserve">
+    <value>Α.Φ.Μ</value>
+  </data>
+  <data name="Profile_Unknown" xml:space="preserve">
+    <value>Άγνωστος</value>
+  </data>
+  <data name="Profile_Username" xml:space="preserve">
+    <value>Όνομα χρήστη</value>
+  </data>
+  <data name="Profile_Your new email verification is still pending." xml:space="preserve">
+    <value>Η επιβεβαίωση του λογαριασμού σας εκκρεμεί.</value>
+  </data>
+  <data name="Profile_Your profile was updated successfully." xml:space="preserve">
+    <value>To προφίλ σας ενημερώθηκε επιτυχώς.</value>
+  </data>
+  <data name="Register_Already have an account?" xml:space="preserve">
+    <value>Έχετε ήδη λογαριασμό;</value>
+  </data>
+  <data name="Register_Calling Code" xml:space="preserve">
+    <value>Κωδικός Τηλεφώνου</value>
+  </data>
+  <data name="Register_Choose a username and a password of your choice. You can periodically change your password or whenever you wish to." xml:space="preserve">
+    <value>Επιλέξτε ένα όνομα χρήστη και έναν κωδικό πρόσβασης της προτίμησής σας. Έχετε τη δυνατότητα να αλλάξετε τον κωδικό σας σε περιοδικά διαστήματα ή όποτε το επιθυμείτε.</value>
+  </data>
+  <data name="Register_Choose an email and a password of your choice. You can periodically change your password or whenever you wish to." xml:space="preserve">
+    <value>Επιλέξτε ένα email και έναν κωδικό πρόσβασης της προτίμησής σας. Έχετε τη δυνατότητα να αλλάξετε τον κωδικό σας σε περιοδικά διαστήματα ή όποτε το επιθυμείτε.</value>
+  </data>
+  <data name="Register_First name" xml:space="preserve">
+    <value>Όνομα</value>
+  </data>
+  <data name="Register_here" xml:space="preserve">
+    <value>εδώ</value>
+  </data>
+  <data name="Register_I consent to the registration and processing of the above personal details for my contact and service as they are defined" xml:space="preserve">
+    <value>Έχω ενημερωθεί για την επεξεργασία των προσωπικών μου δεδομένων και συναινώ σε αυτήν, όπως ειδικά αυτή ορίζεται</value>
+  </data>
+  <data name="Register_I have read and accept the &lt;a href=&quot;/terms&quot; target=&quot;_blank&quot;&gt;Terms of service&lt;/a&gt; and the &lt;a href=&quot;/privacy&quot; target=&quot;_blank&quot;&gt;privacy policy&lt;/a&gt;." xml:space="preserve">
+    <value>Διάβασα και αποδέχομαι τους &lt;a href="/terms" target="_blank"&gt;όρους χρήσης&lt;/a&gt;.</value>
+  </data>
+  <data name="Register_I consent to the use of my contact information, including my email address, for the purpose of receiving commercial communications, promotional materials, and marketing updates from the organization. I understand that I may withdraw my consent at any time." xml:space="preserve">
+    <value>Συναινώ στη χρήση των στοιχείων επικοινωνίας μου, συμπεριλαμβανομένης της διεύθυνσης email μου, για σκοπούς λήψης εμπορικών επικοινωνιών, προωθητικού υλικού και ενημερώσεων μάρκετινγκ από τον οργανισμό. Κατανοώ ότι μπορώ να ανακαλέσω τη συγκατάθεσή μου οποιαδήποτε στιγμή.</value>
+  </data>
+  <data name="Register_Join us" xml:space="preserve">
+    <value>Εγγραφή</value>
+  </data>
+  <data name="Register_Last name" xml:space="preserve">
+    <value>Επίθετο</value>
+  </data>
+  <data name="Register_OR" xml:space="preserve">
+    <value>Ή</value>
+  </data>
+  <data name="Register_Password" xml:space="preserve">
+    <value>Κωδικός πρόσβασης</value>
+  </data>
+  <data name="Register_Phone number" xml:space="preserve">
+    <value>Αριθμός τηλεφώνου</value>
+  </data>
+  <data name="Register_Sign up" xml:space="preserve">
+    <value>Εγγραφή Χρήστη</value>
+  </data>
+  <data name="Register_These credentials are personal. Please remember them and do not reveal in any way (i.e orally, written, email) in third parties." xml:space="preserve">
+    <value>Οι κωδικοί αυτοί είναι προσωπικοί. Παρακαλούμε να τους απομνημονεύσετε και να μην τους αποκαλύψετε κατά οποιοδήποτε τρόπο (π.χ. προφορικά, γραπτώς, e-mail) σε τρίτους.</value>
+  </data>
+  <data name="Register_Timezone" xml:space="preserve">
+    <value>Ζώνη ώρας</value>
+  </data>
+  <data name="Register_Username" xml:space="preserve">
+    <value>Όνομα Χρήστη</value>
+  </data>
+  <data name="VerifyPhone_Code" xml:space="preserve">
+    <value>Κωδικός</value>
+  </data>
+  <data name="VerifyPhone_Next" xml:space="preserve">
+    <value>Επόμενο</value>
+  </data>
+  <data name="VerifyPhone_Resend" xml:space="preserve">
+    <value>Επαναποστολή</value>
+  </data>
+  <data name="VerifyPhone_Save" xml:space="preserve">
+    <value>Αποθήκευση</value>
+  </data>
+  <data name="VerifyPhone_Verify phone number" xml:space="preserve">
+    <value>Επιβεβαίωση αριθμού</value>
+  </data>
+</root>
