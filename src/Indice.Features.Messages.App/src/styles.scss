@@ -143,6 +143,9 @@ textarea.code-editor:focus {
   @apply inline-flex items-center gap-x-1.5 rounded-md px-2 py-0.5 text-xs font-medium text-gray-900 border border-gray-500;
   @layer inset-ring inset-ring-gray-200;
 }
+.badge.alias {
+  border-color: transparent;
+}
 
 .message-type-badge {
   @apply inline-flex items-center gap-x-1.5 rounded-md px-2 py-0.5 text-xs font-medium text-gray-900 border border-gray-500;
@@ -154,14 +157,24 @@ textarea.code-editor:focus {
 }
 
 .message-type-badge.System::before {
-  @apply bg-blue-700;
+  @apply bg-blue-400;
 }
+
 .message-type-badge.Commercial::before {
-  @apply bg-yellow-700;
+  @apply bg-green-500;
 }
+.message-type-badge.Error::before {
+  @apply bg-red-400;
+}
+
+.message-type-badge.Warning::before {
+  @apply bg-yellow-400;
+}
+
 .list-view-td {
   @apply px-3 py-2 whitespace-nowrap text-sm;
 }
+
 .list-view-td-full {
   @apply px-3 py-2 whitespace-nowrap text-sm w-full;
 }
@@ -174,4 +187,26 @@ textarea.code-editor:focus {
 .list-dash {
   @apply text-red-500 text-3xl;
   line-height: 1rem;
+}
+
+.dot {
+  @apply h-1.5 w-1.5 rounded-full bg-gray-500 dark:bg-white;
+  display: inline-block;
+  content: "";
+}
+
+.dot-System {
+  @apply bg-blue-400;
+}
+
+.dot-Commercial {
+  @apply bg-green-500;
+}
+
+.dot-Error {
+  @apply bg-red-400;
+}
+
+.dot-Warning {
+  @apply bg-yellow-400;
 }

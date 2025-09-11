@@ -53,7 +53,10 @@
           </div>
           <div class="col-span-4">
             <label for="classificationType"
-                   class="field-label">Κατηγοριοποίηση</label>
+                   class="field-label">
+              Κατηγοριοποίηση
+              <span class="dot dot-{{model.classification}}"></span>
+            </label>
             <select id="classificationType"
                     name="classificationType"
                     [(ngModel)]="model.classification"
