@@ -27,8 +27,9 @@ export class ContactsListComponent extends BaseListComponent<Contact> implements
       new MenuOption('Ονοματεπώνυμο', 'fulname'),
       new MenuOption('e-mail', 'email'),
       new MenuOption('Τηλέφωνο', 'phone'),
+      new MenuOption('Κωδικός', 'recipientId'),
     ];
-  }
+  } 
 
   public newItemLink: string | null = 'create-new-contact';
   public full = true;

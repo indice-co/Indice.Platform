@@ -28,24 +28,24 @@
 
     <lib-list-column title="Channels">
       <ng-template let-item>
-        <div class="flex items-center space-x-1">
+        <div class="flex items-center space-x-1" title="{{item.messageChannelKind?.join(', ')}}">
           <span [ngClass]="{ 'text-green-500': item.messageChannelKind.includes('Email') }"
-                class="ml-1 text-gray-400" title="Email">
+                class="ml-1 text-gray-400">
             <i class="ms-Icon ms-Icon--Accounts"></i>
           </span>
 
           <span [ngClass]="{ 'text-green-500': item.messageChannelKind.includes('SMS') }"
-                class="ml-1 text-gray-400" title="SMS">
+                class="ml-1 text-gray-400">
             <i class="ms-Icon ms-Icon--Chat"></i>
           </span>
 
           <span [ngClass]="{ 'text-green-500': item.messageChannelKind.includes('Inbox') }"
-                class="ml-1 text-gray-400" title="Inbox">
+                class="ml-1 text-gray-400">
             <i class="ms-Icon ms-Icon--Inbox"></i>
           </span>
 
           <span [ngClass]="{ 'text-green-500': item.messageChannelKind.includes('PushNotification') }"
-                class="ml-1 text-gray-400" title="Push Notification">
+                class="ml-1 text-gray-400">
             <i class="ms-Icon ms-Icon--CellPhone"></i>
           </span>
         </div>

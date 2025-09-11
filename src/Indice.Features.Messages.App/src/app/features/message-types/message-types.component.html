@@ -28,7 +28,7 @@
       </ng-template>
     </lib-list-column>
     <lib-list-column title="ALIAS">
-      <ng-template let-item><span *ngIf="item.alias" class="badge">{{ item.alias || '-' }}</span></ng-template>
+      <ng-template let-item><span *ngIf="item.alias" class="badge alias">{{ item.alias || '-' }}</span></ng-template>
     </lib-list-column>
     <lib-list-column title="ΚΑΤΗΓΟΡΙΑ" [full-width]="true">
       <ng-template let-item><span class="message-type-badge {{item.classification}}">{{item.classification}}</span></ng-template>
