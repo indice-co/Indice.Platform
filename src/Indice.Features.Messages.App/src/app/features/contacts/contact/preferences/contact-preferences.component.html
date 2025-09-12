@@ -66,11 +66,11 @@
             </td>
           </tr>
         </tbody>
-        <tbody *ngIf="!recepientPreference?.defaultChannels" class="list-view-tbody">
+        <tbody *ngIf="recepientPreference?.communication" class="list-view-tbody">
           <tr *ngFor="let preference of recepientPreference?.communication"
               class="list-view-tr">
             <td class="list-view-td">
-              <span class="text-sm">{{preference.messageTypeDisplayName}}</span>
+              <span class="text-sm" title="{{preference.messageType?.classification}}"><i class="mr-2 dot dot-{{preference.messageType?.classification}}"></i> {{preference.messageType?.name}}</span>
             </td>
             <td class="list-view-td">
               <span [innerHtml]="CheckReceivePreference(preference.channels!, ContactChannelKindEnum.Email) | beautifyBoolean"></span>

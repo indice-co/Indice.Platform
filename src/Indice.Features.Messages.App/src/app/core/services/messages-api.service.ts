@@ -4725,8 +4725,7 @@ export interface IContactChannelOption {
 }
 
 export class ContactCommunicationOption implements IContactCommunicationOption {
-    messageTypeDisplayName?: string;
-    messageTypeAlias?: string;
+    messageType?: MessageType;
     channels?: ContactChannelOption[];
 
     constructor(data?: IContactCommunicationOption) {
@@ -4740,8 +4739,7 @@ export class ContactCommunicationOption implements IContactCommunicationOption {
 
     init(_data?: any) {
         if (_data) {
-            this.messageTypeDisplayName = _data["messageTypeDisplayName"];
-            this.messageTypeAlias = _data["messageTypeAlias"];
+            this.messageType = _data["messageType"] ? MessageType.fromJS(_data["messageType"]) : undefined as any;
             if (Array.isArray(_data["channels"])) {
                 this.channels = [] as any;
                 for (let item of _data["channels"])
@@ -4759,8 +4757,7 @@ export class ContactCommunicationOption implements IContactCommunicationOption {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["messageTypeDisplayName"] = this.messageTypeDisplayName;
-        data["messageTypeAlias"] = this.messageTypeAlias;
+        data["messageType"] = this.messageType ? this.messageType.toJSON() : undefined as any;
         if (Array.isArray(this.channels)) {
             data["channels"] = [];
             for (let item of this.channels)
@@ -4771,8 +4768,7 @@ export class ContactCommunicationOption implements IContactCommunicationOption {
 }
 
 export interface IContactCommunicationOption {
-    messageTypeDisplayName?: string;
-    messageTypeAlias?: string;
+    messageType?: MessageType;
     channels?: ContactChannelOption[];
 }
 

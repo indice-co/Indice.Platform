@@ -19,10 +19,9 @@ public class ContactPreference
 /// <summary>Models a contact preference for a recipient.</summary>
 public class ContactCommunicationOption
 {
-    /// <summary>The name of a campaign type.</summary>
-    public string? MessageTypeDisplayName { get; set; }
-    /// <summary>The alias of a campaign type.</summary>
-    public GuidOrAlias MessageTypeAlias { get; set; }
+    /// <summary>The message type related to these preferences.</summary>
+    public MessageType MessageType { get; set; } = null!;
+
     /// <summary>The preferred delivery channels to receive messages.</summary>
     public List<ContactChannelOption> Channels { get; set; } = ContactChannelOption.FromKindFlags(ContactChannelKind.Any);
 }
