@@ -55,13 +55,13 @@ public class Contact
         var availableChannels = campaignChannels;
         // remove channels that the contact does not prefer if we are not ignoring user preferences
         if (!ignoreUserPreferences) {
-
             var typeCommunicationPreference = Preference?.Communication?.FirstOrDefault(x => x.MessageType.Id == campaignType?.Id);
             if (typeCommunicationPreference != null) {
-                availableChannels = ContactChannelOption.ToMessageChannelKind(typeCommunicationPreference.Channels, defaultOption: availableChannels);
+                var userSelectedChannels = ContactChannelOption.ToMessageChannelKind(typeCommunicationPreference.Channels);
+                availableChannels &= userSelectedChannels;
             } else if (Preference?.DefaultChannels != null) {
-                availableChannels = ContactChannelOption.ToMessageChannelKind(Preference.DefaultChannels, defaultOption: availableChannels);
-
+                var userSelectedChannels = ContactChannelOption.ToMessageChannelKind(Preference.DefaultChannels);
+                availableChannels &= userSelectedChannels;
             }
         }
         // remove channels that the contact does not support due to missing info

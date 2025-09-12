@@ -50,7 +50,8 @@
         <tbody *ngIf="recepientPreference?.defaultChannels" class="list-view-tbody">
           <tr class="list-view-tr">
             <td class="list-view-td">
-              Default Settings
+              <span class="text-sm"><i class="mr-2 dot"></i> Default Settings</span>
+              
             </td>
             <td class="list-view-td">
               <span [innerHtml]="CheckReceivePreference(recepientPreference?.defaultChannels!, ContactChannelKindEnum.Email) | beautifyBoolean"></span>
