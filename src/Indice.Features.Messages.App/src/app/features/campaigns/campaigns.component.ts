@@ -18,14 +18,16 @@ export class CampaignsComponent extends BaseListComponent<Campaign> implements O
     ) {
         super(route, router);
         this.view = ListViewType.Table;
-        this.pageSize = 10;
+        this.pageSize = 20;
         this.sort = 'createdAt';
         this.sortdir = 'desc';
         this.search = '';
         this.sortOptions = [
             new MenuOption('Ημ/νια Δημιουργίας', 'createdAt'),
             new MenuOption('Τίτλος', 'title'),
-            new MenuOption('Ενεργή Από', 'activePeriod.from')
+            new MenuOption('Ενεργή Από', 'activePeriod.from'),
+            new MenuOption('Τύπος', 'type.name'),
+            new MenuOption('Δημοσιευμένη', 'published')
         ];
     }
 

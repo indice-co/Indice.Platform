@@ -27,35 +27,39 @@
       </ng-template>
     </lib-list-column>
     <lib-list-column title="ALIAS">
-      <ng-template let-item>{{ item.alias }}</ng-template>
+      <ng-template let-item><span  *ngIf="item.alias" class="badge alias">{{ item.alias || '-' }}</span></ng-template>
     </lib-list-column>
     <lib-list-column title="Channels">
       <ng-template let-item>
-        <div class="flex items-center space-x-1">
+        <div class="flex items-center space-x-1" title="{{item.channels?.join(', ')}}">
           <span [ngClass]="{ 'text-green-500': item.channels.includes('Email') }"
-                class="ml-1 text-gray-400" title="Email">
+                class="ml-1 text-gray-400">
             <i class="ms-Icon ms-Icon--Accounts"></i>
           </span>
 
           <span [ngClass]="{ 'text-green-500': item.channels.includes('SMS') }"
-                class="ml-1 text-gray-400" title="SMS">
+                class="ml-1 text-gray-400">
             <i class="ms-Icon ms-Icon--Chat"></i>
           </span>
 
           <span [ngClass]="{ 'text-green-500': item.channels.includes('Inbox') }"
-                class="ml-1 text-gray-400" title="Inbox">
+                class="ml-1 text-gray-400">
             <i class="ms-Icon ms-Icon--Inbox"></i>
           </span>
 
           <span [ngClass]="{ 'text-green-500': item.channels.includes('PushNotification') }"
-                class="ml-1 text-gray-400" title="Push Notification">
+                class="ml-1 text-gray-400">
             <i class="ms-Icon ms-Icon--CellPhone"></i>
           </span>
         </div>
       </ng-template>
     </lib-list-column>
     <lib-list-column title="ΤΥΠΟΣ ΜΥΝΗΜΑΤΟΣ">
-      <ng-template let-item>{{ item.type?.name }}</ng-template>
+      <ng-template let-item>
+        <span *ngIf="item.messageType" title="{{item.messageType?.classification}}" class="message-type-badge {{item.messageType?.classification}}">
+          {{ item.messageType?.name || '-' }}
+        </span>
+      </ng-template>
     </lib-list-column>
     <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ">
       <ng-template let-item>{{ item.createdAt | date: 'medium' }}</ng-template>

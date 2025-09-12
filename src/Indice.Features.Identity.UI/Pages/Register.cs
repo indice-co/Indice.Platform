@@ -228,6 +228,7 @@ public abstract class BaseRegisterModel : BasePageModel
                 UserId = user.Id
             });
         }
+        UiOptions.Events.OnUserRegistering?.Invoke(new UIPageRegisteringUserContext(HttpContext, user, input));
         return user;
     }
 }

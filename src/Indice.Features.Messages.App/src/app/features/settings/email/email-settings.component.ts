@@ -21,7 +21,7 @@ export class EmailSettingsComponent extends BaseListComponent<MessageSender> imp
 ) {
     super(route, _router);
     this.view = ListViewType.Table;
-    this.pageSize = 10;
+    this.pageSize = 20;
     this.sort = 'isDefault';
     this.sortdir = 'desc';
     this.search = '';
