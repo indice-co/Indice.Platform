@@ -13,7 +13,8 @@ import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 
 @Component({
     selector: 'app-user-applications',
-    templateUrl: './user-applications.component.html'
+    templateUrl: './user-applications.component.html',
+    standalone: false
 })
 export class UserApplicationsComponent implements OnInit, OnDestroy {
     @ViewChild('userApplicationsList', { static: true }) public _userApplicationsList: ListViewComponent;

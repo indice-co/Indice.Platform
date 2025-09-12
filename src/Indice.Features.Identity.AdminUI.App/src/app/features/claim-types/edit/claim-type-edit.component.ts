@@ -7,7 +7,8 @@ import { ToastService } from 'src/app/layout/services/app-toast.service';
 
 @Component({
     selector: 'app-claim-type-edit',
-    templateUrl: './claim-type-edit.component.html'
+    templateUrl: './claim-type-edit.component.html',
+    standalone: false
 })
 export class ClaimTypeEditComponent implements OnInit {
     constructor(

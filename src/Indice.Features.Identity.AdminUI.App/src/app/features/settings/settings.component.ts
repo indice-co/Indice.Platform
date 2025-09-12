@@ -6,7 +6,8 @@ import { SearchEvent } from 'src/app/shared/components/list-view/models/search-e
 
 @Component({
     selector: 'app-settings',
-    templateUrl: './settings.component.html'
+    templateUrl: './settings.component.html',
+    standalone: false
 })
 export class SettingsComponent implements OnInit {
     @ViewChild('actionsTemplate', { static: true }) public _actionsTemplate: TemplateRef<HTMLElement>;

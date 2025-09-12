@@ -13,7 +13,8 @@ import { finalize } from 'rxjs/operators';
 @Component({
     selector: 'app-sign-in-logs',
     templateUrl: './sign-in-logs.component.html',
-    providers: [NgbDateCustomParserFormatter]
+    providers: [NgbDateCustomParserFormatter],
+    standalone: false
 })
 export class SignInLogsComponent implements OnInit {
     constructor(

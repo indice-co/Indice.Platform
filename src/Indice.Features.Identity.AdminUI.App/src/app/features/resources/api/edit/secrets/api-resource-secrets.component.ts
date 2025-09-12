@@ -17,7 +17,8 @@ import { AuthService } from 'src/app/core/services/auth.service';
 @Component({
     selector: 'app-api-resource-secrets',
     templateUrl: './api-resource-secrets.component.html',
-    providers: [NgbDateCustomParserFormatter]
+    providers: [NgbDateCustomParserFormatter],
+    standalone: false
 })
 export class ApiResourceSecretsComponent implements OnInit, OnDestroy {
     @ViewChild('apiSecretsList', { static: true }) private _apiSecretsList: ListViewComponent;

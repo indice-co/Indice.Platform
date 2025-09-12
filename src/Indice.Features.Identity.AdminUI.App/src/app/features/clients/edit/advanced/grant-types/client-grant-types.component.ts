@@ -16,7 +16,8 @@ import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
     selector: 'app-client-grant-types',
-    templateUrl: './client-grant-types.component.html'
+    templateUrl: './client-grant-types.component.html',
+    standalone: false
 })
 export class ClientGrantTypesComponent implements OnInit, OnDestroy {
     constructor(

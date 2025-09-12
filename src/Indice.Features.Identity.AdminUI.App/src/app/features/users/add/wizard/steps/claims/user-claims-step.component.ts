@@ -20,9 +20,10 @@ import { UserStore } from "src/app/features/users/edit/user-store.service";
 import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
-  selector: "app-user-claims-step",
-  templateUrl: "./user-claims-step.component.html",
-  providers: [NgbDateCustomParserFormatter],
+    selector: "app-user-claims-step",
+    templateUrl: "./user-claims-step.component.html",
+    providers: [NgbDateCustomParserFormatter],
+    standalone: false
 })
 export class UserClaimsStepComponent
   extends StepBaseComponent<UserWizardModel>

@@ -7,7 +7,8 @@ import { SearchEvent } from 'src/app/shared/components/list-view/models/search-e
 
 @Component({
     selector: 'app-api-resources',
-    templateUrl: './api-resources.component.html'
+    templateUrl: './api-resources.component.html',
+    standalone: false
 })
 export class ApiResourcesComponent implements OnInit {
     @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;

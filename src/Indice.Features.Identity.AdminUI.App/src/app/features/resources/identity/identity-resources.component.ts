@@ -7,7 +7,8 @@ import { SearchEvent } from 'src/app/shared/components/list-view/models/search-e
 
 @Component({
     selector: 'app-identity-resources',
-    templateUrl: './identity-resources.component.html'
+    templateUrl: './identity-resources.component.html',
+    standalone: false
 })
 export class IdentityResourcesComponent implements OnInit {
     @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;

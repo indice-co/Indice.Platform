@@ -15,7 +15,8 @@ import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'app-client-urls',
-    templateUrl: './client-urls.component.html'
+    templateUrl: './client-urls.component.html',
+    standalone: false
 })
 export class ClientUrlsComponent implements OnInit, OnDestroy {
     @ViewChild('checkboxTemplate', { static: true }) private _checkboxTemplate: TemplateRef<HTMLElement>;

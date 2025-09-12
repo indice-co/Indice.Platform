@@ -12,7 +12,8 @@ import { ListViewComponent } from 'src/app/shared/components/list-view/list-view
 
 @Component({
     selector: 'app-user-logins',
-    templateUrl: './user-logins.component.html'
+    templateUrl: './user-logins.component.html',
+    standalone: false
 })
 export class UserLoginsComponent implements OnInit, OnDestroy {
     @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;

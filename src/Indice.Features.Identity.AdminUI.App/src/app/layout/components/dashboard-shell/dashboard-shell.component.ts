@@ -5,7 +5,8 @@ import { MenuService } from '../../services/menu.service';
 @Component({
     selector: 'app-dashboard-shell',
     templateUrl: './dashboard-shell.component.html',
-    providers: [MenuService]
+    providers: [MenuService],
+    standalone: false
 })
 export class DashboardShellComponent implements OnInit {
     constructor(private _menuService: MenuService) { }

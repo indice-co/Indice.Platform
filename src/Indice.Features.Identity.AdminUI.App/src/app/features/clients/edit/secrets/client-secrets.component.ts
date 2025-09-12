@@ -17,7 +17,8 @@ import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
     selector: 'app-client-secrets',
-    templateUrl: './client-secrets.component.html'
+    templateUrl: './client-secrets.component.html',
+    standalone: false
 })
 export class ClientSecretsComponent implements OnInit, OnDestroy {
     @ViewChild('clientSecretsList', { static: true }) private _clientSecretsList: ListViewComponent;

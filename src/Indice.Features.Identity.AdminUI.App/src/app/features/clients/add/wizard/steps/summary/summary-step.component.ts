@@ -7,7 +7,8 @@ import { ClientWizardModel } from '../../models/client-wizard-model';
 
 @Component({
     selector: 'app-summary-step',
-    templateUrl: './summary-step.component.html'
+    templateUrl: './summary-step.component.html',
+    standalone: false
 })
 export class SummaryStepComponent extends StepBaseComponent<ClientWizardModel> implements OnInit {
     constructor(public _toast: ToastService) {

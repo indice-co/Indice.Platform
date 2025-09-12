@@ -25,9 +25,10 @@ import { ToastService } from "src/app/layout/services/app-toast.service";
 import { AuthService } from "src/app/core/services/auth.service";
 
 @Component({
-  selector: "app-user-additional-details",
-  templateUrl: "./user-additional-details.component.html",
-  providers: [NgbDateCustomParserFormatter],
+    selector: "app-user-additional-details",
+    templateUrl: "./user-additional-details.component.html",
+    providers: [NgbDateCustomParserFormatter],
+    standalone: false
 })
 export class UserAdditionalDetailsComponent implements OnInit, OnDestroy {
   @ViewChild("form", { static: false }) private _form: NgForm;

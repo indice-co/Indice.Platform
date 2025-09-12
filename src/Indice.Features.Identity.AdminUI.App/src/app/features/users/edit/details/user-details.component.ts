@@ -15,7 +15,8 @@ import { AuthService } from 'src/app/core/services/auth.service';
 @Component({
     selector: 'app-user-details',
     templateUrl: './user-details.component.html',
-    providers: [NgbDateCustomParserFormatter]
+    providers: [NgbDateCustomParserFormatter],
+    standalone: false
 })
 export class UserDetailsComponent implements OnInit, OnDestroy {
     private _updateUserSubscription: Subscription;

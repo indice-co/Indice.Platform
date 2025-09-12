@@ -12,7 +12,8 @@ import { AuthService } from 'src/app/core/services/auth.service';
 @Component({
     selector: 'app-client-details',
     templateUrl: './client-details.component.html',
-    providers: [TranslateInputService]
+    providers: [TranslateInputService],
+    standalone: false
 })
 export class ClientDetailsComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;

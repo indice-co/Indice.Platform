@@ -11,7 +11,8 @@ import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
     selector: 'app-user-roles',
-    templateUrl: './user-roles.component.html'
+    templateUrl: './user-roles.component.html',
+    standalone: false
 })
 export class UserRolesComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;

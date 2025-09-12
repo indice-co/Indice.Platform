@@ -5,7 +5,8 @@ import { Subscription } from 'rxjs';
 import { SearchEvent } from './search-event';
 
 @Component({
-    template: ''
+    template: '',
+    standalone: false
 })
 export class ListView {
     // Properties.

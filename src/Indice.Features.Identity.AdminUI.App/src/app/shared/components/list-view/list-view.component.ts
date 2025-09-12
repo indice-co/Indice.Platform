@@ -10,7 +10,8 @@ import { SearchEvent } from './models/search-event';
 @Component({
     selector: 'app-list-view',
     templateUrl: './list-view.component.html',
-    styleUrls: ['./list-view.component.scss']
+    styleUrls: ['./list-view.component.scss'],
+    standalone: false
 })
 export class ListViewComponent extends ListView implements OnInit, OnDestroy {
     @ViewChild('filterInput', { static: true }) private _filterInput: ElementRef;

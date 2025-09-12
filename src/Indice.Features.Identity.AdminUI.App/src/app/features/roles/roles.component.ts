@@ -8,7 +8,8 @@ import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
     selector: 'app-roles',
-    templateUrl: './roles.component.html'
+    templateUrl: './roles.component.html',
+    standalone: false
 })
 export class RolesComponent implements OnInit {
     constructor(

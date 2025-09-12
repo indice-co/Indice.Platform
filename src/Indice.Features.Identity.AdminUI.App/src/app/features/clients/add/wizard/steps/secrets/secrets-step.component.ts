@@ -11,7 +11,8 @@ import { ValidationSummaryComponent } from 'src/app/shared/components/validation
 
 @Component({
     selector: 'app-secrets-step',
-    templateUrl: './secrets-step.component.html'
+    templateUrl: './secrets-step.component.html',
+    standalone: false
 })
 export class SecretsStepComponent extends StepBaseComponent<ClientWizardModel> implements OnInit {
     @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;

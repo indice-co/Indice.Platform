@@ -8,7 +8,8 @@ import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
     selector: 'app-claim-types',
-    templateUrl: './claim-types.component.html'
+    templateUrl: './claim-types.component.html',
+    standalone: false
 })
 export class ClaimTypesComponent implements OnInit {
     @ViewChild('claimTypesList', { static: true }) public _claimTypesList: ListViewComponent;

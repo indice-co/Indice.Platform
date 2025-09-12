@@ -6,8 +6,9 @@ import * as app from "src/app/core/models/settings";
 import { IdTokenClaims } from "oidc-client-ts";
 
 @Component({
-  selector: "app-top-bar",
-  templateUrl: "./top-bar.component.html",
+    selector: "app-top-bar",
+    templateUrl: "./top-bar.component.html",
+    standalone: false
 })
 export class TopBarComponent implements OnInit {
   constructor(

@@ -13,7 +13,8 @@ import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
     selector: 'app-client-claims',
-    templateUrl: './client-claims.component.html'
+    templateUrl: './client-claims.component.html',
+    standalone: false
 })
 export class ClientClaimsComponent implements OnInit, OnDestroy {
     @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;

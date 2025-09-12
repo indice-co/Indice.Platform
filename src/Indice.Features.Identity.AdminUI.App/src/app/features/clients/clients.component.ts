@@ -8,7 +8,8 @@ import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
     selector: 'app-clients',
-    templateUrl: './clients.component.html'
+    templateUrl: './clients.component.html',
+    standalone: false
 })
 export class ClientsComponent implements OnInit {
     @ViewChild('clientsList', { static: true }) public _clientsList: ListViewComponent;

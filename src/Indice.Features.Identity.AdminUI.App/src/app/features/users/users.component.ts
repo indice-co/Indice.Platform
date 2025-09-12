@@ -13,8 +13,9 @@ import { UiFeaturesService } from "src/app/core/services/ui-features.service";
 import { Observable, map } from "rxjs";
 
 @Component({
-  selector: "app-users",
-  templateUrl: "./users.component.html",
+    selector: "app-users",
+    templateUrl: "./users.component.html",
+    standalone: false
 })
 export class UsersComponent implements OnInit {
   @ViewChild("usersList", { static: true })

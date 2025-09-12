@@ -9,8 +9,9 @@ import { QueryParameters } from 'src/app/shared/components/list-view/models/quer
 import { finalize } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-user-sign-in-logs',
-  templateUrl: './user-sign-in-logs.component.html'
+    selector: 'app-user-sign-in-logs',
+    templateUrl: './user-sign-in-logs.component.html',
+    standalone: false
 })
 export class UserSignInLogsComponent implements OnInit {
 

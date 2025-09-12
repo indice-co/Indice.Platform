@@ -2,7 +2,8 @@
 import { Output, EventEmitter, Input, Component } from '@angular/core';
 
 @Component({
-    template: ''
+    template: '',
+    standalone: false
 })
 export abstract class StepBaseComponent<T> {
     constructor() {

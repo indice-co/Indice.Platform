@@ -4,8 +4,9 @@ import { UserWizardModel } from "../../models/user-wizard.model";
 import { AbstractControl } from "@angular/forms";
 
 @Component({
-  selector: "app-extended-info-step",
-  templateUrl: "./extended-info-step.component.html",
+    selector: "app-extended-info-step",
+    templateUrl: "./extended-info-step.component.html",
+    standalone: false
 })
 export class ExtendedInfoStepComponent
   extends StepBaseComponent<UserWizardModel>

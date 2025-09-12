@@ -13,7 +13,8 @@ import { TranslateInputService } from 'src/app/shared/components/translate-input
 @Component({
     selector: 'app-api-resource-scope-details',
     templateUrl: './api-resource-scope-details.component.html',
-    providers: [TranslateInputService]
+    providers: [TranslateInputService],
+    standalone: false
 })
 export class ApiResourceScopeDetailsComponent implements OnInit, OnDestroy {
     @ViewChild('deleteAlert', { static: false }) private _deleteAlert: SwalComponent;

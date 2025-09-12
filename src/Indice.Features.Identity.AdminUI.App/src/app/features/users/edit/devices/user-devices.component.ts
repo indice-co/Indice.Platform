@@ -12,7 +12,8 @@ import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 
 @Component({
     selector: 'app-user-devices',
-    templateUrl: './user-devices.component.html'
+    templateUrl: './user-devices.component.html',
+    standalone: false
 })
 export class UserDevicesComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription | undefined;

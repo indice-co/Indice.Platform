@@ -8,7 +8,8 @@ import { ResourceWizardModel } from '../../../models/resource-wizard-model';
 
 @Component({
     selector: 'app-user-claims-step',
-    templateUrl: './user-claims-step.component.html'
+    templateUrl: './user-claims-step.component.html',
+    standalone: false
 })
 export class UserClaimsStepComponent extends StepBaseComponent<ResourceWizardModel> implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;
