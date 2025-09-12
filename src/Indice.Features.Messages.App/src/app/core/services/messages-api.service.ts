@@ -5899,6 +5899,8 @@ export interface IMessageType {
 export enum MessageTypeClassification {
     System = "System",
     Commercial = "Commercial",
+    Info = "Info",
+    Success = "Success",
     Error = "Error",
     Warning = "Warning",
 }
