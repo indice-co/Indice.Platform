@@ -225,7 +225,7 @@
 <!-- Templates for the enhanced combobox -->
 <ng-template #typeItemTemplate let-item>
   <div class="hover:bg-gray-100 relative cursor-pointer select-none py-2 pl-3 pr-3 flex">
-    <span class="block truncate grow">{{ item.name }}</span>
+    <span class="block truncate grow"><i class="dot dot-{{item.icon}} mr-2"></i>{{ item.name }}</span>
   </div>
 </ng-template>
 

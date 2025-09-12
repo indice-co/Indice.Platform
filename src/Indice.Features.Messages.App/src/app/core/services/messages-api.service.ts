@@ -21,12 +21,13 @@ export interface IMessagesApiClient {
      * @param size (optional) The size of the list. Default is 100
      * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
      * @param search (optional) A search term used to limit the results of the list.
-     * @param messageChannelKind (optional) 
-     * @param published (optional) 
-     * @param contactId (optional) 
+     * @param messageChannelKind (optional) The delivery channel of a campaign.
+     * @param published (optional) Determines if a campaign is published.
+     * @param contactId (optional) The ID of the contact to filter campaigns by.
+     * @param typeId (optional) The message type ID or alias.
      * @return OK
      */
-    getCampaigns(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, messageChannelKind?: MessageChannelKind[] | undefined, published?: boolean | undefined, contactId?: string | undefined): Observable<CampaignResultSet>;
+    getCampaigns(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, messageChannelKind?: MessageChannelKind[] | undefined, published?: boolean | undefined, contactId?: string | undefined, typeId?: string[] | undefined): Observable<CampaignResultSet>;
     /**
      * Creates a new campaign.
      * @return Created
@@ -300,12 +301,13 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @param size (optional) The size of the list. Default is 100
      * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
      * @param search (optional) A search term used to limit the results of the list.
-     * @param messageChannelKind (optional) 
-     * @param published (optional) 
-     * @param contactId (optional) 
+     * @param messageChannelKind (optional) The delivery channel of a campaign.
+     * @param published (optional) Determines if a campaign is published.
+     * @param contactId (optional) The ID of the contact to filter campaigns by.
+     * @param typeId (optional) The message type ID or alias.
      * @return OK
      */
-    getCampaigns(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, messageChannelKind?: MessageChannelKind[] | undefined, published?: boolean | undefined, contactId?: string | undefined): Observable<CampaignResultSet> {
+    getCampaigns(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, messageChannelKind?: MessageChannelKind[] | undefined, published?: boolean | undefined, contactId?: string | undefined, typeId?: string[] | undefined): Observable<CampaignResultSet> {
         let url_ = this.baseUrl + "/campaigns?";
         if (page === null)
             throw new globalThis.Error("The parameter 'page' cannot be null.");
@@ -335,6 +337,10 @@ export class MessagesApiClient implements IMessagesApiClient {
             throw new globalThis.Error("The parameter 'contactId' cannot be null.");
         else if (contactId !== undefined)
             url_ += "ContactId=" + encodeURIComponent("" + contactId) + "&";
+        if (typeId === null)
+            throw new globalThis.Error("The parameter 'typeId' cannot be null.");
+        else if (typeId !== undefined)
+            typeId && typeId.forEach(item => { url_ += "TypeId=" + encodeURIComponent("" + item) + "&"; });
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -4725,8 +4731,7 @@ export interface IContactChannelOption {
 }
 
 export class ContactCommunicationOption implements IContactCommunicationOption {
-    messageTypeDisplayName?: string;
-    messageTypeAlias?: string;
+    messageType?: MessageType;
     channels?: ContactChannelOption[];
 
     constructor(data?: IContactCommunicationOption) {
@@ -4740,8 +4745,7 @@ export class ContactCommunicationOption implements IContactCommunicationOption {
 
     init(_data?: any) {
         if (_data) {
-            this.messageTypeDisplayName = _data["messageTypeDisplayName"];
-            this.messageTypeAlias = _data["messageTypeAlias"];
+            this.messageType = _data["messageType"] ? MessageType.fromJS(_data["messageType"]) : undefined as any;
             if (Array.isArray(_data["channels"])) {
                 this.channels = [] as any;
                 for (let item of _data["channels"])
@@ -4759,8 +4763,7 @@ export class ContactCommunicationOption implements IContactCommunicationOption {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["messageTypeDisplayName"] = this.messageTypeDisplayName;
-        data["messageTypeAlias"] = this.messageTypeAlias;
+        data["messageType"] = this.messageType ? this.messageType.toJSON() : undefined as any;
         if (Array.isArray(this.channels)) {
             data["channels"] = [];
             for (let item of this.channels)
@@ -4771,8 +4774,7 @@ export class ContactCommunicationOption implements IContactCommunicationOption {
 }
 
 export interface IContactCommunicationOption {
-    messageTypeDisplayName?: string;
-    messageTypeAlias?: string;
+    messageType?: MessageType;
     channels?: ContactChannelOption[];
 }
 
@@ -5899,6 +5901,8 @@ export interface IMessageType {
 export enum MessageTypeClassification {
     System = "System",
     Commercial = "Commercial",
+    Info = "Info",
+    Success = "Success",
     Error = "Error",
     Warning = "Warning",
 }

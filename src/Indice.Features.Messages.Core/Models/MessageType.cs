@@ -23,15 +23,23 @@ public enum MessageTypeClassification : byte
     /// </summary>
     System = 0,
     /// <summary>
-    /// Commercial notifications e.g. a campaign
+    /// Commercial campaigns
     /// </summary>
     Commercial = 1,
     /// <summary>
-    /// Errors
+    /// Informational
     /// </summary>
-    Error = 2,
+    Info = 100,
+    /// <summary>
+    /// Successful operations
+    /// </summary>
+    Success = 101,
+    /// <summary>
+    /// Error notifications
+    /// </summary>
+    Error = 102,
     /// <summary>
     /// Warnings
     /// </summary>
-    Warning = 3,
+    Warning = 103,
 }
