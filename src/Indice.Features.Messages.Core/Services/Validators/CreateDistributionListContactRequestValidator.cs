@@ -8,6 +8,6 @@ public class CreateDistributionListContactRequestValidator : AbstractValidator<C
 {
     /// <summary>Creates a new instance of <see cref="CreateDistributionListRequestValidator"/>.</summary>
     public CreateDistributionListContactRequestValidator() {
-        RuleFor(x => x.FullName).NotEmpty();
+        RuleFor(x => x.FullName).NotEmpty().When(x => string.IsNullOrEmpty(x.RecipientId));
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Indice.Features.Messages.Core.Models;
+﻿using System.Runtime.Intrinsics.X86;
+
+namespace Indice.Features.Messages.Core.Models;
 
 /// <summary>Models a contact in the system as a member of a distribution list.</summary>
 public class Contact
@@ -55,13 +57,13 @@ public class Contact
         var availableChannels = campaignChannels;
         // remove channels that the contact does not prefer if we are not ignoring user preferences
         if (!ignoreUserPreferences) {
-
             var typeCommunicationPreference = Preference?.Communication?.FirstOrDefault(x => x.MessageType.Id == campaignType?.Id);
             if (typeCommunicationPreference != null) {
-                availableChannels = ContactChannelOption.ToMessageChannelKind(typeCommunicationPreference.Channels, defaultOption: availableChannels);
+                var userSelectedChannels = ContactChannelOption.ToMessageChannelKind(typeCommunicationPreference.Channels);
+                availableChannels &= userSelectedChannels;
             } else if (Preference?.DefaultChannels != null) {
-                availableChannels = ContactChannelOption.ToMessageChannelKind(Preference.DefaultChannels, defaultOption: availableChannels);
-
+                var userSelectedChannels = ContactChannelOption.ToMessageChannelKind(Preference.DefaultChannels);
+                availableChannels &= userSelectedChannels;
             }
         }
         // remove channels that the contact does not support due to missing info
