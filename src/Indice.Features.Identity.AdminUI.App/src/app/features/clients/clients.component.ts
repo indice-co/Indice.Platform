@@ -1,6 +1,6 @@
 import { Component, ViewChild, OnInit, TemplateRef } from '@angular/core';
 
-import { TableColumn } from '@swimlane/ngx-datatable';
+import { CellContext, TableColumn } from '@swimlane/ngx-datatable';
 import { IdentityApiService, ClientInfoResultSet, ClientInfo } from 'src/app/core/services/identity-api.service';
 import { SearchEvent } from 'src/app/shared/components/list-view/models/search-event';
 import { ListViewComponent } from 'src/app/shared/components/list-view/list-view.component';
@@ -13,8 +13,8 @@ import { AuthService } from 'src/app/core/services/auth.service';
 })
 export class ClientsComponent implements OnInit {
     @ViewChild('clientsList', { static: true }) public _clientsList: ListViewComponent;
-    @ViewChild('actionsTemplate', { static: true }) public _actionsTemplate: TemplateRef<HTMLElement>;
-    @ViewChild('clientIdTemplate', { static: true }) public _clientIdTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('actionsTemplate', { static: true }) public _actionsTemplate: TemplateRef<CellContext<any>>;
+    @ViewChild('clientIdTemplate', { static: true }) public _clientIdTemplate: TemplateRef<CellContext<any>>;
 
     constructor(
         private _api: IdentityApiService,

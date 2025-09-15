@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { TableColumn } from '@swimlane/ngx-datatable';
+import { CellContext, TableColumn } from '@swimlane/ngx-datatable';
 import { Subscription } from 'rxjs';
 import { DeviceInfo } from 'src/app/core/services/identity-api.service';
 import { ListViewComponent } from 'src/app/shared/components/list-view/list-view.component';
@@ -20,7 +20,7 @@ export class UserDevicesComponent implements OnInit, OnDestroy {
     private _deviceToDelete: DeviceInfo;
     private _userId: string;
     public canEditUser: boolean;
-    @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<CellContext<any>>;
     @ViewChild('userDeviceList', { static: true }) public _userDeviceList: ListViewComponent;
     @ViewChild('deleteAlert', { static: false }) private _deleteAlert: SwalComponent;
 

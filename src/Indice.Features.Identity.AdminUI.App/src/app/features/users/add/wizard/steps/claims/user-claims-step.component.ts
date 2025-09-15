@@ -5,7 +5,7 @@ import {
   ViewChild,
   TemplateRef,
 } from "@angular/core";
-import { TableColumn } from "@swimlane/ngx-datatable";
+import { CellContext, TableColumn } from "@swimlane/ngx-datatable";
 import { map, Subscription } from "rxjs";
 import {
   ClaimTypeInfo,
@@ -30,9 +30,9 @@ export class UserClaimsStepComponent
   implements OnInit, OnDestroy
 {
   @ViewChild("actionsTemplate", { static: true })
-  private _actionsTemplate: TemplateRef<HTMLElement>;
+  private _actionsTemplate: TemplateRef<CellContext<any>>;
   @ViewChild("nameTemplate", { static: true })
-  public _nameTemplate: TemplateRef<HTMLElement>;
+  public _nameTemplate: TemplateRef<CellContext<any>>;
   @ViewChild("deleteAlert", { static: false })
   private _getDataSubscription: Subscription;
   private _formSubscription: Subscription;

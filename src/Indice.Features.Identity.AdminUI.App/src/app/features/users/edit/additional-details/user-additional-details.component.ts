@@ -10,7 +10,7 @@ import { NgForm } from "@angular/forms";
 
 import { Subscription, forkJoin } from "rxjs";
 import { map } from "rxjs/operators";
-import { TableColumn } from "@swimlane/ngx-datatable";
+import { CellContext, TableColumn } from "@swimlane/ngx-datatable";
 import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 import { UserStore } from "../user-store.service";
 import {
@@ -33,9 +33,9 @@ import { AuthService } from "src/app/core/services/auth.service";
 export class UserAdditionalDetailsComponent implements OnInit, OnDestroy {
   @ViewChild("form", { static: false }) private _form: NgForm;
   @ViewChild("actionsTemplate", { static: true })
-  private _actionsTemplate: TemplateRef<HTMLElement>;
+  private _actionsTemplate: TemplateRef<CellContext<any>>;
   @ViewChild("nameTemplate", { static: true })
-  public _nameTemplate: TemplateRef<HTMLElement>;
+  public _nameTemplate: TemplateRef<CellContext<any>>;
   private _getDataSubscription: Subscription;
   private _user: SingleUserInfo;
   private _discouragedClaims: Array<string> = [

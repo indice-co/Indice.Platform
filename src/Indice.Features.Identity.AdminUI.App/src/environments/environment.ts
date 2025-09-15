@@ -3,7 +3,7 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  api_url: 'https://localhost:2000',
+  api_url: 'https://messaging.indice.gr/api', //'https://localhost:2001/api'
   api_docs: 'https://localhost:2000/docs/index.html',
   auth_settings: {
     accessTokenExpiringNotificationTime: 60,

@@ -1,6 +1,6 @@
 import { Component, ViewChild, OnInit, TemplateRef } from '@angular/core';
 
-import { TableColumn } from '@swimlane/ngx-datatable';
+import { CellContext, TableColumn } from '@swimlane/ngx-datatable';
 import { IdentityApiService, RoleInfoResultSet, RoleInfo } from 'src/app/core/services/identity-api.service';
 import { SearchEvent } from 'src/app/shared/components/list-view/models/search-event';
 import { ListViewComponent } from 'src/app/shared/components/list-view/list-view.component';
@@ -18,8 +18,8 @@ export class RolesComponent implements OnInit {
     ) { }
 
     @ViewChild('rolesList', { static: true }) public rolesList: ListViewComponent;
-    @ViewChild('actionsTemplate', { static: true }) public actionsTemplate: TemplateRef<HTMLElement>;
-    @ViewChild('keyTemplate', { static: true }) public keyTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('actionsTemplate', { static: true }) public actionsTemplate: TemplateRef<CellContext<any>>;
+    @ViewChild('keyTemplate', { static: true }) public keyTemplate: TemplateRef<CellContext<any>>;
     public count = 0;
     public rows: RoleInfo[] = [];
     public columns: TableColumn[] = [];

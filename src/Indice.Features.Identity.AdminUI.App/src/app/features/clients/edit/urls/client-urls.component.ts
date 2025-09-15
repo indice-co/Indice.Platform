@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild, TemplateRef } from '@angular/c
 import { ActivatedRoute } from '@angular/router';
 import { NgForm } from '@angular/forms';
 
-import { TableColumn } from '@swimlane/ngx-datatable';
+import { CellContext, HeaderCellContext, TableColumn } from '@swimlane/ngx-datatable';
 import { of, pipe, Subscription } from 'rxjs';
 import { SingleClientInfo } from 'src/app/core/services/identity-api.service';
 import { ClientStore } from '../client-store.service';
@@ -19,11 +19,11 @@ import { map } from 'rxjs/operators';
     standalone: false
 })
 export class ClientUrlsComponent implements OnInit, OnDestroy {
-    @ViewChild('checkboxTemplate', { static: true }) private _checkboxTemplate: TemplateRef<HTMLElement>;
-    @ViewChild('redirectTemplate', { static: true }) private _redirectTemplate: TemplateRef<HTMLElement>;
-    @ViewChild('corsTemplate', { static: true }) private _corsTemplate: TemplateRef<HTMLElement>;
-    @ViewChild('postLogoutRedirectTemplate', { static: true }) private _postLogoutRedirectTemplate: TemplateRef<HTMLElement>;
-    @ViewChild('urlTemplate', { static: true }) private _urlTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('checkboxTemplate', { static: true }) private _checkboxTemplate: TemplateRef<CellContext<any>>;
+    @ViewChild('redirectTemplate', { static: true }) private _redirectTemplate: TemplateRef<HeaderCellContext>;
+    @ViewChild('corsTemplate', { static: true }) private _corsTemplate: TemplateRef<HeaderCellContext>;
+    @ViewChild('postLogoutRedirectTemplate', { static: true }) private _postLogoutRedirectTemplate: TemplateRef<HeaderCellContext>;
+    @ViewChild('urlTemplate', { static: true }) private _urlTemplate: TemplateRef<CellContext<any>>;
     @ViewChild('urlForm', { static: false }) private _form: NgForm;
     private _getDataSubscription: Subscription;
     private _updateClientUrlsSubscription: Subscription;

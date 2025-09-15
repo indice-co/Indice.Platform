@@ -1,7 +1,7 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { TableColumn } from '@swimlane/ngx-datatable';
+import { CellContext, TableColumn } from '@swimlane/ngx-datatable';
 import { StepBaseComponent } from '../../../../../../shared/components/step-base/step-base.component';
 import { UtilitiesService } from 'src/app/core/services/utilities.services';
 import { CreateSecretRequest, FileParameter, IdentityApiService, ProblemDetails, SecretInfoBase, HttpValidationProblemDetails } from 'src/app/core/services/identity-api.service';
@@ -15,8 +15,8 @@ import { ValidationSummaryComponent } from 'src/app/shared/components/validation
     standalone: false
 })
 export class SecretsStepComponent extends StepBaseComponent<ClientWizardModel> implements OnInit {
-    @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
-    @ViewChild('wrapContentTemplate', { static: true }) private _wrapContentTemplate: ListViewComponent;
+    @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<CellContext<any>>;
+    @ViewChild('wrapContentTemplate', { static: true }) private _wrapContentTemplate: TemplateRef<CellContext<any>>;
     @ViewChild('clientSecretsList', { static: true }) private _clientSecretsList: ListViewComponent;
     @ViewChild('validationSummary', { static: false }) private _validationSummary: ValidationSummaryComponent;
     private _initialSecrets: CreateSecretRequest[];

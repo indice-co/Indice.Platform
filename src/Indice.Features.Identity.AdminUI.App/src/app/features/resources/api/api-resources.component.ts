@@ -1,6 +1,6 @@
 import { Component, ViewChild, TemplateRef, OnInit } from '@angular/core';
 
-import { TableColumn } from '@swimlane/ngx-datatable';
+import { CellContext, TableColumn } from '@swimlane/ngx-datatable';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { IdentityApiService, ApiResourceInfoResultSet, ApiResourceInfo } from 'src/app/core/services/identity-api.service';
 import { SearchEvent } from 'src/app/shared/components/list-view/models/search-event';
@@ -11,8 +11,8 @@ import { SearchEvent } from 'src/app/shared/components/list-view/models/search-e
     standalone: false
 })
 export class ApiResourcesComponent implements OnInit {
-    @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
-    @ViewChild('idTemplate', { static: true }) public _idTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<CellContext<any>>;
+    @ViewChild('idTemplate', { static: true }) public _idTemplate: TemplateRef<CellContext<any>>;
 
     constructor(
         private _api: IdentityApiService,

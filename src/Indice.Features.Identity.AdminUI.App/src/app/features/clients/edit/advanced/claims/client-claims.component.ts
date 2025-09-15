@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { NgForm } from '@angular/forms';
 
 import { Subscription } from 'rxjs';
-import { TableColumn } from '@swimlane/ngx-datatable';
+import { CellContext, TableColumn } from '@swimlane/ngx-datatable';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { ClientStore } from '../../client-store.service';
 import { SingleClientInfo, ClaimInfo } from 'src/app/core/services/identity-api.service';
@@ -17,7 +17,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
     standalone: false
 })
 export class ClientClaimsComponent implements OnInit, OnDestroy {
-    @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<CellContext<any>>;
     @ViewChild('claimsform', { static: false }) private _form: NgForm;
     @ViewChild('deleteAlert', { static: false }) private _deleteAlert: SwalComponent;
     private _getDataSubscription: Subscription;

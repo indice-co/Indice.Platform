@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { Subscription } from 'rxjs';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
-import { TableColumn } from '@swimlane/ngx-datatable';
+import { CellContext, TableColumn } from '@swimlane/ngx-datatable';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { saveAs } from 'file-saver';
 import { ListViewComponent } from 'src/app/shared/components/list-view/list-view.component';
@@ -22,12 +22,12 @@ import { AuthService } from 'src/app/core/services/auth.service';
 })
 export class ClientSecretsComponent implements OnInit, OnDestroy {
     @ViewChild('clientSecretsList', { static: true }) private _clientSecretsList: ListViewComponent;
-    @ViewChild('wrapContentTemplate', { static: true }) private _wrapContentTemplate: ListViewComponent;
-    @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
-    @ViewChild('optionalTemplate', { static: true }) private _optionalTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('wrapContentTemplate', { static: true }) private _wrapContentTemplate: TemplateRef<CellContext<any>>;
+    @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<CellContext<any>>;
+    @ViewChild('optionalTemplate', { static: true }) private _optionalTemplate: TemplateRef<CellContext<any>>;
     @ViewChild('form', { static: false }) private _form: NgForm;
     @ViewChild('deleteAlert', { static: false }) private _deleteAlert: SwalComponent;
-    @ViewChild('expiredTemplate', { static: true }) private _expiredTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('expiredTemplate', { static: true }) private _expiredTemplate: TemplateRef<CellContext<any>>;
     @ViewChild('validationSummary', { static: false }) private _validationSummary: ValidationSummaryComponent;
     private _getDataSubscription: Subscription;
     private _clientId: string;
