@@ -56,8 +56,12 @@
   .basic-modal-accept-success {
     @apply text-green-700 bg-green-100 hover:bg-green-200 focus:ring-green-500;
   }
+
 }
 
+.dropdown-selected-text {
+  align-items: center;
+}
 .toggle-button-container-inner-true {
   opacity: 0;
 }
@@ -157,16 +161,20 @@ textarea.code-editor:focus {
 }
 
 .message-type-badge.System::before {
+  @apply bg-indigo-500;
+}
+.message-type-badge.Commercial::before {
+  @apply bg-purple-500;
+}
+.message-type-badge.Info::before {
   @apply bg-blue-400;
 }
-
-.message-type-badge.Commercial::before {
+.message-type-badge.Success::before {
   @apply bg-green-500;
 }
 .message-type-badge.Error::before {
   @apply bg-red-400;
 }
-
 .message-type-badge.Warning::before {
   @apply bg-yellow-400;
 }
@@ -196,10 +204,18 @@ textarea.code-editor:focus {
 }
 
 .dot-System {
-  @apply bg-blue-400;
+  @apply bg-indigo-500;
 }
 
 .dot-Commercial {
+  @apply bg-purple-500;
+}
+
+.dot-Info {
+  @apply bg-blue-400;
+}
+
+.dot-Success {
   @apply bg-green-500;
 }
 

@@ -30,11 +30,18 @@
                                         <div *ngFor="let channel of channelsState | keyvalue; let i = index;"
                                             class="relative flex items-start py-4">
                                             <div class="min-w-0 flex-1 text-sm">
-                                                <label [for]="'channel-' + i" class="font-medium text-gray-700">
-                                                    {{ channel.value.name }}
-                                                </label>
+                                              <label [for]="'channel-' + i" class="font-medium text-gray-700">
+                                                <span class="mr-1 align-middle">
+                                                  <i class="ms-Icon ms-Icon--Accounts" [ngClass]="{
+                                                    'ms-Icon--Accounts': channel.key === 'email',
+                                                    'ms-Icon--Chat': channel.key === 'sms',
+                                                    'ms-Icon--CellPhone': channel.key === 'pushNotification',
+                                                    'ms-Icon--Inbox': channel.key === 'inbox'
+                                                   }"></i>
+                                                </span> {{ channel.value.name }}
+                                              </label>
                                                 <p [id]="'channel-' + i + '-description'" class="text-gray-500">
-                                                    {{ channel.value.description }}
+                                                  {{ channel.value.description }}
                                                 </p>
                                             </div>
                                             <div class="ml-3 flex items-center h-5">
@@ -55,9 +62,22 @@
                     </div>
                 </lib-tab>
                 <lib-tab [labelText]="getChannelState(contentForm.value.channel).name"
-                    *ngFor="let contentForm of channelsContent.controls; let i = index">
-                    <ng-container
-                        *ngTemplateOutlet="contentTemplate; context: { $implicit: contentForm }"></ng-container>
+                         *ngFor="let contentForm of channelsContent.controls; let i = index">
+                  <ng-template let-tab
+                               libTabLabel>
+                    <div class="inline-flex items-center">
+                      <span class="mr-1 align-middle">
+                        <i class="ms-Icon ms-Icon--Accounts" [ngClass]="{
+                          'ms-Icon--Accounts': tab.labelText === 'Email',
+                          'ms-Icon--Chat': tab.labelText === 'SMS',
+                          'ms-Icon--CellPhone': tab.labelText === 'Push Notification',
+                          'ms-Icon--Inbox': tab.labelText === 'Inbox'
+                         }"></i>
+                      </span>
+                      <span>{{tab.labelText}}</span>
+                    </div>
+                  </ng-template>
+                  <ng-container *ngTemplateOutlet="contentTemplate; context: { $implicit: contentForm }"></ng-container>
                 </lib-tab>
             </lib-tab-group>
         </fieldset>

@@ -16,6 +16,18 @@
                  (pageSizeChanged)="pageSizeChanged($event)"
                  (sortChanged)="sortChanged($event)"
                  (sortdirChanged)="sortdirChanged($event)">
+    <ng-container pager-near-content>
+      <div class="inline-flex">
+        <lib-toggle-buttons-list class="mr-2"
+                                 [icon]="'ms-Icon ms-Icon--Filter text-gray-300'"
+                                 [options]="messageTypeOptions$ | async"
+                                 [value]="messageTypeFilter"
+                                 (valueChange)="onFilterChanged('messageType', $event)">
+        </lib-toggle-buttons-list>
+      </div>
+    </ng-container>
+
+
     <lib-list-column title="ΤΙΤΛΟΣ">
       <ng-template let-item>
         <a title="Λεπτομέρειες"
@@ -67,11 +79,11 @@
       <ng-template let-item>{{ item.createdAt | date: 'medium' }}</ng-template>
     </lib-list-column>
     <!--<lib-list-column title="ΤΡΟΠΟΠΟΙΗΘΗΚΕ ΑΠΟ">
-      <ng-template let-item>{{ item.updatedBy || '-' }}</ng-template>
-    </lib-list-column>
-    <lib-list-column title="ΤΡΟΠΟΠΟΙΗΘΗΚΕ">
-      <ng-template let-item>{{ !item.updatedAt ? '-' : (item.updatedAt | date: 'medium') }}</ng-template>
-    </lib-list-column>-->
+    <ng-template let-item>{{ item.updatedBy || '-' }}</ng-template>
+  </lib-list-column>
+  <lib-list-column title="ΤΡΟΠΟΠΟΙΗΘΗΚΕ">
+    <ng-template let-item>{{ !item.updatedAt ? '-' : (item.updatedAt | date: 'medium') }}</ng-template>
+  </lib-list-column>-->
     <lib-list-column title="ΔΗΜΟΣΙΕΥΜΕΝΗ"
                      [full-width]="true">
       <ng-template let-item>

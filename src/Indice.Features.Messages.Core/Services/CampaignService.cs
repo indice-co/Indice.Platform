@@ -60,6 +60,12 @@ public class CampaignService : ICampaignService
         if (options.Filter?.Published.HasValue == true) {
             projectedQuery = projectedQuery.Where(x => x.Published == options.Filter.Published.Value);
         }
+        if (options.Filter?.TypeId?.Length > 0) {
+            var types = options.Filter.TypeId.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => GuidOrAlias.Parse(x));
+            var typeIds = types.Where(x => x.IsGuid).Select(x => x.Uuid).ToArray();
+            var typeAliases = types.Where(x => !x.IsGuid).Select(x => x.Value).ToArray();
+            projectedQuery = projectedQuery.Where(x => typeIds.Contains(x.Type!.Id) || typeAliases.Contains(x.Type.Alias));
+        }
         return projectedQuery.ToResultSetAsync(options);
     }
 
