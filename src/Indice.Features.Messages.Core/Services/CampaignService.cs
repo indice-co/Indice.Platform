@@ -224,6 +224,7 @@ public class CampaignService : ICampaignService
                             Type = x.Type,
                             CreatedOn = x.CreatedOn
                         })
+                        .OrderByDescending(x=>x.CreatedOn)
                         .ToListAsync());
         return details;
     }

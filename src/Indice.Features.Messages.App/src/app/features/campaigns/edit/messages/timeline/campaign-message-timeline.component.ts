@@ -9,7 +9,7 @@ import {  CampaignMessageDetailsResponse, MessagesApiClient } from 'src/app/core
 export class CampaignMessageTimelineComponent  implements OnInit  {
   public _campaignId: string | undefined;
   public _contactId: string | undefined;
-  public campaignTimeline: CampaignMessageDetailsResponse[] | undefined;
+  public campaignTimeline: CampaignMessageDetailsResponse | undefined;
 
   constructor(
       private _router: Router,
@@ -21,7 +21,7 @@ export class CampaignMessageTimelineComponent  implements OnInit  {
     this._campaignId = this._activatedRoute.parent?.parent?.snapshot.params['campaignId'];
     this._contactId = this._activatedRoute.snapshot.params['contactId'];
     this._api.getCampaignMessageDetails(this._campaignId!, this._contactId!).subscribe(data => {
-      this.campaignTimeline =data;
+      this.campaignTimeline = data;
     });
   }
 }

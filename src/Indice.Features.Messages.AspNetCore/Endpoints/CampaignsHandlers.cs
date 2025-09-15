@@ -143,7 +143,7 @@ internal static class CampaignsHandlers
         var campaigns = await campaignService.GetCampaignMessages(campaignId, options);
         return TypedResults.Ok(campaigns);
     }
-    public static async Task<Ok<List<CampaignMessageDetailsResponse>>> GetCampaignMessageDetails(ICampaignService campaignService, Guid campaignId, Guid messageId) {
+    public static async Task<Ok<CampaignMessageDetailsResponse>> GetCampaignMessageDetails(ICampaignService campaignService, Guid campaignId, Guid messageId) {
         var campaigns = await campaignService.GetCampaignMessageDetails(campaignId, messageId);
         return TypedResults.Ok(campaigns);
     }

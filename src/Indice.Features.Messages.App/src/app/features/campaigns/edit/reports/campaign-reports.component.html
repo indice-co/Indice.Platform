@@ -12,7 +12,10 @@
         <lib-kpi-tile title="Μη Αναγνωσμένα" [busy]="!loaded" [kpi]="counters?.notReadCount" ></lib-kpi-tile>
         <lib-kpi-tile title="Διαγραμένα" [busy]="!loaded" [kpi]="counters?.deletedCount" ></lib-kpi-tile>
         <lib-kpi-tile title="Call to Atcion" [busy]="!loaded" [kpi]="counters?.callToActionCount"></lib-kpi-tile>
-        
+<app-doughnut-chart  [stringValue]="counters?.readCount ?? ''" [title]="('hotness-score')"
+  [type]="1"></app-doughnut-chart>
+<app-doughnut-chart [stringValue]="counters?.callToActionCount?? ''" [title]="('liquidity-score')"
+  [type]="0"></app-doughnut-chart>
         <ng-container *ngIf="counters?.messagesperChannel">
           <lib-kpi-tile *ngFor="let entry of counters?.messagesperChannel | keyvalue"
                         [title]="entry.key"

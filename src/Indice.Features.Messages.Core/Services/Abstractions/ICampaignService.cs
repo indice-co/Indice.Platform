@@ -40,6 +40,6 @@ public interface ICampaignService
     Task<ResultSet<CampaignMessageResponse>> GetCampaignMessages(Guid id, ListOptions options);
     /// <summary>Gets the details of a specific message for a campaign.</summary>
     /// /// <param name="id">The id of the campaign.</param>
-    /// /// <param name="messageId">The id of the message.</param>
-    Task<List<CampaignMessageDetailsResponse>> GetCampaignMessageDetails(Guid id, Guid messageId);
+    /// /// <param name="contactId">The id of the contact.</param>
+    Task<CampaignMessageDetailsResponse> GetCampaignMessageDetails(Guid id, Guid contactId);
 }

@@ -1,4 +1,4 @@
-<lib-view-layout title="Αποστολές" [busy]="!items" [actions]="actions" [meta-items]="metaItems"
+<lib-view-layout title="Ιστορικό αποστολών" [busy]="!items" [actions]="actions" [meta-items]="metaItems"
   (onAction)="actionHandler($event)" (onSearch)="searchChanged($event)">
   <lib-list-view [items]="items" [page]="page" [page-size]="pageSize" [count]="count" [sort-options]="sortOptions"
     [sort]="sort" [sort-dir]="sortdir" [busy]="!items" (pageChanged)="pageChanged($event)"
@@ -6,23 +6,13 @@
     (sortdirChanged)="sortdirChanged($event)">
     <lib-list-column title="Id">
       <ng-template let-item>
-        <a title="Στοιχεία campaign"
+        <a title="Λεπτομέρειες αποστολών"
             [routerLink]="['/campaigns/'+_campaignId+'/campaign-message-timeline/'+item.contactId]" 
             class="text-blue-600">
           {{ item.messageId }}
         </a>
       </ng-template>
     </lib-list-column>
-    <lib-list-column title="email">
-      <ng-template let-item>{{ item.email }}</ng-template>
-    </lib-list-column>
-    <lib-list-column title="Τηλεφωνο">
-      <ng-template let-item>{{ item.phoneNumber }}</ng-template>
-    </lib-list-column>
-    <lib-list-column title="recipientId">
-      <ng-template let-item>{{ item.recipientId }}</ng-template>
-    </lib-list-column>
-    
     <lib-list-column title="Channels">
       <ng-template let-item>
         <div class="flex items-center space-x-1">
@@ -47,6 +37,15 @@
           </span>
         </div>
       </ng-template>
+    </lib-list-column>
+    <lib-list-column title="email">
+      <ng-template let-item>{{ item.email }}</ng-template>
+    </lib-list-column>
+    <lib-list-column title="Τηλεφωνο">
+      <ng-template let-item>{{ item.phoneNumber }}</ng-template>
+    </lib-list-column>
+    <lib-list-column title="recipientId">
+      <ng-template let-item>{{ item.recipientId }}</ng-template>
     </lib-list-column>
     <lib-list-column title="Ημερομηνια" [full-width]="true">
       <ng-template let-item>{{ item.createdOn ? (item.createdOn | date: 'medium') : '-' }}</ng-template>
