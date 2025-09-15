@@ -45,6 +45,6 @@ public class RiskService
             result.RiskLevel = RiskEngineOptions.RiskLevelRangeMapping.GetRiskLevel(result.RiskScore) ?? RiskLevel.None;
             results.Add(result);
         }
-        return new AggregateRuleExecutionResult(@event.Id, enabledRules.Length, results, RiskEngineOptions);
+        return new AggregateRuleExecutionResult(dbEvent.Id, enabledRules.Length, results, RiskEngineOptions);
     }
 }
