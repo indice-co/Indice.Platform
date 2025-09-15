@@ -1,6 +1,8 @@
 /* ==============
   Progressbar
 ===================*/
+@use 'variables' as *;
+
 .progress-bar {
   background-color: $primary;
 }

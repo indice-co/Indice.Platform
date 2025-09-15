@@ -31,7 +31,6 @@
     "bootstrap": "5.3.8",
     "file-saver": "2.0.5",
     "material-design-icons": "3.0.1",
-    "ngx-moment": "^6.0.2",
     "ngx-progressbar": "14.0.0",
     "oidc-client-ts": "3.3.0",
     "rxjs": "7.8.2",
