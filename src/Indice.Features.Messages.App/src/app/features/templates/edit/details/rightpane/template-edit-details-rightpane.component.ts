@@ -5,7 +5,6 @@ import { EMPTY, Subscription, catchError, map } from 'rxjs';
 
 import { MessageTypeResultSet, MessagesApiClient, Template } from 'src/app/core/services/messages-api.service';
 import { TemplateEditStore } from '../../template-edit-store.service';
-import { settings } from 'src/app/core/models/settings';
 
 @Component({
   selector: 'app-campaign-details-edit-rightpane',
@@ -48,7 +47,7 @@ export class TemplateDetailsEditRightpaneComponent implements OnInit, AfterViewI
       .subscribe((template: Template) => {
         this.model = template;
         if (this.model?.messageType?.id) {
-          this.selectedOption = new MenuOption(this.model.messageType.name || '', this.model.messageType.id);
+          this.selectedOption = new MenuOption(this.model.messageType.name || '', this.model.messageType.id, undefined, null, `dot dot-${this.model.messageType.classification}`);
         }
       });
     this._changeDetector.detectChanges();
@@ -132,7 +131,7 @@ export class TemplateDetailsEditRightpaneComponent implements OnInit, AfterViewI
       .getMessageTypes()
       .pipe(map((messageTypes: MessageTypeResultSet) => {
         if (messageTypes.items) {
-          this.messageTypes.push(...messageTypes.items.map(type => new MenuOption(type.name || '', type.id)));
+          this.messageTypes.push(...messageTypes.items.map(type => new MenuOption(type.name || '', type.id, undefined, type, `dot dot-${type.classification}`)));
         }
       }))
       .subscribe();

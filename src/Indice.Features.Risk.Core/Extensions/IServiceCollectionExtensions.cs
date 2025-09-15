@@ -30,6 +30,7 @@ public static class IServiceCollectionExtensions
         services.AddTransient<RiskService>();
         services.AddTransient<AdminRuleService>();
         services.AddSingleton<IRiskEventStore, RiskEventStoreNoOp>();
+        services.AddGeoIPResolver();
         return builder;
     }
 }

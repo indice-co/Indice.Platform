@@ -22,5 +22,5 @@ public abstract class RiskRule
     /// <summary>Executes the rule asynchronously.</summary>
     /// <param name="event">The event occurred.</param>
     /// <returns>The result of rule execution.</returns>
-    public abstract ValueTask<RuleExecutionResult> ExecuteAsync(RiskEvent @event);
+    public abstract ValueTask<RuleExecutionResult> ExecuteAsync(DbRiskEvent @event);
 }

@@ -9,8 +9,12 @@ public class RisksUIOptions : SpaUIOptions
     public string? ApiUrl { get; set; }
 
     /// <summary>Creates a new instance <see cref="RisksUIOptions"/>.</summary>
-    public RisksUIOptions() =>
+    public RisksUIOptions() {
+        ClientId = "risk-ui";
+        Scope = "openid profile role email risk";
+        DocumentTitle = "Risk UI";
         ConfigureIndexParameters = args => {
             args[$"%({nameof(ApiUrl)})"] = ApiUrl;
         };
+    }
 }

@@ -157,7 +157,7 @@ export class CampaignDetailsEditRightpaneComponent implements OnInit, AfterViewI
                 href: campaign.actionLink?.href || ''
             });
             if (campaign.type?.id) {
-                this.selectedTypeId = new MenuOption(campaign.type.name || '', campaign.type.id);
+              this.selectedTypeId = new MenuOption(campaign.type.name || '', campaign.type.id, undefined, null, `dot dot-${campaign.type.classification}`);
             }
             if (campaign.content?.email?.sender) {
                 let sender = {
@@ -205,7 +205,7 @@ export class CampaignDetailsEditRightpaneComponent implements OnInit, AfterViewI
             .getMessageTypes()
             .pipe(map((messageTypes: MessageTypeResultSet) => {
                 if (messageTypes.items) {
-                    this.messageTypes.push(...messageTypes.items.map(type => new MenuOption(type.name || '', type.id)));
+                  this.messageTypes.push(...messageTypes.items.map(type => new MenuOption(type.name || '', type.id, undefined, null, `dot dot-${type.classification}`)));
                 }
             }))
             .subscribe();

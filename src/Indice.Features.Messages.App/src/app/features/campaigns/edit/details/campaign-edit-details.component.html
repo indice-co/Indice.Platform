@@ -47,7 +47,10 @@
                 Τύπος
                 <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editType' }"></ng-container>
               </dt>
-              <dd class="mt-1 text-sm text-gray-900">{{ campaign?.type?.name || '-' }}</dd>
+              <dd class="mt-1 text-sm text-gray-900">
+                <span *ngIf="campaign?.type" class="message-type-badge {{campaign?.type?.classification}}">{{ campaign?.type?.name}}</span>
+                {{ campaign?.type ? '' : '-' }}
+              </dd>
             </div>
             <div class="sm:col-span-1">
               <dt class="text-sm font-medium text-gray-500">

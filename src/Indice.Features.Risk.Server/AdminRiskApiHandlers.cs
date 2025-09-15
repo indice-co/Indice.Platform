@@ -1,6 +1,7 @@
 ﻿using Indice.Features.Risk.Core.Data.Models;
 using Indice.Features.Risk.Core.Models;
 using Indice.Features.Risk.Core.Models.Requests;
+using Indice.Features.Risk.Core.Models.Responses;
 using Indice.Features.Risk.Core.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
@@ -14,19 +15,27 @@ internal static class AdminRiskApiHandlers
     internal static async Task<Ok<ResultSet<RiskEvent>>> GetRiskEvents(
         [FromServices] RiskStoreService riskStoreService,
         [AsParameters] ListOptions options,
-        [AsParameters] AdminRiskFilterRequest filter
+        [AsParameters] AdminRiskEventFilterRequest filter
     ) {
-        var results = await riskStoreService.GetRiskEventsAsync(ListOptions.Create(options, filter));
-        return TypedResults.Ok(results);
+        var events = await riskStoreService.GetRiskEventsAsync(ListOptions.Create(options, filter));
+        return TypedResults.Ok(events);
     }
 
     internal static async Task<Ok<ResultSet<DbAggregateRuleExecutionResult>>> GetRiskResults(
         [FromServices] RiskStoreService riskStoreService,
         [AsParameters] ListOptions options,
-        [AsParameters] AdminRiskFilterRequest filter
+        [AsParameters] AdminRiskResultFilterRequest filter
     ) {
         var results = await riskStoreService.GetRiskResultsAsync(ListOptions.Create(options, filter));
         return TypedResults.Ok(results);
+    }
+
+    internal static async Task<Ok<IEnumerable<RiskEvent>>> GetRiskEventBySessionId(
+        [FromServices] RiskStoreService riskStoreService,
+        string sessionId
+    ) {
+        var riskEvents = await riskStoreService.GetRiskEventsBySessionIdAsync(sessionId);
+        return TypedResults.Ok(riskEvents);
     }
 
     internal static Ok<ResultSet<RiskRuleDto>> GetRiskRules(
@@ -41,7 +50,7 @@ internal static class AdminRiskApiHandlers
         string ruleName
     ) {
         var results = await adminRuleService.GetRiskRuleOptionsAsync(ruleName);
-        return (results.Count() == 0) ? TypedResults.NotFound() : TypedResults.Ok(results);
+        return (!results.Any()) ? TypedResults.NotFound() : TypedResults.Ok(results);
     }
 
     internal static async Task<Results<NoContent, ValidationProblem>> UpdateRiskRuleOptions<TOptions>(

@@ -43,7 +43,12 @@ public class TemplateService : ITemplateService
             Alias = template.Alias,
             Data = template.Data,
             CreatedAt = template.CreatedAt,
-            MessageType = template.MessageType != null ? new MessageType { Id = template.MessageType.Id, Name = template.MessageType.Name } : null,
+            MessageType = template.MessageType != null ? new MessageType {
+                Id = template.MessageType.Id, 
+                Name = template.MessageType.Name, 
+                Alias = template.MessageType.Alias, 
+                Classification = template.MessageType.Classification 
+            } : null,
         };
     }
 
@@ -80,7 +85,12 @@ public class TemplateService : ITemplateService
             Alias = template.Alias,
             IgnoreUserPreferences = template.IgnoreUserPreferences,
             Data = template.Data,
-            MessageType = template.MessageType != null ? new MessageType { Id = template.MessageType.Id, Name = template.MessageType.Name } : null
+            MessageType = template.MessageType != null ? new MessageType { 
+                Id = template.MessageType.Id, 
+                Name = template.MessageType.Name, 
+                Alias = template.MessageType.Alias, 
+                Classification = template.MessageType.Classification 
+            } : null
         };
     }
 
@@ -113,8 +123,13 @@ public class TemplateService : ITemplateService
             Name = x.Name,
             Alias = x.Alias,
             IgnoreUserPreferences = x.IgnoreUserPreferences,
-            MessageType = x.MessageType != null ? new MessageType { Id = x.MessageType.Id, Name = x.MessageType.Name } : null
-
+            MessageType = x.MessageType != null ? new MessageType { 
+                Id = x.MessageType.Id, 
+                Name = x.MessageType.Name, 
+                Alias = x.MessageType.Alias, 
+                Classification = 
+                x.MessageType.Classification 
+            } : null
         });
         return new ResultSet<TemplateListItem>(templateItems, result.Count);
     }

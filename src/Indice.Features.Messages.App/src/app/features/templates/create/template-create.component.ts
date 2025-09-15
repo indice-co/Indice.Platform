@@ -2,10 +2,9 @@ import { AfterViewChecked, ChangeDetectorRef, Component, Inject, OnInit, ViewChi
 import { Router } from '@angular/router';
 
 import { HeaderMetaItem, Icons, MenuOption, ToasterService, ToastType } from '@indice/ng-components';
-import { CreateTemplateRequest, MessageContent, MessagesApiClient } from 'src/app/core/services/messages-api.service';
+import { CreateTemplateRequest, MessageContent, MessagesApiClient, MessageTypeResultSet } from 'src/app/core/services/messages-api.service';
 import { CampaignContentComponent } from '../../campaigns/create/steps/content/campaign-content.component';
 import { catchError, EMPTY } from 'rxjs';
-import { MessageTypeResultSet } from '../../../core/services/media-api.service';
 import { map } from 'rxjs/operators';
 
 @Component({
@@ -24,7 +23,7 @@ export class TemplateCreateComponent implements OnInit, AfterViewChecked {
 
     this.template.messageTypeId = '';
   }
-  public selectedOption = new MenuOption('Παρακαλώ επιλέξτε...', null);
+  public selectedOption = new MenuOption('Παρακαλώ επιλέξτε...', null, undefined, {});
   public messageTypes: MenuOption[] = [];
   
   public metaItems: HeaderMetaItem[] | null = [];
@@ -83,7 +82,7 @@ export class TemplateCreateComponent implements OnInit, AfterViewChecked {
       .getMessageTypes()
       .pipe(map((messageTypes: MessageTypeResultSet) => {
         if (messageTypes.items) {
-          this.messageTypes.push(...messageTypes.items.map(type => new MenuOption(type.name || '', type.id)));
+          this.messageTypes.push(...messageTypes.items.map(type => new MenuOption(type.name || '', type.id, undefined, type, `dot dot-${type.classification}`)));
         }
       }))
       .subscribe();

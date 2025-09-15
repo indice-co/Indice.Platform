@@ -18,7 +18,7 @@ export class ContactsListComponent extends BaseListComponent<Contact> implements
   ) {
     super(route, _router);
     this.view = ListViewType.Table;
-    this.pageSize = 10;
+    this.pageSize = 20;
     this.sort = 'updatedAt';
     this.sortdir = 'asc';
     this.search = '';
@@ -27,8 +27,9 @@ export class ContactsListComponent extends BaseListComponent<Contact> implements
       new MenuOption('Ονοματεπώνυμο', 'fulname'),
       new MenuOption('e-mail', 'email'),
       new MenuOption('Τηλέφωνο', 'phone'),
+      new MenuOption('Κωδικός', 'recipientId'),
     ];
-  }
+  } 
 
   public newItemLink: string | null = 'create-new-contact';
   public full = true;

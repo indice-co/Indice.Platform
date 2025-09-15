@@ -110,8 +110,8 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
       });
     }
     this.previewData.title = this._basicInfoStep.title.value;
-    this.previewData.type = this._basicInfoStep.type.value?.text;
-    this.previewData.template = this._basicInfoStep.template.value?.text;
+    this.previewData.type = this._basicInfoStep.type.value?.name;
+    this.previewData.template = this._basicInfoStep.template.value?.name;
     this.previewData.distributionList = this._recipientsStep.distributionList.value?.text;
     this.previewData.period = new Period({
       from: this._basicInfoStep.from.value,
@@ -145,7 +145,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
       title: this._basicInfoStep.title.value,
       data:  JSON.parse(this._contentStep.data.value || '{}'),
       mediaBaseHref: this._contentStep.additionalData.mediaBaseHref,
-      typeId: this._basicInfoStep.type.value?.value || undefined,
+      typeId: this._basicInfoStep.type.value?.id || undefined,
       recipientIds: this._recipientsStep.recipientIds.value ? this._recipientsStep.recipientIds.value.split('\n') : null,
       recipientListId: this._recipientsStep.distributionList.value?.value || undefined,
       recipients: this._recipientsStep.recipients.value || undefined,

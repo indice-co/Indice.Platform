@@ -1,5 +1,8 @@
 ﻿using System.Security.Claims;
+using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.UI.Models;
 using Indice.Security;
+using Microsoft.AspNetCore.Http;
 
 namespace Indice.Features.Identity.UI;
 
@@ -74,6 +77,8 @@ public class IdentityUIOptions
     public bool OverrideDefaultStaticFileMiddleware { get; set; } = true;
     /// <summary>Stores the calling code along with the phone number.</summary>
     public bool EnablePhoneNumberCallingCodes { get; set; } = false;
+    /// <summary>Event handlers for various UI specific operations.</summary>
+    public UiPageEvents Events { get; set; } = new UiPageEvents();
     /// <summary>
     /// Used with <see cref="Indice.Globalization.PhoneNumber"/> instances to convert to predictable string for storage.
     /// </summary>
@@ -113,4 +118,25 @@ public class IdentityUIOptions
     public record HomePageLink(string DisplayName, string Link, string? CssClass = null, string? ImageSrc = null, Predicate<ClaimsPrincipal>? VisibilityPredicate = null);
 }
 
+/// <summary>
+/// Context for the <see cref="UiPageEvents.OnUserRegistering"/> event. 
+/// </summary>
+/// <param name="HttpContext">The httpContext</param>
+/// <param name="User">the user to be added to database. Already polulated from input</param>
+/// <param name="PageInput">The page input model</param>
+public record UIPageRegisteringUserContext(HttpContext HttpContext, User User, object PageInput);
 
+/// <summary>
+/// Event handler for when a user is registering from the /register page just before it is added to the user store. 
+/// </summary>
+/// <param name="context">The on registering context</param>
+public delegate Task UIPageUserRegisteringEventHandler(UIPageRegisteringUserContext context);
+
+/// <summary>
+/// Event handlers for various UI specific operations. 
+/// </summary>
+public class UiPageEvents
+{
+    /// <summary>Triggered when a user is registering from the /register page.</summary>
+    public UIPageUserRegisteringEventHandler? OnUserRegistering { get; set; }
+}

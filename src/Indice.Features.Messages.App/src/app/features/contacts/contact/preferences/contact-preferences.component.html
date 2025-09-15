@@ -41,16 +41,17 @@
             <th scope="col" class="list-view-th">
               Τύποι Μηνυμάτων
             </th>
-            <th scope="col" class="list-view-th">Email</th>
-            <th scope="col" class="list-view-th">Sms</th>
-            <th scope="col" class="list-view-th">Push Nofication</th>
-            <th scope="col" class="list-view-th">Inbox</th>
+            <th scope="col" class="list-view-th"><span class="mr-1 align-middle"><i class="ms-Icon ms-Icon--Accounts"></i></span>Email</th>
+            <th scope="col" class="list-view-th"><span class="mr-1 align-middle"><i class="ms-Icon ms-Icon--Chat"></i></span>Sms</th>
+            <th scope="col" class="list-view-th"><span class="mr-1 align-middle"><i class="ms-Icon ms-Icon--CellPhone"></i></span>Push Nofication</th>
+            <th scope="col" class="list-view-th"><span class="mr-1 align-middle"><i class="ms-Icon ms-Icon--Inbox"></i></span>Inbox</th>
           </tr>
         </thead>
         <tbody *ngIf="recepientPreference?.defaultChannels" class="list-view-tbody">
           <tr class="list-view-tr">
             <td class="list-view-td">
-              Default Settings
+              <span class="text-sm"><i class="mr-2 dot"></i> Default Settings</span>
+              
             </td>
             <td class="list-view-td">
               <span [innerHtml]="CheckReceivePreference(recepientPreference?.defaultChannels!, ContactChannelKindEnum.Email) | beautifyBoolean"></span>
@@ -66,11 +67,11 @@
             </td>
           </tr>
         </tbody>
-        <tbody *ngIf="!recepientPreference?.defaultChannels" class="list-view-tbody">
+        <tbody *ngIf="recepientPreference?.communication" class="list-view-tbody">
           <tr *ngFor="let preference of recepientPreference?.communication"
               class="list-view-tr">
             <td class="list-view-td">
-              {{preference.messageTypeDisplayName}}
+              <span class="text-sm" title="{{preference.messageType?.classification}}"><i class="mr-2 dot dot-{{preference.messageType?.classification}}"></i> {{preference.messageType?.name}}</span>
             </td>
             <td class="list-view-td">
               <span [innerHtml]="CheckReceivePreference(preference.channels!, ContactChannelKindEnum.Email) | beautifyBoolean"></span>
