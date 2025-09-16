@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 
 import { forkJoin } from 'rxjs';
 import { HeaderMetaItem, Icons } from '@indice/ng-components';
-import { CampaignResultSet, DashboardCounters, MessagesApiClient } from 'src/app/core/services/messages-api.service';
+import { DashboardCounters, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 
 @Component({
     selector: 'app-dashboard',
