@@ -1,6 +1,8 @@
 ﻿
 namespace Indice.Features.Messages.Core.Models.Requests;
-/// <summary></summary>
+/// <summary>
+/// Represents various counters for the dashboard, including campaign and message statistics.
+/// </summary>
 public class DashboardCounters
 {
     /// <summary>Indicates the number of campaigns created.</summary>
