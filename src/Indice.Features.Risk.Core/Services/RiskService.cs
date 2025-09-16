@@ -38,12 +38,13 @@ public class RiskService
     public async Task<AggregateRuleExecutionResult> GetRiskAsync(RiskModel model) {
         var results = new List<RuleExecutionResult>();
         var dbEvent = RiskMapper.ToRiskEvent(model, _ipAddressLocator);
-        foreach (var rule in Rules.Where(x => x.Options.Enabled)) {
-            var result = await rule.ExecuteAsync(dbEvent);
+        var enabledRules = Rules.Where(x => x.Options.Enabled).ToArray();
+        foreach (var rule in enabledRules) {
+        var result = await rule.ExecuteAsync(dbEvent);
             result.RuleName = rule.Name;
             result.RiskLevel = RiskEngineOptions.RiskLevelRangeMapping.GetRiskLevel(result.RiskScore) ?? RiskLevel.None;
             results.Add(result);
         }
-        return new AggregateRuleExecutionResult(dbEvent.Id, Rules.Count(), results, RiskEngineOptions);
+        return new AggregateRuleExecutionResult(dbEvent.Id, enabledRules.Length, results, RiskEngineOptions);
     }
 }
