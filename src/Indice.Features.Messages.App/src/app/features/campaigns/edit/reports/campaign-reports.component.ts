@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CampaignStatistics, DashboardCounters, MessagesApiClient } from '../../../../core/services/messages-api.service';
+import { CampaignStatistics, MessagesApiClient } from '../../../../core/services/messages-api.service';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
