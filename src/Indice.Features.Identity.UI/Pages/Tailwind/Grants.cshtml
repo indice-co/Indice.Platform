@@ -4,6 +4,8 @@
 
 @inject IIdentityViewLocalizer Localizer
 
+@inject Indice.Features.Identity.UI.IdentityLabelsMessageDescriber Labels
+
 @{
     Layout = "_IdentityProfileLayout";
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
@@ -18,12 +20,12 @@
     <h3 class="text-black mb-1">@Localizer["Client Application Access"]</h3>
     <div class="md:max-h-[60vh] overflow-y-scroll pr-8">
         <p indice-if="Model.View.Grants!.Any()">
-            @Localizer["Below is the list of applications you have given access to and the names of the resources they have access to."]
+            @Labels.Grants_No_Applications_Provided
         </p>
         @if (!Model.View.Grants!.Any())
         {
             <div class="alert alert-dark text-center">
-                @Localizer["You have not provided access to any applications"]
+                @Labels.Grants_No_Applications_Provided
             </div>
         }
         else
@@ -34,17 +36,17 @@
                     <div class="grid content-center">
                         <div class="grant-header">
                             <img class="client-logo" indice-if="!string.IsNullOrEmpty(grant.ClientLogoUrl)"
-                                 src="@(Url.IsLocalUrl(grant.ClientLogoUrl) ? Url.Content(grant.ClientLogoUrl) : grant.ClientLogoUrl)" alt="@Localizer["Client logo"]" />
+                                 src="@(Url.IsLocalUrl(grant.ClientLogoUrl) ? Url.Content(grant.ClientLogoUrl) : grant.ClientLogoUrl)" alt="@Labels.Grants_Client_Logo" />
                             <img class="client-logo" indice-if="string.IsNullOrEmpty(grant.ClientLogoUrl)"
-                                 src="~/avatar/@grant.ClientName/64.png" alt="@Localizer["Client logo"]" alt="@Localizer["Client logo"]" />
+                                 src="~/avatar/@grant.ClientName/64.png" alt="@Labels.Grants_Client_Logo" alt="@Labels.Grants_Client_Logo" />
                             <div class="flex flex-col basis-full border-b md:ml-4 justify-center mb-2">
                                 <h5 class="client-name">@grant.ClientName</h5>
                                 <div class="flex justify-between flex-col md:flex-row">
                                     <span class="text-xs mb-2">
-                                        @Localizer["Created:"] @grant.Created.ToString("yyyy-MM-dd") @grant.Created.ToString("HH:mm")
+                                        @Labels.Grants_Created @grant.Created.ToString("yyyy-MM-dd") @grant.Created.ToString("HH:mm")
                                     </span>
                                     <span class="text-xs mb-2" indice-if="grant.Expires.HasValue">
-                                        @Localizer["Expires on"] @grant.Expires!.Value.ToString("yyyy-MM-dd") &commat;  @grant.Expires.Value.ToString("HH:mm")
+                                        @Labels.Grants_Expires_On @grant.Expires!.Value.ToString("yyyy-MM-dd") &commat;  @grant.Expires.Value.ToString("HH:mm")
                                     </span>
                                 </div>
                             </div>
@@ -80,7 +82,7 @@
                                     <input type="hidden"
                                            name="clientId"
                                            value="">
-                                    <button class="btn btn-danger">@Localizer["Revoke Access"]</button>
+                                    <button class="btn btn-danger">@Labels.Grants_Revoke_Access</button>
                                 </div>
                             </form>
                         </div>

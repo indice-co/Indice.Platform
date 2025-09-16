@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Resources;
 using System.Text;
 using System.Threading.Tasks;
 using Indice.Features.Identity.UI;
@@ -72,6 +73,15 @@ public class IdentityLabelsMessageDescriber
     public virtual string AddPhone_Phone_number => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPhone_Phone_number);
     /// <summary>Label for the Save button on the Add Phone page.</summary>
     public virtual string AddPhone_Save => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPhone_Save);
+    #endregion
+
+    #region Challenge
+
+    /// <summary>
+    /// Message shown when redirecting during an authentication challenge.
+    /// </summary>
+    public virtual string Challenge_Redirecting => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Challenge_Redirecting);
+
     #endregion
 
     #region ChangePassword
@@ -186,6 +196,12 @@ public class IdentityLabelsMessageDescriber
 
 
     #region Error
+
+    /// <summary>
+    /// Label for the "Go back home" action, typically shown on error pages.
+    /// </summary>
+    public virtual string Error_Go_back_home => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Error_Go_back_home);
+
     /// <summary>Gets the title text for the Error page.</summary>
     public virtual string Error_Oops_Seems_We_Encountered_An_Error => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Error_Oops__Seems_we_encountered_an_error_);
     /// <summary>Gets the label text displaying the request ID for error tracking.</summary>
@@ -583,6 +599,26 @@ public class IdentityLabelsMessageDescriber
     public virtual string Profile_A_Confirmation_Email_Has_Been_Sent_To_0(string email) => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_A_confirmation_email_has_been_sent_to__0__, email);
 
     /// <summary>
+    /// Label for Manage Profile action.
+    /// </summary>
+    public virtual string Profile_Manage_Profile =>  string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_Manage_Profile);
+
+    /// <summary>
+    /// Placeholder text for dropdowns or selection inputs in profile forms.
+    /// </summary>
+    public virtual string Profile_Choose => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_Choose);
+
+    /// <summary>
+    /// Email label in profile forms.
+    /// </summary>
+    public virtual string Profile_Email =>string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_Email);
+
+    /// <summary>
+    /// Label for timezone selection in profile forms.
+    /// </summary>
+    public virtual string Profile_Timezone => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_Timezone);
+
+    /// <summary>
     ///   Gets the localized string for "An email has been sent to your new email address in order to confirm it.".
     /// </summary>
     public virtual string Profile_An_Email_Has_Been_Sent_To_Your_New_Email_Address_In_Order_To_Confirm_It => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_An_email_has_been_sent_to_your_new_email_address_in_order_to_confirm_it_);
@@ -709,119 +745,176 @@ public class IdentityLabelsMessageDescriber
     #region Register
 
     /// <summary>
+    /// Text for "Associate your" phrase.
+    /// </summary>
+    public virtual string Register_Associate_your =>
+        string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Associate_your);
+
+    /// <summary>
+    /// Text for "account" phrase.
+    /// </summary>
+    public virtual string Register_account =>
+        string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_account);
+
+    /// <summary>
+    /// Constructs the full "Associate your {Provider} account" message.
+    /// </summary>
+    /// <param name="provider">Name of the external provider (e.g., Google, Facebook).</param>
+    public virtual string Register_Associate_your_Account(string provider) =>
+        string.Format(CultureInfo.CurrentUICulture, "{0} {1} {2}",
+            IdentityLabels.Register_Associate_your,
+            provider,
+            IdentityLabels.Register_account);
+
+    /// <summary>
+    /// Text for "Register" button or label.
+    /// </summary>
+    public virtual string Register_Register => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Register);
+
+
+    /// <summary>
+    /// Text for "I have read and accept the Terms of service and privacy policy" on the Register page.
+    /// </summary>
+    public virtual string Register_I_Have_Read_And_Accept_Terms => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_I_Have_Read_And_Accept_Terms);
+
+    /// <summary>
+    /// Instruction shown at the top of the registration form explaining what the user needs to do.
+    /// </summary>
+    public virtual string Register_To_register_as_a_new_user_you_will_need_to_fill_in_the_following_information =>  string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_To_register_as_a_new_user_you_will_need_to_fill_in_the_following_information);
+
+    /// <summary>
     ///   Gets the localized string for "Already have an account?".
     /// </summary>
-    public static string Register_Already_Have_An_Account => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Already_have_an_account_);
+    public virtual string Register_Already_Have_An_Account => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Already_have_an_account_);
 
     /// <summary>
     ///   Gets the localized string for "Calling Code".
     /// </summary>
-    public static string Register_Calling_Code => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Calling_Code);
+    public virtual string Register_Calling_Code => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Calling_Code);
 
     /// <summary>
     ///   Gets the localized string for "Choose a username and a password of your choice. You can periodically change your password or whenever you wish to.".
     /// </summary>
-    public static string Register_Choose_A_Username_And_A_Password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Choose_a_username_and_a_password_of_your_choice__You_can_periodically_change_your_password_or_whenever_you_wish_to_);
+    public virtual string Register_Choose_A_Username_And_A_Password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Choose_a_username_and_a_password_of_your_choice__You_can_periodically_change_your_password_or_whenever_you_wish_to_);
 
     /// <summary>
     ///   Gets the localized string for "Choose an email and a password of your choice. You can periodically change your password or whenever you wish to.".
     /// </summary>
-    public static string Register_Choose_An_Email_And_A_Password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Choose_an_email_and_a_password_of_your_choice__You_can_periodically_change_your_password_or_whenever_you_wish_to_);
+    public virtual string Register_Choose_An_Email_And_A_Password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Choose_an_email_and_a_password_of_your_choice__You_can_periodically_change_your_password_or_whenever_you_wish_to_);
 
     /// <summary>
     ///   Gets the localized string for "First name".
     /// </summary>
-    public static string Register_First_Name => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_First_name);
+    public virtual string Register_First_Name => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_First_name);
 
     /// <summary>
     ///   Gets the localized string for "here".
     /// </summary>
-    public static string Register_Here => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_here);
+    public virtual string Register_Here => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_here);
+
+    /// <summary>
+    /// Text for "login with" label on Register page.
+    /// </summary>
+    public virtual string Register_login_with => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_login_with);
 
     /// <summary>
     ///   Gets the localized string for "I consent to the registration and processing of the above personal details for my contact and service as they are defined".
     /// </summary>
-    public static string Register_I_Consent_To_Registration => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_I_consent_to_the_registration_and_processing_of_the_above_personal_details_for_my_contact_and_service_as_they_are_defined);
+    public virtual string Register_I_Consent_To_Registration => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_I_consent_to_the_registration_and_processing_of_the_above_personal_details_for_my_contact_and_service_as_they_are_defined);
 
     /// <summary>
     ///   Gets the localized string for "I consent to the use of my contact information, including my email address, for the purpose of receiving commercial communications, promotional materials, and marketing updates from the organization. I understand that I may withdraw my consent at any time".
     /// </summary>
-    public static string Register_I_Consent_To_Contact_Usage => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_I_consent_to_the_use_of_my_contact_information__including_my_email_address__for_the_purpose_of_receiving_commercial_communications__promotional_materials__and_marketing_updates_from_the_organization__I_understand_that_I_may_withdraw_my_consent_at_any_time_);
+    public virtual string Register_I_Consent_To_Contact_Usage => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_I_consent_to_the_use_of_my_contact_information__including_my_email_address__for_the_purpose_of_receiving_commercial_communications__promotional_materials__and_marketing_updates_from_the_organization__I_understand_that_I_may_withdraw_my_consent_at_any_time_);
 
     /// <summary>
     ///   Gets the localized string for "Join us".
     /// </summary>
-    public static string Register_Join_Us => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Join_us);
+    public virtual string Register_Join_Us => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Join_us);
 
     /// <summary>
     ///   Gets the localized string for "Last name".
     /// </summary>
-    public static string Register_Last_Name => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Last_name);
+    public virtual string Register_Last_Name => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Last_name);
 
     /// <summary>
     ///   Gets the localized string for "OR".
     /// </summary>
-    public static string Register_OR => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_OR);
+    public virtual string Register_OR => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_OR);
 
     /// <summary>
     ///   Gets the localized string for "Password".
     /// </summary>
-    public static string Register_Password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Password);
+    public virtual string Register_Password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Password);
 
     /// <summary>
     ///   Gets the localized string for "Phone number".
     /// </summary>
-    public static string Register_Phone_number => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Phone_number);
+    public virtual string Register_Phone_number => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Phone_number);
 
     /// <summary>
     ///   Gets the localized string for "Sign up".
     /// </summary>
-    public static string Register_Sign_Up => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Sign_up);
+    public virtual string Register_Sign_Up => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Sign_up);
 
     /// <summary>
     ///   Gets the localized string for "These credentials are personal. Please remember them and do not reveal in any way (i.e orally, written, email) in third parties".
     /// </summary>
-    public static string Register_Credentials_Notice => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_These_credentials_are_personal__Please_remember_them_and_do_not_reveal_in_any_way__i_e_orally__written__email__in_third_parties_);
+    public virtual string Register_Credentials_Notice => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_These_credentials_are_personal__Please_remember_them_and_do_not_reveal_in_any_way__i_e_orally__written__email__in_third_parties_);
 
     /// <summary>
     ///   Gets the localized string for "Timezone".
     /// </summary>
-    public static string Register_Timezone => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Timezone);
+    public virtual string Register_Timezone => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Timezone);
 
     /// <summary>
     ///   Gets the localized string for "Username".
     /// </summary>
-    public static string Register_Username => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Username);
+    public virtual string Register_Username => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Username);
 
     #endregion
 
+    #region SetLanguage
+
+
+    /// <summary>
+    /// Status message shown while the UI language is being set.
+    /// </summary>
+    public virtual string SetLanguage_Setting_ui_language => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.SetLanguage_Setting_ui_language);
+
+    #endregion
 
     #region VerifyPhone
 
     /// <summary>
     ///   Gets the localized string for "Code".
     /// </summary>
-    public static string VerifyPhone_Code => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.VerifyPhone_Code);
+    public virtual string VerifyPhone_Code => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.VerifyPhone_Code);
 
     /// <summary>
     ///   Gets the localized string for "Next".
     /// </summary>
-    public static string VerifyPhone_Next => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.VerifyPhone_Next);
+    public virtual string VerifyPhone_Next => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.VerifyPhone_Next);
 
     /// <summary>
     ///   Gets the localized string for "Resend".
     /// </summary>
-    public static string VerifyPhone_Resend => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.VerifyPhone_Resend);
+    public virtual string VerifyPhone_Resend => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.VerifyPhone_Resend);
 
     /// <summary>
     ///   Gets the localized string for "Save".
     /// </summary>
-    public static string VerifyPhone_Save => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.VerifyPhone_Save);
+    public virtual string VerifyPhone_Save => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.VerifyPhone_Save);
 
     /// <summary>
     ///   Gets the localized string for "Verify phone number".
     /// </summary>
-    public static string VerifyPhone_Verify_Phone_Number => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.VerifyPhone_Verify_phone_number);
+    public virtual string VerifyPhone_Verify_Phone_Number => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.VerifyPhone_Verify_phone_number);
+
+    /// <summary>
+    /// Text for "OTP is valid till:" label on the Verify Phone page.
+    /// </summary>
+    public virtual string VerifyPhone_OTP_is_valid_till => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.VerifyPhone_OTP_is_valid_till);
 
     #endregion
 

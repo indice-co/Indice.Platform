@@ -4,6 +4,8 @@
 
 @inject IIdentityViewLocalizer Localizer
 @inject IConfiguration Configuration
+@inject Indice.Features.Identity.UI.IdentityLabelsMessageDescriber Labels
+
 
 @{
     var title = ViewData["Title"] = Localizer["Enable MFA"].Value;
@@ -18,10 +20,10 @@
                 <img src="~/img/logo@(langSuffix).svg" alt="Logo" />
             </a>
             <span class="block text-2xl font-semibold mt-2">
-                @Localizer["Keep your account safe"]
+                @Labels.MfaOnBoarding_Keep_Your_Account_Safe
             </span>
             <span class="block text-base text-gray-600 mt-1">
-                @Localizer["Setup an additional authentication method."]
+                @Labels.MfaOnBoarding_Setup_An_Additional_Authentication_Method
             </span>
         </h1>
 
@@ -56,7 +58,7 @@
                             name="button"
                             value="login"
                             class="w-full py-2 px-4 font-semibold rounded bg-blue-600 hover:bg-blue-700 text-white transition">
-                        @Localizer["Next"]
+                        @Labels.MfaOnBoarding_Next
                     </button>
                 </div>
             </div>

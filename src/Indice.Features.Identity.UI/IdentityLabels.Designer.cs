@@ -221,7 +221,16 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("AddPhone_Save", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to "Redirecting...".
+        /// </summary>
+        public static string Challenge_Redirecting {
+            get {
+                return ResourceManager.GetString("Challenge_Redirecting", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Change.
         /// </summary>
@@ -664,7 +673,16 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("Consent_would like to", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to "Go back home".
+        /// </summary>
+        public static string Error_Go_back_home {
+            get {
+                return ResourceManager.GetString("Error_Go_back_home", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Oops! Seems we encountered an error..
         /// </summary>
@@ -1471,7 +1489,41 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("Profile_A confirmation email has been sent to {0}.", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Manage Profile.
+        /// </summary>
+        public static string Profile_Manage_Profile {
+            get {
+                return ResourceManager.GetString("Profile_Manage_Profile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to "Choose...".
+        /// </summary>
+        public static string Profile_Choose {
+            get {
+                return ResourceManager.GetString("Profile_Choose", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to "Email".
+        /// </summary>
+        public static string Profile_Email {
+            get {
+                return ResourceManager.GetString("Profile_Email", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to "Timezone".
+        /// </summary>
+        public static string Profile_Timezone {
+            get { return ResourceManager.GetString("Profile_Timezone", resourceCulture); }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to An email has been sent to your new email address in order to confirm it..
         /// </summary>
@@ -1688,7 +1740,49 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("Profile_Your profile was updated successfully.", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to "Associate your".
+        /// </summary>
+        public static string Register_Associate_your {
+            get { return ResourceManager.GetString("Register_Associate_your", resourceCulture); }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to "account".
+        /// </summary>
+        public static string Register_account {
+            get { return ResourceManager.GetString("Register_account", resourceCulture); }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to "Register".
+        /// </summary>
+        public static string Register_Register {
+            get {
+                return ResourceManager.GetString("Register_Register", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to "I have read and accept the Terms of service and privacy policy".
+        /// </summary>
+        public static string Register_I_Have_Read_And_Accept_Terms {
+            get {
+                return ResourceManager.GetString("Register_I have read and accept the <a href=\"/terms\" target=\"_blank\">Terms of service</a> and the <a href=\"/privacy\" target=\"_blank\">privacy policy</a>.", resourceCulture);
+            }
+        }
+
+
+        /// <summary>
+        ///   Looks up a localized string similar to "To register as a new user you will need to fill in the following information.".
+        /// </summary>
+        public static string Register_To_register_as_a_new_user_you_will_need_to_fill_in_the_following_information {
+            get {
+                return ResourceManager.GetString("Register_To_register_as_a_new_user_you_will_need_to_fill_in_the_following_information", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Already have an account?.
         /// </summary>
@@ -1744,14 +1838,22 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("Register_here", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to "login with".
+        /// </summary>
+        public static string Register_login_with {
+            get {
+                return ResourceManager.GetString("Register_login with", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to I consent to the registration and processing of the above personal details for my contact and service as they are defined.
         /// </summary>
         public static string Register_I_consent_to_the_registration_and_processing_of_the_above_personal_details_for_my_contact_and_service_as_they_are_defined {
             get {
-                return ResourceManager.GetString("Register_I consent to the registration and processing of the above personal detai" +
-                        "ls for my contact and service as they are defined", resourceCulture);
+                return ResourceManager.GetString("Register_I consent to the registration and processing of the above personal details for my contact and service as they are defined", resourceCulture);
             }
         }
         
@@ -1845,7 +1947,14 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("Register_Username", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        /// Looks up a localized string similar to "Setting UI language...".
+        /// </summary>
+        public static string SetLanguage_Setting_ui_language {
+            get { return ResourceManager.GetString("SetLanguage_Setting_ui_language", resourceCulture); }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Code.
         /// </summary>
@@ -1890,5 +1999,15 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("VerifyPhone_Verify phone number", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to "OTP is valid till:".
+        /// </summary>
+        public static string VerifyPhone_OTP_is_valid_till {
+            get {
+                return ResourceManager.GetString("VerifyPhone_OTP_is_valid_till", resourceCulture);
+            }
+        }
+
     }
 }

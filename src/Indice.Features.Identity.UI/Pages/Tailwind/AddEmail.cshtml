@@ -2,11 +2,14 @@
 
 @model BaseAddEmailModel
 
+@inject Indice.Features.Identity.UI.IdentityLabelsMessageDescriber Labels
+
 @inject IIdentityViewLocalizer Localizer
+
 
 @{
 
-    var title = ViewData["Title"] = Localizer["Verify email"].Value;
+    var title = ViewData["Title"] = Labels.AddEmail_Verify_email;
     var tempData = TempData.Peek<ExtendedValidationTempDataModel>(BaseAddEmailModel.TempDataKey);
 }
 
@@ -23,12 +26,12 @@
             </div>
             <div class="row justify-items-center place-items-center">
                 <div indice-if="Model.UiOptions.ShowAddEmailPrompt" class="@(tempData?.DisableForm == true ? "col-span-6" : "col-span-12" ) flex flex-col">
-                    <button class="btn btn-primary" type="submit" disabled="@tempData?.DisableForm">@Localizer["Save"]</button>
+                    <button class="btn btn-primary" type="submit" disabled="@tempData?.DisableForm">@Labels.AddEmail_Save</button>
                 </div>
                 @if (tempData?.DisableForm == true || !string.IsNullOrEmpty(tempData?.NextStepUrl))
                 {
                     <div class="col-span-6 flex flex-col">
-                        <a class="btn btn-primary no-underline" href="@tempData.NextStepUrl">@Localizer["Next"]</a>
+                        <a class="btn btn-primary no-underline" href="@tempData.NextStepUrl">Labels.AddEmail_Next]</a>
                     </div>
                 }
             </div>

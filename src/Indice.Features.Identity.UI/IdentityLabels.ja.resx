@@ -127,6 +127,9 @@
   <data name="AddPhone_Save" xml:space="preserve">
     <value>保存</value>
   </data>
+  <data name="Challenge_Redirecting" xml:space="preserve">
+    <value>リダイレクト中...</value>
+  </data>
   <data name="ChangePassword_Change" xml:space="preserve">
     <value>変更</value>
   </data>
@@ -273,6 +276,9 @@
   </data>
   <data name="Consent_would like to" xml:space="preserve">
     <value>希望します</value>
+  </data>
+  <data name="Error_Go_back_home" xml:space="preserve">
+    <value>ホームに戻る</value>
   </data>
   <data name="Error_Oops! Seems we encountered an error." xml:space="preserve">
     <value>おっと！エラーが発生したようです。</value>
@@ -544,6 +550,18 @@
   <data name="Profile_A confirmation email has been sent to {0}." xml:space="preserve">
     <value>{0} に確認メールが送信されました。</value>
   </data>
+  <data name="Profile_Manage Profile" xml:space="preserve">
+    <value>プロフィール管理</value>
+  </data>
+  <data name="Profile_Choose" xml:space="preserve">
+    <value>選択してください....</value>
+  </data>
+  <data name="Profile_Email" xml:space="preserve">
+    <value>メールアドレス</value> <!-- Ιαπωνικά -->
+  </data>
+  <data name="Profile_Timezone" xml:space="preserve">
+    <value>タイムゾーン</value>
+  </data>
   <data name="Profile_An email has been sent to your new email address in order to confirm it." xml:space="preserve">
     <value>新しいメールアドレスの確認のためにメールが送信されました。</value>
   </data>
@@ -616,6 +634,18 @@
   <data name="Profile_Your profile was updated successfully." xml:space="preserve">
     <value>プロフィールが正常に更新されました。</value>
   </data>
+  <data name="Register_Associate_your" xml:space="preserve">
+    <value>あなたの</value>
+  </data>
+  <data name="Register_account" xml:space="preserve">
+    <value>アカウントを連携</value>
+  </data>
+  <data name="Register_Register" xml:space="preserve">
+    <value>登録</value>
+  </data>
+  <data name="Register_To_register_as_a_new_user_you_will_need_to_fill_in_the_following_information" xml:space="preserve">
+	<value>新しいユーザーとして登録するには、次の情報を入力する必要があります。</value>
+  </data>
   <data name="Register_Already have an account?" xml:space="preserve">
     <value>すでにアカウントをお持ちですか？</value>
   </data>
@@ -633,6 +663,9 @@
   </data>
   <data name="Register_here" xml:space="preserve">
     <value>こちら</value>
+  </data>
+  <data name="Register_login with" xml:space="preserve">
+    <value>でログイン</value>
   </data>
   <data name="Register_I consent to the registration and processing of the above personal details for my contact and service as they are defined" xml:space="preserve">
     <value>上記の個人情報の登録および処理に同意します。</value>
@@ -670,6 +703,9 @@
   <data name="Register_Username" xml:space="preserve">
     <value>ユーザー名</value>
   </data>
+  <data name="SetLanguage_Setting_ui_language" xml:space="preserve">
+    <value>UI 言語を設定中...</value>
+  </data>
   <data name="VerifyPhone_Code" xml:space="preserve">
     <value>コード</value>
   </data>
@@ -684,5 +720,8 @@
   </data>
   <data name="VerifyPhone_Verify phone number" xml:space="preserve">
     <value>電話番号を確認</value>
+  </data>
+  <data name="VerifyPhone_OTP_is_valid_till" xml:space="preserve">
+    <value>OTPの有効期限:</value>
   </data>
 </root>

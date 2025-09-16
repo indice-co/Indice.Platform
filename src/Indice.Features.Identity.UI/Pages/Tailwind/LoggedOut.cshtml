@@ -4,17 +4,20 @@
 
 @inject IIdentityViewLocalizer Localizer
 
+@inject Indice.Features.Identity.UI.IdentityLabelsMessageDescriber Labels
+
+
 @{
-    var title = ViewData["Title"] = Localizer["Logout"].Value;
+    var title = ViewData["Title"] = Labels.LoggedOut_Logout;
     ViewData["signed-out"] = true;
 }
 
 <section class="content-wrapper @(Model.AutomaticRedirectAfterSignOut ? "hidden": "")">
     <div class="card-wrapper">
         <vc:page-heading title="@title" image-src="" />
-        <p>@Localizer["You are now logged out"]</p>
+        <p>@Labels.LoggedOut_You_Are_Now_Logged_Out</p>
         <div>
-            @Localizer["Click"] <a id="PostLogoutRedirectUri" class="text-tenant-900" href="@(Model.HasPostLogoutRedirectUri ? Model.PostLogoutRedirectUri : "/")">@Localizer["here"]</a> @Localizer["to return to the application"]
+            @Labels.LoggedOut_Click <a id="PostLogoutRedirectUri" class="text-tenant-900" href="@(Model.HasPostLogoutRedirectUri ? Model.PostLogoutRedirectUri : "/")">@Labels.LoggedOut_Here</a> @Labels.LoggedOut_To_Return_To_The_Application
             <span indice-if="Model.HasPostLogoutRedirectUri">@Model.ClientName</span>.
         </div>
         <iframe indice-if="Model.SignOutIframeUrl != null" width="0" height="0" class="signout" src="@Model.SignOutIframeUrl"></iframe>

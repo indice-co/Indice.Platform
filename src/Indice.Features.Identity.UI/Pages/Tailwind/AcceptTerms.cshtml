@@ -2,10 +2,11 @@
 
 @model BaseAcceptTermsModel
 
-@inject IIdentityViewLocalizer Localizer
+@inject Indice.Features.Identity.UI.IdentityLabelsMessageDescriber Labels
+
 
 @{
-    ViewData["Title"] = Localizer["Terms & conditions acceptance"].Value;
+    ViewData["Title"] = Labels.AcceptTerms_Terms___conditions_acceptance;
 
 }
 <div class="content-wrapper">
@@ -19,10 +20,10 @@
         <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post">
             <div class="row justify-items-center place-items-center">
                 <div class="col-span-6 flex flex-col">
-                    <button class="btn btn-primary" type="submit">@Localizer["Accept"]</button>
+                    <button class="btn btn-primary" type="submit">@Labels.AcceptTerms_Accept</button>
                 </div>
                 <div class="col-span-6 flex flex-col">
-                    <a class="btn btn-primary no-underline" href="~/">@Localizer["Reject"]</a>
+                    <a class="btn btn-primary no-underline" href="~/">@Labels.AcceptTerms_Reject</a>
                 </div>
             </div>
             <input type="hidden" asp-for="View.ReturnUrl" />

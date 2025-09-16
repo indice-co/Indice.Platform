@@ -112,6 +112,9 @@
   <data name="AddPhone_Save" xml:space="preserve">
     <value>Salva</value>
   </data>
+  <data name="Challenge_Redirecting" xml:space="preserve">
+    <value>Reindirizzamento...</value>
+  </data>
   <data name="ChangePassword_Change" xml:space="preserve">
     <value>Modifica</value>
   </data>
@@ -258,6 +261,9 @@
   </data>
   <data name="Consent_would like to" xml:space="preserve">
     <value>desidera</value>
+  </data>
+  <data name="Error_Go_back_home" xml:space="preserve">
+    <value>Torna alla home</value>
   </data>
   <data name="Error_Oops! Seems we encountered an error." xml:space="preserve">
     <value>Sembra che si sia verificato un errore.</value>
@@ -528,6 +534,18 @@
   <data name="Profile_A confirmation email has been sent to {0}." xml:space="preserve">
     <value>È stata inviata una email di conferma a {0}.</value>
   </data>
+  <data name="Profile_Manage Profile" xml:space="preserve">
+    <value>Gestire profilo</value>
+  </data>
+  <data name="Profile_Choose" xml:space="preserve">
+    <value>Seleziona...</value>
+  </data>
+  <data name="Profile_Email" xml:space="preserve">
+    <value>Email</value> <!-- Ιταλικά (χρησιμοποιείται κυρίως αυτούσιο) -->
+  </data>
+  <data name="Profile_Timezone" xml:space="preserve">
+    <value>Fuso orario</value>
+  </data>
   <data name="Profile_An email has been sent to your new email address in order to confirm it." xml:space="preserve">
     <value>An email has been sent to your new email address in order to confirm it.</value>
   </data>
@@ -600,6 +618,18 @@
   <data name="Profile_Your profile was updated successfully." xml:space="preserve">
     <value>Your profile was updated successfully.</value>
   </data>
+  <data name="Register_Associate_your" xml:space="preserve">
+    <value>Associa il tuo</value>
+  </data>
+  <data name="Register_account" xml:space="preserve">
+    <value>account</value>
+  </data>
+  <data name="Register_Register" xml:space="preserve">
+    <value>Registrati</value>
+  </data>
+  <data name="Register_To_register_as_a_new_user_you_will_need_to_fill_in_the_following_information" xml:space="preserve">
+	<value>Per registrarsi come nuovo utente, sarà necessario compilare le seguenti informazioni.</value>
+  </data>
   <data name="Register_Already have an account?" xml:space="preserve">
     <value>Hai già un account?</value>
   </data>
@@ -617,6 +647,9 @@
   </data>
   <data name="Register_here" xml:space="preserve">
     <value>qui</value>
+  </data>
+  <data name="Register_login with" xml:space="preserve">
+    <value>accedi con</value>
   </data>
   <data name="Register_I consent to the registration and processing of the above personal details for my contact and service as they are defined" xml:space="preserve">
     <value>Acconsento alla registrazione e al trattamento dei dati personali sopra indicati per contatti e finalità di servizio, come definiti.</value>
@@ -654,6 +687,9 @@
   <data name="Register_Username" xml:space="preserve">
     <value>Username</value>
   </data>
+  <data name="SetLanguage_Setting_ui_language" xml:space="preserve">
+    <value>Impostazione lingua UI...</value>
+  </data>
   <data name="VerifyPhone_Code" xml:space="preserve">
     <value>Codice</value>
   </data>
@@ -668,5 +704,8 @@
   </data>
   <data name="VerifyPhone_Verify phone number" xml:space="preserve">
     <value>Verifica del numero di telefono</value>
+  </data>
+  <data name="VerifyPhone_OTP_is_valid_till" xml:space="preserve">
+    <value>OTP valido fino a:</value>
   </data>
 </root>

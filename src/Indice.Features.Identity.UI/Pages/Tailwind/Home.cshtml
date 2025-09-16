@@ -6,6 +6,8 @@
 @inject IIdentityViewLocalizer Localizer
 @inject IWebHostEnvironment Environment
 
+@inject Indice.Features.Identity.UI.IdentityLabelsMessageDescriber Labels
+
 @{
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;
@@ -17,7 +19,7 @@
             @Localizer[Model.UiOptions.HomePageSlogan, Settings.Organization!]
         </h1>
         <p class="text-white lg:text-one text-lg pt-6 text-center max-w-screen-md">
-            @Localizer["The Identity portal gives you access to all {0} services with one account. A place to manage your user profile and account access settings. Use the links below to get started.", Settings.Organization!]
+            @Labels.Home_Identity_Portal_Info
         </p>
         <div class="deck">
             @if (!User.IsAuthenticated())

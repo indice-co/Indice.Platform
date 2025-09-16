@@ -2060,6 +2060,46 @@ li.idp a {
     background-color: rgba(0, 51, 117, 0.8);
 }
 
+.idp-piraeus {
+    background-color: #ffd900;
+}
+
+.idp-piraeus a {
+    background-image: url(../img/idps/Piraeus.svg);
+    background-repeat: no-repeat;
+    background-position: 12px center;
+    padding-left: 36px;
+    width: 100%;
+}
+
+.idp-piraeus a:active {
+    background-image: url(../img/idps/Piraeus.svg);
+}
+
+.idp-piraeus a:not([disabled]):not(.disabled):active {
+    background-image: url(../img/idps/Piraeus.svg);
+}
+
+.idp-piraeus a.btn-outline-piraeus {
+    color: #2f2f2f;
+    background-color: transparent;
+    border-color: #2f2f2f;
+}
+
+.idp-piraeus a.btn-outline-piraeus:hover {
+    color: #fff;
+    background-color: #2f2f2f;
+}
+
+.idp-piraeus a.btn-piraeus {
+    color: #fff;
+    background-color: #ffd900;
+}
+
+.idp-piraeus a.btn-piraeus:hover {
+    background-color: rgba(255, 217, 0, 0.6);
+}
+
 /*
 1px  = .0625
 2px  = .125
