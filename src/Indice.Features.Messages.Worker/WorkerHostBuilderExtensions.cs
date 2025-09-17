@@ -163,6 +163,13 @@ public static class WorkerHostBuilderExtensions
         });
         return options;
     }
+    /// <summary>Adds an instance of <see cref="ISmsService"/> using Yuboto.</summary>
+    /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    public static MessageJobsOptions UseSmsService(this MessageJobsOptions options, IConfiguration configuration) {
+        options.Services.AddSmsService(configuration);
+        return options;
+    }
 
     /// <summary>Adds an instance of <see cref="ISmsService"/> using Yuboto.</summary>
     /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
