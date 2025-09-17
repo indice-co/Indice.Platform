@@ -37,9 +37,9 @@ public interface ICampaignService
     /// <summary>Gets a list of all messages populated for this campaign.</summary>
     /// <param name="id">The id of the campaign.</param>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
-    Task<ResultSet<CampaignMessageResponse>> GetCampaignMessages(Guid id, ListOptions options);
+    Task<ResultSet<Recipient>> GetCampaignMessages(Guid id, ListOptions options);
     /// <summary>Gets the details of a specific message for a campaign.</summary>
     /// /// <param name="id">The id of the campaign.</param>
     /// /// <param name="contactId">The id of the contact.</param>
-    Task<CampaignMessageDetailsResponse> GetCampaignMessageDetails(Guid id, Guid contactId);
+    Task<RecipientMessageEvents> GetCampaignMessageDetails(Guid id, Guid contactId);
 }

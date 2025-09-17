@@ -63,7 +63,7 @@ export interface IMessagesApiClient {
      * Gets information about the message of this campaign.
      * @return OK
      */
-    getCampaignMessageDetails(campaignId: string, messageId: string): Observable<CampaignMessageDetailsResponse>;
+    getCampaignMessageDetails(campaignId: string, messageId: string): Observable<RecipientMessageEvents>;
     /**
      * Gets the messages send for this campaign.
      * @param page (optional) The current page of the list. Default is 1.
@@ -72,7 +72,7 @@ export interface IMessagesApiClient {
      * @param search (optional) A search term used to limit the results of the list.
      * @return OK
      */
-    getCampaignMessages(campaignId: string, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<CampaignMessageResponseResultSet>;
+    getCampaignMessages(campaignId: string, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<RecipientResultSet>;
     /**
      * Publishes a campaign.
      * @return No Content
@@ -944,7 +944,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * Gets information about the message of this campaign.
      * @return OK
      */
-    getCampaignMessageDetails(campaignId: string, messageId: string): Observable<CampaignMessageDetailsResponse> {
+    getCampaignMessageDetails(campaignId: string, messageId: string): Observable<RecipientMessageEvents> {
         let url_ = this.baseUrl + "/campaigns/{campaignId}/message/{messageId}";
         if (campaignId === undefined || campaignId === null)
             throw new globalThis.Error("The parameter 'campaignId' must be defined.");
@@ -969,14 +969,14 @@ export class MessagesApiClient implements IMessagesApiClient {
                 try {
                     return this.processGetCampaignMessageDetails(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<CampaignMessageDetailsResponse>;
+                    return _observableThrow(e) as any as Observable<RecipientMessageEvents>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<CampaignMessageDetailsResponse>;
+                return _observableThrow(response_) as any as Observable<RecipientMessageEvents>;
         }));
     }
 
-    protected processGetCampaignMessageDetails(response: HttpResponseBase): Observable<CampaignMessageDetailsResponse> {
+    protected processGetCampaignMessageDetails(response: HttpResponseBase): Observable<RecipientMessageEvents> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -987,7 +987,7 @@ export class MessagesApiClient implements IMessagesApiClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = CampaignMessageDetailsResponse.fromJS(resultData200);
+            result200 = RecipientMessageEvents.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 400) {
@@ -1034,7 +1034,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @param search (optional) A search term used to limit the results of the list.
      * @return OK
      */
-    getCampaignMessages(campaignId: string, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<CampaignMessageResponseResultSet> {
+    getCampaignMessages(campaignId: string, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<RecipientResultSet> {
         let url_ = this.baseUrl + "/campaigns/{campaignId}/messages?";
         if (campaignId === undefined || campaignId === null)
             throw new globalThis.Error("The parameter 'campaignId' must be defined.");
@@ -1072,14 +1072,14 @@ export class MessagesApiClient implements IMessagesApiClient {
                 try {
                     return this.processGetCampaignMessages(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<CampaignMessageResponseResultSet>;
+                    return _observableThrow(e) as any as Observable<RecipientResultSet>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<CampaignMessageResponseResultSet>;
+                return _observableThrow(response_) as any as Observable<RecipientResultSet>;
         }));
     }
 
-    protected processGetCampaignMessages(response: HttpResponseBase): Observable<CampaignMessageResponseResultSet> {
+    protected processGetCampaignMessages(response: HttpResponseBase): Observable<RecipientResultSet> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1090,7 +1090,7 @@ export class MessagesApiClient implements IMessagesApiClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = CampaignMessageResponseResultSet.fromJS(resultData200);
+            result200 = RecipientResultSet.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 400) {
@@ -4727,186 +4727,6 @@ export interface ICampaignDetails {
     updatedAt?: Date;
 }
 
-export class CampaignMessageDetailsResponse implements ICampaignMessageDetailsResponse {
-    recipient?: Contact;
-    events?: MessageEvent[];
-
-    constructor(data?: ICampaignMessageDetailsResponse) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (this as any)[property] = (data as any)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.recipient = _data["recipient"] ? Contact.fromJS(_data["recipient"]) : undefined as any;
-            if (Array.isArray(_data["events"])) {
-                this.events = [] as any;
-                for (let item of _data["events"])
-                    this.events!.push(MessageEvent.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): CampaignMessageDetailsResponse {
-        data = typeof data === 'object' ? data : {};
-        let result = new CampaignMessageDetailsResponse();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["recipient"] = this.recipient ? this.recipient.toJSON() : undefined as any;
-        if (Array.isArray(this.events)) {
-            data["events"] = [];
-            for (let item of this.events)
-                data["events"].push(item ? item.toJSON() : undefined as any);
-        }
-        return data;
-    }
-}
-
-export interface ICampaignMessageDetailsResponse {
-    recipient?: Contact;
-    events?: MessageEvent[];
-}
-
-export class CampaignMessageResponse implements ICampaignMessageResponse {
-    messageId?: string;
-    contactId?: string;
-    recipientId?: string;
-    salutation?: string;
-    firstName?: string;
-    lastName?: string;
-    fullName?: string;
-    email?: string;
-    phoneNumber?: string;
-    channels?: string[];
-    createdOn?: Date;
-
-    constructor(data?: ICampaignMessageResponse) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (this as any)[property] = (data as any)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.messageId = _data["messageId"];
-            this.contactId = _data["contactId"];
-            this.recipientId = _data["recipientId"];
-            this.salutation = _data["salutation"];
-            this.firstName = _data["firstName"];
-            this.lastName = _data["lastName"];
-            this.fullName = _data["fullName"];
-            this.email = _data["email"];
-            this.phoneNumber = _data["phoneNumber"];
-            if (Array.isArray(_data["channels"])) {
-                this.channels = [] as any;
-                for (let item of _data["channels"])
-                    this.channels!.push(item);
-            }
-            this.createdOn = _data["createdOn"] ? new Date(_data["createdOn"].toString()) : undefined as any;
-        }
-    }
-
-    static fromJS(data: any): CampaignMessageResponse {
-        data = typeof data === 'object' ? data : {};
-        let result = new CampaignMessageResponse();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["messageId"] = this.messageId;
-        data["contactId"] = this.contactId;
-        data["recipientId"] = this.recipientId;
-        data["salutation"] = this.salutation;
-        data["firstName"] = this.firstName;
-        data["lastName"] = this.lastName;
-        data["fullName"] = this.fullName;
-        data["email"] = this.email;
-        data["phoneNumber"] = this.phoneNumber;
-        if (Array.isArray(this.channels)) {
-            data["channels"] = [];
-            for (let item of this.channels)
-                data["channels"].push(item);
-        }
-        data["createdOn"] = this.createdOn ? this.createdOn.toISOString() : undefined as any;
-        return data;
-    }
-}
-
-export interface ICampaignMessageResponse {
-    messageId?: string;
-    contactId?: string;
-    recipientId?: string;
-    salutation?: string;
-    firstName?: string;
-    lastName?: string;
-    fullName?: string;
-    email?: string;
-    phoneNumber?: string;
-    channels?: string[];
-    createdOn?: Date;
-}
-
-export class CampaignMessageResponseResultSet implements ICampaignMessageResponseResultSet {
-    count?: number;
-    items?: CampaignMessageResponse[];
-
-    constructor(data?: ICampaignMessageResponseResultSet) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (this as any)[property] = (data as any)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.count = _data["count"];
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items!.push(CampaignMessageResponse.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): CampaignMessageResponseResultSet {
-        data = typeof data === 'object' ? data : {};
-        let result = new CampaignMessageResponseResultSet();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["count"] = this.count;
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item ? item.toJSON() : undefined as any);
-        }
-        return data;
-    }
-}
-
-export interface ICampaignMessageResponseResultSet {
-    count?: number;
-    items?: CampaignMessageResponse[];
-}
-
 export class CampaignResultSet implements ICampaignResultSet {
     count?: number;
     items?: Campaign[];
@@ -6657,6 +6477,170 @@ export interface IProblemDetails {
     instance?: string;
 
     [key: string]: any;
+}
+
+export class Recipient implements IRecipient {
+    contact?: Contact;
+    channels?: string[];
+    createdOn?: Date;
+
+    constructor(data?: IRecipient) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.contact = _data["contact"] ? Contact.fromJS(_data["contact"]) : undefined as any;
+            if (Array.isArray(_data["channels"])) {
+                this.channels = [] as any;
+                for (let item of _data["channels"])
+                    this.channels!.push(item);
+            }
+            this.createdOn = _data["createdOn"] ? new Date(_data["createdOn"].toString()) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): Recipient {
+        data = typeof data === 'object' ? data : {};
+        let result = new Recipient();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["contact"] = this.contact ? this.contact.toJSON() : undefined as any;
+        if (Array.isArray(this.channels)) {
+            data["channels"] = [];
+            for (let item of this.channels)
+                data["channels"].push(item);
+        }
+        data["createdOn"] = this.createdOn ? this.createdOn.toISOString() : undefined as any;
+        return data;
+    }
+}
+
+export interface IRecipient {
+    contact?: Contact;
+    channels?: string[];
+    createdOn?: Date;
+}
+
+export class RecipientMessageEvents implements IRecipientMessageEvents {
+    recipient?: Contact;
+    content?: { [key: string]: MessageContent; };
+    events?: MessageEvent[];
+
+    constructor(data?: IRecipientMessageEvents) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.recipient = _data["recipient"] ? Contact.fromJS(_data["recipient"]) : undefined as any;
+            if (_data["content"]) {
+                this.content = {} as any;
+                for (let key in _data["content"]) {
+                    if (_data["content"].hasOwnProperty(key))
+                        (this.content as any)![key] = _data["content"][key] ? MessageContent.fromJS(_data["content"][key]) : new MessageContent();
+                }
+            }
+            if (Array.isArray(_data["events"])) {
+                this.events = [] as any;
+                for (let item of _data["events"])
+                    this.events!.push(MessageEvent.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): RecipientMessageEvents {
+        data = typeof data === 'object' ? data : {};
+        let result = new RecipientMessageEvents();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["recipient"] = this.recipient ? this.recipient.toJSON() : undefined as any;
+        if (this.content) {
+            data["content"] = {};
+            for (let key in this.content) {
+                if (this.content.hasOwnProperty(key))
+                    (data["content"] as any)[key] = this.content[key] ? this.content[key].toJSON() : undefined as any;
+            }
+        }
+        if (Array.isArray(this.events)) {
+            data["events"] = [];
+            for (let item of this.events)
+                data["events"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface IRecipientMessageEvents {
+    recipient?: Contact;
+    content?: { [key: string]: MessageContent; };
+    events?: MessageEvent[];
+}
+
+export class RecipientResultSet implements IRecipientResultSet {
+    count?: number;
+    items?: Recipient[];
+
+    constructor(data?: IRecipientResultSet) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(Recipient.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): RecipientResultSet {
+        data = typeof data === 'object' ? data : {};
+        let result = new RecipientResultSet();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface IRecipientResultSet {
+    count?: number;
+    items?: Recipient[];
 }
 
 export class Template implements ITemplate {

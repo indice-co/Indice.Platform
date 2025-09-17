@@ -13,10 +13,12 @@ export class BasicModalComponent implements OnInit {
         this.data = options?.initialState?.data as any;
         this.type = options?.initialState?.type as 'error' | 'success' ?? 'error';
         this.acceptText = options?.initialState?.acceptText as string ?? 'Διαγραφή';
+        this.class = options?.initialState?.class as string ?? '';
     }
 
     public title: string = '';
     public message: string = '';
+    public class: string = '';
     public data: any;
     public type: 'error' | 'success' = 'error';
     public acceptText: string = 'Διαγραφή';

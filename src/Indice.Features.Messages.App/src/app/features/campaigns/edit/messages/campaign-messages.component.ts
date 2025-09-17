@@ -3,13 +3,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ViewAction } from '@indice/ng-components';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { CampaignStatistics, MessagesApiClient, CampaignMessageResponseResultSet, CampaignMessageResponse } from 'src/app/core/services/messages-api.service';
+import { CampaignStatistics, MessagesApiClient, Recipient, RecipientResultSet } from 'src/app/core/services/messages-api.service';
 
 @Component({
   selector: 'app-campaign-messages',
   templateUrl: './campaign-messages.component.html'
 })
-export class CampaignMessagesComponent extends BaseListComponent<CampaignMessageResponse> implements OnInit {
+export class CampaignMessagesComponent extends BaseListComponent<Recipient> implements OnInit {
   public _campaignId: string | undefined;
   public loaded = false;
   public counters: CampaignStatistics | undefined;
@@ -40,10 +40,10 @@ export class CampaignMessagesComponent extends BaseListComponent<CampaignMessage
     super.ngOnInit();
   }
 
-  public loadItems(): Observable<IResultSet<CampaignMessageResponse> | null | undefined> {
+  public loadItems(): Observable<IResultSet<Recipient> | null | undefined> {
     return this._api
       .getCampaignMessages(this._campaignId!, this.page, this.pageSize, this.sortdir === 'asc' ? this.sort! : this.sort + '-', this.search || undefined)
-      .pipe(map((result: CampaignMessageResponseResultSet) => (result as IResultSet<CampaignMessageResponse>)));
+      .pipe(map((result: RecipientResultSet) => (result as IResultSet<Recipient>)));
   }
 
   public override actionHandler(action: ViewAction): void {

@@ -1,84 +1,97 @@
-import { AfterViewInit, Component, Input } from '@angular/core';
-import { Chart } from 'chart.js/auto';
-import { CommonModule, DecimalPipe } from '@angular/common';
+// gauge-chart.component.ts
+import { Component, Input, OnInit, ViewChild, ElementRef, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
+import { Chart, ChartConfiguration, ArcElement, Tooltip, Legend, DoughnutController } from 'chart.js';
+
+// Register needed components for Chart.js v3+
+Chart.register(ArcElement, Tooltip, Legend, DoughnutController);
+
+export interface GaugeChartItem { name: string; value: number; color: string; }
 
 @Component({
-  selector: 'app-doughnut-chart',
-  standalone: true,
-  imports: [CommonModule, DecimalPipe],
-  templateUrl: './doughnut-chart.component.html',
-  styleUrl: './doughnut-chart.component.css'
+  selector: 'app-gauge-chart',
+  template: `<canvas #gaugeCanvas></canvas>`,
+  styles: [`
+    :host { display: block; }
+    canvas { max-width: 400px; max-height: 400px; }
+  `]
 })
+export class DoughnutChartComponent implements OnInit, OnChanges, OnDestroy {
+  @ViewChild('gaugeCanvas', { static: true }) gaugeCanvas!: ElementRef<HTMLCanvasElement>;
 
-export class DoughnutChartComponent implements AfterViewInit {
-  public fixedDuration = 0;
-  public variableDuration = 0;
-  public chart: any;
+  /** Items to render. Each item: { name, value, color } */
+  @Input() items: GaugeChartItem[] = [];
 
-  @Input() stringValue: string = '';
-  @Input() title: string | undefined;
-  @Input() type: MarketabilityChartType = MarketabilityChartType.Hottness;
-  Color: any;
-  value: number = 0;
+  private chart?: Chart<'doughnut'>;
 
-  constructor() { }
+  public ngOnInit(): void {
+    this.createChart();
+  }
 
-  ngAfterViewInit(): void {
-    try {
-      this.value = Number(this.stringValue);
-    }
-    catch {
-      console.log("chart value not a number")
-      this.value = 0;
-    }
-    if (!this.chart) {
-      this.createChart();
-    } else {
-      this.chart.data.datasets[0].data = [this.value, 5 - this.value];
+  public ngOnChanges(changes: SimpleChanges): void {
+    if (this.chart && changes['items']) {
+      const { labels, data, colors } = this.extractChartData();
+      this.chart.data.labels = labels;
+      (this.chart.data.datasets[0].data as number[]) = data;
+      (this.chart.data.datasets[0].backgroundColor as string[]) = colors;
       this.chart.update();
     }
   }
 
-  ngOnChanges() {
-    if (!this.chart) {
-      this.createChart();
-    } else {
-      this.chart.data.datasets[0].data = [this.value, 5 - this.value];
-      this.chart.update();
-    }
+  public ngOnDestroy(): void {
+    this.chart?.destroy();
   }
 
-
-  private createChart() {
-    this.Color = this.type == MarketabilityChartType.Hottness ? "#0BC582" : "#0BC1C0";
-    if (this.value) {
-      this.chart = new Chart(this.title ?? '', {
-        type: 'doughnut',
-        data: {
-          datasets: [{
-            data: [this.value, 5 - this.value],
-            backgroundColor: [
-              this.Color,
-              '#DDE4E8'
-            ],
-            hoverOffset: 4,
-            borderColor: [
-              this.Color,
-              '#DDE4E8'
-            ],
-          }]
+  private createChart(): void {
+    let delayed: boolean;
+    const { labels, data, colors } = this.extractChartData();
+    const config: ChartConfiguration<'doughnut'> = {
+      type: 'doughnut',
+      data: {
+        labels,
+        datasets: [
+          {
+            data,
+            backgroundColor: colors,
+            borderWidth: 0
+          }
+        ]
+      },
+      options: {
+        animation: {
+          onComplete: () => {
+            delayed = true;
+          },
+          delay: (context) => {
+            let delay = 0;
+            if (context.type === 'data' && context.mode === 'default' && !delayed) {
+              delay = context.dataIndex * 100 + context.datasetIndex * 100;
+            }
+            return delay;
+          },
         },
-        options: {
-          cutout: '80%',
-          radius: '100%',
+        responsive: true,
+        cutout: '70%',
+        rotation: -90,
+        circumference: 180,
+        plugins: {
+          legend: { position: 'bottom' },
+          tooltip: {
+            callbacks: {
+              label: (ctx: any) => `${ctx.label}: ${ctx.parsed}`
+            }
+          }
         }
-      });
-      console.log(this.title, this.chart)
-    }
+      }
+    };
+    this.chart = new Chart(this.gaugeCanvas.nativeElement, config);
   }
-}
 
-export enum MarketabilityChartType {
-  Liquidity = 0,
-  Hottness = 1
+  private extractChartData(): { labels: string[]; data: number[]; colors: string[] } {
+    const items = this.items && this.items.length ? this.items : [];
+    return {
+      labels: items.map(i => i.name),
+      data: items.map(i => i.value),
+      colors: items.map(i => i.color)
+    };
+  }
 }

@@ -7,9 +7,9 @@
     <lib-list-column title="Id">
       <ng-template let-item>
         <a title="Λεπτομέρειες αποστολών"
-            [routerLink]="['/campaigns/'+_campaignId+'/campaign-message-timeline/'+item.contactId]" 
+            [routerLink]="['/campaigns/'+_campaignId+'/campaign-message-timeline/'+item.contact.id]" 
             class="text-blue-600">
-          {{ item.messageId }}
+          {{ item.contact.id }}
         </a>
       </ng-template>
     </lib-list-column>
@@ -39,13 +39,13 @@
       </ng-template>
     </lib-list-column>
     <lib-list-column title="email">
-      <ng-template let-item>{{ item.email }}</ng-template>
+      <ng-template let-item>{{ item.contact.email }}</ng-template>
     </lib-list-column>
     <lib-list-column title="Τηλεφωνο">
-      <ng-template let-item>{{ item.phoneNumber }}</ng-template>
+      <ng-template let-item>{{ item.contact.phoneNumber }}</ng-template>
     </lib-list-column>
     <lib-list-column title="recipientId">
-      <ng-template let-item>{{ item.recipientId }}</ng-template>
+      <ng-template let-item>{{ item.contact.recipientId }}</ng-template>
     </lib-list-column>
     <lib-list-column title="Ημερομηνια" [full-width]="true">
       <ng-template let-item>{{ item.createdOn ? (item.createdOn | date: 'medium') : '-' }}</ng-template>

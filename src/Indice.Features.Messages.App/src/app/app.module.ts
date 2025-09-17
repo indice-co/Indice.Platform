@@ -195,7 +195,8 @@ if (app.settings.tenantId) {
     ListViewComponent,
     ReadOnlyViewComponent,
     MediaSettingsComponent,
-    MediaSettingEditComponent
+  MediaSettingEditComponent,
+  DoughnutChartComponent
   ],
   imports: [
     AppRoutingModule,
@@ -209,8 +210,7 @@ if (app.settings.tenantId) {
     ReactiveFormsModule,
     CodeEditorModule,
     NgProgressbar,
-    NgProgressHttp,
-    DoughnutChartComponent
+    NgProgressHttp
   ],
   providers: [
     ...providers,
