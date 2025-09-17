@@ -1,9 +1,11 @@
 ﻿@page "/external-login"
 
 @inject IIdentityViewLocalizer Localizer
+@inject Indice.Features.Identity.UI.IdentityLabelsMessageDescriber Labels
+
 
 @model BaseChallengeModel
 
 @{
-    ViewData["Title"] = Localizer["Redirecting..."];
+    ViewData["Title"] = Labels.Challenge_Redirecting;
 }

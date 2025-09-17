@@ -42,6 +42,9 @@ public class IdentityLabelsMessageDescriber
     #endregion
 
     #region AddPassword
+    /// <summary>Indicates that the password field is required.</summary>
+    public virtual string AddPassword_Required => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPassword_Required);
+
     /// <summary>Label for the Add Password button.</summary>
     public virtual string AddPassword_Add => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPassword_Add);
 
@@ -101,6 +104,10 @@ public class IdentityLabelsMessageDescriber
 
 
     #region ConfirmEmail
+    /// <summary>Instruction not to reply to service emails.</summary>
+    public virtual string ConfirmEmail_DoNotReply => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_DoNotReply);
+    /// <summary>Info that the email contains account-related information.</summary>
+    public virtual string ConfirmEmail_ServiceEmailInfo => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_ServiceEmailInfo);
     /// <summary>Text for the Confirm Email button.</summary>
     public virtual string ConfirmEmail_Click => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_Click);
     /// <summary>Title of the Confirm Email page.</summary>
@@ -194,12 +201,115 @@ public class IdentityLabelsMessageDescriber
     public virtual string Consent_Would_Like_To => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Consent_would_like_to);
     #endregion
 
+    #region Email
 
-    #region Error
+    /// <summary>Preheader text prompting the user to verify their email.</summary>
+    public virtual string Email_Preheader_Verify => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Email_Preheader_Verify);
+
+    /// <summary>Text for the "here" link in email preheader.</summary>
+    public virtual string Email_Preheader_Here => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Email_Preheader_Here);
+
+    /// <summary>Text following the "here" link in preheader.</summary>
+    public virtual string Email_Preheader_ToGetVerified => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Email_Preheader_ToGetVerified);
+
+    /// <summary>Greeting text at the beginning of the email body.</summary>
+    public virtual string Email_Body_Hi => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Email_Body_Hi);
+
+    /// <summary>Text for "Thanks" in the email body.</summary>
+    public virtual string Email_Body_Thanks => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Email_Body_Thanks);
+
+    /// <summary>Text for "Sincerely" in the email body.</summary>
+    public virtual string Email_Body_Sincerely => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Email_Body_Sincerely);
+
+    /// <summary>Organization name placeholder in email body.</summary>
+    public virtual string Email_Body_Organization(string organization) => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Email_Body_Organization, organization);
+    /// <summary>
+    /// Label for the Reset password action.
+    /// </summary>
+    public virtual string Email_Reset_Password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Email_Reset_Password);
+    /// <summary>
+    /// Text informing the user about the password reset request.
+    /// </summary>
+    public virtual string Email_ResetPassword_RequestInfo => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Email_ResetPassword_RequestInfo);
 
     /// <summary>
-    /// Label for the "Go back home" action, typically shown on error pages.
+    /// Text informing the user they can ignore the email if they didn't request a reset.
     /// </summary>
+    public virtual string Email_ResetPassword_IgnoreNotice => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Email_ResetPassword_IgnoreNotice);
+
+
+    #endregion
+
+    #region EmailRegister
+    /// <summary>Email subject: "Welcome to {0}! Please confirm your email to get started."</summary>
+    public virtual string EmailRegister_Subject(string appName) => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.EmailRegister_Subject, appName);
+
+    /// <summary>Preheader text: same as subject.</summary>
+    public virtual string EmailRegister_Preheader(string appName) => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.EmailRegister_Preheader, appName);
+
+    /// <summary>Body text: "Welcome to {0}! We’re excited to have you on board."</summary>
+    public virtual string EmailRegister_Body_Welcome(string appName) => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.EmailRegister_Body_Welcome, appName);
+
+    /// <summary>Body text prompting the user to confirm their email.</summary>
+    public virtual string EmailRegister_Body_ConfirmEmail => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.EmailRegister_Body_ConfirmEmail);
+
+    /// <summary>Body text telling user they can ignore if they didn’t create account.</summary>
+    public virtual string EmailRegister_Body_IgnoreNotice => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.EmailRegister_Body_IgnoreNotice);
+
+    /// <summary>Body text: "Thank you for joining!"</summary>
+    public virtual string EmailRegister_Body_Thanks => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.EmailRegister_Body_Thanks);
+    /// <summary>Greeting used at the beginning of the registration email.</summary>
+    public virtual string EmailRegister_Body_Hi => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.EmailRegister_Body_Hi);
+
+    #endregion
+
+    #region EmailSecurity
+
+    /// <summary>Preheader of the security notification email.</summary>
+    public virtual string EmailSecurity_Preheader => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.EmailSecurity_Preheader);
+
+    /// <summary>Subject of the security notification email.</summary>
+    public virtual string EmailSecurity_Subject => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.EmailSecurity_Subject);
+
+    /// <summary>Greeting "Hi" in the security notification email.</summary>
+    public virtual string EmailSecurity_Body_Hi => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.EmailSecurity_Body_Hi);
+
+    /// <summary>Message that a security event occurred on the account.</summary>
+    public virtual string EmailSecurity_Body_EventOccurred => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.EmailSecurity_Body_EventOccurred);
+
+    /// <summary>Label for event details section.</summary>
+    public virtual string EmailSecurity_Body_EventDetails => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.EmailSecurity_Body_EventDetails);
+
+    /// <summary>Label for event time field.</summary>
+    public virtual string EmailSecurity_Body_EventTime => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.EmailSecurity_Body_EventTime);
+
+    /// <summary>Label for username field.</summary>
+    public virtual string EmailSecurity_Body_Username => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.EmailSecurity_Body_Username);
+
+    /// <summary>Label for email field.</summary>
+    public virtual string EmailSecurity_Body_Email => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.EmailSecurity_Body_Email);
+
+    /// <summary>Label for device field.</summary>
+    public virtual string EmailSecurity_Body_Device => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.EmailSecurity_Body_Device);
+
+    /// <summary>Label for client field.</summary>
+    public virtual string EmailSecurity_Body_Client => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.EmailSecurity_Body_Client);
+
+    /// <summary>Label for location field.</summary>
+    public virtual string EmailSecurity_Body_Location => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.EmailSecurity_Body_Location);
+
+    /// <summary>Notice about approximate location.</summary>
+    public virtual string EmailSecurity_Body_LocationNotice => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.EmailSecurity_Body_LocationNotice);
+
+    /// <summary>Message advising the user to contact support if the action was not theirs.</summary>
+    public virtual string EmailSecurity_Body_ContactSupport => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.EmailSecurity_Body_ContactSupport);
+
+    #endregion
+
+    #region Error
+    /// <summary>General label for error messages.</summary>
+    public virtual string Error_Error => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Error_Error);
+    /// <summary> Label for the "Go back home" action, typically shown on error pages. </summary>
     public virtual string Error_Go_back_home => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Error_Go_back_home);
 
     /// <summary>Gets the title text for the Error page.</summary>
@@ -221,6 +331,26 @@ public class IdentityLabelsMessageDescriber
     public virtual string ForgotPassword_To_Have_Your_Password_Reset_Enter_Your_Username_Or_Email_Address_Below_We_Will_Then_Send_An_Email_Containing_A_Link_To_Reset_Your_Password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPassword_To_have_your_password_reset__enter_your_username_or_email_address_below__We_will_then_send_an_email_containing_a_link_to_reset_your_password_);
     /// <summary>Gets the label text for the Email or Username input field.</summary>
     public virtual string ForgotPassword_Username => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPassword_Username);
+    #endregion
+
+    #region Footer
+
+    #region Footer
+
+    /// <summary>Footer link to discovery document (visible only in non-production).</summary>
+    public virtual string Footer_Discovery => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Footer_Discovery);
+
+    /// <summary>Footer link text for privacy policy.</summary>
+    public virtual string Footer_Privacy => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Footer_Privacy);
+
+    /// <summary>Footer link text for terms of service.</summary>
+    public virtual string Footer_Terms => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Footer_Terms);
+
+    /// <summary>Footer link text for contact page.</summary>
+    public virtual string Footer_Contact_us => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Footer_Contact_us);
+
+    #endregion
+
     #endregion
 
     #region ForgotPasswordConfirmation
@@ -594,6 +724,12 @@ public class IdentityLabelsMessageDescriber
     #region Profile
 
     /// <summary>
+    /// Label for the Preferred Language field in profile forms.
+    /// </summary>
+    public virtual string Profile_PreferredLanguage =>
+        string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_PreferredLanguage);
+
+    /// <summary>
     ///   Gets the localized string for "A confirmation email has been sent to {0}.".
     /// </summary>
     public virtual string Profile_A_Confirmation_Email_Has_Been_Sent_To_0(string email) => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_A_confirmation_email_has_been_sent_to__0__, email);
@@ -740,7 +876,19 @@ public class IdentityLabelsMessageDescriber
 
     #endregion
 
+    #region Redirect
 
+    /// <summary>
+    /// Text shown when the user is being returned to the application.
+    /// </summary>
+    public virtual string Redirect_Returning => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Redirect_Returning);
+
+    /// <summary>
+    /// Instruction shown to the user that the tab can be closed after redirection.
+    /// </summary>
+    public virtual string Redirect_CloseTab => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Redirect_CloseTab);
+
+    #endregion
 
     #region Register
 

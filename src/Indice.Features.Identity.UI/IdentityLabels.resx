@@ -79,6 +79,9 @@
   <data name="AddEmail_Verify email" xml:space="preserve">
     <value>Verify email</value>
   </data>
+  <data name="AddPassword_Required" xml:space="preserve">
+	<value>required</value>
+  </data>
   <data name="AddPassword_Add" xml:space="preserve">
     <value>Add</value>
   </data>
@@ -115,6 +118,9 @@
   <data name="Challenge_Redirecting" xml:space="preserve">
     <value>Redirecting...</value>
   </data>
+  <data name="ChangePassword_Sign_in_with_a_different_account" xml:space="preserve">
+    <value>Sign in with a different account</value>
+  </data>
   <data name="ChangePassword_Change" xml:space="preserve">
     <value>Change</value>
   </data>
@@ -132,6 +138,12 @@
   </data>
   <data name="ChangePassword_Process completed." xml:space="preserve">
     <value>Process completed.</value>
+  </data>
+  <data name="ConfirmEmail_DoNotReply" xml:space="preserve">
+    <value>Please do not reply, as this address does not receive email messages and you will not receive a response.</value>
+  </data>
+  <data name="ConfirmEmail_ServiceEmailInfo" xml:space="preserve">
+    <value>This service email contains information related to your account.</value>
   </data>
   <data name="ConfirmEmail_Click" xml:space="preserve">
     <value>Click</value>
@@ -262,6 +274,99 @@
   <data name="Consent_would like to" xml:space="preserve">
     <value>would like to</value>
   </data>
+  <data name="Email_Preheader_Verify" xml:space="preserve">
+    <value>We need you to verify your email. Please click</value>
+  </data>
+  <data name="Email_Preheader_Here" xml:space="preserve">
+    <value>here</value>
+  </data>
+  <data name="Email_Preheader_ToGetVerified" xml:space="preserve">
+    <value>to get verified</value>
+  </data>
+  <data name="Email_Body_Hi" xml:space="preserve">
+    <value>Hi</value>
+  </data>
+  <data name="Email_Body_Thanks" xml:space="preserve">
+    <value>Thanks</value>
+  </data>
+  <data name="Email_Body_Sincerely" xml:space="preserve">
+    <value>Sincerely</value>
+  </data>
+  <data name="Email_Body_Organization" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="Email_Reset_Password" xml:space="preserve">
+    <value>Reset password</value>
+  </data>
+  <data name="Email_ResetPassword_RequestInfo" xml:space="preserve">
+    <value>We received a request to reset your password. If you asked to reset your password, please click the following link:</value>
+  </data>
+  <data name="Email_ResetPassword_IgnoreNotice" xml:space="preserve">
+    <value>If you did not request your password to be reset you may safely ignore this message.</value>
+  </data>
+  <data name="EmailRegister_Subject" xml:space="preserve">
+    <value>Welcome to {0}! Please confirm your email to get started.</value>
+  </data>
+  <data name="EmailRegister_Preheader" xml:space="preserve">
+    <value>Welcome to {0}! Please confirm your email to get started.</value>
+  </data>
+  <data name="EmailRegister_Body_Welcome" xml:space="preserve">
+    <value>Welcome to {0}! We’re excited to have you on board.</value>
+  </data>
+  <data name="EmailRegister_Body_ConfirmEmail" xml:space="preserve">
+    <value>To complete your registration, please confirm your email address by clicking</value>
+  </data>
+  <data name="EmailRegister_Body_IgnoreNotice" xml:space="preserve">
+    <value>If you did not create an account, you can safely ignore this email.</value>
+  </data>
+  <data name="EmailRegister_Body_Thanks" xml:space="preserve">
+   <value>Thank you for joining!</value>
+  </data>
+  <data name="EmailRegister_Body_Hi" xml:space="preserve">
+    <value>Hi</value>
+  </data>
+  <data name="EmailSecurity_Preheader" xml:space="preserve">
+    <value>Security notification regarding your account.</value>
+  </data>
+  <data name="EmailSecurity_Subject" xml:space="preserve">
+    <value>Security Notification</value>
+  </data>
+  <data name="EmailSecurity_Body_Hi" xml:space="preserve">
+    <value>Hi</value>
+  </data>
+  <data name="EmailSecurity_Body_EventOccurred" xml:space="preserve">
+    <value>We wanted to let you know that a security-related event occurred on your account.</value>
+  </data>
+  <data name="EmailSecurity_Body_EventDetails" xml:space="preserve">
+    <value>Event details:</value>
+  </data>
+  <data name="EmailSecurity_Body_EventTime" xml:space="preserve">
+    <value>Event time</value>
+  </data>
+  <data name="EmailSecurity_Body_Username" xml:space="preserve">
+    <value>Username</value>
+  </data>
+  <data name="EmailSecurity_Body_Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="EmailSecurity_Body_Device" xml:space="preserve">
+    <value>Device</value>
+  </data>
+  <data name="EmailSecurity_Body_Client" xml:space="preserve">
+    <value>Client</value>
+  </data>
+  <data name="EmailSecurity_Body_Location" xml:space="preserve">
+    <value>Location</value>
+  </data>
+  <data name="EmailSecurity_Body_LocationNotice" xml:space="preserve">
+    <value>(It may not match the exact location)</value>
+  </data>
+  <data name="EmailSecurity_Body_ContactSupport" xml:space="preserve">
+    <value>If you did not perform this action, please contact support immediately.</value>
+  </data>
+  <data name="Error_Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
   <data name="Error_Go_back_home" xml:space="preserve">
     <value>Go back home</value>
   </data>
@@ -270,6 +375,18 @@
   </data>
   <data name="Error_Request Id" xml:space="preserve">
     <value>Request Id</value>
+  </data>
+  <data name="Footer_Discovery" xml:space="preserve">
+    <value>Discovery</value>
+  </data>
+  <data name="Footer_Privacy" xml:space="preserve">
+    <value>Privacy</value>
+  </data>
+  <data name="Footer_Terms" xml:space="preserve">
+    <value>Terms</value>
+  </data>
+  <data name="Footer_Contact_us" xml:space="preserve">
+    <value>Contact us</value>
   </data>
   <data name="ForgotPassword_Forgot password" xml:space="preserve">
     <value>Forgot password</value>
@@ -328,6 +445,7 @@
   <data name="Grants_You have not provided access to any applications" xml:space="preserve">
     <value>You have not provided access to any applications</value>
   </data>
+  
   <data name="Home_&lt;strong&gt;Welcome&lt;/strong&gt;&lt;br&gt; to our Digital Services Portal of {0}" xml:space="preserve">
     <value>&lt;strong&gt;Welcome&lt;/strong&gt;&lt;br&gt; to our Digital Services Portal of {0}</value>
   </data>
@@ -532,6 +650,9 @@
   <data name="PasswordExpired_Νew password confirmation" xml:space="preserve">
     <value>?ew password confirmation</value>
   </data>
+  <data name="Profile_PreferredLanguage" xml:space="preserve">
+    <value>Preferred Language</value>
+  </data>
   <data name="Profile_A confirmation email has been sent to {0}." xml:space="preserve">
     <value>A confirmation email has been sent to {0}.</value>
   </data>
@@ -618,6 +739,12 @@
   </data>
   <data name="Profile_Your profile was updated successfully." xml:space="preserve">
     <value>Your profile was updated successfully.</value>
+  </data>
+    <data name="Redirect_Returning" xml:space="preserve">
+    <value>You are now being returned to the application.</value>
+  </data>
+  <data name="Redirect_CloseTab" xml:space="preserve">
+    <value>Once complete, you may close this tab.</value>
   </data>
   <data name="Register_Associate_your" xml:space="preserve">
     <value>Associate your</value>

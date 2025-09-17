@@ -2,6 +2,7 @@
 @inject IOptions<IdentityUIOptions> UIOptions
 @inject IIdentityViewLocalizer Localizer
 @inject IWebHostEnvironment Environment
+@inject Indice.Features.Identity.UI.IdentityLabelsMessageDescriber Labels
 
 @{
     var settings = Settings.Value;
@@ -19,9 +20,9 @@
     </div>
     <div class="links">
         <span class="software-verson">v@(version ?? "1.0.0")</span>
-        <a indice-if="!Environment.IsProduction()" href="~/.well-known/openid-configuration" target="_blank">@Localizer["Discovery"]</a>
-        <a asp-page="/Privacy" target="_blank">@Localizer["Privacy"]</a>
-        <a asp-page="/Terms" target="_blank">@Localizer["Terms"]</a>
-        <a indice-if="showContactUs" href="@UIOptions.Value.ContactUsUrl" target="_blank">@Localizer["Contact us"]</a>
+        <a indice-if="!Environment.IsProduction()" href="~/.well-known/openid-configuration" target="_blank">@Labels.Footer_Discovery</a>
+        <a asp-page="/Privacy" target="_blank">@Labels.Footer_Privacy</a>
+        <a asp-page="/Terms" target="_blank">@Labels.Footer_Terms</a>
+        <a indice-if="showContactUs" href="@UIOptions.Value.ContactUsUrl" target="_blank">@Labels.Footer_Contact_us</a>
     </div>
 </footer>

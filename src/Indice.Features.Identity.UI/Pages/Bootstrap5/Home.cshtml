@@ -6,6 +6,8 @@
 @inject IIdentityViewLocalizer Localizer
 @inject IWebHostEnvironment Environment
 
+@inject Indice.Features.Identity.UI.IdentityLabelsMessageDescriber Labels
+
 @{
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;
@@ -23,27 +25,27 @@
         {
             <div class="section text-start" id="welcome-to-identity">
                 <p class="lead">
-                    @Localizer["The Identity portal gives you access to all {0} services with one account. A place to manage your user profile and account access settings. Use the links below to get started.", Settings.Organization!]
+                    @Labels.Home_Identity_Portal_Info
                 </p>
             </div>
             <partial name="_ServiceDeck" model="Model.Services" />
             <p class="lead" indice-if="@Environment.IsDevelopment()">
-                @Localizer["Please login to the application"] <a asp-page="/Login">@Localizer["here"]</a>.
+                @Labels.Home_Please_Login_To_The_Application <a asp-page="/Login">@Labels.Home_Here</a>.
             </p>
         }
         else
         {
             <h3 class="py-5">
-                @Localizer["Welcome back"] @User.FindDisplayName().
+                @Labels.Home_Welcome_Back@User.FindDisplayName().
             </h3>
             <div class="section text-start" id="welcome-to-identity">
-                <p class="lead">@Localizer["The Identity portal gives you access to all {0} services with one account. A place to manage your user profile and account access settings. Use the links below to get started.", Settings.Organization!]</p>
+                <p class="lead">@Labels.Home_Identity_Portal_Info </p>
             </div>
             <partial name="_ServiceDeck" model="Model.Services" />
             <div class="paragraph-block text-start">
-                <h4>@Localizer["Manage your grants"]</h4>
+                <h4>@Labels.Home_Manage_Your_Grants</h4>
                 <p class="lead">
-                    @Localizer["Check and revoke your"] <a asp-page="/Grants" class="reference external">@Localizer["authorized applications"]</a>
+                    @Labels.Home_Check_And_Revoke_Your <a asp-page="/Grants" class="reference external">@Labels.Home_Authorized_Applications</a>
                 </p>
             </div>
         }

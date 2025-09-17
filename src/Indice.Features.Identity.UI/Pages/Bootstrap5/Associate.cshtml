@@ -3,9 +3,10 @@
 @model BaseAssociateModel
 
 @inject IIdentityViewLocalizer Localizer
+@inject Indice.Features.Identity.UI.IdentityLabelsMessageDescriber Labels
 
 @{
-    var title = ViewData["Title"] = $"{Localizer["Associate your"].Value} {Model.View.Provider} {Localizer["account"].Value}";
+    var title = ViewData["Title"] = Labels.Register_Associate_your_Account(Model.View.Provider);
 }
 
 <section class="sign-up m-auto">
@@ -17,15 +18,15 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label asp-for="Input.FirstName" class="form-label">@Localizer["First name"]</label>
-                    <input class="form-control" type="text" asp-for="Input.FirstName" placeholder="@Localizer["First name"]" autofocus />
+                    <label asp-for="Input.FirstName" class="form-label">@Labels.Profile_First_Name</label>
+                    <input class="form-control" type="text" asp-for="Input.FirstName" placeholder="@Labels.Profile_First_Name" autofocus />
                     <span asp-validation-for="Input.FirstName" class="text-danger"></span>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label asp-for="Input.LastName" class="form-label">@Localizer["Last name"]</label>
-                    <input class="form-control" type="text" asp-for="Input.LastName" placeholder="@Localizer["Last name"]" />
+                    <label asp-for="Input.LastName" class="form-label">@Labels.Profile_Last_Name</label>
+                    <input class="form-control" type="text" asp-for="Input.LastName" placeholder="@Labels.Profile_Last_Name" />
                     <span asp-validation-for="Input.LastName" class="text-danger"></span>
                 </div>
             </div>
@@ -33,8 +34,8 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label asp-for="Input.LastName" class="form-label">@Localizer["Phone number"]</label>
-                    <input class="form-control" type="tel" asp-for="Input.PhoneNumber" placeholder="@Localizer["Phone number"]" />
+                    <label asp-for="Input.LastName" class="form-label">@Labels.Profile_Phone_Number</label>
+                    <input class="form-control" type="tel" asp-for="Input.PhoneNumber" placeholder="@Labels.Profile_Phone_Number" />
                     <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
                 </div>
             </div>
@@ -51,7 +52,7 @@
                 <div class="mb-3">
                     <label class="checkbox">
                         <input asp-for="Input.HasAcceptedTerms" type="checkbox" />
-                        @Localizer["I have read and accept the <a href=\"/terms\" target=\"_blank\">Terms of service</a> and the <a href=\"/privacy\" target=\"_blank\">privacy policy</a>."]
+                        @Labels.Register_I_Have_Read_And_Accept_Terms
                     </label>
                     <span asp-validation-for="Input.HasAcceptedTerms" class="text-danger"></span>
                 </div>
@@ -62,8 +63,8 @@
                 <div class="mb-3">
                     <label class="checkbox">
                         <input asp-for="Input.HasReadPrivacyPolicy" type="checkbox" />
-                        @Localizer["I consent to the registration and processing of the above personal details for my contact and service as they are defined"]
-                        <a style="font-weight:bold" asp-page="/Privacy" target="_blank">@Localizer["here"].</a>.
+                        @Labels.Register_I_Consent_To_Registration
+                        <a style="font-weight:bold" asp-page="/Privacy" target="_blank">@Labels.Register_Here.</a>.
                     </label>
                     <span asp-validation-for="Input.HasReadPrivacyPolicy" class="text-danger"></span>
                 </div>
@@ -72,7 +73,7 @@
         <div class="row align-items-center">
             <div class="col-xl-6 col-12">
                 <div class="mb-3">
-                    <button class="btn btn-primary w-100 btn-hover" type="submit">@Localizer["Register"]</button>
+                    <button class="btn btn-primary w-100 btn-hover" type="submit">@Labels.Register_Register</button>
                 </div>
             </div>
         </div>

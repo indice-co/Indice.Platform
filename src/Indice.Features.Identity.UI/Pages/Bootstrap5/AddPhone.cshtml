@@ -7,8 +7,11 @@
 @inject CallingCodesProvider callingCodesProvider
 @inject IOptions<IdentityUIOptions> identityUiOptions
 
+
+@inject Indice.Features.Identity.UI.IdentityLabelsMessageDescriber Labels
+
 @{
-    var title = ViewData["Title"] = Localizer["Add phone"].Value;
+    var title = ViewData["Title"] = Labels.AddPhone_Add;
     var alert = TempData.Peek<AlertModel>(BaseAddPhoneModel.TempDataKey);
 }
 
@@ -20,7 +23,7 @@
         <div class="row justify-content-center mb-3">
             <div indice-if="identityUiOptions.Value.EnablePhoneNumberCallingCodes" class="form-row col-md-6">
                 <select class="form-control" style="height: 40px" asp-for="Input.CallingCode" required>
-                    <option value="" selected>@Localizer["Choose..."]</option>
+                    <option value="" selected>@Labels.Profile_Choose</option>
                     @foreach (var callingCode in callingCodesProvider.GetSupportedCallingCodes())
                     {
                         <option value="@callingCode">@callingCode.DisplayName</option>
@@ -29,16 +32,16 @@
                 <span asp-validation-for="Input.CallingCode" class="text-danger"></span>
             </div>
             <div class="form-row @(identityUiOptions.Value.EnablePhoneNumberCallingCodes ? "col-md-6" :"col-md-12")">
-                <label asp-for="Input.PhoneNumber" class="sr-only">@Localizer["Phone number"]</label>
+                <label asp-for="Input.PhoneNumber" class="sr-only">@Labels.AddPhone_Phone_number</label>
                 <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
-                <input class="form-control" type="text" placeholder="@Localizer["Phone number"]" asp-for="Input.PhoneNumber" />
+                <input class="form-control" type="text" placeholder="@Labels.AddPhone_Phone_number" asp-for="Input.PhoneNumber" />
                 <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
             </div>
         </div>
         <div class="mb-3">
             <div class="row m-0 w-100">
                 <div class="col-12 py-1">
-                    <button class="btn btn-info w-100" type="submit">@Localizer["Save"]</button>
+                    <button class="btn btn-info w-100" type="submit">@Labels.AddPhone_Save</button>
                 </div>
             </div>
         </div>

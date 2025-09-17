@@ -1,5 +1,6 @@
 ﻿@inject IMarkdownProcessor Markdown
 @inject IIdentityViewLocalizer Localizer
+@inject Indice.Features.Identity.UI.IdentityLabelsMessageDescriber Labels
 
 @model ScopeViewModel
 
@@ -21,7 +22,7 @@
     </div>
     @if (Model.Required)
     {
-        <span><em>(@Localizer["required"])</em></span>
+        <span><em>(@Labels.AddPassword_Required)</em></span>
     }
     @if (Model.Description is not null)
     {

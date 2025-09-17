@@ -5,8 +5,10 @@
 @inject IIdentityViewLocalizer Localizer
 @inject ExtendedUserManager<User> userManager
 
+@inject Indice.Features.Identity.UI.IdentityLabelsMessageDescriber Labels
+
 @{
-    var title = ViewData["Title"] = Localizer["Login"].Value;
+    var title = ViewData["Title"] = Labels.Login_Login;
 }
 
 <section class="sign-in m-auto">
@@ -26,7 +28,7 @@
                 }
             </ul>
         </div>
-        <div class="hr-sect">@Localizer["OR"]</div>
+        <div class="hr-sect">@Labels.Login_OR</div>
     }
     @if (Model.UiOptions.EnableLocalLogin)
     {
@@ -39,8 +41,8 @@
                 <span asp-validation-for="Input.UserName" class="text-danger"></span>
             </div>
             <div class="mb-3">
-                <label asp-for="Input.Password" class="form-label">@Localizer["Password"]</label>
-                <input class="form-control" type="password" placeholder="@Localizer["Password"]" asp-for="Input.Password" autocomplete="off" />
+                <label asp-for="Input.Password" class="form-label">@Labels.Login_Password</label>
+                <input class="form-control" type="password" placeholder="@Labels.Login_Password" asp-for="Input.Password" autocomplete="off" />
                 <span asp-validation-for="Input.Password" class="text-danger"></span>
             </div>
             <div class="mb-3">
@@ -50,13 +52,13 @@
                         <label class="form-check-label">
                             <input asp-for="Input.RememberLogin" type="checkbox" class="form-check-input text-info" />
                             <span class="control"></span>
-                            @Localizer["Remember me"]
+                            @Labels.Login_Remember_Me
                         </label>
                     </div>
                 }
                 @if (Model.UiOptions.EnableForgotPasswordPage)
                 {
-                    <a class="btn btn-link p-0 text-md float-end text-blue" asp-page="/ForgotPassword">@Localizer["Forgot password?"]</a>
+                    <a class="btn btn-link p-0 text-md float-end text-blue" asp-page="/ForgotPassword">@Labels.Login_Forgot_Password</a>
                 }
             </div>
             <div class="mb-3">
@@ -65,7 +67,7 @@
                     {
                         <div class="col-sm-6 col-12 py-1">
                             <a class="btn btn-link w-100" asp-page="@Model.UiOptions.OnBoardingPage" asp-route-returnUrl="@Model.View.ReturnUrl">
-                                @Localizer["Join us"]
+                                @Labels. Localizer["Join us"]
                             </a>
                         </div>
                     }
@@ -79,8 +81,8 @@
     @if (!Model.UiOptions.EnableLocalLogin && !Model.View.VisibleExternalProviders.Any())
     {
         <div class="alert alert-warning">
-            <strong>@Localizer["Invalid login request"]</strong>
-            @Localizer["There are no login schemes configured for this client."]
+            <strong>@Labels.Login_Invalid_Login_Request</strong>
+            @Labels.Login_No_Login_Schemes_Configured
         </div>
     }
 </section>

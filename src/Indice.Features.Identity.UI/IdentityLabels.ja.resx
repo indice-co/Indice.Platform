@@ -79,6 +79,9 @@
   <data name="AddEmail_Verify email" xml:space="preserve">
     <value>メールアドレスを確認</value>
   </data>
+  <data name="AddPassword_Required" xml:space="preserve">
+	<value>必須</value>
+  </data>
   <data name="AddPassword_Add" xml:space="preserve">
     <value>追加</value>
   </data>
@@ -130,6 +133,9 @@
   <data name="Challenge_Redirecting" xml:space="preserve">
     <value>リダイレクト中...</value>
   </data>
+  <data name="ChangePassword_Sign_in_with_a_different_account" xml:space="preserve">
+    <value>別のアカウントでサインイン</value>
+  </data>
   <data name="ChangePassword_Change" xml:space="preserve">
     <value>変更</value>
   </data>
@@ -147,6 +153,12 @@
   </data>
   <data name="ChangePassword_Process completed." xml:space="preserve">
     <value>処理が完了しました。</value>
+  </data>
+  <data name="ConfirmEmail_DoNotReply" xml:space="preserve">
+    <value>このアドレスはメールを受信しないため、返信しないでください。返信は届きません。</value>
+  </data>
+  <data name="ConfirmEmail_ServiceEmailInfo" xml:space="preserve">
+    <value>このサービスのメールには、アカウントに関する情報が含まれています。</value>
   </data>
   <data name="ConfirmEmail_Click" xml:space="preserve">
     <value>クリック</value>
@@ -277,6 +289,96 @@
   <data name="Consent_would like to" xml:space="preserve">
     <value>希望します</value>
   </data>
+  <data name="Email_Preheader_Verify" xml:space="preserve">
+    <value>メールを確認してください。ここをクリック</value>
+  </data>
+  <data name="Email_Preheader_Here" xml:space="preserve">
+    <value>こちら</value>
+  </data>
+  <data name="Email_Preheader_ToGetVerified" xml:space="preserve">
+    <value>確認するために</value>
+  </data>
+  <data name="Email_Body_Hi" xml:space="preserve">
+    <value>こんにちは</value>
+  </data>
+  <data name="Email_Body_Thanks" xml:space="preserve">
+    <value>ありがとうございます</value>
+  </data>
+  <data name="Email_Body_Sincerely" xml:space="preserve">
+    <value>敬具</value>
+  </data>
+  <data name="Email_Body_Organization" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="Email_Reset_Password" xml:space="preserve">
+    <value>パスワードをリセット</value>
+  </data>
+  <data name="Email_ResetPassword_RequestInfo" xml:space="preserve">
+    <value>パスワードをリセットするリクエストを受け取りました。ご自身でリクエストした場合は、次のリンクをクリックしてください:</value>
+  </data>
+  <data name="Email_ResetPassword_IgnoreNotice" xml:space="preserve">
+    <value>もしパスワードのリセットをリクエストしていない場合は、このメッセージを無視しても問題ありません。</value>
+  </data>
+  <data name="EmailRegister_Body_Hi" xml:space="preserve">
+    <value>こんにちは</value>
+  </data>
+  <data name="EmailRegister_Body_Welcome" xml:space="preserve">
+    <value>{0} へようこそ！ご参加いただき嬉しく思います。</value>
+  </data>
+  <data name="EmailRegister_Body_ConfirmEmail" xml:space="preserve">
+    <value>登録を完了するには、次をクリックしてメールアドレスを確認してください</value>
+  </data>
+  <data name="EmailRegister_Preheader" xml:space="preserve">
+    <value>{0} へようこそ！開始するにはメールを確認してください。</value>
+  </data>
+  <data name="EmailRegister_Body_IgnoreNotice" xml:space="preserve">
+    <value>アカウントを作成していない場合は、このメールを無視して構いません。</value>
+  </data>
+  <data name="EmailRegister_Body_Thanks" xml:space="preserve">
+    <value>ご登録ありがとうございます！</value>
+  </data>
+  <data name="EmailSecurity_Preheader" xml:space="preserve">
+    <value>アカウントに関するセキュリティ通知です。</value>
+  </data>
+  <data name="EmailSecurity_Subject" xml:space="preserve">
+    <value>セキュリティ通知</value>
+  </data>
+  <data name="EmailSecurity_Body_Hi" xml:space="preserve">
+    <value>こんにちは</value>
+  </data>
+  <data name="EmailSecurity_Body_EventOccurred" xml:space="preserve">
+    <value>お客様のアカウントでセキュリティ関連のイベントが発生したことをお知らせします。</value>
+  </data>
+  <data name="EmailSecurity_Body_EventDetails" xml:space="preserve">
+    <value>イベントの詳細:</value>
+  </data>
+  <data name="EmailSecurity_Body_EventTime" xml:space="preserve">
+    <value>イベント時刻</value>
+  </data>
+  <data name="EmailSecurity_Body_Username" xml:space="preserve">
+    <value>ユーザー名</value>
+  </data>
+  <data name="EmailSecurity_Body_Email" xml:space="preserve">
+    <value>メールアドレス</value>
+  </data>
+  <data name="EmailSecurity_Body_Device" xml:space="preserve">
+    <value>デバイス</value>
+   </data>
+  <data name="EmailSecurity_Body_Client" xml:space="preserve">
+    <value>クライアント</value>
+  </data>
+  <data name="EmailSecurity_Body_Location" xml:space="preserve">
+    <value>場所</value>
+  </data>
+  <data name="EmailSecurity_Body_LocationNotice" xml:space="preserve">
+    <value>(正確な場所と一致しない場合があります)</value>
+  </data>
+  <data name="EmailSecurity_Body_ContactSupport" xml:space="preserve">
+    <value>この操作を実行していない場合は、直ちにサポートにご連絡ください。</value>
+  </data>
+  <data name="Error_Error" xml:space="preserve">
+    <value>エラー</value>
+  </data>
   <data name="Error_Go_back_home" xml:space="preserve">
     <value>ホームに戻る</value>
   </data>
@@ -285,6 +387,18 @@
   </data>
   <data name="Error_Request Id" xml:space="preserve">
     <value>リクエストID</value>
+  </data>
+  <data name="Footer_Discovery" xml:space="preserve">
+	<value>ディスカバリードキュメント</value>
+  </data>
+  <data name="Footer_Privacy" xml:space="preserve">
+    <value>プライバシーポリシー</value>
+  </data>
+  <data name="Footer_Terms" xml:space="preserve">
+    <value>利用規約</value>
+  </data>
+  <data name="Footer_Contact_us" xml:space="preserve">
+    <value>お問い合わせ</value>
   </data>
   <data name="ForgotPassword_Forgot password" xml:space="preserve">
     <value>パスワードをお忘れですか</value>
@@ -343,6 +457,7 @@
   <data name="Grants_You have not provided access to any applications" xml:space="preserve">
     <value>どのアプリケーションにもアクセスを許可していません。</value>
   </data>
+  
   <data name="Home_&lt;strong&gt;Welcome&lt;/strong&gt;&lt;br&gt; to our Digital Services Portal of {0}" xml:space="preserve">
     <value>&lt;strong&gt;ようこそ&lt;/strong&gt;&lt;br&gt; {0}のデジタルサービスポータルへ</value>
   </data>
@@ -547,6 +662,9 @@
   <data name="PasswordExpired_Νew password confirmation" xml:space="preserve">
     <value>新しいパスワードの確認</value>
   </data>
+  <data name="Profile_PreferredLanguage" xml:space="preserve">
+    <value>希望する言語</value>
+  </data>
   <data name="Profile_A confirmation email has been sent to {0}." xml:space="preserve">
     <value>{0} に確認メールが送信されました。</value>
   </data>
@@ -633,6 +751,12 @@
   </data>
   <data name="Profile_Your profile was updated successfully." xml:space="preserve">
     <value>プロフィールが正常に更新されました。</value>
+  </data>
+  <data name="Redirect_Returning" xml:space="preserve">
+    <value>アプリケーションに戻っています。</value>
+  </data>
+  <data name="Redirect_CloseTab" xml:space="preserve">
+    <value>完了したら、このタブを閉じることができます。</value>
   </data>
   <data name="Register_Associate_your" xml:space="preserve">
     <value>あなたの</value>

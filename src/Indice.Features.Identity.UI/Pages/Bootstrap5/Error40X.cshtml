@@ -1,11 +1,12 @@
 ﻿@page "/{statusCode:range(400,404)}"
 
 @inject IIdentityViewLocalizer Localizer
+@inject Indice.Features.Identity.UI.IdentityLabelsMessageDescriber Labels
 
 @model BaseError40XModel
 
 @{
-    var title = ViewData["Title"] = Localizer["Error"].Value;
+    var title = ViewData["Title"] = Labels.Error_Error;
     var error = Model.ErrorMessages.GetValueOrDefault(Model.ErrorStatusCode.GetValueOrDefault());
 }
 
@@ -15,6 +16,6 @@
         <h1 class="page-message glitch" data-text="@Model">@Model.ErrorStatusCode</h1>
         <h2 indice-if="!string.IsNullOrEmpty(error?.Title)" class="page-message-title">@Localizer[error!.Title]</h2>
         <p indice-if="!string.IsNullOrEmpty(error?.Message)" class="page-message-description">@Localizer[error!.Message]</p>
-        <a class="btn btn-outline-light btn-lg" asp-page="/Home">@Localizer["Go back home"]</a>
+        <a class="btn btn-outline-light btn-lg" asp-page="/Home">@Labels.Error_Go_back_home</a>
     </article>
 </section>

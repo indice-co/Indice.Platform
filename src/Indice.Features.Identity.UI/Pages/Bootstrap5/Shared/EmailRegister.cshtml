@@ -2,6 +2,8 @@
 @inject IOptions<GeneralSettings> GeneralSettings
 @inject IOptions<IdentityUIOptions> UIOptions
 @inject UserManager<User> UserManager
+@inject Indice.Features.Identity.UI.IdentityLabelsMessageDescriber Labels
+
 
 @{
     Layout = "_LayoutEmail.cshtml";
@@ -9,13 +11,13 @@
 
 @{
     var settings = GeneralSettings.Value;
-    var subject = Model?.Subject ?? Localizer["Welcome to {0}! Please confirm your email to get started.", settings.ApplicationName!].Value;
+    var subject = Model?.Subject ?? Labels.EmailRegister_Subject(settings.ApplicationName!);
     var userName = Model?.UserName ?? UserManager.GetUserName(User);
     var confirmationLink = Model?.Url ?? throw new InvalidOperationException("Confirmation link cannot be null.");
 }
 
 @section preheader {
-    @Localizer[$"Welcome to {0}! Please confirm your email to get started.", settings.ApplicationName!]
+    @Labels.EmailRegister_Preheader Localizer[$"Welcome to {0}! Please confirm your email to get started.", settings.ApplicationName!]
 }
 
 @section subject {
@@ -25,22 +27,22 @@
 }
 
 <p style="font-family: 'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-size: 12px;">
-    @Localizer["Hi"] @(userName ?? string.Empty),
+    @Labels.EmailRegister_Body_Hi @(userName ?? string.Empty),
     <br />
     <br />
-    @Localizer["Welcome to {0}! We’re excited to have you on board.", settings.ApplicationName!]
+    @Labels.EmailRegister_Body_Welcome(settings.ApplicationName!)
     <br />
     <br />
-    @Localizer["To complete your registration, please confirm your email address by clicking"]
-    <a style="color:#@UIOptions.Value.EmailLinkColorHex" href="@confirmationLink">@Localizer["here"]</a>.
+    @Labels.EmailRegister_Body_ConfirmEmail
+    <a style="color:#@UIOptions.Value.EmailLinkColorHex" href="@confirmationLink">@Labels.Email_Preheader_Here</a>.
     <br />
     <br />
-    @Localizer["If you did not create an account, you can safely ignore this email."]
+    @Labels.EmailRegister_Body_IgnoreNotice
     <br />
     <br />
-    @Localizer["Thank you for joining!"]
+    @Labels.EmailRegister_Body_Thanks
     <br />
     <br />
-    @Localizer["Sincerely"],<br />
-    @Localizer[settings.Organization!]
+    @Labels.Email_Body_Sincerely,<br />
+    @Labels.Email_Body_Organization(settings.Organization!)
 </p>

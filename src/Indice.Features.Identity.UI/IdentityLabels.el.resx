@@ -79,6 +79,9 @@
   <data name="AddEmail_Verify email" xml:space="preserve">
     <value>Επιβεβαίωση email</value>
   </data>
+  <data name="AddPassword_Required" xml:space="preserve">
+    <value>απαιτείται</value>
+  </data>
   <data name="AddPassword_Add" xml:space="preserve">
     <value>Προσθήκη</value>
   </data>
@@ -115,6 +118,9 @@
   <data name="Challenge_Redirecting" xml:space="preserve">
     <value>Ανακατεύθυνση...</value>
   </data>
+  <data name="ChangePassword_Sign_in_with_a_different_account" xml:space="preserve">
+   <value>Συνδεθείτε με διαφορετικό λογαριασμό</value>
+  </data>
   <data name="ChangePassword_Change" xml:space="preserve">
     <value>Αλλαγή</value>
   </data>
@@ -132,6 +138,12 @@
   </data>
   <data name="ChangePassword_Process completed." xml:space="preserve">
     <value>Η διαδικασία ολοκληρώθηκε</value>
+  </data>
+  <data name="ConfirmEmail_DoNotReply" xml:space="preserve">
+    <value>Παρακαλώ μην απαντήσετε, καθώς αυτή η διεύθυνση δεν λαμβάνει μηνύματα και δεν θα λάβετε απάντηση.</value>
+  </data>
+  <data name="ConfirmEmail_ServiceEmailInfo" xml:space="preserve">
+   <value>Αυτό το email υπηρεσίας περιέχει πληροφορίες σχετικά με τον λογαριασμό σας.</value>
   </data>
   <data name="ConfirmEmail_Click" xml:space="preserve">
     <value>Πατήστε</value>
@@ -262,14 +274,116 @@
   <data name="Consent_would like to" xml:space="preserve">
     <value>αυτή ζητά</value>
   </data>
+  <data name="Email_Preheader_Verify" xml:space="preserve">
+    <value>Χρειαζόμαστε να επαληθεύσετε το email σας. Παρακαλώ κάντε κλικ</value>
+  </data>
+  <data name="Email_Preheader_Here" xml:space="preserve">
+    <value>εδώ</value>
+  </data>
+  <data name="Email_Preheader_ToGetVerified" xml:space="preserve">
+    <value>για να επαληθευτείτε</value>
+  </data>
+  <data name="Email_Body_Hi" xml:space="preserve">
+    <value>Γειά</value>
+  </data>
+  <data name="Email_Body_Thanks" xml:space="preserve">
+    <value>Ευχαριστούμε</value>
+  </data>
+  <data name="Email_Body_Sincerely" xml:space="preserve">
+    <value>Με εκτίμηση</value>
+  </data>
+  <data name="Email_Body_Organization" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="Email_Reset_Password" xml:space="preserve">
+    <value>Επαναφορά κωδικού</value>
+  </data>
+  <data name="Email_ResetPassword_RequestInfo" xml:space="preserve">
+    <value>Λάβαμε ένα αίτημα για επαναφορά του κωδικού πρόσβασής σας. Αν ζητήσατε εσείς την επαναφορά, παρακαλούμε κάντε κλικ στον παρακάτω σύνδεσμο:</value>
+  </data>
+  <data name="Email_ResetPassword_IgnoreNotice" xml:space="preserve">
+    <value>Αν δεν ζητήσατε την επαναφορά του κωδικού σας, μπορείτε να αγνοήσετε αυτό το μήνυμα με ασφάλεια.</value>
+  </data>
+  <data name="EmailRegister_Body_Hi" xml:space="preserve">
+    <value>Γειά σας</value>
+  </data>
+  <data name="EmailRegister_Body_Welcome" xml:space="preserve">
+  <value>Καλώς ήρθατε στο {0}! Χαιρόμαστε που είστε μαζί μας.</value>
+  </data>
+  <data name="EmailRegister_Body_ConfirmEmail" xml:space="preserve">
+    <value>Για να ολοκληρώσετε την εγγραφή σας, παρακαλώ επιβεβαιώστε το email σας κάνοντας κλικ</value>
+  </data>
+  <data name="EmailRegister_Preheader" xml:space="preserve">
+    <value>Καλώς ήρθατε στο {0}! Παρακαλώ επιβεβαιώστε το email σας για να ξεκινήσετε.</value>
+  </data>
+  <data name="EmailRegister_Body_IgnoreNotice" xml:space="preserve">
+    <value>Αν δεν δημιουργήσατε λογαριασμό, μπορείτε να αγνοήσετε αυτό το email.</value>
+  </data>
+  <data name="EmailRegister_Body_Thanks" xml:space="preserve">
+    <value>Σας ευχαριστούμε που εγγραφήκατε!</value>
+  </data>
+  <data name="EmailSecurity_Preheader" xml:space="preserve">
+    <value>Ειδοποίηση ασφαλείας σχετικά με τον λογαριασμό σας.</value>
+  </data>
+  <data name="EmailSecurity_Subject" xml:space="preserve">
+    <value>Ειδοποίηση Ασφαλείας</value>
+  </data>
+  <data name="EmailSecurity_Body_Hi" xml:space="preserve">
+    <value>Γεια</value>
+  </data>
+  <data name="EmailSecurity_Body_EventOccurred" xml:space="preserve">
+    <value>Θέλουμε να σας ενημερώσουμε ότι συνέβη ένα συμβάν ασφαλείας στον λογαριασμό σας.</value>
+  </data>
+  <data name="EmailSecurity_Body_EventDetails" xml:space="preserve">
+    <value>Λεπτομέρειες συμβάντος:</value>
+  </data>
+  <data name="EmailSecurity_Body_EventTime" xml:space="preserve">
+    <value>Ώρα συμβάντος</value>
+  </data>
+  <data name="EmailSecurity_Body_Username" xml:space="preserve">
+    <value>Όνομα χρήστη</value>
+  </data>
+  <data name="EmailSecurity_Body_Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="EmailSecurity_Body_Device" xml:space="preserve">
+    <value>Συσκευή</value>
+  </data>
+  <data name="EmailSecurity_Body_Client" xml:space="preserve">
+    <value>Πελάτης</value>
+  </data>
+  <data name="EmailSecurity_Body_Location" xml:space="preserve">
+    <value>Τοποθεσία</value>
+  </data>
+  <data name="EmailSecurity_Body_LocationNotice" xml:space="preserve">
+    <value>(Μπορεί να μην αντιστοιχεί ακριβώς στην τοποθεσία)</value>
+  </data>
+  <data name="EmailSecurity_Body_ContactSupport" xml:space="preserve">
+    <value>Εάν δεν πραγματοποιήσατε αυτήν την ενέργεια, επικοινωνήστε άμεσα με την υποστήριξη.</value>
+  </data>
+  <data name="Error_Error" xml:space="preserve">
+    <value>Σφάλμα</value>
+  </data>
   <data name="Error_Go_back_home" xml:space="preserve">
     <value>Επιστροφή στην αρχική</value>
   </data>
- <data name="Error_Oops! Seems we encountered an error." xml:space="preserve">
+  <data name="Error_Oops! Seems we encountered an error." xml:space="preserve">
     <value>Λυπούμαστε. Κάποιο σφάλμα συνέβη στην εφαρμογή.</value>
   </data>
   <data name="Error_Request Id" xml:space="preserve">
     <value>Κωδικός αιτήματος</value>
+  </data>
+  <data name="Footer_Discovery" xml:space="preserve">
+    <value>Έγγραφο ανακάλυψης</value>
+  </data>
+  <data name="Footer_Privacy" xml:space="preserve">
+    <value>Πολιτική απορρήτου</value>
+  </data>
+  <data name="Footer_Terms" xml:space="preserve">
+    <value>Όροι χρήσης</value>
+  </data>
+  <data name="Footer_Contact_us" xml:space="preserve">
+    <value>Επικοινωνία</value>
   </data>
  <data name="ForgotPassword_Forgot password" xml:space="preserve">
     <value>Υπενθύμιση κωδικού</value>
@@ -328,6 +442,7 @@
   <data name="Grants_You have not provided access to any applications" xml:space="preserve">
     <value>Δεν έχετε δώσει πρόσβαση σε καμία εφαρμογή</value>
   </data>
+  
   <data name="Home_&lt;strong&gt;Welcome&lt;/strong&gt;&lt;br&gt; to our Digital Services Portal of {0}" xml:space="preserve">
     <value>&lt;strong&gt;Καλωσήλθατε&lt;/strong&gt;&lt;br&gt; στην Πύλη Ψηφιακών Υπηρεσιών της {0}</value>
   </data>
@@ -618,6 +733,12 @@
   </data>
   <data name="Profile_Your profile was updated successfully." xml:space="preserve">
     <value>To προφίλ σας ενημερώθηκε επιτυχώς.</value>
+  </data>
+  <data name="Redirect_Returning" xml:space="preserve">
+    <value>Τώρα επιστρέφετε στην εφαρμογή.</value>
+  </data>
+  <data name="Redirect_CloseTab" xml:space="preserve">
+    <value>Μόλις ολοκληρωθεί, μπορείτε να κλείσετε αυτήν την καρτέλα.</value>
   </data>
   <data name="Register_Associate_your" xml:space="preserve">
     <value>Συνδέστε τον</value>

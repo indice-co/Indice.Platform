@@ -1,4 +1,5 @@
 ﻿@inject IIdentityViewLocalizer Localizer
+@inject Indice.Features.Identity.UI.IdentityLabelsMessageDescriber Labels
 @{ }
 
 <html>
@@ -21,8 +22,8 @@
                     <br />
                 </p>
                 <p style="font-family: 'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-size: 12px;">
-                    @Localizer["Please do not reply, as this address does not receive email messages and you will not receive a response."]
-                    @Localizer["This service email contains information related to your account."]
+                    @Labels.ConfirmEmail_DoNotReply
+                    @Labels.ConfirmEmail_ServiceEmailInfo
                 </p>
             </td>
         </tr>
