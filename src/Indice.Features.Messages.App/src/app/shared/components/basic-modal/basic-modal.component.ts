@@ -5,6 +5,7 @@ import { Modal, ModalOptions } from '@indice/ng-components';
 @Component({
     selector: 'app-basic-modal',
     templateUrl: './basic-modal.component.html',
+    styleUrls: ['./basic-modal.component.scss']
 })
 export class BasicModalComponent implements OnInit {
     constructor(public modal: Modal, @Inject(ModalOptions) private options: ModalOptions) { 

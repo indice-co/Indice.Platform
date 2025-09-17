@@ -55,8 +55,8 @@
 <section aria-labelledby="timeline-title" class="mt-10">
     <div class="bg-white shadow sm:rounded-lg">
         <div class="px-4 py-5 sm:px-6">
-            <h2 id="timeline-title" class="text-lg leading-6 font-medium text-gray-900">Χρονολόγιο αποστολών</h2>
-            <div class="flex items-center space-x-1">
+            <h2 id="timeline-title" class="text-lg leading-6 font-medium text-gray-900">Προεπισκόπηση
+            <!-- <div class="flex items-center space-x-1"> -->
                 <span [ngClass]="{ 'text-green-500 cursor-pointer': campaignTimeline?.content.email }"
                     class="ml-1 text-gray-400" title="Email" (click)="openEmailContent('email')">
                     <i class="ms-Icon ms-Icon--Accounts"></i>
@@ -76,9 +76,10 @@
                     class="ml-1 text-gray-400" title="Push Notification" (click)="openEmailContent('pushNotification')">
                     <i class="ms-Icon ms-Icon--CellPhone"></i>
                 </span>
-            </div>
+            </h2>
         </div>
         <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+            <h2 id="timeline-title" class="text-lg leading-6 font-medium text-gray-900 mb-2">Ιστορικό</h2>
             <ol class="relative border-s border-gray-200 dark:border-gray-700">
                 <li *ngFor="let event of campaignTimeline?.events" class="mb-10 ms-8">
                     <span
