@@ -184,8 +184,8 @@ public static class WorkerHostBuilderExtensions
     /// <summary>Adds an instance of <see cref="ISmsService"/> using Yuboto Omni for sending Viber messages.</summary>
     /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    public static MessageJobsOptions UseViberServiceYubotoOmni(this MessageJobsOptions options, IConfiguration configuration) {
-        options.Services.AddViberServiceYubotoOmni(configuration);
+    public static MessageJobsOptions UseSmsServiceYubotoOmniViber(this MessageJobsOptions options, IConfiguration configuration) {
+        options.Services.AddSmsServiceYubotoOmniViber(configuration);
         return options;
     }
 

@@ -223,7 +223,7 @@ public static class HostBuilderExtensions
     /// <param name="options">Options used when configuring messages in Azure Functions.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static MessageOptions UseSmsServiceYuboto(this MessageOptions options, IConfiguration configuration) {
-        options.Services.AddSmsServiceYuboto(configuration);
+        options.Services.AddSmsServiceYubotoOmni(configuration);
         return options;
     }
 
@@ -249,7 +249,7 @@ public static class HostBuilderExtensions
     /// <param name="options">Options used when configuring messages in Azure Functions.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static MessageOptions UseViberServiceYubotoOmni(this MessageOptions options, IConfiguration configuration) {
-        options.Services.AddViberServiceYubotoOmni(configuration);
+        options.Services.AddSmsServiceYubotoOmniViber(configuration);
         return options;
     }
 
