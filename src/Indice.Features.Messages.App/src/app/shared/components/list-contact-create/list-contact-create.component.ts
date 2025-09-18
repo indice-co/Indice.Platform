@@ -77,7 +77,7 @@ export class ListContactCreateComponent implements AfterViewInit {
 
   private _fetchContacts(searchTerm: string | undefined): Promise<ContactResultSet> {
     return lastValueFrom(
-      this._api.getContacts(this._page, this._pageSize, 'email', searchTerm, undefined, undefined, undefined, undefined, true)
+      this._api.getContacts(this._page, this._pageSize, 'email', searchTerm, undefined, undefined, undefined, undefined, undefined, true)
     );
   }
 

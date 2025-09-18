@@ -131,10 +131,12 @@ internal static class CampaignsHandlers
         return TypedResults.File(data, contentType, lastModified: properties.LastModified, entityTag: new EntityTagHeaderValue(properties.ETag, true));
     }
 
-    public static async Task<Ok<DashboardCounters>> GetDashboardStats(ICampaignService campaignService) {
+    public static async Task<Ok<DashboardCounters>> GetDashboardStats(ICampaignService campaignService, IContactService contactService) {
         var counters = new DashboardCounters {
-            CampaignsCount = (await campaignService.GetList(new ListOptions<CampaignListFilter> { Page = 1, Size = 0 })).Count,
-            CampaignsPublishedCount = (await campaignService.GetList(new ListOptions<CampaignListFilter> { Page = 1, Size = 0, Filter = new CampaignListFilter() { Published = true } })).Count,
+            CampaignsCount = (await campaignService.GetList(new() { Page = 1, Size = 0 })).Count,
+            CampaignsPublishedCount = (await campaignService.GetList(new() { Page = 1, Size = 0, Filter = new () { Published = true } })).Count,
+            ContactsTotal = (await contactService.GetList(new() { Page = 1, Size = 0 })).Count,
+            ContactsKnownTotal = (await contactService.GetList(new() { Page = 1, Size = 0, Filter = new () { Anonymous = false } })).Count,
             CampaignsByType = await campaignService.GetDashboardCounters()
         };
         return TypedResults.Ok(counters);
