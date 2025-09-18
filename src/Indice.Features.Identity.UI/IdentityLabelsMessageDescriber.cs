@@ -88,6 +88,8 @@ public class IdentityLabelsMessageDescriber
     #endregion
 
     #region ChangePassword
+    /// <summary>Label for Sign in with different Account.</summary>
+    public virtual string ChangePassword_Change_Sign_In_With_Different_Account => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePassword_Sign_in_with_a_different_account);
     /// <summary>Label for the Change Password action button.</summary>
     public virtual string ChangePassword_Change => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePassword_Change);
     /// <summary>Label for the Current Password input field.</summary>
