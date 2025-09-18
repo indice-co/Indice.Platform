@@ -12,13 +12,15 @@
     </lib-kpi-tile>
   </ng-container> -->
   </div>
-  <dl class="mt-5 grid grid-cols-1 divide-gray-200 overflow-hidden rounded-lg bg-white shadow-sm md:grid-cols-3 md:divide-x md:divide-y-0 dark:divide-white/10 dark:bg-gray-800/75 dark:shadow-none dark:inset-ring dark:inset-ring-white/10">
+  <dl
+    class="mt-5 grid grid-cols-1 divide-gray-200 overflow-hidden rounded-lg bg-white shadow-sm md:grid-cols-3 md:divide-x md:divide-y-0 dark:divide-white/10 dark:bg-gray-800/75 dark:shadow-none dark:inset-ring dark:inset-ring-white/10">
     <div class="px-4 py-5 sm:p-6">
       <dt class="text-base font-normal text-gray-900 dark:text-gray-100">Campaigns dispatched</dt>
       <dd class="mt-1 flex items-baseline justify-between md:block lg:flex">
         <div class="flex items-baseline text-2xl font-semibold text-indigo-600 dark:text-indigo-400">
           {{counters?.campaignsPublishedCount >= 0 ? counters?.campaignsPublishedCount : '-'}}
-          <span class="ml-2 text-sm font-medium text-gray-500 dark:text-gray-400">from {{counters?.campaignsCount >= 0 ? counters?.campaignsCount : '-'}}</span>
+          <span class="ml-2 text-sm font-medium text-gray-500 dark:text-gray-400">from {{counters?.campaignsCount >= 0 ?
+            counters?.campaignsCount : '-'}}</span>
         </div>
 
         <!--<div class="inline-flex items-baseline rounded-full bg-green-100 px-2.5 py-0.5 text-sm font-medium text-green-800 md:mt-2 lg:mt-0 dark:bg-green-400/10 dark:text-green-400">
@@ -35,7 +37,8 @@
       <dd class="mt-1 flex items-baseline justify-between md:block lg:flex">
         <div class="flex items-baseline text-2xl font-semibold text-indigo-600 dark:text-indigo-400">
           {{counters?.contactsKnownTotal >= 0 ? counters?.contactsKnownTotal : '-'}}
-          <span class="ml-2 text-sm font-medium text-gray-500 dark:text-gray-400">from {{counters?.contactsTotal >= 0 ? counters?.contactsTotal : '-'}}</span>
+          <span class="ml-2 text-sm font-medium text-gray-500 dark:text-gray-400">from {{counters?.contactsTotal >= 0 ?
+            counters?.contactsTotal : '-'}}</span>
         </div>
 
         <!--<div class="inline-flex items-baseline rounded-full bg-green-100 px-2.5 py-0.5 text-sm font-medium text-green-800 md:mt-2 lg:mt-0 dark:bg-green-400/10 dark:text-green-400">
@@ -48,24 +51,18 @@
       </dd>
     </div>
     <div class="px-4 py-5 sm:p-6">
-      <!--
-  <dt class="text-base font-normal text-gray-900 dark:text-gray-100">Avg. Click Rate</dt>
-  <dd class="mt-1 flex items-baseline justify-between md:block lg:flex">
-    <div class="flex items-baseline text-2xl font-semibold text-indigo-600 dark:text-indigo-400">
-      24.57%
-      <span class="ml-2 text-sm font-medium text-gray-500 dark:text-gray-400">from 28.62%</span>
-    </div>
 
-    <div class="inline-flex items-baseline rounded-full bg-red-100 px-2.5 py-0.5 text-sm font-medium text-red-800 md:mt-2 lg:mt-0 dark:bg-red-400/10 dark:text-red-400">
-      <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="mr-0.5 -ml-1 size-5 shrink-0 self-center text-red-500 dark:text-red-400">
-        <path d="M10 3a.75.75 0 0 1 .75.75v10.638l3.96-4.158a.75.75 0 1 1 1.08 1.04l-5.25 5.5a.75.75 0 0 1-1.08 0l-5.25-5.5a.75.75 0 1 1 1.08-1.04l3.96 4.158V3.75A.75.75 0 0 1 10 3Z" clip-rule="evenodd" fill-rule="evenodd"></path>
-      </svg>
-      <span class="sr-only"> Decreased by </span>
-      4.05%
+      <dt class="text-base font-normal text-gray-900 dark:text-gray-100">Total Sent messages</dt>
+      <dd class="mt-1 flex items-baseline justify-between md:block lg:flex">
+        <div class="flex items-baseline text-2xl font-semibold text-indigo-600 dark:text-indigo-400">
+          {{ counters?.campaignsByType?.Email ?? 0 +
+            counters?.campaignsByType?.SMS ?? 0 +
+            counters?.campaignsByType?.PushNotification ?? 0 +
+            counters?.campaignsByType?.Inbox ?? 0 }}
+        </div>
+      </dd>
     </div>
-  </dd>-->
-    </div>
-</dl>
+  </dl>
   <div class="cards-deck-2 mt-8">
     <div class="card">
       <div class="card-body">
