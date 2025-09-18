@@ -200,10 +200,6 @@ public static class HostBuilderExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static MessageOptions UseEmailServiceSmtp(this MessageOptions options, IConfiguration configuration) {
         options.Services.AddEmailServiceSmtp(configuration);
-        options.Services.AddSingleton((sp) => {
-            var smptSettings = sp.GetRequiredService<IOptions<EmailServiceSettings>>().Value;
-            return new Func<EmailProviderInfo>(() => new EmailProviderInfo(smptSettings.Sender!, smptSettings.SenderName!));
-        });
         return options;
     }
 
@@ -212,10 +208,22 @@ public static class HostBuilderExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static MessageOptions UseEmailServiceSparkPost(this MessageOptions options, IConfiguration configuration) {
         options.Services.AddEmailServiceSparkPost(configuration);
-        options.Services.AddSingleton((sp) => {
-            var sparkpostSettings = sp.GetRequiredService<IOptions<EmailServiceSparkPostSettings>>().Value;
-            return new Func<EmailProviderInfo>(() => new EmailProviderInfo(sparkpostSettings.Sender!, sparkpostSettings.SenderName!));
-        });
+        return options;
+    }
+
+    /// <summary>Adds an instance of <see cref="IEmailService"/> that uses Brevo to send emails.</summary>
+    /// <param name="options">Options used when configuring messages in Azure Functions.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    public static MessageOptions UseEmailServiceBrevo(this MessageOptions options, IConfiguration configuration) {
+        options.Services.AddEmailServiceBrevo(configuration);
+        return options;
+    }
+
+    /// <summary>Adds an instance of <see cref="IEmailService"/> that uses SendGrid to send emails.</summary>
+    /// <param name="options">Options used when configuring messages in Azure Functions.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    public static MessageOptions UseEmailServiceSendGrid(this MessageOptions options, IConfiguration configuration) {
+        options.Services.AddEmailServiceSendGrid(configuration);
         return options;
     }
 
@@ -225,24 +233,6 @@ public static class HostBuilderExtensions
     /// <remarks>Auto discovers the correct service to register according to configuration</remarks>    
     public static MessageOptions UseEmailService(this MessageOptions options, IConfiguration configuration) {
         options.Services.AddEmailService(configuration);
-        options.Services.AddSingleton((sp) => {
-            var providerName = configuration[$"{EmailServiceSettings.Name}:Provider"]?.ToLowerInvariant();
-            switch(providerName) {
-                case "sparkpost":
-                    var sparkpostSettings = sp.GetRequiredService<IOptions<EmailServiceSparkPostSettings>>().Value;
-                    return new Func<EmailProviderInfo>(() => new EmailProviderInfo(sparkpostSettings.Sender!, sparkpostSettings.SenderName!));
-                case "sendgrid":
-                    var sendgridSettings = sp.GetRequiredService<IOptions<EmailServiceSendGridSettings>>().Value;
-                    return new Func<EmailProviderInfo>(() => new EmailProviderInfo(sendgridSettings.Sender!, sendgridSettings.SenderName!));
-                case "brevo":
-                    var brevoSettings = sp.GetRequiredService<IOptions<EmailServiceBrevoSettings>>().Value;
-                    return new Func<EmailProviderInfo>(() => new EmailProviderInfo(brevoSettings.Sender!, brevoSettings.SenderName!));
-                case "smtp":
-                default:
-                    var smptSettings = sp.GetRequiredService<IOptions<EmailServiceSettings>>().Value;
-                    return new Func<EmailProviderInfo>(() => new EmailProviderInfo(smptSettings.Sender!, smptSettings.SenderName!));
-            }
-        });
         return options;
     }
 

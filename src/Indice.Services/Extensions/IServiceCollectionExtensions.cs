@@ -69,25 +69,23 @@ public static class IndiceServicesServiceCollectionExtensions
     /// </remarks>
     public static EmailServiceBuilder AddEmailService(this IServiceCollection services, IConfiguration configuration) {
         var providerNamesText = configuration.GetSection(EmailServiceSettings.Name).GetValue<string>("Provider");
-        var providerNames = (providerNamesText ?? "smtp").ToLowerInvariant().Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var providerNames = (providerNamesText ?? EmailServiceSmtp.ServiceName).Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         foreach (var name in providerNames) {
             switch (name) {
-                case "smtp":
+                case EmailServiceSmtp.ServiceName:
                     services.AddEmailServiceSmtp(configuration);
                     break;
-                case "spark_post":
-                case "sparkpost":
+                case EmailServiceSparkPost.ServiceName:
                     services.AddEmailServiceSparkPost(configuration);
                     break;
-                case "sendgrid":
-                case "send_grid":
+                case EmailServiceSendGrid.ServiceName:
                     services.AddEmailServiceSendGrid(configuration);
                     break;
-                case "brevo":
+                case EmailServiceBrevo.ServiceName:
                     services.AddEmailServiceBrevo(configuration);
                     break;
-                case "noop":
-                case "none":
+                case EmailServiceNoop.ServiceName:
+                default:
                     services.AddEmailServiceNoop();
                     break;
             }
@@ -102,6 +100,11 @@ public static class IndiceServicesServiceCollectionExtensions
         services.Configure<EmailServiceSettings>(configuration.GetSection(EmailServiceSettings.Name));
         services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceSettings>>().Value);
         services.AddTransient<IEmailService, EmailServiceSmtp>();
+        services.AddSingleton((sp) => {
+            var options = sp.GetRequiredService<IOptions<EmailServiceSettings>>().Value;
+            return new EmailProvider(EmailServiceSmtp.ServiceName, new EmailSender(options.Sender!, options.SenderName));
+        });
+        services.TryAddTransient((serviceProvider) => new EmailProviderFinder(() => serviceProvider.GetServices<EmailProvider>().ToList()));
         services.AddHtmlRenderingEngineNoop();
         return new EmailServiceBuilder(services);
     }
@@ -113,6 +116,11 @@ public static class IndiceServicesServiceCollectionExtensions
         services.Configure<EmailServiceSparkPostSettings>(configuration.GetSection(EmailServiceSparkPostSettings.Name));
         services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceSparkPostSettings>>().Value);
         services.AddHttpClient<IEmailService, EmailServiceSparkPost>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
+        services.AddSingleton((serviceProvider) => {
+            var options = serviceProvider.GetRequiredService<IOptions<EmailServiceSparkPostSettings>>().Value;
+            return new EmailProvider(EmailServiceSparkPost.ServiceName, new EmailSender(options.Sender!, options.SenderName));
+        });
+        services.TryAddTransient((serviceProvider) => new EmailProviderFinder(() => serviceProvider.GetServices<EmailProvider>().ToList()));
         services.AddHtmlRenderingEngineNoop();
         return new EmailServiceBuilder(services);
     }
@@ -124,6 +132,11 @@ public static class IndiceServicesServiceCollectionExtensions
         services.Configure<EmailServiceSendGridSettings>(configuration.GetSection(EmailServiceSendGridSettings.Name));
         services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceSendGridSettings>>().Value);
         services.AddHttpClient<IEmailService, EmailServiceSendGrid>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
+        services.AddSingleton((serviceProvider) => {
+            var options = serviceProvider.GetRequiredService<IOptions<EmailServiceSendGridSettings>>().Value;
+            return new EmailProvider(EmailServiceSendGrid.ServiceName, new EmailSender(options.Sender!, options.SenderName));
+        });
+        services.TryAddTransient((serviceProvider) => new EmailProviderFinder(() => serviceProvider.GetServices<EmailProvider>().ToList()));
         services.AddHtmlRenderingEngineNoop();
         return new EmailServiceBuilder(services);
     }
@@ -135,6 +148,11 @@ public static class IndiceServicesServiceCollectionExtensions
         services.Configure<EmailServiceBrevoSettings>(configuration.GetSection(EmailServiceBrevoSettings.Name));
         services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceBrevoSettings>>().Value);
         services.AddHttpClient<IEmailService, EmailServiceBrevo>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
+        services.AddSingleton((serviceProvider) => {
+            var options = serviceProvider.GetRequiredService<IOptions<EmailServiceBrevoSettings>>().Value;
+            return new EmailProvider(EmailServiceBrevo.ServiceName, new EmailSender(options.Sender!, options.SenderName));
+        });
+        services.TryAddTransient((serviceProvider) => new EmailProviderFinder(() => serviceProvider.GetServices<EmailProvider>().ToList()));
         services.AddHtmlRenderingEngineNoop();
         return new EmailServiceBuilder(services);
     }

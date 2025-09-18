@@ -145,10 +145,6 @@ public static class WorkerHostBuilderExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static MessageJobsOptions UseEmailServiceSmtp(this MessageJobsOptions options, IConfiguration configuration) {
         options.Services.AddEmailServiceSmtp(configuration);
-        options.Services.AddSingleton(serviceProvider => {
-            var smtpSettings = serviceProvider.GetRequiredService<IOptions<EmailServiceSettings>>().Value;
-            return new Func<EmailProviderInfo>(() => new EmailProviderInfo(smtpSettings.Sender!, smtpSettings.SenderName!));
-        });
         return options;
     }
 
@@ -157,25 +153,30 @@ public static class WorkerHostBuilderExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static MessageJobsOptions UseEmailServiceSparkPost(this MessageJobsOptions options, IConfiguration configuration) {
         options.Services.AddEmailServiceSparkPost(configuration);
-        options.Services.AddSingleton(serviceProvider => {
-            var sparkPostSettings = serviceProvider.GetRequiredService<IOptions<EmailServiceSparkPostSettings>>().Value;
-            return new Func<EmailProviderInfo>(() => new EmailProviderInfo(sparkPostSettings.Sender!, sparkPostSettings.SenderName!));
-        });
         return options;
     }
-    /// <summary>Adds an instance of <see cref="ISmsService"/> using Yuboto.</summary>
+
+    /// <summary>Adds an instance of <see cref="IEmailService"/> that uses SendGrid to send emails.</summary>
     /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    public static MessageJobsOptions UseSmsService(this MessageJobsOptions options, IConfiguration configuration) {
-        options.Services.AddSmsService(configuration);
+    public static MessageJobsOptions UseEmailServiceSendGrid(this MessageJobsOptions options, IConfiguration configuration) {
+        options.Services.AddEmailServiceSparkPost(configuration);
+        return options;
+    }
+
+    /// <summary>Adds an instance of <see cref="IEmailService"/> that uses Brevo to send emails.</summary>
+    /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    public static MessageJobsOptions UseEmailServiceBrevo(this MessageJobsOptions options, IConfiguration configuration) {
+        options.Services.AddEmailServiceSparkPost(configuration);
         return options;
     }
 
     /// <summary>Adds an instance of <see cref="ISmsService"/> using Yuboto.</summary>
     /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    public static MessageJobsOptions UseSmsServiceYuboto(this MessageJobsOptions options, IConfiguration configuration) {
-        options.Services.AddSmsServiceYuboto(configuration);
+    public static MessageJobsOptions UseSmsService(this MessageJobsOptions options, IConfiguration configuration) {
+        options.Services.AddSmsService(configuration);
         return options;
     }
 
@@ -201,6 +202,22 @@ public static class WorkerHostBuilderExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static MessageJobsOptions UseSmsServiceYubotoOmni(this MessageJobsOptions options, IConfiguration configuration) {
         options.Services.AddSmsServiceYubotoOmni(configuration);
+        return options;
+    }
+
+    /// <summary>Adds an instance of <see cref="ISmsService"/> using Vonage from sending regular SMS messages.</summary>
+    /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    public static MessageJobsOptions UseSmsServiceVonage(this MessageJobsOptions options, IConfiguration configuration) {
+        options.Services.AddSmsServiceVonage(configuration);
+        return options;
+    }
+
+    /// <summary>Adds an instance of <see cref="ISmsService"/> using SmsUp from sending regular SMS messages.</summary>
+    /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    public static MessageJobsOptions UseSmsServiceSmsUp(this MessageJobsOptions options, IConfiguration configuration) {
+        options.Services.AddSmsServiceSmsUp(configuration);
         return options;
     }
 

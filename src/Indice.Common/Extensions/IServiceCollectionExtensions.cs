@@ -60,6 +60,7 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection AddEmailServiceNoop(this IServiceCollection services) {
         services.TryAddSingleton<IEmailService, EmailServiceNoop>();
         services.AddHtmlRenderingEngineNoop();
+        services.TryAddTransient((serviceProvider) => new EmailProviderFinder(() => serviceProvider.GetServices<EmailProvider>().ToList()));
         return services;
     }
 
