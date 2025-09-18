@@ -6,7 +6,7 @@ namespace Indice.Services;
 public class EmailServiceNoop : IEmailService
 {
     /// <summary>Represents the name of the Brevo service as a constant string value.</summary>
-    public const string ServiceName = "NoOp";
+    public const string ServiceName = "None";
     /// <inheritdoc/>
     public IHtmlRenderingEngine? HtmlRenderingEngine { get; } = null;
 
