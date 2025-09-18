@@ -70,11 +70,20 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Terms &amp; conditions acceptance.
+        /// </summary>
+        public static string AcceptTerms_AcceptTermsAndConditions {
+            get {
+                return ResourceManager.GetString("AcceptTerms_AcceptTermsAndConditions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please read and accept the terms and conditions to continue..
         /// </summary>
-        public static string AcceptTerms_Please_read_and_accept_the_terms_and_conditions_to_continue_ {
+        public static string AcceptTerms_ReadAndAcceptTerms {
             get {
-                return ResourceManager.GetString("AcceptTerms_Please read and accept the terms and conditions to continue.", resourceCulture);
+                return ResourceManager.GetString("AcceptTerms_ReadAndAcceptTerms", resourceCulture);
             }
         }
         
@@ -84,15 +93,6 @@ namespace Indice.Features.Identity.UI {
         public static string AcceptTerms_Reject {
             get {
                 return ResourceManager.GetString("AcceptTerms_Reject", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Terms &amp; conditions acceptance.
-        /// </summary>
-        public static string AcceptTerms_Terms___conditions_acceptance {
-            get {
-                return ResourceManager.GetString("AcceptTerms_Terms & conditions acceptance", resourceCulture);
             }
         }
         
@@ -122,14 +122,7 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("AddEmail_Verify email", resourceCulture);
             }
         }
-
-        /// <summary>Looks up a localized string similar to: Required.</summary>
-        public static string AddPassword_Required {
-            get {
-                return ResourceManager.GetString("AddPassword_Required", resourceCulture);
-            }
-        }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Add.
         /// </summary>
@@ -142,81 +135,90 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to Add Password.
         /// </summary>
-        public static string AddPassword_Add_Password {
+        public static string AddPassword_AddPassword {
             get {
-                return ResourceManager.GetString("AddPassword_Add Password", resourceCulture);
+                return ResourceManager.GetString("AddPassword_AddPassword", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to New password.
         /// </summary>
-        public static string AddPassword_New_password {
+        public static string AddPassword_Newpassword {
             get {
-                return ResourceManager.GetString("AddPassword_New password", resourceCulture);
+                return ResourceManager.GetString("AddPassword_Newpassword", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Password confirmation.
         /// </summary>
-        public static string AddPassword_Password_confirmation {
+        public static string AddPassword_PasswordConfirmation {
             get {
-                return ResourceManager.GetString("AddPassword_Password confirmation", resourceCulture);
+                return ResourceManager.GetString("AddPassword_PasswordConfirmation", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Password successfully added.
         /// </summary>
-        public static string AddPassword_Password_successfully_added {
+        public static string AddPassword_PasswordSuccessfullyAdded {
             get {
-                return ResourceManager.GetString("AddPassword_Password successfully added", resourceCulture);
+                return ResourceManager.GetString("AddPassword_PasswordSuccessfullyAdded", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Process completed..
         /// </summary>
-        public static string AddPassword_Process_completed {
+        public static string AddPassword_ProcessCompleted {
             get {
-                return ResourceManager.GetString("AddPassword_Process completed.", resourceCulture);
+                return ResourceManager.GetString("AddPassword_ProcessCompleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to required.
+        /// </summary>
+        public static string AddPassword_Required {
+            get {
+                return ResourceManager.GetString("AddPassword_Required", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Add phone.
         /// </summary>
-        public static string AddPhone_Add_phone {
+        public static string AddPhone_AddPhone {
             get {
-                return ResourceManager.GetString("AddPhone_Add phone", resourceCulture);
+                return ResourceManager.GetString("AddPhone_AddPhone", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Add phone number.
         /// </summary>
-        public static string AddPhone_Add_phone_number {
+        public static string AddPhone_AddPhoneNumber {
             get {
-                return ResourceManager.GetString("AddPhone_Add phone number", resourceCulture);
+                return ResourceManager.GetString("AddPhone_AddPhoneNumber", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Calling Code.
         /// </summary>
-        public static string AddPhone_Calling_Code {
+        public static string AddPhone_CallingCode {
             get {
-                return ResourceManager.GetString("AddPhone_Calling Code", resourceCulture);
+                return ResourceManager.GetString("AddPhone_CallingCode", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Phone number.
         /// </summary>
-        public static string AddPhone_Phone_number {
+        public static string AddPhone_PhoneNumber {
             get {
-                return ResourceManager.GetString("AddPhone_Phone number", resourceCulture);
+                return ResourceManager.GetString("AddPhone_PhoneNumber", resourceCulture);
             }
         }
         
@@ -228,23 +230,16 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("AddPhone_Save", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to "Redirecting...".
+        ///   Looks up a localized string similar to Redirecting....
         /// </summary>
         public static string Challenge_Redirecting {
             get {
                 return ResourceManager.GetString("Challenge_Redirecting", resourceCulture);
             }
         }
-
-        /// <summary>Looks up a localized string similar to Sign in with a different account.</summary>
-        public static string ChangePassword_Sign_in_with_a_different_account {
-            get {
-                return ResourceManager.GetString("ChangePassword_Sign_in_with_a_different_account", resourceCulture);
-            }
-        }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Change.
         /// </summary>
@@ -257,62 +252,66 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to Change Password.
         /// </summary>
-        public static string ChangePassword_Change_Password {
+        public static string ChangePassword_ChangePassword {
             get {
-                return ResourceManager.GetString("ChangePassword_Change Password", resourceCulture);
+                return ResourceManager.GetString("ChangePassword_ChangePassword", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to New password.
         /// </summary>
-        public static string ChangePassword_New_password {
+        public static string ChangePassword_NewPassword {
             get {
-                return ResourceManager.GetString("ChangePassword_New password", resourceCulture);
+                return ResourceManager.GetString("ChangePassword_NewPassword", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Old password.
         /// </summary>
-        public static string ChangePassword_Old_password {
+        public static string ChangePassword_OldPassword {
             get {
-                return ResourceManager.GetString("ChangePassword_Old password", resourceCulture);
+                return ResourceManager.GetString("ChangePassword_OldPassword", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Password successfully changed.
         /// </summary>
-        public static string ChangePassword_Password_successfully_changed {
+        public static string ChangePassword_PasswordSuccessfullyChanged {
             get {
-                return ResourceManager.GetString("ChangePassword_Password successfully changed", resourceCulture);
+                return ResourceManager.GetString("ChangePassword_PasswordSuccessfullyChanged", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Process completed..
         /// </summary>
-        public static string ChangePassword_Process_completed_ {
+        public static string ChangePassword_ProcessCompleted {
             get {
-                return ResourceManager.GetString("ChangePassword_Process completed.", resourceCulture);
+                return ResourceManager.GetString("ChangePassword_ProcessCompleted", resourceCulture);
             }
         }
-
-        /// <summary>Looks up a localized string similar to: Please do not reply, as this address does not receive email messages and you will not receive a response.</summary>
-        public static string ConfirmEmail_DoNotReply {
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sign in with a different account.
+        /// </summary>
+        public static string ChangePassword_SignWithDifferentAccount {
             get {
-                return ResourceManager.GetString("ConfirmEmail_DoNotReply", resourceCulture);
+                return ResourceManager.GetString("ChangePassword_SignWithDifferentAccount", resourceCulture);
             }
         }
-
-        /// <summary>Looks up a localized string similar to: This service email contains information related to your account.</summary>
-        public static string ConfirmEmail_ServiceEmailInfo {
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your email is already verified. Thank you.
+        /// </summary>
+        public static string ConfirmEmail_AlreadyVerified {
             get {
-                return ResourceManager.GetString("ConfirmEmail_ServiceEmailInfo", resourceCulture);
+                return ResourceManager.GetString("ConfirmEmail_AlreadyVerified", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Click.
         /// </summary>
@@ -323,20 +322,56 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Email Confirmation.
+        ///   Looks up a localized string similar to This may take a moment. Click on the link below to verify your email address..
         /// </summary>
-        public static string ConfirmEmail_Email_Confirmation {
+        public static string ConfirmEmail_ClickToVerify {
             get {
-                return ResourceManager.GetString("ConfirmEmail_Email Confirmation", resourceCulture);
+                return ResourceManager.GetString("ConfirmEmail_ClickToVerify", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Email verification link has expired..
+        ///   Looks up a localized string similar to You can now close this browse window..
         /// </summary>
-        public static string ConfirmEmail_Email_verification_link_has_expired_ {
+        public static string ConfirmEmail_Closewindow {
             get {
-                return ResourceManager.GetString("ConfirmEmail_Email verification link has expired.", resourceCulture);
+                return ResourceManager.GetString("ConfirmEmail_Closewindow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your email has been successfully confirmed..
+        /// </summary>
+        public static string ConfirmEmail_Confrimation {
+            get {
+                return ResourceManager.GetString("ConfirmEmail_Confrimation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please do not reply, as this address does not receive email messages and you will not receive a response..
+        /// </summary>
+        public static string ConfirmEmail_DoNotReply {
+            get {
+                return ResourceManager.GetString("ConfirmEmail_DoNotReply", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Email Confirmation.
+        /// </summary>
+        public static string ConfirmEmail_EmailConfirmation {
+            get {
+                return ResourceManager.GetString("ConfirmEmail_EmailConfirmation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to to sign in or go back..
+        /// </summary>
+        public static string ConfirmEmail_GoBackToSignIn {
+            get {
+                return ResourceManager.GetString("ConfirmEmail_GoBackToSignIn", resourceCulture);
             }
         }
         
@@ -350,48 +385,47 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to If you feel you got this error by mistake, simply click.
+        ///   Looks up a localized string similar to Email verification link has expired..
         /// </summary>
-        public static string ConfirmEmail_If_you_feel_you_got_this_error_by_mistake__simply_click {
+        public static string ConfirmEmail_LinkExpired {
             get {
-                return ResourceManager.GetString("ConfirmEmail_If you feel you got this error by mistake, simply click", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No action was taken..
-        /// </summary>
-        public static string ConfirmEmail_No_action_was_taken_ {
-            get {
-                return ResourceManager.GetString("ConfirmEmail_No action was taken.", resourceCulture);
+                return ResourceManager.GetString("ConfirmEmail_LinkExpired", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Please log in and resend the link.
         /// </summary>
-        public static string ConfirmEmail_Please_log_in_and_resend_the_link {
+        public static string ConfirmEmail_LoginResendText {
             get {
-                return ResourceManager.GetString("ConfirmEmail_Please log in and resend the link", resourceCulture);
+                return ResourceManager.GetString("ConfirmEmail_LoginResendText", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This may take a moment. Click on the link below to verify your email address..
+        ///   Looks up a localized string similar to If you feel you got this error by mistake, simply click.
         /// </summary>
-        public static string ConfirmEmail_This_may_take_a_moment__Click_on_the_link_below_to_verify_your_email_address_ {
+        public static string ConfirmEmail_MistakeText {
             get {
-                return ResourceManager.GetString("ConfirmEmail_This may take a moment. Click on the link below to verify your email" +
-                        " address.", resourceCulture);
+                return ResourceManager.GetString("ConfirmEmail_MistakeText", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to to sign in or go back..
+        ///   Looks up a localized string similar to No action was taken..
         /// </summary>
-        public static string ConfirmEmail_to_sign_in_or_go_back_ {
+        public static string ConfirmEmail_NoActionTaken {
             get {
-                return ResourceManager.GetString("ConfirmEmail_to sign in or go back.", resourceCulture);
+                return ResourceManager.GetString("ConfirmEmail_NoActionTaken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This service email contains information related to your account..
+        /// </summary>
+        public static string ConfirmEmail_ServiceEmailInfo {
+            get {
+                return ResourceManager.GetString("ConfirmEmail_ServiceEmailInfo", resourceCulture);
             }
         }
         
@@ -407,36 +441,9 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to Verifying your email..
         /// </summary>
-        public static string ConfirmEmail_Verifying_your_email_ {
+        public static string ConfirmEmail_VerifyingEmail {
             get {
-                return ResourceManager.GetString("ConfirmEmail_Verifying your email.", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to You can now close this browse window..
-        /// </summary>
-        public static string ConfirmEmail_You_can_now_close_this_browse_window_ {
-            get {
-                return ResourceManager.GetString("ConfirmEmail_You can now close this browse window.", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Your email has been successfully confirmed..
-        /// </summary>
-        public static string ConfirmEmail_Your_email_has_been_successfully_confirmed_ {
-            get {
-                return ResourceManager.GetString("ConfirmEmail_Your email has been successfully confirmed.", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Your email is already verified. Thank you.
-        /// </summary>
-        public static string ConfirmEmail_Your_email_is_already_verified__Thank_you {
-            get {
-                return ResourceManager.GetString("ConfirmEmail_Your email is already verified. Thank you", resourceCulture);
+                return ResourceManager.GetString("ConfirmEmail_VerifyingEmail", resourceCulture);
             }
         }
         
@@ -450,20 +457,38 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Email Change Confirmation.
+        ///   Looks up a localized string similar to You can now close this browse window..
         /// </summary>
-        public static string ConfirmEmailChange_Email_Change_Confirmation {
+        public static string ConfirmEmailChange_CloseWindowMessage {
             get {
-                return ResourceManager.GetString("ConfirmEmailChange_Email Change Confirmation", resourceCulture);
+                return ResourceManager.GetString("ConfirmEmailChange_CloseWindowMessage", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Email verification link has expired..
+        ///   Looks up a localized string similar to Email Change Confirmation.
         /// </summary>
-        public static string ConfirmEmailChange_Email_verification_link_has_expired_ {
+        public static string ConfirmEmailChange_Confirmation {
             get {
-                return ResourceManager.GetString("ConfirmEmailChange_Email verification link has expired.", resourceCulture);
+                return ResourceManager.GetString("ConfirmEmailChange_Confirmation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your email has been successfully changed..
+        /// </summary>
+        public static string ConfirmEmailChange_ConfirmationEmailChanged {
+            get {
+                return ResourceManager.GetString("ConfirmEmailChange_ConfirmationEmailChanged", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your email is already verified. Thank you.
+        /// </summary>
+        public static string ConfirmEmailChange_ConfirmationVerified {
+            get {
+                return ResourceManager.GetString("ConfirmEmailChange_ConfirmationVerified", resourceCulture);
             }
         }
         
@@ -477,48 +502,56 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to If you feel you got this error by mistake, simply click.
+        ///   Looks up a localized string similar to Email verification link has expired..
         /// </summary>
-        public static string ConfirmEmailChange_If_you_feel_you_got_this_error_by_mistake__simply_click {
+        public static string ConfirmEmailChange_LinkExpired {
             get {
-                return ResourceManager.GetString("ConfirmEmailChange_If you feel you got this error by mistake, simply click", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No action was taken..
-        /// </summary>
-        public static string ConfirmEmailChange_No_action_was_taken_ {
-            get {
-                return ResourceManager.GetString("ConfirmEmailChange_No action was taken.", resourceCulture);
+                return ResourceManager.GetString("ConfirmEmailChange_LinkExpired", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Please log in and resend the link.
         /// </summary>
-        public static string ConfirmEmailChange_Please_log_in_and_resend_the_link {
+        public static string ConfirmEmailChange_LoginResendText {
             get {
-                return ResourceManager.GetString("ConfirmEmailChange_Please log in and resend the link", resourceCulture);
+                return ResourceManager.GetString("ConfirmEmailChange_LoginResendText", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This may take a moment. Click on the link below to verify your email address..
+        ///   Looks up a localized string similar to If you feel you got this error by mistake, simply click.
         /// </summary>
-        public static string ConfirmEmailChange_This_may_take_a_moment__Click_on_the_link_below_to_verify_your_email_address_ {
+        public static string ConfirmEmailChange_MistakeText {
             get {
-                return ResourceManager.GetString("ConfirmEmailChange_This may take a moment. Click on the link below to verify your" +
-                        " email address.", resourceCulture);
+                return ResourceManager.GetString("ConfirmEmailChange_MistakeText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No action was taken..
+        /// </summary>
+        public static string ConfirmEmailChange_NoAction {
+            get {
+                return ResourceManager.GetString("ConfirmEmailChange_NoAction", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to to sign in or go back..
         /// </summary>
-        public static string ConfirmEmailChange_to_sign_in_or_go_back_ {
+        public static string ConfirmEmailChange_SignInGoBack {
             get {
-                return ResourceManager.GetString("ConfirmEmailChange_to sign in or go back.", resourceCulture);
+                return ResourceManager.GetString("ConfirmEmailChange_SignInGoBack", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This may take a moment. Click on the link below to verify your email address..
+        /// </summary>
+        public static string ConfirmEmailChange_VerificationText {
+            get {
+                return ResourceManager.GetString("ConfirmEmailChange_VerificationText", resourceCulture);
             }
         }
         
@@ -534,36 +567,9 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to Verifying your email..
         /// </summary>
-        public static string ConfirmEmailChange_Verifying_your_email_ {
+        public static string ConfirmEmailChange_VerifyingEmail {
             get {
-                return ResourceManager.GetString("ConfirmEmailChange_Verifying your email.", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to You can now close this browse window..
-        /// </summary>
-        public static string ConfirmEmailChange_You_can_now_close_this_browse_window_ {
-            get {
-                return ResourceManager.GetString("ConfirmEmailChange_You can now close this browse window.", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Your email has been successfully changed..
-        /// </summary>
-        public static string ConfirmEmailChange_Your_email_has_been_successfully_changed_ {
-            get {
-                return ResourceManager.GetString("ConfirmEmailChange_Your email has been successfully changed.", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Your email is already verified. Thank you.
-        /// </summary>
-        public static string ConfirmEmailChange_Your_email_is_already_verified__Thank_you {
-            get {
-                return ResourceManager.GetString("ConfirmEmailChange_Your email is already verified. Thank you", resourceCulture);
+                return ResourceManager.GetString("ConfirmEmailChange_VerifyingEmail", resourceCulture);
             }
         }
         
@@ -701,42 +707,70 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("Consent_would like to", resourceCulture);
             }
         }
-
-        /// <summary>Preheader text prompting the user to verify email.</summary>
-        public static string Email_Preheader_Verify {
-            get { return ResourceManager.GetString("Email_Preheader_Verify", resourceCulture); }
-        }
-
-        /// <summary>Text for the "here" link in email preheader.</summary>
-        public static string Email_Preheader_Here {
-            get { return ResourceManager.GetString("Email_Preheader_Here", resourceCulture); }
-        }
-
-        /// <summary>Text following the "here" link in preheader.</summary>
-        public static string Email_Preheader_ToGetVerified {
-            get { return ResourceManager.GetString("Email_Preheader_ToGetVerified", resourceCulture); }
-        }
-
-        /// <summary>Greeting in the email body.</summary>
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hi.
+        /// </summary>
         public static string Email_Body_Hi {
-            get { return ResourceManager.GetString("Email_Body_Hi", resourceCulture); }
+            get {
+                return ResourceManager.GetString("Email_Body_Hi", resourceCulture);
+            }
         }
-
-        /// <summary>Thanks text in email body.</summary>
-        public static string Email_Body_Thanks {
-            get { return ResourceManager.GetString("Email_Body_Thanks", resourceCulture); }
-        }
-
-        /// <summary>Sincerely text in email body.</summary>
-        public static string Email_Body_Sincerely {
-            get { return ResourceManager.GetString("Email_Body_Sincerely", resourceCulture); }
-        }
-
-        /// <summary>Looks up a localized string similar to "{0}" (organization name).</summary>
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}.
+        /// </summary>
         public static string Email_Body_Organization {
-            get { return ResourceManager.GetString("Email_Body_Organization", resourceCulture); }
+            get {
+                return ResourceManager.GetString("Email_Body_Organization", resourceCulture);
+            }
         }
-
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sincerely.
+        /// </summary>
+        public static string Email_Body_Sincerely {
+            get {
+                return ResourceManager.GetString("Email_Body_Sincerely", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Thanks.
+        /// </summary>
+        public static string Email_Body_Thanks {
+            get {
+                return ResourceManager.GetString("Email_Body_Thanks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to here.
+        /// </summary>
+        public static string Email_Preheader_Here {
+            get {
+                return ResourceManager.GetString("Email_Preheader_Here", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to to get verified.
+        /// </summary>
+        public static string Email_Preheader_ToGetVerified {
+            get {
+                return ResourceManager.GetString("Email_Preheader_ToGetVerified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to We need you to verify your email. Please click.
+        /// </summary>
+        public static string Email_Preheader_Verify {
+            get {
+                return ResourceManager.GetString("Email_Preheader_Verify", resourceCulture);
+            }
+        }
+        
         /// <summary>
         ///   Looks up a localized string similar to Reset password.
         /// </summary>
@@ -745,168 +779,214 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("Email_Reset_Password", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string for the reset password request info.
-        /// </summary>
-        public static string Email_ResetPassword_RequestInfo {
-            get {
-                return ResourceManager.GetString("Email_ResetPassword_RequestInfo", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string for the ignore notice when password reset wasn't requested.
+        ///   Looks up a localized string similar to If you did not request your password to be reset you may safely ignore this message..
         /// </summary>
         public static string Email_ResetPassword_IgnoreNotice {
             get {
                 return ResourceManager.GetString("Email_ResetPassword_IgnoreNotice", resourceCulture);
             }
         }
-        /// <summary>Looks up a localized string similar to Welcome to {0}! Please confirm your email to get started.</summary>
-        public static string EmailRegister_Subject {
-            get { return ResourceManager.GetString("EmailRegister_Subject", resourceCulture); }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to We received a request to reset your password. If you asked to reset your password, please click the following link:.
+        /// </summary>
+        public static string Email_ResetPassword_RequestInfo {
+            get {
+                return ResourceManager.GetString("Email_ResetPassword_RequestInfo", resourceCulture);
+            }
         }
-
-        /// <summary>Looks up a localized string similar to Welcome to {0}! Please confirm your email to get started.</summary>
-        public static string EmailRegister_Preheader {
-            get { return ResourceManager.GetString("EmailRegister_Preheader", resourceCulture); }
-        }
-
-        /// <summary>Looks up a localized string similar to Welcome to {0}! We’re excited to have you on board.</summary>
-        public static string EmailRegister_Body_Welcome {
-            get { return ResourceManager.GetString("EmailRegister_Body_Welcome", resourceCulture); }
-        }
-
-        /// <summary>Looks up a localized string similar to To complete your registration, please confirm your email address by clicking.</summary>
+        
+        /// <summary>
+        ///   Looks up a localized string similar to To complete your registration, please confirm your email address by clicking.
+        /// </summary>
         public static string EmailRegister_Body_ConfirmEmail {
-            get { return ResourceManager.GetString("EmailRegister_Body_ConfirmEmail", resourceCulture); }
+            get {
+                return ResourceManager.GetString("EmailRegister_Body_ConfirmEmail", resourceCulture);
+            }
         }
-
-        /// <summary>Looks up a localized string similar to If you did not create an account, you can safely ignore this email.</summary>
-        public static string EmailRegister_Body_IgnoreNotice {
-            get { return ResourceManager.GetString("EmailRegister_Body_IgnoreNotice", resourceCulture); }
-        }
-
-        /// <summary>Looks up a localized string similar to Thank you for joining!</summary>
-        public static string EmailRegister_Body_Thanks {
-            get { return ResourceManager.GetString("EmailRegister_Body_Thanks", resourceCulture); }
-        }
-
-        /// <summary>Looks up a localized string similar to "Hi".</summary>
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hi.
+        /// </summary>
         public static string EmailRegister_Body_Hi {
             get {
                 return ResourceManager.GetString("EmailRegister_Body_Hi", resourceCulture);
             }
         }
-
-        /// <summary>Looks up a localized string similar to "Security notification regarding your account."</summary>
-        public static string EmailSecurity_Preheader {
+        
+        /// <summary>
+        ///   Looks up a localized string similar to If you did not create an account, you can safely ignore this email..
+        /// </summary>
+        public static string EmailRegister_Body_IgnoreNotice {
             get {
-                return ResourceManager.GetString("EmailSecurity_Preheader", resourceCulture);
+                return ResourceManager.GetString("EmailRegister_Body_IgnoreNotice", resourceCulture);
             }
         }
-
-        /// <summary>Looks up a localized string similar to "Security Notification".</summary>
-        public static string EmailSecurity_Subject {
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Thank you for joining!.
+        /// </summary>
+        public static string EmailRegister_Body_Thanks {
             get {
-                return ResourceManager.GetString("EmailSecurity_Subject", resourceCulture);
+                return ResourceManager.GetString("EmailRegister_Body_Thanks", resourceCulture);
             }
         }
-
-        /// <summary>Looks up a localized string similar to "Hi".</summary>
-        public static string EmailSecurity_Body_Hi {
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Welcome to {0}! We’re excited to have you on board..
+        /// </summary>
+        public static string EmailRegister_Body_Welcome {
             get {
-                return ResourceManager.GetString("EmailSecurity_Body_Hi", resourceCulture);
+                return ResourceManager.GetString("EmailRegister_Body_Welcome", resourceCulture);
             }
         }
-
-        /// <summary>Looks up a localized string similar to "We wanted to let you know that a security-related event occurred on your account."</summary>
-        public static string EmailSecurity_Body_EventOccurred {
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Welcome to {0}! Please confirm your email to get started..
+        /// </summary>
+        public static string EmailRegister_Subject {
             get {
-                return ResourceManager.GetString("EmailSecurity_Body_EventOccurred", resourceCulture);
+                return ResourceManager.GetString("EmailRegister_Subject", resourceCulture);
             }
         }
-
-        /// <summary>Looks up a localized string similar to "Event details:".</summary>
-        public static string EmailSecurity_Body_EventDetails {
-            get {
-                return ResourceManager.GetString("EmailSecurity_Body_EventDetails", resourceCulture);
-            }
-        }
-
-        /// <summary>Looks up a localized string similar to "Event time".</summary>
-        public static string EmailSecurity_Body_EventTime {
-            get {
-                return ResourceManager.GetString("EmailSecurity_Body_EventTime", resourceCulture);
-            }
-        }
-
-        /// <summary>Looks up a localized string similar to "Username".</summary>
-        public static string EmailSecurity_Body_Username {
-            get {
-                return ResourceManager.GetString("EmailSecurity_Body_Username", resourceCulture);
-            }
-        }
-
-        /// <summary>Looks up a localized string similar to "Email".</summary>
-        public static string EmailSecurity_Body_Email {
-            get {
-                return ResourceManager.GetString("EmailSecurity_Body_Email", resourceCulture);
-            }
-        }
-
-        /// <summary>Looks up a localized string similar to "Device".</summary>
-        public static string EmailSecurity_Body_Device {
-            get {
-                return ResourceManager.GetString("EmailSecurity_Body_Device", resourceCulture);
-            }
-        }
-
-        /// <summary>Looks up a localized string similar to "Client".</summary>
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Client.
+        /// </summary>
         public static string EmailSecurity_Body_Client {
             get {
                 return ResourceManager.GetString("EmailSecurity_Body_Client", resourceCulture);
             }
         }
-
-        /// <summary>Looks up a localized string similar to "Location".</summary>
-        public static string EmailSecurity_Body_Location {
-            get {
-                return ResourceManager.GetString("EmailSecurity_Body_Location", resourceCulture);
-            }
-        }
-
-        /// <summary>Looks up a localized string similar to "(It may not match the exact location)".</summary>
-        public static string EmailSecurity_Body_LocationNotice {
-            get {
-                return ResourceManager.GetString("EmailSecurity_Body_LocationNotice", resourceCulture);
-            }
-        }
-
-        /// <summary>Looks up a localized string similar to "If you did not perform this action, please contact support immediately."</summary>
+        
+        /// <summary>
+        ///   Looks up a localized string similar to If you did not perform this action, please contact support immediately..
+        /// </summary>
         public static string EmailSecurity_Body_ContactSupport {
             get {
                 return ResourceManager.GetString("EmailSecurity_Body_ContactSupport", resourceCulture);
             }
         }
-
-        /// <summary>Looks up a localized string similar to "Error".</summary>
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Device.
+        /// </summary>
+        public static string EmailSecurity_Body_Device {
+            get {
+                return ResourceManager.GetString("EmailSecurity_Body_Device", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Email.
+        /// </summary>
+        public static string EmailSecurity_Body_Email {
+            get {
+                return ResourceManager.GetString("EmailSecurity_Body_Email", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Event details:.
+        /// </summary>
+        public static string EmailSecurity_Body_EventDetails {
+            get {
+                return ResourceManager.GetString("EmailSecurity_Body_EventDetails", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to We wanted to let you know that a security-related event occurred on your account..
+        /// </summary>
+        public static string EmailSecurity_Body_EventOccurred {
+            get {
+                return ResourceManager.GetString("EmailSecurity_Body_EventOccurred", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Event time.
+        /// </summary>
+        public static string EmailSecurity_Body_EventTime {
+            get {
+                return ResourceManager.GetString("EmailSecurity_Body_EventTime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hi.
+        /// </summary>
+        public static string EmailSecurity_Body_Hi {
+            get {
+                return ResourceManager.GetString("EmailSecurity_Body_Hi", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Location.
+        /// </summary>
+        public static string EmailSecurity_Body_Location {
+            get {
+                return ResourceManager.GetString("EmailSecurity_Body_Location", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (It may not match the exact location).
+        /// </summary>
+        public static string EmailSecurity_Body_LocationNotice {
+            get {
+                return ResourceManager.GetString("EmailSecurity_Body_LocationNotice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Username.
+        /// </summary>
+        public static string EmailSecurity_Body_Username {
+            get {
+                return ResourceManager.GetString("EmailSecurity_Body_Username", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Security notification regarding your account..
+        /// </summary>
+        public static string EmailSecurity_Preheader {
+            get {
+                return ResourceManager.GetString("EmailSecurity_Preheader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Security Notification.
+        /// </summary>
+        public static string EmailSecurity_Subject {
+            get {
+                return ResourceManager.GetString("EmailSecurity_Subject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error.
+        /// </summary>
         public static string Error_Error {
             get {
                 return ResourceManager.GetString("Error_Error", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to "Go back home".
+        ///   Looks up a localized string similar to Go back home.
         /// </summary>
         public static string Error_Go_back_home {
             get {
                 return ResourceManager.GetString("Error_Go_back_home", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Oops! Seems we encountered an error..
         /// </summary>
@@ -924,35 +1004,43 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("Error_Request Id", resourceCulture);
             }
         }
-
-        /// <summary>Looks up a localized string similar to Discovery.</summary>
-        public static string Footer_Discovery {
-            get {
-                return ResourceManager.GetString("Footer_Discovery", resourceCulture);
-            }
-        }
-
-        /// <summary>Looks up a localized string similar to Privacy.</summary>
-        public static string Footer_Privacy {
-            get {
-                return ResourceManager.GetString("Footer_Privacy", resourceCulture);
-            }
-        }
-
-        /// <summary>Looks up a localized string similar to Terms.</summary>
-        public static string Footer_Terms {
-            get {
-                return ResourceManager.GetString("Footer_Terms", resourceCulture);
-            }
-        }
-       
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Contact us.
+        /// </summary>
         public static string Footer_Contact_us {
             get {
                 return ResourceManager.GetString("Footer_Contact_us", resourceCulture);
             }
         }
-
-
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Discovery.
+        /// </summary>
+        public static string Footer_Discovery {
+            get {
+                return ResourceManager.GetString("Footer_Discovery", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Privacy.
+        /// </summary>
+        public static string Footer_Privacy {
+            get {
+                return ResourceManager.GetString("Footer_Privacy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Terms.
+        /// </summary>
+        public static string Footer_Terms {
+            get {
+                return ResourceManager.GetString("Footer_Terms", resourceCulture);
+            }
+        }
+        
         /// <summary>
         ///   Looks up a localized string similar to Forgot password.
         /// </summary>
@@ -1732,16 +1820,6 @@ namespace Indice.Features.Identity.UI {
                 return ResourceManager.GetString("PasswordExpired_Νew password confirmation", resourceCulture);
             }
         }
-
-        /// <summary>
-///   Looks up a localized string similar to Preferred Language.
-/// </summary>
-public static string Profile_PreferredLanguage {
-    get {
-        return ResourceManager.GetString("Profile_PreferredLanguage", resourceCulture);
-    }
-}
-
         
         /// <summary>
         ///   Looks up a localized string similar to A confirmation email has been sent to {0}..
@@ -1751,41 +1829,7 @@ public static string Profile_PreferredLanguage {
                 return ResourceManager.GetString("Profile_A confirmation email has been sent to {0}.", resourceCulture);
             }
         }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Manage Profile.
-        /// </summary>
-        public static string Profile_Manage_Profile {
-            get {
-                return ResourceManager.GetString("Profile_Manage_Profile", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to "Choose...".
-        /// </summary>
-        public static string Profile_Choose {
-            get {
-                return ResourceManager.GetString("Profile_Choose", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to "Email".
-        /// </summary>
-        public static string Profile_Email {
-            get {
-                return ResourceManager.GetString("Profile_Email", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to "Timezone".
-        /// </summary>
-        public static string Profile_Timezone {
-            get { return ResourceManager.GetString("Profile_Timezone", resourceCulture); }
-        }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to An email has been sent to your new email address in order to confirm it..
         /// </summary>
@@ -1810,6 +1854,15 @@ public static string Profile_PreferredLanguage {
         public static string Profile_Calling_Code {
             get {
                 return ResourceManager.GetString("Profile_Calling Code", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Choose....
+        /// </summary>
+        public static string Profile_Choose {
+            get {
+                return ResourceManager.GetString("Profile_Choose", resourceCulture);
             }
         }
         
@@ -1846,6 +1899,15 @@ public static string Profile_PreferredLanguage {
         public static string Profile_Developer_TOTP {
             get {
                 return ResourceManager.GetString("Profile_Developer TOTP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ελληνικά.
+        /// </summary>
+        public static string Profile_Email {
+            get {
+                return ResourceManager.GetString("Profile_Email", resourceCulture);
             }
         }
         
@@ -1914,6 +1976,15 @@ public static string Profile_PreferredLanguage {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Manage Profile.
+        /// </summary>
+        public static string Profile_Manage_Profile {
+            get {
+                return ResourceManager.GetString("Profile_Manage Profile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Phone number.
         /// </summary>
         public static string Profile_Phone_number {
@@ -1928,6 +1999,15 @@ public static string Profile_PreferredLanguage {
         public static string Profile_Preferences {
             get {
                 return ResourceManager.GetString("Profile_Preferences", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Preferred Language.
+        /// </summary>
+        public static string Profile_PreferredLanguage {
+            get {
+                return ResourceManager.GetString("Profile_PreferredLanguage", resourceCulture);
             }
         }
         
@@ -1968,6 +2048,15 @@ public static string Profile_PreferredLanguage {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Timezone.
+        /// </summary>
+        public static string Profile_Timezone {
+            get {
+                return ResourceManager.GetString("Profile_Timezone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unknown.
         /// </summary>
         public static string Profile_Unknown {
@@ -2002,73 +2091,49 @@ public static string Profile_PreferredLanguage {
                 return ResourceManager.GetString("Profile_Your profile was updated successfully.", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        /// Looks up a localized string similar to "You are now being returned to the application.".
-        /// </summary>
-        public static string Redirect_Returning {
-            get {
-                return ResourceManager.GetString("Redirect_Returning", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        /// Looks up a localized string similar to "Once complete, you may close this tab.".
+        ///   Looks up a localized string similar to Once complete, you may close this tab..
         /// </summary>
         public static string Redirect_CloseTab {
             get {
                 return ResourceManager.GetString("Redirect_CloseTab", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to "Associate your".
+        ///   Looks up a localized string similar to You are now being returned to the application..
         /// </summary>
-        public static string Register_Associate_your {
-            get { return ResourceManager.GetString("Register_Associate_your", resourceCulture); }
+        public static string Redirect_Returning {
+            get {
+                return ResourceManager.GetString("Redirect_Returning", resourceCulture);
+            }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to "account".
+        ///   Looks up a localized string similar to account.
         /// </summary>
         public static string Register_account {
-            get { return ResourceManager.GetString("Register_account", resourceCulture); }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to "Register".
-        /// </summary>
-        public static string Register_Register {
             get {
-                return ResourceManager.GetString("Register_Register", resourceCulture);
+                return ResourceManager.GetString("Register_account", resourceCulture);
             }
         }
-
-        /// <summary>
-        ///   Looks up a localized string similar to "I have read and accept the Terms of service and privacy policy".
-        /// </summary>
-        public static string Register_I_Have_Read_And_Accept_Terms {
-            get {
-                return ResourceManager.GetString("Register_I have read and accept the <a href=\"/terms\" target=\"_blank\">Terms of service</a> and the <a href=\"/privacy\" target=\"_blank\">privacy policy</a>.", resourceCulture);
-            }
-        }
-
-
-        /// <summary>
-        ///   Looks up a localized string similar to "To register as a new user you will need to fill in the following information.".
-        /// </summary>
-        public static string Register_To_register_as_a_new_user_you_will_need_to_fill_in_the_following_information {
-            get {
-                return ResourceManager.GetString("Register_To_register_as_a_new_user_you_will_need_to_fill_in_the_following_information", resourceCulture);
-            }
-        }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Already have an account?.
         /// </summary>
         public static string Register_Already_have_an_account_ {
             get {
                 return ResourceManager.GetString("Register_Already have an account?", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Associate your.
+        /// </summary>
+        public static string Register_Associate_your {
+            get {
+                return ResourceManager.GetString("Register_Associate_your", resourceCulture);
             }
         }
         
@@ -2118,22 +2183,14 @@ public static string Profile_PreferredLanguage {
                 return ResourceManager.GetString("Register_here", resourceCulture);
             }
         }
-
-        /// <summary>
-        ///   Looks up a localized string similar to "login with".
-        /// </summary>
-        public static string Register_login_with {
-            get {
-                return ResourceManager.GetString("Register_login with", resourceCulture);
-            }
-        }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to I consent to the registration and processing of the above personal details for my contact and service as they are defined.
         /// </summary>
         public static string Register_I_consent_to_the_registration_and_processing_of_the_above_personal_details_for_my_contact_and_service_as_they_are_defined {
             get {
-                return ResourceManager.GetString("Register_I consent to the registration and processing of the above personal details for my contact and service as they are defined", resourceCulture);
+                return ResourceManager.GetString("Register_I consent to the registration and processing of the above personal detai" +
+                        "ls for my contact and service as they are defined", resourceCulture);
             }
         }
         
@@ -2143,6 +2200,15 @@ public static string Profile_PreferredLanguage {
         public static string Register_I_consent_to_the_use_of_my_contact_information__including_my_email_address__for_the_purpose_of_receiving_commercial_communications__promotional_materials__and_marketing_updates_from_the_organization__I_understand_that_I_may_withdraw_my_consent_at_any_time_ {
             get {
                 return ResourceManager.GetString(@"Register_I consent to the use of my contact information, including my email address, for the purpose of receiving commercial communications, promotional materials, and marketing updates from the organization. I understand that I may withdraw my consent at any time.", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to I have read and accept the &lt;a href=&quot;/terms&quot; target=&quot;_blank&quot;&gt;Terms of service&lt;/a&gt; and the &lt;a href=&quot;/privacy&quot; target=&quot;_blank&quot;&gt;privacy policy&lt;/a&gt;..
+        /// </summary>
+        public static string Register_I_Have_Read_And_Accept_Terms {
+            get {
+                return ResourceManager.GetString("Register_I_Have_Read_And_Accept_Terms", resourceCulture);
             }
         }
         
@@ -2161,6 +2227,15 @@ public static string Profile_PreferredLanguage {
         public static string Register_Last_name {
             get {
                 return ResourceManager.GetString("Register_Last name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to login with.
+        /// </summary>
+        public static string Register_login_with {
+            get {
+                return ResourceManager.GetString("Register_login with", resourceCulture);
             }
         }
         
@@ -2188,6 +2263,15 @@ public static string Profile_PreferredLanguage {
         public static string Register_Phone_number {
             get {
                 return ResourceManager.GetString("Register_Phone number", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Register.
+        /// </summary>
+        public static string Register_Register {
+            get {
+                return ResourceManager.GetString("Register_Register", resourceCulture);
             }
         }
         
@@ -2220,6 +2304,16 @@ public static string Profile_PreferredLanguage {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to To register as a new user you will need to fill in the following information..
+        /// </summary>
+        public static string Register_To_register_as_a_new_user_you_will_need_to_fill_in_the_following_information {
+            get {
+                return ResourceManager.GetString("Register_To_register_as_a_new_user_you_will_need_to_fill_in_the_following_informa" +
+                        "tion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Username.
         /// </summary>
         public static string Register_Username {
@@ -2227,14 +2321,16 @@ public static string Profile_PreferredLanguage {
                 return ResourceManager.GetString("Register_Username", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        /// Looks up a localized string similar to "Setting UI language...".
+        ///   Looks up a localized string similar to Setting UI language....
         /// </summary>
         public static string SetLanguage_Setting_ui_language {
-            get { return ResourceManager.GetString("SetLanguage_Setting_ui_language", resourceCulture); }
+            get {
+                return ResourceManager.GetString("SetLanguage_Setting_ui_language", resourceCulture);
+            }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Code.
         /// </summary>
@@ -2250,6 +2346,15 @@ public static string Profile_PreferredLanguage {
         public static string VerifyPhone_Next {
             get {
                 return ResourceManager.GetString("VerifyPhone_Next", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OTP is valid till:.
+        /// </summary>
+        public static string VerifyPhone_OTP_is_valid_till {
+            get {
+                return ResourceManager.GetString("VerifyPhone_OTP_is_valid_till", resourceCulture);
             }
         }
         
@@ -2279,15 +2384,5 @@ public static string Profile_PreferredLanguage {
                 return ResourceManager.GetString("VerifyPhone_Verify phone number", resourceCulture);
             }
         }
-
-        /// <summary>
-        ///   Looks up a localized string similar to "OTP is valid till:".
-        /// </summary>
-        public static string VerifyPhone_OTP_is_valid_till {
-            get {
-                return ResourceManager.GetString("VerifyPhone_OTP_is_valid_till", resourceCulture);
-            }
-        }
-
     }
 }

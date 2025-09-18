@@ -24,15 +24,15 @@ public class IdentityLabelsMessageDescriber
     public virtual string AcceptTerms_Reject => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AcceptTerms_Reject);
 
     /// <summary>Title of the Accept Terms page.</summary>
-    public virtual string AcceptTerms_Terms___conditions_acceptance => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AcceptTerms_Terms___conditions_acceptance);
+    public virtual string AcceptTerms_AcceptTermsAndConditions => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AcceptTerms_AcceptTermsAndConditions);
 
     /// <summary>Instruction message prompting the user to read and accept the terms and conditions.</summary>
-    public virtual string AcceptTerms_Please_read_and_accept_the_terms_and_conditions_to_continue => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AcceptTerms_Please_read_and_accept_the_terms_and_conditions_to_continue_);
+    public virtual string AcceptTerms_ReadAndAcceptTerms => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AcceptTerms_ReadAndAcceptTerms);
     #endregion
 
     #region AddEmail
     /// <summary>Label for the Next button on the Add Email page, formatted with the provided email.</summary>
-    public virtual string AddEmail_Next(string email) => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddEmail_Next, email);
+    public virtual string AddEmail_Next => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddEmail_Next);
 
     /// <summary>Label for the Save button on the Add Email page.</summary>
     public virtual string AddEmail_Save => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddEmail_Save);
@@ -49,31 +49,31 @@ public class IdentityLabelsMessageDescriber
     public virtual string AddPassword_Add => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPassword_Add);
 
     /// <summary>Label for the New Password input field.</summary>
-    public virtual string AddPassword_Add_Password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPassword_Add_Password);
+    public virtual string AddPassword_AddPassword => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPassword_AddPassword);
 
     /// <summary>Label for the New Password input field (alternate reference).</summary>
-    public virtual string AddPassword_New_password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPassword_New_password);
+    public virtual string AddPassword_NewPassword => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPassword_Newpassword);
 
     /// <summary>Label for the Confirm Password input field.</summary>
-    public virtual string AddPassword_Confirm_password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPassword_Password_confirmation);
+    public virtual string AddPassword_ConfirmPassword => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPassword_PasswordConfirmation);
 
     /// <summary>Success message displayed when the password has been successfully added.</summary>
-    public virtual string AddPassword_Password_successfully_added => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPassword_Password_successfully_added);
+    public virtual string AddPassword_PasswordSuccessfullyAdded => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPassword_PasswordSuccessfullyAdded);
 
     /// <summary>Message indicating that the password addition process has been completed.</summary>
-    public virtual string AddPassword_Process_completed => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPassword_Process_completed);
+    public virtual string AddPassword_ProcessCompleted => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPassword_ProcessCompleted);
     #endregion
 
 
     #region AddPhone
     /// <summary>Label for the Add Phone action button.</summary>
-    public virtual string AddPhone_Add => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPhone_Add_phone);
+    public virtual string AddPhone_Add => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPhone_AddPhone);
     /// <summary>Title of the Add Phone page.</summary>
-    public virtual string AddPhone_Add_phone_number => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPhone_Add_phone_number);
+    public virtual string AddPhone_AddPhoneNumber => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPhone_AddPhoneNumber);
     /// <summary>Instruction message indicating the calling code selection for the phone number.</summary>
-    public virtual string AddPhone_Calling_Code => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPhone_Calling_Code);
+    public virtual string AddPhone_CallingCode => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPhone_CallingCode);
     /// <summary>Label for the Phone Number input field.</summary>
-    public virtual string AddPhone_Phone_number => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPhone_Phone_number);
+    public virtual string AddPhone_PhoneNumber => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPhone_PhoneNumber);
     /// <summary>Label for the Save button on the Add Phone page.</summary>
     public virtual string AddPhone_Save => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPhone_Save);
     #endregion
@@ -89,19 +89,19 @@ public class IdentityLabelsMessageDescriber
 
     #region ChangePassword
     /// <summary>Label for Sign in with different Account.</summary>
-    public virtual string ChangePassword_Change_Sign_In_With_Different_Account => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePassword_Sign_in_with_a_different_account);
+    public virtual string ChangePassword_SignWithDifferentAccount => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePassword_SignWithDifferentAccount);
     /// <summary>Label for the Change Password action button.</summary>
     public virtual string ChangePassword_Change => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePassword_Change);
     /// <summary>Label for the Current Password input field.</summary>
-    public virtual string ChangePassword_Change_password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePassword_Change_Password);
+    public virtual string ChangePassword_ChangePassword => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePassword_ChangePassword);
     /// <summary>Label for the New Password input field.</summary>
-    public virtual string ChangePassword_New_password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePassword_New_password);
+    public virtual string ChangePassword_NewPassword => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePassword_NewPassword);
     /// <summary>Label for the Old Password input field.</summary>
-    public virtual string ChangePassword_Old_password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePassword_Old_password);
+    public virtual string ChangePassword_OldPassword => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePassword_OldPassword);
     /// <summary>Success message displayed when the password has been successfully changed.</summary>
-    public virtual string ChangePassword_Password_Successfully_Changed => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePassword_Password_successfully_changed);
+    public virtual string ChangePassword_PasswordSuccessfullyChanged => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePassword_PasswordSuccessfullyChanged);
     /// <summary>Message displayed when the password change process is completed.</summary>
-    public virtual string ChangePassword_Process_Completed => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePassword_Process_completed_);
+    public virtual string ChangePassword_ProcessCompleted => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePassword_ProcessCompleted);
     #endregion
 
 
@@ -113,60 +113,60 @@ public class IdentityLabelsMessageDescriber
     /// <summary>Text for the Confirm Email button.</summary>
     public virtual string ConfirmEmail_Click => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_Click);
     /// <summary>Title of the Confirm Email page.</summary>
-    public virtual string ConfirmEmail_Email_Confirmation => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_Email_Confirmation);
+    public virtual string ConfirmEmail_Email_Confirmation => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_EmailConfirmation);
     /// <summary>Error message displayed when the email verification link has expired.</summary>
-    public virtual string ConfirmEmail_Email_Verification_Link_Has_Expired => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_Email_verification_link_has_expired_);
+    public virtual string ConfirmEmail_Email_Verification_Link_Has_Expired => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_LinkExpired);
     /// <summary>Instruction message guiding the user on the Confirm Email page.</summary>
     public virtual string ConfirmEmail_Here => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_here);
     /// <summary>Instruction displayed if the user received the error by mistake.</summary>
-    public virtual string ConfirmEmail_If_You_Feel_You_Got_This_Error_By_Mistake_Simply_Click => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_If_you_feel_you_got_this_error_by_mistake__simply_click);
+    public virtual string ConfirmEmail_If_You_Feel_You_Got_This_Error_By_Mistake_Simply_Click => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_MistakeText);
     /// <summary>Error message displayed when no action was taken.</summary>
-    public virtual string ConfirmEmail_No_Action_Was_Taken => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_No_action_was_taken_);
+    public virtual string ConfirmEmail_No_Action_Was_Taken => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_NoActionTaken);
     /// <summary>Instruction displayed when the user needs to log in and resend the verification link.</summary>
-    public virtual string ConfirmEmail_Please_Log_In_And_Resend_The_Link => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_Please_log_in_and_resend_the_link);
+    public virtual string ConfirmEmail_Please_Log_In_And_Resend_The_Link => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_LoginResendText);
     /// <summary>Instruction message indicating that verification may take a moment and the user should click the link below.</summary>
-    public virtual string ConfirmEmail_This_May_Take_A_Moment_Click_On_The_Link_Below_To_Verify_Your_Email_Address => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_This_may_take_a_moment__Click_on_the_link_below_to_verify_your_email_address_);
+    public virtual string ConfirmEmail_This_May_Take_A_Moment_Click_On_The_Link_Below_To_Verify_Your_Email_Address => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_ClickToVerify);
     /// <summary>Text for navigating back to sign in or return to the previous page.</summary>
-    public virtual string ConfirmEmail_To_Sign_In_Or_Go_Back => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_to_sign_in_or_go_back_);
+    public virtual string ConfirmEmail_To_Sign_In_Or_Go_Back => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_GoBackToSignIn);
     /// <summary>Label for the Verify action button.</summary>
     public virtual string ConfirmEmail_Verify => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_Verify);
     /// <summary>Instruction displayed while verifying the user's email.</summary>
-    public virtual string ConfirmEmail_Verifying_Your_Email => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_Verifying_your_email_);
+    public virtual string ConfirmEmail_Verifying_Your_Email => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_VerifyingEmail);
     /// <summary>Instruction indicating the user can close the browser window after verification.</summary>
-    public virtual string ConfirmEmail_You_Can_Now_Close_This_Browse_Window => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_You_can_now_close_this_browse_window_);
+    public virtual string ConfirmEmail_You_Can_Now_Close_This_Browse_Window => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_Closewindow);
     /// <summary>Success message displayed when the email has been successfully confirmed.</summary>  
-    public virtual string ConfirmEmail_Your_Email_Has_Been_Successfully_Confirmed => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_Your_email_has_been_successfully_confirmed_);
+    public virtual string ConfirmEmail_Your_Email_Has_Been_Successfully_Confirmed => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_Confrimation);
     #endregion
 
     #region ConfirmEmailChange
     /// <summary>Text for the Confirm Email Change button.</summary>
     public virtual string ConfirmEmailChange_Click => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_Click);
     /// <summary>Title of the Confirm Email Change page.</summary>
-    public virtual string ConfirmEmailChange_Email_Change_Confirmation => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_Email_Change_Confirmation);
+    public virtual string ConfirmEmailChange_Email_Change_Confirmation => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_Confirmation);
     /// <summary>Error message displayed when the email verification link has expired.</summary>
-    public virtual string ConfirmEmailChange_Email_Verification_Link_Has_Expired => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_Email_verification_link_has_expired_);
+    public virtual string ConfirmEmailChange_Email_Verification_Link_Has_Expired => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_LinkExpired);
     /// <summary>Instruction message guiding the user on the Confirm Email Change page.</summary>
     public virtual string ConfirmEmailChange_Here => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_here);
     /// <summary>Instruction displayed if the user received the error by mistake.</summary>
-    public virtual string ConfirmEmailChange_If_You_Feel_You_Got_This_Error_By_Mistake_Simply_Click => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_If_you_feel_you_got_this_error_by_mistake__simply_click);
+    public virtual string ConfirmEmailChange_If_You_Feel_You_Got_This_Error_By_Mistake_Simply_Click => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_MistakeText);
     /// <summary>Error message displayed when no action was taken.</summary>
-    public virtual string ConfirmEmailChange_No_Action_Was_Taken => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_No_action_was_taken_);
+    public virtual string ConfirmEmailChange_No_Action_Was_Taken => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_NoAction);
     /// <summary>Instruction displayed when the user needs to log in and resend the verification link.</summary>
-    public virtual string ConfirmEmailChange_Please_Log_In_And_Resend_The_Link => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_Please_log_in_and_resend_the_link);
+    public virtual string ConfirmEmailChange_Please_Log_In_And_Resend_The_Link => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_LoginResendText);
     /// <summary>Instruction message indicating that verification may take a moment and the user should click the link below.</summary>
-    public virtual string ConfirmEmailChange_This_May_Take_A_Moment_Click_On_The_Link_Below_To_Verify_Your_Email_Address => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_This_may_take_a_moment__Click_on_the_link_below_to_verify_your_email_address_);
+    public virtual string ConfirmEmailChange_This_May_Take_A_Moment_Click_On_The_Link_Below_To_Verify_Your_Email_Address => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_VerificationText);
     /// <summary>Text for navigating back to sign in or return to the previous page.</summary>
-    public virtual string ConfirmEmailChange_To_Sign_In_Or_Go_Back => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_to_sign_in_or_go_back_);
+    public virtual string ConfirmEmailChange_To_Sign_In_Or_Go_Back => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_SignInGoBack);
     /// <summary>Label for the Verify action button.</summary>
     public virtual string ConfirmEmailChange_Verify => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_Verify);
     /// <summary>Instruction displayed while verifying the user's email.</summary>
-    public virtual string ConfirmEmailChange_Verifying_Your_Email => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_Verifying_your_email_);
+    public virtual string ConfirmEmailChange_Verifying_Your_Email => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_VerifyingEmail);
     /// <summary>Instruction indicating the user can close the browser window after verification.</summary>
-    public virtual string ConfirmEmailChange_You_Can_Now_Close_This_Browse_Window => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_You_can_now_close_this_browse_window_);
+    public virtual string ConfirmEmailChange_You_Can_Now_Close_This_Browse_Window => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_CloseWindowMessage);
     /// <summary>Success message displayed when the email has been successfully changed.</summary>
-    public virtual string ConfirmEmailChange_Your_Email_Has_Been_Successfully_Changed => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_Your_email_has_been_successfully_changed_);
+    public virtual string ConfirmEmailChange_Your_Email_Has_Been_Successfully_Changed => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_ConfirmationEmailChanged);
     /// <summary>Message displayed when the email is already verified.</summary>
-    public virtual string ConfirmEmailChange_Your_Email_Is_Already_Verified_Thank_You => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_Your_email_is_already_verified__Thank_you);
+    public virtual string ConfirmEmailChange_Your_Email_Is_Already_Verified_Thank_You => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_ConfirmationVerified);
     #endregion
 
 
@@ -245,9 +245,6 @@ public class IdentityLabelsMessageDescriber
     #region EmailRegister
     /// <summary>Email subject: "Welcome to {0}! Please confirm your email to get started."</summary>
     public virtual string EmailRegister_Subject(string appName) => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.EmailRegister_Subject, appName);
-
-    /// <summary>Preheader text: same as subject.</summary>
-    public virtual string EmailRegister_Preheader(string appName) => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.EmailRegister_Preheader, appName);
 
     /// <summary>Body text: "Welcome to {0}! We’re excited to have you on board."</summary>
     public virtual string EmailRegister_Body_Welcome(string appName) => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.EmailRegister_Body_Welcome, appName);

@@ -33,13 +33,13 @@
                                 <option value="@callingCode" selected="@(callingCode.Code == Model.Input.CallingCode)">@callingCode.DisplayName</option>
                             }
                         </select>
-                        <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.CallingCode">@Labels.AddPhone_Calling_Code</label>
+                        <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.CallingCode">@Labels.AddPhone_CallingCode</label>
                         <span asp-validation-for="Input.CallingCode" class="text-danger"></span>
                     </div>
                     <div class="input-group">
                         <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
-                        <input class="peer" type="text" placeholder="@Labels.AddPhone_Phone_number" asp-for="Input.PhoneNumber" />
-                        <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Labels.AddPhone_Phone_number</label>
+                        <input class="peer" type="text" placeholder="@Labels.AddPhone_PhoneNumber" asp-for="Input.PhoneNumber" />
+                        <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Labels.AddPhone_PhoneNumber</label>
                         <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
                     </div>
                 </div>
@@ -48,8 +48,8 @@
             {
                 <div class="relative my-5">
                     <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
-                    <input class="peer" type="text" placeholder="@Labels.AddPhone_Phone_number" asp-for="Input.PhoneNumber" />
-                    <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Labels.AddPhone_Phone_number</label>
+                    <input class="peer" type="text" placeholder="@Labels.AddPhone_PhoneNumber" asp-for="Input.PhoneNumber" />
+                    <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Labels.AddPhone_PhoneNumber</label>
                     <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
                 </div>
             }

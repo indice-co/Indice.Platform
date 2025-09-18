@@ -1,5 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
@@ -64,10 +123,10 @@
   <data name="AcceptTerms_Accept" xml:space="preserve">
     <value>Accetta</value>
   </data>
-  <data name="AcceptTerms_Terms &amp; conditions acceptance" xml:space="preserve">
+  <data name="AcceptTerms_AcceptTermsAndConditions" xml:space="preserve">
     <value>Accettazione dei termini e condizioni</value>
   </data>
-  <data name="AcceptTerms_Please read and accept the terms and conditions to continue." xml:space="preserve">
+  <data name="AcceptTerms_ReadAndAcceptTerms" xml:space="preserve">
     <value>Per favore, leggi e accetta i termini e condizioni per continuare.</value>
   </data>
   <data name="AddEmail_Next" xml:space="preserve">
@@ -80,36 +139,36 @@
     <value>Verifica email</value>
   </data>
   <data name="AddPassword_Required" xml:space="preserve">
-   <value>οbbligatorio</value>
+    <value>οbbligatorio</value>
   </data>
   <data name="AddPassword_Add" xml:space="preserve">
     <value>Aggiungi</value>
   </data>
-  <data name="AddPassword_Add Password" xml:space="preserve">
+  <data name="AddPassword_AddPassword" xml:space="preserve">
     <value>Aggiungi password</value>
   </data>
-  <data name="AddPassword_New password" xml:space="preserve">
+  <data name="AddPassword_Newpassword" xml:space="preserve">
     <value>Nuova password</value>
   </data>
-  <data name="AddPassword_Password confirmation" xml:space="preserve">
+  <data name="AddPassword_PasswordConfirmation" xml:space="preserve">
     <value>Conferma la nuova password</value>
   </data>
-  <data name="AddPassword_Password successfully added" xml:space="preserve">
+  <data name="AddPassword_PasswordSuccessfullyAdded" xml:space="preserve">
     <value>Password aggiunta con successo</value>
   </data>
-  <data name="AddPassword_Process completed." xml:space="preserve">
+  <data name="AddPassword_ProcessCompleted" xml:space="preserve">
     <value>Processo completato</value>
   </data>
-  <data name="AddPhone_Add phone" xml:space="preserve">
+  <data name="AddPhone_AddPhone" xml:space="preserve">
     <value>Aggiungi telefono</value>
   </data>
-  <data name="AddPhone_Add phone number" xml:space="preserve">
+  <data name="AddPhone_AddPhoneNumber" xml:space="preserve">
     <value>Aggiungi numero di telefono</value>
   </data>
-  <data name="AddPhone_Calling Code" xml:space="preserve">
+  <data name="AddPhone_CallingCode" xml:space="preserve">
     <value>Prefisso telefonico</value>
   </data>
-  <data name="AddPhone_Phone number" xml:space="preserve">
+  <data name="AddPhone_PhoneNumber" xml:space="preserve">
     <value>Numero di telefono</value>
   </data>
   <data name="AddPhone_Save" xml:space="preserve">
@@ -118,25 +177,25 @@
   <data name="Challenge_Redirecting" xml:space="preserve">
     <value>Reindirizzamento...</value>
   </data>
-  <data name="ChangePassword_Sign_in_with_a_different_account" xml:space="preserve">
+  <data name="ChangePassword_SignWithDifferentAccount" xml:space="preserve">
     <value>Accedi con un account diverso</value>
   </data>
   <data name="ChangePassword_Change" xml:space="preserve">
     <value>Modifica</value>
   </data>
-  <data name="ChangePassword_Change Password" xml:space="preserve">
+  <data name="ChangePassword_ChangePassword" xml:space="preserve">
     <value>Modifica password</value>
   </data>
-  <data name="ChangePassword_New password" xml:space="preserve">
+  <data name="ChangePassword_NewPassword" xml:space="preserve">
     <value>Nuova password</value>
   </data>
-  <data name="ChangePassword_Old password" xml:space="preserve">
+  <data name="ChangePassword_OldPassword" xml:space="preserve">
     <value>Vecchia password</value>
   </data>
-  <data name="ChangePassword_Password successfully changed" xml:space="preserve">
+  <data name="ChangePassword_PasswordSuccessfullyChanged" xml:space="preserve">
     <value>Password modificata con successo</value>
   </data>
-  <data name="ChangePassword_Process completed." xml:space="preserve">
+  <data name="ChangePassword_ProcessCompleted" xml:space="preserve">
     <value>Processo completato</value>
   </data>
   <data name="ConfirmEmail_DoNotReply" xml:space="preserve">
@@ -148,85 +207,85 @@
   <data name="ConfirmEmail_Click" xml:space="preserve">
     <value>Clicca</value>
   </data>
-  <data name="ConfirmEmail_Email Confirmation" xml:space="preserve">
+  <data name="ConfirmEmail_EmailConfirmation" xml:space="preserve">
     <value>Conferma Email</value>
   </data>
-  <data name="ConfirmEmail_Email verification link has expired." xml:space="preserve">
+  <data name="ConfirmEmail_LinkExpired" xml:space="preserve">
     <value>Il link di verifica email è scaduto.</value>
   </data>
   <data name="ConfirmEmail_here" xml:space="preserve">
     <value>qui</value>
   </data>
-  <data name="ConfirmEmail_If you feel you got this error by mistake, simply click" xml:space="preserve">
+  <data name="ConfirmEmail_MistakeText" xml:space="preserve">
     <value>Se pensi che questo errore sia stato generato per sbaglio, clicca semplicemente</value>
   </data>
-  <data name="ConfirmEmail_No action was taken." xml:space="preserve">
+  <data name="ConfirmEmail_NoActionTaken" xml:space="preserve">
     <value>Nessuna azione è stata eseguita.</value>
   </data>
-  <data name="ConfirmEmail_Please log in and resend the link" xml:space="preserve">
+  <data name="ConfirmEmail_LoginResendText" xml:space="preserve">
     <value>Accedi e reinvia il link, per favore</value>
   </data>
-  <data name="ConfirmEmail_This may take a moment. Click on the link below to verify your email address." xml:space="preserve">
+  <data name="ConfirmEmail_ClickToVerify" xml:space="preserve">
     <value>Questo potrebbe richiedere qualche istante. Clicca sul link qui sotto per verificare il tuo indirizzo email.</value>
   </data>
-  <data name="ConfirmEmail_to sign in or go back." xml:space="preserve">
+  <data name="ConfirmEmail_GoBackToSignIn" xml:space="preserve">
     <value>per accedere o tornare indietro.</value>
   </data>
   <data name="ConfirmEmail_Verify" xml:space="preserve">
     <value>Verifica</value>
   </data>
-  <data name="ConfirmEmail_Verifying your email." xml:space="preserve">
+  <data name="ConfirmEmail_VerifyingEmail" xml:space="preserve">
     <value>Verifica del tuo indirizzo email in corso.</value>
   </data>
-  <data name="ConfirmEmail_You can now close this browse window." xml:space="preserve">
+  <data name="ConfirmEmail_Closewindow" xml:space="preserve">
     <value>Ora è possibile chiudere questa finestra</value>
   </data>
-  <data name="ConfirmEmail_Your email has been successfully confirmed." xml:space="preserve">
+  <data name="ConfirmEmail_Confrimation" xml:space="preserve">
     <value>La tua email è stata confermata con successo</value>
   </data>
-  <data name="ConfirmEmail_Your email is already verified. Thank you" xml:space="preserve">
+  <data name="ConfirmEmail_AlreadyVerified" xml:space="preserve">
     <value>La tua email è già stata verificata. Grazie</value>
   </data>
   <data name="ConfirmEmailChange_Click" xml:space="preserve">
     <value>Clicca</value>
   </data>
-  <data name="ConfirmEmailChange_Email Change Confirmation" xml:space="preserve">
+  <data name="ConfirmEmailChange_Confirmation" xml:space="preserve">
     <value>Conferma modifica email</value>
   </data>
-  <data name="ConfirmEmailChange_Email verification link has expired." xml:space="preserve">
+  <data name="ConfirmEmailChange_LinkExpired" xml:space="preserve">
     <value>Il link di verifica email è scaduto.</value>
   </data>
   <data name="ConfirmEmailChange_here" xml:space="preserve">
     <value>qui</value>
   </data>
-  <data name="ConfirmEmailChange_If you feel you got this error by mistake, simply click" xml:space="preserve">
+  <data name="ConfirmEmailChange_MistakeText" xml:space="preserve">
     <value>Se pensi che questo errore sia un errore, clicca semplicemente</value>
   </data>
-  <data name="ConfirmEmailChange_No action was taken." xml:space="preserve">
+  <data name="ConfirmEmailChange_NoAction" xml:space="preserve">
     <value>Nessuna azione è stata effettuata.</value>
   </data>
-  <data name="ConfirmEmailChange_Please log in and resend the link" xml:space="preserve">
+  <data name="ConfirmEmailChange_LoginResendText" xml:space="preserve">
     <value>Accedi e reinvia il link</value>
   </data>
-  <data name="ConfirmEmailChange_This may take a moment. Click on the link below to verify your email address." xml:space="preserve">
+  <data name="ConfirmEmailChange_VerificationText" xml:space="preserve">
     <value>Potrebbe richiedere qualche istante. Clicca sul link sottostante per verificare il tuo indirizzo email.</value>
   </data>
-  <data name="ConfirmEmailChange_to sign in or go back." xml:space="preserve">
+  <data name="ConfirmEmailChange_SignInGoBack" xml:space="preserve">
     <value>per accedere o tornare indietro.</value>
   </data>
   <data name="ConfirmEmailChange_Verify" xml:space="preserve">
     <value>Verifica</value>
   </data>
-  <data name="ConfirmEmailChange_Verifying your email." xml:space="preserve">
+  <data name="ConfirmEmailChange_VerifyingEmail" xml:space="preserve">
     <value>Verifica la tua email.</value>
   </data>
-  <data name="ConfirmEmailChange_You can now close this browse window." xml:space="preserve">
+  <data name="ConfirmEmailChange_CloseWindowMessage" xml:space="preserve">
     <value>Ora puoi chiudere questa finestra del browser.</value>
   </data>
-  <data name="ConfirmEmailChange_Your email has been successfully changed." xml:space="preserve">
+  <data name="ConfirmEmailChange_ConfirmationEmailChanged" xml:space="preserve">
     <value> La tua email è stata modificata con successo.</value>
   </data>
-  <data name="ConfirmEmailChange_Your email is already verified. Thank you" xml:space="preserve">
+  <data name="ConfirmEmailChange_ConfirmationVerified" xml:space="preserve">
     <value>La tua email è già verificata. Grazie</value>
   </data>
   <data name="Consent_Accept" xml:space="preserve">
@@ -304,8 +363,8 @@
   <data name="Email_ResetPassword_IgnoreNotice" xml:space="preserve">
     <value>Se non ha richiesto la reimpostazione della password, può tranquillamente ignorare questo messaggio.</value>
   </data>
-  <data name="EmailRegister_Body_Hi" xml:space="preserve">
-    <value>Ciao</value>
+  <data name="EmailRegister_Subject" xml:space="preserve">
+    <value>Benvenuto su {0}! Conferma il tuo indirizzo email per iniziare.</value>
   </data>
   <data name="EmailRegister_Body_Welcome" xml:space="preserve">
     <value>Benvenuto su {0}! Siamo felici di averti con noi.</value>
@@ -313,14 +372,14 @@
   <data name="EmailRegister_Body_ConfirmEmail" xml:space="preserve">
     <value>Per completare la registrazione, conferma il tuo indirizzo email cliccando</value>
   </data>
-  <data name="EmailRegister_Preheader" xml:space="preserve">
-    <value>Benvenuto su {0}! Conferma il tuo indirizzo email per iniziare.</value>
-  </data>
   <data name="EmailRegister_Body_IgnoreNotice" xml:space="preserve">
     <value>Se non hai creato un account, puoi ignorare questa email.</value>
   </data>
   <data name="EmailRegister_Body_Thanks" xml:space="preserve">
     <value>Grazie per esserti unito a noi!</value>
+  </data>
+  <data name="EmailRegister_Body_Hi" xml:space="preserve">
+    <value>Ciao</value>
   </data>
   <data name="EmailSecurity_Preheader" xml:space="preserve">
     <value>Notifica di sicurezza relativa al tuo account.</value>
@@ -442,7 +501,6 @@
   <data name="Grants_You have not provided access to any applications" xml:space="preserve">
     <value>You have not provided access to any applications</value>
   </data>
-  
   <data name="Home_&lt;strong&gt;Welcome&lt;/strong&gt;&lt;br&gt; to our Digital Services Portal of {0}" xml:space="preserve">
     <value>&lt;strong&gt;Welcome&lt;/strong&gt;&lt;br&gt; to our Digital Services Portal of {0}</value>
   </data>
@@ -586,8 +644,6 @@
   </data>
   <data name="Mfa_We texted your phone {0}. Please enter the code to sign in." xml:space="preserve">
     <value>Abbiamo inviato un SMS al tuo numero {0}. Inserisci il codice per accedere.</value>
-  </data> <data name="MfaOnBoarding_Enable MFA" xml:space="preserve">
-    <value>Attiva l'autenticazione multifattoriale</value>
   </data>
   <data name="MfaModel_OTP login" xml:space="preserve">
     <value>Accesso con OTP</value>
@@ -597,6 +653,9 @@
   </data>
   <data name="MfaModel_Your OTP code for login is: {0}" xml:space="preserve">
     <value>Il tuo codice OTP per l'accesso è: {0}</value>
+  </data>
+  <data name="MfaOnBoarding_Enable MFA" xml:space="preserve">
+    <value>Attiva l'autenticazione multifattoriale</value>
   </data>
   <data name="MfaOnBoarding_Keep your account safe" xml:space="preserve">
     <value>Proteggi il tuo account</value>
@@ -659,7 +718,7 @@
     <value>Seleziona...</value>
   </data>
   <data name="Profile_Email" xml:space="preserve">
-    <value>Email</value> <!-- Ιταλικά (χρησιμοποιείται κυρίως αυτούσιο) -->
+    <value>Ιταλικά (χρησιμοποιείται κυρίως αυτούσιο)</value>
   </data>
   <data name="Profile_Timezone" xml:space="preserve">
     <value>Fuso orario</value>
@@ -752,7 +811,7 @@
     <value>Registrati</value>
   </data>
   <data name="Register_To_register_as_a_new_user_you_will_need_to_fill_in_the_following_information" xml:space="preserve">
-	<value>Per registrarsi come nuovo utente, sarà necessario compilare le seguenti informazioni.</value>
+    <value>Per registrarsi come nuovo utente, sarà necessario compilare le seguenti informazioni.</value>
   </data>
   <data name="Register_Already have an account?" xml:space="preserve">
     <value>Hai già un account?</value>
@@ -778,7 +837,7 @@
   <data name="Register_I consent to the registration and processing of the above personal details for my contact and service as they are defined" xml:space="preserve">
     <value>Acconsento alla registrazione e al trattamento dei dati personali sopra indicati per contatti e finalità di servizio, come definiti.</value>
   </data>
-  <data name="Register_I have read and accept the &lt;a href=&quot;/terms&quot; target=&quot;_blank&quot;&gt;Terms of service&lt;/a&gt; and the &lt;a href=&quot;/privacy&quot; target=&quot;_blank&quot;&gt;privacy policy&lt;/a&gt;." xml:space="preserve">
+  <data name="Register_I_Have_Read_And_Accept_Terms" xml:space="preserve">
     <value>Ho letto e accetto i &lt;a href="/terms" target="_blank"&gt;Termini di servizio&lt;/a&gt; e l’&lt;a href="/privacy" target="_blank"&gt;Informativa sulla privacy&lt;/a&gt;.</value>
   </data>
   <data name="Register_I consent to the use of my contact information, including my email address, for the purpose of receiving commercial communications, promotional materials, and marketing updates from the organization. I understand that I may withdraw my consent at any time." xml:space="preserve">

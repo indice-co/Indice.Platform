@@ -1,5 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
@@ -58,16 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-   <data name="AcceptTerms_Reject" xml:space="preserve">
+  <data name="AcceptTerms_Reject" xml:space="preserve">
     <value>拒否</value>
   </data>
   <data name="AcceptTerms_Accept" xml:space="preserve">
     <value>同意する</value>
   </data>
-  <data name="AcceptTerms_Terms &amp; conditions acceptance" xml:space="preserve">
+  <data name="AcceptTerms_AcceptTermsAndConditions" xml:space="preserve">
     <value>利用規約の同意</value>
   </data>
-  <data name="AcceptTerms_Please read and accept the terms and conditions to continue." xml:space="preserve">
+  <data name="AcceptTerms_ReadAndAcceptTerms" xml:space="preserve">
     <value>続行するには、利用規約をよく読み、同意してください。</value>
   </data>
   <data name="AddEmail_Next" xml:space="preserve">
@@ -80,51 +139,36 @@
     <value>メールアドレスを確認</value>
   </data>
   <data name="AddPassword_Required" xml:space="preserve">
-	<value>必須</value>
+    <value>必須</value>
   </data>
   <data name="AddPassword_Add" xml:space="preserve">
     <value>追加</value>
   </data>
-  <data name="AddPassword_Add Password" xml:space="preserve">
+  <data name="AddPassword_AddPassword" xml:space="preserve">
     <value>パスワード追加</value>
   </data>
-  <data name="AddPassword_New password" xml:space="preserve">
+  <data name="AddPassword_Newpassword" xml:space="preserve">
     <value>新しいパスワード</value>
   </data>
-  <data name="AddPassword_Password confirmation" xml:space="preserve">
+  <data name="AddPassword_PasswordConfirmation" xml:space="preserve">
     <value>パスワード確認</value>
   </data>
-  <data name="AddPassword_Password successfully added" xml:space="preserve">
+  <data name="AddPassword_PasswordSuccessfullyAdded" xml:space="preserve">
     <value>パスワードが正常に追加されました</value>
   </data>
-  <data name="AddPassword_Process completed." xml:space="preserve">
+  <data name="AddPassword_ProcessCompleted" xml:space="preserve">
     <value>処理が完了しました。</value>
   </data>
-  <data name="AddPhone_Add phone" xml:space="preserve">
+  <data name="AddPhone_AddPhone" xml:space="preserve">
     <value>電話番号を追加</value>
   </data>
-  <data name="AddPhone_Add phone number" xml:space="preserve">
+  <data name="AddPhone_AddPhoneNumber" xml:space="preserve">
     <value>番号を追加</value>
   </data>
-  <data name="AddPhone_Calling Code" xml:space="preserve">
+  <data name="AddPhone_CallingCode" xml:space="preserve">
     <value>電話コード</value>
   </data>
-  <data name="AddPhone_Phone number" xml:space="preserve">
-    <value>電話番号</value>
-  </data>
-  <data name="AddPhone_Save" xml:space="preserve">
-    <value>保存</value>
-  </data>
-  <data name="AddPhone_Add phone" xml:space="preserve">
-    <value>電話番号を追加</value>
-  </data>
-  <data name="AddPhone_Add phone number" xml:space="preserve">
-    <value>番号を追加</value>
-  </data>
-  <data name="AddPhone_Calling Code" xml:space="preserve">
-    <value>電話コード</value>
-  </data>
-  <data name="AddPhone_Phone number" xml:space="preserve">
+  <data name="AddPhone_PhoneNumber" xml:space="preserve">
     <value>電話番号</value>
   </data>
   <data name="AddPhone_Save" xml:space="preserve">
@@ -133,25 +177,25 @@
   <data name="Challenge_Redirecting" xml:space="preserve">
     <value>リダイレクト中...</value>
   </data>
-  <data name="ChangePassword_Sign_in_with_a_different_account" xml:space="preserve">
+  <data name="ChangePassword_SignWithDifferentAccount" xml:space="preserve">
     <value>別のアカウントでサインイン</value>
   </data>
   <data name="ChangePassword_Change" xml:space="preserve">
     <value>変更</value>
   </data>
-  <data name="ChangePassword_Change Password" xml:space="preserve">
+  <data name="ChangePassword_ChangePassword" xml:space="preserve">
     <value>パスワード変更</value>
   </data>
-  <data name="ChangePassword_New password" xml:space="preserve">
+  <data name="ChangePassword_NewPassword" xml:space="preserve">
     <value>新しいパスワード</value>
   </data>
-  <data name="ChangePassword_Old password" xml:space="preserve">
+  <data name="ChangePassword_OldPassword" xml:space="preserve">
     <value>以前のパスワード</value>
   </data>
-  <data name="ChangePassword_Password successfully changed" xml:space="preserve">
+  <data name="ChangePassword_PasswordSuccessfullyChanged" xml:space="preserve">
     <value>パスワードが正常に変更されました</value>
   </data>
-  <data name="ChangePassword_Process completed." xml:space="preserve">
+  <data name="ChangePassword_ProcessCompleted" xml:space="preserve">
     <value>処理が完了しました。</value>
   </data>
   <data name="ConfirmEmail_DoNotReply" xml:space="preserve">
@@ -163,85 +207,85 @@
   <data name="ConfirmEmail_Click" xml:space="preserve">
     <value>クリック</value>
   </data>
-  <data name="ConfirmEmail_Email Confirmation" xml:space="preserve">
+  <data name="ConfirmEmail_EmailConfirmation" xml:space="preserve">
     <value>メール確認</value>
   </data>
-  <data name="ConfirmEmail_Email verification link has expired." xml:space="preserve">
+  <data name="ConfirmEmail_LinkExpired" xml:space="preserve">
     <value>メール確認リンクの有効期限が切れています。</value>
   </data>
   <data name="ConfirmEmail_here" xml:space="preserve">
     <value>こちら</value>
   </data>
-  <data name="ConfirmEmail_If you feel you got this error by mistake, simply click" xml:space="preserve">
+  <data name="ConfirmEmail_MistakeText" xml:space="preserve">
     <value>このエラーが誤りだと思われる場合は、単にクリックしてください</value>
   </data>
-  <data name="ConfirmEmail_No action was taken." xml:space="preserve">
+  <data name="ConfirmEmail_NoActionTaken" xml:space="preserve">
     <value>操作は行われませんでした。</value>
   </data>
-  <data name="ConfirmEmail_Please log in and resend the link" xml:space="preserve">
+  <data name="ConfirmEmail_LoginResendText" xml:space="preserve">
     <value>ログインしてリンクを再送信してください。</value>
   </data>
-  <data name="ConfirmEmail_This may take a moment. Click on the link below to verify your email address." xml:space="preserve">
+  <data name="ConfirmEmail_ClickToVerify" xml:space="preserve">
     <value>少々お待ちください。下記のリンクをクリックしてメールアドレスを確認してください。</value>
   </data>
-  <data name="ConfirmEmail_to sign in or go back." xml:space="preserve">
+  <data name="ConfirmEmail_GoBackToSignIn" xml:space="preserve">
     <value>サインインまたは戻るには。</value>
   </data>
   <data name="ConfirmEmail_Verify" xml:space="preserve">
     <value>確認</value>
   </data>
-  <data name="ConfirmEmail_Verifying your email." xml:space="preserve">
+  <data name="ConfirmEmail_VerifyingEmail" xml:space="preserve">
     <value>メールを確認しています。</value>
   </data>
-  <data name="ConfirmEmail_You can now close this browse window." xml:space="preserve">
+  <data name="ConfirmEmail_Closewindow" xml:space="preserve">
     <value>このウィンドウを閉じても構いません。</value>
   </data>
-  <data name="ConfirmEmail_Your email has been successfully confirmed." xml:space="preserve">
+  <data name="ConfirmEmail_Confrimation" xml:space="preserve">
     <value>メールが正常に確認されました。</value>
   </data>
-  <data name="ConfirmEmail_Your email is already verified. Thank you" xml:space="preserve">
+  <data name="ConfirmEmail_AlreadyVerified" xml:space="preserve">
     <value>メールはすでに確認済みです。ありがとうございます。</value>
   </data>
   <data name="ConfirmEmailChange_Click" xml:space="preserve">
     <value>クリック</value>
   </data>
-  <data name="ConfirmEmailChange_Email Change Confirmation" xml:space="preserve">
+  <data name="ConfirmEmailChange_Confirmation" xml:space="preserve">
     <value>メール変更の確認</value>
   </data>
-  <data name="ConfirmEmailChange_Email verification link has expired." xml:space="preserve">
+  <data name="ConfirmEmailChange_LinkExpired" xml:space="preserve">
     <value>メール認証リンクの有効期限が切れています。</value>
   </data>
   <data name="ConfirmEmailChange_here" xml:space="preserve">
     <value>こちら</value>
   </data>
-  <data name="ConfirmEmailChange_If you feel you got this error by mistake, simply click" xml:space="preserve">
+  <data name="ConfirmEmailChange_MistakeText" xml:space="preserve">
     <value>このエラーが誤りだと思われる場合は、クリックしてください。</value>
   </data>
-  <data name="ConfirmEmailChange_No action was taken." xml:space="preserve">
+  <data name="ConfirmEmailChange_NoAction" xml:space="preserve">
     <value>操作は行われませんでした。</value>
   </data>
-  <data name="ConfirmEmailChange_Please log in and resend the link" xml:space="preserve">
+  <data name="ConfirmEmailChange_LoginResendText" xml:space="preserve">
     <value>ログインしてリンクを再送信してください。</value>
   </data>
-  <data name="ConfirmEmailChange_This may take a moment. Click on the link below to verify your email address." xml:space="preserve">
+  <data name="ConfirmEmailChange_VerificationText" xml:space="preserve">
     <value>少々お待ちください。下記のリンクをクリックしてメールアドレスを確認してください。</value>
   </data>
-  <data name="ConfirmEmailChange_to sign in or go back." xml:space="preserve">
+  <data name="ConfirmEmailChange_SignInGoBack" xml:space="preserve">
     <value>サインインまたは戻るにはこちら。</value>
   </data>
   <data name="ConfirmEmailChange_Verify" xml:space="preserve">
     <value>確認</value>
   </data>
-  <data name="ConfirmEmailChange_Verifying your email." xml:space="preserve">
+  <data name="ConfirmEmailChange_VerifyingEmail" xml:space="preserve">
     <value>メールアドレスを確認しています。</value>
   </data>
-  <data name="ConfirmEmailChange_You can now close this browse window." xml:space="preserve">
+  <data name="ConfirmEmailChange_CloseWindowMessage" xml:space="preserve">
     <value>このウィンドウを閉じても構いません。</value>
   </data>
-  <data name="ConfirmEmailChange_Your email has been successfully changed." xml:space="preserve">
+  <data name="ConfirmEmailChange_ConfirmationEmailChanged" xml:space="preserve">
     <value>メールアドレスが正常に変更されました。</value>
   </data>
-  <data name="ConfirmEmailChange_Your email is already verified. Thank you" xml:space="preserve">
+  <data name="ConfirmEmailChange_ConfirmationVerified" xml:space="preserve">
     <value>メールアドレスはすでに認証されています。ありがとうございます。</value>
   </data>
   <data name="Consent_Accept" xml:space="preserve">
@@ -319,8 +363,8 @@
   <data name="Email_ResetPassword_IgnoreNotice" xml:space="preserve">
     <value>もしパスワードのリセットをリクエストしていない場合は、このメッセージを無視しても問題ありません。</value>
   </data>
-  <data name="EmailRegister_Body_Hi" xml:space="preserve">
-    <value>こんにちは</value>
+  <data name="EmailRegister_Subject" xml:space="preserve">
+    <value>{0} へようこそ！開始するにはメールを確認してください。</value>
   </data>
   <data name="EmailRegister_Body_Welcome" xml:space="preserve">
     <value>{0} へようこそ！ご参加いただき嬉しく思います。</value>
@@ -328,14 +372,14 @@
   <data name="EmailRegister_Body_ConfirmEmail" xml:space="preserve">
     <value>登録を完了するには、次をクリックしてメールアドレスを確認してください</value>
   </data>
-  <data name="EmailRegister_Preheader" xml:space="preserve">
-    <value>{0} へようこそ！開始するにはメールを確認してください。</value>
-  </data>
   <data name="EmailRegister_Body_IgnoreNotice" xml:space="preserve">
     <value>アカウントを作成していない場合は、このメールを無視して構いません。</value>
   </data>
   <data name="EmailRegister_Body_Thanks" xml:space="preserve">
     <value>ご登録ありがとうございます！</value>
+  </data>
+  <data name="EmailRegister_Body_Hi" xml:space="preserve">
+    <value>こんにちは</value>
   </data>
   <data name="EmailSecurity_Preheader" xml:space="preserve">
     <value>アカウントに関するセキュリティ通知です。</value>
@@ -363,7 +407,7 @@
   </data>
   <data name="EmailSecurity_Body_Device" xml:space="preserve">
     <value>デバイス</value>
-   </data>
+  </data>
   <data name="EmailSecurity_Body_Client" xml:space="preserve">
     <value>クライアント</value>
   </data>
@@ -389,7 +433,7 @@
     <value>リクエストID</value>
   </data>
   <data name="Footer_Discovery" xml:space="preserve">
-	<value>ディスカバリードキュメント</value>
+    <value>ディスカバリードキュメント</value>
   </data>
   <data name="Footer_Privacy" xml:space="preserve">
     <value>プライバシーポリシー</value>
@@ -457,7 +501,6 @@
   <data name="Grants_You have not provided access to any applications" xml:space="preserve">
     <value>どのアプリケーションにもアクセスを許可していません。</value>
   </data>
-  
   <data name="Home_&lt;strong&gt;Welcome&lt;/strong&gt;&lt;br&gt; to our Digital Services Portal of {0}" xml:space="preserve">
     <value>&lt;strong&gt;ようこそ&lt;/strong&gt;&lt;br&gt; {0}のデジタルサービスポータルへ</value>
   </data>
@@ -675,7 +718,7 @@
     <value>選択してください....</value>
   </data>
   <data name="Profile_Email" xml:space="preserve">
-    <value>メールアドレス</value> <!-- Ιαπωνικά -->
+    <value>Ιαπωνικά</value>
   </data>
   <data name="Profile_Timezone" xml:space="preserve">
     <value>タイムゾーン</value>
@@ -768,7 +811,7 @@
     <value>登録</value>
   </data>
   <data name="Register_To_register_as_a_new_user_you_will_need_to_fill_in_the_following_information" xml:space="preserve">
-	<value>新しいユーザーとして登録するには、次の情報を入力する必要があります。</value>
+    <value>新しいユーザーとして登録するには、次の情報を入力する必要があります。</value>
   </data>
   <data name="Register_Already have an account?" xml:space="preserve">
     <value>すでにアカウントをお持ちですか？</value>
@@ -794,7 +837,7 @@
   <data name="Register_I consent to the registration and processing of the above personal details for my contact and service as they are defined" xml:space="preserve">
     <value>上記の個人情報の登録および処理に同意します。</value>
   </data>
-  <data name="Register_I have read and accept the &lt;a href=&quot;/terms&quot; target=&quot;_blank&quot;&gt;Terms of service&lt;/a&gt; and the &lt;a href=&quot;/privacy&quot; target=&quot;_blank&quot;&gt;privacy policy&lt;/a&gt;." xml:space="preserve">
+  <data name="Register_I_Have_Read_And_Accept_Terms" xml:space="preserve">
     <value>&lt;a href="/terms" target="_blank"&gt;利用規約&lt;/a&gt;および&lt;a href="/privacy" target="_blank"&gt;プライバシーポリシー&lt;/a&gt;を読み、同意します。</value>
   </data>
   <data name="Register_I consent to the use of my contact information, including my email address, for the purpose of receiving commercial communications, promotional materials, and marketing updates from the organization. I understand that I may withdraw my consent at any time." xml:space="preserve">
