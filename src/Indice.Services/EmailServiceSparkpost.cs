@@ -15,6 +15,9 @@ namespace Indice.Services;
 /// </summary>
 public class EmailServiceSparkPost : IEmailService
 {
+    /// <summary>Represents the name of the SparkPost service as a constant string value.</summary>
+    public const string ServiceName = "SparkPost";
+
     /// <summary>Creates a new instance of <see cref="EmailServiceSparkPost"/>.</summary>
     /// <param name="settings">An instance of <see cref="EmailServiceSparkPostSettings"/> used to initialize the service.</param>
     /// <param name="httpClient">The HTTP client to use (DI managed)</param>
@@ -27,6 +30,7 @@ public class EmailServiceSparkPost : IEmailService
         IHtmlRenderingEngine htmlRenderingEngine
     ) {
         Settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
+        Provider = new EmailProvider(ServiceName, new EmailSender(Settings.Sender!, Settings.SenderName));
         HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         HtmlRenderingEngine = htmlRenderingEngine ?? throw new ArgumentNullException(nameof(htmlRenderingEngine));
@@ -41,6 +45,8 @@ public class EmailServiceSparkPost : IEmailService
     private ILogger<EmailServiceSparkPost> Logger { get; }
     /// <inheritdoc/>
     public IHtmlRenderingEngine HtmlRenderingEngine { get; }
+    /// <inheritdoc/>
+    public EmailProvider Provider { get; }
 
     /// <inheritdoc/>
     public async Task<SendReceipt> SendAsync(string[] recipients, string subject, string? body, EmailAttachment[]? attachments = null, EmailSender? from = null) {

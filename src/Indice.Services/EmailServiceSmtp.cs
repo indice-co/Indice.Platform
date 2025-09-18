@@ -10,6 +10,9 @@ namespace Indice.Services;
 /// <summary>Simple SMTP implementation of the <see cref="IEmailService"/> with no template support.</summary>
 public class EmailServiceSmtp : IEmailService
 {
+    /// <summary>Represents the name of the Smtp service as a constant string value.</summary>
+    public const string ServiceName = "Smtp";
+
     /// <summary>Creates a new instance of <see cref="EmailServiceSmtp"/>.</summary>
     /// <param name="settings">The SMTP settings to use.</param>
     /// <param name="htmlRenderingEngine">This is an abstraction for the rendering engine.</param>
@@ -18,12 +21,15 @@ public class EmailServiceSmtp : IEmailService
         IHtmlRenderingEngine htmlRenderingEngine
     ) {
         Settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
+        Provider = new EmailProvider(ServiceName, new EmailSender(Settings.Sender!, Settings.SenderName));
         HtmlRenderingEngine = htmlRenderingEngine ?? throw new ArgumentNullException(nameof(htmlRenderingEngine));
     }
 
     private EmailServiceSettings Settings { get; }
     /// <inheritdoc/>
     public IHtmlRenderingEngine HtmlRenderingEngine { get; }
+    /// <inheritdoc/>
+    public EmailProvider Provider { get; }
 
     /// <inheritdoc/>
     public async Task<SendReceipt> SendAsync(string[] recipients, string subject, string? body, EmailAttachment[]? attachments = null, EmailSender? from = null) {

@@ -1,9 +1,11 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
 
 namespace Indice.Globalization;
 
 /// <summary>Represents a currency (ie Dollar $).</summary>
+[DebuggerDisplay("{ToString(),nq}")]
 public class CurrencyInfo : IFormatProvider, ICustomFormatter
 {
     private static readonly HashSet<string> CurrencySymbols;
