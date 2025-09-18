@@ -190,10 +190,12 @@ public class CampaignService : ICampaignService
     }
     ///<inheritdoc/>
     public async Task<Dictionary<string, int>> GetDashboardCounters() =>
-                await DbContext.CampaignEvent.GroupBy(m => m.Channel).ToDictionaryAsync(g => g.Key, g => g.Count());
+                await DbContext.CampaignEvent
+                        .Where(x=> x.Type == MessageEventType.Sent.ToString())
+                        .GroupBy(m => m.Channel)
+                        .ToDictionaryAsync(g => g.Key, g => g.Count());
     ///<inheritdoc/>
-    public async Task<ResultSet<Recipient>> GetCampaignMessages(Guid id, ListOptions options) {
-        //TODO: Refactor this query to use the CampaignMessageResponse directly instead of grouping.
+    public async Task<ResultSet<Recipient>> GetCampaignRecipients(Guid id, ListOptions options) {
         var query = from messageEvent in DbContext.CampaignEvent
                     join contact in DbContext.Contacts
                         on messageEvent.ContactId equals contact.Id
@@ -210,7 +212,7 @@ public class CampaignService : ICampaignService
     }
 
     ///<inheritdoc/>
-    public async Task<RecipientMessageEvents> GetCampaignMessageDetails(Guid id, Guid contactId) {
+    public async Task<RecipientMessageEvents> GetCampaignRecipientDetails(Guid id, Guid contactId) {
         var details = new RecipientMessageEvents();
         var contact = Mapper.ToContact(await DbContext.Contacts.AsNoTracking().FirstAsync(x => x.Id == contactId));
         var campaign = Mapper.ToCampaign(await DbContext.Campaigns.AsNoTracking().FirstAsync(x => x.Id == id));
