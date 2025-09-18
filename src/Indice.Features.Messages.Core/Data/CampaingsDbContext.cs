@@ -23,7 +23,7 @@ public class CampaignsDbContext : DbContext
     /// <summary>Campaigns table.</summary>
     public DbSet<DbCampaign> Campaigns { get; set; }
     /// <summary>Campaign events table.</summary>
-    public DbSet<DbMessageEvent> CampaignEvent { get; set; }
+    public DbSet<DbMessageEvent> MessageEvents { get; set; }
     /// <summary>Message types table.</summary>
     public DbSet<DbMessageType> MessageTypes { get; set; }
     /// <summary>Message senders table.</summary>

@@ -144,12 +144,12 @@ public class CampaignService : ICampaignService
         if (!campaign.IsGlobal) {
             notReadCount = await DbContext.Messages.AsNoTracking().CountAsync(x => x.CampaignId == id && !x.IsRead);
         }
-        var recepientsNumber = await DbContext.CampaignEvent
+        var recepientsNumber = await DbContext.MessageEvents
                                 .Where(m => m.CampaignId == id)
                                 .Select(m => m.ContactId)
                                 .Distinct()
                                 .CountAsync();
-        var countPerChanel = await DbContext.CampaignEvent.Where(x => x.CampaignId == id && x.Type == MessageEventType.Sent.ToString()).GroupBy(m => m.Channel).ToDictionaryAsync(g => g.Key, g => g.Count());
+        var countPerChanel = await DbContext.MessageEvents.Where(x => x.CampaignId == id && x.Type == MessageEventType.Sent.ToString()).GroupBy(m => m.Channel).ToDictionaryAsync(g => g.Key, g => g.Count());
         return new CampaignStatistics {
             CallToActionCount = callToActionCount,
             DeletedCount = deletedCount,
@@ -190,13 +190,13 @@ public class CampaignService : ICampaignService
     }
     ///<inheritdoc/>
     public async Task<Dictionary<string, int>> GetDashboardCounters() =>
-                await DbContext.CampaignEvent
+                await DbContext.MessageEvents
                         .Where(x=> x.Type == MessageEventType.Sent.ToString())
                         .GroupBy(m => m.Channel)
                         .ToDictionaryAsync(g => g.Key, g => g.Count());
     ///<inheritdoc/>
     public async Task<ResultSet<Recipient>> GetCampaignRecipients(Guid id, ListOptions options) {
-        var query = from messageEvent in DbContext.CampaignEvent
+        var query = from messageEvent in DbContext.MessageEvents
                     join contact in DbContext.Contacts
                         on messageEvent.ContactId equals contact.Id
                     where messageEvent.CampaignId == id && messageEvent.Type == MessageEventType.Created.ToString()
@@ -219,7 +219,7 @@ public class CampaignService : ICampaignService
         details.Recipient = Mapper.ToContact(await DbContext.Contacts.AsNoTracking().FirstAsync(x => x.Id == contactId));
         GenerateMessageContent(campaign, contact);
         details.Content = campaign.Content;
-        details.Events.AddRange(await DbContext.CampaignEvent
+        details.Events.AddRange(await DbContext.MessageEvents
                         .Where(x => x.CampaignId == id && x.ContactId == contactId)
                         .Select(x => new MessageEvent {
                             Channel = x.Channel,

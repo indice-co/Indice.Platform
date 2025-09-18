@@ -50,7 +50,7 @@ public class CampaignEventHandler(
     /// <summary>Upserts a batch of campaign events into the database.</summary>
     private static async Task UpsertBatchAsync(List<MessageEvent> lastActivityBatch, CampaignsDbContext db, CancellationToken stoppingToken) {
         var entries = lastActivityBatch.Select(activity => activity.GetDbEvent());
-        await db.CampaignEvent.AddRangeAsync(entries, stoppingToken);
+        await db.MessageEvents.AddRangeAsync(entries, stoppingToken);
         await db.SaveChangesAsync(stoppingToken);
     }
 }
