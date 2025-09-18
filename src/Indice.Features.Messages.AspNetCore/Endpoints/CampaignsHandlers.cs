@@ -142,11 +142,11 @@ internal static class CampaignsHandlers
         return TypedResults.Ok(counters);
     }
     public static async Task<Ok<ResultSet<Recipient>>> GetCampaignMessages(ICampaignService campaignService, Guid campaignId, [AsParameters] ListOptions options) {
-        var campaigns = await campaignService.GetCampaignMessages(campaignId, options);
+        var campaigns = await campaignService.GetCampaignRecipients(campaignId, options);
         return TypedResults.Ok(campaigns);
     }
     public static async Task<Ok<RecipientMessageEvents>> GetCampaignMessageDetails(ICampaignService campaignService, Guid campaignId, Guid messageId) {
-        var campaigns = await campaignService.GetCampaignMessageDetails(campaignId, messageId);
+        var campaigns = await campaignService.GetCampaignRecipientDetails(campaignId, messageId);
         return TypedResults.Ok(campaigns);
     }
 
