@@ -50,13 +50,15 @@
     </div>
     <div class="px-4 py-5 sm:p-6">
 
-      <dt class="text-base font-normal text-gray-900 dark:text-gray-100">Total Sent messages</dt>
+      <dt class="text-base font-normal text-gray-900 dark:text-gray-100">Messages</dt>
       <dd class="mt-1 flex items-baseline justify-between md:block lg:flex">
         <div class="flex items-baseline text-2xl font-semibold text-indigo-600 dark:text-indigo-400">
-          {{ counters?.campaignsByType?.Email ?? 0 +
+          {{
+ counters?.campaignsByType?.Email ?? 0 +
             counters?.campaignsByType?.SMS ?? 0 +
             counters?.campaignsByType?.PushNotification ?? 0 +
-            counters?.campaignsByType?.Inbox ?? 0 }}
+            counters?.campaignsByType?.Inbox ?? 0
+          }} total sent
         </div>
       </dd>
     </div>
