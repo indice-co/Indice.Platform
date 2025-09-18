@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Cases.Core.Data.Models;
 
@@ -25,9 +26,9 @@ public class DbCaseAccessRule
 
     public static Expression<Func<DbCaseAccessRule, bool>> AccessMatchPredicate(string? userId, List<string> userRoles, string? groupId) {
         return x =>
-            (userId != null && x.MemberUserId == userId) ||
-            (userRoles.Any() && userRoles.Contains(x.MemberRole!)) ||
-            (groupId != null && x.MemberGroupId == groupId);
+            userRoles.Count > 0 ?
+                (userId != null && x.MemberUserId == userId) || (groupId != null && x.MemberGroupId == groupId) || EF.Constant(userRoles).Contains(x.MemberRole!) :
+                (userId != null && x.MemberUserId == userId) || (groupId != null && x.MemberGroupId == groupId);
     }
     public static Expression<Func<DbCaseAccessRule, bool>> RuleMatchPredicate(Guid caseId, Guid caseTypeId, Guid checkpointTypeId) {
         return x =>

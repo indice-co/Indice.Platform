@@ -22,7 +22,7 @@
                 (sortdirChanged)="sortdirChanged($event)">
 
                 <lib-list-column [title]="'Date created'">
-                    <ng-template let-item>{{ item.createdAt | date: 'dd/MM/yy, HH:mm' || '-' }}</ng-template>
+                    <ng-template let-item>{{ item.createdAt | date: 'dd/MM/yy, HH:mm' }}</ng-template>
                 </lib-list-column>
 
                 <lib-list-column [title]="'Subject ID'">
@@ -37,7 +37,7 @@
                 <lib-list-column [title]="'Amount'">
                     <ng-template let-item>{{ item.amount || '-' }}</ng-template>
                 </lib-list-column>
-               
+
                 <lib-list-column [title]="'Name'">
                     <ng-template let-item>{{ item.name || '-' }}</ng-template>
                 </lib-list-column>
@@ -54,9 +54,33 @@
                     <ng-template let-item>{{ item.sourceTransactionId || '-' }}</ng-template>
                 </lib-list-column>
 
+                <lib-list-column [title]="'Session Id'">
+                    <ng-template let-item>{{ item.sessionId || '-' }}</ng-template>
+                </lib-list-column>
+
+                <lib-list-column [title]="'Country ISO Code'">
+                    <ng-template let-item>{{ item.countryIsoCode || '-' }}</ng-template>
+                </lib-list-column>
+
+                <lib-list-column [title]="'Session ID'">
+                    <ng-template let-item>
+                        <div>
+                            <span class="mr-2">
+                                {{ item.sessionId || '-' }}
+                            </span>
+                            <button *ngIf="item.sessionId" (click)="applySessionIdFilter(item)"
+                                class="bg-orange-500 hover:bg-dusty-orange-opacity text-white font-bold p-2 inline-flex rounded text-xs"
+                                [attr.aria-label]="'Apply filter for session ID ' + (item.sessionId || '-')"
+                                [attr.title]="'Apply filter for session ID ' + (item.sessionId || '-')">
+                                    <i class="ms-Icon ms-Icon--Filter" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </ng-template>
+                </lib-list-column>
+
                 <lib-list-column [title]="'Extra Data'">
                     <ng-template let-item>
-                        <a *ngIf="item.data !== undefined" (click)="openRiskDetailsPane(item.data)"
+                        <a *ngIf="item.data !== undefined" (click)="openDetailsPane(item)"
                            class="bg-dusty-orange hover:bg-dusty-orange-opacity text-white font-bold p-2 inline-flex rounded text-xs">
                             <span>{{ 'More details' }}</span>
                         </a>

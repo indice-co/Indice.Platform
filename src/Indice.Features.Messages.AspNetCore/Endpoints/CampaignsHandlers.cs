@@ -61,11 +61,11 @@ internal static class CampaignsHandlers
     }
 
     public static async Task<Results<CreatedAtRoute<CreateCampaignResult>, ValidationProblem>> CreateCampaign(
-        NotificationsManager notificationsManager, 
-        IConfiguration configuration, 
+        NotificationsManager notificationsManager,
+        IConfiguration configuration,
         MediaBaseHrefResolver baseHrefResolver,
         CreateCampaignRequest request) {
-        if (string.IsNullOrWhiteSpace(request.MediaBaseHref) || 
+        if (string.IsNullOrWhiteSpace(request.MediaBaseHref) ||
             Uri.TryCreate(request!.MediaBaseHref, UriKind.RelativeOrAbsolute, out var mediaBasePath) && !mediaBasePath.IsAbsoluteUri) {
             request.MediaBaseHref = (await baseHrefResolver.ResolveBaseHrefAsync()).ToString();
         }
@@ -131,6 +131,22 @@ internal static class CampaignsHandlers
         return TypedResults.File(data, contentType, lastModified: properties.LastModified, entityTag: new EntityTagHeaderValue(properties.ETag, true));
     }
 
+    public static async Task<Ok<DashboardCounters>> GetDashboardStats(ICampaignService campaignService) {
+        var counters = new DashboardCounters {
+            CampaignsCount = (await campaignService.GetList(new ListOptions<CampaignListFilter> { Page = 1, Size = 0 })).Count,
+            CampaignsPublishedCount = (await campaignService.GetList(new ListOptions<CampaignListFilter> { Page = 1, Size = 0, Filter = new CampaignListFilter() { Published = true } })).Count,
+            CampaignsByType = await campaignService.GetDashboardCounters()
+        };
+        return TypedResults.Ok(counters);
+    }
+    public static async Task<Ok<ResultSet<Recipient>>> GetCampaignMessages(ICampaignService campaignService, Guid campaignId, [AsParameters] ListOptions options) {
+        var campaigns = await campaignService.GetCampaignMessages(campaignId, options);
+        return TypedResults.Ok(campaigns);
+    }
+    public static async Task<Ok<RecipientMessageEvents>> GetCampaignMessageDetails(ICampaignService campaignService, Guid campaignId, Guid messageId) {
+        var campaigns = await campaignService.GetCampaignMessageDetails(campaignId, messageId);
+        return TypedResults.Ok(campaigns);
+    }
 
     #region Descriptions
     public static readonly string GET_CAMPAIGNS_DESCRIPTION = @"
@@ -213,6 +229,22 @@ Parameters:
 - fileGuid: The ID of the attachment.
 - format: The format of the uploaded attachment extension.
 ";
+
+    public static readonly string GET_CAMPAIGN_MESSAGES = @"
+Retrieves the list of all campaign messages based on the provided ListOptions.
+
+Parameters:
+- campaignId: The ID of the campaign.
+- options: List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+";
+    public static readonly string GET_CAMPAIGN_MESSAGE_DETAILS = @"
+Retrieves the details of campaign message 
+
+Parameters:
+- campaignId: The ID of the campaign.
+- messageId: The ID of the message.
+";
+
 
     #endregion
 }

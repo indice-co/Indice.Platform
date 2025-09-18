@@ -45,22 +45,23 @@ public class Contact
     /// information for the channel (e.g., no email address for email).</item> <item>The contact is anonymous, which
     /// excludes certain channels like push notifications.</item> </list></remarks>
     /// <param name="campaignChannels">The set of communication channels supported by the campaign.</param>
+    /// <param name="campaignType">The message type </param>
     /// <param name="ignoreUserPreferences">Used to ignore the user preferences and use all available channels based on contact info.</param>
     /// <returns>A <see cref="MessageChannelKind"/> value representing the communication channels that are available for the
     /// contact. The result is determined by filtering the campaign-supported channels based on the contact's
     /// preferences,  available contact information, and anonymity status.</returns>
-    public MessageChannelKind GetAvailableChannels(MessageChannelKind campaignChannels, bool ignoreUserPreferences) {
+    public MessageChannelKind GetAvailableChannels(MessageChannelKind campaignChannels, MessageType? campaignType, bool ignoreUserPreferences) {
         // start with all channels that the campaign supports
         var availableChannels = campaignChannels;
         // remove channels that the contact does not prefer if we are not ignoring user preferences
         if (!ignoreUserPreferences) {
-
-            var typeCommunicationPreference = Preference?.Communication?.FirstOrDefault(x => x.MessageTypeAlias == null);
+            var typeCommunicationPreference = Preference?.Communication?.FirstOrDefault(x => x.MessageType.Id == campaignType?.Id);
             if (typeCommunicationPreference != null) {
-                availableChannels = ContactChannelOption.ToMessageChannelKind(typeCommunicationPreference.Channels, defaultOption: availableChannels);
+                var userSelectedChannels = ContactChannelOption.ToMessageChannelKind(typeCommunicationPreference.Channels);
+                availableChannels &= userSelectedChannels;
             } else if (Preference?.DefaultChannels != null) {
-                availableChannels = ContactChannelOption.ToMessageChannelKind(Preference.DefaultChannels, defaultOption: availableChannels);
-
+                var userSelectedChannels = ContactChannelOption.ToMessageChannelKind(Preference.DefaultChannels);
+                availableChannels &= userSelectedChannels;
             }
         }
         // remove channels that the contact does not support due to missing info

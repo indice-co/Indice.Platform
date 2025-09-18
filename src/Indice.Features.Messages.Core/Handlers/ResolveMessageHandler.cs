@@ -102,15 +102,6 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         return contact;
     }
 
-    private async Task LogEvent(CampaignCreatedEvent campaign, Contact contact, MessageChannelKind kind, Guid messageId) {
-        await CampaignEventQueue.EnqueueAsync(new MessageEvent() {
-            CampaignId = campaign.Id,
-            ContactId = contact.Id!.Value,
-            MessageId = messageId,
-            Type = MessageEventType.Created.ToString(),
-            Channel = kind.ToString()
-        });
-    }
 
     private static void GenerateMessageContent(CampaignCreatedEvent campaign, Contact? contact) {
         var handlebars = Handlebars.Create();
@@ -150,7 +141,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
             RecipientId = contact.RecipientId
         });
         var eventDispatcher = EventDispatcherFactory.Create(KeyedServiceNames.EventDispatcherServiceKey);
-        var contactChannels = contact.GetAvailableChannels(campaign.MessageChannelKind, campaign.IgnoreUserPreferences);
+        var contactChannels = contact.GetAvailableChannels(campaign.MessageChannelKind, campaign.Type, campaign.IgnoreUserPreferences);
         if (contactChannels == MessageChannelKind.None) {
             return;
         }
@@ -175,4 +166,13 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         }
     }
 
+    private async Task LogEvent(CampaignCreatedEvent campaign, Contact contact, MessageChannelKind kind, Guid messageId) {
+        await CampaignEventQueue.EnqueueAsync(new MessageEvent() {
+            CampaignId = campaign.Id,
+            ContactId = contact.Id!.Value,
+            MessageId = messageId,
+            Type = MessageEventType.Created.ToString(),
+            Channel = kind.ToString()
+        });
+    }
 }

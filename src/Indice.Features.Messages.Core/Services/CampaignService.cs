@@ -1,9 +1,15 @@
-﻿using Indice.Features.Messages.Core.Data;
+﻿using System.Collections.Generic;
+using System.Text.Json;
+using HandlebarsDotNet;
+using HandlebarsDotNet.Extension.Json;
+using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Data.Models;
+using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Exceptions;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
+using Indice.Serialization;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -57,6 +63,12 @@ public class CampaignService : ICampaignService
         }
         if (options.Filter?.Published.HasValue == true) {
             projectedQuery = projectedQuery.Where(x => x.Published == options.Filter.Published.Value);
+        }
+        if (options.Filter?.TypeId?.Length > 0) {
+            var types = options.Filter.TypeId.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => GuidOrAlias.Parse(x));
+            var typeIds = types.Where(x => x.IsGuid).Select(x => x.Uuid).ToArray();
+            var typeAliases = types.Where(x => !x.IsGuid).Select(x => x.Value).ToArray();
+            projectedQuery = projectedQuery.Where(x => typeIds.Contains(x.Type!.Id) || typeAliases.Contains(x.Type.Alias));
         }
         return projectedQuery.ToResultSetAsync(options);
     }
@@ -132,13 +144,21 @@ public class CampaignService : ICampaignService
         if (!campaign.IsGlobal) {
             notReadCount = await DbContext.Messages.AsNoTracking().CountAsync(x => x.CampaignId == id && !x.IsRead);
         }
+        var recepientsNumber = await DbContext.CampaignEvent
+                                .Where(m => m.CampaignId == id)
+                                .Select(m => m.ContactId)
+                                .Distinct()
+                                .CountAsync();
+        var countPerChanel = await DbContext.CampaignEvent.Where(x => x.CampaignId == id && x.Type == MessageEventType.Sent.ToString()).GroupBy(m => m.Channel).ToDictionaryAsync(g => g.Key, g => g.Count());
         return new CampaignStatistics {
             CallToActionCount = callToActionCount,
             DeletedCount = deletedCount,
             LastUpdated = DateTime.UtcNow,
             NotReadCount = notReadCount,
             ReadCount = readCount,
-            Title = campaign.Title
+            Title = campaign.Title,
+            MessagesperChannel = countPerChanel,
+            RecipientsCount = recepientsNumber
         };
     }
 
@@ -167,5 +187,74 @@ public class CampaignService : ICampaignService
         campaign.Published = true;
         await DbContext.SaveChangesAsync();
         return Mapper.ToCampaign(campaign);
+    }
+    ///<inheritdoc/>
+    public async Task<Dictionary<string, int>> GetDashboardCounters() =>
+                await DbContext.CampaignEvent.GroupBy(m => m.Channel).ToDictionaryAsync(g => g.Key, g => g.Count());
+    ///<inheritdoc/>
+    public async Task<ResultSet<Recipient>> GetCampaignMessages(Guid id, ListOptions options) {
+        //TODO: Refactor this query to use the CampaignMessageResponse directly instead of grouping.
+        var query = from messageEvent in DbContext.CampaignEvent
+                    join contact in DbContext.Contacts
+                        on messageEvent.ContactId equals contact.Id
+                    where messageEvent.CampaignId == id && messageEvent.Type == MessageEventType.Created.ToString()
+                    group new { contact, messageEvent } by new {
+                        messageEvent.ContactId
+                    } into g
+                    select new Recipient {
+                        Contact = Mapper.ToContact(g.First().contact),
+                        CreatedOn = g.First().messageEvent.CreatedOn,
+                        Channels = g.Select(x => x.messageEvent).Select(x => x.Channel).ToList()
+                    };
+        return await query.ToResultSetAsync(options);
+    }
+
+    ///<inheritdoc/>
+    public async Task<RecipientMessageEvents> GetCampaignMessageDetails(Guid id, Guid contactId) {
+        var details = new RecipientMessageEvents();
+        var contact = Mapper.ToContact(await DbContext.Contacts.AsNoTracking().FirstAsync(x => x.Id == contactId));
+        var campaign = Mapper.ToCampaign(await DbContext.Campaigns.AsNoTracking().FirstAsync(x => x.Id == id));
+        details.Recipient = Mapper.ToContact(await DbContext.Contacts.AsNoTracking().FirstAsync(x => x.Id == contactId));
+        GenerateMessageContent(campaign, contact);
+        details.Content = campaign.Content;
+        details.Events.AddRange(await DbContext.CampaignEvent
+                        .Where(x => x.CampaignId == id && x.ContactId == contactId)
+                        .Select(x => new MessageEvent {
+                            Channel = x.Channel,
+                            Type = x.Type,
+                            CreatedOn = x.CreatedOn
+                        })
+                        .OrderByDescending(x => x.CreatedOn)
+                        .ToListAsync());
+        return details;
+    }
+
+    private static void GenerateMessageContent(Campaign campaign, Contact? contact) {
+        var handlebars = Handlebars.Create();
+        handlebars.Configuration.TextEncoder = new HtmlEncoder();
+        handlebars.Configuration.UseJson();
+        foreach (var content in campaign!.Content) {
+            dynamic templateData = new {
+                id = campaign.Id,
+                title = campaign.Title,
+                type = campaign.Type?.Name,
+                classification = campaign.Type?.Classification,
+                actionLink = new {
+                    href = !string.IsNullOrEmpty(campaign.ActionLink?.Href) ? $"_tracking/messages/cta/{(Base64Id)campaign.Id}" : null,
+                    text = campaign.ActionLink?.Text,
+                },
+                mediaBaseHref = campaign.MediaBaseHref,
+                now = DateTimeOffset.UtcNow,
+                contact = contact is not null
+                    ? JsonDocument.Parse(JsonSerializer.Serialize(contact, JsonSerializerOptionDefaults.GetDefaultSettings()))
+                    : null,
+                data = campaign.Data is not null && (campaign.Data is not string || !string.IsNullOrWhiteSpace(campaign.Data))
+                    ? JsonDocument.Parse(JsonSerializer.Serialize(campaign.Data, JsonSerializerOptionDefaults.GetDefaultSettings()))
+                    : null
+            };
+            var messageContent = campaign.Content[content.Key];
+            messageContent.Title = handlebars.Compile(content.Value.Title)(templateData);
+            messageContent.Body = handlebars.Compile(content.Value.Body)(templateData);
+        }
     }
 }
