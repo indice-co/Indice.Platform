@@ -60,6 +60,20 @@ export interface IMessagesApiClient {
      */
     deleteCampaignAttachment(campaignId: string, attachmentId: string): Observable<void>;
     /**
+     * Gets information about the message of this campaign.
+     * @return OK
+     */
+    getCampaignMessageDetails(campaignId: string, messageId: string): Observable<RecipientMessageEvents>;
+    /**
+     * Gets the messages send for this campaign.
+     * @param page (optional) The current page of the list. Default is 1.
+     * @param size (optional) The size of the list. Default is 100
+     * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
+     * @param search (optional) A search term used to limit the results of the list.
+     * @return OK
+     */
+    getCampaignMessages(campaignId: string, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<RecipientResultSet>;
+    /**
      * Publishes a campaign.
      * @return No Content
      */
@@ -74,6 +88,11 @@ export interface IMessagesApiClient {
      * @return OK
      */
     exportCampaignStatistics(campaignId: string): Observable<CampaignStatistics>;
+    /**
+     * Gets counters for dashboard.
+     * @return OK
+     */
+    getDashboardStats(): Observable<DashboardCounters>;
     /**
      * Gets the list of all contacts using the provided ListOptions.
      * @param page (optional) The current page of the list. Default is 1.
@@ -922,6 +941,195 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
+     * Gets information about the message of this campaign.
+     * @return OK
+     */
+    getCampaignMessageDetails(campaignId: string, messageId: string): Observable<RecipientMessageEvents> {
+        let url_ = this.baseUrl + "/campaigns/{campaignId}/message/{messageId}";
+        if (campaignId === undefined || campaignId === null)
+            throw new globalThis.Error("The parameter 'campaignId' must be defined.");
+        url_ = url_.replace("{campaignId}", encodeURIComponent("" + campaignId));
+        if (messageId === undefined || messageId === null)
+            throw new globalThis.Error("The parameter 'messageId' must be defined.");
+        url_ = url_.replace("{messageId}", encodeURIComponent("" + messageId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCampaignMessageDetails(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCampaignMessageDetails(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RecipientMessageEvents>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RecipientMessageEvents>;
+        }));
+    }
+
+    protected processGetCampaignMessageDetails(response: HttpResponseBase): Observable<RecipientMessageEvents> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RecipientMessageEvents.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Gets the messages send for this campaign.
+     * @param page (optional) The current page of the list. Default is 1.
+     * @param size (optional) The size of the list. Default is 100
+     * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
+     * @param search (optional) A search term used to limit the results of the list.
+     * @return OK
+     */
+    getCampaignMessages(campaignId: string, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<RecipientResultSet> {
+        let url_ = this.baseUrl + "/campaigns/{campaignId}/messages?";
+        if (campaignId === undefined || campaignId === null)
+            throw new globalThis.Error("The parameter 'campaignId' must be defined.");
+        url_ = url_.replace("{campaignId}", encodeURIComponent("" + campaignId));
+        if (page === null)
+            throw new globalThis.Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (size === null)
+            throw new globalThis.Error("The parameter 'size' cannot be null.");
+        else if (size !== undefined)
+            url_ += "Size=" + encodeURIComponent("" + size) + "&";
+        if (sort === null)
+            throw new globalThis.Error("The parameter 'sort' cannot be null.");
+        else if (sort !== undefined)
+            url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
+        if (search === null)
+            throw new globalThis.Error("The parameter 'search' cannot be null.");
+        else if (search !== undefined)
+            url_ += "Search=" + encodeURIComponent("" + search) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCampaignMessages(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCampaignMessages(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RecipientResultSet>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RecipientResultSet>;
+        }));
+    }
+
+    protected processGetCampaignMessages(response: HttpResponseBase): Observable<RecipientResultSet> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RecipientResultSet.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * Publishes a campaign.
      * @return No Content
      */
@@ -1158,6 +1366,86 @@ export class MessagesApiClient implements IMessagesApiClient {
         } else if (status === 404) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Gets counters for dashboard.
+     * @return OK
+     */
+    getDashboardStats(): Observable<DashboardCounters> {
+        let url_ = this.baseUrl + "/campaigns/dashboard";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetDashboardStats(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetDashboardStats(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<DashboardCounters>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<DashboardCounters>;
+        }));
+    }
+
+    protected processGetDashboardStats(response: HttpResponseBase): Observable<DashboardCounters> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DashboardCounters.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -4494,6 +4782,8 @@ export class CampaignStatistics implements ICampaignStatistics {
     deletedCount?: number;
     callToActionCount?: number;
     lastUpdated?: Date;
+    messagesperChannel?: { [key: string]: number; };
+    recipientsCount?: number;
 
     constructor(data?: ICampaignStatistics) {
         if (data) {
@@ -4512,6 +4802,14 @@ export class CampaignStatistics implements ICampaignStatistics {
             this.deletedCount = _data["deletedCount"];
             this.callToActionCount = _data["callToActionCount"];
             this.lastUpdated = _data["lastUpdated"] ? new Date(_data["lastUpdated"].toString()) : undefined as any;
+            if (_data["messagesperChannel"]) {
+                this.messagesperChannel = {} as any;
+                for (let key in _data["messagesperChannel"]) {
+                    if (_data["messagesperChannel"].hasOwnProperty(key))
+                        (this.messagesperChannel as any)![key] = _data["messagesperChannel"][key];
+                }
+            }
+            this.recipientsCount = _data["recipientsCount"];
         }
     }
 
@@ -4530,6 +4828,14 @@ export class CampaignStatistics implements ICampaignStatistics {
         data["deletedCount"] = this.deletedCount;
         data["callToActionCount"] = this.callToActionCount;
         data["lastUpdated"] = this.lastUpdated ? this.lastUpdated.toISOString() : undefined as any;
+        if (this.messagesperChannel) {
+            data["messagesperChannel"] = {};
+            for (let key in this.messagesperChannel) {
+                if (this.messagesperChannel.hasOwnProperty(key))
+                    (data["messagesperChannel"] as any)[key] = (this.messagesperChannel as any)[key];
+            }
+        }
+        data["recipientsCount"] = this.recipientsCount;
         return data;
     }
 }
@@ -4541,6 +4847,8 @@ export interface ICampaignStatistics {
     deletedCount?: number;
     callToActionCount?: number;
     lastUpdated?: Date;
+    messagesperChannel?: { [key: string]: number; };
+    recipientsCount?: number;
 }
 
 export class Contact implements IContact {
@@ -5454,6 +5762,62 @@ export interface ICreateTemplateRequest {
     data?: any;
 }
 
+export class DashboardCounters implements IDashboardCounters {
+    campaignsCount?: number;
+    campaignsPublishedCount?: number;
+    campaignsByType?: { [key: string]: number; };
+
+    constructor(data?: IDashboardCounters) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.campaignsCount = _data["campaignsCount"];
+            this.campaignsPublishedCount = _data["campaignsPublishedCount"];
+            if (_data["campaignsByType"]) {
+                this.campaignsByType = {} as any;
+                for (let key in _data["campaignsByType"]) {
+                    if (_data["campaignsByType"].hasOwnProperty(key))
+                        (this.campaignsByType as any)![key] = _data["campaignsByType"][key];
+                }
+            }
+        }
+    }
+
+    static fromJS(data: any): DashboardCounters {
+        data = typeof data === 'object' ? data : {};
+        let result = new DashboardCounters();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["campaignsCount"] = this.campaignsCount;
+        data["campaignsPublishedCount"] = this.campaignsPublishedCount;
+        if (this.campaignsByType) {
+            data["campaignsByType"] = {};
+            for (let key in this.campaignsByType) {
+                if (this.campaignsByType.hasOwnProperty(key))
+                    (data["campaignsByType"] as any)[key] = (this.campaignsByType as any)[key];
+            }
+        }
+        return data;
+    }
+}
+
+export interface IDashboardCounters {
+    campaignsCount?: number;
+    campaignsPublishedCount?: number;
+    campaignsByType?: { [key: string]: number; };
+}
+
 export class DistributionList implements IDistributionList {
     id?: string;
     name?: string;
@@ -5732,6 +6096,62 @@ export interface IMessageContent {
     sender?: MessageSender;
     title?: string;
     body?: string;
+}
+
+export class MessageEvent implements IMessageEvent {
+    campaignId?: string;
+    contactId?: string;
+    messageId?: string;
+    type?: string;
+    channel?: string;
+    createdOn?: Date;
+
+    constructor(data?: IMessageEvent) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.campaignId = _data["campaignId"];
+            this.contactId = _data["contactId"];
+            this.messageId = _data["messageId"];
+            this.type = _data["type"];
+            this.channel = _data["channel"];
+            this.createdOn = _data["createdOn"] ? new Date(_data["createdOn"].toString()) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): MessageEvent {
+        data = typeof data === 'object' ? data : {};
+        let result = new MessageEvent();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["campaignId"] = this.campaignId;
+        data["contactId"] = this.contactId;
+        data["messageId"] = this.messageId;
+        data["type"] = this.type;
+        data["channel"] = this.channel;
+        data["createdOn"] = this.createdOn ? this.createdOn.toISOString() : undefined as any;
+        return data;
+    }
+}
+
+export interface IMessageEvent {
+    campaignId?: string;
+    contactId?: string;
+    messageId?: string;
+    type?: string;
+    channel?: string;
+    createdOn?: Date;
 }
 
 export class MessageSender implements IMessageSender {
@@ -6057,6 +6477,170 @@ export interface IProblemDetails {
     instance?: string;
 
     [key: string]: any;
+}
+
+export class Recipient implements IRecipient {
+    contact?: Contact;
+    channels?: string[];
+    createdOn?: Date;
+
+    constructor(data?: IRecipient) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.contact = _data["contact"] ? Contact.fromJS(_data["contact"]) : undefined as any;
+            if (Array.isArray(_data["channels"])) {
+                this.channels = [] as any;
+                for (let item of _data["channels"])
+                    this.channels!.push(item);
+            }
+            this.createdOn = _data["createdOn"] ? new Date(_data["createdOn"].toString()) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): Recipient {
+        data = typeof data === 'object' ? data : {};
+        let result = new Recipient();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["contact"] = this.contact ? this.contact.toJSON() : undefined as any;
+        if (Array.isArray(this.channels)) {
+            data["channels"] = [];
+            for (let item of this.channels)
+                data["channels"].push(item);
+        }
+        data["createdOn"] = this.createdOn ? this.createdOn.toISOString() : undefined as any;
+        return data;
+    }
+}
+
+export interface IRecipient {
+    contact?: Contact;
+    channels?: string[];
+    createdOn?: Date;
+}
+
+export class RecipientMessageEvents implements IRecipientMessageEvents {
+    recipient?: Contact;
+    content?: { [key: string]: MessageContent; };
+    events?: MessageEvent[];
+
+    constructor(data?: IRecipientMessageEvents) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.recipient = _data["recipient"] ? Contact.fromJS(_data["recipient"]) : undefined as any;
+            if (_data["content"]) {
+                this.content = {} as any;
+                for (let key in _data["content"]) {
+                    if (_data["content"].hasOwnProperty(key))
+                        (this.content as any)![key] = _data["content"][key] ? MessageContent.fromJS(_data["content"][key]) : new MessageContent();
+                }
+            }
+            if (Array.isArray(_data["events"])) {
+                this.events = [] as any;
+                for (let item of _data["events"])
+                    this.events!.push(MessageEvent.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): RecipientMessageEvents {
+        data = typeof data === 'object' ? data : {};
+        let result = new RecipientMessageEvents();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["recipient"] = this.recipient ? this.recipient.toJSON() : undefined as any;
+        if (this.content) {
+            data["content"] = {};
+            for (let key in this.content) {
+                if (this.content.hasOwnProperty(key))
+                    (data["content"] as any)[key] = this.content[key] ? this.content[key].toJSON() : undefined as any;
+            }
+        }
+        if (Array.isArray(this.events)) {
+            data["events"] = [];
+            for (let item of this.events)
+                data["events"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface IRecipientMessageEvents {
+    recipient?: Contact;
+    content?: { [key: string]: MessageContent; };
+    events?: MessageEvent[];
+}
+
+export class RecipientResultSet implements IRecipientResultSet {
+    count?: number;
+    items?: Recipient[];
+
+    constructor(data?: IRecipientResultSet) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(Recipient.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): RecipientResultSet {
+        data = typeof data === 'object' ? data : {};
+        let result = new RecipientResultSet();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface IRecipientResultSet {
+    count?: number;
+    items?: Recipient[];
 }
 
 export class Template implements ITemplate {
