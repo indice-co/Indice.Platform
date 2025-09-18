@@ -160,10 +160,10 @@ public class ContactService : IContactService
             query = query.Where(x => x.RecipientId!.ToLower() == filter.RecipientId.ToLower());
         }
         if (filter?.Anonymous == true) {
-            query = query.Where(x => x.RecipientId == null);
+            query = query.Where(x => x.RecipientId == null || x.Resolved == false);
         }
         if (filter?.Anonymous == false) {
-            query = query.Where(x => x.RecipientId != null);
+            query = query.Where(x => x.RecipientId != null && x.Resolved == true);
         }
 
         if (!string.IsNullOrWhiteSpace(options.Search)) {
