@@ -135,7 +135,7 @@
   <data name="AddEmail_Save" xml:space="preserve">
     <value>Guardar</value>
   </data>
-  <data name="AddEmail_Verify email" xml:space="preserve">
+  <data name="AddEmail_VerifyEmail" xml:space="preserve">
     <value>Verificar correo electrónico</value>
   </data>
   <data name="AddPassword_Required" xml:space="preserve">
@@ -294,7 +294,7 @@
   <data name="Consent_app" xml:space="preserve">
     <value>aplicación</value>
   </data>
-  <data name="Consent_Application Access" xml:space="preserve">
+  <data name="Consent_ApplicationAccess" xml:space="preserve">
     <value>Acceso a la aplicación</value>
   </data>
   <data name="Consent_Cancel" xml:space="preserve">
@@ -306,13 +306,13 @@
   <data name="Consent_Consent" xml:space="preserve">
     <value>Consentimiento</value>
   </data>
-  <data name="Consent_Personal Information" xml:space="preserve">
+  <data name="Consent_PersonalInformation" xml:space="preserve">
     <value>Información personal</value>
   </data>
-  <data name="Consent_Remember My Decision" xml:space="preserve">
+  <data name="Consent_RememberMyDecision" xml:space="preserve">
     <value>Recordar mi decisión</value>
   </data>
-  <data name="Consent_Security code" xml:space="preserve">
+  <data name="Consent_SecurityCode" xml:space="preserve">
     <value>Código de seguridad adicional</value>
   </data>
   <data name="Consent_send" xml:space="preserve">
@@ -321,16 +321,16 @@
   <data name="Consent_This" xml:space="preserve">
     <value>Esta</value>
   </data>
-  <data name="Consent_This app would like to" xml:space="preserve">
+  <data name="Consent_ThisAppWouldLikeTo" xml:space="preserve">
     <value>Esta aplicación solicita</value>
   </data>
-  <data name="Consent_to your phone" xml:space="preserve">
+  <data name="Consent_ToYourPhone" xml:space="preserve">
     <value>al teléfono que ha declarado</value>
   </data>
-  <data name="Consent_Uncheck the permissions you do not wish to grant." xml:space="preserve">
+  <data name="Consent_UncheckPermissions" xml:space="preserve">
     <value>Desmarque los permisos que no desea conceder.</value>
   </data>
-  <data name="Consent_would like to" xml:space="preserve">
+  <data name="Consent_WouldLikeTo" xml:space="preserve">
     <value>solicita</value>
   </data>
   <data name="Email_Preheader_Verify" xml:space="preserve">
@@ -426,9 +426,6 @@
   <data name="Error_Go_back_home" xml:space="preserve">
     <value>Volver a inicio</value>
   </data>
-  <data name="Error_Oops! Seems we encountered an error." xml:space="preserve">
-    <value>¡Vaya! Parece que hemos encontrado un error.</value>
-  </data>
   <data name="Error_Request Id" xml:space="preserve">
     <value>ID de solicitud</value>
   </data>
@@ -444,11 +441,8 @@
   <data name="Footer_Contact_us" xml:space="preserve">
     <value>Contáctanos</value>
   </data>
-  <data name="ForgotPassword_Forgot password" xml:space="preserve">
+  <data name="ForgotPassword_ForgotPassword" xml:space="preserve">
     <value>Olvidé mi contraseña</value>
-  </data>
-  <data name="ForgotPassword_Request sent" xml:space="preserve">
-    <value>Solicitud enviada</value>
   </data>
   <data name="ForgotPassword_Resend" xml:space="preserve">
     <value>Reenviar</value>
@@ -456,85 +450,82 @@
   <data name="ForgotPassword_Send" xml:space="preserve">
     <value>Enviar</value>
   </data>
-  <data name="ForgotPassword_To have your password reset, enter your username or email address below. We will then send an email containing a link to reset your password." xml:space="preserve">
-    <value>Para restablecer su contraseña, ingrese su nombre de usuario o correo electrónico a continuación. Luego le enviaremos un correo electrónico con un enlace para restablecer su contraseña.</value>
-  </data>
   <data name="ForgotPassword_Username" xml:space="preserve">
     <value>Nombre de usuario</value>
   </data>
-  <data name="ForgotPasswordConfirmation_Forgot Password Confirmation" xml:space="preserve">
+  <data name="ForgotPasswordConfirmation_PasswordConfirmation" xml:space="preserve">
     <value>Confirmación de restablecimiento de contraseña</value>
   </data>
   <data name="ForgotPasswordConfirmation_New Password" xml:space="preserve">
     <value>Nueva contraseña</value>
   </data>
-  <data name="ForgotPasswordConfirmation_Password changed" xml:space="preserve">
+  <data name="ForgotPasswordConfirmation_PasswordChanged" xml:space="preserve">
     <value>Contraseña cambiada</value>
   </data>
-  <data name="ForgotPasswordConfirmation_Please &lt;a href=&quot;{0}&quot;&gt;login&lt;/a&gt; with your new password" xml:space="preserve">
+  <data name="ForgotPasswordConfirmation_LoginLink" xml:space="preserve">
     <value>Por favor, &lt;a href="{0}"&gt;inicie sesión&lt;/a&gt; con su nueva contraseña.</value>
   </data>
-  <data name="ForgotPasswordConfirmation_Please fill in your new password" xml:space="preserve">
+  <data name="ForgotPasswordConfirmation_FillNewPassword" xml:space="preserve">
     <value>Por favor, ingrese su nueva contraseña</value>
   </data>
   <data name="ForgotPasswordConfirmation_Send" xml:space="preserve">
     <value>Enviar</value>
   </data>
-  <data name="Grants_Below is the list of applications you have given access to and the names of the resources they have access to." xml:space="preserve">
+  <data name="Grants_ListApplicationsGrants" xml:space="preserve">
     <value>A continuación se muestra la lista de aplicaciones a las que ha dado acceso y los nombres de los recursos a los que tienen acceso.</value>
   </data>
   <data name="Grants_Client logo" xml:space="preserve">
     <value>Logotipo de la aplicación</value>
   </data>
-  <data name="Grants_Created:" xml:space="preserve">
+  <data name="Grants_Created" xml:space="preserve">
     <value>Creado:</value>
   </data>
-  <data name="Grants_Expires on" xml:space="preserve">
+  <data name="Grants_ExpiresOn" xml:space="preserve">
     <value>Expira el</value>
   </data>
   <data name="Grants_Grants" xml:space="preserve">
     <value>Permisos de aplicaciones</value>
   </data>
-  <data name="Grants_Revoke Access" xml:space="preserve">
+  <data name="Grants_RevokeAccess" xml:space="preserve">
     <value>Revocar acceso</value>
   </data>
-  <data name="Grants_You have not provided access to any applications" xml:space="preserve">
+  <data name="Grants_NoAccessGiven" xml:space="preserve">
     <value>No ha dado acceso a ninguna aplicación</value>
   </data>
-  <data name="Home_&lt;strong&gt;Welcome&lt;/strong&gt;&lt;br&gt; to our Digital Services Portal of {0}" xml:space="preserve">
+  <data name="Home_WelcomeMessage" xml:space="preserve">
     <value>&lt;strong&gt;Bienvenido&lt;/strong&gt;&lt;br&gt; al Portal de Servicios Digitales de {0}</value>
   </data>
-  <data name="Home_authorized applications" xml:space="preserve">
+  <data name="Home_authorizedapplications" xml:space="preserve">
     <value>sus aplicaciones autorizadas</value>
   </data>
-  <data name="Home_Check and revoke your" xml:space="preserve">
+  <data name="Home_CheckAndRevoke" xml:space="preserve">
     <value>Revise y revoque sus</value>
   </data>
-  <data name="Home_Digital Services" xml:space="preserve">
+  <data name="Home_DigitalServices" xml:space="preserve">
     <value>Servicios Digitales</value>
   </data>
   <data name="Home_here" xml:space="preserve">
     <value>aquí</value>
   </data>
-  <data name="Home_Manage your grants" xml:space="preserve">
+  <data name="Home_ManageGrants" xml:space="preserve">
     <value>Gestione los accesos de aplicaciones de terceros.</value>
   </data>
-  <data name="Home_Please login to the application" xml:space="preserve">
+  <data name="Home_PleaseLogin" xml:space="preserve">
     <value>Por favor, inicie sesión en la aplicación</value>
   </data>
   <data name="Home_Portal" xml:space="preserve">
     <value>Portal</value>
   </data>
-  <data name="Home_The Identity portal gives you access to all {0} services with one account. A place to manage your user profile and account access settings. Use the links below to get started." xml:space="preserve">
+  <data name="Home_IntroTextWithOrgName" xml:space="preserve">
     <value>El portal de identidad le da acceso a todos los servicios de {0} con una sola cuenta. Un lugar para gestionar su perfil de usuario y la configuración de acceso a la cuenta. Utilice los enlaces a continuación para comenzar.</value>
   </data>
   <data name="Home_Welcome" xml:space="preserve">
     <value>Bienvenido</value>
   </data>
-  <data name="Home_Welcome back" xml:space="preserve">
+  <data name="Home_WelcomeBack" xml:space="preserve">
     <value>Bienvenido de nuevo</value>
   </data>
-  <data name="Home_Welcome to the {0} Digital Services &lt;strong&gt;Portal&lt;/strong&gt;" xml:space="preserve">
+  <data name="Home_WelcomeDigitalServices" xml:space="preserve">
     <value>Bienvenido al &lt;strong&gt;Portal&lt;/strong&gt; de Servicios Digitales de {0}</value>
   </data>
   <data name="LoggedOut_Click" xml:space="preserve">
@@ -546,19 +537,19 @@
   <data name="LoggedOut_Logout" xml:space="preserve">
     <value>Cerrar sesión</value>
   </data>
-  <data name="LoggedOut_to return to the application" xml:space="preserve">
+  <data name="LoggedOut_ReturnToApplication" xml:space="preserve">
     <value>para volver a la aplicación</value>
   </data>
-  <data name="LoggedOut_You are now logged out" xml:space="preserve">
+  <data name="LoggedOut_YouAreLoggedOut" xml:space="preserve">
     <value>Ahora ha cerrado sesión</value>
   </data>
-  <data name="Login_Don't have an account?" xml:space="preserve">
+  <data name="Login_NoAccount" xml:space="preserve">
     <value>¿No tienes una cuenta?</value>
   </data>
-  <data name="Login_Forgot password?" xml:space="preserve">
+  <data name="Login_ForgotPassword" xml:space="preserve">
     <value>¿Olvidaste tu contraseña?</value>
   </data>
-  <data name="Login_Invalid login request" xml:space="preserve">
+  <data name="Login_InvalidLoginRequest" xml:space="preserve">
     <value>Solicitud de inicio de sesión no válida</value>
   </data>
   <data name="Login_Join us" xml:space="preserve">
@@ -573,13 +564,13 @@
   <data name="Login_Password" xml:space="preserve">
     <value>Contraseña</value>
   </data>
-  <data name="Login_Remember me" xml:space="preserve">
+  <data name="Login_RememberMe" xml:space="preserve">
     <value>Recuérdame</value>
   </data>
   <data name="Login_Sign in" xml:space="preserve">
     <value>Iniciar sesión</value>
   </data>
-  <data name="Login_There are no login schemes configured for this client." xml:space="preserve">
+  <data name="Login_NoLoginSchemes" xml:space="preserve">
     <value>No hay esquemas de inicio de sesión configurados para este cliente.</value>
   </data>
   <data name="Login_Username" xml:space="preserve">
@@ -588,34 +579,34 @@
   <data name="Logout_Logout" xml:space="preserve">
     <value>Cerrar sesión</value>
   </data>
-  <data name="Logout_Would you like to logout?" xml:space="preserve">
+  <data name="Logout_WantToLogout" xml:space="preserve">
     <value>Le gustaría cerrar sesión?</value>
   </data>
   <data name="Logout_Yes" xml:space="preserve">
     <value>Sí</value>
   </data>
-  <data name="Mfa_An unexpected error occurred while sending the OTP code." xml:space="preserve">
+  <data name="Mfa_UnexpectedErrorSendingOTPCode" xml:space="preserve">
     <value>Ocurrió un error inesperado al enviar el código OTP.</value>
   </data>
   <data name="Mfa_Authenticate" xml:space="preserve">
     <value>Autenticar</value>
   </data>
-  <data name="Mfa_Authenticate yourself using:" xml:space="preserve">
+  <data name="Mfa_AuthenticateUsing" xml:space="preserve">
     <value>Autentíquese usando:</value>
   </data>
   <data name="Mfa_Back" xml:space="preserve">
     <value>Volver</value>
   </data>
-  <data name="Mfa_Because you've turned on two-step verification, you need to approve request on your mobile app." xml:space="preserve">
+  <data name="Mfa_YouNeedToApproveRequest" xml:space="preserve">
     <value>Debido a que ha activado la verificación en dos pasos, debe aprobar la solicitud en su aplicación móvil.</value>
   </data>
-  <data name="Mfa_I can't use my app right now" xml:space="preserve">
+  <data name="Mfa_CannotUseAppNow" xml:space="preserve">
     <value>No puedo usar mi aplicación en este momento</value>
   </data>
-  <data name="Mfa_I didn't receive the notification/Resend." xml:space="preserve">
+  <data name="Mfa_DidnotReceiveNotification" xml:space="preserve">
     <value>No recibí la notificación/Reenviar.</value>
   </data>
-  <data name="Mfa_I sign in frequently here. Remember this browser." xml:space="preserve">
+  <data name="Mfa_ISignInFrequently" xml:space="preserve">
     <value>Inicio sesión frecuentemente aquí. Recordar este navegador.</value>
   </data>
   <data name="Mfa_Login" xml:space="preserve">
@@ -624,55 +615,55 @@
   <data name="Mfa_Multifactor Authentication" xml:space="preserve">
     <value>Autenticación multifactor</value>
   </data>
-  <data name="Mfa_Other authentication methods..." xml:space="preserve">
+  <data name="Mfa_OtherAuthenticationMethods" xml:space="preserve">
     <value>Otros métodos de autenticación...</value>
   </data>
-  <data name="Mfa_OTP Code" xml:space="preserve">
+  <data name="Mfa_OTPCode" xml:space="preserve">
     <value>Código OTP</value>
   </data>
-  <data name="Mfa_Request denied" xml:space="preserve">
+  <data name="Mfa_RequestDenied" xml:space="preserve">
     <value>Solicitud denegada</value>
   </data>
   <data name="Mfa_Resend" xml:space="preserve">
     <value>Reenviar</value>
   </data>
-  <data name="Mfa_Send another request to my app" xml:space="preserve">
+  <data name="Mfa_SendAnotherRequestToApp" xml:space="preserve">
     <value>Enviar otra solicitud a mi aplicación</value>
   </data>
-  <data name="Mfa_We sent an identity verification request to your mobile device, but you denied it." xml:space="preserve">
+  <data name="Mfa_IdentityVerificationWasDenied" xml:space="preserve">
     <value>Enviamos una solicitud de verificación de identidad a su dispositivo móvil, pero la rechazó.</value>
   </data>
-  <data name="Mfa_We texted your phone {0}. Please enter the code to sign in." xml:space="preserve">
+  <data name="Mfa_WeTextedYourPhone" xml:space="preserve">
     <value>Enviamos un mensaje de texto a su teléfono {0}. Por favor, ingrese el código para iniciar sesión.</value>
   </data>
   <data name="MfaModel_OTP login" xml:space="preserve">
     <value>Inicio de sesión con OTP</value>
   </data>
-  <data name="MfaModel_The OTP code is not valid." xml:space="preserve">
+  <data name="MfaModel_TheOTPIsInvalid." xml:space="preserve">
     <value>El código OTP no es válido.</value>
   </data>
-  <data name="MfaModel_Your OTP code for login is: {0}" xml:space="preserve">
+  <data name="MfaModel_OTPCodeMessage" xml:space="preserve">
     <value>Su código OTP para iniciar sesión es: {0}</value>
   </data>
-  <data name="MfaOnBoarding_Enable MFA" xml:space="preserve">
+  <data name="MfaOnBoarding_EnableMFA" xml:space="preserve">
     <value>Activar MFA</value>
   </data>
-  <data name="MfaOnBoarding_Keep your account safe" xml:space="preserve">
+  <data name="MfaOnBoarding_KeepYourAccountSafe" xml:space="preserve">
     <value>Mantenga su cuenta segura</value>
   </data>
   <data name="MfaOnBoarding_Next" xml:space="preserve">
     <value>Siguiente</value>
   </data>
-  <data name="MfaOnBoarding_Setup an additional authentication method." xml:space="preserve">
+  <data name="MfaOnBoarding_SetupAdditionalAuthenticationMethod" xml:space="preserve">
     <value>Configure un método de autenticación adicional.</value>
   </data>
-  <data name="MfaOnBoardingAddPhone_MFA onboarding - SMS" xml:space="preserve">
+  <data name="MfaOnBoardingAddPhone_MFAΟnboardingSms" xml:space="preserve">
     <value>Incorporación MFA - SMS</value>
   </data>
   <data name="MfaOnBoardingAddPhone_Next" xml:space="preserve">
     <value>Siguiente</value>
   </data>
-  <data name="MfaOnBoardingAddPhone_Phone number" xml:space="preserve">
+  <data name="MfaOnBoardingAddPhone_PhoneNumber" xml:space="preserve">
     <value>Número de teléfono</value>
   </data>
   <data name="MfaOnBoardingAddPhone_Save" xml:space="preserve">
@@ -687,13 +678,13 @@
   <data name="MfaOnBoardingVerifyPhone_Save" xml:space="preserve">
     <value>Guardar</value>
   </data>
-  <data name="MfaOnBoardingVerifyPhone_Verify phone number" xml:space="preserve">
+  <data name="MfaOnBoardingVerifyPhone_VerifyPhoneNumber" xml:space="preserve">
     <value>Verificar número de teléfono</value>
   </data>
-  <data name="PasswordExpired_Change password" xml:space="preserve">
+  <data name="PasswordExpired_ChangePassword" xml:space="preserve">
     <value>Cambiar contraseña</value>
   </data>
-  <data name="PasswordExpired_New password" xml:space="preserve">
+  <data name="PasswordExpired_NewPassword" xml:space="preserve">
     <value>Nueva contraseña</value>
   </data>
   <data name="PasswordExpired_Next" xml:space="preserve">
@@ -702,13 +693,13 @@
   <data name="PasswordExpired_Save" xml:space="preserve">
     <value>Guardar</value>
   </data>
-  <data name="PasswordExpired_Νew password confirmation" xml:space="preserve">
+  <data name="PasswordExpired_ΝewPasswordConfirmation" xml:space="preserve">
     <value>Confirmación de nueva contraseña</value>
   </data>
   <data name="Profile_PreferredLanguage" xml:space="preserve">
     <value>Idioma preferido</value>
   </data>
-  <data name="Profile_A confirmation email has been sent to {0}." xml:space="preserve">
+  <data name="Profile_ConfirmationEmailSentTo" xml:space="preserve">
     <value>Se ha enviado un correo de confirmación a {0}.</value>
   </data>
   <data name="Profile_Manage Profile" xml:space="preserve">
@@ -723,40 +714,40 @@
   <data name="Profile_Timezone" xml:space="preserve">
     <value>Zona horaria</value>
   </data>
-  <data name="Profile_An email has been sent to your new email address in order to confirm it." xml:space="preserve">
+  <data name="Profile_EmailSentToNewEmail" xml:space="preserve">
     <value>Se ha enviado un correo electrónico a su nueva dirección para confirmarla.</value>
   </data>
-  <data name="Profile_Birth date" xml:space="preserve">
+  <data name="Profile_BirthDate" xml:space="preserve">
     <value>Fecha de nacimiento</value>
   </data>
-  <data name="Profile_Calling Code" xml:space="preserve">
+  <data name="Profile_CallingCode" xml:space="preserve">
     <value>Código telefónico</value>
   </data>
   <data name="Profile_Confirmation" xml:space="preserve">
     <value>Confirmación</value>
   </data>
-  <data name="Profile_Confirmation email delivery failed. Please contact system administrator." xml:space="preserve">
+  <data name="Profile_EmailDeliveryFailed" xml:space="preserve">
     <value>El envío del correo de confirmación falló. Por favor, contacte al administrador del sistema.</value>
   </data>
-  <data name="Profile_Connect a new provider" xml:space="preserve">
+  <data name="Profile_ConnectNewProvider" xml:space="preserve">
     <value>Conectar un nuevo proveedor</value>
   </data>
-  <data name="Profile_Developer TOTP" xml:space="preserve">
+  <data name="Profile_DeveloperTOTP" xml:space="preserve">
     <value>TOTP para desarrolladores</value>
   </data>
-  <data name="Profile_Existing providers" xml:space="preserve">
+  <data name="Profile_ExistingProviders" xml:space="preserve">
     <value>Proveedores existentes</value>
   </data>
-  <data name="Profile_External providers" xml:space="preserve">
+  <data name="Profile_ExternalProviders" xml:space="preserve">
     <value>Proveedores externos</value>
   </data>
-  <data name="Profile_First name" xml:space="preserve">
+  <data name="Profile_FirstName" xml:space="preserve">
     <value>Nombre</value>
   </data>
   <data name="Profile_here" xml:space="preserve">
     <value>aquí</value>
   </data>
-  <data name="Profile_I have been informed about the processing of my personal data and I consent to it, as specifically defined" xml:space="preserve">
+  <data name="Profile_InformAboutProcessing" xml:space="preserve">
     <value>He sido informado sobre el tratamiento de mis datos personales y doy mi consentimiento, tal como se define específicamente</value>
   </data>
   <data name="Profile_Language" xml:space="preserve">
@@ -789,10 +780,10 @@
   <data name="Profile_Username" xml:space="preserve">
     <value>Nombre de usuario</value>
   </data>
-  <data name="Profile_Your new email verification is still pending." xml:space="preserve">
+  <data name="Profile_VerificationPending" xml:space="preserve">
     <value>La verificación de su nuevo correo electrónico sigue pendiente.</value>
   </data>
-  <data name="Profile_Your profile was updated successfully." xml:space="preserve">
+  <data name="Profile_ProfileUpdatedSuccessfully" xml:space="preserve">
     <value>Su perfil se actualizó correctamente.</value>
   </data>
   <data name="Redirect_Returning" xml:space="preserve">
@@ -810,43 +801,37 @@
   <data name="Register_Register" xml:space="preserve">
     <value>Registrarse</value>
   </data>
-  <data name="Register_To_register_as_a_new_user_you_will_need_to_fill_in_the_following_information" xml:space="preserve">
+  <data name="Register_FillInInformation" xml:space="preserve">
     <value>Para registrarse como nuevo usuario, deberá completar la siguiente información.</value>
   </data>
-  <data name="Register_Already have an account?" xml:space="preserve">
+  <data name="Register_AlreadyHaveAccount" xml:space="preserve">
     <value>¿Ya tienes una cuenta?</value>
   </data>
-  <data name="Register_Calling Code" xml:space="preserve">
+  <data name="Register_CallingCode" xml:space="preserve">
     <value>Código telefónico</value>
   </data>
-  <data name="Register_Choose a username and a password of your choice. You can periodically change your password or whenever you wish to." xml:space="preserve">
-    <value>Elija un nombre de usuario y una contraseña de su elección. Puede cambiar su contraseña periódicamente o cuando lo desee.</value>
-  </data>
-  <data name="Register_Choose an email and a password of your choice. You can periodically change your password or whenever you wish to." xml:space="preserve">
+  <data name="Register_ChooseEmailAndPassword" xml:space="preserve">
     <value>Elija un correo electrónico y una contraseña de su elección. Puede cambiar su contraseña periódicamente o cuando lo desee.</value>
   </data>
-  <data name="Register_First name" xml:space="preserve">
+  <data name="Register_FirstName" xml:space="preserve">
     <value>Nombre</value>
   </data>
   <data name="Register_here" xml:space="preserve">
     <value>aquí</value>
   </data>
-  <data name="Register_login with" xml:space="preserve">
+  <data name="Register_LoginWith" xml:space="preserve">
     <value>iniciar sesión con</value>
   </data>
-  <data name="Register_I consent to the registration and processing of the above personal details for my contact and service as they are defined" xml:space="preserve">
+  <data name="Register_ConsentToRegistrationAndProcessing" xml:space="preserve">
     <value>He sido informado sobre el tratamiento de mis datos personales y doy mi consentimiento, tal como se define específicamente</value>
   </data>
   <data name="Register_I_Have_Read_And_Accept_Terms" xml:space="preserve">
     <value>He leído y acepto los &lt;a href="/terms" target="_blank"&gt;términos de servicio&lt;/a&gt; y la &lt;a href="/privacy" target="_blank"&gt;política de privacidad&lt;/a&gt;.</value>
   </data>
-  <data name="Register_I consent to the use of my contact information, including my email address, for the purpose of receiving commercial communications, promotional materials, and marketing updates from the organization. I understand that I may withdraw my consent at any time." xml:space="preserve">
-    <value>Doy mi consentimiento para el uso de mi información de contacto, incluida mi dirección de correo electrónico, con el fin de recibir comunicaciones comerciales, materiales promocionales y actualizaciones de marketing de la organización. Entiendo que puedo retirar mi consentimiento en cualquier momento.</value>
-  </data>
-  <data name="Register_Join us" xml:space="preserve">
+  <data name="Register_JoinUs" xml:space="preserve">
     <value>Registrarse</value>
   </data>
-  <data name="Register_Last name" xml:space="preserve">
+  <data name="Register_LastName" xml:space="preserve">
     <value>Apellido</value>
   </data>
   <data name="Register_OR" xml:space="preserve">
@@ -855,13 +840,13 @@
   <data name="Register_Password" xml:space="preserve">
     <value>Contraseña</value>
   </data>
-  <data name="Register_Phone number" xml:space="preserve">
+  <data name="Register_PhoneNumber" xml:space="preserve">
     <value>Número de teléfono</value>
   </data>
   <data name="Register_Sign up" xml:space="preserve">
     <value>Registro de usuario</value>
   </data>
-  <data name="Register_These credentials are personal. Please remember them and do not reveal in any way (i.e orally, written, email) in third parties." xml:space="preserve">
+  <data name="Register_KeepCredentialsPrivateHint" xml:space="preserve">
     <value>Estas credenciales son personales. Por favor, recuérdelas y no las revele de ninguna manera (por ejemplo, oralmente, por escrito, por correo electrónico) a terceros.</value>
   </data>
   <data name="Register_Timezone" xml:space="preserve">
@@ -885,10 +870,25 @@
   <data name="VerifyPhone_Save" xml:space="preserve">
     <value>Guardar</value>
   </data>
-  <data name="VerifyPhone_Verify phone number" xml:space="preserve">
+  <data name="VerifyPhone_VerifyPhoneNumber" xml:space="preserve">
     <value>Verificar número de teléfono</value>
   </data>
   <data name="VerifyPhone_OTP_is_valid_till" xml:space="preserve">
     <value>OTP válido hasta:</value>
+  </data>
+  <data name="Register_ChooseUsernameAndPassword" xml:space="preserve">
+    <value>Elija un nombre de usuario y una contraseña de su elección. Puede cambiar su contraseña periódicamente o cuando lo desee.</value>
+  </data>
+  <data name="Register_ConsentToContactUsage" xml:space="preserve">
+    <value>Doy mi consentimiento para el uso de mi información de contacto, incluida mi dirección de correo electrónico, con el fin de recibir comunicaciones comerciales, materiales promocionales y actualizaciones de marketing de la organización. Entiendo que puedo retirar mi consentimiento en cualquier momento.</value>
+  </data>
+  <data name="ForgotPassword_ResetInstructions" xml:space="preserve">
+    <value>Para restablecer su contraseña, ingrese su nombre de usuario o correo electrónico a continuación. Luego le enviaremos un correo electrónico con un enlace para restablecer su contraseña.</value>
+  </data>
+  <data name="ForgotPassword_Request sent" xml:space="preserve">
+    <value>Solicitud enviada</value>
+  </data>
+  <data name="Error_Oops" xml:space="preserve">
+    <value>¡Vaya! Parece que hemos encontrado un error.</value>
   </data>
 </root>

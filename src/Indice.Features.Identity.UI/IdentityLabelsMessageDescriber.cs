@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Resources;
-using System.Text;
-using System.Threading.Tasks;
-using Indice.Features.Identity.UI;
-using Org.BouncyCastle.Pqc.Crypto.Lms;
-using static System.Collections.Specialized.BitVector32;
+﻿using System.Globalization;
 
 
 namespace Indice.Features.Identity.UI;
@@ -38,7 +29,7 @@ public class IdentityLabelsMessageDescriber
     public virtual string AddEmail_Save => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddEmail_Save);
 
     /// <summary>Instruction message prompting the user to verify their email.</summary>
-    public virtual string AddEmail_Verify_email => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddEmail_Verify_email);
+    public virtual string AddEmail_Verify_email => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddEmail_VerifyEmail);
     #endregion
 
     #region AddPassword
@@ -176,7 +167,7 @@ public class IdentityLabelsMessageDescriber
     /// <summary>Gets the label text displaying the application name.</summary>
     public virtual string Consent_App => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Consent_app);
     /// <summary>Gets the label for the Application Access section.</summary>
-    public virtual string Consent_Application_Access => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Consent_Application_Access);
+    public virtual string Consent_Application_Access => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Consent_ApplicationAccess);
     /// <summary>Gets the label text for the Cancel action.</summary>
     public virtual string Consent_Cancel => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Consent_Cancel);
     /// <summary>Gets the label text for the Code input field.</summary>
@@ -184,23 +175,23 @@ public class IdentityLabelsMessageDescriber
     /// <summary>Gets the label text for the Consent action.</summary>
     public virtual string Consent_Consent => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Consent_Consent);
     /// <summary>Gets the label text for personal information section.</summary>
-    public virtual string Consent_Personal_Information => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Consent_Personal_Information);
+    public virtual string Consent_Personal_Information => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Consent_PersonalInformation);
     /// <summary>Gets the label text for the Remember My Decision checkbox.</summary>
-    public virtual string Consent_Remember_My_Decision => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Consent_Remember_My_Decision);
+    public virtual string Consent_Remember_My_Decision => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Consent_RememberMyDecision);
     /// <summary>Gets the label text for the Security Code input field.</summary>
-    public virtual string Consent_Security_Code => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Consent_Security_code);
+    public virtual string Consent_Security_Code => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Consent_SecurityCode);
     /// <summary>Gets the label text for the Send action.</summary>
     public virtual string Consent_Send => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Consent_send);
     /// <summary>Gets the label text for the Permissions section title.</summary>
     public virtual string Consent_This => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Consent_This);
     /// <summary>Gets the text indicating what the current app would like to access.</summary>
-    public virtual string Consent_This_App_Would_Like_To => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Consent_This_app_would_like_to);
+    public virtual string Consent_This_App_Would_Like_To => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Consent_ThisAppWouldLikeTo);
     /// <summary>Gets the text describing access to the user's phone.</summary>
-    public virtual string Consent_To_Your_Phone => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Consent_to_your_phone);
+    public virtual string Consent_To_Your_Phone => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Consent_ToYourPhone);
     /// <summary>Gets the instruction to uncheck permissions the user does not wish to grant.</summary>
-    public virtual string Consent_Uncheck_The_Permissions_You_Do_Not_Wish_To_Grant => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Consent_Uncheck_the_permissions_you_do_not_wish_to_grant_);
+    public virtual string Consent_Uncheck_The_Permissions_You_Do_Not_Wish_To_Grant => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Consent_UncheckPermissions);
     /// <summary>Gets the text indicating the app’s request for permission.</summary>
-    public virtual string Consent_Would_Like_To => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Consent_would_like_to);
+    public virtual string Consent_Would_Like_To => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Consent_WouldLikeTo);
     #endregion
 
     #region Email
@@ -312,14 +303,14 @@ public class IdentityLabelsMessageDescriber
     public virtual string Error_Go_back_home => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Error_Go_back_home);
 
     /// <summary>Gets the title text for the Error page.</summary>
-    public virtual string Error_Oops_Seems_We_Encountered_An_Error => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Error_Oops__Seems_we_encountered_an_error_);
+    public virtual string Error_Oops_Seems_We_Encountered_An_Error => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Error_Oops);
     /// <summary>Gets the label text displaying the request ID for error tracking.</summary>
     public virtual string Error_Request_Id => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Error_Request_Id);
     #endregion
 
     #region ForgotPassword
     /// <summary>Gets the title text for the Forgot Password page.</summary>
-    public virtual string ForgotPassword_Forgot_Password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPassword_Forgot_password);
+    public virtual string ForgotPassword_Forgot_Password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPassword_ForgotPassword);
     /// <summary>Gets the message indicating that a password reset request has been sent successfully.</summary>
     public virtual string ForgotPassword_Request_Sent => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPassword_Request_sent);
     /// <summary>Gets the label text for resending the password reset email.</summary>
@@ -327,7 +318,7 @@ public class IdentityLabelsMessageDescriber
     /// <summary>Gets the label text for the Send button on the Forgot Password page.</summary>
     public virtual string ForgotPassword_Send => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPassword_Send);
     /// <summary>Gets the instructional text guiding the user to enter their username or email to receive a password reset link.</summary>
-    public virtual string ForgotPassword_To_Have_Your_Password_Reset_Enter_Your_Username_Or_Email_Address_Below_We_Will_Then_Send_An_Email_Containing_A_Link_To_Reset_Your_Password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPassword_To_have_your_password_reset__enter_your_username_or_email_address_below__We_will_then_send_an_email_containing_a_link_to_reset_your_password_);
+    public virtual string ForgotPassword_ResetInstructions => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPassword_ResetInstructions);
     /// <summary>Gets the label text for the Email or Username input field.</summary>
     public virtual string ForgotPassword_Username => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPassword_Username);
     #endregion
@@ -354,63 +345,63 @@ public class IdentityLabelsMessageDescriber
 
     #region ForgotPasswordConfirmation
     /// <summary>Gets the title text for the Forgot Password Confirmation page.</summary>
-    public virtual string ForgotPasswordConfirmation_Forgot_Password_Confirmation => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPasswordConfirmation_Forgot_Password_Confirmation);
+    public virtual string ForgotPasswordConfirmation_Forgot_Password_Confirmation => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPasswordConfirmation_PasswordConfirmation);
     /// <summary>Gets the instruction text prompting the user to enter a new password.</summary>
     public virtual string ForgotPasswordConfirmation_New_Password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPasswordConfirmation_New_Password);
     /// <summary>Gets the message indicating that the password has been successfully changed.</summary>
-    public virtual string ForgotPasswordConfirmation_Password_Changed => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPasswordConfirmation_Password_changed);
+    public virtual string ForgotPasswordConfirmation_Password_Changed => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPasswordConfirmation_PasswordChanged);
     /// <summary>Gets the instruction text asking the user to log in using their new password. Includes a link for login.</summary>
     /// <param name="callbackUrl">The URL to the login page.</param>
-    public virtual string ForgotPasswordConfirmation_Please_Login_With_Your_New_Password(string callbackUrl) => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPasswordConfirmation_Please_fill_in_your_new_password, callbackUrl);
+    public virtual string ForgotPasswordConfirmation_Please_Login_With_Your_New_Password(string callbackUrl) => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPasswordConfirmation_LoginLink, callbackUrl);
     /// <summary>Gets the label prompting the user to fill in their new password.</summary>
-    public virtual string ForgotPasswordConfirmation_Please_Fill_In_Your_New_Password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPasswordConfirmation_Please_fill_in_your_new_password);
+    public virtual string ForgotPasswordConfirmation_Please_Fill_In_Your_New_Password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPasswordConfirmation_FillNewPassword);
     /// <summary>Gets the text for the "Send" button on the Forgot Password Confirmation page.</summary>
     public virtual string ForgotPasswordConfirmation_Send => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPasswordConfirmation_Send);
     #endregion
 
     #region Grants
     /// <summary>Gets the header text for the Grants page listing authorized applications and resources.</summary>
-    public virtual string Grants_Applications_And_Resources => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Grants_Below_is_the_list_of_applications_you_have_given_access_to_and_the_names_of_the_resources_they_have_access_to_);
+    public virtual string Grants_Applications_And_Resources => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Grants_ListApplicationsGrants);
     /// <summary>Gets the label text for the client logo.</summary>
     public virtual string Grants_Client_Logo => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Grants_Client_logo);
     /// <summary>Gets the label text indicating when a grant was created.</summary>
-    public virtual string Grants_Created => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Grants_Created_);
+    public virtual string Grants_Created => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Grants_Created);
     /// <summary>Gets the label text indicating when a grant expires.</summary>
-    public virtual string Grants_Expires_On => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Grants_Expires_on);
+    public virtual string Grants_Expires_On => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Grants_ExpiresOn);
     /// <summary>Gets the label text for the grants section.</summary>
     public virtual string Grants_Grants => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Grants_Grants);
     /// <summary>Gets the text for the action to revoke access from an application or resource.</summary>
-    public virtual string Grants_Revoke_Access => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Grants_Revoke_Access);
+    public virtual string Grants_Revoke_Access => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Grants_RevokeAccess);
     /// <summary>Gets the message displayed when no applications have been granted access.</summary>
-    public virtual string Grants_No_Applications_Provided => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Grants_You_have_not_provided_access_to_any_applications);
+    public virtual string Grants_No_Applications_Provided => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Grants_NoAccessGiven);
     #endregion
 
 
     #region Home
     /// <summary>Title of the Home page.</summary>
-    public virtual string Home_Welcome_Portal_Of(string portalName) => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Home__strong_Welcome__strong__br__to_our_Digital_Services_Portal_of__0_, portalName);
+    public virtual string Home_Welcome_Portal_Of(string portalName) => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Home_WelcomeMessage, portalName);
     /// <summary>Instruction message on the Home page.</summary>
-    public virtual string Home_Authorized_Applications => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Home_authorized_applications);
+    public virtual string Home_Authorized_Applications => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Home_authorizedapplications);
     /// <summary>Instruction message on the Home page.</summary>
-    public virtual string Home_Check_And_Revoke_Your => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Home_Check_and_revoke_your);
+    public virtual string Home_Check_And_Revoke_Your => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Home_CheckAndRevoke);
     /// <summary>Instruction message on the Home page.</summary>
-    public virtual string Home_Digital_Services => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Home_Digital_Services);
+    public virtual string Home_Digital_Services => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Home_DigitalServices);
     /// <summary>Instruction message on the Home page.</summary>
     public virtual string Home_Here => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Home_here);
     /// <summary>Instruction message on the Home page.</summary>
-    public virtual string Home_Manage_Your_Grants => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Home_Manage_your_grants);
+    public virtual string Home_Manage_Your_Grants => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Home_ManageGrants);
     /// <summary>Instruction message on the Home page.</summary>
-    public virtual string Home_Please_Login_To_The_Application => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Home_Please_login_to_the_application);
+    public virtual string Home_Please_Login_To_The_Application => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Home_PleaseLogin);
     /// <summary>Instruction message on the Home page.</summary>
     public virtual string Home_Portal => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Home_Portal);
     /// <summary>Instruction message on the Home page.</summary>
-    public virtual string Home_Identity_Portal_Info(string serviceName) => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Home_The_Identity_portal_gives_you_access_to_all__0__services_with_one_account__A_place_to_manage_your_user_profile_and_account_access_settings__Use_the_links_below_to_get_started_, serviceName);
+    public virtual string Home_Identity_Portal_Info(string serviceName) => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Home_IntroTextWithOrgName, serviceName);
     /// <summary>Instruction message on the Home page.</summary>
     public virtual string Home_Welcome => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Home_Welcome);
     /// <summary>Instruction message on the Home page.</summary>
-    public virtual string Home_Welcome_Back => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Home_Welcome_back);
+    public virtual string Home_Welcome_Back => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Home_WelcomeBack);
     /// <summary>Instruction message on the Home page.</summary>
-    public virtual string Home_Welcome_To_The_Digital_Services_Portal(string serviceName) => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Home_Welcome_to_the__0__Digital_Services__strong_Portal__strong_, serviceName);
+    public virtual string Home_Welcome_To_The_Digital_Services_Portal(string serviceName) => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Home_WelcomeDigitalServices, serviceName);
     #endregion
 
     #region LoggedOut
@@ -421,9 +412,9 @@ public class IdentityLabelsMessageDescriber
     /// <summary>Instruction message on the Logged Out page.</summary>
     public virtual string LoggedOut_Logout => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.LoggedOut_Logout);
     /// <summary>Instruction message on the Logged Out page.</summary>
-    public virtual string LoggedOut_To_Return_To_The_Application => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.LoggedOut_to_return_to_the_application);
+    public virtual string LoggedOut_To_Return_To_The_Application => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.LoggedOut_ReturnToApplication);
     /// <summary>Success message when the user has been logged out.</summary>
-    public virtual string LoggedOut_You_Are_Now_Logged_Out => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.LoggedOut_You_are_now_logged_out);
+    public virtual string LoggedOut_You_Are_Now_Logged_Out => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.LoggedOut_YouAreLoggedOut);
     #endregion
 
     #region Login
@@ -431,17 +422,17 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "Don't have an account?" on the Login page.
     /// </summary>
-    public virtual string Login_Dont_Have_An_Account => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Login_Don_t_have_an_account_);
+    public virtual string Login_Dont_Have_An_Account => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Login_NoAccount);
 
     /// <summary>
     ///   Gets the localized string for "Forgot Password" instruction on the Login page.
     /// </summary>
-    public virtual string Login_Forgot_Password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Login_Forgot_password_);
+    public virtual string Login_Forgot_Password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Login_ForgotPassword);
 
     /// <summary>
     ///   Gets the localized string for "Invalid login request" instruction on the Login page.
     /// </summary>
-    public virtual string Login_Invalid_Login_Request => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Login_Invalid_login_request);
+    public virtual string Login_Invalid_Login_Request => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Login_InvalidLoginRequest);
 
     /// <summary>
     ///   Gets the localized string for "Join Us" instruction on the Login page.
@@ -467,7 +458,7 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "Remember me" option.
     /// </summary>
-    public virtual string Login_Remember_Me => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Login_Remember_me);
+    public virtual string Login_Remember_Me => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Login_RememberMe);
 
     /// <summary>
     ///   Gets the localized string for "Sign In" button.
@@ -477,7 +468,7 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "No login schemes configured" message.
     /// </summary>
-    public virtual string Login_No_Login_Schemes_Configured => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Login_There_are_no_login_schemes_configured_for_this_client_);
+    public virtual string Login_No_Login_Schemes_Configured => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Login_NoLoginSchemes);
 
     /// <summary>
     ///   Gets the localized string for "Username" label.
@@ -496,7 +487,7 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for the confirmation message "Would you like to logout?".
     /// </summary>
-    public virtual string Logout_Would_You_Like_To_Logout => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Logout_Would_you_like_to_logout_);
+    public virtual string Logout_Would_You_Like_To_Logout => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Logout_WantToLogout);
 
     /// <summary>
     ///   Gets the localized string for "Yes" button on the logout confirmation dialog.
@@ -512,7 +503,7 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "An unexpected error occurred while sending the OTP code".
     /// </summary>
-    public virtual string Mfa_An_Unexpected_Error_Occurred_While_Sending_The_OTP_Code => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_An_unexpected_error_occurred_while_sending_the_OTP_code_);
+    public virtual string Mfa_An_Unexpected_Error_Occurred_While_Sending_The_OTP_Code => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_UnexpectedErrorSendingOTPCode);
 
     /// <summary>
     ///   Gets the localized string for "Authenticate".
@@ -522,7 +513,7 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "Authenticate yourself using...".
     /// </summary>
-    public virtual string Mfa_Authenticate_Yourself_Using => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_Authenticate_yourself_using_);
+    public virtual string Mfa_Authenticate_Yourself_Using => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_AuthenticateUsing);
 
     /// <summary>
     ///   Gets the localized string for "Back".
@@ -532,22 +523,22 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "Because you've turned on two-step verification, you need to approve request on your mobile app".
     /// </summary>
-    public virtual string Mfa_Because_Youve_Turned_On_Two_Step_Verification_You_Need_To_Approve_Request_On_Your_Mobile_App => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_Because_you_ve_turned_on_two_step_verification__you_need_to_approve_request_on_your_mobile_app_);
+    public virtual string Mfa_Because_Youve_Turned_On_Two_Step_Verification_You_Need_To_Approve_Request_On_Your_Mobile_App => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_YouNeedToApproveRequest);
 
     /// <summary>
     ///   Gets the localized string for "I can't use my app right now".
     /// </summary>
-    public virtual string Mfa_I_Cant_Use_My_App_Right_Now => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_I_can_t_use_my_app_right_now);
+    public virtual string Mfa_I_Cant_Use_My_App_Right_Now => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_CannotUseAppNow);
 
     /// <summary>
     ///   Gets the localized string for "I didn't receive the notification. Resend".
     /// </summary>
-    public virtual string Mfa_I_Didnt_Receive_The_Notification_Resend => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_I_didn_t_receive_the_notification_Resend_);
+    public virtual string Mfa_I_Didnt_Receive_The_Notification_Resend => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_DidnotReceiveNotification);
 
     /// <summary>
     ///   Gets the localized string for "I sign in frequently here. Remember this browser".
     /// </summary>
-    public virtual string Mfa_I_Sign_In_Frequently_Here_Remember_This_Browser => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_I_sign_in_frequently_here__Remember_this_browser_);
+    public virtual string Mfa_I_Sign_In_Frequently_Here_Remember_This_Browser => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_ISignInFrequently);
 
     /// <summary>
     ///   Gets the localized string for "Login".
@@ -562,17 +553,17 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "Other authentication methods...".
     /// </summary>
-    public virtual string Mfa_Other_Authentication_Methods => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_Other_authentication_methods___);
+    public virtual string Mfa_Other_Authentication_Methods => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_OtherAuthenticationMethods);
 
     /// <summary>
     ///   Gets the localized string for "OTP Code".
     /// </summary>
-    public virtual string Mfa_OTP_Code => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_OTP_Code);
+    public virtual string Mfa_OTP_Code => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_OTPCode);
 
     /// <summary>
     ///   Gets the localized string for "Request denied".
     /// </summary>
-    public virtual string Mfa_Request_Denied => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_Request_denied);
+    public virtual string Mfa_Request_Denied => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_RequestDenied);
 
     /// <summary>
     ///   Gets the localized string for "Resend".
@@ -582,17 +573,17 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "Send another request to my app".
     /// </summary>
-    public virtual string Mfa_Send_Another_Request_To_My_App => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_Send_another_request_to_my_app);
+    public virtual string Mfa_Send_Another_Request_To_My_App => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_SendAnotherRequestToApp);
 
     /// <summary>
     ///   Gets the localized string for "We sent an identity verification request to your mobile device, but you denied it".
     /// </summary>
-    public virtual string Mfa_We_Sent_An_Identity_Verification_Request_To_Your_Mobile_Device_But_You_Denied_It => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_We_sent_an_identity_verification_request_to_your_mobile_device__but_you_denied_it_);
+    public virtual string Mfa_We_Sent_An_Identity_Verification_Request_To_Your_Mobile_Device_But_You_Denied_It => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_IdentityVerificationWasDenied);
 
     /// <summary>
     ///   Gets the localized string for "We texted your phone {0}. Please enter the code to sign in" with a phone number parameter.
     /// </summary>
-    public virtual string Mfa_We_Texted_Your_Phone(string phoneNumber) => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_We_texted_your_phone__0___Please_enter_the_code_to_sign_in_, phoneNumber);
+    public virtual string Mfa_We_Texted_Your_Phone(string phoneNumber) => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_WeTextedYourPhone, phoneNumber);
 
     #endregion
 
@@ -607,12 +598,12 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "The OTP code is not valid."
     /// </summary>
-    public virtual string MfaModel_The_OTP_Code_Is_Not_Valid => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaModel_The_OTP_code_is_not_valid_);
+    public virtual string MfaModel_The_OTP_Code_Is_Not_Valid => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaModel_TheOTPIsInvalid_);
 
     /// <summary>
     ///   Gets the localized string for "Your OTP code for login is: {0}" with a code parameter.
     /// </summary>
-    public virtual string MfaModel_Your_OTP_Code_For_Login(string code) => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaModel_Your_OTP_code_for_login_is___0_, code);
+    public virtual string MfaModel_Your_OTP_Code_For_Login(string code) => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaModel_OTPCodeMessage, code);
 
     #endregion
 
@@ -621,12 +612,12 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "Enable MFA".
     /// </summary>
-    public virtual string MfaOnBoarding_Enable_MFA => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoarding_Enable_MFA);
+    public virtual string MfaOnBoarding_Enable_MFA => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoarding_EnableMFA);
 
     /// <summary>
     ///   Gets the localized string for "Keep your account safe".
     /// </summary>
-    public virtual string MfaOnBoarding_Keep_Your_Account_Safe => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoarding_Keep_your_account_safe);
+    public virtual string MfaOnBoarding_Keep_Your_Account_Safe => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoarding_KeepYourAccountSafe);
 
     /// <summary>
     ///   Gets the localized string for "Next".
@@ -636,7 +627,7 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "Setup an additional authentication method".
     /// </summary>
-    public virtual string MfaOnBoarding_Setup_An_Additional_Authentication_Method => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoarding_Setup_an_additional_authentication_method_);
+    public virtual string MfaOnBoarding_Setup_An_Additional_Authentication_Method => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoarding_SetupAdditionalAuthenticationMethod);
 
     #endregion
 
@@ -645,7 +636,7 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "MFA onboarding - SMS".
     /// </summary>
-    public virtual string MfaOnBoardingAddPhone_MFA_Onboarding_SMS => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingAddPhone_MFA_onboarding___SMS);
+    public virtual string MfaOnBoardingAddPhone_MFA_Onboarding_SMS => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingAddPhone_MFAΟnboardingSms);
 
     /// <summary>
     ///   Gets the localized string for "Next".
@@ -655,7 +646,7 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "Phone number".
     /// </summary>
-    public virtual string MfaOnBoardingAddPhone_Phone_Number => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingAddPhone_Phone_number);
+    public virtual string MfaOnBoardingAddPhone_Phone_Number => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingAddPhone_PhoneNumber);
 
     /// <summary>
     ///   Gets the localized string for "Save".
@@ -686,7 +677,7 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "Verify phone number".
     /// </summary>
-    public virtual string MfaOnBoardingVerifyPhone_Verify_Phone_Number => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingVerifyPhone_Verify_phone_number);
+    public virtual string MfaOnBoardingVerifyPhone_Verify_Phone_Number => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingVerifyPhone_VerifyPhoneNumber);
 
     #endregion
 
@@ -695,12 +686,12 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "Change password".
     /// </summary>
-    public virtual string PasswordExpired_Change_Password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.PasswordExpired_Change_password);
+    public virtual string PasswordExpired_Change_Password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.PasswordExpired_ChangePassword);
 
     /// <summary>
     ///   Gets the localized string for "New password".
     /// </summary>
-    public virtual string PasswordExpired_New_Password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.PasswordExpired_New_password);
+    public virtual string PasswordExpired_New_Password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.PasswordExpired_NewPassword);
 
     /// <summary>
     ///   Gets the localized string for "Next".
@@ -715,7 +706,7 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "New password confirmation".
     /// </summary>
-    public virtual string PasswordExpired_New_Password_Confirmation => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.PasswordExpired_Νew_password_confirmation);
+    public virtual string PasswordExpired_New_Password_Confirmation => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.PasswordExpired_ΝewPasswordConfirmation);
 
     #endregion
 
@@ -731,7 +722,7 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "A confirmation email has been sent to {0}.".
     /// </summary>
-    public virtual string Profile_A_Confirmation_Email_Has_Been_Sent_To_0(string email) => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_A_confirmation_email_has_been_sent_to__0__, email);
+    public virtual string Profile_A_Confirmation_Email_Has_Been_Sent_To_0(string email) => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_ConfirmationEmailSentTo, email);
 
     /// <summary>
     /// Label for Manage Profile action.
@@ -756,17 +747,17 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "An email has been sent to your new email address in order to confirm it.".
     /// </summary>
-    public virtual string Profile_An_Email_Has_Been_Sent_To_Your_New_Email_Address_In_Order_To_Confirm_It => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_An_email_has_been_sent_to_your_new_email_address_in_order_to_confirm_it_);
+    public virtual string Profile_An_Email_Has_Been_Sent_To_Your_New_Email_Address_In_Order_To_Confirm_It => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_EmailSentToNewEmail);
 
     /// <summary>
     ///   Gets the localized string for "Birth date".
     /// </summary>
-    public virtual string Profile_Birth_Date => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_Birth_date);
+    public virtual string Profile_Birth_Date => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_BirthDate);
 
     /// <summary>
     ///   Gets the localized string for "Calling Code".
     /// </summary>
-    public virtual string Profile_Calling_Code => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_Calling_Code);
+    public virtual string Profile_Calling_Code => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_CallingCode);
 
     /// <summary>
     ///   Gets the localized string for "Confirmation".
@@ -776,32 +767,32 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "Confirmation email delivery failed. Please contact system administrator.".
     /// </summary>
-    public virtual string Profile_Confirmation_Email_Delivery_Failed_Please_Contact_System_Administrator => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_Confirmation_email_delivery_failed__Please_contact_system_administrator_);
+    public virtual string Profile_Confirmation_Email_Delivery_Failed_Please_Contact_System_Administrator => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_EmailDeliveryFailed);
 
     /// <summary>
     ///   Gets the localized string for "Connect a new provider".
     /// </summary>
-    public virtual string Profile_Connect_A_New_Provider => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_Connect_a_new_provider);
+    public virtual string Profile_Connect_A_New_Provider => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_ConnectNewProvider);
 
     /// <summary>
     ///   Gets the localized string for "Developer TOTP".
     /// </summary>
-    public virtual string Profile_Developer_TOTP => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_Developer_TOTP);
+    public virtual string Profile_Developer_TOTP => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_DeveloperTOTP);
 
     /// <summary>
     ///   Gets the localized string for "Existing providers".
     /// </summary>
-    public virtual string Profile_Existing_Providers => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_Existing_providers);
+    public virtual string Profile_Existing_Providers => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_ExistingProviders);
 
     /// <summary>
     ///   Gets the localized string for "External providers".
     /// </summary>
-    public virtual string Profile_External_Providers => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_External_providers);
+    public virtual string Profile_External_Providers => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_ExternalProviders);
 
     /// <summary>
     ///   Gets the localized string for "First name".
     /// </summary>
-    public virtual string Profile_First_Name => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_First_name);
+    public virtual string Profile_First_Name => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_FirstName);
 
     /// <summary>
     ///   Gets the localized string for "here".
@@ -811,7 +802,7 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "I have been informed about the processing of my personal data and I consent to it, as specifically defined".
     /// </summary>
-    public virtual string Profile_I_Have_Been_Informed_About_The_Processing_Of_My_Personal_Data_And_I_Consent_To_It_As_Specifically_Defined => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_I_have_been_informed_about_the_processing_of_my_personal_data_and_I_consent_to_it__as_specifically_defined);
+    public virtual string Profile_I_Have_Been_Informed_About_The_Processing_Of_My_Personal_Data_And_I_Consent_To_It_As_Specifically_Defined => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_InformAboutProcessing);
 
     /// <summary>
     ///   Gets the localized string for "Language".
@@ -866,12 +857,12 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "Your new email verification is still pending.".
     /// </summary>
-    public virtual string Profile_Your_New_Email_Verification_Is_Still_Pending => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_Your_new_email_verification_is_still_pending_);
+    public virtual string Profile_Your_New_Email_Verification_Is_Still_Pending => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_VerificationPending);
 
     /// <summary>
     ///   Gets the localized string for "Your profile was updated successfully.".
     /// </summary>
-    public virtual string Profile_Your_Profile_Was_Updated_Successfully => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_Your_profile_was_updated_successfully_);
+    public virtual string Profile_Your_Profile_Was_Updated_Successfully => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_ProfileUpdatedSuccessfully);
 
     #endregion
 
@@ -927,32 +918,32 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     /// Instruction shown at the top of the registration form explaining what the user needs to do.
     /// </summary>
-    public virtual string Register_To_register_as_a_new_user_you_will_need_to_fill_in_the_following_information =>  string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_To_register_as_a_new_user_you_will_need_to_fill_in_the_following_information);
+    public virtual string Register_To_register_as_a_new_user_you_will_need_to_fill_in_the_following_information =>  string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_FillInInformation);
 
     /// <summary>
     ///   Gets the localized string for "Already have an account?".
     /// </summary>
-    public virtual string Register_Already_Have_An_Account => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Already_have_an_account_);
+    public virtual string Register_Already_Have_An_Account => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_AlreadyHaveAccount);
 
     /// <summary>
     ///   Gets the localized string for "Calling Code".
     /// </summary>
-    public virtual string Register_Calling_Code => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Calling_Code);
+    public virtual string Register_Calling_Code => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_CallingCode);
 
     /// <summary>
     ///   Gets the localized string for "Choose a username and a password of your choice. You can periodically change your password or whenever you wish to.".
     /// </summary>
-    public virtual string Register_Choose_A_Username_And_A_Password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Choose_a_username_and_a_password_of_your_choice__You_can_periodically_change_your_password_or_whenever_you_wish_to_);
+    public virtual string Register_Choose_A_Username_And_A_Password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_ChooseUsernameAndPassword);
 
     /// <summary>
     ///   Gets the localized string for "Choose an email and a password of your choice. You can periodically change your password or whenever you wish to.".
     /// </summary>
-    public virtual string Register_Choose_An_Email_And_A_Password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Choose_an_email_and_a_password_of_your_choice__You_can_periodically_change_your_password_or_whenever_you_wish_to_);
+    public virtual string Register_Choose_An_Email_And_A_Password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_ChooseEmailAndPassword);
 
     /// <summary>
     ///   Gets the localized string for "First name".
     /// </summary>
-    public virtual string Register_First_Name => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_First_name);
+    public virtual string Register_First_Name => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_FirstName);
 
     /// <summary>
     ///   Gets the localized string for "here".
@@ -962,27 +953,27 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     /// Text for "login with" label on Register page.
     /// </summary>
-    public virtual string Register_login_with => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_login_with);
+    public virtual string Register_login_with => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_LoginWith);
 
     /// <summary>
     ///   Gets the localized string for "I consent to the registration and processing of the above personal details for my contact and service as they are defined".
     /// </summary>
-    public virtual string Register_I_Consent_To_Registration => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_I_consent_to_the_registration_and_processing_of_the_above_personal_details_for_my_contact_and_service_as_they_are_defined);
+    public virtual string Register_I_Consent_To_Registration => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_ConsentToRegistrationAndProcessing);
 
     /// <summary>
     ///   Gets the localized string for "I consent to the use of my contact information, including my email address, for the purpose of receiving commercial communications, promotional materials, and marketing updates from the organization. I understand that I may withdraw my consent at any time".
     /// </summary>
-    public virtual string Register_I_Consent_To_Contact_Usage => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_I_consent_to_the_use_of_my_contact_information__including_my_email_address__for_the_purpose_of_receiving_commercial_communications__promotional_materials__and_marketing_updates_from_the_organization__I_understand_that_I_may_withdraw_my_consent_at_any_time_);
+    public virtual string Register_I_Consent_To_Contact_Usage => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_ConsentToContactUsage);
 
     /// <summary>
     ///   Gets the localized string for "Join us".
     /// </summary>
-    public virtual string Register_Join_Us => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Join_us);
+    public virtual string Register_Join_Us => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_JoinUs);
 
     /// <summary>
     ///   Gets the localized string for "Last name".
     /// </summary>
-    public virtual string Register_Last_Name => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Last_name);
+    public virtual string Register_Last_Name => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_LastName);
 
     /// <summary>
     ///   Gets the localized string for "OR".
@@ -997,7 +988,7 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "Phone number".
     /// </summary>
-    public virtual string Register_Phone_number => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Phone_number);
+    public virtual string Register_Phone_number => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_PhoneNumber);
 
     /// <summary>
     ///   Gets the localized string for "Sign up".
@@ -1007,7 +998,7 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "These credentials are personal. Please remember them and do not reveal in any way (i.e orally, written, email) in third parties".
     /// </summary>
-    public virtual string Register_Credentials_Notice => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_These_credentials_are_personal__Please_remember_them_and_do_not_reveal_in_any_way__i_e_orally__written__email__in_third_parties_);
+    public virtual string Register_Credentials_Notice => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_KeepCredentialsPrivateHint);
 
     /// <summary>
     ///   Gets the localized string for "Timezone".
@@ -1056,7 +1047,7 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "Verify phone number".
     /// </summary>
-    public virtual string VerifyPhone_Verify_Phone_Number => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.VerifyPhone_Verify_phone_number);
+    public virtual string VerifyPhone_Verify_Phone_Number => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.VerifyPhone_VerifyPhoneNumber);
 
     /// <summary>
     /// Text for "OTP is valid till:" label on the Verify Phone page.
