@@ -103,10 +103,11 @@ export interface IMessagesApiClient {
      * @param recipientId (optional) 
      * @param email (optional) 
      * @param phoneNumber (optional) 
+     * @param anonymous (optional) 
      * @param resolve (optional) 
      * @return OK
      */
-    getContacts(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, distributionListId?: string | undefined, recipientId?: string | undefined, email?: string | undefined, phoneNumber?: string | undefined, resolve?: boolean | undefined): Observable<ContactResultSet>;
+    getContacts(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, distributionListId?: string | undefined, recipientId?: string | undefined, email?: string | undefined, phoneNumber?: string | undefined, anonymous?: boolean | undefined, resolve?: boolean | undefined): Observable<ContactResultSet>;
     /**
      * Creates a new contact in the store.
      * @return OK
@@ -1472,10 +1473,11 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @param recipientId (optional) 
      * @param email (optional) 
      * @param phoneNumber (optional) 
+     * @param anonymous (optional) 
      * @param resolve (optional) 
      * @return OK
      */
-    getContacts(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, distributionListId?: string | undefined, recipientId?: string | undefined, email?: string | undefined, phoneNumber?: string | undefined, resolve?: boolean | undefined): Observable<ContactResultSet> {
+    getContacts(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, distributionListId?: string | undefined, recipientId?: string | undefined, email?: string | undefined, phoneNumber?: string | undefined, anonymous?: boolean | undefined, resolve?: boolean | undefined): Observable<ContactResultSet> {
         let url_ = this.baseUrl + "/contacts?";
         if (page === null)
             throw new globalThis.Error("The parameter 'page' cannot be null.");
@@ -1509,6 +1511,10 @@ export class MessagesApiClient implements IMessagesApiClient {
             throw new globalThis.Error("The parameter 'phoneNumber' cannot be null.");
         else if (phoneNumber !== undefined)
             url_ += "PhoneNumber=" + encodeURIComponent("" + phoneNumber) + "&";
+        if (anonymous === null)
+            throw new globalThis.Error("The parameter 'anonymous' cannot be null.");
+        else if (anonymous !== undefined)
+            url_ += "Anonymous=" + encodeURIComponent("" + anonymous) + "&";
         if (resolve === null)
             throw new globalThis.Error("The parameter 'resolve' cannot be null.");
         else if (resolve !== undefined)
@@ -5766,6 +5772,8 @@ export class DashboardCounters implements IDashboardCounters {
     campaignsCount?: number;
     campaignsPublishedCount?: number;
     campaignsByType?: { [key: string]: number; };
+    contactsTotal?: number;
+    contactsKnownTotal?: number;
 
     constructor(data?: IDashboardCounters) {
         if (data) {
@@ -5787,6 +5795,8 @@ export class DashboardCounters implements IDashboardCounters {
                         (this.campaignsByType as any)![key] = _data["campaignsByType"][key];
                 }
             }
+            this.contactsTotal = _data["contactsTotal"];
+            this.contactsKnownTotal = _data["contactsKnownTotal"];
         }
     }
 
@@ -5808,6 +5818,8 @@ export class DashboardCounters implements IDashboardCounters {
                     (data["campaignsByType"] as any)[key] = (this.campaignsByType as any)[key];
             }
         }
+        data["contactsTotal"] = this.contactsTotal;
+        data["contactsKnownTotal"] = this.contactsKnownTotal;
         return data;
     }
 }
@@ -5816,6 +5828,8 @@ export interface IDashboardCounters {
     campaignsCount?: number;
     campaignsPublishedCount?: number;
     campaignsByType?: { [key: string]: number; };
+    contactsTotal?: number;
+    contactsKnownTotal?: number;
 }
 
 export class DistributionList implements IDistributionList {
