@@ -5,6 +5,7 @@ namespace Indice.Services;
 
 /// <summary>The representation of an email address in the form field.</summary>
 /// <remarks>Defaults to the configuration values <strong>Email:Sender</strong> and <strong>Email:SenderName</strong>.</remarks>
+[DebuggerDisplay("{ToString(),nq}")]
 public class EmailSender
 {
     /// <summary>Creates a new instance of <see cref="EmailSender"/>.</summary>
@@ -25,11 +26,32 @@ public class EmailSender
     public override string ToString() => IsEmpty ? base.ToString()! : $"{DisplayName} <{Address}>";
 }
 
+/// <summary>
+/// Represents a method that retrieves a list of available email providers.
+/// </summary>
+/// <returns>A list of <see cref="EmailProvider"/> objects representing the available email providers. The list will be empty if
+/// no providers are found.</returns>
+public delegate List<EmailProvider> EmailProviderFinder();
+
+/// <summary>Models an email provider and its default sender.</summary>
+/// <param name="Name">The name of the email provider.</param>
+/// <param name="DefaultSender">The default sender of the email provider.</param>
+[DebuggerDisplay("{ToString(),nq}")]
+public record EmailProvider(string Name, EmailSender DefaultSender)
+{
+    /// <inheritdoc/>
+    public override string ToString() => $"[{Name}] {DefaultSender}";
+}
+
 /// <summary>Abstraction for sending email through different providers and implementations. SMTP, SparkPost, Mailchimp etc.</summary>
 public interface IEmailService
 {
     /// <summary>This is an abstraction for the rendering engine.</summary>
     public IHtmlRenderingEngine? HtmlRenderingEngine { get; }
+
+    /// <summary>Gets information about the email provider used to send messages.</summary>
+    public EmailProvider Provider { get; }
+
     /// <summary>Sends an email.</summary>
     /// <param name="recipients">The recipients of the email message.</param>
     /// <param name="subject">The subject of the email message.</param>

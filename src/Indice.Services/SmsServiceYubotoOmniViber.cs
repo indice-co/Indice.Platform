@@ -1,22 +1,21 @@
 ﻿using System.Text;
 using System.Text.Json;
-using Indice.Services.Yuboto.Bases;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Indice.Services.Yuboto;
+namespace Indice.Services;
 
 /// <summary>Service to send SMS via Viber using Yuboto API</summary>
-public class ViberYubotoOmniService : YubotoOmniServiceBase, ISmsService
+public class SmsServiceYubotoOmniViber : SmsServiceYubotoOmniBase, ISmsService
 {
-    /// <summary>Creates a new instance of <see cref="ViberYubotoOmniService"/>.</summary>
+    /// <summary>Creates a new instance of <see cref="SmsServiceYubotoOmniViber"/>.</summary>
     /// <param name="httpClient">Provides a base class for sending HTTP requests and receiving HTTP responses from a resource identified by a URI.</param>
     /// <param name="settings">Settings class for configuring SMS service clients.</param>
     /// <param name="logger">Represents a type used to perform logging.</param>
-    public ViberYubotoOmniService(
+    public SmsServiceYubotoOmniViber(
         HttpClient httpClient, 
         IOptionsSnapshot<SmsServiceSettings> settings, 
-        ILogger<ViberYubotoOmniService> logger
+        ILogger<SmsServiceYubotoOmniViber> logger
     ) : base(httpClient, settings, logger) { }
 
     /// <inheritdoc />

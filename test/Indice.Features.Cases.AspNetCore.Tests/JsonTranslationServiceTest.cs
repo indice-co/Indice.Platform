@@ -33,7 +33,7 @@ public class JsonTranslationServiceTest
 
     [Fact]
     public void Translate_EmptyTranslations_ReturnSourceJson() {
-        var translations = _service.Translate(JsonNode.Parse("""{"source": ""}"""), null, "el");
+        var translations = _service.Translate(JsonNode.Parse("""{"source": ""}"""), null, "el")!;
         Assert.Equal("""{"source":""}""", translations.ToJsonString(JsonOptions));
     }
 
@@ -45,21 +45,21 @@ public class JsonTranslationServiceTest
     [Fact]
     public void Translate_StringValue_ValueNotChanged() {
         var layout = """[{"section":"test"}]""";
-        var translations = _service.Translate(layout, JsonSerializer.Deserialize<Dictionary<string,string>>(Translations), "en");
+        var translations = _service.Translate(layout, JsonSerializer.Deserialize<Dictionary<string,string>>(Translations), "en")!;
         Assert.Equal("""[{"section":"test"}]""", translations.ToJsonString(JsonOptions));
     }
 
     [Fact]
     public void Translate_IntegerValue_ValueNotChanged() {
         var layout = """[{"section":"test","someNumber":32}]""";
-        var translations = _service.Translate(layout, JsonSerializer.Deserialize<Dictionary<string, string>>(Translations), "en");
+        var translations = _service.Translate(layout, JsonSerializer.Deserialize<Dictionary<string, string>>(Translations), "en")!;
         Assert.Equal("""[{"section":"test","someNumber":32}]""", translations.ToJsonString(JsonOptions));
     }
 
     [Fact]
     public void Translate_DecimalValue_ValueNotChanged() {
         var layout = """[{"section":"test","someNumber":32.31}]""";
-        var translations = _service.Translate(layout, JsonSerializer.Deserialize<Dictionary<string, string>>(Translations), "en");
+        var translations = _service.Translate(layout, JsonSerializer.Deserialize<Dictionary<string, string>>(Translations), "en")!;
         Assert.Equal("""[{"section":"test","someNumber":32.31}]""", translations.ToJsonString(JsonOptions));
     }
 
@@ -68,33 +68,33 @@ public class JsonTranslationServiceTest
         var date = DateTime.UtcNow;
         CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
         var layout = $$$"""[{"section":"test","someDate":"{{{date}}}"}]""";
-        var translations = _service.Translate(layout, JsonSerializer.Deserialize<Dictionary<string, string>>(Translations), "en");
+        var translations = _service.Translate(layout, JsonSerializer.Deserialize<Dictionary<string, string>>(Translations), "en")!;
         Assert.Equal($$$"""[{"section":"test","someDate":"{{{date}}}"}]""", translations.ToJsonString(JsonOptions));
     }
 
     [Fact]
     public void Translate_StringValueWithTranslatedProperty_Translated() {
         var layout = """[{"section":"test","title":"Κωδικός χώρας"}]""";
-        var translations = _service.Translate(layout, JsonSerializer.Deserialize<Dictionary<string, string>>(Translations), "en");
+        var translations = _service.Translate(layout, JsonSerializer.Deserialize<Dictionary<string, string>>(Translations), "en")!;
         Assert.Equal("""[{"section":"test","title":"Country code"}]""", translations.ToJsonString(JsonOptions));
     }
 
     [Fact]
     public void Translate_StringValueWithNOtTranslatedProperty_Translated() {
         var layout = """[{"section":"test","something":"Κωδικός χώρας"}]""";
-        var translations = _service.Translate(layout, JsonSerializer.Deserialize<Dictionary<string, string>>(Translations), "en");
+        var translations = _service.Translate(layout, JsonSerializer.Deserialize<Dictionary<string, string>>(Translations), "en")!;
         Assert.NotEqual("""[{"section":"test","something":"Country code"}]""", translations.ToJsonString(JsonOptions));
     }
 
     [Fact]
     public void Translate_ComplexLayout_El_NotTranslated() {
-        var translations = _service.Translate(SourceJson, JsonSerializer.Deserialize<Dictionary<string, string>>(Translations), "el");
+        var translations = _service.Translate(SourceJson, JsonSerializer.Deserialize<Dictionary<string, string>>(Translations), "el")!;
         Assert.Equal(SourceJson, translations.ToString());
     }
 
     [Fact]
     public void Translate_ComplexLayout_En_Translated() {
-        var translations = _service.Translate(SourceJson, JsonSerializer.Deserialize<Dictionary<string, string>>(Translations), "en");
+        var translations = _service.Translate(SourceJson, JsonSerializer.Deserialize<Dictionary<string, string>>(Translations), "en")!;
 
         Assert.DoesNotContain("Θέλω να επικαιροποιήσω το Σταθερό Τηλέφωνο μου", translations.ToJsonString(JsonOptions));
         Assert.Contains("I want to validate my home phone", translations.ToJsonString(JsonOptions));

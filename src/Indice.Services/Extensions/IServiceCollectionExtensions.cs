@@ -5,7 +5,6 @@ using Azure.Messaging.ServiceBus.Administration;
 using Indice.Configuration;
 using Indice.Events;
 using Indice.Services;
-using Indice.Services.Yuboto;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -61,6 +60,39 @@ public static class IndiceServicesServiceCollectionExtensions
         return services;
     }
 
+    /// <summary>Discovers and Adds an implementation of <see cref="IEmailService"/> according to the <seealso cref="IConfiguration"/> section <strong>Email</strong>.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <remarks>Automatically discovers the correct provider using the configuration setting <strong>Email:Provider</strong> to automatically load the correct configuration.
+    /// <br />Acceptable values:
+    /// <strong>smtp, sparkpost, sendgrid, brevo, none</strong>
+    /// </remarks>
+    public static EmailServiceBuilder AddEmailService(this IServiceCollection services, IConfiguration configuration) {
+        var providerNamesText = configuration.GetSection(EmailServiceSettings.Name).GetValue<string>("Provider");
+        var providerNames = (providerNamesText ?? EmailServiceSmtp.ServiceName).Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        foreach (var name in providerNames) {
+            switch (name) {
+                case EmailServiceSmtp.ServiceName:
+                    services.AddEmailServiceSmtp(configuration);
+                    break;
+                case EmailServiceSparkPost.ServiceName:
+                    services.AddEmailServiceSparkPost(configuration);
+                    break;
+                case EmailServiceSendGrid.ServiceName:
+                    services.AddEmailServiceSendGrid(configuration);
+                    break;
+                case EmailServiceBrevo.ServiceName:
+                    services.AddEmailServiceBrevo(configuration);
+                    break;
+                case EmailServiceNoop.ServiceName:
+                default:
+                    services.AddEmailServiceNoop();
+                    break;
+            }
+        }
+        return new EmailServiceBuilder(services);
+    }
+
     /// <summary>Adds an implementation of <see cref="IEmailService"/> using SMTP settings in configuration.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
@@ -68,6 +100,11 @@ public static class IndiceServicesServiceCollectionExtensions
         services.Configure<EmailServiceSettings>(configuration.GetSection(EmailServiceSettings.Name));
         services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceSettings>>().Value);
         services.AddTransient<IEmailService, EmailServiceSmtp>();
+        services.AddSingleton((sp) => {
+            var options = sp.GetRequiredService<IOptions<EmailServiceSettings>>().Value;
+            return new EmailProvider(EmailServiceSmtp.ServiceName, new EmailSender(options.Sender!, options.SenderName));
+        });
+        services.TryAddTransient((serviceProvider) => new EmailProviderFinder(() => serviceProvider.GetServices<EmailProvider>().ToList()));
         services.AddHtmlRenderingEngineNoop();
         return new EmailServiceBuilder(services);
     }
@@ -79,6 +116,11 @@ public static class IndiceServicesServiceCollectionExtensions
         services.Configure<EmailServiceSparkPostSettings>(configuration.GetSection(EmailServiceSparkPostSettings.Name));
         services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceSparkPostSettings>>().Value);
         services.AddHttpClient<IEmailService, EmailServiceSparkPost>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
+        services.AddSingleton((serviceProvider) => {
+            var options = serviceProvider.GetRequiredService<IOptions<EmailServiceSparkPostSettings>>().Value;
+            return new EmailProvider(EmailServiceSparkPost.ServiceName, new EmailSender(options.Sender!, options.SenderName));
+        });
+        services.TryAddTransient((serviceProvider) => new EmailProviderFinder(() => serviceProvider.GetServices<EmailProvider>().ToList()));
         services.AddHtmlRenderingEngineNoop();
         return new EmailServiceBuilder(services);
     }
@@ -90,6 +132,11 @@ public static class IndiceServicesServiceCollectionExtensions
         services.Configure<EmailServiceSendGridSettings>(configuration.GetSection(EmailServiceSendGridSettings.Name));
         services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceSendGridSettings>>().Value);
         services.AddHttpClient<IEmailService, EmailServiceSendGrid>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
+        services.AddSingleton((serviceProvider) => {
+            var options = serviceProvider.GetRequiredService<IOptions<EmailServiceSendGridSettings>>().Value;
+            return new EmailProvider(EmailServiceSendGrid.ServiceName, new EmailSender(options.Sender!, options.SenderName));
+        });
+        services.TryAddTransient((serviceProvider) => new EmailProviderFinder(() => serviceProvider.GetServices<EmailProvider>().ToList()));
         services.AddHtmlRenderingEngineNoop();
         return new EmailServiceBuilder(services);
     }
@@ -101,6 +148,11 @@ public static class IndiceServicesServiceCollectionExtensions
         services.Configure<EmailServiceBrevoSettings>(configuration.GetSection(EmailServiceBrevoSettings.Name));
         services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceBrevoSettings>>().Value);
         services.AddHttpClient<IEmailService, EmailServiceBrevo>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
+        services.AddSingleton((serviceProvider) => {
+            var options = serviceProvider.GetRequiredService<IOptions<EmailServiceBrevoSettings>>().Value;
+            return new EmailProvider(EmailServiceBrevo.ServiceName, new EmailSender(options.Sender!, options.SenderName));
+        });
+        services.TryAddTransient((serviceProvider) => new EmailProviderFinder(() => serviceProvider.GetServices<EmailProvider>().ToList()));
         services.AddHtmlRenderingEngineNoop();
         return new EmailServiceBuilder(services);
     }
@@ -113,9 +165,64 @@ public static class IndiceServicesServiceCollectionExtensions
         return builder.Services;
     }
 
+    /// <summary>Discovers and Adds an implementation of <see cref="ISmsService"/> according to the <seealso cref="IConfiguration"/> section <strong>Sms</strong>.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <remarks>Automatically discovers the correct provider using the configuration setting <strong>Sms:Provider</strong> to automatically load the correct configuration.
+    /// <br />Acceptable values:
+    /// <strong>yuboto, yuboto_viber, vonage, twilio, smsup, apifon, apifon_im, kapatel, mstat, none</strong>
+    /// </remarks>
+    public static IServiceCollection AddSmsService(this IServiceCollection services, IConfiguration configuration) {
+        var providerNamesText = configuration.GetSection(SmsServiceSettings.Name).GetValue<string>("Provider");
+        ArgumentException.ThrowIfNullOrWhiteSpace(providerNamesText, "Sms:Provider");
+        var providerNames = providerNamesText.ToLowerInvariant().Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        foreach (var name in providerNames) { 
+            switch (name) {
+                case "yuboto":
+                case "yuboto_omni":
+                    services.AddSmsServiceYubotoOmni(configuration);
+                    break;
+                case "yuboto_viber":
+                case "yubotoviber":
+                case "yuboto_omni_viber":
+                    services.AddSmsServiceYubotoOmniViber(configuration);
+                    break;
+                case "vonage":
+                    services.AddSmsServiceVonage(configuration);
+                    break;
+                case "twilio":
+                    services.AddSmsServiceTwilio(configuration);
+                    break;
+                case "smsup":
+                    services.AddSmsServiceSmsUp(configuration);
+                    break;
+                case "apifon":
+                    services.AddSmsServiceApifon(configuration);
+                    break;
+                case "apifon_im":
+                case "apifonim":
+                    services.AddSmsServiceApifonIM(configuration);
+                    break;
+                case "kapatel":
+                case "kapa_tel":
+                    services.AddSmsServiceApifonIM(configuration);
+                    break;
+                case "mstat":
+                    services.AddSmsServiceMstat(configuration);
+                    break;
+                case "noop":
+                case "none":
+                    services.AddSmsServiceNoop();
+                    break;
+            }
+        }
+        return services;
+    }
+
     /// <summary>Adds an implementation of <see cref="ISmsService"/> using Yuboto.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    [Obsolete("This SMS service provider is obsolete. Please consider using another provider like the AddSmsServiceYubotoOmni instead.", false)]
     public static IServiceCollection AddSmsServiceYuboto(this IServiceCollection services, IConfiguration configuration) {
         services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
         services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
@@ -200,18 +307,18 @@ public static class IndiceServicesServiceCollectionExtensions
     public static IServiceCollection AddSmsServiceYubotoOmni(this IServiceCollection services, IConfiguration configuration) {
         services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
         services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
-        services.AddHttpClient<ISmsService, SmsYubotoOmniService>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
+        services.AddHttpClient<ISmsService, SmsServiceYubotoOmni>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
         return services;
     }
 
     /// <summary>Adds an implementation of <see cref="ISmsService"/> using Yuboto Omni for sending Viber messages.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    public static IServiceCollection AddViberServiceYubotoOmni(this IServiceCollection services, IConfiguration configuration) {
+    public static IServiceCollection AddSmsServiceYubotoOmniViber(this IServiceCollection services, IConfiguration configuration) {
         services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
         services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceSettings>>().Value);
         services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
-        services.AddHttpClient<ISmsService, ViberYubotoOmniService>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
+        services.AddHttpClient<ISmsService, SmsServiceYubotoOmniViber>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
         return services;
     }
 

@@ -19,7 +19,7 @@ namespace Indice.Features.Messages.Tests;
 public class AccessRulesServiceTest : IAsyncLifetime
 {
     public AccessRulesServiceTest() {
-        var inMemorySettings = new Dictionary<string, string> {
+        var inMemorySettings = new Dictionary<string, string?> {
             ["ConnectionStrings:CasesDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=Indice.Features.Cases.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true",
             //["ConnectionStrings:CasesDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=ChaniaBank.Cases_uat;Trusted_Connection=True;MultipleActiveResultSets=true",
         };
@@ -42,7 +42,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
 
     public ServiceProvider ServiceProvider { get; }
 
-    private async Task<DbCase> FetchCaseForTestAsync(CasesDbContext context) {
+    private async Task<DbCase?> FetchCaseForTestAsync(CasesDbContext context) {
         return await context.Cases.FirstOrDefaultAsync();
     }
 
@@ -84,7 +84,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
             new() {
                 AccessLevel = 110,
                 MemberUserId = Guid.NewGuid().ToString(),
-                RuleCaseId = @case.Id
+                RuleCaseId = @case?.Id
             });
         Assert.True(true);
     }
@@ -150,10 +150,10 @@ public class AccessRulesServiceTest : IAsyncLifetime
             new() {
                 AccessLevel = 110,
                 MemberUserId = Guid.NewGuid().ToString(),
-                RuleCaseId = @case.Id
+                RuleCaseId = @case?.Id
             });
         var caseRule = await dbContext.CaseAccessRules.FirstOrDefaultAsync();
-        var updatedCase = await caseMembersService.Update(Admin().UserToActor(options.Value), caseRule.Id, 100);
+        var updatedCase = await caseMembersService.Update(Admin().UserToActor(options.Value), caseRule!.Id, 100);
         Assert.Equal(100, updatedCase.AccessLevel);
     }
 
@@ -167,10 +167,10 @@ public class AccessRulesServiceTest : IAsyncLifetime
             new() {
                 AccessLevel = 110,
                 MemberRole = BasicRoleNames.Administrator,
-                RuleCaseTypeId = caseType.Id
+                RuleCaseTypeId = caseType?.Id
             });
         var caseRule = await dbContext.CaseAccessRules.FirstOrDefaultAsync();
-        var updatedRule = await caseMembersService.Update(Admin().UserToActor(options.Value), caseRule.Id, 100);
+        var updatedRule = await caseMembersService.Update(Admin().UserToActor(options.Value), caseRule!.Id, 100);
         Assert.Equal(100, updatedRule.AccessLevel);
     }
 
@@ -184,10 +184,10 @@ public class AccessRulesServiceTest : IAsyncLifetime
             new() {
                 AccessLevel = 110,
                 MemberRole = BasicRoleNames.Administrator,
-                RuleCaseTypeId = caseType.Id
+                RuleCaseTypeId = caseType?.Id
             });
         var caseRule = await dbContext.CaseAccessRules.FirstOrDefaultAsync();
-        var updatedRule = await caseMembersService.Update(Admin().UserToActor(options.Value), caseRule.Id, 100);
+        var updatedRule = await caseMembersService.Update(Admin().UserToActor(options.Value), caseRule!.Id, 100);
         Assert.Equal(100, updatedRule.AccessLevel);
     }
 
@@ -201,11 +201,11 @@ public class AccessRulesServiceTest : IAsyncLifetime
             new() {
                 AccessLevel = 110,
                 MemberRole = BasicRoleNames.Administrator,
-                RuleCaseTypeId = caseType.Id
+                RuleCaseTypeId = caseType?.Id
             });
         var caseRule = await dbContext.CaseAccessRules.FirstOrDefaultAsync();
         try {
-            _ = await caseMembersService.Update(NonAdmin().UserToActor(options.Value), caseRule.Id, 100);
+            _ = await caseMembersService.Update(NonAdmin().UserToActor(options.Value), caseRule!.Id, 100);
         } catch (UnauthorizedAccessException) {
             Assert.True(true);
             return;
@@ -226,11 +226,11 @@ public class AccessRulesServiceTest : IAsyncLifetime
             new() {
                 AccessLevel = 110,
                 MemberUserId = Guid.NewGuid().ToString(),
-                RuleCaseId = @case.Id
+                RuleCaseId = @case?.Id
             });
 
         var rule = await dbContext.CaseAccessRules.FirstOrDefaultAsync();
-        await caseMembersService.Delete(Admin().UserToActor(options.Value), rule.Id);
+        await caseMembersService.Delete(Admin().UserToActor(options.Value), rule!.Id);
 
         Assert.True(true);
     }
