@@ -1,166 +1,171 @@
 <section aria-labelledby="applicant-information-title">
-    <div class="bg-white shadow sm:rounded-lg">
-        <div class="px-4 py-5 sm:px-6">
-            <div class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
-                <div class="sm:col-span-1">
-                    <h2 id="applicant-information-title"
-                        class="text-lg leading-6 font-medium text-gray-900">
-                        Βασικές Πληροφορίες
-                    </h2>
-                    <p class="mt-1 max-w-2xl text-sm text-gray-500">Οι βασικές πληροφορίες της καμπάνιας.</p>
-                </div>
-                <div class="sm:col-span-1">
-                    <div class="mx-auto md:flex md:items-center md:justify-between md:space-x-5">
-                        <div class="flex items-center space-x-5"></div>
-                        <div class="flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-3">
-                            <button type="button"
-                                    (click)="deleteCampaign()"
-                                    class="inline-flex items-center justify-center px-4 py-2 border border-transparent font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-red-500 sm:text-sm">
-                                Διαγραφή
-                            </button>
-                            <button type="button"
-                                    (click)="publishCampaign()"
-                                    *ngIf="!campaign?.published"
-                                    class="side-view-layout-action-button-submit">
-                                Δημοσίευση
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <div class="bg-white shadow sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6">
+      <div class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+        <div class="sm:col-span-1">
+          <h2 id="applicant-information-title" class="text-lg leading-6 font-medium text-gray-900">
+            Βασικές Πληροφορίες
+          </h2>
+          <p class="mt-1 max-w-2xl text-sm text-gray-500">Οι βασικές πληροφορίες της καμπάνιας.</p>
         </div>
-        <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
-          <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
-            <div class="sm:col-span-1">
-              <dt class="text-sm font-medium text-gray-500">Κατάσταση</dt>
-              <dd class="mt-1 text-sm text-gray-900">{{ campaign?.published ? 'Δημοσιευμένη' : 'Μη Δημοσιευμένη' }}</dd>
+        <div class="sm:col-span-1">
+          <div class="mx-auto md:flex md:items-center md:justify-between md:space-x-5">
+            <div class="flex items-center space-x-5"></div>
+            <div
+              class="flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-3">
+              <button type="button" (click)="deleteCampaign()"
+                class="inline-flex items-center justify-center px-4 py-2 border border-transparent font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-red-500 sm:text-sm">
+                Διαγραφή
+              </button>
+              <button type="button" (click)="publishCampaign()" *ngIf="!campaign?.published"
+                class="side-view-layout-action-button-submit">
+                Δημοσίευση
+              </button>
             </div>
-            <div class="sm:col-span-1">
-              <dt class="text-sm font-medium text-gray-500">
-                Τιτλος
-                <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editTitle' }"></ng-container>
-              </dt>
-              <dd class="mt-1 text-sm text-gray-900">{{ campaign?.title }}</dd>
-            </div>
-            <div class="sm:col-span-1">
-              <dt class="text-sm font-medium text-gray-500">
-                Τύπος
-                <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editType' }"></ng-container>
-              </dt>
-              <dd class="mt-1 text-sm text-gray-900">
-                <span *ngIf="campaign?.type" class="message-type-badge {{campaign?.type?.classification}}">{{ campaign?.type?.name}}</span>
-                {{ campaign?.type ? '' : '-' }}
-              </dd>
-            </div>
-            <div class="sm:col-span-1">
-              <dt class="text-sm font-medium text-gray-500">
-                Διάρκεια
-                <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editActivePeriod' }"></ng-container>
-              </dt>
-              <dd class="mt-1 text-sm text-gray-900">Από {{ campaign?.activePeriod?.from | date: 'medium' }} έως {{ campaign?.activePeriod?.to ? (campaign?.activePeriod?.to | date: 'medium') : '-' }}</dd>
-            </div>
-            <div class="sm:col-span-1">
-              <dt class="text-sm font-medium text-gray-500">
-                Call to action
-                <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editCta' }"></ng-container>
-              </dt>
-              <dd class="mt-1 text-sm text-gray-900">
-                <a *ngIf="campaign?.actionLink?.text && campaign?.actionLink?.href"
-                   target="_blank"
-                   class="text-blue-600 hover:text-blue-500"
-                   [href]="campaign?.actionLink?.href">
-                  {{ campaign?.actionLink?.text }}
-                </a>
-                <span *ngIf="campaign?.actionLink?.text && !campaign?.actionLink?.href">{{ campaign?.actionLink?.text }}</span>
-                <span *ngIf="!campaign?.actionLink?.text && !campaign?.actionLink?.href">-</span>
-              </dd>
-            </div>
-            <div class="sm:col-span-1">
-              <dt class="text-sm font-medium text-gray-500">Προς</dt>
-              <dd class="mt-1 text-sm text-gray-900">{{ campaign?.distributionList ? 'Λίστα διανομής' : 'Όλους' }}</dd>
-            </div>
-            <div class="sm:col-span-1">
-              <dt class="text-sm font-medium text-gray-500">
-                Λίστα διανομής
-                <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editList' }"></ng-container>
-              </dt>
-              <dd class="mt-1 text-sm text-gray-900">
-                <a class="text-blue-600 hover:text-blue-500"
-                   *ngIf="campaign?.distributionList"
-                   [routerLink]="['/distribution-lists/' + campaign?.distributionList?.id +'/distribution-list-contacts']">{{ campaign?.distributionList?.name }}</a>
-                <span *ngIf="!campaign?.distributionList">-</span>
-              </dd>
-            </div>
-            <div class="sm:col-span-1">
-              <dt class="text-sm font-medium text-gray-500">Κανάλια επικοινωνίας</dt>
-              <dd class="mt-1 text-sm text-gray-900">{{ deliveryChannels || '-' }}</dd>
-            </div>
-            <div class="sm:col-span-1">
-              <dt class="text-sm font-medium text-gray-500">Δημιουργήθηκε από</dt>
-              <dd class="mt-1 text-sm text-gray-900">{{ campaign?.createdBy || '-' }}</dd>
-            </div>
-            <div class="sm:col-span-1">
-              <dt class="text-sm font-medium text-gray-500">Δημιουργήθηκε στις</dt>
-              <dd class="mt-1 text-sm text-gray-900">{{ campaign?.createdAt ? (campaign?.createdAt | date: 'medium') : '-' }}</dd>
-            </div>
-            <div class="sm:col-span-1">
-              <dt class="text-sm font-medium text-gray-500">Τροποποιήθηκε από</dt>
-              <dd class="mt-1 text-sm text-gray-900">{{ campaign?.updatedBy || '-' }}</dd>
-            </div>
-            <div class="sm:col-span-1">
-              <dt class="text-sm font-medium text-gray-500">Τροποποιήθηκε στις</dt>
-              <dd class="mt-1 text-sm text-gray-900">{{ campaign?.updatedAt ? (campaign?.updatedAt | date: 'medium') : '-' }}</dd>
-            </div>
-            <div class="sm:col-span-1">
-              <dt class="text-sm font-medium text-gray-500">
-                Επισυναπτόμενα
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     class="h-4 w-4 inline cursor-pointer"
-                     fill="none"
-                     viewBox="0 0 24 24"
-                     stroke="currentColor"
-                     stroke-width="2"
-                     (click)="openEditAttachmentsPane()"
-                     *ngIf="campaign ? !campaign?.published : false">
-                  <path stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
-              </dt>
-              <dd class="mt-1 text-sm text-gray-900">
-                <div class="text-blue-600 hover:text-blue-500 cursor-pointer" (click)="downloadAttachment()"
-                     *ngIf="campaign?.attachment">{{ campaign?.attachment?.label }}</div>
-                <span *ngIf="!campaign?.attachment">-</span>
-              </dd>
-            </div>
-            <div class="sm:col-span-1" *ngIf="campaign?.content?.email">
-              <dt class="text-sm font-medium text-gray-500">
-                Αποστολέας Email
-                <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editSender' }"></ng-container>
-              </dt>
-              <dd *ngIf="campaign?.content?.email?.sender" class="mt-1 text-sm text-gray-900">{{ campaign?.content?.email?.sender?.displayName+" \<"+campaign?.content?.email?.sender?.sender+">" }}</dd>
-              <dd *ngIf="!campaign?.content?.email?.sender" class="mt-1 text-sm text-gray-900">{{ defaultSender?.displayName+" \<"+defaultSender?.sender+">" }}</dd>
-            </div>
-            <div class="sm:col-span-1">
-              <dt class="text-sm font-medium text-gray-500">Παράβλεψη ρυθμίσεων επικοινωνίας επαφής</dt>
-              <dd class="mt-1 text-sm text-gray-900">{{ campaign?.ignoreUserPreferences ? 'Ναι' : 'Όχι' }}</dd>
-            </div>
-          </dl>
+          </div>
         </div>
+      </div>
     </div>
+    <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+      <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Κατάσταση</dt>
+          <dd class="mt-1 text-sm text-gray-900">{{ campaign?.published ? 'Δημοσιευμένη' : 'Μη Δημοσιευμένη' }}</dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">
+            Τιτλος
+            <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editTitle' }"></ng-container>
+          </dt>
+          <dd class="mt-1 text-sm text-gray-900">{{ campaign?.title }}</dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">
+            Τύπος
+            <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editType' }"></ng-container>
+          </dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <span *ngIf="campaign?.type" class="message-type-badge {{campaign?.type?.classification}}">{{
+              campaign?.type?.name}}</span>
+            {{ campaign?.type ? '' : '-' }}
+          </dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">
+            Διάρκεια
+            <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editActivePeriod' }"></ng-container>
+          </dt>
+          <dd class="mt-1 text-sm text-gray-900">Από {{ campaign?.activePeriod?.from | date: 'medium' }} έως {{
+            campaign?.activePeriod?.to ? (campaign?.activePeriod?.to | date: 'medium') : '-' }}</dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">
+            Call to action
+            <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editCta' }"></ng-container>
+          </dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <a *ngIf="campaign?.actionLink?.text && campaign?.actionLink?.href" target="_blank"
+              class="text-blue-600 hover:text-blue-500" [href]="campaign?.actionLink?.href">
+              {{ campaign?.actionLink?.text }}
+            </a>
+            <span *ngIf="campaign?.actionLink?.text && !campaign?.actionLink?.href">{{ campaign?.actionLink?.text
+              }}</span>
+            <span *ngIf="!campaign?.actionLink?.text && !campaign?.actionLink?.href">-</span>
+          </dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Προς</dt>
+          <dd class="mt-1 text-sm text-gray-900">{{ campaign?.distributionList ? 'Λίστα διανομής' : 'Όλους' }}</dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">
+            Λίστα διανομής
+            <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editList' }"></ng-container>
+          </dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <a class="text-blue-600 hover:text-blue-500" *ngIf="campaign?.distributionList"
+              [routerLink]="['/distribution-lists/' + campaign?.distributionList?.id +'/distribution-list-contacts']">{{
+              campaign?.distributionList?.name }}</a>
+            <span *ngIf="!campaign?.distributionList">-</span>
+          </dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Κανάλια επικοινωνίας</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <span [ngClass]="{ 'text-green-500': deliveryChannels?.indexOf('email') !== -1 }"
+              class="ml-1 text-gray-400">
+              <i class="ms-Icon ms-Icon--Accounts"></i>
+            </span>
+            <span [ngClass]="{ 'text-green-500': deliveryChannels?.indexOf('sms') !== -1 }" class="ml-1 text-gray-400">
+              <i class="ms-Icon ms-Icon--Chat"></i>
+            </span>
+            <span [ngClass]="{ 'text-green-500': deliveryChannels?.indexOf('inbox') !== -1 }"
+              class="ml-1 text-gray-400">
+              <i class="ms-Icon ms-Icon--Inbox"></i>
+            </span>
+            <span [ngClass]="{ 'text-green-500': deliveryChannels?.indexOf('pushnotification') !== -1 }"
+              class="ml-1 text-gray-400">
+              <i class="ms-Icon ms-Icon--CellPhone"></i>
+            </span>
+          </dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Δημιουργήθηκε από</dt>
+          <dd class="mt-1 text-sm text-gray-900">{{ campaign?.createdBy || '-' }}</dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Δημιουργήθηκε στις</dt>
+          <dd class="mt-1 text-sm text-gray-900">{{ campaign?.createdAt ? (campaign?.createdAt | date: 'medium') : '-'
+            }}</dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Τροποποιήθηκε από</dt>
+          <dd class="mt-1 text-sm text-gray-900">{{ campaign?.updatedBy || '-' }}</dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Τροποποιήθηκε στις</dt>
+          <dd class="mt-1 text-sm text-gray-900">{{ campaign?.updatedAt ? (campaign?.updatedAt | date: 'medium') : '-'
+            }}</dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">
+            Επισυναπτόμενα
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline cursor-pointer" fill="none"
+              viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" (click)="openEditAttachmentsPane()"
+              *ngIf="campaign ? !campaign?.published : false">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+            </svg>
+          </dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <div class="text-blue-600 hover:text-blue-500 cursor-pointer" (click)="downloadAttachment()"
+              *ngIf="campaign?.attachment">{{ campaign?.attachment?.label }}</div>
+            <span *ngIf="!campaign?.attachment">-</span>
+          </dd>
+        </div>
+        <div class="sm:col-span-1" *ngIf="campaign?.content?.email">
+          <dt class="text-sm font-medium text-gray-500">
+            Αποστολέας Email
+            <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editSender' }"></ng-container>
+          </dt>
+          <dd *ngIf="campaign?.content?.email?.sender" class="mt-1 text-sm text-gray-900">{{
+            campaign?.content?.email?.sender?.displayName+" \<"+campaign?.content?.email?.sender?.sender+">" }}</dd>
+          <dd *ngIf="!campaign?.content?.email?.sender" class="mt-1 text-sm text-gray-900">{{
+            defaultSender?.displayName+" \<"+defaultSender?.sender+">" }}</dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Παράβλεψη ρυθμίσεων επικοινωνίας επαφής</dt>
+          <dd class="mt-1 text-sm text-gray-900">{{ campaign?.ignoreUserPreferences ? 'Ναι' : 'Όχι' }}</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
 </section>
-<ng-template #editIcon
-             let-action>
-    <svg xmlns="http://www.w3.org/2000/svg"
-         class="h-4 w-4 inline cursor-pointer"
-         fill="none"
-         viewBox="0 0 24 24"
-         stroke="currentColor"
-         stroke-width="2"
-         (click)="openEditPane(action)"
-         *ngIf="campaign ? !campaign?.published : false">
-        <path stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-    </svg>
+<ng-template #editIcon let-action>
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline cursor-pointer" fill="none" viewBox="0 0 24 24"
+    stroke="currentColor" stroke-width="2" (click)="openEditPane(action)"
+    *ngIf="campaign ? !campaign?.published : false">
+    <path stroke-linecap="round" stroke-linejoin="round"
+      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+  </svg>
 </ng-template>
