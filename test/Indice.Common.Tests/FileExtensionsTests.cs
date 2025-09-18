@@ -1,4 +1,5 @@
-﻿using Indice.Extensions;
+﻿using System.Globalization;
+using Indice.Extensions;
 using Xunit;
 
 namespace Indice.Common.Tests;
@@ -63,6 +64,7 @@ public class FileExtensionsTests
     [InlineData(long.MaxValue - 0.125 * OneExaByte, "7.88 EB")]
     [InlineData(long.MaxValue, "8.00 EB")]
     public void FormatByteSizeTest(long byteSize, string formattedByteSize) {
+        CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
         var result = FileExtensions.FormatByteSize(byteSize);
         Assert.Equal(formattedByteSize, result);
     }
