@@ -49,10 +49,10 @@ export class DashboardComponent implements OnInit {
   private buildGaugeChannels(stats: DashboardCounters) {
     if (!stats?.campaignsByType) return [];
     return [
-      { name: 'Email', value: stats.campaignsByType.Email ?? 0, color: '#4CAF50' },
-      { name: 'SMS', value: stats.campaignsByType.SMS ?? 0, color: '#2196F3' },
-      { name: 'Push', value: stats.campaignsByType.PushNotification ?? 0, color: '#FFC107' },
-      { name: 'Inbox', value: stats.campaignsByType.Inbox ?? 0, color: '#F44336' }
+      { name: 'Email', value: stats.campaignsByType.Email ?? 0, color: '#5985ee' },
+      { name: 'SMS', value: stats.campaignsByType.SMS ?? 0, color: '#46cd93' },
+      { name: 'Push', value: stats.campaignsByType.PushNotification ?? 0, color: '#fdba45' },
+      { name: 'Inbox', value: stats.campaignsByType.Inbox ?? 0, color: '#4bbbce' }
     ].filter(x => x.value > 0);
   }
 

@@ -22,8 +22,8 @@ export class CampaignReportsComponent implements OnInit {
   private fillData(stats: CampaignStatistics) {
     if (!this.counters) return [];
     this.gaugeItems = [
-      { name: 'Αναγνωσμένα', value: this.counters.readCount ?? 0, color: '#024104ff' },
-      { name: 'Μη Αναγνωσμένα', value: this.counters.notReadCount ?? 0, color: '#32373bff' }
+      { name: 'Αναγνωσμένα', value: this.counters.readCount ?? 0, color: '#5e6366ff' },
+      { name: 'Μη Αναγνωσμένα', value: this.counters.notReadCount ?? 0, color: '#2D3B45' }
     ].filter(x => x.value > 0);
     this.gaugeChannels = [
       { name: 'Email', value: this.counters?.messagesperChannel?.Email ?? 0, color: '#4CAF50' },

@@ -1,20 +1,31 @@
 <section aria-labelledby="applicant-information-title">
   <div class="bg-white shadow sm:rounded-lg">
     <div class="px-4 py-5 sm:px-6">
-      <h2 id="applicant-information-title"
-          class="text-lg leading-6 font-medium text-gray-900">
+      <h2 id="applicant-information-title" class="text-lg leading-6 font-medium text-gray-900">
         Αναφορές
       </h2>
       <p class="mt-1 max-w-2xl text-sm text-gray-500">Διαγράμματα που αφορούν την καμπάνια.</p>
 
       <div class="cards-deck-4">
-        <lib-kpi-tile title="Αναγνωσμένα" [busy]="!loaded" [kpi]="counters?.readCount" ></lib-kpi-tile>
-        <lib-kpi-tile title="Μη Αναγνωσμένα" [busy]="!loaded" [kpi]="counters?.notReadCount" ></lib-kpi-tile>
-        <lib-kpi-tile title="Διαγραμένα" [busy]="!loaded" [kpi]="counters?.deletedCount" ></lib-kpi-tile>
+        <lib-kpi-tile title="Αναγνωσμένα" [busy]="!loaded" [kpi]="counters?.readCount"></lib-kpi-tile>
+        <lib-kpi-tile title="Μη Αναγνωσμένα" [busy]="!loaded" [kpi]="counters?.notReadCount"></lib-kpi-tile>
+        <lib-kpi-tile title="Διαγραμένα" [busy]="!loaded" [kpi]="counters?.deletedCount"></lib-kpi-tile>
         <lib-kpi-tile title="Call to Action" [busy]="!loaded" [kpi]="counters?.callToActionCount"></lib-kpi-tile>
-        <app-gauge-chart [items]="gaugeItems"></app-gauge-chart>
-        <app-gauge-chart [items]="gaugeChannels"></app-gauge-chart>
-
+      </div>
+      <div class="cards-deck-2 mt-8">
+        <div class="card">
+          <div class="card-body">
+            <h4 class="mt-0 header-title mb-4">Αναγνωσμένα</h4>
+            <app-gauge-chart [items]="gaugeItems"></app-gauge-chart>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-body">
+            <h4 class="mt-0 header-title mb-4">Μυνήματα ανά τύπο</h4>
+            <app-gauge-chart [items]="gaugeChannels"></app-gauge-chart>
+          </div>
+        </div>
       </div>
     </div>
   </div>

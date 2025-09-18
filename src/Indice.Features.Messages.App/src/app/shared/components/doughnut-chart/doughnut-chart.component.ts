@@ -12,7 +12,7 @@ export interface GaugeChartItem { name: string; value: number; color: string; }
   template: `<canvas #gaugeCanvas></canvas>`,
   styles: [`
     :host { display: block; }
-    canvas { max-width: 400px; max-height: 400px; }
+    canvas { max-width: 400px; max-height: 400px; position: relative; left: 50%; transform: translateX(-50%); }
   `]
 })
 export class DoughnutChartComponent implements OnInit, OnChanges, OnDestroy {

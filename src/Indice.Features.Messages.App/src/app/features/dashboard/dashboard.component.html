@@ -1,7 +1,9 @@
 <lib-view-layout title="Καλώς ήλθατε," [meta-items]="metaItems">
   <div class="cards-deck-4">
-    <lib-kpi-tile title="Καμπανιες" [busy]="!loaded" [kpi]="counters?.campaignsCount" (tile-action)="navigate('/campaigns')"></lib-kpi-tile>
-    <lib-kpi-tile title="Ενεργες" [busy]="!loaded" [kpi]="counters?.campaignsPublishedCount" (tile-action)="navigate('/campaigns')"></lib-kpi-tile>
+    <lib-kpi-tile title="Καμπανιες" [busy]="!loaded" [kpi]="counters?.campaignsCount"
+      (tile-action)="navigate('/campaigns')"></lib-kpi-tile>
+    <lib-kpi-tile title="Ενεργες" [busy]="!loaded" [kpi]="counters?.campaignsPublishedCount"
+      (tile-action)="navigate('/campaigns')"></lib-kpi-tile>
     <!-- <ng-container *ngIf="counters?.campaignsByType">
       <lib-kpi-tile *ngFor="let entry of counters?.campaignsByType | keyvalue"
                     [title]="entry.key"
@@ -9,9 +11,13 @@
                     [kpi]="entry.value">
       </lib-kpi-tile>
     </ng-container> -->
-
   </div>
-  <div >
-      <app-gauge-chart [items]="gaugeChannels"></app-gauge-chart>
+  <div class="cards-deck-2 mt-8">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="mt-0 header-title mb-4">Μυνήματα ανά τύπο</h4>
+        <app-gauge-chart [items]="gaugeChannels"></app-gauge-chart>
+      </div>
+    </div>
   </div>
 </lib-view-layout>
