@@ -578,6 +578,8 @@ public static class FileExtensions
         #endregion
     };
 
+    private static readonly string[] _fileSizeSuffixes = ["byte", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+
     /// <summary>Gets the mime type by using a file extension. If not found, defaults to 'application/octet-stream';</summary>
     /// <param name="extension">The file extension.</param>
     /// <returns></returns>
@@ -608,14 +610,26 @@ public static class FileExtensions
     /// <param name="byteSize"></param>
     /// <returns></returns>
     public static string FormatByteSize(long byteSize) {
-        string[] suffixes = { "bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
-        for (var i = 0; i < suffixes.Length; i++) {
-            if (byteSize <= (Math.Pow(1024, i + 1))) {
-                return ThreeNonZeroDigits(byteSize / Math.Pow(1024, i)) + " " + suffixes[i];
-            }
+        // Determine the order of magnitude of the byte size, with upper limit of YB.
+        var order = Math.Min(
+            GetOrderOfMagnitude(byteSize),
+            _fileSizeSuffixes.Length - 1);
+
+        // If order of magnitude is zero, just return the byteSize
+        if (order == 0) {
+            return $"{byteSize:#,##0} {_fileSizeSuffixes[0]}" + (byteSize != 1 ? "s" : "");
         }
-        return ThreeNonZeroDigits(byteSize / Math.Pow(1024, suffixes.Length - 1)) + " " + suffixes[suffixes.Length - 1];
+
+        return ThreeNonZeroDigits(byteSize / Math.Pow(1024, order)) + " " + _fileSizeSuffixes[order];
     }
+
+    /// <summary>
+    /// Since each order is a power of 1024, can use logarithms
+    /// </summary>
+    /// <param name="byteSize"></param>
+    /// <returns></returns>
+    private static int GetOrderOfMagnitude(long byteSize) => 
+        byteSize < 1024 ? 0 : (int)Math.Log(byteSize, 1024);
 
     /// <summary>
     /// Returns the value formatted to include at most three non-zero digits and at most two digits after the decimal point.

@@ -1,5 +1,6 @@
 ﻿using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Models;
+using Indice.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -23,16 +24,19 @@ public class StartupSeedHostedService : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
         using var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
         var campaignsDbContext = serviceScope.ServiceProvider.GetRequiredService<CampaignsDbContext>();
-        var defaultEmailProviderSelector = serviceScope.ServiceProvider.GetRequiredService<Func<EmailProviderInfo>>();
         var defaultSender = await campaignsDbContext.MessageSenders.FirstOrDefaultAsync(x => x.IsDefault, stoppingToken);
         if (defaultSender is not null) {
             return;
         }
-        var defaultEmailProviderInfo = defaultEmailProviderSelector();
+        var emailProviderFinder = serviceScope.ServiceProvider.GetRequiredService<EmailProviderFinder>();
+        var defaultEmailProviderInfo = emailProviderFinder().FirstOrDefault();
+        if (defaultEmailProviderInfo is null) {
+            return;
+        }
         campaignsDbContext.MessageSenders.Add(new Data.Models.DbMessageSender {
             Kind = MessageChannelKind.Email,
-            DisplayName = defaultEmailProviderInfo.DisplayName,
-            Sender = defaultEmailProviderInfo.Sender,
+            DisplayName = defaultEmailProviderInfo.DefaultSender.DisplayName,
+            Sender = defaultEmailProviderInfo.DefaultSender.Address,
             IsDefault = true
         });
         await campaignsDbContext.SaveChangesAsync(stoppingToken);

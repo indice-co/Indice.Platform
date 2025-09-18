@@ -42,12 +42,21 @@
         </div>
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">
+            Τύπος μηνύματος
+            <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editMessageType' }"></ng-container>
+          </dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <span *ngIf="template?.messageType" class="message-type-badge {{template?.messageType?.classification}}">{{ template?.messageType?.name}}</span>
+            {{ template?.messageType ? '' : '-' }}
+          </dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">
             Παράβλεψη ρυθμίσεων επικοινωνίας επαφής
             <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editUserPreference' }"></ng-container>
           </dt>
           <dd class="mt-1 text-sm text-gray-900">{{ template?.ignoreUserPreferences ? 'Ναι' : 'Όχι' }}</dd>
         </div>
-        <div class="sm:col-span-1"></div>
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">Δημιουργήθηκε από</dt>
           <dd class="mt-1 text-sm text-gray-900">{{ template?.createdBy || '-' }}</dd>

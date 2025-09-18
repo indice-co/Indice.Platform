@@ -44,26 +44,32 @@ internal class RuleStoreEntityFrameworkCore : IRuleOptionsStore
 
         // Creating an IConfiguration instance and enumerating it is faster and safe.
         // It avoids the need to map and name the JSON properties to appropriate key/value pairs.
-        using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(jsonString))) {
-            var configurationBuilder = new ConfigurationBuilder();
-            configurationBuilder.AddJsonStream(stream);
-            var configuration = configurationBuilder.Build();
-            var settings = configuration.AsEnumerable().Where(x => x.Value is not null);
-            foreach (var item in settings) {
-                var key = $"{Constants.RuleOptionsSectionName}:{ruleName}:{item.Key}";
-                var existingItem = await _context.AppSettings.FirstOrDefaultAsync(x => x.Key.ToLower() == key.ToLower());
-                if (existingItem is not null) {
-                    existingItem.Value = item.Value;
-                } else {
-                    var newItem = new DbAppSetting {
-                        Key = key,
-                        Value = item.Value
-                    };
-                    await _context.AppSettings.AddAsync(newItem);
-                }
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(jsonString));
+        var riskConfiguration = new ConfigurationBuilder().AddJsonStream(stream).Build();
+        var settings = riskConfiguration.AsEnumerable().Where(x => x.Value is not null).ToArray();
+
+        var keys = settings
+            .Select(item => $"{Constants.RuleOptionsSectionName}:{ruleName}:{item.Key}")
+            .ToList();
+
+        var existingSettings = await _context.AppSettings
+            .Where(x => keys.Contains(x.Key))
+            .ToDictionaryAsync(x => x.Key, StringComparer.OrdinalIgnoreCase);
+
+        foreach (var item in settings) {
+            var key = $"{Constants.RuleOptionsSectionName}:{ruleName}:{item.Key}";
+
+            if (existingSettings.TryGetValue(key, out var existingItem)) {
+                existingItem.Value = item.Value;
+            } else {
+                _context.AppSettings.Add(new DbAppSetting {
+                    Key = key,
+                    Value = item.Value
+                });
             }
-            await _context.SaveChangesAsync();
         }
+
+        await _context.SaveChangesAsync();
     }
 
     /// <summary>

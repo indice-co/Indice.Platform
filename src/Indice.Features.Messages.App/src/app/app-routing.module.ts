@@ -10,6 +10,8 @@ import { CampaignDetailsEditRightpaneComponent } from './features/campaigns/edit
 import { CampaignAttachmentsEditRightpaneComponent } from './features/campaigns/edit/details/rightpane/campaign-edit-attachments-rightpane.component';
 import { CampaignEditComponent } from './features/campaigns/edit/campaign-edit.component';
 import { CampaignReportsComponent } from './features/campaigns/edit/reports/campaign-reports.component';
+import { CampaignMessagesComponent } from './features/campaigns/edit/messages/campaign-messages.component';
+import { CampaignMessageTimelineComponent } from './features/campaigns/edit/messages/timeline/campaign-message-timeline.component';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
 import { CommonAppShellConfig } from './shell.config';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
@@ -49,6 +51,8 @@ import { ContactComponent } from './features/contacts/contact/contact.component'
 import { ContactDetailsComponent } from './features/contacts/contact/details/contact-details.component';
 import { ContactCampaignsComponent } from './features/contacts/contact/campaigns/contact-campaigns.component';
 import { ContactEditComponent } from './features/contacts/contact/details/edit/contact-edit.component';
+import { ContactPreferencesComponent } from './features/contacts/contact/preferences/contact-preferences.component';
+import { ContactCreateComponent } from './features/contacts/contact/create/contact-create.component';
 
 const routes: Routes = [
   { path: 'auth-callback', component: AuthCallbackComponent },
@@ -74,38 +78,50 @@ const routes: Routes = [
   {
     path: '', canActivate: [AuthGuardService], children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: 'dashboard', component: DashboardComponent, data: { breadcrumb: { title: 'Αρχική', isHome: true }} },
-      { 
-        path: 'campaigns', 
-        data: { breadcrumb: { title: 'Καμπάνιες' }},
+      { path: 'dashboard', component: DashboardComponent, data: { breadcrumb: { title: 'Αρχική', isHome: true } } },
+      {
+        path: 'campaigns',
+        data: { breadcrumb: { title: 'Καμπάνιες' } },
         children: [
           { path: '', component: CampaignsComponent, pathMatch: 'full' },
-          { path: 'add-campaign', component: CampaignCreateComponent, data: { breadcrumb: { title: 'Δημιουργία' }} },
+          { path: 'add-campaign', component: CampaignCreateComponent, data: { breadcrumb: { title: 'Δημιουργία' } } },
           {
-            path: ':campaignId', component: CampaignEditComponent, 
-            data: { breadcrumb: { title: 'Επεξεργασία' }}, 
+            path: ':campaignId', component: CampaignEditComponent,
+            data: { breadcrumb: { title: 'Επεξεργασία' } },
             children: [
               { path: '', redirectTo: 'campaign-details', pathMatch: 'full' },
-              { path: 'campaign-details', component: CampaignDetailsEditComponent, data: { breadcrumb: { title: 'Βασικές Πληροφορίες' }} },
-              { path: 'campaign-content', component: CampaignContentEditComponent, data: { breadcrumb: { title: 'Περιεχόμενο' }} },
-              { path: 'campaign-reports', component: CampaignReportsComponent, data: { breadcrumb: { title: 'Αναφορές' }} }
+              { path: 'campaign-details', component: CampaignDetailsEditComponent, data: { breadcrumb: { title: 'Βασικές Πληροφορίες' } } },
+              { path: 'campaign-content', component: CampaignContentEditComponent, data: { breadcrumb: { title: 'Περιεχόμενο' } } },
+              { path: 'campaign-reports', component: CampaignReportsComponent, data: { breadcrumb: { title: 'Αναφορές' } } },
+              { path: 'campaign-messages', component: CampaignMessagesComponent, data: { breadcrumb: { title: 'Ιστορικό' } } },
+              // { path: 'campaign-message-timeline/:messageId', component: CampaignMessageTimelineComponent, data: { breadcrumb: { title: 'Timeline' } } }
+              { path: 'campaign-message-timeline', 
+                data: { breadcrumb: { title: 'Timeline' } } ,
+              children: [
+                { 
+                    path: ':contactId', 
+                    data: { breadcrumb: { title: 'Πληροφορίες αποστολής' } },
+                    component: CampaignMessageTimelineComponent
+                }
+              ]
+              }
             ]
           },
         ]
       },
-      { path: 'message-types', component: MessageTypesComponent, data: { breadcrumb: { title: 'Τύποι Μηνυμάτων' }} },
-      { 
-        path: 'distribution-lists', 
-        data: { breadcrumb: { title: 'Λίστες Διανομής' }},
+      { path: 'message-types', component: MessageTypesComponent, data: { breadcrumb: { title: 'Τύποι Μηνυμάτων' } } },
+      {
+        path: 'distribution-lists',
+        data: { breadcrumb: { title: 'Λίστες Διανομής' } },
         children: [
           { path: '', component: DistributionListsComponent, pathMatch: 'full' },
           {
-            path: ':distributionListId', component: DistributionListEditComponent, 
-            data: { breadcrumb: { title: 'Επεξεργασία' }}, 
+            path: ':distributionListId', component: DistributionListEditComponent,
+            data: { breadcrumb: { title: 'Επεξεργασία' } },
             children: [
               { path: '', redirectTo: 'distribution-list-details', pathMatch: 'full' },
-              { path: 'distribution-list-details', component: DistributionListDetailsEditComponent, data: { breadcrumb: { title: 'Βασικές Πληροφορίες' }} },
-              { path: 'distribution-list-contacts', component: DistributionListContactsComponent, data: { breadcrumb: { title: 'Επαφές' }} }
+              { path: 'distribution-list-details', component: DistributionListDetailsEditComponent, data: { breadcrumb: { title: 'Βασικές Πληροφορίες' } } },
+              { path: 'distribution-list-contacts', component: DistributionListContactsComponent, data: { breadcrumb: { title: 'Επαφές' } } }
             ]
           },
         ]
@@ -119,47 +135,48 @@ const routes: Routes = [
             data: { breadcrumb: { title: 'Επεξεργασία' } },
             children: [
               { path: '', redirectTo: 'contact-details', pathMatch: 'full' },
-              { path: 'contact-details', component: ContactDetailsComponent, data: { breadcrumb: { title: 'Βασικές Πληροφορίες' } } },
-              { path: 'contact-campaigns', component: ContactCampaignsComponent, data: { breadcrumb: { title: 'Καμπάνιες' } } }
+              { path: 'contact-details', component: ContactDetailsComponent, data: { breadcrumb: { title: 'Βασικές πληροφορίες' } } },
+              { path: 'contact-campaigns', component: ContactCampaignsComponent, data: { breadcrumb: { title: 'Καμπάνιες' } } },
+              { path: 'contact-preferences', component: ContactPreferencesComponent, data: { breadcrumb: { title: 'Στοιχεία επικοινωνίας' } } }
             ]
           },
         ]
       },
-      { 
-        path: 'templates', 
-        data: { breadcrumb: { title: 'Πρότυπα' }},
+      {
+        path: 'templates',
+        data: { breadcrumb: { title: 'Πρότυπα' } },
         children: [
           { path: '', component: TemplatesComponent, pathMatch: 'full' },
-          { path: 'add-template', component: TemplateCreateComponent, data: { breadcrumb: { title: 'Δημιουργία' }} },
+          { path: 'add-template', component: TemplateCreateComponent, data: { breadcrumb: { title: 'Δημιουργία' } } },
           {
-            path: ':templateId', component: TemplateEditComponent, 
-            data: { breadcrumb: { title: 'Επεξεργασία' }}, 
+            path: ':templateId', component: TemplateEditComponent,
+            data: { breadcrumb: { title: 'Επεξεργασία' } },
             children: [
               { path: '', redirectTo: 'template-details', pathMatch: 'full' },
-              { path: 'template-details', component: TemplateDetailsEditComponent, data: { breadcrumb: { title: 'Βασικές Πληροφορίες' }} },
-              { path: 'template-content', component: TemplateContentEditComponent, data: { breadcrumb: { title: 'Περιεχόμενο' }} }
+              { path: 'template-details', component: TemplateDetailsEditComponent, data: { breadcrumb: { title: 'Βασικές Πληροφορίες' } } },
+              { path: 'template-content', component: TemplateContentEditComponent, data: { breadcrumb: { title: 'Περιεχόμενο' } } }
             ]
           },
         ]
       },
-      { 
-        path: 'settings', 
-        data: { breadcrumb: { title: 'Ρυθμίσεις' }}, 
-        component: SettingsComponent 
+      {
+        path: 'settings',
+        data: { breadcrumb: { title: 'Ρυθμίσεις' } },
+        component: SettingsComponent
       },
-      { 
-        path: 'media', 
-        data: { breadcrumb: { title: 'Αρχεία' }},
+      {
+        path: 'media',
+        data: { breadcrumb: { title: 'Αρχεία' } },
         children: [
           { path: '', component: MediaLibraryComponent, pathMatch: 'full' },
-          { path: 'root', redirectTo: '', pathMatch: 'full', data: { breadcrumb: { title: 'Αρχεία' }} },
+          { path: 'root', redirectTo: '', pathMatch: 'full', data: { breadcrumb: { title: 'Αρχεία' } } },
           {
-            path: ':folderId', component: MediaLibraryComponent, 
-            data: { breadcrumb: { title: 'Φάκελος' }}
+            path: ':folderId', component: MediaLibraryComponent,
+            data: { breadcrumb: { title: 'Φάκελος' } }
           },
           {
-            path: ':folderId/:documentId', component: DocumentEditComponent, 
-            data: { breadcrumb: { title: 'Επεξεργασία' }}
+            path: ':folderId/:documentId', component: DocumentEditComponent,
+            data: { breadcrumb: { title: 'Επεξεργασία' } }
           },
         ]
       },
@@ -171,6 +188,7 @@ const routes: Routes = [
   { path: 'create-distribution-list', canActivate: [AuthGuardService], component: DistributionListCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'import-contacts', canActivate: [AuthGuardService], component: DistributionListImportContactsComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'create-contact', canActivate: [AuthGuardService], component: DistributionListContactCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
+  { path: 'create-new-contact', canActivate: [AuthGuardService], component: ContactCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'edit-contact/:contactId', canActivate: [AuthGuardService], component: DistributionListContactEditComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'update-contact/:contactId', canActivate: [AuthGuardService], component: ContactEditComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'edit-template', canActivate: [AuthGuardService], component: TemplateDetailsEditRightpaneComponent, outlet: 'rightpane', pathMatch: 'prefix' },

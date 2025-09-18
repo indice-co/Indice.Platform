@@ -1471,7 +1471,7 @@ export class MediaApiClient implements IMediaApiClient {
      * @return OK
      */
     getInboxMessageTypes(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<MessageTypeResultSet> {
-        let url_ = this.baseUrl + "/api/messages/types?";
+        let url_ = this.baseUrl + "/messages/types?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
         else if (page !== undefined)
@@ -1562,7 +1562,7 @@ export class MediaApiClient implements IMediaApiClient {
      * @return OK
      */
     getMessages(filter_TypeId?: string[] | undefined, filter_ActiveFrom?: Date | undefined, filter_ActiveTo?: Date | undefined, filter_ShowExpired?: boolean | undefined, filter_IsRead?: boolean | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<MessageResultSet> {
-        let url_ = this.baseUrl + "/api/my/messages?";
+        let url_ = this.baseUrl + "/my/messages?";
         if (filter_TypeId === null)
             throw new Error("The parameter 'filter_TypeId' cannot be null.");
         else if (filter_TypeId !== undefined)
@@ -1666,7 +1666,7 @@ export class MediaApiClient implements IMediaApiClient {
      * @return OK
      */
     getMessageById(messageId: string, channel?: Channel[] | undefined): Observable<Message> {
-        let url_ = this.baseUrl + "/api/my/messages/{messageId}?";
+        let url_ = this.baseUrl + "/my/messages/{messageId}?";
         if (messageId === undefined || messageId === null)
             throw new Error("The parameter 'messageId' must be defined.");
         url_ = url_.replace("{messageId}", encodeURIComponent("" + messageId));
@@ -1747,7 +1747,7 @@ export class MediaApiClient implements IMediaApiClient {
      * @return No Content
      */
     deleteMessage(messageId: string): Observable<void> {
-        let url_ = this.baseUrl + "/api/my/messages/{messageId}";
+        let url_ = this.baseUrl + "/my/messages/{messageId}";
         if (messageId === undefined || messageId === null)
             throw new Error("The parameter 'messageId' must be defined.");
         url_ = url_.replace("{messageId}", encodeURIComponent("" + messageId));
@@ -1820,7 +1820,7 @@ export class MediaApiClient implements IMediaApiClient {
      * @return No Content
      */
     markMessageAsRead(messageId: string): Observable<void> {
-        let url_ = this.baseUrl + "/api/my/messages/{messageId}/read";
+        let url_ = this.baseUrl + "/my/messages/{messageId}/read";
         if (messageId === undefined || messageId === null)
             throw new Error("The parameter 'messageId' must be defined.");
         url_ = url_.replace("{messageId}", encodeURIComponent("" + messageId));

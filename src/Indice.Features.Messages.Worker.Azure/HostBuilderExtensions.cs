@@ -200,10 +200,6 @@ public static class HostBuilderExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static MessageOptions UseEmailServiceSmtp(this MessageOptions options, IConfiguration configuration) {
         options.Services.AddEmailServiceSmtp(configuration);
-        options.Services.AddSingleton((sp) => {
-            var smptSettings = sp.GetRequiredService<IOptions<EmailServiceSettings>>().Value;
-            return new Func<EmailProviderInfo>(() => new EmailProviderInfo(smptSettings.Sender!, smptSettings.SenderName!));
-        });
         return options;
     }
 
@@ -212,18 +208,40 @@ public static class HostBuilderExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static MessageOptions UseEmailServiceSparkPost(this MessageOptions options, IConfiguration configuration) {
         options.Services.AddEmailServiceSparkPost(configuration);
-        options.Services.AddSingleton((sp) => {
-            var sparkpostSettings = sp.GetRequiredService<IOptions<EmailServiceSparkPostSettings>>().Value;
-            return new Func<EmailProviderInfo>(() => new EmailProviderInfo(sparkpostSettings.Sender!, sparkpostSettings.SenderName!));
-        });
         return options;
     }
 
-    /// <summary>Adds an instance of <see cref="ISmsService"/> using Yuboto.</summary>
+    /// <summary>Adds an instance of <see cref="IEmailService"/> that uses Brevo to send emails.</summary>
     /// <param name="options">Options used when configuring messages in Azure Functions.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    public static MessageOptions UseSmsServiceYuboto(this MessageOptions options, IConfiguration configuration) {
-        options.Services.AddSmsServiceYuboto(configuration);
+    public static MessageOptions UseEmailServiceBrevo(this MessageOptions options, IConfiguration configuration) {
+        options.Services.AddEmailServiceBrevo(configuration);
+        return options;
+    }
+
+    /// <summary>Adds an instance of <see cref="IEmailService"/> that uses SendGrid to send emails.</summary>
+    /// <param name="options">Options used when configuring messages in Azure Functions.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    public static MessageOptions UseEmailServiceSendGrid(this MessageOptions options, IConfiguration configuration) {
+        options.Services.AddEmailServiceSendGrid(configuration);
+        return options;
+    }
+
+    /// <summary>Adds an instance of <see cref="IEmailService"/> according to <seealso cref="IConfiguration"/> and the <strong>Email:Provider</strong> setting.</summary>
+    /// <param name="options">Options used when configuring messages in Azure Functions.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <remarks>Auto discovers the correct service to register according to configuration</remarks>    
+    public static MessageOptions UseEmailService(this MessageOptions options, IConfiguration configuration) {
+        options.Services.AddEmailService(configuration);
+        return options;
+    }
+
+    /// <summary>Adds an instance of <see cref="ISmsService"/> according to the <strong>Sms:Provider</strong> key.</summary>
+    /// <param name="options">Options used when configuring messages in Azure Functions.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <remarks>Auto discovers the correct service to register according to configuration</remarks>    
+    public static MessageOptions UseSmsService(this MessageOptions options, IConfiguration configuration) {
+        options.Services.AddSmsService(configuration);
         return options;
     }
 
@@ -248,16 +266,32 @@ public static class HostBuilderExtensions
     /// <summary>Adds an instance of <see cref="ISmsService"/> using Yuboto Omni for sending Viber messages.</summary>
     /// <param name="options">Options used when configuring messages in Azure Functions.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    public static MessageOptions UseViberServiceYubotoOmni(this MessageOptions options, IConfiguration configuration) {
-        options.Services.AddViberServiceYubotoOmni(configuration);
+    public static MessageOptions UseSmsServiceYubotoOmniViber(this MessageOptions options, IConfiguration configuration) {
+        options.Services.AddSmsServiceYubotoOmniViber(configuration);
         return options;
     }
 
-    /// <summary>Adds an instance of <see cref="ISmsService"/> using Yuboto Omni from sending regular SMS messages.</summary>
+    /// <summary>Adds an instance of <see cref="ISmsService"/> using Yuboto Omni for sending regular SMS messages.</summary>
     /// <param name="options">Options used when configuring messages in Azure Functions.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static MessageOptions UseSmsServiceYubotoOmni(this MessageOptions options, IConfiguration configuration) {
         options.Services.AddSmsServiceYubotoOmni(configuration);
+        return options;
+    }
+
+    /// <summary>Adds an instance of <see cref="ISmsService"/> using Vonage for sending regular SMS messages.</summary>
+    /// <param name="options">Options used when configuring messages in Azure Functions.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    public static MessageOptions UseSmsServiceVonage(this MessageOptions options, IConfiguration configuration) {
+        options.Services.AddSmsServiceVonage(configuration);
+        return options;
+    }
+
+    /// <summary>Adds an instance of <see cref="ISmsService"/> using Twilio for sending regular SMS messages.</summary>
+    /// <param name="options">Options used when configuring messages in Azure Functions.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    public static MessageOptions UseSmsServiceTwilio(this MessageOptions options, IConfiguration configuration) {
+        options.Services.AddSmsServiceTwilio(configuration);
         return options;
     }
 

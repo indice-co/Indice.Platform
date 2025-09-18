@@ -135,7 +135,7 @@ public class MessageService : IMessageService
                                 .FirstOrDefaultAsync(c => c.Id == id)
             ?? throw MessageExceptions.MessageNotFound(id);
 
-        var contact = await ContactService.FindByRecipientId(recipientId);
+        var contact = await ContactService.GetByRecipientId(recipientId);
         if (dbCampaign.DistributionListId.HasValue) {
             if (contact is null) {
                 var resolvedContact = await ContactResolver.Resolve(recipientId) ??
@@ -269,6 +269,7 @@ public class MessageService : IMessageService
             Type = x.Campaign.Type != null ? new MessageType {
                 Id = x.Campaign.Type.Id,
                 Name = x.Campaign.Type.Name,
+                Alias = x.Campaign.Type.Alias,
                 Classification = x.Campaign.Type.Classification,
             } : null
         });

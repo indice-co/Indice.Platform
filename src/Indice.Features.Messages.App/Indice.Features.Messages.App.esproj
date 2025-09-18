@@ -9,8 +9,13 @@
     <!-- Folder where production build objects will be placed -->
     <PublishAssetsDirectory>$(MSBuildProjectDirectory)\dist\messages-app\</PublishAssetsDirectory>
     <!-- Disable tests -->
-    <JavaScriptTestRoot></JavaScriptTestRoot>
-    <JavaScriptTestFramework></JavaScriptTestFramework>
+    <JavaScriptTestRoot>
+    </JavaScriptTestRoot>
+    <JavaScriptTestFramework>
+    </JavaScriptTestFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="src\app\features\campaigns\edit\messages\NewFolder\" />
+  </ItemGroup>
 </Project>

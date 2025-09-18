@@ -21,5 +21,5 @@ public interface IRiskResultStore
     /// </summary>
     /// <param name="options"></param>
     /// <returns></returns>
-    Task<ResultSet<DbAggregateRuleExecutionResult>> GetList(ListOptions<AdminRiskFilterRequest> options);
+    Task<ResultSet<DbAggregateRuleExecutionResult>> GetList(ListOptions<AdminRiskResultFilterRequest> options);
 }

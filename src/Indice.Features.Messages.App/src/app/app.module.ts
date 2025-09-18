@@ -23,6 +23,8 @@ import { CampaignEditComponent } from './features/campaigns/edit/campaign-edit.c
 import { CampaignPreviewComponent } from './features/campaigns/create/steps/preview/campaign-preview.component';
 import { CampaignRecipientsComponent } from './features/campaigns/create/steps/recipients/campaign-recipients.component';
 import { CampaignReportsComponent } from './features/campaigns/edit/reports/campaign-reports.component';
+import { CampaignMessagesComponent } from './features/campaigns/edit/messages/campaign-messages.component';
+import { CampaignMessageTimelineComponent } from './features/campaigns/edit/messages/timeline/campaign-message-timeline.component';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { DistributionListImportContactsComponent } from './features/distribution-lists/import-contacts/distribution-list-import-contacts.component';
@@ -39,7 +41,8 @@ import { ContactComponent } from './features/contacts/contact/contact.component'
 import { ContactDetailsComponent } from './features/contacts/contact/details/contact-details.component';
 import { ContactCampaignsComponent } from './features/contacts/contact/campaigns/contact-campaigns.component';
 import { ContactEditComponent } from './features/contacts/contact/details/edit/contact-edit.component';
-
+import { ContactPreferencesComponent } from './features/contacts/contact/preferences/contact-preferences.component';
+import { ContactCreateComponent } from './features/contacts/contact/create/contact-create.component';
 import { HighlightModule, HIGHLIGHT_OPTIONS } from 'ngx-highlightjs';
 import { HomeComponent } from './features/home/home.component';
 import { HttpStatusComponent } from './shared/components/http-status/http-status.component';
@@ -61,6 +64,7 @@ import { TemplateDetailsEditRightpaneComponent } from './features/templates/edit
 import { TemplateEditComponent } from './features/templates/edit/template-edit.component';
 import { TemplatesComponent } from './features/templates/templates.component';
 import { FileUploadComponent } from './shared/components/file-upload/file-upload.component';
+import { DoughnutChartComponent } from './shared/components/doughnut-chart/doughnut-chart.component';
 import { MultiFileUploadComponent } from './shared/components/multi-file-upload/multi-file-upload.component';
 import { CampaignAttachmentsComponent } from './features/campaigns/create/steps/attachments/campaign-attachments.component';
 import { CampaignAttachmentsEditRightpaneComponent } from './features/campaigns/edit/details/rightpane/campaign-edit-attachments-rightpane.component';
@@ -87,7 +91,6 @@ import { MediaSettingEditComponent } from './features/settings/media/edit/media-
 import { CodeEditorModule } from '@acrodata/code-editor';
 import { NgProgressbar } from 'ngx-progressbar';
 import { progressInterceptor, NgProgressHttp } from 'ngx-progressbar/http';
-
 registerLocaleData(localeGreek);
 
 const providers: Provider[] = [
@@ -135,6 +138,8 @@ if (app.settings.tenantId) {
     CampaignPreviewComponent,
     CampaignRecipientsComponent,
     CampaignReportsComponent,
+    CampaignMessagesComponent,
+    CampaignMessageTimelineComponent,
     CampaignsComponent,
     DashboardComponent,
     DistributionListContactCreateComponent,
@@ -151,6 +156,8 @@ if (app.settings.tenantId) {
     ContactDetailsComponent,
     ContactCampaignsComponent,
     ContactEditComponent,
+    ContactPreferencesComponent,
+    ContactCreateComponent,
     HomeComponent,
     LocalDropDownMenuComponent,
     LogOutComponent,
@@ -188,7 +195,8 @@ if (app.settings.tenantId) {
     ListViewComponent,
     ReadOnlyViewComponent,
     MediaSettingsComponent,
-    MediaSettingEditComponent
+  MediaSettingEditComponent,
+  DoughnutChartComponent
   ],
   imports: [
     AppRoutingModule,

@@ -12,13 +12,13 @@ import { Contact, ContactResultSet, MessagesApiClient } from 'src/app/core/servi
 export class ContactsListComponent extends BaseListComponent<Contact> implements OnInit {
   constructor(
     route: ActivatedRoute,
-    private _router: Router,
-    private _api: MessagesApiClient
+    private readonly _router: Router,
+    private readonly _api: MessagesApiClient
     
   ) {
     super(route, _router);
     this.view = ListViewType.Table;
-    this.pageSize = 10;
+    this.pageSize = 20;
     this.sort = 'updatedAt';
     this.sortdir = 'asc';
     this.search = '';
@@ -27,10 +27,11 @@ export class ContactsListComponent extends BaseListComponent<Contact> implements
       new MenuOption('Ονοματεπώνυμο', 'fulname'),
       new MenuOption('e-mail', 'email'),
       new MenuOption('Τηλέφωνο', 'phone'),
+      new MenuOption('Κωδικός', 'recipientId'),
     ];
-  }
+  } 
 
-  public newItemLink: string | null = 'create-contact';
+  public newItemLink: string | null = 'create-new-contact';
   public full = true;
 
   public override ngOnInit(): void {
@@ -40,7 +41,7 @@ export class ContactsListComponent extends BaseListComponent<Contact> implements
   public loadItems(): Observable<IResultSet<Contact> | null | undefined> {
     return this._api
       .getContacts(this.page, this.pageSize, this.sortdir === 'asc' ? this.sort! : this.sort + '-', this.search || undefined, undefined, undefined, undefined,
-        undefined, false)
+        undefined)
       .pipe(map((result: ContactResultSet) => (result as IResultSet<Contact>)));
   }
 

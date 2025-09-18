@@ -18,7 +18,7 @@ namespace Indice.Features.Cases.Tests;
 public class AdminCaseServiceTests : IAsyncLifetime
 {
     public AdminCaseServiceTests() {
-        var inMemorySettings = new Dictionary<string, string> {
+        var inMemorySettings = new Dictionary<string, string?> {
             ["ConnectionStrings:CasesDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=Indice.Features.Cases.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true",
         };
         Microsoft.Extensions.Configuration.IConfiguration configuration = new ConfigurationBuilder()

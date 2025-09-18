@@ -13,6 +13,8 @@
       "src\\Indice.Features.Cases.Server\\Indice.Features.Cases.Server.csproj",
       "src\\Indice.Features.Cases.Workflows\\Indice.Features.Cases.Workflows.csproj",
       "src\\Indice.Features.Cases.UI\\Indice.Features.Cases.UI.csproj",
+      "src\\Indice.Features.FtpServer\\Indice.Features.FtpServer.csproj",
+      "src\\Indice.Features.GeoIP\\Indice.Features.GeoIP.csproj",
       "src\\Indice.Features.GovGr\\Indice.Features.GovGr.csproj",
       "src\\Indice.Features.Identity.AdminUI\\Indice.Features.Identity.AdminUI.csproj",
       "src\\Indice.Features.Identity.Core\\Indice.Features.Identity.Core.csproj",

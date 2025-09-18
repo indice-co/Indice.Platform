@@ -118,14 +118,14 @@
 
 <lib-side-pane #rightPane>
        <div class="mt-4 pb-4 h-screen flex flex-col justify-between">
-              <app-list-contact-create class="overflow-auto min-h-[500px]" #contactCreateComponent (onSubmit)="setRecipients($event); closeSidePane()"
+              <app-list-contact-create class="overflow-auto min-h-[500px]" #distributionListContactCreateComponent (onSubmit)="setRecipients($event); closeSidePane()"
                      (onCancel)="setRecipients($event); closeSidePane()"></app-list-contact-create>
               <div class="side-view-layout-actions-container">
                      <button type="button" class="side-view-layout-action-button-cancel"
-                            (click)="contactCreateComponent.cancel()">
+                            (click)="distributionListContactCreateComponent.cancel()">
                             Κλείσιμο
                      </button>
-                     <button class="side-view-layout-action-button-submit" (click)="contactCreateComponent.submit()">
+                     <button class="side-view-layout-action-button-submit" (click)="distributionListContactCreateComponent.submit()">
                             Προσθήκη
                      </button>
               </div>

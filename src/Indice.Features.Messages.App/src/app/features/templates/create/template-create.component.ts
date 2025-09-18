@@ -1,10 +1,11 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { HeaderMetaItem, Icons, ToasterService, ToastType } from '@indice/ng-components';
-import { CreateTemplateRequest, MessageContent, MessagesApiClient } from 'src/app/core/services/messages-api.service';
+import { HeaderMetaItem, Icons, MenuOption, ToasterService, ToastType } from '@indice/ng-components';
+import { CreateTemplateRequest, MessageContent, MessagesApiClient, MessageTypeResultSet } from 'src/app/core/services/messages-api.service';
 import { CampaignContentComponent } from '../../campaigns/create/steps/content/campaign-content.component';
 import { catchError, EMPTY } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-template-create',
@@ -18,9 +19,15 @@ export class TemplateCreateComponent implements OnInit, AfterViewChecked {
     private _api: MessagesApiClient,
     @Inject(ToasterService) private _toaster: ToasterService,
     private _router: Router
-  ) { }
+  ) {
 
+    this.template.messageTypeId = '';
+  }
+  public selectedOption = new MenuOption('Παρακαλώ επιλέξτε...', null, undefined, {});
+  public messageTypes: MenuOption[] = [];
+  
   public metaItems: HeaderMetaItem[] | null = [];
+
   public basicInfoData: any = {};
   public saveInProgress = false;
   public template = new CreateTemplateRequest();
@@ -32,6 +39,7 @@ export class TemplateCreateComponent implements OnInit, AfterViewChecked {
     this.metaItems = [
       { key: 'info', icon: Icons.Details, text: 'Ακολουθήστε τα παρακάτω βήματα για να δημιουργήσετε ένα νέο πρότυπο.' }
     ];
+    this._loadMessageTypes();
   }
 
   public ngAfterViewChecked(): void {
@@ -53,6 +61,7 @@ export class TemplateCreateComponent implements OnInit, AfterViewChecked {
     }
     this.template.content = content;
     this.template.data = JSON.parse(dataContents ?? "{}");
+    this.template.messageTypeId = this.selectedOption.value;
     this._api
       .createTemplate(new CreateTemplateRequest(this.template))
       .pipe(
@@ -65,5 +74,21 @@ export class TemplateCreateComponent implements OnInit, AfterViewChecked {
         this._toaster.show(ToastType.Success, 'Επιτυχής ενημέρωση', `Το πρότυπο με όνομα '${name}' δημιουργήθηκε με επιτυχία.`);
         this._router.navigate(['templates']);
       });
+  }
+
+  private _loadMessageTypes(): void {
+    this.messageTypes.push(this.selectedOption);
+    this._api
+      .getMessageTypes()
+      .pipe(map((messageTypes: MessageTypeResultSet) => {
+        if (messageTypes.items) {
+          this.messageTypes.push(...messageTypes.items.map(type => new MenuOption(type.name || '', type.id, undefined, type, `dot dot-${type.classification}`)));
+        }
+      }))
+      .subscribe();
+  }
+
+  protected setType(event: MenuOption): void {
+    this.selectedOption = event;
   }
 }

@@ -15,4 +15,11 @@ public class CampaignStatistics
     public int CallToActionCount { get; set; }
     /// <summary></summary>
     public DateTime LastUpdated { get; set; }
+
+
+    /// <summary>Indicates the number of created messages per channel kind.</summary>
+    public Dictionary<string, int> MessagesperChannel{ get; set; } = new Dictionary<string, int>();
+    /// <summary></summary>
+    public int RecipientsCount { get; set; }
+
 }

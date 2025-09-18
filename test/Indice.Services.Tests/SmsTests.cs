@@ -1,4 +1,3 @@
-using Indice.Services.Yuboto;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -22,10 +21,10 @@ public class SmsTests
                 SenderName = senderName,
                 TestMode = true
             });
-            var service = new SmsYubotoOmniService(
+            var service = new SmsServiceYubotoOmni(
                 new HttpClient(),
                 optionsSnapshotMock.Object,
-                new NullLogger<SmsYubotoOmniService>()
+                new NullLogger<SmsServiceYubotoOmni>()
          );
             await service.SendAsync(phoneNumber, subject, body);
         } catch (Exception smsServiceException) {

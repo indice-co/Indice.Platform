@@ -46,7 +46,7 @@
                       <span *ngIf="templateName.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</span>
                     </p>
                     <p class="field-info col-span-3">Η ονομασία η οποία θα εμφανίζεται το πρότυπο.</p>
-
+                    <!-- Alias -->
                     <div class="text-base font-medium text-gray-900"
                          aria-hidden="true">
                       Alias
@@ -70,6 +70,25 @@
                       <span *ngIf="templateAlias.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο alias.</span>
                     </p>
 
+                    <!-- Τύπος -->
+                    <div class="text-base font-medium text-gray-900 mt-3"
+                         aria-hidden="true">
+                      Τύπος
+                    </div>
+                    <label for="templateType"
+                           class="hidden">
+                      Τύπος
+                    </label>
+                    <div class="mt-1 flex rounded-sm">
+                      <lib-local-drop-down-menu id="templateType"
+                                                name="templateType"
+                                                class="w-full"
+                                                [options]="messageTypes"
+                                                [value]="selectedOption"
+                                                (change)="setType($event)">
+                      </lib-local-drop-down-menu>
+                    </div>
+                    <p class="field-info col-span-3"></p>
                     <dl>
                       <div class="py-3 sm:grid sm:grid-cols-3">
                         <dt class="text-sm font-medium text-gray-500">Παράβλεψη ρυθμίσεων επικοινωνίας επαφών</dt>

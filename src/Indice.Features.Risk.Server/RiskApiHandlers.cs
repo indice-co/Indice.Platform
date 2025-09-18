@@ -1,4 +1,5 @@
-﻿using Indice.Features.Risk.Core;
+﻿using Indice.Features.GeoIP;
+using Indice.Features.Risk.Core;
 using Indice.Features.Risk.Core.Models;
 using Indice.Features.Risk.Core.Services;
 using Microsoft.AspNetCore.Http;
@@ -14,8 +15,7 @@ internal static class RiskApiHandlers
         [FromServices] RiskService riskService,
         [FromBody] RiskModel request
     ) {
-        var riskEvent = request.ToRiskEvent();
-        var result = await riskService.GetRiskAsync(riskEvent);
+        var result = await riskService.GetRiskAsync(request);
         var riskResult = result.ToDbAggregateExecutionRiskResult(request);
         await riskStoreService.CreateRiskResultAsync(riskResult);
         return TypedResults.Ok(result);
@@ -25,9 +25,8 @@ internal static class RiskApiHandlers
         [FromServices] RiskStoreService riskStoreService,
         [FromBody] RiskModel request
     ) {
-        var riskEvent = request.ToRiskEvent();
-        await riskStoreService.CreateRiskEventAsync(riskEvent);
-        if (request.ResultId != null) {
+        var riskEvent = await riskStoreService.CreateRiskEventAsync(request);
+        if (request.ResultId != null && request.ResultId != Guid.Empty) {
             await riskStoreService.AddEventIdToRiskResultAsync((Guid)request.ResultId, riskEvent.Id);
         }
         return TypedResults.StatusCode(StatusCodes.Status201Created);

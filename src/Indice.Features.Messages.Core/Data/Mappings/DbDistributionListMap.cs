@@ -25,9 +25,11 @@ public class DbDistributionListMap : IEntityTypeConfiguration<DbDistributionList
         builder.HasKey(x => x.Id);
         // Configure properties.
         builder.Property(x => x.Name).HasMaxLength(TextSizePresets.M128).IsRequired();
+        builder.Property(x => x.Alias).HasMaxLength(TextSizePresets.S64).IsRequired(false);
         builder.Property(x => x.CreatedBy).HasMaxLength(TextSizePresets.M128).IsRequired();
         builder.Property(x => x.UpdatedBy).HasMaxLength(TextSizePresets.M128);
         // Configure indexes.
         builder.HasIndex(x => x.Name).IsUnique();
+        builder.HasIndex(x => x.Alias).IsUnique();
     }
 }
