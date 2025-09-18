@@ -21,6 +21,8 @@ public class DbContact
     public string? PhoneNumber { get; set; }
     /// <summary>Indicates when contact info were last updated.</summary>
     public DateTimeOffset? UpdatedAt { get; set; }
+    /// <summary>Resolved using a contact resolver.</summary>
+    public bool? Resolved { get; set; }
     /// <summary>Contact - Distribution list join entity type.</summary>
     public List<DbDistributionListContact> DistributionListContacts { get; set; } = [];
 }

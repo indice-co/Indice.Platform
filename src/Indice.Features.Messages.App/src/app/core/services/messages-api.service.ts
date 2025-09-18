@@ -4869,6 +4869,7 @@ export class Contact implements IContact {
     unsubscribed?: boolean;
     updatedAt?: Date;
     isAnonymous?: boolean;
+    resolved?: boolean;
     preference?: ContactPreference;
 
     constructor(data?: IContact) {
@@ -4893,6 +4894,7 @@ export class Contact implements IContact {
             this.unsubscribed = _data["unsubscribed"];
             this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : undefined as any;
             this.isAnonymous = _data["isAnonymous"];
+            this.resolved = _data["resolved"];
             this.preference = _data["preference"] ? ContactPreference.fromJS(_data["preference"]) : undefined as any;
         }
     }
@@ -4917,6 +4919,7 @@ export class Contact implements IContact {
         data["unsubscribed"] = this.unsubscribed;
         data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : undefined as any;
         data["isAnonymous"] = this.isAnonymous;
+        data["resolved"] = this.resolved;
         data["preference"] = this.preference ? this.preference.toJSON() : undefined as any;
         return data;
     }
@@ -4934,6 +4937,7 @@ export interface IContact {
     unsubscribed?: boolean;
     updatedAt?: Date;
     isAnonymous?: boolean;
+    resolved?: boolean;
     preference?: ContactPreference;
 }
 

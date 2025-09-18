@@ -54,6 +54,7 @@ internal static class Mapper
         RecipientId = contact.RecipientId,
         Salutation = contact.Salutation,
         UpdatedAt = contact.UpdatedAt,
+        Resolved = contact.Resolved == true,
         Unsubscribed = contact.DistributionListContacts.Any() && contact.DistributionListContacts[0].Unsubscribed
     };
 
@@ -148,7 +149,8 @@ internal static class Mapper
         PhoneNumber = contact.PhoneNumber,
         RecipientId = contact.RecipientId,
         Salutation = contact.Salutation,
-        UpdatedAt = DateTimeOffset.UtcNow
+        UpdatedAt = DateTimeOffset.UtcNow,
+        Resolved = contact.Resolved,
     };
 
     public static DbContact ToDbContact(CreateContactRequest request) => new() {
