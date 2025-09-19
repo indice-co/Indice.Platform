@@ -1,0 +1,45 @@
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { RecipientMessageEvents, MessagesApiClient } from 'src/app/core/services/messages-api.service';
+import { ModalService } from '@indice/ng-components';
+import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
+
+@Component({
+  selector: 'app-campaign-message-timeline',
+  templateUrl: './campaign-message-timeline.component.html'
+})
+export class CampaignMessageTimelineComponent implements OnInit {
+  public _campaignId: string | undefined;
+  public _contactId: string | undefined;
+  public campaignTimeline: RecipientMessageEvents | undefined;
+
+  constructor(
+    private _router: Router,
+    private _activatedRoute: ActivatedRoute,
+    private _api: MessagesApiClient,
+    private _modalService: ModalService
+  ) { }
+
+  public ngOnInit(): void {
+    this._campaignId = this._activatedRoute.parent?.parent?.snapshot.params['campaignId'];
+    this._contactId = this._activatedRoute.snapshot.params['contactId'];
+    this._api.getCampaignMessageDetails(this._campaignId!, this._contactId!).subscribe(data => {
+      this.campaignTimeline = data;
+    });
+  }
+
+  public openEmailContent(type: string): void {
+    const content: any = this.campaignTimeline?.content && (this.campaignTimeline.content as any)[type];
+    if (!content) { return; }
+    this._modalService.show(BasicModalComponent, {
+      backdrop: true,
+      initialState: {
+        title: content.title ?? '',
+        message: content.body ?? '',
+        acceptText: '',
+        type: 'success',
+        class: type === 'email'||  type === 'inbox' ? 'html' : ''
+      }
+    });
+  }
+}

@@ -45,7 +45,10 @@
             Τύπος μηνύματος
             <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editMessageType' }"></ng-container>
           </dt>
-          <dd class="mt-1 text-sm text-gray-900">{{ template?.messageType?.name ?? '-' }}</dd>
+          <dd class="mt-1 text-sm text-gray-900">
+            <span *ngIf="template?.messageType" class="message-type-badge {{template?.messageType?.classification}}">{{ template?.messageType?.name}}</span>
+            {{ template?.messageType ? '' : '-' }}
+          </dd>
         </div>
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">

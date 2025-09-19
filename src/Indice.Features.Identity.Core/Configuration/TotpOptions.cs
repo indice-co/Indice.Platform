@@ -33,7 +33,7 @@ public abstract class TotpOptionsBase
     public const int DefaultCodeLength = 6;
     /// <summary>Indicates the length of the OTP code. Defaults to 6.</summary>
     public int CodeLength { get; set; } = DefaultCodeLength;
-    /// <summary>Specifies the duration in seconds in which the one-time password is valid. Default is 1 minute. For security reasons this value cannot exceed 6 minutes.</summary>
+    /// <summary>Specifies the duration in minutes in which the one-time password is valid. Default is 1 minute. For security reasons this value cannot exceed 6 minutes.</summary>
     public int CodeDuration { get; set; } = DefaultCodeDuration;
     /// <summary>An interval which will be used to calculate the value of the validity window.</summary>
     public double Timestep => CodeDuration / 2.0;

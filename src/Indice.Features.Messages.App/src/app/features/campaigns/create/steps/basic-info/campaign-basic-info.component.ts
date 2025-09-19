@@ -100,6 +100,7 @@ export class CampaignBasicInfoComponent implements OnInit {
         this.messageTypesForCombobox = fetchedMessageTypes.items.map(type => ({
           name: type.name || '',
           id: type.id,
+          icon: type.classification,
           toString: function () { return this.name; }
         }));
 
@@ -123,6 +124,7 @@ export class CampaignBasicInfoComponent implements OnInit {
         const newItems = fetchedMessageTypes.items.map(type => ({
           name: type.name || '',
           id: type.id,
+          icon: type.classification,
           toString: function () { return this.name; }
         }));
 

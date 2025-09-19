@@ -12,6 +12,9 @@ namespace Indice.Services;
 /// </summary>
 public class EmailServiceBrevo : IEmailService
 {
+    /// <summary>Represents the name of the Brevo service as a constant string value.</summary>
+    public const string ServiceName = "Brevo";
+
     /// <summary>Creates a new instance of <see cref="EmailServiceBrevo"/>.</summary>
     /// <param name="settings">An instance of <see cref="EmailServiceBrevoSettings"/> used to initialize the service.</param>
     /// <param name="httpClient">The HTTP client to use (DI managed)</param>
@@ -21,6 +24,7 @@ public class EmailServiceBrevo : IEmailService
         HttpClient httpClient,
         IHtmlRenderingEngine htmlRenderingEngine) {
         Settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
+        Provider = new EmailProvider(ServiceName, new EmailSender(Settings.Sender!, Settings.SenderName));
         HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         HtmlRenderingEngine = htmlRenderingEngine ?? throw new ArgumentNullException(nameof(htmlRenderingEngine));
         if (HttpClient.BaseAddress == null) {
@@ -33,6 +37,8 @@ public class EmailServiceBrevo : IEmailService
     private HttpClient HttpClient { get; }
     /// <inheritdoc/>
     public IHtmlRenderingEngine HtmlRenderingEngine { get; }
+    /// <inheritdoc/>
+    public EmailProvider Provider { get; }
 
     /// <inheritdoc/>
     public async Task<SendReceipt> SendAsync(string[] recipients, string subject, string? body, EmailAttachment[]? attachments = null, EmailSender? from = null) {
