@@ -142,14 +142,15 @@ export class UserClaimsStepComponent
 
   public addClaim(): void {
     const resources = this.data.form.get("claims").value as Array<ClaimInfo>;
-    const claim = new ClaimInfo({
-      type: this.selectedClaimName,
-      value:
+      const claim = new ClaimInfo({
+        id: Date.now(),
+        type: this.selectedClaimName,
+        value:
         this.selectedClaimValueType === ClaimValueType.DateTime
-          ? this._dateParser.format(this.selectedClaimValue as NgbDateStruct)
-          : this.selectedClaimValue,
+            ? this._dateParser.format(this.selectedClaimValue as NgbDateStruct)
+            : this.selectedClaimValue
     });
-    resources.push(claim);
+      resources.push(claim);
     this.selectedClaimName = "";
     this.selectedClaimValue = "";
     this.data.form.get("claims").setValue(resources);

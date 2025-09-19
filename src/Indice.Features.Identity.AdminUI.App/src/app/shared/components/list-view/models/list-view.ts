@@ -30,6 +30,7 @@ export class ListView {
     @Input() public canFilter = false;
     @Input() public rowHeight = 50;
     @Input() public filter: any = null;
+    @Input() public trackByProp: any = "id";
     public minimumSearchCharacters = 3;
     public searchTerm?: string;
     protected queryParamsSubscription: Subscription;
