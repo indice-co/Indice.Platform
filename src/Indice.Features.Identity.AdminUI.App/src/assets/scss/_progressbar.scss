@@ -6,3 +6,7 @@
 .progress-bar {
   background-color: $primary;
 }
+
+.ng-progress-bar {
+    --ng-progress-color: rgb(255, 193, 7)
+}
