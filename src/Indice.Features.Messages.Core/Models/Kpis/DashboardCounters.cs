@@ -1,5 +1,4 @@
-﻿
-namespace Indice.Features.Messages.Core.Models.Requests;
+﻿namespace Indice.Features.Messages.Core.Models.Kpis;
 /// <summary>
 /// Represents various counters for the dashboard, including campaign and message statistics.
 /// </summary>
@@ -15,4 +14,6 @@ public class DashboardCounters
     public int ContactsTotal { get; set; }
     /// <summary>Indicates the number of known contacts (with email or phone).</summary>
     public int ContactsKnownTotal { get; set; }
+    /// <summary>Indicates the number of messages created.</summary>
+    public RecipientStats Recipients { get; set; } = new();
 }

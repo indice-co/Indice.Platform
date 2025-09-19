@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 using Indice.Extensions;
 using Indice.Features.Messages.Core.Data.Models;
+using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Manager.Commands;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Types;
@@ -151,6 +152,15 @@ internal static class Mapper
         Salutation = contact.Salutation,
         UpdatedAt = DateTimeOffset.UtcNow,
         Resolved = contact.Resolved,
+    };
+
+    public static DbMessageEvent ToDbEvent(this MessageEvent messageEvent) => new() {
+        CampaignId = messageEvent.CampaignId,
+        ContactId = messageEvent.ContactId,
+        CreatedOn = messageEvent.CreatedOn,
+        MessageId = messageEvent.MessageId,
+        Type = messageEvent.Type,
+        Channel = messageEvent.Channel
     };
 
     public static DbContact ToDbContact(CreateContactRequest request) => new() {

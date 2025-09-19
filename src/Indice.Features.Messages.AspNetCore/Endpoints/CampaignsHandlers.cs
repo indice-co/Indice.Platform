@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Indice.Features.Media.AspNetCore;
+using Indice.Features.Messages.Core.Models.Kpis;
 
 namespace Indice.Features.Messages.AspNetCore.Endpoints;
 
@@ -137,7 +138,8 @@ internal static class CampaignsHandlers
             CampaignsPublishedCount = (await campaignService.GetList(new() { Page = 1, Size = 0, Filter = new () { Published = true } })).Count,
             ContactsTotal = (await contactService.GetList(new() { Page = 1, Size = 0 })).Count,
             ContactsKnownTotal = (await contactService.GetList(new() { Page = 1, Size = 0, Filter = new () { Anonymous = false } })).Count,
-            CampaignsByType = await campaignService.GetDashboardCounters()
+            CampaignsByType = await campaignService.GetDashboardCounters(),
+            Recipients = (await campaignService.GetPerformance())!
         };
         return TypedResults.Ok(counters);
     }

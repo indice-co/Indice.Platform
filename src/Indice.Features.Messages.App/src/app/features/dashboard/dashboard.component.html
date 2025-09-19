@@ -53,13 +53,16 @@
       <dt class="text-base font-normal text-gray-900 dark:text-gray-100">Messages sent</dt>
       <dd class="mt-1 flex items-baseline justify-between md:block lg:flex">
         <div class="flex items-baseline text-2xl font-semibold text-indigo-600 dark:text-indigo-400">
-          {{
- counters?.campaignsByType?.Email ?? 0 +
-            counters?.campaignsByType?.SMS ?? 0 +
-            counters?.campaignsByType?.PushNotification ?? 0 +
-            counters?.campaignsByType?.Inbox ?? 0
-          }}
+          {{ counters?.recipients?.reached || 0 }}
           <span class="ml-2 text-sm font-medium text-gray-500 dark:text-gray-400">total</span>
+        </div>
+
+        <div class="inline-flex items-baseline rounded-full bg-green-100 px-2.5 py-0.5 text-sm font-medium text-green-800 md:mt-2 lg:mt-0 dark:bg-green-400/10 dark:text-green-400">
+          <!--<svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="mr-0.5 -ml-1 size-5 shrink-0 self-center text-green-500 dark:text-green-400">
+            <path d="M10 17a.75.75 0 0 1-.75-.75V5.612L5.29 9.77a.75.75 0 0 1-1.08-1.04l5.25-5.5a.75.75 0 0 1 1.08 0l5.25 5.5a.75.75 0 1 1-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0 1 10 17Z" clip-rule="evenodd" fill-rule="evenodd"></path>
+          </svg>-->
+          <span class="sr-only"> Avg Reachability </span>
+          {{ counters?.recipients?.coverage | percent:'2.1-1' }}
         </div>
       </dd>
     </div>

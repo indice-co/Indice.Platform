@@ -81,7 +81,7 @@ public class MessageService : IMessageService
                 CampaignId = message.CampaignId,
                 ContactId = message.ContactId.Value,
                 MessageId = message.Id,
-                Type = MessageEventType.MarkedAsDeleted.ToString(),
+                Type = MessageEventType.Deleted.ToString(),
                 Channel = MessageChannelKind.Inbox.ToString()
             });
         }
@@ -114,7 +114,7 @@ public class MessageService : IMessageService
                 CampaignId = message.CampaignId,
                 ContactId = message.ContactId.Value,
                 MessageId = message.Id,
-                Type = MessageEventType.MarkedAsRead.ToString(),
+                Type = MessageEventType.Read.ToString(),
                 Channel = MessageChannelKind.Inbox.ToString()
             });
         }
@@ -174,7 +174,7 @@ public class MessageService : IMessageService
                     CampaignId = message.CampaignId,
                     ContactId = message.ContactId.Value,
                     MessageId = message.Id,
-                    Type = MessageEventType.MarkedAsUnread.ToString(),
+                    Type = MessageEventType.UnRead.ToString(),
                     Channel = MessageChannelKind.Inbox.ToString()
                 });
             }

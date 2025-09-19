@@ -1,5 +1,6 @@
 ﻿using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Events;
+using Indice.Features.Messages.Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -49,7 +50,7 @@ public class CampaignEventHandler(
 
     /// <summary>Upserts a batch of campaign events into the database.</summary>
     private static async Task UpsertBatchAsync(List<MessageEvent> lastActivityBatch, CampaignsDbContext db, CancellationToken stoppingToken) {
-        var entries = lastActivityBatch.Select(activity => activity.GetDbEvent());
+        var entries = lastActivityBatch.Select(activity => activity.ToDbEvent());
         await db.MessageEvents.AddRangeAsync(entries, stoppingToken);
         await db.SaveChangesAsync(stoppingToken);
     }
