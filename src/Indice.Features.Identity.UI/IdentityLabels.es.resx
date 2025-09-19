@@ -891,4 +891,76 @@
   <data name="Error_RequestId" xml:space="preserve">
     <value>ID de solicitud</value>
   </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="ProfileSidebar_ConfirmEmailSentTo" xml:space="preserve">
+    <value>Se ha enviado un correo de confirmación a {0}.</value>
+  </data>
+  <data name="ProfileSidebar_NewEmailConfirmationSent" xml:space="preserve">
+    <value>Se ha enviado un correo a su nueva dirección para confirmarla.</value>
+  </data>
+  <data name="ProfileSidebar_BirthDate" xml:space="preserve">
+    <value>Fecha de nacimiento</value>
+  </data>
+  <data name="ProfileSidebar_CallingCode" xml:space="preserve">
+    <value>Código de llamada</value>
+  </data>
+  <data name="ProfileSidebar_Confirmation" xml:space="preserve">
+    <value>Confirmación</value>
+  </data>
+  <data name="ProfileSidebar_ConfirmationEmailFailed" xml:space="preserve">
+    <value>El envío del correo de confirmación ha fallado. Por favor, contacte con el administrador del sistema.</value>
+  </data>
+  <data name="ProfileSidebar_ConnectNewProvider" xml:space="preserve">
+    <value>Conectar un nuevo proveedor</value>
+  </data>
+  <data name="ProfileSidebar_DeveloperTOTP" xml:space="preserve">
+    <value>TOTP para desarrolladores</value>
+  </data>
+  <data name="ProfileSidebar_ExistingProviders" xml:space="preserve">
+    <value>Proveedores existentes</value>
+  </data>
+  <data name="ProfileSidebar_ExternalProviders" xml:space="preserve">
+    <value>Proveedores externos</value>
+  </data>
+  <data name="ProfileSidebar_FirstName" xml:space="preserve">
+    <value>Nombre</value>
+  </data>
+  <data name="ProfileSidebar_Here" xml:space="preserve">
+    <value>aquí</value>
+  </data>
+  <data name="ProfileSidebar_DataProcessingConsent" xml:space="preserve">
+    <value>He sido informado sobre el tratamiento de mis datos personales y doy mi consentimiento, tal como se define específicamente</value>
+  </data>
+  <data name="ProfileSidebar_LastName" xml:space="preserve">
+    <value>Apellido</value>
+  </data>
+  <data name="ProfileSidebar_PhoneNumber" xml:space="preserve">
+    <value>Número de teléfono</value>
+  </data>
+  <data name="ProfileSidebar_Profile" xml:space="preserve">
+    <value>Perfil</value>
+  </data>
+  <data name="ProfileSidebar_Remove" xml:space="preserve">
+    <value>Eliminar</value>
+  </data>
+  <data name="ProfileSidebar_Save" xml:space="preserve">
+    <value>Guardar</value>
+  </data>
+  <data name="ProfileSidebar_TaxIdentification" xml:space="preserve">
+    <value>Identificación fiscal</value>
+  </data>
+  <data name="ProfileSidebar_Unknown" xml:space="preserve">
+    <value>Desconocido</value>
+  </data>
+  <data name="ProfileSidebar_Username" xml:space="preserve">
+    <value>Nombre de usuario</value>
+  </data>
+  <data name="ProfileSidebar_NewEmailVerificationPending" xml:space="preserve">
+    <value>La verificación de su nuevo correo electrónico sigue pendiente.</value>
+  </data>
+  <data name="ProfileSidebar_ProfileUpdatedSuccessfully" xml:space="preserve">
+    <value>Su perfil se actualizó correctamente.</value>
+  </data>
 </root>

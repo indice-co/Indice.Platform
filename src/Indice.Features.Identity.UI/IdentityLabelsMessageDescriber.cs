@@ -7,6 +7,8 @@ namespace Indice.Features.Identity.UI;
 /// </summary>
 public class IdentityLabelsMessageDescriber
 {
+    /// <summary>Text for the email label.</summary>
+    public virtual string Email => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Email);
     #region AcceptTerms
     /// <summary>Text for the Accept button on the Accept Terms page.</summary>
     public virtual string AcceptTerms_Accept => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AcceptTerms_Accept);
@@ -727,7 +729,7 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     /// Label for Manage Profile action.
     /// </summary>
-    public virtual string Profile_Manage_Profile =>  string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_ManageProfile);
+    public virtual string Profile_Manage_Profile => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_ManageProfile);
 
     /// <summary>
     /// Placeholder text for dropdowns or selection inputs in profile forms.
@@ -737,7 +739,7 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     /// Email label in profile forms.
     /// </summary>
-    public virtual string Profile_Email =>string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_Email);
+    public virtual string Profile_Email => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_Email);
 
     /// <summary>
     /// Label for timezone selection in profile forms.
@@ -918,7 +920,7 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     /// Instruction shown at the top of the registration form explaining what the user needs to do.
     /// </summary>
-    public virtual string Register_To_register_as_a_new_user_you_will_need_to_fill_in_the_following_information =>  string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_FillInInformation);
+    public virtual string Register_To_register_as_a_new_user_you_will_need_to_fill_in_the_following_information => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_FillInInformation);
 
     /// <summary>
     ///   Gets the localized string for "Already have an account?".
@@ -1055,5 +1057,29 @@ public class IdentityLabelsMessageDescriber
     public virtual string VerifyPhone_OTP_is_valid_till => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.VerifyPhone_OTP_is_valid_till);
 
     #endregion
+
+    public virtual string ProfileSidebar_ConfirmEmailSentTo => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_ConfirmEmailSentTo);
+    public virtual string ProfileSidebar_NewEmailConfirmationSent => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_NewEmailConfirmationSent);
+    public virtual string ProfileSidebar_BirthDate => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_BirthDate);
+    public virtual string ProfileSidebar_CallingCode => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_CallingCode);
+    public virtual string ProfileSidebar_Confirmation => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_Confirmation);
+    public virtual string ProfileSidebar_ConfirmationEmailFailed => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_ConfirmationEmailFailed);
+    public virtual string ProfileSidebar_ConnectNewProvider => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_ConnectNewProvider);
+    public virtual string ProfileSidebar_DeveloperTOTP => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_DeveloperTOTP);
+    public virtual string ProfileSidebar_ExistingProviders => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_ExistingProviders);
+    public virtual string ProfileSidebar_ExternalProviders => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_ExternalProviders);
+    public virtual string ProfileSidebar_FirstName => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_FirstName);
+    public virtual string ProfileSidebar_Here => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_Here);
+    public virtual string ProfileSidebar_DataProcessingConsent => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_DataProcessingConsent);
+    public virtual string ProfileSidebar_LastName => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_LastName);
+    public virtual string ProfileSidebar_PhoneNumber => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_PhoneNumber);
+    public virtual string ProfileSidebar_Profile => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_Profile);
+    public virtual string ProfileSidebar_Remove => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_Remove);
+    public virtual string ProfileSidebar_Save => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_Save);
+    public virtual string ProfileSidebar_TaxIdentification => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_TaxIdentification);
+    public virtual string ProfileSidebar_Unknown => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_Unknown);
+    public virtual string ProfileSidebar_Username => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_Username);
+    public virtual string ProfileSidebar_NewEmailVerificationPending => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_NewEmailVerificationPending);
+    public virtual string ProfileSidebar_ProfileUpdatedSuccessfully  => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_ProfileUpdatedSuccessfully);
 
 }

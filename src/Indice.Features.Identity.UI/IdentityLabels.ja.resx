@@ -891,4 +891,76 @@
   <data name="Error_RequestId" xml:space="preserve">
     <value>リクエストID</value>
   </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="ProfileSidebar_ConfirmEmailSentTo" xml:space="preserve">
+    <value>{0} に確認メールが送信されました。</value>
+  </data>
+  <data name="ProfileSidebar_NewEmailConfirmationSent" xml:space="preserve">
+    <value>新しいメールアドレスの確認のためにメールが送信されました。</value>
+  </data>
+  <data name="ProfileSidebar_BirthDate" xml:space="preserve">
+    <value>生年月日</value>
+  </data>
+  <data name="ProfileSidebar_CallingCode" xml:space="preserve">
+    <value>国番号</value>
+  </data>
+  <data name="ProfileSidebar_Confirmation" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="ProfileSidebar_ConfirmationEmailFailed" xml:space="preserve">
+    <value>確認メールの配信に失敗しました。システム管理者に連絡してください。</value>
+  </data>
+  <data name="ProfileSidebar_ConnectNewProvider" xml:space="preserve">
+    <value>新しいプロバイダーを接続</value>
+  </data>
+  <data name="ProfileSidebar_DeveloperTOTP" xml:space="preserve">
+    <value>開発者TOTP</value>
+  </data>
+  <data name="ProfileSidebar_ExistingProviders" xml:space="preserve">
+    <value>既存のプロバイダー</value>
+  </data>
+  <data name="ProfileSidebar_ExternalProviders" xml:space="preserve">
+    <value>外部プロバイダー</value>
+  </data>
+  <data name="ProfileSidebar_FirstName" xml:space="preserve">
+    <value>名</value>
+  </data>
+  <data name="ProfileSidebar_Here" xml:space="preserve">
+    <value>こちら</value>
+  </data>
+  <data name="ProfileSidebar_DataProcessingConsent" xml:space="preserve">
+    <value>個人データの処理について説明を受け、同意します。</value>
+  </data>
+  <data name="ProfileSidebar_LastName" xml:space="preserve">
+    <value>姓</value>
+  </data>
+  <data name="ProfileSidebar_PhoneNumber" xml:space="preserve">
+    <value>電話番号</value>
+  </data>
+  <data name="ProfileSidebar_Profile" xml:space="preserve">
+    <value>プロフィール</value>
+  </data>
+  <data name="ProfileSidebar_Remove" xml:space="preserve">
+    <value>削除</value>
+  </data>
+  <data name="ProfileSidebar_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="ProfileSidebar_TaxIdentification" xml:space="preserve">
+    <value>税番号</value>
+  </data>
+  <data name="ProfileSidebar_Unknown" xml:space="preserve">
+    <value>不明</value>
+  </data>
+  <data name="ProfileSidebar_Username" xml:space="preserve">
+    <value>ユーザー名</value>
+  </data>
+  <data name="ProfileSidebar_NewEmailVerificationPending" xml:space="preserve">
+    <value>新しいメールアドレスの確認がまだ完了していません。</value>
+  </data>
+  <data name="ProfileSidebar_ProfileUpdatedSuccessfully" xml:space="preserve">
+    <value>プロフィールが正常に更新されました。</value>
+  </data>
 </root>

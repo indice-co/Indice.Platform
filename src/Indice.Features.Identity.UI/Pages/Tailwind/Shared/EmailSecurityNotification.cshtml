@@ -1,6 +1,7 @@
 ﻿@inject IIdentityViewLocalizer Localizer
 @inject IOptions<GeneralSettings> GeneralSettings
 @inject IOptions<IdentityUIOptions> UIOptions
+@inject IdentityLabelsMessageDescriber Labels
 @model Indice.Features.Identity.Core.Models.SecurityNotificationModel
 @{
     Layout = "_LayoutEmail.cshtml";
@@ -24,7 +25,7 @@
     <ul>
         <li>@Localizer["Event time"]: @Model.TimeStamp.LocalDateTime.ToString("f")</li>
         <li>@Localizer["Username"]: @Model.UserName</li>
-        <li>@Localizer["Email"]: @Model.User?.Email</li>
+        <li>@Labels.Email: @Model.User?.Email</li>
         @if (Model.Device != null)
         {
             <li>@Localizer["Device"]: @Model.Device.Name (@Model.Device.ClientType)</li>

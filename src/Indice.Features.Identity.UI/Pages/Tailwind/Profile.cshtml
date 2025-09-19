@@ -62,8 +62,8 @@
             </div>
             <div class="input-group">
                 <a indice-if="Model.View.EmailChangePending" href="#" id="resend-email-link" style="font-size: x-small;">(@Labels.Profile_Confirmation →)</a>
-                <input class="peer" type="text" placeholder="@Localizer["Email"]" asp-for="Input.Email" />
-                <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.Email">@Localizer["Email"]</label>
+                <input class="peer" type="text" placeholder="@Labels.Email" asp-for="Input.Email" />
+                <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.Email">@Labels.Email</label>
                 <span asp-validation-for="Input.Email" class="text-danger"></span>
             </div>
         </div>

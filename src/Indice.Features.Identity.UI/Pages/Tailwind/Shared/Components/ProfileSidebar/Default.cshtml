@@ -1,4 +1,5 @@
 ﻿@inject IViewLocalizer Localizer
+@inject IdentityLabelsMessageDescriber Labels
 
 @model ProfileViewModel
 
@@ -34,7 +35,7 @@
             <div class="input-group flex flex-col mb-3">
                 <a indice-if="Model.EmailChangePending" href="#" id="resend-email-link" style="font-size: x-small;">(@Localizer["Confirmation"] →)</a>
                 <span>@Model.Email</span>
-                <label> @Localizer["Email"]</label>
+                <label> @Labels.Email</label>
             </div>
         </div>
         <div class="row">

@@ -54,8 +54,8 @@
             <div class="row">
                 <div indice-if="!userManager.EmailAsUserName" class="@(identityUiOptions.Value.EnablePhoneNumberCallingCodes ? "col-md-12" : "col-md-6")">
                     <div class="mb-3">
-                        <label asp-for="Input.Email" class="form-label">@Localizer["Email"]</label>
-                        <input class="form-control" type="text" asp-for="Input.Email" placeholder="@Localizer["Email"]" />
+                        <label asp-for="Input.Email" class="form-label">@Labels.Email</label>
+                        <input class="form-control" type="text" asp-for="Input.Email" placeholder="@Labels.Email" />
                         <span asp-validation-for="Input.Email" class="text-danger"></span>
                     </div>
                 </div>
@@ -109,8 +109,8 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="mb-3">
-                        <label asp-for="Input.Email" class="form-label">@Localizer["Email"]</label>
-                        <input class="form-control" type="text" asp-for="Input.Email" placeholder="@Localizer["Email"]" />
+                        <label asp-for="Input.Email" class="form-label">@Labels.Email</label>
+                        <input class="form-control" type="text" asp-for="Input.Email" placeholder="@Labels.Email" />
                         <span asp-validation-for="Input.Email" class="text-danger"></span>
                     </div>
                 </div>

@@ -82,10 +82,10 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label asp-for="Input.Email" class="form-label">
-                        Email
+                        @Labels.Email
                         <a indice-if="Model.View.EmailChangePending" href="#" id="resend-email-link" style="font-size: x-small;">(@Labels.Profile_Confirmation →)</a>
                     </label>
-                    <input class="form-control" type="text" placeholder="Email" asp-for="Input.Email" />
+                    <input class="form-control" type="text" placeholder="@Labels.Email" asp-for="Input.Email" />
                     <span asp-validation-for="Input.Email" class="text-danger"></span>
                 </div>
             </div>
