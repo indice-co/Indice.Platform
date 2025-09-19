@@ -1,10 +1,7 @@
 ﻿@page "/logout"
 
-@inject IIdentityViewLocalizer Localizer
-
 @model BaseLogoutModel
-
-@inject Indice.Features.Identity.UI.IdentityLabelsMessageDescriber Labels
+@inject IdentityLabelsMessageDescriber Labels
 
 @{
     var title = ViewData["Title"] = Labels.Logout_Logout;

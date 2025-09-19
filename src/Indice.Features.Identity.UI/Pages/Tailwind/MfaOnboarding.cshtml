@@ -2,13 +2,11 @@
 
 @model BaseMfaOnboardingModel
 
-@inject IIdentityViewLocalizer Localizer
 @inject IConfiguration Configuration
-@inject Indice.Features.Identity.UI.IdentityLabelsMessageDescriber Labels
-
+@inject IdentityLabelsMessageDescriber Labels
 
 @{
-    var title = ViewData["Title"] = Localizer["Enable MFA"].Value;
+    var title = ViewData["Title"] = @Labels.MfaOnBoarding_Enable_MFA;
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;
 }

@@ -1,10 +1,7 @@
 ﻿@page "/set-language"
 
-@inject IIdentityViewLocalizer Localizer
-
 @model BaseSetLanguageModel
-@inject Indice.Features.Identity.UI.IdentityLabelsMessageDescriber Labels
-
+@inject IdentityLabelsMessageDescriber Labels
 
 @{
     ViewData["Title"] = Labels.SetLanguage_Setting_ui_language;

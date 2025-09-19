@@ -5,7 +5,7 @@
 @inject IIdentityViewLocalizer Localizer
 @inject ExtendedUserManager<User> userManager
 
-@inject Indice.Features.Identity.UI.IdentityLabelsMessageDescriber Labels
+@inject IdentityLabelsMessageDescriber Labels
 
 @{
     var title = ViewData["Title"] = Labels.Login_Login;
@@ -67,12 +67,12 @@
                     {
                         <div class="col-sm-6 col-12 py-1">
                             <a class="btn btn-link w-100" asp-page="@Model.UiOptions.OnBoardingPage" asp-route-returnUrl="@Model.View.ReturnUrl">
-                                @Labels. Localizer["Join us"]
+                                @Labels.Login_Join_Us
                             </a>
                         </div>
                     }
                     <div class="@(Model.UiOptions.EnableRegisterPage || Model.UiOptions.HasCustomOnBoarding ? "col-sm-6" : string.Empty) col-12 py-1">
-                        <button class="btn btn-primary w-100" name="button" value="login" type="submit">@Localizer["Sign in"]</button>
+                        <button class="btn btn-primary w-100" name="button" value="login" type="submit">@Labels.Login_Sign_In</button>
                     </div>
                 </div>
             </div>

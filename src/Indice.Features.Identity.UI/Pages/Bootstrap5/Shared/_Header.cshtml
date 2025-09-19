@@ -4,7 +4,7 @@
 @inject IIdentityViewLocalizer Localizer
 @inject ExtendedSignInManager<User> SignInManager
 @inject ExtendedUserManager<User> UserManager
-@inject Indice.Features.Identity.UI.IdentityLabelsMessageDescriber Labels
+@inject IdentityLabelsMessageDescriber Labels
 
 @{
     var displayMenu = SignInManager.IsSignedIn(User) && !User.IsSignedInWithScheme(ExtendedIdentityConstants.ExtendedValidationScheme);

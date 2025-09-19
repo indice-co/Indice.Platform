@@ -1,7 +1,6 @@
-﻿@inject IIdentityViewLocalizer Localizer
-@inject IOptions<GeneralSettings> GeneralSettings
+﻿@inject IOptions<GeneralSettings> GeneralSettings
 @inject IOptions<IdentityUIOptions> UIOptions
-@inject Indice.Features.Identity.UI.IdentityLabelsMessageDescriber Labels
+@inject IdentityLabelsMessageDescriber Labels
 @model Indice.Features.Identity.Core.Models.SecurityNotificationModel
 @{
     Layout = "_LayoutEmail.cshtml";

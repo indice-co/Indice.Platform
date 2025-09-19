@@ -2,8 +2,7 @@
 
 @model BaseAssociateModel
 
-@inject IIdentityViewLocalizer Localizer
-@inject Indice.Features.Identity.UI.IdentityLabelsMessageDescriber Labels
+@inject IdentityLabelsMessageDescriber Labels
 
 @{
     var title = ViewData["Title"] = Labels.Register_Associate_your_Account(Model.View.Provider);
@@ -41,8 +40,8 @@
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label asp-for="Input.Email" class="form-label">@Localizer["Email"]</label>
-                    <input class="form-control" type="email" asp-for="Input.Email" placeholder="@Localizer["Email"]" />
+                    <label asp-for="Input.Email" class="form-label">Email</label>
+                    <input class="form-control" type="email" asp-for="Input.Email" placeholder="Email" />
                     <span asp-validation-for="Input.Email" class="text-danger"></span>
                 </div>
             </div>

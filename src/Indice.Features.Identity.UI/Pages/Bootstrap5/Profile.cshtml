@@ -4,7 +4,7 @@
 @inject CallingCodesProvider callingCodesProvider
 @inject IOptions<IdentityUIOptions> identityUiOptions
 @inject ExtendedUserManager<User> userManager
-@inject Indice.Features.Identity.UI.IdentityLabelsMessageDescriber Labels
+@inject IdentityLabelsMessageDescriber Labels
 
 @model BaseProfileModel
 
@@ -50,7 +50,7 @@
     }
     @if (Model.View.EmailChangePending && !Model.ProfileSuccessfullyChanged)
     {
-        <partial name="_Alert" model="@AlertModel.Warn(Localizer.GetString("Your new email verification is still pending."))" />
+        <partial name="_Alert" model="@AlertModel.Warn(Labels.Profile_Your_New_Email_Verification_Is_Still_Pending)" />
     }
     <partial name="_Alert" model="alert" />
     <partial name="_ValidationSummary" />
@@ -65,8 +65,8 @@
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label asp-for="Input.LastName" class="form-label">@Localizer["Last name"]</label>
-                    <input class="form-control" type="text" placeholder="@Localizer["Last name"]" asp-for="Input.LastName" />
+                    <label asp-for="Input.LastName" class="form-label">@Labels.Profile_Last_Name</label>
+                    <input class="form-control" type="text" placeholder="@Labels.Profile_Last_Name" asp-for="Input.LastName" />
                     <span asp-validation-for="Input.LastName" class="text-danger"></span>
                 </div>
             </div>
@@ -74,18 +74,18 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label asp-for="Input.UserName" class="form-label">@Labels.Profile_Last_Name</label>
-                    <input class="form-control" type="text" placeholder="@Labels.Profile_Last_Name" asp-for="Input.UserName" readonly="@userManager.EmailAsUserName" />
+                    <label asp-for="Input.UserName" class="form-label">@Labels.Profile_Username</label>
+                    <input class="form-control" type="text" placeholder="@Labels.Profile_Username" asp-for="Input.UserName" readonly="@userManager.EmailAsUserName" />
                     <span asp-validation-for="Input.UserName" class="text-danger"></span>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
                     <label asp-for="Input.Email" class="form-label">
-                        @Localizer["Email"]
+                        Email
                         <a indice-if="Model.View.EmailChangePending" href="#" id="resend-email-link" style="font-size: x-small;">(@Labels.Profile_Confirmation →)</a>
                     </label>
-                    <input class="form-control" type="text" placeholder="@Localizer["Email"]" asp-for="Input.Email" />
+                    <input class="form-control" type="text" placeholder="Email" asp-for="Input.Email" />
                     <span asp-validation-for="Input.Email" class="text-danger"></span>
                 </div>
             </div>

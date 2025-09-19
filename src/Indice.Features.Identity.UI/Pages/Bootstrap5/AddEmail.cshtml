@@ -2,13 +2,11 @@
 
 @model BaseAddEmailModel
 
-@inject IIdentityViewLocalizer Localizer
-
-@inject Indice.Features.Identity.UI.IdentityLabelsMessageDescriber Labels
+@inject IdentityLabelsMessageDescriber Labels
 
 
 @{
-    var title = ViewData["Title"] = Localizer["Verify email"].Value;
+    var title = ViewData["Title"] = Labels.AddEmail_Verify_email;
     var tempData = TempData.Peek<ExtendedValidationTempDataModel>(BaseAddEmailModel.TempDataKey);
 }
 
@@ -18,8 +16,8 @@
     <partial name="_Alert" model="tempData?.Alert" />
     <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post">
         <div class="mb-3">
-            <label asp-for="Input.Email" class="form-label visually-hidden">@Localizer["Email"]</label>
-            <input class="form-control" type="text" placeholder="@Localizer["Email"]" asp-for="Input.Email" disabled="@tempData?.DisableForm" />
+            <label asp-for="Input.Email" class="form-label visually-hidden">Email</label>
+            <input class="form-control" type="text" placeholder="Email" asp-for="Input.Email" disabled="@tempData?.DisableForm" />
             <span asp-validation-for="Input.Email" class="text-danger"></span>
         </div>
         <div class="mb-3">

@@ -2,13 +2,12 @@
 
 @model BaseAddPhoneModel
 
-@inject IIdentityViewLocalizer Localizer
 @inject IWebHostEnvironment HostingEnvironment
 @inject CallingCodesProvider callingCodesProvider
 @inject IOptions<IdentityUIOptions> identityUiOptions
 
 
-@inject Indice.Features.Identity.UI.IdentityLabelsMessageDescriber Labels
+@inject IdentityLabelsMessageDescriber Labels
 
 @{
     var title = ViewData["Title"] = Labels.AddPhone_Add;

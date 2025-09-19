@@ -2,8 +2,7 @@
 
 @model BaseVerifyPhoneModel
 
-@inject IIdentityViewLocalizer Localizer
-@inject Indice.Features.Identity.UI.IdentityLabelsMessageDescriber Labels
+@inject IdentityLabelsMessageDescriber Labels
 
 @{
     var title = ViewData["Title"] = Labels.VerifyPhone_Verify_Phone_Number;

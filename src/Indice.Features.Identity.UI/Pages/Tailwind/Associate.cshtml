@@ -3,7 +3,7 @@
 @model BaseAssociateModel
 
 @inject IIdentityViewLocalizer Localizer
-@inject Indice.Features.Identity.UI.IdentityLabelsMessageDescriber Labels
+@inject IdentityLabelsMessageDescriber Labels
 
 @{
     var title = ViewData["Title"] = Labels.Register_Associate_your_Account(Model.View.Provider);

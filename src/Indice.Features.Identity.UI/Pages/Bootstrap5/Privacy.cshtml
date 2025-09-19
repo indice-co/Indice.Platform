@@ -3,10 +3,11 @@
 @model BasePrivacyModel
 
 @inject IIdentityViewLocalizer Localizer
+@inject IdentityLabelsMessageDescriber Labels
 
 @{
     ViewData["body-css-class"] = "article-page";
-    ViewData["Title"] = Localizer[Model.View.Title];
+    ViewData["Title"] =  Localizer[Model.View.Title];
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;
 }
