@@ -21,7 +21,7 @@ export class DistributionListsComponent extends BaseListComponent<DistributionLi
     ) {
         super(route, _router);
         this.view = ListViewType.Table;
-        this.pageSize = 10;
+        this.pageSize = 20;
         this.sort = 'name';
         this.sortdir = 'asc';
         this.search = '';

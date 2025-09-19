@@ -21,7 +21,7 @@ public static class HttpClientFactoryExtensions
             return null;
         }
 
-        var uriBuilder = new UriBuilder(address.Replace("+", "0.0.0.0")) {
+        var uriBuilder = new UriBuilder(address.Replace("+", "0.0.0.0").Replace("*", "0.0.0.0")) {
             Host = "localhost"
         };
         return uriBuilder.Uri;

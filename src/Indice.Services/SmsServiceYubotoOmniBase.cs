@@ -6,21 +6,21 @@ using Indice.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Indice.Services.Yuboto.Bases;
+namespace Indice.Services;
 
 /// <summary>Yuboto Service for the new Omni API responsible to send SMS/Viber messages</summary>
-public class YubotoOmniServiceBase
+public abstract class SmsServiceYubotoOmniBase
 {
     private bool _disposed = false;
 
-    /// <summary>Constructs the <see cref="YubotoOmniServiceBase"/> using the <seealso cref="SmsServiceSettings"/>.</summary>
+    /// <summary>Constructs the <see cref="SmsServiceYubotoOmniBase"/> using the <seealso cref="SmsServiceSettings"/>.</summary>
     /// <param name="settings">The settings required to configure the service.</param>
     /// <param name="httpClient">Injected <see cref="System.Net.Http.HttpClient"/> managed by the DI.</param>
     /// <param name="logger">Represents a type used to perform logging.</param>
-    public YubotoOmniServiceBase(
+    public SmsServiceYubotoOmniBase(
         HttpClient httpClient, 
         IOptionsSnapshot<SmsServiceSettings> settings, 
-        ILogger<YubotoOmniServiceBase> logger
+        ILogger<SmsServiceYubotoOmniBase> logger
     ) {
         HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         Settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
@@ -38,7 +38,7 @@ public class YubotoOmniServiceBase
     /// <summary>The <see cref="System.Net.Http.HttpClient"/>.</summary>
     protected HttpClient HttpClient { get; }
     /// <summary>Represents a type used to perform logging.</summary>
-    protected ILogger<YubotoOmniServiceBase> Logger { get; }
+    protected ILogger<SmsServiceYubotoOmniBase> Logger { get; }
 
     #region Helper Methods
     /// <summary>Get list of phone numbers from destination.</summary>

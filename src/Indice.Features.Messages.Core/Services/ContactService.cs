@@ -278,7 +278,12 @@ public class ContactService : IContactService
                                         (rcp, mt) => new { rcp, mt }
                                     )
                                     .Select(x => new ContactCommunicationOption {
-                                        MessageTypeAlias = new GuidOrAlias(x.mt.Alias ?? x.mt.Id.ToString()),
+                                        MessageType = new MessageType {
+                                            Id = x.mt.Id,
+                                            Alias = new GuidOrAlias(x.mt.Alias ?? x.mt.Id.ToString()),
+                                            Classification = x.mt.Classification,
+                                            Name = x.mt.Name
+                                        },
                                         Channels = ContactChannelOption.FromKindFlags(x.rcp.Channels),
                                     })
                                     .ToList()
@@ -302,8 +307,12 @@ public class ContactService : IContactService
                 Locale = "en",
                 Communication = messageTypes.Select(x =>
                 new ContactCommunicationOption() {
-                    MessageTypeAlias = new GuidOrAlias(x.Alias ?? x.Id.ToString()),
-                    MessageTypeDisplayName = x.Name
+                    MessageType = new MessageType {
+                        Id = x.Id,
+                        Alias = new GuidOrAlias(x.Alias ?? x.Id.ToString()),
+                        Classification = x.Classification,
+                        Name = x.Name
+                    },
                 }).ToList(),
             };
         }
@@ -324,8 +333,12 @@ public class ContactService : IContactService
             ConsentCommercialDate = recipientPreferences.ConsentCommercialDate,
             DefaultChannels = recipientPreferences.DefaultChannels != null ? ContactChannelOption.FromKindFlags(recipientPreferences.DefaultChannels.Value) : null,
             Communication = recipientPreferences.CommunicationOptions.Select(x => new ContactCommunicationOption() {
-                MessageTypeAlias = new GuidOrAlias(x.MessageType.Alias ?? x.MessageType.Id.ToString()),
-                MessageTypeDisplayName = x.MessageType.Name,
+                MessageType = new MessageType {
+                    Id = x.MessageType.Id,
+                    Alias = new GuidOrAlias(x.MessageType.Alias ?? x.MessageType.Id.ToString()),
+                    Classification = x.MessageType.Classification,
+                    Name = x.MessageType.Name
+                },
                 Channels = ContactChannelOption.FromKindFlags(x.Channels)
             }).ToList()
         };

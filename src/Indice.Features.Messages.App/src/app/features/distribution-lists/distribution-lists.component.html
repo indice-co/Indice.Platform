@@ -28,7 +28,7 @@
     </lib-list-column>
     <lib-list-column title="ALIAS">
       <ng-template let-item>
-        {{ item.alias }}
+        <span *ngIf="item.alias" class="badge alias">{{ item.alias }}</span>
       </ng-template>
     </lib-list-column>
     <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ ΑΠΟ">

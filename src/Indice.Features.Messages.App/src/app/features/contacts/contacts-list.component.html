@@ -32,8 +32,8 @@
     <lib-list-column title="Τηλέφωνο">
       <ng-template let-item>{{ item.phoneNumber }}</ng-template>
     </lib-list-column>
-    <lib-list-column title="Κωδικός πελάτη">
-      <ng-template let-item>{{ item.recipientId }}</ng-template>
+    <lib-list-column title="Κωδικός επαφής">
+      <ng-template let-item><span *ngIf="item.recipientId" class="badge alias">{{ item.recipientId }}</span></ng-template>
     </lib-list-column>
     <lib-list-column title="ΤΡΟΠΟΠΟΙΗΘΗΚΕ"
                      [full-width]="true">

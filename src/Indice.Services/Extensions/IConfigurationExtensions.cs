@@ -21,7 +21,7 @@ public static class IConfigurationExtensions
     /// <summary>
     /// Determines whether client certificate forwarding is enabled based on the configuration settings. 
     /// </summary>
-    /// <remarks>This allows client certificates to be loaded behind a reverse proxy, such as Nginx or Apache, which is useful in scenarios where the application is hosted behind a load balancer or reverse proxy that handles SSL termination.</remarks>
+    /// <remarks>Checks for the <strong>General:UseCertificateForwarding</strong> option in appsettings.json file. This allows client certificates to be loaded behind a reverse proxy, such as Nginx or Apache, which is useful in scenarios where the application is hosted behind a load balancer or reverse proxy that handles SSL termination.</remarks>
     /// <param name="configuration">The configuration instance to retrieve the setting from.</param>
     /// <returns><see langword="true"/> if certificate forwarding is enabled; otherwise, <see langword="false"/>.</returns>
     public static bool UseCertificateForwarding(this IConfiguration configuration) => configuration.GetSection(GeneralSettings.Name).GetValue<bool>(nameof(GeneralSettings.UseCertificateForwarding));

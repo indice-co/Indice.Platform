@@ -1,7 +1,14 @@
-﻿namespace Indice.Features.Risk.Core.Data.Models;
+﻿using Indice.Features.GeoIP;
+using Indice.Features.Risk.Core.Models;
+using Indice.Features.Risk.Core.Models.Responses;
+using Indice.Types;
+using NetTopologySuite;
+using NetTopologySuite.Geometries;
+
+namespace Indice.Features.Risk.Core.Data.Models;
 
 /// <summary>Models an event that was ingested in the system.</summary>
-public class RiskEvent
+public class DbRiskEvent
 {
     /// <summary>The unique id of the event.</summary>
     public Guid Id { get; internal set; }
@@ -23,4 +30,12 @@ public class RiskEvent
     public string? SourceId { get; set; }
     /// <summary>The id of the associated transaction.</summary>
     public string? SourceTransId { get; set; }
+    /// <summary>The estimated client location based on the <see cref="IpAddress"/>.</summary>
+    public string? Location { get; set; }
+    /// <summary>An optional session identifier the event is associated with.</summary>
+    public string? SessionId { get; set; }
+    /// <summary>Two letter ISO code for the country.</summary>
+    public string? CountryIsoCode { get; set; }
+    /// <summary>The approximate location of the operation.</summary>
+    public Point? Coordinates { get; set; }
 }

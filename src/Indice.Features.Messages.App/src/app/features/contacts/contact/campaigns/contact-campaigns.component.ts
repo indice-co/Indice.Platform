@@ -20,7 +20,7 @@ export class ContactCampaignsComponent extends BaseListComponent<Campaign> imple
   ) {
     super(route, router);
     this.view = ListViewType.Table;
-    this.pageSize = 10;
+    this.pageSize = 20;
     this.sort = 'createdAt';
     this.sortdir = 'asc';
     this.search = '';
