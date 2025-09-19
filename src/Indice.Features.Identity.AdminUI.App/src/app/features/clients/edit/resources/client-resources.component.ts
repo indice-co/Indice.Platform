@@ -7,7 +7,8 @@ import { SingleClientInfo } from 'src/app/core/services/identity-api.service';
 
 @Component({
     selector: 'app-client-resources',
-    templateUrl: './client-resources.component.html'
+    templateUrl: './client-resources.component.html',
+    standalone: false
 })
 export class ClientResourcesComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;

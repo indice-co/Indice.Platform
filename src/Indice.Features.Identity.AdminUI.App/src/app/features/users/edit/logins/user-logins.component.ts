@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { Subscription } from 'rxjs';
-import { TableColumn } from '@swimlane/ngx-datatable';
+import { CellContext, TableColumn } from '@swimlane/ngx-datatable';
 import { UserLoginProviderInfo } from 'src/app/core/services/identity-api.service';
 import { UserStore } from '../user-store.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -12,11 +12,12 @@ import { ListViewComponent } from 'src/app/shared/components/list-view/list-view
 
 @Component({
     selector: 'app-user-logins',
-    templateUrl: './user-logins.component.html'
+    templateUrl: './user-logins.component.html',
+    standalone: false
 })
 export class UserLoginsComponent implements OnInit, OnDestroy {
-    @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
-    @ViewChild('providerNameTemplate', { static: true }) private _providerNameTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<CellContext<any>>;
+    @ViewChild('providerNameTemplate', { static: true }) private _providerNameTemplate: TemplateRef<CellContext<any>>;
     @ViewChild('deleteAlert', { static: false }) private _deleteAlert: SwalComponent;
     @ViewChild('userApplicationsList', { static: true }) public userApplicationsList: ListViewComponent;
     private _getDataSubscription: Subscription;

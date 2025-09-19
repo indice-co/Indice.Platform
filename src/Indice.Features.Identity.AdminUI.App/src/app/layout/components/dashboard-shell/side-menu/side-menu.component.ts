@@ -6,7 +6,8 @@ import * as app from 'src/app/core/models/settings';
 
 @Component({
     selector: 'app-side-menu',
-    templateUrl: './side-menu.component.html'
+    templateUrl: './side-menu.component.html',
+    standalone: false
 })
 export class SideMenuComponent {
     constructor(private _menuService: MenuService) {

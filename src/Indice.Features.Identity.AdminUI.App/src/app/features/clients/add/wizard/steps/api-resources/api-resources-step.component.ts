@@ -8,7 +8,8 @@ import { ClientWizardModel } from '../../models/client-wizard-model';
 
 @Component({
     selector: 'app-api-resources-step',
-    templateUrl: './api-resources-step.component.html'
+    templateUrl: './api-resources-step.component.html',
+    standalone: false
 })
 export class ApiResourcesStepComponent extends StepBaseComponent<ClientWizardModel> implements OnInit {
     private _selectedResourcesControl: AbstractControl;

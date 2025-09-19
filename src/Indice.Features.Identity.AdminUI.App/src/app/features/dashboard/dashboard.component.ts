@@ -6,8 +6,9 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { IdentityApiService, BlogItemInfo, BlogItemInfoResultSet, SummaryInfo } from 'src/app/core/services/identity-api.service';
 
 @Component({
-  selector: 'app-dashboard',
-  templateUrl: './dashboard.component.html'
+    selector: 'app-dashboard',
+    templateUrl: './dashboard.component.html',
+    standalone: false
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   private _getDataSubscription: Subscription;

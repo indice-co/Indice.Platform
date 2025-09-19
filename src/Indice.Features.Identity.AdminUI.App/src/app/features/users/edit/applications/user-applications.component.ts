@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild, TemplateRef } from '@angular/c
 import { ActivatedRoute } from '@angular/router';
 
 import { Subscription } from 'rxjs';
-import { TableColumn } from '@swimlane/ngx-datatable';
+import { CellContext, TableColumn } from '@swimlane/ngx-datatable';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { UserClientInfo } from 'src/app/core/services/identity-api.service';
 import { UserStore } from '../user-store.service';
@@ -13,12 +13,13 @@ import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 
 @Component({
     selector: 'app-user-applications',
-    templateUrl: './user-applications.component.html'
+    templateUrl: './user-applications.component.html',
+    standalone: false
 })
 export class UserApplicationsComponent implements OnInit, OnDestroy {
     @ViewChild('userApplicationsList', { static: true }) public _userApplicationsList: ListViewComponent;
-    @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
-    @ViewChild('userAppKeyTemplate', { static: true }) private _keyTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<CellContext<any>>;
+    @ViewChild('userAppKeyTemplate', { static: true }) private _keyTemplate: TemplateRef<CellContext<any>>;
     @ViewChild('deleteAlert', { static: false }) private _deleteAlert: SwalComponent;
     private _getDataSubscription: Subscription;
     private _userId: string;

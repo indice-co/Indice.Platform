@@ -4,7 +4,8 @@ import { HttpValidationProblemDetails } from 'src/app/core/services/identity-api
 
 @Component({
     selector: 'app-validation-summary',
-    templateUrl: './validation-summary.component.html'
+    templateUrl: './validation-summary.component.html',
+    standalone: false
 })
 export class ValidationSummaryComponent {
     @Input() public problemDetails: HttpValidationProblemDetails;

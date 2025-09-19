@@ -5,7 +5,8 @@ import { TransferListsOptions } from './transfer-lists-options';
 @Component({
     selector: 'app-transfer-lists',
     templateUrl: './transfer-lists.component.html',
-    styleUrls: ['./transfer-lists.component.scss']
+    styleUrls: ['./transfer-lists.component.scss'],
+    standalone: false
 })
 export class TransferListsComponent {
     @Input() public source: Array<any> = [];

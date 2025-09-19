@@ -1,6 +1,6 @@
 import { Component, ViewChild, OnInit, TemplateRef } from "@angular/core";
 
-import { TableColumn } from "@swimlane/ngx-datatable";
+import { CellContext, TableColumn } from "@swimlane/ngx-datatable";
 import {
   IdentityApiService,
   UserInfoResultSet,
@@ -13,16 +13,17 @@ import { UiFeaturesService } from "src/app/core/services/ui-features.service";
 import { Observable, map } from "rxjs";
 
 @Component({
-  selector: "app-users",
-  templateUrl: "./users.component.html",
+    selector: "app-users",
+    templateUrl: "./users.component.html",
+    standalone: false
 })
 export class UsersComponent implements OnInit {
   @ViewChild("usersList", { static: true })
   private _usersList: ListViewComponent;
   @ViewChild("actionsTemplate", { static: true })
-  private _actionsTemplate: TemplateRef<HTMLElement>;
+  private _actionsTemplate: TemplateRef<CellContext<any>>;
   @ViewChild("optionalTemplate", { static: true })
-  private _optionalTemplate: TemplateRef<HTMLElement>;
+  private _optionalTemplate: TemplateRef<CellContext<any>>;
 
   constructor(
     private api: IdentityApiService,

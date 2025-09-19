@@ -1,6 +1,6 @@
 import { Component, ViewChild, OnInit, TemplateRef } from '@angular/core';
 
-import { TableColumn } from '@swimlane/ngx-datatable';
+import { CellContext, TableColumn } from '@swimlane/ngx-datatable';
 import { IdentityApiService, ClaimTypeInfoResultSet, ClaimTypeInfo } from 'src/app/core/services/identity-api.service';
 import { SearchEvent } from 'src/app/shared/components/list-view/models/search-event';
 import { ListViewComponent } from 'src/app/shared/components/list-view/list-view.component';
@@ -8,13 +8,14 @@ import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
     selector: 'app-claim-types',
-    templateUrl: './claim-types.component.html'
+    templateUrl: './claim-types.component.html',
+    standalone: false
 })
 export class ClaimTypesComponent implements OnInit {
     @ViewChild('claimTypesList', { static: true }) public _claimTypesList: ListViewComponent;
-    @ViewChild('actionsTemplate', { static: true }) public _actionsTemplate: TemplateRef<HTMLElement>;
-    @ViewChild('valueTypeTemplate', { static: true }) public _valueTypeTemplate: TemplateRef<HTMLElement>;
-    @ViewChild('nameTemplate', { static: true }) public _nameTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('actionsTemplate', { static: true }) public _actionsTemplate: TemplateRef<CellContext<any>>;
+    @ViewChild('valueTypeTemplate', { static: true }) public _valueTypeTemplate: TemplateRef<CellContext<any>>;
+    @ViewChild('nameTemplate', { static: true }) public _nameTemplate: TemplateRef<CellContext<any>>;
 
     constructor(
         private _api: IdentityApiService,

@@ -5,7 +5,7 @@ import {
   ViewChild,
   TemplateRef,
 } from "@angular/core";
-import { TableColumn } from "@swimlane/ngx-datatable";
+import { CellContext, TableColumn } from "@swimlane/ngx-datatable";
 import { map, Subscription } from "rxjs";
 import {
   ClaimTypeInfo,
@@ -20,18 +20,19 @@ import { UserStore } from "src/app/features/users/edit/user-store.service";
 import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
-  selector: "app-user-claims-step",
-  templateUrl: "./user-claims-step.component.html",
-  providers: [NgbDateCustomParserFormatter],
+    selector: "app-user-claims-step",
+    templateUrl: "./user-claims-step.component.html",
+    providers: [NgbDateCustomParserFormatter],
+    standalone: false
 })
 export class UserClaimsStepComponent
   extends StepBaseComponent<UserWizardModel>
   implements OnInit, OnDestroy
 {
   @ViewChild("actionsTemplate", { static: true })
-  private _actionsTemplate: TemplateRef<HTMLElement>;
+  private _actionsTemplate: TemplateRef<CellContext<any>>;
   @ViewChild("nameTemplate", { static: true })
-  public _nameTemplate: TemplateRef<HTMLElement>;
+  public _nameTemplate: TemplateRef<CellContext<any>>;
   @ViewChild("deleteAlert", { static: false })
   private _getDataSubscription: Subscription;
   private _formSubscription: Subscription;
@@ -141,14 +142,15 @@ export class UserClaimsStepComponent
 
   public addClaim(): void {
     const resources = this.data.form.get("claims").value as Array<ClaimInfo>;
-    const claim = new ClaimInfo({
-      type: this.selectedClaimName,
-      value:
+      const claim = new ClaimInfo({
+        id: Date.now(),
+        type: this.selectedClaimName,
+        value:
         this.selectedClaimValueType === ClaimValueType.DateTime
-          ? this._dateParser.format(this.selectedClaimValue as NgbDateStruct)
-          : this.selectedClaimValue,
+            ? this._dateParser.format(this.selectedClaimValue as NgbDateStruct)
+            : this.selectedClaimValue
     });
-    resources.push(claim);
+      resources.push(claim);
     this.selectedClaimName = "";
     this.selectedClaimValue = "";
     this.data.form.get("claims").setValue(resources);
