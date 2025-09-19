@@ -7,7 +7,8 @@ import { ValidationSummaryComponent } from 'src/app/shared/components/validation
 
 @Component({
     selector: 'app-claim-type-add',
-    templateUrl: './claim-type-add.component.html'
+    templateUrl: './claim-type-add.component.html',
+    standalone: false
 })
 export class ClaimTypeAddComponent implements OnInit {
     @ViewChild('validationSummary', { static: false }) private _validationSummary: ValidationSummaryComponent;

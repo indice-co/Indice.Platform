@@ -10,7 +10,8 @@ import { ClientStore } from '../../client-store.service';
 
 @Component({
     selector: 'app-client-api-resources',
-    templateUrl: './client-api-resources.component.html'
+    templateUrl: './client-api-resources.component.html',
+    standalone: false
 })
 export class ClientApiResourcesComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;

@@ -1,5 +1,5 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { TableColumn } from '@swimlane/ngx-datatable';
+import { CellContext, TableColumn } from '@swimlane/ngx-datatable';
 import { IdentityApiService, SignInLogEntry, SignInLogEntryResultSet } from 'src/app/core/services/identity-api.service';
 import { ListViewComponent } from 'src/app/shared/components/list-view/list-view.component';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -9,16 +9,17 @@ import { QueryParameters } from 'src/app/shared/components/list-view/models/quer
 import { finalize } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-user-sign-in-logs',
-  templateUrl: './user-sign-in-logs.component.html'
+    selector: 'app-user-sign-in-logs',
+    templateUrl: './user-sign-in-logs.component.html',
+    standalone: false
 })
 export class UserSignInLogsComponent implements OnInit {
 
-  @ViewChild('optionalTemplate', { static: true }) private _optionalTemplate: TemplateRef<HTMLElement>;
-  @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
-  @ViewChild('statusTemplate', { static: true }) private _statusTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('optionalTemplate', { static: true }) private _optionalTemplate: TemplateRef<CellContext<any>>;
+  @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<CellContext<any>>;
+  @ViewChild('statusTemplate', { static: true }) private _statusTemplate: TemplateRef<CellContext<any>>;
   @ViewChild('signInLogsList', { static: true }) public signInLogsList: ListViewComponent;
-  @ViewChild('actionsTemplate', { static: true }) public actionsTemplate: TemplateRef<HTMLElement>;
+  @ViewChild('actionsTemplate', { static: true }) public actionsTemplate: TemplateRef<CellContext<any>>;
 
   constructor(
     private _api: IdentityApiService,

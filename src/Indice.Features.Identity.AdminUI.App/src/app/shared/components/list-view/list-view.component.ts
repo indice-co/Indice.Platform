@@ -10,7 +10,8 @@ import { SearchEvent } from './models/search-event';
 @Component({
     selector: 'app-list-view',
     templateUrl: './list-view.component.html',
-    styleUrls: ['./list-view.component.scss']
+    styleUrls: ['./list-view.component.scss'],
+    standalone: false
 })
 export class ListViewComponent extends ListView implements OnInit, OnDestroy {
     @ViewChild('filterInput', { static: true }) private _filterInput: ElementRef;
@@ -78,7 +79,9 @@ export class ListViewComponent extends ListView implements OnInit, OnDestroy {
         this.sortDirection = (params[QueryParameters.SORT_DIRECTION] || this.defaultSortDirection || undefined) as SortDirection;
         if (this.sortField) {
             this.dataTable.sorts.splice(0, this.dataTable.sorts.length);
-            this.dataTable.sorts.push({ prop: this.sortField, dir: this.sortDirection.toLowerCase() || 'asc' });
+            this.dataTable.sorts.push({
+                prop: this.sortField, dir: this.sortDirection === SortDirection.Desc ? 'desc' : 'asc'
+            });
         }
         this.searchTerm = params[QueryParameters.SEARCH_TERM] || undefined;
         this.parseFilterParams(params)

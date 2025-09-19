@@ -8,7 +8,8 @@ import { SingleClientInfo } from 'src/app/core/services/identity-api.service';
 @Component({
     selector: 'app-client-edit',
     templateUrl: './client-edit.component.html',
-    providers: [ClientStore]
+    providers: [ClientStore],
+    standalone: false
 })
 export class ClientEditComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;

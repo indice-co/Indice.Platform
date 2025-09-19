@@ -4,7 +4,8 @@ import { AuthService } from '../../services/auth.service';
 
 @Component({
     selector: 'app-auth-renew',
-    template: ``
+    template: ``,
+    standalone: false
 })
 export class AuthRenewComponent implements OnInit {
     constructor(private _authService: AuthService) { }

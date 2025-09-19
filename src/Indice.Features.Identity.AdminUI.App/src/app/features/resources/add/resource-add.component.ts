@@ -29,9 +29,10 @@ import { UserClaimsStepComponent } from "./wizard/steps/user-claims/user-claims-
 import { BasicInfoStepComponent } from "./wizard/steps/basic-info/basic-info-step.component";
 
 @Component({
-  selector: "app-resource-add",
-  templateUrl: "./resource-add.component.html",
-  providers: [ApiResourceStore],
+    selector: "app-resource-add",
+    templateUrl: "./resource-add.component.html",
+    providers: [ApiResourceStore],
+    standalone: false
 })
 export class ResourceAddComponent implements OnInit {
   @ViewChild(WizardStepDirective, { static: false })

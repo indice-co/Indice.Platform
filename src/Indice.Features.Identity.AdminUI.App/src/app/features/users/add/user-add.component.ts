@@ -33,9 +33,10 @@ import { Subscription } from "rxjs";
 import { UserStore } from "../edit/user-store.service";
 
 @Component({
-  selector: "app-user-add",
-  templateUrl: "./user-add.component.html",
-  providers: [UserStore],
+    selector: "app-user-add",
+    templateUrl: "./user-add.component.html",
+    providers: [UserStore],
+    standalone: false
 })
 export class UserAddComponent implements OnInit {
   @ViewChild("validationSummary", { static: false })

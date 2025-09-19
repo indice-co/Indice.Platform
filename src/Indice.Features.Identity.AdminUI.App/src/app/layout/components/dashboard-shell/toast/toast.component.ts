@@ -6,7 +6,8 @@ import { ToastService } from '../../../services/app-toast.service';
     selector: 'app-toasts',
     templateUrl: './toast.component.html',
     styleUrls: ['./toast.component.scss'],
-    host: { '[class.ngb-toasts]': 'true' }
+    host: { '[class.ngb-toasts]': 'true' },
+    standalone: false
 })
 export class AppToastsComponent {
     constructor(public toastService: ToastService) { }

@@ -1,17 +1,18 @@
 import { Component, ViewChild, OnInit, TemplateRef } from '@angular/core';
 
-import { TableColumn } from '@swimlane/ngx-datatable';
+import { CellContext, TableColumn } from '@swimlane/ngx-datatable';
 import { IdentityApiService, AppSettingInfo, AppSettingInfoResultSet } from 'src/app/core/services/identity-api.service';
 import { SearchEvent } from 'src/app/shared/components/list-view/models/search-event';
 
 @Component({
     selector: 'app-settings',
-    templateUrl: './settings.component.html'
+    templateUrl: './settings.component.html',
+    standalone: false
 })
 export class SettingsComponent implements OnInit {
-    @ViewChild('actionsTemplate', { static: true }) public _actionsTemplate: TemplateRef<HTMLElement>;
-    @ViewChild('valueTemplate', { static: true }) public _valueTemplate: TemplateRef<HTMLElement>;
-    @ViewChild('keyTemplate', { static: true }) public _keyTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('actionsTemplate', { static: true }) public _actionsTemplate: TemplateRef<CellContext<any>>;
+    @ViewChild('valueTemplate', { static: true }) public _valueTemplate: TemplateRef<CellContext<any>>;
+    @ViewChild('keyTemplate', { static: true }) public _keyTemplate: TemplateRef<CellContext<any>>;
 
     constructor(private _api: IdentityApiService) { }
 

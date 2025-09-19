@@ -15,10 +15,11 @@ import { ToastService } from 'src/app/layout/services/app-toast.service';
 import { ValidationSummaryComponent } from 'src/app/shared/components/validation-summary/validation-summary.component';
 
 @Component({
-  selector: 'app-client-add',
-  templateUrl: './client-add.component.html',
-  styleUrls: ['./client-add.component.scss'],
-  providers: [ClientsWizardService]
+    selector: 'app-client-add',
+    templateUrl: './client-add.component.html',
+    styleUrls: ['./client-add.component.scss'],
+    providers: [ClientsWizardService],
+    standalone: false
 })
 export class ClientAddComponent implements OnInit {
   @ViewChild(WizardStepDirective, { static: false }) private _wizardStepHost: WizardStepDirective;

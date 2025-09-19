@@ -6,7 +6,8 @@ import { ToastService } from 'src/app/layout/services/app-toast.service';
 
 @Component({
     selector: 'app-client-theme-config',
-    templateUrl: './theme.component.html'
+    templateUrl: './theme.component.html',
+    standalone: false
 })
 export class ClientUiConfigComponent implements OnInit {
     private _clientId: string;
