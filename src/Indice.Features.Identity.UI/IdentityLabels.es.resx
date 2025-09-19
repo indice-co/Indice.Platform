@@ -426,9 +426,6 @@
   <data name="Error_Go_back_home" xml:space="preserve">
     <value>Volver a inicio</value>
   </data>
-  <data name="Error_Request Id" xml:space="preserve">
-    <value>ID de solicitud</value>
-  </data>
   <data name="Footer_Discovery" xml:space="preserve">
     <value>Documento de descubrimiento</value>
   </data>
@@ -456,7 +453,7 @@
   <data name="ForgotPasswordConfirmation_PasswordConfirmation" xml:space="preserve">
     <value>Confirmación de restablecimiento de contraseña</value>
   </data>
-  <data name="ForgotPasswordConfirmation_New Password" xml:space="preserve">
+  <data name="ForgotPasswordConfirmation_NewPassword" xml:space="preserve">
     <value>Nueva contraseña</value>
   </data>
   <data name="ForgotPasswordConfirmation_PasswordChanged" xml:space="preserve">
@@ -474,7 +471,7 @@
   <data name="Grants_ListApplicationsGrants" xml:space="preserve">
     <value>A continuación se muestra la lista de aplicaciones a las que ha dado acceso y los nombres de los recursos a los que tienen acceso.</value>
   </data>
-  <data name="Grants_Client logo" xml:space="preserve">
+  <data name="Grants_ClientLogo" xml:space="preserve">
     <value>Logotipo de la aplicación</value>
   </data>
   <data name="Grants_Created" xml:space="preserve">
@@ -552,7 +549,7 @@
   <data name="Login_InvalidLoginRequest" xml:space="preserve">
     <value>Solicitud de inicio de sesión no válida</value>
   </data>
-  <data name="Login_Join us" xml:space="preserve">
+  <data name="Login_JoinUs" xml:space="preserve">
     <value>Nuevo usuario</value>
   </data>
   <data name="Login_Login" xml:space="preserve">
@@ -567,7 +564,7 @@
   <data name="Login_RememberMe" xml:space="preserve">
     <value>Recuérdame</value>
   </data>
-  <data name="Login_Sign in" xml:space="preserve">
+  <data name="Login_SignIn" xml:space="preserve">
     <value>Iniciar sesión</value>
   </data>
   <data name="Login_NoLoginSchemes" xml:space="preserve">
@@ -612,7 +609,7 @@
   <data name="Mfa_Login" xml:space="preserve">
     <value>Iniciar sesión</value>
   </data>
-  <data name="Mfa_Multifactor Authentication" xml:space="preserve">
+  <data name="Mfa_MultifactorAuthentication" xml:space="preserve">
     <value>Autenticación multifactor</value>
   </data>
   <data name="Mfa_OtherAuthenticationMethods" xml:space="preserve">
@@ -636,10 +633,10 @@
   <data name="Mfa_WeTextedYourPhone" xml:space="preserve">
     <value>Enviamos un mensaje de texto a su teléfono {0}. Por favor, ingrese el código para iniciar sesión.</value>
   </data>
-  <data name="MfaModel_OTP login" xml:space="preserve">
+  <data name="MfaModel_OTPLogin" xml:space="preserve">
     <value>Inicio de sesión con OTP</value>
   </data>
-  <data name="MfaModel_TheOTPIsInvalid." xml:space="preserve">
+  <data name="MfaModel_TheOTPIsInvalid" xml:space="preserve">
     <value>El código OTP no es válido.</value>
   </data>
   <data name="MfaModel_OTPCodeMessage" xml:space="preserve">
@@ -702,7 +699,7 @@
   <data name="Profile_ConfirmationEmailSentTo" xml:space="preserve">
     <value>Se ha enviado un correo de confirmación a {0}.</value>
   </data>
-  <data name="Profile_Manage Profile" xml:space="preserve">
+  <data name="Profile_ManageProfile" xml:space="preserve">
     <value>Gestionar perfil</value>
   </data>
   <data name="Profile_Choose" xml:space="preserve">
@@ -753,10 +750,10 @@
   <data name="Profile_Language" xml:space="preserve">
     <value>Idioma</value>
   </data>
-  <data name="Profile_Last name" xml:space="preserve">
+  <data name="Profile_Lastname" xml:space="preserve">
     <value>Apellido</value>
   </data>
-  <data name="Profile_Phone number" xml:space="preserve">
+  <data name="Profile_PhoneNumber" xml:space="preserve">
     <value>Número de teléfono</value>
   </data>
   <data name="Profile_Preferences" xml:space="preserve">
@@ -771,7 +768,7 @@
   <data name="Profile_Save" xml:space="preserve">
     <value>Guardar</value>
   </data>
-  <data name="Profile_Tax identification" xml:space="preserve">
+  <data name="Profile_TaxIdentification" xml:space="preserve">
     <value>Identificación fiscal</value>
   </data>
   <data name="Profile_Unknown" xml:space="preserve">
@@ -843,7 +840,7 @@
   <data name="Register_PhoneNumber" xml:space="preserve">
     <value>Número de teléfono</value>
   </data>
-  <data name="Register_Sign up" xml:space="preserve">
+  <data name="Register_Signup" xml:space="preserve">
     <value>Registro de usuario</value>
   </data>
   <data name="Register_KeepCredentialsPrivateHint" xml:space="preserve">
@@ -885,10 +882,13 @@
   <data name="ForgotPassword_ResetInstructions" xml:space="preserve">
     <value>Para restablecer su contraseña, ingrese su nombre de usuario o correo electrónico a continuación. Luego le enviaremos un correo electrónico con un enlace para restablecer su contraseña.</value>
   </data>
-  <data name="ForgotPassword_Request sent" xml:space="preserve">
+  <data name="ForgotPassword_RequestSent" xml:space="preserve">
     <value>Solicitud enviada</value>
   </data>
   <data name="Error_Oops" xml:space="preserve">
     <value>¡Vaya! Parece que hemos encontrado un error.</value>
+  </data>
+  <data name="Error_RequestId" xml:space="preserve">
+    <value>ID de solicitud</value>
   </data>
 </root>

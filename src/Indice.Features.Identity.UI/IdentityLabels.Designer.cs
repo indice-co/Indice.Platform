@@ -999,9 +999,9 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to Request Id.
         /// </summary>
-        public static string Error_Request_Id {
+        public static string Error_RequestId {
             get {
-                return ResourceManager.GetString("Error_Request Id", resourceCulture);
+                return ResourceManager.GetString("Error_RequestId", resourceCulture);
             }
         }
         
@@ -1053,9 +1053,9 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to Request sent.
         /// </summary>
-        public static string ForgotPassword_Request_sent {
+        public static string ForgotPassword_RequestSent {
             get {
-                return ResourceManager.GetString("ForgotPassword_Request sent", resourceCulture);
+                return ResourceManager.GetString("ForgotPassword_RequestSent", resourceCulture);
             }
         }
         
@@ -1116,9 +1116,9 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to New Password.
         /// </summary>
-        public static string ForgotPasswordConfirmation_New_Password {
+        public static string ForgotPasswordConfirmation_NewPassword {
             get {
-                return ResourceManager.GetString("ForgotPasswordConfirmation_New Password", resourceCulture);
+                return ResourceManager.GetString("ForgotPasswordConfirmation_NewPassword", resourceCulture);
             }
         }
         
@@ -1152,9 +1152,9 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to Client logo.
         /// </summary>
-        public static string Grants_Client_logo {
+        public static string Grants_ClientLogo {
             get {
-                return ResourceManager.GetString("Grants_Client logo", resourceCulture);
+                return ResourceManager.GetString("Grants_ClientLogo", resourceCulture);
             }
         }
         
@@ -1386,9 +1386,9 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to Join us.
         /// </summary>
-        public static string Login_Join_us {
+        public static string Login_JoinUs {
             get {
-                return ResourceManager.GetString("Login_Join us", resourceCulture);
+                return ResourceManager.GetString("Login_JoinUs", resourceCulture);
             }
         }
         
@@ -1449,9 +1449,9 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to Sign in.
         /// </summary>
-        public static string Login_Sign_in {
+        public static string Login_SignIn {
             get {
-                return ResourceManager.GetString("Login_Sign in", resourceCulture);
+                return ResourceManager.GetString("Login_SignIn", resourceCulture);
             }
         }
         
@@ -1566,9 +1566,9 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to Multifactor Authentication.
         /// </summary>
-        public static string Mfa_Multifactor_Authentication {
+        public static string Mfa_MultifactorAuthentication {
             get {
-                return ResourceManager.GetString("Mfa_Multifactor Authentication", resourceCulture);
+                return ResourceManager.GetString("Mfa_MultifactorAuthentication", resourceCulture);
             }
         }
         
@@ -1645,15 +1645,6 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to OTP login.
-        /// </summary>
-        public static string MfaModel_OTP_login {
-            get {
-                return ResourceManager.GetString("MfaModel_OTP login", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Your OTP code for login is: {0}.
         /// </summary>
         public static string MfaModel_OTPCodeMessage {
@@ -1663,11 +1654,20 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to OTP login.
+        /// </summary>
+        public static string MfaModel_OTPLogin {
+            get {
+                return ResourceManager.GetString("MfaModel_OTPLogin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The OTP code is not valid..
         /// </summary>
-        public static string MfaModel_TheOTPIsInvalid_ {
+        public static string MfaModel_TheOTPIsInvalid {
             get {
-                return ResourceManager.GetString("MfaModel_TheOTPIsInvalid.", resourceCulture);
+                return ResourceManager.GetString("MfaModel_TheOTPIsInvalid", resourceCulture);
             }
         }
         
@@ -1971,27 +1971,27 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to Last name.
         /// </summary>
-        public static string Profile_Last_name {
+        public static string Profile_Lastname {
             get {
-                return ResourceManager.GetString("Profile_Last name", resourceCulture);
+                return ResourceManager.GetString("Profile_Lastname", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Manage Profile.
         /// </summary>
-        public static string Profile_Manage_Profile {
+        public static string Profile_ManageProfile {
             get {
-                return ResourceManager.GetString("Profile_Manage Profile", resourceCulture);
+                return ResourceManager.GetString("Profile_ManageProfile", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Phone number.
         /// </summary>
-        public static string Profile_Phone_number {
+        public static string Profile_PhoneNumber {
             get {
-                return ResourceManager.GetString("Profile_Phone number", resourceCulture);
+                return ResourceManager.GetString("Profile_PhoneNumber", resourceCulture);
             }
         }
         
@@ -2052,9 +2052,9 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to Tax identification.
         /// </summary>
-        public static string Profile_Tax_identification {
+        public static string Profile_TaxIdentification {
             get {
-                return ResourceManager.GetString("Profile_Tax identification", resourceCulture);
+                return ResourceManager.GetString("Profile_TaxIdentification", resourceCulture);
             }
         }
         
@@ -2295,9 +2295,9 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to Sign up.
         /// </summary>
-        public static string Register_Sign_up {
+        public static string Register_Signup {
             get {
-                return ResourceManager.GetString("Register_Sign up", resourceCulture);
+                return ResourceManager.GetString("Register_Signup", resourceCulture);
             }
         }
         

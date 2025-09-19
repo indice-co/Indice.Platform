@@ -305,14 +305,14 @@ public class IdentityLabelsMessageDescriber
     /// <summary>Gets the title text for the Error page.</summary>
     public virtual string Error_Oops_Seems_We_Encountered_An_Error => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Error_Oops);
     /// <summary>Gets the label text displaying the request ID for error tracking.</summary>
-    public virtual string Error_Request_Id => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Error_Request_Id);
+    public virtual string Error_Request_Id => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Error_RequestId);
     #endregion
 
     #region ForgotPassword
     /// <summary>Gets the title text for the Forgot Password page.</summary>
     public virtual string ForgotPassword_Forgot_Password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPassword_ForgotPassword);
     /// <summary>Gets the message indicating that a password reset request has been sent successfully.</summary>
-    public virtual string ForgotPassword_Request_Sent => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPassword_Request_sent);
+    public virtual string ForgotPassword_Request_Sent => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPassword_RequestSent);
     /// <summary>Gets the label text for resending the password reset email.</summary>
     public virtual string ForgotPassword_Resend => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPassword_Resend);
     /// <summary>Gets the label text for the Send button on the Forgot Password page.</summary>
@@ -347,7 +347,7 @@ public class IdentityLabelsMessageDescriber
     /// <summary>Gets the title text for the Forgot Password Confirmation page.</summary>
     public virtual string ForgotPasswordConfirmation_Forgot_Password_Confirmation => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPasswordConfirmation_PasswordConfirmation);
     /// <summary>Gets the instruction text prompting the user to enter a new password.</summary>
-    public virtual string ForgotPasswordConfirmation_New_Password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPasswordConfirmation_New_Password);
+    public virtual string ForgotPasswordConfirmation_New_Password => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPasswordConfirmation_NewPassword);
     /// <summary>Gets the message indicating that the password has been successfully changed.</summary>
     public virtual string ForgotPasswordConfirmation_Password_Changed => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPasswordConfirmation_PasswordChanged);
     /// <summary>Gets the instruction text asking the user to log in using their new password. Includes a link for login.</summary>
@@ -363,7 +363,7 @@ public class IdentityLabelsMessageDescriber
     /// <summary>Gets the header text for the Grants page listing authorized applications and resources.</summary>
     public virtual string Grants_Applications_And_Resources => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Grants_ListApplicationsGrants);
     /// <summary>Gets the label text for the client logo.</summary>
-    public virtual string Grants_Client_Logo => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Grants_Client_logo);
+    public virtual string Grants_Client_Logo => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Grants_ClientLogo);
     /// <summary>Gets the label text indicating when a grant was created.</summary>
     public virtual string Grants_Created => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Grants_Created);
     /// <summary>Gets the label text indicating when a grant expires.</summary>
@@ -437,7 +437,7 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "Join Us" instruction on the Login page.
     /// </summary>
-    public virtual string Login_Join_Us => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Login_Join_us);
+    public virtual string Login_Join_Us => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Login_JoinUs);
 
     /// <summary>
     ///   Gets the localized string for "Login" label.
@@ -463,7 +463,7 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "Sign In" button.
     /// </summary>
-    public virtual string Login_Sign_In => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Login_Sign_in);
+    public virtual string Login_Sign_In => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Login_SignIn);
 
     /// <summary>
     ///   Gets the localized string for "No login schemes configured" message.
@@ -548,7 +548,7 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "Multifactor Authentication".
     /// </summary>
-    public virtual string Mfa_Multifactor_Authentication => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_Multifactor_Authentication);
+    public virtual string Mfa_Multifactor_Authentication => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_MultifactorAuthentication);
 
     /// <summary>
     ///   Gets the localized string for "Other authentication methods...".
@@ -593,12 +593,12 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "OTP login".
     /// </summary>
-    public virtual string MfaModel_OTP_Login => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaModel_OTP_login);
+    public virtual string MfaModel_OTP_Login => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaModel_OTPLogin);
 
     /// <summary>
     ///   Gets the localized string for "The OTP code is not valid."
     /// </summary>
-    public virtual string MfaModel_The_OTP_Code_Is_Not_Valid => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaModel_TheOTPIsInvalid_);
+    public virtual string MfaModel_The_OTP_Code_Is_Not_Valid => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaModel_TheOTPIsInvalid);
 
     /// <summary>
     ///   Gets the localized string for "Your OTP code for login is: {0}" with a code parameter.
@@ -727,7 +727,7 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     /// Label for Manage Profile action.
     /// </summary>
-    public virtual string Profile_Manage_Profile =>  string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_Manage_Profile);
+    public virtual string Profile_Manage_Profile =>  string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_ManageProfile);
 
     /// <summary>
     /// Placeholder text for dropdowns or selection inputs in profile forms.
@@ -812,12 +812,12 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "Last name".
     /// </summary>
-    public virtual string Profile_Last_Name => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_Last_name);
+    public virtual string Profile_Last_Name => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_Lastname);
 
     /// <summary>
     ///   Gets the localized string for "Phone number".
     /// </summary>
-    public virtual string Profile_Phone_Number => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_Phone_number);
+    public virtual string Profile_Phone_Number => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_PhoneNumber);
 
     /// <summary>
     ///   Gets the localized string for "Preferences".
@@ -842,7 +842,7 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "Tax identification".
     /// </summary>
-    public virtual string Profile_Tax_Identification => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_Tax_identification);
+    public virtual string Profile_Tax_Identification => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_TaxIdentification);
 
     /// <summary>
     ///   Gets the localized string for "Unknown".
@@ -993,7 +993,7 @@ public class IdentityLabelsMessageDescriber
     /// <summary>
     ///   Gets the localized string for "Sign up".
     /// </summary>
-    public virtual string Register_Sign_Up => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Sign_up);
+    public virtual string Register_Sign_Up => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Signup);
 
     /// <summary>
     ///   Gets the localized string for "These credentials are personal. Please remember them and do not reveal in any way (i.e orally, written, email) in third parties".

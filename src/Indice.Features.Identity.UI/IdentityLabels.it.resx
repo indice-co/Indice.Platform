@@ -426,9 +426,6 @@
   <data name="Error_Go_back_home" xml:space="preserve">
     <value>Torna alla home</value>
   </data>
-  <data name="Error_Request Id" xml:space="preserve">
-    <value>Id richiesta</value>
-  </data>
   <data name="Footer_Discovery" xml:space="preserve">
     <value>Documento di discovery</value>
   </data>
@@ -456,7 +453,7 @@
   <data name="ForgotPasswordConfirmation_PasswordConfirmation" xml:space="preserve">
     <value>Password dimenticata</value>
   </data>
-  <data name="ForgotPasswordConfirmation_New Password" xml:space="preserve">
+  <data name="ForgotPasswordConfirmation_NewPassword" xml:space="preserve">
     <value>Nuova password</value>
   </data>
   <data name="ForgotPasswordConfirmation_PasswordChanged" xml:space="preserve">
@@ -474,7 +471,7 @@
   <data name="Grants_ListApplicationsGrants" xml:space="preserve">
     <value>Below is the list of applications you have given access to and the names of the resources they have access to.</value>
   </data>
-  <data name="Grants_Client logo" xml:space="preserve">
+  <data name="Grants_ClientLogo" xml:space="preserve">
     <value>Client logo</value>
   </data>
   <data name="Grants_Created" xml:space="preserve">
@@ -552,7 +549,7 @@
   <data name="Login_InvalidLoginRequest" xml:space="preserve">
     <value>Invalid login request</value>
   </data>
-  <data name="Login_Join us" xml:space="preserve">
+  <data name="Login_JoinUs" xml:space="preserve">
     <value>Registrati</value>
   </data>
   <data name="Login_Login" xml:space="preserve">
@@ -567,7 +564,7 @@
   <data name="Login_RememberMe" xml:space="preserve">
     <value>Ricordami</value>
   </data>
-  <data name="Login_Sign in" xml:space="preserve">
+  <data name="Login_SignIn" xml:space="preserve">
     <value>Accedi</value>
   </data>
   <data name="Login_NoLoginSchemes" xml:space="preserve">
@@ -612,7 +609,7 @@
   <data name="Mfa_Login" xml:space="preserve">
     <value>Accedi</value>
   </data>
-  <data name="Mfa_Multifactor Authentication" xml:space="preserve">
+  <data name="Mfa_MultifactorAuthentication" xml:space="preserve">
     <value>Autenticazione multifattoriale</value>
   </data>
   <data name="Mfa_OtherAuthenticationMethods" xml:space="preserve">
@@ -636,10 +633,10 @@
   <data name="Mfa_WeTextedYourPhone" xml:space="preserve">
     <value>Abbiamo inviato un SMS al tuo numero {0}. Inserisci il codice per accedere.</value>
   </data>
-  <data name="MfaModel_OTP login" xml:space="preserve">
+  <data name="MfaModel_OTPLogin" xml:space="preserve">
     <value>Accesso con OTP</value>
   </data>
-  <data name="MfaModel_TheOTPIsInvalid." xml:space="preserve">
+  <data name="MfaModel_TheOTPIsInvalid" xml:space="preserve">
     <value>Il codice OTP non è valido.</value>
   </data>
   <data name="MfaModel_OTPCodeMessage" xml:space="preserve">
@@ -702,7 +699,7 @@
   <data name="Profile_ConfirmationEmailSentTo" xml:space="preserve">
     <value>È stata inviata una email di conferma a {0}.</value>
   </data>
-  <data name="Profile_Manage Profile" xml:space="preserve">
+  <data name="Profile_ManageProfile" xml:space="preserve">
     <value>Gestire profilo</value>
   </data>
   <data name="Profile_Choose" xml:space="preserve">
@@ -753,10 +750,10 @@
   <data name="Profile_Language" xml:space="preserve">
     <value>Lingua</value>
   </data>
-  <data name="Profile_Last name" xml:space="preserve">
+  <data name="Profile_Lastname" xml:space="preserve">
     <value>Last name</value>
   </data>
-  <data name="Profile_Phone number" xml:space="preserve">
+  <data name="Profile_PhoneNumber" xml:space="preserve">
     <value>Phone number</value>
   </data>
   <data name="Profile_Preferences" xml:space="preserve">
@@ -771,7 +768,7 @@
   <data name="Profile_Save" xml:space="preserve">
     <value>Save</value>
   </data>
-  <data name="Profile_Tax identification" xml:space="preserve">
+  <data name="Profile_TaxIdentification" xml:space="preserve">
     <value>Tax identification</value>
   </data>
   <data name="Profile_Unknown" xml:space="preserve">
@@ -843,7 +840,7 @@
   <data name="Register_PhoneNumber" xml:space="preserve">
     <value>Numero di telefono</value>
   </data>
-  <data name="Register_Sign up" xml:space="preserve">
+  <data name="Register_Signup" xml:space="preserve">
     <value>Registrati</value>
   </data>
   <data name="Register_KeepCredentialsPrivateHint" xml:space="preserve">
@@ -885,10 +882,13 @@
   <data name="ForgotPassword_ResetInstructions" xml:space="preserve">
     <value>Per reimpostare la password, inserisci il tuo nome utente o indirizzo email qui sotto. Riceverai un'email con un link per reimpostare la password.</value>
   </data>
-  <data name="ForgotPassword_Request sent" xml:space="preserve">
+  <data name="ForgotPassword_RequestSent" xml:space="preserve">
     <value>Richiesta inviata</value>
   </data>
   <data name="Error_Oops" xml:space="preserve">
     <value>Sembra che si sia verificato un errore.</value>
+  </data>
+  <data name="Error_RequestId" xml:space="preserve">
+    <value>Id richiesta</value>
   </data>
 </root>

@@ -426,9 +426,6 @@
   <data name="Error_Go_back_home" xml:space="preserve">
     <value>Επιστροφή στην αρχική</value>
   </data>
-  <data name="Error_Request Id" xml:space="preserve">
-    <value>Κωδικός αιτήματος</value>
-  </data>
   <data name="Footer_Discovery" xml:space="preserve">
     <value>Έγγραφο ανακάλυψης</value>
   </data>
@@ -456,7 +453,7 @@
   <data name="ForgotPasswordConfirmation_PasswordConfirmation" xml:space="preserve">
     <value>Επιβεβαίωση Υπενθύμισης Κωδικού</value>
   </data>
-  <data name="ForgotPasswordConfirmation_New Password" xml:space="preserve">
+  <data name="ForgotPasswordConfirmation_NewPassword" xml:space="preserve">
     <value>Νέος Κωδικός</value>
   </data>
   <data name="ForgotPasswordConfirmation_PasswordChanged" xml:space="preserve">
@@ -474,7 +471,7 @@
   <data name="Grants_ListApplicationsGrants" xml:space="preserve">
     <value>Παρακάτω θα βρείτε τη λίστα των εφαρμογών στις οποίες έχετε δώσει πρόσβαση στα δεδομένα σας.</value>
   </data>
-  <data name="Grants_Client logo" xml:space="preserve">
+  <data name="Grants_ClientLogo" xml:space="preserve">
     <value>Λογότυπο εφαρμογής</value>
   </data>
   <data name="Grants_Created" xml:space="preserve">
@@ -552,7 +549,7 @@
   <data name="Login_InvalidLoginRequest" xml:space="preserve">
     <value>Μη έγκυρο αίτημα σύνδεσης</value>
   </data>
-  <data name="Login_Join us" xml:space="preserve">
+  <data name="Login_JoinUs" xml:space="preserve">
     <value>Νέος χρήστης</value>
   </data>
   <data name="Login_Login" xml:space="preserve">
@@ -567,7 +564,7 @@
   <data name="Login_RememberMe" xml:space="preserve">
     <value>Να με θυμάσαι</value>
   </data>
-  <data name="Login_Sign in" xml:space="preserve">
+  <data name="Login_SignIn" xml:space="preserve">
     <value>Είσοδος</value>
   </data>
   <data name="Login_NoLoginSchemes" xml:space="preserve">
@@ -612,7 +609,7 @@
   <data name="Mfa_Login" xml:space="preserve">
     <value>Είσοδος</value>
   </data>
-  <data name="Mfa_Multifactor Authentication" xml:space="preserve">
+  <data name="Mfa_MultifactorAuthentication" xml:space="preserve">
     <value>Επιπρόσθετος έλεγχος ταυτότητας</value>
   </data>
   <data name="Mfa_OtherAuthenticationMethods" xml:space="preserve">
@@ -636,10 +633,10 @@
   <data name="Mfa_WeTextedYourPhone" xml:space="preserve">
     <value>Ένα μήνυμα έχει σταλεί στον αριθμό {0}. Παρακαλώ εισάγετε τον κωδικό για να συνδεθείτε.</value>
   </data>
-  <data name="MfaModel_OTP login" xml:space="preserve">
+  <data name="MfaModel_OTPLogin" xml:space="preserve">
     <value>Είσοδος με OTP</value>
   </data>
-  <data name="MfaModel_TheOTPIsInvalid." xml:space="preserve">
+  <data name="MfaModel_TheOTPIsInvalid" xml:space="preserve">
     <value>Ο κωδικός OTP δεν είναι έγκυρος</value>
   </data>
   <data name="MfaModel_OTPCodeMessage" xml:space="preserve">
@@ -702,7 +699,7 @@
   <data name="Profile_ConfirmationEmailSentTo" xml:space="preserve">
     <value>Ένα email επιβεβαίωσης έχει σταλεί στη διεύθυνση {0}.</value>
   </data>
-  <data name="Profile_Manage Profile" xml:space="preserve">
+  <data name="Profile_ManageProfile" xml:space="preserve">
     <value>Διαχείριση Προφίλ</value>
   </data>
   <data name="Profile_Choose" xml:space="preserve">
@@ -753,10 +750,10 @@
   <data name="Profile_Language" xml:space="preserve">
     <value>Γλώσσα</value>
   </data>
-  <data name="Profile_Last name" xml:space="preserve">
+  <data name="Profile_Lastname" xml:space="preserve">
     <value>Επίθετο</value>
   </data>
-  <data name="Profile_Phone number" xml:space="preserve">
+  <data name="Profile_PhoneNumber" xml:space="preserve">
     <value>Αριθμός τηλεφώνου</value>
   </data>
   <data name="Profile_Preferences" xml:space="preserve">
@@ -771,7 +768,7 @@
   <data name="Profile_Save" xml:space="preserve">
     <value>Αποθήκευση</value>
   </data>
-  <data name="Profile_Tax identification" xml:space="preserve">
+  <data name="Profile_TaxIdentification" xml:space="preserve">
     <value>Α.Φ.Μ</value>
   </data>
   <data name="Profile_Unknown" xml:space="preserve">
@@ -843,7 +840,7 @@
   <data name="Register_PhoneNumber" xml:space="preserve">
     <value>Αριθμός τηλεφώνου</value>
   </data>
-  <data name="Register_Sign up" xml:space="preserve">
+  <data name="Register_Signup" xml:space="preserve">
     <value>Εγγραφή Χρήστη</value>
   </data>
   <data name="Register_KeepCredentialsPrivateHint" xml:space="preserve">
@@ -885,10 +882,13 @@
   <data name="ForgotPassword_ResetInstructions" xml:space="preserve">
     <value>Για να επαναφέρετε τον κωδικό σας εισάγετε το όνομα χρήστη ή το email σας παρακάτω. Θα σας αποστείλουμε ένα email με ένα σύνδεσμο για να επαναφέρετε τον κωδικό σας.</value>
   </data>
-  <data name="ForgotPassword_Request sent" xml:space="preserve">
+  <data name="ForgotPassword_RequestSent" xml:space="preserve">
     <value>Το αίτημα εστάλει</value>
   </data>
   <data name="Error_Oops" xml:space="preserve">
     <value>Λυπούμαστε. Κάποιο σφάλμα συνέβη στην εφαρμογή.</value>
+  </data>
+  <data name="Error_RequestId" xml:space="preserve">
+    <value>Κωδικός αιτήματος</value>
   </data>
 </root>
