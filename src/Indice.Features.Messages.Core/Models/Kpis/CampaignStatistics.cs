@@ -1,4 +1,4 @@
-﻿namespace Indice.Features.Messages.Core.Models;
+﻿namespace Indice.Features.Messages.Core.Models.Kpis;
 
 /// <summary></summary>
 public class CampaignStatistics

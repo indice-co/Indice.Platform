@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Indice.Features.Messages.Core.Data.Models;
+﻿
 
 namespace Indice.Features.Messages.Core.Events;
 
@@ -18,17 +17,6 @@ public class MessageEvent
     public string Channel { get; set; } = string.Empty;
     /// <summary>The date and time when the event occurred.</summary>   
     public DateTimeOffset CreatedOn { get; set; } = DateTimeOffset.UtcNow;
-    /// <summary>Gets the database event model representation of this message event.</summary>
-    public DbMessageEvent GetDbEvent() =>
-        new DbMessageEvent() {
-            Type = Type,
-            Channel = Channel,
-            MessageId = MessageId,
-            CampaignId = CampaignId,
-            ContactId = ContactId,
-            CreatedOn = CreatedOn
-        };
-
 }
 /// <summary>The event model used when a new campaign action occurs.</summary>
 public enum MessageEventType
@@ -37,10 +25,14 @@ public enum MessageEventType
     Created,
     /// <summary>The event type used when a new contact is resolved.</summary>
     Sent,
+    /// <summary>The event type used when a message is marked unread by the user.</summary>
+    UnRead,
+    /// <summary>The event type used when a message is marked as read by the user.</summary>
+    Read,
     /// <summary>The event type used when a message is opened by the user.</summary>
-    MarkedAsRead,
-    /// <summary>The event type used when a message is deleted by the user.</summary>
-    MarkedAsDeleted,
-    /// <summary>The event type used when a message is marked as unread by the user.</summary>
-    MarkedAsUnread,
+    Opened,
+    /// <summary>The event type used when a message is marked deleted by the user.</summary>
+    Deleted,
+    /// <summary>The event type used when a message is marked as delivered by an external provider.</summary>
+    Delivered,
 }

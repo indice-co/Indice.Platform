@@ -81,7 +81,8 @@ public class ContactResolverIdentity : IContactResolver
                     ConsentCommercial = GetCommercialConsent(identityUser.Claims),
                     ConsentCommercialDate = GetCommercialConsentDate(identityUser.Claims),
                     DefaultChannels = GetCommunicationPreferences(identityUser.Claims)
-                }
+                },
+                Resolved = true
             })
              .ToArray()
         };
@@ -112,6 +113,7 @@ public class ContactResolverIdentity : IContactResolver
             PhoneNumber = identityUser.PhoneNumber,
             FirstName = FindClaimValue(identityUser.Claims, BasicClaimTypes.GivenName),
             LastName = FindClaimValue(identityUser.Claims, BasicClaimTypes.FamilyName),
+            Resolved = true,
             Preference = new ContactPreference {
                 Locale = FindClaimValue(identityUser.Claims, BasicClaimTypes.Locale),
                 ConsentCommercial = GetCommercialConsent(identityUser.Claims),

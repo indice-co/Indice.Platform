@@ -1,6 +1,6 @@
 ﻿using Indice.Features.Messages.Core.Events;
 
-namespace Indice.Features.Messages.Core.Models.Requests;
+namespace Indice.Features.Messages.Core.Models;
 /// <summary>
 /// Represents the response containing details about campaign messages, including the message content, contact
 /// information, and associated channels.

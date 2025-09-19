@@ -82,12 +82,12 @@ internal static class MyMessagesApi
             .WithDescription(MyMessagesHandlers.GET_INBOX_MESSAGE_TYPES_DESCRIPTION);
 
 
-        group.MapGet("my/communication-preferences", MyMessagesHandlers.GetMyCommunicationPreferences)
+        group.MapGet("my/preferences", MyMessagesHandlers.GetMyCommunicationPreferences)
              .WithName(nameof(MyMessagesHandlers.GetMyCommunicationPreferences))
              .WithSummary("Gets user communication prefereces.")
              .WithDescription(MyMessagesHandlers.GET_COMMUNICATION_PREFERENCES_DESCRIPTION);
 
-        group.MapPut("my/communication-preferences", MyMessagesHandlers.UpdateMyCommunicationPreferences)
+        group.MapPut("my/preferences", MyMessagesHandlers.UpdateMyCommunicationPreferences)
              .WithName(nameof(MyMessagesHandlers.UpdateMyCommunicationPreferences))
              .WithSummary("Updates user's communication prefereces.")
              .WithDescription(MyMessagesHandlers.UPDATE_COMMUNICATION_PREFERENCES_DESCRIPTION);

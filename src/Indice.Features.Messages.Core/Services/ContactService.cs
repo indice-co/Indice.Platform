@@ -159,6 +159,12 @@ public class ContactService : IContactService
         if (filter?.RecipientId is not null) {
             query = query.Where(x => x.RecipientId!.ToLower() == filter.RecipientId.ToLower());
         }
+        if (filter?.Anonymous == true) {
+            query = query.Where(x => x.RecipientId == null || x.Resolved == false);
+        }
+        if (filter?.Anonymous == false) {
+            query = query.Where(x => x.RecipientId != null && x.Resolved == true);
+        }
 
         if (!string.IsNullOrWhiteSpace(options.Search)) {
             var searchTerm = options.Search.Trim().ToLowerInvariant();

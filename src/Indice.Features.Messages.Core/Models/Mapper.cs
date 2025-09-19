@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 using Indice.Extensions;
 using Indice.Features.Messages.Core.Data.Models;
+using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Manager.Commands;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Types;
@@ -54,6 +55,7 @@ internal static class Mapper
         RecipientId = contact.RecipientId,
         Salutation = contact.Salutation,
         UpdatedAt = contact.UpdatedAt,
+        Resolved = contact.Resolved == true,
         Unsubscribed = contact.DistributionListContacts.Any() && contact.DistributionListContacts[0].Unsubscribed
     };
 
@@ -148,7 +150,17 @@ internal static class Mapper
         PhoneNumber = contact.PhoneNumber,
         RecipientId = contact.RecipientId,
         Salutation = contact.Salutation,
-        UpdatedAt = DateTimeOffset.UtcNow
+        UpdatedAt = DateTimeOffset.UtcNow,
+        Resolved = contact.Resolved,
+    };
+
+    public static DbMessageEvent ToDbEvent(this MessageEvent messageEvent) => new() {
+        CampaignId = messageEvent.CampaignId,
+        ContactId = messageEvent.ContactId,
+        CreatedOn = messageEvent.CreatedOn,
+        MessageId = messageEvent.MessageId,
+        Type = messageEvent.Type,
+        Channel = messageEvent.Channel
     };
 
     public static DbContact ToDbContact(CreateContactRequest request) => new() {

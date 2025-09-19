@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Indice.Features.Media.AspNetCore;
+using Indice.Features.Messages.Core.Models.Kpis;
 
 namespace Indice.Features.Messages.AspNetCore.Endpoints;
 
@@ -131,20 +132,23 @@ internal static class CampaignsHandlers
         return TypedResults.File(data, contentType, lastModified: properties.LastModified, entityTag: new EntityTagHeaderValue(properties.ETag, true));
     }
 
-    public static async Task<Ok<DashboardCounters>> GetDashboardStats(ICampaignService campaignService) {
+    public static async Task<Ok<DashboardCounters>> GetDashboardStats(ICampaignService campaignService, IContactService contactService) {
         var counters = new DashboardCounters {
-            CampaignsCount = (await campaignService.GetList(new ListOptions<CampaignListFilter> { Page = 1, Size = 0 })).Count,
-            CampaignsPublishedCount = (await campaignService.GetList(new ListOptions<CampaignListFilter> { Page = 1, Size = 0, Filter = new CampaignListFilter() { Published = true } })).Count,
-            CampaignsByType = await campaignService.GetDashboardCounters()
+            CampaignsCount = (await campaignService.GetList(new() { Page = 1, Size = 0 })).Count,
+            CampaignsPublishedCount = (await campaignService.GetList(new() { Page = 1, Size = 0, Filter = new () { Published = true } })).Count,
+            ContactsTotal = (await contactService.GetList(new() { Page = 1, Size = 0 })).Count,
+            ContactsKnownTotal = (await contactService.GetList(new() { Page = 1, Size = 0, Filter = new () { Anonymous = false } })).Count,
+            CampaignsByType = await campaignService.GetDashboardCounters(),
+            Recipients = (await campaignService.GetPerformance())!
         };
         return TypedResults.Ok(counters);
     }
     public static async Task<Ok<ResultSet<Recipient>>> GetCampaignMessages(ICampaignService campaignService, Guid campaignId, [AsParameters] ListOptions options) {
-        var campaigns = await campaignService.GetCampaignMessages(campaignId, options);
+        var campaigns = await campaignService.GetCampaignRecipients(campaignId, options);
         return TypedResults.Ok(campaigns);
     }
     public static async Task<Ok<RecipientMessageEvents>> GetCampaignMessageDetails(ICampaignService campaignService, Guid campaignId, Guid messageId) {
-        var campaigns = await campaignService.GetCampaignMessageDetails(campaignId, messageId);
+        var campaigns = await campaignService.GetCampaignRecipientDetails(campaignId, messageId);
         return TypedResults.Ok(campaigns);
     }
 
