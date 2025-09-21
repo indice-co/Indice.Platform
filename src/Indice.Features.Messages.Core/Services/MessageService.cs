@@ -30,7 +30,7 @@ public class MessageService : IMessageService
         IOptions<MessageInboxOptions> campaignInboxOptions,
         IContactResolver contactResolver,
         IContactService contactService,
-        CampaignEventQueue campaignEventQueue) {
+        MessageEventQueue campaignEventQueue) {
         DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         ContactResolver = contactResolver ?? throw new ArgumentNullException(nameof(contactResolver));
         ContactService = contactService;
@@ -42,7 +42,7 @@ public class MessageService : IMessageService
     private MessageInboxOptions CampaignInboxOptions { get; }
     private IContactResolver ContactResolver { get; }
     private IContactService ContactService { get; }
-    private CampaignEventQueue CampaignEventQueue { get; }
+    private MessageEventQueue CampaignEventQueue { get; }
 
     /// <inheritdoc />
     public async Task<ResultSet<Message>?> GetList(string recipientId, ListOptions<MessagesFilter>? options) {

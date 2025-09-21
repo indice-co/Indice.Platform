@@ -44,7 +44,6 @@ internal static class CampaignsApi
              .WithName(nameof(CampaignsHandlers.GetCampaigns))
              .WithSummary("Gets the list of all campaigns using the provided ListOptions.")
              .WithDescription(CampaignsHandlers.GET_CAMPAIGNS_DESCRIPTION);
-        //.WithOpenApiEnum<MessageChannelKind>(nameof(CampaignListFilter.MessageChannelKind));
 
         group.MapGet("{campaignId}", CampaignsHandlers.GetCampaignById)
              .WithName(nameof(CampaignsHandlers.GetCampaignById))
@@ -107,12 +106,6 @@ internal static class CampaignsApi
              .WithDescription(CampaignsHandlers.GET_CAMPAIGN_ATTACHMENT_DESCRIPTION)
              .AllowAnonymous()
              .ExcludeFromDescription();
-
-        group.MapGet("dashboard", CampaignsHandlers.GetDashboardStats)
-             .WithName(nameof(CampaignsHandlers.GetDashboardStats))
-             .WithSummary("Gets counters for dashboard.")
-             .WithDescription(CampaignsHandlers.GET_CAMPAIGNS_DESCRIPTION);
-
 
         group.MapGet("{campaignId}/messages", CampaignsHandlers.GetCampaignMessages)
              .WithName(nameof(CampaignsHandlers.GetCampaignMessages))

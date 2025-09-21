@@ -138,6 +138,7 @@ internal static class Mapper
         PhoneNumber = request.PhoneNumber,
         RecipientId = request.RecipientId,
         Salutation = request.Salutation,
+        Resolved = request.Resolved,
         UpdatedAt = DateTimeOffset.UtcNow
     };
 
@@ -172,6 +173,7 @@ internal static class Mapper
         PhoneNumber = request.PhoneNumber,
         RecipientId = request.RecipientId,
         Salutation = request.Salutation,
+        Resolved = request.Resolved,
         UpdatedAt = DateTimeOffset.UtcNow
     };
     public static CreateContactRequest ToCreateContactRequest(Contact request) => new() {
@@ -181,7 +183,8 @@ internal static class Mapper
         LastName = request.LastName,
         PhoneNumber = request.PhoneNumber,
         RecipientId = request.RecipientId,
-        Salutation = request.Salutation
+        Salutation = request.Salutation,
+        Resolved = request.Resolved
     };
 
     public static DbContactPreference? ToDbCommunicationPreference(CreateContactRequest request) {

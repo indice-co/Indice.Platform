@@ -11,13 +11,13 @@ public class SendSmsHandler : ICampaignJobHandler<SendSmsEvent>
     /// <param name="smsService">Push notification service abstraction in order to support different providers.</param>
     /// <param name="campaignEventQueue">Campaign event queue abstraction.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public SendSmsHandler(ISmsService smsService, CampaignEventQueue campaignEventQueue) {
+    public SendSmsHandler(ISmsService smsService, MessageEventQueue campaignEventQueue) {
         SmsService = smsService ?? throw new ArgumentNullException(nameof(smsService));
         CampaignEventQueue = campaignEventQueue;
     }
 
     private ISmsService SmsService { get; }
-    private CampaignEventQueue CampaignEventQueue { get; }
+    private MessageEventQueue CampaignEventQueue { get; }
 
     /// <summary>Sends a push notification to a single user.</summary>
     /// <param name="event">The event model used when sending an email.</param>

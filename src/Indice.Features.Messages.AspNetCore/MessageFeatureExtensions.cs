@@ -52,7 +52,7 @@ public static class MessageFeatureExtensions
             options.DatabaseSchema = apiOptions.DatabaseSchema;
             options.UserClaimType = apiOptions.UserClaimType;
             options.GroupName = apiOptions.InboxGroupName;
-            options.CampaignStatisticOptions = apiOptions.CampaignStatisticOptions;
+            options.AnalyticsOptions = apiOptions.AnalyticsOptions;
         });
     }
 
@@ -118,11 +118,11 @@ public static class MessageFeatureExtensions
         });
         services.AddSingleton(new DatabaseSchemaNameResolver(apiOptions.DatabaseSchema));
 
-        services.Configure<CampaignStatisticOptions>(opt => {
-            opt.EnableStatics = apiOptions.CampaignStatisticOptions.EnableStatics;
+        services.Configure<AnalyticsOptions>(opt => {
+            opt.Enabled = apiOptions.AnalyticsOptions.Enabled;
         });
-        services.AddSingleton<CampaignEventQueue>();
-        services.AddSingleton<IHostedService, CampaignEventHandler>();
+        services.AddSingleton<MessageEventQueue>();
+        services.AddSingleton<IHostedService, MessageEventHostedServcie>();
         return services;
     }
 
@@ -169,6 +169,7 @@ public static class MessageFeatureExtensions
         services.TryAddTransient<IMessageSenderService, MessageSenderService>();
         services.TryAddTransient<IDistributionListService, DistributionListService>();
         services.TryAddTransient<IMessageService, MessageService>();
+        services.TryAddTransient<IMessageEventService, MessageEventService>();
         services.TryAddScoped<IUserNameAccessor, UserNameFromClaimsAccessor>();
         services.TryAddScoped<UserNameAccessorAggregate>();
         services.TryAddTransient<IFileService, FileServiceNoop>();

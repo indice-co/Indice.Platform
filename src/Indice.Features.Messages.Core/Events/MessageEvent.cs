@@ -5,6 +5,8 @@ namespace Indice.Features.Messages.Core.Events;
 /// <summary>The event model used when a new campaign action occurs.</summary>
 public class MessageEvent
 {
+    /// <summary>Gets or sets the unique identifier for the entity.</summary>
+    public Guid Id { get; set; } = Guid.NewGuid();
     /// <summary>The unique identifier of the associated campaign.</summary>
     public Guid CampaignId { get; set; }
     /// <summary>The unique identifier of the associated contact.</summary>

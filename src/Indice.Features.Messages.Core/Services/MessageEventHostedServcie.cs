@@ -10,11 +10,11 @@ using Open.ChannelExtensions;
 
 namespace Indice.Features.Messages.Core.Services;
 /// <summary>Background service that handles the processing of campaign events.</summary>
-public class CampaignEventHandler(
-    CampaignEventQueue queue,
+public class MessageEventHostedServcie(
+    MessageEventQueue queue,
     IServiceScopeFactory scopeFactory,
-    IOptions<CampaignStatisticOptions> StatisticOptions,
-    ILogger<CampaignEventHandler> logger) : BackgroundService
+    IOptions<AnalyticsOptions> AnalyticsOptions,
+    ILogger<MessageEventHostedServcie> logger) : BackgroundService
 {
     /// <summary>Batch size for dequeuing events from the queue.</summary>
     public int DequeueBatchSize { get; set; } = 10;
@@ -23,7 +23,7 @@ public class CampaignEventHandler(
 
     ///<inheritdoc/>
     protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
-        if(!StatisticOptions.Value.EnableStatics) {
+        if(!AnalyticsOptions.Value.Enabled) {
             return;
         }
         var events = queue.Reader

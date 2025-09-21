@@ -17,7 +17,7 @@ public class SendEmailHandler : ICampaignJobHandler<SendEmailEvent>
     /// <param name="campaignEventQueue">Campaign event queue abstraction.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public SendEmailHandler(IEmailService emailService, ICampaignAttachmentService campaignAttachmentService,
-        IMessageSenderService messageSenderService, CampaignEventQueue campaignEventQueue) {
+        IMessageSenderService messageSenderService, MessageEventQueue campaignEventQueue) {
         EmailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
         CampaignAttachmentService = campaignAttachmentService ?? throw new ArgumentNullException(nameof(campaignAttachmentService));
         MessageSenderService = messageSenderService ?? throw new ArgumentNullException(nameof(messageSenderService));
@@ -27,7 +27,7 @@ public class SendEmailHandler : ICampaignJobHandler<SendEmailEvent>
     private ICampaignAttachmentService CampaignAttachmentService { get; }
     private IMessageSenderService MessageSenderService { get; }
     private IEmailService EmailService { get; }
-    private CampaignEventQueue CampaignEventQueue { get; }
+    private MessageEventQueue CampaignEventQueue { get; }
 
     /// <summary>Sends an email to a single user.</summary>
     /// <param name="event">The event model used when sending an email.</param>

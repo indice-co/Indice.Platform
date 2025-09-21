@@ -32,7 +32,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         IMessageService messageService,
         ILogger<ResolveMessageHandler> logger,
         Microsoft.Extensions.Options.IOptions<MessageWorkerOptions> options,
-        CampaignEventQueue campaignEventQueue
+        MessageEventQueue campaignEventQueue
     ) {
         EventDispatcherFactory = eventDispatcherFactory ?? throw new ArgumentNullException(nameof(eventDispatcherFactory));
         ContactResolver = contactResolver ?? throw new ArgumentNullException(nameof(contactResolver));
@@ -47,7 +47,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
     private IContactService ContactService { get; }
     private IMessageService MessageService { get; }
     private ILogger<ResolveMessageHandler> Logger { get; }
-    private CampaignEventQueue CampaignEventQueue { get; }
+    private MessageEventQueue CampaignEventQueue { get; }
     private MessageWorkerOptions Options { get; }
 
     /// <summary>Decides whether to insert or update a resolved contact.</summary>

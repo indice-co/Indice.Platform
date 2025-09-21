@@ -16,6 +16,26 @@ export const MESSAGES_API_BASE_URL = new InjectionToken<string>('MESSAGES_API_BA
 
 export interface IMessagesApiClient {
     /**
+     * Gets a result set of events.
+     * @param page (optional) The current page of the list. Default is 1.
+     * @param size (optional) The size of the list. Default is 100
+     * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
+     * @param search (optional) A search term used to limit the results of the list.
+     * @param campaignId (optional) The ID of the campaign to filter events by.
+     * @param messageId (optional) The ID of the message to filter events by.
+     * @param rangeStart (optional) The filter start date. If provided, only events that occurred on or after this date will be included in the results.
+     * @param rangeEnd (optional) The filter end date. If provided, only events that occurred on or before this date will be included in the results.
+     * @param channel (optional) The communication channels to filter events by.
+     * @return OK
+     */
+    getEventsList(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, campaignId?: string | undefined, messageId?: string | undefined, rangeStart?: Date | undefined, rangeEnd?: Date | undefined, channel?: MessageChannelKind[] | undefined): Observable<MessageEventResultSet>;
+    /**
+     * Gets the overview analytics.
+     * @param asOfDate (optional) 
+     * @return OK
+     */
+    getOverview(asOfDate?: Date | undefined): Observable<OverviewMetrics>;
+    /**
      * Gets the list of all campaigns using the provided ListOptions.
      * @param page (optional) The current page of the list. Default is 1.
      * @param size (optional) The size of the list. Default is 100
@@ -82,17 +102,12 @@ export interface IMessagesApiClient {
      * Gets the statistics for a specified campaign.
      * @return OK
      */
-    getCampaignStatistics(campaignId: string): Observable<CampaignStatistics>;
+    getCampaignStatistics(campaignId: string): Observable<RecipientMetrics>;
     /**
      * Gets the statistics for a specified campaign in the form of an Excel file.
      * @return OK
      */
-    exportCampaignStatistics(campaignId: string): Observable<CampaignStatistics>;
-    /**
-     * Gets counters for dashboard.
-     * @return OK
-     */
-    getDashboardStats(): Observable<DashboardCounters>;
+    exportCampaignStatistics(campaignId: string): Observable<RecipientMetrics>;
     /**
      * Gets the list of all contacts using the provided ListOptions.
      * @param page (optional) The current page of the list. Default is 1.
@@ -313,6 +328,216 @@ export class MessagesApiClient implements IMessagesApiClient {
     constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(MESSAGES_API_BASE_URL) baseUrl?: string) {
         this.http = http;
         this.baseUrl = baseUrl ?? "https://localhost:2001/";
+    }
+
+    /**
+     * Gets a result set of events.
+     * @param page (optional) The current page of the list. Default is 1.
+     * @param size (optional) The size of the list. Default is 100
+     * @param sort (optional) The sort order plus the sort direction of the list. for example displayName-
+     * @param search (optional) A search term used to limit the results of the list.
+     * @param campaignId (optional) The ID of the campaign to filter events by.
+     * @param messageId (optional) The ID of the message to filter events by.
+     * @param rangeStart (optional) The filter start date. If provided, only events that occurred on or after this date will be included in the results.
+     * @param rangeEnd (optional) The filter end date. If provided, only events that occurred on or before this date will be included in the results.
+     * @param channel (optional) The communication channels to filter events by.
+     * @return OK
+     */
+    getEventsList(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, campaignId?: string | undefined, messageId?: string | undefined, rangeStart?: Date | undefined, rangeEnd?: Date | undefined, channel?: MessageChannelKind[] | undefined): Observable<MessageEventResultSet> {
+        let url_ = this.baseUrl + "/analytics/events?";
+        if (page === null)
+            throw new globalThis.Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (size === null)
+            throw new globalThis.Error("The parameter 'size' cannot be null.");
+        else if (size !== undefined)
+            url_ += "Size=" + encodeURIComponent("" + size) + "&";
+        if (sort === null)
+            throw new globalThis.Error("The parameter 'sort' cannot be null.");
+        else if (sort !== undefined)
+            url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
+        if (search === null)
+            throw new globalThis.Error("The parameter 'search' cannot be null.");
+        else if (search !== undefined)
+            url_ += "Search=" + encodeURIComponent("" + search) + "&";
+        if (campaignId === null)
+            throw new globalThis.Error("The parameter 'campaignId' cannot be null.");
+        else if (campaignId !== undefined)
+            url_ += "CampaignId=" + encodeURIComponent("" + campaignId) + "&";
+        if (messageId === null)
+            throw new globalThis.Error("The parameter 'messageId' cannot be null.");
+        else if (messageId !== undefined)
+            url_ += "MessageId=" + encodeURIComponent("" + messageId) + "&";
+        if (rangeStart === null)
+            throw new globalThis.Error("The parameter 'rangeStart' cannot be null.");
+        else if (rangeStart !== undefined)
+            url_ += "RangeStart=" + encodeURIComponent(rangeStart ? "" + rangeStart.toISOString() : "") + "&";
+        if (rangeEnd === null)
+            throw new globalThis.Error("The parameter 'rangeEnd' cannot be null.");
+        else if (rangeEnd !== undefined)
+            url_ += "RangeEnd=" + encodeURIComponent(rangeEnd ? "" + rangeEnd.toISOString() : "") + "&";
+        if (channel === null)
+            throw new globalThis.Error("The parameter 'channel' cannot be null.");
+        else if (channel !== undefined)
+            channel && channel.forEach(item => { url_ += "Channel=" + encodeURIComponent("" + item) + "&"; });
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetEventsList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetEventsList(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MessageEventResultSet>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MessageEventResultSet>;
+        }));
+    }
+
+    protected processGetEventsList(response: HttpResponseBase): Observable<MessageEventResultSet> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MessageEventResultSet.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Gets the overview analytics.
+     * @param asOfDate (optional) 
+     * @return OK
+     */
+    getOverview(asOfDate?: Date | undefined): Observable<OverviewMetrics> {
+        let url_ = this.baseUrl + "/analytics/overview?";
+        if (asOfDate === null)
+            throw new globalThis.Error("The parameter 'asOfDate' cannot be null.");
+        else if (asOfDate !== undefined)
+            url_ += "asOfDate=" + encodeURIComponent(asOfDate ? "" + asOfDate.toISOString() : "") + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetOverview(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetOverview(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<OverviewMetrics>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<OverviewMetrics>;
+        }));
+    }
+
+    protected processGetOverview(response: HttpResponseBase): Observable<OverviewMetrics> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = OverviewMetrics.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
     }
 
     /**
@@ -1213,7 +1438,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * Gets the statistics for a specified campaign.
      * @return OK
      */
-    getCampaignStatistics(campaignId: string): Observable<CampaignStatistics> {
+    getCampaignStatistics(campaignId: string): Observable<RecipientMetrics> {
         let url_ = this.baseUrl + "/campaigns/{campaignId}/statistics";
         if (campaignId === undefined || campaignId === null)
             throw new globalThis.Error("The parameter 'campaignId' must be defined.");
@@ -1235,14 +1460,14 @@ export class MessagesApiClient implements IMessagesApiClient {
                 try {
                     return this.processGetCampaignStatistics(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<CampaignStatistics>;
+                    return _observableThrow(e) as any as Observable<RecipientMetrics>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<CampaignStatistics>;
+                return _observableThrow(response_) as any as Observable<RecipientMetrics>;
         }));
     }
 
-    protected processGetCampaignStatistics(response: HttpResponseBase): Observable<CampaignStatistics> {
+    protected processGetCampaignStatistics(response: HttpResponseBase): Observable<RecipientMetrics> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1253,7 +1478,7 @@ export class MessagesApiClient implements IMessagesApiClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = CampaignStatistics.fromJS(resultData200);
+            result200 = RecipientMetrics.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 400) {
@@ -1300,7 +1525,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * Gets the statistics for a specified campaign in the form of an Excel file.
      * @return OK
      */
-    exportCampaignStatistics(campaignId: string): Observable<CampaignStatistics> {
+    exportCampaignStatistics(campaignId: string): Observable<RecipientMetrics> {
         let url_ = this.baseUrl + "/campaigns/{campaignId}/statistics/export";
         if (campaignId === undefined || campaignId === null)
             throw new globalThis.Error("The parameter 'campaignId' must be defined.");
@@ -1322,14 +1547,14 @@ export class MessagesApiClient implements IMessagesApiClient {
                 try {
                     return this.processExportCampaignStatistics(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<CampaignStatistics>;
+                    return _observableThrow(e) as any as Observable<RecipientMetrics>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<CampaignStatistics>;
+                return _observableThrow(response_) as any as Observable<RecipientMetrics>;
         }));
     }
 
-    protected processExportCampaignStatistics(response: HttpResponseBase): Observable<CampaignStatistics> {
+    protected processExportCampaignStatistics(response: HttpResponseBase): Observable<RecipientMetrics> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1340,7 +1565,7 @@ export class MessagesApiClient implements IMessagesApiClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = CampaignStatistics.fromJS(resultData200);
+            result200 = RecipientMetrics.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 400) {
@@ -1367,86 +1592,6 @@ export class MessagesApiClient implements IMessagesApiClient {
         } else if (status === 404) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("Not Found", status, _responseText, _headers);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    /**
-     * Gets counters for dashboard.
-     * @return OK
-     */
-    getDashboardStats(): Observable<DashboardCounters> {
-        let url_ = this.baseUrl + "/campaigns/dashboard";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetDashboardStats(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetDashboardStats(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<DashboardCounters>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<DashboardCounters>;
-        }));
-    }
-
-    protected processGetDashboardStats(response: HttpResponseBase): Observable<DashboardCounters> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = DashboardCounters.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = HttpValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -4733,6 +4878,68 @@ export interface ICampaignDetails {
     updatedAt?: Date;
 }
 
+export class CampaignMetrics implements ICampaignMetrics {
+    /** Total campaigns created. */
+    total?: number;
+    /** Total active campaigns. */
+    active?: number;
+    /** Total campaigns created today. */
+    totalToday?: number;
+    /** Total campaigns created yesterday. */
+    totalYesterday?: number;
+    /** Trend of campaigns created today vs yesterday. */
+    trend?: number;
+
+    constructor(data?: ICampaignMetrics) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.total = _data["total"];
+            this.active = _data["active"];
+            this.totalToday = _data["totalToday"];
+            this.totalYesterday = _data["totalYesterday"];
+            this.trend = _data["trend"];
+        }
+    }
+
+    static fromJS(data: any): CampaignMetrics {
+        data = typeof data === 'object' ? data : {};
+        let result = new CampaignMetrics();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["total"] = this.total;
+        data["active"] = this.active;
+        data["totalToday"] = this.totalToday;
+        data["totalYesterday"] = this.totalYesterday;
+        data["trend"] = this.trend;
+        return data;
+    }
+}
+
+export interface ICampaignMetrics {
+    /** Total campaigns created. */
+    total?: number;
+    /** Total active campaigns. */
+    active?: number;
+    /** Total campaigns created today. */
+    totalToday?: number;
+    /** Total campaigns created yesterday. */
+    totalYesterday?: number;
+    /** Trend of campaigns created today vs yesterday. */
+    trend?: number;
+}
+
 export class CampaignResultSet implements ICampaignResultSet {
     count?: number;
     items?: Campaign[];
@@ -4781,17 +4988,14 @@ export interface ICampaignResultSet {
     items?: Campaign[];
 }
 
-export class CampaignStatistics implements ICampaignStatistics {
-    title?: string;
-    readCount?: number;
-    notReadCount?: number;
-    deletedCount?: number;
-    callToActionCount?: number;
-    lastUpdated?: Date;
-    messagesperChannel?: { [key: string]: number; };
-    recipientsCount?: number;
+export class ChannelMetrics implements IChannelMetrics {
+    kind?: MessageChannelKind;
+    /** Total messages sent. */
+    total?: number;
+    /** Number of errors encountered. */
+    failures?: number;
 
-    constructor(data?: ICampaignStatistics) {
+    constructor(data?: IChannelMetrics) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -4802,59 +5006,34 @@ export class CampaignStatistics implements ICampaignStatistics {
 
     init(_data?: any) {
         if (_data) {
-            this.title = _data["title"];
-            this.readCount = _data["readCount"];
-            this.notReadCount = _data["notReadCount"];
-            this.deletedCount = _data["deletedCount"];
-            this.callToActionCount = _data["callToActionCount"];
-            this.lastUpdated = _data["lastUpdated"] ? new Date(_data["lastUpdated"].toString()) : undefined as any;
-            if (_data["messagesperChannel"]) {
-                this.messagesperChannel = {} as any;
-                for (let key in _data["messagesperChannel"]) {
-                    if (_data["messagesperChannel"].hasOwnProperty(key))
-                        (this.messagesperChannel as any)![key] = _data["messagesperChannel"][key];
-                }
-            }
-            this.recipientsCount = _data["recipientsCount"];
+            this.kind = _data["kind"];
+            this.total = _data["total"];
+            this.failures = _data["failures"];
         }
     }
 
-    static fromJS(data: any): CampaignStatistics {
+    static fromJS(data: any): ChannelMetrics {
         data = typeof data === 'object' ? data : {};
-        let result = new CampaignStatistics();
+        let result = new ChannelMetrics();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["title"] = this.title;
-        data["readCount"] = this.readCount;
-        data["notReadCount"] = this.notReadCount;
-        data["deletedCount"] = this.deletedCount;
-        data["callToActionCount"] = this.callToActionCount;
-        data["lastUpdated"] = this.lastUpdated ? this.lastUpdated.toISOString() : undefined as any;
-        if (this.messagesperChannel) {
-            data["messagesperChannel"] = {};
-            for (let key in this.messagesperChannel) {
-                if (this.messagesperChannel.hasOwnProperty(key))
-                    (data["messagesperChannel"] as any)[key] = (this.messagesperChannel as any)[key];
-            }
-        }
-        data["recipientsCount"] = this.recipientsCount;
+        data["kind"] = this.kind;
+        data["total"] = this.total;
+        data["failures"] = this.failures;
         return data;
     }
 }
 
-export interface ICampaignStatistics {
-    title?: string;
-    readCount?: number;
-    notReadCount?: number;
-    deletedCount?: number;
-    callToActionCount?: number;
-    lastUpdated?: Date;
-    messagesperChannel?: { [key: string]: number; };
-    recipientsCount?: number;
+export interface IChannelMetrics {
+    kind?: MessageChannelKind;
+    /** Total messages sent. */
+    total?: number;
+    /** Number of errors encountered. */
+    failures?: number;
 }
 
 export class Contact implements IContact {
@@ -5094,6 +5273,50 @@ export class ContactCommunicationOption implements IContactCommunicationOption {
 export interface IContactCommunicationOption {
     messageType?: MessageType;
     channels?: ContactChannelOption[];
+}
+
+export class ContactMetrics implements IContactMetrics {
+    /** Indicates the number of contacts in the system. */
+    total?: number;
+    /** Contacts that have an actual recipientId that has been successfully resolved from an external source (ie Identity System).</ */
+    known?: number;
+
+    constructor(data?: IContactMetrics) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.total = _data["total"];
+            this.known = _data["known"];
+        }
+    }
+
+    static fromJS(data: any): ContactMetrics {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContactMetrics();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["total"] = this.total;
+        data["known"] = this.known;
+        return data;
+    }
+}
+
+export interface IContactMetrics {
+    /** Indicates the number of contacts in the system. */
+    total?: number;
+    /** Contacts that have an actual recipientId that has been successfully resolved from an external source (ie Identity System).</ */
+    known?: number;
 }
 
 export class ContactPreference implements IContactPreference {
@@ -5453,6 +5676,7 @@ export class CreateContactRequest implements ICreateContactRequest {
     fullName?: string;
     email?: string;
     phoneNumber?: string;
+    resolved?: boolean;
 
     constructor(data?: ICreateContactRequest) {
         if (data) {
@@ -5473,6 +5697,7 @@ export class CreateContactRequest implements ICreateContactRequest {
             this.fullName = _data["fullName"];
             this.email = _data["email"];
             this.phoneNumber = _data["phoneNumber"];
+            this.resolved = _data["resolved"];
         }
     }
 
@@ -5493,6 +5718,7 @@ export class CreateContactRequest implements ICreateContactRequest {
         data["fullName"] = this.fullName;
         data["email"] = this.email;
         data["phoneNumber"] = this.phoneNumber;
+        data["resolved"] = this.resolved;
         return data;
     }
 }
@@ -5506,6 +5732,7 @@ export interface ICreateContactRequest {
     fullName?: string;
     email?: string;
     phoneNumber?: string;
+    resolved?: boolean;
 }
 
 export class CreateDistributionListContactRequest implements ICreateDistributionListContactRequest {
@@ -5518,6 +5745,7 @@ export class CreateDistributionListContactRequest implements ICreateDistribution
     fullName?: string;
     email?: string;
     phoneNumber?: string;
+    resolved?: boolean;
 
     constructor(data?: ICreateDistributionListContactRequest) {
         if (data) {
@@ -5539,6 +5767,7 @@ export class CreateDistributionListContactRequest implements ICreateDistribution
             this.fullName = _data["fullName"];
             this.email = _data["email"];
             this.phoneNumber = _data["phoneNumber"];
+            this.resolved = _data["resolved"];
         }
     }
 
@@ -5560,6 +5789,7 @@ export class CreateDistributionListContactRequest implements ICreateDistribution
         data["fullName"] = this.fullName;
         data["email"] = this.email;
         data["phoneNumber"] = this.phoneNumber;
+        data["resolved"] = this.resolved;
         return data;
     }
 }
@@ -5574,6 +5804,7 @@ export interface ICreateDistributionListContactRequest {
     fullName?: string;
     email?: string;
     phoneNumber?: string;
+    resolved?: boolean;
 }
 
 export class CreateDistributionListRequest implements ICreateDistributionListRequest {
@@ -5770,74 +6001,6 @@ export interface ICreateTemplateRequest {
     ignoreUserPreferences?: boolean;
     content?: { [key: string]: MessageContent; };
     data?: any;
-}
-
-export class DashboardCounters implements IDashboardCounters {
-    campaignsCount?: number;
-    campaignsPublishedCount?: number;
-    campaignsByType?: { [key: string]: number; };
-    contactsTotal?: number;
-    contactsKnownTotal?: number;
-    recipients?: RecipientStats;
-
-    constructor(data?: IDashboardCounters) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (this as any)[property] = (data as any)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.campaignsCount = _data["campaignsCount"];
-            this.campaignsPublishedCount = _data["campaignsPublishedCount"];
-            if (_data["campaignsByType"]) {
-                this.campaignsByType = {} as any;
-                for (let key in _data["campaignsByType"]) {
-                    if (_data["campaignsByType"].hasOwnProperty(key))
-                        (this.campaignsByType as any)![key] = _data["campaignsByType"][key];
-                }
-            }
-            this.contactsTotal = _data["contactsTotal"];
-            this.contactsKnownTotal = _data["contactsKnownTotal"];
-            this.recipients = _data["recipients"] ? RecipientStats.fromJS(_data["recipients"]) : undefined as any;
-        }
-    }
-
-    static fromJS(data: any): DashboardCounters {
-        data = typeof data === 'object' ? data : {};
-        let result = new DashboardCounters();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["campaignsCount"] = this.campaignsCount;
-        data["campaignsPublishedCount"] = this.campaignsPublishedCount;
-        if (this.campaignsByType) {
-            data["campaignsByType"] = {};
-            for (let key in this.campaignsByType) {
-                if (this.campaignsByType.hasOwnProperty(key))
-                    (data["campaignsByType"] as any)[key] = (this.campaignsByType as any)[key];
-            }
-        }
-        data["contactsTotal"] = this.contactsTotal;
-        data["contactsKnownTotal"] = this.contactsKnownTotal;
-        data["recipients"] = this.recipients ? this.recipients.toJSON() : undefined as any;
-        return data;
-    }
-}
-
-export interface IDashboardCounters {
-    campaignsCount?: number;
-    campaignsPublishedCount?: number;
-    campaignsByType?: { [key: string]: number; };
-    contactsTotal?: number;
-    contactsKnownTotal?: number;
-    recipients?: RecipientStats;
 }
 
 export class DistributionList implements IDistributionList {
@@ -6121,6 +6284,7 @@ export interface IMessageContent {
 }
 
 export class MessageEvent implements IMessageEvent {
+    id?: string;
     campaignId?: string;
     contactId?: string;
     messageId?: string;
@@ -6139,6 +6303,7 @@ export class MessageEvent implements IMessageEvent {
 
     init(_data?: any) {
         if (_data) {
+            this.id = _data["id"];
             this.campaignId = _data["campaignId"];
             this.contactId = _data["contactId"];
             this.messageId = _data["messageId"];
@@ -6157,6 +6322,7 @@ export class MessageEvent implements IMessageEvent {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
         data["campaignId"] = this.campaignId;
         data["contactId"] = this.contactId;
         data["messageId"] = this.messageId;
@@ -6168,12 +6334,61 @@ export class MessageEvent implements IMessageEvent {
 }
 
 export interface IMessageEvent {
+    id?: string;
     campaignId?: string;
     contactId?: string;
     messageId?: string;
     type?: string;
     channel?: string;
     createdOn?: Date;
+}
+
+export class MessageEventResultSet implements IMessageEventResultSet {
+    count?: number;
+    items?: MessageEvent[];
+
+    constructor(data?: IMessageEventResultSet) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(MessageEvent.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): MessageEventResultSet {
+        data = typeof data === 'object' ? data : {};
+        let result = new MessageEventResultSet();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface IMessageEventResultSet {
+    count?: number;
+    items?: MessageEvent[];
 }
 
 export class MessageSender implements IMessageSender {
@@ -6397,6 +6612,70 @@ export interface IMessageTypeResultSet {
     items?: MessageType[];
 }
 
+export class OverviewMetrics implements IOverviewMetrics {
+    campaign?: CampaignMetrics;
+    contact?: ContactMetrics;
+    recipient?: RecipientMetrics;
+    /** Metrics per channel. */
+    channels?: ChannelMetrics[];
+    /** The date and time when the statistics was last updated. */
+    lastUpdateDate?: Date;
+
+    constructor(data?: IOverviewMetrics) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.campaign = _data["campaign"] ? CampaignMetrics.fromJS(_data["campaign"]) : undefined as any;
+            this.contact = _data["contact"] ? ContactMetrics.fromJS(_data["contact"]) : undefined as any;
+            this.recipient = _data["recipient"] ? RecipientMetrics.fromJS(_data["recipient"]) : undefined as any;
+            if (Array.isArray(_data["channels"])) {
+                this.channels = [] as any;
+                for (let item of _data["channels"])
+                    this.channels!.push(ChannelMetrics.fromJS(item));
+            }
+            this.lastUpdateDate = _data["lastUpdateDate"] ? new Date(_data["lastUpdateDate"].toString()) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): OverviewMetrics {
+        data = typeof data === 'object' ? data : {};
+        let result = new OverviewMetrics();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["campaign"] = this.campaign ? this.campaign.toJSON() : undefined as any;
+        data["contact"] = this.contact ? this.contact.toJSON() : undefined as any;
+        data["recipient"] = this.recipient ? this.recipient.toJSON() : undefined as any;
+        if (Array.isArray(this.channels)) {
+            data["channels"] = [];
+            for (let item of this.channels)
+                data["channels"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["lastUpdateDate"] = this.lastUpdateDate ? this.lastUpdateDate.toISOString() : undefined as any;
+        return data;
+    }
+}
+
+export interface IOverviewMetrics {
+    campaign?: CampaignMetrics;
+    contact?: ContactMetrics;
+    recipient?: RecipientMetrics;
+    /** Metrics per channel. */
+    channels?: ChannelMetrics[];
+    /** The date and time when the statistics was last updated. */
+    lastUpdateDate?: Date;
+}
+
 export class Period implements IPeriod {
     from?: Date;
     to?: Date;
@@ -6617,6 +6896,68 @@ export interface IRecipientMessageEvents {
     events?: MessageEvent[];
 }
 
+export class RecipientMetrics implements IRecipientMetrics {
+    /** Total number of recipients targeted by the message. */
+    total?: number;
+    /** Number of recipients that have received the message. */
+    reached?: number;
+    /** Number of recipients that have opened the message at least once. */
+    engaged?: number;
+    /** Number of recipients that clicked the call to action link at least once. */
+    acted?: number;
+    /** Reachability Coverage Percentage: The percentage of recipients that have been successfully reached out of the total targeted recipients. */
+    coverage?: number;
+
+    constructor(data?: IRecipientMetrics) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.total = _data["total"];
+            this.reached = _data["reached"];
+            this.engaged = _data["engaged"];
+            this.acted = _data["acted"];
+            this.coverage = _data["coverage"];
+        }
+    }
+
+    static fromJS(data: any): RecipientMetrics {
+        data = typeof data === 'object' ? data : {};
+        let result = new RecipientMetrics();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["total"] = this.total;
+        data["reached"] = this.reached;
+        data["engaged"] = this.engaged;
+        data["acted"] = this.acted;
+        data["coverage"] = this.coverage;
+        return data;
+    }
+}
+
+export interface IRecipientMetrics {
+    /** Total number of recipients targeted by the message. */
+    total?: number;
+    /** Number of recipients that have received the message. */
+    reached?: number;
+    /** Number of recipients that have opened the message at least once. */
+    engaged?: number;
+    /** Number of recipients that clicked the call to action link at least once. */
+    acted?: number;
+    /** Reachability Coverage Percentage: The percentage of recipients that have been successfully reached out of the total targeted recipients. */
+    coverage?: number;
+}
+
 export class RecipientResultSet implements IRecipientResultSet {
     count?: number;
     items?: Recipient[];
@@ -6663,62 +7004,6 @@ export class RecipientResultSet implements IRecipientResultSet {
 export interface IRecipientResultSet {
     count?: number;
     items?: Recipient[];
-}
-
-export class RecipientStats implements IRecipientStats {
-    /** Total number of recipients targeted by the message. */
-    count?: number;
-    /** Number of recipients that have received the message. */
-    reached?: number;
-    /** Number of recipients that have opened the message at least once. */
-    engaged?: number;
-    /** Reachability Coverage Percentage: The percentage of recipients that have been successfully reached out of the total targeted recipients. */
-    coverage?: number;
-
-    constructor(data?: IRecipientStats) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (this as any)[property] = (data as any)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.count = _data["count"];
-            this.reached = _data["reached"];
-            this.engaged = _data["engaged"];
-            this.coverage = _data["coverage"];
-        }
-    }
-
-    static fromJS(data: any): RecipientStats {
-        data = typeof data === 'object' ? data : {};
-        let result = new RecipientStats();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["count"] = this.count;
-        data["reached"] = this.reached;
-        data["engaged"] = this.engaged;
-        data["coverage"] = this.coverage;
-        return data;
-    }
-}
-
-export interface IRecipientStats {
-    /** Total number of recipients targeted by the message. */
-    count?: number;
-    /** Number of recipients that have received the message. */
-    reached?: number;
-    /** Number of recipients that have opened the message at least once. */
-    engaged?: number;
-    /** Reachability Coverage Percentage: The percentage of recipients that have been successfully reached out of the total targeted recipients. */
-    coverage?: number;
 }
 
 export class Template implements ITemplate {

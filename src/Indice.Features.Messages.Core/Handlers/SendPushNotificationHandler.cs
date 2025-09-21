@@ -12,7 +12,7 @@ namespace Indice.Features.Messages.Core.Handlers;
 /// <param name="pushNotificationServiceFactory">Push notification service abstraction in order to support different providers.</param>
 /// <param name="CampaignEventQueue">Campaign event queue abstraction.</param>
 /// <exception cref="ArgumentNullException"></exception>
-public class SendPushNotificationHandler(IPushNotificationServiceFactory pushNotificationServiceFactory, CampaignEventQueue CampaignEventQueue) : ICampaignJobHandler<SendPushNotificationEvent>
+public class SendPushNotificationHandler(IPushNotificationServiceFactory pushNotificationServiceFactory, MessageEventQueue CampaignEventQueue) : ICampaignJobHandler<SendPushNotificationEvent>
 {
     private IPushNotificationServiceFactory PushNotificationServiceFactory { get; } = pushNotificationServiceFactory ?? throw new ArgumentNullException(nameof(pushNotificationServiceFactory));
 

@@ -1,4 +1,6 @@
-﻿using Indice.Features.Messages.Core.Data;
+﻿using System.Linq;
+using Azure;
+using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Exceptions;
 using Indice.Features.Messages.Core.Models;
@@ -113,6 +115,25 @@ public class ContactService : IContactService
 
     /// <inheritdoc />
     public async Task<Contact> Create(CreateContactRequest request) {
+        
+        if (!string.IsNullOrWhiteSpace(request.RecipientId)) {
+            var knownContact = await DbContext.Contacts
+                               .OrderByDescending(x => x.UpdatedAt)
+                               .Where(x => x.RecipientId == request.RecipientId)
+                               .FirstOrDefaultAsync();
+            if (knownContact is not null) { 
+                knownContact.Email = request.Email;
+                knownContact.FirstName = request.FirstName;
+                knownContact.FullName = request.FullName;
+                knownContact.LastName = request.LastName;
+                knownContact.PhoneNumber = request.PhoneNumber;
+                knownContact.Salutation = request.Salutation;
+                knownContact.UpdatedAt = DateTimeOffset.UtcNow;
+                knownContact.Resolved = request.Resolved || knownContact.Resolved.GetValueOrDefault();
+                await DbContext.SaveChangesAsync();
+                return Mapper.ToContact(knownContact);
+            }
+        } 
         var contact = Mapper.ToDbContact(request);
         DbContext.Contacts.Add(contact);
         await DbContext.SaveChangesAsync();

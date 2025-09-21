@@ -88,6 +88,7 @@ public static class HostBuilderExtensions
         services.AddDbContext<CampaignsDbContext>(options.ConfigureDbContext ?? sqlServerConfiguration);
         services.TryAddTransient<IDistributionListService, DistributionListService>();
         services.TryAddTransient<IMessageService, MessageService>();
+        services.TryAddTransient<IMessageEventService, MessageEventService>();
         services.TryAddTransient<IContactService, ContactService>();
         services.TryAddTransient<ICampaignService, CampaignService>();
         services.TryAddTransient<ICampaignAttachmentService, CampaignAttachmentService>();
@@ -101,11 +102,11 @@ public static class HostBuilderExtensions
         services.AddScoped<IUserNameAccessor>(serviceProvider => new UserNameStaticAccessor("worker"));
         services.TryAddScoped<UserNameAccessorAggregate>();
 
-        services.Configure<CampaignStatisticOptions>(opt => {
-            opt.EnableStatics = options.CampaignStatisticOptions.EnableStatics;
+        services.Configure<AnalyticsOptions>(opt => {
+            opt.Enabled = options.CampaignStatisticOptions.Enabled;
         });
-        services.AddSingleton<CampaignEventQueue>();
-        services.AddSingleton<IHostedService, CampaignEventHandler>();
+        services.AddSingleton<MessageEventQueue>();
+        services.AddSingleton<IHostedService, MessageEventHostedServcie>();
         return services;
     }
 
