@@ -39,6 +39,7 @@ export class ContactCreateComponent implements OnInit, AfterViewInit {
         phoneNumber: contact.phoneNumber,
         recipientId: contact.recipientId,
         salutation: contact.salutation,
+        resolved: contact.resolved || false,
         communicationPreference: contact.preference
       });
       return this._api.createContact(body);

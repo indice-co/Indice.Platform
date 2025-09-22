@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ViewAction } from '@indice/ng-components';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { CampaignStatistics, MessagesApiClient, Recipient, RecipientResultSet } from 'src/app/core/services/messages-api.service';
+import { RecipientMetrics, MessagesApiClient, Recipient, RecipientResultSet } from 'src/app/core/services/messages-api.service';
 
 @Component({
   selector: 'app-campaign-messages',
@@ -12,7 +12,7 @@ import { CampaignStatistics, MessagesApiClient, Recipient, RecipientResultSet } 
 export class CampaignMessagesComponent extends BaseListComponent<Recipient> implements OnInit {
   public _campaignId: string | undefined;
   public loaded = false;
-  public counters: CampaignStatistics | undefined;
+  public counters: RecipientMetrics | undefined;
 
   constructor(
     route: ActivatedRoute,

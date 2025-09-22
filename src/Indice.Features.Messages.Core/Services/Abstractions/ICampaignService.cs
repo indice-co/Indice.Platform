@@ -28,16 +28,17 @@ public interface ICampaignService
     /// <param name="campaignId">The id of the campaign.</param>
     Task<Campaign> Publish(Guid campaignId);
     /// <summary>Gets some statistics for the campaign.</summary>
-    /// <param name="campaignId">The id of the campaign.</param>
-    Task<CampaignStatistics?> GetStatistics(Guid campaignId);
+    /// <param name="asOfDate">The date and time to use as a reference point for calculating the metrics. If not provided, the current date and time will be used.</param>
+    Task<CampaignMetrics> GetMetrics(DateTimeOffset? asOfDate = null);
     /// <summary>Gets some statistics for the campaign performance or all stats.</summary>
     /// <param name="campaignId">The id of the campaign.</param>
-    Task<RecipientStats?> GetPerformance(Guid? campaignId = null);
+    /// <remarks>If campaignId is not specified then the metrics are calculated via thier average values in total</remarks>
+    Task<RecipientMetrics?> GetRecipientMetrics(Guid? campaignId = null);
     /// <summary>Records a visit for the specified campaign.</summary>
     /// <param name="campaignId">The id of the campaign.</param>
     Task UpdateHit(Guid campaignId);
     /// <summary>Gets all channel kinds send and their number.</summary>
-    Task<Dictionary<string, int>> GetDashboardCounters();
+    Task<Dictionary<string, int>> GetChannelMetrics();
     /// <summary>Gets a list of all messages populated for this campaign.</summary>
     /// <param name="campaignId">The id of the campaign.</param>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>

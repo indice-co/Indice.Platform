@@ -133,38 +133,21 @@ public class CampaignService : ICampaignService
     }
 
     /// <inheritdoc />
-    public async Task<CampaignStatistics?> GetStatistics(Guid campaignId) {
-        var campaign = await DbContext.Campaigns.FindAsync(campaignId);
-        if (campaign is null) {
-            return default;
-        }
-        var callToActionCount = await DbContext.Hits.AsNoTracking().CountAsync(x => x.CampaignId == campaignId);
-        var readCount = await DbContext.Messages.AsNoTracking().CountAsync(x => x.CampaignId == campaignId && x.IsRead);
-        var deletedCount = await DbContext.Messages.AsNoTracking().CountAsync(x => x.CampaignId == campaignId && x.IsDeleted);
-        int? notReadCount = null;
-        if (!campaign.IsGlobal) {
-            notReadCount = await DbContext.Messages.AsNoTracking().CountAsync(x => x.CampaignId == campaignId && !x.IsRead);
-        }
-        var recepientsNumber = await DbContext.MessageEvents
-                                .Where(m => m.CampaignId == campaignId)
-                                .Select(m => m.ContactId)
-                                .Distinct()
-                                .CountAsync();
-        var countPerChanel = await DbContext.MessageEvents.Where(x => x.CampaignId == campaignId && x.Type == MessageEventType.Sent.ToString()).GroupBy(m => m.Channel).ToDictionaryAsync(g => g.Key, g => g.Count());
-        return new CampaignStatistics {
-            CallToActionCount = callToActionCount,
-            DeletedCount = deletedCount,
-            LastUpdated = DateTime.UtcNow,
-            NotReadCount = notReadCount,
-            ReadCount = readCount,
-            Title = campaign.Title,
-            MessagesperChannel = countPerChanel,
-            RecipientsCount = recepientsNumber
+    public async Task<CampaignMetrics> GetMetrics(DateTimeOffset? asOfDate = null) {
+        var now = asOfDate ?? DateTimeOffset.UtcNow;
+        var campaignMetrics = new CampaignMetrics {
+            Total = asOfDate.HasValue ? await DbContext.Campaigns.CountAsync() :
+                                        await DbContext.Campaigns.CountAsync(x => x.CreatedAt <= asOfDate),
+            Active = await DbContext.Campaigns.CountAsync(x => x.Published && 
+                                                               (x.ActivePeriod!.From <= now) && (x.ActivePeriod!.To == null || x.ActivePeriod.To > now)),
+            TotalToday = await DbContext.Campaigns.CountAsync(x => x.CreatedAt >= now.Date && x.CreatedAt <= now.AddDays(1).Date),
+            TotalYesterday = await DbContext.Campaigns.CountAsync(x => x.CreatedAt >= now.AddDays(-1).Date && x.CreatedAt < now.Date),
         };
+        return campaignMetrics;
     }
 
     /// <inheritdoc />
-    public async Task<RecipientStats?> GetPerformance(Guid? campaignId = null) {
+    public async Task<RecipientMetrics?> GetRecipientMetrics(Guid? campaignId = null) {
         /*
          
 SELECT C.Id as CampaignId, 
@@ -181,8 +164,8 @@ from [cmp].[Campaign] C
             var kpisQuery = (
                             from campaign in DbContext.Campaigns
                             where campaign.Id == campaignId.Value
-                            select new RecipientStats {
-                                Count = (from contact in DbContext.ContactDistributionLists
+                            select new RecipientMetrics {
+                                Total = (from contact in DbContext.ContactDistributionLists
                                          join distributionList in DbContext.DistributionLists on contact.DistributionListId equals distributionList.Id
                                          where distributionList.Id == campaign.DistributionListId
                                          select contact.ContactId).Count(),
@@ -206,24 +189,53 @@ from [cmp].[Campaign] C
                          );
             return await kpisQuery.SingleOrDefaultAsync();
         }
-        return new RecipientStats {
-            Count = await (from contact in DbContext.ContactDistributionLists
-                           select contact.ContactId).Distinct().CountAsync(),
-            Reached = await (from messageEvent in DbContext.MessageEvents
-                             where messageEvent.Type == nameof(MessageEventType.Sent) ||
-                                   (messageEvent.Channel == nameof(MessageChannelKind.Inbox) && messageEvent.Type == nameof(MessageEventType.Created))
-                             select messageEvent.MessageId).Distinct().CountAsync(),
-            Engaged = await (from messageEvent in DbContext.MessageEvents
-                             where messageEvent.Type == nameof(MessageEventType.Opened) ||
-                                   messageEvent.Type == nameof(MessageEventType.Deleted) ||
-                                   messageEvent.Type == nameof(MessageEventType.UnRead) ||
-                                   messageEvent.Type == nameof(MessageEventType.Read)
-                             select messageEvent.ContactId).Distinct().CountAsync()
+
+        var campaignCount = await DbContext.Campaigns.CountAsync();
+        if (campaignCount == 0) {
+            return new RecipientMetrics {
+                Total = 0,
+                Reached = 0,
+                Engaged = 0
+            };
+        }
+
+        // Sum of distinct recipients per campaign
+        var totalRecipientsSum = await (from c in DbContext.Campaigns
+                                        join cd in DbContext.ContactDistributionLists on c.DistributionListId equals cd.DistributionListId into contacts
+                                        select contacts.Select(x => x.ContactId).Distinct().Count()
+                                       ).SumAsync();
+
+        // Sum of distinct message ids per campaign that count as "reached"
+        var reachedSum = await (from e in DbContext.MessageEvents
+                                 where e.Type == nameof(MessageEventType.Sent) ||
+                                       (e.Channel == nameof(MessageChannelKind.Inbox) && e.Type == nameof(MessageEventType.Created))
+                                 group e by e.CampaignId into g
+                                 select g.Select(x => x.MessageId).Distinct().Count()
+                                ).SumAsync();
+
+        // Sum of distinct contacts per campaign that count as "engaged"
+        var engagedSum = await (from e in DbContext.MessageEvents
+                                 where e.Type == nameof(MessageEventType.Opened) ||
+                                       e.Type == nameof(MessageEventType.Deleted) ||
+                                       e.Type == nameof(MessageEventType.UnRead) ||
+                                       e.Type == nameof(MessageEventType.Read)
+                                 group e by e.CampaignId into g
+                                 select g.Select(x => x.ContactId).Distinct().Count()
+                                ).SumAsync();
+
+        var avgTotal = (int)Math.Round(totalRecipientsSum / (double)campaignCount);
+        var avgReached = (int)Math.Round(reachedSum / (double)campaignCount);
+        var avgEngaged = (int)Math.Round(engagedSum / (double)campaignCount);
+
+        return new RecipientMetrics {
+            Total = avgTotal,
+            Reached = avgReached,
+            Engaged = avgEngaged
         };
     }
 
     ///<inheritdoc/>
-    public async Task<Dictionary<string, int>> GetDashboardCounters() =>
+    public async Task<Dictionary<string, int>> GetChannelMetrics() =>
                 await DbContext.MessageEvents
                         .Where(x => x.Type == MessageEventType.Sent.ToString())
                         .GroupBy(m => m.Channel)

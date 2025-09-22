@@ -48,5 +48,8 @@ public class DbCampaignMap : IEntityTypeConfiguration<DbCampaign>
         builder.HasOne(x => x.Attachment).WithMany().HasForeignKey(x => x.AttachmentId);
         builder.HasOne(x => x.Type).WithMany().HasForeignKey(x => x.TypeId);
         builder.HasOne(x => x.DistributionList).WithMany().HasForeignKey(x => x.DistributionListId);
+
+        // indexes 
+        builder.HasIndex(x => x.CreatedAt);
     }
 }

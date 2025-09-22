@@ -17,5 +17,7 @@ public class ContactRequestBase
     public string? Email { get; set; }
     /// <summary>The phone number.</summary>
     public string? PhoneNumber { get; set; }
-    
+    /// <summary>Marks the contact has been retrieved by an external source.</summary>
+    public bool Resolved { get; set; }
+
 }

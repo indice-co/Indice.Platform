@@ -45,22 +45,6 @@ internal static class CampaignsHandlers
         return TypedResults.NoContent();
     }
 
-    public static async Task<Results<Ok<CampaignStatistics>, NotFound>> GetCampaignStatistics(ICampaignService campaignService, Guid campaignId) {
-        var statistics = await campaignService.GetStatistics(campaignId);
-        if (statistics is null) {
-            return TypedResults.NotFound();
-        }
-        return TypedResults.Ok(statistics);
-    }
-
-    public static async Task<Results<Ok<CampaignStatistics>, NotFound>> ExportCampaignStatistics(ICampaignService campaignService, IFileServiceFactory fileServiceFactory, Guid campaignId) {
-        var statistics = await campaignService.GetStatistics(campaignId);
-        if (statistics == null) {
-            return TypedResults.NotFound();
-        }
-        return TypedResults.Ok(statistics);
-    }
-
     public static async Task<Results<CreatedAtRoute<CreateCampaignResult>, ValidationProblem>> CreateCampaign(
         NotificationsManager notificationsManager,
         IConfiguration configuration,
@@ -132,17 +116,22 @@ internal static class CampaignsHandlers
         return TypedResults.File(data, contentType, lastModified: properties.LastModified, entityTag: new EntityTagHeaderValue(properties.ETag, true));
     }
 
-    public static async Task<Ok<DashboardCounters>> GetDashboardStats(ICampaignService campaignService, IContactService contactService) {
-        var counters = new DashboardCounters {
-            CampaignsCount = (await campaignService.GetList(new() { Page = 1, Size = 0 })).Count,
-            CampaignsPublishedCount = (await campaignService.GetList(new() { Page = 1, Size = 0, Filter = new () { Published = true } })).Count,
-            ContactsTotal = (await contactService.GetList(new() { Page = 1, Size = 0 })).Count,
-            ContactsKnownTotal = (await contactService.GetList(new() { Page = 1, Size = 0, Filter = new () { Anonymous = false } })).Count,
-            CampaignsByType = await campaignService.GetDashboardCounters(),
-            Recipients = (await campaignService.GetPerformance())!
-        };
-        return TypedResults.Ok(counters);
+    public static async Task<Results<Ok<RecipientMetrics>, NotFound>> GetCampaignStatistics(ICampaignService campaignService, Guid campaignId) {
+        var statistics = await campaignService.GetRecipientMetrics(campaignId);
+        if (statistics is null) {
+            return TypedResults.NotFound();
+        }
+        return TypedResults.Ok(statistics);
     }
+
+    public static async Task<Results<Ok<RecipientMetrics>, NotFound>> ExportCampaignStatistics(ICampaignService campaignService, IFileServiceFactory fileServiceFactory, Guid campaignId) {
+        var statistics = await campaignService.GetRecipientMetrics(campaignId);
+        if (statistics == null) {
+            return TypedResults.NotFound();
+        }
+        return TypedResults.Ok(statistics);
+    }
+
     public static async Task<Ok<ResultSet<Recipient>>> GetCampaignMessages(ICampaignService campaignService, Guid campaignId, [AsParameters] ListOptions options) {
         var campaigns = await campaignService.GetCampaignRecipients(campaignId, options);
         return TypedResults.Ok(campaigns);
