@@ -136,8 +136,8 @@ public class CampaignService : ICampaignService
     public async Task<CampaignMetrics> GetMetrics(DateTimeOffset? asOfDate = null) {
         var now = asOfDate ?? DateTimeOffset.UtcNow;
         var campaignMetrics = new CampaignMetrics {
-            Total = asOfDate.HasValue ? await DbContext.Campaigns.CountAsync() :
-                                        await DbContext.Campaigns.CountAsync(x => x.CreatedAt <= asOfDate),
+            Total = asOfDate.HasValue ? await DbContext.Campaigns.CountAsync(x => x.CreatedAt <= now) :
+                                        await DbContext.Campaigns.CountAsync(),
             Active = await DbContext.Campaigns.CountAsync(x => x.Published && 
                                                                (x.ActivePeriod!.From <= now) && (x.ActivePeriod!.To == null || x.ActivePeriod.To > now)),
             TotalToday = await DbContext.Campaigns.CountAsync(x => x.CreatedAt >= now.Date && x.CreatedAt <= now.AddDays(1).Date),
