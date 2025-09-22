@@ -137,6 +137,6 @@ internal partial class SpaIndexFileInfo : IFileInfo
         return result.Files.Select(x => x.Path);
     }
 
-    [GeneratedRegex(@"(?<element><(?<tag>link|script)\b[^>]*?(?:href|src)=['""](?<path>[^'""]*\*[^'""]*)['""][^>]*?(?:>(?<inner>.*?)</\k<tag>\s*>|/?>))", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline, "el-GR")]
-    private static partial Regex HrefSrcGlobbingRegex();
+    [GeneratedRegex(@"(?<element><(?<tag>link|script)\b[^>]*?(?:href|src)=['""](?<path>[^'""]*\*[^'""]*)['""][^>]*?(?:>(?<inner>.*?)</\k<tag>\s*>|/?>))", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline)]
+    internal static partial Regex HrefSrcGlobbingRegex();
 }
