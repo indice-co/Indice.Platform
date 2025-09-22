@@ -15,7 +15,4 @@
     </JavaScriptTestFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
-  <ItemGroup>
-    <Folder Include="src\app\features\campaigns\edit\messages\NewFolder\" />
-  </ItemGroup>
 </Project>
