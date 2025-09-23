@@ -35,4 +35,10 @@ internal static class AnalyticsHandlers
         var result = await messageEventService.GetListAsync(ListOptions.Create(listOptions, filter));
         return TypedResults.Ok(result);
     }
+    public static async Task<Ok<ResultSet<MessageEventSeries, MessageEventSeriesSummary>>> GetEventsSeriesList(
+        IMessageEventService messageEventService,
+        [AsParameters] MessageEventSeriesFilter filter) {
+        var result = await messageEventService.GetSeriesAsync(filter);
+        return TypedResults.Ok(result);
+    }
 }

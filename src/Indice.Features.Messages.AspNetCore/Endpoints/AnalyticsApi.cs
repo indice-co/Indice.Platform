@@ -47,6 +47,10 @@ internal static class AnalyticsApi
              .WithName(nameof(AnalyticsHandlers.GetEventsList))
              .WithSummary("Gets a result set of events.");
 
+        group.MapGet("events/series", AnalyticsHandlers.GetEventsSeriesList)
+             .WithName(nameof(AnalyticsHandlers.GetEventsSeriesList))
+             .WithSummary("Gets a result set of events.");
+
         return group;
     }
 }

@@ -1,9 +1,11 @@
 ﻿using Indice.Features.Messages.Core.Data;
+using Indice.Features.Messages.Core.Data.Queries;
 using Indice.Features.Messages.Core.Events;
+using Indice.Features.Messages.Core.Models.Kpis;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
-using Org.BouncyCastle.Security.Certificates;
+using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Messages.Core.Services;
 
@@ -52,5 +54,31 @@ public class MessageEventService : IMessageEventService
             query = query.Where(x => x.Type.ToLower().Contains(term));
         }
         return query.ToResultSetAsync(options);
+    }
+
+    /// <inheritdoc/>
+    public async Task<ResultSet<MessageEventSeries, MessageEventSeriesSummary>> GetSeriesAsync(MessageEventSeriesFilter filter) {
+        var rangeStart = filter.TimeFrame switch
+        {
+            SeriesTimeFrame.Last24Hours => DateTimeOffset.UtcNow.AddHours(-24),
+            SeriesTimeFrame.Last7Days => DateTimeOffset.UtcNow.Date.AddDays(-7),
+            SeriesTimeFrame.Last30Days => DateTimeOffset.UtcNow.Date.AddDays(-30),
+            SeriesTimeFrame.Last90Days => DateTimeOffset.UtcNow.Date.AddDays(-90),
+            SeriesTimeFrame.Last12Months => DateTimeOffset.UtcNow.Date.AddMonths(-12),
+            _ => DateTimeOffset.UtcNow.Date.AddDays(-7)
+        };
+
+        var descriptor = new MessageEventsQueryDescriptor(DbContext);
+        var query = DbContext.Database
+                             .SqlQuery<MessageEventSeries>(descriptor.RollUp(
+                                 type: filter.EventType ?? "Created", 
+                                 channelKind: filter.Channel, 
+                                 rangeStart: rangeStart));
+
+        var results = await query.ToListAsync();
+        var summary = results.Where(x => x.IsGrandTotal).Select(x => new MessageEventSeriesSummary() { Total = x.Events } ).FirstOrDefault(new MessageEventSeriesSummary());
+        var items = results.Where(x => !x.IsTotal);
+        var set = new ResultSet<MessageEventSeries, MessageEventSeriesSummary>(items, items.Count(), summary);
+        return set;
     }
 }
