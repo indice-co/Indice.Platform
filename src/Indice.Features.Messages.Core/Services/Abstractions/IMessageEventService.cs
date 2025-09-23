@@ -12,5 +12,5 @@ public interface IMessageEventService
     /// <summary>Retrieves a list of message events based on the provided options.</summary>
     Task<ResultSet<MessageEvent>> GetListAsync(ListOptions<MessageEventListFilter> options);
     /// <summary>Retrieves a list of message events based on the provided options.</summary>
-    Task<ResultSet<MessageEventSeries, MessageEventSeriesSummary>> GetSeriesAsync(MessageEventSeriesFilter filter);
+    Task<MessageSeriesResultSet> GetSeriesAsync(MessageEventSeriesFilter filter);
 }

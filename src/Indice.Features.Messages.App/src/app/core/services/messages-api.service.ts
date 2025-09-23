@@ -30,6 +30,14 @@ export interface IMessagesApiClient {
      */
     getEventsList(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, campaignId?: string | undefined, messageId?: string | undefined, rangeStart?: Date | undefined, rangeEnd?: Date | undefined, channel?: MessageChannelKind[] | undefined): Observable<MessageEventResultSet>;
     /**
+     * Gets a result set of events.
+     * @param eventType (optional) 
+     * @param channel (optional) 
+     * @param timeFrame (optional) 
+     * @return OK
+     */
+    getEventsSeriesList(eventType?: string | undefined, channel?: MessageChannelKind | undefined, timeFrame?: TimeFrame | undefined): Observable<MessageSeriesResultSet>;
+    /**
      * Gets the overview analytics.
      * @param asOfDate (optional) 
      * @return OK
@@ -417,6 +425,101 @@ export class MessagesApiClient implements IMessagesApiClient {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = MessageEventResultSet.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Gets a result set of events.
+     * @param eventType (optional) 
+     * @param channel (optional) 
+     * @param timeFrame (optional) 
+     * @return OK
+     */
+    getEventsSeriesList(eventType?: string | undefined, channel?: MessageChannelKind | undefined, timeFrame?: TimeFrame | undefined): Observable<MessageSeriesResultSet> {
+        let url_ = this.baseUrl + "/analytics/events/series?";
+        if (eventType === null)
+            throw new globalThis.Error("The parameter 'eventType' cannot be null.");
+        else if (eventType !== undefined)
+            url_ += "EventType=" + encodeURIComponent("" + eventType) + "&";
+        if (channel === null)
+            throw new globalThis.Error("The parameter 'channel' cannot be null.");
+        else if (channel !== undefined)
+            url_ += "Channel=" + encodeURIComponent("" + channel) + "&";
+        if (timeFrame === null)
+            throw new globalThis.Error("The parameter 'timeFrame' cannot be null.");
+        else if (timeFrame !== undefined)
+            url_ += "TimeFrame=" + encodeURIComponent("" + timeFrame) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetEventsSeriesList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetEventsSeriesList(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MessageSeriesResultSet>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MessageSeriesResultSet>;
+        }));
+    }
+
+    protected processGetEventsSeriesList(response: HttpResponseBase): Observable<MessageSeriesResultSet> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MessageSeriesResultSet.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 400) {
@@ -6391,6 +6494,94 @@ export interface IMessageEventResultSet {
     items?: MessageEvent[];
 }
 
+export class MessageEventSeries implements IMessageEventSeries {
+    year?: number;
+    month?: number;
+    day?: number;
+    events?: number;
+    label?: string;
+
+    constructor(data?: IMessageEventSeries) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.year = _data["year"];
+            this.month = _data["month"];
+            this.day = _data["day"];
+            this.events = _data["events"];
+            this.label = _data["label"];
+        }
+    }
+
+    static fromJS(data: any): MessageEventSeries {
+        data = typeof data === 'object' ? data : {};
+        let result = new MessageEventSeries();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["year"] = this.year;
+        data["month"] = this.month;
+        data["day"] = this.day;
+        data["events"] = this.events;
+        data["label"] = this.label;
+        return data;
+    }
+}
+
+export interface IMessageEventSeries {
+    year?: number;
+    month?: number;
+    day?: number;
+    events?: number;
+    label?: string;
+}
+
+export class MessageEventSeriesSummary implements IMessageEventSeriesSummary {
+    total?: number;
+
+    constructor(data?: IMessageEventSeriesSummary) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.total = _data["total"];
+        }
+    }
+
+    static fromJS(data: any): MessageEventSeriesSummary {
+        data = typeof data === 'object' ? data : {};
+        let result = new MessageEventSeriesSummary();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["total"] = this.total;
+        return data;
+    }
+}
+
+export interface IMessageEventSeriesSummary {
+    total?: number;
+}
+
 export class MessageSender implements IMessageSender {
     id?: string;
     sender?: string;
@@ -6505,6 +6696,58 @@ export class MessageSenderResultSet implements IMessageSenderResultSet {
 export interface IMessageSenderResultSet {
     count?: number;
     items?: MessageSender[];
+}
+
+export class MessageSeriesResultSet implements IMessageSeriesResultSet {
+    summary?: MessageEventSeriesSummary;
+    count?: number;
+    items?: MessageEventSeries[];
+
+    constructor(data?: IMessageSeriesResultSet) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.summary = _data["summary"] ? MessageEventSeriesSummary.fromJS(_data["summary"]) : undefined as any;
+            this.count = _data["count"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(MessageEventSeries.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): MessageSeriesResultSet {
+        data = typeof data === 'object' ? data : {};
+        let result = new MessageSeriesResultSet();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["summary"] = this.summary ? this.summary.toJSON() : undefined as any;
+        data["count"] = this.count;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface IMessageSeriesResultSet {
+    summary?: MessageEventSeriesSummary;
+    count?: number;
+    items?: MessageEventSeries[];
 }
 
 export class MessageType implements IMessageType {
@@ -7644,6 +7887,14 @@ export class UploadFileRequest implements IUploadFileRequest {
 
 export interface IUploadFileRequest {
     file: string;
+}
+
+export enum TimeFrame {
+    Last24Hours = "Last24Hours",
+    Last7Days = "Last7Days",
+    Last30Days = "Last30Days",
+    Last90Days = "Last90Days",
+    Last12Months = "Last12Months",
 }
 
 export interface FileResponse {
