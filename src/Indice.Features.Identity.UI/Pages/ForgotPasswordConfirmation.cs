@@ -73,8 +73,13 @@ public abstract class BaseForgotPasswordConfirmationModel : BasePageModel
             AddModelErrors(result);
             return Page();
         }
+
         PasswordSuccessfullyChanged = true;
         Input.Token = Input.NewPassword = null;
+        var returnUrl = Request.Query["ReturnUrl"];
+        if (!string.IsNullOrWhiteSpace(returnUrl) && IsValidReturnUrl(returnUrl)) {
+            return Redirect(returnUrl);
+        }
         return Page();
     }
 }
