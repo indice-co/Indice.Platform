@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added New column
 ```sql
-ALTER TABLE [msg].[Contact] 
+ALTER TABLE [cmp].[Contact] 
     ADD [Resolved]     bit      NULL
 GO
 CREATE NONCLUSTERED INDEX [IX_Contact_RecipientId_Resolved] 
@@ -17,6 +17,12 @@ CREATE NONCLUSTERED INDEX [IX_Contact_RecipientId_Resolved]
 GO
 CREATE NONCLUSTERED INDEX [IX_Campaign_CreatedAt]
     ON [cmp].[Campaign] ([CreatedAt] ASC)
+GO
+CREATE NONCLUSTERED INDEX [IX_MessageEvent_Type]
+    ON [cmp].[MessageEvent] ([Type] ASC)
+GO
+CREATE NONCLUSTERED INDEX [IX_MessageEvent_Channel]
+    ON [cmp].[MessageEvent] ([Channel] ASC)
 GO
 ```
 
