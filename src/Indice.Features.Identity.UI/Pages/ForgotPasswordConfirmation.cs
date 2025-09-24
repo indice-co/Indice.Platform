@@ -44,9 +44,10 @@ public abstract class BaseForgotPasswordConfirmationModel : BasePageModel
     public bool PasswordSuccessfullyChanged { get; set; }
 
     /// <summary>Forgot password confirmation page GET handler.</summary>
-    public virtual async Task<IActionResult> OnGetAsync([FromQuery] string email, [FromQuery] string token) {
+    public virtual async Task<IActionResult> OnGetAsync([FromQuery] string email, [FromQuery] string token, [FromQuery] string returnUrl) {
         Input.Email = email;
         Input.Token = token;
+        Input.ReturnUrl = returnUrl;
         if (!string.IsNullOrWhiteSpace(email)) {
             var user = await UserManager.FindByEmailAsync(email);
             if (user is not null) {
@@ -75,6 +76,10 @@ public abstract class BaseForgotPasswordConfirmationModel : BasePageModel
         }
         PasswordSuccessfullyChanged = true;
         Input.Token = Input.NewPassword = null;
+
+        if (string.IsNullOrWhiteSpace(Input.ReturnUrl) || !IsValidReturnUrl(Input.ReturnUrl)) {
+            Input.ReturnUrl = Url.PageLink("/Login");
+        }
         return Page();
     }
 }
