@@ -20,6 +20,7 @@ export class DoughnutChartComponent implements OnInit, OnChanges, OnDestroy {
 
   /** Items to render. Each item: { name, value, color } */
   @Input() items: GaugeChartItem[] = [];
+  @Input() options: any = {};
 
   private chart?: Chart<'doughnut'>;
 
@@ -80,7 +81,8 @@ export class DoughnutChartComponent implements OnInit, OnChanges, OnDestroy {
               label: (ctx: any) => `${ctx.label}: ${ctx.parsed}`
             }
           }
-        }
+        },
+        ...this.options
       }
     };
     this.chart = new Chart(this.gaugeCanvas.nativeElement, config);

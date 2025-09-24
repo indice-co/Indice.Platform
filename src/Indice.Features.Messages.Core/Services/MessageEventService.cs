@@ -100,6 +100,7 @@ public class MessageEventService : IMessageEventService
                          Day = leftResult?.Day ?? date.Day,
                          Month = leftResult?.Month ?? date.Month,
                          Year = leftResult?.Year ?? date.Year,
+                         Events = leftResult?.Events ?? date.Events,
                      });
 
 

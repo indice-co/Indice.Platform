@@ -1,9 +1,10 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { forkJoin } from 'rxjs';
+import { Observable, map, shareReplay } from 'rxjs';
 import { HeaderMetaItem, Icons } from '@indice/ng-components';
 import { OverviewMetrics, MessagesApiClient } from 'src/app/core/services/messages-api.service';
+import { LineChartData } from '../../shared/components/line-chart/line-chart.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -21,6 +22,31 @@ export class DashboardComponent implements OnInit {
   public loaded = false;
   public metrics: OverviewMetrics | undefined;
   public gaugeChannels: { name: string; value: number; color: string; }[] = [];
+
+
+  public eventSeries$ = this._api.getEventsSeriesList().pipe(shareReplay(1));
+
+  public eventSeriesData$: Observable<LineChartData> = this.eventSeries$.pipe(
+    map(series => {
+      return {
+        labels: series.items?.map(s => {
+          const date = new Date(s.label!);
+          const month = new Intl.DateTimeFormat('en-US', { month: 'short' }).format(date);
+          const dayOfWeek = new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(date);
+          const day = date.getDate();
+          return `${day} ${month}`;
+        }) || [],
+        datasets: [{
+          label: 'Events',
+          data: series.items?.map(s => s.events) || [],
+          borderColor: '#4bbbce',
+          backgroundColor: '#4bbbce'
+        }]
+      } as LineChartData;
+    })
+  );
+
+
   public ngOnInit(): void {
     this.metaItems = [
       { key: 'NG-LIB version :', icon: Icons.DateTime, text: new Date().toLocaleTimeString() }

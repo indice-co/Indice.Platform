@@ -7141,6 +7141,10 @@ export interface IRecipientMessageEvents {
 
 export class RecipientMetrics implements IRecipientMetrics {
     /** Total number of recipients targeted by the message. */
+    totalCampaigns?: number;
+    /** Total number of messages targeted by the message. */
+    totalMessages?: number;
+    /** Total number of recipients targeted by the message. */
     total?: number;
     /** Number of recipients that have received the message. */
     reached?: number;
@@ -7150,6 +7154,12 @@ export class RecipientMetrics implements IRecipientMetrics {
     acted?: number;
     /** Reachability Coverage Percentage: The percentage of recipients that have been successfully reached out of the total targeted recipients. */
     coverage?: number;
+    /** Average Total number of recipients targeted by the message. */
+    avgTotal?: number;
+    /** Average Total number of recipients targeted by the message. */
+    avgReached?: number;
+    /** Average recipients that have opened the message at least once. */
+    avgEngaged?: number;
 
     constructor(data?: IRecipientMetrics) {
         if (data) {
@@ -7162,11 +7172,16 @@ export class RecipientMetrics implements IRecipientMetrics {
 
     init(_data?: any) {
         if (_data) {
+            this.totalCampaigns = _data["totalCampaigns"];
+            this.totalMessages = _data["totalMessages"];
             this.total = _data["total"];
             this.reached = _data["reached"];
             this.engaged = _data["engaged"];
             this.acted = _data["acted"];
             this.coverage = _data["coverage"];
+            this.avgTotal = _data["avgTotal"];
+            this.avgReached = _data["avgReached"];
+            this.avgEngaged = _data["avgEngaged"];
         }
     }
 
@@ -7179,16 +7194,25 @@ export class RecipientMetrics implements IRecipientMetrics {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["totalCampaigns"] = this.totalCampaigns;
+        data["totalMessages"] = this.totalMessages;
         data["total"] = this.total;
         data["reached"] = this.reached;
         data["engaged"] = this.engaged;
         data["acted"] = this.acted;
         data["coverage"] = this.coverage;
+        data["avgTotal"] = this.avgTotal;
+        data["avgReached"] = this.avgReached;
+        data["avgEngaged"] = this.avgEngaged;
         return data;
     }
 }
 
 export interface IRecipientMetrics {
+    /** Total number of recipients targeted by the message. */
+    totalCampaigns?: number;
+    /** Total number of messages targeted by the message. */
+    totalMessages?: number;
     /** Total number of recipients targeted by the message. */
     total?: number;
     /** Number of recipients that have received the message. */
@@ -7199,6 +7223,12 @@ export interface IRecipientMetrics {
     acted?: number;
     /** Reachability Coverage Percentage: The percentage of recipients that have been successfully reached out of the total targeted recipients. */
     coverage?: number;
+    /** Average Total number of recipients targeted by the message. */
+    avgTotal?: number;
+    /** Average Total number of recipients targeted by the message. */
+    avgReached?: number;
+    /** Average recipients that have opened the message at least once. */
+    avgEngaged?: number;
 }
 
 export class RecipientResultSet implements IRecipientResultSet {
