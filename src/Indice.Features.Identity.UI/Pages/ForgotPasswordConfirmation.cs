@@ -76,8 +76,9 @@ public abstract class BaseForgotPasswordConfirmationModel : BasePageModel
         }
         PasswordSuccessfullyChanged = true;
         Input.Token = Input.NewPassword = null;
-        if (!string.IsNullOrWhiteSpace(Input.ReturnUrl) && IsValidReturnUrl(Input.ReturnUrl)) {
-            return Redirect(Input.ReturnUrl);
+
+        if (string.IsNullOrWhiteSpace(Input.ReturnUrl) || !IsValidReturnUrl(Input.ReturnUrl)) {
+            Input.ReturnUrl = Url.PageLink("/Login");
         }
         return Page();
     }
