@@ -4,9 +4,11 @@ permissions:
   contents: read
 
 # Github cache cleanup schedule, every day at 23:59 (except Saturday & Sunday)
-# on:
-#   schedule:
-#     - cron: "59 23 * * 1-5"
+# Can be run manually from the UI too
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "59 23 * * 1-5"
 
 on:
   workflow_dispatch:
@@ -19,6 +21,8 @@ jobs:
     - name: Github Cache Cleanup
       run: |
         gh cache list
+        gh cache delete --all
+        echo "Cache storage successfully deleted"
       env:
         GH_TOKEN: ${{ github.token }}
         GH_REPO: ${{ github.repository }}
