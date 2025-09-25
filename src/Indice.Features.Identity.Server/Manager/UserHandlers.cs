@@ -671,11 +671,13 @@ internal static class UserHandlers
         string deviceId,
         CancellationToken cancellationToken
     ) {
-        if (await userManager.FindByIdAsync(userId) is not { } user) {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user is null) {
             return TypedResults.NotFound();
         }
 
-        if (await userManager.GetDeviceByIdAsync(user, deviceId, cancellationToken) is not { } device) {
+        var device = await userManager.GetDeviceByIdAsync(user, deviceId, cancellationToken);
+        if (device is null) {
             return TypedResults.NotFound();
         }
 
