@@ -226,3 +226,8 @@ textarea.code-editor:focus {
 .dot-Warning {
   @apply bg-yellow-400;
 }
+
+.media-image-preview {
+  max-height: 300px;
+  margin: auto;
+}

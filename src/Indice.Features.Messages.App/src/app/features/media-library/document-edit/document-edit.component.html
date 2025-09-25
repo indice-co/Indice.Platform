@@ -128,7 +128,7 @@
         <section aria-labelledby="information-title" *ngIf="file?.isImage" class="mt-4">
 
           <div class="grid w-full place-items-center rounded-lg p-6 bg-white">
-            <img class="object-contain object-center rounded-lg shadow-xl shadow-blue-gray-900/50 max-h-[300px]"
+            <img class="object-contain object-center rounded-lg shadow-xl shadow-blue-gray-900/50 media-image-preview"
                  [src]="file?.permaLink"
                  [alt]="file?.description || file?.name"
                  (load)="originalWidth = $event.target.naturalWidth; originalHeight = $event.target.naturalHeight"/>
