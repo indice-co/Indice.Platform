@@ -7,34 +7,21 @@
 #
 # Source repository: https://github.com/actions/dependency-review-action
 name: 'Dependency Review'
-# on: [pull_request]
-on:
-  workflow_dispatch:
+on: [pull_request]
 
 permissions:
   contents: read
 
 jobs:
-  cache-cleanup:
-    name: Github Cache Cleanup
+  dependency-review:
     runs-on: ubuntu-latest
     steps:
-    - name: Github Cache Cleanup
-      run: |
-        gh cache list
-      env:
-        GH_TOKEN: ${{ github.token }}
-        GH_REPO: ${{ github.repository }}
+      - name: Harden Runner
+        uses: step-security/harden-runner@002fdce3c6a235733a90a27c80493a3241e56863 # v2.12.1
+        with:
+          egress-policy: audit
 
-  # dependency-review:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Harden Runner
-  #       uses: step-security/harden-runner@002fdce3c6a235733a90a27c80493a3241e56863 # v2.12.1
-  #       with:
-  #         egress-policy: audit
-
-  #     - name: 'Checkout Repository'
-  #       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-  #     - name: 'Dependency Review'
-  #       uses: actions/dependency-review-action@3b139cfc5fae8b618d3eae3675e383bb1769c019 # v4.5.0
+      - name: 'Checkout Repository'
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: 'Dependency Review'
+        uses: actions/dependency-review-action@3b139cfc5fae8b618d3eae3675e383bb1769c019 # v4.5.0
