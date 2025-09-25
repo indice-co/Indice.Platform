@@ -1,6 +1,7 @@
 name: Branch protection
 
-permissions: write-all
+permissions:
+  contents: read
 
 on:
   pull_request:
