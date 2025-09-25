@@ -1,5 +1,8 @@
 name: "Github Cache Cleanup"
 
+permissions:
+  contents: read
+
 # Github cache cleanup schedule, every day at 23:59 (except Saturday & Sunday)
 # on:
 #   schedule:
