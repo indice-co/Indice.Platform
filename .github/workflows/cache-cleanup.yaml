@@ -1,0 +1,19 @@
+name: "Github Cache Cleanup"
+
+# Github cache cleanup schedule, every day at 23:59 (except Saturday & Sunday)
+on:
+  schedule:
+    - cron: "59 23 * * 1-5"
+
+jobs:
+  run-build:
+    name: .NET Build
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+    - name: Github Cache Cleanup
+      run: |
+        gh cache list
+      env:
+        GH_TOKEN: ${{ github.token }}
+        GH_REPO: ${{ github.repository }}
