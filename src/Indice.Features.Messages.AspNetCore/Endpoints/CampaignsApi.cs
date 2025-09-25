@@ -58,17 +58,7 @@ internal static class CampaignsApi
         group.MapGet("{campaignId}/statistics", CampaignsHandlers.GetCampaignStatistics)
              .WithName(nameof(CampaignsHandlers.GetCampaignStatistics))
              .WithSummary("Gets the statistics for a specified campaign.")
-             .WithDescription(CampaignsHandlers.GET_CAMPAIGN_STATISTICS_DESCRIPTION)
-             .CacheOutput(policy => policy.SetVaryByRouteValue(["campaignId"])
-                                          .SetAutoTag()
-                                          .SetAuthorized()
-                                          .Expire(TimeSpan.FromMinutes(5)))
-                          .WithCacheTag("Campaign", ["campaignId"]);
-
-        group.MapGet("{campaignId}/statistics/export", CampaignsHandlers.ExportCampaignStatistics)
-             .WithName(nameof(CampaignsHandlers.ExportCampaignStatistics))
-             .WithSummary("Gets the statistics for a specified campaign in the form of an Excel file.")
-             .WithDescription(CampaignsHandlers.EXPORT_CAMPAIGN_STATISTICS_DESCRIPTION);
+             .WithDescription(CampaignsHandlers.GET_CAMPAIGN_STATISTICS_DESCRIPTION);
 
         group.MapPost(string.Empty, CampaignsHandlers.CreateCampaign)
              .WithName(nameof(CampaignsHandlers.CreateCampaign))

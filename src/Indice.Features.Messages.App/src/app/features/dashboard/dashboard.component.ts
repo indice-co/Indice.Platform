@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { Observable, map, shareReplay } from 'rxjs';
+import { Observable, map, tap, shareReplay, startWith } from 'rxjs';
 import { HeaderMetaItem, Icons } from '@indice/ng-components';
 import { OverviewMetrics, MessagesApiClient, TimeFrame } from 'src/app/core/services/messages-api.service';
 import { LineChartData } from '../../shared/components/line-chart/line-chart.component';
@@ -20,13 +20,13 @@ export class DashboardComponent implements OnInit {
 
   public metaItems: HeaderMetaItem[] | null = [];
   public loaded = false;
-  public metrics: OverviewMetrics | undefined;
   public gaugeChannels: { name: string; value: number; color: string; }[] = [];
 
 
-  public eventSeries$ = this._api.getEventsSeriesList(undefined, undefined, TimeFrame.Last30Days).pipe(shareReplay(1));
+  public eventSeries$ = this._api.getEventsSeriesList(undefined, undefined, TimeFrame.Last30Days)
+                                 .pipe(shareReplay(1));
 
-  public eventSeriesData$: Observable<LineChartData> = this.eventSeries$.pipe(
+  public eventSeriesData$ = this.eventSeries$.pipe(
     map(series => {
       return {
         labels: series.items?.map(s => {
@@ -46,26 +46,25 @@ export class DashboardComponent implements OnInit {
     })
   );
 
+  
+  public metrics$ = this._api.getOverview()
+                             .pipe(
+                               startWith(new OverviewMetrics()),
+                               tap(() => this.loaded = true),
+                               shareReplay(1)
+                             );
+  public channelMetrics$ = this.metrics$
+                               .pipe(
+                                 map(this.buildGaugeChannels),
+                                 tap(() => this._cdr.markForCheck())
+                               );
+
+
 
   public ngOnInit(): void {
     this.metaItems = [
       { key: 'NG-LIB version :', icon: Icons.DateTime, text: new Date().toLocaleTimeString() }
     ];
-    this._api.getOverview().subscribe({
-      next: overview => {
-        console.debug('[Dashboard] Overview received', overview);
-        this.metrics = overview;
-        this.gaugeChannels = this.buildGaugeChannels(overview);
-        this.loaded = true;
-        // Manually mark for check since we are OnPush
-        this._cdr.markForCheck();
-      },
-      error: err => {
-        console.error('[Dashboard] Failed to load Overview', err);
-        this.loaded = true;
-        this._cdr.markForCheck();
-      }
-    });
   }
 
   public navigate(path: string): void {

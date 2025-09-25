@@ -1,4 +1,6 @@
-﻿namespace Indice.Features.Media.AspNetCore.Models;
+﻿using Indice.Extensions;
+
+namespace Indice.Features.Media.AspNetCore.Models;
 
 
 
@@ -20,5 +22,9 @@
 /// <param name="UpdatedAt">Specifies when an entity was updated.</param>
 public record MediaFile(Guid Id, string Name, string Path, string? Description, string FileExtension, string ContentType, int ContentLength, byte[]? Data, Guid? FolderId, string PermaLink, string CreatedBy, DateTimeOffset CreatedAt, string? UpdatedBy, DateTimeOffset? UpdatedAt)
 {
-    
+    /// <summary>Gets the file size in a human readable format (e.g. 1.2 MB).</summary>
+    public string ContentSize => ContentLength.ToFileSize();
+
+    /// <summary>Gets a value indicating whether the file is an image.</summary>
+    public bool IsImage => ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase);
 }

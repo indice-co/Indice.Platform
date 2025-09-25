@@ -27,7 +27,9 @@ export class ContactCampaignsComponent extends BaseListComponent<Campaign> imple
     this.sortOptions = [
       new MenuOption('Ημ/νια Δημιουργίας', 'createdAt'),
       new MenuOption('Τίτλος', 'title'),
-      new MenuOption('Ενεργή Από', 'activePeriod.from')
+      new MenuOption('Ενεργή Από', 'activePeriod.from'),
+      new MenuOption('Τύπος', 'type.name'),
+      new MenuOption('Δημοσιευμένη', 'published')
     ];
   }
   private _contactId: string = '';

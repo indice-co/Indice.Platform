@@ -235,9 +235,10 @@ public class CampaignService : ICampaignService
     }
 
     ///<inheritdoc/>
-    public async Task<Dictionary<string, int>> GetChannelMetrics() =>
+    public async Task<Dictionary<string, int>> GetChannelMetrics(Guid? campaignId = null) =>
                 await DbContext.MessageEvents
-                        .Where(x => x.Type == MessageEventType.Sent.ToString() ||
+                        .Where(x => (campaignId == null || x.CampaignId == campaignId) &&
+                                    x.Type == MessageEventType.Sent.ToString() ||
                                     (x.Channel == nameof(MessageChannelKind.Inbox) && x.Type == nameof(MessageEventType.Created)))
                         .GroupBy(m => m.Channel)
                         .ToDictionaryAsync(g => g.Key, g => g.Count());

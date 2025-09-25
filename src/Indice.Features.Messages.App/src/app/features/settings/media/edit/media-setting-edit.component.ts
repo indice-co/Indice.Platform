@@ -30,7 +30,7 @@ export class MediaSettingEditComponent implements OnInit, AfterViewInit {
       this._settingsStore
           .getMediaSetting(this._mediaSettingKey)
           .subscribe((setting: MediaSetting | undefined) => {
-            this.model.value = setting?.value
+            this.model.value = setting?.value || ''
           });
   }
 

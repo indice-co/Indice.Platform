@@ -77,7 +77,7 @@ export class DocumentEditRightpaneComponent implements OnInit, AfterViewInit, On
             this.model.folderId = this.selectedFolderId.value;
         } else {
             this.selectedFolderId = null;
-            this.model.folderId = undefined;
+            this.model.folderId = '';
         }
     }
 
