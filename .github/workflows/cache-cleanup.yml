@@ -10,9 +10,6 @@ on:
   schedule:
     - cron: "59 23 * * 1-5"
 
-on:
-  workflow_dispatch:
-
 jobs:
   cache-cleanup:
     name: Github Cache Cleanup
