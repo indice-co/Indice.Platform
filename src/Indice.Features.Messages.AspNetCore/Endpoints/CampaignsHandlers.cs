@@ -1,20 +1,21 @@
-﻿using Indice.Features.Messages.Core.Models;
+﻿using System.Net.Mime;
+using System.Threading.Channels;
+using Indice.Extensions;
+using Indice.Features.Media.AspNetCore;
+using Indice.Features.Messages.AspNetCore.Extensions;
+using Indice.Features.Messages.Core;
+using Indice.Features.Messages.Core.Events;
+using Indice.Features.Messages.Core.Manager;
+using Indice.Features.Messages.Core.Models;
+using Indice.Features.Messages.Core.Models.Kpis;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
-using Indice.Types;
-using Indice.Features.Messages.AspNetCore.Extensions;
-using Indice.Features.Messages.Core.Manager;
-using System.Net.Mime;
 using Indice.Services;
-using Indice.Features.Messages.Core;
-using Indice.Extensions;
-using Microsoft.Net.Http.Headers;
-using Indice.Features.Messages.Core.Events;
+using Indice.Types;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Indice.Features.Media.AspNetCore;
-using Indice.Features.Messages.Core.Models.Kpis;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Net.Http.Headers;
 
 namespace Indice.Features.Messages.AspNetCore.Endpoints;
 
@@ -116,20 +117,19 @@ internal static class CampaignsHandlers
         return TypedResults.File(data, contentType, lastModified: properties.LastModified, entityTag: new EntityTagHeaderValue(properties.ETag, true));
     }
 
-    public static async Task<Results<Ok<RecipientMetrics>, NotFound>> GetCampaignStatistics(ICampaignService campaignService, Guid campaignId) {
+    public static async Task<Results<Ok<CampaignDetailsMetrics>, NotFound>> GetCampaignStatistics(ICampaignService campaignService, Guid campaignId) {
         var statistics = await campaignService.GetRecipientMetrics(campaignId);
         if (statistics is null) {
             return TypedResults.NotFound();
         }
-        return TypedResults.Ok(statistics);
-    }
-
-    public static async Task<Results<Ok<RecipientMetrics>, NotFound>> ExportCampaignStatistics(ICampaignService campaignService, IFileServiceFactory fileServiceFactory, Guid campaignId) {
-        var statistics = await campaignService.GetRecipientMetrics(campaignId);
-        if (statistics == null) {
-            return TypedResults.NotFound();
-        }
-        return TypedResults.Ok(statistics);
+        var metrics = new CampaignDetailsMetrics {
+            Recipient = statistics,
+            Channels = (await campaignService.GetChannelMetrics(campaignId)).Select(x => new ChannelMetrics {
+                Kind = Enum.Parse<MessageChannelKind>(x.Key),
+                Total = x.Value
+            }).ToList(),
+        };
+        return TypedResults.Ok(metrics);
     }
 
     public static async Task<Ok<ResultSet<Recipient>>> GetCampaignMessages(ICampaignService campaignService, Guid campaignId, [AsParameters] ListOptions options) {
