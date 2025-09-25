@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { Observable, map, tap, shareReplay, startWith } from 'rxjs';
+import { map, tap, shareReplay, startWith } from 'rxjs';
 import { HeaderMetaItem, Icons } from '@indice/ng-components';
 import { OverviewMetrics, MessagesApiClient, TimeFrame } from 'src/app/core/services/messages-api.service';
 import { LineChartData } from '../../shared/components/line-chart/line-chart.component';
