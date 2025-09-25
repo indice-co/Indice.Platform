@@ -664,4 +664,21 @@ internal static class UserHandlers
         }
         return TypedResults.NoContent();
     }
+
+    internal static async Task<Results<Ok<string>, NotFound>> GetUserDeviceSecret(
+        ExtendedUserManager<User> userManager,
+        string userId,
+        string deviceId,
+        CancellationToken cancellationToken
+    ) {
+        if (await userManager.FindByIdAsync(userId) is not { } user) {
+            return TypedResults.NotFound();
+        }
+
+        if (await userManager.GetDeviceByIdAsync(user, deviceId, cancellationToken) is not { } device) {
+            return TypedResults.NotFound();
+        }
+
+        return TypedResults.Ok(device.PublicKey ?? string.Empty);
+    }
 }

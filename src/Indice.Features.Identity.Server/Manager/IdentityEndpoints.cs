@@ -23,6 +23,8 @@ public static partial class IdentityEndpoints
         public const string Users = "identity:users";
         /// <summary>A scope that allows using the totp endpoints on IdentityServer.</summary>
         public const string Totp = "identity:totp";
+        /// <summary>A scope that allows reading the secret for a user device.</summary>
+        public const string UserDeviceSecret= "identity:users.devices.secret.read";
     }
 
     /// <summary>Identity API policies.</summary>

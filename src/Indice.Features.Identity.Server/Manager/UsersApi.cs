@@ -15,7 +15,7 @@ public static class UsersApi
     /// <summary>Adds endpoints for managing application users.</summary>
     /// <param name="routes">Indice Identity Server route builder.</param>
     public static RouteGroupBuilder MapManageUsers(this IdentityServerEndpointRouteBuilder routes) {
-        
+
         var options = routes.GetEndpointOptions();
         var group = routes.MapGroup($"{options.ApiPrefix}/users");
         group.WithTags("Users");
@@ -121,6 +121,12 @@ public static class UsersApi
              .WithName(nameof(UserHandlers.DeleteUserDevice))
              .WithSummary("Permanently deletes a registered device from a user.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
+
+        group.MapGet("{userId}/devices/{deviceId}/secret", UserHandlers.GetUserDeviceSecret)
+             .WithName(nameof(UserHandlers.GetUserDeviceSecret))
+             .WithSummary("Get the secret for a user device.")
+             .RequireAuthorization(x => x.RequireClaim(BasicClaimTypes.Scope, IdentityEndpoints.SubScopes.UserDeviceSecret))
+             .Produces<Stream>(StatusCodes.Status200OK, "application/x-pem-file");
 
         group.MapGet("{userId}/external-logins", UserHandlers.GetUserExternalLogins)
              .WithName(nameof(UserHandlers.GetUserExternalLogins))
