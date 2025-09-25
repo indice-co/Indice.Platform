@@ -110,7 +110,7 @@ export interface IMessagesApiClient {
      * Gets the statistics for a specified campaign.
      * @return OK
      */
-    getCampaignStatistics(campaignId: string): Observable<RecipientMetrics>;
+    getCampaignStatistics(campaignId: string): Observable<CampaignDetailsMetrics>;
     /**
      * Gets the statistics for a specified campaign in the form of an Excel file.
      * @return OK
@@ -1541,7 +1541,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * Gets the statistics for a specified campaign.
      * @return OK
      */
-    getCampaignStatistics(campaignId: string): Observable<RecipientMetrics> {
+    getCampaignStatistics(campaignId: string): Observable<CampaignDetailsMetrics> {
         let url_ = this.baseUrl + "/campaigns/{campaignId}/statistics";
         if (campaignId === undefined || campaignId === null)
             throw new globalThis.Error("The parameter 'campaignId' must be defined.");
@@ -1563,14 +1563,14 @@ export class MessagesApiClient implements IMessagesApiClient {
                 try {
                     return this.processGetCampaignStatistics(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<RecipientMetrics>;
+                    return _observableThrow(e) as any as Observable<CampaignDetailsMetrics>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<RecipientMetrics>;
+                return _observableThrow(response_) as any as Observable<CampaignDetailsMetrics>;
         }));
     }
 
-    protected processGetCampaignStatistics(response: HttpResponseBase): Observable<RecipientMetrics> {
+    protected processGetCampaignStatistics(response: HttpResponseBase): Observable<CampaignDetailsMetrics> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1581,7 +1581,7 @@ export class MessagesApiClient implements IMessagesApiClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = RecipientMetrics.fromJS(resultData200);
+            result200 = CampaignDetailsMetrics.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 400) {
@@ -4979,6 +4979,56 @@ export interface ICampaignDetails {
     createdAt?: Date;
     updatedBy?: string;
     updatedAt?: Date;
+}
+
+export class CampaignDetailsMetrics implements ICampaignDetailsMetrics {
+    recipient?: RecipientMetrics;
+    /** Metrics per channel. */
+    channels?: ChannelMetrics[];
+
+    constructor(data?: ICampaignDetailsMetrics) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.recipient = _data["recipient"] ? RecipientMetrics.fromJS(_data["recipient"]) : undefined as any;
+            if (Array.isArray(_data["channels"])) {
+                this.channels = [] as any;
+                for (let item of _data["channels"])
+                    this.channels!.push(ChannelMetrics.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CampaignDetailsMetrics {
+        data = typeof data === 'object' ? data : {};
+        let result = new CampaignDetailsMetrics();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["recipient"] = this.recipient ? this.recipient.toJSON() : undefined as any;
+        if (Array.isArray(this.channels)) {
+            data["channels"] = [];
+            for (let item of this.channels)
+                data["channels"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface ICampaignDetailsMetrics {
+    recipient?: RecipientMetrics;
+    /** Metrics per channel. */
+    channels?: ChannelMetrics[];
 }
 
 export class CampaignMetrics implements ICampaignMetrics {

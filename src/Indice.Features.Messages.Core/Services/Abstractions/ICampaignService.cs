@@ -38,7 +38,8 @@ public interface ICampaignService
     /// <param name="campaignId">The id of the campaign.</param>
     Task UpdateHit(Guid campaignId);
     /// <summary>Gets all channel kinds send and their number.</summary>
-    Task<Dictionary<string, int>> GetChannelMetrics();
+    /// <param name="campaignId">The id of the campaign. Optional</param>
+    Task<Dictionary<string, int>> GetChannelMetrics(Guid? campaignId = null);
     /// <summary>Gets a list of all messages populated for this campaign.</summary>
     /// <param name="campaignId">The id of the campaign.</param>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>

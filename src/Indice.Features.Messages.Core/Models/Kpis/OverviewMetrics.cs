@@ -13,7 +13,6 @@ public class OverviewMetrics
     /// <summary>Statistics about message dalivery.</summary>
     public RecipientMetrics Recipient { get; set; } = new();
     /// <summary>Metrics per channel.</summary>
-    [Description("Metrics per channel.")]
     public List<ChannelMetrics> Channels { get; set; } = [];
     /// <summary>Gets or sets the date and time when the statistics was last updated (calculated).</summary>
     [Description("The date and time when the statistics was last updated.")]
