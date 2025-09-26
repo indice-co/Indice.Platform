@@ -122,12 +122,6 @@ public static class UsersApi
              .WithSummary("Permanently deletes a registered device from a user.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
 
-        group.MapGet("{userId}/devices/{deviceId}/secret", UserHandlers.GetUserDeviceSecret)
-             .WithName(nameof(UserHandlers.GetUserDeviceSecret))
-             .WithSummary("Get the secret for a user device.")
-             .RequireAuthorization(x => x.RequireClaim(BasicClaimTypes.Scope, IdentityEndpoints.SubScopes.UserDeviceSecret))
-             .Produces<Stream>(StatusCodes.Status200OK, "application/x-pem-file");
-
         group.MapGet("{userId}/external-logins", UserHandlers.GetUserExternalLogins)
              .WithName(nameof(UserHandlers.GetUserExternalLogins))
              .WithSummary("Gets a list of the external login providers for the specified user.")
@@ -154,7 +148,6 @@ public static class UsersApi
              .WithSummary("Sets the password for a given user.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
              .WithParameterValidation<SetPasswordRequest>();
-
 
         group.MapPut("{userId}/picture", PictureHandlers.SaveUserPicture)
              .WithName(nameof(PictureHandlers.SaveUserPicture))
@@ -190,6 +183,22 @@ public static class UsersApi
              .WithName("GetUserPictureSizeFormat")
              .WithSummary("Get user's profile picture.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
+
+        var userDeviceSecretGroup = routes.MapGroup($"{options.ApiPrefix}/users");
+        userDeviceSecretGroup.WithTags("Users");
+        userDeviceSecretGroup.WithGroupName("identity");
+
+        var userDeviceSecretScopes = new[] { IdentityEndpoints.SubScopes.Users, IdentityEndpoints.SubScopes.UserDeviceSecret }.FilterOutNulls().ToArray();
+        userDeviceSecretGroup.RequireAuthorization(policy => policy
+             .RequireAuthenticatedUser()
+             .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
+             .RequireClaim(BasicClaimTypes.Scope, userDeviceSecretScopes)
+        );
+
+        userDeviceSecretGroup.MapGet("{userId}/devices/{deviceId}/secret", UserHandlers.GetUserDeviceSecret)
+             .WithName(nameof(UserHandlers.GetUserDeviceSecret))
+             .WithSummary("Get the secret for a user device.")
+             .Produces<Stream>(StatusCodes.Status200OK, "application/x-pem-file");
 
         return group;
     }
