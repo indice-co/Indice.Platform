@@ -36,8 +36,8 @@
             <input type="hidden" asp-for="Input.ReturnUrl" />
             <input type="hidden" asp-for="Input.DeviceId" />
             <div class="mb-3">
-                <label asp-for="Input.UserName" class="form-label">@Localizer[userManager.EmailAsUserName ? "Email" : "Username"]</label>
-                <input class="form-control" type="text" placeholder="@Localizer[userManager.EmailAsUserName ? "Email" : "Username"]" asp-for="Input.UserName" />
+                <label asp-for="Input.UserName" class="form-label">@(userManager.EmailAsUserName? Labels.Email : Labels.Login_Username)</label>
+                <input class="form-control" type="text" placeholder="@(userManager.EmailAsUserName? Labels.Email: Labels.Login_Username)" asp-for="Input.UserName" />
                 <span asp-validation-for="Input.UserName" class="text-danger"></span>
             </div>
             <div class="mb-3">

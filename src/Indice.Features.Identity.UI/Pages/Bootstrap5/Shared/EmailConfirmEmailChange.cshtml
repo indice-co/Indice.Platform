@@ -1,5 +1,4 @@
-﻿@inject IIdentityViewLocalizer Localizer
-@inject IOptions<GeneralSettings> GeneralSettings
+﻿@inject IOptions<GeneralSettings> GeneralSettings
 @inject IOptions<IdentityUIOptions> UIOptions
 @inject UserManager<User> UserManager
 @inject IdentityLabelsMessageDescriber Labels
@@ -22,7 +21,7 @@
 }
 
 @section subject {
-    <h1 style="font-size: 18px; font-family:'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-weight:normal">@Localizer[$"{subject}"]</h1>
+    <h1 style="font-size: 18px; font-family:'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-weight:normal">@subject</h1>
 }
 
 <p style="font-family: 'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-size: 12px;">
@@ -35,5 +34,5 @@
     @Labels.Email_Body_Thanks.
     <br />
     <br />
-    @Labels.Email_Body_Sincerely, @Localizer[settings.Organization!].
+    @Labels.Email_Body_Sincerely, @Labels.OrganizationName(settings.Organization!).
 </p>

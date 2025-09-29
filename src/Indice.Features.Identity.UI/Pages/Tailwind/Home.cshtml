@@ -3,7 +3,6 @@
 @model BaseHomeModel
 
 @inject GeneralSettings Settings
-@inject IIdentityViewLocalizer Localizer
 @inject IWebHostEnvironment Environment
 
 @inject IdentityLabelsMessageDescriber Labels
@@ -16,10 +15,10 @@
 <div class="content-wrapper">
     <div class="flex flex-col items-center justify-center">
         <h1 class="deck-title">
-            @Localizer[Model.UiOptions.HomePageSlogan, Settings.Organization!]
+            @Labels.Home_WelcomeDigitalServices(Settings.Organization!)
         </h1>
         <p class="text-white lg:text-one text-lg pt-6 text-center max-w-screen-md">
-            @Labels.Home_Identity_Portal_Info
+            @Labels.Home_IntroTextWithOrgName(Settings.Organization!)
         </p>
         <div class="deck">
             @if (!User.IsAuthenticated())

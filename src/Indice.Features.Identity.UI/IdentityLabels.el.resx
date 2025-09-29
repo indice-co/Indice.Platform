@@ -963,4 +963,14 @@
   <data name="ProfileSidebar_ProfileUpdatedSuccessfully" xml:space="preserve">
     <value>To προφίλ σας ενημερώθηκε επιτυχώς.</value>
   </data>
+  <data name="Privacy_PageTitle" xml:space="preserve">
+    <value>Πολιτική Απορρήτου</value>
+  </data>
+  <data name="SelectLanguage" xml:space="preserve">
+    <value>Επιλογή γλώσσας</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="OrganizationName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
 </root>

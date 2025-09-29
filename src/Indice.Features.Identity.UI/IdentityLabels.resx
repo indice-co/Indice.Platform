@@ -963,4 +963,13 @@
   <data name="ProfileSidebar_ProfileUpdatedSuccessfully" xml:space="preserve">
     <value>Your profile was updated successfully.</value>
   </data>
+  <data name="Privacy_PageTitle" xml:space="preserve">
+    <value>Privacy Policy</value>
+  </data>
+  <data name="SelectLanguage" xml:space="preserve">
+    <value>Select Language</value>
+  </data>
+  <data name="OrganizationName" xml:space="preserve">
+    <value />
+  </data>
 </root>

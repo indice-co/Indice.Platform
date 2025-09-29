@@ -1,6 +1,5 @@
 ﻿@inject IOptions<GeneralSettings> Settings
 @inject IOptions<IdentityUIOptions> UIOptions
-@inject IIdentityViewLocalizer Localizer
 @inject IWebHostEnvironment Environment
 @inject IdentityLabelsMessageDescriber Labels
 
@@ -16,7 +15,7 @@
         <div class="language">
             <partial name="_LanguageSelector" />
         </div>
-        &copy; @Localizer[settings.Organization!] @copyYear @(DateTime.Today.Year > copyYear ? $" - {DateTime.Today.Year}" : string.Empty)
+        &copy; @Labels.OrganizationName(settings.Organization!) @copyYear @(DateTime.Today.Year > copyYear ? $" - {DateTime.Today.Year}" : string.Empty)
     </div>
     <div class="links">
         <span class="software-verson">v@(version ?? "1.0.0")</span>

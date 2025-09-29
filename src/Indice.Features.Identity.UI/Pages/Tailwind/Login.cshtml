@@ -23,8 +23,8 @@
                 <input type="hidden" asp-for="Input.DeviceId" />
                 <div class="row">
                     <div class="input-group-w-full group">
-                        <input type="text" class="peer" placeholder="@Localizer[userManager.EmailAsUserName ? "Email" : "Username"]" asp-for="Input.UserName" />
-                        <label asp-for="Input.UserName" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer[userManager.EmailAsUserName ? "Email" : "Username"]</label>
+                        <input type="text" class="peer" placeholder="@(userManager.EmailAsUserName? Labels.Email: Labels.Login_Username)" asp-for="Input.UserName" />
+                        <label asp-for="Input.UserName" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@(userManager.EmailAsUserName? Labels.Email : Labels.Login_Username)</label>
                         <span asp-validation-for="Input.UserName" class="text-danger"></span>
                     </div>
                 </div>

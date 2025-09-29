@@ -1789,6 +1789,15 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        public static string OrganizationName {
+            get {
+                return ResourceManager.GetString("OrganizationName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Change password.
         /// </summary>
         public static string PasswordExpired_ChangePassword {
@@ -1830,6 +1839,15 @@ namespace Indice.Features.Identity.UI {
         public static string PasswordExpired_ΝewPasswordConfirmation {
             get {
                 return ResourceManager.GetString("PasswordExpired_ΝewPasswordConfirmation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Privacy Policy.
+        /// </summary>
+        public static string Privacy_PageTitle {
+            get {
+                return ResourceManager.GetString("Privacy_PageTitle", resourceCulture);
             }
         }
         
@@ -2104,6 +2122,213 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Birth date.
+        /// </summary>
+        public static string ProfileSidebar_BirthDate {
+            get {
+                return ResourceManager.GetString("ProfileSidebar_BirthDate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Calling Code.
+        /// </summary>
+        public static string ProfileSidebar_CallingCode {
+            get {
+                return ResourceManager.GetString("ProfileSidebar_CallingCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Confirmation.
+        /// </summary>
+        public static string ProfileSidebar_Confirmation {
+            get {
+                return ResourceManager.GetString("ProfileSidebar_Confirmation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Confirmation email delivery failed. Please contact system administrator..
+        /// </summary>
+        public static string ProfileSidebar_ConfirmationEmailFailed {
+            get {
+                return ResourceManager.GetString("ProfileSidebar_ConfirmationEmailFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A confirmation email has been sent to {0}..
+        /// </summary>
+        public static string ProfileSidebar_ConfirmEmailSentTo {
+            get {
+                return ResourceManager.GetString("ProfileSidebar_ConfirmEmailSentTo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connect a new provider.
+        /// </summary>
+        public static string ProfileSidebar_ConnectNewProvider {
+            get {
+                return ResourceManager.GetString("ProfileSidebar_ConnectNewProvider", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to I have been informed about the processing of my personal data and I consent to it, as specifically defined.
+        /// </summary>
+        public static string ProfileSidebar_DataProcessingConsent {
+            get {
+                return ResourceManager.GetString("ProfileSidebar_DataProcessingConsent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Developer TOTP.
+        /// </summary>
+        public static string ProfileSidebar_DeveloperTOTP {
+            get {
+                return ResourceManager.GetString("ProfileSidebar_DeveloperTOTP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Existing providers.
+        /// </summary>
+        public static string ProfileSidebar_ExistingProviders {
+            get {
+                return ResourceManager.GetString("ProfileSidebar_ExistingProviders", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to External providers.
+        /// </summary>
+        public static string ProfileSidebar_ExternalProviders {
+            get {
+                return ResourceManager.GetString("ProfileSidebar_ExternalProviders", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to First name.
+        /// </summary>
+        public static string ProfileSidebar_FirstName {
+            get {
+                return ResourceManager.GetString("ProfileSidebar_FirstName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to here.
+        /// </summary>
+        public static string ProfileSidebar_Here {
+            get {
+                return ResourceManager.GetString("ProfileSidebar_Here", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Last name.
+        /// </summary>
+        public static string ProfileSidebar_LastName {
+            get {
+                return ResourceManager.GetString("ProfileSidebar_LastName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An email has been sent to your new email address in order to confirm it..
+        /// </summary>
+        public static string ProfileSidebar_NewEmailConfirmationSent {
+            get {
+                return ResourceManager.GetString("ProfileSidebar_NewEmailConfirmationSent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your new email verification is still pending..
+        /// </summary>
+        public static string ProfileSidebar_NewEmailVerificationPending {
+            get {
+                return ResourceManager.GetString("ProfileSidebar_NewEmailVerificationPending", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Phone number.
+        /// </summary>
+        public static string ProfileSidebar_PhoneNumber {
+            get {
+                return ResourceManager.GetString("ProfileSidebar_PhoneNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Profile.
+        /// </summary>
+        public static string ProfileSidebar_Profile {
+            get {
+                return ResourceManager.GetString("ProfileSidebar_Profile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your profile was updated successfully..
+        /// </summary>
+        public static string ProfileSidebar_ProfileUpdatedSuccessfully {
+            get {
+                return ResourceManager.GetString("ProfileSidebar_ProfileUpdatedSuccessfully", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remove.
+        /// </summary>
+        public static string ProfileSidebar_Remove {
+            get {
+                return ResourceManager.GetString("ProfileSidebar_Remove", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save.
+        /// </summary>
+        public static string ProfileSidebar_Save {
+            get {
+                return ResourceManager.GetString("ProfileSidebar_Save", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tax identification.
+        /// </summary>
+        public static string ProfileSidebar_TaxIdentification {
+            get {
+                return ResourceManager.GetString("ProfileSidebar_TaxIdentification", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown.
+        /// </summary>
+        public static string ProfileSidebar_Unknown {
+            get {
+                return ResourceManager.GetString("ProfileSidebar_Unknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Username.
+        /// </summary>
+        public static string ProfileSidebar_Username {
+            get {
+                return ResourceManager.GetString("ProfileSidebar_Username", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Once complete, you may close this tab..
         /// </summary>
         public static string Redirect_CloseTab {
@@ -2329,6 +2554,15 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Select Language.
+        /// </summary>
+        public static string SelectLanguage {
+            get {
+                return ResourceManager.GetString("SelectLanguage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Setting UI language....
         /// </summary>
         public static string SetLanguage_Setting_ui_language {
@@ -2388,213 +2622,6 @@ namespace Indice.Features.Identity.UI {
         public static string VerifyPhone_VerifyPhoneNumber {
             get {
                 return ResourceManager.GetString("VerifyPhone_VerifyPhoneNumber", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Email already verified.
-        /// </summary>
-        public static string ProfileSidebar_ConfirmEmailSentTo {
-            get {
-                return ResourceManager.GetString("ProfileSidebar_ConfirmEmailSentTo", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Confirmation email sent.
-        /// </summary>
-        public static string ProfileSidebar_NewEmailConfirmationSent {
-            get {
-                return ResourceManager.GetString("ProfileSidebar_NewEmailConfirmationSent", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Birth date.
-        /// </summary>
-        public static string ProfileSidebar_BirthDate {
-            get {
-                return ResourceManager.GetString("ProfileSidebar_BirthDate", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Calling Code.
-        /// </summary>
-        public static string ProfileSidebar_CallingCode {
-            get {
-                return ResourceManager.GetString("ProfileSidebar_CallingCode", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Confirmation.
-        /// </summary>
-        public static string ProfileSidebar_Confirmation {
-            get {
-                return ResourceManager.GetString("ProfileSidebar_Confirmation", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Confirmation email failed.
-        /// </summary>
-        public static string ProfileSidebar_ConfirmationEmailFailed {
-            get {
-                return ResourceManager.GetString("ProfileSidebar_ConfirmationEmailFailed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Connect a new provider.
-        /// </summary>
-        public static string ProfileSidebar_ConnectNewProvider {
-            get {
-                return ResourceManager.GetString("ProfileSidebar_ConnectNewProvider", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Developer TOTP.
-        /// </summary>
-        public static string ProfileSidebar_DeveloperTOTP {
-            get {
-                return ResourceManager.GetString("ProfileSidebar_DeveloperTOTP", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Existing providers.
-        /// </summary>
-        public static string ProfileSidebar_ExistingProviders {
-            get {
-                return ResourceManager.GetString("ProfileSidebar_ExistingProviders", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to External providers.
-        /// </summary>
-        public static string ProfileSidebar_ExternalProviders {
-            get {
-                return ResourceManager.GetString("ProfileSidebar_ExternalProviders", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to First name.
-        /// </summary>
-        public static string ProfileSidebar_FirstName {
-            get {
-                return ResourceManager.GetString("ProfileSidebar_FirstName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to here.
-        /// </summary>
-        public static string ProfileSidebar_Here {
-            get {
-                return ResourceManager.GetString("ProfileSidebar_Here", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to I have been informed about the processing of my personal data and I consent to it, as specifically defined.
-        /// </summary>
-        public static string ProfileSidebar_DataProcessingConsent {
-            get {
-                return ResourceManager.GetString("ProfileSidebar_DataProcessingConsent", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Last name.
-        /// </summary>
-        public static string ProfileSidebar_LastName {
-            get {
-                return ResourceManager.GetString("ProfileSidebar_LastName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Phone number.
-        /// </summary>
-        public static string ProfileSidebar_PhoneNumber {
-            get {
-                return ResourceManager.GetString("ProfileSidebar_PhoneNumber", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Profile.
-        /// </summary>
-        public static string ProfileSidebar_Profile {
-            get {
-                return ResourceManager.GetString("ProfileSidebar_Profile", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Remove.
-        /// </summary>
-        public static string ProfileSidebar_Remove {
-            get {
-                return ResourceManager.GetString("ProfileSidebar_Remove", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Save.
-        /// </summary>
-        public static string ProfileSidebar_Save {
-            get {
-                return ResourceManager.GetString("ProfileSidebar_Save", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Tax identification.
-        /// </summary>
-        public static string ProfileSidebar_TaxIdentification {
-            get {
-                return ResourceManager.GetString("ProfileSidebar_TaxIdentification", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unknown.
-        /// </summary>
-        public static string ProfileSidebar_Unknown {
-            get {
-                return ResourceManager.GetString("ProfileSidebar_Unknown", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Username.
-        /// </summary>
-        public static string ProfileSidebar_Username {
-            get {
-                return ResourceManager.GetString("ProfileSidebar_Username", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Your new email verification is still pending..
-        /// </summary>
-        public static string ProfileSidebar_NewEmailVerificationPending {
-            get {
-                return ResourceManager.GetString("ProfileSidebar_NewEmailVerificationPending", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Your profile was updated successfully..
-        /// </summary>
-        public static string ProfileSidebar_ProfileUpdatedSuccessfully {
-            get {
-                return ResourceManager.GetString("ProfileSidebar_ProfileUpdatedSuccessfully", resourceCulture);
             }
         }
     }

@@ -9,6 +9,9 @@ public class IdentityLabelsMessageDescriber
 {
     /// <summary>Text for the email label.</summary>
     public virtual string Email => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Email);
+    /// <summary>Text for select language label.</summary>
+    public virtual string SelectLanguage => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.SelectLanguage);
+
     #region AcceptTerms
     /// <summary>Text for the Accept button on the Accept Terms page.</summary>
     public virtual string AcceptTerms_Accept => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AcceptTerms_Accept);
@@ -397,13 +400,13 @@ public class IdentityLabelsMessageDescriber
     /// <summary>Instruction message on the Home page.</summary>
     public virtual string Home_Portal => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Home_Portal);
     /// <summary>Instruction message on the Home page.</summary>
-    public virtual string Home_Identity_Portal_Info(string serviceName) => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Home_IntroTextWithOrgName, serviceName);
+    public virtual string Home_IntroTextWithOrgName(string serviceName) => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Home_IntroTextWithOrgName, serviceName);
     /// <summary>Instruction message on the Home page.</summary>
     public virtual string Home_Welcome => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Home_Welcome);
     /// <summary>Instruction message on the Home page.</summary>
     public virtual string Home_Welcome_Back => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Home_WelcomeBack);
     /// <summary>Instruction message on the Home page.</summary>
-    public virtual string Home_Welcome_To_The_Digital_Services_Portal(string serviceName) => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Home_WelcomeDigitalServices, serviceName);
+    public virtual string Home_WelcomeDigitalServices(string serviceName) => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Home_WelcomeDigitalServices, serviceName);
     #endregion
 
     #region LoggedOut
@@ -1058,28 +1061,62 @@ public class IdentityLabelsMessageDescriber
 
     #endregion
 
+    /// <summary> Label for the Preferred Language field in profile sidebar.</summary>     
     public virtual string ProfileSidebar_ConfirmEmailSentTo => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_ConfirmEmailSentTo);
+    /// <summary> Label for Manage Profile action in profile sidebar.</summary>
     public virtual string ProfileSidebar_NewEmailConfirmationSent => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_NewEmailConfirmationSent);
+    /// <summary> Placeholder text for dropdowns or selection inputs in profile sidebar.</summary>
     public virtual string ProfileSidebar_BirthDate => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_BirthDate);
+    /// <summary> Email label in profile sidebar.</summary>
     public virtual string ProfileSidebar_CallingCode => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_CallingCode);
+    /// <summary> Label for timezone selection in profile sidebar.</summary>
     public virtual string ProfileSidebar_Confirmation => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_Confirmation);
+    /// <summary> Gets the localized string for "Confirmation email delivery failed. Please contact system administrator." in profile sidebar.</summary>
     public virtual string ProfileSidebar_ConfirmationEmailFailed => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_ConfirmationEmailFailed);
+    /// <summary> Gets the localized string for "Connect a new provider" in profile sidebar.</summary>
     public virtual string ProfileSidebar_ConnectNewProvider => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_ConnectNewProvider);
+    /// <summary> Gets the localized string for "Developer TOTP" in profile sidebar.</summary>
     public virtual string ProfileSidebar_DeveloperTOTP => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_DeveloperTOTP);
+    /// <summary> Gets the localized string for "Existing providers" in profile sidebar.</summary>
     public virtual string ProfileSidebar_ExistingProviders => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_ExistingProviders);
+    /// <summary> Gets the localized string for "External providers" in profile sidebar.</summary>
     public virtual string ProfileSidebar_ExternalProviders => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_ExternalProviders);
+    /// <summary> Gets the localized string for "First name" in profile sidebar.</summary>
     public virtual string ProfileSidebar_FirstName => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_FirstName);
+    /// <summary> Gets the localized string for "here" in profile sidebar.</summary>
     public virtual string ProfileSidebar_Here => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_Here);
+    /// <summary> Gets the localized string for "I have been informed about the processing of my personal data and I consent to it, as specifically defined" in profile sidebar.</summary>
     public virtual string ProfileSidebar_DataProcessingConsent => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_DataProcessingConsent);
+    /// <summary> Gets the localized string for "Language" in profile sidebar.</summary>
     public virtual string ProfileSidebar_LastName => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_LastName);
+    /// <summary> Gets the localized string for "Last name" in profile sidebar.</summary>
     public virtual string ProfileSidebar_PhoneNumber => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_PhoneNumber);
+    /// <summary> Gets the localized string for "Preferences" in profile sidebar.</summary>
     public virtual string ProfileSidebar_Profile => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_Profile);
+    /// <summary> Gets the localized string for "Profile" in profile sidebar.</summary>
     public virtual string ProfileSidebar_Remove => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_Remove);
+    /// <summary> Gets the localized string for "Save" in profile sidebar.</summary>
     public virtual string ProfileSidebar_Save => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_Save);
+    /// <summary> Gets the localized string for "Tax identification" in profile sidebar.</summary>
     public virtual string ProfileSidebar_TaxIdentification => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_TaxIdentification);
+    /// <summary> Gets the localized string for "Unknown" in profile sidebar.</summary>
     public virtual string ProfileSidebar_Unknown => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_Unknown);
+    /// <summary> Gets the localized string for "Username" in profile sidebar.</summary>
     public virtual string ProfileSidebar_Username => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_Username);
+    /// <summary> Gets the localized string for "Your new email verification is still pending." in profile sidebar.</summary>
     public virtual string ProfileSidebar_NewEmailVerificationPending => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_NewEmailVerificationPending);
-    public virtual string ProfileSidebar_ProfileUpdatedSuccessfully  => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_ProfileUpdatedSuccessfully);
+    /// <summary> Gets the localized string for "Your profile was updated successfully." in profile sidebar.</summary>
+    public virtual string ProfileSidebar_ProfileUpdatedSuccessfully => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ProfileSidebar_ProfileUpdatedSuccessfully);
+
+    /// <summary>Title of the Privacy policy page.</summary>
+    public virtual string Privacy_PageTitle => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Privacy_PageTitle);
+
+
+    /// <summary>Title of the Privacy policy page.</summary>
+    public virtual string OrganizationName(string organization) {
+        var orgName = string.Format(CultureInfo.CurrentUICulture, IdentityLabels.OrganizationName);
+        if (string.IsNullOrWhiteSpace(orgName)) return organization;
+        return orgName;
+    }
 
 }

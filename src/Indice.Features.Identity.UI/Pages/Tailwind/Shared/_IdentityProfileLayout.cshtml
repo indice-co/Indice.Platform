@@ -1,5 +1,6 @@
 ﻿@inject GeneralSettings Settings
 @inject IIdentityViewLocalizer Localizer
+@inject IdentityLabelsMessageDescriber Labels
 @inject IWebHostEnvironment Environment
 @inject IConfiguration Configuration
 @inject IOptions<IdentityUIOptions> UiOptions
@@ -52,12 +53,12 @@
                                     </g>
                                 </svg>
                                 <span class="max-w-[175px] text-sm leading-4">
-                                    @Localizer["Sign in with a different account"]
+                                    @Labels.ChangePassword_SignWithDifferentAccount
                                 </span>
                             </a>
                             <a class="flex flex-col-reverse md:flex-row space-x-4 items-center cursor-pointer text-black no-underline" asp-page="/Logout" target="_top">
                                 <span class="max-w-[175px] text-sm">
-                                    @Localizer["Log out"]
+                                    @Labels.Logout_Logout
                                 </span>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="29.246" height="28.775" viewBox="0 0 29.246 28.775" class="mb-2 md:mb-0">
                                     <g id="Group_2817" data-name="Group 2817" transform="translate(-1853.984 -17.501)">
@@ -77,7 +78,7 @@
                                  profile-pic-background="cecece"
                                  profile-pic-foreground="005b96" />
                             <div class="flex flex-col">
-                                <div class="font-bold mb-1">@Localizer[Settings.Organization!]</div>
+                                <div class="font-bold mb-1">@Labels.OrganizationName(Settings.Organization!)</div>
                                 <div class="text-tenant-900 text-3xl font-normal">@User.FindDisplayName()</div>
                                 <div>@User.GetDisplayName()</div>
                             </div>
@@ -125,10 +126,10 @@
 <div class="content-wrapper">
     <div class="flex flex-col items-center justify-center">
         <h1 class="deck-title">
-            @Localizer[UiOptions.Value.HomePageSlogan, Settings.Organization!]
+            @Labels.Home_WelcomeDigitalServices(Settings.Organization!)
         </h1>
         <p class="text-white lg:text-one text-lg pt-6 text-center max-w-screen-md">
-            @Localizer["The Identity portal gives you access to all {0} services with one account. A place to manage your user profile and account access settings. Use the links below to get started.", Settings.Organization!]
+            @Labels.Home_IntroTextWithOrgName(Settings.Organization!)
         </p>
         <div class="deck">
             @if (!User.IsAuthenticated())

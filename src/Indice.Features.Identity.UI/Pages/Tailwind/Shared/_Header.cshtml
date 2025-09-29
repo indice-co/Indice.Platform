@@ -2,6 +2,7 @@
 @inject IViewLocalizer Localizer
 @inject IWebHostEnvironment Environment
 @inject ExtendedSignInManager<User> SignInManager
+@inject IdentityLabelsMessageDescriber Labels
 
 @{
     var displayMenu = SignInManager.IsSignedIn(User);// todo: check && !SignInManager.IsSignedInWithScheme(User, ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
@@ -76,7 +77,7 @@
                                  profile-pic-background="cecece"
                                  profile-pic-foreground="005b96" />
                             <div class="flex flex-col">
-                                <div class="font-bold mb-1">@Localizer[Settings.Organization!]</div>
+                                <div class="font-bold mb-1">@Labels.OrganizationName(Settings.Organization!)</div>
                                 <div class="text-tenant-900 text-3xl font-normal">@User.FindDisplayName()</div>
                                 <div>@userName</div>
                             </div>
