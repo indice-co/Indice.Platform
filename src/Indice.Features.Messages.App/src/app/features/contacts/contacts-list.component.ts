@@ -28,6 +28,8 @@ export class ContactsListComponent extends BaseListComponent<Contact> implements
       new MenuOption('e-mail', 'email'),
       new MenuOption('Τηλέφωνο', 'phone'),
       new MenuOption('Κωδικός', 'recipientId'),
+      new MenuOption('Resolved', 'resolved'),
+      new MenuOption('Last Resolution', 'lastResolutionDate'),
     ];
   } 
 

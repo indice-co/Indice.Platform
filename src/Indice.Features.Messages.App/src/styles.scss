@@ -191,6 +191,11 @@ textarea.code-editor:focus {
   @apply text-green-500 text-3xl;
   line-height: 1rem;
 }
+.small {
+  .list-checkmark, .list-dash {
+    font-size: 1.5rem;
+  }
+}
 
 .list-dash {
   @apply text-red-500 text-3xl;
