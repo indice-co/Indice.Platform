@@ -61,7 +61,6 @@ public static class IdentityBuilderUIExtensions
 #if NET9_0_OR_GREATER
         services.PostConfigure<IdentityServerOptions>(options => {
             options.KeyManagement.Enabled = false;
-            options.UserInteraction.
             if (!string.IsNullOrEmpty(configuredOptions.OnBoardingPage))
                 options.UserInteraction.CreateAccountUrl = configuredOptions.OnBoardingPage;
         });
