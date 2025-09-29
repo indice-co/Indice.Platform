@@ -13,6 +13,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Duende.IdentityServer.Services;
+using Indice.Features.Identity.Core.Cache;
+
+
 #if NET9_0_OR_GREATER
 using Indice.Features.Identity.Core.TokenCleanup;
 using Duende.IdentityServer.EntityFramework;
@@ -21,7 +25,8 @@ using Duende.IdentityServer.EntityFramework;
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>Extensions on <see cref="IdentityBuilder"/>.</summary>
-public static class IdentityBuilderExtensions {
+public static class IdentityBuilderExtensions
+{
     /// <summary>Registers an instance of <see cref="ExtendedSignInManager{TUser}"/> along with required dependencies.</summary>
     /// <typeparam name="TUser">The type of <see cref="User"/> used by the identity system.</typeparam>
     /// <param name="builder">The type of builder for configuring identity services.</param>
@@ -265,6 +270,18 @@ public static class IdentityBuilderExtensions {
     /// <returns>The current <see cref="IdentityBuilder"/> instance.</returns>
     public static IdentityBuilder AddFastCleanUpService(this IdentityBuilder builder) {
         builder.Services.AddTransient<ITokenCleanupService, FastTokenCleanupService>();
+        return builder;
+    }
+
+    /// <summary>
+    /// Registers an alternative implementation of <see cref="ICache{T}"/> using <c>HybridCache</c>
+    /// </summary>
+    /// <param name="builder">instance</param>
+    /// <returns>The current <see cref="IdentityBuilder"/> instance.</returns>
+    public static IdentityBuilder AddHybridCache(this IdentityBuilder builder) {
+        // Add HybridCache service
+        builder.Services.AddHybridCache();
+        builder.Services.AddTransient(typeof(ICache<>), typeof(HybridCacheStore<>));
         return builder;
     }
 #endif
