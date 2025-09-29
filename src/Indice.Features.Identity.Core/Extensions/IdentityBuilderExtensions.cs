@@ -279,7 +279,7 @@ public static class IdentityBuilderExtensions
     public static IdentityBuilder AddHybridCache(this IdentityBuilder builder) {
         // Add HybridCache service
         builder.Services.AddHybridCache();
-        builder.Services.AddTransient(typeof(ICache<>), typeof(HybridCacheStore<>));
+        builder.Services.AddTransient(typeof(ICache<>), typeof(DuendeHybridCache<>));
         return builder;
     }
 #endif

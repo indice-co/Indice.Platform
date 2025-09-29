@@ -8,13 +8,13 @@ namespace Microsoft.AspNetCore.Identity;
 /// Provides a hybrid cache implementation for storing and retrieving objects of type <typeparamref name="T"/>.
 /// </summary>
 /// <typeparam name="T">The type of object to cache.</typeparam>
-public class HybridCacheStore<T> : ICache<T> where T : class
+internal class DuendeHybridCache<T> : ICache<T> where T : class
 {
     private readonly HybridCache _distributedCache;
     private readonly string _prefix;
 
     /// <inheritdoc />
-    public HybridCacheStore(HybridCache distributedCache) {
+    public DuendeHybridCache(HybridCache distributedCache) {
         _distributedCache = distributedCache;
         _prefix = typeof(T).FullName ?? typeof(T).Name;
     }
