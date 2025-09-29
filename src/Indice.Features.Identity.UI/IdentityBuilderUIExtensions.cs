@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
+
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer.Configuration;
 #endif
@@ -59,12 +61,7 @@ public static class IdentityBuilderUIExtensions
             }
         });
 #if NET9_0_OR_GREATER
-        services.PostConfigure<IdentityServerOptions>(options => {
-            options.KeyManagement.Enabled = false;
-            if (!string.IsNullOrEmpty(configuredOptions.OnBoardingPage))
-                options.UserInteraction.CreateAccountUrl = configuredOptions.OnBoardingPage;
-        });
-        
+        services.AddSingleton<IPostConfigureOptions<IdentityServerOptions>, IdentityServerOptionsPostConfigure>();
 #endif
         services.PostConfigure<AntiforgeryOptions>(options => {
             options.HeaderName = "X-XSRF-TOKEN";
