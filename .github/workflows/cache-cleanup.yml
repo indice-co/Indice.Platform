@@ -1,0 +1,22 @@
+name: "Github Cache Cleanup"
+
+# Github cache cleanup schedule, every day at 23:59 (except Saturday & Sunday)
+# Can be run manually from the UI too
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "59 23 * * 1-5"
+
+jobs:
+  cache-cleanup:
+    name: Github Cache Cleanup
+    runs-on: ubuntu-latest
+    steps:
+    - name: Github Cache Cleanup
+      run: |
+        gh cache list
+        gh cache delete --all --repo indice-co/Indice.Platform
+        echo "Cache storage successfully deleted"
+      env:
+        GH_TOKEN: ${{ secrets.CLEAN_CACHE_TOKEN }}
+        GH_REPO: ${{ github.repository }}
