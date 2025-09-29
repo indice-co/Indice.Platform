@@ -13,13 +13,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Duende.IdentityServer.Services;
-using Indice.Features.Identity.Core.Cache;
-
 
 #if NET9_0_OR_GREATER
 using Indice.Features.Identity.Core.TokenCleanup;
 using Duende.IdentityServer.EntityFramework;
+using Duende.IdentityServer.Services;
 #endif
 
 namespace Microsoft.Extensions.DependencyInjection;
