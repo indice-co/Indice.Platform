@@ -19,5 +19,7 @@ public class ContactRequestBase
     public string? PhoneNumber { get; set; }
     /// <summary>Marks the contact has been retrieved by an external source.</summary>
     public bool Resolved { get; set; }
+    /// <summary>Indicates the last time the contact was resolved using the contact resolver service.</summary>
+    public DateTimeOffset? LastResolutionDate { get; set; }
 
 }
