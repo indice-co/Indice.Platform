@@ -18,7 +18,7 @@
     <PackageReference Include="Elsa.Persistence.EntityFramework.SqlServer" Version="2.15.2" />
     <PackageReference Include="Elsa.Retention" Version="2.15.2" />
     <PackageReference Include="Elsa.Server.Api" Version="2.15.2" />
-    <PackageReference Include="JsonSchema.Net" Version="7.3.4" />
+    <PackageReference Include="JsonSchema.Net" Version="7.4.0" />
     <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefixCore)-*" />
     <PackageReference Include="IdentityModel" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.6.0" />
