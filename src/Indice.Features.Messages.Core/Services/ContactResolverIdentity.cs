@@ -114,6 +114,7 @@ public class ContactResolverIdentity : IContactResolver
             FirstName = FindClaimValue(identityUser.Claims, BasicClaimTypes.GivenName),
             LastName = FindClaimValue(identityUser.Claims, BasicClaimTypes.FamilyName),
             Resolved = true,
+            LastResolutionDate = DateTimeOffset.UtcNow,
             Preference = new ContactPreference {
                 Locale = FindClaimValue(identityUser.Claims, BasicClaimTypes.Locale),
                 ConsentCommercial = GetCommercialConsent(identityUser.Claims),
