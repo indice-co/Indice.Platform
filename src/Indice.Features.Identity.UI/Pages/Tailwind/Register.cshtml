@@ -2,7 +2,7 @@
 
 @model BaseRegisterModel
 
-@inject IIdentityViewLocalizer Localizer
+
 @inject ExtendedUserManager<User> userManager
 @inject IZoneInfoProvider zoneInfoProvider
 @inject CallingCodesProvider callingCodesProvider
@@ -10,7 +10,7 @@
 @inject IdentityLabelsMessageDescriber Labels
 
 @{
-    var title = ViewData["Title"] = Labels.Register_Sign_Up ;
+    var title = ViewData["Title"] = Labels.Register_Sign_Up;
 }
 
 <div class="content-wrapper">
@@ -146,7 +146,8 @@
             }
             <hr class="mb-7">
             <div class="row">
-                @if (userManager.EmailAsUserName) {
+                @if (userManager.EmailAsUserName)
+                {
                     <div class="input-group-w-full">
                         <div class="relative">
                             <div class="absolute inset-y-0 right-4 flex items-center mt-[1.8rem]" data-tooltip-target="username-tooltip">
@@ -164,7 +165,8 @@
                         <span asp-validation-for="Input.Email" class="text-danger"></span>
                     </div>
                 }
-                else {
+                else
+                {
                     <div class="input-group-w-full">
                         <div class="relative">
                             <div class="absolute inset-y-0 right-4 flex items-center mt-[1.8rem]" data-tooltip-target="username-tooltip">
@@ -250,9 +252,13 @@
                         @foreach (var provider in Model.View.VisibleExternalProviders)
                         {
                             <div class="idp idp-@provider.AuthenticationScheme!.ToLower() mx-2.5">
-                                <a asp-page="/Challenge" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.View.ReturnUrl" asp-route-prompt="@OidcConstants.PromptModes.SelectAccount" title="@Localizer[provider.DisplayName!]">
+                                <a asp-page="/Challenge"
+                                   asp-route-provider="@provider.AuthenticationScheme"
+                                   asp-route-returnUrl="@Model.View.ReturnUrl"
+                                   asp-route-prompt="@OidcConstants.PromptModes.SelectAccount"
+                                   title="@Labels.GetGeneric(provider.DisplayName!)">
                                     <span class="hidden">
-                                        @Localizer[provider.DisplayName!]
+                                        @Labels.GetGeneric(provider.DisplayName!)
                                     </span>
                                 </a>
                             </div>
@@ -283,4 +289,4 @@
             };
         });
     </script>
- }
+}

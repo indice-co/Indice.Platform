@@ -4,9 +4,8 @@
 
 @model BaseMfaModel
 
-@inject IIdentityViewLocalizer Localizer
-@inject IConfiguration Configuration
 
+@inject IConfiguration Configuration
 @inject IdentityLabelsMessageDescriber Labels
 
 
@@ -120,10 +119,10 @@
                                                 <div class="min-w-0 flex-auto text-left">
                                                     <p class="mt-1 flex text-sm/6 text-gray-500">
                                                         <span class="absolute inset-x-0 -top-px bottom-0"></span>
-                                                        @Localizer[method.Description]
+                                                        @Labels.GetGeneric(method.Description)
                                                     </p>
                                                     <p class="text-xs/5 font-semibold text-gray-900">
-                                                        @Localizer[method.DisplayName]
+                                                        @Labels.GetGeneric(method.DisplayName)
                                                     </p>
                                                 </div>
                                             </div>
@@ -230,10 +229,10 @@
                                                 <div class="min-w-0 flex-auto text-left">
                                                     <p class="mt-1 flex text-sm/6 text-gray-500">
                                                         <span class="absolute inset-x-0 -top-px bottom-0"></span>
-                                                        @Localizer[method.Description]
+                                                        @Labels.GetGeneric(method.Description)
                                                     </p>
                                                     <p class="text-xs/5 font-semibold text-gray-900">
-                                                        @Localizer[method.DisplayName]
+                                                        @Labels.GetGeneric(method.DisplayName)
                                                     </p>
                                                 </div>
                                             </div>

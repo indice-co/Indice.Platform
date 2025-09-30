@@ -972,4 +972,7 @@
   <data name="OrganizationName" xml:space="preserve">
     <value />
   </data>
+  <data name="RequiredValue" xml:space="preserve">
+    <value>required</value>
+  </data>
 </root>

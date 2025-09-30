@@ -10,6 +10,7 @@ using Indice.Features.Identity.UI.Telemetry;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Razor.Compilation;
@@ -98,9 +99,18 @@ public static class IdentityBuilderUIExtensions
         services.TryAddTransient<ITelemetryJavaScriptSnippet, AzureMonitorTelemetryJavaScriptSnippet>(); // browser ui telemetry.
 
         services.AddPlatformEventHandler<SecurityNotificationEvent, SecurityNotificationEventHandler>();
+        services.AddScoped<IdentityLabelsMessageDescriber>();
+
         return services;
     }
 
+    /// <summary>Adds an overridden implementation of <see cref="IdentityLabelsMessageDescriber"/>.</summary>
+    /// <typeparam name="TDescriber">The type of labels describer.</typeparam>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    public static IServiceCollection AddIdentityUILabelDescriber<TDescriber>(this IServiceCollection services) where TDescriber : IdentityLabelsMessageDescriber {
+        services.AddScoped<IdentityLabelsMessageDescriber, TDescriber>();
+        return services;
+    }
     private static Assembly? GetApplicationAssembly(IServiceCollection services) {
         // This is the same logic that MVC follows to find the application assembly.
         var environment = services.Where(d => d.ServiceType == typeof(IWebHostEnvironment)).ToArray();

@@ -973,4 +973,7 @@
   <data name="OrganizationName" type="System.Resources.ResXNullRef, System.Windows.Forms">
     <value />
   </data>
+  <data name="RequiredValue" xml:space="preserve">
+    <value>υποχρεωτικό</value>
+  </data>
 </root>

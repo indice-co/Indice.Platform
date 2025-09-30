@@ -1,6 +1,6 @@
 ﻿@page "/manage/profile"
 
-@inject IIdentityViewLocalizer Localizer
+
 @inject CallingCodesProvider callingCodesProvider
 @inject IOptions<IdentityUIOptions> identityUiOptions
 @inject ExtendedUserManager<User> userManager
@@ -41,16 +41,16 @@
     </div>
     @if (Model.ProfileSuccessfullyChanged)
     {
-        var message = Labels.Profile_Your_Profile_Was_Updated_Successfully;
+        var message = Labels.Profile_Your_Profile_Was_Updated_Successfully.Value;
         if (Model.EmailChangeRequested)
         {
-            message += $" {Labels.Profile_An_Email_Has_Been_Sent_To_Your_New_Email_Address_In_Order_To_Confirm_It}";
+            message += Labels.Profile_EmailSentToNewEmail.Value;
         }
         <partial name="_Alert" model="@AlertModel.Success(message)" />
     }
     @if (Model.View.EmailChangePending && !Model.ProfileSuccessfullyChanged)
     {
-        <partial name="_Alert" model="@AlertModel.Warn(Labels.Profile_Your_New_Email_Verification_Is_Still_Pending)" />
+        <partial name="_Alert" model="@AlertModel.Warn(Labels.Profile_Your_New_Email_Verification_Is_Still_Pending.ToString())" />
     }
     <partial name="_Alert" model="alert" />
     <partial name="_ValidationSummary" />
@@ -200,7 +200,8 @@
             {
                 <div class="row idp-@provider.LoginProvider.ToLower()">
                     <div class="col-sm-9">
-                        <a class="btn btn-@provider.LoginProvider.ToLower() btn-hover btn-md inline-block cursor-pointer">@Localizer[string.IsNullOrEmpty(provider.ProviderDisplayName) ? provider.LoginProvider : provider.ProviderDisplayName]</a>
+                        <a class="btn btn-@provider.LoginProvider.ToLower() btn-hover btn-md inline-block cursor-pointer">
+                            @Labels.GetGeneric(string.IsNullOrEmpty(provider.ProviderDisplayName) ? provider.LoginProvider : provider.ProviderDisplayName)</a>
                     </div>
                     <div class="col-sm-3">
                         <form asp-page-handler="RemoveLogin" method="post" class="inline">
@@ -222,7 +223,7 @@
                 {
                     <li class="idp idp-@provider.Name.ToLower()">
                         <a class="btn btn-@provider.Name.ToLower() btn-hover" asp-page-handler="LinkLogin" asp-route-provider="@provider.Name">
-                            @Localizer[provider.DisplayName ?? "Unknown"]
+                            @Labels.GetGeneric(provider.DisplayName ?? "Unknown")
                         </a>
                     </li>
                 }

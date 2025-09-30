@@ -2554,6 +2554,15 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to required.
+        /// </summary>
+        public static string RequiredValue {
+            get {
+                return ResourceManager.GetString("RequiredValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Select Language.
         /// </summary>
         public static string SelectLanguage {

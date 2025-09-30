@@ -4,7 +4,6 @@
 
 @model BaseMfaModel
 
-@inject IIdentityViewLocalizer Localizer
 @inject IdentityLabelsMessageDescriber Labels
 @inject IConfiguration Configuration
 
@@ -113,10 +112,10 @@
                                     </div>
                                     <div class="text-start">
                                         <div class="small text-muted">
-                                            @Localizer[method.Description]
+                                            @Labels.GetGeneric(method.Description)
                                         </div>
                                         <div class="small fw-semibold">
-                                            @Localizer[method.DisplayName]
+                                            @Labels.GetGeneric(method.DisplayName)
                                         </div>
                                     </div>
                                 </div>
@@ -222,10 +221,10 @@
                                     </div>
                                     <div class="text-start">
                                         <div class="small text-muted">
-                                            @Localizer[method.Description]
+                                            @Labels.GetGeneric(method.Description)
                                         </div>
                                         <div class="small fw-semibold">
-                                            @Localizer[method.DisplayName]
+                                            @Labels.GetGeneric(method.DisplayName)
                                         </div>
                                     </div>
                                 </div>

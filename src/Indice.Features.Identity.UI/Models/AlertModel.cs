@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.ViewFeatures;
+﻿using System.Web;
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace Indice.Features.Identity.UI.Models;
 
@@ -37,5 +39,35 @@ public class AlertModel
     public static AlertModel Success(string message) => new() { 
         AlertType = AlertType.Success, 
         Message = message 
+    };
+
+
+
+    /// <summary>Creates an alert with <see cref="AlertType.Info"/>.</summary>
+    /// <param name="message">The message.</param>
+    public static AlertModel Info(HtmlString message) => new() {
+        AlertType = AlertType.Info,
+        Message = message.Value!
+    };
+
+    /// <summary>Creates an alert with <see cref="AlertType.Warning"/>.</summary>
+    /// <param name="message">The message.</param>
+    public static AlertModel Warn(HtmlString message) => new() {
+        AlertType = AlertType.Warning,
+        Message = message.Value!
+    };
+
+    /// <summary>Creates an alert with <see cref="AlertType.Danger"/>.</summary>
+    /// <param name="message">The message.</param>
+    public static AlertModel Error(HtmlString message) => new() {
+        AlertType = AlertType.Danger,
+        Message = message.Value!
+    };
+
+    /// <summary>Creates an alert with <see cref="AlertType.Success"/></summary>
+    /// <param name="message">The message.</param>
+    public static AlertModel Success(HtmlString message) => new() {
+        AlertType = AlertType.Success,
+        Message = message.Value!
     };
 }

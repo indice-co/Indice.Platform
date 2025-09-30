@@ -1,5 +1,4 @@
 ﻿@inject GeneralSettings Settings
-@inject IIdentityViewLocalizer Localizer
 @inject IdentityLabelsMessageDescriber Labels
 @inject IWebHostEnvironment Environment
 @inject IConfiguration Configuration
@@ -103,7 +102,7 @@
                                            role="tab"
                                            aria-controls="@(item.Id == "profile" ? "profile" : string.Empty)"
                                            aria-selected="@(Context.Request.Path == "/")">
-                                            @Localizer[item.TabName]
+                                            @Labels.GetGeneric(item.TabName)
                                         </a>
                                     </li>
                                 }

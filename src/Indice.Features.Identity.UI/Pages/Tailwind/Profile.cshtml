@@ -27,10 +27,10 @@
     </div>
     @if (Model.ProfileSuccessfullyChanged)
     {
-        var message = Labels.Profile_Your_Profile_Was_Updated_Successfully;
+        var message = Labels.Profile_Your_Profile_Was_Updated_Successfully.Value;
         if (Model.EmailChangeRequested)
         {
-            message += $" {Labels.Profile_An_Email_Has_Been_Sent_To_Your_New_Email_Address_In_Order_To_Confirm_It}";
+            message += (Labels.ForgotPasswordConfirmation_LoginLink(Url.PageLink("/Login"))).Value;
         }
         <partial name="_Alert" model="@AlertModel.Success(message)" />
     }
