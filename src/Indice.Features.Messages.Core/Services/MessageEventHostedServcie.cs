@@ -1,5 +1,6 @@
 ﻿using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Events;
+using Indice.Features.Messages.Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -9,11 +10,11 @@ using Open.ChannelExtensions;
 
 namespace Indice.Features.Messages.Core.Services;
 /// <summary>Background service that handles the processing of campaign events.</summary>
-public class CampaignEventHandler(
-    CampaignEventQueue queue,
+public class MessageEventHostedServcie(
+    MessageEventQueue queue,
     IServiceScopeFactory scopeFactory,
-    IOptions<CampaignStatisticOptions> StatisticOptions,
-    ILogger<CampaignEventHandler> logger) : BackgroundService
+    IOptions<AnalyticsOptions> AnalyticsOptions,
+    ILogger<MessageEventHostedServcie> logger) : BackgroundService
 {
     /// <summary>Batch size for dequeuing events from the queue.</summary>
     public int DequeueBatchSize { get; set; } = 10;
@@ -22,7 +23,7 @@ public class CampaignEventHandler(
 
     ///<inheritdoc/>
     protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
-        if(!StatisticOptions.Value.EnableStatics) {
+        if(!AnalyticsOptions.Value.Enabled) {
             return;
         }
         var events = queue.Reader
@@ -49,8 +50,8 @@ public class CampaignEventHandler(
 
     /// <summary>Upserts a batch of campaign events into the database.</summary>
     private static async Task UpsertBatchAsync(List<MessageEvent> lastActivityBatch, CampaignsDbContext db, CancellationToken stoppingToken) {
-        var entries = lastActivityBatch.Select(activity => activity.GetDbEvent());
-        await db.CampaignEvent.AddRangeAsync(entries, stoppingToken);
+        var entries = lastActivityBatch.Select(activity => activity.ToDbEvent());
+        await db.MessageEvents.AddRangeAsync(entries, stoppingToken);
         await db.SaveChangesAsync(stoppingToken);
     }
 }

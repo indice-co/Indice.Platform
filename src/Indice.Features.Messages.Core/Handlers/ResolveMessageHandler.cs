@@ -23,7 +23,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
     /// <param name="messageService">A service that contains message related operations.</param>
     /// <param name="logger">A logger</param>
     /// <param name="options">Configuration for workers.</param>
-    /// <param name="campaignEventQueue">Campaign event listener queue</param>
+    /// <param name="messageEventQueue">Campaign event listener queue</param>
     /// <exception cref="ArgumentNullException"></exception>
     public ResolveMessageHandler(
         IEventDispatcherFactory eventDispatcherFactory,
@@ -32,14 +32,14 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         IMessageService messageService,
         ILogger<ResolveMessageHandler> logger,
         Microsoft.Extensions.Options.IOptions<MessageWorkerOptions> options,
-        CampaignEventQueue campaignEventQueue
+        MessageEventQueue messageEventQueue
     ) {
         EventDispatcherFactory = eventDispatcherFactory ?? throw new ArgumentNullException(nameof(eventDispatcherFactory));
         ContactResolver = contactResolver ?? throw new ArgumentNullException(nameof(contactResolver));
         ContactService = contactService ?? throw new ArgumentNullException(nameof(contactService));
         MessageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        CampaignEventQueue = campaignEventQueue;
+        MessageEventQueue = messageEventQueue;
         Options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
     private IEventDispatcherFactory EventDispatcherFactory { get; }
@@ -47,7 +47,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
     private IContactService ContactService { get; }
     private IMessageService MessageService { get; }
     private ILogger<ResolveMessageHandler> Logger { get; }
-    private CampaignEventQueue CampaignEventQueue { get; }
+    private MessageEventQueue MessageEventQueue { get; }
     private MessageWorkerOptions Options { get; }
 
     /// <summary>Decides whether to insert or update a resolved contact.</summary>
@@ -68,8 +68,8 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
 
     private async Task<Contact> GetCampaignContactWithPreferences(ResolveMessageEvent @event, CampaignCreatedEvent campaign) {
         Contact? contact = null;
-        var contactNotUpdatedAWhileNow = !@event.Contact!.UpdatedAt.HasValue
-                                       || (DateTimeOffset.UtcNow - @event.Contact.UpdatedAt.Value) > TimeSpan.FromDays(Options.ContactRetainPeriodInDays);
+        var contactNotUpdatedAWhileNow = !@event.Contact!.LastResolutionDate.HasValue
+                                       || (DateTimeOffset.UtcNow - @event.Contact.LastResolutionDate.Value) > TimeSpan.FromDays(Options.ContactRetainPeriodInDays);
         if (!@event.Contact.IsAnonymous) {
             contact = await ContactService.GetByRecipientId(@event.Contact.RecipientId);
             if (contactNotUpdatedAWhileNow || @event.Contact.IsEmpty) {
@@ -167,7 +167,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
     }
 
     private async Task LogEvent(CampaignCreatedEvent campaign, Contact contact, MessageChannelKind kind, Guid messageId) {
-        await CampaignEventQueue.EnqueueAsync(new MessageEvent() {
+        await MessageEventQueue.EnqueueAsync(new MessageEvent() {
             CampaignId = campaign.Id,
             ContactId = contact.Id!.Value,
             MessageId = messageId,

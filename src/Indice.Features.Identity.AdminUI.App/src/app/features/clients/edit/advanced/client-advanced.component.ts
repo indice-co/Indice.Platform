@@ -7,7 +7,8 @@ import { SingleClientInfo } from 'src/app/core/services/identity-api.service';
 
 @Component({
     selector: 'app-client-advanced',
-    templateUrl: './client-advanced.component.html'
+    templateUrl: './client-advanced.component.html',
+    standalone: false
 })
 export class ClientAdvancedComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;

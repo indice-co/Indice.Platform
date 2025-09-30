@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Package">
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
-    <SpaProjectName>adminui-app</SpaProjectName>
+    <SpaProjectName>browser</SpaProjectName>
     <SpaSourceFolder>..\Indice.Features.Identity.AdminUI.App</SpaSourceFolder>
-    <SpaDistFolder>$(SpaSourceFolder)\dist</SpaDistFolder>
+    <SpaDistFolder>$(SpaSourceFolder)\dist\adminui-app</SpaDistFolder>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;AdminUI</PackageTags>
     <VersionPrefix>$(VersionPrefixIdentity)</VersionPrefix>

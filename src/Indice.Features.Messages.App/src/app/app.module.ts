@@ -65,6 +65,7 @@ import { TemplateEditComponent } from './features/templates/edit/template-edit.c
 import { TemplatesComponent } from './features/templates/templates.component';
 import { FileUploadComponent } from './shared/components/file-upload/file-upload.component';
 import { DoughnutChartComponent } from './shared/components/doughnut-chart/doughnut-chart.component';
+import { LineChartComponent } from './shared/components/line-chart/line-chart.component';
 import { MultiFileUploadComponent } from './shared/components/multi-file-upload/multi-file-upload.component';
 import { CampaignAttachmentsComponent } from './features/campaigns/create/steps/attachments/campaign-attachments.component';
 import { CampaignAttachmentsEditRightpaneComponent } from './features/campaigns/edit/details/rightpane/campaign-edit-attachments-rightpane.component';
@@ -195,8 +196,9 @@ if (app.settings.tenantId) {
     ListViewComponent,
     ReadOnlyViewComponent,
     MediaSettingsComponent,
-  MediaSettingEditComponent,
-  DoughnutChartComponent
+    MediaSettingEditComponent,
+    DoughnutChartComponent,
+    LineChartComponent
   ],
   imports: [
     AppRoutingModule,

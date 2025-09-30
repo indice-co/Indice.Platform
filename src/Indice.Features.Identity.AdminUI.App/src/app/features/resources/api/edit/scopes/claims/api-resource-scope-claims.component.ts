@@ -9,7 +9,8 @@ import { ApiResourceStore } from '../../../api-resource-store.service';
 
 @Component({
     selector: 'app-api-resource-scope-claims',
-    templateUrl: './api-resource-scope-claims.component.html'
+    templateUrl: './api-resource-scope-claims.component.html',
+    standalone: false
 })
 export class ApiResourceScopeClaimsComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;

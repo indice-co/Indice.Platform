@@ -7,10 +7,11 @@ import { ClaimValueType } from 'src/app/core/services/identity-api.service';
     selector: 'app-dynamic-input',
     templateUrl: './dynamic-input.component.html',
     providers: [{
-        provide: NG_VALUE_ACCESSOR,
-        useExisting: forwardRef(() => DynamicInputComponent),
-        multi: true
-    }]
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => DynamicInputComponent),
+            multi: true
+        }],
+    standalone: false
 })
 export class DynamicInputComponent implements ControlValueAccessor {
     constructor() { }

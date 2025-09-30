@@ -6,7 +6,6 @@ using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Indice.Features.Messages.Core.Services;
 
@@ -113,6 +112,28 @@ public class ContactService : IContactService
 
     /// <inheritdoc />
     public async Task<Contact> Create(CreateContactRequest request) {
+        
+        if (!string.IsNullOrWhiteSpace(request.RecipientId)) {
+            var knownContact = await DbContext.Contacts
+                               .OrderByDescending(x => x.UpdatedAt)
+                               .Where(x => x.RecipientId == request.RecipientId)
+                               .FirstOrDefaultAsync();
+            if (knownContact is not null) { 
+                knownContact.Email = request.Email;
+                knownContact.FirstName = request.FirstName;
+                knownContact.FullName = request.FullName;
+                knownContact.LastName = request.LastName;
+                knownContact.PhoneNumber = request.PhoneNumber;
+                knownContact.Salutation = request.Salutation;
+                knownContact.UpdatedAt = DateTimeOffset.UtcNow;
+                knownContact.Resolved = request.Resolved || knownContact.Resolved.GetValueOrDefault();
+                if (request.Resolved) {
+                    knownContact.LastResolutionDate = request.LastResolutionDate ?? knownContact.LastResolutionDate;
+                }
+                await DbContext.SaveChangesAsync();
+                return Mapper.ToContact(knownContact);
+            }
+        } 
         var contact = Mapper.ToDbContact(request);
         DbContext.Contacts.Add(contact);
         await DbContext.SaveChangesAsync();
@@ -159,6 +180,12 @@ public class ContactService : IContactService
         if (filter?.RecipientId is not null) {
             query = query.Where(x => x.RecipientId!.ToLower() == filter.RecipientId.ToLower());
         }
+        if (filter?.Anonymous == true) {
+            query = query.Where(x => x.RecipientId == null || x.Resolved == false);
+        }
+        if (filter?.Anonymous == false) {
+            query = query.Where(x => x.RecipientId != null && x.Resolved == true);
+        }
 
         if (!string.IsNullOrWhiteSpace(options.Search)) {
             var searchTerm = options.Search.Trim().ToLowerInvariant();
@@ -203,6 +230,10 @@ public class ContactService : IContactService
         contact.PhoneNumber = request.PhoneNumber;
         contact.Salutation = request.Salutation;
         contact.UpdatedAt = DateTimeOffset.UtcNow;
+        contact.Resolved = contact.Resolved == true || request.Resolved == true;
+        if (request.Resolved == true) {
+            contact.LastResolutionDate = request.LastResolutionDate ?? DateTimeOffset.UtcNow;
+        }
         await DbContext.SaveChangesAsync();
     }
 
@@ -233,7 +264,7 @@ public class ContactService : IContactService
     private void CreateAndAddContactToDistributionList(CreateDistributionListContactRequest request, DbDistributionList list) {
         var contact = Mapper.ToDbContact(request);
         contact.DistributionListContacts.Add(new DbDistributionListContact {
-            ContactId = Guid.NewGuid(),
+            ContactId = contact.Id,
             DistributionListId = list.Id
         });
         DbContext.Contacts.Add(contact);

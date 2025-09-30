@@ -9,8 +9,8 @@ import { TopBarComponent } from './components/dashboard-shell/top-bar/top-bar.co
 import { SideMenuComponent } from './components/dashboard-shell/side-menu/side-menu.component';
 import { SharedModule } from '../shared/shared.module';
 import { AppToastsComponent } from './components/dashboard-shell/toast/toast.component';
-import { NgProgressModule } from 'ngx-progressbar';
-import { NgProgressHttpModule } from 'ngx-progressbar/http';
+import { NgProgressbar } from 'ngx-progressbar';
+import { NgProgressHttp } from 'ngx-progressbar/http';
 
 @NgModule({
     declarations: [
@@ -25,8 +25,8 @@ import { NgProgressHttpModule } from 'ngx-progressbar/http';
         RouterModule,
         SharedModule,
         NgbDropdownModule,
-        NgProgressModule,
-        NgProgressHttpModule,
+        NgProgressbar,
+        NgProgressHttp,
         NgbToastModule
     ]
 })

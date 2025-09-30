@@ -16,7 +16,11 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
+#if NET9_0_OR_GREATER
+using Duende.IdentityServer.Configuration;
+#endif
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>Extension methods on <see cref="IServiceCollection"/> for registering required services for Identity UI pages feature.</summary>
@@ -29,10 +33,11 @@ public static class IdentityBuilderUIExtensions
     public static IServiceCollection AddIdentityUI(this IServiceCollection services, IConfiguration configuration, Action<IdentityUIOptions>? configureAction = null) {
         var configuredOptions = new IdentityUIOptions();
         configureAction?.Invoke(configuredOptions);
-        services.PostConfigure<IdentityUIOptions>(options => { 
+        services.PostConfigure<IdentityUIOptions>(options => {
             options.AllowRememberLogin = configuredOptions.AllowRememberLogin;
             options.AutoAssociateExternalUsers = configuredOptions.AutoAssociateExternalUsers;
             options.AutomaticRedirectAfterSignOut = configuredOptions.AutomaticRedirectAfterSignOut;
+            options.AutomaticSigninAfterRegister = configuredOptions.AutomaticSigninAfterRegister;
             options.AutoProvisionExternalUsers = configuredOptions.AutoProvisionExternalUsers;
             options.AvatarColorHex = configuredOptions.AvatarColorHex;
             options.OnBoardingPage = configuredOptions.OnBoardingPage;
@@ -57,6 +62,9 @@ public static class IdentityBuilderUIExtensions
                 options.ValidReturnUrls.Add(url);
             }
         });
+#if NET9_0_OR_GREATER
+        services.AddSingleton<IPostConfigureOptions<IdentityServerOptions>, IdentityServerOptionsPostConfigure>();
+#endif
         services.PostConfigure<AntiforgeryOptions>(options => {
             options.HeaderName = "X-XSRF-TOKEN";
             options.Cookie.HttpOnly = true;

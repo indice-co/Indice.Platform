@@ -14,20 +14,20 @@ public class SendEmailHandler : ICampaignJobHandler<SendEmailEvent>
     /// <param name="emailService">Push notification service abstraction in order to support different providers.</param>
     /// <param name="campaignAttachmentService">A service that contains campaign attachments related operations.</param>
     /// <param name="messageSenderService">A service that contains message sender related operations.</param>
-    /// <param name="campaignEventQueue">Campaign event queue abstraction.</param>
+    /// <param name="messageEventQueue">Campaign event queue abstraction.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public SendEmailHandler(IEmailService emailService, ICampaignAttachmentService campaignAttachmentService,
-        IMessageSenderService messageSenderService, CampaignEventQueue campaignEventQueue) {
+        IMessageSenderService messageSenderService, MessageEventQueue messageEventQueue) {
         EmailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
         CampaignAttachmentService = campaignAttachmentService ?? throw new ArgumentNullException(nameof(campaignAttachmentService));
         MessageSenderService = messageSenderService ?? throw new ArgumentNullException(nameof(messageSenderService));
-        CampaignEventQueue = campaignEventQueue;
+        MessageEventQueue = messageEventQueue;
     }
 
     private ICampaignAttachmentService CampaignAttachmentService { get; }
     private IMessageSenderService MessageSenderService { get; }
     private IEmailService EmailService { get; }
-    private CampaignEventQueue CampaignEventQueue { get; }
+    private MessageEventQueue MessageEventQueue { get; }
 
     /// <summary>Sends an email to a single user.</summary>
     /// <param name="event">The event model used when sending an email.</param>
@@ -52,6 +52,6 @@ public class SendEmailHandler : ICampaignJobHandler<SendEmailEvent>
             }
         });
         
-        await CampaignEventQueue.EnqueueAsync(@event.ToMessageEvent(MessageEventType.Sent.ToString()));
+        await MessageEventQueue.EnqueueAsync(@event.ToMessageEvent(MessageEventType.Sent.ToString()));
     }
 }

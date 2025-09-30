@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 using Indice.Extensions;
 using Indice.Features.Messages.Core.Data.Models;
+using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Manager.Commands;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Types;
@@ -54,6 +55,8 @@ internal static class Mapper
         RecipientId = contact.RecipientId,
         Salutation = contact.Salutation,
         UpdatedAt = contact.UpdatedAt,
+        Resolved = contact.Resolved == true,
+        LastResolutionDate = contact.LastResolutionDate,
         Unsubscribed = contact.DistributionListContacts.Any() && contact.DistributionListContacts[0].Unsubscribed
     };
 
@@ -68,6 +71,8 @@ internal static class Mapper
         LastName = request.LastName,
         PhoneNumber = request.PhoneNumber,
         Salutation = request.Salutation,
+        Resolved = request.Resolved,
+        LastResolutionDate = request.LastResolutionDate
     };
 
     public readonly static Expression<Func<DbCampaign, CampaignDetails>> ProjectToCampaignDetails = campaign => new() {
@@ -136,7 +141,9 @@ internal static class Mapper
         PhoneNumber = request.PhoneNumber,
         RecipientId = request.RecipientId,
         Salutation = request.Salutation,
-        UpdatedAt = DateTimeOffset.UtcNow
+        Resolved = request.Resolved,
+        UpdatedAt = DateTimeOffset.UtcNow,
+        LastResolutionDate = request.Resolved ? DateTimeOffset.UtcNow : request.LastResolutionDate
     };
 
     public static DbContact ToDbContact(Contact contact) => new() {
@@ -148,7 +155,18 @@ internal static class Mapper
         PhoneNumber = contact.PhoneNumber,
         RecipientId = contact.RecipientId,
         Salutation = contact.Salutation,
-        UpdatedAt = DateTimeOffset.UtcNow
+        UpdatedAt = DateTimeOffset.UtcNow,
+        Resolved = contact.Resolved,
+        LastResolutionDate = contact.Resolved ? DateTimeOffset.UtcNow : contact.LastResolutionDate,
+    };
+
+    public static DbMessageEvent ToDbEvent(this MessageEvent messageEvent) => new() {
+        CampaignId = messageEvent.CampaignId,
+        ContactId = messageEvent.ContactId,
+        CreatedOn = messageEvent.CreatedOn,
+        MessageId = messageEvent.MessageId,
+        Type = messageEvent.Type,
+        Channel = messageEvent.Channel
     };
 
     public static DbContact ToDbContact(CreateContactRequest request) => new() {
@@ -160,7 +178,9 @@ internal static class Mapper
         PhoneNumber = request.PhoneNumber,
         RecipientId = request.RecipientId,
         Salutation = request.Salutation,
-        UpdatedAt = DateTimeOffset.UtcNow
+        Resolved = request.Resolved,
+        UpdatedAt = DateTimeOffset.UtcNow,
+        LastResolutionDate = request.Resolved ? DateTimeOffset.UtcNow : null
     };
     public static CreateContactRequest ToCreateContactRequest(Contact request) => new() {
         Email = request.Email,
@@ -169,7 +189,8 @@ internal static class Mapper
         LastName = request.LastName,
         PhoneNumber = request.PhoneNumber,
         RecipientId = request.RecipientId,
-        Salutation = request.Salutation
+        Salutation = request.Salutation,
+        Resolved = request.Resolved
     };
 
     public static DbContactPreference? ToDbCommunicationPreference(CreateContactRequest request) {
@@ -192,7 +213,9 @@ internal static class Mapper
         LastName = contact.LastName,
         PhoneNumber = contact.PhoneNumber,
         RecipientId = contact.RecipientId,
-        Salutation = contact.Salutation
+        Salutation = contact.Salutation,
+        Resolved = contact.Resolved,
+        LastResolutionDate = contact.LastResolutionDate
     };
 
     public static void MapFromCreateDistributionListContactRequest(this DbContact contact, CreateDistributionListContactRequest request) {
@@ -204,6 +227,11 @@ internal static class Mapper
         contact.PhoneNumber = request.PhoneNumber;
         contact.Salutation = request.Salutation;
         contact.UpdatedAt = DateTimeOffset.UtcNow;
+        // do not overwrite resolved to true once it is set. Because this way a known use would become unknown again simply by uploading a csv list.
+        if (contact.Resolved != true) { 
+            contact.Resolved = request.Resolved;
+            contact.LastResolutionDate = request.Resolved ? DateTimeOffset.UtcNow : contact.LastResolutionDate;
+        }
     }
 
     public static DbAttachment ToDbAttachment(FileAttachment fileAttachment) => new() {

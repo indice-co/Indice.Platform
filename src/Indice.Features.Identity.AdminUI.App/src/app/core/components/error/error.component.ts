@@ -5,7 +5,8 @@ import { AuthService } from '../../services/auth.service';
 
 @Component({
     selector: 'app-error',
-    templateUrl: './error.component.html'
+    templateUrl: './error.component.html',
+    standalone: false
 })
 export class ErrorComponent implements OnInit {
     constructor(private _authService: AuthService, private _route: ActivatedRoute) { }

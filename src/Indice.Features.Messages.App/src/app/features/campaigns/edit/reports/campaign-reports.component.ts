@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { CampaignStatistics, MessagesApiClient } from '../../../../core/services/messages-api.service';
+import { CampaignDetailsMetrics, MessagesApiClient } from '../../../../core/services/messages-api.service';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
@@ -11,7 +11,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 export class CampaignReportsComponent implements OnInit {
   private _campaignId: string | undefined;
   public loaded = false;
-  public counters: CampaignStatistics | undefined;
+  public counters: CampaignDetailsMetrics | undefined;
 
 
   public gaugeChannels: { name: string; value: number; color: string; }[] = [];
@@ -19,19 +19,18 @@ export class CampaignReportsComponent implements OnInit {
 
 
 
-  private fillData(stats: CampaignStatistics) {
-    if (!this.counters) return [];
-    this.gaugeItems = [
-      { name: 'Αναγνωσμένα', value: this.counters.readCount ?? 0, color: '#5e6366ff' },
-      { name: 'Μη Αναγνωσμένα', value: this.counters.notReadCount ?? 0, color: '#2D3B45' }
-    ].filter(x => x.value > 0);
-    this.gaugeChannels = [
-      { name: 'Email', value: this.counters?.messagesperChannel?.Email ?? 0, color: '#4CAF50' },
-      { name: 'SMS', value: this.counters?.messagesperChannel?.SMS ?? 0, color: '#2196F3' },
-      { name: 'Push', value: this.counters?.messagesperChannel?.PushNotification ?? 0, color: '#FFC107' },
-      { name: 'Inbox', value: this.counters?.messagesperChannel?.Inbox ?? 0, color: '#F44336' }
-    ].filter(x => x.value > 0);
-    return;
+  private fillData(stats: CampaignDetailsMetrics) {
+    if (!stats) return;
+
+    this.gaugeChannels = stats.channels!.map(x => {
+      return {
+        name: x.kind!,
+        value: x.total || 0,
+        color: (x.kind === 'Email' ? '#5985ee' :
+                x.kind === 'SMS' ? '#46cd93' :
+                x.kind === 'PushNotification' ? '#fdba45' : '#4bbbce')
+      };
+    }).filter(x => x.value > 0);
   }
 
 

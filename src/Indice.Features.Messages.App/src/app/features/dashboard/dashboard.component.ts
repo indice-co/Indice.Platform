@@ -1,9 +1,10 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { forkJoin } from 'rxjs';
+import { map, tap, shareReplay, startWith } from 'rxjs';
 import { HeaderMetaItem, Icons } from '@indice/ng-components';
-import { DashboardCounters, MessagesApiClient } from 'src/app/core/services/messages-api.service';
+import { OverviewMetrics, MessagesApiClient, SeriesTimeFrame } from 'src/app/core/services/messages-api.service';
+import { LineChartData } from '../../shared/components/line-chart/line-chart.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -19,41 +20,69 @@ export class DashboardComponent implements OnInit {
 
   public metaItems: HeaderMetaItem[] | null = [];
   public loaded = false;
-  public counters: DashboardCounters | undefined;
   public gaugeChannels: { name: string; value: number; color: string; }[] = [];
+
+
+  public eventSeries$ = this._api.getEventsSeriesList(undefined, undefined, SeriesTimeFrame.Last30Days)
+                                 .pipe(shareReplay(1));
+
+  public eventSeriesData$ = this.eventSeries$.pipe(
+    map(series => {
+      return {
+        labels: series.items?.map(s => {
+          const date = new Date(s.label!);
+          const month = new Intl.DateTimeFormat('en-US', { month: 'short' }).format(date);
+          const dayOfWeek = new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(date);
+          const day = date.getDate();
+          return `${day} ${month}`;
+        }) || [],
+        datasets: [{
+          label: 'Events',
+          data: series.items?.map(s => s.events) || [],
+          borderColor: '#4bbbce',
+          backgroundColor: '#4bbbce'
+        }]
+      } as LineChartData;
+    })
+  );
+
+  
+  public metrics$ = this._api.getOverview()
+                             .pipe(
+                               startWith(new OverviewMetrics()),
+                               tap(() => this.loaded = true),
+                               shareReplay(1)
+                             );
+  public channelMetrics$ = this.metrics$
+                               .pipe(
+                                 map(this.buildGaugeChannels),
+                                 tap(() => this._cdr.markForCheck())
+                               );
+
+
+
   public ngOnInit(): void {
     this.metaItems = [
       { key: 'NG-LIB version :', icon: Icons.DateTime, text: new Date().toLocaleTimeString() }
     ];
-    this._api.getDashboardStats().subscribe({
-      next: stats => {
-        console.debug('[Dashboard] Stats received', stats);
-        this.counters = stats;
-        this.gaugeChannels = this.buildGaugeChannels(stats);
-        this.loaded = true;
-        // Manually mark for check since we are OnPush
-        this._cdr.markForCheck();
-      },
-      error: err => {
-        console.error('[Dashboard] Failed to load stats', err);
-        this.loaded = true;
-        this._cdr.markForCheck();
-      }
-    });
   }
 
   public navigate(path: string): void {
     this._router.navigateByUrl(path);
   }
 
-  private buildGaugeChannels(stats: DashboardCounters) {
-    if (!stats?.campaignsByType) return [];
-    return [
-      { name: 'Email', value: stats.campaignsByType.Email ?? 0, color: '#5985ee' },
-      { name: 'SMS', value: stats.campaignsByType.SMS ?? 0, color: '#46cd93' },
-      { name: 'Push', value: stats.campaignsByType.PushNotification ?? 0, color: '#fdba45' },
-      { name: 'Inbox', value: stats.campaignsByType.Inbox ?? 0, color: '#4bbbce' }
-    ].filter(x => x.value > 0);
+  private buildGaugeChannels(metrics: OverviewMetrics) {
+    if (!metrics?.channels) return [];
+    return metrics.channels.map(x => {
+      return {
+        name: x.kind!,
+        value: x.total || 0,
+        color: (x.kind === 'Email' ? '#5985ee' :
+                x.kind === 'SMS' ? '#46cd93' :
+                x.kind === 'PushNotification' ? '#fdba45' :
+               '#4bbbce')
+      };
+    }).filter(x => x.value > 0);
   }
 
 }

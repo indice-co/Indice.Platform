@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { TableColumn } from '@swimlane/ngx-datatable';
+import { CellContext, TableColumn } from '@swimlane/ngx-datatable';
 import { Subscription } from 'rxjs';
 import { DeviceInfo } from 'src/app/core/services/identity-api.service';
 import { ListViewComponent } from 'src/app/shared/components/list-view/list-view.component';
@@ -12,14 +12,15 @@ import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 
 @Component({
     selector: 'app-user-devices',
-    templateUrl: './user-devices.component.html'
+    templateUrl: './user-devices.component.html',
+    standalone: false
 })
 export class UserDevicesComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription | undefined;
     private _deviceToDelete: DeviceInfo;
     private _userId: string;
     public canEditUser: boolean;
-    @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<CellContext<any>>;
     @ViewChild('userDeviceList', { static: true }) public _userDeviceList: ListViewComponent;
     @ViewChild('deleteAlert', { static: false }) private _deleteAlert: SwalComponent;
 

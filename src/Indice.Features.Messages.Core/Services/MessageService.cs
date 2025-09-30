@@ -24,25 +24,25 @@ public class MessageService : IMessageService
     /// <param name="campaignInboxOptions">Options used to configure the Campaigns inbox API feature.</param>
     /// <param name="contactResolver">Contact resolver service</param>
     /// <param name="contactService"></param>
-    /// <param name="campaignEventQueue">Event queue</param>
+    /// <param name="messageEventQueue">Event queue</param>
     /// <exception cref="ArgumentNullException"></exception>
     public MessageService(CampaignsDbContext dbContext,
         IOptions<MessageInboxOptions> campaignInboxOptions,
         IContactResolver contactResolver,
         IContactService contactService,
-        CampaignEventQueue campaignEventQueue) {
+        MessageEventQueue messageEventQueue) {
         DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         ContactResolver = contactResolver ?? throw new ArgumentNullException(nameof(contactResolver));
         ContactService = contactService;
         CampaignInboxOptions = campaignInboxOptions?.Value ?? throw new ArgumentNullException(nameof(campaignInboxOptions));
-        CampaignEventQueue = campaignEventQueue;
+        MessageEventQueue = messageEventQueue;
     }
 
     private CampaignsDbContext DbContext { get; }
     private MessageInboxOptions CampaignInboxOptions { get; }
     private IContactResolver ContactResolver { get; }
     private IContactService ContactService { get; }
-    private CampaignEventQueue CampaignEventQueue { get; }
+    private MessageEventQueue MessageEventQueue { get; }
 
     /// <inheritdoc />
     public async Task<ResultSet<Message>?> GetList(string recipientId, ListOptions<MessagesFilter>? options) {
@@ -77,11 +77,11 @@ public class MessageService : IMessageService
         }
 
         if (message.ContactId.HasValue) {
-            await CampaignEventQueue.EnqueueAsync(new MessageEvent() {
+            await MessageEventQueue.EnqueueAsync(new MessageEvent() {
                 CampaignId = message.CampaignId,
                 ContactId = message.ContactId.Value,
                 MessageId = message.Id,
-                Type = MessageEventType.MarkedAsDeleted.ToString(),
+                Type = MessageEventType.Deleted.ToString(),
                 Channel = MessageChannelKind.Inbox.ToString()
             });
         }
@@ -110,11 +110,11 @@ public class MessageService : IMessageService
             message = await CreateMessageAndMarkAsRead(id, recipientId);
         }
         if (message.ContactId.HasValue) {
-            await CampaignEventQueue.EnqueueAsync(new MessageEvent() {
+            await MessageEventQueue.EnqueueAsync(new MessageEvent() {
                 CampaignId = message.CampaignId,
                 ContactId = message.ContactId.Value,
                 MessageId = message.Id,
-                Type = MessageEventType.MarkedAsRead.ToString(),
+                Type = MessageEventType.Read.ToString(),
                 Channel = MessageChannelKind.Inbox.ToString()
             });
         }
@@ -170,11 +170,11 @@ public class MessageService : IMessageService
             message.IsRead = false;
             message.ReadDate = null;
             if (message.ContactId.HasValue) {
-                await CampaignEventQueue.EnqueueAsync(new MessageEvent() {
+                await MessageEventQueue.EnqueueAsync(new MessageEvent() {
                     CampaignId = message.CampaignId,
                     ContactId = message.ContactId.Value,
                     MessageId = message.Id,
-                    Type = MessageEventType.MarkedAsUnread.ToString(),
+                    Type = MessageEventType.UnRead.ToString(),
                     Channel = MessageChannelKind.Inbox.ToString()
                 });
             }

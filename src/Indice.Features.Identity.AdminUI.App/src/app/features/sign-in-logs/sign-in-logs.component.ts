@@ -1,6 +1,6 @@
 import { Component, ViewChild, OnInit, TemplateRef } from '@angular/core';
 
-import { TableColumn } from '@swimlane/ngx-datatable';
+import { CellContext, TableColumn } from '@swimlane/ngx-datatable';
 import { NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { IdentityApiService, SignInLogEntryResultSet, SignInLogEntry, SignInType } from 'src/app/core/services/identity-api.service';
 import { SearchEvent } from 'src/app/shared/components/list-view/models/search-event';
@@ -13,7 +13,8 @@ import { finalize } from 'rxjs/operators';
 @Component({
     selector: 'app-sign-in-logs',
     templateUrl: './sign-in-logs.component.html',
-    providers: [NgbDateCustomParserFormatter]
+    providers: [NgbDateCustomParserFormatter],
+    standalone: false
 })
 export class SignInLogsComponent implements OnInit {
     constructor(
@@ -24,11 +25,11 @@ export class SignInLogsComponent implements OnInit {
         private _route: ActivatedRoute
     ) { }
 
-    @ViewChild('optionalTemplate', { static: true }) private _optionalTemplate: TemplateRef<HTMLElement>;
-    @ViewChild('statusTemplate', { static: true }) private _statusTemplate: TemplateRef<HTMLElement>;
-    @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('optionalTemplate', { static: true }) private _optionalTemplate: TemplateRef<CellContext<any>>;
+    @ViewChild('statusTemplate', { static: true }) private _statusTemplate: TemplateRef<CellContext<any>>;
+    @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<CellContext<any>>;
     @ViewChild('signInLogsList', { static: true }) public signInLogsList: ListViewComponent;
-    @ViewChild('actionsTemplate', { static: true }) public actionsTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('actionsTemplate', { static: true }) public actionsTemplate: TemplateRef<CellContext<any>>;
     public count = 0;
     public rows: SignInLogEntry[] = [];
     public columns: TableColumn[] = [];

@@ -10,7 +10,8 @@ import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
     selector: 'app-api-resource-claims',
-    templateUrl: './api-resource-claims.component.html'
+    templateUrl: './api-resource-claims.component.html',
+    standalone: false
 })
 export class ApiResourceClaimsComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;

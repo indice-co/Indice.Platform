@@ -15,7 +15,8 @@ import { BasicInfoStepComponent } from 'src/app/features/resources/add/wizard/st
 
 @Component({
     selector: 'app-api-resource-scope-add',
-    templateUrl: './api-resource-scope-add.component.html'
+    templateUrl: './api-resource-scope-add.component.html',
+    standalone: false
 })
 export class ApiResourceScopeAddComponent implements OnInit {
     @ViewChild(WizardStepDirective, { static: false }) private _wizardStepHost: WizardStepDirective;

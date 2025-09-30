@@ -28,11 +28,11 @@ internal class CaseTypeService : ICaseTypeService
         }
         var caseType = await _dbContext.CaseTypes
             .Where(x => x.Code == code)
-            .Select(x => new CaseType { 
+            .Select(x => new CaseType {
                 Id = x.Id,
                 CanCreateRoles = x.CanCreateRoles,
                 Code = x.Code,
-                CheckpointTypes = x.CheckpointTypes.Select(c => new Models.CheckpointTypeDetails { 
+                CheckpointTypes = x.CheckpointTypes.Select(c => new Models.CheckpointTypeDetails {
                     Code = c.Code,
                     Id = c.Id,
                     Description = c.Description,
@@ -173,7 +173,7 @@ internal class CaseTypeService : ICaseTypeService
 
         if (dbCaseType is null) {
             throw new ValidationException("CaseType is invalid.");
-        } 
+        }
 
         var caseTypeRoles = await _dbContext.CaseAccessRules
                             .AsNoTracking()
@@ -312,12 +312,22 @@ internal class CaseTypeService : ICaseTypeService
     }
 
     private async Task<List<Guid>> GetCaseTypeIds(List<string> roleClaims) {
-        return await _dbContext.CaseAccessRules
-                .AsQueryable()
-                .Where(r => r.RuleCaseTypeId.HasValue)
-                .Where(r => roleClaims.Contains(r.MemberRole!))
-                .Select(c => c.RuleCaseTypeId!.Value)
-                .ToListAsync();
-    }
+        var query = (_dbContext.CaseAccessRules
+                                .AsQueryable()
+                                .Where(r => r.RuleCaseTypeId.HasValue)
+                                .Where(r => roleClaims.Contains(r.MemberRole!))
+                                .Select(c => c.RuleCaseTypeId!.Value))
+                                .Union(
+                                            from rule in _dbContext.CaseAccessRules
+                                            join checkpointType in _dbContext.CheckpointTypes
+                                                on rule.RuleCheckpointTypeId equals checkpointType.Id
+                                            join types in _dbContext.CaseTypes
+                                            on checkpointType.CaseTypeId equals types.Id
+                                            where rule.RuleCheckpointTypeId == checkpointType.Id
+                                            where rule.RuleCaseId == null
+                                            where rule.MemberRole != null && roleClaims.Contains(rule.MemberRole)
+                                            select types.Id);
 
+        return await query.ToListAsync();
+    }
 }

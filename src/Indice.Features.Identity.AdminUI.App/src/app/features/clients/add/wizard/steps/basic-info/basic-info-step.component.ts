@@ -6,8 +6,9 @@ import { UtilitiesService } from 'src/app/core/services/utilities.services';
 import { ClientWizardModel } from '../../models/client-wizard-model';
 
 @Component({
-  selector: 'app-basic-info-step',
-  templateUrl: './basic-info-step.component.html'
+    selector: 'app-basic-info-step',
+    templateUrl: './basic-info-step.component.html',
+    standalone: false
 })
 export class BasicInfoStepComponent extends StepBaseComponent<ClientWizardModel> implements OnInit {
   constructor(private _utilities: UtilitiesService) {

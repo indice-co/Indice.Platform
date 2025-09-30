@@ -10,7 +10,8 @@ import { ClientStore } from '../../client-store.service';
 
 @Component({
     selector: 'app-client-identity-resources',
-    templateUrl: './client-identity-resources.component.html'
+    templateUrl: './client-identity-resources.component.html',
+    standalone: false
 })
 export class ClientIdentityResourcesComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;

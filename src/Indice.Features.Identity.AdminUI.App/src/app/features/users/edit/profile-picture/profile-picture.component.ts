@@ -15,9 +15,10 @@ import {
 import { ToastService } from "src/app/layout/services/app-toast.service";
 
 @Component({
-  selector: "app-user-profile-picture",
-  templateUrl: "./profile-picture.component.html",
-  styleUrls: ["./profile-picture.component.scss"],
+    selector: "app-user-profile-picture",
+    templateUrl: "./profile-picture.component.html",
+    styleUrls: ["./profile-picture.component.scss"],
+    standalone: false
 })
 export class UserProfilePictureComponent implements OnDestroy {
   @ViewChild("modalContent", { static: false })

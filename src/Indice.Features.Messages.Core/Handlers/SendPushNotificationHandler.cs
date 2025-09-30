@@ -10,9 +10,9 @@ namespace Indice.Features.Messages.Core.Handlers;
 /// <summary>Job handler for <see cref="SendPushNotificationEvent"/>.</summary>
 /// <remarks>Creates a new instance of <see cref="SendPushNotificationHandler"/>.</remarks>
 /// <param name="pushNotificationServiceFactory">Push notification service abstraction in order to support different providers.</param>
-/// <param name="CampaignEventQueue">Campaign event queue abstraction.</param>
+/// <param name="messageEventQueue">Campaign event queue abstraction.</param>
 /// <exception cref="ArgumentNullException"></exception>
-public class SendPushNotificationHandler(IPushNotificationServiceFactory pushNotificationServiceFactory, CampaignEventQueue CampaignEventQueue) : ICampaignJobHandler<SendPushNotificationEvent>
+public class SendPushNotificationHandler(IPushNotificationServiceFactory pushNotificationServiceFactory, MessageEventQueue messageEventQueue) : ICampaignJobHandler<SendPushNotificationEvent>
 {
     private IPushNotificationServiceFactory PushNotificationServiceFactory { get; } = pushNotificationServiceFactory ?? throw new ArgumentNullException(nameof(pushNotificationServiceFactory));
 
@@ -36,6 +36,6 @@ public class SendPushNotificationHandler(IPushNotificationServiceFactory pushNot
             string[]? tags = !string.IsNullOrEmpty(pushNotification.RecipientId) ? [pushNotification.RecipientId] : null;
             await pushNotificationService.SendToUserAsync(pushNotification.Title!, pushBody, data, pushNotification.RecipientId, classification: pushNotification.MessageType?.Name, tags: tags);
         }
-        await CampaignEventQueue.EnqueueAsync(pushNotification.ToMessageEvent(MessageEventType.Sent.ToString()));
+        await messageEventQueue.EnqueueAsync(pushNotification.ToMessageEvent(MessageEventType.Sent.ToString()));
     }
 }

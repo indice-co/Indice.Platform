@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.3398286">
+﻿<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.3398286">
   <PropertyGroup>
     <StartupCommand>npm start</StartupCommand>
     <BuildCommand>npm run build:template</BuildCommand>
@@ -15,7 +15,4 @@
     </JavaScriptTestFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
-  <ItemGroup>
-    <Folder Include="src\app\features\campaigns\edit\messages\NewFolder\" />
-  </ItemGroup>
 </Project>

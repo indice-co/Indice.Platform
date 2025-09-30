@@ -9,20 +9,20 @@ public class SendSmsHandler : ICampaignJobHandler<SendSmsEvent>
 {
     /// <summary>Creates a new instance of <see cref="SendSmsHandler"/>.</summary>
     /// <param name="smsService">Push notification service abstraction in order to support different providers.</param>
-    /// <param name="campaignEventQueue">Campaign event queue abstraction.</param>
+    /// <param name="messageEventQueue">Campaign event queue abstraction.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public SendSmsHandler(ISmsService smsService, CampaignEventQueue campaignEventQueue) {
+    public SendSmsHandler(ISmsService smsService, MessageEventQueue messageEventQueue) {
         SmsService = smsService ?? throw new ArgumentNullException(nameof(smsService));
-        CampaignEventQueue = campaignEventQueue;
+        MessageEventQueue = messageEventQueue;
     }
 
     private ISmsService SmsService { get; }
-    private CampaignEventQueue CampaignEventQueue { get; }
+    private MessageEventQueue MessageEventQueue { get; }
 
     /// <summary>Sends a push notification to a single user.</summary>
     /// <param name="event">The event model used when sending an email.</param>
     public async Task Process(SendSmsEvent @event) {
         await SmsService.SendAsync(@event.RecipientPhoneNumber!, @event.Title!, @event.Body, sender: @event.Sender?.IsEmpty == false ? new SmsSender(@event.Sender.Sender!, @event.Sender.DisplayName!) : null);
-        await CampaignEventQueue.EnqueueAsync(@event.ToMessageEvent(MessageEventType.Sent.ToString()));
+        await MessageEventQueue.EnqueueAsync(@event.ToMessageEvent(MessageEventType.Sent.ToString()));
     }
 }
