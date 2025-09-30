@@ -91,23 +91,7 @@ public abstract class BaseChallengeModel : BasePageModel
         if (localeClaim is null) {
             await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.Locale, RequestCulture.Culture.TwoLetterISOLanguageName);
         }
-        if (result.RequiresTwoFactor) {
-            var redirectUrl = Url.PageLink("/Mfa", values: new { returnUrl });
-            return Redirect(redirectUrl!);
-        }
-        if (result.RequiresValidation()) {
-            return RedirectToPage("/AddEmail", new { returnUrl });
-        }
-
-        // Check if external login is in the context of an OIDC request.
-        var context = await Interaction.GetAuthorizationContextAsync(returnUrl);
-        if (context is not null) {
-            if (context.IsNativeClient()) {
-                // The client is native, so this change in how to return the response is for better UX for the end user.
-                return this.LoadingPage("Redirect", returnUrl);
-            }
-        }
-        return Redirect(returnUrl);
+        return await TryLogin(result, returnUrl);
     }
 
     /// <summary>This is called whenever a user is not found by an associated external identity provider.</summary>

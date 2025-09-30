@@ -76,6 +76,8 @@ public class IdentityUIOptions
     public bool OverrideDefaultStaticFileMiddleware { get; set; } = true;
     /// <summary>Stores the calling code along with the phone number.</summary>
     public bool EnablePhoneNumberCallingCodes { get; set; } = false;
+    /// <summary>Automatically signs in the user after registration.</summary>
+    public bool AutomaticSigninAfterRegister { get; set; } = false;
     /// <summary>Event handlers for various UI specific operations.</summary>
     public UiPageEvents Events { get; set; } = new UiPageEvents();
     /// <summary>
