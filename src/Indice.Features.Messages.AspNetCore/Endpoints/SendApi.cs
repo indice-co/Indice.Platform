@@ -21,14 +21,12 @@ internal static class SendApi
     public static RouteGroupBuilder MapSend(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<MessageManagementOptions>>().Value;
         var group = routes.MapGroup(options.PathPrefix.TrimEnd('/') + "/send");
-        if (!string.IsNullOrEmpty(options.GroupName)) {
-            group.WithGroupName(options.GroupName);
-        }
-        group.WithTags("Send");
-        var allowedScopes = new[] { options.SendRequiredScope }.Where(x => x != null).ToArray();
+        group.WithGroupName("send");
+        group.WithTags("send");
+        var allowedScopes = new[] { options.RequiredScope, options.SendRequiredScope }.Where(x => x != null).ToArray();
 
         group.RequireAuthorization(pb => pb.AddAuthenticationSchemes(MessagesApi.AuthenticationScheme)
-                                           .RequireAuthenticatedUser()                                           
+                                           .RequireAuthenticatedUser()
                                            .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
 
         group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
@@ -36,7 +34,7 @@ internal static class SendApi
         group.WithHandledException<BusinessException>()
              .ProducesProblem(StatusCodes.Status401Unauthorized)
              .ProducesProblem(StatusCodes.Status403Forbidden)
-             .ProducesProblem(StatusCodes.Status500InternalServerError);       
+             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapPost(string.Empty, SendHandlers.SendCampaign)
              .WithName(nameof(SendHandlers.SendCampaign))
