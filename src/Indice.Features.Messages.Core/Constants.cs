@@ -9,7 +9,9 @@ public static class MessagesApi
     /// <summary>Authentication scheme name used by Messages API.</summary>
     public const string AuthenticationScheme = "Bearer";
     /// <summary>Messages API scope.</summary>
-    public const string Scope = "messages";
+    public const string Scope = "messages";    
+    /// <summary>Messages API scope.</summary>
+    public const string SendScope = "messages:send";
     /// <summary>Default database schema.</summary>
     public const string DatabaseSchema = "cmp";
 
