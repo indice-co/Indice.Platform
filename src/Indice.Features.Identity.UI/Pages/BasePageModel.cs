@@ -8,6 +8,7 @@ using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Services;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +18,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.VisualBasic;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -168,5 +170,42 @@ public abstract class BasePageModel : PageModel
         var smsService = ServiceProvider.GetRequiredService<ISmsService>();
         var identityMessageDescriber = ServiceProvider.GetRequiredService<IdentityMessageDescriber>();
         await smsService.SendAsync(phoneNumber, identityMessageDescriber.PhoneVerificationSmsSubject, identityMessageDescriber.PhoneVerificationSmsBody(code));
+    }
+
+    /// <summary>
+    /// Attempts to complete the login process and returns an appropriate action result based on the sign-in outcome and
+    /// authentication context. 
+    /// </summary>
+    /// <remarks>If two-factor authentication is required, the user is redirected to the multi-factor
+    /// authentication page. If email validation is required, the user is redirected to the email addition page. For
+    /// native clients in an OpenID Connect context, a loading page is returned to improve user experience.</remarks>
+    /// <param name="signInResult">The result of the sign-in attempt, indicating the status of the user's authentication and any required
+    /// additional steps.</param>
+    /// <param name="returnUrl">The URL to redirect the user to after a successful login or required authentication step. Must not be null or
+    /// empty.</param>
+    /// <returns>An <see cref="IActionResult"/> that redirects the user to the next step in the authentication flow, such as
+    /// multi-factor authentication, email validation, or the specified return URL.</returns>
+    protected async Task<IActionResult> TryLogin(Microsoft.AspNetCore.Identity.SignInResult signInResult, string returnUrl) {
+        if (string.IsNullOrEmpty(returnUrl)) {
+            returnUrl = "/";
+        }
+        if (signInResult.RequiresTwoFactor) {
+            var redirectUrl = Url.PageLink("/Mfa", values: new { returnUrl });
+            return Redirect(redirectUrl!);
+        }
+        if (signInResult.RequiresValidation()) {
+            return RedirectToPage("/AddEmail", new { returnUrl });
+        }
+        // Check if external login is in the context of an OIDC request.
+        var context = await InteractionService.GetAuthorizationContextAsync(returnUrl);
+        if (context is not null) {
+            if (context.IsNativeClient()) {
+                // The client is native, so this change in how to return the response is for better UX for the end user.
+                return this.LoadingPage("Redirect", returnUrl);
+            }
+            // We can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null.
+            return Redirect(returnUrl);
+        }
+        return IsValidReturnUrl(returnUrl) ? Redirect(returnUrl) : Redirect("/") ;
     }
 }

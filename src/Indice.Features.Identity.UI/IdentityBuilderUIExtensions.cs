@@ -36,6 +36,7 @@ public static class IdentityBuilderUIExtensions
             options.AllowRememberLogin = configuredOptions.AllowRememberLogin;
             options.AutoAssociateExternalUsers = configuredOptions.AutoAssociateExternalUsers;
             options.AutomaticRedirectAfterSignOut = configuredOptions.AutomaticRedirectAfterSignOut;
+            options.AutomaticSigninAfterRegister = configuredOptions.AutomaticSigninAfterRegister;
             options.AutoProvisionExternalUsers = configuredOptions.AutoProvisionExternalUsers;
             options.AvatarColorHex = configuredOptions.AvatarColorHex;
             options.OnBoardingPage = configuredOptions.OnBoardingPage;

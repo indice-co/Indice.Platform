@@ -15,7 +15,9 @@ using Indice.Features.Identity.UI.Models;
 using Indice.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -30,6 +32,7 @@ public abstract class BaseRegisterModel : BasePageModel
 {
     /// <summary>Creates a new instance of <see cref="BaseRegisterModel"/> class.</summary>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
+    /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="schemeProvider">Responsible for managing what authentication schemes are supported.</param>
     /// <param name="clientStore">Retrieval of client configuration.</param>
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
@@ -38,6 +41,7 @@ public abstract class BaseRegisterModel : BasePageModel
     /// <exception cref="ArgumentNullException"></exception>
     public BaseRegisterModel(
         ExtendedUserManager<User> userManager,
+        ExtendedSignInManager<User> signInManager,
         IAuthenticationSchemeProvider schemeProvider,
         IClientStore clientStore,
         IIdentityServerInteractionService interaction,
@@ -45,6 +49,7 @@ public abstract class BaseRegisterModel : BasePageModel
         IOptions<IdentityUIOptions> identityUiOptions
     ) {
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         SchemeProvider = schemeProvider ?? throw new ArgumentNullException(nameof(schemeProvider));
         ClientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
         Interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
@@ -54,6 +59,9 @@ public abstract class BaseRegisterModel : BasePageModel
 
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
     protected ExtendedUserManager<User> UserManager { get; }
+    /// <summary>Provides the APIs for user sign in.</summary>
+    protected ExtendedSignInManager<User> SignInManager { get; }
+
     /// <summary>Responsible for managing what authentication schemes are supported.</summary>
     protected IAuthenticationSchemeProvider SchemeProvider { get; }
     /// <summary>Retrieval of client configuration.</summary>
@@ -106,6 +114,11 @@ public abstract class BaseRegisterModel : BasePageModel
         }
         await SendRegistrationEmail(user, Input.ReturnUrl);
         Logger.LogInformation(3, "User created a new account with password.");
+        if (UiOptions.AutomaticSigninAfterRegister) {
+            var signinResult = await SignInManager.PasswordSignInAsync(user, Input.Password, isPersistent: false, lockoutOnFailure: true);
+            TempData.Clear();
+            return await TryLogin(signinResult, Input.ReturnUrl!);
+        }
         if (Interaction.IsValidReturnUrl(Input.ReturnUrl) || Url.IsLocalUrl(Input.ReturnUrl)) {
             return RedirectToPage("/Login", new { returnUrl = Input.ReturnUrl });
         }
@@ -237,10 +250,11 @@ internal class RegisterModel : BaseRegisterModel
 {
     public RegisterModel(
         ExtendedUserManager<User> userManager,
+        ExtendedSignInManager<User> signInManager,
         IAuthenticationSchemeProvider schemeProvider,
         IClientStore clientStore,
         IIdentityServerInteractionService interaction,
         ILogger<RegisterModel> logger,
         IOptions<IdentityUIOptions> identityUiOptions
-    ) : base(userManager, schemeProvider, clientStore, interaction, logger, identityUiOptions) { }
+    ) : base(userManager, signInManager, schemeProvider, clientStore, interaction, logger, identityUiOptions) { }
 }
