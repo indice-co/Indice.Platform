@@ -333,6 +333,11 @@ public static class IdentityServerEndpointServiceCollectionExtensions
                       .RequireAuthenticatedUser()
                       .RequireAssertion(context => context.User.HasScope(IdentityEndpoints.Scope) && (context.User.HasClaim(JwtClaimTypes.AuthenticationMethod, CustomGrantTypes.DeviceAuthentication) || context.User.IsAdmin()));
             });
+            authOptions.AddPolicy(IdentityEndpoints.Policies.BeUserDeviceSecretReader, policy => {
+                policy.AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
+                      .RequireAuthenticatedUser()
+                      .RequireAssertion(x => x.User.HasScope(IdentityEndpoints.SubScopes.UserDeviceSecret) || (x.User.HasScope(IdentityEndpoints.SubScopes.Users) && x.User.CanReadUsers()));
+            });
         });
         // Register the authentication handler, using a custom scheme name, for local APIs.
         builder.Services
