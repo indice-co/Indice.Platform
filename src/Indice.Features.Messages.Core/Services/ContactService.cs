@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using Azure;
-using Indice.Features.Messages.Core.Data;
+﻿using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Exceptions;
 using Indice.Features.Messages.Core.Models;
@@ -8,7 +6,6 @@ using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Indice.Features.Messages.Core.Services;
 
@@ -130,6 +127,9 @@ public class ContactService : IContactService
                 knownContact.Salutation = request.Salutation;
                 knownContact.UpdatedAt = DateTimeOffset.UtcNow;
                 knownContact.Resolved = request.Resolved || knownContact.Resolved.GetValueOrDefault();
+                if (request.Resolved) {
+                    knownContact.LastResolutionDate = request.LastResolutionDate ?? knownContact.LastResolutionDate;
+                }
                 await DbContext.SaveChangesAsync();
                 return Mapper.ToContact(knownContact);
             }
@@ -230,6 +230,10 @@ public class ContactService : IContactService
         contact.PhoneNumber = request.PhoneNumber;
         contact.Salutation = request.Salutation;
         contact.UpdatedAt = DateTimeOffset.UtcNow;
+        contact.Resolved = contact.Resolved == true || request.Resolved == true;
+        if (request.Resolved == true) {
+            contact.LastResolutionDate = request.LastResolutionDate ?? DateTimeOffset.UtcNow;
+        }
         await DbContext.SaveChangesAsync();
     }
 
@@ -260,7 +264,7 @@ public class ContactService : IContactService
     private void CreateAndAddContactToDistributionList(CreateDistributionListContactRequest request, DbDistributionList list) {
         var contact = Mapper.ToDbContact(request);
         contact.DistributionListContacts.Add(new DbDistributionListContact {
-            ContactId = Guid.NewGuid(),
+            ContactId = contact.Id,
             DistributionListId = list.Id
         });
         DbContext.Contacts.Add(contact);
