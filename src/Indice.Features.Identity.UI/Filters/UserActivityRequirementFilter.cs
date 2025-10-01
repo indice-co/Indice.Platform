@@ -56,6 +56,12 @@ public class UserActivityRequirementFilter<TUser> : ResultFilterAttribute where 
         var returnUrl = context.HttpContext.Request.Query["returnUrl"].ToString();
         if (requirement == UserValidationRequirement.None) {
             await signInManager.AutoSignIn(user, ExtendedIdentityConstants.ExtendedValidationScheme);
+            // Check if external login is in the context of an OIDC request.
+            var oidcContext = await pageModel.InteractionService.GetAuthorizationContextAsync(returnUrl);
+            if (oidcContext is not null && oidcContext.IsNativeClient()) {
+                // The client is native, so this change in how to return the response is for better UX for the end user.
+                context.Result = pageModel.LoadingPage("Redirect", returnUrl);
+            }
             context.Result = pageModel.IsValidReturnUrl(returnUrl) ? new RedirectResult(returnUrl) : new RedirectResult("/");
             return;
         }
