@@ -12,7 +12,7 @@
     <article class="text-center">
         @if (Model.View.AlreadyVerified)
         {
-            <partial name="_PageHeader" model="@Labels.ConfirmEmailChange_Your_Email_Is_Already_Verified_Thank_You" />
+            <partial name="_PageHeader" model="@Labels.ConfirmEmailChange_Your_Email_Is_Already_Verified_Thank_You.Value" />
             <p>
                 <span indice-if="Model.View.HasReturnUrl">
                     @Labels.ConfirmEmailChange_Click
@@ -24,7 +24,7 @@
         }
         else if (Model.View.InvalidOrExpiredToken)
         {
-            <partial name="_PageHeader" model="@Labels.ConfirmEmailChange_Email_Verification_Link_Has_Expired" />
+			<partial name="_PageHeader" model="@Labels.ConfirmEmailChange_Email_Verification_Link_Has_Expired.Value" />
             <p>
                 @Labels.ConfirmEmailChange_Please_Log_In_And_Resend_The_Link
                 <a indice-if="Model.View.HasReturnUrl" href="@Model.View.ReturnUrl">@Labels.ConfirmEmailChange_Here</a>
@@ -32,7 +32,7 @@
         }
         else if (Model.View.Verified)
         {
-            <partial name="_PageHeader" model="@Labels.ConfirmEmailChange_Your_Email_Has_Been_Successfully_Changed" />
+			<partial name="_PageHeader" model="@Labels.ConfirmEmailChange_Your_Email_Has_Been_Successfully_Changed.Value" />
             <p>
                 <span indice-if="Model.View.HasReturnUrl">
                     @Labels.ConfirmEmailChange_Click
@@ -44,7 +44,7 @@
         }
         else if (!ViewContext.ModelState.IsValid)
         {
-            <partial name="_PageHeader" model="@Labels.ConfirmEmailChange_No_Action_Was_Taken" />
+			<partial name="_PageHeader" model="@Labels.ConfirmEmailChange_No_Action_Was_Taken.Value" />
             <p>
                 @Labels.ConfirmEmailChange_If_You_Feel_You_Got_This_Error_By_Mistake_Simply_Click
                 <a asp-page="/Home">@Labels.ConfirmEmailChange_Here</a>
@@ -53,7 +53,7 @@
         }
         else
         {
-            <partial name="_PageHeader" model="@Labels.ConfirmEmailChange_Verifying_Your_Email" />
+			<partial name="_PageHeader" model="@Labels.ConfirmEmailChange_Verifying_Your_Email.Value" />
             <p>
                 @Labels.ConfirmEmailChange_This_May_Take_A_Moment_Click_On_The_Link_Below_To_Verify_Your_Email_Address
                 <strong>@Model.View.Email</strong>

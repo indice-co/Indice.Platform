@@ -85,7 +85,7 @@
                                                 <div class="account-links">
                                                     @if (user is not null && await UserManager.HasPasswordAsync(user))
                                                     {
-                                                        <a class="account-link" asp-page="/ChangePassword">@Labels.ChangePassword_Change</a>
+														<a class="account-link" asp-page="/ChangePassword">@Labels.ChangePassword_ChangePassword</a>
                                                     }
                                                     else
                                                     {

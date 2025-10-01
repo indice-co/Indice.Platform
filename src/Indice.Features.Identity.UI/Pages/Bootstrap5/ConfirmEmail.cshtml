@@ -5,14 +5,14 @@
 @inject IdentityLabelsMessageDescriber Labels
 
 @{
-    ViewData["Title"] = Labels.ConfirmEmail_Email_Confirmation;
+    ViewData["Title"] = Labels.ConfirmEmail_Email_Confirmation.Value;
 }
 
 <section class="identity-panel wide border-0 confirm-email">
     <article class="text-center">
         @if (Model.View.AlreadyVerified)
         {
-            <partial name="_PageHeader" model="@Labels.ConfirmEmail_Email_Confirmation" />
+            <partial name="_PageHeader" model="@Labels.ConfirmEmail_Email_Confirmation.Value" />
             <p>
                 <span indice-if="Model.View.HasReturnUrl">
                     @Labels.ConfirmEmail_Click
@@ -24,7 +24,7 @@
         }
         else if (Model.View.InvalidOrExpiredToken)
         {
-            <partial name="_PageHeader" model="@Labels.ConfirmEmail_Email_Verification_Link_Has_Expired" />
+            <partial name="_PageHeader" model="@Labels.ConfirmEmail_Email_Verification_Link_Has_Expired.Value" />
             <p>
                 @Labels.ConfirmEmail_Please_Log_In_And_Resend_The_Link
                 <a indice-if="Model.View.HasReturnUrl" href="@Model.View.ReturnUrl">@Labels.ConfirmEmail_Here</a>
@@ -32,7 +32,7 @@
         }
         else if (Model.View.Verified)
         {
-            <partial name="_PageHeader" model="@Labels.ConfirmEmail_Your_Email_Has_Been_Successfully_Confirmed" />
+			<partial name="_PageHeader" model="@Labels.ConfirmEmail_Your_Email_Has_Been_Successfully_Confirmed.Value" />
             <p>
                 <span indice-if="Model.View.HasReturnUrl">
                     @Labels.ConfirmEmail_Click
@@ -44,7 +44,7 @@
         }
         else if (!ViewContext.ModelState.IsValid)
         {
-            <partial name="_PageHeader" model="@Labels.ConfirmEmail_No_Action_Was_Taken" />
+            <partial name="_PageHeader" model="@Labels.ConfirmEmail_No_Action_Was_Taken.Value" />
             <p>
                 @Labels.ConfirmEmail_If_You_Feel_You_Got_This_Error_By_Mistake_Simply_Click
                 <a asp-page="/Home">@Labels.ConfirmEmail_Here</a>
@@ -53,7 +53,7 @@
         }
         else
         {
-            <partial name="_PageHeader" model="@Labels.ConfirmEmail_Verifying_Your_Email" />
+            <partial name="_PageHeader" model="@Labels.ConfirmEmail_Verifying_Your_Email.Value" />
             <p>
                 @Labels.ConfirmEmail_This_May_Take_A_Moment_Click_On_The_Link_Below_To_Verify_Your_Email_Address
                 <strong>@Model.View.Email</strong>
