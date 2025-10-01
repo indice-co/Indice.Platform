@@ -1,4 +1,4 @@
-<lib-view-layout title="Παραλήπτες" [busy]="!items" [actions]="actions" [meta-items]="metaItems"
+<lib-view-layout [title]="'Παραλήπτες'" [busy]="!items" [actions]="actions" [meta-items]="metaItems"
   (onAction)="actionHandler($event)" (onSearch)="searchChanged($event)">
   <lib-list-view [items]="items" [page]="page" [page-size]="pageSize" [count]="count" [sort-options]="sortOptions"
     [sort]="sort" [sort-dir]="sortdir" [busy]="!items" (pageChanged)="pageChanged($event)"

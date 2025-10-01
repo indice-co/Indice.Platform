@@ -1,4 +1,6 @@
-﻿using Indice.Events;
+﻿using System.Security.Cryptography;
+using IdentityModel;
+using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
@@ -10,6 +12,7 @@ using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Xunit;
 
 namespace Indice.Features.Identity.Tests;
@@ -66,8 +69,6 @@ public class UserHandlersTests : IAsyncLifetime
         Assert.True(true);
     }
 
-
-
     [Fact]
     public async Task GetUsers_Test() {
 
@@ -104,6 +105,35 @@ public class UserHandlersTests : IAsyncLifetime
         Assert.True(true);
     }
 
+
+    [Fact]
+    public void CreateUserDevice_ConvertDbPublicKeyToJsonWebKey_Test() {
+        const string publicRsaKey = """
+            -----BEGIN PUBLIC KEY-----            
+            MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA49JI4i5PBbl02coZnWao
+            jBa5ToQTZEXthKBMmuSXCpDhaNZEBnkbmF0J0xOTZ9BOQlen2TVAdC8inK8DqZC5
+            GH+TuIjVnZf92XqIXxjCP4LmNaAQtolmW5VnYUYuJ4XDunand2cney0YiQ3uDpEW
+            OWDzg3NiMgMDcdvdy7lFFQ9ajD1HtX+11EVvyafK5yZD0evwJ83T91seSHgpEWM/
+            5riD5KxsrVW4Jwjz4XDge5GKuS7B12I7OpLl/pW2cRUtsQa9T7j3vrr3S2GJU52w
+            ypKymT1r2VafxNpXFzSC3n2MRVh6ubmyZGpbCux6h/4GmvYcU6nE9jL1g23kU/Vi
+            gcn1jyf7m+5oNnmaWw0MgT57/QbSf+RnLn/TN+y+Isdm+gGydedLKvZ01IgZe02f
+            /X0cFMjSb+whhoXGPz2bOZtrai2IJmHnLzbVHrz4CnCzbMws6fJhJJC88DNvLd54
+            8v6foGI2ZjizLEdBYlJEi03eaiVCf0I6J8hUyhXCiLHTBL/kYg0PbUaMlRJE2fny
+            KYDBiQa6Iin7HbpccSi3834hjvpe4XyZYp6HEH6uBccydQov54LquhjA9XJJKAr/
+            419p1S/ycxFJtTIMCdZHs/6/Tc3AEw9qho4bqeNrzon7Ooq2LY05AkfI8J95u/eo
+            RtVSF5JEQj+t+21jPrv0W9cCAwEAAQ==
+            -----END PUBLIC KEY-----
+            """;
+
+        using var rsa = RSA.Create();
+        rsa.ImportFromPem(publicRsaKey.ToCharArray());
+
+        var jwk = JsonWebKeyConverter.ConvertFromRSASecurityKey(new RsaSecurityKey(rsa) {
+            KeyId = CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex)
+        });
+
+        Assert.NotNull(jwk);
+    }
 
     public async Task InitializeAsync() {
         var dbContext = _serviceProvider.GetRequiredService<ExtendedIdentityDbContext<User, Role>>();
