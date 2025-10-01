@@ -692,12 +692,14 @@ internal static class UserHandlers
         if (device.PublicKey is null) {
             return TypedResults.Ok(new JsonWebKey());
         }
-      
-        var rsa = RSA.Create();
+
+        using var rsa = RSA.Create();
         rsa.ImportFromPem(device.PublicKey.ToCharArray());
 
         var jwk = JsonWebKeyConverter.ConvertFromRSASecurityKey(new RsaSecurityKey(rsa) {
-            KeyId = device.PublicKeyId ?? CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex)
+            KeyId = string.IsNullOrWhiteSpace(device.PublicKeyId)
+                ? CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex)
+                : device.PublicKeyId
         });
 
         return TypedResults.Ok(jwk);
