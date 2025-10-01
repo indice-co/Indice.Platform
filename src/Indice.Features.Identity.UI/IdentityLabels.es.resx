@@ -427,7 +427,7 @@
     <value>Volver a inicio</value>
   </data>
   <data name="Footer_Discovery" xml:space="preserve">
-    <value>Documento de descubrimiento</value>
+    <value>Discovery</value>
   </data>
   <data name="Footer_Privacy" xml:space="preserve">
     <value>Política de privacidad</value>
@@ -975,5 +975,8 @@
   </data>
   <data name="RequiredValue" xml:space="preserve">
     <value>requerido</value>
+  </data>
+  <data name="Terms_PageTitle" xml:space="preserve">
+    <value>Términos de servicio</value>
   </data>
 </root>

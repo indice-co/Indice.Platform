@@ -427,7 +427,7 @@
     <value>ホームに戻る</value>
   </data>
   <data name="Footer_Discovery" xml:space="preserve">
-    <value>ディスカバリードキュメント</value>
+    <value>Discovery</value>
   </data>
   <data name="Footer_Privacy" xml:space="preserve">
     <value>プライバシーポリシー</value>
@@ -975,5 +975,8 @@
   </data>
   <data name="RequiredValue" xml:space="preserve">
     <value>必須フィールド</value>
+  </data>
+  <data name="Terms_PageTitle" xml:space="preserve">
+    <value>利用規約</value>
   </data>
 </root>

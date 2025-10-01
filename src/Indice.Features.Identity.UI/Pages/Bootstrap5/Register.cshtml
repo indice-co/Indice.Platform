@@ -60,8 +60,8 @@
                 </div>
                 <div indice-if="!identityUiOptions.Value.EnablePhoneNumberCallingCodes" class="@(userManager.EmailAsUserName ? "col-md-12" : "col-md-6")">
                     <div class="mb-3">
-                        <label asp-for="Input.PhoneNumber" class="form-label">@Labels.Register_Phone_number]</label>
-                        <input class="form-control" type="text" asp-for="Input.PhoneNumber" placeholder="@Labels.Register_Phone_number]" />
+                        <label asp-for="Input.PhoneNumber" class="form-label">@Labels.Register_Phone_number</label>
+                        <input class="form-control" type="text" asp-for="Input.PhoneNumber" placeholder="@Labels.Register_Phone_number" />
                         <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
                     </div>
                 </div>

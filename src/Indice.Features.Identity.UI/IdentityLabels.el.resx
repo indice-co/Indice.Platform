@@ -427,7 +427,7 @@
     <value>Επιστροφή στην αρχική</value>
   </data>
   <data name="Footer_Discovery" xml:space="preserve">
-    <value>Έγγραφο ανακάλυψης</value>
+    <value>Discovery</value>
   </data>
   <data name="Footer_Privacy" xml:space="preserve">
     <value>Πολιτική απορρήτου</value>
@@ -975,5 +975,8 @@
   </data>
   <data name="RequiredValue" xml:space="preserve">
     <value>υποχρεωτικό</value>
+  </data>
+  <data name="Terms_PageTitle" xml:space="preserve">
+    <value>Όροι χρήσης</value>
   </data>
 </root>

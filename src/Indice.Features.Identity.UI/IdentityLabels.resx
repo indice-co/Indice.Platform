@@ -975,4 +975,7 @@
   <data name="RequiredValue" xml:space="preserve">
     <value>required</value>
   </data>
+  <data name="Terms_PageTitle" xml:space="preserve">
+    <value>Terms of Service</value>
+  </data>
 </root>

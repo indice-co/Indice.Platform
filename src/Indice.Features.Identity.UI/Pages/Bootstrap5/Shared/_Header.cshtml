@@ -42,7 +42,7 @@
                         <li class="nav-item">
                             @if (user is not null && await UserManager.HasPasswordAsync(user))
                             {
-                                <a class="nav-link" asp-page="/ChangePassword">@Labels.ChangePassword_Change</a>
+								<a class="nav-link" asp-page="/ChangePassword">@Labels.ChangePassword_ChangePassword</a>
                             }
                             else
                             {

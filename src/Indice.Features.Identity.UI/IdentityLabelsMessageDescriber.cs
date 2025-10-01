@@ -265,7 +265,7 @@ public class IdentityLabelsMessageDescriber
     public virtual HtmlString EmailSecurity_Preheader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.EmailSecurity_Preheader));
 
     /// <summary>Subject of the security notification email.</summary>
-    public virtual string EmailSecurity_Subject => string.Format(CultureInfo.CurrentUICulture, IdentityLabels.EmailSecurity_Subject);
+    public virtual HtmlString EmailSecurity_Subject => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.EmailSecurity_Subject));
 
     /// <summary>Greeting "Hi" in the security notification email.</summary>
     public virtual HtmlString EmailSecurity_Body_Hi => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.EmailSecurity_Body_Hi));
@@ -1112,11 +1112,18 @@ public class IdentityLabelsMessageDescriber
     /// <summary>Required label</summary>
     public virtual HtmlString Required => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.RequiredValue));
 
+    /// <summary>Title of the Terms of Service page.</summary>
+    public virtual HtmlString Terms_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Terms_PageTitle));
+    
     /// <summary>Get Organization name.</summary>
     public virtual HtmlString OrganizationName(string organization) {
         var orgName = string.Format(CultureInfo.CurrentUICulture, IdentityLabels.OrganizationName);
         if (string.IsNullOrWhiteSpace(orgName)) return new HtmlString(organization);
         return new HtmlString(orgName);
+    }
+    /// <summary>Get Organization name.</summary>
+    public virtual string ApplicationName(string applicationName) {
+        return applicationName;
     }
     /// <summary>Get Organization name.</summary>
     public virtual HtmlString GetGeneric(string label) => new HtmlString(string.Format(CultureInfo.CurrentUICulture, label));

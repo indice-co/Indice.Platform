@@ -23,7 +23,7 @@
         {
             <div class="section text-start" id="welcome-to-identity">
                 <p class="lead">
-                    @Html.Raw(Labels.Home_WelcomeDigitalServices(Settings.Organization!))
+					@Html.Raw(Labels.Home_IntroTextWithOrgName(Settings.Organization!))
                 </p>
             </div>
             <partial name="_ServiceDeck" model="Model.Services" />
@@ -34,7 +34,7 @@
         else
         {
             <h3 class="py-5">
-                @Labels.Home_Welcome_Back@User.FindDisplayName().
+                @Labels.Home_Welcome_Back @User.FindDisplayName().
             </h3>
             <div class="section text-start" id="welcome-to-identity">
                 <p class="lead">@Labels.Home_IntroTextWithOrgName(Settings.Organization!) </p>
