@@ -690,7 +690,7 @@ internal static class UserHandlers
         }
 
         if (device.PublicKey is null) {
-            return TypedResults.Ok(new JsonWebKey());
+            return TypedResults.NotFound();
         }
 
         using var rsa = RSA.Create();
