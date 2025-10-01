@@ -40,6 +40,8 @@ public class UserDevice
     public bool SupportsPinLogin => !string.IsNullOrWhiteSpace(Password);
     /// <summary>Device public key (when <see cref="InteractionMode"/> is equal to <see cref="InteractionMode.Fingerprint"/>).</summary>
     public string? PublicKey { get; set; }
+    /// <summary>Device public key Id when public key is populated.</summary>
+    public string? PublicKeyId { get; internal set; }
     /// <summary>Flag for fingerprint support.</summary>
     public bool SupportsFingerprintLogin => !string.IsNullOrWhiteSpace(PublicKey);
     /// <summary>Extra metadata for the device.</summary>
@@ -87,7 +89,7 @@ public class UserDevice
     }
 
     /// <summary>The user associated with this device.</summary>
-    public virtual User? User { get; set; }
+    public virtual User? User { get; set; }    
 
     /// <summary>
     /// 

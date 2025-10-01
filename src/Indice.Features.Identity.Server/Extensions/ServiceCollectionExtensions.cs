@@ -204,7 +204,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         services.ConfigureApplicationCookie(AuthCookie(ExtendedIdentityConstants.ApplicationCookieName));
         services.ConfigureExtendedValidationCookie(AuthCookie(ExtendedIdentityConstants.ExtendedValidationCookieName));
         services.ConfigureExternalCookie(AuthCookie(ExtendedIdentityConstants.ExternalCookieName));
-        
+
         services.Configure<CookieAuthenticationOptions>(IdentityConstants.TwoFactorUserIdScheme, options => {
             options.Cookie.Name = ExtendedIdentityConstants.TwoFactorCookieName;
             options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
@@ -328,6 +328,11 @@ public static class IdentityServerEndpointServiceCollectionExtensions
                 policy.AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
                       .RequireAuthenticatedUser()
                       .RequireAssertion(context => context.User.HasScope(IdentityEndpoints.Scope) && (context.User.HasClaim(JwtClaimTypes.AuthenticationMethod, CustomGrantTypes.DeviceAuthentication) || context.User.IsAdmin()));
+            });
+            authOptions.AddPolicy(IdentityEndpoints.Policies.BeUserDeviceSecretReader, policy => {
+                policy.AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
+                      .RequireAuthenticatedUser()
+                      .RequireAssertion(x => x.User.HasScope(IdentityEndpoints.SubScopes.UserDeviceSecret) || (x.User.HasScope(IdentityEndpoints.SubScopes.Users) && x.User.CanReadUsers()));
             });
         });
         // Register the authentication handler, using a custom scheme name, for local APIs.

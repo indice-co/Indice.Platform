@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using IdentityModel;
 using Indice.Events;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
@@ -401,6 +402,11 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
             }
         }
         device.UserId = user.Id;
+
+        if (!string.IsNullOrEmpty(device.PublicKey) && string.IsNullOrEmpty(device.PublicKeyId)) {
+            device.PublicKeyId = CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex);
+        }
+        
         var result = await deviceStore!.CreateDeviceAsync(user, device, cancellationToken);
         if (result.Succeeded) {
             await _eventService.Publish(new DeviceCreatedEvent(UserDeviceEventContext.InitializeFromUserDevice(device), UserEventContext.InitializeFromUser(user)));

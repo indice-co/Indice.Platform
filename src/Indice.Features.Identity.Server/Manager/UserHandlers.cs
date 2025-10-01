@@ -28,6 +28,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography.X509Certificates;
+using System.Security.Cryptography;
+using Org.BouncyCastle.Asn1.X9;
+using Indice.Features.Identity.Core.DeviceAuthentication.Extensions;
+using System.Text.Unicode;
+using System.Text;
 
 namespace Indice.Features.Identity.Server.Manager;
 
@@ -545,7 +552,8 @@ internal static class UserHandlers
             OsVersion = device.OsVersion,
             Platform = device.Platform,
             SupportsFingerprintLogin = device.SupportsFingerprintLogin,
-            SupportsPinLogin = device.SupportsPinLogin
+            SupportsPinLogin = device.SupportsPinLogin,
+            PublicKeyId = device.PublicKeyId
         })
         .ToResultSet();
         return TypedResults.Ok(response);
@@ -665,7 +673,7 @@ internal static class UserHandlers
         return TypedResults.NoContent();
     }
 
-    internal static async Task<Results<Ok<string>, NotFound>> GetUserDeviceSecret(
+    internal static async Task<Results<Ok<JsonWebKey>, NotFound>> GetUserDeviceSecret(
         ExtendedUserManager<User> userManager,
         string userId,
         string deviceId,
@@ -681,6 +689,17 @@ internal static class UserHandlers
             return TypedResults.NotFound();
         }
 
-        return TypedResults.Ok(device.PublicKey ?? string.Empty);
+        if (device.PublicKey is null) {
+            return TypedResults.Ok(new JsonWebKey());
+        }
+      
+        var rsa = RSA.Create();
+        rsa.ImportFromPem(device.PublicKey.ToCharArray());
+
+        var jwk = JsonWebKeyConverter.ConvertFromRSASecurityKey(new RsaSecurityKey(rsa) {
+            KeyId = device.PublicKeyId ?? CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex)
+        });
+
+        return TypedResults.Ok(jwk);
     }
 }

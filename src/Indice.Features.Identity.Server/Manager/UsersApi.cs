@@ -188,17 +188,18 @@ public static class UsersApi
         userDeviceSecretGroup.WithTags("Users");
         userDeviceSecretGroup.WithGroupName("identity");
 
-        var userDeviceSecretScopes = new[] { IdentityEndpoints.SubScopes.Users, IdentityEndpoints.SubScopes.UserDeviceSecret }.FilterOutNulls().ToArray();
-        userDeviceSecretGroup.RequireAuthorization(policy => policy
-             .RequireAuthenticatedUser()
-             .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
-             .RequireClaim(BasicClaimTypes.Scope, userDeviceSecretScopes)
-        );
+        userDeviceSecretGroup.ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        userDeviceSecretGroup.RequireAuthorization(IdentityEndpoints.Policies.BeUserDeviceSecretReader);
+        userDeviceSecretGroup
+            .AddOpenApiSecurityRequirement("oauth2", [options.ApiScope!, IdentityEndpoints.SubScopes.Users, IdentityEndpoints.SubScopes.UserDeviceSecret])
+            .WithOpenApiSecurityRequirement("oauth2", [options.ApiScope!, IdentityEndpoints.SubScopes.Users, IdentityEndpoints.SubScopes.UserDeviceSecret]);
 
         userDeviceSecretGroup.MapGet("{userId}/devices/{deviceId}/secret", UserHandlers.GetUserDeviceSecret)
              .WithName(nameof(UserHandlers.GetUserDeviceSecret))
-             .WithSummary("Get the secret for a user device.")
-             .Produces<Stream>(StatusCodes.Status200OK, "application/x-pem-file");
+             .WithSummary("Get the secret for a user device.");
 
         return group;
     }

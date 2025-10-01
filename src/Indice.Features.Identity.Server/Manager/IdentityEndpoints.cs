@@ -42,6 +42,8 @@ public static partial class IdentityEndpoints
         public const string BeClientsWriter = nameof(BeClientsWriter);
         /// <summary>A user must have the 'Admin' flag or own one of the <see cref="BasicRoleNames.Administrator"/>, <see cref="BasicRoleNames.AdminUIAdministrator"/>, <see cref="BasicRoleNames.AdminUIUsersReader"/> or <see cref="BasicRoleNames.AdminUIClientsReader"/> roles.</summary>
         public const string BeUsersOrClientsReader = nameof(BeUsersOrClientsReader);
+        /// <summary>A user must have the 'Admin' flag or own the scope <see cref="IdentityEndpoints.SubScopes.UserDeviceSecret"/> or has the <see cref="BeUsersReader"/> policy.</summary>
+        public const string BeUserDeviceSecretReader = nameof(BeUserDeviceSecretReader);
     }
 
     /// <summary>Feature flags for Identity Server API.</summary>

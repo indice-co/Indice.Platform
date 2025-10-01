@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.18.0] - Unreleased
+### Added
+- Add the PublicKeyId column to store the public key for a client
+
+Run this Migration script to update the database
+```sql
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.columns 
+    WHERE Name = N'PublicKeyId' AND Object_ID = Object_ID(N'[auth].[UserDevice]')
+)
+BEGIN
+    ALTER TABLE [auth].[UserDevice]
+    ADD [PublicKeyId] NVARCHAR(32) NULL;
+END
+```
+
 ## [8.1.0] - Unreleased
 ### Added 
 - This release includes an upgrade to **Duende IdentityServer7**. (_This only applies when running on .NET 9.0 or greater._)
