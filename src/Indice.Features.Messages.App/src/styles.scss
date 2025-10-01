@@ -1,8 +1,6 @@
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
-@import "../node_modules/@indice/ng-components/_styles.scss";
-@import "~highlight.js/styles/github.css";
+@use "tailwindcss";
+@use "../node_modules/@indice/ng-components/_styles.scss";
+@import "../node_modules/highlight.js/styles/github.css";
 
 :root {
   --ng-progress-color: #ffc107; //amber
