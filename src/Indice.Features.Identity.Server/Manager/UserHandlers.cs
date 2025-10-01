@@ -698,7 +698,7 @@ internal static class UserHandlers
 
         var jwk = JsonWebKeyConverter.ConvertFromRSASecurityKey(new RsaSecurityKey(rsa) {
             KeyId = string.IsNullOrWhiteSpace(device.PublicKeyId)
-                ? CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex)
+                ? CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex).ToLowerInvariant()
                 : device.PublicKeyId
         });
 
