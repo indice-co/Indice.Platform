@@ -2,60 +2,60 @@
 
 @model BaseConfirmEmailChangeModel
 
-@inject IdentityLabelsMessageDescriber Labels
+@inject IdentityUILocalizer Localizer
 
 @{
-    ViewData["Title"] = Labels.ConfirmEmailChange_Email_Change_Confirmation;
+    ViewData["Title"] = Localizer.ConfirmEmailChange_Email_Change_Confirmation;
 }
 
 <section class="identity-panel wide border-0 confirm-email">
     <article class="text-center">
         @if (Model.View.AlreadyVerified)
         {
-            <partial name="_PageHeader" model="@Labels.ConfirmEmailChange_Your_Email_Is_Already_Verified_Thank_You.Value" />
+            <partial name="_PageHeader" model="@Localizer.ConfirmEmailChange_Your_Email_Is_Already_Verified_Thank_You.Value" />
             <p>
                 <span indice-if="Model.View.HasReturnUrl">
-                    @Labels.ConfirmEmailChange_Click
-                    <a href="@Model.View.ReturnUrl">@Labels.ConfirmEmailChange_Here</a>
-                    @Labels.ConfirmEmailChange_To_Sign_In_Or_Go_Back
+                    @Localizer.ConfirmEmailChange_Click
+                    <a href="@Model.View.ReturnUrl">@Localizer.ConfirmEmailChange_Here</a>
+                    @Localizer.ConfirmEmailChange_To_Sign_In_Or_Go_Back
                 </span>
-                @Labels.ConfirmEmailChange_You_Can_Now_Close_This_Browse_Window
+                @Localizer.ConfirmEmailChange_You_Can_Now_Close_This_Browse_Window
             </p>
         }
         else if (Model.View.InvalidOrExpiredToken)
         {
-			<partial name="_PageHeader" model="@Labels.ConfirmEmailChange_Email_Verification_Link_Has_Expired.Value" />
+			<partial name="_PageHeader" model="@Localizer.ConfirmEmailChange_Email_Verification_Link_Has_Expired.Value" />
             <p>
-                @Labels.ConfirmEmailChange_Please_Log_In_And_Resend_The_Link
-                <a indice-if="Model.View.HasReturnUrl" href="@Model.View.ReturnUrl">@Labels.ConfirmEmailChange_Here</a>
+                @Localizer.ConfirmEmailChange_Please_Log_In_And_Resend_The_Link
+                <a indice-if="Model.View.HasReturnUrl" href="@Model.View.ReturnUrl">@Localizer.ConfirmEmailChange_Here</a>
             </p>
         }
         else if (Model.View.Verified)
         {
-			<partial name="_PageHeader" model="@Labels.ConfirmEmailChange_Your_Email_Has_Been_Successfully_Changed.Value" />
+			<partial name="_PageHeader" model="@Localizer.ConfirmEmailChange_Your_Email_Has_Been_Successfully_Changed.Value" />
             <p>
                 <span indice-if="Model.View.HasReturnUrl">
-                    @Labels.ConfirmEmailChange_Click
-                    <a href="@Model.View.ReturnUrl">@Labels.ConfirmEmailChange_Here</a>
-                    @Labels.ConfirmEmailChange_To_Sign_In_Or_Go_Back
+                    @Localizer.ConfirmEmailChange_Click
+                    <a href="@Model.View.ReturnUrl">@Localizer.ConfirmEmailChange_Here</a>
+                    @Localizer.ConfirmEmailChange_To_Sign_In_Or_Go_Back
                 </span>
-                @Labels.ConfirmEmailChange_You_Can_Now_Close_This_Browse_Window
+                @Localizer.ConfirmEmailChange_You_Can_Now_Close_This_Browse_Window
             </p>
         }
         else if (!ViewContext.ModelState.IsValid)
         {
-			<partial name="_PageHeader" model="@Labels.ConfirmEmailChange_No_Action_Was_Taken.Value" />
+			<partial name="_PageHeader" model="@Localizer.ConfirmEmailChange_No_Action_Was_Taken.Value" />
             <p>
-                @Labels.ConfirmEmailChange_If_You_Feel_You_Got_This_Error_By_Mistake_Simply_Click
-                <a asp-page="/Home">@Labels.ConfirmEmailChange_Here</a>
-                @Labels.ConfirmEmailChange_To_Sign_In_Or_Go_Back
+                @Localizer.ConfirmEmailChange_If_You_Feel_You_Got_This_Error_By_Mistake_Simply_Click
+                <a asp-page="/Home">@Localizer.ConfirmEmailChange_Here</a>
+                @Localizer.ConfirmEmailChange_To_Sign_In_Or_Go_Back
             </p>
         }
         else
         {
-			<partial name="_PageHeader" model="@Labels.ConfirmEmailChange_Verifying_Your_Email.Value" />
+			<partial name="_PageHeader" model="@Localizer.ConfirmEmailChange_Verifying_Your_Email.Value" />
             <p>
-                @Labels.ConfirmEmailChange_This_May_Take_A_Moment_Click_On_The_Link_Below_To_Verify_Your_Email_Address
+                @Localizer.ConfirmEmailChange_This_May_Take_A_Moment_Click_On_The_Link_Below_To_Verify_Your_Email_Address
                 <strong>@Model.View.Email</strong>
             </p>
             <form name="EmailVerificationForm" method="post" asp-route-client_id="@Model.Input.ClientId">
@@ -66,7 +66,7 @@
                 <input type="hidden" asp-for="Input.ReturnUrl" />
                 <input type="hidden" asp-for="Input.ShouldRedirect" />
                 <input type="hidden" asp-for="Input.ThrowWhenConfirmed" />
-                <button type="submit" class="btn btn-primary">@Labels.ConfirmEmailChange_Verify</button>
+                <button type="submit" class="btn btn-primary">@Localizer.ConfirmEmailChange_Verify</button>
             </form>
             <script type="text/javascript" csp-nonce="true">
                 function submitform() {

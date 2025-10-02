@@ -3,11 +3,11 @@
 @model BaseMfaOnboardingAddPhoneModel
 
 @inject IWebHostEnvironment HostingEnvironment
-@inject IdentityLabelsMessageDescriber Labels
+@inject IdentityUILocalizer Localizer
 
 
 @{
-    var title = ViewBag.Title = Labels.MfaOnBoardingAddPhone_MFA_Onboarding_SMS;
+    var title = ViewBag.Title = Localizer.MfaOnBoardingAddPhone_MFA_Onboarding_SMS;
     var alert = TempData.Peek<AlertModel>(BaseMfaOnboardingAddPhoneModel.TempDataKey);
 }
 
@@ -18,20 +18,20 @@
     <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post" novalidate>
         <div class="mb-3">
             <input type="hidden" asp-for="Input.ReturnUrl" />
-            <label asp-for="Input.PhoneNumber" class="form-label visually-hidden">@Labels.MfaOnBoardingAddPhone_Phone_Number</label>
+            <label asp-for="Input.PhoneNumber" class="form-label visually-hidden">@Localizer.MfaOnBoardingAddPhone_Phone_Number</label>
             <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
-            <input class="form-control" type="text" placeholder="@Labels.MfaOnBoardingAddPhone_Phone_Number" asp-for="Input.PhoneNumber" readonly="@Model.View.DisablePhoneNumberInput" />
+            <input class="form-control" type="text" placeholder="@Localizer.MfaOnBoardingAddPhone_Phone_Number" asp-for="Input.PhoneNumber" readonly="@Model.View.DisablePhoneNumberInput" />
             <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
         </div>
         <div class="mb-3">
             <div class="row m-0 w-100">
                 @if (!string.IsNullOrEmpty(Model.View.NextStepUrl))
                 {
-                    <a class="btn btn-info w-100" href="@Model.View.NextStepUrl">@Labels.MfaOnBoardingAddPhone_Next</a>
+                    <a class="btn btn-info w-100" href="@Model.View.NextStepUrl">@Localizer.MfaOnBoardingAddPhone_Next</a>
                 }
                 else
                 {
-                    <button class="btn btn-info w-100" type="submit">@Labels.MfaOnBoardingAddPhone_Save</button>
+                    <button class="btn btn-info w-100" type="submit">@Localizer.MfaOnBoardingAddPhone_Save</button>
                 }
             </div>
         </div>

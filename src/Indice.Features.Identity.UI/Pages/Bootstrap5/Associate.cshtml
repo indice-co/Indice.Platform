@@ -2,10 +2,10 @@
 
 @model BaseAssociateModel
 
-@inject IdentityLabelsMessageDescriber Labels
+@inject IdentityUILocalizer Localizer
 
 @{
-    var title = ViewData["Title"] = Labels.Register_Associate_your_Account(Model.View.Provider);
+    var title = ViewData["Title"] = Localizer.Register_Associate_your_Account(Model.View.Provider);
 }
 
 <section class="sign-up m-auto">
@@ -17,15 +17,15 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label asp-for="Input.FirstName" class="form-label">@Labels.Profile_First_Name</label>
-                    <input class="form-control" type="text" asp-for="Input.FirstName" placeholder="@Labels.Profile_First_Name" autofocus />
+                    <label asp-for="Input.FirstName" class="form-label">@Localizer.Profile_First_Name</label>
+                    <input class="form-control" type="text" asp-for="Input.FirstName" placeholder="@Localizer.Profile_First_Name" autofocus />
                     <span asp-validation-for="Input.FirstName" class="text-danger"></span>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label asp-for="Input.LastName" class="form-label">@Labels.Profile_Last_Name</label>
-                    <input class="form-control" type="text" asp-for="Input.LastName" placeholder="@Labels.Profile_Last_Name" />
+                    <label asp-for="Input.LastName" class="form-label">@Localizer.Profile_Last_Name</label>
+                    <input class="form-control" type="text" asp-for="Input.LastName" placeholder="@Localizer.Profile_Last_Name" />
                     <span asp-validation-for="Input.LastName" class="text-danger"></span>
                 </div>
             </div>
@@ -33,15 +33,15 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label asp-for="Input.LastName" class="form-label">@Labels.Profile_Phone_Number</label>
-                    <input class="form-control" type="tel" asp-for="Input.PhoneNumber" placeholder="@Labels.Profile_Phone_Number" />
+                    <label asp-for="Input.LastName" class="form-label">@Localizer.Profile_Phone_Number</label>
+                    <input class="form-control" type="tel" asp-for="Input.PhoneNumber" placeholder="@Localizer.Profile_Phone_Number" />
                     <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label asp-for="Input.Email" class="form-label">@Labels.Email</label>
-                    <input class="form-control" type="email" asp-for="Input.Email" placeholder="@Labels.Email" />
+                    <label asp-for="Input.Email" class="form-label">@Localizer.Email</label>
+                    <input class="form-control" type="email" asp-for="Input.Email" placeholder="@Localizer.Email" />
                     <span asp-validation-for="Input.Email" class="text-danger"></span>
                 </div>
             </div>
@@ -51,7 +51,7 @@
                 <div class="mb-3">
                     <label class="checkbox">
                         <input asp-for="Input.HasAcceptedTerms" type="checkbox" />
-                        @Labels.Register_I_Have_Read_And_Accept_Terms
+                        @Localizer.Register_I_Have_Read_And_Accept_Terms
                     </label>
                     <span asp-validation-for="Input.HasAcceptedTerms" class="text-danger"></span>
                 </div>
@@ -62,8 +62,8 @@
                 <div class="mb-3">
                     <label class="checkbox">
                         <input asp-for="Input.HasReadPrivacyPolicy" type="checkbox" />
-                        @Labels.Register_I_Consent_To_Registration
-                        <a style="font-weight:bold" asp-page="/Privacy" target="_blank">@Labels.Register_Here.</a>.
+                        @Localizer.Register_I_Consent_To_Registration
+                        <a style="font-weight:bold" asp-page="/Privacy" target="_blank">@Localizer.Register_Here.</a>.
                     </label>
                     <span asp-validation-for="Input.HasReadPrivacyPolicy" class="text-danger"></span>
                 </div>
@@ -72,7 +72,7 @@
         <div class="row align-items-center">
             <div class="col-xl-6 col-12">
                 <div class="mb-3">
-                    <button class="btn btn-primary w-100 btn-hover" type="submit">@Labels.Register_Register</button>
+                    <button class="btn btn-primary w-100 btn-hover" type="submit">@Localizer.Register_Register</button>
                 </div>
             </div>
         </div>

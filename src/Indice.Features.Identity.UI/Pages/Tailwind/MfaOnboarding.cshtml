@@ -3,10 +3,10 @@
 @model BaseMfaOnboardingModel
 
 @inject IConfiguration Configuration
-@inject IdentityLabelsMessageDescriber Labels
+@inject IdentityUILocalizer Localizer
 
 @{
-    var title = ViewData["Title"] = @Labels.MfaOnBoarding_Enable_MFA;
+    var title = ViewData["Title"] = @Localizer.MfaOnBoarding_Enable_MFA;
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;
 }
@@ -18,10 +18,10 @@
                 <img src="~/img/logo@(langSuffix).svg" alt="Logo" />
             </a>
             <span class="block text-2xl font-semibold mt-2">
-                @Labels.MfaOnBoarding_Keep_Your_Account_Safe
+                @Localizer.MfaOnBoarding_Keep_Your_Account_Safe
             </span>
             <span class="block text-base text-gray-600 mt-1">
-                @Labels.MfaOnBoarding_Setup_An_Additional_Authentication_Method
+                @Localizer.MfaOnBoarding_Setup_An_Additional_Authentication_Method
             </span>
         </h1>
 
@@ -56,7 +56,7 @@
                             name="button"
                             value="login"
                             class="w-full py-2 px-4 font-semibold rounded bg-blue-600 hover:bg-blue-700 text-white transition">
-                        @Labels.MfaOnBoarding_Next
+                        @Localizer.MfaOnBoarding_Next
                     </button>
                 </div>
             </div>

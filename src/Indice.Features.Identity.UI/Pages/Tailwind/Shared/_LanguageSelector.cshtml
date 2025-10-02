@@ -1,6 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Builder;
 @using Microsoft.AspNetCore.Http.Extensions;
-@inject IdentityLabelsMessageDescriber Labels
+@inject IdentityUILocalizer Localizer
 @inject IOptions<RequestLocalizationOptions> LocalizationOptions
 
 @{
@@ -31,7 +31,7 @@
     </svg>
     <span class="text-sm font-sm leading-none lg:text-white text-greys-400 lg:hidden">@langDisplayName</span>
     <div>
-        <button id="dropdownTrigger_@htmlUniqueId" data-dropdown-toggle="dropdown_@htmlUniqueId" title="@Labels.SelectLanguage" class="py-4 rounded bg-transparent text-sm font-sm leading-none text-greys-500 flex items-center cursor-pointer" type="button">
+        <button id="dropdownTrigger_@htmlUniqueId" data-dropdown-toggle="dropdown_@htmlUniqueId" title="@Localizer.SelectLanguage" class="py-4 rounded bg-transparent text-sm font-sm leading-none text-greys-500 flex items-center cursor-pointer" type="button">
             <svg class="w-3 h-3 ease-in-out duration-300 lg:text-white text-greys-400 transition-transform lg:stroke-white stroke-greys-400 rotate-180"
                  fill="none"
                  xmlns="http://www.w3.org/2000/svg"

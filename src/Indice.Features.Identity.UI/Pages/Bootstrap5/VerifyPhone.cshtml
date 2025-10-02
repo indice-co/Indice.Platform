@@ -3,11 +3,11 @@
 @model BaseVerifyPhoneModel
 
 @inject IWebHostEnvironment HostingEnvironment
-@inject IdentityLabelsMessageDescriber Labels
+@inject IdentityUILocalizer Localizer
 
 
 @{
-    var title = ViewData["Title"] = Labels.VerifyPhone_Verify_Phone_Number;
+    var title = ViewData["Title"] = Localizer.VerifyPhone_Verify_Phone_Number;
     var tempData = TempData.Peek<ExtendedValidationTempDataModel>(BaseVerifyPhoneModel.TempDataKey);
     var displayNext = !string.IsNullOrEmpty(tempData?.NextStepUrl) && tempData?.Alert?.AlertType == AlertType.Success;
 }
@@ -20,22 +20,22 @@
         <input type="hidden" asp-for="Input.PhoneNumber" />
         <input type="hidden" asp-for="Input.ReturnUrl" />
         <div class="mb-3">
-            <label asp-for="Input.Code" class="form-label visually-hidden">@Labels.VerifyPhone_Code</label>
-            <input class="form-control" type="text" placeholder="@Labels.VerifyPhone_Code" asp-for="Input.Code" disabled="@displayNext" />
+            <label asp-for="Input.Code" class="form-label visually-hidden">@Localizer.VerifyPhone_Code</label>
+            <input class="form-control" type="text" placeholder="@Localizer.VerifyPhone_Code" asp-for="Input.Code" disabled="@displayNext" />
             <span asp-validation-for="Input.Code" class="text-danger"></span>
         </div>
         <div class="mb-3">
             <div class="row m-0 w-100">
                 <div class="col-6 py-1">
-                    <button class="btn btn-info w-100" type="submit" disabled="@displayNext">@Labels.VerifyPhone_Save</button>
+                    <button class="btn btn-info w-100" type="submit" disabled="@displayNext">@Localizer.VerifyPhone_Save</button>
                 </div>
                 <div class="col-6 py-1">
-                    <button class="btn btn-info w-100" type="submit" id="otp-resend" name="Input.OtpResend" value="true">@Labels.VerifyPhone_Resend</button>
+                    <button class="btn btn-info w-100" type="submit" id="otp-resend" name="Input.OtpResend" value="true">@Localizer.VerifyPhone_Resend</button>
                 </div>
                 @if (displayNext)
                 {
                     <div class="col-sm-6 col-12 py-1">
-                        <a class="btn btn-info w-100" href="@tempData?.NextStepUrl">@Labels.VerifyPhone_Next</a>
+                        <a class="btn btn-info w-100" href="@tempData?.NextStepUrl">@Localizer.VerifyPhone_Next</a>
                     </div>
                 }
             </div>

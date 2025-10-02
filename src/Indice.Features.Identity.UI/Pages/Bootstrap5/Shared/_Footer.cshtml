@@ -1,7 +1,7 @@
 ﻿@inject IOptions<GeneralSettings> Settings
 @inject IOptions<IdentityUIOptions> UIOptions
 @inject IWebHostEnvironment Environment
-@inject IdentityLabelsMessageDescriber Labels
+@inject IdentityUILocalizer Localizer
 
 @{
     var settings = Settings.Value;
@@ -15,13 +15,13 @@
         <div class="language">
             <partial name="_LanguageSelector" />
         </div>
-        &copy; @Labels.OrganizationName(settings.Organization!) @copyYear @(DateTime.Today.Year > copyYear ? $" - {DateTime.Today.Year}" : string.Empty)
+        &copy; @Localizer.OrganizationName(settings.Organization!) @copyYear @(DateTime.Today.Year > copyYear ? $" - {DateTime.Today.Year}" : string.Empty)
     </div>
     <div class="links">
         <span class="software-verson">v@(version ?? "1.0.0")</span>
-        <a indice-if="!Environment.IsProduction()" href="~/.well-known/openid-configuration" target="_blank">@Labels.Footer_Discovery</a>
-        <a asp-page="/Privacy" target="_blank">@Labels.Footer_Privacy</a>
-        <a asp-page="/Terms" target="_blank">@Labels.Footer_Terms</a>
-        <a indice-if="showContactUs" href="@UIOptions.Value.ContactUsUrl" target="_blank">@Labels.Footer_Contact_us</a>
+        <a indice-if="!Environment.IsProduction()" href="~/.well-known/openid-configuration" target="_blank">@Localizer.Footer_Discovery</a>
+        <a asp-page="/Privacy" target="_blank">@Localizer.Footer_Privacy</a>
+        <a asp-page="/Terms" target="_blank">@Localizer.Footer_Terms</a>
+        <a indice-if="showContactUs" href="@UIOptions.Value.ContactUsUrl" target="_blank">@Localizer.Footer_Contact_us</a>
     </div>
 </footer>

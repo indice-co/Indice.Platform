@@ -4,13 +4,13 @@
 @inject CallingCodesProvider callingCodesProvider
 @inject IOptions<IdentityUIOptions> identityUiOptions
 @inject ExtendedUserManager<User> userManager
-@inject IdentityLabelsMessageDescriber Labels
+@inject IdentityUILocalizer Localizer
 
 @model BaseProfileModel
 
 @{
     Layout = "_IdentityProfileLayout";
-    var title = ViewData["Title"] = Labels.Profile_Profile;
+    var title = ViewData["Title"] = Localizer.Profile_Profile;
     var alert = TempData.Get<AlertModel>("Alert");
 }
 
@@ -18,51 +18,51 @@
      id="edit-profile"
      role="tabpanel"
      aria-labelledby="profile-tab">
-    <h3 class="text-black mb-1">@Labels.Profile_Manage_Profile</h3>
+    <h3 class="text-black mb-1">@Localizer.Profile_Manage_Profile</h3>
     <div id="send-confirmation-success" class=" text-sm hidden my-2.5">
-        <div class="alert alert-success">@Labels.Profile_A_Confirmation_Email_Has_Been_Sent_To_0", Model.View.Email ?? throw new InvalidOperationException("User email cannot be null.")]</div>
+        <div class="alert alert-success">@Localizer.Profile_A_Confirmation_Email_Has_Been_Sent_To_0", Model.View.Email ?? throw new InvalidOperationException("User email cannot be null.")]</div>
     </div>
     <div id="send-confirmation-error" class=" text-sm hidden my-2.5">
-        <div class="alert alert-danger">@Labels.Profile_Confirmation_Email_Delivery_Failed_Please_Contact_System_Administrator</div>
+        <div class="alert alert-danger">@Localizer.Profile_Confirmation_Email_Delivery_Failed_Please_Contact_System_Administrator</div>
     </div>
     @if (Model.ProfileSuccessfullyChanged)
     {
-        var message = Labels.Profile_Your_Profile_Was_Updated_Successfully.Value;
+        var message = Localizer.Profile_Your_Profile_Was_Updated_Successfully.Value;
         if (Model.EmailChangeRequested)
         {
-            message += (Labels.ForgotPasswordConfirmation_LoginLink(Url.PageLink("/Login"))).Value;
+			message += (Localizer.ForgotPasswordConfirmation_LoginLink(Url.PageLink("/Login"))).Value;
         }
         <partial name="_Alert" model="@AlertModel.Success(message)" />
     }
     @if (Model.View.EmailChangePending && !Model.ProfileSuccessfullyChanged)
     {
-        <partial name="_Alert" model="@AlertModel.Warn(Labels.Profile_Your_New_Email_Verification_Is_Still_Pending)" />
+		<partial name="_Alert" model="@AlertModel.Warn(Localizer.Profile_Your_New_Email_Verification_Is_Still_Pending)" />
     }
     <partial name="_Alert" model="alert" />
     <partial name="_ValidationSummary" />
     <form method="post" class="md:max-h-[60vh] overflow-y-scroll pr-8">
         <div class="row">
             <div class="input-group">
-                <input class="peer" type="text" placeholder="@Labels.Profile_First_Name" asp-for="Input.FirstName" />
-                <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.FirstName">@Labels.Profile_First_Name</label>
+                <input class="peer" type="text" placeholder="@Localizer.Profile_First_Name" asp-for="Input.FirstName" />
+                <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.FirstName">@Localizer.Profile_First_Name</label>
                 <span asp-validation-for="Input.FirstName" class="text-danger"></span>
             </div>
             <div class="input-group">
-                <input class="peer" type="text" placeholder="@Labels.Profile_Last_Name" asp-for="Input.LastName" />
-                <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.LastName">@Labels.Profile_Last_Name</label>
+                <input class="peer" type="text" placeholder="@Localizer.Profile_Last_Name" asp-for="Input.LastName" />
+                <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.LastName">@Localizer.Profile_Last_Name</label>
                 <span asp-validation-for="Input.LastName" class="text-danger"></span>
             </div>
         </div>
         <div class="row">
             <div class="input-group">
-                <input class="peer" type="text" placeholder="@Labels.Profile_Username" asp-for="Input.UserName" readonly="@userManager.EmailAsUserName" />
-                <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.UserName">@Labels.Profile_Username</label>
+                <input class="peer" type="text" placeholder="@Localizer.Profile_Username" asp-for="Input.UserName" readonly="@userManager.EmailAsUserName" />
+                <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.UserName">@Localizer.Profile_Username</label>
                 <span asp-validation-for="Input.UserName" class="text-danger"></span>
             </div>
             <div class="input-group">
-                <a indice-if="Model.View.EmailChangePending" href="#" id="resend-email-link" style="font-size: x-small;">(@Labels.Profile_Confirmation →)</a>
-                <input class="peer" type="text" placeholder="@Labels.Email" asp-for="Input.Email" />
-                <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.Email">@Labels.Email</label>
+                <a indice-if="Model.View.EmailChangePending" href="#" id="resend-email-link" style="font-size: x-small;">(@Localizer.Profile_Confirmation →)</a>
+                <input class="peer" type="text" placeholder="@Localizer.Email" asp-for="Input.Email" />
+                <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.Email">@Localizer.Email</label>
                 <span asp-validation-for="Input.Email" class="text-danger"></span>
             </div>
         </div>
@@ -71,50 +71,50 @@
             {
                 <div class="input-group">
                     <select class="peer" asp-for="Input.CallingCode" required>
-                        <option value="" selected>@Labels.Profile_Choose</option>
+                        <option value="" selected>@Localizer.Profile_Choose</option>
                         @foreach (var callingCode in callingCodesProvider.GetSupportedCallingCodes())
                         {
                             <option value="@callingCode" selected="@(callingCode.Code == Model.Input.CallingCode)">@callingCode.DisplayName</option>
                         }
                     </select>
-                    <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.CallingCode">@Labels.Profile_Calling_Code</label>
+                    <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.CallingCode">@Localizer.Profile_Calling_Code</label>
                     <span asp-validation-for="Input.CallingCode" class="text-danger"></span>
                 </div>
                 <div class="input-group">
-                    <input class="peer" type="text" placeholder="@Labels.Profile_Phone_Number" asp-for="Input.PhoneNumber" />
-                    <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.PhoneNumber">@Labels.Profile_Phone_Number</label>
+                    <input class="peer" type="text" placeholder="@Localizer.Profile_Phone_Number" asp-for="Input.PhoneNumber" />
+                    <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.PhoneNumber">@Localizer.Profile_Phone_Number</label>
                     <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
                 </div>
             }
             else
             {
                 <div class="input-group">
-                    <input class="peer" type="text" placeholder="@Labels.Profile_Phone_Number]" asp-for="Input.PhoneNumber" />
-                    <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.PhoneNumber">@Labels.Profile_Phone_Number</label>
+                    <input class="peer" type="text" placeholder="@Localizer.Profile_Phone_Number]" asp-for="Input.PhoneNumber" />
+                    <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.PhoneNumber">@Localizer.Profile_Phone_Number</label>
                     <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
                 </div>
                 <div class="input-group">
                     <select class="peer" asp-for="Input.ZoneInfo" required>
-                        <option value="" selected>@Labels.Profile_Choose</option>
+                        <option value="" selected>@Localizer.Profile_Choose</option>
                         @foreach (var timezone in zoneInfoProvider.GetTimeZones())
                         {
                             <option value="@timezone.Id">@timezone.DisplayName</option>
                         }
                     </select>
-                    <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.ZoneInfo">@Labels.Profile_Timezone</label>
+                    <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.ZoneInfo">@Localizer.Profile_Timezone</label>
                     <span asp-validation-for="Input.ZoneInfo" class="text-danger"></span>
                 </div>
             }
         </div>
         <div class="row">
             <div class="input-group">
-                <input class="peer" type="text" placeholder="@Labels.Profile_Tax_Identification" asp-for="Input.Tin" />
-                <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.Tin">@Labels.Profile_Tax_Identification</label>
+                <input class="peer" type="text" placeholder="@Localizer.Profile_Tax_Identification" asp-for="Input.Tin" />
+                <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.Tin">@Localizer.Profile_Tax_Identification</label>
                 <span asp-validation-for="Input.Tin" class="text-danger"></span>
             </div>
             <div class="input-group">
-                <input class="peer" type="date" placeholder="@Labels.Profile_Birth_Date" asp-for="Input.BirthDate" />
-                <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.BirthDate">@Labels.Profile_Birth_Date</label>
+                <input class="peer" type="date" placeholder="@Localizer.Profile_Birth_Date" asp-for="Input.BirthDate" />
+                <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.BirthDate">@Localizer.Profile_Birth_Date</label>
                 <span asp-validation-for="Input.BirthDate" class="text-danger"></span>
             </div>
         </div>
@@ -123,13 +123,13 @@
             <div class="row">
                 <div class="input-group">
                     <select class="peer" asp-for="Input.ZoneInfo" required>
-                        <option value="" selected>@Labels.Profile_Choose</option>
+                        <option value="" selected>@Localizer.Profile_Choose</option>
                         @foreach (var timezone in zoneInfoProvider.GetTimeZones())
                         {
                             <option value="@timezone.Id">@timezone.DisplayName</option>
                         }
                     </select>
-                    <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.ZoneInfo">@Labels.Profile_Timezone</label>
+                    <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.ZoneInfo">@Localizer.Profile_Timezone</label>
                     <span asp-validation-for="Input.ZoneInfo" class="text-danger"></span>
                 </div>
             </div>
@@ -139,45 +139,45 @@
                 <input asp-for="Input.ConsentCommercial" type="checkbox" />
                 <label for="ConsentCommercial">
                     <span>
-                        @Labels.Profile_I_Have_Been_Informed_About_The_Processing_Of_My_Personal_Data_And_I_Consent_To_It_As_Specifically_Defined
-                        <a class="font-bold" target="_blank" href="/privacy" onclick="event.stopPropagation();">@Labels.Profile_Here.</a>
+                        @Localizer.Profile_I_Have_Been_Informed_About_The_Processing_Of_My_Personal_Data_And_I_Consent_To_It_As_Specifically_Defined
+                        <a class="font-bold" target="_blank" href="/privacy" onclick="event.stopPropagation();">@Localizer.Profile_Here.</a>
                     </span>
                 </label>
             </div>
         </div>
         <div class="row mt-7 mb-12">
-            <div class="md:col-span-6 col-span-12"> <button class="btn  btn-primary" type="submit">@Labels.Profile_Save</button></div>
+            <div class="md:col-span-6 col-span-12"> <button class="btn  btn-primary" type="submit">@Localizer.Profile_Save</button></div>
         </div>
 
     </form>
     <div class="m-auto">
         <hr>
-        <h3 class="text-black mb-1">@Labels.Profile_Preferences</h3>
+        <h3 class="text-black mb-1">@Localizer.Profile_Preferences</h3>
         <form id="userPreferenceForm" method="post" asp-page-handler="UpdateLanguagePreference">
 
             <div class="input-group">
-                <select class="peer" asp-for="InputLanguagePreference.Locale" placeholder="@Labels.Profile_Language" required>
-                    <option value="">@Labels.Profile_Choose</option>
+                <select class="peer" asp-for="InputLanguagePreference.Locale" placeholder="@Localizer.Profile_Language" required>
+                    <option value="">@Localizer.Profile_Choose</option>
                     @foreach (var culture in Model.View.SupportedCultures)
                     {
                         <option value="@culture.TwoLetterISOLanguageName" selected="@(culture.TwoLetterISOLanguageName.Equals(Model.View.Locale))">@culture.TwoLetterISOLanguageName.ToUpperInvariant() - @culture.NativeName</option>
                     }
                 </select>
-                <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="InputLanguagePreference.Locale">@Labels.Profile_Language</label>
+                <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="InputLanguagePreference.Locale">@Localizer.Profile_Language</label>
                 <span asp-validation-for="InputLanguagePreference.Locale" class="text-danger"></span>
             </div>
         </form>
     </div>
     <div class="m-auto" indice-if="Model.View.CurrentLogins?.Count > 0 || Model.View.OtherLogins?.Count > 0">
         <hr>
-        <h3 class="text-black mb-1">@Labels.Profile_External_Providers</h3>
+        <h3 class="text-black mb-1">@Localizer.Profile_External_Providers</h3>
         @{
             var alertProviders = TempData.Get<AlertModel>("AlertProviders");
         }
         <partial name="_Alert" model="alertProviders" />
         @if (Model.View.CurrentLogins?.Count > 0)
         {
-            <p class="text-sm">@Labels.Profile_Existing_Providers</p>
+            <p class="text-sm">@Localizer.Profile_Existing_Providers</p>
             <div class="row pb-5 mt-5">
                 @foreach (var provider in Model.View.CurrentLogins)
                 {
@@ -188,7 +188,7 @@
                         <form asp-page-handler="RemoveLogin" method="post" class="inline">
                             <input asp-for="@provider.LoginProvider" name="@nameof(provider.LoginProvider)" type="hidden" />
                             <input asp-for="@provider.ProviderKey" name="@nameof(provider.ProviderKey)" type="hidden" />
-                            <button type="submit" class="btn btn-danger" disabled="@(!Model.View.CanRemoveProvider)">@Labels.Profile_Remove</button>
+                            <button type="submit" class="btn btn-danger" disabled="@(!Model.View.CanRemoveProvider)">@Localizer.Profile_Remove</button>
                         </form>
                     </div>
                 }
@@ -196,7 +196,7 @@
         }
         @if (Model.View.OtherLogins?.Count > 0)
         {
-            <p class="text-sm">@Labels.Profile_Connect_A_New_Provider</p>
+            <p class="text-sm">@Localizer.Profile_Connect_A_New_Provider</p>
             <div class="flex justify-start pb-5 mt-5">
 
                 @foreach (var provider in Model.View.OtherLogins)

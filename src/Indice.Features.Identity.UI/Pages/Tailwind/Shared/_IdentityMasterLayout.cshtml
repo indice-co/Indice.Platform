@@ -4,10 +4,10 @@
 @inject ITelemetryJavaScriptSnippet JavaScriptSnippet
 @inject IOptions<IdentityUIOptions> UiOptions
 @inject SignInManager<User> SignInManager
-@inject IdentityLabelsMessageDescriber Labels
+@inject IdentityUILocalizer Localizer
 
 @{
-    var applicationName = @Labels.GetGeneric(ViewBag.ApplicationName ?? Settings.ApplicationName);
+    var applicationName = @Localizer.GetGeneric(ViewBag.ApplicationName ?? Settings.ApplicationName);
     var dash = ViewBag.Title != null ? " - " : string.Empty;
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;

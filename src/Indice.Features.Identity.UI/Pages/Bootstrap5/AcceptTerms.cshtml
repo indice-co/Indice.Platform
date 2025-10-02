@@ -1,10 +1,10 @@
 ﻿@page "/login/accept-terms"
 
 @model BaseAcceptTermsModel
-@inject IdentityLabelsMessageDescriber Labels
+@inject IdentityUILocalizer Localizer
 
 @{
-    ViewData["Title"] = Labels.AcceptTerms_AcceptTermsAndConditions;
+	ViewData["Title"] = Localizer.AcceptTerms_AcceptTermsAndConditions;
     
 }
 <div class="identity-panel m-auto">
@@ -18,10 +18,10 @@
         <div class="mb-3">
             <div class="row m-0 w-100">
                 <div class="col-sm-6 py-1">
-                    <a class="btn btn-link w-100" href="~/">@Labels.AcceptTerms_Reject</a>
+                    <a class="btn btn-link w-100" href="~/">@Localizer.AcceptTerms_Reject</a>
                 </div>
                 <div class="col-sm-6 py-1">
-                    <button class="btn btn-primary w-100" type="submit">@Labels.AcceptTerms_Accept</button>
+                    <button class="btn btn-primary w-100" type="submit">@Localizer.AcceptTerms_Accept</button>
                 </div>
             </div>
         </div>

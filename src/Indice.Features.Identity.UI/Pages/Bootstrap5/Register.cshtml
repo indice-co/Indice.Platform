@@ -5,10 +5,10 @@
 @inject ExtendedUserManager<User> userManager
 @inject CallingCodesProvider callingCodesProvider
 @inject IOptions<IdentityUIOptions> identityUiOptions
-@inject IdentityLabelsMessageDescriber Labels
+@inject IdentityUILocalizer Localizer
 
 @{
-    var title = ViewData["Title"] = Labels.Register_Sign_Up;
+    var title = ViewData["Title"] = Localizer.Register_Sign_Up;
 }
 
 <section class="sign-up m-auto">
@@ -22,28 +22,28 @@
                 {
                     <li class="idp idp-@provider.AuthenticationScheme!.ToLower()">
                         <a class="btn btn-@provider.AuthenticationScheme.ToLower() btn-hover" asp-page="/Challenge" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.View.ReturnUrl" asp-route-prompt="@OidcConstants.PromptModes.SelectAccount">
-                            @Labels.GetGeneric(provider.DisplayName!)
+                            @Localizer.GetGeneric(provider.DisplayName!)
                         </a>
                     </li>
                 }
             </ul>
         </div>
-        <div class="hr-sect">@Labels.Register_OR</div>
+        <div class="hr-sect">@Localizer.Register_OR</div>
     }
     <form asp-route-returnUrl="@Model.View.ReturnUrl" data-sbind="event: { change: formChanged }" method="post" autocomplete="new-password" novalidate>
         <input type="hidden" asp-for="Input.ReturnUrl" />
         <div class="row">
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label asp-for="Input.FirstName" class="form-label">@Labels.Register_First_Name</label>
-                    <input class="form-control" type="text" asp-for="Input.FirstName" placeholder="@Labels.Register_First_Name" autofocus />
+                    <label asp-for="Input.FirstName" class="form-label">@Localizer.Register_First_Name</label>
+                    <input class="form-control" type="text" asp-for="Input.FirstName" placeholder="@Localizer.Register_First_Name" autofocus />
                     <span asp-validation-for="Input.FirstName" class="text-danger"></span>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label asp-for="Input.LastName" class="form-label">@Labels.Register_Last_Name</label>
-                    <input class="form-control" type="text" asp-for="Input.LastName" placeholder="@Labels.Register_Last_Name" />
+                    <label asp-for="Input.LastName" class="form-label">@Localizer.Register_Last_Name</label>
+                    <input class="form-control" type="text" asp-for="Input.LastName" placeholder="@Localizer.Register_Last_Name" />
                     <span asp-validation-for="Input.LastName" class="text-danger"></span>
                 </div>
             </div>
@@ -53,15 +53,15 @@
             <div class="row">
                 <div indice-if="!userManager.EmailAsUserName" class="@(identityUiOptions.Value.EnablePhoneNumberCallingCodes ? "col-md-12" : "col-md-6")">
                     <div class="mb-3">
-                        <label asp-for="Input.Email" class="form-label">@Labels.Email</label>
-                        <input class="form-control" type="text" asp-for="Input.Email" placeholder="@Labels.Email" />
+                        <label asp-for="Input.Email" class="form-label">@Localizer.Email</label>
+                        <input class="form-control" type="text" asp-for="Input.Email" placeholder="@Localizer.Email" />
                         <span asp-validation-for="Input.Email" class="text-danger"></span>
                     </div>
                 </div>
                 <div indice-if="!identityUiOptions.Value.EnablePhoneNumberCallingCodes" class="@(userManager.EmailAsUserName ? "col-md-12" : "col-md-6")">
                     <div class="mb-3">
-                        <label asp-for="Input.PhoneNumber" class="form-label">@Labels.Register_Phone_number</label>
-                        <input class="form-control" type="text" asp-for="Input.PhoneNumber" placeholder="@Labels.Register_Phone_number" />
+                        <label asp-for="Input.PhoneNumber" class="form-label">@Localizer.Register_Phone_number</label>
+                        <input class="form-control" type="text" asp-for="Input.PhoneNumber" placeholder="@Localizer.Register_Phone_number" />
                         <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
                     </div>
                 </div>
@@ -70,9 +70,9 @@
         <div indice-if="identityUiOptions.Value.EnablePhoneNumberCallingCodes" class="row">
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label class="form-label" asp-for="Input.CallingCode">@Labels.Register_Calling_Code</label>
+                    <label class="form-label" asp-for="Input.CallingCode">@Localizer.Register_Calling_Code</label>
                     <select class="form-control lh-lg" asp-for="Input.CallingCode" required>
-                        <option value="" selected>@Labels.Profile_Choose</option>
+                        <option value="" selected>@Localizer.Profile_Choose</option>
                         @foreach (var callingCode in callingCodesProvider.GetSupportedCallingCodes())
                         {
                             <option value="@callingCode">@callingCode.DisplayName</option>
@@ -83,8 +83,8 @@
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label asp-for="Input.PhoneNumber" class="form-label">@Labels.Register_Phone_number]</label>
-                    <input class="form-control" type="text" asp-for="Input.PhoneNumber" placeholder="@Labels.Register_Phone_number]" />
+                    <label asp-for="Input.PhoneNumber" class="form-label">@Localizer.Register_Phone_number]</label>
+                    <input class="form-control" type="text" asp-for="Input.PhoneNumber" placeholder="@Localizer.Register_Phone_number]" />
                     <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
                 </div>
             </div>
@@ -97,9 +97,9 @@
                         <hr>
                         <div>
                             <p>
-                                @Labels.Register_Choose_An_Email_And_A_Password
+                                @Localizer.Register_Choose_An_Email_And_A_Password
                                 <br><br>
-                                @Labels.Register_Credentials_Notice
+                                @Localizer.Register_Credentials_Notice
                             </p>
                         </div>
                     </div>
@@ -108,8 +108,8 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="mb-3">
-                        <label asp-for="Input.Email" class="form-label">@Labels.Email</label>
-                        <input class="form-control" type="text" asp-for="Input.Email" placeholder="@Labels.Email" />
+                        <label asp-for="Input.Email" class="form-label">@Localizer.Email</label>
+                        <input class="form-control" type="text" asp-for="Input.Email" placeholder="@Localizer.Email" />
                         <span asp-validation-for="Input.Email" class="text-danger"></span>
                     </div>
                 </div>
@@ -123,9 +123,9 @@
                         <hr>
                         <div>
                             <p>
-                                @Labels.Register_Choose_A_Username_And_A_Password
+                                @Localizer.Register_Choose_A_Username_And_A_Password
                                 <br><br>
-                                @Labels.Register_Credentials_Notice
+                                @Localizer.Register_Credentials_Notice
                             </p>
                         </div>
                     </div>
@@ -134,8 +134,8 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="mb-3">
-                        <label asp-for="Input.UserName" class="form-label">@Labels.Register_Username</label>
-                        <input class="form-control" type="text" asp-for="Input.UserName" placeholder="@Labels.Register_Username" autocomplete="off" />
+                        <label asp-for="Input.UserName" class="form-label">@Localizer.Register_Username</label>
+                        <input class="form-control" type="text" asp-for="Input.UserName" placeholder="@Localizer.Register_Username" autocomplete="off" />
                         <span asp-validation-for="Input.UserName" class="text-danger"></span>
                     </div>
                 </div>
@@ -144,8 +144,8 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="mb-3">
-                    <label asp-for="Input.Password" class="form-label">@Labels.Register_Password</label>
-                    <input class="form-control" type="password" asp-for="Input.Password" data-sbind="event: { keyup: passwordChanged }" placeholder="@Labels.Register_Password" autocomplete="new-password" />
+                    <label asp-for="Input.Password" class="form-label">@Localizer.Register_Password</label>
+                    <input class="form-control" type="password" asp-for="Input.Password" data-sbind="event: { keyup: passwordChanged }" placeholder="@Localizer.Register_Password" autocomplete="new-password" />
                     <span asp-validation-for="Input.Password" class="text-danger"></span>
                 </div>
             </div>
@@ -162,7 +162,7 @@
                 <div class="mb-3">
                     <label class="checkbox">
                         <input asp-for="Input.HasAcceptedTerms" type="checkbox" />
-                        @Labels.Register_I_Have_Read_And_Accept_Terms
+                        @Localizer.Register_I_Have_Read_And_Accept_Terms
                     </label>
                     <span asp-validation-for="Input.HasAcceptedTerms" class="text-danger"></span>
                 </div>
@@ -173,8 +173,8 @@
                 <div class="mb-3">
                     <label class="checkbox">
                         <input asp-for="Input.HasReadPrivacyPolicy" type="checkbox" />
-                        @Labels.Register_I_Consent_To_Registration
-                        <a style="font-weight:bold" asp-page="/Privacy" target="_blank">@Labels.Register_Here</a>.
+                        @Localizer.Register_I_Consent_To_Registration
+                        <a style="font-weight:bold" asp-page="/Privacy" target="_blank">@Localizer.Register_Here</a>.
                     </label>
                     <span asp-validation-for="Input.HasReadPrivacyPolicy" class="text-danger"></span>
                 </div>
@@ -185,7 +185,7 @@
                 <div class="mb-3">
                     <label class="checkbox">
                         <input asp-for="Input.HasConsentedToCommercialCommunications" type="checkbox" />
-                        @Labels.Register_I_Consent_To_Contact_Usage
+                        @Localizer.Register_I_Consent_To_Contact_Usage
                     </label>
                     <span asp-validation-for="Input.HasConsentedToCommercialCommunications" class="text-danger"></span>
                 </div>
@@ -194,12 +194,12 @@
         <div class="row align-items-center">
             <div class="col-md-6 col-12">
                 <div class="mb-3">
-                    <a class="btn btn-link w-100" asp-page="/Login" asp-route-returnUrl="@Model.View.ReturnUrl">@Labels.Register_Already_Have_An_Account</a>
+                    <a class="btn btn-link w-100" asp-page="/Login" asp-route-returnUrl="@Model.View.ReturnUrl">@Localizer.Register_Already_Have_An_Account</a>
                 </div>
             </div>
             <div class="col-md-6 col-12">
                 <div class="mb-3">
-                    <button class="btn btn-primary w-100" type="submit" data-sbind="attr: { disabled: !isFormValid }">@Labels.Register_Join_Us</button>
+                    <button class="btn btn-primary w-100" type="submit" data-sbind="attr: { disabled: !isFormValid }">@Localizer.Register_Join_Us</button>
                 </div>
             </div>
         </div>

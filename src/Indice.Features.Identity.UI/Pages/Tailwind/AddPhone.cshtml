@@ -7,11 +7,11 @@
 @inject IOptions<IdentityUIOptions> identityUiOptions
 
 
-@inject IdentityLabelsMessageDescriber Labels
+@inject IdentityUILocalizer Localizer
 
 
 @{
-    var title = ViewData["Title"] = Labels.AddPhone_Add;
+    var title = ViewData["Title"] = Localizer.AddPhone_Add;
     var alert = TempData.Peek<AlertModel>(BaseAddPhoneModel.TempDataKey);
 }
 
@@ -26,19 +26,19 @@
                 <div class="row relative my-5">
                     <div class="input-group">
                         <select class="peer" asp-for="Input.CallingCode" required>
-                            <option value="" selected>@Labels.Profile_Choose</option>
+                            <option value="" selected>@Localizer.Profile_Choose</option>
                             @foreach (var callingCode in callingCodesProvider.GetSupportedCallingCodes())
                             {
                                 <option value="@callingCode" selected="@(callingCode.Code == Model.Input.CallingCode)">@callingCode.DisplayName</option>
                             }
                         </select>
-                        <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.CallingCode">@Labels.AddPhone_CallingCode</label>
+                        <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.CallingCode">@Localizer.AddPhone_CallingCode</label>
                         <span asp-validation-for="Input.CallingCode" class="text-danger"></span>
                     </div>
                     <div class="input-group">
                         <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
-                        <input class="peer" type="text" placeholder="@Labels.AddPhone_PhoneNumber" asp-for="Input.PhoneNumber" />
-                        <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Labels.AddPhone_PhoneNumber</label>
+                        <input class="peer" type="text" placeholder="@Localizer.AddPhone_PhoneNumber" asp-for="Input.PhoneNumber" />
+                        <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer.AddPhone_PhoneNumber</label>
                         <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
                     </div>
                 </div>
@@ -47,14 +47,14 @@
             {
                 <div class="relative my-5">
                     <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
-                    <input class="peer" type="text" placeholder="@Labels.AddPhone_PhoneNumber" asp-for="Input.PhoneNumber" />
-                    <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Labels.AddPhone_PhoneNumber</label>
+                    <input class="peer" type="text" placeholder="@Localizer.AddPhone_PhoneNumber" asp-for="Input.PhoneNumber" />
+                    <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer.AddPhone_PhoneNumber</label>
                     <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
                 </div>
             }
             <div class="row justify-items-center place-items-center">
                 <div class="input-group-w-full">
-                    <button class="btn btn-primary" type="submit">@Labels.AddPhone_Save</button>
+                    <button class="btn btn-primary" type="submit">@Localizer.AddPhone_Save</button>
                 </div>
             </div>
             <input type="hidden" asp-for="Input.ReturnUrl" />

@@ -1,11 +1,11 @@
 ﻿@page "/login/add-email"
 
 @model BaseAddEmailModel
-@inject IdentityLabelsMessageDescriber Labels
+@inject IdentityUILocalizer Localizer
 
 @{
 
-    var title = ViewData["Title"] = Labels.AddEmail_Verify_email;
+    var title = ViewData["Title"] = Localizer.AddEmail_Verify_email;
     var tempData = TempData.Peek<ExtendedValidationTempDataModel>(BaseAddEmailModel.TempDataKey);
 }
 
@@ -16,13 +16,13 @@
         <partial name="_Alert" model="tempData?.Alert" />
         <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" novalidate>
             <div class="flex flex-wrap items-center relative my-5">
-                <input type="text" class="peer" placeholder="@Labels.Email" asp-for="Input.Email" disabled="@tempData?.DisableForm" />
-                <label asp-for="Input.Email" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Labels.Email</label>
+                <input type="text" class="peer" placeholder="@Localizer.Email" asp-for="Input.Email" disabled="@tempData?.DisableForm" />
+                <label asp-for="Input.Email" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer.Email</label>
                 <span asp-validation-for="Input.Email" class="text-danger"></span>
             </div>
             <div class="row justify-items-center place-items-center">
                 <div indice-if="Model.UiOptions.ShowAddEmailPrompt" class="@(tempData?.DisableForm == true ? "col-span-6" : "col-span-12" ) flex flex-col">
-                    <button class="btn btn-primary" type="submit" disabled="@tempData?.DisableForm">@Labels.AddEmail_Save</button>
+                    <button class="btn btn-primary" type="submit" disabled="@tempData?.DisableForm">@Localizer.AddEmail_Save</button>
                 </div>
                 @if (tempData?.DisableForm == true || !string.IsNullOrEmpty(tempData?.NextStepUrl))
                 {

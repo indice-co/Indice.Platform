@@ -2,11 +2,11 @@
 
 @model BaseTermsModel
 
-@inject IdentityLabelsMessageDescriber Labels
+@inject IdentityUILocalizer Localizer
 
 @{
     ViewData["body-css-class"] = "article-page";
-	ViewData["Title"] = Labels.Terms_PageTitle.Value;
+	ViewData["Title"] = Localizer.Terms_PageTitle.Value;
 }
 
 <article class="p-0 py-md-4 px-md-5">

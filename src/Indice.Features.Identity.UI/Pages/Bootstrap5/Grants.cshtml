@@ -1,24 +1,24 @@
 ﻿@page "/grants"
 
 @model BaseGrantsModel
-@inject IdentityLabelsMessageDescriber Labels
+@inject IdentityUILocalizer Localizer
 
 
 @{
-    var title = ViewData["Title"] = Labels.Grants_Grants;
+    var title = ViewData["Title"] = Localizer.Grants_Grants;
 }
 
 <section class="page-grants m-auto">
     <div class="page-header">
         <vc:page-heading title="@title" image-src="" />
         <p indice-if="Model.View.Grants!.Any()" class="text-muted">
-            @Labels.Grants_Applications_And_Resources
+            @Localizer.Grants_Applications_And_Resources
         </p>
     </div>
     @if (!Model.View.Grants!.Any())
     {
         <div class="alert alert-dark text-center">
-            @Labels.Grants_No_Applications_Provided
+            @Localizer.Grants_No_Applications_Provided
         </div>
     }
     else
@@ -29,15 +29,15 @@
                 <div class="row no-gutters justify-content-center">
                     <div class="grant-header">
                         <div class="client-logo mb-3" indice-if="!string.IsNullOrEmpty(grant.ClientLogoUrl)">
-                            <img class="card-img rounded-circle" src="@(Url.IsLocalUrl(grant.ClientLogoUrl) ? Url.Content(grant.ClientLogoUrl) : grant.ClientLogoUrl)" alt="@Labels.Grants_Client_Logo" />
+                            <img class="card-img rounded-circle" src="@(Url.IsLocalUrl(grant.ClientLogoUrl) ? Url.Content(grant.ClientLogoUrl) : grant.ClientLogoUrl)" alt="@Localizer.Grants_Client_Logo" />
                         </div>
                         <div class="client-logo mb-3" indice-if="string.IsNullOrEmpty(grant.ClientLogoUrl)">
-                            <img class="card-img rounded-circle" src="~/avatar/@grant.ClientName/64.png" alt="@Labels.Grants_Client_Logo" />
+                            <img class="card-img rounded-circle" src="~/avatar/@grant.ClientName/64.png" alt="@Localizer.Grants_Client_Logo" />
                         </div>
                         <h5 class="card-title">@grant.ClientName</h5>
                         <p class="time-text">
                             <small class="text-1">
-                                <span class="created text-info">@Labels.Grants_Created</span>
+                                <span class="created text-info">@Localizer.Grants_Created</span>
                                 <span>
                                     @grant.Created.ToString("yyyy-MM-dd")
                                     <span class="bank-icon bank-icon-clock my-1 text-info fw-600"></span>
@@ -72,14 +72,14 @@
                             <form asp-page-handler="Revoke">
                                 <div class="mb-3 text-end">
                                     <input type="hidden" name="clientId" value="@grant.ClientId">
-                                    <button class="btn btn-outline-danger">@Labels.Grants_Revoke_Access</button>
+                                    <button class="btn btn-outline-danger">@Localizer.Grants_Revoke_Access</button>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
                 <small class="expires" indice-if="grant.Expires.HasValue">
-                    @Labels.Grants_Expires_On @(grant.Expires.HasValue ? $"{grant.Expires.Value.ToString("yyyy-MM-dd")} @ {grant.Expires.Value.ToString("HH:mm")}" : "-");
+                    @Localizer.Grants_Expires_On @(grant.Expires.HasValue ? $"{grant.Expires.Value.ToString("yyyy-MM-dd")} @ {grant.Expires.Value.ToString("HH:mm")}" : "-");
                 </small>
             </div>
         }

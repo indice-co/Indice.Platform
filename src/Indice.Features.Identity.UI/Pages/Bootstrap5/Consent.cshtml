@@ -1,12 +1,12 @@
 ﻿@page "/consent"
 
-@inject IdentityLabelsMessageDescriber Labels
+@inject IdentityUILocalizer Localizer
 
 
 @model BaseConsentModel
 
 @{
-    ViewData["Title"] = Labels.Consent_Consent;
+    ViewData["Title"] = Localizer.Consent_Consent;
 }
 
 <section class="page-consent identity-panel">
@@ -16,9 +16,9 @@
             <img indice-if="Model.View.ClientLogoUrl is null" class="img-fluid rounded-circle" src="~/avatar/@Model.View.ClientName/128.jpg" alt="Client's logo URL" />
         </div>
         <h1><span class="header-text">@Model.View.ClientName</span></h1>
-        <h3 indice-if="Model.View.ClientUrl is not null">@Labels.Consent_This <a target="_blank" href="@Model.View.ClientUrl">@Labels.Consent_App</a> @Labels.Consent_Would_Like_To:</h3>
-        <h3 indice-if="Model.View.ClientUrl is null">@Labels.Consent_This_App_Would_Like_To:</h3>
-        <small class="text-muted">* @Labels.Consent_Uncheck_The_Permissions_You_Do_Not_Wish_To_Grant</small>
+        <h3 indice-if="Model.View.ClientUrl is not null">@Localizer.Consent_This <a target="_blank" href="@Model.View.ClientUrl">@Localizer.Consent_App</a> @Localizer.Consent_Would_Like_To:</h3>
+        <h3 indice-if="Model.View.ClientUrl is null">@Localizer.Consent_This_App_Would_Like_To:</h3>
+        <small class="text-muted">* @Localizer.Consent_Uncheck_The_Permissions_You_Do_Not_Wish_To_Grant</small>
     </div>
     <div class="page-body">
         <partial name="_ValidationSummary" />
@@ -26,7 +26,7 @@
             <input type="hidden" asp-for="Input.ReturnUrl" />
             <div indice-if="Model.View.IdentityScopes.Any()" class="card border-0 mb-3 consent-buttons">
                 <div class="card-body p-0">
-                    <h4 class="card-title"><span class="bank-icon bank-icon-contact fw-600 pt-1 me-1"></span>@Labels.Consent_Personal_Information</h4>
+                    <h4 class="card-title"><span class="bank-icon bank-icon-contact fw-600 pt-1 me-1"></span>@Localizer.Consent_Personal_Information</h4>
                     <ul class="list-group">
                         @foreach (var scope in Model.View.IdentityScopes)
                         {
@@ -38,7 +38,7 @@
             <hr />
             <div indice-if="Model.View.ApiScopes.Any()" class="card border-0 mb-3 consent-buttons">
                 <div class="card-body p-0">
-                    <h4 class="card-title"><span class="bank-icon bank-icon-permissions fw-600 pt-1 me-1"></span>@Labels.Consent_Application_Access</h4>
+                    <h4 class="card-title"><span class="bank-icon bank-icon-permissions fw-600 pt-1 me-1"></span>@Localizer.Consent_Application_Access</h4>
                     <ul class="list-group">
                         @foreach (var scope in Model.View.ApiScopes)
                         {
@@ -51,7 +51,7 @@
                 <div class="form-check custom-checkbox d-inline-block">
                     <label class="form-check-label">
                         <input class="consent-scopecheck form-check-input" asp-for="Input.RememberConsent" />
-                        @Labels.Consent_Remember_My_Decision
+                        @Localizer.Consent_Remember_My_Decision
                         <span class="control"></span>
                     </label>
                 </div>
@@ -59,10 +59,10 @@
             <div class="mb-3 consent-buttons">
                 <div class="row m-0 w-100">
                     <div class="col-sm-6 col-12 py-1">
-                        <button type="submit" name="button" value="no" class="btn btn-link w-100">@Labels.Consent_Cancel</button>
+                        <button type="submit" name="button" value="no" class="btn btn-link w-100">@Localizer.Consent_Cancel</button>
                     </div>
                     <div class="col-sm-6 col-12 py-1">
-                        <button type="submit" id="submitConsent" name="Input.Button" value="yes" class="btn btn-primary w-100" autofocus>@Labels.Consent_Accept</button>
+                        <button type="submit" id="submitConsent" name="Input.Button" value="yes" class="btn btn-primary w-100" autofocus>@Localizer.Consent_Accept</button>
                     </div>
                 </div>
             </div>

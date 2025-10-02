@@ -2,10 +2,10 @@
 
 @model BaseVerifyPhoneModel
 
-@inject IdentityLabelsMessageDescriber Labels
+@inject IdentityUILocalizer Localizer
 
 @{
-    var title = ViewData["Title"] = Labels.VerifyPhone_Verify_Phone_Number;
+    var title = ViewData["Title"] = Localizer.VerifyPhone_Verify_Phone_Number;
     var tempData = TempData.Peek<ExtendedValidationTempDataModel>(BaseVerifyPhoneModel.TempDataKey);
     var alert = tempData?.Alert;
     var displayNext = !string.IsNullOrEmpty(tempData?.NextStepUrl) && tempData?.Alert?.AlertType == AlertType.Success;
@@ -20,29 +20,29 @@
             <input type="hidden" asp-for="Input.ReturnUrl" />
             <input type="hidden" asp-for="Input.PhoneNumber" />
             <div class="relative my-5">
-                <input type="text" class="peer" placeholder="@Labels.VerifyPhone_Code" asp-for="Input.Code" disabled="@displayNext" />
-                <label asp-for="Input.Code" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Labels.VerifyPhone_Code</label>
+                <input type="text" class="peer" placeholder="@Localizer.VerifyPhone_Code" asp-for="Input.Code" disabled="@displayNext" />
+                <label asp-for="Input.Code" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer.VerifyPhone_Code</label>
                 <span asp-validation-for="Input.Code" class="text-danger"></span>
             </div>
             <div class="row justify-items-center place-items-center">
                 <div class="col-span-6 flex flex-col">
-                    <button class="btn btn-primary" type="submit" disabled="@displayNext">@Labels.VerifyPhone_Save</button>
+                    <button class="btn btn-primary" type="submit" disabled="@displayNext">@Localizer.VerifyPhone_Save</button>
                 </div>
                 @if (displayNext)
                 {
                     <div class="col-span-6 flex flex-col">
-                        <a class="btn btn-primary no-underline" href="@tempData?.NextStepUrl">@Labels.VerifyPhone_Next</a>
+                        <a class="btn btn-primary no-underline" href="@tempData?.NextStepUrl">@Localizer.VerifyPhone_Next</a>
                     </div>
                 }
                 else
                 {
                     <div class="col-span-6 flex flex-col">
-                        <button class="btn btn-outline" type="submit" id="otp-resend" name="Input.OtpResend" disabled="@displayNext" value="true">@Labels.VerifyPhone_Resend</button>
+                        <button class="btn btn-outline" type="submit" id="otp-resend" name="Input.OtpResend" disabled="@displayNext" value="true">@Localizer.VerifyPhone_Resend</button>
                     </div>
                 }
             </div>
             <div indice-if="!displayNext">
-                @Labels.VerifyPhone_OTP_is_valid_till
+                @Localizer.VerifyPhone_OTP_is_valid_till
                 <span id="lblcountdown" class="countdown"></span>
             </div>
         </form>

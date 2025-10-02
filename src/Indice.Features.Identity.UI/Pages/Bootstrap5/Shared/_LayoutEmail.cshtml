@@ -1,4 +1,4 @@
-﻿@inject IdentityLabelsMessageDescriber Labels
+﻿@inject IdentityUILocalizer Localizer
 @{ }
 
 <html>
@@ -21,8 +21,8 @@
                     <br />
                 </p>
                 <p style="font-family: 'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-size: 12px;">
-                    @Labels.ConfirmEmail_DoNotReply
-                    @Labels.ConfirmEmail_ServiceEmailInfo
+                    @Localizer.ConfirmEmail_DoNotReply
+                    @Localizer.ConfirmEmail_ServiceEmailInfo
                 </p>
             </td>
         </tr>

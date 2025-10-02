@@ -6,7 +6,7 @@ namespace Indice.Features.Identity.UI;
 /// <summary>
 /// Provides descriptive labels and messages for identity-related UI elements.
 /// </summary>
-public class IdentityLabelsMessageDescriber
+public class IdentityUILocalizer
 {
     /// <summary>Text for the email label.</summary>
     public virtual HtmlString Email => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Email));

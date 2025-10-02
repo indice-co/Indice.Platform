@@ -1,7 +1,7 @@
 ﻿@inject IOptions<GeneralSettings> GeneralSettings
 @inject IOptions<IdentityUIOptions> UIOptions
 @inject UserManager<User> UserManager
-@inject IdentityLabelsMessageDescriber Labels
+@inject IdentityUILocalizer Localizer
 
 
 @{
@@ -10,13 +10,13 @@
 
 @{
     var settings = GeneralSettings.Value;
-    var subject = Model?.Subject ?? Labels.EmailRegister_Subject(settings.ApplicationName!);
+	var subject = Model?.Subject ?? Localizer.EmailRegister_Subject(settings.ApplicationName!);
     var userName = Model?.UserName ?? UserManager.GetUserName(User);
     var confirmationLink = Model?.Url ?? throw new InvalidOperationException("Confirmation link cannot be null.");
 }
 
 @section preheader {
-    @Labels.EmailRegister_Subject(settings.ApplicationName!)
+    @Localizer.EmailRegister_Subject(settings.ApplicationName!)
 }
 
 @section subject {
@@ -26,22 +26,22 @@
 }
 
 <p style="font-family: 'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-size: 12px;">
-    @Labels.EmailRegister_Body_Hi @(userName ?? string.Empty),
+    @Localizer.EmailRegister_Body_Hi @(userName ?? string.Empty),
     <br />
     <br />
-    @Labels.EmailRegister_Body_Welcome(settings.ApplicationName!)
+    @Localizer.EmailRegister_Body_Welcome(settings.ApplicationName!)
     <br />
     <br />
-    @Labels.EmailRegister_Body_ConfirmEmail
-    <a style="color:#@UIOptions.Value.EmailLinkColorHex" href="@confirmationLink">@Labels.Email_Preheader_Here</a>.
+    @Localizer.EmailRegister_Body_ConfirmEmail
+    <a style="color:#@UIOptions.Value.EmailLinkColorHex" href="@confirmationLink">@Localizer.Email_Preheader_Here</a>.
     <br />
     <br />
-    @Labels.EmailRegister_Body_IgnoreNotice
+    @Localizer.EmailRegister_Body_IgnoreNotice
     <br />
     <br />
-    @Labels.EmailRegister_Body_Thanks
+    @Localizer.EmailRegister_Body_Thanks
     <br />
     <br />
-    @Labels.Email_Body_Sincerely,<br />
-    @Labels.OrganizationName(settings.Organization!)
+    @Localizer.Email_Body_Sincerely,<br />
+    @Localizer.OrganizationName(settings.Organization!)
 </p>

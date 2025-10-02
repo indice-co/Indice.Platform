@@ -107,16 +107,16 @@ public static class IdentityBuilderUIExtensions
         services.TryAddTransient<ITelemetryJavaScriptSnippet, AzureMonitorTelemetryJavaScriptSnippet>(); // browser ui telemetry.
 
         services.AddPlatformEventHandler<SecurityNotificationEvent, SecurityNotificationEventHandler>();
-        services.AddScoped<IdentityLabelsMessageDescriber>();
+        services.AddScoped<IdentityUILocalizer>();
 
         return services;
     }
 
-    /// <summary>Adds an overridden implementation of <see cref="IdentityLabelsMessageDescriber"/>.</summary>
+    /// <summary>Adds an overridden implementation of <see cref="IdentityUILocalizer"/>.</summary>
     /// <typeparam name="TDescriber">The type of labels describer.</typeparam>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-    public static IServiceCollection AddIdentityUILabelDescriber<TDescriber>(this IServiceCollection services) where TDescriber : IdentityLabelsMessageDescriber {
-        services.AddScoped<IdentityLabelsMessageDescriber, TDescriber>();
+    public static IServiceCollection AddIdentityUILabelDescriber<TDescriber>(this IServiceCollection services) where TDescriber : IdentityUILocalizer {
+        services.AddScoped<IdentityUILocalizer, TDescriber>();
         return services;
     }
     private static Assembly? GetApplicationAssembly(IServiceCollection services) {

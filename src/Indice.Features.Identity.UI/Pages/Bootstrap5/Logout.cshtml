@@ -1,21 +1,21 @@
 ﻿@page "/logout"
 
 @model BaseLogoutModel
-@inject IdentityLabelsMessageDescriber Labels
+@inject IdentityUILocalizer Localizer
 
 @{
-    var title = ViewData["Title"] = Labels.Logout_Logout;
+    var title = ViewData["Title"] = Localizer.Logout_Logout;
 }
 
 <section class="identity-panel wide logout-page">
     <article class="text-center">
         <vc:page-heading title="@title" image-src="" />
-        <p>@Labels.Logout_Would_You_Like_To_Logout</p>
+        <p>@Localizer.Logout_Would_You_Like_To_Logout</p>
         <form asp-page="/Logout">
             <input type="hidden" name="logoutId" value="@Model.LogoutId" />
             <fieldset>
                 <div class="mb-3">
-                    <button class="btn btn-primary">@Labels.Logout_Yes</button>
+                    <button class="btn btn-primary">@Localizer.Logout_Yes</button>
                 </div>
             </fieldset>
         </form>

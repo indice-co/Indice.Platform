@@ -1,7 +1,7 @@
 @model RedirectViewModel
-@inject IdentityLabelsMessageDescriber Labels
+@inject IdentityUILocalizer Localizer
 
-<h1>@Labels.Redirect_Returning</h1>
-<p>@Labels.Redirect_CloseTab</p>
+<h1>@Localizer.Redirect_Returning</h1>
+<p>@Localizer.Redirect_CloseTab</p>
 <meta http-equiv="refresh" content="0;url=@Model.RedirectUri" data-url="@Model.RedirectUri" />
 <script type="text/javascript" src="~/js/signin-redirect.js" csp-nonce="true"></script>
