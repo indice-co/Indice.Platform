@@ -30,6 +30,7 @@ internal static class CampaignsApi
 
         group.RequireAuthorization(pb => pb.AddAuthenticationSchemes(MessagesApi.AuthenticationScheme)
                                            .RequireAuthenticatedUser()
+
                                            .RequireCampaignsManagement()
                                            .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
 

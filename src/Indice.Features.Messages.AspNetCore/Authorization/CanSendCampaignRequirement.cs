@@ -8,8 +8,6 @@ namespace Indice.Features.Messages.AspNetCore.Authorization;
 /// <summary>This authorization requirement specifies that an endpoint must be accessible only to Messaging tool managers.</summary>
 public class CanSendCampaignRequirement : IAuthorizationRequirement
 {
-    /// <summary>The policy name corresponding to this requirement.</summary>
-    public const string PolicyName = MessagesApi.Policies.BeCampaignManager;
 
     /// <summary>Creates a new instance of <see cref="CanSendCampaignRequirement"/>.</summary>
     public CanSendCampaignRequirement() {
@@ -38,7 +36,8 @@ public class CanSendCampaignHandler : AuthorizationHandler<CanSendCampaignRequir
             return Task.CompletedTask;
         }
         // Get user id/application id from the corresponding claims.
-        var allowed = HasSendScope(context) || IsUserAdmin(context) || HasRoleCampaignManager(context);
+        var allowed = HasSendScope(context) || 
+                        (HasMessagingScope(context) && IsUserCampaignManager(context));
         // Apparently nothing else worked.
         if (allowed) {
             context.Succeed(requirement);
@@ -48,14 +47,14 @@ public class CanSendCampaignHandler : AuthorizationHandler<CanSendCampaignRequir
         return Task.CompletedTask;
     }
 
-    private static bool HasRoleCampaignManager(AuthorizationHandlerContext context) {
-        return context.User!.HasRoleClaim(BasicRoleNames.CampaignManager);
+    private static bool IsUserCampaignManager(AuthorizationHandlerContext context) {
+        return context.User!.IsAdmin() || context.User!.HasRoleClaim(BasicRoleNames.CampaignManager);
     }
 
-    private static bool IsUserAdmin(AuthorizationHandlerContext context) {
-        return context.User!.IsAdmin();
+    private static bool HasMessagingScope(AuthorizationHandlerContext context) {
+        //this is for clients credentials flow
+        return context.User!.HasScope(MessagesApi.Scope);
     }
-
     private static bool HasSendScope(AuthorizationHandlerContext context) {
         //this is for clients credentials flow
         return context.User!.HasScope(MessagesApi.SendScope);

@@ -23,14 +23,15 @@ internal static class SendApi
         var group = routes.MapGroup(options.PathPrefix.TrimEnd('/') + "/send");
         group.WithGroupName("send");
         group.WithTags("send");
-        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).ToArray();
+        var allowedScopes = new[] { MessagesApi.SendScope };
 
         group.RequireAuthorization(pb => pb.AddAuthenticationSchemes(MessagesApi.AuthenticationScheme)
                                            .RequireAuthenticatedUser()
-                                           .RequireSendManagement()
+                                           .RequireCanSendMessage()
                                            .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
 
-        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
+        group.AddOpenApiSecurityRequirement("oauth2", allowedScopes)
+            .WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.WithHandledException<BusinessException>()
              .ProducesProblem(StatusCodes.Status401Unauthorized)
