@@ -36,8 +36,6 @@ public class MessageManagementOptions : CampaignOptionsBase
 
     /// <summary>The default scope name to be used for Messages API. Defaults to <see cref="MessagesApi.Scope"/>.</summary>
     public string RequiredScope { get; set; } = MessagesApi.Scope;
-    /// <summary>The default scope name to be used for Send API. Defaults to <see cref="MessagesApi.SendScope"/>.</summary>
-    public string SendRequiredScope { get; set; } = MessagesApi.SendScope;
     /// <summary>Group name for management controllers, used in API explorer. Default is 'messages';</summary>
     public string GroupName { get; set; } = "messages";
     /// <summary>This is the file upload limit used by the management api when uploading attachements. Defaults to 6 MB</summary>
