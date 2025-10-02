@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 
 import { map, tap, shareReplay, startWith } from 'rxjs';
 import { HeaderMetaItem, Icons } from '@indice/ng-components';
-import { OverviewMetrics, MessagesApiClient, TimeFrame } from 'src/app/core/services/messages-api.service';
+import { OverviewMetrics, MessagesApiClient, SeriesTimeFrame } from 'src/app/core/services/messages-api.service';
 import { LineChartData } from '../../shared/components/line-chart/line-chart.component';
 
 @Component({
@@ -23,7 +23,7 @@ export class DashboardComponent implements OnInit {
   public gaugeChannels: { name: string; value: number; color: string; }[] = [];
 
 
-  public eventSeries$ = this._api.getEventsSeriesList(undefined, undefined, TimeFrame.Last30Days)
+  public eventSeries$ = this._api.getEventsSeriesList(undefined, undefined, SeriesTimeFrame.Last30Days)
                                  .pipe(shareReplay(1));
 
   public eventSeriesData$ = this.eventSeries$.pipe(

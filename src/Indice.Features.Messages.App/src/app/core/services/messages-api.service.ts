@@ -36,7 +36,7 @@ export interface IMessagesApiClient {
      * @param timeFrame (optional) 
      * @return OK
      */
-    getEventsSeriesList(eventType?: string | undefined, channel?: MessageChannelKind | undefined, timeFrame?: TimeFrame | undefined): Observable<MessageSeriesResultSet>;
+    getEventsSeriesList(eventType?: string | undefined, channel?: MessageChannelKind | undefined, timeFrame?: SeriesTimeFrame | undefined): Observable<MessageSeriesResultSet>;
     /**
      * Gets the overview analytics.
      * @param asOfDate (optional) 
@@ -111,11 +111,6 @@ export interface IMessagesApiClient {
      * @return OK
      */
     getCampaignStatistics(campaignId: string): Observable<CampaignDetailsMetrics>;
-    /**
-     * Gets the statistics for a specified campaign in the form of an Excel file.
-     * @return OK
-     */
-    exportCampaignStatistics(campaignId: string): Observable<RecipientMetrics>;
     /**
      * Gets the list of all contacts using the provided ListOptions.
      * @param page (optional) The current page of the list. Default is 1.
@@ -470,7 +465,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @param timeFrame (optional) 
      * @return OK
      */
-    getEventsSeriesList(eventType?: string | undefined, channel?: MessageChannelKind | undefined, timeFrame?: TimeFrame | undefined): Observable<MessageSeriesResultSet> {
+    getEventsSeriesList(eventType?: string | undefined, channel?: MessageChannelKind | undefined, timeFrame?: SeriesTimeFrame | undefined): Observable<MessageSeriesResultSet> {
         let url_ = this.baseUrl + "/analytics/events/series?";
         if (eventType === null)
             throw new globalThis.Error("The parameter 'eventType' cannot be null.");
@@ -1582,93 +1577,6 @@ export class MessagesApiClient implements IMessagesApiClient {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = CampaignDetailsMetrics.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = HttpValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("Not Found", status, _responseText, _headers);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    /**
-     * Gets the statistics for a specified campaign in the form of an Excel file.
-     * @return OK
-     */
-    exportCampaignStatistics(campaignId: string): Observable<RecipientMetrics> {
-        let url_ = this.baseUrl + "/campaigns/{campaignId}/statistics/export";
-        if (campaignId === undefined || campaignId === null)
-            throw new globalThis.Error("The parameter 'campaignId' must be defined.");
-        url_ = url_.replace("{campaignId}", encodeURIComponent("" + campaignId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processExportCampaignStatistics(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processExportCampaignStatistics(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<RecipientMetrics>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<RecipientMetrics>;
-        }));
-    }
-
-    protected processExportCampaignStatistics(response: HttpResponseBase): Observable<RecipientMetrics> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = RecipientMetrics.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 400) {
@@ -4983,7 +4891,6 @@ export interface ICampaignDetails {
 
 export class CampaignDetailsMetrics implements ICampaignDetailsMetrics {
     recipient?: RecipientMetrics;
-    /** Metrics per channel. */
     channels?: ChannelMetrics[];
 
     constructor(data?: ICampaignDetailsMetrics) {
@@ -5027,7 +4934,6 @@ export class CampaignDetailsMetrics implements ICampaignDetailsMetrics {
 
 export interface ICampaignDetailsMetrics {
     recipient?: RecipientMetrics;
-    /** Metrics per channel. */
     channels?: ChannelMetrics[];
 }
 
@@ -5202,6 +5108,7 @@ export class Contact implements IContact {
     updatedAt?: Date;
     isAnonymous?: boolean;
     resolved?: boolean;
+    lastResolutionDate?: Date;
     preference?: ContactPreference;
 
     constructor(data?: IContact) {
@@ -5227,6 +5134,7 @@ export class Contact implements IContact {
             this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : undefined as any;
             this.isAnonymous = _data["isAnonymous"];
             this.resolved = _data["resolved"];
+            this.lastResolutionDate = _data["lastResolutionDate"] ? new Date(_data["lastResolutionDate"].toString()) : undefined as any;
             this.preference = _data["preference"] ? ContactPreference.fromJS(_data["preference"]) : undefined as any;
         }
     }
@@ -5252,6 +5160,7 @@ export class Contact implements IContact {
         data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : undefined as any;
         data["isAnonymous"] = this.isAnonymous;
         data["resolved"] = this.resolved;
+        data["lastResolutionDate"] = this.lastResolutionDate ? this.lastResolutionDate.toISOString() : undefined as any;
         data["preference"] = this.preference ? this.preference.toJSON() : undefined as any;
         return data;
     }
@@ -5270,6 +5179,7 @@ export interface IContact {
     updatedAt?: Date;
     isAnonymous?: boolean;
     resolved?: boolean;
+    lastResolutionDate?: Date;
     preference?: ContactPreference;
 }
 
@@ -5830,6 +5740,7 @@ export class CreateContactRequest implements ICreateContactRequest {
     email?: string;
     phoneNumber?: string;
     resolved?: boolean;
+    lastResolutionDate?: Date;
 
     constructor(data?: ICreateContactRequest) {
         if (data) {
@@ -5851,6 +5762,7 @@ export class CreateContactRequest implements ICreateContactRequest {
             this.email = _data["email"];
             this.phoneNumber = _data["phoneNumber"];
             this.resolved = _data["resolved"];
+            this.lastResolutionDate = _data["lastResolutionDate"] ? new Date(_data["lastResolutionDate"].toString()) : undefined as any;
         }
     }
 
@@ -5872,6 +5784,7 @@ export class CreateContactRequest implements ICreateContactRequest {
         data["email"] = this.email;
         data["phoneNumber"] = this.phoneNumber;
         data["resolved"] = this.resolved;
+        data["lastResolutionDate"] = this.lastResolutionDate ? this.lastResolutionDate.toISOString() : undefined as any;
         return data;
     }
 }
@@ -5886,6 +5799,7 @@ export interface ICreateContactRequest {
     email?: string;
     phoneNumber?: string;
     resolved?: boolean;
+    lastResolutionDate?: Date;
 }
 
 export class CreateDistributionListContactRequest implements ICreateDistributionListContactRequest {
@@ -5899,6 +5813,7 @@ export class CreateDistributionListContactRequest implements ICreateDistribution
     email?: string;
     phoneNumber?: string;
     resolved?: boolean;
+    lastResolutionDate?: Date;
 
     constructor(data?: ICreateDistributionListContactRequest) {
         if (data) {
@@ -5921,6 +5836,7 @@ export class CreateDistributionListContactRequest implements ICreateDistribution
             this.email = _data["email"];
             this.phoneNumber = _data["phoneNumber"];
             this.resolved = _data["resolved"];
+            this.lastResolutionDate = _data["lastResolutionDate"] ? new Date(_data["lastResolutionDate"].toString()) : undefined as any;
         }
     }
 
@@ -5943,6 +5859,7 @@ export class CreateDistributionListContactRequest implements ICreateDistribution
         data["email"] = this.email;
         data["phoneNumber"] = this.phoneNumber;
         data["resolved"] = this.resolved;
+        data["lastResolutionDate"] = this.lastResolutionDate ? this.lastResolutionDate.toISOString() : undefined as any;
         return data;
     }
 }
@@ -5958,6 +5875,7 @@ export interface ICreateDistributionListContactRequest {
     email?: string;
     phoneNumber?: string;
     resolved?: boolean;
+    lastResolutionDate?: Date;
 }
 
 export class CreateDistributionListRequest implements ICreateDistributionListRequest {
@@ -6909,7 +6827,6 @@ export class OverviewMetrics implements IOverviewMetrics {
     campaign?: CampaignMetrics;
     contact?: ContactMetrics;
     recipient?: RecipientMetrics;
-    /** Metrics per channel. */
     channels?: ChannelMetrics[];
     /** The date and time when the statistics was last updated. */
     lastUpdateDate?: Date;
@@ -6963,7 +6880,6 @@ export interface IOverviewMetrics {
     campaign?: CampaignMetrics;
     contact?: ContactMetrics;
     recipient?: RecipientMetrics;
-    /** Metrics per channel. */
     channels?: ChannelMetrics[];
     /** The date and time when the statistics was last updated. */
     lastUpdateDate?: Date;
@@ -7329,6 +7245,14 @@ export interface IRecipientResultSet {
     items?: Recipient[];
 }
 
+export enum SeriesTimeFrame {
+    Last24Hours = "Last24Hours",
+    Last7Days = "Last7Days",
+    Last30Days = "Last30Days",
+    Last90Days = "Last90Days",
+    Last12Months = "Last12Months",
+}
+
 export class Template implements ITemplate {
     content?: { [key: string]: MessageContent; };
     data?: any;
@@ -7649,6 +7573,8 @@ export class UpdateContactRequest implements IUpdateContactRequest {
     fullName?: string;
     email?: string;
     phoneNumber?: string;
+    resolved?: boolean;
+    lastResolutionDate?: Date;
     distributionListId?: string;
     preference?: ContactPreference;
 
@@ -7670,6 +7596,8 @@ export class UpdateContactRequest implements IUpdateContactRequest {
             this.fullName = _data["fullName"];
             this.email = _data["email"];
             this.phoneNumber = _data["phoneNumber"];
+            this.resolved = _data["resolved"];
+            this.lastResolutionDate = _data["lastResolutionDate"] ? new Date(_data["lastResolutionDate"].toString()) : undefined as any;
             this.distributionListId = _data["distributionListId"];
             this.preference = _data["preference"] ? ContactPreference.fromJS(_data["preference"]) : undefined as any;
         }
@@ -7691,6 +7619,8 @@ export class UpdateContactRequest implements IUpdateContactRequest {
         data["fullName"] = this.fullName;
         data["email"] = this.email;
         data["phoneNumber"] = this.phoneNumber;
+        data["resolved"] = this.resolved;
+        data["lastResolutionDate"] = this.lastResolutionDate ? this.lastResolutionDate.toISOString() : undefined as any;
         data["distributionListId"] = this.distributionListId;
         data["preference"] = this.preference ? this.preference.toJSON() : undefined as any;
         return data;
@@ -7705,6 +7635,8 @@ export interface IUpdateContactRequest {
     fullName?: string;
     email?: string;
     phoneNumber?: string;
+    resolved?: boolean;
+    lastResolutionDate?: Date;
     distributionListId?: string;
     preference?: ContactPreference;
 }
@@ -7967,14 +7899,6 @@ export class UploadFileRequest implements IUploadFileRequest {
 
 export interface IUploadFileRequest {
     file: string;
-}
-
-export enum TimeFrame {
-    Last24Hours = "Last24Hours",
-    Last7Days = "Last7Days",
-    Last30Days = "Last30Days",
-    Last90Days = "Last90Days",
-    Last12Months = "Last12Months",
 }
 
 export interface FileResponse {

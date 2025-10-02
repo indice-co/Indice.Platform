@@ -7,6 +7,8 @@ using FluentValidation;
 using IdentityModel;
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer.ResponseHandling;
+using Duende.IdentityServer.Extensions;
+using Duende.IdentityServer.Stores;
 using Duende.IdentityServer.Services;
 #else
 using IdentityServer4.EntityFramework.Services;
@@ -140,7 +142,9 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             options.UserInteraction.ErrorIdParameter = "errorId";
             options.EmitScopesAsSpaceDelimitedStringInJwt = true;
 #if NET9_0_OR_GREATER
-            options.LicenseKey = configuration.GetIdentityOption<string?>(ExtendedIdentityServerOptions.Name, "DuendeLicenseKey");
+            var licenseKey = configuration.GetIdentityOption<string?>(ExtendedIdentityServerOptions.Name, "DuendeLicenseKey");
+            if (!string.IsNullOrEmpty(licenseKey))
+                options.LicenseKey = licenseKey;
 #endif
 
         })
@@ -204,7 +208,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         services.ConfigureApplicationCookie(AuthCookie(ExtendedIdentityConstants.ApplicationCookieName));
         services.ConfigureExtendedValidationCookie(AuthCookie(ExtendedIdentityConstants.ExtendedValidationCookieName));
         services.ConfigureExternalCookie(AuthCookie(ExtendedIdentityConstants.ExternalCookieName));
-        
+
         services.Configure<CookieAuthenticationOptions>(IdentityConstants.TwoFactorUserIdScheme, options => {
             options.Cookie.Name = ExtendedIdentityConstants.TwoFactorCookieName;
             options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
@@ -329,6 +333,11 @@ public static class IdentityServerEndpointServiceCollectionExtensions
                       .RequireAuthenticatedUser()
                       .RequireAssertion(context => context.User.HasScope(IdentityEndpoints.Scope) && (context.User.HasClaim(JwtClaimTypes.AuthenticationMethod, CustomGrantTypes.DeviceAuthentication) || context.User.IsAdmin()));
             });
+            authOptions.AddPolicy(IdentityEndpoints.Policies.BeUserDeviceSecretReader, policy => {
+                policy.AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
+                      .RequireAuthenticatedUser()
+                      .RequireAssertion(x => x.User.HasScope(IdentityEndpoints.SubScopes.UserDeviceSecret) || (x.User.HasScope(IdentityEndpoints.SubScopes.Users) && x.User.CanReadUsers()));
+            });
         });
         // Register the authentication handler, using a custom scheme name, for local APIs.
         builder.Services
@@ -365,7 +374,20 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         builder.Services.AddTransient<IValidator<TotpRequest>, TotpRequestValidator>();
         return builder;
     }
-
+#if NET9_0_OR_GREATER
+    /// <summary>Adds the certificate using for IIS and Windows were the new registration failes.</summary>
+    /// <param name="builder">Builder for configuring the Indice Identity Server.</param>
+    public static IExtendedIdentityServerBuilder AddCertificateIIS(this IExtendedIdentityServerBuilder builder) {
+        builder.Services.Remove<ISigningCredentialStore>();
+        builder.Services.Remove<IValidationKeysStore>();
+        var cert = new X509Certificate2(
+            Path.Combine(builder.Environment.ContentRootPath, builder.Configuration["IdentityServer:SigningPfxFile"] ?? string.Empty),
+            builder.Configuration["IdentityServer:SigningPfxPass"],
+            X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable);
+        builder.AddSigningCredential(cert);
+        return builder;
+    }
+#endif
     /// <summary>Adds all required services for <b>Database Settings</b> feature.</summary>
     /// <param name="builder">Builder for configuring the Indice Identity Server.</param>
     /// <param name="configureAction">Configuration used for <b>Database Settings</b> feature.</param>

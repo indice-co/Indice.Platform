@@ -1,4 +1,5 @@
-﻿using Asp.Versioning;
+﻿using System.Security.Claims;
+using Asp.Versioning;
 using Elsa;
 using Elsa.Activities.Http.Services;
 using Elsa.Activities.UserTask.Extensions;
