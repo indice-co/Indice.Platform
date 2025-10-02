@@ -14,8 +14,9 @@ import { catchError, map, mergeMap } from 'rxjs/operators';
 import { EMPTY, of } from 'rxjs';
 
 @Component({
-  selector: 'app-campaign-create',
-  templateUrl: './campaign-create.component.html'
+    selector: 'app-campaign-create',
+    templateUrl: './campaign-create.component.html',
+    standalone: false
 })
 export class CampaignCreateComponent implements OnInit, AfterViewChecked {
   @ViewChild('createCampaignStepper', { static: true }) private _stepper!: LibStepperComponent;

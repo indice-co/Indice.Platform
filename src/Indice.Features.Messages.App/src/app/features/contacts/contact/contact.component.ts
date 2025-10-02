@@ -7,7 +7,8 @@ import { ContactStore } from './contact-store.service';
 
 @Component({
     selector: 'app-contact',
-    templateUrl: './contact.component.html'
+    templateUrl: './contact.component.html',
+    standalone: false
 })
 export class ContactComponent implements OnInit, AfterViewChecked {
     @ViewChild('layout', { static: true }) private _layout!: ViewLayoutComponent;

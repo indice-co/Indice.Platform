@@ -6,8 +6,9 @@ import { map } from 'rxjs/operators';
 import { Campaign, CampaignResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 
 @Component({
-  selector: 'app-contact-campaigns',
-  templateUrl: './contact-campaigns.component.html'
+    selector: 'app-contact-campaigns',
+    templateUrl: './contact-campaigns.component.html',
+    standalone: false
 })
 export class ContactCampaignsComponent extends BaseListComponent<Campaign> implements OnInit {
   

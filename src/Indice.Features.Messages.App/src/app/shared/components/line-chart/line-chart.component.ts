@@ -14,8 +14,8 @@ export interface LineChartData {
 }
 
 @Component({
-  selector: 'app-line-chart',
-  template: `
+    selector: 'app-line-chart',
+    template: `
     <div class="chart-container">
       <canvas #chartCanvas></canvas>
       <div class="no-data-message" *ngIf="!hasData">
@@ -23,7 +23,7 @@ export interface LineChartData {
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .chart-container {
       position: relative;
       height: 100%;
@@ -48,7 +48,8 @@ export interface LineChartData {
       color: #999;
       background-color: rgba(255, 255, 255, 0.8);
     }
-  `]
+  `],
+    standalone: false
 })
 export class LineChartComponent implements OnInit, AfterViewInit {
   @ViewChild('chartCanvas') chartCanvas!: ElementRef<HTMLCanvasElement>;

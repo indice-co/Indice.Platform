@@ -5,8 +5,9 @@ import { SettingsStore } from '../../settings-store.service';
 import { MediaSetting, UpdateMediaSettingRequest } from 'src/app/core/services/media-api.service';
 
 @Component({
-  selector: 'app-media-setting-edit',
-  templateUrl: './media-setting-edit.component.html'
+    selector: 'app-media-setting-edit',
+    templateUrl: './media-setting-edit.component.html',
+    standalone: false
 })
 export class MediaSettingEditComponent implements OnInit, AfterViewInit {
   private _mediaSettingKey: string = '';

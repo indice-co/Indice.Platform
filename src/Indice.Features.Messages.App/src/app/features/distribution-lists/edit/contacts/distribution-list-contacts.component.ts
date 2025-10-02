@@ -10,7 +10,8 @@ import { FileResponse } from 'src/app/core/services/messages-api.service';
 
 @Component({
     selector: 'app-distribution-list-contacts',
-    templateUrl: './distribution-list-contacts.component.html'
+    templateUrl: './distribution-list-contacts.component.html',
+    standalone: false
 })
 export class DistributionListContactsComponent extends BaseListComponent<Contact> implements OnInit, OnDestroy {
     private _distributionListId: string = '';

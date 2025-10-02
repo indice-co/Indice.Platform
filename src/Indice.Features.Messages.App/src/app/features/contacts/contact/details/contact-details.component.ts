@@ -5,8 +5,9 @@ import { Contact } from 'src/app/core/services/messages-api.service';
 import { ContactStore } from '../contact-store.service';
 
 @Component({
-  selector: 'app-contact-details',
-  templateUrl: './contact-details.component.html'
+    selector: 'app-contact-details',
+    templateUrl: './contact-details.component.html',
+    standalone: false
 })
 export class ContactDetailsComponent implements OnInit {
   private _contactId: string | undefined;

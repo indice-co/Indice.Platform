@@ -7,7 +7,8 @@ import { Contact, MessagesApiClient, UpdateContactRequest } from 'src/app/core/s
 
 @Component({
     selector: 'app-distribution-list-contact-edit',
-    templateUrl: './distribution-list-contact-edit.component.html'
+    templateUrl: './distribution-list-contact-edit.component.html',
+    standalone: false
 })
 export class DistributionListContactEditComponent implements OnInit, AfterViewInit, OnDestroy {
     private _getContactSubscription!: Subscription;

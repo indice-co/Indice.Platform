@@ -8,12 +8,13 @@ Chart.register(ArcElement, Tooltip, Legend, DoughnutController);
 export interface GaugeChartItem { name: string; value: number; color: string; }
 
 @Component({
-  selector: 'app-gauge-chart',
-  template: `<canvas #gaugeCanvas></canvas>`,
-  styles: [`
+    selector: 'app-gauge-chart',
+    template: `<canvas #gaugeCanvas></canvas>`,
+    styles: [`
     :host { display: block; }
     canvas { max-width: 400px; max-height: 400px; position: relative; left: 50%; transform: translateX(-50%); }
-  `]
+  `],
+    standalone: false
 })
 export class DoughnutChartComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('gaugeCanvas', { static: true }) gaugeCanvas!: ElementRef<HTMLCanvasElement>;

@@ -5,8 +5,9 @@ import { MessagesApiClient, CreateMessageSenderRequest, MessageSender } from 'sr
 import { SettingsStore } from '../../settings-store.service';
 
 @Component({
-  selector: 'app-email-senders-create',
-  templateUrl: './email-senders-create.component.html'
+    selector: 'app-email-senders-create',
+    templateUrl: './email-senders-create.component.html',
+    standalone: false
 })
 export class EmailSendersCreateComponent implements OnInit {
   @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;

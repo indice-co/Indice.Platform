@@ -7,9 +7,10 @@ import { OverviewMetrics, MessagesApiClient, SeriesTimeFrame } from 'src/app/cor
 import { LineChartData } from '../../shared/components/line-chart/line-chart.component';
 
 @Component({
-  selector: 'app-dashboard',
-  templateUrl: './dashboard.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-dashboard',
+    templateUrl: './dashboard.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class DashboardComponent implements OnInit {
   constructor(
