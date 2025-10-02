@@ -4,7 +4,7 @@
       <div class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
         <div class="sm:col-span-1">
           <h2 id="applicant-information-title"
-              class="text-lg leading-6 font-medium text-gray-900">
+            class="text-lg leading-6 font-medium text-gray-900">
             Στοιχεία Επικοινωνίας
           </h2>
         </div>
@@ -47,46 +47,51 @@
             <th scope="col" class="list-view-th"><span class="mr-1 align-middle"><i class="ms-Icon ms-Icon--Inbox"></i></span>Inbox</th>
           </tr>
         </thead>
-        <tbody *ngIf="recepientPreference?.defaultChannels" class="list-view-tbody">
-          <tr class="list-view-tr">
-            <td class="list-view-td">
-              <span class="text-sm"><i class="mr-2 dot"></i> Default Settings</span>
-              
-            </td>
-            <td class="list-view-td">
-              <span [innerHtml]="CheckReceivePreference(recepientPreference?.defaultChannels!, ContactChannelKindEnum.Email) | beautifyBoolean"></span>
-            </td>
-            <td class="list-view-td">
-              <span [innerHtml]="CheckReceivePreference(recepientPreference?.defaultChannels!, ContactChannelKindEnum.SMS) | beautifyBoolean"></span>
-            </td>
-            <td class="list-view-td">
-              <span [innerHtml]="CheckReceivePreference(recepientPreference?.defaultChannels!, ContactChannelKindEnum.PushNotification) | beautifyBoolean"></span>
-            </td>
-            <td class="list-view-td">
-              <span [innerHtml]="true | beautifyBoolean"></span>
-            </td>
-          </tr>
-        </tbody>
-        <tbody *ngIf="recepientPreference?.communication" class="list-view-tbody">
-          <tr *ngFor="let preference of recepientPreference?.communication"
-              class="list-view-tr">
-            <td class="list-view-td">
-              <span class="text-sm" title="{{preference.messageType?.classification}}"><i class="mr-2 dot dot-{{preference.messageType?.classification}}"></i> {{preference.messageType?.name}}</span>
-            </td>
-            <td class="list-view-td">
-              <span [innerHtml]="CheckReceivePreference(preference.channels!, ContactChannelKindEnum.Email) | beautifyBoolean"></span>
-            </td>
-            <td class="list-view-td">
-              <span [innerHtml]="CheckReceivePreference(preference.channels!, ContactChannelKindEnum.SMS) | beautifyBoolean"></span>
-            </td>
-            <td class="list-view-td">
-              <span [innerHtml]="CheckReceivePreference(preference.channels!, ContactChannelKindEnum.PushNotification) | beautifyBoolean"></span>
-            </td>
-            <td class="list-view-td">
-              <span [innerHtml]="true | beautifyBoolean"></span>
-            </td>
-          </tr>
-        </tbody>
+        @if (recepientPreference?.defaultChannels) {
+          <tbody class="list-view-tbody">
+            <tr class="list-view-tr">
+              <td class="list-view-td">
+                <span class="text-sm"><i class="mr-2 dot"></i> Default Settings</span>
+              </td>
+              <td class="list-view-td">
+                <span [innerHtml]="CheckReceivePreference(recepientPreference?.defaultChannels!, ContactChannelKindEnum.Email) | beautifyBoolean"></span>
+              </td>
+              <td class="list-view-td">
+                <span [innerHtml]="CheckReceivePreference(recepientPreference?.defaultChannels!, ContactChannelKindEnum.SMS) | beautifyBoolean"></span>
+              </td>
+              <td class="list-view-td">
+                <span [innerHtml]="CheckReceivePreference(recepientPreference?.defaultChannels!, ContactChannelKindEnum.PushNotification) | beautifyBoolean"></span>
+              </td>
+              <td class="list-view-td">
+                <span [innerHtml]="true | beautifyBoolean"></span>
+              </td>
+            </tr>
+          </tbody>
+        }
+        @if (recepientPreference?.communication) {
+          <tbody class="list-view-tbody">
+            @for (preference of recepientPreference?.communication; track preference) {
+              <tr
+                class="list-view-tr">
+                <td class="list-view-td">
+                  <span class="text-sm" title="{{preference.messageType?.classification}}"><i class="mr-2 dot dot-{{preference.messageType?.classification}}"></i> {{preference.messageType?.name}}</span>
+                </td>
+                <td class="list-view-td">
+                  <span [innerHtml]="CheckReceivePreference(preference.channels!, ContactChannelKindEnum.Email) | beautifyBoolean"></span>
+                </td>
+                <td class="list-view-td">
+                  <span [innerHtml]="CheckReceivePreference(preference.channels!, ContactChannelKindEnum.SMS) | beautifyBoolean"></span>
+                </td>
+                <td class="list-view-td">
+                  <span [innerHtml]="CheckReceivePreference(preference.channels!, ContactChannelKindEnum.PushNotification) | beautifyBoolean"></span>
+                </td>
+                <td class="list-view-td">
+                  <span [innerHtml]="true | beautifyBoolean"></span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        }
       </table>
     </div>
   </div>

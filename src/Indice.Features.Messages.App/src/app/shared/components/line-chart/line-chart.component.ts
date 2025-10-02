@@ -18,11 +18,13 @@ export interface LineChartData {
     template: `
     <div class="chart-container">
       <canvas #chartCanvas></canvas>
-      <div class="no-data-message" *ngIf="!hasData">
-        No data available
-      </div>
+      @if (!hasData) {
+        <div class="no-data-message">
+          No data available
+        </div>
+      }
     </div>
-  `,
+    `,
     styles: [`
     .chart-container {
       position: relative;
