@@ -1,3 +1,5 @@
+@reference tailwindcss;
+
 @use "tailwindcss";
 @use "../node_modules/@indice/ng-components/_styles.scss";
 @import "../node_modules/highlight.js/styles/github.css";
