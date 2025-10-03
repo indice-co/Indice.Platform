@@ -16,7 +16,7 @@ internal static class SendHandlers
             Uri.TryCreate(request!.MediaBaseHref, UriKind.RelativeOrAbsolute, out var mediaBasePath) && !mediaBasePath.IsAbsoluteUri) {
             request.MediaBaseHref = (await baseHrefResolver.ResolveBaseHrefAsync()).ToString();
         }
-        var result = await notificationsManager.CreateCampaignInternal(request.ToCreateCampaignRequest(), validateRules: false);
+        var result = await notificationsManager.CreateCampaignInternal(request, validateRules: false);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(ValidationErrors.AddErrors("Campaign Validation", result.Errors));
         }
