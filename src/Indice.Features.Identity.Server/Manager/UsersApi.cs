@@ -15,7 +15,7 @@ public static class UsersApi
     /// <summary>Adds endpoints for managing application users.</summary>
     /// <param name="routes">Indice Identity Server route builder.</param>
     public static RouteGroupBuilder MapManageUsers(this IdentityServerEndpointRouteBuilder routes) {
-        
+
         var options = routes.GetEndpointOptions();
         var group = routes.MapGroup($"{options.ApiPrefix}/users");
         group.WithTags("Users");
@@ -149,7 +149,6 @@ public static class UsersApi
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
              .WithParameterValidation<SetPasswordRequest>();
 
-
         group.MapPut("{userId}/picture", PictureHandlers.SaveUserPicture)
              .WithName(nameof(PictureHandlers.SaveUserPicture))
              .WithSummary("Create or update profile picture of the given user.")
@@ -184,6 +183,23 @@ public static class UsersApi
              .WithName("GetUserPictureSizeFormat")
              .WithSummary("Get user's profile picture.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
+
+        var userDeviceSecretGroup = routes.MapGroup($"{options.ApiPrefix}/users");
+        userDeviceSecretGroup.WithTags("Users");
+        userDeviceSecretGroup.WithGroupName("identity");
+
+        userDeviceSecretGroup.ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        userDeviceSecretGroup.RequireAuthorization(IdentityEndpoints.Policies.BeUserDeviceSecretReader);
+        userDeviceSecretGroup
+            .AddOpenApiSecurityRequirement("oauth2", [options.ApiScope!, IdentityEndpoints.SubScopes.Users, IdentityEndpoints.SubScopes.UserDeviceSecret])
+            .WithOpenApiSecurityRequirement("oauth2", [options.ApiScope!, IdentityEndpoints.SubScopes.Users, IdentityEndpoints.SubScopes.UserDeviceSecret]);
+
+        userDeviceSecretGroup.MapGet("{userId}/devices/{deviceId}/secret", UserHandlers.GetUserDeviceSecret)
+             .WithName(nameof(UserHandlers.GetUserDeviceSecret))
+             .WithSummary("Get the secret for a user device.");
 
         return group;
     }

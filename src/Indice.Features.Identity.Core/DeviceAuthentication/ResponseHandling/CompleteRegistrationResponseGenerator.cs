@@ -52,7 +52,7 @@ internal class CompleteRegistrationResponseGenerator : IResponseGenerator<Comple
                 await UserDeviceStore.UpdatePassword(device, password);
                 break;
             case InteractionMode.Fingerprint when validationResult.Device is null:
-                device.PublicKey = validationResult.PublicKey;
+                device.PublicKey = validationResult.PublicKey;                
                 result = await UserManager.CreateDeviceAsync(validationResult.User!, device);
                 errors = result.Errors;
                 break;
