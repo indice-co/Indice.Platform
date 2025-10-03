@@ -6,6 +6,7 @@ using Indice.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.AspNetCore.Routing;
 
@@ -199,7 +200,8 @@ public static class UsersApi
 
         userDeviceSecretGroup.MapGet("{userId}/devices/{deviceId}/secret", UserHandlers.GetUserDeviceSecret)
              .WithName(nameof(UserHandlers.GetUserDeviceSecret))
-             .WithSummary("Get the secret for a user device.");
+             .WithSummary("Get the secret for a user device.")
+             .Produces<JsonWebKey>(StatusCodes.Status200OK, "application/jwk+json");
 
         return group;
     }
