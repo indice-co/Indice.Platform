@@ -26,6 +26,8 @@
     "@codemirror/language-data": "^6.5.1",
     "@indice/ng-auth": "0.4.0-beta.1",
     "@indice/ng-components": "0.4.0-beta.2",
+    "@types/chart.js": "^2.9.41",
+    "chart.js": "^4.4.1",
     "handlebars": "4.7.8",
     "highlight.js": "11.11.1",
     "highlightjs-line-numbers.js": "2.9.0",

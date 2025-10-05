@@ -110,7 +110,8 @@ const providers: Provider[] = [
   {
     provide: HIGHLIGHT_OPTIONS,
     useValue: {
-      lineNumbers: false,
+      fullLibraryLoader: () => import('highlight.js'),
+      lineNumbers: true,
       coreLibraryLoader: () => import('highlight.js/lib/core'),
       languages: {
         json: () => import('highlight.js/lib/languages/json')

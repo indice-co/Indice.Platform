@@ -63,7 +63,7 @@ export class DoughnutChartComponent implements OnInit, OnChanges, OnDestroy {
           onComplete: () => {
             delayed = true;
           },
-          delay: (context) => {
+          delay: (context: { type: string; mode: string; dataIndex: number; datasetIndex: number }) => {
             let delay = 0;
             if (context.type === 'data' && context.mode === 'default' && !delayed) {
               delay = context.dataIndex * 100 + context.datasetIndex * 100;
@@ -79,7 +79,7 @@ export class DoughnutChartComponent implements OnInit, OnChanges, OnDestroy {
           legend: { position: 'bottom' },
           tooltip: {
             callbacks: {
-              label: (ctx: any) => `${ctx.label}: ${ctx.parsed}`
+              label: (ctx: { label: string; parsed: number }) => `${ctx.label}: ${ctx.parsed}`
             }
           }
         },
