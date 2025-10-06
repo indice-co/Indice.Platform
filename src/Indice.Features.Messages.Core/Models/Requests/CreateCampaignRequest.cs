@@ -6,7 +6,7 @@ namespace Indice.Features.Messages.Core.Models.Requests;
 public class CreateCampaignRequest : CampaignRequestBase
 {
     /// <summary>Determines if a campaign is published.</summary>
-    public bool Published { get; set; }
+    public virtual bool Published { get; set; }
     /// <summary>Determines if a campaign must ignore user communication preferences.</summary>
     public bool? IgnoreUserPreferences { get; set; }
     /// <summary>Defines a list of user identifiers that constitutes the audience of the campaign.</summary>
