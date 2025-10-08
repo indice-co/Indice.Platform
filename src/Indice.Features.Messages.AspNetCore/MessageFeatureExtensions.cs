@@ -65,8 +65,11 @@ public static class MessageFeatureExtensions
         configureAction?.Invoke(apiOptions);
 
         // Configure authorization. It's important to register the authorization policy provider at this point.
+        //
+        
         services.AddAuthorization(policy => policy.AddCampaignsManagementPolicy(apiOptions.RequiredScope))
                 .AddTransient<IAuthorizationHandler, BeCampaignManagerHandler>();
+        services.AddTransient<IAuthorizationHandler, CanSendCampaignHandler>();
 
         services.AddCampaignCore(apiOptions);
 
