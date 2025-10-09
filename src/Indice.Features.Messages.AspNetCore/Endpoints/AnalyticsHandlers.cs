@@ -23,6 +23,7 @@ internal static class AnalyticsHandlers
                 Kind = Enum.Parse<MessageChannelKind>(x.Key), 
                 Total = x.Value 
             }).ToList(),
+            PerType = (await campaignService.GetMessageTypeMetrics()),
             LastUpdateDate = DateTimeOffset.UtcNow
         };
         return TypedResults.Ok(metrics);
