@@ -19,11 +19,12 @@ internal static class AnalyticsHandlers
                 Known = (await contactService.GetList(new() { Page = 1, Size = 0, Filter = new() { Anonymous = false } })).Count
             },
             Recipient = (await campaignService.GetRecipientMetrics())!,
-            Channels = (await campaignService.GetChannelMetrics()).Select(x => new ChannelMetrics { 
+            PerChannel = (await campaignService.GetChannelMetrics()).Select(x => new ChannelMetrics { 
                 Kind = Enum.Parse<MessageChannelKind>(x.Key), 
                 Total = x.Value 
             }).ToList(),
-            PerType = (await campaignService.GetMessageTypeMetrics()),
+            PerType = (await campaignService.GetMessageTypeMetrics(limit: 5)),
+            PerTypeToday = (await campaignService.GetMessageTypeMetrics(asOfDate ?? DateTimeOffset.UtcNow, limit: 5)),
             LastUpdateDate = DateTimeOffset.UtcNow
         };
         return TypedResults.Ok(metrics);

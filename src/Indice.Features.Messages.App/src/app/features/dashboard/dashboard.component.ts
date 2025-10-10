@@ -46,7 +46,6 @@ export class DashboardComponent implements OnInit {
     })
   );
 
-  
   public metrics$ = this._api.getOverview()
                              .pipe(
                                startWith(new OverviewMetrics()),
@@ -72,8 +71,8 @@ export class DashboardComponent implements OnInit {
   }
 
   private buildGaugeChannels(metrics: OverviewMetrics) {
-    if (!metrics?.channels) return [];
-    return metrics.channels.map(x => {
+    if (!metrics?.perChannel) return [];
+    return metrics.perChannel.map(x => {
       return {
         name: x.kind!,
         value: x.total || 0,

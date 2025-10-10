@@ -246,10 +246,11 @@ public class CampaignService : ICampaignService
 
 
     /// <inheritdoc />
-    public async Task<List<Volume<MessageType>>> GetMessageTypeMetrics(int limit = 5) {
+    public async Task<List<Volume<MessageType>>> GetMessageTypeMetrics(DateTimeOffset? onDate = null, int limit = 5) {
         var query = from messageEvent in DbContext.MessageEvents
-                    where messageEvent.Type == MessageEventType.Sent.ToString() ||
-                          (messageEvent.Channel == nameof(MessageChannelKind.Inbox) && messageEvent.Type == nameof(MessageEventType.Created))
+                    where (onDate == null || (onDate.Value.Date.AddDays(-1) <= messageEvent.CreatedOn && messageEvent.CreatedOn <= onDate.Value.Date.AddDays(1))) &&
+                          (messageEvent.Type == nameof(MessageEventType.Sent) ||
+                          (messageEvent.Channel == nameof(MessageChannelKind.Inbox) && messageEvent.Type == nameof(MessageEventType.Created)))
                     join campaign in DbContext.Campaigns on messageEvent.CampaignId equals campaign.Id
                     join messageType in DbContext.MessageTypes on campaign.TypeId equals messageType.Id into mt
                     from messageTypeLeft in mt.DefaultIfEmpty()
@@ -257,24 +258,30 @@ public class CampaignService : ICampaignService
                     select new {
                         MessageType = new MessageType {
                             Id = g.Key.Id ?? Guid.Empty,
-                            Name = g.Key.Name,
+                            Name = g.Key.Name ?? "None",
                             Classification = g.Key.Classification
                         },
                         Count = g.Select(x => x.MessageId).Distinct().Count()
                     };
         var items = await query.OrderByDescending(x => x.Count).Select(x => new Volume<MessageType> { Info = x.MessageType, Total = x.Count }).ToListAsync();
-        if (items.Count <= limit) {
+        if (items.Count > limit) {
+            items = items.Take(limit).Append(new() {
+                Info = new MessageType {
+                    Id = Guid.Empty,
+                    Name = "Other",
+                    Classification = MessageTypeClassification.System
+                },
+                Total = items.Skip(limit).Sum(x => x.Total)
+            }).ToList();
+        }
+        if (items.Count == 0) {
             return items;
         }
-        var results = items.Take(limit).Append(new () {
-            Info = new MessageType {
-                Id = Guid.Empty,
-                Name = "Other",
-                Classification = MessageTypeClassification.System
-            },
-            Total = items.Skip(limit).Sum(x => x.Total)
-        });
-        return results.ToList();
+        var maxQuantity = (double)items[0].Total;
+        foreach (var item in items) {
+            item.Rate = maxQuantity > 0 ? item.Total / maxQuantity : 0.0;
+        }
+        return items;
     }
 
     /// <inheritdoc />

@@ -41,9 +41,10 @@ public interface ICampaignService
     /// <param name="campaignId">The id of the campaign. Optional</param>
     Task<Dictionary<string, int>> GetChannelMetrics(Guid? campaignId = null);
     /// <summary>Gets the  volume of messages per message type.</summary>
+    /// <param name="onDate">The day for which to calculate the volume. If null then the volume will be calculated for the entire dataset</param>
     /// <param name="limit">Limit top results. Defaults to <c>5</c></param>
     /// <remarks>The method will order results by volume descenting and limit the top <paramref name="limit"/> number.</remarks>
-    Task<List<Volume<MessageType>>> GetMessageTypeMetrics(int limit = 5);
+    Task<List<Volume<MessageType>>> GetMessageTypeMetrics(DateTimeOffset? onDate = null, int limit = 5);
     /// <summary>Gets a list of all messages populated for this campaign.</summary>
     /// <param name="campaignId">The id of the campaign.</param>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>

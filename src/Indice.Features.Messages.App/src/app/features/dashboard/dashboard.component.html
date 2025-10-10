@@ -72,7 +72,7 @@
   </dl>
   <div class="cards-deck-3 mt-8">
 
-    <div class="card" >
+    <div class="card">
       <div class="card-body">
         <h4 class="mt-0 header-title mb-4" *ngIf="(eventSeries$ | async) as series">
           Messages last {{ series.count - 1 }} days
@@ -80,7 +80,7 @@
             {{ series.summary?.total }}
           </span>
         </h4>
-        <app-line-chart  style="max-height:200px" [data]="eventSeriesData$ | async"
+        <app-line-chart style="max-height:200px" [data]="eventSeriesData$ | async"
                         [options]="{
                         tension: 0.2,
                         scales: { x: { grid: { display: false }, display: false }, y: { grid: { display: false }, display: false } },
@@ -105,6 +105,29 @@ plugins: { legend: { display: false } },
 responsive: true,
 maintainAspectRatio: false
 }"></app-gauge-chart>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body" style="position:relative">
+        <h4 class="mt-0 header-title mb-4">
+          <span>
+            Messages per type today
+          </span>
+          <span class="flex items-baseline text-2xl font-semibold text-indigo-600 dark:text-indigo-400">
+            {{ metrics?.perTypeToday | sum:'total' }}
+          </span>
+        </h4>
+        <ol>
+          <li *ngFor="let type of metrics?.perTypeToday">
+            <span class="message-type-badge" style="border-color:transparent" [ngClass]="type.info.classification">{{ type.info.name }}: {{type.total}} </span>
+            <div class="mini-bar-chart">
+
+              <div class="mini-bar">
+                <div class="mini-bar-fill" [ngStyle]="{'width.%': type.rate * 100}" [ngClass]="type.info.classification"></div>
+              </div>
+            </div>
+          </li>
+        </ol>
       </div>
     </div>
   </div>
