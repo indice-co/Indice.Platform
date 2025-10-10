@@ -1,4 +1,5 @@
 ﻿using System.Security.Cryptography;
+using System.Text;
 using IdentityModel;
 using Indice.Events;
 using Indice.Features.Identity.Core;
@@ -13,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using UAParser;
 using Xunit;
 
 namespace Indice.Features.Identity.Tests;
@@ -130,6 +132,17 @@ public class UserHandlersTests : IAsyncLifetime
 
         var jwk = JsonWebKeyConverter.ConvertFromRSASecurityKey(new RsaSecurityKey(rsa) {
             KeyId = CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex)
+        });
+
+        Assert.NotNull(jwk);
+    }
+
+    [Fact]
+    public void CreateUserDevice_ConvertInstallationIdToJsonWebKey_Test() {
+        var installationId = "47a9cc78-d5ce-405b-af10-57c7efe45e97";        
+
+        var jwk = JsonWebKeyConverter.ConvertFromSymmetricSecurityKey(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(installationId)) {
+            KeyId = CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex) + " symmetric"
         });
 
         Assert.NotNull(jwk);
