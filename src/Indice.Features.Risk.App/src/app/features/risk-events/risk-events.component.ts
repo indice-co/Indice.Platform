@@ -100,23 +100,6 @@ export class RiskEventsComponent extends BaseListComponent<RiskEvent> implements
         super.ngOnInit();
     }
 
-    applySessionIdFilter(item: RiskEvent): void {
-        if (!item.sessionId) {
-            this.toasterService.show(ToastType.Warning, 'Προσοχή', 'Το συγκεκριμένο συμβάν δεν διαθέτει κωδικό συνεδρίας (session id) για να φιλτραριστεί το αποτέλεσμα.');
-            return;
-        }
-        const sessionIdFilter = {
-          member: 'sessionId',
-          value: item.sessionId,
-          operator: 'eq' as FilterClause.Op,
-          dataType: 'string' as FilterClause.Dt,
-          uiOperator: '=',
-          uiValue: item.sessionId
-        } as FilterClause;
-        this.filters.push(sessionIdFilter);
-        this.advancedSearchChanged(this.filters);
-    }
-
     loadItems(): Observable<IResultSet<RiskEvent>> {
         let extraFilters: string[] = [];
         this.filters?.forEach(x => extraFilters.push(this.stringifyFilterClause(x)));
