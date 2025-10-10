@@ -56,6 +56,7 @@ import { PageIllustrationComponent } from './shared/components/page-illustration
 import { RadioButtonsListComponent } from './shared/components/radio-buttons-list/radio-buttons-list.component';
 import { ListContactCreateComponent } from './shared/components/list-contact-create/list-contact-create.component';
 import { SafePipe } from './shared/pipes/safe.pipe';
+import { SumPipe } from './shared/pipes/sum.pipe';
 import { ShellConfig } from './shell.config';
 import { TemplateContentEditComponent } from './features/templates/edit/content/template-edit-content.component';
 import { TemplateCreateComponent } from './features/templates/create/template-create.component';
@@ -168,6 +169,7 @@ if (app.settings.tenantId) {
     PageIllustrationComponent,
     RadioButtonsListComponent,
     SafePipe,
+    SumPipe,
     TemplateContentEditComponent,
     TemplateCreateComponent,
     TemplateDetailsEditComponent,

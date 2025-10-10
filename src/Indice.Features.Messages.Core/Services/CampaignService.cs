@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using HandlebarsDotNet;
 using HandlebarsDotNet.Extension.Json;
@@ -242,6 +243,46 @@ public class CampaignService : ICampaignService
                                     (x.Channel == nameof(MessageChannelKind.Inbox) && x.Type == nameof(MessageEventType.Created)))
                         .GroupBy(m => m.Channel)
                         .ToDictionaryAsync(g => g.Key, g => g.Count());
+
+
+    /// <inheritdoc />
+    public async Task<List<Volume<MessageType>>> GetMessageTypeMetrics(DateTimeOffset? onDate = null, int limit = 5) {
+        var query = from messageEvent in DbContext.MessageEvents
+                    where (onDate == null || (onDate.Value.Date.AddDays(-1) <= messageEvent.CreatedOn && messageEvent.CreatedOn <= onDate.Value.Date.AddDays(1))) &&
+                          (messageEvent.Type == nameof(MessageEventType.Sent) ||
+                          (messageEvent.Channel == nameof(MessageChannelKind.Inbox) && messageEvent.Type == nameof(MessageEventType.Created)))
+                    join campaign in DbContext.Campaigns on messageEvent.CampaignId equals campaign.Id
+                    join messageType in DbContext.MessageTypes on campaign.TypeId equals messageType.Id into mt
+                    from messageTypeLeft in mt.DefaultIfEmpty()
+                    group messageEvent by new { Id = (Guid?)messageTypeLeft.Id, messageTypeLeft.Name, messageTypeLeft.Classification } into g
+                    select new {
+                        MessageType = new MessageType {
+                            Id = g.Key.Id ?? Guid.Empty,
+                            Name = g.Key.Name ?? "None",
+                            Classification = g.Key.Classification
+                        },
+                        Count = g.Select(x => x.MessageId).Distinct().Count()
+                    };
+        var items = await query.OrderByDescending(x => x.Count).Select(x => new Volume<MessageType> { Info = x.MessageType, Total = x.Count }).ToListAsync();
+        if (items.Count > limit) {
+            items = items.Take(limit).Append(new() {
+                Info = new MessageType {
+                    Id = Guid.Empty,
+                    Name = "Other",
+                    Classification = MessageTypeClassification.System
+                },
+                Total = items.Skip(limit).Sum(x => x.Total)
+            }).ToList();
+        }
+        if (items.Count == 0) {
+            return items;
+        }
+        var maxQuantity = (double)items[0].Total;
+        foreach (var item in items) {
+            item.Rate = maxQuantity > 0 ? item.Total / maxQuantity : 0.0;
+        }
+        return items;
+    }
 
     /// <inheritdoc />
     public async Task UpdateHit(Guid campaignId) {
