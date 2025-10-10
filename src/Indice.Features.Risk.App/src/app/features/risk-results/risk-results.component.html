@@ -37,7 +37,7 @@
                 <lib-list-column [title]="'Amount'">
                     <ng-template let-item>{{ item.amount || '-' }}</ng-template>
                 </lib-list-column>
-               
+
                 <lib-list-column [title]="'Name'">
                     <ng-template let-item>{{ item.name || '-' }}</ng-template>
                 </lib-list-column>
@@ -60,13 +60,10 @@
 
                 <lib-list-column [title]="'Results'">
                     <ng-template let-item>
-                        <a *ngIf="item.results !== undefined" (click)="openRiskDetailsPane(item)"
+                        <a (click)="openRiskDetailsPane(item)"
                            class="bg-dusty-orange hover:bg-dusty-orange-opacity text-white font-bold p-2 inline-flex rounded text-xs">
                             <span>{{ 'More details' }}</span>
                         </a>
-                        <span *ngIf="item.results === undefined">
-                            {{'-'}}
-                        </span>
                     </ng-template>
                 </lib-list-column>
 </lib-list-view>
