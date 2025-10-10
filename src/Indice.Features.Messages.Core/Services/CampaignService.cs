@@ -254,12 +254,12 @@ public class CampaignService : ICampaignService
                     join campaign in DbContext.Campaigns on messageEvent.CampaignId equals campaign.Id
                     join messageType in DbContext.MessageTypes on campaign.TypeId equals messageType.Id into mt
                     from messageTypeLeft in mt.DefaultIfEmpty()
-                    group messageEvent by new { Id = (Guid?)messageTypeLeft.Id, messageTypeLeft.Name, messageTypeLeft.Classification } into g
+                    group messageEvent by new { Id = (Guid?)messageTypeLeft.Id, messageTypeLeft.Name, Classification = (MessageTypeClassification?)messageTypeLeft.Classification } into g
                     select new {
                         MessageType = new MessageType {
                             Id = g.Key.Id ?? Guid.Empty,
                             Name = g.Key.Name ?? "None",
-                            Classification = g.Key.Classification
+                            Classification = g.Key.Classification ?? MessageTypeClassification.System
                         },
                         Count = g.Select(x => x.MessageId).Distinct().Count()
                     };
