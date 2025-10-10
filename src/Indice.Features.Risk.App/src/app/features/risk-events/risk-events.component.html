@@ -62,31 +62,12 @@
                     <ng-template let-item>{{ item.countryIsoCode || '-' }}</ng-template>
                 </lib-list-column>
 
-                <lib-list-column [title]="'Session ID'">
-                    <ng-template let-item>
-                        <div>
-                            <span class="mr-2">
-                                {{ item.sessionId || '-' }}
-                            </span>
-                            <button *ngIf="item.sessionId" (click)="applySessionIdFilter(item)"
-                                class="bg-orange-500 hover:bg-dusty-orange-opacity text-white font-bold p-2 inline-flex rounded text-xs"
-                                [attr.aria-label]="'Apply filter for session ID ' + (item.sessionId || '-')"
-                                [attr.title]="'Apply filter for session ID ' + (item.sessionId || '-')">
-                                    <i class="ms-Icon ms-Icon--Filter" aria-hidden="true"></i>
-                            </button>
-                        </div>
-                    </ng-template>
-                </lib-list-column>
-
                 <lib-list-column [title]="'Extra Data'">
                     <ng-template let-item>
-                        <a *ngIf="item.data !== undefined" (click)="openDetailsPane(item)"
+                        <a (click)="openDetailsPane(item)"
                            class="bg-dusty-orange hover:bg-dusty-orange-opacity text-white font-bold p-2 inline-flex rounded text-xs">
                             <span>{{ 'More details' }}</span>
                         </a>
-                        <span *ngIf="item.data === undefined">
-                            {{'-'}}
-                        </span>
                     </ng-template>
                 </lib-list-column>
 </lib-list-view>
