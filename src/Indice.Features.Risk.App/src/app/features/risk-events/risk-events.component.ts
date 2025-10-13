@@ -5,7 +5,7 @@ import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, Toaster
 import { FilterClause, SearchOption } from '@indice/ng-components/lib/controls/advanced-search/models';
 import { User } from 'oidc-client-ts';
 import { Observable, Subscription } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { map, take, tap } from 'rxjs/operators';
 import { ParamsService } from 'src/app/core/services/params.service';
 import { RiskApiService, RiskEvent, RiskEventResultSet } from 'src/app/core/services/risk-api.service';
 import { DataService } from 'src/app/core/services/data.service';
@@ -124,6 +124,9 @@ export class RiskEventsComponent extends BaseListComponent<RiskEvent> implements
             )
             .pipe(
                 take(1),
+                tap((result: RiskEventResultSet) => {
+                  this.count = result.count;
+                }),
                 map((result: RiskEventResultSet) => (result as IResultSet<RiskEvent>))
             );
     }
