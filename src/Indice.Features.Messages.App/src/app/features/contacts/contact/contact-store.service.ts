@@ -31,4 +31,8 @@ export class ContactStore {
     }
     return this._contact;
   }
+
+  public reload(recipientId: string) {
+    return this._api.refreshContact(recipientId);
+  }
 }

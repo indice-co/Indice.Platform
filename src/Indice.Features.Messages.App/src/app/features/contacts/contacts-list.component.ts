@@ -20,7 +20,7 @@ export class ContactsListComponent extends BaseListComponent<Contact> implements
     this.view = ListViewType.Table;
     this.pageSize = 20;
     this.sort = 'updatedAt';
-    this.sortdir = 'asc';
+    this.sortdir = 'desc';
     this.search = '';
     this.sortOptions = [
       new MenuOption('Τροποποιήθηκε', 'updatedAt'),

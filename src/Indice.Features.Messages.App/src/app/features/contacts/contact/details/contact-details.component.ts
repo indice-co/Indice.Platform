@@ -27,4 +27,8 @@ export class ContactDetailsComponent implements OnInit {
       });
     }
   }
+
+  public reload(recipientId: string): void {
+    this._ContactStore.reload(recipientId).subscribe();
+  }
 }
