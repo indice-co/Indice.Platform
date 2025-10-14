@@ -106,6 +106,7 @@ public class SmsTests
         var inMemorySettings = new Dictionary<string, string?> {
             ["Sms:ApiKey"] = apiKey,
             ["Sms:SignatureSecret"] = signatureSecret,
+            ["Sms:SignatureMethod"] = "hmac-sha256",
             ["Sms:Sender"] = sender,
             ["Sms:SenderName"] = sender,
             ["Sms:TestMode"] = true.ToString(),

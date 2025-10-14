@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Net.Http.Headers;
 using System.Net.Mime;
+using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -60,7 +61,7 @@ public class SmsServiceVonage : ISmsService
             text: body!,
             ttl: Settings.Ttl
         )
-        .ToHttpRequest(new Uri($"{VONAGE_BASE_URL}{SERVICE_ENDPOINT}"), Settings.SignatureSecret!);
+        .ToHttpRequest(new Uri($"{VONAGE_BASE_URL}{SERVICE_ENDPOINT}"), Settings.SignatureSecret!, Settings.SignatureMethod!);
         HttpResponseMessage httpResponse;
 
         try {
@@ -112,6 +113,8 @@ public class SmsServiceVonageSettings : SmsServiceSettings
 {
     /// <summary>The signature secret.</summary>
     public string? SignatureSecret { get; set; }
+    /// <summary>The signature signing algorithm. Possible values are: <c>hmac-md5</c>, <c>hmac-sha1</c>, <c>hmac-sha256</c>, <c>hmac-sha512</c>. Default is hmac-sha256.</summary>
+    public string SignatureMethod { get; set; } = "hmac-sha256";
     /// <summary>The duration in milliseconds the delivery of an SMS will be attempted.</summary>
     public int Ttl { get; set; } = 20000;
 }
@@ -133,17 +136,19 @@ internal class VonageSmsRequest
         };
     }
 
-    public HttpRequestMessage ToHttpRequest(Uri uri, string signatureSecret) {
-        var queryString = BuildQueryString(signatureSecret);
+    public HttpRequestMessage ToHttpRequest(Uri uri, string signatureSecret, string hashingAlgorithm = "hmac-sha256") {
+        var queryString = BuildFormUrlEncoderBody(signatureSecret, hashingAlgorithm);
+
+        
         var content = new StringContent(queryString, Encoding.UTF8, MediaTypeNames.Application.FormUrlEncoded);
         return new HttpRequestMessage(HttpMethod.Post, uri) { Content = content };
     }
 
-    private string BuildQueryString(string signatureSecret) {
+    private string BuildFormUrlEncoderBody(string signatureSecret, string hashingAlgorithm) {
         var queryToSign = string.Join("&", _requestParams.Select(kvp =>
             $"{kvp.Key.Replace('=', '_').Replace('&', '_')}={kvp.Value.Replace('=', '_').Replace('&', '_')}"));
 
-        var signature = GenerateSha256Signature($"&{queryToSign}", signatureSecret);
+        var signature = GenerateSignature(hashingAlgorithm, $"&{queryToSign}", signatureSecret);
 
         var encodedQuery = string.Join("&", _requestParams.Select(kvp =>
             $"{Uri.EscapeDataString(kvp.Key)}={(kvp.Key == "ids" ? kvp.Value : Uri.EscapeDataString(kvp.Value))}"));
@@ -151,8 +156,14 @@ internal class VonageSmsRequest
         return $"{encodedQuery}&sig={signature}";
     }
 
-    private static string GenerateSha256Signature(string data, string key) {
-        var hash = HMACSHA256.HashData(Encoding.UTF8.GetBytes(key), Encoding.UTF8.GetBytes(data));
+    private static string GenerateSignature(string hashingAlgorithm, string data, string key) {
+        var hash = hashingAlgorithm.ToLower() switch {
+            "hmac-md5" => HMACMD5.HashData(Encoding.UTF8.GetBytes(key), Encoding.UTF8.GetBytes(data)),
+            "hmac-sha1" => HMACSHA1.HashData(Encoding.UTF8.GetBytes(key), Encoding.UTF8.GetBytes(data)),
+            "hmac-sha256" => HMACSHA256.HashData(Encoding.UTF8.GetBytes(key), Encoding.UTF8.GetBytes(data)),
+            "hmac-sha512" => HMACSHA512.HashData(Encoding.UTF8.GetBytes(key), Encoding.UTF8.GetBytes(data)),
+            _ => HMACSHA256.HashData(Encoding.UTF8.GetBytes(key), Encoding.UTF8.GetBytes(data)),
+        };
         return BitConverter.ToString(hash).Replace("-", string.Empty);
     }
 }
