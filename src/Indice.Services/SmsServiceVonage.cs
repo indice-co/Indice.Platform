@@ -156,13 +156,14 @@ internal class VonageSmsRequest
         return $"{encodedQuery}&sig={signature}";
     }
 
-    private static string GenerateSignature(string hashingAlgorithm, string data, string key) {
+    private static string GenerateSignature(string hashingAlgorithm, string query, string key) {
         var hash = hashingAlgorithm.ToLower() switch {
-            "hmac-md5" => HMACMD5.HashData(Encoding.UTF8.GetBytes(key), Encoding.UTF8.GetBytes(data)),
-            "hmac-sha1" => HMACSHA1.HashData(Encoding.UTF8.GetBytes(key), Encoding.UTF8.GetBytes(data)),
-            "hmac-sha256" => HMACSHA256.HashData(Encoding.UTF8.GetBytes(key), Encoding.UTF8.GetBytes(data)),
-            "hmac-sha512" => HMACSHA512.HashData(Encoding.UTF8.GetBytes(key), Encoding.UTF8.GetBytes(data)),
-            _ => HMACSHA256.HashData(Encoding.UTF8.GetBytes(key), Encoding.UTF8.GetBytes(data)),
+            "md5" => MD5.HashData(Encoding.UTF8.GetBytes($"{query}{key}")),
+            "hmac-md5" => HMACMD5.HashData(Encoding.UTF8.GetBytes(key), Encoding.UTF8.GetBytes(query)),
+            "hmac-sha1" => HMACSHA1.HashData(Encoding.UTF8.GetBytes(key), Encoding.UTF8.GetBytes(query)),
+            "hmac-sha256" => HMACSHA256.HashData(Encoding.UTF8.GetBytes(key), Encoding.UTF8.GetBytes(query)),
+            "hmac-sha512" => HMACSHA512.HashData(Encoding.UTF8.GetBytes(key), Encoding.UTF8.GetBytes(query)),
+            _ => HMACSHA256.HashData(Encoding.UTF8.GetBytes(key), Encoding.UTF8.GetBytes(query)),
         };
         return BitConverter.ToString(hash).Replace("-", string.Empty);
     }
