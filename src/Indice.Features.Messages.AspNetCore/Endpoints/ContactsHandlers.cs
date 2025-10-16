@@ -92,7 +92,26 @@ internal static class ContactsHandlers
         return TypedResults.Ok(preferences);
     }
 
+    public static async Task<Results<Ok<List<Contact?>>, NotFound>> GetDuplicateContacts(IContactService contactService, Guid contactId) { 
+        Contact? contact = await contactService.GetById(contactId);
+        if (contact is null || string.IsNullOrWhiteSpace(contact.RecipientId)) {
+            return TypedResults.NotFound();
+        }
+        List<Contact?> duplicateContacts = await contactService.GetDuplicates(contact.RecipientId,contact.Email,contactId);
+        return TypedResults.Ok(duplicateContacts);
+    }
 
+    public static async Task<Results<Ok, NotFound>> MergeContacts(IContactService contactService, Guid contactId, List<Guid> duplicateContactsIds) { 
+        Contact? mainContact = await contactService.GetById(contactId);
+        if (mainContact is null || string.IsNullOrWhiteSpace(mainContact.RecipientId)) {
+            return TypedResults.NotFound();
+        }
+        if(duplicateContactsIds is null || duplicateContactsIds.Count == 0) {
+            return TypedResults.NotFound();
+        }
+        await contactService.MergeContacts(contactId, duplicateContactsIds);
+        return TypedResults.Ok();
+    }
     #region Descriptions
     public static readonly string GET_CONTACTS_DESCRIPTION = @"
 Retrieves the list of all contacts using the provided ListOptions.
@@ -138,5 +157,11 @@ Parameters:
 Retrieves the communication preferences for a specific contact.
 ";
 
+    public static readonly string GET_CONTACT_DUPLICATES = @"
+    Retrieves the list of all potential duplicate accounts
+";
+    public static readonly string MERGE_CONTACTS = @"
+    Merge a list of duplicate contacts into a main resolved contact
+";
     #endregion
 }

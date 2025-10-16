@@ -112,13 +112,13 @@ public class ContactService : IContactService
 
     /// <inheritdoc />
     public async Task<Contact> Create(CreateContactRequest request) {
-        
+
         if (!string.IsNullOrWhiteSpace(request.RecipientId)) {
             var knownContact = await DbContext.Contacts
                                .OrderByDescending(x => x.UpdatedAt)
                                .Where(x => x.RecipientId == request.RecipientId)
                                .FirstOrDefaultAsync();
-            if (knownContact is not null) { 
+            if (knownContact is not null) {
                 knownContact.Email = request.Email;
                 knownContact.FirstName = request.FirstName;
                 knownContact.FullName = request.FullName;
@@ -133,7 +133,7 @@ public class ContactService : IContactService
                 await DbContext.SaveChangesAsync();
                 return Mapper.ToContact(knownContact);
             }
-        } 
+        }
         var contact = Mapper.ToDbContact(request);
         DbContext.Contacts.Add(contact);
         await DbContext.SaveChangesAsync();
@@ -457,4 +457,126 @@ public class ContactService : IContactService
         recipientPreferences.DefaultChannels = preference.DefaultChannels != null ? ContactChannelOption.ToContactChannelKind(preference.DefaultChannels) : null;
         await DbContext.SaveChangesAsync();
     }
+
+    public async Task<List<Contact?>> GetDuplicates(string recipientId, string email, Guid contactId) {
+        List<DbContact> dBDuplicateContacts = await DbContext.Contacts.Where(x => (x.RecipientId == recipientId || x.Email.ToLower() == email.ToLower()) && x.Id != contactId).ToListAsync();
+        List<Contact?> duplicateContacts = new List<Contact?>();
+        duplicateContacts = dBDuplicateContacts.Select(x => Mapper.ToContact(x)).ToList();
+        return duplicateContacts;
+    }
+
+    //UpdateDistributionList
+    private async Task UpdateContactIdInDistributionListAssociation(DbContact oldContact, DbContact newContact, List<Guid> mainContactAssoociationList) {
+
+        var oldAssoociationList = DbContext.ContactDistributionLists.Include(x => x.DistributionList).Where(x => x.ContactId == oldContact.Id).ToList();
+        if (oldAssoociationList is null || newContact is null) {
+            return;
+        }
+        //cannot update a composite key - maybe should add this as an extension somewhere...
+
+        var newAssociationsList = Mapper.ToUpdatedDbDistributionListContacts(oldAssoociationList, newContact);
+        //remove oldAssociations
+        DbContext.RemoveRange(oldAssoociationList);
+        //Add the new if it does not already exist
+        newAssociationsList = newAssociationsList.Where(x => !mainContactAssoociationList.Contains(x.DistributionListId)).ToList();
+        await DbContext.AddRangeAsync(newAssociationsList);
+        await DbContext.SaveChangesAsync();
+    }
+
+    private async Task UpdateContactIdInDistributionListAssociationRange(List<Guid> duplicateContactIds, DbContact mainContact) {
+
+        //All the associations for the duplicate accounts
+        var duplicateAssociationList = DbContext.ContactDistributionLists.Include(x => x.DistributionList).Where(x => duplicateContactIds.Contains(x.ContactId)).ToList();
+
+        //All the existing associations for the mainContact
+        var mainAssociationList = DbContext.ContactDistributionLists.Where(x => x.ContactId == mainContact.Id).Select(x => x.DistributionListId).ToList();
+
+        if (duplicateAssociationList is null) {
+            return;
+        }
+        //cannot update a composite key - maybe should add this as an extension somewhere...
+
+        var newAssociationsList = Mapper.ToUpdatedDbDistributionListContacts(duplicateAssociationList, mainContact);
+
+        //all old ones must be removed - whether or not they will be replaced
+        DbContext.RemoveRange(duplicateAssociationList);
+
+        //Add the new if it does not already exist
+        newAssociationsList = newAssociationsList.Where(x => !mainAssociationList.Contains(x.DistributionListId)).ToList();
+
+        await DbContext.AddRangeAsync(newAssociationsList);
+        //await DbContext.SaveChangesAsync();
+    }
+
+    private async Task UpdateMessageContactInfoRange(List<Guid> duplicateContactIds, Guid mainContactId) {
+        List<DbMessage> allDuplicateContactMessages = await DbContext.Messages.Where(x => duplicateContactIds.Contains(x.ContactId.Value)).ToListAsync();
+
+        List<DbMessage> mainContactMessages = await DbContext.Messages.Where(x => x.ContactId == mainContactId).ToListAsync();
+
+        //2 messages exoun to idio contactId den trexei kati ->
+        //giati thewritika to kathe message exei to diko tou Id
+        //kai afto einai to kleidi - alla isws apo thn stigmh pou feugei o
+        //adistoixos xristis aksizei na diagraftei
+
+        //the first is probably right by unreadable
+        var updateContactMessages = allDuplicateContactMessages.Where(x => !mainContactMessages.Select(y => y.Id).Contains(x.Id)).ToList();
+        //the second is wrong
+        var unnecessaryContactMessages = allDuplicateContactMessages.Where(x => mainContactMessages.Contains(x)).ToList();
+
+        foreach (var updateContactMessage in updateContactMessages) {
+            updateContactMessage.ContactId = mainContactId;
+        }
+        
+
+        DbContext.RemoveRange(unnecessaryContactMessages);
+        //await DbContext.SaveChangesAsync();
+    }
+
+    private async Task UpdateMessageContactInfo(Guid oldContactId, Guid newContactId) {
+        List<DbMessage> contactMessages = await DbContext.Messages.Where(x => x.ContactId == oldContactId).ToListAsync();
+        List<DbMessage> newContactMessages = await DbContext.Messages.Where(x => x.ContactId == newContactId).ToListAsync();
+        var updateContactMessages = contactMessages.Where(x => !newContactMessages.Contains(x)).ToList();
+        var unecessaryContactMessages = contactMessages.Where(x => newContactMessages.Contains(x)).ToList();
+        foreach (DbMessage message in contactMessages) {
+            message.ContactId = newContactId;
+        }
+        DbContext.RemoveRange(unecessaryContactMessages);
+        await DbContext.SaveChangesAsync();
+    }
+
+    private async Task UpdateMessageEventContactInfo(Guid oldContactId, Guid newContactId) {
+        List<DbMessageEvent> contactMessagesEvents = await DbContext.MessageEvents.Where(x => x.ContactId == oldContactId).ToListAsync();
+        List<DbMessageEvent> newContactMessageEvents = await DbContext.MessageEvents.Where(x => x.ContactId == newContactId).ToListAsync();
+        var updateContactMessagesEvents = contactMessagesEvents.Where(x => !newContactMessageEvents.Contains(x)).ToList();
+        var unecessaryContactMessages = contactMessagesEvents.Where(x => newContactMessageEvents.Contains(x)).ToList();
+        foreach (DbMessageEvent messageEvent in contactMessagesEvents) {
+            messageEvent.ContactId = newContactId;
+        }
+        DbContext.RemoveRange(unecessaryContactMessages);
+        await DbContext.SaveChangesAsync();
+    }
+
+    public async Task MergeContacts(Guid contactId, List<Guid> duplicateContactsIds) {
+
+        DbContact mainContact = await DbContext.Contacts.FindAsync(contactId);
+        List<DbContact> duplicateContacts = await DbContext.Contacts.Where(x => duplicateContactsIds.Contains(x.Id)).ToListAsync();
+        var existingDuplicateContactIds = duplicateContacts.Select(x => x.Id).ToList();
+        await UpdateContactIdInDistributionListAssociationRange(existingDuplicateContactIds, mainContact);
+        await UpdateMessageContactInfoRange(existingDuplicateContactIds, contactId);
+        //var duplicateAssociationList = await DbContext.ContactDistributionLists.Include(x => x.DistributionList).Where(x => duplicateContacts.Select(x=> x.Id).Contains(x.ContactId)).ToListAsync();
+
+        //maybe this can be done together with Range instead of foreach - I should think about this
+        //foreach (DbContact duplicateContact in duplicateContacts) {
+        //    var mainContactAssoociationList = DbContext.ContactDistributionLists.Include(x => x.DistributionList).Where(x => x.ContactId == contactId).Select(x => x.DistributionListId).ToList(); // I cant take it outsite yet - because It wont be updated 
+        //    //thus if we Get inside the Association at the 4th loop and then try to reinsert it in the 6th loop it will crash
+        //    if (duplicateContact == null) {
+        //        continue;
+        //    }
+        //    await UpdateContactIdInDistributionListAssociation(duplicateContact, mainContact, mainContactAssoociationList); // this could be in a seperate Service called since it's for the association table
+        //    await UpdateMessageContactInfo(duplicateContact.Id, contactId);
+        //    await UpdateMessageEventContactInfo(duplicateContact.Id, contactId);
+        //}
+        await DbContext.SaveChangesAsync();
+    }
+
 }
