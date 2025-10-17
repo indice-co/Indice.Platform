@@ -1,4 +1,7 @@
-﻿#if NET9_0_OR_GREATER
+﻿using Microsoft.OpenApi.Any;
+using System.Net.Mime;
+
+#if NET9_0_OR_GREATER
 using System.Collections.Immutable;
 using Indice.Configuration;
 using Microsoft.AspNetCore.Authorization;
@@ -58,6 +61,7 @@ public static class OpenApiExtensions
         options.AddEnumTransformer();
         options.AddEndpointSecurityRequirementsTransformer();
         options.AddDocumentTransformer<CanonicalDocumentTransformer>();
+        options.AddExamplesTransformer();
         return options;
     }
 
@@ -422,3 +426,17 @@ public static class OpenApiExtensions
 public record ExtraHeaderParameterMetadata(string HeaderName, bool Required, string? Description = null);
 
 #endif
+
+/// <summary>
+/// Represents metadata for an example associated with an OpenAPI operation request body, including its name, value, and an optional
+/// description.
+/// </summary>
+/// <remarks>Use this record to supply example data for OpenAPI operations, such as for documentation or client
+/// generation purposes. The example value should conform to the expected schema of the associated operation.</remarks>
+/// <param name="ExampleName">The unique name identifying the example. Cannot be null or empty.</param>
+/// <param name="Value">The example value represented as an OpenAPI-compatible object. Cannot be null.</param>
+/// <param name="ExternalValue">An optional URL pointing to an external resource containing the example. May be null.</param>
+/// <param name="Summary">An optional brief summary of the example. May be null.</param>
+/// <param name="Description">An optional description providing additional context or details about the example. May be null.</param>
+/// <param name="ContentType">The content type of the example. Defaults to 'application/json'.</param>
+public record EndpointBodyExampleMetadata(string ExampleName, IOpenApiAny? Value, string? ExternalValue = null, string? Summary = null, string? Description = null, string ContentType = MediaTypeNames.Application.Json);

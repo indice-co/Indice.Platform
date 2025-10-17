@@ -65,8 +65,7 @@ internal static class MyMessagesHandlers
     }
 
     public static async Task<NoContent> MarkAllAsRead(
-        string? searchTerm,
-        [AsParameters] MessagesFilter filter,
+        MarkAsReadRequest request,
         IEventDispatcherFactory eventDispatcherFactory,
         IOptions<MessageInboxOptions> campaignEndpointOptions,
         ClaimsPrincipal currentUser
@@ -76,8 +75,8 @@ internal static class MyMessagesHandlers
         await eventDispatcher.RaiseEventAsync(
             new MarkMessagesReadEvent {
                 UserCode = userCode,
-                SearchTerm = searchTerm,
-                Filter = filter
+                SearchTerm = request.Search,
+                Filter = request
             },
             builder => builder.WrapInEnvelope().WithQueueName(EventNames.MarkAllAsRead)
         );
@@ -85,8 +84,7 @@ internal static class MyMessagesHandlers
     }
 
     public static async Task<NoContent> MarkAllAsUnRead(
-        string? searchTerm,
-        [AsParameters] MessagesFilter filter,
+        MarkAsReadRequest request,
         IEventDispatcherFactory eventDispatcherFactory,
         IOptions<MessageInboxOptions> campaignEndpointOptions,
         ClaimsPrincipal currentUser
@@ -96,8 +94,8 @@ internal static class MyMessagesHandlers
         await eventDispatcher.RaiseEventAsync(
             new MarkMessagesUnreadEvent {
                 UserCode = userCode,
-                SearchTerm = searchTerm,
-                Filter = filter
+                SearchTerm = request.Search,
+                Filter = request
             },
             builder => builder.WrapInEnvelope().WithQueueName(EventNames.MarkAllAsUnread)
         );
