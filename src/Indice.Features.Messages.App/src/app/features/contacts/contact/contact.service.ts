@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, Subject, merge, BehaviorSubject, EMPTY } from 'rxjs';
+import { Observable, Subject, merge, BehaviorSubject } from 'rxjs';
 import { switchMap, shareReplay, map, tap, distinctUntilChanged, filter } from 'rxjs/operators';
 import { Contact, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 

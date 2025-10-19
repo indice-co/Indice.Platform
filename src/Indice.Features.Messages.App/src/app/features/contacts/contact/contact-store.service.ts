@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { AsyncSubject, Observable, map, merge, identity, scan, ReplaySubject, Subject, switchMap, share } from 'rxjs';
+import { AsyncSubject, Observable, map, merge, identity, scan, ReplaySubject, Subject, switchMap } from 'rxjs';
 import { Contact, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 
 @Injectable({
@@ -33,7 +33,7 @@ export class ContactStore {
   }
 
   public reload(recipientId: string) {
-    return this._api.refreshContact(recipientId);
+    return this._api.resolveContact(recipientId);
   }
 
 
