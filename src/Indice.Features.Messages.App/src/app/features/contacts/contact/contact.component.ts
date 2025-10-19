@@ -1,39 +1,67 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Subject, Observable, takeUntil } from 'rxjs';
 
 import { HeaderMetaItem, ViewLayoutComponent } from '@indice/ng-components';
 import { Contact } from 'src/app/core/services/messages-api.service';
-import { ContactStore } from './contact-store.service';
+import { ContactService } from './contact.service';
 
 @Component({
   selector: 'app-contact',
   templateUrl: './contact.component.html'
 })
-export class ContactComponent implements OnInit, AfterViewChecked {
+export class ContactComponent implements OnInit, AfterViewChecked, OnDestroy {
   @ViewChild('layout', { static: true }) private _layout!: ViewLayoutComponent;
-  private _contactId?: string;
 
+
+  private destroy$ = new Subject<void>();
+  contact$: Observable<Contact>;
+  isRefreshing = false;
+  submitInProgress = false;
+  metaItems: HeaderMetaItem[] = [];
+  
   constructor(
     private _activatedRoute: ActivatedRoute,
     private _changeDetector: ChangeDetectorRef,
-    private _ContactStore: ContactStore
-  ) { }
-
-  public submitInProgress = false;
-  public Contact: Contact | undefined;
-  public metaItems: HeaderMetaItem[] = [];
-
-  public ngOnInit(): void {
-    this._contactId = this._activatedRoute.snapshot.params['contactId'];
-    if (this._contactId) {
-      this._ContactStore.getContact(this._contactId).subscribe((Contact: Contact) => {
-        this.Contact = Contact;
-        this._layout.title = `${Contact.fullName}`;
-      });
-    }
+    private _contactService: ContactService
+  ) {
+    this.contact$ = _contactService.contact$;
   }
 
-  public ngAfterViewChecked(): void {
+  ngOnInit(): void {
+    this._contactService.setContactId(this._activatedRoute.snapshot.params['contactId']);
+  }
+
+  ngAfterViewChecked(): void {
     this._changeDetector.detectChanges();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  refresh(): void {
+    this._contactService.refresh();
+  }
+
+  resolve(recipientId?: string): void {
+    if (!recipientId) {
+      console.warn('No recipientId provided for resolve');
+      return;
+    }
+    this.isRefreshing = true;
+    this._contactService.resolveContact(recipientId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          console.log('Contact hard refresh completed');
+          this.isRefreshing = false;
+        },
+        error: (error) => {
+          console.error('Error during hard refresh:', error);
+          this.isRefreshing = false;
+        }
+      });
   }
 }
