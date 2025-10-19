@@ -22,7 +22,10 @@ public static class ExamplesTransformer
             if (context.Description.ActionDescriptor.EndpointMetadata.OfType<EndpointBodyExampleMetadata>().Any()) {
                 var exampleMetadata = context.Description.ActionDescriptor.EndpointMetadata.OfType<EndpointBodyExampleMetadata>().First();
                 var endpointName = context.Description.ActionDescriptor.EndpointMetadata.OfType<EndpointNameMetadata>().FirstOrDefault()?.EndpointName;
-                operation.RequestBody?.Content[exampleMetadata.ContentType].Example = exampleMetadata.Value;
+                if (operation.RequestBody is not null && 
+                    operation.RequestBody.Content.ContainsKey(exampleMetadata.ContentType)) {
+                    operation.RequestBody.Content[exampleMetadata.ContentType].Example = exampleMetadata.Value;
+                }
             }
             return Task.CompletedTask;
         });
