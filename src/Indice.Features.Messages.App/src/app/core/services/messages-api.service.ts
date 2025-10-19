@@ -146,12 +146,12 @@ export interface IMessagesApiClient {
      * Get contact communication preferences.
      * @return OK
      */
-    getCommunicationPreferences(contactId: string): Observable<ContactPreference>;
+    getPreferences(contactId: string): Observable<ContactPreference>;
     /**
-     * Add or Updates a contact that matches the recepientId.
+     * Add or Updates a contact that matches the recipientId.
      * @return No Content
      */
-    refreshContact(recipientId: string): Observable<void>;
+    resolveContact(recipientId: string): Observable<void>;
     /**
      * Gets the list of available campaign types.
      * @param page (optional) The current page of the list. Default is 1.
@@ -2012,8 +2012,8 @@ export class MessagesApiClient implements IMessagesApiClient {
      * Get contact communication preferences.
      * @return OK
      */
-    getCommunicationPreferences(contactId: string): Observable<ContactPreference> {
-        let url_ = this.baseUrl + "/contacts/{contactId}/communication-preferences";
+    getPreferences(contactId: string): Observable<ContactPreference> {
+        let url_ = this.baseUrl + "/contacts/{contactId}/preferences";
         if (contactId === undefined || contactId === null)
             throw new globalThis.Error("The parameter 'contactId' must be defined.");
         url_ = url_.replace("{contactId}", encodeURIComponent("" + contactId));
@@ -2028,11 +2028,11 @@ export class MessagesApiClient implements IMessagesApiClient {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetCommunicationPreferences(response_);
+            return this.processGetPreferences(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetCommunicationPreferences(response_ as any);
+                    return this.processGetPreferences(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<ContactPreference>;
                 }
@@ -2041,7 +2041,7 @@ export class MessagesApiClient implements IMessagesApiClient {
         }));
     }
 
-    protected processGetCommunicationPreferences(response: HttpResponseBase): Observable<ContactPreference> {
+    protected processGetPreferences(response: HttpResponseBase): Observable<ContactPreference> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -2096,11 +2096,11 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * Add or Updates a contact that matches the recepientId.
+     * Add or Updates a contact that matches the recipientId.
      * @return No Content
      */
-    refreshContact(recipientId: string): Observable<void> {
-        let url_ = this.baseUrl + "/contacts/{recipientId}/refresh";
+    resolveContact(recipientId: string): Observable<void> {
+        let url_ = this.baseUrl + "/contacts/{recipientId}/resolve";
         if (recipientId === undefined || recipientId === null)
             throw new globalThis.Error("The parameter 'recipientId' must be defined.");
         url_ = url_.replace("{recipientId}", encodeURIComponent("" + recipientId));
@@ -2114,11 +2114,11 @@ export class MessagesApiClient implements IMessagesApiClient {
         };
 
         return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processRefreshContact(response_);
+            return this.processResolveContact(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processRefreshContact(response_ as any);
+                    return this.processResolveContact(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<void>;
                 }
@@ -2127,7 +2127,7 @@ export class MessagesApiClient implements IMessagesApiClient {
         }));
     }
 
-    protected processRefreshContact(response: HttpResponseBase): Observable<void> {
+    protected processResolveContact(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -6830,8 +6830,9 @@ export class OverviewMetrics implements IOverviewMetrics {
     perChannel?: ChannelMetrics[];
     /** The date and time when the statistics was last updated. */
     lastUpdateDate?: Date;
-    /** Messages volume per message type. */
+    /** Message volume per message type. */
     perType?: VolumeOfMessageType[];
+    /** Todays Message volume per message type. */
     perTypeToday?: VolumeOfMessageType[];
 
     constructor(data?: IOverviewMetrics) {
@@ -6906,8 +6907,9 @@ export interface IOverviewMetrics {
     perChannel?: ChannelMetrics[];
     /** The date and time when the statistics was last updated. */
     lastUpdateDate?: Date;
-    /** Messages volume per message type. */
+    /** Message volume per message type. */
     perType?: VolumeOfMessageType[];
+    /** Todays Message volume per message type. */
     perTypeToday?: VolumeOfMessageType[];
 }
 

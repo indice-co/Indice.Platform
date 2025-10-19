@@ -17,4 +17,6 @@ public class ImpossibleTravelOptions
     public double AcceptableSpeed { get; set; } = 400d;
     /// <summary>Specifies the flow to follow when impossible travel is detected for the current user. Defaults to <see cref="ImpossibleTravelFlowType.PromptMfa"/>.</summary>
     public ImpossibleTravelFlowType FlowType { get; set; } = ImpossibleTravelFlowType.PromptMfa;
+    /// <summary>The look back period in days to check for previous login attempts. Default is <c>14</c> days.</summary>
+    public int LookBackPeriodInDays { get; set; } = 14;
 }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
 namespace Microsoft.AspNetCore.Builder;
@@ -106,6 +107,22 @@ public static class OpenApiExtensions
             }
         });
     }
+
+    /// <summary>
+    /// Adds an OpenAPI example to the endpoint metadata for the specified request body type.
+    /// </summary>
+    /// <remarks>Use this method to enhance OpenAPI documentation by providing concrete example responses for
+    /// endpoints. This can improve client generation and API discoverability.</remarks>
+    /// <typeparam name="T">The type of the example object to associate with the endpoint response.</typeparam>
+    /// <param name="builder">The endpoint convention builder to which the example metadata will be added.</param>
+    /// <param name="example">An object representing the example response to include in the OpenAPI documentation. Cannot be null.</param>
+    /// <param name="summary">An optional short summary describing the example. If null, no summary is included.</param>
+    /// <param name="description">An optional detailed description of the example. If null, no description is included.</param>
+    /// <param name="contentType">The media type of the example content. Defaults to "application/json".</param>
+    /// <returns>The original endpoint convention builder with the example metadata added.</returns>
+    public static IEndpointConventionBuilder WithExampleRequestBody<T>(this IEndpointConventionBuilder builder, T example, string? summary = null, string? description = null, string contentType = MediaTypeNames.Application.Json) where T : class 
+        => builder.WithMetadata(new EndpointBodyExampleMetadata(nameof(T), example.ToOpenApiAny(), Summary: summary, Description: description, ContentType: contentType));
+    
 
     /// <summary>
     /// Adds an <see cref="IProducesResponseTypeMetadata"/> with a <see cref="ProblemDetails"/> type
