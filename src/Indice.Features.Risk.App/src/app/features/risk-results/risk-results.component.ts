@@ -5,7 +5,7 @@ import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalSe
 import { FilterClause, SearchOption } from '@indice/ng-components/lib/controls/advanced-search/models';
 import { User } from 'oidc-client-ts';
 import { Observable, Subscription } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { map, take, tap } from 'rxjs/operators';
 import { ParamsService } from 'src/app/core/services/params.service';
 import { RiskApiService, DbAggregateRuleExecutionResult, DbAggregateRuleExecutionResultResultSet, RISK_API_BASE_URL } from 'src/app/core/services/risk-api.service';
 import { DataService } from 'src/app/core/services/data.service';
@@ -120,6 +120,9 @@ export class RiskResultsComponent extends BaseListComponent<DbAggregateRuleExecu
             )
             .pipe(
                 take(1),
+                tap((result: DbAggregateRuleExecutionResultResultSet) => {
+                  this.count = result.count;
+                }),
                 map((result: DbAggregateRuleExecutionResultResultSet) => (result as IResultSet<DbAggregateRuleExecutionResult>))
             );
     }

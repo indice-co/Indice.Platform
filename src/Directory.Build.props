@@ -5,20 +5,20 @@
       <!--<TargetFramework></TargetFramework>-->
       <VersionPrefixMajor>8</VersionPrefixMajor>
       <VersionPrefixBase>$(VersionPrefixMajor).18</VersionPrefixBase>
-      
+
       <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
       <VersionPrefixIdentity>$(VersionPrefixBase).1</VersionPrefixIdentity>
       <VersionPrefixIdentityUI>$(VersionPrefixBase).1</VersionPrefixIdentityUI>
       <VersionPrefixCases>$(VersionPrefixBase).0</VersionPrefixCases>
       <VersionPrefixMessages>$(VersionPrefixBase).3</VersionPrefixMessages>
       <VersionPrefixMultitenancy>$(VersionPrefixBase).0</VersionPrefixMultitenancy>
-      <VersionPrefixRisk>$(VersionPrefixBase).1</VersionPrefixRisk>
+      <VersionPrefixRisk>$(VersionPrefixBase).2</VersionPrefixRisk>
       <VersionPrefixMedia>$(VersionPrefixBase).0</VersionPrefixMedia>
       <VersionPrefixGeoIP>$(VersionPrefixBase).0</VersionPrefixGeoIP>
       <VersionPrefixGovGr>$(VersionPrefixBase).0</VersionPrefixGovGr>
       <VersionPrefixAspNet>$(VersionPrefixBase).0</VersionPrefixAspNet>
       <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
-      
+
       <!--<VersionSuffix>rc04</VersionSuffix>-->
       <Authors>Constantinos Leftheris</Authors>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
