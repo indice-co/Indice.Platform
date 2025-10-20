@@ -459,14 +459,14 @@ public class ContactService : IContactService
     }
 
     ///<inheritdoc/>
-    public async Task<List<Contact?>> GetDuplicates(Contact mainContact) {
-        List<Contact?> duplicateContacts = await DbContext.Contacts
+    public async Task<List<Contact>> GetDuplicates(Contact mainContact) {
+        List<Contact> duplicateContacts = await DbContext.Contacts
             .Where(x => (x.RecipientId == mainContact.RecipientId || x.Email.ToLower() == mainContact.Email.ToLower()) && x.Id != mainContact.Id)
             .Select(x => Mapper.ToContact(x)).ToListAsync(); 
         return duplicateContacts;
     }
 
-
+    ///<inheritdoc/>
     public async Task MergeContacts(Contact mainContact, List<Guid> duplicateContactsIds) {
         List<DbContact> duplicateContacts = await DbContext.Contacts.Where(x => duplicateContactsIds.Contains(x.Id)).ToListAsync();
         if(duplicateContacts is null || duplicateContacts.Count == 0) {
