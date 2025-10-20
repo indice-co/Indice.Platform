@@ -198,10 +198,10 @@ public static class UsersApi
             .AddOpenApiSecurityRequirement("oauth2", [options.ApiScope!, IdentityEndpoints.SubScopes.Users, IdentityEndpoints.SubScopes.UserDeviceSecret])
             .WithOpenApiSecurityRequirement("oauth2", [options.ApiScope!, IdentityEndpoints.SubScopes.Users, IdentityEndpoints.SubScopes.UserDeviceSecret]);
 
-        userDeviceSecretGroup.MapGet("{userId}/devices/{deviceId}/secret", UserHandlers.GetUserDeviceSecret)
-             .WithName(nameof(UserHandlers.GetUserDeviceSecret))
-             .WithSummary("Get the secret for a user device.")
-             .Produces<JsonWebKey>(StatusCodes.Status200OK, "application/jwk+json");
+        userDeviceSecretGroup.MapGet("{userId}/devices/{deviceId}/secrets", UserHandlers.GetUserDeviceSecrets)
+             .WithName(nameof(UserHandlers.GetUserDeviceSecrets))
+             .WithSummary("Get the secrets for a user device.")
+             .Produces<List<JsonWebKey>>(StatusCodes.Status200OK, "application/jwk+json");
 
         return group;
     }

@@ -1,4 +1,4 @@
-<section aria-labelledby="applicant-information-title">
+<section aria-labelledby="applicant-information-title" *ngIf="contact$ | async as contact">
   <div class="bg-white shadow sm:rounded-lg">
     <div class="px-4 py-5 sm:px-6">
       <div class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
@@ -9,18 +9,16 @@
             <a title="Επεξεργασία"
                [routerLinkActive]="['']"
                [routerLinkActiveOptions]="{ exact: true }"
-               [routerLink]="['', { outlets: { rightpane: ['update-contact', _contact?.id] } }]"
+               [routerLink]="['', { outlets: { rightpane: ['update-contact', contact?.id] } }]"
                class="inline-flex items-center justify-center px-4 py-2 font-medium rounded-md sm:text-sm">
-              <svg xmlns="http://www.w3.org/2000/svg"
-                   class="h-5 w-5"
-                   viewBox="0 0 20 20"
-                   fill="currentColor">
-                <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
-                <path fill-rule="evenodd"
-                      d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
-                      clip-rule="evenodd" />
-              </svg>
+              <i aria-hidden="true" class="meta-icon ms-Icon ms-Icon--Edit"></i>
             </a>
+            <button type="button" href="#" class="p-2 btn-view-header"
+                    *ngIf="contact?.recipientId"
+                    (click)="resolve(contact?.recipientId)"
+                    [disabled]="isRefreshing"
+                    title="resolve">
+                <i class="ms-Icon ms-Icon--Sync"></i>  </button>
           </h2>
         </div>
       </div>
@@ -29,36 +27,40 @@
       <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">Προσφώνηση</dt>
-          <dd class="mt-1 text-sm text-gray-900">{{ _contact?.salutation || '-' }}</dd>
+          <dd class="mt-1 text-sm text-gray-900">{{ contact?.salutation || '-' }}</dd>
         </div>
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">Όνομα Εμφάνισης</dt>
-          <dd class="mt-1 text-sm text-gray-900">{{ _contact?.fullName || '-' }}</dd>
+          <dd class="mt-1 text-sm text-gray-900">{{ contact?.fullName || '-' }}</dd>
         </div>
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">Όνομα</dt>
-          <dd class="mt-1 text-sm text-gray-900">{{ _contact?.firstName || '-' }}</dd>
+          <dd class="mt-1 text-sm text-gray-900">{{ contact?.firstName || '-' }}</dd>
         </div>
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">Επώνυμο</dt>
-          <dd class="mt-1 text-sm text-gray-900">{{ _contact?.lastName || '-' }}</dd>
+          <dd class="mt-1 text-sm text-gray-900">{{ contact?.lastName || '-' }}</dd>
         </div>
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">Email</dt>
-          <dd class="mt-1 text-sm text-gray-900">{{ _contact?.email || '-' }}</dd>
+          <dd class="mt-1 text-sm text-gray-900">{{ contact?.email || '-' }}</dd>
         </div>
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">Τηλέφωνο</dt>
-          <dd class="mt-1 text-sm text-gray-900">{{ _contact?.phoneNumber || '-' }}</dd>
+          <dd class="mt-1 text-sm text-gray-900">{{ contact?.phoneNumber || '-' }}</dd>
         </div>
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">Κωδικός επαφής</dt>
-          <dd class="mt-1 text-sm text-gray-900">{{ _contact?.recipientId || '-' }}</dd>
+          <dd class="mt-1 text-sm text-gray-900">
+
+            <span *ngIf="contact?.recipientId" class="badge alias">{{ contact?.recipientId }} <span title="{{contact?.resolved ? 'Resolved' : 'unknown' }}" class="small" [innerHtml]="contact?.resolved | beautifyBoolean"></span></span>
+            <span *ngIf="!(contact?.recipientId)">-</span>
+          </dd>
         </div>
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">Ενημερώθηκε στις</dt>
           <dd class="mt-1 text-sm text-gray-900">
-            {{ _contact?.updatedAt === undefined ? '-' : (_contact?.updatedAt | date: 'medium') }}
+            {{ contact?.updatedAt === undefined ? '-' : (contact?.updatedAt | date: 'medium') }}
           </dd>
         </div>
       </dl>

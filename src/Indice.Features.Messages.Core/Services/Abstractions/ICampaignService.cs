@@ -37,15 +37,20 @@ public interface ICampaignService
     /// <summary>Records a visit for the specified campaign.</summary>
     /// <param name="campaignId">The id of the campaign.</param>
     Task UpdateHit(Guid campaignId);
-    /// <summary>Gets all channel kinds send and their number.</summary>
+    /// <summary>Gets the sent volume of messages per channel kind.</summary>
     /// <param name="campaignId">The id of the campaign. Optional</param>
     Task<Dictionary<string, int>> GetChannelMetrics(Guid? campaignId = null);
+    /// <summary>Gets the  volume of messages per message type.</summary>
+    /// <param name="onDate">The day for which to calculate the volume. If null then the volume will be calculated for the entire dataset</param>
+    /// <param name="limit">Limit top results. Defaults to <c>5</c></param>
+    /// <remarks>The method will order results by volume descenting and limit the top <paramref name="limit"/> number.</remarks>
+    Task<List<Volume<MessageType>>> GetMessageTypeMetrics(DateTimeOffset? onDate = null, int limit = 5);
     /// <summary>Gets a list of all messages populated for this campaign.</summary>
     /// <param name="campaignId">The id of the campaign.</param>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
     Task<ResultSet<Recipient>> GetCampaignRecipients(Guid campaignId, ListOptions options);
     /// <summary>Gets the details of a specific message for a campaign.</summary>
-    /// /// <param name="campaignId">The id of the campaign.</param>
-    /// /// <param name="contactId">The id of the contact.</param>
+    /// <param name="campaignId">The id of the campaign.</param>
+    /// <param name="contactId">The id of the contact.</param>
     Task<RecipientMessageEvents> GetCampaignRecipientDetails(Guid campaignId, Guid contactId);
 }

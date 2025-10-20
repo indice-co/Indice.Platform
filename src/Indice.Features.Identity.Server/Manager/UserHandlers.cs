@@ -673,7 +673,7 @@ internal static class UserHandlers
         return TypedResults.NoContent();
     }
 
-    internal static async Task<Results<Ok<JsonWebKey>, NotFound>> GetUserDeviceSecret(
+    internal static async Task<Results<Ok<List<JsonWebKey>>, NotFound>> GetUserDeviceSecrets(
         ExtendedUserManager<User> userManager,
         string userId,
         string deviceId,
@@ -689,19 +689,28 @@ internal static class UserHandlers
             return TypedResults.NotFound();
         }
 
-        if (device.PublicKey is null) {
-            return TypedResults.NotFound();
-        }
-
-        using var rsa = RSA.Create();
-        rsa.ImportFromPem(device.PublicKey.ToCharArray());
-
-        var jwk = JsonWebKeyConverter.ConvertFromRSASecurityKey(new RsaSecurityKey(rsa) {
+        var keys = new List<JsonWebKey>();
+        var symmetricKey = JsonWebKeyConverter.ConvertFromSymmetricSecurityKey(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(device.Id.ToString())) {
             KeyId = string.IsNullOrWhiteSpace(device.PublicKeyId)
-                ? CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex).ToLowerInvariant()
-                : device.PublicKeyId
+            ? CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex).ToLowerInvariant()
+            : $"{device.PublicKeyId} symmetric"
         });
 
-        return TypedResults.Ok(jwk);
+        keys.Add(symmetricKey);
+
+        if (device.PublicKey is not null) {
+            using var rsa = RSA.Create();
+            rsa.ImportFromPem(device.PublicKey.ToCharArray());
+
+            var asymmetricKey = JsonWebKeyConverter.ConvertFromRSASecurityKey(new RsaSecurityKey(rsa) {
+                KeyId = string.IsNullOrWhiteSpace(device.PublicKeyId)
+                    ? CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex).ToLowerInvariant()
+                    : device.PublicKeyId
+            });
+
+            keys.Add(asymmetricKey);
+        }
+
+        return TypedResults.Ok(keys);
     }
 }

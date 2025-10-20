@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 
 namespace Microsoft.AspNetCore.Routing;
 
@@ -65,7 +66,8 @@ internal static class CampaignsApi
              .WithName(nameof(CampaignsHandlers.CreateCampaign))
              .WithSummary("Creates a new campaign.")
              .WithDescription(CampaignsHandlers.CREATE_CAMPAIGN_DESCRIPTION)
-             .WithParameterValidation<CreateCampaignRequest>();
+             .WithParameterValidation<CreateCampaignRequest>()
+             .WithExampleCreateCampaign();
 
         group.MapPut("{campaignId}", CampaignsHandlers.UpdateCampaign)
              .WithName(nameof(CampaignsHandlers.UpdateCampaign))
@@ -110,4 +112,75 @@ internal static class CampaignsApi
 
         return group;
     }
+
+    private static IEndpointConventionBuilder WithExampleCreateCampaign(this IEndpointConventionBuilder routeHandlerBuilder) =>
+        routeHandlerBuilder.WithExampleRequestBody(new {
+            TypeId = "type_alias",
+            Title = $"Fancy campaign {DateTime.Now.Year}",
+            ActivePeriod = new Period {
+                From = DateTimeOffset.Now,
+            },
+            ActionLink = new Indice.Features.Messages.Core.Models.Hyperlink {
+                Href = "https://www.indice.gr",
+                Text = "click me"
+            },
+            IsGlobal = false,
+            Published = true,
+            RecipientIds = new string[] {
+                    "known userId or customerCode 1",
+                    "known userId or customerCode 2",
+                    "known userId or customerCode 3"
+                },
+            RecipientListId = "list_alias",
+            Recipients = new List<Indice.Features.Messages.Core.Models.ContactAnonymous> {
+                    new () {
+                        FirstName = "John",
+                        LastName = "Doe",
+                        FullName = "John Doe",
+                        Email = "join-doe@example.com",
+                        PhoneNumber = "+30 69XXXXXXXX"
+                    },
+                    new () {
+                        FirstName = "Terrell",
+                        LastName = "Levy",
+                        FullName = "Terrell Levy",
+                        Email = "terrelllevy@example.com",
+                        PhoneNumber = "+1 (852) xxx-xxxx"
+                    },
+                },
+            Data = new {
+                firstField = "My parameter A",
+                amount = 100.23,
+                googleLogoSrc = "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png"
+            },
+            MessageTemplateId = "template_alias",
+            Content = new Indice.Features.Messages.Core.Models.MessageContentDictionary() {
+                ["Email"] = new Indice.Features.Messages.Core.Models.MessageContent() {
+                    Title = "Hi {{contact.fullName}} 🎉!",
+                    Body = @"<html><body>
+    <h1>{{title}}<h1>
+    <p>
+        Hi {{contact.salutation}} {{contact.firstName}}.
+        <br/>
+        Check out this awsome offer here:
+        <br/>
+        <a href=""{{actionLink.href}}"">{{actionLink.text}}</a>
+    </p>
+    <p>
+        Extra data can be also bound like this. {{data.firstField}}. And the google logo 
+        <img src=""{{data.googleLogoSrc}}""
+    </p>
+</body></html>"
+                },
+                ["SMS"] = new Indice.Features.Messages.Core.Models.MessageContent() {
+                    Title = "Hi {{contact.fullName}} 🎉!",
+                    Body = @"{{title}} 🎉
+Hi {{contact.salutation}} {{contact.firstName}}.
+Check out this awsome offer here:
+
+{{actionLink.text}}: {{actionLink.href}}
+Extra data can be also bound like this. {{data.firstField}}."
+                }
+            }
+        });
 }
