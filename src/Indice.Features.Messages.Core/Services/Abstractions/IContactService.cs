@@ -54,13 +54,12 @@ public interface IContactService
     /// <param name="preference">The data for the communication preferences.</param>
     Task UpdateContactPreferences(string recipientId, ContactPreference preference);
     /// <summary>Retrieves potential duplicate contacts .</summary>
-    /// <param name="recipientId">The id of the recipient.</param>
-    /// <param name="email">The data for the communication preferences.</param>
-    Task<List<Contact?>> GetDuplicates(string recipientId, string email,Guid contactId);
+    /// <param name="mainContact">The main contact.</param>
+    Task<List<Contact?>> GetDuplicates(Contact mainContact);
     /// <summary>Updates the contactId inside the DistributionListContact association table.</summary>
-    /// <param name="contactId">The main-resolved contactId.</param>
+    /// <param name="mainContact">The main-resolved contactId.</param>
     /// <param name="duplicateContactsIds">The duplicate contact Ids.</param>
-    Task MergeContacts(Guid contactId, List<Guid> duplicateContactsIds);
+    Task MergeContacts(Contact mainContact, List<Guid> duplicateContactsIds);
 }
 
 /// <summary>Extensions on the <see cref="IContactService"/></summary>

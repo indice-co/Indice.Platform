@@ -95,7 +95,7 @@ public class MergeContactTests : IAsyncLifetime
         };
         var mainContact = await contactService.Create(createMainContactRequest);
         await contactService.CreateMany(createContactRequests);
-        var duplicates =  await contactService.GetDuplicates(mainContact.RecipientId, mainContact.Email, mainContact.Id.Value);
+        var duplicates =  await contactService.GetDuplicates(mainContact);
         Assert.True(duplicates.Count == 5);
     }
 
@@ -149,7 +149,8 @@ public class MergeContactTests : IAsyncLifetime
         }
 
         await dbContext.SaveChangesAsync();
-        await contactService.MergeContacts(createMainContactRequest.ContactId.Value, createDistributionListContactRequests.Select(x => x.ContactId.Value).ToList());
+        var mainContact = await contactService.GetById(createMainContactRequest.ContactId.Value);
+        await contactService.MergeContacts(mainContact, createDistributionListContactRequests.Select(x => x.ContactId.Value).ToList());
         dbContext.ChangeTracker.Clear();
 
         dbDistributionList = dbContext.DistributionLists.Include(x => x.ContactDistributionLists).Where(x => x.Id == distributionList.Id).First();
@@ -207,7 +208,7 @@ public class MergeContactTests : IAsyncLifetime
         }
 
         await dbContext.SaveChangesAsync();
-        await contactService.MergeContacts(mainContact.Id.Value, createDistributionListContactRequests.Select(x => x.ContactId.Value).ToList());
+        await contactService.MergeContacts(mainContact, createDistributionListContactRequests.Select(x => x.ContactId.Value).ToList());
         dbContext.ChangeTracker.Clear();
 
         dbDistributionList = dbContext.DistributionLists.Include(x => x.ContactDistributionLists).Where(x => x.Id == distributionListMainNotIncluded.Id).First();
@@ -266,7 +267,7 @@ public class MergeContactTests : IAsyncLifetime
         }
         dbContext.SaveChanges();
 
-        await contactService.MergeContacts(mainContact.Id.Value, contacts.Select(x => x.Id.Value).ToList());
+        await contactService.MergeContacts(mainContact, contacts.Select(x => x.Id.Value).ToList());
         dbContext.ChangeTracker.Clear();
 
         Assert.True(dbContext.Messages.All(x => x.ContactId == mainContact.Id) && dbContext.Messages.Count() == 5);

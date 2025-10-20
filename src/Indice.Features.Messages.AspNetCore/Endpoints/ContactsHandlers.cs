@@ -4,7 +4,6 @@ using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Org.BouncyCastle.Cms;
 
 namespace Indice.Features.Messages.AspNetCore.Endpoints;
 
@@ -97,12 +96,12 @@ internal static class ContactsHandlers {
         if (contact is null || string.IsNullOrWhiteSpace(contact.RecipientId)) {
             return TypedResults.NotFound();
         }
-        List<Contact?> duplicateContacts = await contactService.GetDuplicates(contact.RecipientId, contact.Email, contactId);
+        List<Contact?> duplicateContacts = await contactService.GetDuplicates(contact);
         return TypedResults.Ok(duplicateContacts);
     }
 
-    public static async Task<Results<Ok, ValidationProblem>> MergeContacts(IContactService contactService, Guid contactId, List<Guid> duplicateContactsIds) {
-        Contact? mainContact = await contactService.GetById(contactId);
+    public static async Task<Results<Ok, ValidationProblem>> MergeContacts(IContactService contactService, Guid mainContactId, List<Guid> duplicateContactsIds) {
+        Contact? mainContact = await contactService.GetById(mainContactId);
         if (mainContact is null) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(mainContact), "Contact Id does not Exist"));
         }
@@ -112,12 +111,14 @@ internal static class ContactsHandlers {
         if (duplicateContactsIds is null || duplicateContactsIds.Count == 0) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(duplicateContactsIds), "Duplicates list cannot be empty"));
         }
-        if (duplicateContactsIds.Contains(contactId)) {
-            duplicateContactsIds.Remove(contactId);
+        if (duplicateContactsIds.Contains(mainContactId)) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError("Invalid duplicateContactsIds", "Duplicates List should not contain main contact Id"));
         }
-        await contactService.MergeContacts(contactId, duplicateContactsIds);
+        duplicateContactsIds = duplicateContactsIds.Distinct().ToList();
+        await contactService.MergeContacts(mainContact, duplicateContactsIds);
         return TypedResults.Ok();
     }
+
     #region Descriptions
     public static readonly string GET_CONTACTS_DESCRIPTION = @"
 Retrieves the list of all contacts using the provided ListOptions.
@@ -164,7 +165,7 @@ Retrieves the communication preferences for a specific contact.
 ";
 
     public static readonly string GET_CONTACT_DUPLICATES = @"
-    Retrieves the list of all potential duplicate accounts
+    Retrieves the list of all potential duplicate accounts for the given contact Id
 ";
     public static readonly string MERGE_CONTACTS = @"
     Merge a list of duplicate contacts into a main resolved contact

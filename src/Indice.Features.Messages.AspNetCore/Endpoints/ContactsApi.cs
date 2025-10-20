@@ -77,7 +77,7 @@ internal static class ContactsApi
              .WithSummary("Get potential duplicate contacts.")
              .WithDescription(ContactsHandlers.GET_CONTACT_DUPLICATES);
 
-        group.MapPost("{contactId}/duplicates", ContactsHandlers.MergeContacts)
+        group.MapPost("{contactId}/merge", ContactsHandlers.MergeContacts)
              .WithName(nameof(ContactsHandlers.MergeContacts))
              .WithSummary("Merge given contacts.")
              .WithDescription(ContactsHandlers.MERGE_CONTACTS);
