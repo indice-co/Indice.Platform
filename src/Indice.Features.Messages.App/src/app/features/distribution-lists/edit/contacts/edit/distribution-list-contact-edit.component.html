@@ -112,7 +112,7 @@
                 <div class="col-span-4">
                   <label for="recipientId"
                          class="field-label">
-                    Κωδικός επαφής (readonly)
+                    Κωδικός επαφής (readonly) <span title="{{model.resolved ? 'Resolved' : 'unknown' }}" class="small" [innerHtml]="model.resolved | beautifyBoolean"></span>
                   </label>
                   <div class="flex rounded-sm">
                     <input class="w-full"

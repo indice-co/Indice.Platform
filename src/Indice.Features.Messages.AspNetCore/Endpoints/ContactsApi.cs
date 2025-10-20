@@ -60,15 +60,15 @@ internal static class ContactsApi
              .WithDescription(ContactsHandlers.UPDATE_CONTACT_DESCRIPTION)
              .WithParameterValidation<UpdateContactRequest>();
 
-        group.MapPost("{recipientId}/refresh", ContactsHandlers.RefreshContact)
-             .WithName(nameof(ContactsHandlers.RefreshContact))
-             .WithSummary("Add or Updates a contact that matches the recepientId.")
-             .WithDescription(ContactsHandlers.REFRESH_CONTACT_DESCRIPTION)
+        group.MapPost("{recipientId}/resolve", ContactsHandlers.ResolveContact)
+             .WithName(nameof(ContactsHandlers.ResolveContact))
+             .WithSummary("Add or Updates a contact that matches the recipientId.")
+             .WithDescription(ContactsHandlers.RESOLVE_CONTACT_DESCRIPTION)
              .ProducesProblem(StatusCodes.Status400BadRequest);
 
 
-        group.MapGet("{contactId}/communication-preferences", ContactsHandlers.GetCommunicationPreferences)
-             .WithName(nameof(ContactsHandlers.GetCommunicationPreferences))
+        group.MapGet("{contactId}/preferences", ContactsHandlers.GetPreferences)
+             .WithName(nameof(ContactsHandlers.GetPreferences))
              .WithSummary("Get contact communication preferences.")
              .WithDescription(ContactsHandlers.GET_CONTACT_COMMUNICATION_PREFERENCES);
 

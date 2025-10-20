@@ -51,6 +51,7 @@ public class ImpossibleTravelDetector<TUser> : IImpossibleTravelDetector<TUser> 
                 SignInType = SignInType.Interactive,
                 Subject = user.Id,
                 To = DateTimeOffset.UtcNow,
+                From = DateTimeOffset.UtcNow.AddDays(-_signInLogOptions.ImpossibleTravel.LookBackPeriodInDays),
                 ActionName = "User Login Success"
             }
         ))

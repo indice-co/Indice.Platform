@@ -30,13 +30,18 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
         this.view = ListViewType.Table;
         this.pageSize = 20;
         this.sort = 'updatedAt';
-        this.sortdir = 'asc';
+        this.sortdir = 'desc';
         this.search = '';
         this.sortOptions = [
             new MenuOption('Όνομα', 'firstName'),
             new MenuOption('Επίθετο', 'lastName'),
             new MenuOption('Email', 'email'),
-            new MenuOption('Δημιουργήθηκε', 'updatedAt')
+            new MenuOption('Τηλέφωνο', 'phone'),
+            new MenuOption('Τηλέφωνο', 'phone'),
+            new MenuOption('Δημιουργήθηκε', 'updatedAt'),
+            new MenuOption('Κωδικός', 'recipientId'),
+            new MenuOption('Resolved', 'resolved'),
+            new MenuOption('Last Resolution', 'lastResolutionDate'),
         ];
     }
 

@@ -1,5 +1,5 @@
 <lib-view-layout [meta-items]="metaItems"
-                 [title]="'Επαφή'"
+                 [title]="(contact$ | async)?.fullName || ''"
                  #layout>
     <div class="min-h-full">
         <main>
@@ -38,7 +38,7 @@
                           </svg>
                           <span class="truncate">Καμπάνιες</span>
                         </a>
-                        <a *ngIf="Contact?.recipientId"
+                        <a *ngIf="(contact$ | async)?.recipientId"
                            [routerLink]="['contact-preferences']"
                            routerLinkActive="vertical-navigation-link-active"
                            class="vertical-navigation-link-base"

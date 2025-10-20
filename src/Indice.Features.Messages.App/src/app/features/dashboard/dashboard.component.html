@@ -1,4 +1,4 @@
-<lib-view-layout [title]="'Καλώς ήλθατε,'" [meta-items]="metaItems"  *ngIf="(metrics$ | async) as metrics">
+<lib-view-layout [title]="'Καλώς ήλθατε,'" [meta-items]="metaItems" *ngIf="(metrics$ | async) as metrics">
   <div class="cards-deck-4">
     <!--<lib-kpi-tile title="Καμπανιες" [busy]="!loaded" [kpi]="counters?.campaignsCount"
                   (tile-action)="navigate('/campaigns')"></lib-kpi-tile>
@@ -23,14 +23,14 @@
 
         <div *ngIf="metrics?.campaign?.trend"
              [ngClass]="{ 'text-green-800 bg-green' : (metrics?.campaign?.trend >=0), 'bg-red-100 text-red-800': (metrics?.campaign?.trend < 0) }"
-            class="inline-flex items-baseline rounded-full px-2.5 py-0.5 text-sm font-medium md:mt-2 lg:mt-0"
-            title="{{metrics?.campaign?.totalToday}} total campaigns today">
-            <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="mr-0.5 -ml-1 size-5 shrink-0 self-center">
-              <path *ngIf="(metrics?.campaign?.trend >=0)" d="M10 17a.75.75 0 0 1-.75-.75V5.612L5.29 9.77a.75.75 0 0 1-1.08-1.04l5.25-5.5a.75.75 0 0 1 1.08 0l5.25 5.5a.75.75 0 1 1-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0 1 10 17Z" clip-rule="evenodd" fill-rule="evenodd"></path>
-              <path *ngIf="(metrics?.campaign?.trend <=0)" d="M10 3a.75.75 0 0 1 .75.75v10.638l3.96-4.158a.75.75 0 1 1 1.08 1.04l-5.25 5.5a.75.75 0 0 1-1.08 0l-5.25-5.5a.75.75 0 1 1 1.08-1.04l3.96 4.158V3.75A.75.75 0 0 1 10 3Z" clip-rule="evenodd" fill-rule="evenodd"></path>
-            </svg>
-            <span class="sr-only"> Increased by </span>
-            {{ metrics?.campaign?.trend | percent:'1.0-1' }}
+             class="inline-flex items-baseline rounded-full px-2.5 py-0.5 text-sm font-medium md:mt-2 lg:mt-0"
+             title="{{metrics?.campaign?.totalToday}} total campaigns today">
+          <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="mr-0.5 -ml-1 size-5 shrink-0 self-center">
+            <path *ngIf="(metrics?.campaign?.trend >=0)" d="M10 17a.75.75 0 0 1-.75-.75V5.612L5.29 9.77a.75.75 0 0 1-1.08-1.04l5.25-5.5a.75.75 0 0 1 1.08 0l5.25 5.5a.75.75 0 1 1-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0 1 10 17Z" clip-rule="evenodd" fill-rule="evenodd"></path>
+            <path *ngIf="(metrics?.campaign?.trend <=0)" d="M10 3a.75.75 0 0 1 .75.75v10.638l3.96-4.158a.75.75 0 1 1 1.08 1.04l-5.25 5.5a.75.75 0 0 1-1.08 0l-5.25-5.5a.75.75 0 1 1 1.08-1.04l3.96 4.158V3.75A.75.75 0 0 1 10 3Z" clip-rule="evenodd" fill-rule="evenodd"></path>
+          </svg>
+          <span class="sr-only"> Increased by </span>
+          {{ metrics?.campaign?.trend | percent:'1.0-1' }}
         </div>
       </dd>
     </div>
@@ -58,8 +58,8 @@
       </dt>
       <dd class="mt-1 flex items-baseline justify-between md:block lg:flex">
         <div class="flex items-baseline text-2xl font-semibold text-indigo-600 dark:text-indigo-400">
-            {{ metrics?.recipient?.reached || 0 }}
-            <span class="ml-2 text-sm font-medium text-gray-500 dark:text-gray-400">out of <span class="text-gray-700">{{metrics?.recipient?.total}}</span> total</span>
+          {{ metrics?.recipient?.reached || 0 }}
+          <span class="ml-2 text-sm font-medium text-gray-500 dark:text-gray-400">out of <span class="text-gray-700">{{metrics?.recipient?.total}}</span> total</span>
         </div>
 
         <div title="Avg Reachability" class="inline-flex items-baseline rounded-full bg-green-100 px-2.5 py-0.5 text-sm font-medium text-green-800 md:mt-2 lg:mt-0 dark:bg-green-400/10 dark:text-green-400">
@@ -75,7 +75,7 @@
     <div class="card">
       <div class="card-body">
         <h4 class="mt-0 header-title mb-4" *ngIf="(eventSeries$ | async) as series">
-          Messages last {{ series.count - 1 }} days
+          Channel dispatches last {{ series.count - 1 }} days
           <span class="flex items-baseline text-2xl font-semibold text-indigo-600 dark:text-indigo-400">
             {{ series.summary?.total }}
           </span>
@@ -94,7 +94,7 @@
       <div class="card-body" style="position:relative">
         <h4 class="mt-0 header-title mb-4">
           <span>
-            Total messages sent overall
+            Total channel deliveries
           </span>
           <span class="flex items-baseline text-2xl font-semibold text-indigo-600 dark:text-indigo-400">
             {{ metrics?.recipient?.totalMessages }}
@@ -111,7 +111,7 @@ maintainAspectRatio: false
       <div class="card-body" style="position:relative">
         <h4 class="mt-0 header-title mb-4">
           <span>
-            Messages per type today
+            Message recipients today
           </span>
           <span class="flex items-baseline text-2xl font-semibold text-indigo-600 dark:text-indigo-400">
             {{ metrics?.perTypeToday | sum:'total' }}
@@ -132,3 +132,15 @@ maintainAspectRatio: false
     </div>
   </div>
 </lib-view-layout>
+<!--
+Label Legend:
+
+•	"Channel dispatches" could be "Multi-channel deliveries" or "Channel sends"
+•	"Message recipients" could be "Unique recipients" or "People reached"
+•	"Total channel deliveries" could be "Cross-channel total" or "All-channel sends"
+
+clearly distinguish between:
+•	Recipients (people count)
+•	Dispatches/Deliveries (channel-specific counts)
+•	Events (tracking/activity counts)
+    -->

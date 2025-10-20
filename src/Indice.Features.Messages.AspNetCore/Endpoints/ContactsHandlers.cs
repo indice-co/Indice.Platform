@@ -56,7 +56,7 @@ internal static class ContactsHandlers {
         return TypedResults.NoContent();
     }
 
-    public static async Task<Results<NoContent, NotFound, ValidationProblem>> RefreshContact(IContactService contactService,
+    public static async Task<Results<NoContent, NotFound, ValidationProblem>> ResolveContact(IContactService contactService,
         IContactResolver contactResolver, string recipientId) {
 
         if (string.IsNullOrWhiteSpace(recipientId))
@@ -80,7 +80,7 @@ internal static class ContactsHandlers {
         return TypedResults.NoContent();
     }
 
-    public static async Task<Results<Ok<ContactPreference>, NotFound>> GetCommunicationPreferences(
+    public static async Task<Results<Ok<ContactPreference>, NotFound>> GetPreferences(
         IContactService contactService,
          Guid contactId
      ) {
@@ -153,11 +153,11 @@ Parameters:
 - contactId: The unique ID of the contact to update.
 - request: The request model used to update the contact.
 ";
-    public static readonly string REFRESH_CONTACT_DESCRIPTION = @"
+    public static readonly string RESOLVE_CONTACT_DESCRIPTION = @"
 Updates an existing contact in the store or adds a new contact with data from an external system.
 
 Parameters:
-- recepientId: The unique ID of the recepient.
+- recipientId: The unique correlation ID for the contact in the external system.
 ";
     public static readonly string GET_CONTACT_COMMUNICATION_PREFERENCES = @"
 Retrieves the communication preferences for a specific contact.
