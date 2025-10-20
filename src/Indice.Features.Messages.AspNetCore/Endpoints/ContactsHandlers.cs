@@ -4,11 +4,11 @@ using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Org.BouncyCastle.Cms;
 
 namespace Indice.Features.Messages.AspNetCore.Endpoints;
 
-internal static class ContactsHandlers
-{
+internal static class ContactsHandlers {
     public static async Task<Ok<ResultSet<Contact>>> GetContacts(
         IContactService contactService,
         IContactResolver contactResolver,
@@ -92,22 +92,28 @@ internal static class ContactsHandlers
         return TypedResults.Ok(preferences);
     }
 
-    public static async Task<Results<Ok<List<Contact?>>, NotFound>> GetDuplicateContacts(IContactService contactService, Guid contactId) { 
+    public static async Task<Results<Ok<List<Contact?>>, NotFound>> GetDuplicateContacts(IContactService contactService, Guid contactId) {
         Contact? contact = await contactService.GetById(contactId);
         if (contact is null || string.IsNullOrWhiteSpace(contact.RecipientId)) {
             return TypedResults.NotFound();
         }
-        List<Contact?> duplicateContacts = await contactService.GetDuplicates(contact.RecipientId,contact.Email,contactId);
+        List<Contact?> duplicateContacts = await contactService.GetDuplicates(contact.RecipientId, contact.Email, contactId);
         return TypedResults.Ok(duplicateContacts);
     }
 
-    public static async Task<Results<Ok, NotFound>> MergeContacts(IContactService contactService, Guid contactId, List<Guid> duplicateContactsIds) { 
+    public static async Task<Results<Ok, ValidationProblem>> MergeContacts(IContactService contactService, Guid contactId, List<Guid> duplicateContactsIds) {
         Contact? mainContact = await contactService.GetById(contactId);
-        if (mainContact is null || string.IsNullOrWhiteSpace(mainContact.RecipientId)) {
-            return TypedResults.NotFound();
+        if (mainContact is null) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(mainContact), "Contact Id does not Exist"));
         }
-        if(duplicateContactsIds is null || duplicateContactsIds.Count == 0) {
-            return TypedResults.NotFound();
+        if(string.IsNullOrWhiteSpace(mainContact.RecipientId)) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError("Invalid Main Contact","The main contact does not have a recipient Id"));
+        }
+        if (duplicateContactsIds is null || duplicateContactsIds.Count == 0) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(duplicateContactsIds), "Duplicates list cannot be empty"));
+        }
+        if (duplicateContactsIds.Contains(contactId)) {
+            duplicateContactsIds.Remove(contactId);
         }
         await contactService.MergeContacts(contactId, duplicateContactsIds);
         return TypedResults.Ok();
