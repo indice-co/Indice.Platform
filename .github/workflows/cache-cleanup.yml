@@ -19,6 +19,8 @@ jobs:
           echo "No cache found"
         else
           echo "Found $cacheCount caches"
+          gh cache delete --all --repo indice-co/Indice.Platform
+          echo "Cache storage successfully deleted"
         fi
       env:
         GH_TOKEN: ${{ secrets.CLEAN_CACHE_TOKEN }}
