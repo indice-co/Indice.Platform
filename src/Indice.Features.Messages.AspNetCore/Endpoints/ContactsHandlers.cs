@@ -91,17 +91,17 @@ internal static class ContactsHandlers {
         return TypedResults.Ok(preferences);
     }
 
-    public static async Task<Results<Ok<List<Contact?>>, NotFound>> GetDuplicateContacts(IContactService contactService, Guid contactId) {
-        Contact? contact = await contactService.GetById(contactId);
+    public static async Task<Results<Ok<List<Contact>>, NotFound>> GetDuplicateContacts(IContactService contactService, Guid contactId) {
+        var contact = await contactService.GetById(contactId);
         if (contact is null || string.IsNullOrWhiteSpace(contact.RecipientId)) {
             return TypedResults.NotFound();
         }
-        List<Contact?> duplicateContacts = await contactService.GetDuplicates(contact);
+        var duplicateContacts = await contactService.GetDuplicates(contact);
         return TypedResults.Ok(duplicateContacts);
     }
 
     public static async Task<Results<Ok, ValidationProblem>> MergeContacts(IContactService contactService, Guid mainContactId, List<Guid> duplicateContactsIds) {
-        Contact? mainContact = await contactService.GetById(mainContactId);
+        var mainContact = await contactService.GetById(mainContactId);
         if (mainContact is null) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(mainContact), "No Contact was not found with the given Id."));
         }
