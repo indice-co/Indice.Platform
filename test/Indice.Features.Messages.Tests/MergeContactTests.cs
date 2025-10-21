@@ -1,17 +1,13 @@
-﻿using System;
-using Indice.AspNetCore.Authorization;
-using Indice.Features.Messages.Core;
+﻿using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Data.Models;
+using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Manager;
-using Indice.Features.Messages.Core.Manager.Commands;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Features.Messages.Core.Services.Validators;
-using Indice.Features.Messages.Tests.Mocks;
-using Indice.Features.Messages.Tests.Security;
 using Indice.Services;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +22,7 @@ namespace Indice.Features.Messages.Tests;
 
 public class MergeContactTests : IAsyncLifetime
 {
+    public int _numDuplicates = 5;
     public MergeContactTests() {
         var inMemorySettings = new Dictionary<string, string?> {
             ["ConnectionStrings:MessagesDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=MessagesDb.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true"
@@ -72,214 +69,96 @@ public class MergeContactTests : IAsyncLifetime
     [Fact]
     public async Task CanGetDuplicates() {
         var contactService = ServiceProvider.GetRequiredService<IContactService>();
-        List<CreateContactRequest> createContactRequests = new List<CreateContactRequest>();
-        for(int i=0; i<5; i++) {
-            var createContactRequest = new CreateContactRequest {
-                FirstName = "John",
-                LastName = "Doe",
-                FullName = "John Doe",
-                Email = $"j.doe@indice.gr",
-                PhoneNumber = "6955555555",
-                Resolved = false,
-            };
-            createContactRequests.Add(createContactRequest);
-        }
-        var createMainContactRequest = new CreateContactRequest {
-            RecipientId = Guid.NewGuid().ToString(),
-            FirstName = "John",
-            LastName = "Doe",
-            FullName = "John Doe",
-            Email = $"j.doe@indice.gr",
-            PhoneNumber = "6955555555",
-            Resolved = true,
-        };
-        var mainContact = await contactService.Create(createMainContactRequest);
-        await contactService.CreateMany(createContactRequests);
-        var duplicates =  await contactService.GetDuplicates(mainContact);
-        Assert.True(duplicates.Count == 5);
+        var initDBResponse = await InitDatabase();
+        var duplicates =  await contactService.GetDuplicates(initDBResponse.MainContact);
+        Assert.True(duplicates.Count == _numDuplicates);
+        Assert.True(duplicates.All(dup => dup.Email == initDBResponse.MainContact.Email));
     }
 
     [Fact]
     public async Task CanMergeDistributionListContactTable() {
         var contactService = ServiceProvider.GetRequiredService<IContactService>();
-        var distributionListService = ServiceProvider.GetRequiredService<IDistributionListService>();
         var dbContext = ServiceProvider.GetRequiredService<CampaignsDbContext>();
-        CreateDistributionListRequest distributionListRequest = new CreateDistributionListRequest() {
-            Name = "TestList",
-            Alias = "testList",
-        };
-        var distributionList = await distributionListService.Create(distributionListRequest);
-
-        List<CreateDistributionListContactRequest> createDistributionListContactRequests = new List<CreateDistributionListContactRequest>();
-        for (int i = 0; i < 5; i++) {
-            var createContactRequest = new CreateDistributionListContactRequest {
-                ContactId = Guid.NewGuid(),
-                FirstName = "John",
-                LastName = "Doe",
-                FullName = "John Doe",
-                Email = $"j{i}.doe@indice.gr",
-                PhoneNumber = "6955555555",
-                Resolved = false,
-            };
-            createDistributionListContactRequests.Add(createContactRequest);
-        }
-
-        var createMainContactRequest = new CreateDistributionListContactRequest {
-            RecipientId = Guid.NewGuid().ToString(),
-            ContactId = Guid.NewGuid(),
-            FirstName = "John",
-            LastName = "Doe",
-            FullName = "John Doe",
-            Email = $"j.doe@indice.gr",
-            PhoneNumber = "6955555555",
-            Resolved = true,
-        };
-        createDistributionListContactRequests.Add(createMainContactRequest);
-        await contactService.BulkAddToDistributionList(distributionList.Id, createDistributionListContactRequests);
-
-        DbDistributionList? dbDistributionList = await dbContext.DistributionLists.Include(x => x.ContactDistributionLists).Where(x => x.Id == distributionList.Id).AsNoTracking().FirstOrDefaultAsync();
-
-        Assert.True(dbDistributionList != null);
-        Assert.True(dbDistributionList.ContactDistributionLists.Count == 6);
-
-        createDistributionListContactRequests.Remove(createMainContactRequest);
-        foreach (var contact in createDistributionListContactRequests) {
-            DbContact dbContact = dbContext.Contacts.Find(contact.ContactId);
-            dbContact.Email = "j.doe@indice.gr";
-        }
-
-        await dbContext.SaveChangesAsync();
-        var mainContact = await contactService.GetById(createMainContactRequest.ContactId.Value);
-        await contactService.MergeContacts(mainContact, createDistributionListContactRequests.Select(x => x.ContactId.Value).ToList());
+        var initDBResponse = await InitDatabase();
+        var dbDistributionList = dbContext.DistributionLists.Include(x => x.ContactDistributionLists).Where(x => x.Id == initDBResponse.DistributionListId).First();
+        Assert.True(dbDistributionList.ContactDistributionLists.Count == (_numDuplicates+1));
+        await contactService.MergeContacts(initDBResponse.MainContact, initDBResponse.DuplicateContactIds);
         dbContext.ChangeTracker.Clear();
-
-        dbDistributionList = dbContext.DistributionLists.Include(x => x.ContactDistributionLists).Where(x => x.Id == distributionList.Id).First();
-        Assert.True(dbDistributionList.ContactDistributionLists.Count == 1);
+        dbDistributionList = dbContext.DistributionLists.Include(x => x.ContactDistributionLists).Where(x => x.Id == initDBResponse.DistributionListId).First();
+        Assert.True(dbDistributionList.ContactDistributionLists.Count == 1 && dbDistributionList.ContactDistributionLists.All(u => u.ContactId == initDBResponse.MainContact.Id));
     }
 
     [Fact]
-    public async Task CanMergeDistributionListContactTableMainNotIncluded() {
+    public async Task CanMergeDistributionListContactTableMainContactNotIncluded() {
         var contactService = ServiceProvider.GetRequiredService<IContactService>();
-        var distributionListService = ServiceProvider.GetRequiredService<IDistributionListService>();
         var dbContext = ServiceProvider.GetRequiredService<CampaignsDbContext>();
-        CreateDistributionListRequest distributionListRequestMainNotIncluded = new CreateDistributionListRequest() {
-            Name = "MainNotIncludedTestList",
-            Alias = "mainNotIncludedTestList",
-        };
-        var distributionListMainNotIncluded = await distributionListService.Create(distributionListRequestMainNotIncluded);
-
-        List<CreateDistributionListContactRequest> createDistributionListContactRequests = new List<CreateDistributionListContactRequest>();
-        for (int i = 0; i < 5; i++) {
-            var createContactRequest = new CreateDistributionListContactRequest {
-                ContactId = Guid.NewGuid(),
-                FirstName = "John",
-                LastName = "Doe",
-                FullName = "John Doe",
-                Email = $"j{i}.doe@indice.gr",
-                PhoneNumber = "6955555555",
-                Resolved = false,
-            };
-            createDistributionListContactRequests.Add(createContactRequest);
-        }
-
-        var createMainContactRequest = new CreateContactRequest {
-            RecipientId = Guid.NewGuid().ToString(),
-            //ContactId = Guid.NewGuid(),
-            FirstName = "John",
-            LastName = "Doe",
-            FullName = "John Doe",
-            Email = $"j.doe@indice.gr",
-            PhoneNumber = "6955555555",
-            Resolved = true,
-        };
-        await contactService.Create(createMainContactRequest);
-        await dbContext.SaveChangesAsync();
-        var mainContact = await contactService.GetByRecipientId(createMainContactRequest.RecipientId);
-        await contactService.BulkAddToDistributionList(distributionListMainNotIncluded.Id, createDistributionListContactRequests);
-
-        DbDistributionList? dbDistributionList = await dbContext.DistributionLists.Include(x => x.ContactDistributionLists).Where(x => x.Id == distributionListMainNotIncluded.Id).AsNoTracking().FirstOrDefaultAsync();
-
-        Assert.True(dbDistributionList != null);
-        Assert.True(dbDistributionList.ContactDistributionLists.Count == 5);
-
-        foreach (var contact in createDistributionListContactRequests) {
-            DbContact dbContact = dbContext.Contacts.Find(contact.ContactId);
-            dbContact.Email = "j.doe@indice.gr";
-        }
-
-        await dbContext.SaveChangesAsync();
-        await contactService.MergeContacts(mainContact, createDistributionListContactRequests.Select(x => x.ContactId.Value).ToList());
+        var initDBResponse = await InitDatabase();
+        var dbDistributionListMainNotIncluded = dbContext.DistributionLists.Include(x => x.ContactDistributionLists).Where(x => x.Id == initDBResponse.DistributionListMainNotIncludedId).First();
+        Assert.True(dbDistributionListMainNotIncluded.ContactDistributionLists.Count == _numDuplicates);
+        await contactService.MergeContacts(initDBResponse.MainContact, initDBResponse.DuplicateContactIds);
         dbContext.ChangeTracker.Clear();
-
-        dbDistributionList = dbContext.DistributionLists.Include(x => x.ContactDistributionLists).Where(x => x.Id == distributionListMainNotIncluded.Id).First();
-        Assert.True(dbDistributionList.ContactDistributionLists.Count == 1);
+        dbDistributionListMainNotIncluded = dbContext.DistributionLists.Include(x => x.ContactDistributionLists).Where(x => x.Id == initDBResponse.DistributionListMainNotIncludedId).First();
+        Assert.True(dbDistributionListMainNotIncluded.ContactDistributionLists.Count == 1 && dbDistributionListMainNotIncluded.ContactDistributionLists.All(u => u.ContactId == initDBResponse.MainContact.Id));
     }
 
     [Fact]
     public async Task CanMergeMessageAndMessageEvent() {
 
         var contactService = ServiceProvider.GetRequiredService<IContactService>();
-        var messageService = ServiceProvider.GetRequiredService<IMessageService>();
         var dbContext = ServiceProvider.GetRequiredService<CampaignsDbContext>();
+        InitDBResponse initDBResponse = await InitDatabase();
+        await contactService.MergeContacts(initDBResponse.MainContact, initDBResponse.DuplicateContactIds);
+        dbContext.ChangeTracker.Clear();
+        Assert.True(dbContext.Messages.All(x => x.ContactId == initDBResponse.MainContact.Id) && dbContext.Messages.Count() == 5);
+        Assert.True(dbContext.MessageEvents.All(x => x.ContactId == initDBResponse.MainContact.Id) && dbContext.MessageEvents.Count() == 5);
+    }
 
+    public async Task<InitDBResponse> InitDatabase() {
+        var contactService = ServiceProvider.GetRequiredService<IContactService>();
+        var dbContext = ServiceProvider.GetRequiredService<CampaignsDbContext>();
         Guid campaignId = Guid.NewGuid();
-        dbContext.Campaigns.Add(new DbCampaign {
+        await dbContext.Campaigns.AddAsync(new DbCampaign {
             Id = campaignId,
             Title = "Test Campaign",
         });
+        DbDistributionList distributionList = await CreateDistributionList("TestList", "testList");
+        DbDistributionList distributionListMainNotIncluded = await CreateDistributionList("MainNotIncludedTestList", "mainNotIncludedTestList");
+        await dbContext.SaveChangesAsync();
+        
+        List<DbContact> dbContacts = new List<DbContact>();
+        for (int i = 0; i < _numDuplicates; i++) {
+            var contact = await CreateContactAndAddContactDistributionList(new List<Guid> { distributionList.Id, distributionListMainNotIncluded.Id},i);
+            dbContacts.Add(contact);
+            var messageId = await CreateMessage(dbContacts[i], campaignId);
+            await CreateMessageEvent(dbContacts[i], campaignId, messageId);
+        }
+        var mainDBContact = await CreateContactAndAddContactDistributionList(new List<Guid> { distributionList.Id });
         await dbContext.SaveChangesAsync();
 
-        List<CreateContactRequest> createContactRequests = new List<CreateContactRequest>();
-        List<Contact> contacts = new List<Contact>();
-        for (int i = 0; i < 5; i++) {
-            var createContactRequest = CreateNumberedJohnDoeContact(i);
-            Contact contact = await contactService.Create(createContactRequest);
-            contacts.Add(contact);
+        //update for getDuplicates
+        foreach(var dbContact in dbContacts) {
+            dbContact.Email = "j.doe@indice.gr";
         }
-        var createMainContactRequest = CreateMainJohnDoeContact();
-        var mainContact = await contactService.Create(createMainContactRequest);
-        dbContext.SaveChanges();
-        var messageIdList = new List<Guid>();
-        var messageList = new List<DbMessage>();
-        var messageEventList = new List<DbMessageEvent>();
-        for (int i = 0; i < 5; i++) {
-            var messageRequest = new CreateMessageRequest() {
-                ContactId = contacts[i].Id,
-                CampaignId = campaignId,
-                Content = new MessageContentDictionary(
-                new Dictionary<MessageChannelKind, MessageContent> {
-                    [MessageChannelKind.Email] = new MessageContent($"Email Test Message", $"Test Message Content: {contacts[i].Email}"),
-                }
-            ),
-            };
-            var messageId = await messageService.Create(messageRequest);
-
-            var messageEvent = new DbMessageEvent() {
-                Id = new Guid(),
-                ContactId = contacts[i].Id.Value,
-                CampaignId = new Guid(),
-                MessageId = messageId,
-            };
-            dbContext.MessageEvents.Add(messageEvent);
-            messageEventList.Add(messageEvent);
-            var message = await dbContext.Messages.FindAsync(messageId);
-            messageList.Add(message);
-        }
-        dbContext.SaveChanges();
-
-        await contactService.MergeContacts(mainContact, contacts.Select(x => x.Id.Value).ToList());
-        dbContext.ChangeTracker.Clear();
-
-        Assert.True(dbContext.Messages.All(x => x.ContactId == mainContact.Id) && dbContext.Messages.Count() == 5);
-        Assert.True(dbContext.MessageEvents.All(x => x.ContactId == mainContact.Id) && dbContext.MessageEvents.Count() == 5);
+        await dbContext.SaveChangesAsync();
+        Contact mainContact = await contactService.GetById(mainDBContact.Id);
+        return new InitDBResponse {
+            MainContact = mainContact,
+            DuplicateContactIds = dbContacts.Select(x => x.Id).ToList(),
+            DistributionListId = distributionList.Id,
+            DistributionListMainNotIncludedId = distributionListMainNotIncluded.Id
+        };
     }
 
-    public List<CreateContactRequest> CreateJohnDoeContacts(int numInstances) {
-        return new List<CreateContactRequest>();
+    public class InitDBResponse {
+        public Contact MainContact { get; set; }
+        public List<Guid> DuplicateContactIds { get; set; }
+        public Guid DistributionListId { get; set; }
+        public Guid DistributionListMainNotIncludedId { get; set; }
     }
 
-    public CreateContactRequest CreateNumberedJohnDoeContact(int num) {
-        return new CreateContactRequest {
+    public DbContact CreateNumberedJohnDoeContact(int num) {
+        return new DbContact {
+            Id = Guid.NewGuid(),
             FirstName = "John",
             LastName = "Doe",
             FullName = "John Doe",
@@ -289,8 +168,9 @@ public class MergeContactTests : IAsyncLifetime
         };
     }
 
-    public CreateContactRequest CreateMainJohnDoeContact() {
-        var createMainContactRequest = new CreateContactRequest {
+    public DbContact CreateMainJohnDoeContact() {
+        return new DbContact {
+            Id = Guid.NewGuid(),
             RecipientId = Guid.NewGuid().ToString(),
             FirstName = "John",
             LastName = "Doe",
@@ -299,7 +179,63 @@ public class MergeContactTests : IAsyncLifetime
             PhoneNumber = "6955555555",
             Resolved = true,
         };
-        return createMainContactRequest;
+    }
+
+    public async Task<DbDistributionList> CreateDistributionList(string name,string alias) {
+        var dbContext = ServiceProvider.GetRequiredService<CampaignsDbContext>();
+        var distributionList = new DbDistributionList() {
+            Id = Guid.NewGuid(),
+            Name = name,
+            Alias = alias,
+        };
+        await dbContext.DistributionLists.AddAsync(distributionList);
+        return distributionList;
+    }
+
+    public async Task<Guid> CreateMessage(DbContact dbContact,Guid campaignId) {
+        var dbContext = ServiceProvider.GetRequiredService<CampaignsDbContext>();
+
+        var dbMessage =  new DbMessage() {
+            Id = Guid.NewGuid() ,
+            ContactId = dbContact.Id,
+            CampaignId = campaignId,
+            Content = new MessageContentDictionary(
+                new Dictionary<MessageChannelKind, MessageContent> {
+                    [MessageChannelKind.Email] = new MessageContent($"Email Test Message", $"Test Message Content: {dbContact.Email}"),
+                }),
+        };
+        await dbContext.Messages.AddAsync(dbMessage);
+        return dbMessage.Id;
+    }
+
+    public async Task CreateMessageEvent(DbContact dbContact,Guid campaignId,Guid messageId) {
+        var dbContext = ServiceProvider.GetRequiredService<CampaignsDbContext>();
+        var messageEvent = new DbMessageEvent{
+            Id = new Guid(),
+            ContactId = dbContact.Id,
+            CampaignId = new Guid(),
+            MessageId = messageId,
+        };
+        await dbContext.MessageEvents.AddAsync(messageEvent);
+    }
+
+    public async Task<DbContact> CreateContactAndAddContactDistributionList(List<Guid> distributionListsIds, int i=0) {
+        var dbContext = ServiceProvider.GetRequiredService<CampaignsDbContext>();
+        DbContact dbContact;
+        if (i!=0) {
+            dbContact = CreateNumberedJohnDoeContact(i);
+        } 
+        else {
+            dbContact = CreateMainJohnDoeContact();
+        }
+        await dbContext.Contacts.AddAsync(dbContact);
+        foreach (var distributionListId in distributionListsIds) {
+            dbContext.ContactDistributionLists.Add(new DbDistributionListContact {
+                ContactId = dbContact.Id,
+                DistributionListId = distributionListId
+            });
+        }
+        return dbContact;
     }
 
     public class UserNameAccessorNoOp : IUserNameAccessor

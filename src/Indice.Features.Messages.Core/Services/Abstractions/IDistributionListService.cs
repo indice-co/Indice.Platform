@@ -28,8 +28,4 @@ public interface IDistributionListService
     /// <summary>Deletes an existing distribution list.</summary>
     /// <param name="id">The id of the distribution list.</param>
     Task Delete(Guid id);
-    /// <summary>Updates an existing distribution list.</summary>
-    /// <param name="id">The id of the distribution list.</param>
-    /// <param name="request">The data for the distribution list to update.</param>
-    Task UpdateContact(Guid id, UpdateDistributionListRequest request);
 }

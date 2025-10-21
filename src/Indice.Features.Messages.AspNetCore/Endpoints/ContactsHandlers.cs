@@ -103,7 +103,7 @@ internal static class ContactsHandlers {
     public static async Task<Results<Ok, ValidationProblem>> MergeContacts(IContactService contactService, Guid mainContactId, List<Guid> duplicateContactsIds) {
         Contact? mainContact = await contactService.GetById(mainContactId);
         if (mainContact is null) {
-            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(mainContact), "Contact Id does not Exist"));
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(mainContact), "No Contact was not found with the given Id."));
         }
         if(string.IsNullOrWhiteSpace(mainContact.RecipientId)) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError("Invalid Main Contact","The main contact does not have a recipient Id"));

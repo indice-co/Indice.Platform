@@ -468,19 +468,18 @@ public class ContactService : IContactService
 
     ///<inheritdoc/>
     public async Task MergeContacts(Contact mainContact, List<Guid> duplicateContactsIds) {
-        List<DbContact> duplicateContacts = await DbContext.Contacts.Where(x => duplicateContactsIds.Contains(x.Id)).ToListAsync();
-        if(duplicateContacts is null || duplicateContacts.Count == 0) {
+        List<Guid> existingDuplicateContactIds = await DbContext.Contacts.Where(x => duplicateContactsIds.Contains(x.Id)).Select(x=> x.Id).ToListAsync();
+        if(existingDuplicateContactIds.Count == 0) {
             return;
         }
-        var existingDuplicateContactIds = duplicateContacts.Select(x => x.Id).ToList();
         await MergeDistributionListContacts(mainContact,existingDuplicateContactIds);
-        await UpdateMessageEventContactInfoRange(mainContact, existingDuplicateContactIds);
-        await UpdateMessageContactInfoRange(mainContact, existingDuplicateContactIds);
-        await DbContext.Contacts.Where(x => duplicateContactsIds.Contains(x.Id)).ExecuteDeleteAsync();
+        await UpdateContactInMessageEvents(mainContact, existingDuplicateContactIds);
+        await UpdateContactInMessages(mainContact, existingDuplicateContactIds);
+        await DbContext.Contacts.Where(x => existingDuplicateContactIds.Contains(x.Id)).ExecuteDeleteAsync();
         await DbContext.SaveChangesAsync();
     }
     private async Task MergeDistributionListContacts(Contact mainContact, List<Guid> duplicateContactIds) {
-        List<Guid>? distributionListsIdsWithoutMainContact = await DbContext.DistributionLists
+        List<Guid> distributionListsIdsWithoutMainContact = await DbContext.DistributionLists
             .Where(x => !x.ContactDistributionLists.Any(c => c.ContactId == mainContact.Id) &&
                          x.ContactDistributionLists.Any(c => duplicateContactIds.Contains(c.ContactId)))
             .Select(x => x.Id).Distinct().ToListAsync();
@@ -488,12 +487,12 @@ public class ContactService : IContactService
         await DbContext.ContactDistributionLists.Where(x => duplicateContactIds.Contains(x.ContactId)).ExecuteDeleteAsync();
         DbContext.ContactDistributionLists.AddRange(distributionListsIdsWithoutMainContact.Select(id => new DbDistributionListContact {
             DistributionListId = id,
-            ContactId = mainContact.Id.Value,
+            ContactId = mainContact.Id!.Value,
         }));
         await DbContext.SaveChangesAsync();
     }
 
-    private async Task UpdateMessageContactInfoRange(Contact mainContact, List<Guid> duplicateContactIds) {
+    private async Task UpdateContactInMessages(Contact mainContact, List<Guid> duplicateContactIds) {
         await DbContext.Messages
             .Where(x => duplicateContactIds
             .Contains(x.ContactId!.Value))
@@ -502,7 +501,7 @@ public class ContactService : IContactService
             .SetProperty(x => x.RecipientId, mainContact.RecipientId));
     }
 
-    private async Task UpdateMessageEventContactInfoRange(Contact mainContact, List<Guid> duplicateContactIds) {
+    private async Task UpdateContactInMessageEvents(Contact mainContact, List<Guid> duplicateContactIds) {
         await DbContext.MessageEvents
         .Where(x => duplicateContactIds.Contains(x.ContactId))
         .ExecuteUpdateAsync(setter => setter.SetProperty(x => x.ContactId, mainContact.Id));

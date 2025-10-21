@@ -165,13 +165,4 @@ public class DistributionListService : IDistributionListService
         await DbContext.SaveChangesAsync();
     }
 
-    public async Task UpdateContact(Guid id, UpdateDistributionListRequest request) {
-        var list = await DbContext.DistributionLists.FindAsync(id);
-        if (list is null) {
-            throw MessageExceptions.MessageTypeNotFound(id);
-        }
-        list.Name = request.Name;
-        list.Alias = request.Alias;
-        await DbContext.SaveChangesAsync();
-    }
 }

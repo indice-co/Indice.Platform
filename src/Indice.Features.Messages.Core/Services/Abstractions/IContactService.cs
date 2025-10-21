@@ -54,9 +54,9 @@ public interface IContactService
     /// <param name="preference">The data for the communication preferences.</param>
     Task UpdateContactPreferences(string recipientId, ContactPreference preference);
     /// <summary>Retrieves potential duplicate contacts .</summary>
-    /// <param name="mainContact">The main contact.</param>
+    /// <param name="mainContact">The contact for which we need to look for duplicates.</param>
     Task<List<Contact?>> GetDuplicates(Contact mainContact);
-    /// <summary>Updates the contactId inside the DistributionListContact association table.</summary>
+    /// <summary>Replaces the given Contact Id List with the Id of the main contact to all the appropriate tables</summary>
     /// <param name="mainContact">The main-resolved contactId.</param>
     /// <param name="duplicateContactsIds">The duplicate contact Ids.</param>
     Task MergeContacts(Contact mainContact, List<Guid> duplicateContactsIds);
