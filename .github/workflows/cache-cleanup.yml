@@ -14,9 +14,12 @@ jobs:
     steps:
     - name: Github Cache Cleanup
       run: |
-        gh cache list
-        gh cache delete --all --repo indice-co/Indice.Platform
-        echo "Cache storage successfully deleted"
+        cacheCount=$(gh cache list --json id --jq '. | length')
+        if [ "$cacheCount" -eq 0 ]; then
+          echo "No cache found"
+        else
+          echo "Found $cacheCount caches"
+        fi
       env:
         GH_TOKEN: ${{ secrets.CLEAN_CACHE_TOKEN }}
         GH_REPO: ${{ github.repository }}
