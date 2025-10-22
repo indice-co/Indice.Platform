@@ -1,6 +1,6 @@
 {
   "solution": {
-    "path": "Indice.Platform.sln",
+    "path": "Indice.Platform.slnx",
     "projects": [
       "src\\Indice.Features.Cases.App\\Indice.Features.Cases.App.esproj",
       "src\\Indice.Features.Identity.AdminUI.App\\Indice.Features.Identity.AdminUI.App.esproj",
