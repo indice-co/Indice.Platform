@@ -1,6 +1,6 @@
 {
   "solution": {
-    "path": "Indice.Platform.sln",
+    "path": "Indice.Platform.slnx",
     "projects": [
       "src\\Indice.AspNetCore.Authentication.Apple\\Indice.AspNetCore.Authentication.Apple.csproj",
       "src\\Indice.AspNetCore.Authentication.GovGr\\Indice.AspNetCore.Authentication.GovGr.csproj",
