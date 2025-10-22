@@ -71,6 +71,17 @@ internal static class ContactsApi
              .WithName(nameof(ContactsHandlers.GetPreferences))
              .WithSummary("Get contact communication preferences.")
              .WithDescription(ContactsHandlers.GET_CONTACT_COMMUNICATION_PREFERENCES);
+
+        group.MapGet("{contactId}/duplicates", ContactsHandlers.GetDuplicateContacts)
+             .WithName(nameof(ContactsHandlers.GetDuplicateContacts))
+             .WithSummary("Get potential duplicate contacts.")
+             .WithDescription(ContactsHandlers.GET_CONTACT_DUPLICATES);
+
+        group.MapPost("{contactId}/merge", ContactsHandlers.MergeContacts)
+             .WithName(nameof(ContactsHandlers.MergeContacts))
+             .WithSummary("Merge given contacts.")
+             .WithDescription(ContactsHandlers.MERGE_CONTACTS);
+
         return group;
     }
 }
