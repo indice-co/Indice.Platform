@@ -107,7 +107,7 @@ public static class IdentityBuilderUIExtensions
         services.TryAddTransient<ITelemetryJavaScriptSnippet, AzureMonitorTelemetryJavaScriptSnippet>(); // browser ui telemetry.
 
         services.AddPlatformEventHandler<SecurityNotificationEvent, SecurityNotificationEventHandler>();
-        services.AddScoped<IdentityUILocalizer>();
+        services.TryAddScoped<IdentityUILocalizer>();
 
         return services;
     }
