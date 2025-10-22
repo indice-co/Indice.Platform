@@ -91,19 +91,19 @@ internal static class ContactsHandlers {
         return TypedResults.Ok(preferences);
     }
 
-    public static async Task<Results<Ok<List<Contact>>, NotFound>> GetDuplicateContacts(IContactService contactService, Guid contactId) {
+    public static async Task<Results<Ok<ResultSet<Contact>>, NotFound>> GetDuplicateContacts(IContactService contactService, Guid contactId, [AsParameters] ListOptions options) {
         var contact = await contactService.GetById(contactId);
         if (contact is null || string.IsNullOrWhiteSpace(contact.RecipientId)) {
             return TypedResults.NotFound();
         }
-        var duplicateContacts = await contactService.GetDuplicates(contact);
+        var duplicateContacts = await contactService.GetDuplicates(contact,options);
         return TypedResults.Ok(duplicateContacts);
     }
 
     public static async Task<Results<Ok, ValidationProblem>> MergeContacts(IContactService contactService, Guid mainContactId, List<Guid> duplicateContactsIds) {
         var mainContact = await contactService.GetById(mainContactId);
         if (mainContact is null) {
-            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(mainContact), "No Contact was not found with the given Id."));
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(mainContact), "No Contact was found with the given Id."));
         }
         if(string.IsNullOrWhiteSpace(mainContact.RecipientId)) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError("Invalid Main Contact","The main contact does not have a recipient Id"));

@@ -164,5 +164,4 @@ public class DistributionListService : IDistributionListService
         list.Alias = request.Alias;
         await DbContext.SaveChangesAsync();
     }
-
 }

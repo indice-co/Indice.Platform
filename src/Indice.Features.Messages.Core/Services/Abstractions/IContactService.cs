@@ -55,7 +55,8 @@ public interface IContactService
     Task UpdateContactPreferences(string recipientId, ContactPreference preference);
     /// <summary>Retrieves potential duplicate contacts .</summary>
     /// <param name="mainContact">The contact for which we need to look for duplicates.</param>
-    Task<List<Contact>> GetDuplicates(Contact mainContact);
+    /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+    Task<ResultSet<Contact>> GetDuplicates(Contact mainContact, ListOptions options);
     /// <summary>Replaces the given Contact Id List with the Id of the main contact to all the appropriate tables</summary>
     /// <param name="mainContact">The main-resolved contactId.</param>
     /// <param name="duplicateContactsIds">The duplicate contact Ids.</param>

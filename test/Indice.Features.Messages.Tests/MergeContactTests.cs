@@ -52,9 +52,9 @@ public class MergeContactTests : IAsyncLifetime
     public async Task CanGetDuplicates() {
         var contactService = ServiceProvider.GetRequiredService<IContactService>();
         var initDBResponse = await InitDatabase();
-        var duplicates = await contactService.GetDuplicates(initDBResponse.MainContact);
-        Assert.True(duplicates.Count == _numDuplicates);
-        Assert.True(duplicates.All(dup => dup.Email == initDBResponse.MainContact.Email));
+        var duplicates = await contactService.GetDuplicates(initDBResponse.MainContact,new());
+        Assert.True(duplicates.Items.Count() == _numDuplicates);
+        Assert.True(duplicates.Items.All(dup => dup.Email == initDBResponse.MainContact.Email));
     }
 
     [Fact]
