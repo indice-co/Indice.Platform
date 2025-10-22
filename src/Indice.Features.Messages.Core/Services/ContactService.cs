@@ -437,13 +437,7 @@ public class ContactService : IContactService
                 ConsentCommercial = preference.ConsentCommercial,
                 ConsentCommercialDate = preference.ConsentCommercialDate,
                 DefaultChannels = preference.DefaultChannels != null ? ContactChannelOption.ToContactChannelKind(preference.DefaultChannels) : null,
-                UpdatedAt = DateTimeOffset.UtcNow,
-                CommunicationOptions = messageTypes.Select(x =>
-                    new DbContactCommunicationOption() {
-                        MessageTypeId = x.Id,
-                        Channels = ContactChannelOption.ToContactChannelKind(ContactChannelOption.FromKindFlags(ContactChannelKind.Any)),
-                        UpdatedAt = DateTimeOffset.UtcNow
-                    }).ToList()
+                UpdatedAt = DateTimeOffset.UtcNow
             };
 
             await DbContext.ContactPreferences.AddAsync(recipientPreferences);
