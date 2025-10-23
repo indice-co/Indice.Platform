@@ -16,8 +16,6 @@ jobs:
     uses: ./.github/workflows/templates/build-action.yml
     permissions:
       contents: read
-    env:
-      NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
 
   run-dotnet-tests:
     needs: [run-build]
