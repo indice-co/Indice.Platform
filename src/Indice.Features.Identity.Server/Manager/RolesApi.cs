@@ -1,15 +1,10 @@
-﻿using IdentityModel;
-using Indice.AspNetCore.Http.Filters;
-using Indice.Features.Identity.Server;
+﻿using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Manager;
 using Indice.Features.Identity.Server.Manager.Models;
 using Indice.Security;
-using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Extensions.DependencyInjection;
-using Polly;
 
 namespace Microsoft.AspNetCore.Routing;
 
@@ -33,8 +28,6 @@ public static class RolesApi
              .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
              .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
         );
-
-
 
         group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)

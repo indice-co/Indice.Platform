@@ -1,10 +1,7 @@
-﻿using IdentityModel;
-using Indice.AspNetCore.Http.Filters;
-using Indice.Features.Identity.Server;
+﻿using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Manager;
 using Indice.Features.Identity.Server.Manager.Models;
 using Indice.Security;
-using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;

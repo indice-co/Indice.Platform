@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using IdentityModel;
+using Duende.IdentityModel;
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer.Events;
 using Duende.IdentityServer.Extensions;
@@ -29,12 +29,9 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography;
-using Org.BouncyCastle.Asn1.X9;
-using Indice.Features.Identity.Core.DeviceAuthentication.Extensions;
-using System.Text.Unicode;
 using System.Text;
+using Indice.Security;
 
 namespace Indice.Features.Identity.Server.Manager;
 
@@ -220,15 +217,15 @@ internal static class UserHandlers
         }
 
         // handle claims addition
-        var claims = request.Claims?.Count > 0 ? request.Claims.Where(x => x.Type != JwtClaimTypes.GivenName &&
-                                                                           x.Type != JwtClaimTypes.FamilyName)
+        var claims = request.Claims?.Count > 0 ? request.Claims.Where(x => x.Type != BasicClaimTypes.GivenName &&
+                                                                           x.Type != BasicClaimTypes.FamilyName)
                                                                .Select(x => new Claim(x.Type!, x.Value!))
                                                                .ToList() : [];
         if (!string.IsNullOrEmpty(request.FirstName)) {
-            claims.Add(new Claim(JwtClaimTypes.GivenName, request.FirstName));
+            claims.Add(new Claim(BasicClaimTypes.GivenName, request.FirstName));
         }
         if (!string.IsNullOrEmpty(request.LastName)) {
-            claims.Add(new Claim(JwtClaimTypes.FamilyName, request.LastName));
+            claims.Add(new Claim(BasicClaimTypes.FamilyName, request.LastName));
         }
         if (claims.Any()) {
             claims.ForEach(c => user.Claims.Add(new() { ClaimType = c.Type, ClaimValue = c.Value, UserId = user.Id }));
@@ -381,7 +378,7 @@ internal static class UserHandlers
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
         if (role.IsManagementRole()) {
-            var clientId = currentUser.FindFirst(JwtClaimTypes.ClientId);
+            var clientId = currentUser.FindFirst(BasicClaimTypes.ClientId);
             await persistedGrantService.RemoveAllGrantsAsync(userId, clientId?.Value);
         }
         return TypedResults.NoContent();
