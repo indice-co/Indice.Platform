@@ -1,14 +1,28 @@
 name: Test process
-description: Composite action for executing dotnet test
 
-runs:
-  using: 'composite'
-  steps:
+on:
+  workflow_call:
+
+jobs:
+  run-dotnet-tests:
+    steps:
 
     - name: Harden Runner
       uses: step-security/harden-runner@002fdce3c6a235733a90a27c80493a3241e56863 # v2.12.1
       with:
         egress-policy: audit
+
+    - name: Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+    - name: Restore Cache
+      uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+      with:
+        path: |
+          ~/.nuget/packages
+          **/bin
+          **/obj
+        key: dotnet-build-${{ github.sha }}
   
     - name: Test with dotnet
       shell: pwsh
