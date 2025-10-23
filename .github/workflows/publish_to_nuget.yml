@@ -1,8 +1,5 @@
 name: "Publish to NuGet"
 
-permissions:
-  contents: read
-
 on:
   workflow_dispatch:
   # push:
@@ -13,6 +10,7 @@ on:
 jobs:
   build:
     permissions:
+      contents: read
       actions: read
       checks: write
     runs-on: windows-2022
