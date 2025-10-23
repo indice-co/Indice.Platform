@@ -1,19 +1,23 @@
-name: Code analysis (JavaScript)
-description: Composite action for executing CodeQL (JavaScript)
+name: Code analysis (C#)
 
-inputs:
-  dotnetCacheKey:
-    type: string
-    required: true
+on:
+  workflow_call:  
+    secrets:
+      NUGET_AUTH_TOKEN:
+        required: true
 
-runs:
-  using: 'composite'
-  steps:
+jobs:
+  run-codeql-csharp:
+    runs-on: windows-latest
+    steps:
 
     - name: Harden Runner
       uses: step-security/harden-runner@002fdce3c6a235733a90a27c80493a3241e56863 # v2.12.1
       with:
         egress-policy: audit
+
+    - name: Checkout Repository
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
     - name: Restore Cache
       uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
@@ -22,21 +26,24 @@ runs:
           ~/.nuget/packages
           **/bin
           **/obj
-        key: ${{ inputs.dotnetCacheKey }}
+        key: dotnet-build-${{ github.sha }}
 
-    - name: Use Node.js 20.x
-      uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+    - name: Use .NET 8
+      uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.2.3
       with:
-        node-version: 20
+        dotnet-version: 8.x
+        source-url: https://api.nuget.org/v3/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
   
     - name: Initialize CodeQL
       uses: github/codeql-action/init@3c3833e0f8c1c83d449a7478aa59c036a9165498 # v3.29.11
       with:
-        languages: javascript-typescript
+        languages: csharp
         build-mode: none
         config-file: ./.github/workflows/codeql/codeql-config.yml
       
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@3c3833e0f8c1c83d449a7478aa59c036a9165498 # v3.29.11
       with:
-        category: "/language:javascript-typescript"
+        category: "/language:csharp"
