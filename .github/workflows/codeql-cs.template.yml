@@ -1,7 +1,10 @@
 name: Code analysis (C#)
 
 on:
-  workflow_call:
+  workflow_call:  
+    secrets:
+      NUGET_AUTH_TOKEN:
+        required: true
 
 jobs:
   run-codeql-csharp:
