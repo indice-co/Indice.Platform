@@ -1,5 +1,8 @@
 name: Test process
 
+permissions:
+  contents: read
+
 on:
   workflow_call:
 
