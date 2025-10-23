@@ -8,11 +8,11 @@
 @inject IdentityUILocalizer Localizer
 
 @{
-    var title = ViewData["Title"] = Localizer.Register_Sign_Up;
+    var title = ViewData["Title"] = Localizer.Register_PageTitle;
 }
 
 <section class="sign-up m-auto">
-    <vc:page-heading title="@title" image-src="" />
+    <vc:page-heading title="@Localizer.Register_PageHeader" image-src="" />
     <partial name="_ValidationSummary" />
     @if (Model.View.VisibleExternalProviders.Any())
     {

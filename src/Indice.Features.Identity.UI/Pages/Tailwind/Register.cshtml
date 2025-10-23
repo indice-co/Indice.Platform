@@ -10,12 +10,12 @@
 @inject IdentityUILocalizer Localizer
 
 @{
-    var title = ViewData["Title"] = Localizer.Register_Sign_Up;
+    var title = ViewData["Title"] = Localizer.Register_PageTitle;
 }
 
 <div class="content-wrapper">
     <div class="card-wrapper register">
-        <vc:page-heading title="@title" image-src="" />
+        <vc:page-heading title="@Localizer.Register_PageHeader" image-src="" />
         <partial name="_ValidationSummary" />
         <p class="px-8">@Localizer.Register_To_register_as_a_new_user_you_will_need_to_fill_in_the_following_information</p>
         <form asp-route-returnUrl="@Model.View.ReturnUrl" data-sbind="event: { change: formChanged }" method="post" autocomplete="new-password" novalidate class="form">
@@ -237,7 +237,7 @@
                     <span>@Localizer.Register_Already_Have_An_Account&nbsp;</span>
 
                     <div class="col-span-12">
-                        <a class="text-tenant-900 underline" asp-page="/Login" asp-route-returnUrl="@Model.View.ReturnUrl">@Localizer.Login_Login&nbsp;</a>
+                        <a class="text-tenant-900 underline" asp-page="/Login" asp-route-returnUrl="@Model.View.ReturnUrl">@Localizer.Login_PageTitle</a>
                     </div>
                 </div>
             </div>

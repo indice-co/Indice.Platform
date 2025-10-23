@@ -7,12 +7,12 @@
 
 
 @{
-    var title = ViewBag.Title = Localizer.MfaOnBoardingAddPhone_MFA_Onboarding_SMS;
+    var title = ViewBag.Title = Localizer.MfaOnBoardingAddPhone_PageTitle;
     var alert = TempData.Peek<AlertModel>(BaseMfaOnboardingAddPhoneModel.TempDataKey);
 }
 <div class="content-wrapper">
     <div class="card-wrapper">
-        <vc:page-heading title="@title" image-src="" />
+        <vc:page-heading title="@Localizer.MfaOnBoardingAddPhone_PageHeader" image-src="" />
         <partial name="_ValidationSummary" />
         <partial name="_Alert" model="alert" />
 

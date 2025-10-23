@@ -5,19 +5,16 @@
 @inject IWebHostEnvironment HostingEnvironment
 @inject CallingCodesProvider callingCodesProvider
 @inject IOptions<IdentityUIOptions> identityUiOptions
-
-
 @inject IdentityUILocalizer Localizer
 
-
 @{
-    var title = ViewData["Title"] = Localizer.AddPhone_Add;
+    var title = ViewData["Title"] = Localizer.AddPhone_PageTitle;
     var alert = TempData.Peek<AlertModel>(BaseAddPhoneModel.TempDataKey);
 }
 
-<div class="content-wrapper">
+<div class="content-wrapper">  
     <div class="card-wrapper">
-        <vc:page-heading title="@title" image-src="" />
+        <vc:page-heading title="@Localizer.AddPhone_PageHeader" image-src="" />
         <partial name="_ValidationSummary" />
         <partial name="_Alert" model="alert" />
         <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" novalidate>

@@ -72,9 +72,18 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to Terms &amp; conditions acceptance.
         /// </summary>
-        public static string AcceptTerms_AcceptTermsAndConditions {
+        public static string AcceptTerms_PageHeader {
             get {
-                return ResourceManager.GetString("AcceptTerms_AcceptTermsAndConditions", resourceCulture);
+                return ResourceManager.GetString("AcceptTerms_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Terms &amp; conditions acceptance.
+        /// </summary>
+        public static string AcceptTerms_PageTitle {
+            get {
+                return ResourceManager.GetString("AcceptTerms_PageTitle", resourceCulture);
             }
         }
         
@@ -106,20 +115,29 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Save.
+        ///   Looks up a localized string similar to Verify email.
         /// </summary>
-        public static string AddEmail_Save {
+        public static string AddEmail_PageHeader {
             get {
-                return ResourceManager.GetString("AddEmail_Save", resourceCulture);
+                return ResourceManager.GetString("AddEmail_PageHeader", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Verify email.
         /// </summary>
-        public static string AddEmail_VerifyEmail {
+        public static string AddEmail_PageTitle {
             get {
-                return ResourceManager.GetString("AddEmail_VerifyEmail", resourceCulture);
+                return ResourceManager.GetString("AddEmail_PageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save.
+        /// </summary>
+        public static string AddEmail_Save {
+            get {
+                return ResourceManager.GetString("AddEmail_Save", resourceCulture);
             }
         }
         
@@ -133,20 +151,29 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add Password.
-        /// </summary>
-        public static string AddPassword_AddPassword {
-            get {
-                return ResourceManager.GetString("AddPassword_AddPassword", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to New password.
         /// </summary>
         public static string AddPassword_Newpassword {
             get {
                 return ResourceManager.GetString("AddPassword_Newpassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add Password.
+        /// </summary>
+        public static string AddPassword_PageHeader {
+            get {
+                return ResourceManager.GetString("AddPassword_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add Password.
+        /// </summary>
+        public static string AddPassword_PageTitle {
+            get {
+                return ResourceManager.GetString("AddPassword_PageTitle", resourceCulture);
             }
         }
         
@@ -187,15 +214,6 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add phone.
-        /// </summary>
-        public static string AddPhone_AddPhone {
-            get {
-                return ResourceManager.GetString("AddPhone_AddPhone", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Add phone number.
         /// </summary>
         public static string AddPhone_AddPhoneNumber {
@@ -210,6 +228,24 @@ namespace Indice.Features.Identity.UI {
         public static string AddPhone_CallingCode {
             get {
                 return ResourceManager.GetString("AddPhone_CallingCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add phone.
+        /// </summary>
+        public static string AddPhone_PageHeader {
+            get {
+                return ResourceManager.GetString("AddPhone_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add phone.
+        /// </summary>
+        public static string AddPhone_pageTitle {
+            get {
+                return ResourceManager.GetString("AddPhone_pageTitle", resourceCulture);
             }
         }
         
@@ -232,11 +268,38 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Associate your account.
+        /// </summary>
+        public static string Associate_PageHeader {
+            get {
+                return ResourceManager.GetString("Associate_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Associate your account.
+        /// </summary>
+        public static string Associate_PageTitle {
+            get {
+                return ResourceManager.GetString("Associate_PageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Redirecting....
         /// </summary>
-        public static string Challenge_Redirecting {
+        public static string Challenge_PageHeader {
             get {
-                return ResourceManager.GetString("Challenge_Redirecting", resourceCulture);
+                return ResourceManager.GetString("Challenge_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Redirecting....
+        /// </summary>
+        public static string Challenge_PageTitle {
+            get {
+                return ResourceManager.GetString("Challenge_PageTitle", resourceCulture);
             }
         }
         
@@ -246,15 +309,6 @@ namespace Indice.Features.Identity.UI {
         public static string ChangePassword_Change {
             get {
                 return ResourceManager.GetString("ChangePassword_Change", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Change Password.
-        /// </summary>
-        public static string ChangePassword_ChangePassword {
-            get {
-                return ResourceManager.GetString("ChangePassword_ChangePassword", resourceCulture);
             }
         }
         
@@ -273,6 +327,24 @@ namespace Indice.Features.Identity.UI {
         public static string ChangePassword_OldPassword {
             get {
                 return ResourceManager.GetString("ChangePassword_OldPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change Password.
+        /// </summary>
+        public static string ChangePassword_PageHeader {
+            get {
+                return ResourceManager.GetString("ChangePassword_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change Password.
+        /// </summary>
+        public static string ChangePassword_PageTitle {
+            get {
+                return ResourceManager.GetString("ChangePassword_PageTitle", resourceCulture);
             }
         }
         
@@ -358,15 +430,6 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Email Confirmation.
-        /// </summary>
-        public static string ConfirmEmail_EmailConfirmation {
-            get {
-                return ResourceManager.GetString("ConfirmEmail_EmailConfirmation", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to to sign in or go back..
         /// </summary>
         public static string ConfirmEmail_GoBackToSignIn {
@@ -421,6 +484,24 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Email Confirmation.
+        /// </summary>
+        public static string ConfirmEmail_PageHeader {
+            get {
+                return ResourceManager.GetString("ConfirmEmail_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Email Confirmation.
+        /// </summary>
+        public static string ConfirmEmail_PageTitle {
+            get {
+                return ResourceManager.GetString("ConfirmEmail_PageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This service email contains information related to your account..
         /// </summary>
         public static string ConfirmEmail_ServiceEmailInfo {
@@ -462,15 +543,6 @@ namespace Indice.Features.Identity.UI {
         public static string ConfirmEmailChange_CloseWindowMessage {
             get {
                 return ResourceManager.GetString("ConfirmEmailChange_CloseWindowMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Email Change Confirmation.
-        /// </summary>
-        public static string ConfirmEmailChange_Confirmation {
-            get {
-                return ResourceManager.GetString("ConfirmEmailChange_Confirmation", resourceCulture);
             }
         }
         
@@ -534,6 +606,24 @@ namespace Indice.Features.Identity.UI {
         public static string ConfirmEmailChange_NoAction {
             get {
                 return ResourceManager.GetString("ConfirmEmailChange_NoAction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Email Change Confirmation.
+        /// </summary>
+        public static string ConfirmEmailChange_PageHeader {
+            get {
+                return ResourceManager.GetString("ConfirmEmailChange_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Email Change Confirmation.
+        /// </summary>
+        public static string ConfirmEmailChange_PageTitle {
+            get {
+                return ResourceManager.GetString("ConfirmEmailChange_PageTitle", resourceCulture);
             }
         }
         
@@ -621,9 +711,18 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to Consent.
         /// </summary>
-        public static string Consent_Consent {
+        public static string Consent_PageHeader {
             get {
-                return ResourceManager.GetString("Consent_Consent", resourceCulture);
+                return ResourceManager.GetString("Consent_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Consent.
+        /// </summary>
+        public static string Consent_PageTitle {
+            get {
+                return ResourceManager.GetString("Consent_PageTitle", resourceCulture);
             }
         }
         
@@ -844,7 +943,7 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Welcome to {0}! We’re excited to have you on board..
+        ///   Looks up a localized string similar to Welcome to {0}! We&apos;re excited to have you on board..
         /// </summary>
         public static string EmailRegister_Body_Welcome {
             get {
@@ -979,15 +1078,6 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error.
-        /// </summary>
-        public static string Error_Error {
-            get {
-                return ResourceManager.GetString("Error_Error", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Go back home.
         /// </summary>
         public static string Error_Go_back_home {
@@ -1002,6 +1092,24 @@ namespace Indice.Features.Identity.UI {
         public static string Error_Oops {
             get {
                 return ResourceManager.GetString("Error_Oops", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error.
+        /// </summary>
+        public static string Error_PageHeader {
+            get {
+                return ResourceManager.GetString("Error_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error.
+        /// </summary>
+        public static string Error_PageTitle {
+            get {
+                return ResourceManager.GetString("Error_PageTitle", resourceCulture);
             }
         }
         
@@ -1053,9 +1161,18 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to Forgot password.
         /// </summary>
-        public static string ForgotPassword_ForgotPassword {
+        public static string ForgotPassword_PageHeader {
             get {
-                return ResourceManager.GetString("ForgotPassword_ForgotPassword", resourceCulture);
+                return ResourceManager.GetString("ForgotPassword_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Forgot password.
+        /// </summary>
+        public static string ForgotPassword_PageTitle {
+            get {
+                return ResourceManager.GetString("ForgotPassword_PageTitle", resourceCulture);
             }
         }
         
@@ -1132,20 +1249,29 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Password changed.
+        ///   Looks up a localized string similar to Forgot Password Confirmation.
         /// </summary>
-        public static string ForgotPasswordConfirmation_PasswordChanged {
+        public static string ForgotPasswordConfirmation_PageHeader {
             get {
-                return ResourceManager.GetString("ForgotPasswordConfirmation_PasswordChanged", resourceCulture);
+                return ResourceManager.GetString("ForgotPasswordConfirmation_PageHeader", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Forgot Password Confirmation.
         /// </summary>
-        public static string ForgotPasswordConfirmation_PasswordConfirmation {
+        public static string ForgotPasswordConfirmation_PageTitle {
             get {
-                return ResourceManager.GetString("ForgotPasswordConfirmation_PasswordConfirmation", resourceCulture);
+                return ResourceManager.GetString("ForgotPasswordConfirmation_PageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Password changed.
+        /// </summary>
+        public static string ForgotPasswordConfirmation_PasswordChanged {
+            get {
+                return ResourceManager.GetString("ForgotPasswordConfirmation_PasswordChanged", resourceCulture);
             }
         }
         
@@ -1186,15 +1312,6 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Grants.
-        /// </summary>
-        public static string Grants_Grants {
-            get {
-                return ResourceManager.GetString("Grants_Grants", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Below is the list of applications you have given access to and the names of the resources they have access to..
         /// </summary>
         public static string Grants_ListApplicationsGrants {
@@ -1209,6 +1326,24 @@ namespace Indice.Features.Identity.UI {
         public static string Grants_NoAccessGiven {
             get {
                 return ResourceManager.GetString("Grants_NoAccessGiven", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Grants.
+        /// </summary>
+        public static string Grants_PageHeader {
+            get {
+                return ResourceManager.GetString("Grants_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Grants.
+        /// </summary>
+        public static string Grants_PageTitle {
+            get {
+                return ResourceManager.GetString("Grants_PageTitle", resourceCulture);
             }
         }
         
@@ -1350,9 +1485,18 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to Logout.
         /// </summary>
-        public static string LoggedOut_Logout {
+        public static string LoggedOut_PageHeader {
             get {
-                return ResourceManager.GetString("LoggedOut_Logout", resourceCulture);
+                return ResourceManager.GetString("LoggedOut_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Logout.
+        /// </summary>
+        public static string LoggedOut_PageTitle {
+            get {
+                return ResourceManager.GetString("LoggedOut_PageTitle", resourceCulture);
             }
         }
         
@@ -1402,15 +1546,6 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Login.
-        /// </summary>
-        public static string Login_Login {
-            get {
-                return ResourceManager.GetString("Login_Login", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Don&apos;t have an account?.
         /// </summary>
         public static string Login_NoAccount {
@@ -1434,6 +1569,24 @@ namespace Indice.Features.Identity.UI {
         public static string Login_OR {
             get {
                 return ResourceManager.GetString("Login_OR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Login.
+        /// </summary>
+        public static string Login_PageHeader {
+            get {
+                return ResourceManager.GetString("Login_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Login.
+        /// </summary>
+        public static string Login_PageTitle {
+            get {
+                return ResourceManager.GetString("Login_PageTitle", resourceCulture);
             }
         }
         
@@ -1476,9 +1629,18 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to Logout.
         /// </summary>
-        public static string Logout_Logout {
+        public static string Logout_PageHeader {
             get {
-                return ResourceManager.GetString("Logout_Logout", resourceCulture);
+                return ResourceManager.GetString("Logout_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Logout.
+        /// </summary>
+        public static string Logout_PageTitle {
+            get {
+                return ResourceManager.GetString("Logout_PageTitle", resourceCulture);
             }
         }
         
@@ -1573,15 +1735,6 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Multifactor Authentication.
-        /// </summary>
-        public static string Mfa_MultifactorAuthentication {
-            get {
-                return ResourceManager.GetString("Mfa_MultifactorAuthentication", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Other authentication methods....
         /// </summary>
         public static string Mfa_OtherAuthenticationMethods {
@@ -1596,6 +1749,24 @@ namespace Indice.Features.Identity.UI {
         public static string Mfa_OTPCode {
             get {
                 return ResourceManager.GetString("Mfa_OTPCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Multifactor Authentication.
+        /// </summary>
+        public static string Mfa_PageHeader {
+            get {
+                return ResourceManager.GetString("Mfa_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Multifactor Authentication.
+        /// </summary>
+        public static string Mfa_PageTitle {
+            get {
+                return ResourceManager.GetString("Mfa_PageTitle", resourceCulture);
             }
         }
         
@@ -1681,15 +1852,6 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Enable MFA.
-        /// </summary>
-        public static string MfaOnBoarding_EnableMFA {
-            get {
-                return ResourceManager.GetString("MfaOnBoarding_EnableMFA", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Keep your account safe.
         /// </summary>
         public static string MfaOnBoarding_KeepYourAccountSafe {
@@ -1708,6 +1870,24 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Enable MFA.
+        /// </summary>
+        public static string MfaOnBoarding_PageHeader {
+            get {
+                return ResourceManager.GetString("MfaOnBoarding_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enable MFA.
+        /// </summary>
+        public static string MfaOnBoarding_PageTitle {
+            get {
+                return ResourceManager.GetString("MfaOnBoarding_PageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Setup an additional authentication method..
         /// </summary>
         public static string MfaOnBoarding_SetupAdditionalAuthenticationMethod {
@@ -1717,20 +1897,29 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to MFA onboarding - SMS.
-        /// </summary>
-        public static string MfaOnBoardingAddPhone_MFAΟnboardingSms {
-            get {
-                return ResourceManager.GetString("MfaOnBoardingAddPhone_MFAΟnboardingSms", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Next.
         /// </summary>
         public static string MfaOnBoardingAddPhone_Next {
             get {
                 return ResourceManager.GetString("MfaOnBoardingAddPhone_Next", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MFA onboarding - SMS.
+        /// </summary>
+        public static string MfaOnBoardingAddPhone_PageHeader {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingAddPhone_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MFA onboarding - SMS.
+        /// </summary>
+        public static string MfaOnBoardingAddPhone_PageTitle {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingAddPhone_PageTitle", resourceCulture);
             }
         }
         
@@ -1771,6 +1960,24 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Verify phone number.
+        /// </summary>
+        public static string MfaOnBoardingVerifyPhone_PageHeader {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingVerifyPhone_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verify phone number.
+        /// </summary>
+        public static string MfaOnBoardingVerifyPhone_PageTitle {
+            get {
+                return ResourceManager.GetString("MfaOnBoardingVerifyPhone_PageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Save.
         /// </summary>
         public static string MfaOnBoardingVerifyPhone_Save {
@@ -1780,29 +1987,11 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Verify phone number.
-        /// </summary>
-        public static string MfaOnBoardingVerifyPhone_VerifyPhoneNumber {
-            get {
-                return ResourceManager.GetString("MfaOnBoardingVerifyPhone_VerifyPhoneNumber", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to .
         /// </summary>
         public static string OrganizationName {
             get {
                 return ResourceManager.GetString("OrganizationName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Change password.
-        /// </summary>
-        public static string PasswordExpired_ChangePassword {
-            get {
-                return ResourceManager.GetString("PasswordExpired_ChangePassword", resourceCulture);
             }
         }
         
@@ -1825,6 +2014,24 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Change password.
+        /// </summary>
+        public static string PasswordExpired_PageHeader {
+            get {
+                return ResourceManager.GetString("PasswordExpired_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change password.
+        /// </summary>
+        public static string PasswordExpired_PageTitle {
+            get {
+                return ResourceManager.GetString("PasswordExpired_PageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Save.
         /// </summary>
         public static string PasswordExpired_Save {
@@ -1839,6 +2046,15 @@ namespace Indice.Features.Identity.UI {
         public static string PasswordExpired_ΝewPasswordConfirmation {
             get {
                 return ResourceManager.GetString("PasswordExpired_ΝewPasswordConfirmation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Privacy Policy.
+        /// </summary>
+        public static string Privacy_PageHeader {
+            get {
+                return ResourceManager.GetString("Privacy_PageHeader", resourceCulture);
             }
         }
         
@@ -2014,6 +2230,24 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Profile.
+        /// </summary>
+        public static string Profile_PageHeader {
+            get {
+                return ResourceManager.GetString("Profile_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Profile.
+        /// </summary>
+        public static string Profile_PageTitle {
+            get {
+                return ResourceManager.GetString("Profile_PageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Phone number.
         /// </summary>
         public static string Profile_PhoneNumber {
@@ -2037,15 +2271,6 @@ namespace Indice.Features.Identity.UI {
         public static string Profile_PreferredLanguage {
             get {
                 return ResourceManager.GetString("Profile_PreferredLanguage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Profile.
-        /// </summary>
-        public static string Profile_Profile {
-            get {
-                return ResourceManager.GetString("Profile_Profile", resourceCulture);
             }
         }
         
@@ -2500,6 +2725,24 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Sign up.
+        /// </summary>
+        public static string Register_PageHeader {
+            get {
+                return ResourceManager.GetString("Register_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sign up.
+        /// </summary>
+        public static string Register_PageTitle {
+            get {
+                return ResourceManager.GetString("Register_PageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Password.
         /// </summary>
         public static string Register_Password {
@@ -2523,15 +2766,6 @@ namespace Indice.Features.Identity.UI {
         public static string Register_Register {
             get {
                 return ResourceManager.GetString("Register_Register", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Sign up.
-        /// </summary>
-        public static string Register_Signup {
-            get {
-                return ResourceManager.GetString("Register_Signup", resourceCulture);
             }
         }
         
@@ -2583,6 +2817,15 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to Terms of Service.
         /// </summary>
+        public static string Terms_PageHeader {
+            get {
+                return ResourceManager.GetString("Terms_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Terms of Service.
+        /// </summary>
         public static string Terms_PageTitle {
             get {
                 return ResourceManager.GetString("Terms_PageTitle", resourceCulture);
@@ -2617,6 +2860,24 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Verify phone number.
+        /// </summary>
+        public static string VerifyPhone_PageHeader {
+            get {
+                return ResourceManager.GetString("VerifyPhone_PageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verify phone number.
+        /// </summary>
+        public static string VerifyPhone_PageTitle {
+            get {
+                return ResourceManager.GetString("VerifyPhone_PageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Resend.
         /// </summary>
         public static string VerifyPhone_Resend {
@@ -2631,15 +2892,6 @@ namespace Indice.Features.Identity.UI {
         public static string VerifyPhone_Save {
             get {
                 return ResourceManager.GetString("VerifyPhone_Save", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Verify phone number.
-        /// </summary>
-        public static string VerifyPhone_VerifyPhoneNumber {
-            get {
-                return ResourceManager.GetString("VerifyPhone_VerifyPhoneNumber", resourceCulture);
             }
         }
     }

@@ -42,21 +42,21 @@
                         <li class="nav-item">
                             @if (user is not null && await UserManager.HasPasswordAsync(user))
                             {
-								<a class="nav-link" asp-page="/ChangePassword">@Localizer.ChangePassword_ChangePassword</a>
+								<a class="nav-link" asp-page="/ChangePassword">@Localizer.ChangePassword_PageTitle</a>
                             }
                             else
                             {
-                                <a class="nav-link" asp-page="/AddPassword">@Localizer.AddPassword_AddPassword</a>
+                                <a class="nav-link" asp-page="/AddPassword">@Localizer.AddPassword_PageTitle</a>
                             }
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-page="/Profile">@Localizer.Profile_Profile</a>
+                            <a class="nav-link" asp-page="/Profile">@Localizer.Profile_PageTitle</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-page="/Grants">@Localizer.Grants_Grants</a>
+                            <a class="nav-link" asp-page="/Grants">@Localizer.Grants_PageTitle</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-page="/Logout">@Localizer.LoggedOut_Logout</a>
+                            <a class="nav-link" asp-page="/Logout">@Localizer.LoggedOut_PageTitle</a>
                         </li>
                     </ul>
                 </div>
@@ -85,18 +85,18 @@
                                                 <div class="account-links">
                                                     @if (user is not null && await UserManager.HasPasswordAsync(user))
                                                     {
-														<a class="account-link" asp-page="/ChangePassword">@Localizer.ChangePassword_ChangePassword</a>
+														<a class="account-link" asp-page="/ChangePassword">@Localizer.ChangePassword_PageTitle</a>
                                                     }
                                                     else
                                                     {
-                                                        <a class="account-link" asp-page="/AddPassword">@Localizer.AddPassword_AddPassword</a>
+                                                        <a class="account-link" asp-page="/AddPassword">@Localizer.AddPassword_PageTitle</a>
                                                     }
-                                                    <a class="account-link" asp-page="/Profile">@Localizer.Profile_Profile</a>
-                                                    <a class="account-link" asp-page="/Grants">@Localizer.Grants_Grants</a>
+                                                    <a class="account-link" asp-page="/Profile">@Localizer.Profile_PageTitle</a>
+                                                    <a class="account-link" asp-page="/Grants">@Localizer.Grants_PageTitle</a>
                                                 </div>
                                             </div>
                                         </div>
-                                        <a class="account-sign-out text-truncate" asp-page="/Logout" target="_top">@Localizer.LoggedOut_Logout</a>
+                                        <a class="account-sign-out text-truncate" asp-page="/Logout" target="_top">@Localizer.LoggedOut_PageTitle</a>
                                     </div>
                                     <div class="account-list-container">
                                         <ul class="account-list">

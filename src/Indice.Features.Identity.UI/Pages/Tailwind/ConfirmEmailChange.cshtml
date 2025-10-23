@@ -6,12 +6,12 @@
 
 
 @{
-    var title = ViewData["Title"] = Localizer.ConfirmEmailChange_Email_Change_Confirmation;
+    var title = ViewData["Title"] = Localizer.ConfirmEmailChange_PageTitle;
 }
 
 <div class="content-wrapper">
     <div class="card-wrapper">
-        <vc:page-heading title="@title" image-src="" />
+        <vc:page-heading title="@Localizer.ConfirmEmailChange_PageHeader" image-src="" />
         @if (Model.View.AlreadyVerified)
         {
             <h1>

@@ -10,7 +10,7 @@
 
 
 @{
-    var title = ViewData["Title"] = Localizer.Mfa_Multifactor_Authentication;
+    var title = ViewData["Title"] = Localizer.Mfa_PageTitle;
 }
 @functions {
     public string GetIconFromAuthenticationMethod(AuthenticationMethod method)
@@ -30,7 +30,7 @@
 }
 <div class="content-wrapper">
     <div class="card-wrapper">
-        <vc:page-heading title="@title" image-src="" />
+        <vc:page-heading title="@Localizer.Mfa_PageHeader" image-src="" />
         <partial name="_ValidationSummary" />
         <div indice-if="!Model.View.HasError">
 

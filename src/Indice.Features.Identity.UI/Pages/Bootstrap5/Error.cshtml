@@ -5,12 +5,12 @@
 @model BaseErrorModel
 
 @{
-    var title = ViewData["Title"] = Localizer.Error_Error;
+    ViewData["Title"] = Localizer.Error_PageTitle;
 }
 
 <section class="border-0 pt-5 error-page identity-panel">
     <article>
-        <h1 class="text-danger text-start">@title</h1>
+        <h1 class="text-danger text-start">@Localizer.Error_PageHeader</h1>
         <h2 class="text-danger">@Localizer.Error_Oops_Seems_We_Encountered_An_Error</h2>
         <p class="pt-5">
             @if (Model?.Message is not null)

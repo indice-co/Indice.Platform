@@ -6,12 +6,12 @@
 
 
 @{
-	var title = ViewData["Title"] = Localizer.AddEmail_Verify_email;
+	var title = ViewData["Title"] = Localizer.AddEmail_PageTitle;
     var tempData = TempData.Peek<ExtendedValidationTempDataModel>(BaseAddEmailModel.TempDataKey);
 }
 
 <div class="sign-in m-auto">
-    <vc:page-heading title="@title" image-src="" />
+    <vc:page-heading title="@Localizer.AddEmail_PageHeader" image-src="" />
     <partial name="_ValidationSummary" />
     <partial name="_Alert" model="tempData?.Alert" />
     <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post">

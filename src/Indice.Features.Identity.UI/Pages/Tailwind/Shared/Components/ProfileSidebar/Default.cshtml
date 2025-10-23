@@ -3,7 +3,7 @@
 @model ProfileViewModel
 
 @{
-	ViewData["Title"] = Localizer.Profile_Profile;
+    ViewData["Title"] = Localizer.Profile_PageTitle;
 	var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
 	var langSuffix = (lang == "el") ? ".el" : string.Empty;
 	var alert = TempData.Get<AlertModel>("Alert");

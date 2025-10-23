@@ -5,14 +5,14 @@
 @inject IdentityUILocalizer Localizer
 
 @{
-    ViewData["Title"] = Localizer.ConfirmEmail_Email_Confirmation.Value;
+    ViewData["Title"] = Localizer.ConfirmEmail_PageTitle.Value;
 }
 
 <section class="identity-panel wide border-0 confirm-email">
     <article class="text-center">
         @if (Model.View.AlreadyVerified)
         {
-            <partial name="_PageHeader" model="@Localizer.ConfirmEmail_Email_Confirmation.Value" />
+            <partial name="_PageHeader" model="@Localizer.ConfirmEmail_PageHeader.Value" />
             <p>
                 <span indice-if="Model.View.HasReturnUrl">
                     @Localizer.ConfirmEmail_Click

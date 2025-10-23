@@ -4,28 +4,28 @@
 @inject IdentityUILocalizer Localizer
 
 @{
-	ViewData["Title"] = Localizer.AcceptTerms_AcceptTermsAndConditions;
+    ViewData["Title"] = Localizer.AcceptTerms_PageTitle;
     
 }
 <div class="identity-panel m-auto">
-    <vc:page-heading title="@ViewData["Title"]" image-src="" />
+    <vc:page-heading title="@Localizer.AcceptTerms_PageHeader" image-src="" />
     <partial name="_ValidationSummary" />
     <partial name="_Alert" model="Model.View.Alert" />
     <div class="row min-vh-100">
-        <iframe src="~/terms?raw=true" class="w-100"></iframe>
+      <iframe src="~/terms?raw=true" class="w-100"></iframe>
     </div>
     <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post">
         <div class="mb-3">
-            <div class="row m-0 w-100">
+ <div class="row m-0 w-100">
                 <div class="col-sm-6 py-1">
-                    <a class="btn btn-link w-100" href="~/">@Localizer.AcceptTerms_Reject</a>
+           <a class="btn btn-link w-100" href="~/">@Localizer.AcceptTerms_Reject</a>
                 </div>
                 <div class="col-sm-6 py-1">
-                    <button class="btn btn-primary w-100" type="submit">@Localizer.AcceptTerms_Accept</button>
-                </div>
-            </div>
+        <button class="btn btn-primary w-100" type="submit">@Localizer.AcceptTerms_Accept</button>
+     </div>
+ </div>
         </div>
-        <input type="hidden" asp-for="View.ReturnUrl" />
+  <input type="hidden" asp-for="View.ReturnUrl" />
     </form>
 </div>
 

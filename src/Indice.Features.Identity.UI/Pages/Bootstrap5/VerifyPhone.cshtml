@@ -5,15 +5,14 @@
 @inject IWebHostEnvironment HostingEnvironment
 @inject IdentityUILocalizer Localizer
 
-
 @{
-    var title = ViewData["Title"] = Localizer.VerifyPhone_Verify_Phone_Number;
+    var title = ViewData["Title"] = Localizer.VerifyPhone_PageTitle;
     var tempData = TempData.Peek<ExtendedValidationTempDataModel>(BaseVerifyPhoneModel.TempDataKey);
     var displayNext = !string.IsNullOrEmpty(tempData?.NextStepUrl) && tempData?.Alert?.AlertType == AlertType.Success;
 }
 
 <div class="sign-in m-auto">
-    <vc:page-heading title="@title" image-src="" />
+    <vc:page-heading title="@Localizer.VerifyPhone_PageHeader" image-src="" />
     <partial name="_ValidationSummary" />
     <partial name="_Alert" model="tempData?.Alert" />
     <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post">

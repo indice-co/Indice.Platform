@@ -21,7 +21,10 @@ public class IdentityUILocalizer
     public virtual HtmlString AcceptTerms_Reject => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AcceptTerms_Reject));
 
     /// <summary>Title of the Accept Terms page.</summary>
-    public virtual HtmlString AcceptTerms_AcceptTermsAndConditions => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AcceptTerms_AcceptTermsAndConditions));
+    public virtual HtmlString AcceptTerms_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AcceptTerms_PageTitle));
+
+    /// <summary>Title of the Accept Terms header.</summary>
+    public virtual HtmlString AcceptTerms_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AcceptTerms_PageHeader));
 
     /// <summary>Instruction message prompting the user to read and accept the terms and conditions.</summary>
     public virtual HtmlString AcceptTerms_ReadAndAcceptTerms => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AcceptTerms_ReadAndAcceptTerms));
@@ -35,7 +38,10 @@ public class IdentityUILocalizer
     public virtual HtmlString AddEmail_Save => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddEmail_Save));
 
     /// <summary>Instruction message prompting the user to verify their email.</summary>
-    public virtual HtmlString AddEmail_Verify_email => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddEmail_VerifyEmail));
+    public virtual HtmlString AddEmail_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddEmail_PageTitle));
+
+    /// <summary>Instruction message prompting the user to verify their email.</summary>
+    public virtual HtmlString AddEmail_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddEmail_PageHeader));
     #endregion
 
     #region AddPassword
@@ -46,7 +52,7 @@ public class IdentityUILocalizer
     public virtual HtmlString AddPassword_Add => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPassword_Add));
 
     /// <summary>Label for the New Password input field.</summary>
-    public virtual HtmlString AddPassword_AddPassword => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPassword_AddPassword));
+    public virtual HtmlString AddPassword_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPassword_PageTitle));
 
     /// <summary>Label for the New Password input field (alternate reference).</summary>
     public virtual HtmlString AddPassword_NewPassword => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPassword_Newpassword));
@@ -64,7 +70,7 @@ public class IdentityUILocalizer
 
     #region AddPhone
     /// <summary>Label for the Add Phone action button.</summary>
-    public virtual HtmlString AddPhone_Add => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPhone_AddPhone));
+    public virtual HtmlString AddPhone_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPhone_pageTitle));
     /// <summary>Title of the Add Phone page.</summary>
     public virtual HtmlString AddPhone_AddPhoneNumber => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPhone_AddPhoneNumber));
     /// <summary>Instruction message indicating the calling code selection for the phone number.</summary>
@@ -80,7 +86,7 @@ public class IdentityUILocalizer
     /// <summary>
     /// Message shown when redirecting during an authentication challenge.
     /// </summary>
-    public virtual HtmlString Challenge_Redirecting => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Challenge_Redirecting));
+    public virtual HtmlString Challenge_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Challenge_PageTitle));
 
     #endregion
 
@@ -90,7 +96,11 @@ public class IdentityUILocalizer
     /// <summary>Label for the Change Password action button.</summary>
     public virtual HtmlString ChangePassword_Change => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePassword_Change));
     /// <summary>Label for the Current Password input field.</summary>
-    public virtual HtmlString ChangePassword_ChangePassword => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePassword_ChangePassword));
+    public virtual HtmlString ChangePassword_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePassword_PageTitle));
+    /// <summary>HEader of page ChangePassword field.</summary>
+    public virtual HtmlString ChangePassword_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePassword_PageHeader));
+    
+
     /// <summary>Label for the New Password input field.</summary>
     public virtual HtmlString ChangePassword_NewPassword => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePassword_NewPassword));
     /// <summary>Label for the Old Password input field.</summary>
@@ -110,7 +120,7 @@ public class IdentityUILocalizer
     /// <summary>Text for the Confirm Email button.</summary>
     public virtual HtmlString ConfirmEmail_Click => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_Click));
     /// <summary>Title of the Confirm Email page.</summary>
-    public virtual HtmlString ConfirmEmail_Email_Confirmation => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_EmailConfirmation));
+    public virtual HtmlString ConfirmEmail_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_PageTitle));
     /// <summary>Error message displayed when the email verification link has expired.</summary>
     public virtual HtmlString ConfirmEmail_Email_Verification_Link_Has_Expired => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_LinkExpired));
     /// <summary>Instruction message guiding the user on the Confirm Email page.</summary>
@@ -139,7 +149,7 @@ public class IdentityUILocalizer
     /// <summary>Text for the Confirm Email Change button.</summary>
     public virtual HtmlString ConfirmEmailChange_Click => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_Click));
     /// <summary>Title of the Confirm Email Change page.</summary>
-    public virtual HtmlString ConfirmEmailChange_Email_Change_Confirmation => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_Confirmation));
+    public virtual HtmlString ConfirmEmailChange_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_PageTitle));
     /// <summary>Error message displayed when the email verification link has expired.</summary>
     public virtual HtmlString ConfirmEmailChange_Email_Verification_Link_Has_Expired => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_LinkExpired));
     /// <summary>Instruction message guiding the user on the Confirm Email Change page.</summary>
@@ -179,7 +189,7 @@ public class IdentityUILocalizer
     /// <summary>Gets the label text for the Code input field.</summary>
     public virtual HtmlString Consent_Code => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Consent_code));
     /// <summary>Gets the label text for the Consent action.</summary>
-    public virtual HtmlString Consent_Consent => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Consent_Consent));
+    public virtual HtmlString Consent_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Consent_PageTitle));
     /// <summary>Gets the label text for personal information section.</summary>
     public virtual HtmlString Consent_Personal_Information => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Consent_PersonalInformation));
     /// <summary>Gets the label text for the Remember My Decision checkbox.</summary>
@@ -304,7 +314,9 @@ public class IdentityUILocalizer
 
     #region Error
     /// <summary>General label for error messages.</summary>
-    public virtual HtmlString Error_Error => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Error_Error));
+    public virtual HtmlString Error_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Error_PageTitle));
+
+    public virtual HtmlString Error_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Error_PageHeader));
     /// <summary> Label for the "Go back home" action, typically shown on error pages. </summary>
     public virtual HtmlString Error_Go_back_home => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Error_Go_back_home));
 
@@ -316,7 +328,7 @@ public class IdentityUILocalizer
 
     #region ForgotPassword
     /// <summary>Gets the title text for the Forgot Password page.</summary>
-    public virtual HtmlString ForgotPassword_Forgot_Password => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPassword_ForgotPassword));
+    public virtual HtmlString ForgotPassword_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPassword_PageTitle));
     /// <summary>Gets the message indicating that a password reset request has been sent successfully.</summary>
     public virtual HtmlString ForgotPassword_Request_Sent => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPassword_RequestSent));
     /// <summary>Gets the label text for resending the password reset email.</summary>
@@ -351,7 +363,7 @@ public class IdentityUILocalizer
 
     #region ForgotPasswordConfirmation
     /// <summary>Gets the title text for the Forgot Password Confirmation page.</summary>
-    public virtual HtmlString ForgotPasswordConfirmation_PasswordConfirmation => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPasswordConfirmation_PasswordConfirmation));
+    public virtual HtmlString ForgotPasswordConfirmation_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPasswordConfirmation_PageTitle));
     /// <summary>Gets the instruction text prompting the user to enter a new password.</summary>
     public virtual HtmlString ForgotPasswordConfirmation_New_Password => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPasswordConfirmation_NewPassword));
     /// <summary>Gets the message indicating that the password has been successfully changed.</summary>
@@ -375,7 +387,10 @@ public class IdentityUILocalizer
     /// <summary>Gets the label text indicating when a grant expires.</summary>
     public virtual HtmlString Grants_Expires_On => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Grants_ExpiresOn));
     /// <summary>Gets the label text for the grants section.</summary>
-    public virtual HtmlString Grants_Grants => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Grants_Grants));
+    public virtual HtmlString Grants_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Grants_PageTitle));
+    /// <summary>Gets the label text for the grants header.</summary>
+    public virtual HtmlString Grants_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Grants_PageHeader));
+    
     /// <summary>Gets the text for the action to revoke access from an application or resource.</summary>
     public virtual HtmlString Grants_Revoke_Access => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Grants_RevokeAccess));
     /// <summary>Gets the message displayed when no applications have been granted access.</summary>
@@ -416,7 +431,7 @@ public class IdentityUILocalizer
     /// <summary>Instruction message on the Logged Out page.</summary>
     public virtual HtmlString LoggedOut_Here => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.LoggedOut_here));
     /// <summary>Instruction message on the Logged Out page.</summary>
-    public virtual HtmlString LoggedOut_Logout => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.LoggedOut_Logout));
+    public virtual HtmlString LoggedOut_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.LoggedOut_PageTitle));
     /// <summary>Instruction message on the Logged Out page.</summary>
     public virtual HtmlString LoggedOut_To_Return_To_The_Application => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.LoggedOut_ReturnToApplication));
     /// <summary>Success message when the user has been logged out.</summary>
@@ -448,7 +463,7 @@ public class IdentityUILocalizer
     /// <summary>
     ///   Gets the localized string for "Login" label.
     /// </summary>
-    public virtual HtmlString Login_Login => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Login_Login));
+    public virtual HtmlString Login_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Login_PageTitle));
 
     /// <summary>
     ///   Gets the localized string for "OR" label.
@@ -487,7 +502,7 @@ public class IdentityUILocalizer
     /// <summary>
     ///   Gets the localized string for "Logout" button.
     /// </summary>
-    public virtual HtmlString Logout_Logout => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Logout_Logout));
+    public virtual HtmlString Logout_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Logout_PageTitle));
 
     /// <summary>
     ///   Gets the localized string for the confirmation message "Would you like to logout?".
@@ -553,7 +568,7 @@ public class IdentityUILocalizer
     /// <summary>
     ///   Gets the localized string for "Multifactor Authentication".
     /// </summary>
-    public virtual HtmlString Mfa_Multifactor_Authentication => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_MultifactorAuthentication));
+    public virtual HtmlString Mfa_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_PageTitle));
 
     /// <summary>
     ///   Gets the localized string for "Other authentication methods...".
@@ -617,8 +632,12 @@ public class IdentityUILocalizer
     /// <summary>
     ///   Gets the localized string for "Enable MFA".
     /// </summary>
-    public virtual HtmlString MfaOnBoarding_Enable_MFA => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoarding_EnableMFA));
-
+    public virtual HtmlString MfaOnBoarding_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoarding_PageTitle));
+    /// <summary>
+    ///   Gets the localized string for "Enable MFA".
+    /// </summary>
+    public virtual HtmlString MfaOnboarding_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoarding_PageHeader));
+    
     /// <summary>
     ///   Gets the localized string for "Keep your account safe".
     /// </summary>
@@ -641,7 +660,7 @@ public class IdentityUILocalizer
     /// <summary>
     ///   Gets the localized string for "MFA onboarding - SMS".
     /// </summary>
-    public virtual HtmlString MfaOnBoardingAddPhone_MFA_Onboarding_SMS => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingAddPhone_MFAΟnboardingSms));
+    public virtual HtmlString MfaOnBoardingAddPhone_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingAddPhone_PageTitle));
 
     /// <summary>
     ///   Gets the localized string for "Next".
@@ -682,7 +701,7 @@ public class IdentityUILocalizer
     /// <summary>
     ///   Gets the localized string for "Verify phone number".
     /// </summary>
-    public virtual HtmlString MfaOnBoardingVerifyPhone_Verify_Phone_Number => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingVerifyPhone_VerifyPhoneNumber));
+    public virtual HtmlString MfaOnBoardingVerifyPhone_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingVerifyPhone_PageTitle));
 
     #endregion
 
@@ -691,7 +710,7 @@ public class IdentityUILocalizer
     /// <summary>
     ///   Gets the localized string for "Change password".
     /// </summary>
-    public virtual HtmlString PasswordExpired_Change_Password => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.PasswordExpired_ChangePassword));
+    public virtual HtmlString PasswordExpired_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.PasswordExpired_PageTitle));
 
     /// <summary>
     ///   Gets the localized string for "New password".
@@ -831,7 +850,7 @@ public class IdentityUILocalizer
     /// <summary>
     ///   Gets the localized string for "Profile".
     /// </summary>
-    public virtual HtmlString Profile_Profile => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_Profile));
+    public virtual HtmlString Profile_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_PageTitle));
 
     /// <summary>
     ///   Gets the localized string for "Remove".
@@ -900,7 +919,7 @@ public class IdentityUILocalizer
     /// Constructs the full "Associate your {Provider} account" message.
     /// </summary>
     /// <param name="provider">Name of the external provider (e.g., Google, Facebook).</param>
-    public virtual HtmlString Register_Associate_your_Account(string provider) => 
+    public virtual HtmlString Register_Associate_your_Account(string provider) =>
         new HtmlString(
             string.Format(CultureInfo.CurrentUICulture, "{0} {1} {2}",
                 IdentityLabels.Register_Associate_your,
@@ -996,7 +1015,7 @@ public class IdentityUILocalizer
     /// <summary>
     ///   Gets the localized string for "Sign up".
     /// </summary>
-    public virtual HtmlString Register_Sign_Up => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Signup));
+    public virtual HtmlString Register_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_PageTitle));
 
     /// <summary>
     ///   Gets the localized string for "These credentials are personal. Please remember them and do not reveal in any way (i.e orally, written, email) in third parties".
@@ -1050,7 +1069,7 @@ public class IdentityUILocalizer
     /// <summary>
     ///   Gets the localized string for "Verify phone number".
     /// </summary>
-    public virtual HtmlString VerifyPhone_Verify_Phone_Number => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.VerifyPhone_VerifyPhoneNumber));
+    public virtual HtmlString VerifyPhone_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.VerifyPhone_PageTitle));
 
     /// <summary>
     /// Text for "OTP is valid till:" label on the Verify Phone page.
@@ -1109,12 +1128,20 @@ public class IdentityUILocalizer
     /// <summary>Title of the Privacy policy page.</summary>
     public virtual HtmlString Privacy_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Privacy_PageTitle));
 
+    /// <summary>Header of the Privacy policy page.</summary>
+    public virtual HtmlString Privacy_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Privacy_PageHeader));
+    
     /// <summary>Required label</summary>
     public virtual HtmlString Required => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.RequiredValue));
 
     /// <summary>Title of the Terms of Service page.</summary>
     public virtual HtmlString Terms_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Terms_PageTitle));
+
+
+    /// <summary>Header of the Terms of Service page.</summary>
+    public virtual HtmlString Terms_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Terms_PageHeader));
     
+
     /// <summary>Get Organization name.</summary>
     public virtual HtmlString OrganizationName(string organization) {
         var orgName = string.Format(CultureInfo.CurrentUICulture, IdentityLabels.OrganizationName);
@@ -1127,4 +1154,25 @@ public class IdentityUILocalizer
     }
     /// <summary>Get Organization name.</summary>
     public virtual HtmlString GetGeneric(string label) => new HtmlString(string.Format(CultureInfo.CurrentUICulture, label));
+
+    #region PageHeaders
+    // Added unified PageHeader properties for use in <vc:page-heading />.
+    public virtual HtmlString AddPassword_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPassword_PageHeader));
+    public virtual HtmlString AddPhone_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPhone_PageHeader));
+    public virtual HtmlString Associate_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_PageHeader));
+    public virtual HtmlString ConfirmEmail_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_PageHeader));
+    public virtual HtmlString ConfirmEmailChange_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_PageHeader));
+    public virtual HtmlString ForgotPassword_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPassword_PageHeader));
+    public virtual HtmlString ForgotPasswordConfirmation_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPasswordConfirmation_PageHeader));
+    public virtual HtmlString LoggedOut_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.LoggedOut_PageHeader));
+    public virtual HtmlString Login_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Login_PageHeader));
+    public virtual HtmlString Logout_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Logout_PageHeader));
+    public virtual HtmlString Mfa_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_PageHeader));
+    public virtual HtmlString MfaOnBoarding_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoarding_PageHeader));
+    public virtual HtmlString MfaOnBoardingAddPhone_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingAddPhone_PageHeader));
+    public virtual HtmlString MfaOnBoardingVerifyPhone_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingVerifyPhone_PageHeader));
+    public virtual HtmlString PasswordExpired_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.PasswordExpired_PageHeader));
+    public virtual HtmlString Register_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_PageHeader));
+    public virtual HtmlString VerifyPhone_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.VerifyPhone_PageHeader));
+    #endregion
 }

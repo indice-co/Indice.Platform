@@ -5,12 +5,12 @@
 
 
 @{
-    var title = ViewData["Title"] = Localizer.Grants_Grants;
+    var title = ViewData["Title"] = Localizer.Grants_PageTitle;
 }
 
 <section class="page-grants m-auto">
     <div class="page-header">
-        <vc:page-heading title="@title" image-src="" />
+        <vc:page-heading title="@Localizer.Grants_PageHeader" image-src="" />
         <p indice-if="Model.View.Grants!.Any()" class="text-muted">
             @Localizer.Grants_Applications_And_Resources
         </p>

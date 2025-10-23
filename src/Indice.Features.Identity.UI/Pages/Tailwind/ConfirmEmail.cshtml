@@ -5,16 +5,16 @@
 @inject IdentityUILocalizer Localizer
 
 @{
-    var title = ViewData["Title"] = Localizer.ConfirmEmail_Email_Confirmation;
+    var title = ViewData["Title"] = Localizer.ConfirmEmail_PageTitle;
 }
 
 <div class="content-wrapper">
     <div class="card-wrapper">
-        <vc:page-heading title="@title" image-src="" />
+        <vc:page-heading title="@Localizer.ConfirmEmail_PageHeader" image-src="" />
         @if (Model.View.AlreadyVerified)
         {
             <h1>
-                <span class="header-text">@Localizer.ConfirmEmail_Email_Confirmation</span>
+                <span class="header-text">@Localizer.ConfirmEmail_PageHeader</span>
             </h1>
             <p>
                 <span indice-if="Model.View.HasReturnUrl">

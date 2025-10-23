@@ -5,13 +5,13 @@
 
 
 @{
-    var title = ViewData["Title"] = Localizer.LoggedOut_Logout;
+    var title = ViewData["Title"] = Localizer.LoggedOut_PageTitle;
     ViewData["signed-out"] = true;
 }
 
 <section class="content-wrapper @(Model.AutomaticRedirectAfterSignOut ? "hidden": "")">
     <div class="card-wrapper">
-        <vc:page-heading title="@title" image-src="" />
+        <vc:page-heading title="@Localizer.LoggedOut_PageHeader" image-src="" />
         <p>@Localizer.LoggedOut_You_Are_Now_Logged_Out</p>
         <div>
             @Localizer.LoggedOut_Click <a id="PostLogoutRedirectUri" class="text-tenant-900" href="@(Model.HasPostLogoutRedirectUri ? Model.PostLogoutRedirectUri : "/")">@Localizer.LoggedOut_Here</a> @Localizer.LoggedOut_To_Return_To_The_Application

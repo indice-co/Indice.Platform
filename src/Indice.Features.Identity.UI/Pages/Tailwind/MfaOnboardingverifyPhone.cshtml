@@ -6,13 +6,13 @@
 @inject IdentityUILocalizer Localizer
 
 @{
-    var title = ViewBag.Title = Localizer.MfaOnBoardingVerifyPhone_Verify_Phone_Number;
+    var title = ViewBag.Title = Localizer.MfaOnBoardingVerifyPhone_PageTitle;
     var infoMessage = TempData.Peek<ExtendedValidationTempDataModel>(BaseMfaOnboardingVerifyPhoneModel.TempDataKey);
     var displayNext = !string.IsNullOrEmpty(infoMessage?.NextStepUrl) && infoMessage?.Alert?.AlertType == AlertType.Success;
 }
 <div class="content-wrapper">
     <div class="card-wrapper">
-        <vc:page-heading title="@title" image-src="" />
+        <vc:page-heading title="@Localizer.MfaOnBoardingVerifyPhone_PageHeader" image-src="" />
         <partial name="_ValidationSummary" />
         <partial name="_Alert" model="infoMessage?.Alert" />
 

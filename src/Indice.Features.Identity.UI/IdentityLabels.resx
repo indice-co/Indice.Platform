@@ -123,7 +123,7 @@
   <data name="AcceptTerms_Accept" xml:space="preserve">
     <value>Accept</value>
   </data>
-  <data name="AcceptTerms_AcceptTermsAndConditions" xml:space="preserve">
+  <data name="AcceptTerms_PageHeader" xml:space="preserve">
     <value>Terms &amp; conditions acceptance</value>
   </data>
   <data name="AcceptTerms_ReadAndAcceptTerms" xml:space="preserve">
@@ -135,7 +135,10 @@
   <data name="AddEmail_Save" xml:space="preserve">
     <value>Save</value>
   </data>
-  <data name="AddEmail_VerifyEmail" xml:space="preserve">
+  <data name="AddEmail_PageTitle" xml:space="preserve">
+    <value>Verify email</value>
+  </data>
+  <data name="AddEmail_PageHeader" xml:space="preserve">
     <value>Verify email</value>
   </data>
   <data name="AddPassword_Required" xml:space="preserve">
@@ -144,7 +147,10 @@
   <data name="AddPassword_Add" xml:space="preserve">
     <value>Add</value>
   </data>
-  <data name="AddPassword_AddPassword" xml:space="preserve">
+  <data name="AddPassword_PageTitle" xml:space="preserve">
+    <value>Add Password</value>
+  </data>
+  <data name="AddPassword_PageHeader" xml:space="preserve">
     <value>Add Password</value>
   </data>
   <data name="AddPassword_Newpassword" xml:space="preserve">
@@ -159,7 +165,10 @@
   <data name="AddPassword_ProcessCompleted" xml:space="preserve">
     <value>Process completed.</value>
   </data>
-  <data name="AddPhone_AddPhone" xml:space="preserve">
+  <data name="AddPhone_pageTitle" xml:space="preserve">
+    <value>Add phone</value>
+  </data>
+  <data name="AddPhone_PageHeader" xml:space="preserve">
     <value>Add phone</value>
   </data>
   <data name="AddPhone_AddPhoneNumber" xml:space="preserve">
@@ -174,7 +183,10 @@
   <data name="AddPhone_Save" xml:space="preserve">
     <value>Save</value>
   </data>
-  <data name="Challenge_Redirecting" xml:space="preserve">
+  <data name="Challenge_PageTitle" xml:space="preserve">
+    <value>Redirecting...</value>
+  </data>
+  <data name="Challenge_PageHeader" xml:space="preserve">
     <value>Redirecting...</value>
   </data>
   <data name="ChangePassword_SignWithDifferentAccount" xml:space="preserve">
@@ -183,7 +195,10 @@
   <data name="ChangePassword_Change" xml:space="preserve">
     <value>Change</value>
   </data>
-  <data name="ChangePassword_ChangePassword" xml:space="preserve">
+  <data name="ChangePassword_PageTitle" xml:space="preserve">
+    <value>Change Password</value>
+  </data>
+  <data name="ChangePassword_PageHeader" xml:space="preserve">
     <value>Change Password</value>
   </data>
   <data name="ChangePassword_NewPassword" xml:space="preserve">
@@ -207,7 +222,10 @@
   <data name="ConfirmEmail_Click" xml:space="preserve">
     <value>Click</value>
   </data>
-  <data name="ConfirmEmail_EmailConfirmation" xml:space="preserve">
+  <data name="ConfirmEmail_PageTitle" xml:space="preserve">
+    <value>Email Confirmation</value>
+  </data>
+  <data name="ConfirmEmail_PageHeader" xml:space="preserve">
     <value>Email Confirmation</value>
   </data>
   <data name="ConfirmEmail_LinkExpired" xml:space="preserve">
@@ -249,7 +267,10 @@
   <data name="ConfirmEmailChange_Click" xml:space="preserve">
     <value>Click</value>
   </data>
-  <data name="ConfirmEmailChange_Confirmation" xml:space="preserve">
+  <data name="ConfirmEmailChange_PageTitle" xml:space="preserve">
+    <value>Email Change Confirmation</value>
+  </data>
+  <data name="ConfirmEmailChange_PageHeader" xml:space="preserve">
     <value>Email Change Confirmation</value>
   </data>
   <data name="ConfirmEmailChange_LinkExpired" xml:space="preserve">
@@ -303,7 +324,10 @@
   <data name="Consent_code" xml:space="preserve">
     <value>code</value>
   </data>
-  <data name="Consent_Consent" xml:space="preserve">
+  <data name="Consent_PageTitle" xml:space="preserve">
+    <value>Consent</value>
+  </data>
+  <data name="Consent_PageHeader" xml:space="preserve">
     <value>Consent</value>
   </data>
   <data name="Consent_PersonalInformation" xml:space="preserve">
@@ -367,7 +391,7 @@
     <value>Welcome to {0}! Please confirm your email to get started.</value>
   </data>
   <data name="EmailRegister_Body_Welcome" xml:space="preserve">
-    <value>Welcome to {0}! We’re excited to have you on board.</value>
+    <value>Welcome to {0}! We're excited to have you on board.</value>
   </data>
   <data name="EmailRegister_Body_ConfirmEmail" xml:space="preserve">
     <value>To complete your registration, please confirm your email address by clicking</value>
@@ -420,7 +444,10 @@
   <data name="EmailSecurity_Body_ContactSupport" xml:space="preserve">
     <value>If you did not perform this action, please contact support immediately.</value>
   </data>
-  <data name="Error_Error" xml:space="preserve">
+  <data name="Error_PageTitle" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Error_PageHeader" xml:space="preserve">
     <value>Error</value>
   </data>
   <data name="Error_Go_back_home" xml:space="preserve">
@@ -438,7 +465,10 @@
   <data name="Footer_Contact_us" xml:space="preserve">
     <value>Contact us</value>
   </data>
-  <data name="ForgotPassword_ForgotPassword" xml:space="preserve">
+  <data name="ForgotPassword_PageTitle" xml:space="preserve">
+    <value>Forgot password</value>
+  </data>
+  <data name="ForgotPassword_PageHeader" xml:space="preserve">
     <value>Forgot password</value>
   </data>
   <data name="ForgotPassword_Resend" xml:space="preserve">
@@ -450,7 +480,10 @@
   <data name="ForgotPassword_Username" xml:space="preserve">
     <value>Username</value>
   </data>
-  <data name="ForgotPasswordConfirmation_PasswordConfirmation" xml:space="preserve">
+  <data name="ForgotPasswordConfirmation_PageTitle" xml:space="preserve">
+    <value>Forgot Password Confirmation</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_PageHeader" xml:space="preserve">
     <value>Forgot Password Confirmation</value>
   </data>
   <data name="ForgotPasswordConfirmation_NewPassword" xml:space="preserve">
@@ -480,7 +513,10 @@
   <data name="Grants_ExpiresOn" xml:space="preserve">
     <value>Expires on</value>
   </data>
-  <data name="Grants_Grants" xml:space="preserve">
+  <data name="Grants_PageTitle" xml:space="preserve">
+    <value>Grants</value>
+  </data>
+  <data name="Grants_PageHeader" xml:space="preserve">
     <value>Grants</value>
   </data>
   <data name="Grants_RevokeAccess" xml:space="preserve">
@@ -531,7 +567,10 @@
   <data name="LoggedOut_here" xml:space="preserve">
     <value>here</value>
   </data>
-  <data name="LoggedOut_Logout" xml:space="preserve">
+  <data name="LoggedOut_PageTitle" xml:space="preserve">
+    <value>Logout</value>
+  </data>
+  <data name="LoggedOut_PageHeader" xml:space="preserve">
     <value>Logout</value>
   </data>
   <data name="LoggedOut_ReturnToApplication" xml:space="preserve">
@@ -552,7 +591,10 @@
   <data name="Login_JoinUs" xml:space="preserve">
     <value>Join us</value>
   </data>
-  <data name="Login_Login" xml:space="preserve">
+  <data name="Login_PageTitle" xml:space="preserve">
+    <value>Login</value>
+  </data>
+  <data name="Login_PageHeader" xml:space="preserve">
     <value>Login</value>
   </data>
   <data name="Login_OR" xml:space="preserve">
@@ -573,7 +615,10 @@
   <data name="Login_Username" xml:space="preserve">
     <value>Username</value>
   </data>
-  <data name="Logout_Logout" xml:space="preserve">
+  <data name="Logout_PageTitle" xml:space="preserve">
+    <value>Logout</value>
+  </data>
+  <data name="Logout_PageHeader" xml:space="preserve">
     <value>Logout</value>
   </data>
   <data name="Logout_WantToLogout" xml:space="preserve">
@@ -609,9 +654,6 @@
   <data name="Mfa_Login" xml:space="preserve">
     <value>Login</value>
   </data>
-  <data name="Mfa_MultifactorAuthentication" xml:space="preserve">
-    <value>Multifactor Authentication</value>
-  </data>
   <data name="Mfa_OtherAuthenticationMethods" xml:space="preserve">
     <value>Other authentication methods...</value>
   </data>
@@ -642,7 +684,10 @@
   <data name="MfaModel_OTPCodeMessage" xml:space="preserve">
     <value>Your OTP code for login is: {0}</value>
   </data>
-  <data name="MfaOnBoarding_EnableMFA" xml:space="preserve">
+  <data name="MfaOnBoarding_PageTitle" xml:space="preserve">
+    <value>Enable MFA</value>
+  </data>
+  <data name="MfaOnBoarding_PageHeader" xml:space="preserve">
     <value>Enable MFA</value>
   </data>
   <data name="MfaOnBoarding_KeepYourAccountSafe" xml:space="preserve">
@@ -654,7 +699,10 @@
   <data name="MfaOnBoarding_SetupAdditionalAuthenticationMethod" xml:space="preserve">
     <value>Setup an additional authentication method.</value>
   </data>
-  <data name="MfaOnBoardingAddPhone_MFAΟnboardingSms" xml:space="preserve">
+  <data name="MfaOnBoardingAddPhone_PageTitle" xml:space="preserve">
+    <value>MFA onboarding - SMS</value>
+  </data>
+  <data name="MfaOnBoardingAddPhone_PageHeader" xml:space="preserve">
     <value>MFA onboarding - SMS</value>
   </data>
   <data name="MfaOnBoardingAddPhone_Next" xml:space="preserve">
@@ -675,10 +723,16 @@
   <data name="MfaOnBoardingVerifyPhone_Save" xml:space="preserve">
     <value>Save</value>
   </data>
-  <data name="MfaOnBoardingVerifyPhone_VerifyPhoneNumber" xml:space="preserve">
+  <data name="MfaOnBoardingVerifyPhone_PageTitle" xml:space="preserve">
     <value>Verify phone number</value>
   </data>
-  <data name="PasswordExpired_ChangePassword" xml:space="preserve">
+  <data name="MfaOnBoardingVerifyPhone_PageHeader" xml:space="preserve">
+    <value>Verify phone number</value>
+  </data>
+  <data name="PasswordExpired_PageTitle" xml:space="preserve">
+    <value>Change password</value>
+  </data>
+  <data name="PasswordExpired_PageHeader" xml:space="preserve">
     <value>Change password</value>
   </data>
   <data name="PasswordExpired_NewPassword" xml:space="preserve">
@@ -759,7 +813,10 @@
   <data name="Profile_Preferences" xml:space="preserve">
     <value>Preferences</value>
   </data>
-  <data name="Profile_Profile" xml:space="preserve">
+  <data name="Profile_PageTitle" xml:space="preserve">
+    <value>Profile</value>
+  </data>
+  <data name="Profile_PageHeader" xml:space="preserve">
     <value>Profile</value>
   </data>
   <data name="Profile_Remove" xml:space="preserve">
@@ -840,7 +897,10 @@
   <data name="Register_PhoneNumber" xml:space="preserve">
     <value>Phone number</value>
   </data>
-  <data name="Register_Signup" xml:space="preserve">
+  <data name="Register_PageTitle" xml:space="preserve">
+    <value>Sign up</value>
+  </data>
+  <data name="Register_PageHeader" xml:space="preserve">
     <value>Sign up</value>
   </data>
   <data name="Register_KeepCredentialsPrivateHint" xml:space="preserve">
@@ -867,7 +927,10 @@
   <data name="VerifyPhone_Save" xml:space="preserve">
     <value>Save</value>
   </data>
-  <data name="VerifyPhone_VerifyPhoneNumber" xml:space="preserve">
+  <data name="VerifyPhone_PageTitle" xml:space="preserve">
+    <value>Verify phone number</value>
+  </data>
+  <data name="VerifyPhone_PageHeader" xml:space="preserve">
     <value>Verify phone number</value>
   </data>
   <data name="VerifyPhone_OTP_is_valid_till" xml:space="preserve">
@@ -966,6 +1029,9 @@
   <data name="Privacy_PageTitle" xml:space="preserve">
     <value>Privacy Policy</value>
   </data>
+  <data name="Privacy_PageHeader" xml:space="preserve">
+    <value>Privacy Policy</value>
+  </data>
   <data name="SelectLanguage" xml:space="preserve">
     <value>Select Language</value>
   </data>
@@ -977,5 +1043,23 @@
   </data>
   <data name="Terms_PageTitle" xml:space="preserve">
     <value>Terms of Service</value>
+  </data>
+  <data name="Terms_PageHeader" xml:space="preserve">
+    <value>Terms of Service</value>
+  </data>
+  <data name="AcceptTerms_PageTitle" xml:space="preserve">
+    <value>Terms &amp; conditions acceptance</value>
+  </data>
+  <data name="Associate_PageTitle" xml:space="preserve">
+    <value>Associate your account</value>
+  </data>
+  <data name="Associate_PageHeader" xml:space="preserve">
+    <value>Associate your account</value>
+  </data>
+  <data name="Mfa_PageTitle" xml:space="preserve">
+    <value>Multifactor Authentication</value>
+  </data>
+  <data name="Mfa_PageHeader" xml:space="preserve">
+    <value>Multifactor Authentication</value>
   </data>
 </root>

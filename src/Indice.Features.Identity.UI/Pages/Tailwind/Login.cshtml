@@ -7,14 +7,13 @@
 
 
 @{
-    var title = ViewData["Title"] = Localizer.Login_Login;
+    var title = ViewData["Title"] = Localizer.Login_PageTitle;
 }
 
 <div class="content-wrapper">
     <div class="card-wrapper">
-        <vc:page-heading title="@title" image-src="" />
+        <vc:page-heading title="@Localizer.Login_PageHeader" image-src="" />
         <partial name="_ValidationSummary" />
-
         @if (Model.UiOptions.EnableLocalLogin)
         {
             <form asp-route-returnUrl="@Model.View.ReturnUrl" method="POST" class="form">
@@ -22,8 +21,8 @@
                 <input type="hidden" asp-for="Input.DeviceId" />
                 <div class="row">
                     <div class="input-group-w-full group">
-						<input type="text" class="peer" placeholder="@(userManager.EmailAsUserName? Localizer.Email: Localizer.Login_Username)" asp-for="Input.UserName" />
-						<label asp-for="Input.UserName" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@(userManager.EmailAsUserName? Localizer.Email: Localizer.Login_Username)</label>
+                        <input type="text" class="peer" placeholder="@(userManager.EmailAsUserName? Localizer.Email: Localizer.Login_Username)" asp-for="Input.UserName" />
+                        <label asp-for="Input.UserName" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@(userManager.EmailAsUserName? Localizer.Email: Localizer.Login_Username)</label>
                         <span asp-validation-for="Input.UserName" class="text-danger"></span>
                     </div>
                 </div>
@@ -43,7 +42,6 @@
                                 @Localizer.Login_Remember_Me
                             </label>
                         </div>
-
                     }
                     @if (Model.UiOptions.EnableForgotPasswordPage)
                     {
@@ -74,10 +72,10 @@
                         @foreach (var provider in Model.View.VisibleExternalProviders)
                         {
                             <div class="idp idp-@provider.AuthenticationScheme!.ToLower() mx-2.5">
-                                <a asp-page="/Challenge" asp-route-provider="@provider.AuthenticationScheme" 
-                                asp-route-returnUrl="@Model.View.ReturnUrl" 
-                                asp-route-prompt="@OidcConstants.PromptModes.SelectAccount" 
-                                title="@Localizer.GetGeneric(provider.DisplayName!)">
+                                <a asp-page="/Challenge" asp-route-provider="@provider.AuthenticationScheme"
+                                   asp-route-returnUrl="@Model.View.ReturnUrl"
+                                   asp-route-prompt="@OidcConstants.PromptModes.SelectAccount"
+                                   title="@Localizer.GetGeneric(provider.DisplayName!)">
                                     <span class="hidden">
                                         @Localizer.GetGeneric(provider.DisplayName!)
                                     </span>

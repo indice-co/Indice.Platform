@@ -5,7 +5,7 @@
 @model BaseError40XModel
 
 @{
-    var title = ViewData["Title"] = Localizer.Error_Error;
+    ViewData["Title"] = Localizer.Error_PageTitle;
     var error = Model.ErrorMessages.GetValueOrDefault(Model.ErrorStatusCode.GetValueOrDefault());
 }
 

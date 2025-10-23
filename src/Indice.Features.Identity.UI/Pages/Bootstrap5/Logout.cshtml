@@ -4,12 +4,12 @@
 @inject IdentityUILocalizer Localizer
 
 @{
-    var title = ViewData["Title"] = Localizer.Logout_Logout;
+    var title = ViewData["Title"] = Localizer.Logout_PageTitle;
 }
 
 <section class="identity-panel wide logout-page">
     <article class="text-center">
-        <vc:page-heading title="@title" image-src="" />
+        <vc:page-heading title="@Localizer.Logout_PageHeader" image-src="" />
         <p>@Localizer.Logout_Would_You_Like_To_Logout</p>
         <form asp-page="/Logout">
             <input type="hidden" name="logoutId" value="@Model.LogoutId" />
