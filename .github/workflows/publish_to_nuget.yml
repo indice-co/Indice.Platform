@@ -62,7 +62,7 @@ jobs:
     
     # BUILD
     - name: Dotnet restore
-      run: dotnet restore /nowarn:netsdk1138
+      run: dotnet restore
 
     - name: Dotnet build SPAs
       run: dotnet build Indice.Platform.Ecmascript.slnf --no-restore --configuration Release

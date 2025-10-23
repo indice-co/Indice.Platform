@@ -47,7 +47,7 @@ jobs:
                 
     - name: Dotnet restore
       shell: pwsh
-      run: dotnet restore Indice.Platform.slnx /nowarn:netsdk1138
+      run: dotnet restore Indice.Platform.slnx
 
     - name: Dotnet build SPAs
       shell: pwsh
