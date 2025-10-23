@@ -1,8 +1,5 @@
 name: Code analysis (C#)
 
-permissions:
-  contents: read
-
 on:
   workflow_call:  
     secrets:

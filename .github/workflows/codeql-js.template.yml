@@ -1,8 +1,5 @@
 name: Code analysis (JavaScript)
 
-permissions:
-  contents: read
-
 on:
   workflow_call:
 

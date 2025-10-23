@@ -1,8 +1,5 @@
 name: Build process
 
-permissions:
-  contents: read
-
 on:
   workflow_call:
     secrets:
