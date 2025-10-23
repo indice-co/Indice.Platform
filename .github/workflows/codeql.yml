@@ -13,7 +13,7 @@ jobs:
   run-build:
     name: .NET Build
     if: always()
-    uses: ./.github/workflows/build.template.yml@bugfix/actions/pre-post-warnings
+    uses: ./.github/workflows/build.template.yml
     permissions:
       contents: read
 
@@ -21,7 +21,7 @@ jobs:
     needs: [run-build]
     if: always()
     name: .NET Tests
-    uses: ./.github/workflows/test.template.yml@bugfix/actions/pre-post-warnings
+    uses: ./.github/workflows/test.template.yml
     permissions:
       contents: read
       actions: read
@@ -31,7 +31,7 @@ jobs:
     if: always()
     needs: [run-build]
     name: CodeQL (C#)
-    uses: ./.github/workflows/codeql-cs.template.yml@bugfix/actions/pre-post-warnings
+    uses: ./.github/workflows/codeql-cs.template.yml
     permissions:
       contents: read
       security-events: write
@@ -40,7 +40,7 @@ jobs:
     if: always()
     needs: [run-build]
     name: CodeQL (JavaScript)
-    uses: ./.github/workflows/codeql-js.template.yml@bugfix/actions/pre-post-warnings
+    uses: ./.github/workflows/codeql-js.template.yml
     permissions:
       contents: read
       security-events: write
