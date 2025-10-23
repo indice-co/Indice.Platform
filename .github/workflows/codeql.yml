@@ -14,6 +14,8 @@ jobs:
     name: .NET Build
     if: always()
     uses: ./.github/workflows/build.template.yml
+    secrets:
+      NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
     permissions:
       contents: read
 
@@ -32,6 +34,8 @@ jobs:
     needs: [run-build]
     name: CodeQL (C#)
     uses: ./.github/workflows/codeql-cs.template.yml
+    secrets:
+      NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
     permissions:
       contents: read
       security-events: write
