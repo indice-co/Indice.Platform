@@ -5,6 +5,7 @@ on:
 
 jobs:
   run-build:
+    runs-on: windows-latest
     steps:
 
     - name: Harden Runner

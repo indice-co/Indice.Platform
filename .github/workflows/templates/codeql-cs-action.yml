@@ -5,6 +5,7 @@ on:
 
 jobs:
   run-codeql-csharp:
+    runs-on: windows-latest
     steps:
 
     - name: Harden Runner

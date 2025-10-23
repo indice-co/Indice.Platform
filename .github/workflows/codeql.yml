@@ -13,7 +13,6 @@ jobs:
   run-build:
     name: .NET Build
     if: always()
-    runs-on: windows-latest
     uses: ./.github/workflows/templates/build-action.yml
     permissions:
       contents: read
@@ -24,7 +23,6 @@ jobs:
     needs: [run-build]
     if: always()
     name: .NET Tests
-    runs-on: windows-latest
     uses: ./.github/workflows/templates/test-action.yml
     permissions:
       contents: read
@@ -35,7 +33,6 @@ jobs:
     if: always()
     needs: [run-build]
     name: CodeQL (C#)
-    runs-on: windows-latest
     uses: ./.github/workflows/templates/codeql-cs-action.yml
     permissions:
       contents: read
@@ -47,7 +44,6 @@ jobs:
     if: always()
     needs: [run-build]
     name: CodeQL (JavaScript)
-    runs-on: windows-latest
     uses: ./.github/workflows/templates/codeql-js-action.yml
     permissions:
       contents: read

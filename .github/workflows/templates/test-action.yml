@@ -5,6 +5,7 @@ on:
 
 jobs:
   run-dotnet-tests:
+    runs-on: windows-latest
     steps:
 
     - name: Harden Runner
