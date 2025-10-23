@@ -22,6 +22,5 @@ public class OverviewMetrics
     public List<Volume<MessageType>> PerType { get; set; } = [];
     /// <summary>Messages volume per message type.</summary>
     [Description("Todays Message volume per message type.")]
-
-    public List<Volume<MessageType>> PerTypeToday { get; internal set; }
+    public List<Volume<MessageType>> PerTypeToday { get; set; } = [];
 }

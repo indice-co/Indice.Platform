@@ -20,17 +20,17 @@
      aria-labelledby="profile-tab">
     <h3 class="text-black mb-1">@Localizer.Profile_Manage_Profile</h3>
     <div id="send-confirmation-success" class=" text-sm hidden my-2.5">
-        <div class="alert alert-success">@Localizer.Profile_A_Confirmation_Email_Has_Been_Sent_To_0", Model.View.Email ?? throw new InvalidOperationException("User email cannot be null.")]</div>
+        <div class="alert alert-success">@Localizer.Profile_A_Confirmation_Email_Has_Been_Sent_To(Model.View.Email ?? throw new InvalidOperationException("User email cannot be null."))</div>
     </div>
     <div id="send-confirmation-error" class=" text-sm hidden my-2.5">
         <div class="alert alert-danger">@Localizer.Profile_Confirmation_Email_Delivery_Failed_Please_Contact_System_Administrator</div>
     </div>
     @if (Model.ProfileSuccessfullyChanged)
     {
-        var message = Localizer.Profile_Your_Profile_Was_Updated_Successfully.Value;
+        var message = Localizer.Profile_Your_Profile_Was_Updated_Successfully.Value!;
         if (Model.EmailChangeRequested)
         {
-			message += (Localizer.ForgotPasswordConfirmation_LoginLink(Url.PageLink("/Login"))).Value;
+			message += (Localizer.ForgotPasswordConfirmation_LoginLink(Url.PageLink("/Login")!)).Value;
         }
         <partial name="_Alert" model="@AlertModel.Success(message)" />
     }

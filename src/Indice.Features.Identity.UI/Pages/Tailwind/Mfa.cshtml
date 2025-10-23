@@ -45,7 +45,7 @@
                     <input type="hidden" asp-for="Input.DeviceId" />
                     <div id="panel-main" class="space-y-4">
                         <div class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded mb-4">
-                            @Localizer.Mfa_We_Texted_Your_Phone
+							@Localizer.Mfa_We_Texted_Your_Phone(Model.View.PhoneNumberMasked!)
                         </div>
                         <div>
                             <label asp-for="Input.OtpCode" class="block text-sm font-medium text-gray-700">

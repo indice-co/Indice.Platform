@@ -1,5 +1,9 @@
 ﻿using System.Collections.Specialized;
+#if NET9_0_OR_GREATER
+using Duende.IdentityModel;
+#else
 using IdentityModel;
+#endif
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer;
 using Duende.IdentityServer.Stores;

@@ -34,14 +34,14 @@
         <h4 class="header-text">@Model.Input.DisplayName</h4>
     </div>
     <div id="send-confirmation-success" class="alert alert-success d-none" style="margin-bottom: 5px;">
-        @Localizer.Profile_A_Confirmation_Email_Has_Been_Sent_To_0", Model.View.Email ?? throw new InvalidOperationException("User email cannot be null.")]
+        @Localizer.Profile_A_Confirmation_Email_Has_Been_Sent_To(Model.View.Email ?? throw new InvalidOperationException("User email cannot be null."))
     </div>
     <div id="send-confirmation-error" class="alert alert-danger d-none" style="margin-bottom: 5px;">
         @Localizer.Profile_Confirmation_Email_Delivery_Failed_Please_Contact_System_Administrator
     </div>
     @if (Model.ProfileSuccessfullyChanged)
     {
-        var message = Localizer.Profile_Your_Profile_Was_Updated_Successfully.Value;
+        var message = Localizer.Profile_Your_Profile_Was_Updated_Successfully.Value!;
         if (Model.EmailChangeRequested)
         {
             message += Localizer.Profile_EmailSentToNewEmail.Value;

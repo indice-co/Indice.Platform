@@ -315,7 +315,7 @@ public class IdentityUILocalizer
     #region Error
     /// <summary>General label for error messages.</summary>
     public virtual HtmlString Error_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Error_PageTitle));
-
+    /// <summary>Header label for error pages.</summary>
     public virtual HtmlString Error_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Error_PageHeader));
     /// <summary> Label for the "Go back home" action, typically shown on error pages. </summary>
     public virtual HtmlString Error_Go_back_home => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Error_Go_back_home));
@@ -745,7 +745,7 @@ public class IdentityUILocalizer
     /// <summary>
     ///   Gets the localized string for "A confirmation email has been sent to {0}.".
     /// </summary>
-    public virtual HtmlString Profile_A_Confirmation_Email_Has_Been_Sent_To_0(string email) => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_ConfirmationEmailSentTo, email));
+    public virtual HtmlString Profile_A_Confirmation_Email_Has_Been_Sent_To(string email) => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_ConfirmationEmailSentTo, email));
 
     /// <summary>
     /// Label for Manage Profile action.
@@ -1157,22 +1157,40 @@ public class IdentityUILocalizer
 
     #region PageHeaders
     // Added unified PageHeader properties for use in <vc:page-heading />.
+
+    /// <summary>Gets the HTML-formatted page header displayed to users who are changing their password. </summary>
     public virtual HtmlString AddPassword_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPassword_PageHeader));
+    /// <summary>Gets the HTML-formatted page header displayed to users who are adding a phone number to their account. </summary>
     public virtual HtmlString AddPhone_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPhone_PageHeader));
+    /// <summary>Gets the HTML-formatted page header displayed to users who are associating an external login provider with their account. </summary>
     public virtual HtmlString Associate_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_PageHeader));
+    /// <summary>Gets the HTML-formatted page header displayed to users who are confirming their email address. </summary>
     public virtual HtmlString ConfirmEmail_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmail_PageHeader));
+    /// <summary>Gets the HTML-formatted page header displayed to users who are confirming an email change. </summary>
     public virtual HtmlString ConfirmEmailChange_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ConfirmEmailChange_PageHeader));
+    /// <summary>Gets the HTML-formatted page header displayed to users who have requested a password reset. </summary>
     public virtual HtmlString ForgotPassword_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPassword_PageHeader));
+    /// <summary>Gets the HTML-formatted page header displayed to users after they have requested a password reset. </summary>
     public virtual HtmlString ForgotPasswordConfirmation_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPasswordConfirmation_PageHeader));
+    /// <summary>Gets the HTML-formatted page header displayed to users who have logged out. </summary>
     public virtual HtmlString LoggedOut_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.LoggedOut_PageHeader));
+    /// <summary>Gets the localized HTML content for the page header displayed during login. </summary>
     public virtual HtmlString Login_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Login_PageHeader));
+    /// <summary>Gets the localized HTML content for the page header displayed during logout. </summary>
     public virtual HtmlString Logout_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Logout_PageHeader));
+    /// <summary>Gets the localized HTML content for the page header displayed during MFA authentication. </summary>
     public virtual HtmlString Mfa_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_PageHeader));
+    /// <summary>Gets the localized HTML content for the page header displayed during MFA onboarding. </summary>
     public virtual HtmlString MfaOnBoarding_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoarding_PageHeader));
+    /// <summary>Gets the localized HTML content for the page header displayed during MFA onboarding phone addition. </summary>
     public virtual HtmlString MfaOnBoardingAddPhone_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingAddPhone_PageHeader));
+    /// <summary>Gets the localized HTML content for the page header displayed during MFA onboarding phone verification. </summary>
     public virtual HtmlString MfaOnBoardingVerifyPhone_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoardingVerifyPhone_PageHeader));
+    /// <summary>Gets the localized HTML content for the page header displayed on the password expired screen.</summary>
     public virtual HtmlString PasswordExpired_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.PasswordExpired_PageHeader));
+    /// <summary>Gets the localized HTML content for the page header displayed on the registration screen.</summary>
     public virtual HtmlString Register_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_PageHeader));
+    /// <summary>Gets the localized HTML content for the page header displayed during phone number verification.</summary>
     public virtual HtmlString VerifyPhone_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.VerifyPhone_PageHeader));
     #endregion
 }
