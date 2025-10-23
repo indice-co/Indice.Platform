@@ -274,4 +274,15 @@ internal static class Mapper
     };
 
     public static ExpandoObject? ToExpandoObject(object value) => value.ToExpandoObject();
+
+    public static List<DbDistributionListContact> ToUpdatedDbDistributionListContacts(List<DbDistributionListContact> oldAssoociationList, DbContact newContact) {
+        var newAssociationList = oldAssoociationList.Select(x => new DbDistributionListContact {
+            DistributionListId = x.DistributionListId,
+            DistributionList = x.DistributionList,
+            Contact = newContact,
+            ContactId = newContact.Id,
+            Unsubscribed = x.Unsubscribed,
+        }).ToList();
+        return newAssociationList;
+    }
 }

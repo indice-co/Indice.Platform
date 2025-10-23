@@ -4,7 +4,7 @@
 public class DbContact
 {
     /// <summary>The unique id of the contact.</summary>
-    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid Id { get; set; } = Guid.NewGuid(); 
     /// <summary>The recipient correlation code.</summary>
     public string? RecipientId { get; set; }
     /// <summary>Contact salutation (Mr, Mrs etc).</summary>
