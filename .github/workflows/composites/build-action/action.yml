@@ -1,11 +1,6 @@
 name: Build process
 description: Composite action for executing dotnet build
 
-inputs:
-  dotnetCacheKey:
-    type: string
-    required: true
-
 runs:
   using: 'composite'
   steps:
@@ -46,12 +41,3 @@ runs:
     - name: Dotnet build
       shell: pwsh
       run: dotnet build Indice.Platform.slnf --no-restore --configuration Release
-
-    - name: Cache dotnet output
-      uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
-      with:
-        path: |
-          ~/.nuget/packages
-          **/bin
-          **/obj
-        key: ${{ inputs.dotnetCacheKey }}
