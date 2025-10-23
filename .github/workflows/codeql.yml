@@ -35,8 +35,7 @@ jobs:
     permissions:
       contents: read
       security-events: write
-    env:
-      NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
+    
 
   run-codeql-javascript:
     if: always()
@@ -46,7 +45,5 @@ jobs:
     permissions:
       contents: read
       security-events: write
-    env:
-      NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
         
         

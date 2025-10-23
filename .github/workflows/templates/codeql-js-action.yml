@@ -5,6 +5,8 @@ on:
 
 jobs:
   run-codeql-javascript:
+    env:
+      NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
     runs-on: windows-latest
     steps:
 
