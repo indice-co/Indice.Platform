@@ -2,71 +2,72 @@
 
 @model BaseConfirmEmailChangeModel
 
-@inject IIdentityViewLocalizer Localizer
+@inject IdentityUILocalizer Localizer
+
 
 @{
-    var title = ViewData["Title"] = Localizer["Email Change Confirmation"].Value;
+    var title = ViewData["Title"] = Localizer.ConfirmEmailChange_PageTitle;
 }
 
 <div class="content-wrapper">
     <div class="card-wrapper">
-        <vc:page-heading title="@title" image-src="" />
+        <vc:page-heading title="@Localizer.ConfirmEmailChange_PageHeader" image-src="" />
         @if (Model.View.AlreadyVerified)
         {
             <h1>
-                <span class="header-text">@Localizer["Your email is already verified. Thank you"]</span>
+                <span class="header-text">@Localizer.ConfirmEmailChange_Your_Email_Is_Already_Verified_Thank_You</span>
             </h1>
             <p>
                 <span indice-if="Model.View.HasReturnUrl">
-                    @Localizer["Click"]
-                    <a href="@Model.View.ReturnUrl">@Localizer["here"]</a>
-                    @Localizer["to sign in or go back."]
+                    @Localizer.ConfirmEmailChange_Click
+                    <a href="@Model.View.ReturnUrl">@Localizer.ConfirmEmailChange_Here</a>
+                    @Localizer.ConfirmEmailChange_To_Sign_In_Or_Go_Back
                 </span>
-                @Localizer["You can now close this browse window."]
+                @Localizer.ConfirmEmailChange_You_Can_Now_Close_This_Browse_Window
             </p>
         }
         else if (Model.View.InvalidOrExpiredToken)
         {
             <h1>
-                <span class="header-text">@Localizer["Email verification link has expired."]</span>
+                <span class="header-text">@Localizer.ConfirmEmailChange_Email_Verification_Link_Has_Expired</span>
             </h1>
             <p>
-                @Localizer["Please log in and resend the link."]
-                <a indice-if="Model.View.HasReturnUrl" href="@Model.View.ReturnUrl">@Localizer["here"]</a>
+                @Localizer.ConfirmEmailChange_Please_Log_In_And_Resend_The_Link
+                <a indice-if="Model.View.HasReturnUrl" href="@Model.View.ReturnUrl">@Localizer.ConfirmEmailChange_Here</a>
             </p>
         }
         else if (Model.View.Verified)
         {
             <h1>
-                <span class="header-text">@Localizer["Your email has been successfully changed."]</span>
+                <span class="header-text">@Localizer.ConfirmEmailChange_Your_Email_Has_Been_Successfully_Changed</span>
             </h1>
             <p>
                 <span indice-if="Model.View.HasReturnUrl">
-                    @Localizer["Click"]
-                    <a href="@Model.View.ReturnUrl">@Localizer["here"]</a>
-                    @Localizer["to sign in or go back."]
+                    @Localizer.ConfirmEmailChange_Click
+                    <a href="@Model.View.ReturnUrl">@Localizer.ConfirmEmailChange_Here</a>
+                    @Localizer.ConfirmEmailChange_To_Sign_In_Or_Go_Back
                 </span>
-                @Localizer["You can now close this browse window."]
+                @Localizer.ConfirmEmailChange_You_Can_Now_Close_This_Browse_Window
             </p>
         }
         else if (!ViewContext.ModelState.IsValid)
         {
             <h1>
-                <span class="header-text">@Localizer["No action was taken."]</span>
+                <span class="header-text">@Localizer.ConfirmEmailChange_No_Action_Was_Taken</span>
             </h1>
             <p>
-                @Localizer["If you feel you got this error by mistake, simply click"]
-                <a asp-page="/Home">@Localizer["here"]</a>
-                @Localizer["to sign in or go back."]
+                @Localizer.ConfirmEmailChange_If_You_Feel_You_Got_This_Error_By_Mistake_Simply_Click
+                <a asp-page="/Home">@Localizer.ConfirmEmailChange_Here</a>
+                @Localizer.ConfirmEmailChange_To_Sign_In_Or_Go_Back
             </p>
         }
         else
         {
             <h1>
-                <span class="header-text">@Localizer["Verifying your email."]</span>
+                <span class="header-text">@Localizer.ConfirmEmailChange_Verifying_Your_Email</span>
             </h1>
             <p>
-                @Localizer["This may take a moment. Click on the link below to verify your email address."]
+                @Localizer.ConfirmEmailChange_This_May_Take_A_Moment_Click_On_The_Link_Below_To_Verify_Your_Email_Address
                 <strong>@Model.View.Email</strong>
             </p>
             <form name="EmailVerificationForm" method="post" asp-route-client_id="@Model.Input.ClientId">
@@ -77,7 +78,7 @@
                 <input type="hidden" asp-for="Input.ReturnUrl" />
                 <input type="hidden" asp-for="Input.ShouldRedirect" />
                 <input type="hidden" asp-for="Input.ThrowWhenConfirmed" />
-                <button type="submit" class="btn btn-primary">@Localizer["Verify"]</button>
+                <button type="submit" class="btn btn-primary">@Localizer.ConfirmEmailChange_Verify</button>
             </form>
             <script type="text/javascript" csp-nonce="true">
                 function submitform() {

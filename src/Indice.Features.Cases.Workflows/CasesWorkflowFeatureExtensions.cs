@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using Asp.Versioning;
+﻿using Asp.Versioning;
 using Elsa;
 using Elsa.Activities.Http.Services;
 using Elsa.Activities.UserTask.Extensions;
@@ -10,7 +9,7 @@ using Elsa.Serialization;
 using Elsa.Server.Api.Extensions;
 using Elsa.Server.Api.Mapping;
 using Elsa.Server.Api.Services;
-using IdentityModel;
+using Duende.IdentityModel;
 using Indice.Features.Cases.Workflows;
 using Indice.Features.Cases.Workflows.Bookmarks;
 using Indice.Features.Cases.Workflows.Data;

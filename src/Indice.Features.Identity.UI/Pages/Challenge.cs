@@ -1,11 +1,12 @@
 using System.Security.Claims;
-using IdentityModel;
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer.Extensions;
 using Duende.IdentityServer.Services;
+using Duende.IdentityModel;
 #else
 using IdentityServer4.Extensions;
 using IdentityServer4.Services;
+using IdentityModel;
 #endif
 using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;

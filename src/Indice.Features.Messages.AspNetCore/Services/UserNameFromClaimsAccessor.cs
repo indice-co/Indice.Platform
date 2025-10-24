@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using IdentityModel;
+using Duende.IdentityModel;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Microsoft.AspNetCore.Http;
 

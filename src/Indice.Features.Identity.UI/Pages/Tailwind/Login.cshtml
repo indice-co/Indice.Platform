@@ -2,18 +2,18 @@
 
 @model BaseLoginModel
 
-@inject IIdentityViewLocalizer Localizer
 @inject ExtendedUserManager<User> userManager
+@inject IdentityUILocalizer Localizer
+
 
 @{
-    var title = ViewData["Title"] = Localizer["Login"].Value;
+    var title = ViewData["Title"] = Localizer.Login_PageTitle;
 }
 
 <div class="content-wrapper">
     <div class="card-wrapper">
-        <vc:page-heading title="@title" image-src="" />
+        <vc:page-heading title="@Localizer.Login_PageHeader" image-src="" />
         <partial name="_ValidationSummary" />
-
         @if (Model.UiOptions.EnableLocalLogin)
         {
             <form asp-route-returnUrl="@Model.View.ReturnUrl" method="POST" class="form">
@@ -21,15 +21,15 @@
                 <input type="hidden" asp-for="Input.DeviceId" />
                 <div class="row">
                     <div class="input-group-w-full group">
-                        <input type="text" class="peer" placeholder="@Localizer[userManager.EmailAsUserName ? "Email" : "Username"]" asp-for="Input.UserName" />
-                        <label asp-for="Input.UserName" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer[userManager.EmailAsUserName ? "Email" : "Username"]</label>
+                        <input type="text" class="peer" placeholder="@(userManager.EmailAsUserName? Localizer.Email: Localizer.Login_Username)" asp-for="Input.UserName" />
+                        <label asp-for="Input.UserName" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@(userManager.EmailAsUserName? Localizer.Email: Localizer.Login_Username)</label>
                         <span asp-validation-for="Input.UserName" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="row">
                     <div class="input-group-w-full">
-                        <input type="password" class="peer" placeholder="@Localizer["Password"]" asp-for="Input.Password" autocomplete="off" />
-                        <label asp-for="Input.Password" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Password"]</label>
+                        <input type="password" class="peer" placeholder="@Localizer.Login_Password" asp-for="Input.Password" autocomplete="off" />
+                        <label asp-for="Input.Password" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer.Login_Password</label>
                         <span asp-validation-for="Input.Password" class="text-danger"></span>
                     </div>
                 </div>
@@ -39,18 +39,17 @@
                         <div class="flex items-center justify-center sm:justify-start flex-auto">
                             <label asp-for="Input.RememberLogin" class="mx-1">
                                 <input asp-for="Input.RememberLogin" type="checkbox" class="w-4 h-4" />
-                                @Localizer["Remember me"]
+                                @Localizer.Login_Remember_Me
                             </label>
                         </div>
-
                     }
                     @if (Model.UiOptions.EnableForgotPasswordPage)
                     {
-                        <a asp-page="/ForgotPassword" asp-route-returnUrl="@(!string.IsNullOrEmpty(Model.View.ReturnUrl) ? Model.View.ReturnUrl : null)">@Localizer["Forgot password?"]</a>
+                        <a asp-page="/ForgotPassword" asp-route-returnUrl="@(!string.IsNullOrEmpty(Model.View.ReturnUrl) ? Model.View.ReturnUrl : null)">@Localizer.Login_Forgot_Password</a>
                     }
                 </div>
                 <div class="flex justify-center items-center mt-8">
-                    <button class="btn btn-primary" name="button" value="login" type="submit">@Localizer["Sign in"]</button>
+                    <button class="btn btn-primary" name="button" value="login" type="submit">@Localizer.Login_Sign_In</button>
                 </div>
             </form>
         }
@@ -59,23 +58,26 @@
                 @if (!Model.UiOptions.EnableLocalLogin && !Model.View.VisibleExternalProviders.Any())
                 {
                     <div class="alert alert-warning">
-                        <strong>@Localizer["Invalid login request"]</strong>
-                        @Localizer["There are no login schemes configured for this client."]
+                        <strong>@Localizer.Login_Invalid_Login_Request</strong>
+                        @Localizer.Login_No_Login_Schemes_Configured
                     </div>
                 }
                 @if (Model.View.VisibleExternalProviders.Any())
                 {
-                    <div class="hr-sect"><span>@Localizer["OR"]</span></div>
+                    <div class="hr-sect"><span>@Localizer.Login_OR</span></div>
                     <div class="flex justify-center mb-2.5">
-                        <span class="text-gray-400">@Localizer["login with"]</span>
+                        <span class="text-gray-400">@Localizer.Register_login_with</span>
                     </div>
                     <div class="flex flex-wrap justify-center pb-2">
                         @foreach (var provider in Model.View.VisibleExternalProviders)
                         {
                             <div class="idp idp-@provider.AuthenticationScheme!.ToLower() mx-2.5">
-                                <a asp-page="/Challenge" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.View.ReturnUrl" asp-route-prompt="@OidcConstants.PromptModes.SelectAccount" title="@Localizer[provider.DisplayName!]">
+                                <a asp-page="/Challenge" asp-route-provider="@provider.AuthenticationScheme"
+                                   asp-route-returnUrl="@Model.View.ReturnUrl"
+                                   asp-route-prompt="@OidcConstants.PromptModes.SelectAccount"
+                                   title="@Localizer.GetGeneric(provider.DisplayName!)">
                                     <span class="hidden">
-                                        @Localizer[provider.DisplayName!]
+                                        @Localizer.GetGeneric(provider.DisplayName!)
                                     </span>
                                 </a>
                             </div>
@@ -88,10 +90,10 @@
             {
                 <div class="flex flex-col mb-10">
                     <span>
-                        @Localizer["Don't have an account?"]
+                        @Localizer.Login_Dont_Have_An_Account
                     </span>
                     <a asp-page="@Model.UiOptions.OnBoardingPage" class="text-primary-default underline" asp-route-returnUrl="@(!string.IsNullOrEmpty(Model.View.ReturnUrl) ? Model.View.ReturnUrl : null)">
-                        @Localizer["Join us"]
+                        @Localizer.Login_Join_Us
                     </a>
                 </div>
             }

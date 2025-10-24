@@ -1,19 +1,19 @@
 ﻿@page "/logged-out"
 
-@inject IIdentityViewLocalizer Localizer
-
 @model BaseLoggedOutModel
+@inject IdentityUILocalizer Localizer
+
 
 @{
-    var title = ViewData["Title"] = Localizer["Logout"].Value;
+    var title = ViewData["Title"] = Localizer.LoggedOut_PageTitle;
 }
 
 <section class="identity-panel wide logged-out @(Model.AutomaticRedirectAfterSignOut ? "d-none": "")">
     <article class="text-center">
-        <vc:page-heading title="@title" image-src="" />
-        <p>@Localizer["You are now logged out"]</p>
+        <vc:page-heading title="@Localizer.LoggedOut_PageHeader" image-src="" />
+        <p>@Localizer.LoggedOut_You_Are_Now_Logged_Out</p>
         <div>
-            @Localizer["Click"] <a id="PostLogoutRedirectUri" class="" href="@(Model.HasPostLogoutRedirectUri ? Model.PostLogoutRedirectUri : "/")">@Localizer["here"]</a> @Localizer["to return to the application"]
+            @Localizer.LoggedOut_Click <a id="PostLogoutRedirectUri" class="" href="@(Model.HasPostLogoutRedirectUri? Model.PostLogoutRedirectUri: "/")">@Localizer.LoggedOut_Here</a> @Localizer.LoggedOut_To_Return_To_The_Application
             <span indice-if="Model.HasPostLogoutRedirectUri">@Model.ClientName</span>.
         </div>
         <iframe indice-if="Model.SignOutIframeUrl != null" width="0" height="0" class="signout" src="@Model.SignOutIframeUrl"></iframe>

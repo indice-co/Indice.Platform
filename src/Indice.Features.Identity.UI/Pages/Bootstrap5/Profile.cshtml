@@ -1,14 +1,15 @@
 ﻿@page "/manage/profile"
 
-@inject IIdentityViewLocalizer Localizer
+
 @inject CallingCodesProvider callingCodesProvider
 @inject IOptions<IdentityUIOptions> identityUiOptions
 @inject ExtendedUserManager<User> userManager
+@inject IdentityUILocalizer Localizer
 
 @model BaseProfileModel
 
 @{
-    var title = ViewData["Title"] = Localizer["Profile"].Value;
+    var title = ViewData["Title"] = Localizer.Profile_PageTitle;
     var alert = TempData.Get<AlertModel>("Alert");
 }
 
@@ -33,23 +34,23 @@
         <h4 class="header-text">@Model.Input.DisplayName</h4>
     </div>
     <div id="send-confirmation-success" class="alert alert-success d-none" style="margin-bottom: 5px;">
-        @Localizer["A confirmation email has been sent to {0}.", Model.View.Email ?? throw new InvalidOperationException("User email cannot be null.")]
+        @Localizer.Profile_A_Confirmation_Email_Has_Been_Sent_To(Model.View.Email ?? throw new InvalidOperationException("User email cannot be null."))
     </div>
     <div id="send-confirmation-error" class="alert alert-danger d-none" style="margin-bottom: 5px;">
-        @Localizer["Confirmation email delivery failed. Please contact system administrator."]
+        @Localizer.Profile_Confirmation_Email_Delivery_Failed_Please_Contact_System_Administrator
     </div>
     @if (Model.ProfileSuccessfullyChanged)
     {
-        var message = Localizer["Your profile was updated successfully."].Value;
+        var message = Localizer.Profile_Your_Profile_Was_Updated_Successfully.Value!;
         if (Model.EmailChangeRequested)
         {
-            message += $" {Localizer["An email has been sent to your new email address in order to confirm it."].Value}";
+            message += Localizer.Profile_EmailSentToNewEmail.Value;
         }
         <partial name="_Alert" model="@AlertModel.Success(message)" />
     }
     @if (Model.View.EmailChangePending && !Model.ProfileSuccessfullyChanged)
     {
-        <partial name="_Alert" model="@AlertModel.Warn(Localizer.GetString("Your new email verification is still pending."))" />
+		<partial name="_Alert" model="@AlertModel.Warn(Localizer.Profile_Your_New_Email_Verification_Is_Still_Pending.ToString())" />
     }
     <partial name="_Alert" model="alert" />
     <partial name="_ValidationSummary" />
@@ -57,15 +58,15 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label asp-for="Input.FirstName" class="form-label">@Localizer["First name"]</label>
-                    <input class="form-control" type="text" placeholder="@Localizer["First name"]" asp-for="Input.FirstName" />
+                    <label asp-for="Input.FirstName" class="form-label">@Localizer.Profile_First_Name</label>
+                    <input class="form-control" type="text" placeholder="@Localizer.Profile_First_Name" asp-for="Input.FirstName" />
                     <span asp-validation-for="Input.FirstName" class="text-danger"></span>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label asp-for="Input.LastName" class="form-label">@Localizer["Last name"]</label>
-                    <input class="form-control" type="text" placeholder="@Localizer["Last name"]" asp-for="Input.LastName" />
+                    <label asp-for="Input.LastName" class="form-label">@Localizer.Profile_Last_Name</label>
+                    <input class="form-control" type="text" placeholder="@Localizer.Profile_Last_Name" asp-for="Input.LastName" />
                     <span asp-validation-for="Input.LastName" class="text-danger"></span>
                 </div>
             </div>
@@ -73,18 +74,18 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label asp-for="Input.UserName" class="form-label">@Localizer["Username"]</label>
-                    <input class="form-control" type="text" placeholder="@Localizer["Username"]" asp-for="Input.UserName" readonly="@userManager.EmailAsUserName" />
+                    <label asp-for="Input.UserName" class="form-label">@Localizer.Profile_Username</label>
+                    <input class="form-control" type="text" placeholder="@Localizer.Profile_Username" asp-for="Input.UserName" readonly="@userManager.EmailAsUserName" />
                     <span asp-validation-for="Input.UserName" class="text-danger"></span>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
                     <label asp-for="Input.Email" class="form-label">
-                        @Localizer["Email"]
-                        <a indice-if="Model.View.EmailChangePending" href="#" id="resend-email-link" style="font-size: x-small;">(@Localizer["Confirmation"] →)</a>
+                        @Localizer.Email
+                        <a indice-if="Model.View.EmailChangePending" href="#" id="resend-email-link" style="font-size: x-small;">(@Localizer.Profile_Confirmation →)</a>
                     </label>
-                    <input class="form-control" type="text" placeholder="@Localizer["Email"]" asp-for="Input.Email" />
+                    <input class="form-control" type="text" placeholder="@Localizer.Email" asp-for="Input.Email" />
                     <span asp-validation-for="Input.Email" class="text-danger"></span>
                 </div>
             </div>
@@ -92,9 +93,9 @@
         <div class="row">
             <div indice-if="identityUiOptions.Value.EnablePhoneNumberCallingCodes" class="col-md-6">
                 <div class="mb-3">
-                    <label class="form-label" asp-for="Input.CallingCode">@Localizer["Calling Code"]</label>
+                    <label class="form-label" asp-for="Input.CallingCode">@Localizer.Profile_Calling_Code</label>
                     <select class="form-control lh-lg" asp-for="Input.CallingCode" required>
-                        <option value="" selected>@Localizer["Choose..."]</option>
+                        <option value="" selected>@Localizer.Profile_Choose</option>
                         @foreach (var callingCode in callingCodesProvider.GetSupportedCallingCodes())
                         {
                             <option value="@callingCode">@callingCode.DisplayName</option>
@@ -105,8 +106,8 @@
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label asp-for="Input.PhoneNumber" class="form-label">@Localizer["Phone number"]</label>
-                    <input class="form-control" type="text" placeholder="@Localizer["Phone number"]" asp-for="Input.PhoneNumber" />
+                    <label asp-for="Input.PhoneNumber" class="form-label">@Localizer.Profile_Phone_Number</label>
+                    <input class="form-control" type="text" placeholder="@Localizer.Profile_Phone_Number" asp-for="Input.PhoneNumber" />
                     <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
                 </div>
             </div>
@@ -114,15 +115,15 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label asp-for="Input.Tin" class="form-label">@Localizer["Tax identification"]</label>
-                    <input class="form-control" type="text" placeholder="@Localizer["Tax identification"]" asp-for="Input.Tin" />
+                    <label asp-for="Input.Tin" class="form-label">@Localizer.Profile_Tax_Identification</label>
+                    <input class="form-control" type="text" placeholder="@Localizer.Profile_Tax_Identification" asp-for="Input.Tin" />
                     <span asp-validation-for="Input.Tin" class="text-danger"></span>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label asp-for="Input.BirthDate" class="form-label">@Localizer["Birth date"]</label>
-                    <input class="form-control" type="date" placeholder="@Localizer["Birth date"]" asp-for="Input.BirthDate" />
+                    <label asp-for="Input.BirthDate" class="form-label">@Localizer.Profile_Birth_Date</label>
+                    <input class="form-control" type="date" placeholder="@Localizer.Profile_Birth_Date" asp-for="Input.BirthDate" />
                     <span asp-validation-for="Input.BirthDate" class="text-danger"></span>
                 </div>
             </div>
@@ -130,8 +131,8 @@
         <div class="row" indice-if="Model.View.HasDeveloperTotp">
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label asp-for="Input.DeveloperTotp" class="form-label">@Localizer["Developer TOTP"]</label>
-                    <input class="form-control" type="text" placeholder="@Localizer["Developer TOTP"]" readonly="readonly" asp-for="Input.DeveloperTotp" />
+                    <label asp-for="Input.DeveloperTotp" class="form-label">@Localizer.Profile_Developer_TOTP</label>
+                    <input class="form-control" type="text" placeholder="@Localizer.Profile_Developer_TOTP" readonly="readonly" asp-for="Input.DeveloperTotp" />
                 </div>
             </div>
         </div>
@@ -141,8 +142,8 @@
                     <input asp-for="Input.ConsentCommercial" type="checkbox" class="form-check-input text-info" />
                     <span class="control flex-shrink-0"></span>
                     <span class="d-inline">
-                        @Localizer["I have been informed about the processing of my personal data and I consent to it, as specifically defined"]
-                        <a style="font-weight:bold" target="_blank" href="/privacy" onclick="event.stopPropagation();">@Localizer["here"].</a>
+                        @Localizer.Profile_I_Have_Been_Informed_About_The_Processing_Of_My_Personal_Data_And_I_Consent_To_It_As_Specifically_Defined
+                        <a style="font-weight:bold" target="_blank" href="/privacy" onclick="event.stopPropagation();">@Localizer.Profile_Here.</a>
                     </span>
                 </label>
 
@@ -151,7 +152,7 @@
         <div class="mb-3">
             <div class="row m-0 w-100">
                 <div class="col-12 py-1">
-                    <button class="btn btn-primary w-100" type="submit">@Localizer["Save"]</button>
+                    <button class="btn btn-primary w-100" type="submit">@Localizer.Profile_Save</button>
                 </div>
             </div>
         </div>
@@ -160,7 +161,7 @@
 <br />
 <section class="identity-panel wide m-auto" indice-if="Model.View.SupportedCultures.Count > 0">
     <h4>
-        <span class="header-text text-center">@Localizer["Preferences"]</span>
+        <span class="header-text text-center">@Localizer.Profile_Preferences</span>
     </h4>
     
     <form id="userPreferenceForm" method="post" asp-page-handler="UpdateLanguagePreference">
@@ -168,9 +169,9 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label asp-for="InputLanguagePreference.Locale" class="form-label">@Localizer["Preferred language"]</label>
+                    <label asp-for="InputLanguagePreference.Locale" class="form-label">@Localizer.Profile_PreferredLanguage</label>
                     <select class="form-control form-select lh-lg" asp-for="InputLanguagePreference.Locale" required>
-                        <option value="">@Localizer["Choose..."]</option>
+                        <option value="">@Localizer.Profile_Choose</option>
                         @foreach (var culture in Model.View.SupportedCultures)
                         {
                             <option value="@culture.TwoLetterISOLanguageName" selected="@(culture.TwoLetterISOLanguageName.Equals(Model.View.Locale))">@culture.TwoLetterISOLanguageName.ToUpperInvariant() - @culture.NativeName</option>
@@ -185,7 +186,7 @@
 <br />
 <section class="identity-panel wide m-auto" indice-if="Model.View.CurrentLogins?.Count > 0 || Model.View.OtherLogins.Count > 0">
     <h2>
-        <span class="header-text text-center">@Localizer["External providers"]</span>
+        <span class="header-text text-center">@Localizer.Profile_External_Providers</span>
     </h2>
     @{
         var alertProviders = TempData.Get<AlertModel>("AlertProviders");
@@ -194,18 +195,19 @@
     @if (Model.View.CurrentLogins.Count > 0)
     {
         <div class="login-form">
-            <h4>@Localizer["Existing providers"]</h4>
+            <h4>@Localizer.Profile_Existing_Providers</h4>
             @foreach (var provider in Model.View.CurrentLogins)
             {
                 <div class="row idp-@provider.LoginProvider.ToLower()">
                     <div class="col-sm-9">
-                        <a class="btn btn-@provider.LoginProvider.ToLower() btn-hover btn-md inline-block cursor-pointer">@Localizer[string.IsNullOrEmpty(provider.ProviderDisplayName) ? provider.LoginProvider : provider.ProviderDisplayName]</a>
+                        <a class="btn btn-@provider.LoginProvider.ToLower() btn-hover btn-md inline-block cursor-pointer">
+                            @Localizer.GetGeneric(string.IsNullOrEmpty(provider.ProviderDisplayName) ? provider.LoginProvider : provider.ProviderDisplayName)</a>
                     </div>
                     <div class="col-sm-3">
                         <form asp-page-handler="RemoveLogin" method="post" class="inline">
                             <input asp-for="InputLoginLink.LoginProvider" type="hidden" value="@provider.LoginProvider" />
                             <input asp-for="InputLoginLink.ProviderKey" type="hidden" value="@provider.ProviderKey" />
-                            <button type="submit" class="btn btn-remove remove-idp btn-md" disabled="@(!Model.View.CanRemoveProvider)">@Localizer["Remove"]</button>
+                            <button type="submit" class="btn btn-remove remove-idp btn-md" disabled="@(!Model.View.CanRemoveProvider)">@Localizer.Profile_Remove</button>
                         </form>
                     </div>
                 </div>
@@ -215,13 +217,13 @@
     @if (Model.View.OtherLogins.Count > 0)
     {
         <div class="mt-3">
-            <h4>@Localizer["Connect a new provider"]</h4>
+            <h4>@Localizer.Profile_Connect_A_New_Provider</h4>
             <ul class="list-unstyled">
                 @foreach (var provider in Model.View.OtherLogins)
                 {
                     <li class="idp idp-@provider.Name.ToLower()">
                         <a class="btn btn-@provider.Name.ToLower() btn-hover" asp-page-handler="LinkLogin" asp-route-provider="@provider.Name">
-                            @Localizer[provider.DisplayName ?? "Unknown"]
+                            @Localizer.GetGeneric(provider.DisplayName ?? "Unknown")
                         </a>
                     </li>
                 }
