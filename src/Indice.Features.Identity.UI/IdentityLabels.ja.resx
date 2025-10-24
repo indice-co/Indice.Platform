@@ -1,0 +1,1066 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AcceptTerms_Reject" xml:space="preserve">
+    <value>拒否</value>
+  </data>
+  <data name="AcceptTerms_Accept" xml:space="preserve">
+    <value>同意する</value>
+  </data>
+  <data name="AcceptTerms_PageHeader" xml:space="preserve">
+    <value>利用規約の同意</value>
+  </data>
+  <data name="AcceptTerms_ReadAndAcceptTerms" xml:space="preserve">
+    <value>続行するには、利用規約をよく読み、同意してください。</value>
+  </data>
+  <data name="AddEmail_Next" xml:space="preserve">
+    <value>次へ</value>
+  </data>
+  <data name="AddEmail_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="AddEmail_PageTitle" xml:space="preserve">
+    <value>メールアドレスを確認</value>
+  </data>
+  <data name="AddEmail_PageHeader" xml:space="preserve">
+    <value>メールアドレスを確認</value>
+  </data>
+  <data name="AddPassword_Required" xml:space="preserve">
+    <value>必須</value>
+  </data>
+  <data name="AddPassword_Add" xml:space="preserve">
+    <value>追加</value>
+  </data>
+  <data name="AddPassword_PageTitle" xml:space="preserve">
+    <value>パスワード追加</value>
+  </data>
+  <data name="AddPassword_PageHeader" xml:space="preserve">
+    <value>パスワード追加</value>
+  </data>
+  <data name="AddPassword_Newpassword_FieldLabel" xml:space="preserve">
+    <value>新しいパスワード</value>
+  </data>
+  <data name="AddPassword_PasswordConfirmation" xml:space="preserve">
+    <value>パスワード確認</value>
+  </data>
+  <data name="AddPassword_PasswordSuccessfullyAdded" xml:space="preserve">
+    <value>パスワードが正常に追加されました</value>
+  </data>
+  <data name="AddPassword_ProcessCompleted" xml:space="preserve">
+    <value>処理が完了しました。</value>
+  </data>
+  <data name="AddPhone_pageTitle" xml:space="preserve">
+    <value>電話番号を追加</value>
+  </data>
+  <data name="AddPhone_PageHeader" xml:space="preserve">
+    <value>電話番号を追加</value>
+  </data>
+  <data name="AddPhone_AddPhoneNumber" xml:space="preserve">
+    <value>番号を追加</value>
+  </data>
+  <data name="AddPhone_CallingCode" xml:space="preserve">
+    <value>電話コード</value>
+  </data>
+  <data name="AddPhone_PhoneNumber" xml:space="preserve">
+    <value>電話番号</value>
+  </data>
+  <data name="AddPhone_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Challenge_PageTitle" xml:space="preserve">
+    <value>リダイレクト中...</value>
+  </data>
+  <data name="Challenge_PageHeader" xml:space="preserve">
+    <value>リダイレクト中...</value>
+  </data>
+  <data name="ChangePassword_SignWithDifferentAccount" xml:space="preserve">
+    <value>別のアカウントでサインイン</value>
+  </data>
+  <data name="ChangePassword_Change" xml:space="preserve">
+    <value>変更</value>
+  </data>
+  <data name="ChangePassword_PageTitle" xml:space="preserve">
+    <value>パスワード変更</value>
+  </data>
+  <data name="ChangePassword_PageHeader" xml:space="preserve">
+    <value>パスワード変更</value>
+  </data>
+  <data name="ChangePassword_Newpassword_FieldLabel" xml:space="preserve">
+    <value>新しいパスワード</value>
+  </data>
+  <data name="ChangePassword_OldPassword_FieldLabel" xml:space="preserve">
+    <value>以前のパスワード</value>
+  </data>
+  <data name="ChangePassword_PasswordSuccessfullyChanged" xml:space="preserve">
+    <value>パスワードが正常に変更されました</value>
+  </data>
+  <data name="ChangePassword_ProcessCompleted" xml:space="preserve">
+    <value>処理が完了しました。</value>
+  </data>
+  <data name="ConfirmEmail_DoNotReply" xml:space="preserve">
+    <value>このアドレスはメールを受信しないため、返信しないでください。返信は届きません。</value>
+  </data>
+  <data name="ConfirmEmail_ServiceEmailInfo" xml:space="preserve">
+    <value>このサービスのメールには、アカウントに関する情報が含まれています。</value>
+  </data>
+  <data name="ConfirmEmail_Click" xml:space="preserve">
+    <value>クリック</value>
+  </data>
+  <data name="ConfirmEmail_PageTitle" xml:space="preserve">
+    <value>メール確認</value>
+  </data>
+  <data name="ConfirmEmail_PageHeader" xml:space="preserve">
+    <value>メール確認</value>
+  </data>
+  <data name="ConfirmEmail_LinkExpired" xml:space="preserve">
+    <value>メール確認リンクの有効期限が切れています。</value>
+  </data>
+  <data name="ConfirmEmail_here" xml:space="preserve">
+    <value>こちら</value>
+  </data>
+  <data name="ConfirmEmail_MistakeText" xml:space="preserve">
+    <value>このエラーが誤りだと思われる場合は、単にクリックしてください</value>
+  </data>
+  <data name="ConfirmEmail_NoActionTaken" xml:space="preserve">
+    <value>操作は行われませんでした。</value>
+  </data>
+  <data name="ConfirmEmail_LoginResendText" xml:space="preserve">
+    <value>ログインしてリンクを再送信してください。</value>
+  </data>
+  <data name="ConfirmEmail_ClickToVerify" xml:space="preserve">
+    <value>少々お待ちください。下記のリンクをクリックしてメールアドレスを確認してください。</value>
+  </data>
+  <data name="ConfirmEmail_GoBackToSignIn" xml:space="preserve">
+    <value>サインインまたは戻るには。</value>
+  </data>
+  <data name="ConfirmEmail_Verify" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="ConfirmEmail_VerifyingEmail" xml:space="preserve">
+    <value>メールを確認しています。</value>
+  </data>
+  <data name="ConfirmEmail_Closewindow" xml:space="preserve">
+    <value>このウィンドウを閉じても構いません。</value>
+  </data>
+  <data name="ConfirmEmail_Confrimation" xml:space="preserve">
+    <value>メールが正常に確認されました。</value>
+  </data>
+  <data name="ConfirmEmail_AlreadyVerified" xml:space="preserve">
+    <value>メールはすでに確認済みです。ありがとうございます。</value>
+  </data>
+  <data name="ConfirmEmailChange_Click" xml:space="preserve">
+    <value>クリック</value>
+  </data>
+  <data name="ConfirmEmailChange_PageTitle" xml:space="preserve">
+    <value>メール変更の確認</value>
+  </data>
+  <data name="ConfirmEmailChange_PageHeader" xml:space="preserve">
+    <value>メール変更の確認</value>
+  </data>
+  <data name="ConfirmEmailChange_LinkExpired" xml:space="preserve">
+    <value>メール認証リンクの有効期限が切れています。</value>
+  </data>
+  <data name="ConfirmEmailChange_here" xml:space="preserve">
+    <value>こちら</value>
+  </data>
+  <data name="ConfirmEmailChange_MistakeText" xml:space="preserve">
+    <value>このエラーが誤りだと思われる場合は、クリックしてください。</value>
+  </data>
+  <data name="ConfirmEmailChange_NoAction" xml:space="preserve">
+    <value>操作は行われませんでした。</value>
+  </data>
+  <data name="ConfirmEmailChange_LoginResendText" xml:space="preserve">
+    <value>ログインしてリンクを再送信してください。</value>
+  </data>
+  <data name="ConfirmEmailChange_VerificationText" xml:space="preserve">
+    <value>少々お待ちください。下記のリンクをクリックしてメールアドレスを確認してください。</value>
+  </data>
+  <data name="ConfirmEmailChange_SignInGoBack" xml:space="preserve">
+    <value>サインインまたは戻るにはこちら。</value>
+  </data>
+  <data name="ConfirmEmailChange_Verify" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="ConfirmEmailChange_VerifyingEmail" xml:space="preserve">
+    <value>メールアドレスを確認しています。</value>
+  </data>
+  <data name="ConfirmEmailChange_CloseWindowMessage" xml:space="preserve">
+    <value>このウィンドウを閉じても構いません。</value>
+  </data>
+  <data name="ConfirmEmailChange_ConfirmationEmailChanged" xml:space="preserve">
+    <value>メールアドレスが正常に変更されました。</value>
+  </data>
+  <data name="ConfirmEmailChange_ConfirmationVerified" xml:space="preserve">
+    <value>メールアドレスはすでに認証されています。ありがとうございます。</value>
+  </data>
+  <data name="Consent_Accept" xml:space="preserve">
+    <value>承諾</value>
+  </data>
+  <data name="Consent_app" xml:space="preserve">
+    <value>アプリ</value>
+  </data>
+  <data name="Consent_ApplicationAccess" xml:space="preserve">
+    <value>アプリケーションアクセス</value>
+  </data>
+  <data name="Consent_Cancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="Consent_code" xml:space="preserve">
+    <value>コード</value>
+  </data>
+  <data name="Consent_PageTitle" xml:space="preserve">
+    <value>同意</value>
+  </data>
+  <data name="Consent_PageHeader" xml:space="preserve">
+    <value>同意</value>
+  </data>
+  <data name="Consent_PersonalInformation" xml:space="preserve">
+    <value>個人情報</value>
+  </data>
+  <data name="Consent_RememberMyDecision" xml:space="preserve">
+    <value>決定を記憶する</value>
+  </data>
+  <data name="Consent_SecurityCode" xml:space="preserve">
+    <value>セキュリティコード</value>
+  </data>
+  <data name="Consent_send" xml:space="preserve">
+    <value>送信</value>
+  </data>
+  <data name="Consent_This" xml:space="preserve">
+    <value>この</value>
+  </data>
+  <data name="Consent_ThisAppWouldLikeTo" xml:space="preserve">
+    <value>このアプリは次のことを希望します</value>
+  </data>
+  <data name="Consent_ToYourPhone" xml:space="preserve">
+    <value>あなたの携帯電話へ</value>
+  </data>
+  <data name="Consent_UncheckPermissions" xml:space="preserve">
+    <value>許可したくない権限のチェックを外してください。</value>
+  </data>
+  <data name="Consent_WouldLikeTo" xml:space="preserve">
+    <value>希望します</value>
+  </data>
+  <data name="Email_Preheader_Verify" xml:space="preserve">
+    <value>メールを確認してください。ここをクリック</value>
+  </data>
+  <data name="Email_Preheader_Here" xml:space="preserve">
+    <value>こちら</value>
+  </data>
+  <data name="Email_Preheader_ToGetVerified" xml:space="preserve">
+    <value>確認するために</value>
+  </data>
+  <data name="Email_Body_Hi" xml:space="preserve">
+    <value>こんにちは</value>
+  </data>
+  <data name="Email_Body_Thanks" xml:space="preserve">
+    <value>ありがとうございます</value>
+  </data>
+  <data name="Email_Body_Sincerely" xml:space="preserve">
+    <value>敬具</value>
+  </data>
+  <data name="Email_Body_Organization" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="Email_Reset_Password_FieldLabel" xml:space="preserve">
+    <value>パスワードをリセット</value>
+  </data>
+  <data name="Email_ResetPassword_RequestInfo" xml:space="preserve">
+    <value>パスワードをリセットするリクエストを受け取りました。ご自身でリクエストした場合は、次のリンクをクリックしてください:</value>
+  </data>
+  <data name="Email_ResetPassword_IgnoreNotice" xml:space="preserve">
+    <value>もしパスワードのリセットをリクエストしていない場合は、このメッセージを無視しても問題ありません。</value>
+  </data>
+  <data name="EmailRegister_Subject" xml:space="preserve">
+    <value>{0} へようこそ！開始するにはメールを確認してください。</value>
+  </data>
+  <data name="EmailRegister_Body_Welcome" xml:space="preserve">
+    <value>{0} へようこそ！ご参加いただき嬉しく思います。</value>
+  </data>
+  <data name="EmailRegister_Body_ConfirmEmail" xml:space="preserve">
+    <value>登録を完了するには、次をクリックしてメールアドレスを確認してください</value>
+  </data>
+  <data name="EmailRegister_Body_IgnoreNotice" xml:space="preserve">
+    <value>アカウントを作成していない場合は、このメールを無視して構いません。</value>
+  </data>
+  <data name="EmailRegister_Body_Thanks" xml:space="preserve">
+    <value>ご登録ありがとうございます！</value>
+  </data>
+  <data name="EmailRegister_Body_Hi" xml:space="preserve">
+    <value>こんにちは</value>
+  </data>
+  <data name="EmailSecurity_Preheader" xml:space="preserve">
+    <value>アカウントに関するセキュリティ通知です。</value>
+  </data>
+  <data name="EmailSecurity_Subject" xml:space="preserve">
+    <value>セキュリティ通知</value>
+  </data>
+  <data name="EmailSecurity_Body_Hi" xml:space="preserve">
+    <value>こんにちは</value>
+  </data>
+  <data name="EmailSecurity_Body_EventOccurred" xml:space="preserve">
+    <value>お客様のアカウントでセキュリティ関連のイベントが発生したことをお知らせします。</value>
+  </data>
+  <data name="EmailSecurity_Body_EventDetails" xml:space="preserve">
+    <value>イベントの詳細:</value>
+  </data>
+  <data name="EmailSecurity_Body_EventTime" xml:space="preserve">
+    <value>イベント時刻</value>
+  </data>
+  <data name="EmailSecurity_Body_Username" xml:space="preserve">
+    <value>ユーザー名</value>
+  </data>
+  <data name="EmailSecurity_Body_Email" xml:space="preserve">
+    <value>メールアドレス</value>
+  </data>
+  <data name="EmailSecurity_Body_Device" xml:space="preserve">
+    <value>デバイス</value>
+  </data>
+  <data name="EmailSecurity_Body_Client" xml:space="preserve">
+    <value>クライアント</value>
+  </data>
+  <data name="EmailSecurity_Body_Location" xml:space="preserve">
+    <value>場所</value>
+  </data>
+  <data name="EmailSecurity_Body_LocationNotice" xml:space="preserve">
+    <value>(正確な場所と一致しない場合があります)</value>
+  </data>
+  <data name="EmailSecurity_Body_ContactSupport" xml:space="preserve">
+    <value>この操作を実行していない場合は、直ちにサポートにご連絡ください。</value>
+  </data>
+  <data name="Error_PageTitle" xml:space="preserve">
+    <value>エラー</value>
+  </data>
+  <data name="Error_PageHeader" xml:space="preserve">
+    <value>エラー</value>
+  </data>
+  <data name="Error_Go_back_home" xml:space="preserve">
+    <value>ホームに戻る</value>
+  </data>
+  <data name="Footer_Discovery" xml:space="preserve">
+    <value>Discovery</value>
+  </data>
+  <data name="Footer_Privacy" xml:space="preserve">
+    <value>プライバシーポリシー</value>
+  </data>
+  <data name="Footer_Terms" xml:space="preserve">
+    <value>利用規約</value>
+  </data>
+  <data name="Footer_Contact_us" xml:space="preserve">
+    <value>お問い合わせ</value>
+  </data>
+  <data name="ForgotPassword_PageTitle" xml:space="preserve">
+    <value>パスワードをお忘れですか</value>
+  </data>
+  <data name="ForgotPassword_PageHeader" xml:space="preserve">
+    <value>パスワードをお忘れですか</value>
+  </data>
+  <data name="ForgotPassword_Resend" xml:space="preserve">
+    <value>再送信</value>
+  </data>
+  <data name="ForgotPassword_Send" xml:space="preserve">
+    <value>送信</value>
+  </data>
+  <data name="ForgotPassword_Username" xml:space="preserve">
+    <value>ユーザー名</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_PageTitle" xml:space="preserve">
+    <value>パスワードリセットの確認</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_PageHeader" xml:space="preserve">
+    <value>パスワードリセットの確認</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_Newpassword_FieldLabel" xml:space="preserve">
+    <value>新しいパスワード</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_PasswordChanged" xml:space="preserve">
+    <value>パスワードが変更されました</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_LoginLink" xml:space="preserve">
+    <value>新しいパスワードで&lt;a href="{0}"&gt;ログイン&lt;/a&gt;してください</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_FillNewPassword_FieldLabel" xml:space="preserve">
+    <value>新しいパスワードを入力してください</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_Send" xml:space="preserve">
+    <value>送信</value>
+  </data>
+  <data name="Grants_ListApplicationsGrants" xml:space="preserve">
+    <value>以下は、アクセスを許可したアプリケーションと、そのアプリケーションがアクセスできるリソースの一覧です。</value>
+  </data>
+  <data name="Grants_ClientLogo" xml:space="preserve">
+    <value>クライアントロゴ</value>
+  </data>
+  <data name="Grants_Created" xml:space="preserve">
+    <value>作成日：</value>
+  </data>
+  <data name="Grants_ExpiresOn" xml:space="preserve">
+    <value>有効期限</value>
+  </data>
+  <data name="Grants_PageTitle" xml:space="preserve">
+    <value>許可</value>
+  </data>
+  <data name="Grants_PageHeader" xml:space="preserve">
+    <value>許可</value>
+  </data>
+  <data name="Grants_RevokeAccess" xml:space="preserve">
+    <value>アクセスを取り消す</value>
+  </data>
+  <data name="Grants_NoAccessGiven" xml:space="preserve">
+    <value>どのアプリケーションにもアクセスを許可していません。</value>
+  </data>
+  <data name="Home_WelcomeMessage" xml:space="preserve">
+    <value>&lt;strong&gt;ようこそ&lt;/strong&gt;&lt;br&gt; {0}のデジタルサービスポータルへ</value>
+  </data>
+  <data name="Home_authorizedapplications" xml:space="preserve">
+    <value>認可されたアプリケーション</value>
+  </data>
+  <data name="Home_CheckAndRevoke" xml:space="preserve">
+    <value>確認および取り消し</value>
+  </data>
+  <data name="Home_DigitalServices" xml:space="preserve">
+    <value>デジタルサービス</value>
+  </data>
+  <data name="Home_here" xml:space="preserve">
+    <value>こちら</value>
+  </data>
+  <data name="Home_ManageGrants" xml:space="preserve">
+    <value>許可の管理</value>
+  </data>
+  <data name="Home_PleaseLogin" xml:space="preserve">
+    <value>アプリケーションにログインしてください</value>
+  </data>
+  <data name="Home_Portal" xml:space="preserve">
+    <value>ポータル</value>
+  </data>
+  <data name="Home_IntroTextWithOrgName" xml:space="preserve">
+    <value>Identityポータルは1つのアカウントで{0}のすべてのサービスにアクセスできます。ユーザープロファイルやアカウント設定を管理する場所です。下記のリンクから始めてください。</value>
+  </data>
+  <data name="Home_Welcome" xml:space="preserve">
+    <value>ようこそ</value>
+  </data>
+  <data name="Home_WelcomeBack" xml:space="preserve">
+    <value>お帰りなさい</value>
+  </data>
+  <data name="Home_WelcomeDigitalServices" xml:space="preserve">
+    <value>{0}のデジタルサービス&lt;strong&gt;ポータル&lt;/strong&gt;へようこそ</value>
+  </data>
+  <data name="LoggedOut_Click" xml:space="preserve">
+    <value>クリック</value>
+  </data>
+  <data name="LoggedOut_here" xml:space="preserve">
+    <value>こちら</value>
+  </data>
+  <data name="LoggedOut_PageTitle" xml:space="preserve">
+    <value>ログアウト</value>
+  </data>
+  <data name="LoggedOut_PageHeader" xml:space="preserve">
+    <value>ログアウト</value>
+  </data>
+  <data name="LoggedOut_ReturnToApplication" xml:space="preserve">
+    <value>アプリケーションに戻るには</value>
+  </data>
+  <data name="LoggedOut_YouAreLoggedOut" xml:space="preserve">
+    <value>ログアウトしました</value>
+  </data>
+  <data name="Login_NoAccount" xml:space="preserve">
+    <value>アカウントをお持ちでないですか？</value>
+  </data>
+  <data name="Login_ForgotPassword_FieldLabel" xml:space="preserve">
+    <value>パスワードをお忘れですか？</value>
+  </data>
+  <data name="Login_InvalidLoginRequest" xml:space="preserve">
+    <value>無効なログインリクエスト</value>
+  </data>
+  <data name="Login_JoinUs" xml:space="preserve">
+    <value>参加する</value>
+  </data>
+  <data name="Login_PageTitle" xml:space="preserve">
+    <value>ログイン</value>
+  </data>
+  <data name="Login_PageHeader" xml:space="preserve">
+    <value>ログイン</value>
+  </data>
+  <data name="Login_OR" xml:space="preserve">
+    <value>または</value>
+  </data>
+  <data name="Login_Password_FieldLabel" xml:space="preserve">
+    <value>パスワード</value>
+  </data>
+  <data name="Login_RememberMe" xml:space="preserve">
+    <value>ログイン状態を保持する</value>
+  </data>
+  <data name="Login_SignIn" xml:space="preserve">
+    <value>サインイン</value>
+  </data>
+  <data name="Login_NoLoginSchemes" xml:space="preserve">
+    <value>このクライアントにはログイン方式が設定されていません。</value>
+  </data>
+  <data name="Login_Username" xml:space="preserve">
+    <value>ユーザー名</value>
+  </data>
+  <data name="Logout_PageTitle" xml:space="preserve">
+    <value>ログアウト</value>
+  </data>
+  <data name="Logout_PageHeader" xml:space="preserve">
+    <value>ログアウト</value>
+  </data>
+  <data name="Logout_WantToLogout" xml:space="preserve">
+    <value>ログアウトしますか？</value>
+  </data>
+  <data name="Logout_Yes" xml:space="preserve">
+    <value>はい</value>
+  </data>
+  <data name="Mfa_UnexpectedErrorSendingOTPCode" xml:space="preserve">
+    <value>OTPコードの送信中に予期しないエラーが発生しました。</value>
+  </data>
+  <data name="Mfa_Authenticate" xml:space="preserve">
+    <value>認証</value>
+  </data>
+  <data name="Mfa_AuthenticateUsing" xml:space="preserve">
+    <value>次の方法で認証してください：</value>
+  </data>
+  <data name="Mfa_Back" xml:space="preserve">
+    <value>戻る</value>
+  </data>
+  <data name="Mfa_YouNeedToApproveRequest" xml:space="preserve">
+    <value>2段階認証を有効にしているため、モバイルアプリでリクエストを承認する必要があります。</value>
+  </data>
+  <data name="Mfa_CannotUseAppNow" xml:space="preserve">
+    <value>今はアプリを使用できません</value>
+  </data>
+  <data name="Mfa_DidnotReceiveNotification" xml:space="preserve">
+    <value>通知が届かない/再送信</value>
+  </data>
+  <data name="Mfa_ISignInFrequently" xml:space="preserve">
+    <value>ここでは頻繁にサインインします。このブラウザを記憶してください。</value>
+  </data>
+  <data name="Mfa_Login" xml:space="preserve">
+    <value>ログイン</value>
+  </data>
+  <data name="Mfa_OtherAuthenticationMethods" xml:space="preserve">
+    <value>他の認証方法...</value>
+  </data>
+  <data name="Mfa_OTPCode" xml:space="preserve">
+    <value>OTPコード</value>
+  </data>
+  <data name="Mfa_RequestDenied" xml:space="preserve">
+    <value>リクエストが拒否されました</value>
+  </data>
+  <data name="Mfa_Resend" xml:space="preserve">
+    <value>再送信</value>
+  </data>
+  <data name="Mfa_SendAnotherRequestToApp" xml:space="preserve">
+    <value>アプリに再度リクエストを送信</value>
+  </data>
+  <data name="Mfa_IdentityVerificationWasDenied" xml:space="preserve">
+    <value>モバイルデバイスに本人確認リクエストを送信しましたが、拒否されました。</value>
+  </data>
+  <data name="Mfa_WeTextedYourPhone" xml:space="preserve">
+    <value>電話番号{0}にコードを送信しました。サインインするにはそのコードを入力してください。</value>
+  </data>
+  <data name="MfaModel_OTPLogin" xml:space="preserve">
+    <value>OTPログイン</value>
+  </data>
+  <data name="MfaModel_TheOTPIsInvalid" xml:space="preserve">
+    <value>OTPコードが無効です。</value>
+  </data>
+  <data name="MfaModel_OTPCodeMessage" xml:space="preserve">
+    <value>ログイン用のOTPコード: {0}</value>
+  </data>
+  <data name="MfaOnBoarding_PageTitle" xml:space="preserve">
+    <value>MFAを有効にする</value>
+  </data>
+  <data name="MfaOnBoarding_PageHeader" xml:space="preserve">
+    <value>MFAを有効にする</value>
+  </data>
+  <data name="MfaOnBoarding_KeepYourAccountSafe" xml:space="preserve">
+    <value>アカウントを安全に保つ</value>
+  </data>
+  <data name="MfaOnBoarding_Next" xml:space="preserve">
+    <value>次へ</value>
+  </data>
+  <data name="MfaOnBoarding_SetupAdditionalAuthenticationMethod" xml:space="preserve">
+    <value>追加の認証方法を設定してください。</value>
+  </data>
+  <data name="MfaOnBoardingAddPhone_PageTitle" xml:space="preserve">
+    <value>MFAオンボーディング - SMS</value>
+  </data>
+  <data name="MfaOnBoardingAddPhone_PageHeader" xml:space="preserve">
+    <value>MFAオンボーディング - SMS</value>
+  </data>
+  <data name="MfaOnBoardingAddPhone_Next" xml:space="preserve">
+    <value>次へ</value>
+  </data>
+  <data name="MfaOnBoardingAddPhone_PhoneNumber" xml:space="preserve">
+    <value>電話番号</value>
+  </data>
+  <data name="MfaOnBoardingAddPhone_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="MfaOnBoardingVerifyPhone_Code" xml:space="preserve">
+    <value>コード</value>
+  </data>
+  <data name="MfaOnBoardingVerifyPhone_Next" xml:space="preserve">
+    <value>次へ</value>
+  </data>
+  <data name="MfaOnBoardingVerifyPhone_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="MfaOnBoardingVerifyPhone_PageTitle" xml:space="preserve">
+    <value>電話番号を確認</value>
+  </data>
+  <data name="MfaOnBoardingVerifyPhone_PageHeader" xml:space="preserve">
+    <value>電話番号を確認</value>
+  </data>
+  <data name="PasswordExpired_PageTitle" xml:space="preserve">
+    <value>パスワードを変更</value>
+  </data>
+  <data name="PasswordExpired_PageHeader" xml:space="preserve">
+    <value>パスワードを変更</value>
+  </data>
+  <data name="PasswordExpired_Newpassword_FieldLabel" xml:space="preserve">
+    <value>新しいパスワード</value>
+  </data>
+  <data name="PasswordExpired_Next" xml:space="preserve">
+    <value>次へ</value>
+  </data>
+  <data name="PasswordExpired_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="PasswordExpired_ΝewPasswordConfirmation" xml:space="preserve">
+    <value>新しいパスワードの確認</value>
+  </data>
+  <data name="Profile_PreferredLanguage" xml:space="preserve">
+    <value>希望する言語</value>
+  </data>
+  <data name="Profile_ConfirmationEmailSentTo" xml:space="preserve">
+    <value>{0} に確認メールが送信されました。</value>
+  </data>
+  <data name="Profile_ManageProfile" xml:space="preserve">
+    <value>プロフィール管理</value>
+  </data>
+  <data name="Profile_Choose" xml:space="preserve">
+    <value>選択してください....</value>
+  </data>
+  <data name="Profile_Email" xml:space="preserve">
+    <value>Ιαπωνικά</value>
+  </data>
+  <data name="Profile_Timezone" xml:space="preserve">
+    <value>タイムゾーン</value>
+  </data>
+  <data name="Profile_EmailSentToNewEmail" xml:space="preserve">
+    <value>新しいメールアドレスの確認のためにメールが送信されました。</value>
+  </data>
+  <data name="Profile_BirthDate" xml:space="preserve">
+    <value>生年月日</value>
+  </data>
+  <data name="Profile_CallingCode" xml:space="preserve">
+    <value>国番号</value>
+  </data>
+  <data name="Profile_Confirmation" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="Profile_EmailDeliveryFailed" xml:space="preserve">
+    <value>確認メールの配信に失敗しました。システム管理者に連絡してください。</value>
+  </data>
+  <data name="Profile_ConnectNewProvider" xml:space="preserve">
+    <value>新しいプロバイダーを接続</value>
+  </data>
+  <data name="Profile_DeveloperTOTP" xml:space="preserve">
+    <value>開発者TOTP</value>
+  </data>
+  <data name="Profile_ExistingProviders" xml:space="preserve">
+    <value>既存のプロバイダー</value>
+  </data>
+  <data name="Profile_ExternalProviders" xml:space="preserve">
+    <value>外部プロバイダー</value>
+  </data>
+  <data name="Profile_FirstName" xml:space="preserve">
+    <value>名</value>
+  </data>
+  <data name="Profile_here" xml:space="preserve">
+    <value>こちら</value>
+  </data>
+  <data name="Profile_InformAboutProcessing" xml:space="preserve">
+    <value>個人データの処理について説明を受け、同意します。</value>
+  </data>
+  <data name="Profile_Language" xml:space="preserve">
+    <value>言語</value>
+  </data>
+  <data name="Profile_Lastname" xml:space="preserve">
+    <value>姓</value>
+  </data>
+  <data name="Profile_PhoneNumber" xml:space="preserve">
+    <value>電話番号</value>
+  </data>
+  <data name="Profile_Preferences" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="Profile_PageTitle" xml:space="preserve">
+    <value>プロフィール</value>
+  </data>
+  <data name="Profile_PageHeader" xml:space="preserve">
+    <value>プロフィール</value>
+  </data>
+  <data name="Profile_Remove" xml:space="preserve">
+    <value>削除</value>
+  </data>
+  <data name="Profile_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Profile_TaxIdentification" xml:space="preserve">
+    <value>税番号</value>
+  </data>
+  <data name="Profile_Unknown" xml:space="preserve">
+    <value>不明</value>
+  </data>
+  <data name="Profile_Username" xml:space="preserve">
+    <value>ユーザー名</value>
+  </data>
+  <data name="Profile_VerificationPending" xml:space="preserve">
+    <value>新しいメールアドレスの確認がまだ完了していません。</value>
+  </data>
+  <data name="Profile_ProfileUpdatedSuccessfully" xml:space="preserve">
+    <value>プロフィールが正常に更新されました。</value>
+  </data>
+  <data name="Redirect_Returning" xml:space="preserve">
+    <value>アプリケーションに戻っています。</value>
+  </data>
+  <data name="Redirect_CloseTab" xml:space="preserve">
+    <value>完了したら、このタブを閉じることができます。</value>
+  </data>
+  <data name="Register_Associate_your" xml:space="preserve">
+    <value>あなたの</value>
+  </data>
+  <data name="Register_account" xml:space="preserve">
+    <value>アカウントを連携</value>
+  </data>
+  <data name="Register_Register" xml:space="preserve">
+    <value>登録</value>
+  </data>
+  <data name="Register_FillInInformation" xml:space="preserve">
+    <value>新しいユーザーとして登録するには、次の情報を入力する必要があります。</value>
+  </data>
+  <data name="Register_AlreadyHaveAccount" xml:space="preserve">
+    <value>すでにアカウントをお持ちですか？</value>
+  </data>
+  <data name="Register_CallingCode" xml:space="preserve">
+    <value>国番号</value>
+  </data>
+  <data name="Register_ChooseEmailAndPassword_FieldLabel" xml:space="preserve">
+    <value>ご希望のメールアドレスとパスワードを選択してください。パスワードは定期的または任意のタイミングで変更できます。</value>
+  </data>
+  <data name="Register_FirstName" xml:space="preserve">
+    <value>名</value>
+  </data>
+  <data name="Register_here" xml:space="preserve">
+    <value>こちら</value>
+  </data>
+  <data name="Register_LoginWith" xml:space="preserve">
+    <value>でログイン</value>
+  </data>
+  <data name="Register_ConsentToRegistrationAndProcessing" xml:space="preserve">
+    <value>上記の個人情報の登録および処理に同意します。</value>
+  </data>
+  <data name="Register_I_Have_Read_And_Accept_Terms" xml:space="preserve">
+    <value>&lt;a href="/terms" target="_blank"&gt;利用規約&lt;/a&gt;および&lt;a href="/privacy" target="_blank"&gt;プライバシーポリシー&lt;/a&gt;を読み、同意します。</value>
+  </data>
+  <data name="Register_JoinUs" xml:space="preserve">
+    <value>参加する</value>
+  </data>
+  <data name="Register_LastName" xml:space="preserve">
+    <value>姓</value>
+  </data>
+  <data name="Register_OR" xml:space="preserve">
+    <value>または</value>
+  </data>
+  <data name="Register_Password_FieldLabel" xml:space="preserve">
+    <value>パスワード</value>
+  </data>
+  <data name="Register_PhoneNumber" xml:space="preserve">
+    <value>電話番号</value>
+  </data>
+  <data name="Register_PageTitle" xml:space="preserve">
+    <value>登録</value>
+  </data>
+  <data name="Register_PageHeader" xml:space="preserve">
+    <value>登録</value>
+  </data>
+  <data name="Register_KeepCredentialsPrivateHint" xml:space="preserve">
+    <value>これらの認証情報は個人用です。必ず覚えておき、第三者に口頭・書面・メール等で絶対に教えないでください。</value>
+  </data>
+  <data name="Register_Timezone" xml:space="preserve">
+    <value>タイムゾーン</value>
+  </data>
+  <data name="Register_Username" xml:space="preserve">
+    <value>ユーザー名</value>
+  </data>
+  <data name="SetLanguage_Setting_ui_language" xml:space="preserve">
+    <value>UI 言語を設定中...</value>
+  </data>
+  <data name="VerifyPhone_Code" xml:space="preserve">
+    <value>コード</value>
+  </data>
+  <data name="VerifyPhone_Next" xml:space="preserve">
+    <value>次へ</value>
+  </data>
+  <data name="VerifyPhone_Resend" xml:space="preserve">
+    <value>再送信</value>
+  </data>
+  <data name="VerifyPhone_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="VerifyPhone_PageTitle" xml:space="preserve">
+    <value>電話番号を確認</value>
+  </data>
+  <data name="VerifyPhone_PageHeader" xml:space="preserve">
+    <value>電話番号を確認</value>
+  </data>
+  <data name="VerifyPhone_OTP_is_valid_till" xml:space="preserve">
+    <value>OTPの有効期限:</value>
+  </data>
+  <data name="Register_ChooseUsernameAndPassword_FieldLabel" xml:space="preserve">
+    <value>ご希望のユーザー名とパスワードを選択してください。パスワードは定期的または任意のタイミングで変更できます。</value>
+  </data>
+  <data name="Register_ConsentToContactUsage" xml:space="preserve">
+    <value>商業的な連絡、プロモーション資料、マーケティング情報の受信目的で、メールアドレスを含む連絡先情報の利用に同意します。いつでも同意を撤回できます。</value>
+  </data>
+  <data name="ForgotPassword_ResetInstructions" xml:space="preserve">
+    <value>パスワードをリセットするには、下にユーザー名またはメールアドレスを入力してください。リセット用リンクを含むメールを送信します。</value>
+  </data>
+  <data name="ForgotPassword_RequestSent" xml:space="preserve">
+    <value>リクエストが送信されました</value>
+  </data>
+  <data name="Error_Oops" xml:space="preserve">
+    <value>おっと！エラーが発生したようです。</value>
+  </data>
+  <data name="Error_RequestId" xml:space="preserve">
+    <value>リクエストID</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="ProfileSidebar_ConfirmEmailSentTo" xml:space="preserve">
+    <value>{0} に確認メールが送信されました。</value>
+  </data>
+  <data name="ProfileSidebar_NewEmailConfirmationSent" xml:space="preserve">
+    <value>新しいメールアドレスの確認のためにメールが送信されました。</value>
+  </data>
+  <data name="ProfileSidebar_BirthDate" xml:space="preserve">
+    <value>生年月日</value>
+  </data>
+  <data name="ProfileSidebar_CallingCode" xml:space="preserve">
+    <value>国番号</value>
+  </data>
+  <data name="ProfileSidebar_Confirmation" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="ProfileSidebar_ConfirmationEmailFailed" xml:space="preserve">
+    <value>確認メールの配信に失敗しました。システム管理者に連絡してください。</value>
+  </data>
+  <data name="ProfileSidebar_ConnectNewProvider" xml:space="preserve">
+    <value>新しいプロバイダーを接続</value>
+  </data>
+  <data name="ProfileSidebar_DeveloperTOTP" xml:space="preserve">
+    <value>開発者TOTP</value>
+  </data>
+  <data name="ProfileSidebar_ExistingProviders" xml:space="preserve">
+    <value>既存のプロバイダー</value>
+  </data>
+  <data name="ProfileSidebar_ExternalProviders" xml:space="preserve">
+    <value>外部プロバイダー</value>
+  </data>
+  <data name="ProfileSidebar_FirstName" xml:space="preserve">
+    <value>名</value>
+  </data>
+  <data name="ProfileSidebar_Here" xml:space="preserve">
+    <value>こちら</value>
+  </data>
+  <data name="ProfileSidebar_DataProcessingConsent" xml:space="preserve">
+    <value>個人データの処理について説明を受け、同意します。</value>
+  </data>
+  <data name="ProfileSidebar_LastName" xml:space="preserve">
+    <value>姓</value>
+  </data>
+  <data name="ProfileSidebar_PhoneNumber" xml:space="preserve">
+    <value>電話番号</value>
+  </data>
+  <data name="ProfileSidebar_Profile" xml:space="preserve">
+    <value>プロフィール</value>
+  </data>
+  <data name="ProfileSidebar_Remove" xml:space="preserve">
+    <value>削除</value>
+  </data>
+  <data name="ProfileSidebar_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="ProfileSidebar_TaxIdentification" xml:space="preserve">
+    <value>税番号</value>
+  </data>
+  <data name="ProfileSidebar_Unknown" xml:space="preserve">
+    <value>不明</value>
+  </data>
+  <data name="ProfileSidebar_Username" xml:space="preserve">
+    <value>ユーザー名</value>
+  </data>
+  <data name="ProfileSidebar_NewEmailVerificationPending" xml:space="preserve">
+    <value>新しいメールアドレスの確認がまだ完了していません。</value>
+  </data>
+  <data name="ProfileSidebar_ProfileUpdatedSuccessfully" xml:space="preserve">
+    <value>プロフィールが正常に更新されました。</value>
+  </data>
+  <data name="Privacy_PageTitle" xml:space="preserve">
+    <value>プライバシーポリシー</value>
+  </data>
+  <data name="Privacy_PageHeader" xml:space="preserve">
+    <value>プライバシーポリシー</value>
+  </data>
+  <data name="SelectLanguage" xml:space="preserve">
+    <value>言語の選択</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="OrganizationName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="RequiredValue" xml:space="preserve">
+    <value>必須フィールド</value>
+  </data>
+  <data name="Terms_PageTitle" xml:space="preserve">
+    <value>利用規約</value>
+  </data>
+  <data name="Terms_PageHeader" xml:space="preserve">
+    <value>利用規約</value>
+  </data>
+  <data name="AcceptTerms_PageTitle" xml:space="preserve">
+    <value>利用規約の同意</value>
+  </data>
+  <data name="Associate_PageTitle" xml:space="preserve">
+    <value>アカウントを連携 </value>
+  </data>
+  <data name="Associate_PageHeader" xml:space="preserve">
+    <value>アカウントを連携 </value>
+  </data>
+  <data name="Mfa_PageTitle" xml:space="preserve">
+    <value>多要素認証</value>
+  </data>
+  <data name="Mfa_PageHeader" xml:space="preserve">
+    <value>多要素認証</value>
+  </data>
+</root>

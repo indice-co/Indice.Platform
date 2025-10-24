@@ -6,8 +6,9 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using IdentityModel;
-using IdentityModel.Client;
+using Duende.IdentityModel;
+using Duende.IdentityModel.Client;
+
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
@@ -42,7 +43,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Xunit;
 using Xunit.Abstractions;
-using TokenResponse = IdentityModel.Client.TokenResponse;
+using TokenResponse = Duende.IdentityModel.Client.TokenResponse;
 
 namespace Indice.Features.Identity.Tests;
 

@@ -2,32 +2,33 @@
 
 @model BaseAddEmailModel
 
-@inject IIdentityViewLocalizer Localizer
+@inject IdentityUILocalizer Localizer
+
 
 @{
-    var title = ViewData["Title"] = Localizer["Verify email"].Value;
+	ViewData["Title"] = Localizer.AddEmail_PageTitle;
     var tempData = TempData.Peek<ExtendedValidationTempDataModel>(BaseAddEmailModel.TempDataKey);
 }
 
 <div class="sign-in m-auto">
-    <vc:page-heading title="@title" image-src="" />
+    <vc:page-heading title="@Localizer.AddEmail_PageHeader" image-src="" />
     <partial name="_ValidationSummary" />
     <partial name="_Alert" model="tempData?.Alert" />
     <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post">
         <div class="mb-3">
-            <label asp-for="Input.Email" class="form-label visually-hidden">@Localizer["Email"]</label>
-            <input class="form-control" type="text" placeholder="@Localizer["Email"]" asp-for="Input.Email" disabled="@tempData?.DisableForm" />
+            <label asp-for="Input.Email" class="form-label visually-hidden">@Localizer.Email</label>
+            <input class="form-control" type="text" placeholder="@Localizer.Email" asp-for="Input.Email" disabled="@tempData?.DisableForm" />
             <span asp-validation-for="Input.Email" class="text-danger"></span>
         </div>
         <div class="mb-3">
             <div class="row m-0 w-100">
                 <div indice-if="Model.UiOptions.ShowAddEmailPrompt" class="@(tempData?.DisableForm == true ? "col-sm-6" : string.Empty) col-12 py-1">
-                    <button class="btn btn-info w-100" type="submit" disabled="@tempData?.DisableForm">@Localizer["Save"]</button>
+                    <button class="btn btn-info w-100" type="submit" disabled="@tempData?.DisableForm">@Localizer.AddEmail_Save</button>
                 </div>
                 @if (tempData?.DisableForm == true || !string.IsNullOrEmpty(tempData?.NextStepUrl))
                 {
                     <div class="col-sm-6 col-12 py-1">
-                        <a class="btn btn-info w-100" href="@tempData.NextStepUrl">@Localizer["Next"]</a>
+                        <a class="btn btn-info w-100" href="@tempData.NextStepUrl">@Localizer.AddEmail_Next</a>
                     </div>
                 }
             </div>

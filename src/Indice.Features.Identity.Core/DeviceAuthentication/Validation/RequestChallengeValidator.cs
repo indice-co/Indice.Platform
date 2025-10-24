@@ -1,7 +1,11 @@
 ﻿using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+#if NET9_0_OR_GREATER
+using Duende.IdentityModel;
+#else
 using IdentityModel;
+#endif
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Validation;

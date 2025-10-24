@@ -1,9 +1,9 @@
 ﻿@inject IWebHostEnvironment Environment
 @inject IOptions<GeneralSettings> GeneralSettingsWrapper
 @inject IOptions<IdentityUIOptions> IdentityUIOptionsWrapper
-@inject IIdentityViewLocalizer Localizer
 @inject ExtendedSignInManager<User> SignInManager
 @inject ExtendedUserManager<User> UserManager
+@inject IdentityUILocalizer Localizer
 
 @{
     var displayMenu = SignInManager.IsSignedIn(User) && !User.IsSignedInWithScheme(ExtendedIdentityConstants.ExtendedValidationScheme);
@@ -42,21 +42,21 @@
                         <li class="nav-item">
                             @if (user is not null && await UserManager.HasPasswordAsync(user))
                             {
-                                <a class="nav-link" asp-page="/ChangePassword">@Localizer["Change Password"]</a>
+								<a class="nav-link" asp-page="/ChangePassword">@Localizer.ChangePassword_PageTitle</a>
                             }
                             else
                             {
-                                <a class="nav-link" asp-page="/AddPassword">@Localizer["Add Password"]</a>
+                                <a class="nav-link" asp-page="/AddPassword">@Localizer.AddPassword_PageTitle</a>
                             }
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-page="/Profile">@Localizer["Profile"]</a>
+                            <a class="nav-link" asp-page="/Profile">@Localizer.Profile_PageTitle</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-page="/Grants">@Localizer["Grants"]</a>
+                            <a class="nav-link" asp-page="/Grants">@Localizer.Grants_PageTitle</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-page="/Logout">@Localizer["Log out"]</a>
+                            <a class="nav-link" asp-page="/Logout">@Localizer.LoggedOut_PageTitle</a>
                         </li>
                     </ul>
                 </div>
@@ -74,7 +74,7 @@
                             <div class="dropdown-menu dropdown-menu-end drop-card" aria-labelledby="navbarDropdownMenuLink">
                                 <div class="drop-card-body">
                                     <div class="current-account">
-                                        <div class="account-organization">@Localizer[generalSettings.Organization!]</div>
+                                        <div class="account-organization">@Localizer.OrganizationName(generalSettings.Organization!)</div>
                                         <div class="account-info">
                                             <div class="account-picture">
                                                 <img class="card-img rounded-circle" profile-pic="128" />
@@ -85,18 +85,18 @@
                                                 <div class="account-links">
                                                     @if (user is not null && await UserManager.HasPasswordAsync(user))
                                                     {
-                                                        <a class="account-link" asp-page="/ChangePassword">@Localizer["Change Password"]</a>
+														<a class="account-link" asp-page="/ChangePassword">@Localizer.ChangePassword_PageTitle</a>
                                                     }
                                                     else
                                                     {
-                                                        <a class="account-link" asp-page="/AddPassword">@Localizer["Add Password"]</a>
+                                                        <a class="account-link" asp-page="/AddPassword">@Localizer.AddPassword_PageTitle</a>
                                                     }
-                                                    <a class="account-link" asp-page="/Profile">@Localizer["Profile"]</a>
-                                                    <a class="account-link" asp-page="/Grants">@Localizer["Grants"]</a>
+                                                    <a class="account-link" asp-page="/Profile">@Localizer.Profile_PageTitle</a>
+                                                    <a class="account-link" asp-page="/Grants">@Localizer.Grants_PageTitle</a>
                                                 </div>
                                             </div>
                                         </div>
-                                        <a class="account-sign-out text-truncate" asp-page="/Logout" target="_top">@Localizer["Log out"]</a>
+                                        <a class="account-sign-out text-truncate" asp-page="/Logout" target="_top">@Localizer.LoggedOut_PageTitle</a>
                                     </div>
                                     <div class="account-list-container">
                                         <ul class="account-list">
@@ -115,7 +115,7 @@
                                                             </svg>
                                                         </div>
                                                         <div class="account-item-info">
-                                                            <div class="text-truncate">@Localizer["Sign in with a different account"]</div>
+                                                            <div class="text-truncate">@Localizer.ChangePassword_SignWithDifferentAccount</div>
                                                         </div>
                                                     </a>
                                                 </div>

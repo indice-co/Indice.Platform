@@ -1,6 +1,10 @@
 ﻿using System.Security.Claims;
 using System.Text;
+#if NET9_0_OR_GREATER
+using Duende.IdentityModel;
+#else
 using IdentityModel;
+#endif
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;

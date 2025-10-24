@@ -2,7 +2,7 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Web;
-using IdentityModel.Client;
+using Duende.IdentityModel.Client;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Security;

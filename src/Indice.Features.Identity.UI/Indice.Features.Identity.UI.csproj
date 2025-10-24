@@ -29,6 +29,11 @@
     <ProjectReference Include="..\Indice.Features.Identity.Core\Indice.Features.Identity.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="IdentityLabels.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>IdentityLabels.resx</DependentUpon>
+    </Compile>
     <Compile Update="Telemetry\TelemetryJavascriptResources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -36,6 +41,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Update="IdentityLabels.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>IdentityLabels.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Update="Telemetry\TelemetryJavascriptResources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>TelemetryJavascriptResources.Designer.cs</LastGenOutput>
