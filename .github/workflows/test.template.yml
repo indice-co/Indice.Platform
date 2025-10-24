@@ -9,6 +9,8 @@ on:
 jobs:
   run-dotnet-tests:
     runs-on: windows-latest
+    permissions:
+      checks: write
     steps:
 
     - name: Harden Runner
