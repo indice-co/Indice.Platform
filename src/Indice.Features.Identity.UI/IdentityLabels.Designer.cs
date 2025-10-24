@@ -153,9 +153,9 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to New password.
         /// </summary>
-        public static string AddPassword_Newpassword {
+        public static string AddPassword_Newpassword_FieldLabel {
             get {
-                return ResourceManager.GetString("AddPassword_Newpassword", resourceCulture);
+                return ResourceManager.GetString("AddPassword_Newpassword_FieldLabel", resourceCulture);
             }
         }
         
@@ -315,18 +315,18 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to New password.
         /// </summary>
-        public static string ChangePassword_NewPassword {
+        public static string ChangePassword_Newpassword_FieldLabel {
             get {
-                return ResourceManager.GetString("ChangePassword_NewPassword", resourceCulture);
+                return ResourceManager.GetString("ChangePassword_Newpassword_FieldLabel", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Old password.
         /// </summary>
-        public static string ChangePassword_OldPassword {
+        public static string ChangePassword_OldPassword_FieldLabel {
             get {
-                return ResourceManager.GetString("ChangePassword_OldPassword", resourceCulture);
+                return ResourceManager.GetString("ChangePassword_OldPassword_FieldLabel", resourceCulture);
             }
         }
         
@@ -882,9 +882,9 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to Reset password.
         /// </summary>
-        public static string Email_Reset_Password {
+        public static string Email_Reset_Password_FieldLabel {
             get {
-                return ResourceManager.GetString("Email_Reset_Password", resourceCulture);
+                return ResourceManager.GetString("Email_Reset_Password_FieldLabel", resourceCulture);
             }
         }
         
@@ -1224,9 +1224,9 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to Please fill in your new password.
         /// </summary>
-        public static string ForgotPasswordConfirmation_FillNewPassword {
+        public static string ForgotPasswordConfirmation_FillNewPassword_FieldLabel {
             get {
-                return ResourceManager.GetString("ForgotPasswordConfirmation_FillNewPassword", resourceCulture);
+                return ResourceManager.GetString("ForgotPasswordConfirmation_FillNewPassword_FieldLabel", resourceCulture);
             }
         }
         
@@ -1242,9 +1242,9 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to New Password.
         /// </summary>
-        public static string ForgotPasswordConfirmation_NewPassword {
+        public static string ForgotPasswordConfirmation_Newpassword_FieldLabel {
             get {
-                return ResourceManager.GetString("ForgotPasswordConfirmation_NewPassword", resourceCulture);
+                return ResourceManager.GetString("ForgotPasswordConfirmation_Newpassword_FieldLabel", resourceCulture);
             }
         }
         
@@ -1521,9 +1521,9 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to Forgot password?.
         /// </summary>
-        public static string Login_ForgotPassword {
+        public static string Login_ForgotPassword_FieldLabel {
             get {
-                return ResourceManager.GetString("Login_ForgotPassword", resourceCulture);
+                return ResourceManager.GetString("Login_ForgotPassword_FieldLabel", resourceCulture);
             }
         }
         
@@ -1593,9 +1593,9 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to Password.
         /// </summary>
-        public static string Login_Password {
+        public static string Login_Password_FieldLabel {
             get {
-                return ResourceManager.GetString("Login_Password", resourceCulture);
+                return ResourceManager.GetString("Login_Password_FieldLabel", resourceCulture);
             }
         }
         
@@ -1998,9 +1998,9 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to New password.
         /// </summary>
-        public static string PasswordExpired_NewPassword {
+        public static string PasswordExpired_Newpassword_FieldLabel {
             get {
-                return ResourceManager.GetString("PasswordExpired_NewPassword", resourceCulture);
+                return ResourceManager.GetString("PasswordExpired_Newpassword_FieldLabel", resourceCulture);
             }
         }
         
@@ -2610,18 +2610,18 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to Choose an email and a password of your choice. You can periodically change your password or whenever you wish to..
         /// </summary>
-        public static string Register_ChooseEmailAndPassword {
+        public static string Register_ChooseEmailAndPassword_FieldLabel {
             get {
-                return ResourceManager.GetString("Register_ChooseEmailAndPassword", resourceCulture);
+                return ResourceManager.GetString("Register_ChooseEmailAndPassword_FieldLabel", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Choose a username and a password of your choice. You can periodically change your password or whenever you wish to..
         /// </summary>
-        public static string Register_ChooseUsernameAndPassword {
+        public static string Register_ChooseUsernameAndPassword_FieldLabel {
             get {
-                return ResourceManager.GetString("Register_ChooseUsernameAndPassword", resourceCulture);
+                return ResourceManager.GetString("Register_ChooseUsernameAndPassword_FieldLabel", resourceCulture);
             }
         }
         
@@ -2745,9 +2745,9 @@ namespace Indice.Features.Identity.UI {
         /// <summary>
         ///   Looks up a localized string similar to Password.
         /// </summary>
-        public static string Register_Password {
+        public static string Register_Password_FieldLabel {
             get {
-                return ResourceManager.GetString("Register_Password", resourceCulture);
+                return ResourceManager.GetString("Register_Password_FieldLabel", resourceCulture);
             }
         }
         

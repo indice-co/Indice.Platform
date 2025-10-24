@@ -5,7 +5,7 @@
 @inject IdentityUILocalizer Localizer
 
 @{
-    var title = ViewData["Title"] = Localizer.VerifyPhone_PageTitle;
+    ViewData["Title"] = Localizer.VerifyPhone_PageTitle;
     var tempData = TempData.Peek<ExtendedValidationTempDataModel>(BaseVerifyPhoneModel.TempDataKey);
     var alert = tempData?.Alert;
     var displayNext = !string.IsNullOrEmpty(tempData?.NextStepUrl) && tempData?.Alert?.AlertType == AlertType.Success;

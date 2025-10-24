@@ -9,7 +9,7 @@
 @model BaseProfileModel
 
 @{
-    var title = ViewData["Title"] = Localizer.Profile_PageTitle;
+    ViewData["Title"] = Localizer.Profile_PageTitle;
     var alert = TempData.Get<AlertModel>("Alert");
 }
 

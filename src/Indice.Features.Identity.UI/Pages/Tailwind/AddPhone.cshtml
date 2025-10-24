@@ -8,7 +8,7 @@
 @inject IdentityUILocalizer Localizer
 
 @{
-    var title = ViewData["Title"] = Localizer.AddPhone_PageTitle;
+    ViewData["Title"] = Localizer.AddPhone_PageTitle;
     var alert = TempData.Peek<AlertModel>(BaseAddPhoneModel.TempDataKey);
 }
 
