@@ -153,7 +153,7 @@
   <data name="AddPassword_PageHeader" xml:space="preserve">
     <value>パスワード追加</value>
   </data>
-  <data name="AddPassword_Newpassword" xml:space="preserve">
+  <data name="AddPassword_Newpassword_FieldLabel" xml:space="preserve">
     <value>新しいパスワード</value>
   </data>
   <data name="AddPassword_PasswordConfirmation" xml:space="preserve">
@@ -201,10 +201,10 @@
   <data name="ChangePassword_PageHeader" xml:space="preserve">
     <value>パスワード変更</value>
   </data>
-  <data name="ChangePassword_NewPassword" xml:space="preserve">
+  <data name="ChangePassword_Newpassword_FieldLabel" xml:space="preserve">
     <value>新しいパスワード</value>
   </data>
-  <data name="ChangePassword_OldPassword" xml:space="preserve">
+  <data name="ChangePassword_OldPassword_FieldLabel" xml:space="preserve">
     <value>以前のパスワード</value>
   </data>
   <data name="ChangePassword_PasswordSuccessfullyChanged" xml:space="preserve">
@@ -378,7 +378,7 @@
   <data name="Email_Body_Organization" xml:space="preserve">
     <value>{0}</value>
   </data>
-  <data name="Email_Reset_Password" xml:space="preserve">
+  <data name="Email_Reset_Password_FieldLabel" xml:space="preserve">
     <value>パスワードをリセット</value>
   </data>
   <data name="Email_ResetPassword_RequestInfo" xml:space="preserve">
@@ -486,7 +486,7 @@
   <data name="ForgotPasswordConfirmation_PageHeader" xml:space="preserve">
     <value>パスワードリセットの確認</value>
   </data>
-  <data name="ForgotPasswordConfirmation_NewPassword" xml:space="preserve">
+  <data name="ForgotPasswordConfirmation_Newpassword_FieldLabel" xml:space="preserve">
     <value>新しいパスワード</value>
   </data>
   <data name="ForgotPasswordConfirmation_PasswordChanged" xml:space="preserve">
@@ -495,7 +495,7 @@
   <data name="ForgotPasswordConfirmation_LoginLink" xml:space="preserve">
     <value>新しいパスワードで&lt;a href="{0}"&gt;ログイン&lt;/a&gt;してください</value>
   </data>
-  <data name="ForgotPasswordConfirmation_FillNewPassword" xml:space="preserve">
+  <data name="ForgotPasswordConfirmation_FillNewPassword_FieldLabel" xml:space="preserve">
     <value>新しいパスワードを入力してください</value>
   </data>
   <data name="ForgotPasswordConfirmation_Send" xml:space="preserve">
@@ -582,7 +582,7 @@
   <data name="Login_NoAccount" xml:space="preserve">
     <value>アカウントをお持ちでないですか？</value>
   </data>
-  <data name="Login_ForgotPassword" xml:space="preserve">
+  <data name="Login_ForgotPassword_FieldLabel" xml:space="preserve">
     <value>パスワードをお忘れですか？</value>
   </data>
   <data name="Login_InvalidLoginRequest" xml:space="preserve">
@@ -600,7 +600,7 @@
   <data name="Login_OR" xml:space="preserve">
     <value>または</value>
   </data>
-  <data name="Login_Password" xml:space="preserve">
+  <data name="Login_Password_FieldLabel" xml:space="preserve">
     <value>パスワード</value>
   </data>
   <data name="Login_RememberMe" xml:space="preserve">
@@ -735,7 +735,7 @@
   <data name="PasswordExpired_PageHeader" xml:space="preserve">
     <value>パスワードを変更</value>
   </data>
-  <data name="PasswordExpired_NewPassword" xml:space="preserve">
+  <data name="PasswordExpired_Newpassword_FieldLabel" xml:space="preserve">
     <value>新しいパスワード</value>
   </data>
   <data name="PasswordExpired_Next" xml:space="preserve">
@@ -864,7 +864,7 @@
   <data name="Register_CallingCode" xml:space="preserve">
     <value>国番号</value>
   </data>
-  <data name="Register_ChooseEmailAndPassword" xml:space="preserve">
+  <data name="Register_ChooseEmailAndPassword_FieldLabel" xml:space="preserve">
     <value>ご希望のメールアドレスとパスワードを選択してください。パスワードは定期的または任意のタイミングで変更できます。</value>
   </data>
   <data name="Register_FirstName" xml:space="preserve">
@@ -891,7 +891,7 @@
   <data name="Register_OR" xml:space="preserve">
     <value>または</value>
   </data>
-  <data name="Register_Password" xml:space="preserve">
+  <data name="Register_Password_FieldLabel" xml:space="preserve">
     <value>パスワード</value>
   </data>
   <data name="Register_PhoneNumber" xml:space="preserve">
@@ -936,7 +936,7 @@
   <data name="VerifyPhone_OTP_is_valid_till" xml:space="preserve">
     <value>OTPの有効期限:</value>
   </data>
-  <data name="Register_ChooseUsernameAndPassword" xml:space="preserve">
+  <data name="Register_ChooseUsernameAndPassword_FieldLabel" xml:space="preserve">
     <value>ご希望のユーザー名とパスワードを選択してください。パスワードは定期的または任意のタイミングで変更できます。</value>
   </data>
   <data name="Register_ConsentToContactUsage" xml:space="preserve">

@@ -6,7 +6,7 @@
 @inject IdentityUILocalizer Localizer
 
 @{
-    var title = ViewData["Title"] = @Localizer.MfaOnBoarding_PageTitle;
+    ViewData["Title"] = @Localizer.MfaOnBoarding_PageTitle;
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;
 }
