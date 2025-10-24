@@ -1,12 +1,15 @@
 name: Code analysis (JavaScript)
 
+permissions:
+  contents: read
+
 on:
   workflow_call:
 
 jobs:
   run-codeql-javascript:
-    env:
-      NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
+    permissions:
+      security-events: write
     runs-on: windows-latest
     steps:
 

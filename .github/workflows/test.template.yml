@@ -1,11 +1,16 @@
 name: Test process
 
+permissions:
+  contents: read
+
 on:
   workflow_call:
 
 jobs:
   run-dotnet-tests:
     runs-on: windows-latest
+    permissions:
+      checks: write
     steps:
 
     - name: Harden Runner

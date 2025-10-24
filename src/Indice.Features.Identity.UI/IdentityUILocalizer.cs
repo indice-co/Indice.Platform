@@ -55,7 +55,7 @@ public class IdentityUILocalizer
     public virtual HtmlString AddPassword_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPassword_PageTitle));
 
     /// <summary>Label for the New Password input field (alternate reference).</summary>
-    public virtual HtmlString AddPassword_NewPassword => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPassword_Newpassword));
+    public virtual HtmlString AddPassword_Newpassword_FieldLabel => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPassword_Newpassword_FieldLabel));
 
     /// <summary>Label for the Confirm Password input field.</summary>
     public virtual HtmlString AddPassword_ConfirmPassword => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.AddPassword_PasswordConfirmation));
@@ -102,9 +102,9 @@ public class IdentityUILocalizer
     
 
     /// <summary>Label for the New Password input field.</summary>
-    public virtual HtmlString ChangePassword_NewPassword => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePassword_NewPassword));
+    public virtual HtmlString ChangePassword_Newpassword_FieldLabel => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePassword_Newpassword_FieldLabel));
     /// <summary>Label for the Old Password input field.</summary>
-    public virtual HtmlString ChangePassword_OldPassword => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePassword_OldPassword));
+    public virtual HtmlString ChangePassword_OldPassword => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePassword_OldPassword_FieldLabel));
     /// <summary>Success message displayed when the password has been successfully changed.</summary>
     public virtual HtmlString ChangePassword_PasswordSuccessfullyChanged => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePassword_PasswordSuccessfullyChanged));
     /// <summary>Message displayed when the password change process is completed.</summary>
@@ -235,7 +235,7 @@ public class IdentityUILocalizer
     /// <summary>
     /// Label for the Reset password action.
     /// </summary>
-    public virtual HtmlString Email_Reset_Password => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Email_Reset_Password));
+    public virtual HtmlString Email_Reset_Password => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Email_Reset_Password_FieldLabel));
     /// <summary>
     /// Text informing the user about the password reset request.
     /// </summary>
@@ -365,14 +365,14 @@ public class IdentityUILocalizer
     /// <summary>Gets the title text for the Forgot Password Confirmation page.</summary>
     public virtual HtmlString ForgotPasswordConfirmation_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPasswordConfirmation_PageTitle));
     /// <summary>Gets the instruction text prompting the user to enter a new password.</summary>
-    public virtual HtmlString ForgotPasswordConfirmation_New_Password => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPasswordConfirmation_NewPassword));
+    public virtual HtmlString ForgotPasswordConfirmation_New_Password => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPasswordConfirmation_Newpassword_FieldLabel));
     /// <summary>Gets the message indicating that the password has been successfully changed.</summary>
     public virtual HtmlString ForgotPasswordConfirmation_Password_Changed => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPasswordConfirmation_PasswordChanged));
     /// <summary>Gets the instruction text asking the user to log in using their new password. Includes a link for login.</summary>
     /// <param name="callbackUrl">The URL to the login page.</param>
     public virtual HtmlString ForgotPasswordConfirmation_LoginLink(string callbackUrl) => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPasswordConfirmation_LoginLink, callbackUrl));
     /// <summary>Gets the label prompting the user to fill in their new password.</summary>
-    public virtual HtmlString ForgotPasswordConfirmation_Please_Fill_In_Your_New_Password => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPasswordConfirmation_FillNewPassword));
+    public virtual HtmlString ForgotPasswordConfirmation_Please_Fill_In_Your_New_Password => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPasswordConfirmation_FillNewPassword_FieldLabel));
     /// <summary>Gets the text for the "Send" button on the Forgot Password Confirmation page.</summary>
     public virtual HtmlString ForgotPasswordConfirmation_Send => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPasswordConfirmation_Send));
     #endregion
@@ -446,9 +446,9 @@ public class IdentityUILocalizer
     public virtual HtmlString Login_Dont_Have_An_Account => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Login_NoAccount));
 
     /// <summary>
-    ///   Gets the localized string for "Forgot Password" instruction on the Login page.
+    ///   Gets the localized string for "Forgot Password_FieldLabel" instruction on the Login page.
     /// </summary>
-    public virtual HtmlString Login_Forgot_Password => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Login_ForgotPassword));
+    public virtual HtmlString Login_Forgot_Password => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Login_ForgotPassword_FieldLabel));
 
     /// <summary>
     ///   Gets the localized string for "Invalid login request" instruction on the Login page.
@@ -471,9 +471,9 @@ public class IdentityUILocalizer
     public virtual HtmlString Login_OR => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Login_OR));
 
     /// <summary>
-    ///   Gets the localized string for "Password" label.
+    ///   Gets the localized string for "Password_FieldLabel" label.
     /// </summary>
-    public virtual HtmlString Login_Password => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Login_Password));
+    public virtual HtmlString Login_Password => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Login_Password_FieldLabel));
 
     /// <summary>
     ///   Gets the localized string for "Remember me" option.
@@ -708,14 +708,14 @@ public class IdentityUILocalizer
     #region PasswordExpired
 
     /// <summary>
-    ///   Gets the localized string for "Change password".
+    ///   Gets the localized string for "Change Password_FieldLabel".
     /// </summary>
     public virtual HtmlString PasswordExpired_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.PasswordExpired_PageTitle));
 
     /// <summary>
-    ///   Gets the localized string for "New password".
+    ///   Gets the localized string for "New Password_FieldLabel".
     /// </summary>
-    public virtual HtmlString PasswordExpired_New_Password => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.PasswordExpired_NewPassword));
+    public virtual HtmlString PasswordExpired_New_Password => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.PasswordExpired_Newpassword_FieldLabel));
 
     /// <summary>
     ///   Gets the localized string for "Next".
@@ -955,12 +955,12 @@ public class IdentityUILocalizer
     /// <summary>
     ///   Gets the localized string for "Choose a username and a password of your choice. You can periodically change your password or whenever you wish to.".
     /// </summary>
-    public virtual HtmlString Register_Choose_A_Username_And_A_Password => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_ChooseUsernameAndPassword));
+    public virtual HtmlString Register_Choose_A_Username_And_A_Password => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_ChooseUsernameAndPassword_FieldLabel));
 
     /// <summary>
     ///   Gets the localized string for "Choose an email and a password of your choice. You can periodically change your password or whenever you wish to.".
     /// </summary>
-    public virtual HtmlString Register_Choose_An_Email_And_A_Password => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_ChooseEmailAndPassword));
+    public virtual HtmlString Register_Choose_An_Email_And_A_Password => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_ChooseEmailAndPassword_FieldLabel));
 
     /// <summary>
     ///   Gets the localized string for "First name".
@@ -1003,9 +1003,9 @@ public class IdentityUILocalizer
     public virtual HtmlString Register_OR => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_OR));
 
     /// <summary>
-    ///   Gets the localized string for "Password".
+    ///   Gets the localized string for "Password_FieldLabel".
     /// </summary>
-    public virtual HtmlString Register_Password => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Password));
+    public virtual HtmlString Register_Password => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Password_FieldLabel));
 
     /// <summary>
     ///   Gets the localized string for "Phone number".
