@@ -6,6 +6,7 @@ using Indice.Features.Messages.Core.Models.Kpis;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
+using Microsoft.Azure.Amqp.Framing;
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Messages.Core.Services;
@@ -30,7 +31,8 @@ public class MessageEventService : IMessageEventService
             Type = x.Type,
             ContactId = x.ContactId,
             CreatedOn = x.CreatedOn,
-            MessageId = x.MessageId
+            MessageId = x.MessageId,
+            Receiver = x.Receiver
         });
         if (options.Filter is not null) {
             if (options.Filter.CampaignId.HasValue) {
@@ -49,6 +51,10 @@ public class MessageEventService : IMessageEventService
                 var channels = options.Filter.Channel.Select(x => x.ToString());
                 query = query.Where(x => channels.Contains(x.Channel));
             }
+            if (!string.IsNullOrWhiteSpace(options.Filter.Receiver)) {
+                query = query.Where(x => x.Receiver == options.Filter.Receiver);
+            }
+            
         }
         var term = options.Search?.Trim().ToLower();
         if (!string.IsNullOrWhiteSpace(term)) {

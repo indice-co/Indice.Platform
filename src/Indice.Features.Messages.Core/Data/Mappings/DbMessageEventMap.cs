@@ -1,7 +1,5 @@
-﻿using System.Threading.Channels;
-using Indice.Configuration;
+﻿using Indice.Configuration;
 using Indice.Features.Messages.Core.Data.Models;
-using Indice.Features.Messages.Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -27,6 +25,8 @@ public class DbMessageEventMap : IEntityTypeConfiguration<DbMessageEvent>
         // Configure properties.
         builder.Property(x => x.Type).HasMaxLength(TextSizePresets.S64);
         builder.Property(x => x.Channel).HasMaxLength(TextSizePresets.S64);
+        builder.Property(x => x.Receiver).HasMaxLength(TextSizePresets.M128);
+        
         // indexes
         builder.HasIndex(x => x.Type);
         builder.HasIndex(x => x.Channel);

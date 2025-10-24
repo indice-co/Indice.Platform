@@ -66,6 +66,7 @@ public class SendPushNotificationEvent
         ContactId = ContactId,
         MessageId = MessageId,
         Type = type,
-        Channel = MessageChannelKind.PushNotification.ToString()
+        Channel = MessageChannelKind.PushNotification.ToString(),
+        Receiver = RecipientId!,
     };
 }

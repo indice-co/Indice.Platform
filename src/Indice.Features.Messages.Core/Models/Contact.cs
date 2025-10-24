@@ -79,4 +79,10 @@ public class Contact
         }
         return availableChannels;
     }
+
+    public string GetReceiverByChannel(MessageChannelKind channel) => channel switch {
+        MessageChannelKind.Email => Email ?? "",
+        MessageChannelKind.SMS => PhoneNumber ?? "",
+        _ => RecipientId ?? ""
+    };
 }

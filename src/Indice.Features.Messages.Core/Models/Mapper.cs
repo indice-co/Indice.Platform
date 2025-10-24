@@ -166,7 +166,8 @@ internal static class Mapper
         CreatedOn = messageEvent.CreatedOn,
         MessageId = messageEvent.MessageId,
         Type = messageEvent.Type,
-        Channel = messageEvent.Channel
+        Channel = messageEvent.Channel,
+        Receiver = messageEvent.Receiver
     };
 
     public static DbContact ToDbContact(CreateContactRequest request) => new() {
@@ -228,7 +229,7 @@ internal static class Mapper
         contact.Salutation = request.Salutation;
         contact.UpdatedAt = DateTimeOffset.UtcNow;
         // do not overwrite resolved to true once it is set. Because this way a known use would become unknown again simply by uploading a csv list.
-        if (contact.Resolved != true) { 
+        if (contact.Resolved != true) {
             contact.Resolved = request.Resolved;
             contact.LastResolutionDate = request.Resolved ? DateTimeOffset.UtcNow : contact.LastResolutionDate;
         }

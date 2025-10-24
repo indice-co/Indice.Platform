@@ -58,6 +58,7 @@ public class SendSmsEvent
         ContactId = ContactId,
         MessageId = MessageId,
         Type = type,
-        Channel = MessageChannelKind.SMS.ToString()
+        Channel = MessageChannelKind.SMS.ToString(),
+        Receiver = RecipientPhoneNumber!
     };
 }

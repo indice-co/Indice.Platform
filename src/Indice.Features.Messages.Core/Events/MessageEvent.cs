@@ -17,6 +17,8 @@ public class MessageEvent
     public string Type { get; set; } = string.Empty;
     /// <summary>The communication channel.</summary>
     public string Channel { get; set; } = string.Empty;
+    /// <summary>The Receiver of the message.</summary>
+    public string Receiver { get; set; } = string.Empty;
     /// <summary>The date and time when the event occurred.</summary>   
     public DateTimeOffset CreatedOn { get; set; } = DateTimeOffset.UtcNow;
 }
