@@ -1,13 +1,13 @@
 name: Build process
 
-permissions:
-  contents: read
-
 on:
   workflow_call:
     secrets:
       NUGET_AUTH_TOKEN:
         required: true
+
+permissions:  
+  contents: read
 
 jobs:
   run-build:
