@@ -44,7 +44,7 @@ public class SmsServiceApifonIM : ISmsService
     public async Task<SendReceipt> SendAsync(string destination, string subject, string? body, SmsSender? sender = null) {
         HttpResponseMessage httpResponse;
         ApifonResponse response;
-        var recipients = (destination ?? string.Empty).Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+        var recipients = (destination ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries);
         if (recipients == null) {
             throw new ArgumentNullException(nameof(destination));
         }
@@ -73,8 +73,8 @@ public class SmsServiceApifonIM : ISmsService
         request.Headers.Add("X-ApifonWS-Date", payload.RequestDate.ToString("r"));
         request.Headers.Authorization = new AuthenticationHeaderValue("ApifonWS", $"{Options.Token}:{signature}");
         try {
-            Logger.LogInformation("The full request sent to Apifon: {RequestMessage}", JsonSerializer.Serialize(request, GetJsonSerializerOptions()));
-            Logger.LogInformation("The following payload was sent to Apifon: {RequestPayload}", payload.ToJson());
+            Logger.LogDebug("The full request sent to Apifon: {RequestMessage}", JsonSerializer.Serialize(request, GetJsonSerializerOptions()));
+            Logger.LogDebug("The following payload was sent to Apifon: {RequestPayload}", payload.ToJson());
             httpResponse = await HttpClient.SendAsync(request);
         } catch (Exception ex) {
             Logger.LogError(ex, "Viber/SMS Delivery took too long");
@@ -82,12 +82,12 @@ public class SmsServiceApifonIM : ISmsService
         }
         var responseString = await httpResponse.Content.ReadAsStringAsync();
         if (!httpResponse.IsSuccessStatusCode) {
-            Logger.LogInformation("Viber/SMS Delivery failed. {StatusCode} : {ResponseString}", httpResponse.StatusCode, responseString);
+            Logger.LogWarning("Viber/SMS Delivery failed. {StatusCode} : {ResponseString}", httpResponse.StatusCode, responseString);
             throw new SmsServiceException($"Viber/SMS Delivery failed. {httpResponse.StatusCode} : {responseString}");
         }
         response = JsonSerializer.Deserialize<ApifonResponse>(responseString, GetJsonSerializerOptions())!;
         if (response.HasError) {
-            Logger.LogInformation("Viber/SMS Delivery failed. {ResponseStatus}. ResponseId: {ResponseId}", response.Status?.Description, response.Id);
+            Logger.LogWarning("Viber/SMS Delivery failed. {ResponseStatus}. ResponseId: {ResponseId}", response.Status?.Description, response.Id);
             throw new SmsServiceException($"Viber/SMS Delivery failed. {response.Status?.Description} responseId {response.Id}");
         } else {
             Logger.LogInformation("Viber/SMS message successfully sent: {Result}", response.Results!.FirstOrDefault().Key);
@@ -105,7 +105,8 @@ public class SmsServiceApifonIM : ISmsService
     /// <summary>Checks the implementation if supports the given <paramref name="deliveryChannel"/>.</summary>
     /// <param name="deliveryChannel">A string representing the delivery channel. i.e 'SMS'</param>
     /// <returns></returns>
-    public bool Supports(string deliveryChannel) => "Viber".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase);
+    public bool Supports(string deliveryChannel) => "Viber".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase) ||
+                                                    ("SMS".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase) && Options.ViberFallbackEnabled);
 
     /// <summary>Get default JSON serializer options: CamelCase, ignore null values.</summary>
     protected static JsonSerializerOptions GetJsonSerializerOptions() => new JsonSerializerOptions {

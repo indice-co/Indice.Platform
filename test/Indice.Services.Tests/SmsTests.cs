@@ -100,6 +100,37 @@ public class SmsTests
         Assert.Null(error);
     }
 
+    [Fact]
+    public async Task ApifonIM_Should_Support_SMS_Only_When_ViberFallback_IsEnabled_Test() {
+        var inMemorySettings = new Dictionary<string, string?> {
+            ["Sms:ApiKey"] = "test",
+            ["Sms:Token"] = "test",
+            ["Sms:Sender"] = "INDICE",
+            ["Sms:SenderName"] = "INDICE",
+            ["Sms:TestMode"] = true.ToString(),
+            ["Sms:EnableUrlShortener"] = true.ToString(),
+            ["Sms:ViberFallbackEnabled"] = true.ToString()
+        };
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(inMemorySettings)
+            .Build();
+        var collection = new ServiceCollection()
+            .AddSingleton(configuration)
+            .AddOptions()
+            .Configure<SmsServiceApifonSettings>(configuration.GetSection(SmsServiceApifonSettings.Name))
+            .AddSmsServiceApifonIM(configuration);
+
+        var serviceProvider = collection.BuildServiceProvider();
+        
+        var serviceFactory = serviceProvider.GetRequiredService<ISmsServiceFactory>();
+        var smsService = serviceFactory.Create("SMS");
+        var viberService = serviceFactory.Create("Viber");
+            
+        Assert.NotNull(smsService);
+        Assert.IsType<SmsServiceApifonIM>(smsService);
+        Assert.IsType<SmsServiceApifonIM>(viberService);
+    }
+
     [Theory(Skip = "Sensitive Data")]
     [InlineData("", "Hello from INDICE", "", "", "Indice")]
     public async Task TestVonageSms(string phoneNumber, string body, string apiKey, string signatureSecret, string sender) {
