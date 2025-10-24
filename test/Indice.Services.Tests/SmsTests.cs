@@ -101,7 +101,7 @@ public class SmsTests
     }
 
     [Fact]
-    public async Task ApifonIM_Should_Support_SMS_Only_When_ViberFallback_IsEnabled_Test() {
+    public void ApifonIM_Should_Support_SMS_Only_When_ViberFallback_IsEnabled_Test() {
         var inMemorySettings = new Dictionary<string, string?> {
             ["Sms:ApiKey"] = "test",
             ["Sms:Token"] = "test",
