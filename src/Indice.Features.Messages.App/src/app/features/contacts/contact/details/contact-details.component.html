@@ -18,7 +18,16 @@
                     (click)="resolve(contact?.recipientId)"
                     [disabled]="isRefreshing"
                     title="resolve">
-                <i class="ms-Icon ms-Icon--Sync"></i>  </button>
+              <i class="ms-Icon ms-Icon--Sync"></i>
+            </button>
+            <a title="duplicates" href="#"
+               *ngIf="contact?.recipientId"
+               [routerLinkActive]="['']"
+               [routerLinkActiveOptions]="{ exact: true }"
+               [routerLink]="['', { outlets: { rightpane: ['get-duplicates', contact?.id] } }]"
+               class="inline-flex items-center justify-center px-4 py-2 font-medium rounded-md sm:text-sm">
+              <i aria-hidden="true" class="meta-icon ms-Icon ms-Icon--ConnectContacts"></i>
+            </a>
           </h2>
         </div>
       </div>
