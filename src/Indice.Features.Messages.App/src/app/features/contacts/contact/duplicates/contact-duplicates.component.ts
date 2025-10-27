@@ -2,14 +2,15 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDest
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { ToasterService, ToastType } from '@indice/ng-components';
-import { Observable, Subscription } from 'rxjs';
+import { catchError, map, Observable, of, startWith, Subscription, tap } from 'rxjs';
 import { Contact, ContactResultSet, MessagesApiClient, UpdateContactRequest } from 'src/app/core/services/messages-api.service';
 import { settings } from '../../../../core/models/settings';
 
 
 @Component({
   selector: 'app-contact-duplicates',
-  templateUrl: './contact-duplicates.component.html'
+  templateUrl: './contact-duplicates.component.html',
+  styles: ['']
 })
 export class ContactDuplicatesComponent implements OnInit, AfterViewInit, OnDestroy {
   private _getContactSubscription!: Subscription;
@@ -23,17 +24,32 @@ export class ContactDuplicatesComponent implements OnInit, AfterViewInit, OnDest
     private _api: MessagesApiClient,
     private _router: Router,
     private _activatedRoute: ActivatedRoute,
+
     @Inject(ToasterService) private _toaster: ToasterService
   ) { }
 
   @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
   public submitInProgress = false;
-  public model = new UpdateContactRequest();
+  public model = new Contact();
   duplicates$!: Observable<ContactResultSet>;
+  duplicatesState$!: Observable<{
+    loading: boolean; contacts: ContactResultSet | null}>;
+  loader = true;
+
 
   public ngOnInit(): void {
     this._contactId = this._activatedRoute.snapshot.params['contactId'];
-    this.duplicates$ = this._api.getDuplicateContacts(this._contactId);
+    this._getContactSubscription = this
+      ._api
+      .getContactById(this._contactId)
+      .subscribe((contact: Contact) => this.model = contact);
+    this.duplicates$ = this._api.getDuplicateContacts(this._contactId).pipe(tap(() => { this.loader = false; this._changeDetector.markForCheck(); }));
+
+    this.duplicatesState$ = this._api.getDuplicateContacts(this._contactId).pipe(
+      map(contact => ({ loading: false, contacts: contact })),
+      startWith({ loading: true, contacts: null }), // ✅ valid now
+      catchError(() => of({ loading: false, contacts: null })) // ✅
+    );
     this.mergedContactsIds = new Set<string>();
   }
 
