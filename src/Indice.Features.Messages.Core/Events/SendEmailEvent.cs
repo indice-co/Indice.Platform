@@ -58,6 +58,6 @@ public class SendEmailEvent
         MessageId = MessageId,
         Type = type,
         Channel = MessageChannelKind.Email.ToString(),
-        Receiver = RecipientEmail!,
+        Recipient = RecipientEmail!,
     };
 }

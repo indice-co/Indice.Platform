@@ -22,5 +22,5 @@ public class MessageEventListFilter
     public MessageChannelKind[]? Channel { get; set; }
     /// <summary>The recipient \"to\" to filter events by filter events by..</summary>
     [Description("The recipient \"to\" to filter events by filter events by.")]
-    public string? Receiver { get; set; }
+    public string? Recipient { get; set; }
 }

@@ -15,9 +15,9 @@ public class DbMessageEvent
     public string Type { get; set; } = string.Empty;
     /// <summary>The communication channel.</summary>
     public string Channel { get; set; } = string.Empty;
-    /// <summary>The to depending on the channel channel.</summary>
+    /// <summary>The recipient depending on the channel.</summary>
     /// <remarks>Phone number for sms, email for email or recipient Id for other channels.</remarks>
-    public string Receiver { get; set; } = string.Empty;
+    public string Recipient { get; set; } = string.Empty;
     
     /// <summary>The date and time when the event occurred.</summary>   
     public DateTimeOffset CreatedOn { get; set; } = DateTimeOffset.UtcNow;

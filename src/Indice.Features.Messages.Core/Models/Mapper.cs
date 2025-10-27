@@ -167,7 +167,7 @@ internal static class Mapper
         MessageId = messageEvent.MessageId,
         Type = messageEvent.Type,
         Channel = messageEvent.Channel,
-        Receiver = messageEvent.Receiver
+        Recipient = messageEvent.Recipient
     };
 
     public static DbContact ToDbContact(CreateContactRequest request) => new() {

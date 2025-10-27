@@ -32,7 +32,7 @@ public class MessageEventService : IMessageEventService
             ContactId = x.ContactId,
             CreatedOn = x.CreatedOn,
             MessageId = x.MessageId,
-            Receiver = x.Receiver
+            Recipient = x.Recipient
         });
         if (options.Filter is not null) {
             if (options.Filter.CampaignId.HasValue) {
@@ -51,10 +51,9 @@ public class MessageEventService : IMessageEventService
                 var channels = options.Filter.Channel.Select(x => x.ToString());
                 query = query.Where(x => channels.Contains(x.Channel));
             }
-            if (!string.IsNullOrWhiteSpace(options.Filter.Receiver)) {
-                query = query.Where(x => x.Receiver == options.Filter.Receiver);
+            if (!string.IsNullOrWhiteSpace(options.Filter.Recipient)) {
+                query = query.Where(x => x.Recipient == options.Filter.Recipient);
             }
-            
         }
         var term = options.Search?.Trim().ToLower();
         if (!string.IsNullOrWhiteSpace(term)) {
