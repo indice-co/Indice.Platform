@@ -877,10 +877,10 @@
     <value>iniciar sesión con</value>
   </data>
   <data name="Register_ConsentToRegistrationAndProcessing" xml:space="preserve">
-    <value>He sido informado sobre el tratamiento de mis datos personales y doy mi consentimiento, tal como se define específicamente</value>
+    <value>He sido informado sobre el tratamiento de mis datos personales y doy mi consentimiento, tal como se define específicamente &lt;a href="{0}" target="{1}" class="{2}"&gt;aquí&lt;/a&gt;</value>
   </data>
   <data name="Register_I_Have_Read_And_Accept_Terms" xml:space="preserve">
-    <value>He leído y acepto los &lt;a href="/terms" target="_blank"&gt;términos de servicio&lt;/a&gt; y la &lt;a href="/privacy" target="_blank"&gt;política de privacidad&lt;/a&gt;.</value>
+    <value>He leído y acepto los &lt;a href="{0}" target="{1}" class="{2}&gt;términos de servicio&lt;/a&gt;.</value>
   </data>
   <data name="Register_JoinUs" xml:space="preserve">
     <value>Registrarse</value>

@@ -214,15 +214,14 @@
                 <div class="col-span-1 flex flex-row text-left mb-4">
                     <input asp-for="Input.HasAcceptedTerms" type="checkbox" />
                     <label class="checkbox">
-                        @Localizer.Register_I_Have_Read_And_Accept_Terms
+                        @Localizer.Register_I_Have_Read_And_Accept_Terms(Url.PageLink("/Terms")!, "_blank", "font-weight-700")
                     </label>
                 </div>
                 <span asp-validation-for="Input.HasAcceptedTerms" class="text-danger"></span>
                 <div class="col-span-1 flex flex-row text-left">
                     <input asp-for="Input.HasReadPrivacyPolicy" type="checkbox" />
                     <label class="checkbox">
-                        @Localizer.Register_I_Consent_To_Registration
-                        <a asp-page="/Privacy" target="_blank">@Localizer.Register_Here</a>.
+                        @Localizer.Register_I_Consent_To_Registration(Url.PageLink("/Privacy")!, "_blank", "font-weight-700")
                     </label>
                 </div>
                 <span asp-validation-for="Input.HasReadPrivacyPolicy" class="text-danger"></span>

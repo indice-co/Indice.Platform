@@ -99,7 +99,7 @@ public class IdentityUILocalizer
     public virtual HtmlString ChangePassword_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePassword_PageTitle));
     /// <summary>HEader of page ChangePassword field.</summary>
     public virtual HtmlString ChangePassword_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePassword_PageHeader));
-    
+
 
     /// <summary>Label for the New Password input field.</summary>
     public virtual HtmlString ChangePassword_Newpassword_FieldLabel => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ChangePassword_Newpassword_FieldLabel));
@@ -390,7 +390,7 @@ public class IdentityUILocalizer
     public virtual HtmlString Grants_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Grants_PageTitle));
     /// <summary>Gets the label text for the grants header.</summary>
     public virtual HtmlString Grants_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Grants_PageHeader));
-    
+
     /// <summary>Gets the text for the action to revoke access from an application or resource.</summary>
     public virtual HtmlString Grants_Revoke_Access => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Grants_RevokeAccess));
     /// <summary>Gets the message displayed when no applications have been granted access.</summary>
@@ -637,7 +637,7 @@ public class IdentityUILocalizer
     ///   Gets the localized string for "Enable MFA".
     /// </summary>
     public virtual HtmlString MfaOnboarding_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.MfaOnBoarding_PageHeader));
-    
+
     /// <summary>
     ///   Gets the localized string for "Keep your account safe".
     /// </summary>
@@ -825,7 +825,7 @@ public class IdentityUILocalizer
     /// <summary>
     ///   Gets the localized string for "I have been informed about the processing of my personal data and I consent to it, as specifically defined".
     /// </summary>
-    public virtual HtmlString Profile_I_Have_Been_Informed_About_The_Processing_Of_My_Personal_Data_And_I_Consent_To_It_As_Specifically_Defined => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_InformAboutProcessing));
+    public virtual HtmlString Profile_PrivacyPolicyConsent => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Profile_InformAboutProcessing));
 
     /// <summary>
     ///   Gets the localized string for "Language".
@@ -935,7 +935,7 @@ public class IdentityUILocalizer
     /// <summary>
     /// Text for "I have read and accept the Terms of service and privacy policy" on the Register page.
     /// </summary>
-    public virtual HtmlString Register_I_Have_Read_And_Accept_Terms => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_I_Have_Read_And_Accept_Terms));
+    public virtual HtmlString Register_I_Have_Read_And_Accept_Terms(string url, string target, string cssClass) => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_I_Have_Read_And_Accept_Terms, url, target, cssClass));
 
     /// <summary>
     /// Instruction shown at the top of the registration form explaining what the user needs to do.
@@ -980,7 +980,7 @@ public class IdentityUILocalizer
     /// <summary>
     ///   Gets the localized string for "I consent to the registration and processing of the above personal details for my contact and service as they are defined".
     /// </summary>
-    public virtual HtmlString Register_I_Consent_To_Registration => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_ConsentToRegistrationAndProcessing));
+    public virtual HtmlString Register_I_Consent_To_Registration(string url, string target, string cssClass) => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_ConsentToRegistrationAndProcessing, url, target, cssClass));
 
     /// <summary>
     ///   Gets the localized string for "I consent to the use of my contact information, including my email address, for the purpose of receiving commercial communications, promotional materials, and marketing updates from the organization. I understand that I may withdraw my consent at any time".
@@ -1130,7 +1130,7 @@ public class IdentityUILocalizer
 
     /// <summary>Header of the Privacy policy page.</summary>
     public virtual HtmlString Privacy_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Privacy_PageHeader));
-    
+
     /// <summary>Required label</summary>
     public virtual HtmlString Required => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.RequiredValue));
 
@@ -1140,7 +1140,7 @@ public class IdentityUILocalizer
 
     /// <summary>Header of the Terms of Service page.</summary>
     public virtual HtmlString Terms_PageHeader => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Terms_PageHeader));
-    
+
 
     /// <summary>Get Organization name.</summary>
     public virtual HtmlString OrganizationName(string organization) {
