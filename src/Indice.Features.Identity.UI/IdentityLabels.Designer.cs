@@ -2635,7 +2635,7 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to I consent to the registration and processing of the above personal details for my contact and service as they are defined &lt;a href=&quot;{0}&quot; target=&quot;{1}&quot; class=&quot;{2}&quot;&gt;here&lt;/a&gt;.
+        ///   Looks up a localized string similar to I consent to the registration and processing of the above personal details for my contact and service as they are defined &lt;a href=&quot;{0}&quot; target=&quot;_blank&quot; class=&quot;font-weight-700&quot;&gt;here&lt;/a&gt;.
         /// </summary>
         public static string Register_ConsentToRegistrationAndProcessing {
             get {
@@ -2671,7 +2671,7 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to I have read and accept the &lt;a href=&quot;{0}&quot; target=&quot;{1}&quot; class=&quot;{2}&gt;Terms of service&lt;/a&gt;..
+        ///   Looks up a localized string similar to I have read and accept the &lt;a href=&quot;{0}&quot; target=&quot;_blank&quot; class=&quot;font-weight-700&quot;&gt;Terms of service&lt;/a&gt;..
         /// </summary>
         public static string Register_I_Have_Read_And_Accept_Terms {
             get {

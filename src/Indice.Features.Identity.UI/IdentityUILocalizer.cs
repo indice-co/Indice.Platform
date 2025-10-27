@@ -598,7 +598,7 @@ public class IdentityUILocalizer
     /// <summary>
     ///   Gets the localized string for "We sent an identity verification request to your mobile device, but you denied it".
     /// </summary>
-    public virtual HtmlString Mfa_We_Sent_An_Identity_Verification_Request_To_Your_Mobile_Device_But_You_Denied_It => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_IdentityVerificationWasDenied));
+    public virtual HtmlString Mfa_IdentityVerificationWasDenied => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Mfa_IdentityVerificationWasDenied));
 
     /// <summary>
     ///   Gets the localized string for "We texted your phone {0}. Please enter the code to sign in" with a phone number parameter.
@@ -935,12 +935,12 @@ public class IdentityUILocalizer
     /// <summary>
     /// Text for "I have read and accept the Terms of service and privacy policy" on the Register page.
     /// </summary>
-    public virtual HtmlString Register_I_Have_Read_And_Accept_Terms(string url, string target, string cssClass) => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_I_Have_Read_And_Accept_Terms, url, target, cssClass));
+    public virtual HtmlString Register_I_Have_Read_And_Accept_Terms(string url = "/terms") => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_I_Have_Read_And_Accept_Terms, url));
 
     /// <summary>
     /// Instruction shown at the top of the registration form explaining what the user needs to do.
     /// </summary>
-    public virtual HtmlString Register_To_register_as_a_new_user_you_will_need_to_fill_in_the_following_information => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_FillInInformation));
+    public virtual HtmlString Register_FillInInformation => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_FillInInformation));
 
     /// <summary>
     ///   Gets the localized string for "Already have an account?".
@@ -980,7 +980,7 @@ public class IdentityUILocalizer
     /// <summary>
     ///   Gets the localized string for "I consent to the registration and processing of the above personal details for my contact and service as they are defined".
     /// </summary>
-    public virtual HtmlString Register_I_Consent_To_Registration(string url, string target, string cssClass) => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_ConsentToRegistrationAndProcessing, url, target, cssClass));
+    public virtual HtmlString Register_I_Consent_To_Registration(string url = "/privacy") => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_ConsentToRegistrationAndProcessing, url));
 
     /// <summary>
     ///   Gets the localized string for "I consent to the use of my contact information, including my email address, for the purpose of receiving commercial communications, promotional materials, and marketing updates from the organization. I understand that I may withdraw my consent at any time".

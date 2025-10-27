@@ -162,7 +162,7 @@
                 <div class="mb-3">
                     <label class="checkbox">
                         <input asp-for="Input.HasAcceptedTerms" type="checkbox" />
-                        @Localizer.Register_I_Have_Read_And_Accept_Terms(Url.PageLink("/Terms")!, "_blank", "font-weight-700")
+                        @Localizer.Register_I_Have_Read_And_Accept_Terms(Url.PageLink("/Terms")!)
                     </label>
                     <span asp-validation-for="Input.HasAcceptedTerms" class="text-danger"></span>
                 </div>
@@ -173,7 +173,7 @@
                 <div class="mb-3">
                     <label class="checkbox">
                         <input asp-for="Input.HasReadPrivacyPolicy" type="checkbox" />
-                        @Localizer.Register_I_Consent_To_Registration(Url.PageLink("/Privacy")!, "_blank", "font-weight-700")
+                        @Localizer.Register_I_Consent_To_Registration(Url.PageLink("/Privacy")!)
                     </label>
                     <span asp-validation-for="Input.HasReadPrivacyPolicy" class="text-danger"></span>
                 </div>
