@@ -37,7 +37,7 @@ export interface IMessagesApiClient {
      * @param timeFrame (optional) 
      * @return OK
      */
-    getEventsSeriesList(eventType?: string | undefined, channel?: MessageChannelKind | undefined, timeFrame?: TimeFrame | undefined): Observable<MessageSeriesResultSet>;
+    getEventsSeriesList(eventType?: string | undefined, channel?: MessageChannelKind | undefined, timeFrame?: SeriesTimeFrame | undefined): Observable<MessageSeriesResultSet>;
     /**
      * Gets the overview analytics.
      * @param asOfDate (optional) 
@@ -485,7 +485,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @param timeFrame (optional) 
      * @return OK
      */
-    getEventsSeriesList(eventType?: string | undefined, channel?: MessageChannelKind | undefined, timeFrame?: TimeFrame | undefined): Observable<MessageSeriesResultSet> {
+    getEventsSeriesList(eventType?: string | undefined, channel?: MessageChannelKind | undefined, timeFrame?: SeriesTimeFrame | undefined): Observable<MessageSeriesResultSet> {
         let url_ = this.baseUrl + "/analytics/events/series?";
         if (eventType === null)
             throw new globalThis.Error("The parameter 'eventType' cannot be null.");
@@ -8188,7 +8188,7 @@ export interface IVolumeOfMessageType {
     info?: MessageType;
 }
 
-export enum TimeFrame {
+export enum SeriesTimeFrame {
     Last24Hours = "Last24Hours",
     Last7Days = "Last7Days",
     Last30Days = "Last30Days",
