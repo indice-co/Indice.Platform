@@ -49,8 +49,8 @@ public class SendEmailEvent
     /// <summary>
     /// Converts the current <see cref="SendEmailEvent"/> to a <see cref="MessageEvent"/> with the specified type.
     /// </summary>
-    /// <param name="type">the type of the event</param>
-    /// <param name="succeeded">indicate the event status</param>
+    /// <param name="type">The type of the event.</param>
+    /// <param name="succeeded">Indicates whether the event succeeded.</param>
     /// <returns></returns>
     public MessageEvent ToMessageEvent(string type, bool succeeded) => new MessageEvent {
         CampaignId = CampaignId,
