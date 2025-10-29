@@ -51,13 +51,16 @@ public class SendEmailEvent
     /// Converts the current <see cref="SendEmailEvent"/> to a <see cref="MessageEvent"/> with the specified type.
     /// </summary>
     /// <param name="type">the type of the event</param>
+    /// <param name="succeded">indicate the event status</param>
     /// <returns></returns>
-    public MessageEvent ToMessageEvent(string type) => new MessageEvent {
+    public MessageEvent ToMessageEvent(string type, bool succeded) => new MessageEvent {
         CampaignId = CampaignId,
         ContactId = ContactId,
         MessageId = MessageId,
         Type = type,
         Channel = MessageChannelKind.Email.ToString(),
         Recipient = RecipientEmail!,
+        Title = Title ?? "",
+        Success = succeded
     };
 }

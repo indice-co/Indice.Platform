@@ -341,7 +341,9 @@ public class CampaignService : ICampaignService
                             Channel = x.Channel,
                             Type = x.Type,
                             CreatedOn = x.CreatedOn,
-                            Recipient = contact.RecipientId!
+                            Recipient = contact.RecipientId!,
+                            Title = x.Title,
+                            Success = true
                         })
                         .OrderByDescending(x => x.CreatedOn)
                         .ToListAsync());

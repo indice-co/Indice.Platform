@@ -12,7 +12,9 @@ Keep track of the actual recipient (email, phone number, etc) in the MessageEven
 
 ```sql
 ALTER TABLE [cmp].[MessageEvent]
-ADD Recipient NVARCHAR(128)
+ADD Recipient NVARCHAR(128),
+Title NVARCHAR(128),
+Success BIT
 GO
 --Data migration
 UPDATE [cmp].[MessageEvent]

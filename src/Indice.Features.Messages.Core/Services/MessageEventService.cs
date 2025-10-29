@@ -32,7 +32,9 @@ public class MessageEventService : IMessageEventService
             ContactId = x.ContactId,
             CreatedOn = x.CreatedOn,
             MessageId = x.MessageId,
-            Recipient = x.Recipient
+            Recipient = x.Recipient,
+            Title = x.Title,
+            Success = x.Success
         });
         if (options.Filter is not null) {
             if (options.Filter.CampaignId.HasValue) {

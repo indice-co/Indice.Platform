@@ -83,7 +83,11 @@ public class MessageService : IMessageService
                 MessageId = message.Id,
                 Type = MessageEventType.Deleted.ToString(),
                 Channel = MessageChannelKind.Inbox.ToString(),
-                Recipient = recipientId
+                Recipient = recipientId,
+                Title = message.Content.ContainsKey(MessageChannelKind.Inbox.ToString())
+                ? message.Content[MessageChannelKind.Inbox.ToString()].Title
+                : string.Empty,
+                Success = true
             });
         }
         await DbContext.SaveChangesAsync();
@@ -117,7 +121,9 @@ public class MessageService : IMessageService
                 MessageId = message.Id,
                 Type = MessageEventType.Read.ToString(),
                 Channel = MessageChannelKind.Inbox.ToString(),
-                Recipient = recipientId
+                Recipient = recipientId,
+                Title = message.GetContentTitle(MessageChannelKind.Inbox),
+                Success = true
             });
         }
         await DbContext.SaveChangesAsync();
@@ -178,7 +184,9 @@ public class MessageService : IMessageService
                     MessageId = message.Id,
                     Type = MessageEventType.UnRead.ToString(),
                     Channel = MessageChannelKind.Inbox.ToString(),
-                    Recipient = recipientId
+                    Recipient = recipientId,
+                    Title = message.GetContentTitle(MessageChannelKind.Inbox),
+                    Success = true
                 });
             }
             await DbContext.SaveChangesAsync();

@@ -25,4 +25,16 @@ public class DbMessage
     public Guid CampaignId { get; set; }
     /// <summary>Navigation property pointing to the campaign.</summary>
     public virtual DbCampaign Campaign { get; set; } = null!;
+
+    /// <summary>
+    /// Returns the content for the specified channel kind.
+    /// </summary>
+    /// <param name="channelKind">The  <see cref="MessageChannelKind" /> to fetch title </param>
+    /// <returns>The Title for the MessageChannelKind </returns>
+    public string GetContentTitle(MessageChannelKind channelKind) {
+        if (!Content.ContainsKey(channelKind.ToString()))
+            return string.Empty;
+
+        return Content[channelKind.ToString()].Title ?? "";
+    }
 }

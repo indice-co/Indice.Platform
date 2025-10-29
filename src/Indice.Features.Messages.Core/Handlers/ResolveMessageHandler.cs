@@ -173,7 +173,9 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
             MessageId = messageId,
             Type = MessageEventType.Created.ToString(),
             Channel = kind.ToString(),
-            Recipient = contact.GetReceiverByChannel(kind)
+            Recipient = contact.GetReceiverByChannel(kind),
+            Title = campaign.Content[kind.ToString()].Title ?? "",
+            Success = true
         });
     }
 }

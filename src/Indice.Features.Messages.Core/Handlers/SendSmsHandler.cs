@@ -22,7 +22,12 @@ public class SendSmsHandler : ICampaignJobHandler<SendSmsEvent>
     /// <summary>Sends a push notification to a single user.</summary>
     /// <param name="event">The event model used when sending an email.</param>
     public async Task Process(SendSmsEvent @event) {
-        await SmsService.SendAsync(@event.RecipientPhoneNumber!, @event.Title!, @event.Body, sender: @event.Sender?.IsEmpty == false ? new SmsSender(@event.Sender.Sender!, @event.Sender.DisplayName!) : null);
-        await MessageEventQueue.EnqueueAsync(@event.ToMessageEvent(MessageEventType.Sent.ToString()));
+        try {
+            await SmsService.SendAsync(@event.RecipientPhoneNumber!, @event.Title!, @event.Body, sender: @event.Sender?.IsEmpty == false ? new SmsSender(@event.Sender.Sender!, @event.Sender.DisplayName!) : null);
+            await MessageEventQueue.EnqueueAsync(@event.ToMessageEvent(MessageEventType.Sent.ToString(), true));
+        } catch {
+            await MessageEventQueue.EnqueueAsync(@event.ToMessageEvent(MessageEventType.Sent.ToString(), false));
+            throw;
+        }
     }
 }

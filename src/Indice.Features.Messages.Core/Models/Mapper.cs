@@ -159,17 +159,6 @@ internal static class Mapper
         Resolved = contact.Resolved,
         LastResolutionDate = contact.Resolved ? DateTimeOffset.UtcNow : contact.LastResolutionDate,
     };
-
-    public static DbMessageEvent ToDbEvent(this MessageEvent messageEvent) => new() {
-        CampaignId = messageEvent.CampaignId,
-        ContactId = messageEvent.ContactId,
-        CreatedOn = messageEvent.CreatedOn,
-        MessageId = messageEvent.MessageId,
-        Type = messageEvent.Type,
-        Channel = messageEvent.Channel,
-        Recipient = messageEvent.Recipient
-    };
-
     public static DbContact ToDbContact(CreateContactRequest request) => new() {
         Email = request.Email,
         FirstName = request.FirstName,
@@ -183,6 +172,19 @@ internal static class Mapper
         UpdatedAt = DateTimeOffset.UtcNow,
         LastResolutionDate = request.Resolved ? DateTimeOffset.UtcNow : null
     };
+
+    public static DbMessageEvent ToDbEvent(this MessageEvent messageEvent) => new() {
+        CampaignId = messageEvent.CampaignId,
+        ContactId = messageEvent.ContactId,
+        CreatedOn = messageEvent.CreatedOn,
+        MessageId = messageEvent.MessageId,
+        Type = messageEvent.Type,
+        Channel = messageEvent.Channel,
+        Recipient = messageEvent.Recipient,
+        Title = messageEvent.Title,
+        Success = messageEvent.Success
+    };
+
     public static CreateContactRequest ToCreateContactRequest(Contact request) => new() {
         Email = request.Email,
         FirstName = request.FirstName,
