@@ -150,12 +150,10 @@ public static class WebApplicationBuilderExtensions
     /// <param name="builder">The <see cref="WebApplicationBuilder"/> instance.</param>
     /// <returns>The same <see cref="WebApplicationBuilder"/> for chaining.</returns>
     public static WebApplicationBuilder AddTrustedProxiesDefaults(this WebApplicationBuilder builder) {
-        if (!builder.Configuration.ProxyEnabled()) {
-            return builder;
-        }
-
+        var proxyEnabled = builder.Configuration.ProxyEnabled();
         var ipConfig = builder.Configuration.GetProxyIp();
-        if (string.IsNullOrWhiteSpace(ipConfig)) {
+
+        if (!proxyEnabled || string.IsNullOrWhiteSpace(ipConfig)) {
             return builder;
         }
 
