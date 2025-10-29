@@ -76,6 +76,11 @@ public static class IConfigurationExtensions
     /// <remarks>Checks for the <strong>Proxy:Ip</strong> option in appsettings.json file.</remarks>
     public static string? GetProxyIp(this IConfiguration configuration) => configuration.GetSection(ProxyOptions.Name).GetValue<string>(nameof(ProxyOptions.Ip));
 
+    /// <summary>Gets the proxy's forward limit option.</summary>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <returns>The proxy's forward limit option.</returns>
+    public static int GetProxyForwardLimit(this IConfiguration configuration) => configuration.GetSection(ProxyOptions.Name).GetValue<int>(nameof(ProxyOptions.ForwardLimit));
+
     /// <summary>Indicates whether to stop the worker host, running the background tasks.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns>True if specified flag is set to true, otherwise false.</returns>

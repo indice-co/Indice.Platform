@@ -1,4 +1,10 @@
-﻿using Duende.AspNetCore.Authentication.OAuth2Introspection;
+﻿using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Duende.AspNetCore.Authentication.OAuth2Introspection;
 using Duende.IdentityModel;
 using Duende.IdentityModel.Client;
 using Indice.Security;
@@ -6,14 +12,10 @@ using Indice.Serialization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
-using System.Diagnostics;
-using System.IdentityModel.Tokens.Jwt;
-using System.Reflection;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Microsoft.AspNetCore.Builder;
 
@@ -68,6 +70,7 @@ public static class WebApplicationBuilderExtensions
         });
         builder.Services.AddEndpointParameterFluentValidation(Assembly.GetEntryAssembly()!);
         builder.Services.AddGeneralSettings(builder.Configuration);
+        builder.AddTrustedProxiesDefaults();
         return builder;
     }
 
@@ -137,6 +140,46 @@ public static class WebApplicationBuilderExtensions
                       .RequireAssertion(x => x.User.IsAdmin() || x.User.IsSystemClient());
             });
         });
+        return builder;
+    }
+
+    /// <summary>
+    /// Configures trusted proxy IPs or CIDR ranges for forwarded headers.
+    /// Reads configuration from the application's configuration provider via <c>builder.Configuration.GetProxyIp()</c>.
+    /// </summary>
+    /// <param name="builder">The <see cref="WebApplicationBuilder"/> instance.</param>
+    /// <returns>The same <see cref="WebApplicationBuilder"/> for chaining.</returns>
+    public static WebApplicationBuilder AddTrustedProxiesDefaults(this WebApplicationBuilder builder) {
+        if (!builder.Configuration.ProxyEnabled()) {
+            return builder;
+        }
+
+        var ipConfig = builder.Configuration.GetProxyIp();
+        if (string.IsNullOrWhiteSpace(ipConfig)) {
+            return builder;
+        }
+
+        builder.Services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            var forwardLimit = builder.Configuration.GetProxyForwardLimit();
+            options.ForwardedHeaders = ForwardedHeaders.All;
+            options.ForwardLimit = forwardLimit == 0 
+                ? null 
+                : forwardLimit;
+
+            foreach (var entry in ipConfig.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)) {
+                if (entry.Contains('/')) {
+                    if (HttpOverrides.IPNetwork.TryParse(entry, out var network)) {
+                        options.KnownNetworks.Add(network);
+                    }
+                } else {
+                    if (IPAddress.TryParse(entry, out var ip)) {
+                        options.KnownProxies.Add(ip);
+                    }
+                }
+            }
+        });
+
         return builder;
     }
 }
