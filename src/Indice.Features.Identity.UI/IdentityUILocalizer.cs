@@ -935,6 +935,7 @@ public class IdentityUILocalizer
     /// <summary>
     /// Text for "I have read and accept the Terms of service and privacy policy" on the Register page.
     /// </summary>
+    /// <remarks>If you need to change link then prefer setting TermsUrl in IdentityUIOptions</remarks>
     public virtual HtmlString Register_I_Have_Read_And_Accept_Terms(string url = "/terms") => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_I_Have_Read_And_Accept_Terms, url));
 
     /// <summary>
@@ -980,6 +981,7 @@ public class IdentityUILocalizer
     /// <summary>
     ///   Gets the localized string for "I consent to the registration and processing of the above personal details for my contact and service as they are defined".
     /// </summary>
+    /// <remarks>If you need to change link then prefer setting PrivacyUrl in IdentityUIOptions</remarks>
     public virtual HtmlString Register_I_Consent_To_Registration(string url = "/privacy") => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_ConsentToRegistrationAndProcessing, url));
 
     /// <summary>
