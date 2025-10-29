@@ -855,7 +855,7 @@
   <data name="Register_Register" xml:space="preserve">
     <value>登録</value>
   </data>
-  <data name="Register_FillInInformation" xml:space="preserve">
+  <data name="Register_Form_Instructions" xml:space="preserve">
     <value>新しいユーザーとして登録するには、次の情報を入力する必要があります。</value>
   </data>
   <data name="Register_AlreadyHaveAccount" xml:space="preserve">
@@ -877,10 +877,10 @@
     <value>でログイン</value>
   </data>
   <data name="Register_ConsentToRegistrationAndProcessing" xml:space="preserve">
-    <value>上記の個人情報の登録および処理に同意します。</value>
+    <value>上記の個人情報の登録および処理に同意します &lt;a href="{0}" target="_blank" class="font-weight-700"&gt;こちら&lt;/a&gt;。</value>
   </data>
   <data name="Register_I_Have_Read_And_Accept_Terms" xml:space="preserve">
-    <value>&lt;a href="/terms" target="_blank"&gt;利用規約&lt;/a&gt;および&lt;a href="/privacy" target="_blank"&gt;プライバシーポリシー&lt;/a&gt;を読み、同意します。</value>
+    <value>&lt;a href="{0}" target="_blank" class="font-weight-700"&gt;利用規約&lt;/a&gt;を読み、同意します。</value>
   </data>
   <data name="Register_JoinUs" xml:space="preserve">
     <value>参加する</value>
