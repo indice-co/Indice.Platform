@@ -855,7 +855,7 @@
   <data name="Register_Register" xml:space="preserve">
     <value>Εγγραφή</value>
   </data>
-  <data name="Register_FillInInformation" xml:space="preserve">
+  <data name="Register_Form_Instructions" xml:space="preserve">
     <value>Για να εγγραφείτε ως νέος χρήστης, θα χρειαστεί να συμπληρώσετε τις ακόλουθες πληροφορίες.</value>
   </data>
   <data name="Register_AlreadyHaveAccount" xml:space="preserve">

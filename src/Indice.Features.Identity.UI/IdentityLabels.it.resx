@@ -855,7 +855,7 @@
   <data name="Register_Register" xml:space="preserve">
     <value>Registrati</value>
   </data>
-  <data name="Register_FillInInformation" xml:space="preserve">
+  <data name="Register_Form_Instructions" xml:space="preserve">
     <value>Per registrarsi come nuovo utente, sarà necessario compilare le seguenti informazioni.</value>
   </data>
   <data name="Register_AlreadyHaveAccount" xml:space="preserve">

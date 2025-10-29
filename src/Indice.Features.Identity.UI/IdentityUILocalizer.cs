@@ -941,7 +941,7 @@ public class IdentityUILocalizer
     /// <summary>
     /// Instruction shown at the top of the registration form explaining what the user needs to do.
     /// </summary>
-    public virtual HtmlString Register_FillInInformation => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_FillInInformation));
+    public virtual HtmlString Register_Form_Instructions => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.Register_Form_Instructions));
 
     /// <summary>
     ///   Gets the localized string for "Already have an account?".

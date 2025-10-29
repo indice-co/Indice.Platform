@@ -2644,20 +2644,20 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to To register as a new user you will need to fill in the following information..
-        /// </summary>
-        public static string Register_FillInInformation {
-            get {
-                return ResourceManager.GetString("Register_FillInInformation", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to First name.
         /// </summary>
         public static string Register_FirstName {
             get {
                 return ResourceManager.GetString("Register_FirstName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to To register as a new user you will need to fill in the following information..
+        /// </summary>
+        public static string Register_Form_Instructions {
+            get {
+                return ResourceManager.GetString("Register_Form_Instructions", resourceCulture);
             }
         }
         

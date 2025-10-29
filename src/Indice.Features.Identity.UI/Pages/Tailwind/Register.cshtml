@@ -17,7 +17,7 @@
     <div class="card-wrapper register">
         <vc:page-heading title="@Localizer.Register_PageHeader" image-src="" />
         <partial name="_ValidationSummary" />
-        <p class="px-8">@Localizer.Register_FillInInformation</p>
+        <p class="px-8">@Localizer.Register_Form_Instructions</p>
         <form asp-route-returnUrl="@Model.View.ReturnUrl" data-sbind="event: { change: formChanged }" method="post" autocomplete="new-password" novalidate class="form">
             <input type="hidden" asp-for="Input.ReturnUrl" />
             <div class="row">
