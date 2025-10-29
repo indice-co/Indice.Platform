@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDest
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { ToasterService, ToastType } from '@indice/ng-components';
-import { catchError, map, Observable, of, startWith, Subscription, tap } from 'rxjs';
+import { catchError, map, Observable, of, startWith, Subscription } from 'rxjs';
 import { Contact, ContactResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { settings } from '../../../../core/models/settings';
 
