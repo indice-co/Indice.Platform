@@ -16,18 +16,27 @@ ADD Recipient NVARCHAR(128),
 Title NVARCHAR(128),
 Success BIT
 GO
---Data migration
 UPDATE [cmp].[MessageEvent]
 SET Recipient = 
     CASE Events.Channel
          WHEN 'SMS' THEN ct.PhoneNumber
          WHEN 'Email' THEN ct.Email
          ELSE ct.RecipientId
+    END,
+    Success = 1,
+    Title  =   CASE Events.Channel
+         WHEN 'SMS' THEN COALESCE(JSON_VALUE(msg.Content, '$.sms.title'), JSON_VALUE(msg.Content, '$.SMS.title'))
+         WHEN 'Email' THEN COALESCE(JSON_VALUE(msg.Content, '$.email.title'), JSON_VALUE(msg.Content, '$.Email.title'))
+         WHEN 'Inbox' THEN COALESCE(JSON_VALUE(msg.Content, '$.inbox.title'), JSON_VALUE(msg.Content, '$.Inbox.title'))
+         ELSE COALESCE(JSON_VALUE(msg.Content, '$.pushNotification.title'), JSON_VALUE(msg.Content, '$.PushNotification.title'))
     END
 FROM  [cmp].[MessageEvent] as Events
 INNER JOIN [cmp].Contact as ct
 	ON Events.ContactId = ct.Id
+INNER JOIN [cmp].Message as msg
+	ON msg.Id = Events.MessageId
 GO
+
 ```
 
 ## [8.17.3] - 2025-09-30

@@ -28,6 +28,11 @@
       </div>
     </ng-container>
 
+    <lib-list-column title="Title">
+      <ng-template let-item>
+        {{ item.title }}
+      </ng-template>
+    </lib-list-column>
 
     <lib-list-column title="Recipient">
       <ng-template let-item>
@@ -59,6 +64,11 @@
     </lib-list-column>
     <lib-list-column title="Created On">
       <ng-template let-item>{{ item.createdOn | date: 'medium' }}</ng-template>
+    </lib-list-column>
+    <lib-list-column title="Success">
+      <ng-template let-item>
+        <span [innerHtml]="item.success | beautifyBoolean"></span>
+      </ng-template>
     </lib-list-column>
     <lib-list-column title="Links" [full-width]="true">
       <ng-template let-item>

@@ -6568,11 +6568,13 @@ export interface IMessageContent {
 export class MessageEvent implements IMessageEvent {
     id?: string;
     campaignId?: string;
+    title?: string;
     contactId?: string;
     messageId?: string;
     type?: string;
     channel?: string;
     recipient?: string;
+    success?: boolean;
     createdOn?: Date;
 
     constructor(data?: IMessageEvent) {
@@ -6588,11 +6590,13 @@ export class MessageEvent implements IMessageEvent {
         if (_data) {
             this.id = _data["id"];
             this.campaignId = _data["campaignId"];
+            this.title = _data["title"];
             this.contactId = _data["contactId"];
             this.messageId = _data["messageId"];
             this.type = _data["type"];
             this.channel = _data["channel"];
             this.recipient = _data["recipient"];
+            this.success = _data["success"];
             this.createdOn = _data["createdOn"] ? new Date(_data["createdOn"].toString()) : undefined as any;
         }
     }
@@ -6608,11 +6612,13 @@ export class MessageEvent implements IMessageEvent {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["campaignId"] = this.campaignId;
+        data["title"] = this.title;
         data["contactId"] = this.contactId;
         data["messageId"] = this.messageId;
         data["type"] = this.type;
         data["channel"] = this.channel;
         data["recipient"] = this.recipient;
+        data["success"] = this.success;
         data["createdOn"] = this.createdOn ? this.createdOn.toISOString() : undefined as any;
         return data;
     }
@@ -6621,11 +6627,13 @@ export class MessageEvent implements IMessageEvent {
 export interface IMessageEvent {
     id?: string;
     campaignId?: string;
+    title?: string;
     contactId?: string;
     messageId?: string;
     type?: string;
     channel?: string;
     recipient?: string;
+    success?: boolean;
     createdOn?: Date;
 }
 

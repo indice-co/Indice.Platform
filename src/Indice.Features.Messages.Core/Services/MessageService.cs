@@ -77,6 +77,10 @@ public class MessageService : IMessageService
         }
 
         if (message.ContactId.HasValue) {
+            var inboxTitle = string.Empty;
+            if (message.Content.TryGetValue(MessageChannelKind.Inbox.ToString(), out var contentValue)) {
+                inboxTitle = contentValue.Title ?? "";
+            }
             await MessageEventQueue.EnqueueAsync(new MessageEvent() {
                 CampaignId = message.CampaignId,
                 ContactId = message.ContactId.Value,
@@ -84,9 +88,7 @@ public class MessageService : IMessageService
                 Type = MessageEventType.Deleted.ToString(),
                 Channel = MessageChannelKind.Inbox.ToString(),
                 Recipient = recipientId,
-                Title = message.Content.ContainsKey(MessageChannelKind.Inbox.ToString())
-                ? message.Content[MessageChannelKind.Inbox.ToString()].Title
-                : string.Empty,
+                Title = inboxTitle,
                 Success = true
             });
         }
