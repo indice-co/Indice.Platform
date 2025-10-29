@@ -29,7 +29,7 @@ public class DbMessage
     /// <summary>
     /// Returns the content for the specified channel kind.
     /// </summary>
-    /// <param name="channelKind">The  <see cref="MessageChannelKind" /> to fetch title </param>
+    /// <param name="channelKind">The <see cref="MessageChannelKind" /> to fetch the title for.</param>
     /// <returns>The Title for the MessageChannelKind </returns>
     public string GetContentTitle(MessageChannelKind channelKind) {
         if (Content.TryGetValue(channelKind.ToString(), out var content)) {
