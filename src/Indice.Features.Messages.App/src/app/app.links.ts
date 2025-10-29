@@ -15,7 +15,7 @@ export class AppLinks implements IAppLinks {
     new NavLink('Λίστες Διανομής', '/distribution-lists', false, false, 'ms-Icon ms-Icon--ContactList'),
     new NavLink('Επαφές', '/contacts', false, false, 'ms-Icon ms-Icon--Contact'),
     new NavLink('Πρότυπα', '/templates', false, false, 'ms-Icon ms-Icon--CampaignTemplate'),
-    new NavLink('Αρχεία', '/media', false, false, 'ms-Icon ms-Icon--PhotoVideoMedia'), 
+    new NavLink('Αρχεία', '/media', false, false, 'ms-Icon ms-Icon--PhotoVideoMedia'),
     new NavLink('Events', '/message-events', false, false, 'ms-Icon ms-Icon--SetAction'),
     new NavLink('Ρυθμίσεις', '/settings', false, false, 'ms-Icon ms-Icon--Settings')
   ];

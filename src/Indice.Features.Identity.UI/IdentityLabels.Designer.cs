@@ -2041,7 +2041,7 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ?ew password confirmation.
+        ///   Looks up a localized string similar to New password confirmation.
         /// </summary>
         public static string PasswordExpired_ΝewPasswordConfirmation {
             get {
@@ -2635,20 +2635,11 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to I consent to the registration and processing of the above personal details for my contact and service as they are defined.
+        ///   Looks up a localized string similar to I consent to the registration and processing of the above personal details for my contact and service as they are defined &lt;a href=&quot;{0}&quot; target=&quot;_blank&quot; class=&quot;font-weight-700&quot;&gt;here&lt;/a&gt;.
         /// </summary>
         public static string Register_ConsentToRegistrationAndProcessing {
             get {
                 return ResourceManager.GetString("Register_ConsentToRegistrationAndProcessing", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to To register as a new user you will need to fill in the following information..
-        /// </summary>
-        public static string Register_FillInInformation {
-            get {
-                return ResourceManager.GetString("Register_FillInInformation", resourceCulture);
             }
         }
         
@@ -2662,6 +2653,15 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to To register as a new user you will need to fill in the following information..
+        /// </summary>
+        public static string Register_Form_Instructions {
+            get {
+                return ResourceManager.GetString("Register_Form_Instructions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to here.
         /// </summary>
         public static string Register_here {
@@ -2671,7 +2671,7 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to I have read and accept the &lt;a href=&quot;/terms&quot; target=&quot;_blank&quot;&gt;Terms of service&lt;/a&gt; and the &lt;a href=&quot;/privacy&quot; target=&quot;_blank&quot;&gt;privacy policy&lt;/a&gt;..
+        ///   Looks up a localized string similar to I have read and accept the &lt;a href=&quot;{0}&quot; target=&quot;_blank&quot; class=&quot;font-weight-700&quot;&gt;Terms of service&lt;/a&gt;..
         /// </summary>
         public static string Register_I_Have_Read_And_Accept_Terms {
             get {

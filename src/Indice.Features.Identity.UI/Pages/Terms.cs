@@ -1,10 +1,5 @@
-﻿using System.Net.Mime;
-using System.Text;
-using HtmlAgilityPack;
-using Indice.AspNetCore.Filters;
-using Microsoft.AspNetCore.Http;
+﻿using Indice.AspNetCore.Filters;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Features.Identity.UI.Pages;
 
