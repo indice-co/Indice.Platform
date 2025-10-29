@@ -74,12 +74,23 @@ public static class IConfigurationExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns>The proxy's IP address.</returns>
     /// <remarks>Checks for the <strong>Proxy:Ip</strong> option in appsettings.json file.</remarks>
+    [Obsolete("Use GetProxyKnownProxies() instead to retrieve the list of known proxies.")]
     public static string? GetProxyIp(this IConfiguration configuration) => configuration.GetSection(ProxyOptions.Name).GetValue<string>(nameof(ProxyOptions.Ip));
+
+    /// <summary>Gets the known proxies IP addresses.</summary>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <returns>The known proxies IP addresses.</returns>
+    public static string[] GetProxyKnownProxies(this IConfiguration configuration) => configuration.GetSection(ProxyOptions.Name).GetSection(nameof(ProxyOptions.KnownProxies)).Get<string[]>() ?? [];
+
+    /// <summary>Gets the proxy known networks.</summary>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <returns>The proxy known networks.</returns>
+    public static string[] GetProxyKnownNetworks(this IConfiguration configuration) => configuration.GetSection(ProxyOptions.Name).GetSection(nameof(ProxyOptions.KnownNetworks)).Get<string[]>() ?? [];
 
     /// <summary>Gets the proxy's forward limit option.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns>The proxy's forward limit option.</returns>
-    public static int GetProxyForwardLimit(this IConfiguration configuration) => configuration.GetSection(ProxyOptions.Name).GetValue<int>(nameof(ProxyOptions.ForwardLimit));
+    public static int GetProxyForwardLimit(this IConfiguration configuration) => configuration.GetSection(ProxyOptions.Name).GetValue(nameof(ProxyOptions.ForwardLimit), defaultValue: 1);
 
     /// <summary>Indicates whether to stop the worker host, running the background tasks.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>

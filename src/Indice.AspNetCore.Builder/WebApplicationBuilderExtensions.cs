@@ -151,11 +151,15 @@ public static class WebApplicationBuilderExtensions
     /// <returns>The same <see cref="WebApplicationBuilder"/> for chaining.</returns>
     public static WebApplicationBuilder AddTrustedProxiesDefaults(this WebApplicationBuilder builder) {
         var proxyEnabled = builder.Configuration.ProxyEnabled();
-        var ipConfig = builder.Configuration.GetProxyIp();
-
-        if (!proxyEnabled || string.IsNullOrWhiteSpace(ipConfig)) {
+        if (!proxyEnabled) {
             return builder;
         }
+
+        var ipConfig = builder.Configuration.GetProxyIp();
+        var knownNetworks = builder.Configuration.GetProxyKnownNetworks();
+        var knownProxies = string.IsNullOrWhiteSpace(ipConfig)
+            ? builder.Configuration.GetProxyKnownProxies()
+            : builder.Configuration.GetProxyKnownProxies().Concat([ipConfig]).ToArray();
 
         builder.Services.Configure<ForwardedHeadersOptions>(options =>
         {
@@ -165,12 +169,20 @@ public static class WebApplicationBuilderExtensions
                 ? null 
                 : forwardLimit;
 
-            foreach (var entry in ipConfig.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)) {
-                if (entry.Contains('/')) {
+            if (!knownNetworks.Any()) {
+                options.KnownNetworks.Clear();
+            } else {
+                foreach (var entry in knownNetworks) {
                     if (HttpOverrides.IPNetwork.TryParse(entry, out var network)) {
                         options.KnownNetworks.Add(network);
                     }
-                } else {
+                }
+            }
+
+            if (!knownProxies.Any()) {
+                options.KnownProxies.Clear();
+            } else {
+                foreach (var entry in knownProxies) {
                     if (IPAddress.TryParse(entry, out var ip)) {
                         options.KnownProxies.Add(ip);
                     }
