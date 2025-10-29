@@ -165,10 +165,10 @@ Retrieves the communication preferences for a specific contact.
 ";
 
     public static readonly string GET_CONTACT_DUPLICATES = @"
-    Retrieves the list of all potential duplicate accounts for the given contact Id
+Retrieves the list of all potential duplicate accounts for the given contact Id
 ";
     public static readonly string MERGE_CONTACTS = @"
-    Merge a list of duplicate contacts into a main resolved contact
+Merge a list of duplicate contacts into a main resolved contact
 ";
     #endregion
 }

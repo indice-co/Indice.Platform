@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { catchError, map, Observable, of, startWith, Subscription, tap } from 'rxjs';
-import { Contact, ContactResultSet, MessagesApiClient, UpdateContactRequest } from 'src/app/core/services/messages-api.service';
+import { Contact, ContactResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { settings } from '../../../../core/models/settings';
 
 
@@ -31,7 +31,6 @@ export class ContactDuplicatesComponent implements OnInit, AfterViewInit, OnDest
   @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
   public submitInProgress = false;
   public model = new Contact();
-  duplicates$!: Observable<ContactResultSet>;
   duplicatesState$!: Observable<{
     loading: boolean; contacts: ContactResultSet | null}>;
   loader = true;
@@ -43,12 +42,11 @@ export class ContactDuplicatesComponent implements OnInit, AfterViewInit, OnDest
       ._api
       .getContactById(this._contactId)
       .subscribe((contact: Contact) => this.model = contact);
-    this.duplicates$ = this._api.getDuplicateContacts(this._contactId).pipe(tap(() => { this.loader = false; this._changeDetector.markForCheck(); }));
 
     this.duplicatesState$ = this._api.getDuplicateContacts(this._contactId).pipe(
       map(contact => ({ loading: false, contacts: contact })),
-      startWith({ loading: true, contacts: null }), // ✅ valid now
-      catchError(() => of({ loading: false, contacts: null })) // ✅
+      startWith({ loading: true, contacts: null }), 
+      catchError(() => of({ loading: false, contacts: null }))
     );
     this.mergedContactsIds = new Set<string>();
   }
