@@ -17,7 +17,7 @@
     <div class="card-wrapper register">
         <vc:page-heading title="@Localizer.Register_PageHeader" image-src="" />
         <partial name="_ValidationSummary" />
-        <p class="px-8">@Localizer.Register_To_register_as_a_new_user_you_will_need_to_fill_in_the_following_information</p>
+        <p class="px-8">@Localizer.Register_Form_Instructions</p>
         <form asp-route-returnUrl="@Model.View.ReturnUrl" data-sbind="event: { change: formChanged }" method="post" autocomplete="new-password" novalidate class="form">
             <input type="hidden" asp-for="Input.ReturnUrl" />
             <div class="row">
@@ -214,15 +214,14 @@
                 <div class="col-span-1 flex flex-row text-left mb-4">
                     <input asp-for="Input.HasAcceptedTerms" type="checkbox" />
                     <label class="checkbox">
-                        @Localizer.Register_I_Have_Read_And_Accept_Terms
+                        @Localizer.Register_I_Have_Read_And_Accept_Terms()
                     </label>
                 </div>
                 <span asp-validation-for="Input.HasAcceptedTerms" class="text-danger"></span>
                 <div class="col-span-1 flex flex-row text-left">
                     <input asp-for="Input.HasReadPrivacyPolicy" type="checkbox" />
                     <label class="checkbox">
-                        @Localizer.Register_I_Consent_To_Registration
-                        <a asp-page="/Privacy" target="_blank">@Localizer.Register_Here</a>.
+                        @Localizer.Register_I_Consent_To_Registration()
                     </label>
                 </div>
                 <span asp-validation-for="Input.HasReadPrivacyPolicy" class="text-danger"></span>

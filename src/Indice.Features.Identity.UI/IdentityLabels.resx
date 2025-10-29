@@ -745,7 +745,7 @@
     <value>Save</value>
   </data>
   <data name="PasswordExpired_ΝewPasswordConfirmation" xml:space="preserve">
-    <value>?ew password confirmation</value>
+    <value>New password confirmation</value>
   </data>
   <data name="Profile_PreferredLanguage" xml:space="preserve">
     <value>Preferred Language</value>
@@ -855,7 +855,7 @@
   <data name="Register_Register" xml:space="preserve">
     <value>Register</value>
   </data>
-  <data name="Register_FillInInformation" xml:space="preserve">
+  <data name="Register_Form_Instructions" xml:space="preserve">
     <value>To register as a new user you will need to fill in the following information.</value>
   </data>
   <data name="Register_AlreadyHaveAccount" xml:space="preserve">
@@ -877,10 +877,10 @@
     <value>login with</value>
   </data>
   <data name="Register_ConsentToRegistrationAndProcessing" xml:space="preserve">
-    <value>I consent to the registration and processing of the above personal details for my contact and service as they are defined</value>
+    <value>I consent to the registration and processing of the above personal details for my contact and service as they are defined &lt;a href="{0}" target="_blank" class="font-weight-700"&gt;here&lt;/a&gt;</value>
   </data>
   <data name="Register_I_Have_Read_And_Accept_Terms" xml:space="preserve">
-    <value>I have read and accept the &lt;a href="/terms" target="_blank"&gt;Terms of service&lt;/a&gt; and the &lt;a href="/privacy" target="_blank"&gt;privacy policy&lt;/a&gt;.</value>
+    <value>I have read and accept the &lt;a href="{0}" target="_blank" class="font-weight-700"&gt;Terms of service&lt;/a&gt;.</value>
   </data>
   <data name="Register_JoinUs" xml:space="preserve">
     <value>Join us</value>
