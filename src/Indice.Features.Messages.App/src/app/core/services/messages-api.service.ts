@@ -26,7 +26,7 @@ export interface IMessagesApiClient {
      * @param rangeStart (optional) The filter start date. If provided, only events that occurred on or after this date will be included in the results.
      * @param rangeEnd (optional) The filter end date. If provided, only events that occurred on or before this date will be included in the results.
      * @param channel (optional) The communication channels to filter events by.
-     * @param recipient (optional) The recipient "to" to filter events by filter events by.
+     * @param recipient (optional) The recipient "to" to filter events by.
      * @return OK
      */
     getEventsList(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, campaignId?: string | undefined, messageId?: string | undefined, rangeStart?: Date | undefined, rangeEnd?: Date | undefined, channel?: MessageChannelKind[] | undefined, recipient?: string | undefined): Observable<MessageEventResultSet>;
@@ -359,7 +359,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @param rangeStart (optional) The filter start date. If provided, only events that occurred on or after this date will be included in the results.
      * @param rangeEnd (optional) The filter end date. If provided, only events that occurred on or before this date will be included in the results.
      * @param channel (optional) The communication channels to filter events by.
-     * @param recipient (optional) The recipient "to" to filter events by filter events by.
+     * @param recipient (optional) The recipient "to" to filter events by.
      * @return OK
      */
     getEventsList(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, campaignId?: string | undefined, messageId?: string | undefined, rangeStart?: Date | undefined, rangeEnd?: Date | undefined, channel?: MessageChannelKind[] | undefined, recipient?: string | undefined): Observable<MessageEventResultSet> {
@@ -8189,11 +8189,11 @@ export interface IVolumeOfMessageType {
 }
 
 export enum SeriesTimeFrame {
-    Last24Hours = "Last24Hours",
-    Last7Days = "Last7Days",
-    Last30Days = "Last30Days",
-    Last90Days = "Last90Days",
-    Last12Months = "Last12Months",
+  Last24Hours = "Last24Hours",
+  Last7Days = "Last7Days",
+  Last30Days = "Last30Days",
+  Last90Days = "Last90Days",
+  Last12Months = "Last12Months",
 }
 
 export interface FileResponse {
