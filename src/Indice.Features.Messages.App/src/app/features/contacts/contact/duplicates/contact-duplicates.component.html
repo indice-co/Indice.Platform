@@ -18,7 +18,7 @@
                   <ng-container *ngIf="state.contacts?.items?.length > 0; else noDuplicates">
                     <div *ngFor="let item of state.contacts.items; let i = index" class="w-full">
                       <div class="w-full p-2 rounded-md flex items-center gap-3 flex-1">
-                            <ng-container *ngTemplateOutlet="selectedItemTemplate; context: { $implicit: item }">
+                            <ng-container *ngTemplateOutlet="contactTemplate; context: { $implicit: item }">
                             </ng-container>
                       </div>
                     </div>
@@ -42,7 +42,7 @@
 </ng-template>
 
 <ng-template let-item
-             #selectedItemTemplate>
+             #contactTemplate>
   <div class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 w-full cursor-pointer"
        (click)="toggleSelection(item.id, !mergedContactsIds.has(item.id))"
        [ngClass]="{
@@ -50,8 +50,6 @@
     'border-2 border-red-500 bg-red-50': mergedContactsIds.has(item.id),
     'hover:shadow-md': true
   }">
-      <div class="flex-shrink-0 self-center">
-      </div>
 
       <div class="flex-shrink-0">
         <img class="h-10 w-10 rounded-full"
