@@ -26,9 +26,10 @@ export interface IMessagesApiClient {
      * @param rangeStart (optional) The filter start date. If provided, only events that occurred on or after this date will be included in the results.
      * @param rangeEnd (optional) The filter end date. If provided, only events that occurred on or before this date will be included in the results.
      * @param channel (optional) The communication channels to filter events by.
+     * @param recipient (optional) The recipient "to" to filter events by filter events by.
      * @return OK
      */
-    getEventsList(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, campaignId?: string | undefined, messageId?: string | undefined, rangeStart?: Date | undefined, rangeEnd?: Date | undefined, channel?: MessageChannelKind[] | undefined): Observable<MessageEventResultSet>;
+    getEventsList(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, campaignId?: string | undefined, messageId?: string | undefined, rangeStart?: Date | undefined, rangeEnd?: Date | undefined, channel?: MessageChannelKind[] | undefined, recipient?: string | undefined): Observable<MessageEventResultSet>;
     /**
      * Gets a result set of events.
      * @param eventType (optional) 
@@ -358,9 +359,10 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @param rangeStart (optional) The filter start date. If provided, only events that occurred on or after this date will be included in the results.
      * @param rangeEnd (optional) The filter end date. If provided, only events that occurred on or before this date will be included in the results.
      * @param channel (optional) The communication channels to filter events by.
+     * @param recipient (optional) The recipient "to" to filter events by filter events by.
      * @return OK
      */
-    getEventsList(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, campaignId?: string | undefined, messageId?: string | undefined, rangeStart?: Date | undefined, rangeEnd?: Date | undefined, channel?: MessageChannelKind[] | undefined): Observable<MessageEventResultSet> {
+    getEventsList(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, campaignId?: string | undefined, messageId?: string | undefined, rangeStart?: Date | undefined, rangeEnd?: Date | undefined, channel?: MessageChannelKind[] | undefined, recipient?: string | undefined): Observable<MessageEventResultSet> {
         let url_ = this.baseUrl + "/analytics/events?";
         if (page === null)
             throw new globalThis.Error("The parameter 'page' cannot be null.");
@@ -398,6 +400,10 @@ export class MessagesApiClient implements IMessagesApiClient {
             throw new globalThis.Error("The parameter 'channel' cannot be null.");
         else if (channel !== undefined)
             channel && channel.forEach(item => { url_ += "Channel=" + encodeURIComponent("" + item) + "&"; });
+        if (recipient === null)
+            throw new globalThis.Error("The parameter 'recipient' cannot be null.");
+        else if (recipient !== undefined)
+            url_ += "Recipient=" + encodeURIComponent("" + recipient) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -6562,10 +6568,13 @@ export interface IMessageContent {
 export class MessageEvent implements IMessageEvent {
     id?: string;
     campaignId?: string;
+    title?: string;
     contactId?: string;
     messageId?: string;
     type?: string;
     channel?: string;
+    recipient?: string;
+    success?: boolean;
     createdOn?: Date;
 
     constructor(data?: IMessageEvent) {
@@ -6581,10 +6590,13 @@ export class MessageEvent implements IMessageEvent {
         if (_data) {
             this.id = _data["id"];
             this.campaignId = _data["campaignId"];
+            this.title = _data["title"];
             this.contactId = _data["contactId"];
             this.messageId = _data["messageId"];
             this.type = _data["type"];
             this.channel = _data["channel"];
+            this.recipient = _data["recipient"];
+            this.success = _data["success"];
             this.createdOn = _data["createdOn"] ? new Date(_data["createdOn"].toString()) : undefined as any;
         }
     }
@@ -6600,10 +6612,13 @@ export class MessageEvent implements IMessageEvent {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["campaignId"] = this.campaignId;
+        data["title"] = this.title;
         data["contactId"] = this.contactId;
         data["messageId"] = this.messageId;
         data["type"] = this.type;
         data["channel"] = this.channel;
+        data["recipient"] = this.recipient;
+        data["success"] = this.success;
         data["createdOn"] = this.createdOn ? this.createdOn.toISOString() : undefined as any;
         return data;
     }
@@ -6612,10 +6627,13 @@ export class MessageEvent implements IMessageEvent {
 export interface IMessageEvent {
     id?: string;
     campaignId?: string;
+    title?: string;
     contactId?: string;
     messageId?: string;
     type?: string;
     channel?: string;
+    recipient?: string;
+    success?: boolean;
     createdOn?: Date;
 }
 
@@ -7478,14 +7496,6 @@ export interface IRecipientResultSet {
     items?: Recipient[];
 }
 
-export enum SeriesTimeFrame {
-    Last24Hours = "Last24Hours",
-    Last7Days = "Last7Days",
-    Last30Days = "Last30Days",
-    Last90Days = "Last90Days",
-    Last12Months = "Last12Months",
-}
-
 export class Template implements ITemplate {
     content?: { [key: string]: MessageContent; };
     data?: any;
@@ -8178,7 +8188,7 @@ export interface IVolumeOfMessageType {
     info?: MessageType;
 }
 
-export enum TimeFrame {
+export enum SeriesTimeFrame {
     Last24Hours = "Last24Hours",
     Last7Days = "Last7Days",
     Last30Days = "Last30Days",

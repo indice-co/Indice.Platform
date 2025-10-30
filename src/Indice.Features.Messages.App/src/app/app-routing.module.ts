@@ -55,6 +55,7 @@ import { ContactPreferencesComponent } from './features/contacts/contact/prefere
 import { ContactCreateComponent } from './features/contacts/contact/create/contact-create.component';
 import { ContactDuplicatesComponent } from './features/contacts/contact/duplicates/contact-duplicates.component';
 
+import { MessageEventsComponent } from './features/events/message-events.component';
 const routes: Routes = [
   { path: 'auth-callback', component: AuthCallbackComponent },
   { path: 'auth-renew', component: AuthRenewComponent },
@@ -164,6 +165,10 @@ const routes: Routes = [
         path: 'settings',
         data: { breadcrumb: { title: 'Ρυθμίσεις' } },
         component: SettingsComponent
+      }, {
+        path: 'message-events',
+        data: { breadcrumb: { title: 'Message Events' } },
+        component: MessageEventsComponent
       },
       {
         path: 'media',
