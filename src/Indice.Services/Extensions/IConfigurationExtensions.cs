@@ -74,29 +74,32 @@ public static class IConfigurationExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns>The proxy's IP address.</returns>
     /// <remarks>Checks for the <strong>Proxy:Ip</strong> option in appsettings.json file.</remarks>
-    [Obsolete("Use GetProxyKnownProxies() instead to retrieve the list of known proxies.")]
+    [Obsolete("Use GetProxyKnownProxies() and GetProxyKnownNetworks() instead to retrieve the list of known proxies.")]
     public static string? GetProxyIp(this IConfiguration configuration) => configuration.GetSection(ProxyOptions.Name).GetValue<string>(nameof(ProxyOptions.Ip));
 
     /// <summary>Gets the known proxies IP addresses.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns>The known proxies IP addresses.</returns>
+    /// <remarks>Checks for the <strong>Proxy:KnownProxies</strong> option in appsettings.json file. Should be a comma delimited string of valid IP addresses</remarks>
     public static string[] GetProxyKnownProxies(this IConfiguration configuration) {
-        var ipConfig = configuration.GetSection(ProxyOptions.Name).GetValue<string>(nameof(ProxyOptions.Ip));
-        var knownProxies = configuration.GetSection(ProxyOptions.Name).GetSection(nameof(ProxyOptions.KnownProxies)).Get<string[]>() ?? [];
+        var knownProxies = configuration.GetSection(ProxyOptions.Name).GetValue<string>(nameof(ProxyOptions.KnownProxies)) ?? 
+                           configuration.GetSection(ProxyOptions.Name).GetValue<string>(nameof(ProxyOptions.Ip));
 
-        return !string.IsNullOrEmpty(ipConfig) && !knownProxies.Contains(ipConfig)
-            ? [ipConfig, ..knownProxies]
-            : knownProxies;
+        return knownProxies?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
     }
 
     /// <summary>Gets the proxy known networks.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns>The proxy known networks.</returns>
-    public static string[] GetProxyKnownNetworks(this IConfiguration configuration) => configuration.GetSection(ProxyOptions.Name).GetSection(nameof(ProxyOptions.KnownNetworks)).Get<string[]>() ?? [];
+    /// <remarks>Checks for the <strong>Proxy:KnownNetworks</strong> option in appsettings.json file. Should be a comma delimited string of valid CIDR ranges</remarks>
+    public static string[] GetProxyKnownNetworks(this IConfiguration configuration) => configuration.GetSection(ProxyOptions.Name)
+                                                                                                    .GetValue<string>(nameof(ProxyOptions.KnownNetworks))?
+                                                                                                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
 
     /// <summary>Gets the proxy's forward limit option.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns>The proxy's forward limit option.</returns>
+    /// <remarks>Checks for the <strong>Proxy:ForwardLimit</strong> option in appsettings.json file. Should be integer defaults to <c>1</c></remarks>
     public static int GetProxyForwardLimit(this IConfiguration configuration) => configuration.GetSection(ProxyOptions.Name).GetValue(nameof(ProxyOptions.ForwardLimit), defaultValue: 1);
 
     /// <summary>Indicates whether to stop the worker host, running the background tasks.</summary>
