@@ -4,6 +4,7 @@ import { Subject, Observable, takeUntil } from 'rxjs';
 
 import { Contact } from 'src/app/core/services/messages-api.service';
 import { ContactService } from '../contact.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-contact-details',
@@ -17,9 +18,12 @@ export class ContactDetailsComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly _activatedRoute: ActivatedRoute,
-    private readonly _contactService: ContactService
+    private readonly _contactService: ContactService,
+    public translate: TranslateService,
+
   ) {
     this.contact$ = _contactService.contact$;
+    translate.use('en');
 }
 
   ngOnInit(): void {
@@ -50,5 +54,9 @@ export class ContactDetailsComponent implements OnInit, OnDestroy {
           this.isRefreshing = false;
         }
       });
+  }
+
+  switchLang(lang: string) {
+    this.translate.use(lang);
   }
 }

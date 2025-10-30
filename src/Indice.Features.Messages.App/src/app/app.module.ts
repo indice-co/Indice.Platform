@@ -1,6 +1,6 @@
 import { LOCALE_ID, NgModule, Provider } from '@angular/core';
 import { CommonModule, DatePipe, JsonPipe, registerLocaleData } from '@angular/common';
-import { HttpClientModule, HTTP_INTERCEPTORS, withInterceptors, provideHttpClient } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS, withInterceptors, provideHttpClient, HttpClient } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -95,7 +95,13 @@ import { NgProgressbar } from 'ngx-progressbar';
 import { progressInterceptor, NgProgressHttp } from 'ngx-progressbar/http';
 import { ContactDuplicatesComponent } from './features/contacts/contact/duplicates/contact-duplicates.component';
 import { MessageEventsComponent } from './features/events/message-events.component';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { ApiTranslateLoader } from './shared/services/api-translate-loader'; 
+
 registerLocaleData(localeGreek);
+export function ApiLoaderFactory(http: HttpClient) {
+  return new ApiTranslateLoader(http);
+}
 
 const providers: Provider[] = [
   DatePipe,
@@ -218,10 +224,16 @@ if (app.settings.tenantId) {
     ReactiveFormsModule,
     CodeEditorModule,
     NgProgressbar,
-    NgProgressHttp
+    NgProgressHttp,
+    TranslateModule.forRoot(),
   ],
   providers: [
     ...providers,
+    {
+      provide: TranslateLoader,
+      useFactory: ApiLoaderFactory,
+      deps: [HttpClient],
+    },
     provideHttpClient(withInterceptors([progressInterceptor]))
   ],
   bootstrap: [AppComponent]

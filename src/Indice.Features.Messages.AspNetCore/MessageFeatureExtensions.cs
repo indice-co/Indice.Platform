@@ -18,6 +18,7 @@ using Indice.Serialization;
 using Indice.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -53,6 +54,8 @@ public static class MessageFeatureExtensions
             options.UserClaimType = apiOptions.UserClaimType;
             options.GroupName = apiOptions.InboxGroupName;
             options.AnalyticsOptions = apiOptions.AnalyticsOptions;
+        }).AddTranslationGraph(options => {
+            options.DefaultTranslationsBaseName = "TranslationsApi";
         });
     }
 
@@ -184,7 +187,6 @@ public static class MessageFeatureExtensions
         Action<IServiceProvider, DbContextOptionsBuilder> sqlServerConfiguration = (serviceProvider, builder) => builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("MessagesDb"));
         services.AddDbContext<CampaignsDbContext>(baseOptions.ConfigureDbContext ?? sqlServerConfiguration);
         services.AddHostedService<DbInitializerHostedService>();
-
         return services;
     }
 

@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
-using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
 
 namespace Microsoft.AspNetCore.Routing;
 
@@ -49,7 +50,7 @@ public static class TranslationsGraphFeatureExtensions
             var operationName = "GetTranslations";
             if (counter > 0) {
                 operationName += counter;
-            } 
+            }
             routes.MapGet(endpoint.Key, (string lang, IStringLocalizerFactory factory) => {
                 var culture = new System.Globalization.CultureInfo(lang);
                 var strings = endpoint.SelectMany(x => factory.Create(x.TranslationsBaseName, x.TranslationsLocation).GetAllStrings(culture, includeParentCultures: true));
