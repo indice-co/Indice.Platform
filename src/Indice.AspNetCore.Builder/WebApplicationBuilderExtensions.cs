@@ -155,37 +155,29 @@ public static class WebApplicationBuilderExtensions
             return builder;
         }
 
-        var ipConfig = builder.Configuration.GetProxyIp();
         var knownNetworks = builder.Configuration.GetProxyKnownNetworks();
-        var knownProxies = string.IsNullOrWhiteSpace(ipConfig)
-            ? builder.Configuration.GetProxyKnownProxies()
-            : builder.Configuration.GetProxyKnownProxies().Concat([ipConfig]).ToArray();
+        var knownProxies = builder.Configuration.GetProxyKnownProxies();
 
         builder.Services.Configure<ForwardedHeadersOptions>(options =>
         {
+            options.KnownNetworks.Clear();
+            options.KnownProxies.Clear();
+
             var forwardLimit = builder.Configuration.GetProxyForwardLimit();
             options.ForwardedHeaders = ForwardedHeaders.All;
             options.ForwardLimit = forwardLimit == 0 
                 ? null 
                 : forwardLimit;
 
-            if (!knownNetworks.Any()) {
-                options.KnownNetworks.Clear();
-            } else {
-                foreach (var entry in knownNetworks) {
-                    if (HttpOverrides.IPNetwork.TryParse(entry, out var network)) {
-                        options.KnownNetworks.Add(network);
-                    }
+            foreach (var entry in knownNetworks) {
+                if (HttpOverrides.IPNetwork.TryParse(entry, out var network)) {
+                    options.KnownNetworks.Add(network);
                 }
             }
 
-            if (!knownProxies.Any()) {
-                options.KnownProxies.Clear();
-            } else {
-                foreach (var entry in knownProxies) {
-                    if (IPAddress.TryParse(entry, out var ip)) {
-                        options.KnownProxies.Add(ip);
-                    }
+            foreach (var entry in knownProxies) {
+                if (IPAddress.TryParse(entry, out var ip)) {
+                    options.KnownProxies.Add(ip);
                 }
             }
         });

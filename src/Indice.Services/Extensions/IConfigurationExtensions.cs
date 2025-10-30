@@ -80,7 +80,14 @@ public static class IConfigurationExtensions
     /// <summary>Gets the known proxies IP addresses.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns>The known proxies IP addresses.</returns>
-    public static string[] GetProxyKnownProxies(this IConfiguration configuration) => configuration.GetSection(ProxyOptions.Name).GetSection(nameof(ProxyOptions.KnownProxies)).Get<string[]>() ?? [];
+    public static string[] GetProxyKnownProxies(this IConfiguration configuration) {
+        var ipConfig = configuration.GetSection(ProxyOptions.Name).GetValue<string>(nameof(ProxyOptions.Ip));
+        var knownProxies = configuration.GetSection(ProxyOptions.Name).GetSection(nameof(ProxyOptions.KnownProxies)).Get<string[]>() ?? [];
+
+        return !string.IsNullOrEmpty(ipConfig) && !knownProxies.Contains(ipConfig)
+            ? [ipConfig, ..knownProxies]
+            : knownProxies;
+    }
 
     /// <summary>Gets the proxy known networks.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
