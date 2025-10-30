@@ -1,11 +1,12 @@
 using System.Security.Claims;
-using IdentityModel;
 #if NET9_0_OR_GREATER
+using Duende.IdentityModel;
 using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Stores;
 #else
+using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Models;
 using IdentityServer4.Services;

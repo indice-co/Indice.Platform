@@ -1,17 +1,17 @@
 ﻿@page "/error"
 
-@inject IIdentityViewLocalizer Localizer
+@inject IdentityUILocalizer Localizer
 
 @model BaseErrorModel
 
 @{
-    var title = ViewData["Title"] = Localizer["Error"].Value;
+    ViewData["Title"] = Localizer.Error_PageTitle;
 }
 
 <section class="border-0 pt-5 error-page identity-panel">
     <article>
-        <h1 class="text-danger text-start">@title</h1>
-        <h2 class="text-danger">@Localizer["Oops! Seems we encountered an error."]</h2>
+        <h1 class="text-danger text-start">@Localizer.Error_PageHeader</h1>
+        <h2 class="text-danger">@Localizer.Error_Oops_Seems_We_Encountered_An_Error</h2>
         <p class="pt-5">
             @if (Model?.Message is not null)
             {
@@ -21,7 +21,7 @@
             }
             @if (Model?.RequestId is not null)
             {
-                <div class="request-id">@Localizer["Request Id"]: @Model.RequestId</div>
+                <div class="request-id">@Localizer.Error_Request_Id: @Model.RequestId</div>
             }
         </p>
     </article>

@@ -1,4 +1,4 @@
-﻿using IdentityModel;
+﻿using Duende.IdentityModel;
 using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.ResponseHandling;
@@ -17,7 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Xunit;
 using Indice.Security;
-using IdentityModel.Client;
+using Duende.IdentityModel.Client;
 using System.Security.Claims;
 using System.Net.Http.Headers;
 #if NET9_0_OR_GREATER
@@ -32,7 +32,7 @@ using IdentityServer4.ResponseHandling;
 using IdentityServer4.Services;
 using Indice.Features.Identity.Core.TokenCreation;
 #endif
-using TokenResponse = IdentityModel.Client.TokenResponse;
+using TokenResponse = Duende.IdentityModel.Client.TokenResponse;
 
 namespace Indice.Features.Identity.Tests;
 public class UserAvatarApiTest : IAsyncLifetime

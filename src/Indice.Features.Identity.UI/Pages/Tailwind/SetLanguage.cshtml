@@ -1,9 +1,8 @@
 ﻿@page "/set-language"
 
-@inject IIdentityViewLocalizer Localizer
-
 @model BaseSetLanguageModel
+@inject IdentityUILocalizer Localizer
 
 @{
-    ViewData["Title"] = Localizer["Setting ui language..."];
+    ViewData["Title"] = Localizer.SetLanguage_Setting_ui_language;
 }

@@ -4,12 +4,10 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using FluentValidation;
-using IdentityModel;
+using Duende.IdentityModel;
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer.ResponseHandling;
-using Duende.IdentityServer.Extensions;
 using Duende.IdentityServer.Stores;
-using Duende.IdentityServer.Services;
 #else
 using IdentityServer4.EntityFramework.Services;
 using IdentityServer4.ResponseHandling;
@@ -377,13 +375,17 @@ public static class IdentityServerEndpointServiceCollectionExtensions
 #if NET9_0_OR_GREATER
     /// <summary>Adds the certificate using for IIS and Windows were the new registration failes.</summary>
     /// <param name="builder">Builder for configuring the Indice Identity Server.</param>
+    /// <remarks>This is a polyfill for running under IIS on .NET 9 on windows where the new registration fails.</remarks>
     public static IExtendedIdentityServerBuilder AddCertificateIIS(this IExtendedIdentityServerBuilder builder) {
         builder.Services.Remove<ISigningCredentialStore>();
         builder.Services.Remove<IValidationKeysStore>();
+        //suppression happens becauese this method is polyfill for running under IIS on .NET 9 on windows where the new registration fails.
+#pragma warning disable SYSLIB0057 // Type or member is obsolete 
         var cert = new X509Certificate2(
             Path.Combine(builder.Environment.ContentRootPath, builder.Configuration["IdentityServer:SigningPfxFile"] ?? string.Empty),
             builder.Configuration["IdentityServer:SigningPfxPass"],
             X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable);
+#pragma warning restore SYSLIB0057 // Type or member is obsolete
         builder.AddSigningCredential(cert);
         return builder;
     }

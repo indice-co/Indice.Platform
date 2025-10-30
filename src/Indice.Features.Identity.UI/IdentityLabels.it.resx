@@ -1,0 +1,1066 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AcceptTerms_Reject" xml:space="preserve">
+    <value>Rifiuta</value>
+  </data>
+  <data name="AcceptTerms_Accept" xml:space="preserve">
+    <value>Accetta</value>
+  </data>
+  <data name="AcceptTerms_PageHeader" xml:space="preserve">
+    <value>Accettazione dei termini e condizioni</value>
+  </data>
+  <data name="AcceptTerms_ReadAndAcceptTerms" xml:space="preserve">
+    <value>Per favore, leggi e accetta i termini e condizioni per continuare.</value>
+  </data>
+  <data name="AddEmail_Next" xml:space="preserve">
+    <value>Continua</value>
+  </data>
+  <data name="AddEmail_Save" xml:space="preserve">
+    <value>Salva</value>
+  </data>
+  <data name="AddEmail_PageTitle" xml:space="preserve">
+    <value>Verifica email</value>
+  </data>
+  <data name="AddEmail_PageHeader" xml:space="preserve">
+    <value>Verifica email</value>
+  </data>
+  <data name="AddPassword_Required" xml:space="preserve">
+    <value>οbbligatorio</value>
+  </data>
+  <data name="AddPassword_Add" xml:space="preserve">
+    <value>Aggiungi</value>
+  </data>
+  <data name="AddPassword_PageTitle" xml:space="preserve">
+    <value>Aggiungi password</value>
+  </data>
+  <data name="AddPassword_PageHeader" xml:space="preserve">
+    <value>Aggiungi password</value>
+  </data>
+  <data name="AddPassword_Newpassword_FieldLabel" xml:space="preserve">
+    <value>Nuova password</value>
+  </data>
+  <data name="AddPassword_PasswordConfirmation" xml:space="preserve">
+    <value>Conferma la nuova password</value>
+  </data>
+  <data name="AddPassword_PasswordSuccessfullyAdded" xml:space="preserve">
+    <value>Password aggiunta con successo</value>
+  </data>
+  <data name="AddPassword_ProcessCompleted" xml:space="preserve">
+    <value>Processo completato</value>
+  </data>
+  <data name="AddPhone_pageTitle" xml:space="preserve">
+    <value>Aggiungi telefono</value>
+  </data>
+  <data name="AddPhone_PageHeader" xml:space="preserve">
+    <value>Aggiungi telefono</value>
+  </data>
+  <data name="AddPhone_AddPhoneNumber" xml:space="preserve">
+    <value>Aggiungi numero di telefono</value>
+  </data>
+  <data name="AddPhone_CallingCode" xml:space="preserve">
+    <value>Prefisso telefonico</value>
+  </data>
+  <data name="AddPhone_PhoneNumber" xml:space="preserve">
+    <value>Numero di telefono</value>
+  </data>
+  <data name="AddPhone_Save" xml:space="preserve">
+    <value>Salva</value>
+  </data>
+  <data name="Challenge_PageTitle" xml:space="preserve">
+    <value>Reindirizzamento...</value>
+  </data>
+  <data name="Challenge_PageHeader" xml:space="preserve">
+    <value>Reindirizzamento...</value>
+  </data>
+  <data name="ChangePassword_SignWithDifferentAccount" xml:space="preserve">
+    <value>Accedi con un account diverso</value>
+  </data>
+  <data name="ChangePassword_Change" xml:space="preserve">
+    <value>Modifica</value>
+  </data>
+  <data name="ChangePassword_PageTitle" xml:space="preserve">
+    <value>Modifica password</value>
+  </data>
+  <data name="ChangePassword_PageHeader" xml:space="preserve">
+    <value>Modifica password</value>
+  </data>
+  <data name="ChangePassword_Newpassword_FieldLabel" xml:space="preserve">
+    <value>Nuova password</value>
+  </data>
+  <data name="ChangePassword_OldPassword_FieldLabel" xml:space="preserve">
+    <value>Vecchia password</value>
+  </data>
+  <data name="ChangePassword_PasswordSuccessfullyChanged" xml:space="preserve">
+    <value>Password modificata con successo</value>
+  </data>
+  <data name="ChangePassword_ProcessCompleted" xml:space="preserve">
+    <value>Processo completato</value>
+  </data>
+  <data name="ConfirmEmail_DoNotReply" xml:space="preserve">
+    <value>Si prega di non rispondere, poiché questo indirizzo non riceve messaggi e non riceverai una risposta.</value>
+  </data>
+  <data name="ConfirmEmail_ServiceEmailInfo" xml:space="preserve">
+    <value>Questa email di servizio contiene informazioni relative al tuo account.</value>
+  </data>
+  <data name="ConfirmEmail_Click" xml:space="preserve">
+    <value>Clicca</value>
+  </data>
+  <data name="ConfirmEmail_PageTitle" xml:space="preserve">
+    <value>Conferma Email</value>
+  </data>
+  <data name="ConfirmEmail_PageHeader" xml:space="preserve">
+    <value>Conferma Email</value>
+  </data>
+  <data name="ConfirmEmail_LinkExpired" xml:space="preserve">
+    <value>Il link di verifica email è scaduto.</value>
+  </data>
+  <data name="ConfirmEmail_here" xml:space="preserve">
+    <value>qui</value>
+  </data>
+  <data name="ConfirmEmail_MistakeText" xml:space="preserve">
+    <value>Se pensi che questo errore sia stato generato per sbaglio, clicca semplicemente</value>
+  </data>
+  <data name="ConfirmEmail_NoActionTaken" xml:space="preserve">
+    <value>Nessuna azione è stata eseguita.</value>
+  </data>
+  <data name="ConfirmEmail_LoginResendText" xml:space="preserve">
+    <value>Accedi e reinvia il link, per favore</value>
+  </data>
+  <data name="ConfirmEmail_ClickToVerify" xml:space="preserve">
+    <value>Questo potrebbe richiedere qualche istante. Clicca sul link qui sotto per verificare il tuo indirizzo email.</value>
+  </data>
+  <data name="ConfirmEmail_GoBackToSignIn" xml:space="preserve">
+    <value>per accedere o tornare indietro.</value>
+  </data>
+  <data name="ConfirmEmail_Verify" xml:space="preserve">
+    <value>Verifica</value>
+  </data>
+  <data name="ConfirmEmail_VerifyingEmail" xml:space="preserve">
+    <value>Verifica del tuo indirizzo email in corso.</value>
+  </data>
+  <data name="ConfirmEmail_Closewindow" xml:space="preserve">
+    <value>Ora è possibile chiudere questa finestra</value>
+  </data>
+  <data name="ConfirmEmail_Confrimation" xml:space="preserve">
+    <value>La tua email è stata confermata con successo</value>
+  </data>
+  <data name="ConfirmEmail_AlreadyVerified" xml:space="preserve">
+    <value>La tua email è già stata verificata. Grazie</value>
+  </data>
+  <data name="ConfirmEmailChange_Click" xml:space="preserve">
+    <value>Clicca</value>
+  </data>
+  <data name="ConfirmEmailChange_PageTitle" xml:space="preserve">
+    <value>Conferma modifica email</value>
+  </data>
+  <data name="ConfirmEmailChange_PageHeader" xml:space="preserve">
+    <value>Conferma modifica email</value>
+  </data>
+  <data name="ConfirmEmailChange_LinkExpired" xml:space="preserve">
+    <value>Il link di verifica email è scaduto.</value>
+  </data>
+  <data name="ConfirmEmailChange_here" xml:space="preserve">
+    <value>qui</value>
+  </data>
+  <data name="ConfirmEmailChange_MistakeText" xml:space="preserve">
+    <value>Se pensi che questo errore sia un errore, clicca semplicemente</value>
+  </data>
+  <data name="ConfirmEmailChange_NoAction" xml:space="preserve">
+    <value>Nessuna azione è stata effettuata.</value>
+  </data>
+  <data name="ConfirmEmailChange_LoginResendText" xml:space="preserve">
+    <value>Accedi e reinvia il link</value>
+  </data>
+  <data name="ConfirmEmailChange_VerificationText" xml:space="preserve">
+    <value>Potrebbe richiedere qualche istante. Clicca sul link sottostante per verificare il tuo indirizzo email.</value>
+  </data>
+  <data name="ConfirmEmailChange_SignInGoBack" xml:space="preserve">
+    <value>per accedere o tornare indietro.</value>
+  </data>
+  <data name="ConfirmEmailChange_Verify" xml:space="preserve">
+    <value>Verifica</value>
+  </data>
+  <data name="ConfirmEmailChange_VerifyingEmail" xml:space="preserve">
+    <value>Verifica la tua email.</value>
+  </data>
+  <data name="ConfirmEmailChange_CloseWindowMessage" xml:space="preserve">
+    <value>Ora puoi chiudere questa finestra del browser.</value>
+  </data>
+  <data name="ConfirmEmailChange_ConfirmationEmailChanged" xml:space="preserve">
+    <value> La tua email è stata modificata con successo.</value>
+  </data>
+  <data name="ConfirmEmailChange_ConfirmationVerified" xml:space="preserve">
+    <value>La tua email è già verificata. Grazie</value>
+  </data>
+  <data name="Consent_Accept" xml:space="preserve">
+    <value>Accetta</value>
+  </data>
+  <data name="Consent_app" xml:space="preserve">
+    <value>app</value>
+  </data>
+  <data name="Consent_ApplicationAccess" xml:space="preserve">
+    <value>Accesso all'applicazione</value>
+  </data>
+  <data name="Consent_Cancel" xml:space="preserve">
+    <value>Annulla</value>
+  </data>
+  <data name="Consent_code" xml:space="preserve">
+    <value>codice</value>
+  </data>
+  <data name="Consent_PageTitle" xml:space="preserve">
+    <value>Consenso</value>
+  </data>
+  <data name="Consent_PageHeader" xml:space="preserve">
+    <value>Consenso</value>
+  </data>
+  <data name="Consent_PersonalInformation" xml:space="preserve">
+    <value>Informazioni personali</value>
+  </data>
+  <data name="Consent_RememberMyDecision" xml:space="preserve">
+    <value>Ricorda la mia scelta</value>
+  </data>
+  <data name="Consent_SecurityCode" xml:space="preserve">
+    <value>Codice di sicurezza</value>
+  </data>
+  <data name="Consent_send" xml:space="preserve">
+    <value>invia</value>
+  </data>
+  <data name="Consent_This" xml:space="preserve">
+    <value>Questo</value>
+  </data>
+  <data name="Consent_ThisAppWouldLikeTo" xml:space="preserve">
+    <value>Questa app desidera</value>
+  </data>
+  <data name="Consent_ToYourPhone" xml:space="preserve">
+    <value>al tuo telefono</value>
+  </data>
+  <data name="Consent_UncheckPermissions" xml:space="preserve">
+    <value>Deseleziona le autorizzazioni che non desideri concedere.</value>
+  </data>
+  <data name="Consent_WouldLikeTo" xml:space="preserve">
+    <value>desidera</value>
+  </data>
+  <data name="Email_Preheader_Verify" xml:space="preserve">
+    <value>Abbiamo bisogno che verifichi la tua email. Clicca</value>
+  </data>
+  <data name="Email_Preheader_Here" xml:space="preserve">
+    <value>qui</value>
+  </data>
+  <data name="Email_Preheader_ToGetVerified" xml:space="preserve">
+    <value>per essere verificato</value>
+  </data>
+  <data name="Email_Body_Hi" xml:space="preserve">
+    <value>Ciao</value>
+  </data>
+  <data name="Email_Body_Thanks" xml:space="preserve">
+    <value>Grazie</value>
+  </data>
+  <data name="Email_Body_Sincerely" xml:space="preserve">
+    <value>Cordiali saluti</value>
+  </data>
+  <data name="Email_Body_Organization" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="Email_Reset_Password_FieldLabel" xml:space="preserve">
+    <value>Reimposta password</value>
+  </data>
+  <data name="Email_ResetPassword_RequestInfo" xml:space="preserve">
+    <value>Abbiamo ricevuto una richiesta di reimpostazione della password. Se ha richiesto la reimpostazione, clicchi sul seguente link:</value>
+  </data>
+  <data name="Email_ResetPassword_IgnoreNotice" xml:space="preserve">
+    <value>Se non ha richiesto la reimpostazione della password, può tranquillamente ignorare questo messaggio.</value>
+  </data>
+  <data name="EmailRegister_Subject" xml:space="preserve">
+    <value>Benvenuto su {0}! Conferma il tuo indirizzo email per iniziare.</value>
+  </data>
+  <data name="EmailRegister_Body_Welcome" xml:space="preserve">
+    <value>Benvenuto su {0}! Siamo felici di averti con noi.</value>
+  </data>
+  <data name="EmailRegister_Body_ConfirmEmail" xml:space="preserve">
+    <value>Per completare la registrazione, conferma il tuo indirizzo email cliccando</value>
+  </data>
+  <data name="EmailRegister_Body_IgnoreNotice" xml:space="preserve">
+    <value>Se non hai creato un account, puoi ignorare questa email.</value>
+  </data>
+  <data name="EmailRegister_Body_Thanks" xml:space="preserve">
+    <value>Grazie per esserti unito a noi!</value>
+  </data>
+  <data name="EmailRegister_Body_Hi" xml:space="preserve">
+    <value>Ciao</value>
+  </data>
+  <data name="EmailSecurity_Preheader" xml:space="preserve">
+    <value>Notifica di sicurezza relativa al tuo account.</value>
+  </data>
+  <data name="EmailSecurity_Subject" xml:space="preserve">
+    <value>Notifica di sicurezza</value>
+  </data>
+  <data name="EmailSecurity_Body_Hi" xml:space="preserve">
+    <value>Ciao</value>
+  </data>
+  <data name="EmailSecurity_Body_EventOccurred" xml:space="preserve">
+    <value>Vogliamo informarti che si è verificato un evento di sicurezza sul tuo account.</value>
+  </data>
+  <data name="EmailSecurity_Body_EventDetails" xml:space="preserve">
+    <value>Dettagli evento:</value>
+  </data>
+  <data name="EmailSecurity_Body_EventTime" xml:space="preserve">
+    <value>Ora evento</value>
+  </data>
+  <data name="EmailSecurity_Body_Username" xml:space="preserve">
+    <value>Nome utente</value>
+  </data>
+  <data name="EmailSecurity_Body_Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="EmailSecurity_Body_Device" xml:space="preserve">
+    <value>Dispositivo</value>
+  </data>
+  <data name="EmailSecurity_Body_Client" xml:space="preserve">
+    <value>Client</value>
+  </data>
+  <data name="EmailSecurity_Body_Location" xml:space="preserve">
+    <value>Posizione</value>
+  </data>
+  <data name="EmailSecurity_Body_LocationNotice" xml:space="preserve">
+    <value>(Potrebbe non corrispondere esattamente alla posizione)</value>
+  </data>
+  <data name="EmailSecurity_Body_ContactSupport" xml:space="preserve">
+    <value>Se non hai effettuato questa azione, contatta immediatamente l’assistenza.</value>
+  </data>
+  <data name="Error_PageTitle" xml:space="preserve">
+    <value>Errore</value>
+  </data>
+  <data name="Error_PageHeader" xml:space="preserve">
+    <value>Errore</value>
+  </data>
+  <data name="Error_Go_back_home" xml:space="preserve">
+    <value>Torna alla home</value>
+  </data>
+  <data name="Footer_Discovery" xml:space="preserve">
+    <value>Discovery</value>
+  </data>
+  <data name="Footer_Privacy" xml:space="preserve">
+    <value>Informativa sulla privacy</value>
+  </data>
+  <data name="Footer_Terms" xml:space="preserve">
+    <value>Termini di utilizzo</value>
+  </data>
+  <data name="Footer_Contact_us" xml:space="preserve">
+    <value>Contattaci</value>
+  </data>
+  <data name="ForgotPassword_PageTitle" xml:space="preserve">
+    <value>Password dimenticata</value>
+  </data>
+  <data name="ForgotPassword_PageHeader" xml:space="preserve">
+    <value>Password dimenticata</value>
+  </data>
+  <data name="ForgotPassword_Resend" xml:space="preserve">
+    <value>Invia di nuovo</value>
+  </data>
+  <data name="ForgotPassword_Send" xml:space="preserve">
+    <value>Invia</value>
+  </data>
+  <data name="ForgotPassword_Username" xml:space="preserve">
+    <value>Nome utente</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_PageTitle" xml:space="preserve">
+    <value>Password dimenticata</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_PageHeader" xml:space="preserve">
+    <value>Password dimenticata</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_Newpassword_FieldLabel" xml:space="preserve">
+    <value>Nuova password</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_PasswordChanged" xml:space="preserve">
+    <value>Password modificata con successo</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_LoginLink" xml:space="preserve">
+    <value>Effettuare &lt;a href="{0}"&gt;l’accesso&lt;/a&gt; utilizzando la nuova password</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_FillNewPassword_FieldLabel" xml:space="preserve">
+    <value>Inserire una nuova password</value>
+  </data>
+  <data name="ForgotPasswordConfirmation_Send" xml:space="preserve">
+    <value>Invia</value>
+  </data>
+  <data name="Grants_ListApplicationsGrants" xml:space="preserve">
+    <value>Below is the list of applications you have given access to and the names of the resources they have access to.</value>
+  </data>
+  <data name="Grants_ClientLogo" xml:space="preserve">
+    <value>Client logo</value>
+  </data>
+  <data name="Grants_Created" xml:space="preserve">
+    <value>Created:</value>
+  </data>
+  <data name="Grants_ExpiresOn" xml:space="preserve">
+    <value>Expires on</value>
+  </data>
+  <data name="Grants_PageTitle" xml:space="preserve">
+    <value>Grants</value>
+  </data>
+  <data name="Grants_PageHeader" xml:space="preserve">
+    <value>Grants</value>
+  </data>
+  <data name="Grants_RevokeAccess" xml:space="preserve">
+    <value>Revoke Access</value>
+  </data>
+  <data name="Grants_NoAccessGiven" xml:space="preserve">
+    <value>You have not provided access to any applications</value>
+  </data>
+  <data name="Home_WelcomeMessage" xml:space="preserve">
+    <value>&lt;strong&gt;Welcome&lt;/strong&gt;&lt;br&gt; to our Digital Services Portal of {0}</value>
+  </data>
+  <data name="Home_authorizedapplications" xml:space="preserve">
+    <value>Applicazioni autorizzate</value>
+  </data>
+  <data name="Home_CheckAndRevoke" xml:space="preserve">
+    <value>Controlla e revoca il tuo/la tua</value>
+  </data>
+  <data name="Home_DigitalServices" xml:space="preserve">
+    <value>Servizi Digitali</value>
+  </data>
+  <data name="Home_here" xml:space="preserve">
+    <value>here</value>
+  </data>
+  <data name="Home_ManageGrants" xml:space="preserve">
+    <value>Manage your grants</value>
+  </data>
+  <data name="Home_PleaseLogin" xml:space="preserve">
+    <value>Please login to the application</value>
+  </data>
+  <data name="Home_Portal" xml:space="preserve">
+    <value>Portale</value>
+  </data>
+  <data name="Home_IntroTextWithOrgName" xml:space="preserve">
+    <value>Il Portale Identità ti dà accesso a tutti i servizi {0} con un solo account. Un luogo dove gestire il tuo profilo utente e le impostazioni di accesso. Usa i link qui sotto per iniziare.</value>
+  </data>
+  <data name="Home_Welcome" xml:space="preserve">
+    <value>Welcome</value>
+  </data>
+  <data name="Home_WelcomeBack" xml:space="preserve">
+    <value>Welcome back</value>
+  </data>
+  <data name="Home_WelcomeDigitalServices" xml:space="preserve">
+    <value>Benvenuto nel &lt;strong&gt;Portale&lt;/strong&gt; Servizi Digitali di {0}</value>
+  </data>
+  <data name="LoggedOut_Click" xml:space="preserve">
+    <value>Clicca</value>
+  </data>
+  <data name="LoggedOut_here" xml:space="preserve">
+    <value>qui</value>
+  </data>
+  <data name="LoggedOut_PageTitle" xml:space="preserve">
+    <value>Disconnetti</value>
+  </data>
+  <data name="LoggedOut_PageHeader" xml:space="preserve">
+    <value>Disconnetti</value>
+  </data>
+  <data name="LoggedOut_ReturnToApplication" xml:space="preserve">
+    <value>per tornare al portale</value>
+  </data>
+  <data name="LoggedOut_YouAreLoggedOut" xml:space="preserve">
+    <value>Sessione terminata con successo</value>
+  </data>
+  <data name="Login_NoAccount" xml:space="preserve">
+    <value>Non hai un account?</value>
+  </data>
+  <data name="Login_ForgotPassword_FieldLabel" xml:space="preserve">
+    <value>Password dimenticata?</value>
+  </data>
+  <data name="Login_InvalidLoginRequest" xml:space="preserve">
+    <value>Invalid login request</value>
+  </data>
+  <data name="Login_JoinUs" xml:space="preserve">
+    <value>Registrati</value>
+  </data>
+  <data name="Login_PageTitle" xml:space="preserve">
+    <value>Accedi</value>
+  </data>
+  <data name="Login_PageHeader" xml:space="preserve">
+    <value>Accedi</value>
+  </data>
+  <data name="Login_OR" xml:space="preserve">
+    <value>OR</value>
+  </data>
+  <data name="Login_Password_FieldLabel" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="Login_RememberMe" xml:space="preserve">
+    <value>Ricordami</value>
+  </data>
+  <data name="Login_SignIn" xml:space="preserve">
+    <value>Accedi</value>
+  </data>
+  <data name="Login_NoLoginSchemes" xml:space="preserve">
+    <value>There are no login schemes configured for this client.</value>
+  </data>
+  <data name="Login_Username" xml:space="preserve">
+    <value>Nome utente</value>
+  </data>
+  <data name="Logout_PageTitle" xml:space="preserve">
+    <value>Disconnetti</value>
+  </data>
+  <data name="Logout_PageHeader" xml:space="preserve">
+    <value>Disconnetti</value>
+  </data>
+  <data name="Logout_WantToLogout" xml:space="preserve">
+    <value>Desidera effettuare il logout?</value>
+  </data>
+  <data name="Logout_Yes" xml:space="preserve">
+    <value>Sì</value>
+  </data>
+  <data name="Mfa_UnexpectedErrorSendingOTPCode" xml:space="preserve">
+    <value>Si è verificato un errore imprevisto durante l'invio del codice OTP.</value>
+  </data>
+  <data name="Mfa_Authenticate" xml:space="preserve">
+    <value>Autenticati</value>
+  </data>
+  <data name="Mfa_AuthenticateUsing" xml:space="preserve">
+    <value>Autenticati utilizzando:</value>
+  </data>
+  <data name="Mfa_Back" xml:space="preserve">
+    <value>Indietro</value>
+  </data>
+  <data name="Mfa_YouNeedToApproveRequest" xml:space="preserve">
+    <value>Poiché hai attivato la verifica in due passaggi, devi approvare la richiesta sulla tua app mobile.</value>
+  </data>
+  <data name="Mfa_CannotUseAppNow" xml:space="preserve">
+    <value>Non posso usare la mia app in questo momento</value>
+  </data>
+  <data name="Mfa_DidnotReceiveNotification" xml:space="preserve">
+    <value>Non ho ricevuto la notifica/Rispedisci.</value>
+  </data>
+  <data name="Mfa_ISignInFrequently" xml:space="preserve">
+    <value>Accedo spesso da questo dispositivo. Ricorda questo browser.</value>
+  </data>
+  <data name="Mfa_Login" xml:space="preserve">
+    <value>Accedi</value>
+  </data>
+  <data name="Mfa_OtherAuthenticationMethods" xml:space="preserve">
+    <value>Altri metodi di autenticazione...</value>
+  </data>
+  <data name="Mfa_OTPCode" xml:space="preserve">
+    <value>Codice OTP</value>
+  </data>
+  <data name="Mfa_RequestDenied" xml:space="preserve">
+    <value>Richiesta negata</value>
+  </data>
+  <data name="Mfa_Resend" xml:space="preserve">
+    <value>Rispedisci</value>
+  </data>
+  <data name="Mfa_SendAnotherRequestToApp" xml:space="preserve">
+    <value>Invia un'altra richiesta alla mia app</value>
+  </data>
+  <data name="Mfa_IdentityVerificationWasDenied" xml:space="preserve">
+    <value>Abbiamo inviato una richiesta di verifica dell'identità al tuo dispositivo mobile, ma l'hai rifiutata.</value>
+  </data>
+  <data name="Mfa_WeTextedYourPhone" xml:space="preserve">
+    <value>Abbiamo inviato un SMS al tuo numero {0}. Inserisci il codice per accedere.</value>
+  </data>
+  <data name="MfaModel_OTPLogin" xml:space="preserve">
+    <value>Accesso con OTP</value>
+  </data>
+  <data name="MfaModel_TheOTPIsInvalid" xml:space="preserve">
+    <value>Il codice OTP non è valido.</value>
+  </data>
+  <data name="MfaModel_OTPCodeMessage" xml:space="preserve">
+    <value>Il tuo codice OTP per l'accesso è: {0}</value>
+  </data>
+  <data name="MfaOnBoarding_PageTitle" xml:space="preserve">
+    <value>Attiva l'autenticazione multifattoriale</value>
+  </data>
+  <data name="MfaOnBoarding_PageHeader" xml:space="preserve">
+    <value>Attiva l'autenticazione multifattoriale</value>
+  </data>
+  <data name="MfaOnBoarding_KeepYourAccountSafe" xml:space="preserve">
+    <value>Proteggi il tuo account</value>
+  </data>
+  <data name="MfaOnBoarding_Next" xml:space="preserve">
+    <value>Avanti</value>
+  </data>
+  <data name="MfaOnBoarding_SetupAdditionalAuthenticationMethod" xml:space="preserve">
+    <value>Configura un metodo di autenticazione aggiuntivo.</value>
+  </data>
+  <data name="MfaOnBoardingAddPhone_PageTitle" xml:space="preserve">
+    <value>Configurazione MFA - SMS</value>
+  </data>
+  <data name="MfaOnBoardingAddPhone_PageHeader" xml:space="preserve">
+    <value>Configurazione MFA - SMS</value>
+  </data>
+  <data name="MfaOnBoardingAddPhone_Next" xml:space="preserve">
+    <value>Avanti</value>
+  </data>
+  <data name="MfaOnBoardingAddPhone_PhoneNumber" xml:space="preserve">
+    <value>Numero di telefono</value>
+  </data>
+  <data name="MfaOnBoardingAddPhone_Save" xml:space="preserve">
+    <value>Salva</value>
+  </data>
+  <data name="MfaOnBoardingVerifyPhone_Code" xml:space="preserve">
+    <value>Codice</value>
+  </data>
+  <data name="MfaOnBoardingVerifyPhone_Next" xml:space="preserve">
+    <value>Avanti</value>
+  </data>
+  <data name="MfaOnBoardingVerifyPhone_Save" xml:space="preserve">
+    <value>Salva</value>
+  </data>
+  <data name="MfaOnBoardingVerifyPhone_PageTitle" xml:space="preserve">
+    <value>Verifica numero di telefono</value>
+  </data>
+  <data name="MfaOnBoardingVerifyPhone_PageHeader" xml:space="preserve">
+    <value>Verifica numero di telefono</value>
+  </data>
+  <data name="PasswordExpired_PageTitle" xml:space="preserve">
+    <value>Modifica password</value>
+  </data>
+  <data name="PasswordExpired_PageHeader" xml:space="preserve">
+    <value>Modifica password</value>
+  </data>
+  <data name="PasswordExpired_Newpassword_FieldLabel" xml:space="preserve">
+    <value>Nuova password</value>
+  </data>
+  <data name="PasswordExpired_Next" xml:space="preserve">
+    <value>Continua</value>
+  </data>
+  <data name="PasswordExpired_Save" xml:space="preserve">
+    <value>Salva</value>
+  </data>
+  <data name="PasswordExpired_ΝewPasswordConfirmation" xml:space="preserve">
+    <value>Conferma la nuova password</value>
+  </data>
+  <data name="Profile_PreferredLanguage" xml:space="preserve">
+    <value>Lingua preferita</value>
+  </data>
+  <data name="Profile_ConfirmationEmailSentTo" xml:space="preserve">
+    <value>È stata inviata una email di conferma a {0}.</value>
+  </data>
+  <data name="Profile_ManageProfile" xml:space="preserve">
+    <value>Gestire profilo</value>
+  </data>
+  <data name="Profile_Choose" xml:space="preserve">
+    <value>Seleziona...</value>
+  </data>
+  <data name="Profile_Email" xml:space="preserve">
+    <value>Ιταλικά (χρησιμοποιείται κυρίως αυτούσιο)</value>
+  </data>
+  <data name="Profile_Timezone" xml:space="preserve">
+    <value>Fuso orario</value>
+  </data>
+  <data name="Profile_EmailSentToNewEmail" xml:space="preserve">
+    <value>An email has been sent to your new email address in order to confirm it.</value>
+  </data>
+  <data name="Profile_BirthDate" xml:space="preserve">
+    <value>Birth date</value>
+  </data>
+  <data name="Profile_CallingCode" xml:space="preserve">
+    <value>Calling Code</value>
+  </data>
+  <data name="Profile_Confirmation" xml:space="preserve">
+    <value>Confirmation</value>
+  </data>
+  <data name="Profile_EmailDeliveryFailed" xml:space="preserve">
+    <value>La consegna dell'email di conferma non è riuscita. Si prega di contattare l'amministratore di sistema.</value>
+  </data>
+  <data name="Profile_ConnectNewProvider" xml:space="preserve">
+    <value>Connect a new provider</value>
+  </data>
+  <data name="Profile_DeveloperTOTP" xml:space="preserve">
+    <value>TOTP sviluppatore</value>
+  </data>
+  <data name="Profile_ExistingProviders" xml:space="preserve">
+    <value>Existing providers</value>
+  </data>
+  <data name="Profile_ExternalProviders" xml:space="preserve">
+    <value>External providers</value>
+  </data>
+  <data name="Profile_FirstName" xml:space="preserve">
+    <value>First name</value>
+  </data>
+  <data name="Profile_here" xml:space="preserve">
+    <value>here</value>
+  </data>
+  <data name="Profile_InformAboutProcessing" xml:space="preserve">
+    <value>I have been informed about the processing of my personal data and I consent to it, as specifically defined</value>
+  </data>
+  <data name="Profile_Language" xml:space="preserve">
+    <value>Lingua</value>
+  </data>
+  <data name="Profile_Lastname" xml:space="preserve">
+    <value>Last name</value>
+  </data>
+  <data name="Profile_PhoneNumber" xml:space="preserve">
+    <value>Phone number</value>
+  </data>
+  <data name="Profile_Preferences" xml:space="preserve">
+    <value>Preferenze</value>
+  </data>
+  <data name="Profile_PageTitle" xml:space="preserve">
+    <value>Profile</value>
+  </data>
+  <data name="Profile_PageHeader" xml:space="preserve">
+    <value>Profile</value>
+  </data>
+  <data name="Profile_Remove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Profile_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Profile_TaxIdentification" xml:space="preserve">
+    <value>Tax identification</value>
+  </data>
+  <data name="Profile_Unknown" xml:space="preserve">
+    <value>Sconosciuto</value>
+  </data>
+  <data name="Profile_Username" xml:space="preserve">
+    <value>Username</value>
+  </data>
+  <data name="Profile_VerificationPending" xml:space="preserve">
+    <value>Your new email verification is still pending.</value>
+  </data>
+  <data name="Profile_ProfileUpdatedSuccessfully" xml:space="preserve">
+    <value>Your profile was updated successfully.</value>
+  </data>
+  <data name="Redirect_Returning" xml:space="preserve">
+    <value>Ora stai per essere reindirizzato all’applicazione.</value>
+  </data>
+  <data name="Redirect_CloseTab" xml:space="preserve">
+    <value>Una volta completato, puoi chiudere questa scheda.</value>
+  </data>
+  <data name="Register_Associate_your" xml:space="preserve">
+    <value>Associa il tuo</value>
+  </data>
+  <data name="Register_account" xml:space="preserve">
+    <value>account</value>
+  </data>
+  <data name="Register_Register" xml:space="preserve">
+    <value>Registrati</value>
+  </data>
+  <data name="Register_Form_Instructions" xml:space="preserve">
+    <value>Per registrarsi come nuovo utente, sarà necessario compilare le seguenti informazioni.</value>
+  </data>
+  <data name="Register_AlreadyHaveAccount" xml:space="preserve">
+    <value>Hai già un account?</value>
+  </data>
+  <data name="Register_CallingCode" xml:space="preserve">
+    <value>Codice di chiamata</value>
+  </data>
+  <data name="Register_ChooseEmailAndPassword_FieldLabel" xml:space="preserve">
+    <value>Scegli un'email e una password a tua scelta. Puoi modificare la password periodicamente o ogni volta che lo desideri.</value>
+  </data>
+  <data name="Register_FirstName" xml:space="preserve">
+    <value>Nome</value>
+  </data>
+  <data name="Register_here" xml:space="preserve">
+    <value>qui</value>
+  </data>
+  <data name="Register_LoginWith" xml:space="preserve">
+    <value>accedi con</value>
+  </data>
+  <data name="Register_ConsentToRegistrationAndProcessing" xml:space="preserve">
+    <value>Acconsento alla registrazione e al trattamento dei dati personali sopra indicati per contatti e finalità di servizio, come definiti &lt;a href="{0}" target="_blank" class="font-weight-700"&gt;qui&lt;/a&gt;.</value>
+  </data>
+  <data name="Register_I_Have_Read_And_Accept_Terms" xml:space="preserve">
+    <value>Ho letto e accetto i &lt;a href="{0}" target="_blank" class="font-weight-700"&gt;Termini di servizio&lt;/a&gt;.</value>
+  </data>
+  <data name="Register_JoinUs" xml:space="preserve">
+    <value>Registrati</value>
+  </data>
+  <data name="Register_LastName" xml:space="preserve">
+    <value>Cognome</value>
+  </data>
+  <data name="Register_OR" xml:space="preserve">
+    <value>OR</value>
+  </data>
+  <data name="Register_Password_FieldLabel" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="Register_PhoneNumber" xml:space="preserve">
+    <value>Numero di telefono</value>
+  </data>
+  <data name="Register_PageTitle" xml:space="preserve">
+    <value>Registrati</value>
+  </data>
+  <data name="Register_PageHeader" xml:space="preserve">
+    <value>Registrati</value>
+  </data>
+  <data name="Register_KeepCredentialsPrivateHint" xml:space="preserve">
+    <value>Queste credenziali sono personali. Ti preghiamo di ricordarle e di non rivelarle in alcun modo (oralmente, per iscritto, via email) a terzi.</value>
+  </data>
+  <data name="Register_Timezone" xml:space="preserve">
+    <value>Fuso orario</value>
+  </data>
+  <data name="Register_Username" xml:space="preserve">
+    <value>Username</value>
+  </data>
+  <data name="SetLanguage_Setting_ui_language" xml:space="preserve">
+    <value>Impostazione lingua UI...</value>
+  </data>
+  <data name="VerifyPhone_Code" xml:space="preserve">
+    <value>Codice</value>
+  </data>
+  <data name="VerifyPhone_Next" xml:space="preserve">
+    <value>Avanti</value>
+  </data>
+  <data name="VerifyPhone_Resend" xml:space="preserve">
+    <value>Reinvia</value>
+  </data>
+  <data name="VerifyPhone_Save" xml:space="preserve">
+    <value>Salva</value>
+  </data>
+  <data name="VerifyPhone_PageTitle" xml:space="preserve">
+    <value>Verifica del numero di telefono</value>
+  </data>
+  <data name="VerifyPhone_PageHeader" xml:space="preserve">
+    <value>Verifica del numero di telefono</value>
+  </data>
+  <data name="VerifyPhone_OTP_is_valid_till" xml:space="preserve">
+    <value>OTP valido fino a:</value>
+  </data>
+  <data name="Register_ChooseUsernameAndPassword_FieldLabel" xml:space="preserve">
+    <value>Scegli un nome utente e una password a tua scelta. Puoi modificare la password periodicamente o ogni volta che lo desideri.</value>
+  </data>
+  <data name="Register_ConsentToContactUsage" xml:space="preserve">
+    <value>Acconsento all’utilizzo delle mie informazioni di contatto, incluso il mio indirizzo email, per ricevere comunicazioni commerciali, materiali promozionali e aggiornamenti di marketing dall’organizzazione. Comprendo di poter revocare il mio consenso in qualsiasi momento.</value>
+  </data>
+  <data name="ForgotPassword_ResetInstructions" xml:space="preserve">
+    <value>Per reimpostare la password, inserisci il tuo nome utente o indirizzo email qui sotto. Riceverai un'email con un link per reimpostare la password.</value>
+  </data>
+  <data name="ForgotPassword_RequestSent" xml:space="preserve">
+    <value>Richiesta inviata</value>
+  </data>
+  <data name="Error_Oops" xml:space="preserve">
+    <value>Sembra che si sia verificato un errore.</value>
+  </data>
+  <data name="Error_RequestId" xml:space="preserve">
+    <value>Id richiesta</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="ProfileSidebar_ConfirmEmailSentTo" xml:space="preserve">
+    <value>È stata inviata una email di conferma a {0}.</value>
+  </data>
+  <data name="ProfileSidebar_NewEmailConfirmationSent" xml:space="preserve">
+    <value>È stata inviata una email al tuo nuovo indirizzo per confermarlo.</value>
+  </data>
+  <data name="ProfileSidebar_BirthDate" xml:space="preserve">
+    <value>Data di nascita</value>
+  </data>
+  <data name="ProfileSidebar_CallingCode" xml:space="preserve">
+    <value>Prefisso telefonico</value>
+  </data>
+  <data name="ProfileSidebar_Confirmation" xml:space="preserve">
+    <value>Conferma</value>
+  </data>
+  <data name="ProfileSidebar_ConfirmationEmailFailed" xml:space="preserve">
+    <value>La consegna dell’email di conferma non è riuscita. Si prega di contattare l’amministratore di sistema.</value>
+  </data>
+  <data name="ProfileSidebar_ConnectNewProvider" xml:space="preserve">
+    <value>Connetti un nuovo provider</value>
+  </data>
+  <data name="ProfileSidebar_DeveloperTOTP" xml:space="preserve">
+    <value>TOTP sviluppatore</value>
+  </data>
+  <data name="ProfileSidebar_ExistingProviders" xml:space="preserve">
+    <value>Provider esistenti</value>
+  </data>
+  <data name="ProfileSidebar_ExternalProviders" xml:space="preserve">
+    <value>Provider esterni</value>
+  </data>
+  <data name="ProfileSidebar_FirstName" xml:space="preserve">
+    <value>Nome</value>
+  </data>
+  <data name="ProfileSidebar_Here" xml:space="preserve">
+    <value>qui</value>
+  </data>
+  <data name="ProfileSidebar_DataProcessingConsent" xml:space="preserve">
+    <value>Sono stato informato sul trattamento dei miei dati personali e acconsento a quanto specificamente definito</value>
+  </data>
+  <data name="ProfileSidebar_LastName" xml:space="preserve">
+    <value>Cognome</value>
+  </data>
+  <data name="ProfileSidebar_PhoneNumber" xml:space="preserve">
+    <value>Numero di telefono</value>
+  </data>
+  <data name="ProfileSidebar_Profile" xml:space="preserve">
+    <value>Profilo</value>
+  </data>
+  <data name="ProfileSidebar_Remove" xml:space="preserve">
+    <value>Rimuovi</value>
+  </data>
+  <data name="ProfileSidebar_Save" xml:space="preserve">
+    <value>Salva</value>
+  </data>
+  <data name="ProfileSidebar_TaxIdentification" xml:space="preserve">
+    <value>Codice fiscale</value>
+  </data>
+  <data name="ProfileSidebar_Unknown" xml:space="preserve">
+    <value>Sconosciuto</value>
+  </data>
+  <data name="ProfileSidebar_Username" xml:space="preserve">
+    <value>Nome utente</value>
+  </data>
+  <data name="ProfileSidebar_NewEmailVerificationPending" xml:space="preserve">
+    <value>La verifica del tuo nuovo indirizzo email è ancora in sospeso.</value>
+  </data>
+  <data name="ProfileSidebar_ProfileUpdatedSuccessfully" xml:space="preserve">
+    <value>Il tuo profilo è stato aggiornato con successo.</value>
+  </data>
+  <data name="Privacy_PageTitle" xml:space="preserve">
+    <value>Politica Sulla Riservatezza</value>
+  </data>
+  <data name="Privacy_PageHeader" xml:space="preserve">
+    <value>Politica Sulla Riservatezza</value>
+  </data>
+  <data name="SelectLanguage" xml:space="preserve">
+    <value>Selezione della lingua</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="OrganizationName" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="RequiredValue" xml:space="preserve">
+    <value>obbligatorio</value>
+  </data>
+  <data name="Terms_PageTitle" xml:space="preserve">
+    <value>Termini di servizio</value>
+  </data>
+  <data name="Terms_PageHeader" xml:space="preserve">
+    <value>Termini di servizio</value>
+  </data>
+  <data name="AcceptTerms_PageTitle" xml:space="preserve">
+    <value>Accettazione dei termini e condizioni</value>
+  </data>
+  <data name="Associate_PageTitle" xml:space="preserve">
+    <value>Connetti il tuo account</value>
+  </data>
+  <data name="Associate_PageHeader" xml:space="preserve">
+    <value>Connetti il tuo account</value>
+  </data>
+  <data name="Mfa_PageTitle" xml:space="preserve">
+    <value>Autenticazione multifattoriale</value>
+  </data>
+  <data name="Mfa_PageHeader" xml:space="preserve">
+    <value>Autenticazione multifattoriale</value>
+  </data>
+</root>

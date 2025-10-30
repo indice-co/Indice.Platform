@@ -2,26 +2,26 @@
 
 @model BaseMfaOnboardingModel
 
-@inject IIdentityViewLocalizer Localizer
 @inject IConfiguration Configuration
+@inject IdentityUILocalizer Localizer
 
 @{
-    var title = ViewData["Title"] = Localizer["Enable MFA"].Value;
+    ViewData["Title"] = @Localizer.MfaOnBoarding_PageTitle;
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;
 }
 <div class="content-wrapper">
     <div class="card-wrapper">
-        <vc:page-heading title="@title" image-src="" />
+        <vc:page-heading title="@Localizer.MfaOnboarding_PageHeader" image-src="" />
         <h1 class="text-center mb-6">
             <a class="header-logo inline-block" href="/">
                 <img src="~/img/logo@(langSuffix).svg" alt="Logo" />
             </a>
             <span class="block text-2xl font-semibold mt-2">
-                @Localizer["Keep your account safe"]
+                @Localizer.MfaOnBoarding_Keep_Your_Account_Safe
             </span>
             <span class="block text-base text-gray-600 mt-1">
-                @Localizer["Setup an additional authentication method."]
+                @Localizer.MfaOnBoarding_Setup_An_Additional_Authentication_Method
             </span>
         </h1>
 
@@ -56,7 +56,7 @@
                             name="button"
                             value="login"
                             class="w-full py-2 px-4 font-semibold rounded bg-blue-600 hover:bg-blue-700 text-white transition">
-                        @Localizer["Next"]
+                        @Localizer.MfaOnBoarding_Next
                     </button>
                 </div>
             </div>

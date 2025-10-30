@@ -8,6 +8,7 @@ using OpenTelemetry.Trace;
 using OpenTelemetry.Resources;
 using System.Reflection;
 using OpenTelemetry;
+using Azure.Monitor.OpenTelemetry.Exporter;
 
 namespace Indice.Functions.Builder;
 
@@ -34,7 +35,7 @@ public static class OpenTelementryServiceExtentions
         }
         // enables the Azure Monitor exporter (requires the Azure.Monitor.OpenTelemetry.AspNetCore package)
         if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING"))) {
-            optelBuilder.UseAzureMonitor();
+            optelBuilder.UseAzureMonitorExporter();
         }
         return services;
     }
@@ -55,7 +56,7 @@ public static class OpenTelementryServiceExtentions
     /// <param name="builder">The OpenTelemetry builder.</param>
     /// <param name="environment">Host environemt</param>
     /// <returns>The updated OpenTelemetry builder.</returns>
-    private static OpenTelemetryBuilder AddTracing(this OpenTelemetryBuilder builder, IHostEnvironment environment) {
+    private static IOpenTelemetryBuilder AddTracing(this IOpenTelemetryBuilder builder, IHostEnvironment environment) {
         builder.WithTracing(tracing => {
             tracing.AddAspNetCoreInstrumentation()
                 // Uncomment the following line to enable gRPC instrumentation (requires the OpenTelemetry.Instrumentation.GrpcNetClient package)

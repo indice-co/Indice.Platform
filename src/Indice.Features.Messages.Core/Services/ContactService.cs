@@ -428,9 +428,6 @@ public class ContactService : IContactService
                                              .ThenInclude(up => up.MessageType)
                                              .SingleOrDefaultAsync(x => x.RecipientId == recipientId);
         if (recipientPreferences == null) {
-            var messageTypes = await DbContext.MessageTypes
-                                     .AsNoTracking()
-                                     .ToListAsync();
             recipientPreferences = new DbContactPreference() {
                 RecipientId = recipientId,
                 Locale = preference.Locale,

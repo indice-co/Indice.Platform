@@ -18,8 +18,8 @@
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.12" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="9.0.3" />
-    <PackageReference Include="IdentityModel" Version="7.0.0" />
     <PackageReference Include="JsonSchema.Net.Generation" Version="5.1.1" />
+    <PackageReference Include="Duende.IdentityModel" Version="7.0.0" />
     <PackageReference Include="MiniValidation" Version="0.9.2" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.12.0" />
   </ItemGroup>
