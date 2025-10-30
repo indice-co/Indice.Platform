@@ -53,7 +53,7 @@ import { ContactCampaignsComponent } from './features/contacts/contact/campaigns
 import { ContactEditComponent } from './features/contacts/contact/details/edit/contact-edit.component';
 import { ContactPreferencesComponent } from './features/contacts/contact/preferences/contact-preferences.component';
 import { ContactCreateComponent } from './features/contacts/contact/create/contact-create.component';
-
+import { MessageEventsComponent } from './features/events/message-events.component';
 const routes: Routes = [
   { path: 'auth-callback', component: AuthCallbackComponent },
   { path: 'auth-renew', component: AuthRenewComponent },
@@ -163,6 +163,10 @@ const routes: Routes = [
         path: 'settings',
         data: { breadcrumb: { title: 'Ρυθμίσεις' } },
         component: SettingsComponent
+      }, {
+        path: 'message-events',
+        data: { breadcrumb: { title: 'Message Events' } },
+        component: MessageEventsComponent
       },
       {
         path: 'media',

@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [8.21.0] - 2025-10-27
+### Added New column Recipient in MessageEvent table
+Keep track of the actual recipient (email, phone number, etc) in the MessageEvent table for easier querying and reporting.
+
+```sql
+ALTER TABLE [cmp].[MessageEvent]
+ADD Recipient NVARCHAR(128),
+Title NVARCHAR(128),
+Success BIT
+GO
+UPDATE [cmp].[MessageEvent]
+SET Recipient = 
+    CASE Events.Channel
+         WHEN 'SMS' THEN ct.PhoneNumber
+         WHEN 'Email' THEN ct.Email
+         ELSE ct.RecipientId
+    END,
+    Success = 1,
+    Title  =   CASE Events.Channel
+         WHEN 'SMS' THEN COALESCE(JSON_VALUE(msg.Content, '$.sms.title'), JSON_VALUE(msg.Content, '$.SMS.title'))
+         WHEN 'Email' THEN COALESCE(JSON_VALUE(msg.Content, '$.email.title'), JSON_VALUE(msg.Content, '$.Email.title'))
+         WHEN 'Inbox' THEN COALESCE(JSON_VALUE(msg.Content, '$.inbox.title'), JSON_VALUE(msg.Content, '$.Inbox.title'))
+         ELSE COALESCE(JSON_VALUE(msg.Content, '$.pushNotification.title'), JSON_VALUE(msg.Content, '$.PushNotification.title'))
+    END
+FROM  [cmp].[MessageEvent] as Events
+INNER JOIN [cmp].Contact as ct
+	ON Events.ContactId = ct.Id
+INNER JOIN [cmp].Message as msg
+	ON msg.Id = Events.MessageId
+GO
+
+```
+
 ## [8.17.3] - 2025-09-30
 ### Added New column
 ```sql
