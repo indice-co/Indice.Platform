@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="IdentityModel" Version="7.0.0" />
+    <PackageReference Include="Duende.IdentityModel" Version="7.0.0" />
     <PackageReference Include="Indice.Common" Version="$(VersionPrefixCore)-*" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.12.0" />
     <PackageReference Include="System.ServiceModel.Duplex" Version="6.0.0" />

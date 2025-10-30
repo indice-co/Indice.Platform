@@ -1,14 +1,14 @@
-﻿using IdentityModel;
-#if NET9_0_OR_GREATER
+﻿#if NET9_0_OR_GREATER
+using Duende.IdentityModel;
 using Duende.IdentityServer.Services;
 #else
+using IdentityModel;
 using IdentityServer4.Services;
 #endif
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Services;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +18,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.VisualBasic;
 
 namespace Indice.Features.Identity.UI.Pages;
 

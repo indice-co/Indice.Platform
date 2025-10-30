@@ -1,5 +1,6 @@
-﻿using IdentityModel;
-using IdentityModel.Client;
+﻿using Duende.AspNetCore.Authentication.OAuth2Introspection;
+using Duende.IdentityModel;
+using Duende.IdentityModel.Client;
 using Indice.Security;
 using Indice.Serialization;
 using Microsoft.AspNetCore.Authentication;

@@ -35,26 +35,26 @@ input[type=number]::-webkit-outer-spin-button {
     @include margin-right(10);
 }
 
-.custom-checkbox .control:before,
-.custom-radio .control:before {
-    display: none;
-    height: 8px;
-    width: 8px;
-    position: absolute;
-    background-color: $gray-900;
-}
+    .custom-checkbox .control:before,
+    .custom-radio .control:before {
+        display: none;
+        height: 8px;
+        width: 8px;
+        position: absolute;
+        background-color: $gray-900;
+    }
 
-.custom-checkbox .control:before {
-    content: '';
-    font-weight: bold;
-}
+    .custom-checkbox .control:before {
+        content: '';
+        font-weight: bold;
+    }
 
-.custom-radio .control:before {
-    content: '';
-    @include top(3);
-    @include left(3);
-    background: $gray-900;
-}
+    .custom-radio .control:before {
+        content: '';
+        @include top(3);
+        @include left(3);
+        background: $gray-900;
+    }
 
 .custom-checkbox.neutral .control:before {
     content: '|';
@@ -73,44 +73,44 @@ input[type=number]::-webkit-outer-spin-button {
     display: none;
 }
 
-.custom-checkbox input[disabled] + .control,
-.custom-radio input[disabled] + .control {
-    background-color: transparent;
-}
+    .custom-checkbox input[disabled] + .control,
+    .custom-radio input[disabled] + .control {
+        background-color: transparent;
+    }
 
-.custom-checkbox input:checked + .control,
-.custom-radio input:checked + .control {
-    @include border(1, $gray-900);
-}
+    .custom-checkbox input:checked + .control,
+    .custom-radio input:checked + .control {
+        @include border(1, $gray-900);
+    }
 
-.custom-checkbox input[disabled]:checked + .control,
-.custom-radio input[disabled]:checked + .control {
-    border-color: $gray;
-}
+    .custom-checkbox input[disabled]:checked + .control,
+    .custom-radio input[disabled]:checked + .control {
+        border-color: $gray;
+    }
 
-.custom-checkbox input.disabled-style-reset[disabled]:checked + .control,
-.custom-radio input.disabled-style-reset[disabled]:checked + .control {
-    border-color: $gray-900;
-}
+    .custom-checkbox input.disabled-style-reset[disabled]:checked + .control,
+    .custom-radio input.disabled-style-reset[disabled]:checked + .control {
+        border-color: $gray-900;
+    }
 
-.custom-checkbox input[disabled]:checked + .control::before {
-    background-color: $gray;
-    display: block;
-}
+    .custom-checkbox input[disabled]:checked + .control::before {
+        background-color: $gray;
+        display: block;
+    }
 
-.custom-radio input[disabled] + .control::before {
-    background: $gray;
-}
+    .custom-radio input[disabled] + .control::before {
+        background: $gray;
+    }
 
-.custom-checkbox input.disabled-style-reset[disabled]:checked + .control::before,
-.custom-radio input.disabled-style-reset[disabled] + .control::before {
-    background: $gray-900;
-}
+    .custom-checkbox input.disabled-style-reset[disabled]:checked + .control::before,
+    .custom-radio input.disabled-style-reset[disabled] + .control::before {
+        background: $gray-900;
+    }
 
-.custom-checkbox input:checked + .control:before,
-.custom-radio input:checked + .control:before {
-    display: block;
-}
+    .custom-checkbox input:checked + .control:before,
+    .custom-radio input:checked + .control:before {
+        display: block;
+    }
 
 .custom-radio .control,
 .custom-radio .control:before {

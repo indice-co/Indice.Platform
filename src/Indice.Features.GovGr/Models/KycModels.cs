@@ -4,7 +4,7 @@
 //----------------------
 
 using System.Text.Json.Serialization;
-using IdentityModel;
+using Duende.IdentityModel;
 using Indice.Features.GovGr.Serialization;
 
 namespace Indice.Features.GovGr.Models;
