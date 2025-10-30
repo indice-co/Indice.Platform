@@ -1,10 +1,10 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, SecurityContext, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { catchError, map, Observable, of, startWith, Subscription } from 'rxjs';
 import { Contact, ContactResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { settings } from '../../../../core/models/settings';
+import { DomSanitizer } from '@angular/platform-browser';
 
 
 @Component({
@@ -24,7 +24,7 @@ export class ContactDuplicatesComponent implements OnInit, AfterViewInit, OnDest
     private _api: MessagesApiClient,
     private _router: Router,
     private _activatedRoute: ActivatedRoute,
-
+    private sanitizer: DomSanitizer,
     @Inject(ToasterService) private _toaster: ToasterService
   ) { }
 
@@ -60,15 +60,20 @@ export class ContactDuplicatesComponent implements OnInit, AfterViewInit, OnDest
     this._mergeContactsSubscription?.unsubscribe();
   }
 
-  //merge
+  /**
+   * Merges the selected duplicate contacts into the main contact.
+   * Triggers a success notification and navigates to the contact details page upon completion.
+   */
   public onSubmitSelected(): void {
     this.submitInProgress = true;
+    const rawName = this.model.fullName || this.model.email || '';
+    const safeName = this.sanitizer.sanitize(SecurityContext.HTML, rawName) ?? '';
     this._mergeContactsSubscription = this._api
       .mergeContacts(this._contactId, Array.from(this.mergedContactsIds))
       .subscribe({
         next: () => {
           this.submitInProgress = false;
-          this._toaster.show(ToastType.Success, 'Επιτυχής συγχόνευση', `Τα διπλότυπα της επαφής '${this.model.fullName || this.model.email}' συγχονεύτηκαν με επιτυχία.`);
+          this._toaster.show(ToastType.Success, 'Επιτυχής συγχόνευση', `Τα διπλότυπα της επαφής '${safeName}' συγχονεύτηκαν με επιτυχία.`);
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['contacts', this._contactId, 'contact-details']));
         }
       });
