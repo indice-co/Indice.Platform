@@ -340,7 +340,10 @@ public class CampaignService : ICampaignService
                         .Select(x => new MessageEvent {
                             Channel = x.Channel,
                             Type = x.Type,
-                            CreatedOn = x.CreatedOn
+                            CreatedOn = x.CreatedOn,
+                            Recipient = contact.RecipientId!,
+                            Title = x.Title,
+                            Success = true
                         })
                         .OrderByDescending(x => x.CreatedOn)
                         .ToListAsync());

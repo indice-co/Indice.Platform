@@ -20,4 +20,7 @@ public class MessageEventListFilter
     /// <summary>The communication channels to filter events by.</summary>
     [Description("The communication channels to filter events by.")]
     public MessageChannelKind[]? Channel { get; set; }
+    /// <summary>The recipient "to" to filter events by.</summary>
+    [Description("The recipient \"to\" to filter events by.")]
+    public string? Recipient { get; set; }
 }

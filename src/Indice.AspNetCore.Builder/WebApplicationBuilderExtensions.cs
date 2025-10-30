@@ -58,10 +58,8 @@ public static class WebApplicationBuilderExtensions
             options.SerializerOptions.Converters.Add(new TypeConverterJsonAdapterFactory());
         });
         // Configure indice services
-        builder.Services.AddProblemDetails(options =>
-        {
-            options.CustomizeProblemDetails = context =>
-            {
+        builder.Services.AddProblemDetails(options => {
+            options.CustomizeProblemDetails = context => {
                 context.ProblemDetails.Instance = $"{context.HttpContext.Request.Method} {context.HttpContext.Request.Path}";
                 context.ProblemDetails.Extensions.TryAdd("requestId", context.HttpContext.TraceIdentifier);
                 Activity? activity = context.HttpContext.Features.Get<IHttpActivityFeature>()?.Activity;
@@ -70,7 +68,7 @@ public static class WebApplicationBuilderExtensions
         });
         builder.Services.AddEndpointParameterFluentValidation(Assembly.GetEntryAssembly()!);
         builder.Services.AddGeneralSettings(builder.Configuration);
-        builder.AddTrustedProxiesDefaults();
+        builder.AddProxyDefaults();
         return builder;
     }
 
@@ -144,48 +142,42 @@ public static class WebApplicationBuilderExtensions
     }
 
     /// <summary>
-    /// Configures trusted proxy IPs or CIDR ranges for forwarded headers.
-    /// Reads configuration from the application's configuration provider via <c>builder.Configuration.GetProxyIp()</c>.
+    /// Configures the <see cref="ForwardedHeadersMiddleware"/> proxy IPs or CIDR ranges for trusting forwarded headers. 
+    /// This usualy applies when the application is hosted behind a reverse proxy server such as an AKS cluster ingress controller or front door or even cloudflair.
     /// </summary>
     /// <param name="builder">The <see cref="WebApplicationBuilder"/> instance.</param>
     /// <returns>The same <see cref="WebApplicationBuilder"/> for chaining.</returns>
-    public static WebApplicationBuilder AddTrustedProxiesDefaults(this WebApplicationBuilder builder) {
+    /// <remarks>Reads the following configuration values: 
+    /// <strong>Proxy:Enabled</strong> (bool), 
+    /// <strong>Proxy:KnownNetworks</strong> (string comma delimited), 
+    /// <strong>Proxy:KnownProxies</strong> (string comma delimited), 
+    /// <strong>Proxy:ForwardLimit</strong> (int)</remarks>
+    public static WebApplicationBuilder AddProxyDefaults(this WebApplicationBuilder builder) {
         var proxyEnabled = builder.Configuration.ProxyEnabled();
         if (!proxyEnabled) {
             return builder;
         }
 
-        var ipConfig = builder.Configuration.GetProxyIp();
-        var knownNetworks = builder.Configuration.GetProxyKnownNetworks();
-        var knownProxies = string.IsNullOrWhiteSpace(ipConfig)
-            ? builder.Configuration.GetProxyKnownProxies()
-            : builder.Configuration.GetProxyKnownProxies().Concat([ipConfig]).ToArray();
-
-        builder.Services.Configure<ForwardedHeadersOptions>(options =>
-        {
+        builder.Services.Configure<ForwardedHeadersOptions>(options => {
+            options.KnownNetworks.Clear();
+            options.KnownProxies.Clear();
             var forwardLimit = builder.Configuration.GetProxyForwardLimit();
+            var knownNetworks = builder.Configuration.GetProxyKnownNetworks();
+            var knownProxies = builder.Configuration.GetProxyKnownProxies();
             options.ForwardedHeaders = ForwardedHeaders.All;
-            options.ForwardLimit = forwardLimit == 0 
-                ? null 
+            options.ForwardLimit = forwardLimit == 0
+                ? null
                 : forwardLimit;
 
-            if (!knownNetworks.Any()) {
-                options.KnownNetworks.Clear();
-            } else {
-                foreach (var entry in knownNetworks) {
-                    if (HttpOverrides.IPNetwork.TryParse(entry, out var network)) {
-                        options.KnownNetworks.Add(network);
-                    }
+            foreach (var entry in knownNetworks) {
+                if (HttpOverrides.IPNetwork.TryParse(entry, out var network)) {
+                    options.KnownNetworks.Add(network);
                 }
             }
 
-            if (!knownProxies.Any()) {
-                options.KnownProxies.Clear();
-            } else {
-                foreach (var entry in knownProxies) {
-                    if (IPAddress.TryParse(entry, out var ip)) {
-                        options.KnownProxies.Add(ip);
-                    }
+            foreach (var entry in knownProxies) {
+                if (IPAddress.TryParse(entry, out var ip)) {
+                    options.KnownProxies.Add(ip);
                 }
             }
         });
