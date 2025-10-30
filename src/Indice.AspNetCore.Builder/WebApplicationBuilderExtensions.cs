@@ -143,7 +143,7 @@ public static class WebApplicationBuilderExtensions
 
     /// <summary>
     /// Configures the <see cref="ForwardedHeadersMiddleware"/> proxy IPs or CIDR ranges for trusting forwarded headers. 
-    /// This usualy applies when the application is hosted behind a reverse proxy server such as an AKS cluster ingress controller or front door or even cloudflair.
+    /// This usually applies when the application is hosted behind a reverse proxy server such as an Kubernetes ingress controller or Azure Front Door/Cloudflare.
     /// </summary>
     /// <param name="builder">The <see cref="WebApplicationBuilder"/> instance.</param>
     /// <returns>The same <see cref="WebApplicationBuilder"/> for chaining.</returns>
