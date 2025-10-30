@@ -93,6 +93,8 @@ import { MediaSettingEditComponent } from './features/settings/media/edit/media-
 import { CodeEditorModule } from '@acrodata/code-editor';
 import { NgProgressbar } from 'ngx-progressbar';
 import { progressInterceptor, NgProgressHttp } from 'ngx-progressbar/http';
+import { ContactDuplicatesComponent } from './features/contacts/contact/duplicates/contact-duplicates.component';
+import { MessageEventsComponent } from './features/events/message-events.component';
 registerLocaleData(localeGreek);
 
 const providers: Provider[] = [
@@ -160,6 +162,7 @@ if (app.settings.tenantId) {
     ContactEditComponent,
     ContactPreferencesComponent,
     ContactCreateComponent,
+    ContactDuplicatesComponent,
     HomeComponent,
     LocalDropDownMenuComponent,
     LogOutComponent,
@@ -200,7 +203,8 @@ if (app.settings.tenantId) {
     MediaSettingsComponent,
     MediaSettingEditComponent,
     DoughnutChartComponent,
-    LineChartComponent
+    LineChartComponent,
+    MessageEventsComponent
   ],
   imports: [
     AppRoutingModule,

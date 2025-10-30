@@ -53,7 +53,9 @@ import { ContactCampaignsComponent } from './features/contacts/contact/campaigns
 import { ContactEditComponent } from './features/contacts/contact/details/edit/contact-edit.component';
 import { ContactPreferencesComponent } from './features/contacts/contact/preferences/contact-preferences.component';
 import { ContactCreateComponent } from './features/contacts/contact/create/contact-create.component';
+import { ContactDuplicatesComponent } from './features/contacts/contact/duplicates/contact-duplicates.component';
 
+import { MessageEventsComponent } from './features/events/message-events.component';
 const routes: Routes = [
   { path: 'auth-callback', component: AuthCallbackComponent },
   { path: 'auth-renew', component: AuthRenewComponent },
@@ -163,6 +165,10 @@ const routes: Routes = [
         path: 'settings',
         data: { breadcrumb: { title: 'Ρυθμίσεις' } },
         component: SettingsComponent
+      }, {
+        path: 'message-events',
+        data: { breadcrumb: { title: 'Message Events' } },
+        component: MessageEventsComponent
       },
       {
         path: 'media',
@@ -191,6 +197,7 @@ const routes: Routes = [
   { path: 'create-new-contact', canActivate: [AuthGuardService], component: ContactCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'edit-contact/:contactId', canActivate: [AuthGuardService], component: DistributionListContactEditComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'update-contact/:contactId', canActivate: [AuthGuardService], component: ContactEditComponent, outlet: 'rightpane', pathMatch: 'prefix' },
+  { path: 'get-duplicates/:contactId', canActivate: [AuthGuardService], component: ContactDuplicatesComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'edit-template', canActivate: [AuthGuardService], component: TemplateDetailsEditRightpaneComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'create-message-type', canActivate: [AuthGuardService], component: MessageTypeCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'create-message-sender', canActivate: [AuthGuardService], component: EmailSendersCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },

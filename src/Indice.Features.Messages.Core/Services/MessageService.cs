@@ -77,12 +77,19 @@ public class MessageService : IMessageService
         }
 
         if (message.ContactId.HasValue) {
+            var inboxTitle = string.Empty;
+            if (message.Content.TryGetValue(MessageChannelKind.Inbox.ToString(), out var contentValue)) {
+                inboxTitle = contentValue.Title ?? "";
+            }
             await MessageEventQueue.EnqueueAsync(new MessageEvent() {
                 CampaignId = message.CampaignId,
                 ContactId = message.ContactId.Value,
                 MessageId = message.Id,
                 Type = MessageEventType.Deleted.ToString(),
-                Channel = MessageChannelKind.Inbox.ToString()
+                Channel = MessageChannelKind.Inbox.ToString(),
+                Recipient = recipientId,
+                Title = inboxTitle,
+                Success = true
             });
         }
         await DbContext.SaveChangesAsync();
@@ -115,7 +122,10 @@ public class MessageService : IMessageService
                 ContactId = message.ContactId.Value,
                 MessageId = message.Id,
                 Type = MessageEventType.Read.ToString(),
-                Channel = MessageChannelKind.Inbox.ToString()
+                Channel = MessageChannelKind.Inbox.ToString(),
+                Recipient = recipientId,
+                Title = message.GetContentTitle(MessageChannelKind.Inbox),
+                Success = true
             });
         }
         await DbContext.SaveChangesAsync();
@@ -175,7 +185,10 @@ public class MessageService : IMessageService
                     ContactId = message.ContactId.Value,
                     MessageId = message.Id,
                     Type = MessageEventType.UnRead.ToString(),
-                    Channel = MessageChannelKind.Inbox.ToString()
+                    Channel = MessageChannelKind.Inbox.ToString(),
+                    Recipient = recipientId,
+                    Title = message.GetContentTitle(MessageChannelKind.Inbox),
+                    Success = true
                 });
             }
             await DbContext.SaveChangesAsync();

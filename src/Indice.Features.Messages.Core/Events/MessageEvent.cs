@@ -9,6 +9,8 @@ public class MessageEvent
     public Guid Id { get; set; } = Guid.NewGuid();
     /// <summary>The unique identifier of the associated campaign.</summary>
     public Guid CampaignId { get; set; }
+    /// <summary>The title of the message.</summary>
+    public string Title { get; set; } = string.Empty;
     /// <summary>The unique identifier of the associated contact.</summary>
     public Guid ContactId { get; set; }
     /// <summary>The unique identifier of the message.</summary>
@@ -17,6 +19,10 @@ public class MessageEvent
     public string Type { get; set; } = string.Empty;
     /// <summary>The communication channel.</summary>
     public string Channel { get; set; } = string.Empty;
+    /// <summary>The Recipient of the message.</summary>
+    public string Recipient { get; set; } = string.Empty;
+    /// <summary>Indicates whether the event was successful.</summary>
+    public bool Success { get; set; } = false;
     /// <summary>The date and time when the event occurred.</summary>   
     public DateTimeOffset CreatedOn { get; set; } = DateTimeOffset.UtcNow;
 }
