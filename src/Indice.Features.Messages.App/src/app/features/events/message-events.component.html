@@ -27,16 +27,14 @@
         </lib-toggle-buttons-list>
       </div>
     </ng-container>
-
-    <lib-list-column title="Title">
-      <ng-template let-item>
-        {{ item.title }}
-      </ng-template>
-    </lib-list-column>
-
     <lib-list-column title="Recipient">
       <ng-template let-item>
         {{ item.recipient }}
+      </ng-template>
+    </lib-list-column>
+    <lib-list-column title="Title">
+      <ng-template let-item>
+        {{ item.title }}
       </ng-template>
     </lib-list-column>
     <lib-list-column title="Channel">
