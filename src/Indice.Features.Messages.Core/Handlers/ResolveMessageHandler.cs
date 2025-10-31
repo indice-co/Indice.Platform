@@ -146,9 +146,10 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
             return;
         }
 
-        if (contactChannels.HasFlag(MessageChannelKind.Inbox)) {
+        if (contactChannels.HasFlag(MessageChannelKind.Inbox) && !contact.IsAnonymous) {
             await LogEvent(campaign, contact, MessageChannelKind.Inbox, messageId);
         }
+
         if (contactChannels.HasFlag(MessageChannelKind.PushNotification)) {
             await LogEvent(campaign, contact, MessageChannelKind.PushNotification, messageId);
             await eventDispatcher.RaiseEventAsync(SendPushNotificationEvent.FromContactResolutionEvent(@event, contact, broadcast: false, messageId: messageId),
