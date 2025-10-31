@@ -25,7 +25,7 @@ BEGIN
 END
 GO
 
--- 2. Update existing records to populate the new Recipient, Title and Success columns
+-- 2) Update existing records to populate the new Recipient, Title and Success columns
 UPDATE [cmp].[MessageEvent]
 SET Recipient = 
     CASE Events.Channel
