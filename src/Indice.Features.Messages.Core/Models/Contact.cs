@@ -60,10 +60,10 @@ public class Contact
         if (!ignoreUserPreferences) {
             var typeCommunicationPreference = Preference?.Communication?.FirstOrDefault(x => x.MessageType.Id == campaignType?.Id);
             if (typeCommunicationPreference != null) {
-                var userSelectedChannels = ContactChannelOption.ToMessageChannelKind(typeCommunicationPreference.Channels);
+                var userSelectedChannels = ContactChannelOption.ToMessageChannelKind(typeCommunicationPreference.Channels, MessageChannelKind.Inbox);
                 availableChannels &= userSelectedChannels;
             } else if (Preference?.DefaultChannels != null) {
-                var userSelectedChannels = ContactChannelOption.ToMessageChannelKind(Preference.DefaultChannels);
+                var userSelectedChannels = ContactChannelOption.ToMessageChannelKind(Preference.DefaultChannels, MessageChannelKind.Inbox);
                 availableChannels &= userSelectedChannels;
             }
         }
@@ -76,6 +76,7 @@ public class Contact
         }
         if (IsAnonymous) {
             availableChannels &= ~MessageChannelKind.PushNotification;
+            availableChannels &= ~MessageChannelKind.Inbox;
         }
         return availableChannels;
     }

@@ -146,7 +146,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
             return;
         }
 
-        if (contactChannels.HasFlag(MessageChannelKind.Inbox) && !contact.IsAnonymous) {
+        if (contactChannels.HasFlag(MessageChannelKind.Inbox)) {
             await LogEvent(campaign, contact, MessageChannelKind.Inbox, messageId);
         }
 
