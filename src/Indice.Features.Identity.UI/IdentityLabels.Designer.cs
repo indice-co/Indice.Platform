@@ -403,7 +403,7 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to You can now close this browse window..
+        ///   Looks up a localized string similar to You can now close this browser window..
         /// </summary>
         public static string ConfirmEmail_Closewindow {
             get {
@@ -538,7 +538,7 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to You can now close this browse window..
+        ///   Looks up a localized string similar to You can now close this browser window..
         /// </summary>
         public static string ConfirmEmailChange_CloseWindowMessage {
             get {
