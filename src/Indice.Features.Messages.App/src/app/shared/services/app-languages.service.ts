@@ -21,6 +21,7 @@ export class AppLanguagesService implements IAppLanguagesService {
         this.default = this._languages[0].value.toLowerCase();
         this.options = of(this._languages);
         this.selected = this.default = this._languages[0].value;
+        this.translate.use(this.default!);
     }
 
     public options: Observable<MenuOption[]> | undefined;
@@ -28,7 +29,6 @@ export class AppLanguagesService implements IAppLanguagesService {
     public default?: string | undefined;
 
   public setSelected(lang: string): void {
-    console.log("Attempt to change lang")
     this.selected = lang;
     this.translate.use(lang.toLowerCase());
   }

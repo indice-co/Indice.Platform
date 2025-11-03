@@ -1,7 +1,7 @@
-<lib-side-view-layout title="Εύρεση Διπλοτύπων"
+<lib-side-view-layout title="{{ 'Contacts.DuplicatesTitle' | translate }}"
                       [ok-close-dialog]="false"
-                      [ok-label]="'Συγχώνευση'"
-                      [cancel-label]="'Κλείσιμο'"
+                      [ok-label]="'Contacts.MergeLabel' | translate"
+                      [cancel-label]="'Contacts.CancelLabel' | translate"
                       (ok)="submitButton.nativeElement.click()"
                       [disabled]="!contactForm.valid || mergedContactsIds.size === 0"
                       #sideViewLayout>
@@ -9,28 +9,28 @@
     <form #contactForm="ngForm"
           (ngSubmit)="onSubmitSelected()">
       <div class="px-4 space-y-2 pb-4 grid grid-cols-4 gap-1">
-          <div class="col-span-4 w-full flex flex-col space-y-3">
-              <ng-container *ngIf="duplicatesState$ | async as state">
-                <div *ngIf="state.loading">
-                  Loading duplicates...
+        <div class="col-span-4 w-full flex flex-col space-y-3">
+          <ng-container *ngIf="duplicatesState$ | async as state">
+            <div *ngIf="state.loading">
+              {{ 'Contacts.DuplicatesLoading' | translate }}
+            </div>
+            <ng-container *ngIf="!state.loading">
+              <ng-container *ngIf="state.contacts?.items?.length > 0; else noDuplicates">
+                <div *ngFor="let item of state.contacts.items; let i = index" class="w-full">
+                  <div class="w-full p-2 rounded-md flex items-center gap-3 flex-1">
+                    <ng-container *ngTemplateOutlet="contactTemplate; context: { $implicit: item }">
+                    </ng-container>
+                  </div>
                 </div>
-                <ng-container *ngIf="!state.loading">
-                  <ng-container *ngIf="state.contacts?.items?.length > 0; else noDuplicates">
-                    <div *ngFor="let item of state.contacts.items; let i = index" class="w-full">
-                      <div class="w-full p-2 rounded-md flex items-center gap-3 flex-1">
-                            <ng-container *ngTemplateOutlet="contactTemplate; context: { $implicit: item }">
-                            </ng-container>
-                      </div>
-                    </div>
-                  </ng-container>
-                </ng-container>
               </ng-container>
-          </div>
+            </ng-container>
+          </ng-container>
+        </div>
       </div>
       <button type="submit"
               [style.visibility]="'hidden'"
               #submitBtn>
-        Submit
+        {{ 'Contacts.Submit' | translate }}
       </button>
     </form>
   </div>
@@ -38,7 +38,7 @@
 
 
 <ng-template #noDuplicates>
-  <p>No duplicate contacts found.</p>
+  <p>{{ 'Contacts.NoDuplicatesFound' | translate }}</p>
 </ng-template>
 
 <ng-template let-item
@@ -51,39 +51,39 @@
     'hover:shadow-md': true
   }">
 
-      <div class="flex-shrink-0">
-        <img class="h-10 w-10 rounded-full"
-             [src]="avatarOrigin + '/avatar/' + item.fullName + '/?circular=true'"
-             alt="">
-      </div>
-      <div class="flex-1 min-w-0 focus:outline-none">
-          <span class="absolute"
-                aria-hidden="true">
-          </span>
-          <p class="text-sm font-medium text-gray-900">
-            {{ item.salutation }} {{ item.fullName || ((item.firstName || '') + ' ' + (item.lastName || '')).trim() || item.email }}
-          </p>
-          <p class="text-sm text-gray-500 truncate">
-            <svg class="w-5 h-5 text-gray-500 inline"
-                 xmlns="http://www.w3.org/2000/svg"
-                 viewBox="0 0 20 20"
-                 fill="currentColor"
-                 aria-hidden="true">
-              <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-              <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-            </svg>
-            <span class="ml-2">{{ item.email || '-' }}</span>
-          </p>
-          <p class="text-sm text-gray-500 truncate">
-            <svg class="w-5 h-5 text-gray-500 inline"
-                 xmlns="http://www.w3.org/2000/svg"
-                 viewBox="0 0 20 20"
-                 fill="currentColor"
-                 aria-hidden="true">
-              <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-            </svg>
-            <span class="ml-2">{{ item.phoneNumber || '-' }}</span>
-          </p>
+    <div class="flex-shrink-0">
+      <img class="h-10 w-10 rounded-full"
+           [src]="avatarOrigin + '/avatar/' + item.fullName + '/?circular=true'"
+           [alt]="'Contacts.AvatarAlt' | translate">
+    </div>
+    <div class="flex-1 min-w-0 focus:outline-none">
+      <span class="absolute"
+            aria-hidden="true">
+      </span>
+      <p class="text-sm font-medium text-gray-900">
+        {{ item.salutation }} {{ item.fullName || ((item.firstName || '') + ' ' + (item.lastName || '')).trim() || item.email }}
+      </p>
+      <p class="text-sm text-gray-500 truncate">
+        <svg class="w-5 h-5 text-gray-500 inline"
+             xmlns="http://www.w3.org/2000/svg"
+             viewBox="0 0 20 20"
+             fill="currentColor"
+             aria-hidden="true">
+          <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+          <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+        </svg>
+        <span class="ml-2">{{ item.email || '-' }}</span>
+      </p>
+      <p class="text-sm text-gray-500 truncate">
+        <svg class="w-5 h-5 text-gray-500 inline"
+             xmlns="http://www.w3.org/2000/svg"
+             viewBox="0 0 20 20"
+             fill="currentColor"
+             aria-hidden="true">
+          <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+        </svg>
+        <span class="ml-2">{{ item.phoneNumber || '-' }}</span>
+      </p>
     </div>
   </div>
 </ng-template>

@@ -5,6 +5,7 @@ import { catchError, map, Observable, of, startWith, Subscription } from 'rxjs';
 import { Contact, ContactResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { settings } from '../../../../core/models/settings';
 import { DomSanitizer } from '@angular/platform-browser';
+import { AppLanguagesService } from '../../../../shared/services/app-languages.service';
 
 
 @Component({
