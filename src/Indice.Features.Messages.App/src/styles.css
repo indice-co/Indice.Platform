@@ -1,7 +1,5 @@
-/*@reference tailwindcss;*/
-/*@use "tailwindcss";*/
-/*@use "../node_modules/@indice/ng-components/_styles.scss";*/
-@import "./tailwind.css";
+@import "tailwindcss";
+@plugin "@tailwindcss/forms";
 @import "../node_modules/@indice/ng-components/src/styles.css";
 @import "../node_modules/highlight.js/styles/github.css";
 :root {
