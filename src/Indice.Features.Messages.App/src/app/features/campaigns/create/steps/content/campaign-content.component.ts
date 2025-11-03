@@ -19,7 +19,7 @@ import { languages } from '@codemirror/language-data';
 @Component({
     selector: 'app-campaign-content',
     templateUrl: './campaign-content.component.html',
-    styleUrl: './campaign-content.component.scss',
+    styleUrl: './campaign-content.component.css',
     standalone: false
 })
 //https://github.com/acrodata/code-editor/blob/main/projects/dev-app/src/app/home/home.component.ts
