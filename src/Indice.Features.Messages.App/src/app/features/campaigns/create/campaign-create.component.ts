@@ -1,8 +1,8 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { HeaderMetaItem, Icons, LibStepperComponent, StepperType, ToasterService, ToastType } from '@indice/ng-components';
-import { StepSelectedEvent } from '@indice/ng-components/lib/controls/stepper/types/step-selected-event';
+import { HeaderMetaItem, Icons, LibStepComponent, LibStepperComponent, StepperType, ToasterService, ToastType } from '@indice/ng-components';
+import { StepSelectedEvent } from '@indice/ng-components';
 import { CampaignBasicInfoComponent } from './steps/basic-info/campaign-basic-info.component';
 import { CampaignContentComponent } from './steps/content/campaign-content.component';
 import { CampaignPreview } from './steps/preview/campaign-preview';
@@ -14,9 +14,9 @@ import { catchError, map, mergeMap } from 'rxjs/operators';
 import { EMPTY, of } from 'rxjs';
 
 @Component({
-    selector: 'app-campaign-create',
-    templateUrl: './campaign-create.component.html',
-    standalone: false
+  selector: 'app-campaign-create',
+  templateUrl: './campaign-create.component.html',
+  standalone: false
 })
 export class CampaignCreateComponent implements OnInit, AfterViewChecked {
   @ViewChild('createCampaignStepper', { static: true }) private _stepper!: LibStepperComponent;
@@ -85,10 +85,10 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
           return EMPTY;
         }),
         mergeMap((result: CreateCampaignResult) => {
-        return this._attachmentsStep.attachment.value && result.campaignId
-          ? this._api.uploadCampaignAttachment(result.campaignId, this._attachmentsStep.attachment.value).pipe(map(() => result))
-          : of(result)
-      }))
+          return this._attachmentsStep.attachment.value && result.campaignId
+            ? this._api.uploadCampaignAttachment(result.campaignId, this._attachmentsStep.attachment.value).pipe(map(() => result))
+            : of(result)
+        }))
       .subscribe({
         next: (campaign: CreateCampaignResult) => {
           this.submitInProgress = false;
@@ -144,7 +144,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
       published: this._previewStep.model.published,
       ignoreUserPreferences: this._previewStep.model.ignoreUserPreferences,
       title: this._basicInfoStep.title.value,
-      data:  JSON.parse(this._contentStep.data.value || '{}'),
+      data: JSON.parse(this._contentStep.data.value || '{}'),
       mediaBaseHref: this._contentStep.additionalData.mediaBaseHref,
       typeId: this._basicInfoStep.type.value?.id || undefined,
       recipientIds: this._recipientsStep.recipientIds.value ? this._recipientsStep.recipientIds.value.split('\n') : null,
@@ -165,3 +165,14 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
     return data;
   }
 }
+
+//class StepSelectedEvent {
+//  /** Index of the step now selected. */
+//  public selectedIndex!: number;
+//  /** Index of the step previously selected. */
+//  public previouslySelectedIndex: number | undefined;
+//  /** The step instance now selected. */
+//  public selectedStep!: LibStepComponent;
+//  /** The step instance previously selected. */
+//  public previouslySelectedStep: LibStepComponent | undefined;
+//}
