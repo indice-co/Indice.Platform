@@ -1,4 +1,4 @@
-<lib-view-layout [title]="'Τύποι Μηνυμάτων'"
+<lib-view-layout [title]="'MessageTypes.Title' | translate"
                  [busy]="!items"
                  [actions]="actions"
                  [meta-items]="metaItems"
@@ -16,42 +16,35 @@
                  (pageSizeChanged)="pageSizeChanged($event)"
                  (sortChanged)="sortChanged($event)"
                  (sortdirChanged)="sortdirChanged($event)">
-    <lib-list-column title="ΟΝΟΜΑ">
+
+    <lib-list-column [title]="'MessageTypes.NameColumn' | translate">
       <ng-template let-item>
-        <a title="Επεξεργασία τύπου"
+        <a [title]="'MessageTypes.EditTypeTitle' | translate"
            [routerLinkActive]="['']"
            [routerLinkActiveOptions]="{ exact: true }"
            [routerLink]="['', { outlets: { rightpane: ['edit-message-type', item.id] } }]"
            class="text-blue-600">
           {{ item.name }}
-          </a>
+        </a>
       </ng-template>
     </lib-list-column>
-    <lib-list-column title="ALIAS">
-      <ng-template let-item><span *ngIf="item.alias" class="badge alias">{{ item.alias || '-' }}</span></ng-template>
-    </lib-list-column>
-    <lib-list-column title="ΚΑΤΗΓΟΡΙΑ" [full-width]="true">
-      <ng-template let-item><span class="message-type-badge {{item.classification}}">{{item.classification}}</span></ng-template>
-    </lib-list-column>
-    <lib-list-column title="ΕΝΕΡΓΕΙΕΣ">
+
+    <lib-list-column [title]="'MessageTypes.AliasColumn' | translate">
       <ng-template let-item>
-        <!--<a title="Επεξεργασία τύπου"
-           [routerLinkActive]="['']"
-           [routerLinkActiveOptions]="{ exact: true }"
-           [routerLink]="['', { outlets: { rightpane: ['edit-message-type', item.id] } }]"
-           class="inline-flex items-center justify-center px-4 py-2 font-medium rounded-md sm:text-sm">
-          <svg xmlns="http://www.w3.org/2000/svg"
-               class="h-5 w-5"
-               viewBox="0 0 20 20"
-               fill="currentColor">
-            <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
-            <path fill-rule="evenodd"
-                  d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
-                  clip-rule="evenodd" />
-          </svg>
-        </a>-->
-        <button title="Διαγραφή τύπου"
-                type="button"
+        <span *ngIf="item.alias" class="badge alias">{{ item.alias || ('MessageTypes.EmptyValueIndicator' | translate) }}</span>
+      </ng-template>
+    </lib-list-column>
+
+    <lib-list-column [title]="'MessageTypes.CategoryColumn' | translate" [full-width]="true">
+      <ng-template let-item>
+        <span class="message-type-badge {{item.classification}}">{{ item.classification }}</span>
+      </ng-template>
+    </lib-list-column>
+
+    <lib-list-column [title]="'MessageTypes.ActionsColumn' | translate">
+      <ng-template let-item>
+        <button type="button"
+                [title]="'MessageTypes.DeleteTypeTitle' | translate"
                 (click)="deleteConfirmation(item)"
                 class="inline-flex items-center justify-center px-4 py-0 font-medium rounded-md sm:text-sm">
           <svg xmlns="http://www.w3.org/2000/svg"
@@ -65,5 +58,6 @@
         </button>
       </ng-template>
     </lib-list-column>
+
   </lib-list-view>
 </lib-view-layout>

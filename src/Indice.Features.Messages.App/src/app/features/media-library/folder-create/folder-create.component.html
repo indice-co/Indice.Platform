@@ -1,60 +1,57 @@
-<lib-side-view-layout title="Δημιουργία νέου φακέλου"
+<lib-side-view-layout [title]="'MediaLibrary.CreateFolderDialogTitle' | translate"
                       [ok-close-dialog]="false"
-                      [ok-label]="'Δημιουργία'"
-                      [cancel-label]="'Κλείσιμο'"
+                      [ok-label]="'MediaLibrary.Create' | translate"
+                      [cancel-label]="'MediaLibrary.Close' | translate"
                       (ok)="submitButton.nativeElement.click()"
                       [disabled]="!messageTypeForm.valid || submitInProgress"
                       #sideViewLayout>
-    <div class="mt-4">
-        <form #messageTypeForm="ngForm"
-              (ngSubmit)="onSubmit()">
-            <div class="px-4 space-y-2 pb-4">
-                <div class="grid grid-cols-4 gap-1">
-                    <!-- Όνομα -->
-                    <div class="col-span-4">
-                        <label for="folderName"
-                               class="field-label">Όνομα (*)</label>
-                        <div class="flex rounded-sm">
-                            <input class="w-full"
-                                   type="text"
-                                   name="folderName"
-                                   id="folderName"
-                                   [(ngModel)]="model.name"
-                                   placeholder="Το όνομα του φακέλου..."
-                                   maxlength="128"
-                                   required
-                                   #folderName="ngModel">
-                        </div>
-                        <p *ngIf="folderName.invalid && (folderName.dirty || folderName.touched)"
-                           class="mt-2 text-sm text-red-600">
-                            <span *ngIf="folderName.errors!['required']">Παρακαλώ συμπληρώστε ένα όνομα.</span>
-                            <span *ngIf="folderName.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</span>
-                        </p>
-                        <p class="field-info col-span-3">Η ονομασία με την οποία θα εμφανίζεται o φάκελος.</p>
-                    </div>
-
-                    <!-- Περιγραφή -->
-                    <div class="col-span-4">
-                        <label for="folderDescription"
-                               class="field-label">Περιγραφή</label>
-                        <div class="flex rounded-sm">
-                            <input class="w-full"
-                                   type="text"
-                                   name="folderDescription"
-                                   id="folderDescription"
-                                   [(ngModel)]="model.description"
-                                   placeholder="Η περιγραφή του φακέλου..."
-                                   maxlength="512"
-                                   #folderDescription="ngModel">
-                        </div>
-                        
-                        <p class="field-info col-span-3">Σύντομη περιγραφή των περιεχομένων του φακέλου.</p>
-                    </div>
-                </div>
+  <div class="mt-4">
+    <form #messageTypeForm="ngForm" (ngSubmit)="onSubmit()">
+      <div class="px-4 space-y-2 pb-4">
+        <div class="grid grid-cols-4 gap-1">
+          <!-- Name -->
+          <div class="col-span-4">
+            <label for="folderName" class="field-label">
+              {{ 'MediaLibrary.FolderNameLabelRequired' | translate }}
+            </label>
+            <div class="flex rounded-sm">
+              <input class="w-full"
+                     type="text"
+                     name="folderName"
+                     id="folderName"
+                     [(ngModel)]="model.name"
+                     [placeholder]="'MediaLibrary.FolderNamePlaceholder' | translate"
+                     maxlength="128"
+                     required
+                     #folderName="ngModel">
             </div>
-            <button type="submit"
-                    [style.visibility]="'hidden'"
-                    #submitBtn>Submit</button>
-        </form>
-    </div>
+            <p *ngIf="folderName.invalid && (folderName.dirty || folderName.touched)" class="mt-2 text-sm text-red-600">
+              <span *ngIf="folderName.errors!['required']">{{ 'MediaLibrary.FolderNameRequiredError' | translate }}</span>
+              <span *ngIf="folderName.errors!['maxlength']">{{ 'MediaLibrary.FolderNameMaxLengthError' | translate }}</span>
+            </p>
+            <p class="field-info col-span-3">{{ 'MediaLibrary.FolderNameInfo' | translate }}</p>
+          </div>
+
+          <!-- Description -->
+          <div class="col-span-4">
+            <label for="folderDescription" class="field-label">
+              {{ 'MediaLibrary.FolderDescriptionLabel' | translate }}
+            </label>
+            <div class="flex rounded-sm">
+              <input class="w-full"
+                     type="text"
+                     name="folderDescription"
+                     id="folderDescription"
+                     [(ngModel)]="model.description"
+                     [placeholder]="'MediaLibrary.FolderDescriptionPlaceholder' | translate"
+                     maxlength="512"
+                     #folderDescription="ngModel">
+            </div>
+            <p class="field-info col-span-3">{{ 'MediaLibrary.FolderDescriptionInfo' | translate }}</p>
+          </div>
+        </div>
+      </div>
+      <button type="submit" [style.visibility]="'hidden'" #submitBtn>Submit</button>
+    </form>
+  </div>
 </lib-side-view-layout>

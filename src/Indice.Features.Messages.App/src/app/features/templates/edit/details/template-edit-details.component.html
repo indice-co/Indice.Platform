@@ -1,13 +1,15 @@
-<section aria-labelledby="applicant-information-title">
+<section aria-labelledby="template-basic-info-title">
   <div class="bg-white shadow sm:rounded-lg">
     <div class="px-4 py-5 sm:px-6">
       <div class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
         <div class="sm:col-span-1">
-          <h2 id="applicant-information-title"
+          <h2 id="template-basic-info-title"
               class="text-lg leading-6 font-medium text-gray-900">
-            Βασικές Πληροφορίες
+            {{ 'Templates.BasicInformationHeader' | translate }}
           </h2>
-          <p class="mt-1 max-w-2xl text-sm text-gray-500">Οι βασικές πληροφορίες του προτύπου.</p>
+          <p class="mt-1 max-w-2xl text-sm text-gray-500">
+            {{ 'Templates.BasicInformationDescription' | translate }}
+          </p>
         </div>
         <div class="sm:col-span-1">
           <div class="mx-auto md:flex md:items-center md:justify-between md:space-x-5">
@@ -16,69 +18,97 @@
               <button type="button"
                       (click)="deleteTemplate()"
                       class="inline-flex items-center justify-center px-4 py-2 border border-transparent font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-red-500 sm:text-sm">
-                Διαγραφή
+                {{ 'Templates.Delete' | translate }}
               </button>
             </div>
           </div>
         </div>
       </div>
     </div>
+
     <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
       <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">
-            Τιτλος
+            {{ 'Templates.TitleLabel' | translate }}
             <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editName' }"></ng-container>
           </dt>
-          <dd class="mt-1 text-sm text-gray-900">{{ template?.name }}</dd>
+          <dd class="mt-1 text-sm text-gray-900">{{ template?.name || ('Templates.EmptyValueIndicator' | translate) }}</dd>
         </div>
 
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">
-            Alias
+            {{ 'Templates.AliasLabel' | translate }}
             <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editName' }"></ng-container>
           </dt>
-          <dd class="mt-1 text-sm text-gray-900">{{ template?.alias }}</dd>
+          <dd class="mt-1 text-sm text-gray-900">{{ template?.alias || ('Templates.EmptyValueIndicator' | translate) }}</dd>
         </div>
+
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">
-            Τύπος μηνύματος
+            {{ 'Templates.MessageTypeLabel' | translate }}
             <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editMessageType' }"></ng-container>
           </dt>
           <dd class="mt-1 text-sm text-gray-900">
-            <span *ngIf="template?.messageType" class="message-type-badge {{template?.messageType?.classification}}">{{ template?.messageType?.name}}</span>
-            {{ template?.messageType ? '' : '-' }}
+            <span *ngIf="template?.messageType"
+                  class="message-type-badge {{ template?.messageType?.classification }}">
+              {{ template?.messageType?.name || ('Templates.EmptyValueIndicator' | translate) }}
+            </span>
+            <span *ngIf="!template?.messageType">{{ 'Templates.EmptyValueIndicator' | translate }}</span>
           </dd>
         </div>
+
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">
-            Παράβλεψη ρυθμίσεων επικοινωνίας επαφής
+            {{ 'Templates.IgnoreUserPreferencesLabel' | translate }}
             <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editUserPreference' }"></ng-container>
           </dt>
-          <dd class="mt-1 text-sm text-gray-900">{{ template?.ignoreUserPreferences ? 'Ναι' : 'Όχι' }}</dd>
+          <dd class="mt-1 text-sm text-gray-900">
+            {{ template?.ignoreUserPreferences ? ('Templates.Yes' | translate) : ('Templates.No' | translate) }}
+          </dd>
         </div>
+
         <div class="sm:col-span-1">
-          <dt class="text-sm font-medium text-gray-500">Δημιουργήθηκε από</dt>
-          <dd class="mt-1 text-sm text-gray-900">{{ template?.createdBy || '-' }}</dd>
+          <dt class="text-sm font-medium text-gray-500">
+            {{ 'Templates.CreatedByLabel' | translate }}
+          </dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            {{ template?.createdBy || ('Templates.EmptyValueIndicator' | translate) }}
+          </dd>
         </div>
+
         <div class="sm:col-span-1">
-          <dt class="text-sm font-medium text-gray-500">Δημιουργήθηκε στις</dt>
-          <dd class="mt-1 text-sm text-gray-900">{{ template?.createdAt ? (template?.createdAt | date: 'medium') : '-' }}</dd>
+          <dt class="text-sm font-medium text-gray-500">
+            {{ 'Templates.CreatedAtLabel' | translate }}
+          </dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            {{ template?.createdAt ? (template?.createdAt | date:'medium') : ('Templates.EmptyValueIndicator' | translate) }}
+          </dd>
         </div>
+
         <div class="sm:col-span-1">
-          <dt class="text-sm font-medium text-gray-500">Τροποποιήθηκε από</dt>
-          <dd class="mt-1 text-sm text-gray-900">{{ template?.updatedBy || '-' }}</dd>
+          <dt class="text-sm font-medium text-gray-500">
+            {{ 'Templates.UpdatedByLabel' | translate }}
+          </dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            {{ template?.updatedBy || ('Templates.EmptyValueIndicator' | translate) }}
+          </dd>
         </div>
+
         <div class="sm:col-span-1">
-          <dt class="text-sm font-medium text-gray-500">Τροποποιήθηκε στις</dt>
-          <dd class="mt-1 text-sm text-gray-900">{{ template?.updatedAt ? (template?.updatedAt | date: 'medium') : '-' }}</dd>
+          <dt class="text-sm font-medium text-gray-500">
+            {{ 'Templates.UpdatedAtLabel' | translate }}
+          </dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            {{ template?.updatedAt ? (template?.updatedAt | date:'medium') : ('Templates.EmptyValueIndicator' | translate) }}
+          </dd>
         </div>
       </dl>
     </div>
   </div>
 </section>
-<ng-template #editIcon
-             let-action>
+
+<ng-template #editIcon let-action>
   <svg xmlns="http://www.w3.org/2000/svg"
        class="h-4 w-4 inline cursor-pointer"
        fill="none"

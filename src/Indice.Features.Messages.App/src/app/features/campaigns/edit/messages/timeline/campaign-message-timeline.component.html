@@ -1,117 +1,125 @@
-<section aria-labelledby="applicant-information-title">
-    <div class="bg-white shadow sm:rounded-lg">
-        <div class="px-4 py-5 sm:px-6">
-            <div class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
-                <div class="sm:col-span-1">
-                    <h2 id="applicant-information-title" class="text-lg leading-6 font-medium text-gray-900">
-                        Στοιχεία επαφής
-                    </h2>
-                </div>
-            </div>
+<section aria-labelledby="campaign-contact-info-title">
+  <div class="bg-white shadow sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6">
+      <div class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+        <div class="sm:col-span-1">
+          <h2 id="campaign-contact-info-title"
+              class="text-lg leading-6 font-medium text-gray-900">
+            {{ 'Campaigns.ContactInfoHeader' | translate }}
+          </h2>
         </div>
-        <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
-            <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
-                <div class="sm:col-span-1">
-                    <dt class="text-sm font-medium text-gray-500">Προσφώνηση</dt>
-                    <dd class="mt-1 text-sm text-gray-900">{{ campaignTimeline?.recipient?.salutation || '-' }}</dd>
-                </div>
-                <div class="sm:col-span-1">
-                    <dt class="text-sm font-medium text-gray-500">Όνομα Εμφάνισης</dt>
-                    <dd class="mt-1 text-sm text-gray-900">{{ campaignTimeline?.recipient?.fullName || '-' }}</dd>
-                </div>
-                <div class="sm:col-span-1">
-                    <dt class="text-sm font-medium text-gray-500">Όνομα</dt>
-                    <dd class="mt-1 text-sm text-gray-900">{{ campaignTimeline?.recipient?.firstName || '-' }}</dd>
-                </div>
-                <div class="sm:col-span-1">
-                    <dt class="text-sm font-medium text-gray-500">Επώνυμο</dt>
-                    <dd class="mt-1 text-sm text-gray-900">{{ campaignTimeline?.recipient?.lastName || '-' }}</dd>
-                </div>
-                <div class="sm:col-span-1">
-                    <dt class="text-sm font-medium text-gray-500">Email</dt>
-                    <dd class="mt-1 text-sm text-gray-900">{{ campaignTimeline?.recipient?.email || '-' }}</dd>
-                </div>
-                <div class="sm:col-span-1">
-                    <dt class="text-sm font-medium text-gray-500">Τηλέφωνο</dt>
-                    <dd class="mt-1 text-sm text-gray-900">{{ campaignTimeline?.recipient?.phoneNumber || '-' }}</dd>
-                </div>
-                <div class="sm:col-span-1">
-                    <dt class="text-sm font-medium text-gray-500">Κωδικός επαφής</dt>
-                    <dd class="mt-1 text-sm text-gray-900">{{ campaignTimeline?.recipient?.id || '-' }}</dd>
-                </div>
-                <div class="sm:col-span-1">
-                    <dt class="text-sm font-medium text-gray-500">Ενημερώθηκε στις</dt>
-                    <dd class="mt-1 text-sm text-gray-900">
-                        {{ campaignTimeline?.recipient?.updatedAt === undefined ? '-' :
-                        (campaignTimeline?.recipient?.updatedAt | date: 'medium') }}
-                    </dd>
-                </div>
-            </dl>
-        </div>
+      </div>
     </div>
+    <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+      <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.SalutationLabel' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            {{ campaignTimeline?.recipient?.salutation || ('Campaigns.EmptyValueIndicator' | translate) }}
+          </dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.DisplayNameLabel' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            {{ campaignTimeline?.recipient?.fullName || ('Campaigns.EmptyValueIndicator' | translate) }}
+          </dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.FirstNameLabel' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            {{ campaignTimeline?.recipient?.firstName || ('Campaigns.EmptyValueIndicator' | translate) }}
+          </dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.LastNameLabel' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            {{ campaignTimeline?.recipient?.lastName || ('Campaigns.EmptyValueIndicator' | translate) }}
+          </dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.EmailLabel' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            {{ campaignTimeline?.recipient?.email || ('Campaigns.EmptyValueIndicator' | translate) }}
+          </dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.PhoneLabel' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            {{ campaignTimeline?.recipient?.phoneNumber || ('Campaigns.EmptyValueIndicator' | translate) }}
+          </dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.ContactCodeLabel' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            {{ campaignTimeline?.recipient?.id || ('Campaigns.EmptyValueIndicator' | translate) }}
+          </dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.UpdatedAtLabel' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            {{
+ campaignTimeline?.recipient?.updatedAt === undefined
+               ? ('Campaigns.EmptyValueIndicator' | translate)
+               : (campaignTimeline?.recipient?.updatedAt | date:'medium')
+            }}
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </div>
 </section>
 
-
-<section aria-labelledby="timeline-title" class="mt-10">
-    <div class="bg-white shadow sm:rounded-lg">
-        <div class="px-4 py-5 sm:px-6">
-            <h2 id="timeline-title" class="text-lg leading-6 font-medium text-gray-900">Προεπισκόπηση
-            <!-- <div class="flex items-center space-x-1"> -->
-                <span [ngClass]="{ 'text-green-500 cursor-pointer': campaignTimeline?.content.email }"
-                    class="ml-1 text-gray-400" title="Email" (click)="openEmailContent('email')">
-                    <i class="ms-Icon ms-Icon--Accounts"></i>
-                </span>
-
-                <span [ngClass]="{ 'text-green-500 cursor-pointer': campaignTimeline?.content.sms }" class="ml-1 text-gray-400"
-                    title="SMS" (click)="openEmailContent('sms')">
-                    <i class="ms-Icon ms-Icon--Chat"></i>
-                </span>
-
-                <span [ngClass]="{ 'text-green-500 cursor-pointer': campaignTimeline?.content.inbox }" class="ml-1 text-gray-400"
-                    title="Inbox" (click)="openEmailContent('inbox')">
-                    <i class="ms-Icon ms-Icon--Inbox"></i>
-                </span>
-
-                <span [ngClass]="{ 'text-green-500 cursor-pointer': campaignTimeline?.content.pushNotification }"
-                    class="ml-1 text-gray-400" title="Push Notification" (click)="openEmailContent('pushNotification')">
-                    <i class="ms-Icon ms-Icon--CellPhone"></i>
-                </span>
-            </h2>
-        </div>
-        <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
-            <h2 id="timeline-title" class="text-lg leading-6 font-medium text-gray-900 mb-2">Ιστορικό</h2>
-            <ol class="relative border-s border-gray-200 dark:border-gray-700">
-                <li *ngFor="let event of campaignTimeline?.events" class="mb-10 ms-8">
-                    <span
-                        class="absolute flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full -start-3 ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900">
-                        <i *ngIf="event.channel === 'Inbox'" class="ms-Icon ms-Icon--Accounts"></i>
-                        <i *ngIf="event.channel === 'SMS'" class="ms-Icon ms-Icon--Chat"></i>
-                        <i *ngIf="event.channel === 'Email'" class="ms-Icon ms-Icon--Inbox"></i>
-                        <i *ngIf="event.channel === 'PushNotification'" class="ms-Icon ms-Icon--CellPhone"></i>
-                    </span>
-                    <h3 class="flex items-center mb-1 text-lg font-semibold text-gray-900 dark:text-white">
-                        {{event.channel}} - {{event.type}}
-                    </h3>
-                    <time class="block mb-2 text-sm font-normal leading-none text-gray-400 dark:text-gray-500">
-                        {{(event.createdOn | date: 'medium')}}</time>
-                </li>
-                <!-- <li class="mb-10 ms-6">
-                <span
-                    class="absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -start-3 ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900">
-                    <svg class="w-2.5 h-2.5 text-blue-800 dark:text-blue-300" aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                        <path
-                            d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
-                    </svg>
-                </span>
-                <h3 class="mb-1 text-lg font-semibold text-gray-900 dark:text-white">Flowbite Figma v1.3.0</h3>
-                <time class="block mb-2 text-sm font-normal leading-none text-gray-400 dark:text-gray-500">Released on
-                    December 7th, 2021</time>
-                <p class="text-base font-normal text-gray-500 dark:text-gray-400">All of the pages and components are
-                    first designed in Figma and we keep a parity between the two versions even as we update the project.
-                </p>
-            </li> -->
-            </ol>
-        </div>
+<section aria-labelledby="campaign-preview-title" class="mt-10">
+  <div class="bg-white shadow sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6">
+      <h2 id="campaign-preview-title" class="text-lg leading-6 font-medium text-gray-900">
+        {{ 'Campaigns.PreviewHeader' | translate }}
+        <span [ngClass]="{ 'text-green-500 cursor-pointer': campaignTimeline?.content.email }"
+              class="ml-1 text-gray-400"
+              [title]="'Campaigns.ChannelEmail' | translate"
+              (click)="openEmailContent('email')">
+          <i class="ms-Icon ms-Icon--Accounts"></i>
+        </span>
+        <span [ngClass]="{ 'text-green-500 cursor-pointer': campaignTimeline?.content.sms }"
+              class="ml-1 text-gray-400"
+              [title]="'Campaigns.ChannelSms' | translate"
+              (click)="openEmailContent('sms')">
+          <i class="ms-Icon ms-Icon--Chat"></i>
+        </span>
+        <span [ngClass]="{ 'text-green-500 cursor-pointer': campaignTimeline?.content.inbox }"
+              class="ml-1 text-gray-400"
+              [title]="'Campaigns.ChannelInbox' | translate"
+              (click)="openEmailContent('inbox')">
+          <i class="ms-Icon ms-Icon--Inbox"></i>
+        </span>
+        <span [ngClass]="{ 'text-green-500 cursor-pointer': campaignTimeline?.content.pushNotification }"
+              class="ml-1 text-gray-400"
+              [title]="'Campaigns.ChannelPushNotification' | translate"
+              (click)="openEmailContent('pushNotification')">
+          <i class="ms-Icon ms-Icon--CellPhone"></i>
+        </span>
+      </h2>
     </div>
+    <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+      <h2 class="text-lg leading-6 font-medium text-gray-900 mb-2">
+        {{ 'Campaigns.HistoryHeader' | translate }}
+      </h2>
+      <ol class="relative border-s border-gray-200 dark:border-gray-700">
+        <li *ngFor="let event of campaignTimeline?.events" class="mb-10 ms-8">
+          <span class="absolute flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full -start-3 ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900">
+            <i *ngIf="event.channel === 'Inbox'" class="ms-Icon ms-Icon--Inbox"></i>
+            <i *ngIf="event.channel === 'SMS'" class="ms-Icon ms-Icon--Chat"></i>
+            <i *ngIf="event.channel === 'Email'" class="ms-Icon ms-Icon--Accounts"></i>
+            <i *ngIf="event.channel === 'PushNotification'" class="ms-Icon ms-Icon--CellPhone"></i>
+          </span>
+          <h3 class="flex items-center mb-1 text-lg font-semibold text-gray-900 dark:text-white">
+            {{ event.channel }} - {{ event.type }}
+          </h3>
+          <time class="block mb-2 text-sm font-normal leading-none text-gray-400 dark:text-gray-500">
+            {{ event.createdOn | date:'medium' }}
+          </time>
+        </li>
+      </ol>
+    </div>
+  </div>
 </section>

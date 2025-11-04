@@ -1,4 +1,4 @@
-<lib-view-layout title="Message events"
+<lib-view-layout [title]="'Events.Title' | translate"
                  [busy]="!items"
                  [actions]="actions"
                  [meta-items]="metaItems"
@@ -28,20 +28,21 @@
       </div>
     </ng-container>
 
-    <lib-list-column title="Title">
+    <lib-list-column [title]="'Events.ItemTitle' | translate">
       <ng-template let-item>
         {{ item.title }}
       </ng-template>
     </lib-list-column>
 
-    <lib-list-column title="Recipient">
+    <lib-list-column [title]="'Events.Recipient' | translate">
       <ng-template let-item>
         {{ item.recipient }}
       </ng-template>
     </lib-list-column>
-    <lib-list-column title="Channel">
+
+    <lib-list-column [title]="'Events.Channel' | translate">
       <ng-template let-item>
-        <div class="text-center" title="{{item.channel}}">
+        <div class="text-center" [title]="item.channel">
           <span *ngIf="item.channel === 'Email'" [ngClass]="{ 'text-green-500': item.channel == 'Email' }">
             <i class="ms-Icon ms-Icon--Accounts"></i>
           </span>
@@ -57,32 +58,36 @@
         </div>
       </ng-template>
     </lib-list-column>
-    <lib-list-column title="Event Type">
+
+    <lib-list-column [title]="'Events.EventType' | translate">
       <ng-template let-item>
         {{ item.type }}
       </ng-template>
     </lib-list-column>
-    <lib-list-column title="Created On">
+
+    <lib-list-column [title]="'Contacts.CreatedAt' | translate">
       <ng-template let-item>{{ item.createdOn | date: 'medium' }}</ng-template>
     </lib-list-column>
-    <lib-list-column title="Success">
+
+    <lib-list-column [title]="'Events.Success' | translate">
       <ng-template let-item>
         <span [innerHtml]="item.success | beautifyBoolean"></span>
       </ng-template>
     </lib-list-column>
-    <lib-list-column title="Links" [full-width]="true">
+
+    <lib-list-column [title]="'Events.Links' | translate" [full-width]="true">
       <ng-template let-item>
-        <a title="Campaign details"
+        <a [title]="'Contacts.CampaignDetails' | translate"
            [routerLink]="['/campaigns/'+item.campaignId+'/campaign-details']"
            class="text-blue-600 ml-2">
           <i class="ms-Icon ms-Icon--Communications text-lg"></i>
         </a>
-        <a title="Message details"
+        <a [title]="'Events.MessageDetails' | translate"
            [routerLink]="['/campaigns/'+item.campaignId+'/campaign-message-timeline/'+item.contactId]"
            class="text-blue-600 ml-2">
           <i class="ms-Icon ms-Icon--Mail text-lg"></i>
         </a>
-        <a title="Contact details"
+        <a [title]="'Events.ContactDetails' | translate"
            [routerLink]="['/contacts/'+item.contactId+'/contact-details']"
            class="text-blue-600 ml-2">
           <i class="ms-Icon ms-Icon--Contact text-lg"></i>
