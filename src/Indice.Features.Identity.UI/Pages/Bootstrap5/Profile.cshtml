@@ -75,7 +75,7 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label asp-for="Input.UserName" class="form-label">@Localizer.Profile_Username</label>
-                    <input class="form-control" type="text" placeholder="@Localizer.Profile_Username" asp-for="Input.UserName" readonly="@userManager.EmailAsUserName" />
+                    <input class="form-control" type="text" placeholder="@Localizer.Profile_Username" asp-for="Input.UserName" readonly="@(Model.IsUsernameReadOnly ? "readonly" : null)" />
                     <span asp-validation-for="Input.UserName" class="text-danger"></span>
                 </div>
             </div>
@@ -107,7 +107,7 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label asp-for="Input.PhoneNumber" class="form-label">@Localizer.Profile_Phone_Number</label>
-                    <input class="form-control" type="text" placeholder="@Localizer.Profile_Phone_Number" asp-for="Input.PhoneNumber" />
+                    <input class="form-control" type="text" placeholder="@Localizer.Profile_Phone_Number" asp-for="Input.PhoneNumber" readonly="@(Model.IsPhoneReadOnly ? "readonly" : null) "/>
                     <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
                 </div>
             </div>
