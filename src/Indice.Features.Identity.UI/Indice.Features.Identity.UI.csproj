@@ -2,6 +2,7 @@
   <PropertyGroup Label="Package">
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;AspNetIdentityUI</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <VersionPrefix>$(VersionPrefixIdentityUI)</VersionPrefix>
   </PropertyGroup>
   <PropertyGroup>

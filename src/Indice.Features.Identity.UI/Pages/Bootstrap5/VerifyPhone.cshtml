@@ -29,7 +29,10 @@
                     <button class="btn btn-info w-100" type="submit" disabled="@displayNext">@Localizer.VerifyPhone_Save</button>
                 </div>
                 <div class="col-6 py-1">
-                    <button class="btn btn-info w-100" type="submit" id="otp-resend" name="Input.OtpResend" value="true">@Localizer.VerifyPhone_Resend</button>
+                    <button class="btn btn-info w-100" type="submit" id="otp-resend" name="Input.OtpResend" value="true">
+                        <span>@Localizer.VerifyPhone_Resend</span>
+                        <span class="countdown ms-2 small"></span>
+                    </button>
                 </div>
                 @if (displayNext)
                 {

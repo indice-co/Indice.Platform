@@ -256,7 +256,7 @@
     <value>Verifying your email.</value>
   </data>
   <data name="ConfirmEmail_Closewindow" xml:space="preserve">
-    <value>You can now close this browse window.</value>
+    <value>You can now close this browser window.</value>
   </data>
   <data name="ConfirmEmail_Confrimation" xml:space="preserve">
     <value>Your email has been successfully confirmed.</value>
@@ -301,7 +301,7 @@
     <value>Verifying your email.</value>
   </data>
   <data name="ConfirmEmailChange_CloseWindowMessage" xml:space="preserve">
-    <value>You can now close this browse window.</value>
+    <value>You can now close this browser window.</value>
   </data>
   <data name="ConfirmEmailChange_ConfirmationEmailChanged" xml:space="preserve">
     <value>Your email has been successfully changed.</value>

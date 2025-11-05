@@ -28,15 +28,15 @@
       </div>
     </ng-container>
 
-    <lib-list-column [title]="'Events.ItemTitle' | translate">
-      <ng-template let-item>
-        {{ item.title }}
-      </ng-template>
-    </lib-list-column>
-
     <lib-list-column [title]="'Events.Recipient' | translate">
       <ng-template let-item>
         {{ item.recipient }}
+      </ng-template>
+    </lib-list-column>
+
+    <lib-list-column [title]="'Events.ItemTitle' | translate">
+      <ng-template let-item>
+        {{ item.title }}
       </ng-template>
     </lib-list-column>
 
