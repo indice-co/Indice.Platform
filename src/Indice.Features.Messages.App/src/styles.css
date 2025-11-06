@@ -134,7 +134,7 @@ textarea.code-editor:focus {
 
 .badge {
   @apply inline-flex items-center gap-x-1.5 rounded-md px-2 py-0.5 text-xs font-medium text-gray-900 border border-gray-500;
-  @layer inset-ring inset-ring-gray-200;
+  @apply inset-ring inset-ring-gray-200;
 }
 
 .badge.alias {
@@ -143,7 +143,7 @@ textarea.code-editor:focus {
 
 .message-type-badge {
   @apply inline-flex items-center gap-x-1.5 rounded-md px-2 py-0.5 text-xs font-medium text-gray-900 border border-gray-500;
-  @layer inset-ring inset-ring-gray-200;
+  @apply inset-ring inset-ring-gray-200;
 }
 
 .message-type-badge::before {
