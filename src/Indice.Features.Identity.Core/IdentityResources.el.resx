@@ -220,7 +220,7 @@
     <value>Ειδοποίηση ασφαλείας για {0}</value>
   </data>
   <data name="AddEmailValidationEmailEmpty" xml:space="preserve">
-    <value>Παρακαλώ εισάγετε &lt;br/&gt;τη διεύθυνση email &lt;br/&gt; σας για να την &lt;br/&gt;επιβεβαιώσουμε πριν προχωρήσουμε.</value>
+    <value>Παρακαλώ εισάγετε τη διεύθυνση email σας για να την επιβεβαιώσουμε πριν προχωρήσουμε.</value>
   </data>
   <data name="AddEmailConfirmationEmailSend" xml:space="preserve">
     <value>Ένα email επιβεβαίωσης έχει αποσταλεί στην παρακάτω διεύθυνση.</value>
