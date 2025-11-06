@@ -14,5 +14,5 @@
     <a class="header-logo" href="/">
         <img class="w-100" src="@Model.ImageSrc" />
     </a>
-    <span indice-if="!string.IsNullOrWhiteSpace(Model.Title?.Value)" class="header-text">@Model.Title</span>
+    <span indice-if="!string.IsNullOrWhiteSpace(Model.Title?.ToString())" class="header-text">@Model.Title</span>
 </h1>

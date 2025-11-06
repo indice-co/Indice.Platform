@@ -18,8 +18,8 @@ public class PageHeadingViewComponent : ViewComponent
 
 
     /// <inheritdoc/>
-    public IViewComponentResult Invoke(string? title, string? imageSrc) {
-        return View(new PageHeadingViewModel(new HtmlString(title ?? ""), string.IsNullOrEmpty(imageSrc) ? null : Url.Content(imageSrc)));
+    public IViewComponentResult Invoke(IHtmlContent? title, string? imageSrc) {
+        return View(new PageHeadingViewModel(title, string.IsNullOrEmpty(imageSrc) ? null : Url.Content(imageSrc)));
     }
 
 }

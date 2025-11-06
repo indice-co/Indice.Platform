@@ -13,7 +13,7 @@ public class PageHeadingViewModel
     /// </summary>
     /// <param name="title"></param>
     /// <param name="imageSrc"></param>
-    public PageHeadingViewModel(HtmlString? title, string? imageSrc) {
+    public PageHeadingViewModel(IHtmlContent? title, string? imageSrc) {
         Title = title;
         ImageSrc = imageSrc;
     }
@@ -26,5 +26,5 @@ public class PageHeadingViewModel
     /// <summary>
     /// The page title
     /// </summary>
-    public HtmlString? Title { get; }
+    public IHtmlContent? Title { get; }
 }
