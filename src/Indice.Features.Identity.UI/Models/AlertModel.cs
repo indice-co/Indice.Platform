@@ -14,7 +14,7 @@ public class AlertModel
 
     /// <summary>The Html message.</summary>
     [JsonIgnore]
-    public HtmlString Message { get => new HtmlString(MessageText); set => MessageText = value.ToString(); }
+    public HtmlString Message { get => new HtmlString(MessageText); set => MessageText = value?.ToString() ?? string.Empty; }
     /// <summary>Gets a value indicating whether the message text is null, empty, or consists only of white-space characters.</summary>
     public bool IsEmpty => string.IsNullOrWhiteSpace(MessageText);
     /// <summary>The alert type.</summary>
