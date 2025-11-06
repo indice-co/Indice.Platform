@@ -33,7 +33,7 @@ public class SmsServiceSmsUp : ISmsService
         ILogger<SmsServiceSmsUp> logger) {
         Settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
         HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        Environment = hostEnvironment;
+        Environment = hostEnvironment ?? throw new ArgumentNullException(nameof(hostEnvironment));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         ArgumentException.ThrowIfNullOrWhiteSpace(Settings.ApiKey);
