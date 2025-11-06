@@ -24,7 +24,7 @@ public class AlertModel
     /// <param name="message">The message.</param>
     public static AlertModel Warn(string message) => new() { 
         AlertType = AlertType.Warning, 
-        Message = new HtmlString(message )
+        Message = new HtmlString(message)
     };
     
     /// <summary>Creates an alert with <see cref="AlertType.Danger"/>.</summary>
