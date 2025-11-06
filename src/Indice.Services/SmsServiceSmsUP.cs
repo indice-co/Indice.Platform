@@ -3,6 +3,7 @@ using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Web;
 using Indice.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -66,7 +67,7 @@ public class SmsServiceSmsUp : ISmsService
                                             }).ToList();
         var request = new SmsUpRequest {
             ApiKey = Settings.ApiKey!,
-            ReportUrl = Settings.ReportUrl,
+            ReportUrl = Settings.BuildReportUrl(),
             Concat = Settings.Concat,
             Fake = Settings.Fake,
             Messages = messages
@@ -129,6 +130,61 @@ public class SmsServiceSmsUp : ISmsService
     };
 }
 
+/// <summary>Webhook strategy for building report URLs.</summary>
+public enum WebHookStrategy
+{
+    /// <summary>Use the BaseUrl as-is without modifications.</summary>
+    Static,
+    /// <summary>Append custom query string parameters to the BaseUrl.</summary>
+    QueryString
+}
+
+/// <summary>Settings for configuring webhook delivery reports.</summary>
+public class WebHookSettings
+{
+    /// <summary>The base URL for the webhook endpoint.</summary>
+    public string? BaseUrl { get; set; }
+
+    /// <summary>The strategy to use when building the report URL.</summary>
+    public WebHookStrategy Strategy { get; set; } = WebHookStrategy.Static;
+
+    /// <summary>The signature method used for webhook security.</summary>
+    public string? SignatureMethod { get; set; }
+
+    /// <summary>Custom query string parameters to append when using QueryString strategy.</summary>
+    public Dictionary<string, string>? QueryStringParameters { get; set; }
+
+    /// <summary>Builds the report URL based on the configured strategy.</summary>
+    /// <returns>The constructed report URL, or null if BaseUrl is not set.</returns>
+    public string? BuildUrl() {
+        if (string.IsNullOrWhiteSpace(BaseUrl)) {
+            return null;
+        }
+
+        return Strategy switch {
+            WebHookStrategy.Static => BaseUrl,
+            WebHookStrategy.QueryString => BuildUrlWithQueryString(),
+            _ => BaseUrl
+        };
+    }
+
+    private string BuildUrlWithQueryString() {
+        if (QueryStringParameters == null || QueryStringParameters.Count == 0) {
+            return BaseUrl!;
+        }
+
+        var uriBuilder = new UriBuilder(BaseUrl!);
+        var query = HttpUtility.ParseQueryString(uriBuilder.Query);
+
+        foreach (var param in QueryStringParameters) {
+            query[param.Key] = param.Value;
+        }
+
+        uriBuilder.Query = query.ToString();
+        return uriBuilder.ToString();
+    }
+}
+
 /// <summary>Extra settings class for configuring SMSUP SMS service client. </summary>
 public class SmsServiceSmsUpSettings
 {
@@ -150,6 +206,9 @@ public class SmsServiceSmsUpSettings
     /// <summary>With value 0 the message is sent. For testing purposes Fake must be 1.</summary>
     public int Fake { get; set; } = 0;
 
+    /// <summary>Webhook settings for delivery reports.</summary>
+    public WebHookSettings? WebHook { get; set; }
+
     /// <summary>Gets the Authorization header or credentials format (if applicable).</summary>
     public string GetAuthorizationHeader() {
         if (string.IsNullOrWhiteSpace(ApiKey)) {
@@ -158,6 +217,18 @@ public class SmsServiceSmsUpSettings
 
         // In SmsUp, API key is typically passed in the body, but you can format it like a bearer if needed
         return $"ApiKey {ApiKey}";
+    }
+
+    /// <summary>Builds the report URL using WebHook settings if configured, otherwise falls back to ReportUrl.</summary>
+    /// <returns>The report URL to use for delivery reports.</returns>
+    public string? BuildReportUrl() {
+        // If WebHook is configured and has a BaseUrl, use it
+        if (WebHook != null && !string.IsNullOrWhiteSpace(WebHook.BaseUrl)) {
+            return WebHook.BuildUrl();
+        }
+
+        // Otherwise, fall back to the direct ReportUrl
+        return ReportUrl;
     }
 }
 
