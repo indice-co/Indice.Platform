@@ -15,30 +15,30 @@ public class AlertModel
 
     /// <summary>Creates an alert with <see cref="AlertType.Info"/>.</summary>
     /// <param name="message">The message.</param>
-    public static AlertModel Info(string message) => new() { 
-        AlertType = AlertType.Info, 
-        Message = new HtmlString(message) 
-    };
-    
-    /// <summary>Creates an alert with <see cref="AlertType.Warning"/>.</summary>
-    /// <param name="message">The message.</param>
-    public static AlertModel Warn(string message) => new() { 
-        AlertType = AlertType.Warning, 
+    public static AlertModel Info(string message) => new() {
+        AlertType = AlertType.Info,
         Message = new HtmlString(message)
     };
-    
+
+    /// <summary>Creates an alert with <see cref="AlertType.Warning"/>.</summary>
+    /// <param name="message">The message.</param>
+    public static AlertModel Warn(string message) => new() {
+        AlertType = AlertType.Warning,
+        Message = new HtmlString(message)
+    };
+
     /// <summary>Creates an alert with <see cref="AlertType.Danger"/>.</summary>
     /// <param name="message">The message.</param>
-    public static AlertModel Error(string message) => new() { 
-        AlertType = AlertType.Danger, 
-        Message = new HtmlString(message )
+    public static AlertModel Error(string message) => new() {
+        AlertType = AlertType.Danger,
+        Message = new HtmlString(message)
     };
-    
+
     /// <summary>Creates an alert with <see cref="AlertType.Success"/></summary>
     /// <param name="message">The message.</param>
-    public static AlertModel Success(string message) => new() { 
-        AlertType = AlertType.Success, 
-        Message = new HtmlString(message )
+    public static AlertModel Success(string message) => new() {
+        AlertType = AlertType.Success,
+        Message = new HtmlString(message)
     };
 
 
