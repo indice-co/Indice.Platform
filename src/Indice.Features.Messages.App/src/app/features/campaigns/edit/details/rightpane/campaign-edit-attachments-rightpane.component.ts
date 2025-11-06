@@ -1,28 +1,36 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { finalize } from 'rxjs/operators';
 import { FileParameter, CampaignDetails } from 'src/app/core/services/messages-api.service';
 import { FileUploadComponent, IAttachment } from 'src/app/shared/components/file-upload/file-upload.component';
 import { CampaignEditStore } from '../../campaign-edit-store.service';
+import { AppLanguagesService } from 'src/app/shared/services/app-languages.service'; // localization
+import { combineLatest, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-campaign-edit-attachments-rightpane',
   templateUrl: './campaign-edit-attachments-rightpane.component.html'
 })
-export class CampaignAttachmentsEditRightpaneComponent implements OnInit {
+export class CampaignAttachmentsEditRightpaneComponent implements OnInit, OnDestroy {
 
   @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
   @ViewChild('fileUploadComponent') public fileUploadComponent!: FileUploadComponent;
-  
+
   public isLoading = false;
   public file: IAttachment | undefined;
   public campaignAttachment?: IAttachment;
   public attachmentChanged = false;
-  
-  private _campaignId: string = '';
 
-  constructor(private _campaignStore: CampaignEditStore, private _toaster: ToasterService, private _router: Router) { }
+  private _campaignId: string = '';
+  private _subs: Subscription[] = []; // track transient subscriptions
+
+  constructor(
+    private _campaignStore: CampaignEditStore,
+    private _toaster: ToasterService,
+    private _router: Router,
+    private _lang: AppLanguagesService // injected language service
+  ) { }
 
   ngOnInit(): void {
     this._campaignId = this._router.url.split('/')[2];
@@ -36,7 +44,7 @@ export class CampaignAttachmentsEditRightpaneComponent implements OnInit {
             this.campaignAttachment = undefined;
             return;
           }
-          this.campaignAttachment = <IAttachment> {
+          this.campaignAttachment = <IAttachment>{
             id: campaign.attachment.id,
             title: campaign.attachment.label,
             contentType: campaign.attachment.contentType,
@@ -54,28 +62,72 @@ export class CampaignAttachmentsEditRightpaneComponent implements OnInit {
 
   public onSubmit(): void {
     if (this.file) {
-      let attachment = <FileParameter>{
+      const attachment = <FileParameter>{
         fileName: this.file.title,
         data: this.file.data
-      }
+      };
       this._campaignStore.uploadCampaignAttachment(this._campaignId, attachment)
         .subscribe(() => {
-          this._toaster.show(ToastType.Success, 'Επιτυχής ενημέρωση', `Το επισυναπτόμενο αρχείο ενημερώθηκε με επιτυχία.`);
+          const successSub = combineLatest([
+            this._lang.translateKey('Campaigns.AttachmentUpdateSuccessTitle'),
+            this._lang.translateKey('Campaigns.AttachmentUpdateSuccessMessage')
+          ]).subscribe(([title, message]) => {
+            this._toaster.show(
+              ToastType.Success,
+              title || 'Campaigns.AttachmentUpdateSuccessTitle',
+              message || 'Campaigns.AttachmentUpdateSuccessMessage'
+            );
+            successSub.unsubscribe();
+          });
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
-        }, (error) => {
-          this._toaster.show(ToastType.Error, 'Σφάλμα ενημέρωσης', `Υπήρξε κάποιο πρόβλημα με την ενημέρωση των στοιχείων. Παρακαλώ δοκιμάστε αργότερα.`);
+        }, () => {
+          const errorSub = combineLatest([
+            this._lang.translateKey('Campaigns.AttachmentUpdateErrorTitle'),
+            this._lang.translateKey('Campaigns.AttachmentUpdateErrorMessage')
+          ]).subscribe(([title, message]) => {
+            this._toaster.show(
+              ToastType.Error,
+              title || 'Campaigns.AttachmentUpdateErrorTitle',
+              message || 'Campaigns.AttachmentUpdateErrorMessage'
+            );
+            errorSub.unsubscribe();
+          });
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
         });
     }
     else if (this.campaignAttachment?.id) {
       this._campaignStore.deleteCampaignAttachment(this._campaignId, this.campaignAttachment.id)
         .subscribe(() => {
-          this._toaster.show(ToastType.Success, 'Επιτυχής ενημέρωση', `Το επισυναπτόμενο αρχείο διαγράφηκε με επιτυχία.`);
+          const deleteSuccessSub = combineLatest([
+            this._lang.translateKey('Campaigns.AttachmentUpdateSuccessTitle'),
+            this._lang.translateKey('Campaigns.AttachmentDeleteSuccessMessage')
+          ]).subscribe(([title, message]) => {
+            this._toaster.show(
+              ToastType.Success,
+              title || 'Campaigns.AttachmentUpdateSuccessTitle',
+              message || 'Campaigns.AttachmentDeleteSuccessMessage'
+            );
+            deleteSuccessSub.unsubscribe();
+          });
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
-        }, (error) => {
-          this._toaster.show(ToastType.Error, 'Σφάλμα ενημέρωσης', `Υπήρξε κάποιο πρόβλημα με την ενημέρωση των στοιχείων. Παρακαλώ δοκιμάστε αργότερα.`);
+        }, () => {
+          const errorSub = combineLatest([
+            this._lang.translateKey('Campaigns.AttachmentUpdateErrorTitle'),
+            this._lang.translateKey('Campaigns.AttachmentUpdateErrorMessage')
+          ]).subscribe(([title, message]) => {
+            this._toaster.show(
+              ToastType.Error,
+              title || 'Campaigns.AttachmentUpdateErrorTitle',
+              message || 'Campaigns.AttachmentUpdateErrorMessage'
+            );
+            errorSub.unsubscribe();
+          });
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
         });
     }
+  }
+
+  public ngOnDestroy(): void {
+    this._subs.forEach(s => s.unsubscribe());
   }
 }

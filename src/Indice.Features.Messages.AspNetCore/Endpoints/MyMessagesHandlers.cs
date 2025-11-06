@@ -145,7 +145,7 @@ internal static class MyMessagesHandlers
         IContactService contactService,
         IOptions<MessageInboxOptions> campaignEndpointOptions,
         ClaimsPrincipal currentUser,
-        UpdatPreferenceRequest request
+        UpdatePreferenceRequest request
     ) {
         var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType)!;
         await contactService.UpdatePreference(userCode, request);

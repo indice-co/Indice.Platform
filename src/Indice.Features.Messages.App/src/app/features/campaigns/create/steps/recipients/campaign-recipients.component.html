@@ -70,6 +70,7 @@
                                         formControlName="distributionList"
                                         [value]="distributionList.value"
                                         [options]="distributionLists"
+                                        [placeholder]="'Campaigns.SelectPlaceholder' | translate"
                                         (change)="distributionList.setValue($event.value !== null ? $event : null)">
               </lib-local-drop-down-menu>
             </div>
@@ -114,7 +115,7 @@
                   </ng-container>
                 </div>
                 <div *ngIf="recipients.value.length > 4" class="flex items-end ml-0">
-                  <span>...</span>
+                  <span>{{ 'Campaigns.RecipientsOverflowIndicator' | translate }}</span>
                   <div class="h-10 w-10 rounded-full bg-white border-black border text-xs flex items-center justify-center">
                     {{ recipients.value.length - 4 }}
                   </div>

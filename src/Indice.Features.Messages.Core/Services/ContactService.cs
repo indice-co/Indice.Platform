@@ -376,7 +376,7 @@ public class ContactService : IContactService
     }
 
     /// <inheritdoc/>
-    public async Task UpdatePreference(string recipientId, UpdatPreferenceRequest request) {
+    public async Task UpdatePreference(string recipientId, UpdatePreferenceRequest request) {
         var recipientPreferences = await DbContext.ContactPreferences
                                            .Include(x => x.CommunicationOptions)
                                            .ThenInclude(up => up.MessageType)

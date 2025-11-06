@@ -2,7 +2,7 @@
 
 namespace Indice.Features.Messages.Core.Models.Requests;
 /// <summary>Models a request to update a recipient's communication preferences.</summary>
-public class UpdatPreferenceRequest
+public class UpdatePreferenceRequest
 {
     /// <summary>Users's locale.</summary>
     public string? Locale { get; set; }

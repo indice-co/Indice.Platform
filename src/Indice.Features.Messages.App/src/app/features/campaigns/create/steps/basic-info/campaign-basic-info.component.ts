@@ -1,21 +1,23 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, ViewChild, OnDestroy } from '@angular/core';
 import { AbstractControl, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 
 import { MenuOption } from '@indice/ng-components';
-import { lastValueFrom } from 'rxjs';
+import { lastValueFrom, combineLatest, Subscription } from 'rxjs';
 import { MessagesApiClient, MessageTypeResultSet, TemplateListItemResultSet } from 'src/app/core/services/messages-api.service';
 import { EnhancedComboboxComponent } from '@indice/ng-components';
+import { AppLanguagesService } from 'src/app/shared/services/app-languages.service'; // localization service
 
 @Component({
   selector: 'app-campaign-basic-info',
   templateUrl: './campaign-basic-info.component.html'
 })
-export class CampaignBasicInfoComponent implements OnInit {
+export class CampaignBasicInfoComponent implements OnInit, OnDestroy {
   constructor(
     private _api: MessagesApiClient,
     private _datePipe: DatePipe,
-    private _changeDetector: ChangeDetectorRef
+    private _changeDetector: ChangeDetectorRef,
+    private _lang: AppLanguagesService // inject language service
   ) { }
 
   // Input & Output parameters
@@ -38,12 +40,13 @@ export class CampaignBasicInfoComponent implements OnInit {
 
   // Properties
   public form!: FormGroup;
-  public messageTypes: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
+  // Fallback initial values = key names (translated via service & | translate in HTML)
+  public messageTypes: MenuOption[] = [new MenuOption('Campaigns.SelectPlaceholder', null)];
   public messageTypesForCombobox: any[] = [];
   public messageTypesLoading: boolean = false;
   public displayMessageTypesShowMoreOption: boolean = false;
 
-  public templates: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
+  public templates: MenuOption[] = [new MenuOption('Campaigns.SelectPlaceholder', null)];
   public templatesForCombobox: any[] = [];
   public templatesLoading: boolean = false;
   public displayTemplatesShowMoreOption: boolean = false;
@@ -57,6 +60,8 @@ export class CampaignBasicInfoComponent implements OnInit {
   private _pageSize: number = 10;
   private _lastMessageTypeSearchTerm: string | undefined = undefined;
   private _lastTemplateSearchTerm: string | undefined = undefined;
+
+  private _subs: Subscription[] = [];
 
   public equalityPredicate = (x: any, y: any) => x && y && x.id === y.id;
 
@@ -74,10 +79,27 @@ export class CampaignBasicInfoComponent implements OnInit {
 
   public ngOnInit(): void {
     this._initForm();
+    // Localize placeholders (one-off, fallback = key)
+    const placeholdersSub = combineLatest([
+      this._lang.translateKey('Campaigns.SelectPlaceholder')
+    ]).subscribe(([selectPlaceholder]) => {
+      const translated = selectPlaceholder || 'Campaigns.SelectPlaceholder';
+      if (this.messageTypes.length > 0) {
+        this.messageTypes[0] = new MenuOption(translated, null);
+      }
+      if (this.templates.length > 0) {
+        this.templates[0] = new MenuOption(translated, null);
+      }
+    });
+    this._subs.push(placeholdersSub);
   }
 
   public ngAfterViewInit(): void {
     this._changeDetector.detectChanges();
+  }
+
+  public ngOnDestroy(): void {
+    this._subs.forEach(s => s.unsubscribe());
   }
 
   public onCampaignStartInput(event: any): void {
@@ -211,11 +233,11 @@ export class CampaignBasicInfoComponent implements OnInit {
       channelsFormArray.clear();
 
       if (!this.actionLinkText.value) {
-        this.actionLinkText.setValue("Click me!");
+        this.actionLinkText.setValue('Campaigns.ActionLinkDefaultText'); // key placeholder
       }
 
       if (!this.actionLinkHref.value) {
-        this.actionLinkHref.setValue("https://www.indice.gr");
+        this.actionLinkHref.setValue('https://www.indice.gr');
       }
 
       if (event.channels) {
@@ -261,7 +283,6 @@ export class CampaignBasicInfoComponent implements OnInit {
 
   private async _fetchTemplates(searchTerm: string | undefined): Promise<TemplateListItemResultSet> {
     try {
-
       return lastValueFrom(
         this._api.getTemplates(
           this._templatesPage,
