@@ -130,61 +130,6 @@ public class SmsServiceSmsUp : ISmsService
     };
 }
 
-/// <summary>Webhook strategy for building report URLs.</summary>
-public enum WebHookStrategy
-{
-    /// <summary>Use the BaseUrl as-is without modifications.</summary>
-    Static,
-    /// <summary>Append custom query string parameters to the BaseUrl.</summary>
-    QueryString
-}
-
-/// <summary>Settings for configuring webhook delivery reports.</summary>
-public class WebHookSettings
-{
-    /// <summary>The base URL for the webhook endpoint.</summary>
-    public string? BaseUrl { get; set; }
-
-    /// <summary>The strategy to use when building the report URL.</summary>
-    public WebHookStrategy Strategy { get; set; } = WebHookStrategy.Static;
-
-    /// <summary>The signature method used for webhook security.</summary>
-    public string? SignatureMethod { get; set; }
-
-    /// <summary>Custom query string parameters to append when using QueryString strategy.</summary>
-    public Dictionary<string, string>? QueryStringParameters { get; set; }
-
-    /// <summary>Builds the report URL based on the configured strategy.</summary>
-    /// <returns>The constructed report URL, or null if BaseUrl is not set.</returns>
-    public string? BuildUrl() {
-        if (string.IsNullOrWhiteSpace(BaseUrl)) {
-            return null;
-        }
-
-        return Strategy switch {
-            WebHookStrategy.Static => BaseUrl,
-            WebHookStrategy.QueryString => BuildUrlWithQueryString(),
-            _ => BaseUrl
-        };
-    }
-
-    private string BuildUrlWithQueryString() {
-        if (QueryStringParameters == null || QueryStringParameters.Count == 0) {
-            return BaseUrl!;
-        }
-
-        var uriBuilder = new UriBuilder(BaseUrl!);
-        var query = HttpUtility.ParseQueryString(uriBuilder.Query);
-
-        foreach (var param in QueryStringParameters) {
-            query[param.Key] = param.Value;
-        }
-
-        uriBuilder.Query = query.ToString();
-        return uriBuilder.ToString();
-    }
-}
-
 /// <summary>Extra settings class for configuring SMSUP SMS service client. </summary>
 public class SmsServiceSmsUpSettings
 {

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Web;
 
 namespace Indice.Services;
 
@@ -56,6 +57,85 @@ public class SmsServiceSettings
     public bool ViberFallbackEnabled { get; set; } = false;
     /// <summary>The number of a seconds that a message is considered active. Defaults to 4320 seconds.</summary>
     public int Validity { get; set; } = 4320;
+}
+
+
+
+/// <summary>Webhook strategy for building report URLs.</summary>
+public enum WebHookStrategy
+{
+    /// <summary>Use the BaseUrl as-is without modifications.</summary>
+    Static,
+    /// <summary>Append custom query string parameters to the BaseUrl.</summary>
+    QueryString,
+    /// <summary>Use a custom URL builder function to generate the URL.</summary>
+    Custom
+}
+
+/// <summary>Settings for configuring webhook delivery reports.</summary>
+public class WebHookSettings<T> where T : 
+{
+    /// <summary>The base URL for the webhook endpoint.</summary>
+    public string? BaseUrl { get; set; }
+
+    /// <summary>The strategy to use when building the report URL.</summary>
+    public WebHookStrategy Strategy { get; set; } = WebHookStrategy.Static;
+
+    /// <summary>The signature method used for webhook security.</summary>
+    public string? SignatureMethod { get; set; }
+
+    /// <summary>Custom query string parameters to append when using QueryString strategy.</summary>
+    public Dictionary<string, string>? QueryStringParameters { get; set; }
+
+    /// <summary>Custom URL builder function used when Strategy is set to Custom.</summary>
+    /// <remarks>
+    /// This function receives the BaseUrl and should return the fully constructed URL.
+    /// Only used when Strategy is set to <see cref="WebHookStrategy.Custom"/>.
+    /// </remarks>
+    public Func<string, string>? CustomUrlBuilder { get; set; }
+
+    /// <summary>QueryString builder function used when Strategy is set to QueryString.</summary>
+    /// <remarks>
+    /// This function receives the BaseUrl and should return the fully constructed URL.
+    /// Only used when Strategy is set to <see cref="WebHookStrategy.QueryString"/>.
+    /// </remarks>
+    public Func<string, string>? QueryStringUrlBuilder { get; set; }
+
+    /// <summary>Builds the report URL based on the configured strategy.</summary>
+    /// <returns>The constructed report URL, or null if BaseUrl is not set.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when Strategy is Custom but UrlBuilder is not set.</exception>
+    public string? BuildUrl() {
+        if (string.IsNullOrWhiteSpace(BaseUrl)) {
+            return null;
+        }
+
+        return Strategy switch {
+            WebHookStrategy.Static => BaseUrl,
+            WebHookStrategy.QueryString => BuildUrlWithQueryString(),
+            WebHookStrategy.Custom => BuildUrlWithCustomBuilder(),
+            _ => BaseUrl
+        };
+    }
+
+    private string BuildUrlWithQueryString() {
+        if (QueryStringUrlBuilder == null) {
+            throw new InvalidOperationException(
+                "UrlBuilder must be set when using Custom strategy. " +
+                "Please provide a custom URL builder function or use a different strategy.");
+        }
+
+        return QueryStringUrlBuilder(BaseUrl!);
+    }
+
+    private string BuildUrlWithCustomBuilder() {
+        if (QueryStringUrlBuilder == null) {
+            throw new InvalidOperationException(
+                "UrlBuilder must be set when using Custom strategy. " +
+                "Please provide a custom URL builder function or use a different strategy.");
+        }
+
+        return QueryStringUrlBuilder(BaseUrl!);
+    }
 }
 
 /// <summary> The send receipt object representing a send message by either the <see cref="IEmailService"/> or the <see cref="ISmsService"/>. </summary>
