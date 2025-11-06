@@ -1,5 +1,6 @@
 ﻿using System;
 using Indice.Features.Identity.UI.ViewComponents;
+using Microsoft.AspNetCore.Html;
 
 namespace Indice.Features.Identity.UI.Models;
 /// <summary>
@@ -12,7 +13,7 @@ public class PageHeadingViewModel
     /// </summary>
     /// <param name="title"></param>
     /// <param name="imageSrc"></param>
-    public PageHeadingViewModel(string? title, string? imageSrc) {
+    public PageHeadingViewModel(HtmlString? title, string? imageSrc) {
         Title = title;
         ImageSrc = imageSrc;
     }
@@ -25,5 +26,5 @@ public class PageHeadingViewModel
     /// <summary>
     /// The page title
     /// </summary>
-    public string? Title { get; }
+    public HtmlString? Title { get; }
 }

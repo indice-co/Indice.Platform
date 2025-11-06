@@ -1,4 +1,5 @@
 ﻿using Indice.Features.Identity.UI.Models;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Indice.Features.Identity.UI.ViewComponents;
@@ -12,13 +13,13 @@ public class PageHeadingViewComponent : ViewComponent
     /// Constructs the PageHeading view component
     /// </summary>
     public PageHeadingViewComponent() {
-            
+
     }
 
 
     /// <inheritdoc/>
     public IViewComponentResult Invoke(string? title, string? imageSrc) {
-        return View(new PageHeadingViewModel(title, string.IsNullOrEmpty(imageSrc) ? null : Url.Content(imageSrc)));
+        return View(new PageHeadingViewModel(new HtmlString(title ?? ""), string.IsNullOrEmpty(imageSrc) ? null : Url.Content(imageSrc)));
     }
 
 }

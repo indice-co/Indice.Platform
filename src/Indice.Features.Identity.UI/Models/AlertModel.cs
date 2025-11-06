@@ -9,7 +9,7 @@ namespace Indice.Features.Identity.UI.Models;
 public class AlertModel
 {
     /// <summary>The message.</summary>
-    public string Message { get; set; } = string.Empty;
+    public HtmlString Message { get; set; } = new HtmlString("");
     /// <summary>The alert type.</summary>
     public AlertType AlertType { get; set; }
 
@@ -17,28 +17,28 @@ public class AlertModel
     /// <param name="message">The message.</param>
     public static AlertModel Info(string message) => new() { 
         AlertType = AlertType.Info, 
-        Message = message 
+        Message = new HtmlString(message) 
     };
     
     /// <summary>Creates an alert with <see cref="AlertType.Warning"/>.</summary>
     /// <param name="message">The message.</param>
     public static AlertModel Warn(string message) => new() { 
         AlertType = AlertType.Warning, 
-        Message = message 
+        Message = new HtmlString(message )
     };
     
     /// <summary>Creates an alert with <see cref="AlertType.Danger"/>.</summary>
     /// <param name="message">The message.</param>
     public static AlertModel Error(string message) => new() { 
         AlertType = AlertType.Danger, 
-        Message = message 
+        Message = new HtmlString(message )
     };
     
     /// <summary>Creates an alert with <see cref="AlertType.Success"/></summary>
     /// <param name="message">The message.</param>
     public static AlertModel Success(string message) => new() { 
         AlertType = AlertType.Success, 
-        Message = message 
+        Message = new HtmlString(message )
     };
 
 
@@ -47,27 +47,27 @@ public class AlertModel
     /// <param name="message">The message.</param>
     public static AlertModel Info(HtmlString message) => new() {
         AlertType = AlertType.Info,
-        Message = message.Value!
+        Message = message
     };
 
     /// <summary>Creates an alert with <see cref="AlertType.Warning"/>.</summary>
     /// <param name="message">The message.</param>
     public static AlertModel Warn(HtmlString message) => new() {
         AlertType = AlertType.Warning,
-        Message = message.Value!
+        Message = message
     };
 
     /// <summary>Creates an alert with <see cref="AlertType.Danger"/>.</summary>
     /// <param name="message">The message.</param>
     public static AlertModel Error(HtmlString message) => new() {
         AlertType = AlertType.Danger,
-        Message = message.Value!
+        Message = message
     };
 
     /// <summary>Creates an alert with <see cref="AlertType.Success"/></summary>
     /// <param name="message">The message.</param>
     public static AlertModel Success(HtmlString message) => new() {
         AlertType = AlertType.Success,
-        Message = message.Value!
+        Message = message
     };
 }

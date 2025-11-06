@@ -6,6 +6,7 @@ using Indice.Features.Identity.UI.Filters;
 using Indice.Features.Identity.UI.Models;
 using Indice.Globalization;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -49,9 +50,9 @@ public abstract class BaseAddPhoneModel : BasePageModel
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        
+
         TempData.Put(TempDataKey, new AlertModel {
-            Message =  UserManager.MessageDescriber.AddPhoneValidationPhoneEmpty,
+            Message = new HtmlString(UserManager.MessageDescriber.AddPhoneValidationPhoneEmpty),
             AlertType = AlertType.Info
         });
         _ = PhoneNumber.TryParse(user.PhoneNumber!, out var phone);
