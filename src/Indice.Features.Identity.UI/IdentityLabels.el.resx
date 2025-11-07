@@ -223,10 +223,10 @@
     <value>Πατήστε</value>
   </data>
   <data name="ConfirmEmail_PageTitle" xml:space="preserve">
-    <value>Επιβεβαίωση Email</value>
+    <value>Επιβεβαίωση email</value>
   </data>
   <data name="ConfirmEmail_PageHeader" xml:space="preserve">
-    <value>Επιβεβαίωση Email</value>
+    <value>Επιβεβαίωση email</value>
   </data>
   <data name="ConfirmEmail_LinkExpired" xml:space="preserve">
     <value>Ο σύνδεσμος επιβεβαίωσης έχει λήξει</value>
