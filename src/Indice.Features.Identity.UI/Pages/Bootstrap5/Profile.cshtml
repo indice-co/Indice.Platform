@@ -75,7 +75,7 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label asp-for="Input.UserName" class="form-label">@Localizer.Profile_Username</label>
-                    <input class="form-control" type="text" placeholder="@Localizer.Profile_Username" asp-for="Input.UserName" readonly="@(identityUiOptions.Value.DisableUsernameEdit)" />
+                    <input class="form-control" type="text" placeholder="@Localizer.Profile_Username" asp-for="Input.UserName" readonly="@(identityUiOptions.Value.DisableUsernameEdit || userManager.EmailAsUserName)" />
                     <span asp-validation-for="Input.UserName" class="text-danger"></span>
                 </div>
             </div>
