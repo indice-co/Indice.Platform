@@ -231,8 +231,15 @@ public class SmsTests
             .AddInMemoryCollection(inMemorySettings)
             .Build();
 
+
+        // Mock IHostEnvironment
+        var hostEnvironmentMock = new Mock<Microsoft.Extensions.Hosting.IHostEnvironment>();
+        hostEnvironmentMock.Setup(x => x.ApplicationName).Returns("TestApplication");
+        hostEnvironmentMock.Setup(x => x.EnvironmentName).Returns("Testing");
+
         var collection = new ServiceCollection()
           .AddSingleton(configuration)
+          .AddSingleton(hostEnvironmentMock.Object) // Add the mocked IHostEnvironment
           .AddOptions()
           .Configure<SmsServiceSmsUpSettings>(configuration.GetSection(SmsServiceSmsUpSettings.Name))
           .AddSmsServiceSmsUp(configuration);
