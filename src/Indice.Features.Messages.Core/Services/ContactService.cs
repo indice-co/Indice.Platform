@@ -112,13 +112,13 @@ public class ContactService : IContactService
 
     /// <inheritdoc />
     public async Task<Contact> Create(CreateContactRequest request) {
-        
+
         if (!string.IsNullOrWhiteSpace(request.RecipientId)) {
             var knownContact = await DbContext.Contacts
                                .OrderByDescending(x => x.UpdatedAt)
                                .Where(x => x.RecipientId == request.RecipientId)
                                .FirstOrDefaultAsync();
-            if (knownContact is not null) { 
+            if (knownContact is not null) {
                 knownContact.Email = request.Email;
                 knownContact.FirstName = request.FirstName;
                 knownContact.FullName = request.FullName;
@@ -133,7 +133,7 @@ public class ContactService : IContactService
                 await DbContext.SaveChangesAsync();
                 return Mapper.ToContact(knownContact);
             }
-        } 
+        }
         var contact = Mapper.ToDbContact(request);
         DbContext.Contacts.Add(contact);
         await DbContext.SaveChangesAsync();
@@ -404,7 +404,7 @@ public class ContactService : IContactService
         recipientPreferences.Locale = request.Locale;
         recipientPreferences.ConsentCommercial = request.ConsentCommercial;
         recipientPreferences.ConsentCommercialDate = request.ConsentCommercialDate;
-        recipientPreferences.DefaultChannels = request.DefaultChannels != null? ContactChannelOption.ToContactChannelKind(request.DefaultChannels!) : null ;
+        recipientPreferences.DefaultChannels = request.DefaultChannels != null ? ContactChannelOption.ToContactChannelKind(request.DefaultChannels!) : null;
         //remove deleted
         recipientPreferences.CommunicationOptions.RemoveAll(x => !messageTypes.Any(mt => mt.Id == x.MessageTypeId));
         //update existing
@@ -428,22 +428,13 @@ public class ContactService : IContactService
                                              .ThenInclude(up => up.MessageType)
                                              .SingleOrDefaultAsync(x => x.RecipientId == recipientId);
         if (recipientPreferences == null) {
-            var messageTypes = await DbContext.MessageTypes
-                                     .AsNoTracking()
-                                     .ToListAsync();
             recipientPreferences = new DbContactPreference() {
                 RecipientId = recipientId,
                 Locale = preference.Locale,
                 ConsentCommercial = preference.ConsentCommercial,
                 ConsentCommercialDate = preference.ConsentCommercialDate,
                 DefaultChannels = preference.DefaultChannels != null ? ContactChannelOption.ToContactChannelKind(preference.DefaultChannels) : null,
-                UpdatedAt = DateTimeOffset.UtcNow,
-                CommunicationOptions = messageTypes.Select(x =>
-                    new DbContactCommunicationOption() {
-                        MessageTypeId = x.Id,
-                        Channels = ContactChannelOption.ToContactChannelKind(ContactChannelOption.FromKindFlags(ContactChannelKind.Any)),
-                        UpdatedAt = DateTimeOffset.UtcNow
-                    }).ToList()
+                UpdatedAt = DateTimeOffset.UtcNow
             };
 
             await DbContext.ContactPreferences.AddAsync(recipientPreferences);
@@ -456,5 +447,58 @@ public class ContactService : IContactService
         recipientPreferences.ConsentCommercialDate = preference.ConsentCommercialDate;
         recipientPreferences.DefaultChannels = preference.DefaultChannels != null ? ContactChannelOption.ToContactChannelKind(preference.DefaultChannels) : null;
         await DbContext.SaveChangesAsync();
+    }
+
+    ///<inheritdoc/>
+    public async Task<ResultSet<Contact>> GetDuplicates(Contact mainContact, ListOptions options) {
+        var duplicateContactsQuery = DbContext.Contacts
+            .Where(x => (x.RecipientId == mainContact.RecipientId || x.Email!.ToLower() == mainContact.Email!.ToLower()) && x.Id != mainContact.Id)
+            .Select(x => Mapper.ToContact(x));
+        if (!string.IsNullOrWhiteSpace(options.Search)) {
+            duplicateContactsQuery = duplicateContactsQuery.Where(x => x.FullName!.Contains(options.Search));
+        }
+        return await duplicateContactsQuery.ToResultSetAsync(options);
+    }
+
+    ///<inheritdoc/>
+    public async Task MergeContacts(Contact mainContact, List<Guid> duplicateContactsIds) {
+        var existingDuplicateContactIds = await DbContext.Contacts.Where(x => duplicateContactsIds.Contains(x.Id)).Select(x => x.Id).ToListAsync();
+        if (existingDuplicateContactIds.Count == 0) {
+            return;
+        }
+        await MergeDistributionListContacts(mainContact, existingDuplicateContactIds);
+        await UpdateContactInMessageEvents(mainContact, existingDuplicateContactIds);
+        await UpdateContactInMessages(mainContact, existingDuplicateContactIds);
+        await DbContext.Contacts.Where(x => existingDuplicateContactIds.Contains(x.Id)).ExecuteDeleteAsync();
+        await DbContext.SaveChangesAsync();
+    }
+    private async Task MergeDistributionListContacts(Contact mainContact, List<Guid> duplicateContactIds) {
+        // The IDs of the distribution lists where the main contact does not exist, but at least one of the duplicate contacts does
+        var affectedDistributionListIds = await DbContext.DistributionLists
+            .Where(x => !x.ContactDistributionLists.Any(c => c.ContactId == mainContact.Id) &&
+                         x.ContactDistributionLists.Any(c => duplicateContactIds.Contains(c.ContactId)))
+            .Select(x => x.Id).Distinct().ToListAsync();
+
+        await DbContext.ContactDistributionLists.Where(x => duplicateContactIds.Contains(x.ContactId)).ExecuteDeleteAsync();
+        DbContext.ContactDistributionLists.AddRange(affectedDistributionListIds.Select(id => new DbDistributionListContact {
+            DistributionListId = id,
+            ContactId = mainContact.Id!.Value,
+        }));
+        await DbContext.SaveChangesAsync();
+    }
+
+    private async Task UpdateContactInMessages(Contact mainContact, List<Guid> duplicateContactIds) {
+        await DbContext.Messages
+            .Where(x => duplicateContactIds
+            .Contains(x.ContactId!.Value))
+            .ExecuteUpdateAsync(setters =>
+            setters.SetProperty(x => x.ContactId, mainContact.Id)
+            .SetProperty(x => x.RecipientId, mainContact.RecipientId));
+    }
+
+    private async Task UpdateContactInMessageEvents(Contact mainContact, List<Guid> duplicateContactIds) {
+        await DbContext.MessageEvents
+        .Where(x => duplicateContactIds.Contains(x.ContactId))
+        .ExecuteUpdateAsync(setter => setter.SetProperty(x => x.ContactId, mainContact.Id));
     }
 }

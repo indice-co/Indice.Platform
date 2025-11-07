@@ -1,5 +1,5 @@
-using IdentityModel;
-using IdentityModel.Client;
+using Duende.IdentityModel;
+using Duende.IdentityModel.Client;
 using Indice.Features.GovGr.Configuration;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;

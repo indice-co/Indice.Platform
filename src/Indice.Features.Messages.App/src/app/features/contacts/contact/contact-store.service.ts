@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { AsyncSubject, Observable } from 'rxjs';
+import { AsyncSubject, Observable, map, merge, identity, scan, ReplaySubject, Subject, switchMap } from 'rxjs';
 import { Contact, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 
 @Injectable({
@@ -31,4 +31,46 @@ export class ContactStore {
     }
     return this._contact;
   }
+
+  public reload(recipientId: string) {
+    return this._api.resolveContact(recipientId);
+  }
+
+
+
+
+
+
+  private reloadSubj = new Subject<void>();
+  private idRplSubj = new ReplaySubject<string>(1);
+
+  public contact$: Observable<Contact> =
+    combineReload(
+      this.idRplSubj,
+      this.reloadSubj
+    )
+    .pipe(
+      switchMap((contactId: string) => {
+        return this._api.getContactById(contactId);
+      })
+    );
+}
+
+function combineReload<T>(
+  value$: Observable<T>,
+  reload$: Observable<void>,
+  selector: Function = identity
+): Observable<T> {
+  return merge(value$, reload$).pipe(
+    reload(selector),
+    map((value: any) => value as T)
+  );
+}
+function reload(selector: Function = identity) {
+  return scan((oldValue, currentValue) => {
+    if (!oldValue && !currentValue)
+      throw new Error(`Reload can't run before initial load`);
+
+    return selector(currentValue || oldValue);
+  });
 }

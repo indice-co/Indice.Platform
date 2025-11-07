@@ -1,18 +1,21 @@
-﻿using IdentityModel;
-using IdentityModel.Client;
+﻿using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Duende.AspNetCore.Authentication.OAuth2Introspection;
+using Duende.IdentityModel;
+using Duende.IdentityModel.Client;
 using Indice.Security;
 using Indice.Serialization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
-using System.Diagnostics;
-using System.IdentityModel.Tokens.Jwt;
-using System.Reflection;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Microsoft.AspNetCore.Builder;
 
@@ -55,10 +58,8 @@ public static class WebApplicationBuilderExtensions
             options.SerializerOptions.Converters.Add(new TypeConverterJsonAdapterFactory());
         });
         // Configure indice services
-        builder.Services.AddProblemDetails(options =>
-        {
-            options.CustomizeProblemDetails = context =>
-            {
+        builder.Services.AddProblemDetails(options => {
+            options.CustomizeProblemDetails = context => {
                 context.ProblemDetails.Instance = $"{context.HttpContext.Request.Method} {context.HttpContext.Request.Path}";
                 context.ProblemDetails.Extensions.TryAdd("requestId", context.HttpContext.TraceIdentifier);
                 Activity? activity = context.HttpContext.Features.Get<IHttpActivityFeature>()?.Activity;
@@ -67,6 +68,7 @@ public static class WebApplicationBuilderExtensions
         });
         builder.Services.AddEndpointParameterFluentValidation(Assembly.GetEntryAssembly()!);
         builder.Services.AddGeneralSettings(builder.Configuration);
+        builder.AddProxyDefaults();
         return builder;
     }
 
@@ -136,6 +138,50 @@ public static class WebApplicationBuilderExtensions
                       .RequireAssertion(x => x.User.IsAdmin() || x.User.IsSystemClient());
             });
         });
+        return builder;
+    }
+
+    /// <summary>
+    /// Configures the <see cref="ForwardedHeadersMiddleware"/> proxy IPs or CIDR ranges for trusting forwarded headers. 
+    /// This usually applies when the application is hosted behind a reverse proxy server such as an Kubernetes ingress controller or Azure Front Door/Cloudflare.
+    /// </summary>
+    /// <param name="builder">The <see cref="WebApplicationBuilder"/> instance.</param>
+    /// <returns>The same <see cref="WebApplicationBuilder"/> for chaining.</returns>
+    /// <remarks>Reads the following configuration values: 
+    /// <strong>Proxy:Enabled</strong> (bool), 
+    /// <strong>Proxy:KnownNetworks</strong> (string comma delimited), 
+    /// <strong>Proxy:KnownProxies</strong> (string comma delimited), 
+    /// <strong>Proxy:ForwardLimit</strong> (int)</remarks>
+    public static WebApplicationBuilder AddProxyDefaults(this WebApplicationBuilder builder) {
+        var proxyEnabled = builder.Configuration.ProxyEnabled();
+        if (!proxyEnabled) {
+            return builder;
+        }
+
+        builder.Services.Configure<ForwardedHeadersOptions>(options => {
+            options.KnownNetworks.Clear();
+            options.KnownProxies.Clear();
+            var forwardLimit = builder.Configuration.GetProxyForwardLimit();
+            var knownNetworks = builder.Configuration.GetProxyKnownNetworks();
+            var knownProxies = builder.Configuration.GetProxyKnownProxies();
+            options.ForwardedHeaders = ForwardedHeaders.All;
+            options.ForwardLimit = forwardLimit == 0
+                ? null
+                : forwardLimit;
+
+            foreach (var entry in knownNetworks) {
+                if (HttpOverrides.IPNetwork.TryParse(entry, out var network)) {
+                    options.KnownNetworks.Add(network);
+                }
+            }
+
+            foreach (var entry in knownProxies) {
+                if (IPAddress.TryParse(entry, out var ip)) {
+                    options.KnownProxies.Add(ip);
+                }
+            }
+        });
+
         return builder;
     }
 }

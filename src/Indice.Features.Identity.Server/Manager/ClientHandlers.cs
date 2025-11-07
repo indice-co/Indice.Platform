@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using Humanizer;
-using IdentityModel;
+using Duende.IdentityModel;
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer;
 using Duende.IdentityServer.Extensions;

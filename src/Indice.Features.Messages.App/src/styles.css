@@ -232,6 +232,49 @@ textarea.code-editor:focus {
   margin: auto;
 }
 
+.mini-bar-chart {
+  border-radius: 4px;
+  overflow: clip;
+  height: 6px;
+  margin: 4px;
+
+  .mini-bar {
+    height: 6px;
+    background-color: #e5e7eb;
+    height: 100%; /* This is important */
+  }
+
+  .mini-bar-fill {
+    @apply bg-indigo-500;
+    height: 100%; /* This is important */
+
+
+    &.System {
+      @apply bg-indigo-500;
+    }
+
+    &.Commercial {
+      @apply bg-purple-500;
+    }
+
+    &.Info {
+      @apply bg-blue-400;
+    }
+
+    &.Success {
+      @apply bg-green-500;
+    }
+
+    &.Error {
+      @apply bg-red-400;
+    }
+
+    &.Warning {
+      @apply bg-yellow-400;
+    }
+  }
+}
+
 /*tailwind rules*/
 :root {
   --ng-progress-color: #ffc107;

@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using IdentityModel;
+using Duende.IdentityModel;
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer.Events;
 using Duende.IdentityServer.Extensions;
@@ -29,12 +29,9 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography;
-using Org.BouncyCastle.Asn1.X9;
-using Indice.Features.Identity.Core.DeviceAuthentication.Extensions;
-using System.Text.Unicode;
 using System.Text;
+using Indice.Security;
 
 namespace Indice.Features.Identity.Server.Manager;
 
@@ -220,15 +217,15 @@ internal static class UserHandlers
         }
 
         // handle claims addition
-        var claims = request.Claims?.Count > 0 ? request.Claims.Where(x => x.Type != JwtClaimTypes.GivenName &&
-                                                                           x.Type != JwtClaimTypes.FamilyName)
+        var claims = request.Claims?.Count > 0 ? request.Claims.Where(x => x.Type != BasicClaimTypes.GivenName &&
+                                                                           x.Type != BasicClaimTypes.FamilyName)
                                                                .Select(x => new Claim(x.Type!, x.Value!))
                                                                .ToList() : [];
         if (!string.IsNullOrEmpty(request.FirstName)) {
-            claims.Add(new Claim(JwtClaimTypes.GivenName, request.FirstName));
+            claims.Add(new Claim(BasicClaimTypes.GivenName, request.FirstName));
         }
         if (!string.IsNullOrEmpty(request.LastName)) {
-            claims.Add(new Claim(JwtClaimTypes.FamilyName, request.LastName));
+            claims.Add(new Claim(BasicClaimTypes.FamilyName, request.LastName));
         }
         if (claims.Any()) {
             claims.ForEach(c => user.Claims.Add(new() { ClaimType = c.Type, ClaimValue = c.Value, UserId = user.Id }));
@@ -381,7 +378,7 @@ internal static class UserHandlers
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
         if (role.IsManagementRole()) {
-            var clientId = currentUser.FindFirst(JwtClaimTypes.ClientId);
+            var clientId = currentUser.FindFirst(BasicClaimTypes.ClientId);
             await persistedGrantService.RemoveAllGrantsAsync(userId, clientId?.Value);
         }
         return TypedResults.NoContent();
@@ -673,7 +670,7 @@ internal static class UserHandlers
         return TypedResults.NoContent();
     }
 
-    internal static async Task<Results<Ok<JsonWebKey>, NotFound>> GetUserDeviceSecret(
+    internal static async Task<Results<Ok<List<JsonWebKey>>, NotFound>> GetUserDeviceSecrets(
         ExtendedUserManager<User> userManager,
         string userId,
         string deviceId,
@@ -689,19 +686,28 @@ internal static class UserHandlers
             return TypedResults.NotFound();
         }
 
-        if (device.PublicKey is null) {
-            return TypedResults.NotFound();
-        }
-
-        using var rsa = RSA.Create();
-        rsa.ImportFromPem(device.PublicKey.ToCharArray());
-
-        var jwk = JsonWebKeyConverter.ConvertFromRSASecurityKey(new RsaSecurityKey(rsa) {
+        var keys = new List<JsonWebKey>();
+        var symmetricKey = JsonWebKeyConverter.ConvertFromSymmetricSecurityKey(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(device.Id.ToString())) {
             KeyId = string.IsNullOrWhiteSpace(device.PublicKeyId)
-                ? CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex).ToLowerInvariant()
-                : device.PublicKeyId
+            ? CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex).ToLowerInvariant()
+            : $"{device.PublicKeyId} symmetric"
         });
 
-        return TypedResults.Ok(jwk);
+        keys.Add(symmetricKey);
+
+        if (device.PublicKey is not null) {
+            using var rsa = RSA.Create();
+            rsa.ImportFromPem(device.PublicKey.ToCharArray());
+
+            var asymmetricKey = JsonWebKeyConverter.ConvertFromRSASecurityKey(new RsaSecurityKey(rsa) {
+                KeyId = string.IsNullOrWhiteSpace(device.PublicKeyId)
+                    ? CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex).ToLowerInvariant()
+                    : device.PublicKeyId
+            });
+
+            keys.Add(asymmetricKey);
+        }
+
+        return TypedResults.Ok(keys);
     }
 }

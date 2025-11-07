@@ -40,18 +40,22 @@ public class SendEmailHandler : ICampaignJobHandler<SendEmailEvent>
             });
             sender = defaultSenderResult?.Items?.FirstOrDefault();
         }
-      _ =  await EmailService.SendAsync(builder => {
-            if (sender is not null && !sender.IsEmpty) {
-                builder.From(sender.Sender!, sender.DisplayName);
-            }
-            builder.To(@event.RecipientEmail!)
-                   .WithSubject(@event.Title!)
-                   .WithBody(@event.Body!);
-            if (attachment is not null) {
-                builder.WithAttachments(new EmailAttachment(attachment.Name!, attachment.Data!));
-            }
-        });
-        
-        await MessageEventQueue.EnqueueAsync(@event.ToMessageEvent(MessageEventType.Sent.ToString()));
+        try {
+            _ = await EmailService.SendAsync(builder => {
+                if (sender is not null && !sender.IsEmpty) {
+                    builder.From(sender.Sender!, sender.DisplayName);
+                }
+                builder.To(@event.RecipientEmail!)
+                       .WithSubject(@event.Title!)
+                       .WithBody(@event.Body!);
+                if (attachment is not null) {
+                    builder.WithAttachments(new EmailAttachment(attachment.Name!, attachment.Data!));
+                }
+            });
+            await MessageEventQueue.EnqueueAsync(@event.ToMessageEvent(MessageEventType.Sent.ToString(), true));
+        } catch {
+            await MessageEventQueue.EnqueueAsync(@event.ToMessageEvent(MessageEventType.Sent.ToString(), false));
+            throw;
+        }
     }
 }

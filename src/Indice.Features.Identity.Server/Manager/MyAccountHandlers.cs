@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using IdentityModel;
+using Duende.IdentityModel;
 #if NET9_0_OR_GREATER
 using Duende.IdentityServer.Events;
 using Duende.IdentityServer.Extensions;
@@ -93,7 +93,7 @@ internal static partial class MyAccountHandlers
         ClaimsPrincipal currentUser,
         ConfirmEmailRequest request
     ) {
-        var userId = currentUser.FindFirstValue(JwtClaimTypes.Subject);
+        var userId = currentUser.FindFirstValue(BasicClaimTypes.Subject);
         var user = await userManager.Users
                                     .Include(x => x.Claims)
                                     .Where(x => x.Id == userId)
@@ -159,7 +159,7 @@ internal static partial class MyAccountHandlers
         ClaimsPrincipal currentUser,
         ConfirmEmailChangeRequest request
     ) {
-        var userId = currentUser.FindFirstValue(JwtClaimTypes.Subject);
+        var userId = currentUser.FindFirstValue(BasicClaimTypes.Subject);
         var user = await userManager.Users
                                     .Include(x => x.Claims)
                                     .Where(x => x.Id == userId)
@@ -238,7 +238,7 @@ internal static partial class MyAccountHandlers
         ClaimsPrincipal currentUser,
         ConfirmPhoneNumberRequest request
     ) {
-        var userId = currentUser.FindFirstValue(JwtClaimTypes.Subject);
+        var userId = currentUser.FindFirstValue(BasicClaimTypes.Subject);
         var user = await userManager
             .Users
             .Include(x => x.Claims)
@@ -263,7 +263,7 @@ internal static partial class MyAccountHandlers
         ClaimsPrincipal currentUser,
         ConfirmPhoneNumberChangeRequest request
     ) {
-        var userId = currentUser.FindFirstValue(JwtClaimTypes.Subject);
+        var userId = currentUser.FindFirstValue(BasicClaimTypes.Subject);
         var user = await userManager
             .Users
             .Include(x => x.Claims)
@@ -723,14 +723,14 @@ internal static partial class MyAccountHandlers
         };
         if (!string.IsNullOrWhiteSpace(request.FirstName)) {
             user.Claims.Add(new IdentityUserClaim<string> {
-                ClaimType = JwtClaimTypes.GivenName,
+                ClaimType = BasicClaimTypes.GivenName,
                 ClaimValue = request.FirstName ?? string.Empty,
                 UserId = user.Id
             });
         }
         if (!string.IsNullOrWhiteSpace(request.LastName)) {
             user.Claims.Add(new IdentityUserClaim<string> {
-                ClaimType = JwtClaimTypes.FamilyName,
+                ClaimType = BasicClaimTypes.FamilyName,
                 ClaimValue = request.LastName ?? string.Empty,
                 UserId = user.Id
             });

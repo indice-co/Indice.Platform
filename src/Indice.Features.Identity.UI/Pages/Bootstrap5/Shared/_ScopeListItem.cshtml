@@ -1,5 +1,5 @@
 ﻿@inject IMarkdownProcessor Markdown
-@inject IIdentityViewLocalizer Localizer
+@inject IdentityUILocalizer Localizer
 
 @model ScopeViewModel
 
@@ -12,7 +12,7 @@
             {
                 <input type="hidden" name="Input.ScopesConsented" value="@Model.Value" />
             }
-            <strong>@(!string.IsNullOrWhiteSpace(Model.DisplayName) ? Localizer[Model.DisplayName] : string.Empty)</strong>
+            <strong>@(!string.IsNullOrWhiteSpace(Model.DisplayName) ? @Localizer.GetGeneric(Model.DisplayName) : string.Empty)</strong>
             @if (Model.Emphasize)
             {
                 <span class="glyphicon glyphicon-exclamation-sign"></span>
@@ -21,7 +21,7 @@
     </div>
     @if (Model.Required)
     {
-        <span><em>(@Localizer["required"])</em></span>
+        <span><em>(@Localizer.AddPassword_Required)</em></span>
     }
     @if (Model.Description is not null)
     {

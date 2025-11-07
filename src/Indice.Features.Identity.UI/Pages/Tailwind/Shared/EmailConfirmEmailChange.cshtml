@@ -1,7 +1,7 @@
-﻿@inject IIdentityViewLocalizer Localizer
-@inject IOptions<GeneralSettings> GeneralSettings
+﻿@inject IOptions<GeneralSettings> GeneralSettings
 @inject IOptions<IdentityUIOptions> UIOptions
 @inject UserManager<User> UserManager
+@inject IdentityUILocalizer Localizer
 
 @{
     Layout = "_LayoutEmail.cshtml";
@@ -15,22 +15,22 @@
 }
 
 @section preheader {
-    @Localizer["We need you to verify your email. Please click"] <a style="color:#@UIOptions.Value.EmailLinkColorHex" href="@confirmationLink">@Localizer["here"]</a> @Localizer["to get verified"]!
+    @Localizer.Email_Preheader_Verify <a style="color:#@UIOptions.Value.EmailLinkColorHex" href="@confirmationLink">@Localizer.Email_Preheader_Here</a> @Localizer.Email_Preheader_ToGetVerified!
 }
 
 @section subject {
-    <h1 style="font-size: 18px; font-family:'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-weight:normal">@Localizer[$"{subject}"]</h1>
+    <h1 style="font-size: 18px; font-family:'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-weight:normal">@subject</h1>
 }
 
 <p style="font-family: 'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-size: 12px;">
-    @Localizer["Hi"] @(userName ?? string.Empty),
+    @Localizer.Email_Body_Hi @(userName ?? string.Empty),
     <br />
     <br />
-    @Localizer["We need you to verify your email. Please click"] <a style="color:#@UIOptions.Value.EmailLinkColorHex" href="@confirmationLink">@Localizer["here"]</a> @Localizer["to get verified"]
+    @Localizer.Email_Preheader_Verify <a style="color:#@UIOptions.Value.EmailLinkColorHex" href="@confirmationLink">@Localizer.Email_Preheader_Here</a> @Localizer.Email_Preheader_ToGetVerified
     <br />
     <br />
-    @Localizer["Thanks"].
+    @Localizer.Email_Body_Thanks.
     <br />
     <br />
-    @Localizer["Sincerely"], @Localizer[settings.Organization!].
+    @Localizer.Email_Body_Sincerely, @Localizer.OrganizationName(settings.Organization!).
 </p>

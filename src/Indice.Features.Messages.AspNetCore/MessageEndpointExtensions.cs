@@ -40,6 +40,7 @@ public static class MessageEndpointExtensions
         routes.MapMessageTypes();
         routes.MapTemplates();
         routes.MapAnalytics();
+        routes.MapSend();
         return routes;
     }
 }

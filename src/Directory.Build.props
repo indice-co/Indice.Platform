@@ -4,8 +4,8 @@
       <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
       <!--<TargetFramework></TargetFramework>-->
       <VersionPrefixMajor>8</VersionPrefixMajor>
-      <VersionPrefixBase>$(VersionPrefixMajor).18</VersionPrefixBase>
-      
+      <VersionPrefixBase>$(VersionPrefixMajor).22</VersionPrefixBase>
+
       <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
       <VersionPrefixIdentity>$(VersionPrefixBase).0</VersionPrefixIdentity>
       <VersionPrefixIdentityUI>$(VersionPrefixBase).0</VersionPrefixIdentityUI>
@@ -18,7 +18,7 @@
       <VersionPrefixGovGr>$(VersionPrefixBase).0</VersionPrefixGovGr>
       <VersionPrefixAspNet>$(VersionPrefixBase).0</VersionPrefixAspNet>
       <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
-      
+
       <!--<VersionSuffix>rc04</VersionSuffix>-->
       <Authors>Constantinos Leftheris</Authors>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>

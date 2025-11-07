@@ -1,0 +1,91 @@
+<lib-view-layout title="Message events"
+                 [busy]="!items"
+                 [actions]="actions"
+                 [meta-items]="metaItems"
+                 (onAction)="actionHandler($event)"
+                 (onSearch)="searchChanged($event)">
+  <lib-list-view [items]="items"
+                 [page]="page"
+                 [page-size]="pageSize"
+                 [count]="count"
+                 [sort-options]="sortOptions"
+                 [sort]="sort"
+                 [sort-dir]="sortdir"
+                 [busy]="!items"
+                 (pageChanged)="pageChanged($event)"
+                 (pageSizeChanged)="pageSizeChanged($event)"
+                 (sortChanged)="sortChanged($event)"
+                 (sortdirChanged)="sortdirChanged($event)">
+
+    <ng-container pager-near-content>
+      <div class="inline-flex">
+        <lib-toggle-buttons-list class="mr-2"
+                                 [icon]="'ms-Icon ms-Icon--Filter text-gray-300'"
+                                 [options]="channels"
+                                 [value]="channelTypeSelectedOption"
+                                 (valueChange)="onFilterChanged('messageChannel', $event)">
+        </lib-toggle-buttons-list>
+      </div>
+    </ng-container>
+    <lib-list-column title="Recipient">
+      <ng-template let-item>
+        {{ item.recipient }}
+      </ng-template>
+    </lib-list-column>
+    <lib-list-column title="Title">
+      <ng-template let-item>
+        {{ item.title }}
+      </ng-template>
+    </lib-list-column>
+    <lib-list-column title="Channel">
+      <ng-template let-item>
+        <div class="text-center" title="{{item.channel}}">
+          <span *ngIf="item.channel === 'Email'" [ngClass]="{ 'text-green-500': item.channel == 'Email' }">
+            <i class="ms-Icon ms-Icon--Accounts"></i>
+          </span>
+          <span *ngIf="item.channel == 'SMS'" [ngClass]="{ 'text-green-500': item.channel == 'SMS' }">
+            <i class="ms-Icon ms-Icon--Chat"></i>
+          </span>
+          <span *ngIf="item.channel == 'Inbox'" [ngClass]="{ 'text-green-500': item.channel == 'Inbox' }">
+            <i class="ms-Icon ms-Icon--Inbox"></i>
+          </span>
+          <span *ngIf="item.channel == 'PushNotification'" [ngClass]="{ 'text-green-500': item.channel == 'PushNotification' }">
+            <i class="ms-Icon ms-Icon--CellPhone"></i>
+          </span>
+        </div>
+      </ng-template>
+    </lib-list-column>
+    <lib-list-column title="Event Type">
+      <ng-template let-item>
+        {{ item.type }}
+      </ng-template>
+    </lib-list-column>
+    <lib-list-column title="Created On">
+      <ng-template let-item>{{ item.createdOn | date: 'medium' }}</ng-template>
+    </lib-list-column>
+    <lib-list-column title="Success">
+      <ng-template let-item>
+        <span [innerHtml]="item.success | beautifyBoolean"></span>
+      </ng-template>
+    </lib-list-column>
+    <lib-list-column title="Links" [full-width]="true">
+      <ng-template let-item>
+        <a title="Campaign details"
+           [routerLink]="['/campaigns/'+item.campaignId+'/campaign-details']"
+           class="text-blue-600 ml-2">
+          <i class="ms-Icon ms-Icon--Communications text-lg"></i>
+        </a>
+        <a title="Message details"
+           [routerLink]="['/campaigns/'+item.campaignId+'/campaign-message-timeline/'+item.contactId]"
+           class="text-blue-600 ml-2">
+          <i class="ms-Icon ms-Icon--Mail text-lg"></i>
+        </a>
+        <a title="Contact details"
+           [routerLink]="['/contacts/'+item.contactId+'/contact-details']"
+           class="text-blue-600 ml-2">
+          <i class="ms-Icon ms-Icon--Contact text-lg"></i>
+        </a>
+      </ng-template>
+    </lib-list-column>
+  </lib-list-view>
+</lib-view-layout>

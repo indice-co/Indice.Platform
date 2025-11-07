@@ -9,13 +9,14 @@ export class AppLinks implements IAppLinks {
   public profileActions: Observable<NavLink[]> = of([]);
 
   private _mainLInks = [
-    new NavLink('Αρχική', 'dashboard', false, false, Icons.Dashboard),
-    new NavLink('Καμπάνιες', '/campaigns', false, false, Icons.Messages),
-    new NavLink('Τύποι Μηνυμάτων', '/message-types', false, false, Icons.Details),
-    new NavLink('Λίστες Διανομής', '/distribution-lists', false, false, Icons.TilesView),
-    new NavLink('Επαφές', '/contacts', false, false, 'ms-Icon ms-Icon--ContactCard'),
-    new NavLink('Πρότυπα', '/templates', false, false, Icons.SendEmail),
-    new NavLink('Αρχεία', '/media', false, false, 'ms-Icon ms-Icon--Folder'),
+    new NavLink('Αρχική', 'dashboard', false, false, 'ms-Icon ms-Icon--BIDashboard'),
+    new NavLink('Καμπάνιες', '/campaigns', false, false, 'ms-Icon ms-Icon--Communications'),
+    new NavLink('Τύποι Μηνυμάτων', '/message-types', false, false, 'ms-Icon ms-Icon--SingleBookmark'),
+    new NavLink('Λίστες Διανομής', '/distribution-lists', false, false, 'ms-Icon ms-Icon--ContactList'),
+    new NavLink('Επαφές', '/contacts', false, false, 'ms-Icon ms-Icon--Contact'),
+    new NavLink('Πρότυπα', '/templates', false, false, 'ms-Icon ms-Icon--CampaignTemplate'),
+    new NavLink('Αρχεία', '/media', false, false, 'ms-Icon ms-Icon--PhotoVideoMedia'),
+    new NavLink('Events', '/message-events', false, false, 'ms-Icon ms-Icon--SetAction'),
     new NavLink('Ρυθμίσεις', '/settings', false, false, 'ms-Icon ms-Icon--Settings')
   ];
   public main: Observable<NavLink[]> = of(settings.enableMediaLibrary ? this._mainLInks : this._mainLInks.filter((l) => l.path !== '/media'));

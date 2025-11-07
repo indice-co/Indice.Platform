@@ -149,6 +149,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         if (contactChannels.HasFlag(MessageChannelKind.Inbox)) {
             await LogEvent(campaign, contact, MessageChannelKind.Inbox, messageId);
         }
+
         if (contactChannels.HasFlag(MessageChannelKind.PushNotification)) {
             await LogEvent(campaign, contact, MessageChannelKind.PushNotification, messageId);
             await eventDispatcher.RaiseEventAsync(SendPushNotificationEvent.FromContactResolutionEvent(@event, contact, broadcast: false, messageId: messageId),
@@ -172,7 +173,10 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
             ContactId = contact.Id!.Value,
             MessageId = messageId,
             Type = MessageEventType.Created.ToString(),
-            Channel = kind.ToString()
+            Channel = kind.ToString(),
+            Recipient = contact.GetReceiverByChannel(kind),
+            Title = campaign.Content[kind.ToString()].Title ?? "",
+            Success = true
         });
     }
 }

@@ -159,16 +159,6 @@ internal static class Mapper
         Resolved = contact.Resolved,
         LastResolutionDate = contact.Resolved ? DateTimeOffset.UtcNow : contact.LastResolutionDate,
     };
-
-    public static DbMessageEvent ToDbEvent(this MessageEvent messageEvent) => new() {
-        CampaignId = messageEvent.CampaignId,
-        ContactId = messageEvent.ContactId,
-        CreatedOn = messageEvent.CreatedOn,
-        MessageId = messageEvent.MessageId,
-        Type = messageEvent.Type,
-        Channel = messageEvent.Channel
-    };
-
     public static DbContact ToDbContact(CreateContactRequest request) => new() {
         Email = request.Email,
         FirstName = request.FirstName,
@@ -182,6 +172,19 @@ internal static class Mapper
         UpdatedAt = DateTimeOffset.UtcNow,
         LastResolutionDate = request.Resolved ? DateTimeOffset.UtcNow : null
     };
+
+    public static DbMessageEvent ToDbEvent(this MessageEvent messageEvent) => new() {
+        CampaignId = messageEvent.CampaignId,
+        ContactId = messageEvent.ContactId,
+        CreatedOn = messageEvent.CreatedOn,
+        MessageId = messageEvent.MessageId,
+        Type = messageEvent.Type,
+        Channel = messageEvent.Channel,
+        Recipient = messageEvent.Recipient,
+        Title = messageEvent.Title,
+        Success = messageEvent.Success
+    };
+
     public static CreateContactRequest ToCreateContactRequest(Contact request) => new() {
         Email = request.Email,
         FirstName = request.FirstName,
@@ -228,7 +231,7 @@ internal static class Mapper
         contact.Salutation = request.Salutation;
         contact.UpdatedAt = DateTimeOffset.UtcNow;
         // do not overwrite resolved to true once it is set. Because this way a known use would become unknown again simply by uploading a csv list.
-        if (contact.Resolved != true) { 
+        if (contact.Resolved != true) {
             contact.Resolved = request.Resolved;
             contact.LastResolutionDate = request.Resolved ? DateTimeOffset.UtcNow : contact.LastResolutionDate;
         }
@@ -274,4 +277,15 @@ internal static class Mapper
     };
 
     public static ExpandoObject? ToExpandoObject(object value) => value.ToExpandoObject();
+
+    public static List<DbDistributionListContact> ToUpdatedDbDistributionListContacts(List<DbDistributionListContact> oldAssoociationList, DbContact newContact) {
+        var newAssociationList = oldAssoociationList.Select(x => new DbDistributionListContact {
+            DistributionListId = x.DistributionListId,
+            DistributionList = x.DistributionList,
+            Contact = newContact,
+            ContactId = newContact.Id,
+            Unsubscribed = x.Unsubscribed,
+        }).ToList();
+        return newAssociationList;
+    }
 }

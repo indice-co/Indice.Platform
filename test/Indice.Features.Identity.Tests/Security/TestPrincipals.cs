@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using IdentityModel;
+using Duende.IdentityModel;
 using Indice.Security;
 namespace Indice.Features.Identity.Tests.Security;
 internal class TestPrincipals

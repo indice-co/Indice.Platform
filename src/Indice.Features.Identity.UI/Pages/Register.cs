@@ -1,9 +1,10 @@
-using IdentityModel;
 #if NET9_0_OR_GREATER
+using Duende.IdentityModel;
 using Duende.IdentityServer;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Stores;
 #else
+using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
@@ -15,9 +16,7 @@ using Indice.Features.Identity.UI.Models;
 using Indice.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 

@@ -30,12 +30,17 @@ public class SendPushNotificationHandler(IPushNotificationServiceFactory pushNot
 
         var pushNotificationService = PushNotificationServiceFactory.Create(KeyedServiceNames.PushNotificationServiceKey);
         var pushBody = pushNotification.Body ?? "-";
-        if (pushNotification.Broadcast) {
-            await pushNotificationService.BroadcastAsync(pushNotification.Title!, pushBody, data, pushNotification.MessageType?.Name);
-        } else {
-            string[]? tags = !string.IsNullOrEmpty(pushNotification.RecipientId) ? [pushNotification.RecipientId] : null;
-            await pushNotificationService.SendToUserAsync(pushNotification.Title!, pushBody, data, pushNotification.RecipientId, classification: pushNotification.MessageType?.Name, tags: tags);
+        try {
+            if (pushNotification.Broadcast) {
+                await pushNotificationService.BroadcastAsync(pushNotification.Title!, pushBody, data, pushNotification.MessageType?.Name);
+            } else {
+                string[]? tags = !string.IsNullOrEmpty(pushNotification.RecipientId) ? [pushNotification.RecipientId] : null;
+                await pushNotificationService.SendToUserAsync(pushNotification.Title!, pushBody, data, pushNotification.RecipientId, classification: pushNotification.MessageType?.Name, tags: tags);
+            }
+            await messageEventQueue.EnqueueAsync(pushNotification.ToMessageEvent(MessageEventType.Sent.ToString(), true));
+        } catch {
+            await messageEventQueue.EnqueueAsync(pushNotification.ToMessageEvent(MessageEventType.Sent.ToString(), false));
+            throw;
         }
-        await messageEventQueue.EnqueueAsync(pushNotification.ToMessageEvent(MessageEventType.Sent.ToString()));
     }
 }
