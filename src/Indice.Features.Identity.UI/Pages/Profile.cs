@@ -79,12 +79,6 @@ public abstract class BaseProfileModel : BasePageModel
     /// <summary>Request input model for the manage profile page.</summary>
     [BindProperty]
     public ProfileLanguagePreferenceInputModel InputLanguagePreference { get; set; } = new ProfileLanguagePreferenceInputModel();
-    /// <summary>Disable edit username in profile page</summary>
-    [ViewData]
-    public bool IsUsernameReadOnly => IdentityUIOptions.DisableUsernameEdit;
-    /// <summary>Disable edit phone in profile page</summary>
-    [ViewData]
-    public bool IsPhoneReadOnly => IdentityUIOptions.DisablePhoneEdit ;
     /// <summary></summary>
     [ViewData]
     public bool ProfileSuccessfullyChanged { get; set; }
