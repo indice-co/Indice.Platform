@@ -48,7 +48,7 @@ public static class IdentityBuilderUIExtensions
             options.EnableLocalLogin = configuredOptions.EnableLocalLogin;
             options.EnableRegisterPage = configuredOptions.EnableRegisterPage;
             var extraHomePageLinks = configuredOptions.HomepageLinks.Where(h => !options.HomepageLinks.Select(x => x.DisplayName).Contains(h.DisplayName));
-            options.DisableUsernameEdit = configuredOptions.DisableUsernameEdit;
+            options.DisableEmailEdit = configuredOptions.DisableEmailEdit;
             options.DisablePhoneEdit = configuredOptions.DisablePhoneEdit;
             options.HomepageLinks.AddRange(extraHomePageLinks);
             options.HomePageSlogan = configuredOptions.HomePageSlogan;
