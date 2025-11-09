@@ -1,22 +1,24 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ViewAction } from '@indice/ng-components';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, combineLatest, Subject } from 'rxjs';
+import { map, takeUntil } from 'rxjs/operators';
 import { Campaign, CampaignResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
+import { AppLanguagesService } from 'src/app/shared/services/app-languages.service';
 
 @Component({
   selector: 'app-contact-campaigns',
   templateUrl: './contact-campaigns.component.html'
 })
 export class ContactCampaignsComponent extends BaseListComponent<Campaign> implements OnInit {
-  
+
 
   constructor(
     route: ActivatedRoute,
     router: Router,
     private readonly _activatedRoute: ActivatedRoute,
-    private readonly _api: MessagesApiClient
+    private readonly _api: MessagesApiClient,
+    private readonly _languages: AppLanguagesService
   ) {
     super(route, router);
     this.view = ListViewType.Table;
@@ -24,21 +26,37 @@ export class ContactCampaignsComponent extends BaseListComponent<Campaign> imple
     this.sort = 'createdAt';
     this.sortdir = 'asc';
     this.search = '';
+
+    // Fallback initialization: use translation keys themselves as initial labels.
     this.sortOptions = [
-      new MenuOption('Ημ/νια Δημιουργίας', 'createdAt'),
-      new MenuOption('Τίτλος', 'title'),
-      new MenuOption('Ενεργή Από', 'activePeriod.from'),
-      new MenuOption('Τύπος', 'type.name'),
-      new MenuOption('Δημοσιευμένη', 'published')
+      new MenuOption('Contacts.SortCreatedOnOption', 'createdAt'),
+      new MenuOption('Contacts.SortTitleOption', 'title'),
+      new MenuOption('Contacts.SortActiveFromOption', 'activePeriod.from'),
+      new MenuOption('Contacts.SortTypeOption', 'type.name'),
+      new MenuOption('Contacts.SortPublishedOption', 'published')
     ];
   }
   private _contactId: string = '';
   public newItemLink: string | null = null;
   public full = true;
+  private _destroy$ = new Subject<void>();
 
   public override ngOnInit(): void {
     this._contactId = this._activatedRoute.parent?.snapshot.params['contactId'];
     super.ngOnInit();
+
+    // Translate sort option labels reactively.
+    const sortKeys = this.sortOptions.map(o => o.text);
+    combineLatest(sortKeys.map(k => this._languages.translateKey(k)))
+      .pipe(takeUntil(this._destroy$))
+      .subscribe(translated => {
+        this.sortOptions = this.sortOptions.map((o, i) => new MenuOption(translated[i] || o.text, o.value));
+      });
+  }
+
+  public override ngOnDestroy(): void {
+    this._destroy$.next();
+    this._destroy$.complete();
   }
 
   public loadItems(): Observable<IResultSet<Campaign> | null | undefined> {

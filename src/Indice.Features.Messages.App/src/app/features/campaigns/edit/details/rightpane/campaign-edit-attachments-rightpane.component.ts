@@ -7,6 +7,7 @@ import { FileUploadComponent, IAttachment } from 'src/app/shared/components/file
 import { CampaignEditStore } from '../../campaign-edit-store.service';
 import { AppLanguagesService } from 'src/app/shared/services/app-languages.service'; // localization
 import { combineLatest, Subscription } from 'rxjs';
+import { AppTranslatedToaster } from '../../../../../shared/services/app-translated-toaster';
 
 @Component({
   selector: 'app-campaign-edit-attachments-rightpane',
@@ -27,7 +28,7 @@ export class CampaignAttachmentsEditRightpaneComponent implements OnInit, OnDest
 
   constructor(
     private _campaignStore: CampaignEditStore,
-    private _toaster: ToasterService,
+    private _toaster: AppTranslatedToaster,
     private _router: Router,
     private _lang: AppLanguagesService // injected language service
   ) { }
@@ -68,60 +69,22 @@ export class CampaignAttachmentsEditRightpaneComponent implements OnInit, OnDest
       };
       this._campaignStore.uploadCampaignAttachment(this._campaignId, attachment)
         .subscribe(() => {
-          const successSub = combineLatest([
-            this._lang.translateKey('Campaigns.AttachmentUpdateSuccessTitle'),
-            this._lang.translateKey('Campaigns.AttachmentUpdateSuccessMessage')
-          ]).subscribe(([title, message]) => {
-            this._toaster.show(
-              ToastType.Success,
-              title || 'Campaigns.AttachmentUpdateSuccessTitle',
-              message || 'Campaigns.AttachmentUpdateSuccessMessage'
-            );
-            successSub.unsubscribe();
-          });
+
+          this._toaster.show(ToastType.Success, 'Campaigns.AttachmentUpdateSuccessTitle', 'Campaigns.AttachmentUpdateSuccessMessage', undefined);
+
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
-        }, () => {
-          const errorSub = combineLatest([
-            this._lang.translateKey('Campaigns.AttachmentUpdateErrorTitle'),
-            this._lang.translateKey('Campaigns.AttachmentUpdateErrorMessage')
-          ]).subscribe(([title, message]) => {
-            this._toaster.show(
-              ToastType.Error,
-              title || 'Campaigns.AttachmentUpdateErrorTitle',
-              message || 'Campaigns.AttachmentUpdateErrorMessage'
-            );
-            errorSub.unsubscribe();
-          });
+        }, (error) => {
+          this._toaster.show(ToastType.Error, 'Campaigns.AttachmentUpdateErrorTitle', 'Campaigns.AttachmentUpdateErrorMessage', undefined);
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
         });
     }
     else if (this.campaignAttachment?.id) {
       this._campaignStore.deleteCampaignAttachment(this._campaignId, this.campaignAttachment.id)
         .subscribe(() => {
-          const deleteSuccessSub = combineLatest([
-            this._lang.translateKey('Campaigns.AttachmentUpdateSuccessTitle'),
-            this._lang.translateKey('Campaigns.AttachmentDeleteSuccessMessage')
-          ]).subscribe(([title, message]) => {
-            this._toaster.show(
-              ToastType.Success,
-              title || 'Campaigns.AttachmentUpdateSuccessTitle',
-              message || 'Campaigns.AttachmentDeleteSuccessMessage'
-            );
-            deleteSuccessSub.unsubscribe();
-          });
+          this._toaster.show(ToastType.Success, 'Campaigns.AttachmentUpdateSuccessTitle', 'Campaigns.AttachmentDeleteSuccessMessage', undefined);
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
-        }, () => {
-          const errorSub = combineLatest([
-            this._lang.translateKey('Campaigns.AttachmentUpdateErrorTitle'),
-            this._lang.translateKey('Campaigns.AttachmentUpdateErrorMessage')
-          ]).subscribe(([title, message]) => {
-            this._toaster.show(
-              ToastType.Error,
-              title || 'Campaigns.AttachmentUpdateErrorTitle',
-              message || 'Campaigns.AttachmentUpdateErrorMessage'
-            );
-            errorSub.unsubscribe();
-          });
+        }, (error) => {
+          this._toaster.show(ToastType.Error, 'Campaigns.AttachmentUpdateSuccessTitle', 'Campaigns.AttachmentUpdateErrorMessage', undefined);
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
         });
     }

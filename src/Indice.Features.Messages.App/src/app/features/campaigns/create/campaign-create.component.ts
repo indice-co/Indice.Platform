@@ -13,6 +13,7 @@ import { CampaignAttachmentsComponent } from './steps/attachments/campaign-attac
 import { catchError, map, mergeMap } from 'rxjs/operators';
 import { EMPTY, of, combineLatest, Subscription } from 'rxjs';
 import { AppLanguagesService } from 'src/app/shared/services/app-languages.service'; // added
+import { AppTranslatedToaster } from '../../../shared/services/app-translated-toaster';
 
 @Component({
   selector: 'app-campaign-create',
@@ -30,7 +31,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked, OnDest
     private _api: MessagesApiClient,
     private _router: Router,
     private _changeDetector: ChangeDetectorRef,
-    @Inject(ToasterService) private _toaster: ToasterService,
+    @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster,
     private _lang: AppLanguagesService // added
   ) { }
 
@@ -110,21 +111,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked, OnDest
           this._router.navigate(['campaigns', campaign.campaignId]);
 
           // Localized toast using combineLatest; unsubscribe immediately after emission
-          const toastSub = combineLatest([
-            this._lang.translateKey('Campaigns.CreateSuccessTitle'),
-            this._lang.translateKey('Campaigns.CreateSuccessMessage', { title: data.title })
-          ]).subscribe(([title, message]) => {
-            this._toaster.show(
-              ToastType.Success,
-              title || 'Campaigns.CreateSuccessTitle',
-              message || `The campaign titled ${data.title} was created successfully.`
-            );
-            // One-off subscription: dispose right after use
-            toastSub.unsubscribe();
-            // Remove from tracking array if present
-            this._transientSubs = this._transientSubs.filter(s => s !== toastSub);
-          });
-          this._transientSubs.push(toastSub);
+          this._toaster.show(ToastType.Success, 'Campaigns.CreateSuccessTitle', 'Campaigns.CreateSuccessMessage', undefined, {title: data.title});
         }
       });
   }

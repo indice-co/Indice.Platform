@@ -1,12 +1,13 @@
 import { Component, HostListener, Inject, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ToasterService, ToastType } from '@indice/ng-components';
+import {  ToastType } from '@indice/ng-components';
 
 import { CampaignDetails, Hyperlink, MessageContent } from 'src/app/core/services/messages-api.service';
 import { CampaignContentComponent } from '../../create/steps/content/campaign-content.component';
 import { CampaignEditStore } from '../campaign-edit-store.service';
-import { AppLanguagesService } from 'src/app/shared/services/app-languages.service'; // localization
+import { AppLanguagesService } from 'src/app/shared/services/app-languages.service';
 import { combineLatest, Subscription } from 'rxjs';
+import { AppTranslatedToaster } from '../../../../shared/services/app-translated-toaster';
 
 @Component({
   selector: 'app-campaign-content-edit',
@@ -19,7 +20,7 @@ export class CampaignContentEditComponent implements OnInit, OnDestroy {
   constructor(
     private _campaignStore: CampaignEditStore,
     private _activatedRoute: ActivatedRoute,
-    @Inject(ToasterService) private _toaster: ToasterService,
+    @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster,
     private _lang: AppLanguagesService // injected language service
   ) { }
 
@@ -51,8 +52,6 @@ export class CampaignContentEditComponent implements OnInit, OnDestroy {
             this._lang.translateKey('Campaigns.ActionLinkDefaultText')
           ]).subscribe(([defaultText]) => {
             this.basicInfoData.actionLink.text = defaultText || 'Campaigns.ActionLinkDefaultText';
-            actionLinkSub.unsubscribe();
-            this._subs = this._subs.filter(s => s !== actionLinkSub);
           });
           this._subs.push(actionLinkSub);
         }
@@ -92,17 +91,8 @@ export class CampaignContentEditComponent implements OnInit, OnDestroy {
       .subscribe(_ => {
         this.updateInProgress = false;
         // Localize toaster (title + message with {{title}} parameter)
-        const toastSub = combineLatest([
-          this._lang.translateKey('Campaigns.ContentUpdateSuccessTitle'),
-          this._lang.translateKey('Campaigns.ContentUpdateSuccessMessage', { title: this.campaign.title })
-        ]).subscribe(([title, message]) => {
-          this._toaster.show(
-            ToastType.Success,
-            title || 'Campaigns.ContentUpdateSuccessTitle',
-            message || `Campaigns.ContentUpdateSuccessMessage`
-          );
-        });
-        toastSub.unsubscribe();
+        this._toaster.show(ToastType.Success, 'Campaigns.ContentUpdateSuccessTitle', 'Campaigns.ContentUpdateSuccessMessage', undefined, { title: this.campaign.title });
+
       });
   }
 

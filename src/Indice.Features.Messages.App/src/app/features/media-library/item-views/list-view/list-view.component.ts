@@ -1,15 +1,19 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, OnDestroy, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalService, ToastType, ToasterService } from '@indice/ng-components';
+import { ModalService, ToastType } from '@indice/ng-components';
 import { MediaFile, MediaFolder, FolderContent } from 'src/app/core/services/media-api.service';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
 import { MediaLibraryStore } from '../../media-library-store.service';
+import { AppTranslatedToaster } from '../../../../shared/services/app-translated-toaster';
+import { TranslateService } from '@ngx-translate/core';
+import { Subject, combineLatest } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-list-view',
   templateUrl: './list-view.component.html'
 })
-export class ListViewComponent implements OnInit {
+export class ListViewComponent implements OnInit, OnDestroy {
 
   private _folderContent?: FolderContent;
 
@@ -51,13 +55,16 @@ export class ListViewComponent implements OnInit {
 
   public page: number = 1;
   public size: number = 20;
-  
+
+  private _destroy$ = new Subject<void>();
+
   constructor(
-    private _router: Router, 
+    private _router: Router,
     private _route: ActivatedRoute,
     private _mediaStore: MediaLibraryStore,
     private _modalService: ModalService,
-    private _toaster: ToasterService
+    private _toaster: AppTranslatedToaster,
+    private _translate: TranslateService
   ) { }
 
   ngOnInit(): void {
@@ -66,44 +73,62 @@ export class ListViewComponent implements OnInit {
       this.size = params.pageSize ? +params.pageSize : 20;
     });
   }
+
+  ngOnDestroy(): void {
+    this._destroy$.next();
+    this._destroy$.complete();
+  }
+
   public deleteFolder(folder: MediaFolder) {
-    const modal = this._modalService.show(BasicModalComponent, {
-      animated: true,
-      initialState: {
-          title: 'Διαγραφή',
-          message: `Είστε σίγουρος ότι θέλετε να διαγράψετε τον φάκελο '${folder?.name}';`,
+    combineLatest([
+      this._translate.get('MediaLibrary.Delete'),
+      this._translate.get('MediaLibrary.DeleteFolderConfirmMessage', { name: folder?.name })
+    ]).pipe(takeUntil(this._destroy$)).subscribe(([title, message]) => {
+      const modal = this._modalService.show(BasicModalComponent, {
+        animated: true,
+        initialState: {
+          title: title || 'MediaLibrary.Delete',
+          message: message || 'MediaLibrary.DeleteFolderConfirmMessage',
           data: folder
-      },
-      keyboard: true
-    });
-    modal.onHidden?.subscribe((response: any) => {
+        },
+        keyboard: true
+      });
+      modal.onHidden?.pipe(takeUntil(this._destroy$)).subscribe((response: any) => {
         if (response.result?.answer) {
-            this._mediaStore.deleteFolder(response.result.data.id).subscribe(() => {
-                this._toaster.show(ToastType.Success, 'Επιτυχής διαγραφή', `Ο φάκελος με τίτλο '${response.result.data.name}' διαγράφηκε με επιτυχία.`);
-                this.itemDeleted.emit();
-            });
+          this._mediaStore.deleteFolder(response.result.data.id).subscribe(() => {
+            this._toaster.show(ToastType.Success, 'MediaLibrary.DeleteFolderSuccessTitle', 'MediaLibrary.DeleteFolderSuccessMessage', undefined, { name: response.result.data.name }); // single line localized toast
+            this.itemDeleted.emit();
+          });
         }
+      });
     });
   }
+
   public deleteFile(file: MediaFile) {
-    const modal = this._modalService.show(BasicModalComponent, {
-      animated: true,
-      initialState: {
-          title: 'Διαγραφή',
-          message: `Είστε σίγουρος ότι θέλετε να διαγράψετε το αρχείο '${file?.name}';`,
+    combineLatest([
+      this._translate.get('MediaLibrary.Delete'),
+      this._translate.get('MediaLibrary.DeleteFileConfirmMessage', { name: file?.name })
+    ]).pipe(takeUntil(this._destroy$)).subscribe(([title, message]) => {
+      const modal = this._modalService.show(BasicModalComponent, {
+        animated: true,
+        initialState: {
+          title: title || 'MediaLibrary.Delete',
+          message: message || 'MediaLibrary.DeleteFileConfirmMessage',
           data: file
-      },
-      keyboard: true
-    });
-    modal.onHidden?.subscribe((response: any) => {
+        },
+        keyboard: true
+      });
+      modal.onHidden?.pipe(takeUntil(this._destroy$)).subscribe((response: any) => {
         if (response.result?.answer) {
-            this._mediaStore.deleteFile(response.result.data.id).subscribe(() => {
-                this._toaster.show(ToastType.Success, 'Επιτυχής διαγραφή', `Το αρχείο με τίτλο '${response.result.data.name}' διαγράφηκε με επιτυχία.`);
-                this.itemDeleted.emit();
-            });
+          this._mediaStore.deleteFile(response.result.data.id).subscribe(() => {
+            this._toaster.show(ToastType.Success, 'MediaLibrary.DeleteFileSuccessTitle', 'MediaLibrary.DeleteFileSuccessMessage', undefined,{ name: response.result.data.name }); // single line localized toast
+            this.itemDeleted.emit();
+          });
         }
+      });
     });
   }
+
   public editFile(file: MediaFile) {
     this._router.navigate(['media', file.folderId ? file.folderId : 'root', file.id ]);
   }

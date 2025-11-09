@@ -10,6 +10,7 @@ import { CampaignDetails, DistributionList, DistributionListResultSet, Hyperlink
 import { CampaignEditStore } from '../../campaign-edit-store.service';
 import { SettingsStore } from 'src/app/features/settings/settings-store.service';
 import { AppLanguagesService } from 'src/app/shared/services/app-languages.service'; // localization
+import { AppTranslatedToaster } from '../../../../../shared/services/app-translated-toaster';
 
 @Component({
   selector: 'app-campaign-details-edit-rightpane',
@@ -34,7 +35,7 @@ export class CampaignDetailsEditRightpaneComponent implements OnInit, AfterViewI
     private _router: Router,
     private _activatedRoute: ActivatedRoute,
     private _changeDetector: ChangeDetectorRef,
-    @Inject(ToasterService) private _toaster: ToasterService,
+    @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster,
     private _api: MessagesApiClient,
     private _datePipe: DatePipe,
     private _settingsStore: SettingsStore,
@@ -113,22 +114,7 @@ export class CampaignDetailsEditRightpaneComponent implements OnInit, AfterViewI
       .subscribe({
         next: () => {
           this.submitInProgress = false;
-
-          // Localize success toast (title + message with {{title}})
-          const toastSub = combineLatest([
-            this._lang.translateKey('Campaigns.UpdateSuccessTitle'),
-            this._lang.translateKey('Campaigns.UpdateSuccessMessage', { title: this.model.title })
-          ]).subscribe(([title, message]) => {
-            this._toaster.show(
-              ToastType.Success,
-              title || 'Campaigns.UpdateSuccessTitle',
-              message || `Campaigns.UpdateSuccessMessage`
-            );
-            toastSub.unsubscribe();
-            this._subs = this._subs.filter(s => s !== toastSub);
-          });
-          this._subs.push(toastSub);
-
+          this._toaster.show(ToastType.Success, 'Campaigns.UpdateSuccessTitle', 'Campaigns.UpdateSuccessMessage', undefined, { title: this.model.title })
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
         }
       });

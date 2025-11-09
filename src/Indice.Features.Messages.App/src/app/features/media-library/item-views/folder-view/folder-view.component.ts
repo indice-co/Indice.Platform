@@ -1,21 +1,26 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, OnDestroy, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MediaFile, MediaFolder, FolderContent } from 'src/app/core/services/media-api.service';
-import { ModalService, ToasterService, ToastType } from '@indice/ng-components';
+import { ModalService, ToastType } from '@indice/ng-components';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
 import { MediaLibraryStore } from '../../media-library-store.service';
 import { FileUtilitiesService } from 'src/app/shared/services/file-utilities.service';
+import { AppTranslatedToaster } from '../../../../shared/services/app-translated-toaster';
+import { TranslateService } from '@ngx-translate/core';
+import { Subject, combineLatest } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-folder-view',
   templateUrl: './folder-view.component.html'
 })
-export class FolderViewComponent implements OnInit {
+export class FolderViewComponent implements OnInit, OnDestroy {
 
   public page: number = 1;
   public size: number = 20;
 
   private _folderContent?: FolderContent;
+  private _destroy$ = new Subject<void>();
 
   @Input() set folderContent(value: FolderContent | undefined) {
     this._folderContent = value;
@@ -30,12 +35,13 @@ export class FolderViewComponent implements OnInit {
   @Output() pageSizeChanged: EventEmitter<number> = new EventEmitter<number>();
 
   constructor(
-    private _router: Router, 
+    private _router: Router,
     private _route: ActivatedRoute,
     private _mediaStore: MediaLibraryStore,
     private _modalService: ModalService,
-    private _toaster: ToasterService,
-    private _fileUtilitiesService: FileUtilitiesService
+    private _toaster: AppTranslatedToaster,
+    private _fileUtilitiesService: FileUtilitiesService,
+    private _translate: TranslateService
   ) { }
 
   ngOnInit(): void {
@@ -45,49 +51,67 @@ export class FolderViewComponent implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    this._destroy$.next();
+    this._destroy$.complete();
+  }
+
   public getImageUrl(file: MediaFile, size?: number) {
     return this._fileUtilitiesService.getCoverImageUrl(file, size);
   }
+
   public deleteFolder(folder: MediaFolder) {
-    const modal = this._modalService.show(BasicModalComponent, {
-      animated: true,
-      initialState: {
-          title: 'Διαγραφή',
-          message: `Είστε σίγουρος ότι θέλετε να διαγράψετε τον φάκελο '${folder?.name}';`,
+    combineLatest([
+      this._translate.get('MediaLibrary.Delete'),
+      this._translate.get('MediaLibrary.DeleteFolderConfirmMessage', { name: folder?.name })
+    ]).pipe(takeUntil(this._destroy$)).subscribe(([title, message]) => {
+      const modal = this._modalService.show(BasicModalComponent, {
+        animated: true,
+        initialState: {
+          title: title || 'MediaLibrary.Delete',
+          message: message || 'MediaLibrary.DeleteFolderConfirmMessage',
           data: folder
-      },
-      keyboard: true
-    });
-    modal.onHidden?.subscribe((response: any) => {
+        },
+        keyboard: true
+      });
+      modal.onHidden?.pipe(takeUntil(this._destroy$)).subscribe((response: any) => {
         if (response.result?.answer) {
-            this._mediaStore.deleteFolder(response.result.data.id).subscribe(() => {
-                this._toaster.show(ToastType.Success, 'Επιτυχής διαγραφή', `Ο φάκελος με τίτλο '${response.result.data.name}' διαγράφηκε με επιτυχία.`);
-                this.itemDeleted.emit();
-            });
+          this._mediaStore.deleteFolder(response.result.data.id).subscribe(() => {
+            this._toaster.show(ToastType.Success, 'MediaLibrary.DeleteFolderSuccessTitle', 'MediaLibrary.DeleteFolderSuccessMessage', undefined, { name: response.result.data.name }); // toaster single line
+            this.itemDeleted.emit();
+          });
         }
+      });
     });
   }
+
   public deleteFile(file: MediaFile) {
-    const modal = this._modalService.show(BasicModalComponent, {
-      animated: true,
-      initialState: {
-          title: 'Διαγραφή',
-          message: `Είστε σίγουρος ότι θέλετε να διαγράψετε το αρχείο '${file?.name}';`,
+    combineLatest([
+      this._translate.get('MediaLibrary.Delete'),
+      this._translate.get('MediaLibrary.DeleteFileConfirmMessage', { name: file?.name })
+    ]).pipe(takeUntil(this._destroy$)).subscribe(([title, message]) => {
+      const modal = this._modalService.show(BasicModalComponent, {
+        animated: true,
+        initialState: {
+          title: title || 'MediaLibrary.Delete',
+          message: message || 'MediaLibrary.DeleteFileConfirmMessage',
           data: file
-      },
-      keyboard: true
-    });
-    modal.onHidden?.subscribe((response: any) => {
+        },
+        keyboard: true
+      });
+      modal.onHidden?.pipe(takeUntil(this._destroy$)).subscribe((response: any) => {
         if (response.result?.answer) {
-            this._mediaStore.deleteFile(response.result.data.id).subscribe(() => {
-                this._toaster.show(ToastType.Success, 'Επιτυχής διαγραφή', `Το αρχείο με τίτλο '${response.result.data.name}' διαγράφηκε με επιτυχία.`);
-                this.itemDeleted.emit();
-            });
+          this._mediaStore.deleteFile(response.result.data.id).subscribe(() => {
+            this._toaster.show(ToastType.Success, 'MediaLibrary.DeleteFileSuccessTitle', 'MediaLibrary.DeleteFileSuccessMessage', undefined, { name: response.result.data.name }); // toaster single line
+            this.itemDeleted.emit();
+          });
         }
+      });
     });
   }
+
   public editFile(file: MediaFile) {
-    this._router.navigate(['media', file.folderId ? file.folderId : 'root', file.id ]);
+    this._router.navigate(['media', file.folderId ? file.folderId : 'root', file.id]);
   }
   public editFolder(folder: MediaFolder) {
     this._router.navigate(['', { outlets: { rightpane: ['edit-folder', folder.id] } }]);
@@ -111,10 +135,10 @@ export class FolderViewComponent implements OnInit {
   public copyToClipboard(file: MediaFile): void {
     this._fileUtilitiesService.copyPathToClipboard(file.permaLink)
       .then(() => {
-        this._toaster.show(ToastType.Success, 'Αντιγραφή συνδέσμου', `Ο σύνδεσμος του αρχείου '${file.name}' αντιγράφηκε με επιτυχία.`);
+        this._toaster.show(ToastType.Success, 'MediaLibrary.CopyLinkTitle', 'MediaLibrary.CopyLinkSuccessMessage', undefined,{ name: file.name }); // toaster single line
       })
-      .catch((err) => {
-        this._toaster.show(ToastType.Error, 'Αποτυχία αντιγραφής', 'Ο σύνδεσμος του αρχείου δεν μπόρεσε να αντιγραφεί στο πρόχειρο.');
+      .catch(() => {
+        this._toaster.show(ToastType.Error, 'MediaLibrary.CopyLinkErrorTitle', 'MediaLibrary.CopyLinkErrorMessage'); // toaster single line
       });
   }
 }

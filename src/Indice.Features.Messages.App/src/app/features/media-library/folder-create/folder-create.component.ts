@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { CreateFolderRequest, CreateFolderResponse } from 'src/app/core/services/media-api.service';
 import { MediaLibraryStore } from '../media-library-store.service';
+import { AppTranslatedToaster } from '../../../shared/services/app-translated-toaster';
 
 @Component({
   selector: 'app-folder-create',
@@ -17,7 +18,7 @@ export class FolderCreateComponent implements OnInit {
         private _mediaStore: MediaLibraryStore,
         private _router: Router,
         private _activatedRoute: ActivatedRoute,
-        @Inject(ToasterService) private _toaster: ToasterService
+      @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster
     ) { }
 
     public submitInProgress = false;
@@ -40,7 +41,7 @@ export class FolderCreateComponent implements OnInit {
             .subscribe({
                 next: (response: CreateFolderResponse) => {
                     this.submitInProgress = false;
-                    this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Ο φάκελος με όνομα '${this.model.name}' δημιουργήθηκε με επιτυχία.`);
+                    this._toaster.show(ToastType.Success, 'MediaLibrary.CreateFolderSuccessTitle', 'MediaLibrary.CreateFolderSuccessMessage', undefined, { name: this.model.name }); // localized single line toast
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this.model.parentId ? this._router.navigate(['media', this.model.parentId]) : this._router.navigate(['media']));
                 }
             });

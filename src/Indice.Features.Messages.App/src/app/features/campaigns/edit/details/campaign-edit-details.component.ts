@@ -9,6 +9,7 @@ import { HttpClient } from '@angular/common/http';
 import { settings } from 'src/app/core/models/settings';
 import { AppLanguagesService } from 'src/app/shared/services/app-languages.service';
 import { combineLatest } from 'rxjs';
+import { AppTranslatedToaster } from '../../../../shared/services/app-translated-toaster';
 
 @Component({
   selector: 'app-campaign-details-edit',
@@ -22,7 +23,7 @@ export class CampaignDetailsEditComponent implements OnInit {
     private _activatedRoute: ActivatedRoute,
     private _changeDetector: ChangeDetectorRef,
     private _router: Router,
-    @Inject(ToasterService) private _toaster: ToasterService,
+    @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster,
     private _modalService: ModalService,
     private _api: MessagesApiClient,
     private _httpClient: HttpClient,
@@ -74,18 +75,9 @@ export class CampaignDetailsEditComponent implements OnInit {
       });
       modal.onHidden?.subscribe((response: any) => {
         if (response.result?.answer) {
-          this._api.deleteCampaign(response.result.data.id).subscribe(() => {
-            combineLatest([
-              this._lang.translateKey('Campaigns.DeleteSuccessTitle'),
-              this._lang.translateKey('Campaigns.DeleteSuccessMessage', { title: response.result.data.title })
-            ]).subscribe(([toastTitle, toastBody]) => {
-              this._toaster.show(
-                ToastType.Success,
-                toastTitle || 'Campaigns.DeleteSuccessTitle',
-                toastBody || 'Campaigns.DeleteSuccessMessage'
-              );
-              this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns']));
-            }).unsubscribe();
+            this._api.deleteCampaign(response.result.data.id).subscribe(() => {
+            this._toaster.show(ToastType.Success, 'Campaigns.DeleteSuccessTitle', 'Campaigns.DeleteSuccessMessage', undefined, { title: response.result.data.title });
+            this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns']));
           });
         }
       });
@@ -112,17 +104,9 @@ export class CampaignDetailsEditComponent implements OnInit {
       modal.onHidden?.subscribe((response: any) => {
         if (response.result?.answer) {
           this._campaignStore.publishCampaign(response.result.data.id).subscribe(() => {
-            combineLatest([
-              this._lang.translateKey('Campaigns.PublishSuccessTitle'),
-              this._lang.translateKey('Campaigns.PublishSuccessMessage', { title: response.result.data.title })
-            ]).subscribe(([toastTitle, toastBody]) => {
-              this._toaster.show(
-                ToastType.Success,
-                toastTitle || 'Campaigns.PublishSuccessTitle',
-                toastBody || 'Campaigns.PublishSuccessMessage'
-              );
-              this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
-            }).unsubscribe();
+            this._toaster.show(ToastType.Success, 'Campaigns.PublishSuccessTitle', 'Campaigns.PublishSuccessMessage', undefined, { title: response.result.data.title });
+            this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
+
           });
         }
       });

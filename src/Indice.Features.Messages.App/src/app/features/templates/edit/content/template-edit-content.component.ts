@@ -1,12 +1,13 @@
 import { Component, HostListener, Inject, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { ToasterService, ToastType } from '@indice/ng-components';
+import { ToastType } from '@indice/ng-components';
 import { CampaignContentComponent } from 'src/app/features/campaigns/create/steps/content/campaign-content.component';
 import { MessageContent, Template } from 'src/app/core/services/messages-api.service';
 import { TemplateEditStore } from '../template-edit-store.service';
 import { catchError } from 'rxjs/operators';
 import { EMPTY } from 'rxjs';
+import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
 
 @Component({
   selector: 'app-template-content-edit',
@@ -19,7 +20,7 @@ export class TemplateContentEditComponent implements OnInit {
   constructor(
     private _templateStore: TemplateEditStore,
     private _activatedRoute: ActivatedRoute,
-    @Inject(ToasterService) private _toaster: ToasterService
+    @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster
   ) { }
 
   public basicInfoData: any = {};
@@ -66,7 +67,7 @@ export class TemplateContentEditComponent implements OnInit {
         }))
       .subscribe(_ => {
         this.updateInProgress = false;
-        this._toaster.show(ToastType.Success, 'Επιτυχής ενημέρωση', `Το περιεχόμενο του προτύπου με όνομα '${this.template.name}' ενημερώθηκε με επιτυχία.`);
+        this._toaster.show(ToastType.Success, 'Templates.ContentUpdateSuccessTitle', 'Templates.ContentUpdateSuccessMessage', undefined, { title: this.template.name });
       });
   }
 }

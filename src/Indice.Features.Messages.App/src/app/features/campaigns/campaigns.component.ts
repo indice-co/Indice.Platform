@@ -44,6 +44,8 @@ export class CampaignsComponent extends BaseListComponent<Campaign> implements O
   public override ngOnInit(): void {
     this._initTranslations();
     super.ngOnInit();
+    this.actions.push(new RouterViewAction(Icons.Add, 'campaigns/add-campaign', null, 'δημιουργία καμπάνιας'));
+
   }
 
   private _initTranslations(): void {
@@ -52,11 +54,11 @@ export class CampaignsComponent extends BaseListComponent<Campaign> implements O
     const activeFrom$ = this._lang.translateKey('Campaigns.SortActiveFromOption');
     const type$ = this._lang.translateKey('Campaigns.SortTypeOption');
     const published$ = this._lang.translateKey('Campaigns.SortPublishedOption');
-    const createAction$ = this._lang.translateKey('Campaigns.CreateCampaignAction');
+    //const createAction$ = this._lang.translateKey('Campaigns.CreateCampaignAction');
 
-    combineLatest([createdOn$, title$, activeFrom$, type$, published$, createAction$])
+    combineLatest([createdOn$, title$, activeFrom$, type$, published$])
       .pipe(takeUntil(this._destroy$))
-      .subscribe(([createdOn, title, activeFrom, type, published, createAction]) => {
+      .subscribe(([createdOn, title, activeFrom, type, published,]) => {
         this.sortOptions = [
           new MenuOption(createdOn || 'Campaigns.SortCreatedOnOption', 'createdAt'),
           new MenuOption(title || 'Campaigns.SortTitleOption', 'title'),
@@ -65,10 +67,9 @@ export class CampaignsComponent extends BaseListComponent<Campaign> implements O
           new MenuOption(type || 'Campaigns.SortTypeOption', 'type.name'),
           new MenuOption(published || 'Campaigns.SortPublishedOption', 'published')
         ];
-        // Avoid duplicating action on language change.
-        this.actions = this.actions.filter(a => !(a instanceof RouterViewAction && a.icon === Icons.Add));
-        this.actions.push(new RouterViewAction(Icons.Add, 'campaigns/add-campaign', null, createAction || 'Campaigns.CreateCampaignAction'));
+
       });
+
   }
 
   public loadItems(): Observable<IResultSet<Campaign> | null | undefined> {
