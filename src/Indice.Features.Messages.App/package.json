@@ -2,8 +2,8 @@
   "name": "messages-app",
   "version": "1.0.0",
   "scripts": {
-    "build:template": "ng build --build-optimizer --optimization --output-hashing none --configuration template",
-    "build": "ng build --configuration production --build-optimizer --optimization",
+    "build:template": "ng build --optimization --output-hashing none --configuration template",
+    "build": "ng build --configuration production --optimization",
     "e2e": "ng e2e",
     "lint": "ng lint",
     "ng": "ng",
