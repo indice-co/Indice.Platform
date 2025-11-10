@@ -16,11 +16,11 @@
     </div>
     <div class="modal-actions-container mt-2"
          role="group">
-        <button type="button"
-                class="basic-modal-close"
-                (click)="answer(false)">
-            Κλείσιμο
-        </button>
+      <button type="button"
+              class="basic-modal-close"
+              (click)="answer(false)">
+        {{'Shared.Close' | translate}}
+      </button>
         &nbsp;
         <button *ngIf="acceptText" type="button"
                 class="basic-modal-accept"

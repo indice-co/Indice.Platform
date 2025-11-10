@@ -22,7 +22,7 @@
         <lib-toggle-buttons-list class="mr-2"
                                  [icon]="'ms-Icon ms-Icon--Filter text-gray-300'"
                                  [options]="messageTypeOptions$ | async"
-                                 [value]="messageTypeFilter"
+                                 (value)="messageTypeFilter"
                                  (valueChange)="onFilterChanged('messageType', $event)">
         </lib-toggle-buttons-list>
       </div>

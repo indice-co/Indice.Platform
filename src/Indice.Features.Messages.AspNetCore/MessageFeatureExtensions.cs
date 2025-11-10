@@ -56,6 +56,7 @@ public static class MessageFeatureExtensions
             options.AnalyticsOptions = apiOptions.AnalyticsOptions;
         }).AddTranslationGraph(options => {
             options.DefaultTranslationsBaseName = "TranslationsApi";
+            options.DefaultTranslationsLocation = "Indice.Features.Messages.AspNetCore";
         });
     }
 

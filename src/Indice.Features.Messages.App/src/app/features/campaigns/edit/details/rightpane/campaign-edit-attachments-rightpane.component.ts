@@ -1,12 +1,12 @@
 import { Component, ElementRef, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { ToasterService, ToastType } from '@indice/ng-components';
+import { ToastType } from '@indice/ng-components';
 import { finalize } from 'rxjs/operators';
 import { FileParameter, CampaignDetails } from 'src/app/core/services/messages-api.service';
 import { FileUploadComponent, IAttachment } from 'src/app/shared/components/file-upload/file-upload.component';
 import { CampaignEditStore } from '../../campaign-edit-store.service';
 import { AppLanguagesService } from 'src/app/shared/services/app-languages.service'; // localization
-import { combineLatest, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { AppTranslatedToaster } from '../../../../../shared/services/app-translated-toaster';
 
 @Component({

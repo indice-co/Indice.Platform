@@ -69,7 +69,8 @@ export class CampaignDetailsEditComponent implements OnInit {
         initialState: {
           title: translatedModalTitle || 'Campaigns.Delete',
           message: translatedModalMessage || `Campaigns.DeleteConfirmMessage`,
-          data: this.campaign
+          data: this.campaign,
+          acceptText: translatedModalTitle || 'Campaigns.Delete',
         },
         keyboard: true
       });

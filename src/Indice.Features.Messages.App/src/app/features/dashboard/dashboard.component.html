@@ -1,4 +1,4 @@
-<lib-view-layout [title]="'Καλώς ήλθατε,'" [meta-items]="metaItems" *ngIf="(metrics$ | async) as metrics">
+<lib-view-layout [title]="'DashBoard.Welcome' | translate" [meta-items]="metaItems" *ngIf="(metrics$ | async) as metrics">
   <div class="cards-deck-4">
     <!--<lib-kpi-tile title="Καμπανιες" [busy]="!loaded" [kpi]="counters?.campaignsCount"
                   (tile-action)="navigate('/campaigns')"></lib-kpi-tile>

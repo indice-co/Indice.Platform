@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseListComponent, IResultSet, ListViewType, MenuOption, ModalService, ToastType } from '@indice/ng-components';
 import { Observable, Subject, combineLatest } from 'rxjs';

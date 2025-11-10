@@ -4,7 +4,6 @@ import { Subject, Observable, takeUntil } from 'rxjs';
 
 import { Contact } from 'src/app/core/services/messages-api.service';
 import { ContactService } from '../contact.service';
-import { AppLanguagesService } from '../../../../shared/services/app-languages.service';
 
 @Component({
   selector: 'app-contact-details',

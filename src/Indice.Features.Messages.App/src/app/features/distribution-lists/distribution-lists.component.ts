@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, ToastType, ViewAction } from '@indice/ng-components';
 import { Observable, Subject, combineLatest } from 'rxjs';
-import { map, takeUntil, take } from 'rxjs/operators';
+import { map, takeUntil } from 'rxjs/operators';
 import { DistributionList, DistributionListResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
 import { AppLanguagesService } from 'src/app/shared/services/app-languages.service';

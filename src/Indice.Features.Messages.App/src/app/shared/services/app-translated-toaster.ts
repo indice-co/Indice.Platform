@@ -14,7 +14,7 @@ export class AppTranslatedToaster {
 
   show(type: ToastType, title?: string, body?: string, delay?: number, paramaters?: any): void {
 
-    const translations = combineLatest([
+    combineLatest([
       this.translate.translateKey(title || '', paramaters),
       this.translate.translateKey(body || '', paramaters)
     ]).pipe(take(1)).subscribe(([title,message]) => {
