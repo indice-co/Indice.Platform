@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Net;
+using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -199,7 +200,7 @@ internal class ApifonRequest
         foreach (var link in extractedLinks) {
             var name = $"apifon_lp_{instance}";
             parameters.Add(name, new ApifonListParameter() {
-                Url = link,
+                Url = WebUtility.HtmlDecode(link),
                 Data = new Data() { Name = name },
                 Redirect = true
             });

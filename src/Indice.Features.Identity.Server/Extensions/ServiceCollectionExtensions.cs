@@ -94,6 +94,8 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         services.Configure<CookieTempDataProviderOptions>(options => {
             options.Cookie.Expiration = TimeSpan.FromMinutes(30);
             options.Cookie.Name = ExtendedIdentityConstants.TempDataCookieName;
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
         });
         services.TryAddScoped<IdentityMessageDescriber>();
         services.TryAddScoped<CallingCodesProvider>();
