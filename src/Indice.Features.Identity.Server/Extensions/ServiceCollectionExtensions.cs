@@ -36,7 +36,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -413,12 +412,19 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         configuration.GetSection(IdentityRateLimiterOptions.SectionName).Bind(identityRateLimiterOptions);
         services.AddRateLimiter(rateLimiterOptions => {
             foreach (var endpoint in IdentityEndpoints.RateLimiter.Endpoints) {
-                var endpointOptions = identityRateLimiterOptions.Rules.FirstOrDefault(rule => rule.Endpoint == endpoint) ?? RateLimiterEndpointRule.Default();
-                rateLimiterOptions.AddFixedWindowLimiter(endpoint, fixedWindowOptions => {
-                    fixedWindowOptions.PermitLimit = endpointOptions.PermitLimit.GetValueOrDefault();
-                    fixedWindowOptions.QueueLimit = endpointOptions.QueueLimit.GetValueOrDefault();
-                    fixedWindowOptions.QueueProcessingOrder = endpointOptions.QueueProcessingOrder.GetValueOrDefault();
-                    fixedWindowOptions.Window = endpointOptions.Window.GetValueOrDefault();
+                var endpointOptions = identityRateLimiterOptions.Rules.FirstOrDefault(rule => rule.Endpoint == endpoint) ?? RateLimiterEndpointRule.Default(endpoint);
+                rateLimiterOptions.AddPolicy(endpoint, context => {
+                    if (!endpointOptions.CanLimitHttpMethod(context.Request.Method)) {
+                        return RateLimitPartition.GetNoLimiter("NoRateLimiting");
+                    }
+                    return RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: context.User.FindSubjectId() ?? context.Connection.RemoteIpAddress?.ToString() ?? context.Request.Headers.Host.ToString(),
+                        factory: _ => new FixedWindowRateLimiterOptions {
+                            PermitLimit = endpointOptions.PermitLimit.GetValueOrDefault(),
+                            QueueLimit = endpointOptions.QueueLimit.GetValueOrDefault(),
+                            QueueProcessingOrder = endpointOptions.QueueProcessingOrder.GetValueOrDefault(),
+                            Window = endpointOptions.Window.GetValueOrDefault()
+                        });
                 });
             }
             rateLimiterOptions.RejectionStatusCode = identityRateLimiterOptions.RejectionStatusCode.GetValueOrDefault();
