@@ -76,8 +76,9 @@ public static partial class IdentityEndpoints
             "my/account/email/confirmation",
             "my/account/phone-number/confirmation",
             "my/account/email/change-confirmation",
-            "my/account/phone-number/change-confirmation"
-        };
+            "my/account/phone-number/change-confirmation",
+            "public-page" // this is the policy name for the public Razor Pages 
+    };
 
         public static class Policies
         {
@@ -97,6 +98,7 @@ public static partial class IdentityEndpoints
             public static readonly string PhoneNumberConfirmation = Endpoints[13];
             public static readonly string EmailChangeConfirmation = Endpoints[14];
             public static readonly string ChangePhoneNumberConfirmation = Endpoints[15];
+            public static readonly string PublicPage = Endpoints[16];
         }
     }
 }

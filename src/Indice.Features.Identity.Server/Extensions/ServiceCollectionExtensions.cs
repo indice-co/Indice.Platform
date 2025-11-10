@@ -36,7 +36,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -44,6 +43,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.FeatureManagement;
 using Microsoft.IdentityModel.Logging;
 using Indice.Features.Identity.Core.IdentityValidation;
+using IdentityServer4.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -414,11 +414,15 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         services.AddRateLimiter(rateLimiterOptions => {
             foreach (var endpoint in IdentityEndpoints.RateLimiter.Endpoints) {
                 var endpointOptions = identityRateLimiterOptions.Rules.FirstOrDefault(rule => rule.Endpoint == endpoint) ?? RateLimiterEndpointRule.Default();
-                rateLimiterOptions.AddFixedWindowLimiter(endpoint, fixedWindowOptions => {
-                    fixedWindowOptions.PermitLimit = endpointOptions.PermitLimit.GetValueOrDefault();
-                    fixedWindowOptions.QueueLimit = endpointOptions.QueueLimit.GetValueOrDefault();
-                    fixedWindowOptions.QueueProcessingOrder = endpointOptions.QueueProcessingOrder.GetValueOrDefault();
-                    fixedWindowOptions.Window = endpointOptions.Window.GetValueOrDefault();
+                rateLimiterOptions.AddPolicy(endpoint, context => {
+                    return RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: context.User.FindSubjectId() ?? context.Connection.RemoteIpAddress?.ToString() ?? context.Request.Headers.Host.ToString(), 
+                        factory: _ => new FixedWindowRateLimiterOptions {
+                            PermitLimit = endpointOptions.PermitLimit.GetValueOrDefault(),
+                            QueueLimit = endpointOptions.QueueLimit.GetValueOrDefault(),
+                            QueueProcessingOrder = endpointOptions.QueueProcessingOrder.GetValueOrDefault(),
+                            Window = endpointOptions.Window.GetValueOrDefault()
+                        });
                 });
             }
             rateLimiterOptions.RejectionStatusCode = identityRateLimiterOptions.RejectionStatusCode.GetValueOrDefault();
