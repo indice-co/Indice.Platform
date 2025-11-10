@@ -43,7 +43,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.FeatureManagement;
 using Microsoft.IdentityModel.Logging;
 using Indice.Features.Identity.Core.IdentityValidation;
-using IdentityServer4.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -413,10 +412,13 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         configuration.GetSection(IdentityRateLimiterOptions.SectionName).Bind(identityRateLimiterOptions);
         services.AddRateLimiter(rateLimiterOptions => {
             foreach (var endpoint in IdentityEndpoints.RateLimiter.Endpoints) {
-                var endpointOptions = identityRateLimiterOptions.Rules.FirstOrDefault(rule => rule.Endpoint == endpoint) ?? RateLimiterEndpointRule.Default();
+                var endpointOptions = identityRateLimiterOptions.Rules.FirstOrDefault(rule => rule.Endpoint == endpoint) ?? RateLimiterEndpointRule.Default(endpoint);
                 rateLimiterOptions.AddPolicy(endpoint, context => {
+                    if (!endpointOptions.CanLimitHttpMethod(context.Request.Method)) {
+                        return RateLimitPartition.GetNoLimiter("NoRateLimiting");
+                    }
                     return RateLimitPartition.GetFixedWindowLimiter(
-                        partitionKey: context.User.FindSubjectId() ?? context.Connection.RemoteIpAddress?.ToString() ?? context.Request.Headers.Host.ToString(), 
+                        partitionKey: context.User.FindSubjectId() ?? context.Connection.RemoteIpAddress?.ToString() ?? context.Request.Headers.Host.ToString(),
                         factory: _ => new FixedWindowRateLimiterOptions {
                             PermitLimit = endpointOptions.PermitLimit.GetValueOrDefault(),
                             QueueLimit = endpointOptions.QueueLimit.GetValueOrDefault(),
