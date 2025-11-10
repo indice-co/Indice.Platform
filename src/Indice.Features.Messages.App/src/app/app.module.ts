@@ -1,6 +1,6 @@
 import { LOCALE_ID, NgModule, Provider } from '@angular/core';
 import { CommonModule, DatePipe, JsonPipe, registerLocaleData } from '@angular/common';
-import { HTTP_INTERCEPTORS, withInterceptors, provideHttpClient, withInterceptorsFromDi, HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, withInterceptors, provideHttpClient, HttpClientModule } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
