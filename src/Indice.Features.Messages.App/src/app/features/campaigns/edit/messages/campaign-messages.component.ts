@@ -6,8 +6,9 @@ import { map } from 'rxjs/operators';
 import { RecipientMetrics, MessagesApiClient, Recipient, RecipientResultSet } from 'src/app/core/services/messages-api.service';
 
 @Component({
-  selector: 'app-campaign-messages',
-  templateUrl: './campaign-messages.component.html'
+    selector: 'app-campaign-messages',
+    templateUrl: './campaign-messages.component.html',
+    standalone: false
 })
 export class CampaignMessagesComponent extends BaseListComponent<Recipient> implements OnInit {
   public _campaignId: string | undefined;

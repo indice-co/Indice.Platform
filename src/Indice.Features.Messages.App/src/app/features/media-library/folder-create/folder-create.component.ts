@@ -5,8 +5,9 @@ import { CreateFolderRequest, CreateFolderResponse } from 'src/app/core/services
 import { MediaLibraryStore } from '../media-library-store.service';
 
 @Component({
-  selector: 'app-folder-create',
-  templateUrl: './folder-create.component.html'
+    selector: 'app-folder-create',
+    templateUrl: './folder-create.component.html',
+    standalone: false
 })
 export class FolderCreateComponent implements OnInit {
 

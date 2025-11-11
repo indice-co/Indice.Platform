@@ -6,8 +6,9 @@ import { catchError, EMPTY } from 'rxjs';
 import { CreateMessageTypeRequest, MessagesApiClient, MessageType, MessageTypeClassification } from 'src/app/core/services/messages-api.service';
 
 @Component({
-  selector: 'app-message-type-create',
-  templateUrl: './message-type-create.component.html'
+    selector: 'app-message-type-create',
+    templateUrl: './message-type-create.component.html',
+    standalone: false
 })
 export class MessageTypeCreateComponent implements OnInit, AfterViewInit {
   @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;

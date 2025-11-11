@@ -8,7 +8,8 @@ import { CampaignEditStore } from '../campaign-edit-store.service';
 
 @Component({
     selector: 'app-campaign-content-edit',
-    templateUrl: './campaign-edit-content.component.html'
+    templateUrl: './campaign-edit-content.component.html',
+    standalone: false
 })
 export class CampaignContentEditComponent implements OnInit {
     @ViewChild('contentStep', { static: false }) public _contentComponent: CampaignContentComponent | undefined;

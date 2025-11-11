@@ -7,8 +7,9 @@ import { FileUploadComponent, IAttachment } from 'src/app/shared/components/file
 import { CampaignEditStore } from '../../campaign-edit-store.service';
 
 @Component({
-  selector: 'app-campaign-edit-attachments-rightpane',
-  templateUrl: './campaign-edit-attachments-rightpane.component.html'
+    selector: 'app-campaign-edit-attachments-rightpane',
+    templateUrl: './campaign-edit-attachments-rightpane.component.html',
+    standalone: false
 })
 export class CampaignAttachmentsEditRightpaneComponent implements OnInit {
 

@@ -7,7 +7,8 @@ import { MessagesApiClient, MessageEvent, MessageEventResultSet, MessageChannelK
 
 @Component({
   selector: 'app-message-events',
-  templateUrl: './message-events.component.html'
+  templateUrl: './message-events.component.html',
+  standalone: false
 })
 export class MessageEventsComponent extends BaseListComponent<MessageEvent> implements OnInit {
   constructor(

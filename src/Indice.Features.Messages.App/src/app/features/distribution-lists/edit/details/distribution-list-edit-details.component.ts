@@ -8,7 +8,8 @@ import { DistributionListEditStore } from '../distribution-list-edit-store.servi
 
 @Component({
     selector: 'app-distribution-list-details-edit',
-    templateUrl: './distribution-list-edit-details.component.html'
+    templateUrl: './distribution-list-edit-details.component.html',
+    standalone: false
 })
 export class DistributionListDetailsEditComponent implements OnInit {
     private _distributionListId: string | undefined;

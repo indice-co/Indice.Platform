@@ -8,7 +8,8 @@ import { TemplateEditStore } from '../template-edit-store.service';
 
 @Component({
     selector: 'app-campaign-details-edit',
-    templateUrl: './template-edit-details.component.html'
+    templateUrl: './template-edit-details.component.html',
+    standalone: false
 })
 export class TemplateDetailsEditComponent implements OnInit {
     private _templateId: string | undefined;

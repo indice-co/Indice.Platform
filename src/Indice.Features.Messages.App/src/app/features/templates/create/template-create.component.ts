@@ -8,8 +8,9 @@ import { catchError, EMPTY } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-template-create',
-  templateUrl: './template-create.component.html'
+    selector: 'app-template-create',
+    templateUrl: './template-create.component.html',
+    standalone: false
 })
 export class TemplateCreateComponent implements OnInit, AfterViewChecked {
   @ViewChild('templateContent', { static: true }) private _templateContent: CampaignContentComponent | undefined;

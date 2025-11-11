@@ -7,8 +7,9 @@ import { MessageSender, MessageSenderResultSet, MessagesApiClient } from 'src/ap
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
 
 @Component({
-  selector: 'app-email-settings',
-  templateUrl: './email-settings.component.html'
+    selector: 'app-email-settings',
+    templateUrl: './email-settings.component.html',
+    standalone: false
 })
 export class EmailSettingsComponent extends BaseListComponent<MessageSender> implements OnInit {
 

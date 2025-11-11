@@ -6,8 +6,9 @@ import { Contact, CreateContactRequest, MessagesApiClient } from 'src/app/core/s
 import { ListContactCreateComponent } from 'src/app/shared/components/list-contact-create/list-contact-create.component';
 
 @Component({
-  selector: 'app-contact-create',
-  templateUrl: './contact-create.component.html'
+    selector: 'app-contact-create',
+    templateUrl: './contact-create.component.html',
+    standalone: false
 })
 export class ContactCreateComponent implements OnInit, AfterViewInit {
   @ViewChild('#contactCreateComponent', { static: false }) public contactCreateComponent!: ListContactCreateComponent;

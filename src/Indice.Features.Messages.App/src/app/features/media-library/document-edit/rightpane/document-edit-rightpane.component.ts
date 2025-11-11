@@ -10,7 +10,8 @@ import { tap } from 'rxjs/operators';
 
 @Component({
     selector: 'app-document-edit-rightpane',
-    templateUrl: './document-edit-rightpane.component.html'
+    templateUrl: './document-edit-rightpane.component.html',
+    standalone: false
 })
 export class DocumentEditRightpaneComponent implements OnInit, AfterViewInit, OnDestroy {
     @ViewChild('editNameTemplate', { static: true }) public editNameTemplate!: TemplateRef<any>;

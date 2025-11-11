@@ -1,26 +1,26 @@
 <lib-view-layout [title]="'Λίστες Διανομής'"
-                 [busy]="!items"
-                 [actions]="actions"
-                 [meta-items]="metaItems"
-                 (onAction)="actionHandler($event)"
-                 (onSearch)="searchChanged($event)">
+  [busy]="!items"
+  [actions]="actions"
+  [meta-items]="metaItems"
+  (onAction)="actionHandler($event)"
+  (onSearch)="searchChanged($event)">
   <lib-list-view [items]="items"
-                 [page]="page"
-                 [page-size]="pageSize"
-                 [count]="count"
-                 [sort-options]="sortOptions"
-                 [sort]="sort"
-                 [sort-dir]="sortdir"
-                 [busy]="!items"
-                 (pageChanged)="pageChanged($event)"
-                 (pageSizeChanged)="pageSizeChanged($event)"
-                 (sortChanged)="sortChanged($event)"
-                 (sortdirChanged)="sortdirChanged($event)">
+    [page]="page"
+    [page-size]="pageSize"
+    [count]="count"
+    [sort-options]="sortOptions"
+    [sort]="sort"
+    [sort-dir]="sortdir"
+    [busy]="!items"
+    (pageChanged)="pageChanged($event)"
+    (pageSizeChanged)="pageSizeChanged($event)"
+    (sortChanged)="sortChanged($event)"
+    (sortdirChanged)="sortdirChanged($event)">
     <lib-list-column title="ΟΝΟΜΑ">
       <ng-template let-item>
         <a title="Λεπτομέρειες"
-           [routerLink]="[item.id]"
-           class="text-blue-600">
+          [routerLink]="[item.id]"
+          class="text-blue-600">
           {{ item.name }}
         </a>
 
@@ -28,7 +28,9 @@
     </lib-list-column>
     <lib-list-column title="ALIAS">
       <ng-template let-item>
-        <span *ngIf="item.alias" class="badge alias">{{ item.alias }}</span>
+        @if (item.alias) {
+          <span class="badge alias">{{ item.alias }}</span>
+        }
       </ng-template>
     </lib-list-column>
     <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ ΑΠΟ">
@@ -41,7 +43,7 @@
       <ng-template let-item>{{ item.updatedBy || '-' }}</ng-template>
     </lib-list-column>
     <lib-list-column title="ΤΡΟΠΟΠΟΙΗΘΗΚΕ"
-                     [full-width]="true">
+      [full-width]="true">
       <ng-template let-item>{{ !item.updatedAt ? '-' : (item.updatedAt | date: 'medium') }}</ng-template>
     </lib-list-column>
   </lib-list-view>

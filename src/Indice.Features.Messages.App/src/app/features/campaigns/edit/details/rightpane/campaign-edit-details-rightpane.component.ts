@@ -12,7 +12,8 @@ import { SettingsStore } from 'src/app/features/settings/settings-store.service'
 
 @Component({
     selector: 'app-campaign-details-edit-rightpane',
-    templateUrl: './campaign-edit-details-rightpane.component.html'
+    templateUrl: './campaign-edit-details-rightpane.component.html',
+    standalone: false
 })
 export class CampaignDetailsEditRightpaneComponent implements OnInit, AfterViewInit, OnDestroy {
     @ViewChild('editTitleTemplate', { static: true }) public editTitleTemplate!: TemplateRef<any>;

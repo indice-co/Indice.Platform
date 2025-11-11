@@ -6,8 +6,9 @@ import { map } from 'rxjs/operators';
 import { Contact, ContactResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 
 @Component({
-  selector: 'app-contacts',
-  templateUrl: './contacts-list.component.html'
+    selector: 'app-contacts',
+    templateUrl: './contacts-list.component.html',
+    standalone: false
 })
 export class ContactsListComponent extends BaseListComponent<Contact> implements OnInit {
   constructor(

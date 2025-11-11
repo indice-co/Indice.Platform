@@ -9,7 +9,8 @@ import { settings } from 'src/app/core/models/settings';
 
 @Component({
     selector: 'app-distribution-list-details-edit-rightpane',
-    templateUrl: './distribution-list-edit-details-rightpane.component.html'
+    templateUrl: './distribution-list-edit-details-rightpane.component.html',
+    standalone: false
 })
 export class DistributionListDetailsEditRightpaneComponent implements OnInit, AfterViewInit, OnDestroy {
     private _updateDistributionListSubscription: Subscription | undefined;

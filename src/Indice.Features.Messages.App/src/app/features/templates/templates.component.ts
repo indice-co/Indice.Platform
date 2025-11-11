@@ -9,7 +9,8 @@ import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic
 
 @Component({
     selector: 'app-templates',
-    templateUrl: './templates.component.html'
+    templateUrl: './templates.component.html',
+    standalone: false
 })
 export class TemplatesComponent extends BaseListComponent<Template> implements OnInit {
     constructor(
