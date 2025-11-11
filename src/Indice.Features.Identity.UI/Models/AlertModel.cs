@@ -1,5 +1,4 @@
 ﻿using System.Text.Json.Serialization;
-using System.Web;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
@@ -16,7 +15,7 @@ public class AlertModel
     [JsonIgnore]
     public HtmlString Message { get => new HtmlString(MessageText); set => MessageText = value?.ToString() ?? string.Empty; }
     /// <summary>Gets a value indicating whether the message text is null, empty, or consists only of white-space characters.</summary>
-    public bool IsEmpty => string.IsNullOrWhiteSpace(MessageText);
+    internal bool IsEmpty => string.IsNullOrWhiteSpace(MessageText);
     /// <summary>The alert type.</summary>
     public AlertType AlertType { get; set; }
 
@@ -75,4 +74,12 @@ public class AlertModel
         AlertType = AlertType.Success,
         Message = message
     };
+}
+/// <summary>Extensions for <see cref="AlertModel"/>.</summary>
+public static class AlertModelExtensions
+{
+    /// <summary>Determines whether the alert model is empty.</summary>
+    /// <param name="alert">The alert model.</param>
+    /// <returns><c>true</c> if the alert model is empty; otherwise, <c>false</c>.</returns>
+    public static bool IsEmpty(this AlertModel? alert) => alert == null || alert.IsEmpty;
 }

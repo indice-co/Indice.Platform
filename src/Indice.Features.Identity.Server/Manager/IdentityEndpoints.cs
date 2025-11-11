@@ -76,8 +76,10 @@ public static partial class IdentityEndpoints
             "my/account/email/confirmation",
             "my/account/phone-number/confirmation",
             "my/account/email/change-confirmation",
-            "my/account/phone-number/change-confirmation"
-        };
+            "my/account/phone-number/change-confirmation",
+            "secure-page", // this is the generic policy name for any public Razor Pages that require throttling
+            "login" 
+    };
 
         public static class Policies
         {
@@ -97,6 +99,7 @@ public static partial class IdentityEndpoints
             public static readonly string PhoneNumberConfirmation = Endpoints[13];
             public static readonly string EmailChangeConfirmation = Endpoints[14];
             public static readonly string ChangePhoneNumberConfirmation = Endpoints[15];
+            public static readonly string PublicPage = Endpoints[16];
         }
     }
 }

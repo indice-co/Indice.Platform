@@ -136,10 +136,10 @@
     <value>Αποθήκευση</value>
   </data>
   <data name="AddEmail_PageTitle" xml:space="preserve">
-    <value>Επιβεβαίωση email</value>
+    <value>Επιβεβαίωση Email</value>
   </data>
   <data name="AddEmail_PageHeader" xml:space="preserve">
-    <value>Επιβεβαίωση email</value>
+    <value>Επιβεβαίωση Email</value>
   </data>
   <data name="AddPassword_Required" xml:space="preserve">
     <value>απαιτείται</value>
@@ -223,10 +223,10 @@
     <value>Πατήστε</value>
   </data>
   <data name="ConfirmEmail_PageTitle" xml:space="preserve">
-    <value>Επιβεβαίωση email</value>
+    <value>Επιβεβαίωση Email</value>
   </data>
   <data name="ConfirmEmail_PageHeader" xml:space="preserve">
-    <value>Επιβεβαίωση email</value>
+    <value>Επιβεβαίωση Email</value>
   </data>
   <data name="ConfirmEmail_LinkExpired" xml:space="preserve">
     <value>Ο σύνδεσμος επιβεβαίωσης έχει λήξει</value>
