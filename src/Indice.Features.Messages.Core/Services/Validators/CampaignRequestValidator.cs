@@ -57,7 +57,7 @@ public class CampaignRequestValidator<TCampaignRequest> : AbstractValidator<TCam
             .WithMessage($"Campaign action text cannot exceed {TextSizePresets.M128} characters.");
         RuleFor(campaign => campaign.ActionLink!.Href)
             .MaximumLength(TextSizePresets.L1024)
-            .Matches(@"^https?:\/\/\w+(\.\w+)*(:[0-9]+)?(\/.*)?$")
+            .Must(href => Uri.IsWellFormedUriString(href, UriKind.Absolute) && (href!.StartsWith("http://") || href.StartsWith("https://")))
             .When(x => !string.IsNullOrWhiteSpace(x.ActionLink?.Href))
             .WithMessage($"Campaign action URL is not valid.");
     }
