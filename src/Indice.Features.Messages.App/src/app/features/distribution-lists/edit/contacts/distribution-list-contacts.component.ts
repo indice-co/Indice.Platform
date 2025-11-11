@@ -99,7 +99,7 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
       exportTooltip[0]!.tooltip = exportView;
       var importTooltip = this.actions.filter(o => o.type == this._importViewActionKey)
       importTooltip[0]!.tooltip = importView;
-    })
+    });
 
   }
 
@@ -129,7 +129,7 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
             keyboard: true
           });
 
-        modal.onHidden?.subscribe((response: any) => {
+        modal.onHidden?.pipe(take(1)).subscribe((response: any) => {
             if (response.result?.answer) {
                 const contact = response.result.data;
                 this._api.removeContactFromDistributionList(this._distributionListId, contact.id).subscribe(() => {

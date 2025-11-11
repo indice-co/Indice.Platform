@@ -7,7 +7,7 @@ import { DistributionList, MessagesApiClient } from 'src/app/core/services/messa
 import { DistributionListEditStore } from '../distribution-list-edit-store.service';
 import { AppLanguagesService } from 'src/app/shared/services/app-languages.service';
 import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
-import { combineLatest, takeUntil, Subject, Subscription } from 'rxjs';
+import { combineLatest,  Subject, Subscription, take } from 'rxjs';
 
 @Component({
   selector: 'app-distribution-list-details-edit',
@@ -55,7 +55,7 @@ export class DistributionListDetailsEditComponent implements OnInit, OnDestroy {
       this._languages.translateKey(titleKey),
       this._languages.translateKey(messageKey, nameParam)
     ])
-      .pipe(takeUntil(this._destroy$))
+      .pipe(take(1))
       .subscribe(([title, message]) => {
         const modal = this._modalService.show(BasicModalComponent, {
           animated: true,

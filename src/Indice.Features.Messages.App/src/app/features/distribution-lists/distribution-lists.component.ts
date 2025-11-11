@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, ToastType, ViewAction } from '@indice/ng-components';
 import { Observable, Subject, combineLatest } from 'rxjs';
-import { map, takeUntil } from 'rxjs/operators';
+import { map, take, takeUntil } from 'rxjs/operators';
 import { DistributionList, DistributionListResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
 import { AppLanguagesService } from 'src/app/shared/services/app-languages.service';
@@ -20,7 +20,7 @@ export class DistributionListsComponent extends BaseListComponent<DistributionLi
     private _api: MessagesApiClient,
     @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster,
     private _modalService: ModalService,
-    private _languages: AppLanguagesService
+    private _lang: AppLanguagesService
   ) {
     super(route, _router);
     this.view = ListViewType.Table;
@@ -42,7 +42,7 @@ export class DistributionListsComponent extends BaseListComponent<DistributionLi
     super.ngOnInit();
     // Reactive translation for sort options.
     const keys = this.sortOptions.map(o => o.text);
-    combineLatest(keys.map(k => this._languages.translateKey(k)))
+    combineLatest(keys.map(k => this._lang.translateKey(k)))
       .pipe(takeUntil(this._destroy$))
       .subscribe(translated => {
         this.sortOptions = this.sortOptions.map((o, i) => new MenuOption(translated[i] || o.text, o.value));
@@ -65,9 +65,9 @@ export class DistributionListsComponent extends BaseListComponent<DistributionLi
     const titleKey = 'DistributionLists.Delete'; // existing key (button label) reused as modal title
     const messageKey = 'DistributionLists.DeleteConfirmMessage';
     combineLatest([
-      this._languages.translateKey(titleKey),
-      this._languages.translateKey(messageKey, { name: list.name })
-    ]).pipe(takeUntil(this._destroy$)).subscribe(([title, message]) => {
+      this._lang.translateKey(titleKey),
+      this._lang.translateKey(messageKey, { name: list.name })
+    ]).pipe(take(1)).subscribe(([title, message]) => {
       const modal = this._modalService.show(BasicModalComponent, {
         animated: true,
         initialState: {
@@ -77,7 +77,7 @@ export class DistributionListsComponent extends BaseListComponent<DistributionLi
         },
         keyboard: true
       });
-      modal.onHidden?.subscribe((response: any) => {
+      modal.onHidden?.pipe(take(1)).subscribe((response: any) => {
         if (response.result?.answer) {
           this._api.deleteDistributionList(response.result.data.id).subscribe(() => {
             this._toaster.show(ToastType.Success, 'DistributionLists.DeleteSuccessTitle', 'DistributionLists.DeleteSuccessMessage', undefined, { name: response.result.data.name });

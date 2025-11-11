@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { AbstractControl, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 
 import { MenuOption, SidePaneComponent } from '@indice/ng-components';
-import { map, takeUntil } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { settings } from 'src/app/core/models/settings';
 import { Contact, DistributionListResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { ListContactCreateComponent } from 'src/app/shared/components/list-contact-create/list-contact-create.component';
