@@ -80,7 +80,7 @@ public class IdentityUIOptions
     public bool AutomaticSigninAfterRegister { get; set; } = false;
     /// <summary>Event handlers for various UI specific operations.</summary>
     public UiPageEvents Events { get; set; } = new UiPageEvents();
-    /// <summary> When this property is false the email edit option will be disabled in the profile management page.</summary>
+    /// <summary>When this property is true, the email edit option will be disabled in the profile management page.</summary>
     public bool DisableEmailEdit { get; set; } = false;
     /// <summary>When this property is false the phone edit option will be disabled in the profile management page.</summary>
     public bool DisablePhoneEdit { get; set; } = false;
