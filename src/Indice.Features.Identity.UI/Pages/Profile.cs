@@ -79,8 +79,6 @@ public abstract class BaseProfileModel : BasePageModel
     /// <summary>Request input model for the manage profile page.</summary>
     [BindProperty]
     public ProfileLanguagePreferenceInputModel InputLanguagePreference { get; set; } = new ProfileLanguagePreferenceInputModel();
-
-
     /// <summary></summary>
     [ViewData]
     public bool ProfileSuccessfullyChanged { get; set; }
