@@ -322,6 +322,32 @@
   <!-- DistributionLists edit (right pane update) -->
   <data name="DistributionLists.UpdateSuccessTitle" xml:space="preserve"><value>Successful save</value></data>
   <data name="DistributionLists.UpdateSuccessMessage" xml:space="preserve"><value>The distribution list {{name}} was saved successfully.</value></data>
+
+  <!-- DistributionLists import contacts -->
+  <data name="DistributionLists.EditImportContactsErrorTitle" xml:space="preserve"><value>Import contacts failed</value></data>
+  <data name="DistributionLists.EditImportContactsErrorMessage" xml:space="preserve"><value>A problem occurred while importing contacts into the distribution list..</value></data>
+  <data name="DistributionLists.EditImportContactsSuccessTitle" xml:space="preserve"><value>Successful import</value></data>
+  <data name="DistributionLists.EditImportContactsSuccessMessage" xml:space="preserve"><value>The contacts were successfully imported into the distribution list.</value></data>
+
+  <!-- DistributionLists edit (title format) -->
+  <data name="DistributionLists.TitleFormat" xml:space="preserve"><value>Distribution list - {{name}}</value></data>
+
+  <!-- DistributionLists contacts (sorting & actions) -->
+  <data name="DistributionLists.SortFirstNameOption" xml:space="preserve"><value>First name</value></data>
+  <data name="DistributionLists.SortLastNameOption" xml:space="preserve"><value>Last name</value></data>
+  <data name="DistributionLists.SortEmailOption" xml:space="preserve"><value>Email</value></data>
+  <data name="DistributionLists.SortPhoneOption" xml:space="preserve"><value>Phone</value></data>
+  <data name="DistributionLists.SortUpdatedAtOption" xml:space="preserve"><value>Updated at</value></data>
+  <data name="DistributionLists.SortContactCodeOption" xml:space="preserve"><value>Contact code</value></data>
+  <data name="DistributionLists.SortResolvedOption" xml:space="preserve"><value>Resolved</value></data>
+  <data name="DistributionLists.SortLastResolutionDateOption" xml:space="preserve"><value>Last resolution date</value></data>
+  <data name="DistributionLists.ExportContactsTooltip" xml:space="preserve"><value>Export contacts to CSV file.</value></data>
+  <data name="DistributionLists.ImportContactsTooltip" xml:space="preserve"><value>Import contacts from CSV file.</value></data>
+  <data name="DistributionLists.DeleteContactTitle" xml:space="preserve"><value>Delete</value></data>
+  <data name="DistributionLists.DeleteContactConfirmMessage" xml:space="preserve"><value>Are you sure you want to delete the contact '{{name}}' from the distribution list '{{list}}'?</value></data>
+  <data name="DistributionLists.DeleteContactSuccessTitle" xml:space="preserve"><value>Successful deletion</value></data>
+  <data name="DistributionLists.DeleteContactSuccessMessage" xml:space="preserve"><value>The contact {{name}} was removed from the distribution list.</value></data>
+  
   <!-- Events -->
   <data name="Events.Title" xml:space="preserve"><value>Message events</value></data>
   <data name="Events.ItemTitle" xml:space="preserve"><value>Title</value></data>
@@ -860,6 +886,11 @@ user_code_2</value></data>
   <!-- Templates right pane update -->
   <data name="Templates.UpdateSuccessTitle" xml:space="preserve"><value>Successful save</value></data>
   <data name="Templates.UpdateSuccessMessage" xml:space="preserve"><value>The template {{name}} was saved successfully.</value></data>
+
+  <!-- Templates edit -->
+  <data name="Templates.TemplateTitle" xml:space="preserve"><value>Template - {{title}}</value></data>
+
+  <data name="Templates.SortNameOption" xml:space="preserve"><value>Name</value></data>
 
   <!-- Shared List Contact Create -->
   <data name="Shared.ContactComboboxNameLabelRequired" xml:space="preserve"><value>Name (*)</value></data>

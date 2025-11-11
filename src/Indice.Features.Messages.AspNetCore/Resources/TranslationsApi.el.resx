@@ -240,6 +240,34 @@
   <!-- DistributionLists edit (right pane update) -->
   <data name="DistributionLists.UpdateSuccessTitle" xml:space="preserve"><value>Επιτυχής αποθήκευση</value></data>
   <data name="DistributionLists.UpdateSuccessMessage" xml:space="preserve"><value>Η λίστα διανομής με όνομα {{name}} αποθηκεύτηκε με επιτυχία.</value></data>
+
+  <!-- DistributionLists import contacts -->
+  <data name="DistributionLists.EditImportContactsErrorTitle" xml:space="preserve"><value>Σφάλμα εισαγωγής επαφών</value></data>
+  <data name="DistributionLists.EditImportContactsErrorMessage" xml:space="preserve"><value>Παρουσιάστηκε πρόβλημα κατά την εισαγωγή επαφών στην λίστα διανομής.</value></data>
+  <data name="DistributionLists.EditImportContactsSuccessTitle" xml:space="preserve"><value>Επιτυχής εισαγωγή επαφών</value></data>
+  <data name="DistributionLists.EditImportContactsSuccessMessage" xml:space="preserve"><value>Οι επαφές αποθηκεύτηκαν επιτυχώς στην λίστα διανομής.</value></data>
+
+  <!-- DistributionLists edit (title format) -->
+  <data name="DistributionLists.TitleFormat" xml:space="preserve"><value>Λίστα διανομής - {{name}}</value></data>
+
+  <data name="Templates.SortNameOption" xml:space="preserve"><value>Όνομα</value></data>
+
+  <!-- DistributionLists contacts (sorting & actions) -->
+  <data name="DistributionLists.SortFirstNameOption" xml:space="preserve"><value>Όνομα</value></data>
+  <data name="DistributionLists.SortLastNameOption" xml:space="preserve"><value>Επίθετο</value></data>
+  <data name="DistributionLists.SortEmailOption" xml:space="preserve"><value>Email</value></data>
+  <data name="DistributionLists.SortPhoneOption" xml:space="preserve"><value>Τηλέφωνο</value></data>
+  <data name="DistributionLists.SortUpdatedAtOption" xml:space="preserve"><value>Ενημερώθηκε</value></data>
+  <data name="DistributionLists.SortContactCodeOption" xml:space="preserve"><value>Κωδικός επαφής</value></data>
+  <data name="DistributionLists.SortResolvedOption" xml:space="preserve"><value>Επιλυμένη</value></data>
+  <data name="DistributionLists.SortLastResolutionDateOption" xml:space="preserve"><value>Τελευταία ημερομηνία επίλυσης</value></data>
+  <data name="DistributionLists.ExportContactsTooltip" xml:space="preserve"><value>Εξαγωγή επαφών σε αρχείο CSV.</value></data>
+  <data name="DistributionLists.ImportContactsTooltip" xml:space="preserve"><value>Εισαγωγή επαφών από αρχείο CSV.</value></data>
+  <data name="DistributionLists.DeleteContactTitle" xml:space="preserve"><value>Διαγραφή</value></data>
+  <data name="DistributionLists.DeleteContactConfirmMessage" xml:space="preserve"><value>Είστε σίγουρος ότι θέλετε να διαγράψετε την επαφή '{{name}}' από τη λίστα διανομής '{{list}}';</value></data>
+  <data name="DistributionLists.DeleteContactSuccessTitle" xml:space="preserve"><value>Επιτυχής διαγραφή</value></data>
+  <data name="DistributionLists.DeleteContactSuccessMessage" xml:space="preserve"><value>Η επαφή {{name}} αφαιρέθηκε από τη λίστα διανομής.</value></data>
+
   <!-- Events -->
   <data name="Events.Title" xml:space="preserve"><value>Συμβάντα μηνυμάτων</value></data>
   <data name="Events.ItemTitle" xml:space="preserve"><value>Τίτλος</value></data>
@@ -804,7 +832,10 @@
   <!-- Templates right pane update -->
   <data name="Templates.UpdateSuccessTitle" xml:space="preserve"><value>Επιτυχής αποθήκευση</value></data>
   <data name="Templates.UpdateSuccessMessage" xml:space="preserve"><value>Το πρότυπο με όνομα {{name}} αποθηκεύτηκε με επιτυχία.</value></data>
-  
+
+  <!-- Templates edit -->
+  <data name="Templates.TemplateTitle" xml:space="preserve"><value>Πρότυπο - {{title}}</value></data>
+
   <!-- Shared Http Status -->
   <data name="Shared.HttpStatusDefaultTitle" xml:space="preserve"><value>Σφάλμα</value></data>
   <data name="Shared.HttpStatusDefaultMessage" xml:space="preserve"><value>Προέκυψε ένα απρόσμενο σφάλμα.</value></data>

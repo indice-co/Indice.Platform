@@ -2,10 +2,11 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { AbstractControl, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 
 import { MenuOption, SidePaneComponent } from '@indice/ng-components';
-import { map } from 'rxjs/operators';
+import { map, takeUntil } from 'rxjs/operators';
 import { settings } from 'src/app/core/models/settings';
 import { Contact, DistributionListResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { ListContactCreateComponent } from 'src/app/shared/components/list-contact-create/list-contact-create.component';
+import { AppLanguagesService } from '../../../../../shared/services/app-languages.service';
 
 @Component({
   selector: 'app-campaign-recipients',
@@ -14,7 +15,7 @@ import { ListContactCreateComponent } from 'src/app/shared/components/list-conta
 export class CampaignRecipientsComponent implements OnInit {
   @ViewChild('distributionListContactCreateComponent', { static: false }) public distributionListContactCreateComponent!: ListContactCreateComponent;
   @ViewChild('rightPane', { static: false }) public rightPaneComponent!: SidePaneComponent;
-  constructor(private _api: MessagesApiClient) { }
+  constructor(private _api: MessagesApiClient, private _lang: AppLanguagesService) { }
 
   // Form Controls
   public get sendVia(): AbstractControl { return this.form.get('sendVia')!; }
@@ -26,7 +27,6 @@ export class CampaignRecipientsComponent implements OnInit {
     return this.recipientIds.value?.split('\n').filter((x: string) => x !== '').length || 0;
   }
 
-  // Fallback initial placeholder = translation key (HTML should use | translate when rendering)
   public distributionLists: MenuOption[] = [new MenuOption('Campaigns.SelectPlaceholder', null)];
   public form!: UntypedFormGroup;
   public avatarOrigin = (settings.api_url || "").substring(0, 4) === "http" ? new URL(settings.api_url).origin : "";
@@ -86,6 +86,10 @@ export class CampaignRecipientsComponent implements OnInit {
         }
       }))
       .subscribe();
+
+    this._lang.translateKey('Campaigns.SelectPlaceholder').pipe().subscribe(translatedPlaceholder =>
+      this.distributionLists[0].text = translatedPlaceholder
+    )
   }
 
   private _initForm(): void {

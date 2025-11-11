@@ -44,8 +44,11 @@ export class CampaignsComponent extends BaseListComponent<Campaign> implements O
   public override ngOnInit(): void {
     this._initTranslations();
     super.ngOnInit();
-    this.actions.push(new RouterViewAction(Icons.Add, 'campaigns/add-campaign', null, 'δημιουργία καμπάνιας'));
-
+    this.actions.push(new RouterViewAction(Icons.Add, 'campaigns/add-campaign', null, 'Campaigns.CreateCampaignAction'));
+    this._lang.translateKey('Campaigns.CreateCampaignAction').pipe(takeUntil(this._destroy$)).subscribe(actionName => {
+      var addAction = this.actions.filter(o => o.icon == Icons.Add)
+      addAction[0]!.tooltip = actionName
+    })
   }
 
   private _initTranslations(): void {
@@ -67,7 +70,6 @@ export class CampaignsComponent extends BaseListComponent<Campaign> implements O
           new MenuOption(type || 'Campaigns.SortTypeOption', 'type.name'),
           new MenuOption(published || 'Campaigns.SortPublishedOption', 'published')
         ];
-
       });
 
   }
