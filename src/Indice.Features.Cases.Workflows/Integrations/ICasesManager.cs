@@ -55,6 +55,11 @@ public interface ICasesManager
     Task<CaseAttachmentResultSet> GetAttachments(Guid caseId);
 
     /// <summary>
+    /// <inheritdoc cref="CasesManagerHttpClient.GetNotificationSubscriptionsAsync(int?, int?, string, string, IEnumerable{string}, IEnumerable{string}, IEnumerable{Guid})"/>
+    /// </summary>
+    Task<ICollection<NotificationSubscription>> GetNotificationSubscriptions(int? page, int? size, string sort, string search, IEnumerable<string> email, IEnumerable<string> groupId, IEnumerable<Guid> caseTypeIds);
+
+    /// <summary>
     /// <inheritdoc cref="CasesManagerHttpClient.AddApprovalAsync(Guid, WorkflowAddApprovalRequest)"/>
     /// </summary>
     internal Task AddApproval(Guid caseId, Approval action, string? reason, Actor actor);

@@ -174,6 +174,12 @@ internal static class IntegrationHandlers
     public static async Task<Ok<ResultSet<CaseAttachment>>> GetAttachments(Guid caseId, IAdminCaseService adminCaseService) =>
         TypedResults.Ok(await adminCaseService.GetAttachments(caseId));
 
+    public static async Task<Ok<List<NotificationSubscription>>> GetNotificationSubscriptions(
+        [AsParameters] ListOptions options,
+        [AsParameters] NotificationFilter filter,
+        INotificationSubscriptionService service
+    ) => TypedResults.Ok(await service.GetSubscriptions(ListOptions.Create(options, filter)));
+
     public class AttachFileRequest
     {
         /// <summary>File data</summary>

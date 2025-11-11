@@ -22,9 +22,26 @@ internal class CasesManagerHttp(CasesManagerHttpClient client) : ICasesManager
             fileParameter = new FileParameter(new MemoryStream(message.File.Data), message.File.Name, message.File.ContentType);
         }
 
-        await _client.SendMessageAsync(caseId, message.ReplyToCommentId, message.CheckpointTypeName, message.PrivateComment, message.Comment, new StreamFunc(), null, message.Data, fileParameter, actor.Id, actor.Reference, actor.GroupId, actor.Name, actor.Tin, actor.Email, actor.CurrentCulture);
+        await _client.SendMessageAsync(
+            caseId: caseId,
+            replyToCommentId: message.ReplyToCommentId,
+            checkpointTypeName: message.CheckpointTypeName,
+            privateComment: message.PrivateComment,
+            comment: message.Comment,
+            fileStreamAccessor: new FuncOfStream(),
+            fileName: message.File?.Name,
+            data: message.Data,
+            file: fileParameter,
+            actorId: actor.Id,
+            actorReference: actor.Reference,
+            actorGroupId: actor.GroupId,
+            actorName: actor.Name,
+            actorTin: actor.Tin,
+            actorEmail: actor.Email,
+            actorCurrentCulture: actor.CurrentCulture
+        );
     }
-    
+
     /// <inheritdoc />
     public async Task PatchData(Guid caseId, object data, bool patchPublicData = false) {
         await _client.PatchDataAsync(caseId, new PatchDataRequest {
@@ -50,7 +67,7 @@ internal class CasesManagerHttp(CasesManagerHttpClient client) : ICasesManager
     public async Task<CaseAttachment?> GetAttachment(Guid caseId, Guid attachmentId) {
         try {
             return await _client.GetAttachmentAsync(caseId, attachmentId);
-        } catch (ApiException ex) when(ex.StatusCode == (int)System.Net.HttpStatusCode.NotFound) {
+        } catch (ApiException ex) when (ex.StatusCode == (int)System.Net.HttpStatusCode.NotFound) {
             return null!;
         }
     }
@@ -97,18 +114,23 @@ internal class CasesManagerHttp(CasesManagerHttpClient client) : ICasesManager
     public Task<CaseApproval?> GetLastApproval(Guid caseId) {
         try {
             return _client.GetLastApprovalAsync(caseId);
-        } catch (ApiException ex) when(ex.StatusCode == (int)System.Net.HttpStatusCode.NotFound) {
+        } catch (ApiException ex) when (ex.StatusCode == (int)System.Net.HttpStatusCode.NotFound) {
             return null!;
         }
     }
-    
+
     /// <inheritdoc />
     public async Task RemoveAssignment(Guid caseId) {
         await _client.RemoveAssignmentAsync(caseId);
     }
-    
+
     /// <inheritdoc />
     public async Task RollbackApproval(Guid caseId) {
         await _client.RollbackApprovalAsync(caseId);
     }
+
+    /// <inheritdoc />
+    public async Task<ICollection<NotificationSubscription>> GetNotificationSubscriptions(int? page, int? size, string sort, string search,
+        IEnumerable<string> email, IEnumerable<string> groupId, IEnumerable<Guid> caseTypeIds) =>
+        await _client.GetNotificationSubscriptionsAsync(page, size, sort, search, email, groupId, caseTypeIds);
 }

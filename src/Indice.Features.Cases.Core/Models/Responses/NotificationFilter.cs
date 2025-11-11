@@ -8,13 +8,13 @@ namespace Indice.Features.Cases.Core.Models.Responses;
 public class NotificationFilter
 {
     /// <summary>Subscriber email.</summary>
-    public string[] Email { get; set; } = Array.Empty<string>();
+    public string[] Email { get; set; } = [];
 
     /// <summary>Subscriber group Id.</summary>
-    public string[] GroupId { get; set; } = Array.Empty<string>();
+    public string[] GroupId { get; set; } = [];
 
     /// <summary>Subscriber casetype Ids.</summary>
-    public Guid[] CaseTypeIds { get; set; } = Array.Empty<Guid>();
+    public Guid[] CaseTypeIds { get; set; } = [];
 
     /// <summary>Construct an instance from ClaimsPrincipal</summary>
     public static NotificationFilter FromUser(ClaimsPrincipal user, string groupIdClaimType) {

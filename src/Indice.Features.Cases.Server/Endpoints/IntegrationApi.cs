@@ -104,7 +104,11 @@ internal static class IntegrationApi
         group.MapGet("{caseId}/attachments/{attachmentId:guid}", IntegrationHandlers.GetAttachment)
             .WithName(nameof(IntegrationHandlers.GetAttachment))
             .WithSummary("Get a Case Attachment");
-        
+
+        group.MapGet("notification-subscriptions", IntegrationHandlers.GetNotificationSubscriptions)
+            .WithName(nameof(IntegrationHandlers.GetNotificationSubscriptions))
+            .WithSummary("Get user notification subscriptions.");
+
         return group;
     }
 }

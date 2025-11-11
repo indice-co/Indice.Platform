@@ -7,16 +7,13 @@ namespace Indice.Features.Cases.Server.Authorization;
 /// </summary>
 public enum CasesAccessLevel
 {
-    /// <summary>Require read access.</summary>
+    /// <summary>Require read access. </summary>
     Read = 0,
-    /// <summary>
-    /// Require access to manage cases.
-    /// </summary>
+    /// <summary> Require access to manage cases. </summary>
     Manage = 1,
-    /// Require access to administer cases.
+    /// <summary>Require access to administer cases. </summary>
     Administer = 2
 }
-
 
 /// <summary>This authorization requirement specifies that an endpoint must be accessible only to Messaging tool managers.</summary>
 public class CasesSystemAccessRequirement : IAuthorizationRequirement
