@@ -2,6 +2,7 @@
 @inject IOptions<IdentityUIOptions> UIOptions
 @inject UserManager<User> UserManager
 @inject IdentityUILocalizer Localizer
+@inject IConfiguration configuration
 
 
 @{
@@ -10,9 +11,10 @@
 
 @{
     var settings = GeneralSettings.Value;
-	var subject = Model?.Subject ?? Localizer.EmailRegister_Subject(settings.ApplicationName!);
+    var subject = Model?.Subject ?? Localizer.EmailRegister_Subject(settings.ApplicationName!);
     var userName = Model?.UserName ?? UserManager.GetUserName(User);
     var confirmationLink = Model?.Url ?? throw new InvalidOperationException("Confirmation link cannot be null.");
+    var policy = configuration.GetIdentityOption<MfaPolicy?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Policy");
 }
 
 @section preheader {
@@ -32,10 +34,13 @@
     @Localizer.EmailRegister_Body_Welcome(settings.ApplicationName!)
     <br />
     <br />
-    @Localizer.EmailRegister_Body_ConfirmEmail
-    <a style="color:#@UIOptions.Value.EmailLinkColorHex" href="@confirmationLink">@Localizer.Email_Preheader_Here</a>.
-    <br />
-    <br />
+    @if (!(UIOptions.Value.AutomaticSigninAfterRegister && policy == MfaPolicy.Enforced))
+    {
+        @Localizer.EmailRegister_Body_ConfirmEmail
+        <a style="color:#@UIOptions.Value.EmailLinkColorHex" href="@confirmationLink">@Localizer.Email_Preheader_Here</a>
+        <br />
+        <br />
+    }
     @Localizer.EmailRegister_Body_IgnoreNotice
     <br />
     <br />
