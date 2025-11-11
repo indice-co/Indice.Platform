@@ -82,7 +82,7 @@ public class IdentityUIOptions
     public UiPageEvents Events { get; set; } = new UiPageEvents();
     /// <summary>When this property is true, the email edit option will be disabled in the profile management page.</summary>
     public bool DisableEmailEdit { get; set; } = false;
-    /// <summary>When this property is false the phone edit option will be disabled in the profile management page.</summary>
+    /// <summary>When this property is true, the phone edit option will be disabled in the profile management page.</summary>
     public bool DisablePhoneEdit { get; set; } = false;
     /// <summary>
     /// Used with <see cref="Indice.Globalization.PhoneNumber"/> instances to convert to predictable string for storage.
