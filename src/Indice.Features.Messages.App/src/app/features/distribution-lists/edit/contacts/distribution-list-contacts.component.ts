@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, ToastType, ViewAction } from '@indice/ng-components';
 import { combineLatest, Observable, Subject, Subscription } from 'rxjs';
-import { map, takeUntil } from 'rxjs/operators';
+import { map, take, takeUntil } from 'rxjs/operators';
 import { Contact, ContactResultSet, DistributionList, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
 import { FileResponse } from 'src/app/core/services/messages-api.service';
@@ -110,15 +110,25 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
     }
 
     public deleteConfirmation(contact: Contact): void {
-        const modal = this._modalService.show(BasicModalComponent, {
+
+      const nameValue = contact.fullName || contact.email;
+      // Translate modal title & message (fallback to current Greek strings).
+      const title$ = this._lang.translateKey('DistributionLists.DeleteContactTitle');
+      const message$ = this._lang.translateKey('DistributionLists.DeleteContactConfirmMessage', { name: nameValue, list: this.distributionList.name });
+
+      combineLatest([title$, message$])
+        .pipe(take(1))
+        .subscribe(([title, message]) => {
+          const modal = this._modalService.show(BasicModalComponent, {
             animated: true,
             initialState: {
-                title: 'Διαγραφή',
-                message: `Είστε σίγουρος ότι θέλετε να διαγράψετε την επαφή '${contact.fullName || contact.email}' από τη λίστα '${this.distributionList.name}';`,
-                data: contact
+              title: title,
+              message: message,
+              data: contact
             },
             keyboard: true
-        });
+          });
+
         modal.onHidden?.subscribe((response: any) => {
             if (response.result?.answer) {
                 const contact = response.result.data;
@@ -127,11 +137,16 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists', this._distributionListId, 'distribution-list-contacts']));
                 });
             }
+          });
         });
+
     }
 
     public override ngOnDestroy(): void {
-        this._getListSubscription?.unsubscribe();
+      this._getListSubscription?.unsubscribe();
+      this._destroy$.next();
+      this._destroy$.complete();
+
     }
 
     public override actionHandler(action: ViewAction): void {
