@@ -7,8 +7,9 @@ import { MediaLibraryStore } from '../media-library-store.service';
 import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster'; // replaced ToasterService
 
 @Component({
-  selector: 'app-document-upload',
-  templateUrl: './document-upload.component.html'
+    selector: 'app-document-upload',
+    templateUrl: './document-upload.component.html',
+    standalone: false
 })
 export class DocumentUploadComponent implements OnInit {
   @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;

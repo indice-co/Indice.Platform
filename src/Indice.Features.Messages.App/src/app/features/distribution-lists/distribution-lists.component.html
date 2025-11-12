@@ -27,7 +27,9 @@
     </lib-list-column>
     <lib-list-column title="{{ 'DistributionLists.Alias' | translate }}">
       <ng-template let-item>
-        <span *ngIf="item.alias" class="badge alias">{{ item.alias }}</span>
+        @if (item.alias) {
+          <span class="badge alias">{{ item.alias }}</span>
+        }
       </ng-template>
     </lib-list-column>
     <lib-list-column title="{{ 'DistributionLists.CreatedBy' | translate }}">

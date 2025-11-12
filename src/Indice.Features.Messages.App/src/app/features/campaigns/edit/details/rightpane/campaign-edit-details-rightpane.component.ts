@@ -13,8 +13,9 @@ import { AppLanguagesService } from 'src/app/shared/services/app-languages.servi
 import { AppTranslatedToaster } from '../../../../../shared/services/app-translated-toaster';
 
 @Component({
-  selector: 'app-campaign-details-edit-rightpane',
-  templateUrl: './campaign-edit-details-rightpane.component.html'
+    selector: 'app-campaign-details-edit-rightpane',
+    templateUrl: './campaign-edit-details-rightpane.component.html',
+    standalone: false
 })
 export class CampaignDetailsEditRightpaneComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('editTitleTemplate', { static: true }) public editTitleTemplate!: TemplateRef<any>;

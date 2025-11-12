@@ -10,8 +10,9 @@ import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toa
 import { combineLatest,  Subject, Subscription, take } from 'rxjs';
 
 @Component({
-  selector: 'app-distribution-list-details-edit',
-  templateUrl: './distribution-list-edit-details.component.html'
+    selector: 'app-distribution-list-details-edit',
+    templateUrl: './distribution-list-edit-details.component.html',
+    standalone: false
 })
 export class DistributionListDetailsEditComponent implements OnInit, OnDestroy {
   private _distributionListId: string | undefined;

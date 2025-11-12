@@ -10,8 +10,9 @@ import { Subject, combineLatest } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-list-view',
-  templateUrl: './list-view.component.html'
+    selector: 'app-list-view',
+    templateUrl: './list-view.component.html',
+    standalone: false
 })
 export class ListViewComponent implements OnInit, OnDestroy {
 

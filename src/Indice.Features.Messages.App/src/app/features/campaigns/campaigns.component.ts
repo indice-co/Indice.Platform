@@ -8,8 +8,9 @@ import { Campaign, CampaignResultSet, MessagesApiClient, MessageTypeResultSet } 
 import { AppLanguagesService } from 'src/app/shared/services/app-languages.service';
 
 @Component({
-  selector: 'app-campaigns',
-  templateUrl: './campaigns.component.html'
+    selector: 'app-campaigns',
+    templateUrl: './campaigns.component.html',
+    standalone: false
 })
 export class CampaignsComponent extends BaseListComponent<Campaign> implements OnInit, OnDestroy {
   private readonly _destroy$ = new Subject<void>();

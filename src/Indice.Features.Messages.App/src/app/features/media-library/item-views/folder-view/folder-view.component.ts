@@ -11,8 +11,9 @@ import { Subject, combineLatest } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-folder-view',
-  templateUrl: './folder-view.component.html'
+    selector: 'app-folder-view',
+    templateUrl: './folder-view.component.html',
+    standalone: false
 })
 export class FolderViewComponent implements OnInit, OnDestroy {
 

@@ -9,8 +9,9 @@ import { AppLanguagesService } from 'src/app/shared/services/app-languages.servi
 import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
 
 @Component({
-  selector: 'app-campaign-details-edit-rightpane',
-  templateUrl: './template-edit-details-rightpane.component.html'
+    selector: 'app-campaign-details-edit-rightpane',
+    templateUrl: './template-edit-details-rightpane.component.html',
+    standalone: false
 })
 export class TemplateDetailsEditRightpaneComponent implements OnInit, AfterViewInit, OnDestroy {
   private _updateTemplateSubscription: Subscription | undefined;

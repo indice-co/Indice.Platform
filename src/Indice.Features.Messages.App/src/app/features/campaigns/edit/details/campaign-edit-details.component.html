@@ -1,47 +1,39 @@
-<section aria-labelledby="campaign-basic-info-title">
+<section aria-labelledby="applicant-information-title">
   <div class="bg-white shadow sm:rounded-lg">
     <div class="px-4 py-5 sm:px-6">
       <div class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
         <div class="sm:col-span-1">
-          <h2 id="campaign-basic-info-title" class="text-lg leading-6 font-medium text-gray-900">
+          <h2 id="applicant-information-title" class="text-lg leading-6 font-medium text-gray-900">
             {{ 'Campaigns.BasicInformationHeader' | translate }}
           </h2>
-          <p class="mt-1 max-w-2xl text-sm text-gray-500">
-            {{ 'Campaigns.BasicInformationDescription' | translate }}
-          </p>
+          <p class="mt-1 max-w-2xl text-sm text-gray-500">{{ 'Campaigns.BasicInformationDescription' | translate }}</p>
         </div>
         <div class="sm:col-span-1">
           <div class="mx-auto md:flex md:items-center md:justify-between md:space-x-5">
             <div class="flex items-center space-x-5"></div>
-            <div class="flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-3">
-              <button type="button"
-                      (click)="deleteCampaign()"
-                      class="inline-flex items-center justify-center px-4 py-2 border border-transparent font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-red-500 sm:text-sm">
+            <div
+              class="flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-3">
+              <button type="button" (click)="deleteCampaign()"
+                class="inline-flex items-center justify-center px-4 py-2 border border-transparent font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-red-500 sm:text-sm">
                 {{ 'Campaigns.Delete' | translate }}
               </button>
-              <button type="button"
-                      (click)="publishCampaign()"
-                      *ngIf="!campaign?.published"
-                      class="side-view-layout-action-button-submit">
-                {{ 'Campaigns.Publish' | translate }}
-              </button>
+              @if (!campaign?.published) {
+                <button type="button" (click)="publishCampaign()"
+                  class="side-view-layout-action-button-submit">
+                  {{ 'Campaigns.Publish' | translate }}
+                </button>
+              }
             </div>
           </div>
         </div>
       </div>
     </div>
-
     <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
       <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
-        <!-- Status -->
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.StatusLabel' | translate }}</dt>
-          <dd class="mt-1 text-sm text-gray-900">
-            {{ campaign?.published ? ('Campaigns.StatusPublished' | translate) : ('Campaigns.StatusUnpublished' | translate) }}
-          </dd>
+          <dd class="mt-1 text-sm text-gray-900">{{ campaign?.published ? ('Campaigns.StatusPublished' | translate) : ('Campaigns.StatusUnpublished' | translate) }}</dd>
         </div>
-
-        <!-- Title -->
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">
             {{ 'Campaigns.TitleLabel' | translate }}
@@ -49,193 +41,164 @@
           </dt>
           <dd class="mt-1 text-sm text-gray-900">{{ campaign?.title || ('Campaigns.EmptyValueIndicator' | translate) }}</dd>
         </div>
-
-        <!-- Type -->
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">
             {{ 'Campaigns.TypeLabel' | translate }}
             <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editType' }"></ng-container>
           </dt>
           <dd class="mt-1 text-sm text-gray-900">
-            <span *ngIf="campaign?.type" class="message-type-badge {{ campaign?.type?.classification }}">
-              {{ campaign?.type?.name }}
-            </span>
-            <span *ngIf="!campaign?.type">{{ 'Campaigns.EmptyValueIndicator' | translate }}</span>
+            @if (campaign?.type) {
+              <span class="message-type-badge {{campaign?.type?.classification}}">{{
+              campaign?.type?.name}}</span>
+            }
+            {{ campaign?.type ? '' : ('Campaigns.EmptyValueIndicator' | translate) }}
           </dd>
         </div>
-
-        <!-- Duration -->
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">
             {{ 'Campaigns.DurationLabel' | translate }}
             <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editActivePeriod' }"></ng-container>
           </dt>
-          <dd class="mt-1 text-sm text-gray-900">
-            {{ 'Campaigns.FromPrefix' | translate }}
-            {{ campaign?.activePeriod?.from | date:'medium' }}
-            {{ 'Campaigns.ToConnector' | translate }}
-            {{ campaign?.activePeriod?.to ? (campaign?.activePeriod?.to | date:'medium') : ('Campaigns.EmptyValueIndicator' | translate) }}
-          </dd>
+          <dd class="mt-1 text-sm text-gray-900">{{ 'Campaigns.FromPrefix' | translate }} {{ campaign?.activePeriod?.from | date: 'medium' }} {{ 'Campaigns.ToConnector' | translate }} {{
+          campaign?.activePeriod?.to ? (campaign?.activePeriod?.to | date: 'medium') : ('Campaigns.EmptyValueIndicator' | translate) }}</dd>
         </div>
-
-        <!-- Call to action -->
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">
             {{ 'Campaigns.CallToActionSectionLabel' | translate }}
             <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editCta' }"></ng-container>
           </dt>
           <dd class="mt-1 text-sm text-gray-900">
-            <a *ngIf="campaign?.actionLink?.text && campaign?.actionLink?.href"
-               target="_blank"
-               rel="noopener"
-               class="text-blue-600 hover:text-blue-500"
-               [href]="campaign?.actionLink?.href">
-              {{ campaign?.actionLink?.text }}
-            </a>
-            <span *ngIf="campaign?.actionLink?.text && !campaign?.actionLink?.href">{{ campaign?.actionLink?.text }}</span>
-            <span *ngIf="!campaign?.actionLink?.text && !campaign?.actionLink?.href">{{ 'Campaigns.EmptyValueIndicator' | translate }}</span>
+            @if (campaign?.actionLink?.text && campaign?.actionLink?.href) {
+              <a target="_blank"
+                rel="noopener"
+                class="text-blue-600 hover:text-blue-500" [href]="campaign?.actionLink?.href">
+                {{ campaign?.actionLink?.text }}
+              </a>
+            }
+            @if (campaign?.actionLink?.text && !campaign?.actionLink?.href) {
+              <span>{{ campaign?.actionLink?.text
+              }}</span>
+            }
+            @if (!campaign?.actionLink?.text && !campaign?.actionLink?.href) {
+              <span>{{ 'Campaigns.EmptyValueIndicator' | translate }}</span>
+            }
           </dd>
         </div>
-
-        <!-- Target (To) -->
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.TargetLabel' | translate }}</dt>
-          <dd class="mt-1 text-sm text-gray-900">
-            {{ campaign?.distributionList ? ('Campaigns.TargetDistributionListValue' | translate) : ('Campaigns.TargetAllValue' | translate) }}
-          </dd>
+          <dd class="mt-1 text-sm text-gray-900">{{ campaign?.distributionList ? ('Campaigns.TargetDistributionListValue' | translate) : ('Campaigns.TargetAllValue' | translate) }}</dd>
         </div>
-
-        <!-- Distribution list -->
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">
             {{ 'Campaigns.DistributionListLabel' | translate }}
             <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editList' }"></ng-container>
           </dt>
           <dd class="mt-1 text-sm text-gray-900">
-            <a class="text-blue-600 hover:text-blue-500"
-               *ngIf="campaign?.distributionList"
-               [routerLink]="['/distribution-lists/' + campaign?.distributionList?.id + '/distribution-list-contacts']">
-              {{ campaign?.distributionList?.name }}
-            </a>
-            <span *ngIf="!campaign?.distributionList">{{ 'Campaigns.EmptyValueIndicator' | translate }}</span>
+            @if (campaign?.distributionList) {
+              <a class="text-blue-600 hover:text-blue-500"
+                [routerLink]="['/distribution-lists/' + campaign?.distributionList?.id +'/distribution-list-contacts']">{{
+              campaign?.distributionList?.name }}</a>
+            }
+            @if (!campaign?.distributionList) {
+              <span>{{ 'Campaigns.EmptyValueIndicator' | translate }}</span>
+            }
           </dd>
         </div>
-
-        <!-- Communication channels -->
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.CommunicationChannelsLabel' | translate }}</dt>
           <dd class="mt-1 text-sm text-gray-900">
-            <span [ngClass]="{ 'text-green-500': deliveryChannels?.indexOf('email') !== -1 }" class="ml-1 text-gray-400"
-                  [title]="'Campaigns.ChannelEmail' | translate">
+            <span [ngClass]="{ 'text-green-500': deliveryChannels?.indexOf('email') !== -1 }"
+              class="ml-1 text-gray-400"
+              [title]="'Campaigns.ChannelEmail' | translate">
               <i class="ms-Icon ms-Icon--Accounts"></i>
             </span>
             <span [ngClass]="{ 'text-green-500': deliveryChannels?.indexOf('sms') !== -1 }" class="ml-1 text-gray-400"
-                  [title]="'Campaigns.ChannelSms' | translate">
+              [title]="'Campaigns.ChannelSms' | translate">
               <i class="ms-Icon ms-Icon--Chat"></i>
             </span>
-            <span [ngClass]="{ 'text-green-500': deliveryChannels?.indexOf('inbox') !== -1 }" class="ml-1 text-gray-400"
-                  [title]="'Campaigns.ChannelInbox' | translate">
+            <span [ngClass]="{ 'text-green-500': deliveryChannels?.indexOf('inbox') !== -1 }"
+              class="ml-1 text-gray-400"
+              [title]="'Campaigns.ChannelInbox' | translate">
               <i class="ms-Icon ms-Icon--Inbox"></i>
             </span>
-            <span [ngClass]="{ 'text-green-500': deliveryChannels?.indexOf('pushnotification') !== -1 }" class="ml-1 text-gray-400"
-                  [title]="'Campaigns.ChannelPushNotification' | translate">
+            <span [ngClass]="{ 'text-green-500': deliveryChannels?.indexOf('pushnotification') !== -1 }"
+              class="ml-1 text-gray-400"
+              [title]="'Campaigns.ChannelPushNotification' | translate">
               <i class="ms-Icon ms-Icon--CellPhone"></i>
             </span>
           </dd>
         </div>
-
-        <!-- Created by -->
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.CreatedByLabel' | translate }}</dt>
           <dd class="mt-1 text-sm text-gray-900">{{ campaign?.createdBy || ('Campaigns.EmptyValueIndicator' | translate) }}</dd>
         </div>
-
-        <!-- Created at -->
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.CreatedAtLabel' | translate }}</dt>
-          <dd class="mt-1 text-sm text-gray-900">
-            {{ campaign?.createdAt ? (campaign?.createdAt | date:'medium') : ('Campaigns.EmptyValueIndicator' | translate) }}
-          </dd>
+          <dd class="mt-1 text-sm text-gray-900">{{ campaign?.createdAt ? (campaign?.createdAt | date: 'medium') : ('Campaigns.EmptyValueIndicator' | translate)
+          }}</dd>
         </div>
-
-        <!-- Updated by -->
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.UpdatedByLabel' | translate }}</dt>
           <dd class="mt-1 text-sm text-gray-900">{{ campaign?.updatedBy || ('Campaigns.EmptyValueIndicator' | translate) }}</dd>
         </div>
-
-        <!-- Updated at -->
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.UpdatedAtLabel' | translate }}</dt>
-          <dd class="mt-1 text-sm text-gray-900">
-            {{ campaign?.updatedAt ? (campaign?.updatedAt | date:'medium') : ('Campaigns.EmptyValueIndicator' | translate) }}
-          </dd>
+          <dd class="mt-1 text-sm text-gray-900">{{ campaign?.updatedAt ? (campaign?.updatedAt | date: 'medium') : ('Campaigns.EmptyValueIndicator' | translate)
+          }}</dd>
         </div>
-
-        <!-- Attachments -->
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500">
             {{ 'Campaigns.AttachmentsLabel' | translate }}
-            <svg xmlns="http://www.w3.org/2000/svg"
-                 class="h-4 w-4 inline cursor-pointer"
-                 fill="none"
-                 viewBox="0 0 24 24"
-                 stroke="currentColor"
-                 stroke-width="2"
-                 (click)="openEditAttachmentsPane()"
-                 *ngIf="campaign ? !campaign?.published : false">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-            </svg>
-          </dt>
-          <dd class="mt-1 text-sm text-gray-900">
-            <div class="text-blue-600 hover:text-blue-500 cursor-pointer"
-                 (click)="downloadAttachment()"
-                 *ngIf="campaign?.attachment">
-              {{ campaign?.attachment?.label }}
+            @if (campaign ? !campaign?.published : false) {
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline cursor-pointer" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" (click)="openEditAttachmentsPane()"
+                >
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+              }
+            </dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              @if (campaign?.attachment) {
+                <div class="text-blue-600 hover:text-blue-500 cursor-pointer" (click)="downloadAttachment()"
+                >{{ campaign?.attachment?.label }}</div>
+              }
+              @if (!campaign?.attachment) {
+                <span>{{ 'Campaigns.EmptyValueIndicator' | translate }}</span>
+              }
+            </dd>
+          </div>
+          @if (campaign?.content?.email) {
+            <div class="sm:col-span-1">
+              <dt class="text-sm font-medium text-gray-500">
+                {{ 'Campaigns.EmailSenderLabel' | translate }}
+                <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editSender' }"></ng-container>
+              </dt>
+              @if (campaign?.content?.email?.sender) {
+                <dd class="mt-1 text-sm text-gray-900">{{
+                campaign?.content?.email?.sender?.displayName+" \<"+campaign?.content?.email?.sender?.sender+">" }}</dd>
+              }
+              @if (!campaign?.content?.email?.sender) {
+                <dd class="mt-1 text-sm text-gray-900">{{
+                defaultSender?.displayName+" \<"+defaultSender?.sender+">" }}</dd>
+              }
             </div>
-            <span *ngIf="!campaign?.attachment">{{ 'Campaigns.EmptyValueIndicator' | translate }}</span>
-          </dd>
-        </div>
-
-        <!-- Email Sender -->
-        <div class="sm:col-span-1" *ngIf="campaign?.content?.email">
-          <dt class="text-sm font-medium text-gray-500">
-            {{ 'Campaigns.EmailSenderLabel' | translate }}
-            <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editSender' }"></ng-container>
-          </dt>
-          <dd class="mt-1 text-sm text-gray-900">
-            <ng-container *ngIf="campaign?.content?.email?.sender; else defaultSenderTpl">
-              {{ campaign?.content?.email?.sender?.displayName + ' <' + campaign?.content?.email?.sender?.sender + '>' }}
-            </ng-container>
-            <ng-template #defaultSenderTpl>
-              {{ defaultSender?.displayName + ' <' + defaultSender?.sender + '>' }}
-            </ng-template>
-          </dd>
-        </div>
-
-        <!-- Ignore user preferences -->
-        <div class="sm:col-span-1">
-          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.IgnoreUserPreferencesLabel' | translate }}</dt>
-          <dd class="mt-1 text-sm text-gray-900">
-            {{ campaign?.ignoreUserPreferences ? ('Campaigns.Yes' | translate) : ('Campaigns.No' | translate) }}
-          </dd>
-        </div>
-      </dl>
+          }
+          <div class="sm:col-span-1">
+            <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.IgnoreUserPreferencesLabel' | translate }}</dt>
+            <dd class="mt-1 text-sm text-gray-900">{{ campaign?.ignoreUserPreferences ? ('Campaigns.Yes' | translate) : ('Campaigns.No' | translate) }}</dd>
+          </div>
+        </dl>
+      </div>
     </div>
-  </div>
-</section>
-
-<ng-template #editIcon let-action>
-  <svg xmlns="http://www.w3.org/2000/svg"
-       class="h-4 w-4 inline cursor-pointer"
-       fill="none"
-       viewBox="0 0 24 24"
-       stroke="currentColor"
-       stroke-width="2"
-       (click)="openEditPane(action)"
-       *ngIf="campaign ? !campaign?.published : false">
-    <path stroke-linecap="round" stroke-linejoin="round"
+  </section>
+  <ng-template #editIcon let-action>
+    @if (campaign ? !campaign?.published : false) {
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline cursor-pointer" fill="none" viewBox="0 0 24 24"
+        stroke="currentColor" stroke-width="2" (click)="openEditPane(action)"
+        >
+        <path stroke-linecap="round" stroke-linejoin="round"
           d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-  </svg>
-</ng-template>
+        </svg>
+      }
+    </ng-template>

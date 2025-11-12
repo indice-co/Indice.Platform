@@ -7,8 +7,9 @@ import { Campaign, CampaignResultSet, MessagesApiClient } from 'src/app/core/ser
 import { AppLanguagesService } from 'src/app/shared/services/app-languages.service';
 
 @Component({
-  selector: 'app-contact-campaigns',
-  templateUrl: './contact-campaigns.component.html'
+    selector: 'app-contact-campaigns',
+    templateUrl: './contact-campaigns.component.html',
+    standalone: false
 })
 export class ContactCampaignsComponent extends BaseListComponent<Campaign> implements OnInit {
 

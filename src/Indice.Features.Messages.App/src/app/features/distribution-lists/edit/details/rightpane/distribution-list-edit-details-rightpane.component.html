@@ -1,13 +1,13 @@
 <lib-side-view-layout title="{{ 'DistributionLists.EditList' | translate }}"
-                      [ok-close-dialog]="false"
-                      [ok-label]="'DistributionLists.Save' | translate"
-                      [cancel-label]="'DistributionLists.CancelLabel' | translate"
-                      (ok)="submitButton.nativeElement.click()"
-                      [disabled]="!editCampaignForm.valid || submitInProgress"
-                      #sideViewLayout>
+  [ok-close-dialog]="false"
+  [ok-label]="'DistributionLists.Save' | translate"
+  [cancel-label]="'DistributionLists.CancelLabel' | translate"
+  (ok)="submitButton.nativeElement.click()"
+  [disabled]="!editCampaignForm.valid || submitInProgress"
+  #sideViewLayout>
   <div class="mt-4">
     <form #editCampaignForm="ngForm"
-          (ngSubmit)="onSubmit()">
+      (ngSubmit)="onSubmit()">
       <div class="px-4 space-y-2 pb-4">
         <div class="grid grid-cols-4 gap-4">
           <div class="col-span-4">
@@ -16,8 +16,8 @@
         </div>
       </div>
       <button type="submit"
-              [style.visibility]="'hidden'"
-              #submitBtn>
+        [style.visibility]="'hidden'"
+        #submitBtn>
         {{ 'DistributionLists.Submit' | translate }}
       </button>
     </form>
@@ -25,41 +25,51 @@
 </lib-side-view-layout>
 <ng-template #editNameTemplate>
   <label for="listName"
-         class="field-label">
+    class="field-label">
     {{ 'DistributionLists.ListTitleLabel' | translate }}
   </label>
   <div class="mt-1 flex rounded-sm">
     <input class="w-full"
-           type="text"
-           name="listName"
-           id="listName"
-           [(ngModel)]="model.name"
-           placeholder="{{ 'DistributionLists.ListNamePlaceholder' | translate }}"
-           required
-           #listName="ngModel">
-  </div>
-  <p *ngIf="listName.invalid && (listName.dirty || listName.touched)"
-     class="mt-2 text-sm text-red-600">
-    <span *ngIf="listName.errors!['required']">{{ 'DistributionLists.ListNameRequired' | translate }}</span>
-    <span *ngIf="listName.errors!['maxlength']">{{ 'DistributionLists.ListNameMaxLength' | translate }}</span>
-  </p>
-  <p class="field-info col-span-3">{{ 'DistributionLists.ListInfo' | translate }}</p>
-  <label for="listAlias"
-         class="field-label">
-    {{ 'DistributionLists.AliasLabel' | translate }}
-  </label>
-  <div class="mt-1 flex rounded-sm">
-    <input class="w-full"
-           type="text"
-           name="listAlias"
-           id="listAlias"
-           [(ngModel)]="model.alias"
-           placeholder="{{ 'DistributionLists.AliasPlaceholder' | translate }}"
-           required
-           #listAlias="ngModel">
-  </div>
-  <p *ngIf="listAlias.invalid && (listAlias.dirty || listAlias.touched)"
-     class="mt-2 text-sm text-red-600">
-    <span *ngIf="listAlias.errors!['maxlength']">{{ 'DistributionLists.AliasMaxLength' | translate }}</span>
-  </p>
-</ng-template>
+      type="text"
+      name="listName"
+      id="listName"
+      [(ngModel)]="model.name"
+      placeholder="{{ 'DistributionLists.ListNamePlaceholder' | translate }}"
+      required
+      #listName="ngModel">
+    </div>
+    @if (listName.invalid && (listName.dirty || listName.touched)) {
+      <p
+        class="mt-2 text-sm text-red-600">
+        @if (listName.errors!['required']) {
+          <span>{{ 'DistributionLists.ListNameRequired' | translate }}</span>
+        }
+        @if (listName.errors!['maxlength']) {
+          <span>{{ 'DistributionLists.ListNameMaxLength' | translate }}</span>
+        }
+      </p>
+    }
+    <p class="field-info col-span-3">{{ 'DistributionLists.ListInfo' | translate }}</p>
+    <label for="listAlias"
+      class="field-label">
+      {{ 'DistributionLists.AliasLabel' | translate }}
+    </label>
+    <div class="mt-1 flex rounded-sm">
+      <input class="w-full"
+        type="text"
+        name="listAlias"
+        id="listAlias"
+        [(ngModel)]="model.alias"
+        placeholder="{{ 'DistributionLists.AliasPlaceholder' | translate }}"
+        required
+        #listAlias="ngModel">
+      </div>
+      @if (listAlias.invalid && (listAlias.dirty || listAlias.touched)) {
+        <p
+          class="mt-2 text-sm text-red-600">
+          @if (listAlias.errors!['maxlength']) {
+            <span>{{ 'DistributionLists.AliasMaxLength' | translate }}</span>
+          }
+        </p>
+      }
+    </ng-template>

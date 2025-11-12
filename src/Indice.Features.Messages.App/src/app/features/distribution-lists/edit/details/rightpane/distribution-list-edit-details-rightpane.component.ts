@@ -8,8 +8,9 @@ import { DistributionListEditStore } from '../../distribution-list-edit-store.se
 import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
 
 @Component({
-  selector: 'app-distribution-list-details-edit-rightpane',
-  templateUrl: './distribution-list-edit-details-rightpane.component.html'
+    selector: 'app-distribution-list-details-edit-rightpane',
+    templateUrl: './distribution-list-edit-details-rightpane.component.html',
+    standalone: false
 })
 export class DistributionListDetailsEditRightpaneComponent implements OnInit, AfterViewInit, OnDestroy {
   private _updateDistributionListSubscription: Subscription | undefined;

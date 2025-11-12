@@ -6,8 +6,9 @@ import { MediaLibraryStore } from '../media-library-store.service';
 import { AppTranslatedToaster } from '../../../shared/services/app-translated-toaster';
 
 @Component({
-  selector: 'app-folder-create',
-  templateUrl: './folder-create.component.html'
+    selector: 'app-folder-create',
+    templateUrl: './folder-create.component.html',
+    standalone: false
 })
 export class FolderCreateComponent implements OnInit {
 

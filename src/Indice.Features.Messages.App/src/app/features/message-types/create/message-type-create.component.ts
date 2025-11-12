@@ -7,8 +7,9 @@ import { CreateMessageTypeRequest, MessagesApiClient, MessageType, MessageTypeCl
 import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
 
 @Component({
-  selector: 'app-message-type-create',
-  templateUrl: './message-type-create.component.html'
+    selector: 'app-message-type-create',
+    templateUrl: './message-type-create.component.html',
+    standalone: false
 })
 export class MessageTypeCreateComponent implements OnInit, AfterViewInit {
   @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;

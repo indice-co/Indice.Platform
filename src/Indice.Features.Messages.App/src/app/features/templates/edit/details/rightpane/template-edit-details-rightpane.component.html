@@ -1,3 +1,4 @@
+.\..\..\AppData\Local\Temp\TFSTemp\vctmp19464_519056.template-edit-details-rightpane.component.2cfe7e3c.Result.html
 <lib-side-view-layout [title]="'Templates.EditTemplateDialogTitle' | translate"
                       [ok-close-dialog]="false"
                       [ok-label]="'Templates.Save' | translate"
@@ -6,7 +7,8 @@
                       [disabled]="!editCampaignForm.valid || submitInProgress"
                       #sideViewLayout>
   <div class="mt-4">
-    <form #editCampaignForm="ngForm" (ngSubmit)="onSubmit()">
+    <form #editCampaignForm="ngForm"
+          (ngSubmit)="onSubmit()">
       <div class="px-4 space-y-2 pb-4">
         <div class="grid grid-cols-4 gap-4">
           <div class="col-span-4">
@@ -14,13 +16,18 @@
           </div>
         </div>
       </div>
-      <button type="submit" [style.visibility]="'hidden'" #submitBtn>Submit</button>
+      <button type="submit"
+              [style.visibility]="'hidden'"
+              #submitBtn>
+        Submit
+      </button>
     </form>
   </div>
 </lib-side-view-layout>
 
 <ng-template #editNameTemplate>
-  <label for="templateName" class="field-label">
+  <label for="templateName"
+         class="field-label">
     {{ 'Templates.TitleLabelRequired' | translate }}
   </label>
   <div class="mt-1 flex rounded-sm">
@@ -29,24 +36,24 @@
            name="templateName"
            id="templateName"
            [(ngModel)]="model.name"
-           [placeholder]="'Templates.TitlePlaceholder' | translate"
+           placeholder="{{ 'Templates.TitlePlaceholder' | translate }}"
            required
            maxlength="256"
            #templateName="ngModel">
   </div>
-  <p *ngIf="templateName.invalid && (templateName.dirty || templateName.touched)" class="mt-2 text-sm text-red-600">
-    <span *ngIf="templateName.errors?.['required']">
-      {{ 'Templates.TitleRequiredError' | translate }}
-    </span>
-    <span *ngIf="templateName.errors?.['maxlength']">
-      {{ 'Templates.TitleMaxLengthError' | translate }}
-    </span>
-  </p>
-  <p class="field-info col-span-3">
-    {{ 'Templates.TitleInfo' | translate }}
-  </p>
-
-  <label for="templateAlias" class="field-label">
+  @if (templateName.invalid && (templateName.dirty || templateName.touched)) {
+    <p class="mt-2 text-sm text-red-600">
+      @if (templateName.errors!['required']) {
+        <span>{{ 'Templates.TitleRequiredError' | translate }}</span>
+      }
+      @if (templateName.errors!['maxlength']) {
+        <span>{{ 'Templates.TitleMaxLengthError' | translate }}</span>
+      }
+    </p>
+  }
+  <p class="field-info col-span-3">{{ 'Templates.TitleInfo' | translate }}</p>
+  <label for="templateAlias"
+         class="field-label">
     {{ 'Templates.AliasLabel' | translate }}
   </label>
   <div class="mt-1 flex rounded-sm">
@@ -55,48 +62,43 @@
            name="templateAlias"
            id="templateAlias"
            [(ngModel)]="model.alias"
-           [placeholder]="'Templates.AliasPlaceholder' | translate"
+           placeholder="{{ 'Templates.AliasPlaceholder' | translate }}"
            maxlength="64"
            #templateAlias="ngModel">
   </div>
-  <p *ngIf="templateAlias.invalid && (templateAlias.dirty || templateAlias.touched)" class="mt-2 text-sm text-red-600">
-    <span *ngIf="templateAlias.errors?.['maxlength']">
-      {{ 'Templates.AliasMaxLengthError' | translate }}
-    </span>
-  </p>
+  @if (templateAlias.invalid && (templateAlias.dirty || templateAlias.touched)) {
+    <p class="mt-2 text-sm text-red-600">
+      @if (templateAlias.errors!['maxlength']) {
+        <span>{{ 'Templates.AliasMaxLengthError' | translate }}</span>
+      }
+    </p>
+  }
 </ng-template>
+
 
 <ng-template #editUserPreferenceTemplate>
   <dl>
     <div class="py-3 sm:grid sm:grid-cols-3">
-      <dt class="text-sm font-medium text-gray-500">
-        {{ 'Templates.IgnoreUserPreferencesLabel' | translate }}
-      </dt>
+      <dt class="text-sm font-medium text-gray-500">{{ 'Templates.IgnoreUserPreferencesLabel' | translate }}</dt>
       <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-        <lib-toggle-button id="ignoreUserPreferences"
-                           name="ignoreUserPreferences"
-                           [(ngModel)]="model.ignoreUserPreferences"
-                           [attr.true-label]="'Templates.Yes' | translate"
-                           [attr.false-label]="'Templates.No' | translate">
-        </lib-toggle-button>
+        <lib-toggle-button id="ignoreUserPreferences" name="ignoreUserPreferences" [(ngModel)]="model.ignoreUserPreferences" [attr.true-label]="'Templates.Yes' | translate" [attr.false-label]="'Templates.No' | translate"></lib-toggle-button>
       </dd>
     </div>
   </dl>
 </ng-template>
 
+
 <ng-template #editMessageType>
   <dl>
-    <dt class="text-sm font-medium text-gray-500">
-      {{ 'Templates.MessageTypeLabel' | translate }}
-    </dt>
-    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-      <lib-local-drop-down-menu id="templateType"
-                                name="templateType"
-                                class="w-full"
-                                [options]="messageTypes"
-                                [value]="selectedOption"
-                                (change)="setType($event)">
-      </lib-local-drop-down-menu>
-    </dd>
+      <dt class="text-sm font-medium text-gray-500">{{ 'Templates.MessageTypeLabel' | translate }}</dt>
+      <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+        <lib-local-drop-down-menu id="templateType"
+                                  name="templateType"
+                                  class="w-full"
+                                  [options]="messageTypes"
+                                  [value]="selectedOption"
+                                  (change)="setType($event)">
+        </lib-local-drop-down-menu>
+      </dd>
   </dl>
 </ng-template>

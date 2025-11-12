@@ -1,79 +1,89 @@
 <lib-side-view-layout title="{{ 'DistributionLists.CreateTitle' | translate }}"
-                      [ok-close-dialog]="false"
-                      [ok-label]="'DistributionLists.Create' | translate"
-                      [cancel-label]="'DistributionLists.CancelLabel' | translate"
-                      (ok)="submitButton.nativeElement.click()"
-                      [disabled]="!distributionListForm.valid || submitInProgress"
-                      #sideViewLayout>
+  [ok-close-dialog]="false"
+  [ok-label]="'DistributionLists.Create' | translate"
+  [cancel-label]="'DistributionLists.CancelLabel' | translate"
+  (ok)="submitButton.nativeElement.click()"
+  [disabled]="!distributionListForm.valid || submitInProgress"
+  #sideViewLayout>
   <div class="mt-4">
     <form #distributionListForm="ngForm"
-          (ngSubmit)="onSubmit()">
+      (ngSubmit)="onSubmit()">
       <div class="px-4 space-y-2 pb-4">
         <div class="grid grid-cols-4 gap-4">
-          <!-- Name -->
+          <!-- ????? -->
           <div class="col-span-4">
             <label for="distributionListName"
-                   class="field-label">{{ 'DistributionLists.NameLabelRequired' | translate }}</label>
+            class="field-label">{{ 'DistributionLists.NameLabelRequired' | translate }}</label>
             <div class="mt-1 flex rounded-sm">
               <input class="w-full"
-                     type="text"
-                     name="distributionListName"
-                     id="distributionListName"
-                     [(ngModel)]="model.name"
-                     placeholder="{{ 'DistributionLists.NamePlaceholder' | translate }}"
-                     maxlength="128"
-                     required
-                     #distributionListName="ngModel">
+                type="text"
+                name="distributionListName"
+                id="distributionListName"
+                [(ngModel)]="model.name"
+                placeholder="{{ 'DistributionLists.NamePlaceholder' | translate }}"
+                maxlength="128"
+                required
+                #distributionListName="ngModel">
+              </div>
+              @if (distributionListName.invalid && (distributionListName.dirty || distributionListName.touched)) {
+                <p
+                  class="mt-2 text-sm text-red-600">
+                  @if (distributionListName.errors!['required']) {
+                    <span>{{ 'DistributionLists.NameRequiredError' | translate }}</span>
+                  }
+                  @if (distributionListName.errors!['maxlength']) {
+                    <span>{{ 'DistributionLists.NameMaxLengthError' | translate }}</span>
+                  }
+                </p>
+              }
+              <p class="field-info col-span-3">{{ 'DistributionLists.NameInfo' | translate }}</p>
             </div>
-            <p *ngIf="distributionListName.invalid && (distributionListName.dirty || distributionListName.touched)"
-               class="mt-2 text-sm text-red-600">
-              <span *ngIf="distributionListName.errors!['required']">{{ 'DistributionLists.NameRequiredError' | translate }}</span>
-              <span *ngIf="distributionListName.errors!['maxlength']">{{ 'DistributionLists.NameMaxLengthError' | translate }}</span>
-            </p>
-            <p class="field-info col-span-3">{{ 'DistributionLists.NameInfo' | translate }}</p>
-          </div>
-          <!-- Alias -->
-          <div class="col-span-4">
-            <label for="distributionListAlias"
-                   class="field-label">{{ 'DistributionLists.AliasLabelRequired' | translate }}</label>
-            <div class="mt-1 flex rounded-sm">
-              <input class="w-full"
-                     type="text"
-                     name="distributionListAlias"
-                     id="distributionListAlias"
-                     [(ngModel)]="model.alias"
-                     placeholder="{{ 'DistributionLists.AliasPlaceholder' | translate }}"
-                     maxlength="64"
-                     required
-                     #distributionListAlias="ngModel">
+            <!-- Alias -->
+            <div class="col-span-4">
+              <label for="distributionListAlias"
+              class="field-label">{{ 'DistributionLists.AliasLabelRequired' | translate }}</label>
+              <div class="mt-1 flex rounded-sm">
+                <input class="w-full"
+                  type="text"
+                  name="distributionListAlias"
+                  id="distributionListAlias"
+                  [(ngModel)]="model.alias"
+                  placeholder="{{ 'DistributionLists.AliasPlaceholder' | translate }}"
+                  maxlength="64"
+                  required
+                  #distributionListAlias="ngModel">
+                </div>
+                @if (distributionListAlias.invalid && (distributionListAlias.dirty || distributionListAlias.touched)) {
+                  <p
+                    class="mt-2 text-sm text-red-600">
+                    @if (distributionListAlias.errors!['maxlength']) {
+                      <span>{{ 'DistributionLists.AliasMaxLengthError' | translate }}</span>
+                    }
+                  </p>
+                }
+                <p class="field-info col-span-3"></p>
+              </div>
+              <!-- CSV file upload option -->
+              <div class="col-span-4">
+                <label for="distributionListAttachment"
+                  class="field-label">
+                  {{ 'DistributionLists.CsvImportLabel' | translate }}
+                </label>
+                <div class="mt-5">
+                  <app-file-upload #fileUploadComponent
+                    [extendedView]="true"
+                    [maxSize]="6*1024*1024"
+                    (fileChange)="onFileChange($event)">
+                  </app-file-upload>
+                </div>
+              </div>
             </div>
-            <p *ngIf="distributionListAlias.invalid && (distributionListAlias.dirty || distributionListAlias.touched)"
-               class="mt-2 text-sm text-red-600">
-              <span *ngIf="distributionListAlias.errors!['maxlength']">{{ 'DistributionLists.AliasMaxLengthError' | translate }}</span>
-            </p>
-            <p class="field-info col-span-3"></p>
           </div>
-          <!-- CSV file upload option -->
-          <div class="col-span-4">
-            <label for="distributionListAttachment"
-                   class="field-label">
-              {{ 'DistributionLists.CsvImportLabel' | translate }}
-            </label>
-            <div class="mt-5">
-              <app-file-upload #fileUploadComponent
-                               [extendedView]="true"
-                               [maxSize]="6*1024*1024"
-                               (fileChange)="onFileChange($event)">
-              </app-file-upload>
-            </div>
-          </div>
-        </div>
+          <button type="submit"
+            [style.visibility]="'hidden'"
+            #submitBtn>
+            {{ 'DistributionLists.Submit' | translate }}
+          </button>
+        </form>
       </div>
-      <button type="submit"
-              [style.visibility]="'hidden'"
-              #submitBtn>
-        {{ 'DistributionLists.Submit' | translate }}
-      </button>
-    </form>
-  </div>
-</lib-side-view-layout>
+    </lib-side-view-layout>

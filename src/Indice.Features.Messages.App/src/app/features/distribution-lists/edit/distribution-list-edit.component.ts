@@ -10,7 +10,8 @@ import { takeUntil } from 'rxjs';
 
 @Component({
     selector: 'app-distribution-list',
-    templateUrl: './distribution-list-edit.component.html'
+    templateUrl: './distribution-list-edit.component.html',
+    standalone: false
 })
 export class DistributionListEditComponent implements OnInit, AfterViewChecked {
     @ViewChild('layout', { static: true }) private _layout!: ViewLayoutComponent;

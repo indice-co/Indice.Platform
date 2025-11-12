@@ -3,240 +3,289 @@
     <!-- Τίτλος -->
     <fieldset>
       <legend class="sr-only">{{ 'Campaigns.TitleLabel' | translate }}</legend>
-      <div class="text-base font-medium text-gray-900" aria-hidden="true">
+      <div class="text-base font-medium text-gray-900"
+        aria-hidden="true">
         {{ 'Campaigns.TitleLabelRequired' | translate }}
       </div>
-      <label for="campaignTitle" class="hidden">
+      <label for="campaignTitle"
+        class="hidden">
         {{ 'Campaigns.TitleLabelRequired' | translate }}
       </label>
       <div class="mt-1 flex rounded-sm">
         <input class="w-full"
-               type="text"
-               name="campaignTitle"
-               id="campaignTitle"
-               formControlName="title"
-               [placeholder]="'Campaigns.TitlePlaceholder' | translate">
-      </div>
-      <p *ngIf="title.invalid && (title.dirty || title.touched)" class="mt-2 text-sm text-red-600">
-        <span *ngIf="title.errors!['required']">{{ 'Campaigns.TitleRequiredError' | translate }}</span>
-        <span *ngIf="title.errors!['maxlength']">{{ 'Campaigns.TitleMaxLengthError' | translate }}</span>
-      </p>
-      <p class="field-info col-span-3">{{ 'Campaigns.TitleInfo' | translate }}</p>
-    </fieldset>
-
-    <!-- Τύπος -->
-    <fieldset>
-      <legend class="sr-only">{{ 'Campaigns.TypeLabel' | translate }}</legend>
-      <div class="text-base font-medium text-gray-900" aria-hidden="true">
-        {{ 'Campaigns.TypeLabel' | translate }}
-      </div>
-      <label for="campaignType" class="hidden" aria-hidden="true">
-        {{ 'Campaigns.TypeLabel' | translate }}
-      </label>
-      <div class="mt-1 flex rounded-sm">
-        <lib-enhanced-combobox id="campaignType"
-                               class="w-full"
-                               [items]="messageTypesForCombobox"
-                               [multiple]="false"
-                               [itemTemplate]="typeItemTemplate"
-                               [selectedItemTemplate]="typeSelectedItemTemplate"
-                               [busy]="messageTypesLoading"
-                               [displayShowMoreOption]="displayMessageTypesShowMoreOption"
-                               (onItemSelected)="onMessageTypeSelectionChanged($event)"
-                               (onSearch)="onMessageTypeSearch($event)"
-                               (onShowMore)="onMessageTypesShowMore()"
-                               [equalityPredicate]="equalityPredicate"
-                               [selectedItemsFilter]="messageTypesFilter"
-                               [placeholder]="'Campaigns.TypePlaceholder' | translate"
-                               #typeCombobox>
-        </lib-enhanced-combobox>
-      </div>
-    </fieldset>
-
-    <!-- Διάρκεια -->
-    <fieldset>
-      <legend class="sr-only">{{ 'Campaigns.DurationLabel' | translate }}</legend>
-      <div class="text-base font-medium text-gray-900" aria-hidden="true">
-        {{ 'Campaigns.DurationLabel' | translate }}
-      </div>
-      <div class="grid grid-cols-2 gap-4">
-        <!-- Από -->
-        <div class="col-span-2 sm:col-span-1">
-          <label for="campaignStart" class="hidden" aria-hidden="true">
-            {{ 'Campaigns.StartDateLabel' | translate }}
-          </label>
-          <div class="mt-1 flex rounded-sm col-span-3">
-            <input class="w-full"
-                   type="datetime-local"
-                   name="campaignStart"
-                   id="campaignStart"
-                   formControlName="from"
-                   (input)="onCampaignStartInput($event)"
-                   [min]="now | date: 'yyyy-MM-ddTHH:mm'"
-                   [max]="to.value | date: 'yyyy-MM-ddTHH:mm'">
-          </div>
-          <p class="field-info">{{ 'Campaigns.StartDateInfo' | translate }}</p>
+          type="text"
+          name="campaignTitle"
+          id="campaignTitle"
+          formControlName="title"
+          [placeholder]="'Campaigns.TitlePlaceholder' | translate">
         </div>
-        <!-- Έως -->
-        <div class="col-span-2 sm:col-span-1">
-          <label for="campaignEnd" class="hidden" aria-hidden="true">
-            {{ 'Campaigns.EndDateLabel' | translate }}
-          </label>
-          <div class="mt-1 flex rounded-sm col-span-3">
-            <input class="w-full"
-                   type="datetime-local"
-                   name="campaignEnd"
-                   id="campaignEnd"
-                   formControlName="to"
-                   (input)="onCampaignEndInput($event)"
-                   [min]="from.value | date: 'yyyy-MM-ddTHH:mm'"
-                   [readonly]="!from.value">
-          </div>
-          <p class="field-info">{{ 'Campaigns.EndDateInfo' | translate }}</p>
-        </div>
-      </div>
-    </fieldset>
-
-    <!-- Call to action -->
-    <fieldset>
-      <legend class="sr-only">{{ 'Campaigns.CallToActionSectionLabel' | translate }}</legend>
-      <div class="text-base font-medium text-gray-900" aria-hidden="true">
-        {{ 'Campaigns.CallToActionSectionLabel' | translate }}
-      </div>
-      <div class="grid grid-cols-2 gap-4">
-        <!-- Call-to-action text -->
-        <div class="col-span-2 sm:col-span-1">
-          <label for="campaignClickToActionText" class="hidden" aria-hidden="true">
-            {{ 'Campaigns.CallToActionTextLabel' | translate }}
-          </label>
-          <div class="mt-1 flex rounded-sm">
-            <input class="w-full"
-                   type="text"
-                   name="campaignClickToActionText"
-                   id="campaignClickToActionText"
-                   formControlName="actionLinkText | translate"
-                   [placeholder]="'Campaigns.CallToActionTextPlaceholder' | translate">
-          </div>
-          <p class="field-info">{{ 'Campaigns.CallToActionTextInfo' | translate }}</p>
-        </div>
-        <!-- Call-to-action link -->
-        <div class="col-span-2 sm:col-span-1">
-          <label for="campaignClickToActionLink" class="hidden" aria-hidden="true">
-            {{ 'Campaigns.CallToActionLinkLabel' | translate }}
-          </label>
-          <div class="mt-1 flex rounded-sm">
-            <input class="w-full"
-                   type="text"
-                   name="campaignClickToActionLink"
-                   id="campaignClickToActionLink"
-                   formControlName="actionLinkHref"
-                   [placeholder]="'Campaigns.CallToActionLinkPlaceholder' | translate">
-          </div>
-          <p class="field-info">{{ 'Campaigns.CallToActionLinkInfo' | translate }}</p>
-          <p *ngIf="actionLinkHref.invalid && (actionLinkHref.dirty || actionLinkHref.touched)" class="mt-2 text-sm text-red-600">
-            <span *ngIf="actionLinkHref.errors!['pattern']">{{ 'Campaigns.CallToActionLinkInvalidError' | translate }}</span>
+        @if (title.invalid && (title.dirty || title.touched)) {
+          <p
+            class="mt-2 text-sm text-red-600">
+            @if (title.errors!['required']) {
+              <span>{{ 'Campaigns.TitleRequiredError' | translate }}</span>
+            }
+            @if (title.errors!['maxlength']) {
+              <span>{{ 'Campaigns.TitleMaxLengthError' | translate }}</span>
+            }
           </p>
+        }
+        <p class="field-info col-span-3">{{ 'Campaigns.TitleInfo' | translate }}</p>
+      </fieldset>
+      <!-- Τύπος -->
+      <fieldset>
+        <legend class="sr-only">{{ 'Campaigns.TypeLabel' | translate }}</legend>
+        <div class="text-base font-medium text-gray-900"
+          aria-hidden="true">
+          {{ 'Campaigns.TypeLabel' | translate }}
         </div>
-      </div>
-    </fieldset>
-
-    <!-- Χρήση template -->
-    <fieldset>
-      <legend class="sr-only">{{ 'Campaigns.TemplateUsageLabel' | translate }}</legend>
-      <div class="text-base font-medium text-gray-900" aria-hidden="true">
-        {{ 'Campaigns.TemplateUsageLabel' | translate }}
-      </div>
-      <div class="grid grid-cols-2 gap-4">
-        <div class="col-span-2 sm:col-span-1">
-          <div class="flex items-center mt-1">
-            <input id="template-no"
-                   name="needsTemplate"
-                   type="radio"
-                   value="no"
-                   (change)="onNeedsTemplateChanged($event)"
-                   formControlName="needsTemplate"
-                   class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
-            <label for="template-no" class="ml-3 block text-sm font-medium text-gray-700">
-              {{ 'Campaigns.TemplateUsageNoOption' | translate }}
+        <label for="campaignType"
+          class="hidden"
+          aria-hidden="true">
+          {{ 'Campaigns.TypeLabel' | translate }}
+        </label>
+        <div class="mt-1 flex rounded-sm">
+          <lib-enhanced-combobox id="campaignType"
+            class="w-full"
+            [items]="messageTypesForCombobox"
+            [multiple]="false"
+            [itemTemplate]="typeItemTemplate"
+            [selectedItemTemplate]="typeSelectedItemTemplate"
+            [busy]="messageTypesLoading"
+            [displayShowMoreOption]="displayMessageTypesShowMoreOption"
+            (onItemSelected)="onMessageTypeSelectionChanged($event)"
+            (onSearch)="onMessageTypeSearch($event)"
+            (onShowMore)="onMessageTypesShowMore()"
+            [equalityPredicate]="equalityPredicate"
+            [selectedItemsFilter]="messageTypesFilter"
+            [placeholder]="'Campaigns.TypePlaceholder' | translate"
+            #typeCombobox>
+          </lib-enhanced-combobox>
+        </div>
+      </fieldset>
+      <!-- Διάρκεια -->
+      <fieldset>
+        <legend class="sr-only">{{ 'Campaigns.DurationLabel' | translate }}</legend>
+        <div class="text-base font-medium text-gray-900"
+          aria-hidden="true">
+          {{ 'Campaigns.DurationLabel' | translate }}
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <!-- Από -->
+          <div class="col-span-2 sm:col-span-1">
+            <label for="campaignStart"
+              class="hidden"
+              aria-hidden="true">
+              {{ 'Campaigns.StartDateLabel' | translate }}
             </label>
-            <input id="template-yes"
-                   name="needsTemplate"
-                   type="radio"
-                   value="yes"
-                   (change)="onNeedsTemplateChanged($event)"
-                   formControlName="needsTemplate"
-                   class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 ml-4">
-            <label for="template-yes" class="ml-3 block text-sm font-medium text-gray-700">
-              {{ 'Campaigns.TemplateUsageYesOption' | translate }}
-            </label>
-          </div>
-        </div>
-        <div class="col-span-2 sm:col-span-1" [class.invisible]="needsTemplate.value === 'no'">
-          <label for="template" class="hidden" aria-hidden="true">
-            {{ 'Campaigns.TemplateIdLabel' | translate }}
-          </label>
-          <div class="flex rounded-sm">
-            <lib-enhanced-combobox id="template"
-                                   class="w-full"
-                                   [items]="templatesForCombobox"
-                                   [multiple]="false"
-                                   [itemTemplate]="templateItemTemplate"
-                                   [selectedItemTemplate]="templateSelectedItemTemplate"
-                                   [busy]="templatesLoading"
-                                   [displayShowMoreOption]="displayTemplatesShowMoreOption"
-                                   (onItemSelected)="onTemplateSelectionChanged($event)"
-                                   (onSearch)="onTemplateSearch($event)"
-                                   (onShowMore)="onTemplatesShowMore()"
-                                   [equalityPredicate]="equalityPredicate"
-                                   [selectedItemsFilter]="templatesFilter"
-                                   [placeholder]="'Campaigns.TemplatePlaceholder' | translate"
-                                   #templateCombobox>
-            </lib-enhanced-combobox>
-          </div>
-          <p *ngIf="template.invalid && (template.dirty || template.touched)" class="mt-2 text-sm text-red-600">
-            <span *ngIf="template.errors!['required']">{{ 'Campaigns.TemplateRequiredError' | translate }}</span>
-          </p>
-        </div>
-      </div>
-    </fieldset>
-  </div>
-</form>
+            <div class="mt-1 flex rounded-sm col-span-3">
+              <input class="w-full"
+                type="datetime-local"
+                name="campaignStart"
+                id="campaignStart"
+                formControlName="from"
+                (input)="onCampaignStartInput($event)"
+                [min]="now | date: 'yyyy-MM-ddTHH:mm'"
+                [max]="to.value | date: 'yyyy-MM-ddTHH:mm'">
+              </div>
+              <p class="field-info">{{ 'Campaigns.StartDateInfo' | translate }}</p>
+            </div>
+            <!-- Έως -->
+            <div class="col-span-2 sm:col-span-1">
+              <label for="campaignEnd"
+                class="hidden"
+                aria-hidden="true">
+                {{ 'Campaigns.EndDateLabel' | translate }}
+              </label>
+              <div class="mt-1 flex rounded-sm col-span-3">
+                <input class="w-full"
+                  type="datetime-local"
+                  name="campaignEnd"
+                  id="campaignEnd"
+                  formControlName="to"
+                  (input)="onCampaignEndInput($event)"
+                  [min]="from.value | date: 'yyyy-MM-ddTHH:mm'"
+                  [readonly]="!from.value">
+                </div>
+                <p class="field-info">{{ 'Campaigns.EndDateInfo' | translate }}</p>
+              </div>
+            </div>
+          </fieldset>
+          <!-- Call to action -->
+          <fieldset>
+            <legend class="sr-only">{{ 'Campaigns.CallToActionSectionLabel' | translate }}</legend>
+            <div class="text-base font-medium text-gray-900"
+              aria-hidden="true">
+              {{ 'Campaigns.CallToActionSectionLabel' | translate }}
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <!-- Call to action κείμενο -->
+              <div class="col-span-2 sm:col-span-1">
+                <label for="campaignClickToActionText"
+                  class="hidden"
+                  aria-hidden="true">
+                  {{ 'Campaigns.CallToActionTextLabel' | translate }}
+                </label>
+                <div class="mt-1 flex rounded-sm">
+                  <input class="w-full"
+                    type="text"
+                    name="campaignClickToActionText"
+                    id="campaignClickToActionText"
+                    formControlName="actionLinkText"
+                    [placeholder]="'Campaigns.CallToActionTextPlaceholder' | translate">
+                  </div>
+                  <p class="field-info">{{ 'Campaigns.CallToActionTextInfo' | translate }}</p>
+                </div>
+                <!-- Call to action σύνδεσμος -->
+                <div class="col-span-2 sm:col-span-1">
+                  <label for="campaignClickToActionLink"
+                    class="hidden"
+                    aria-hidden="true">
+                    {{ 'Campaigns.CallToActionLinkLabel' | translate }}
+                  </label>
+                  <div class="mt-1 flex rounded-sm">
+                    <input class="w-full"
+                      type="text"
+                      name="campaignClickToActionLink"
+                      id="campaignClickToActionLink"
+                      formControlName="actionLinkHref"
+                      [placeholder]="'Campaigns.CallToActionLinkPlaceholder' | translate">
+                    </div>
+                    <p class="field-info">{{ 'Campaigns.CallToActionLinkInfo' | translate }}</p>
+                    @if (actionLinkHref.invalid && (actionLinkHref.dirty || actionLinkHref.touched)) {
+                      <p
+                        class="mt-2 text-sm text-red-600">
+                        @if (actionLinkHref.errors!['pattern']) {
+                          <span>{{ 'Campaigns.CallToActionLinkInvalidError' | translate }}</span>
+                        }
+                      </p>
+                    }
+                  </div>
+                </div>
+              </fieldset>
+              <!-- Χρήση template -->
+              <fieldset>
+                <legend class="sr-only">{{ 'Campaigns.TemplateUsageLabel' | translate }}</legend>
+                <div class="text-base font-medium text-gray-900"
+                  aria-hidden="true">
+                  {{ 'Campaigns.TemplateUsageLabel' | translate }}
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="col-span-2 sm:col-span-1">
+                    <div class="flex items-center mt-1">
+                      <input id="template-no"
+                        name="needsTemplate"
+                        type="radio"
+                        value="no"
+                        (change)="onNeedsTemplateChanged($event)"
+                        formControlName="needsTemplate"
+                        class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
+                        <label for="template-no"
+                          class="ml-3 block text-sm font-medium text-gray-700">
+                          {{ 'Campaigns.TemplateUsageNoOption' | translate }}
+                        </label>
+                        <input id="template-yes"
+                          name="needsTemplate"
+                          type="radio"
+                          value="yes"
+                          (change)="onNeedsTemplateChanged($event)"
+                          formControlName="needsTemplate"
+                          class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 ml-4">
+                          <label for="template-yes"
+                            class="ml-3 block text-sm font-medium text-gray-700">
+                            {{ 'Campaigns.TemplateUsageYesOption' | translate }}
+                          </label>
+                        </div>
+                      </div>
+                      <div class="col-span-2 sm:col-span-1"
+                        [class.invisible]="needsTemplate.value === 'no'">
+                        <label for="template"
+                          class="hidden"
+                          aria-hidden="true">
+                          {{ 'Campaigns.TemplateIdLabel' | translate }}
+                        </label>
+                        <div class="flex rounded-sm">
+                          <lib-enhanced-combobox id="template"
+                            class="w-full"
+                            [items]="templatesForCombobox"
+                            [multiple]="false"
+                            [itemTemplate]="templateItemTemplate"
+                            [selectedItemTemplate]="templateSelectedItemTemplate"
+                            [busy]="templatesLoading"
+                            [displayShowMoreOption]="displayTemplatesShowMoreOption"
+                            (onItemSelected)="onTemplateSelectionChanged($event)"
+                            (onSearch)="onTemplateSearch($event)"
+                            (onShowMore)="onTemplatesShowMore()"
+                            [equalityPredicate]="equalityPredicate"
+                            [selectedItemsFilter]="templatesFilter"
+                            [placeholder]="'Campaigns.TemplatePlaceholder' | translate"
+                            #templateCombobox>
+                          </lib-enhanced-combobox>
+                        </div>
+                        @if (template.invalid && (template.dirty || template.touched)) {
+                          <p
+                            class="mt-2 text-sm text-red-600">
+                            @if (template.errors!['required']) {
+                              <span>{{ 'Campaigns.TemplateRequiredError' | translate }}</span>
+                            }
+                          </p>
+                        }
+                      </div>
+                    </div>
+                  </fieldset>
+                </div>
+              </form>
 
-<!-- Templates for the enhanced combobox -->
-<ng-template #typeItemTemplate let-item>
-  <div class="hover:bg-gray-100 relative cursor-pointer select-none py-2 pl-3 pr-3 flex">
-    <span class="block truncate grow"><i class="dot dot-{{item.icon}} mr-2"></i>{{ item.name }}</span>
-  </div>
-</ng-template>
+              <!-- Templates for the enhanced combobox -->
+              <ng-template #typeItemTemplate let-item>
+                <div class="hover:bg-gray-100 relative cursor-pointer select-none py-2 pl-3 pr-3 flex">
+                  <span class="block truncate grow"><i class="dot dot-{{item.icon}} mr-2"></i>{{ item.name }}</span>
+                </div>
+              </ng-template>
 
-<ng-template #typeSelectedItemTemplate let-item>
-  <div class="py-2 px-3">
-    <span class="block text-sm font-medium text-gray-900">{{ item.name }}</span>
-  </div>
-</ng-template>
+              <ng-template #typeSelectedItemTemplate let-item>
+                <div class="py-2 px-3">
+                  <span class="block text-sm font-medium text-gray-900">{{ item.name }}</span>
+                </div>
+              </ng-template>
 
-<ng-template #templateItemTemplate let-item>
-  <div class="hover:bg-gray-100 relative cursor-pointer select-none py-2 pl-3 pr-3 flex">
-    <span class="block truncate grow">{{ item.name }}</span>
-    <div class="flex items-center space-x-1">
-      <span *ngIf="item.channels && item.channels.includes('Email')" class="ml-1 text-gray-400" [title]="'Campaigns.ChannelEmail' | translate">
-        <i class="ms-Icon ms-Icon--Accounts"></i>
-      </span>
-      <span *ngIf="item.channels && item.channels.includes('SMS')" class="ml-1 text-gray-400" [title]="'Campaigns.ChannelSms' | translate">
-        <i class="ms-Icon ms-Icon--Chat"></i>
-      </span>
-      <span *ngIf="item.channels && item.channels.includes('Inbox')" class="ml-1 text-gray-400" [title]="'Campaigns.ChannelInbox' | translate">
-        <i class="ms-Icon ms-Icon--Inbox"></i>
-      </span>
-      <span *ngIf="item.channels && item.channels.includes('PushNotification')" class="ml-1 text-gray-400" [title]="'Campaigns.ChannelPushNotification' | translate">
-        <i class="ms-Icon ms-Icon--CellPhone"></i>
-      </span>
-    </div>
-  </div>
-</ng-template>
+              <ng-template #templateItemTemplate let-item>
+                <div class="hover:bg-gray-100 relative cursor-pointer select-none py-2 pl-3 pr-3 flex">
+                  <span class="block truncate grow">{{ item.name }}</span>
+                  <div class="flex items-center space-x-1">
+                    @if (item.channels && item.channels.includes('Email')) {
+                      <span
+                        class="ml-1 text-gray-400" [title]="'Campaigns.ChannelEmail' | translate">
+                        <i class="ms-Icon ms-Icon--Accounts"></i>
+                      </span>
+                    }
 
-<ng-template #templateSelectedItemTemplate let-item>
-  <div class="py-2 px-3">
-    <span class="block text-sm font-medium text-gray-900">{{ item.label }}</span>
-  </div>
-</ng-template>
+                    @if (item.channels && item.channels.includes('SMS')) {
+                      <span
+                        class="ml-1 text-gray-400" [title]="'Campaigns.ChannelSms' | translate">
+                        <i class="ms-Icon ms-Icon--Chat"></i>
+                      </span>
+                    }
+
+                    @if (item.channels && item.channels.includes('Inbox')) {
+                      <span
+                        class="ml-1 text-gray-400" [title]="'Campaigns.ChannelInbox' | translate">
+                        <i class="ms-Icon ms-Icon--Inbox"></i>
+                      </span>
+                    }
+
+                    @if (item.channels && item.channels.includes('PushNotification')) {
+                      <span
+                        class="ml-1 text-gray-400" [title]="'Campaigns.ChannelPushNotification' | translate">
+                        <i class="ms-Icon ms-Icon--CellPhone"></i>
+                      </span>
+                    }
+                  </div>
+                </div>
+              </ng-template>
+
+              <ng-template #templateSelectedItemTemplate let-item>
+                <div class="py-2 px-3">
+                  <span class="block text-sm font-medium text-gray-900">{{ item.label }}</span>
+                </div>
+              </ng-template>

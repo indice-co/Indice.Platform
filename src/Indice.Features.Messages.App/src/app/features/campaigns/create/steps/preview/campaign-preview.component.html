@@ -1,95 +1,78 @@
-<!-- Use attribute binding instead of (non‑existent) Input properties.
-     The custom element reads plain attributes true-label / false-label. -->
-<div class="bg-white shadow overflow-hidden sm:rounded-lg mt-4">
-  <form [formGroup]="form">
-    <dl class="border-t border-gray-200">
-      <!-- Published -->
-      <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 bg-gray-50">
-        <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.PublishedLabel' | translate }}</dt>
-        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-          <lib-toggle-button id="published"
-                             name="published"
-                             [(value)]="model.published"
-                             [attr.true-label]="'Campaigns.Yes' | translate"
-                             [attr.false-label]="'Campaigns.No' | translate">
-          </lib-toggle-button>
-        </dd>
-      </div>
-
-      <!-- Ignore user preferences -->
-      <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 bg-gray-50">
-        <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.IgnoreUserPreferencesLabel' | translate }}</dt>
-        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-          <lib-toggle-button id="ignoreUserPreferences"
-                             name="ignoreUserPreferences"
-                             [(value)]="model.ignoreUserPreferences"
-                             [attr.true-label]="'Campaigns.Yes' | translate"
-                             [attr.false-label]="'Campaigns.No' | translate">
-          </lib-toggle-button>
-        </dd>
-      </div>
-
-      <!-- Title -->
-      <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-        <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.TitleLabel' | translate }}</dt>
-        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-          <b>{{ data.title || ('Campaigns.EmptyValueIndicator' | translate) }}</b>
-        </dd>
-      </div>
-
-      <!-- Type -->
-      <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-        <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.TypeLabel' | translate }}</dt>
-        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-          <b>{{ data.type || ('Campaigns.EmptyValueIndicator' | translate) }}</b>
-        </dd>
-      </div>
-
-      <!-- Duration -->
-      <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-        <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.DurationLabel' | translate }}</dt>
-        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-          <b>
-            {{ data.period?.from ? (data.period?.from | date:'medium') : ('Campaigns.EmptyValueIndicator' | translate) }} -
-            <span *ngIf="data.period?.to; else infinite">{{ data.period?.to | date:'medium' }}</span>
-            <ng-template #infinite>{{ 'Campaigns.InfiniteSymbol' | translate }}</ng-template>
-          </b>
-        </dd>
-      </div>
-
-      <!-- Call to action -->
-      <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-        <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.CallToActionSectionLabel' | translate }}</dt>
-        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-          <ng-container *ngIf="data.actionLink?.text; else noCta">
-            <a *ngIf="data.actionLink?.href"
-               target="_blank"
-               rel="noopener"
-               class="text-blue-600 hover:text-blue-500"
-               [href]="data.actionLink?.href">
-              {{ data.actionLink?.text }}
-            </a>
-            <span *ngIf="!data.actionLink?.href">{{ data.actionLink?.text }}</span>
-          </ng-container>
-          <ng-template #noCta>{{ 'Campaigns.EmptyValueIndicator' | translate }}</ng-template>
-        </dd>
-      </div>
-
-      <!-- Template -->
-      <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-        <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.TemplateLabel' | translate }}</dt>
-        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-          <b>{{ data.template || ('Campaigns.EmptyValueIndicator' | translate) }}</b>
-        </dd>
-      </div>
-
-      <!-- Distribution list -->
-      <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-        <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.DistributionListLabel' | translate }}</dt>
-        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-          <b>{{ data.distributionList || ('Campaigns.EmptyValueIndicator' | translate) }}</b>
-        </dd>
-      </div>
+<div class="bg-white shadow overflow-hidden sm:rounded-lg  mt-4">
+  <div class="border-t border-gray-200">
+    <dl>
+      <form [formGroup]="form">
+        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.PublishedLabel' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <lib-toggle-button id="published" name="published" [(value)]="model.published" text-true="{{ 'Campaigns.Yes' | translate }}" text-false="{{ 'Campaigns.No' | translate }}"></lib-toggle-button>
+          </dd>
+        </div>
+        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.IgnoreUserPreferencesLabel' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <lib-toggle-button id="ignoreUserPreferences" name="ignoreUserPreferences" [(value)]="model.ignoreUserPreferences" text-true="{{ 'Campaigns.Yes' | translate }}" text-false="{{ 'Campaigns.No' | translate }}"></lib-toggle-button>
+          </dd>
+        </div>
+        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.TitleLabel' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <b>{{ data.title }}</b>
+          </dd>
+        </div>
+        <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.TypeLabel' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <b>{{ data.type || ('Campaigns.EmptyValueIndicator' | translate) }}</b>
+          </dd>
+        </div>
+        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.DurationLabel' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <span>
+              <b>{{ data.period?.from ? (data.period?.from | date: 'medium') : '' }} - </b>
+            </span>
+            @if (data.period?.to) {
+              <span>
+                <b>{{ data.period?.to | date: 'medium' }}</b>
+              </span>
+            }
+            @if (!data.period?.to) {
+              <span class="text-lg">
+                <b>{{ 'Campaigns.InfiniteSymbol' | translate }}</b>
+              </span>
+            }
+          </dd>
+        </div>
+        <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.CallToActionSectionLabel' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            @if (data.actionLink?.text && data.actionLink?.href) {
+              <a target="_blank" class="text-blue-600 hover:text-blue-500" [href]="data.actionLink?.href">
+                {{ data.actionLink?.text }}
+              </a>
+            }
+            @if (data.actionLink?.text && !data.actionLink?.href) {
+              <span>{{ data.actionLink?.text }}</span>
+            }
+            @if (!data.actionLink?.text && !data.actionLink?.href) {
+              <span>{{ 'Campaigns.EmptyValueIndicator' | translate }}</span>
+            }
+          </dd>
+        </div>
+        <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.TemplateLabel' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <b>{{ data.template || ('Campaigns.EmptyValueIndicator' | translate) }}</b>
+          </dd>
+        </div>
+        <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.DistributionListLabel' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <b>{{ data.distributionList || ('Campaigns.EmptyValueIndicator' | translate) }}</b>
+          </dd>
+        </div>
+      </form>
     </dl>
-  </form>
+  </div>
 </div>

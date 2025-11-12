@@ -10,8 +10,9 @@ import { EMPTY } from 'rxjs';
 import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
 
 @Component({
-  selector: 'app-template-content-edit',
-  templateUrl: './template-edit-content.component.html'
+    selector: 'app-template-content-edit',
+    templateUrl: './template-edit-content.component.html',
+    standalone: false
 })
 export class TemplateContentEditComponent implements OnInit {
   @ViewChild('contentStep', { static: false }) public _contentComponent: CampaignContentComponent | undefined;

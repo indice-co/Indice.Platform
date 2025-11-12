@@ -10,8 +10,9 @@ import { AppLanguagesService } from 'src/app/shared/services/app-languages.servi
 import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
 
 @Component({
-  selector: 'app-template-create',
-  templateUrl: './template-create.component.html'
+    selector: 'app-template-create',
+    templateUrl: './template-create.component.html',
+    standalone: false
 })
 export class TemplateCreateComponent implements OnInit, AfterViewChecked, OnDestroy {
   @ViewChild('templateContent', { static: true }) private _templateContent: CampaignContentComponent | undefined;

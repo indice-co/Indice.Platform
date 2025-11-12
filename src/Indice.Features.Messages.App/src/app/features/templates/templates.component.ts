@@ -10,8 +10,9 @@ import { AppLanguagesService } from 'src/app/shared/services/app-languages.servi
 import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
 
 @Component({
-  selector: 'app-templates',
-  templateUrl: './templates.component.html'
+    selector: 'app-templates',
+    templateUrl: './templates.component.html',
+    standalone: false
 })
 export class TemplatesComponent extends BaseListComponent<Template> implements OnInit, OnDestroy {
   constructor(

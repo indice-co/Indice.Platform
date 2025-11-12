@@ -1,10 +1,10 @@
 <lib-side-view-layout [title]="'MediaLibrary.AddFileDialogTitle' | translate"
-                      [ok-close-dialog]="false"
-                      [ok-label]="'MediaLibrary.Save' | translate"
-                      [cancel-label]="'MediaLibrary.Close' | translate"
-                      (ok)="onSubmit()"
-                      [disabled]="isLoading"
-                      #sideViewLayout>
+  [ok-close-dialog]="false"
+  [ok-label]="'MediaLibrary.Save' | translate"
+  [cancel-label]="'MediaLibrary.Close' | translate"
+  (ok)="onSubmit()"
+  [disabled]="isLoading"
+  #sideViewLayout>
   <div class="mt-4">
     <div class="px-4 space-y-2 pb-4">
       <div class="grid grid-cols-4 gap-4">
@@ -17,13 +17,11 @@
             <strong>{{ 'MediaLibrary.ChannelEmail' | translate }}</strong>
             {{ 'MediaLibrary.AttachmentsUsageSuffix' | translate }}
           </span>
-          <div class="mt-10" *ngIf="!isLoading">
-            <app-multi-file-upload #fileUploadComponent
-                                   [extendedView]="true"
-                                   [maxSize]="6*1024*1024"
-                                   (filesChange)="onFileChange($event)">
-            </app-multi-file-upload>
-          </div>
+          @if (!isLoading) {
+            <div class="mt-10">
+              <app-multi-file-upload #fileUploadComponent [extendedView]="true" [maxSize]="6*1024*1024" (filesChange)="onFileChange($event)"></app-multi-file-upload>
+            </div>
+          }
         </div>
       </div>
     </div>

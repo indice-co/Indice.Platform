@@ -7,8 +7,9 @@ import { Contact, MessagesApiClient, UpdateContactRequest } from 'src/app/core/s
 import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
 
 @Component({
-  selector: 'app-contact-edit',
-  templateUrl: './contact-edit.component.html'
+    selector: 'app-contact-edit',
+    templateUrl: './contact-edit.component.html',
+    standalone: false
 })
 export class ContactEditComponent implements OnInit, AfterViewInit, OnDestroy {
   private _getContactSubscription!: Subscription;

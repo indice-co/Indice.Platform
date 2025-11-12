@@ -8,8 +8,9 @@ import { AppLanguagesService } from '../../../shared/services/app-languages.serv
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
-  selector: 'app-template-edit',
-  templateUrl: './template-edit.component.html'
+    selector: 'app-template-edit',
+    templateUrl: './template-edit.component.html',
+    standalone: false
 })
 export class TemplateEditComponent implements OnInit, AfterViewChecked, OnDestroy {
   @ViewChild('layout', { static: true }) private _layout!: ViewLayoutComponent;

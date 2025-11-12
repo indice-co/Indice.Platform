@@ -8,8 +8,9 @@ import { combineLatest, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-campaign-edit',
-  templateUrl: './campaign-edit.component.html'
+    selector: 'app-campaign-edit',
+    templateUrl: './campaign-edit.component.html',
+    standalone: false
 })
 export class CampaignEditComponent implements OnInit, AfterViewChecked, OnDestroy {
   @ViewChild('layout', { static: true }) private _layout!: ViewLayoutComponent;

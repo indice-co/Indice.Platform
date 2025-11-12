@@ -6,30 +6,33 @@
             <div>
                 <dd class="mt-1 text-sm text-gray-900 sm:col-span-2">
                     <!-- If coming from email (we set type to success) treat body as HTML -->
-                    <div *ngIf="class === 'html'; else plainBody" [innerHTML]="message | safe: 'html'"></div>
-                    <ng-template #plainBody>
-                        <p>{{ message }}</p>
-                    </ng-template>
+                    @if (class === 'html') {
+                      <div [innerHTML]="message | safe: 'html'"></div>
+                    } @else {
+                      <p>{{ message }}</p>
+                    }
                 </dd>
             </div>
         </dl>
     </div>
     <div class="modal-actions-container mt-2"
          role="group">
-      <button type="button"
-              class="basic-modal-close"
-              (click)="answer(false)">
-        {{'Shared.Close' | translate}}
-      </button>
-        &nbsp;
-        <button *ngIf="acceptText" type="button"
-                class="basic-modal-accept"
-                [ngClass]="{ 
-                    'basic-modal-accept-error': type === 'error', 
-                    'basic-modal-accept-success': type === 'success' 
-                }"
-                (click)="answer(true)">
-            {{ acceptText }}
+        <button type="button"
+                class="basic-modal-close"
+                (click)="answer(false)">
+            {{'Shared.Close' | translate}}
         </button>
+        &nbsp;
+        @if (acceptText) {
+          <button type="button"
+                  class="basic-modal-accept"
+                  [ngClass]="{ 
+                      'basic-modal-accept-error': type === 'error', 
+                      'basic-modal-accept-success': type === 'success' 
+                  }"
+                  (click)="answer(true)">
+              {{ acceptText }}
+          </button>
+        }
     </div>
 </div>

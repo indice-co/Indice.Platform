@@ -1,121 +1,123 @@
-<lib-view-layout [title]="'Templates.CreateTemplateDialogTitle' | translate"
-                 [meta-items]="metaItems">
+﻿<lib-view-layout [title]="'Templates.CreateTemplateDialogTitle' | translate"
+  [meta-items]="metaItems">
   <div class="min-h-full">
     <main>
       <div class="mx-auto px-4 sm:px-6 md:flex md:items-center md:justify-between md:space-x-5 lg:px-8">
         <div class="flex items-center space-x-5"></div>
         <div class="mt-6 flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-3">
           <button type="button"
-                  class="side-view-layout-action-button-submit"
-                  (click)="saveTemplate()"
-                  [disabled]="!templateContent.form.valid || !templateForm.form.valid || saveInProgress">
+            class="side-view-layout-action-button-submit"
+            (click)="saveTemplate()"
+            [disabled]="!templateContent.form.valid || !templateForm.form.valid || saveInProgress">
             {{ 'Templates.Save' | translate }}
           </button>
         </div>
       </div>
-
       <div class="mt-8 mb-8 mx-auto grid grid-cols-1 sm:px-6 lg:grid-flow-col-dense lg:grid-cols-1">
         <div class="space-y-6 lg:col-start-1 lg:col-span-2">
-          <section aria-labelledby="create-template-wizard">
+          <section aria-labelledby="create-campaign-wizard">
             <div class="bg-white shadow sm:rounded-lg pt-4">
               <div class="px-4 space-y-2 mt-4">
                 <form #templateForm="ngForm">
                   <fieldset>
                     <legend class="sr-only">{{ 'Templates.TitleLabelRequired' | translate }}</legend>
-
-                    <!-- Title -->
-                    <div class="text-base font-medium text-gray-900" aria-hidden="true">
+                    <div class="text-base font-medium text-gray-900"
+                      aria-hidden="true">
                       {{ 'Templates.TitleLabelRequired' | translate }}
                     </div>
-                    <label for="templateName" class="hidden">
+                    <label for="templateName"
+                      class="hidden">
                       {{ 'Templates.TitleLabelRequired' | translate }}
                     </label>
                     <div class="mt-1 flex rounded-sm">
                       <input class="w-full"
-                             type="text"
-                             id="templateName"
-                             name="templateName"
-                             [(ngModel)]="template.name"
-                             [placeholder]="'Templates.TitlePlaceholder' | translate"
-                             required
-                             maxlength="256"
-                             #templateName="ngModel">
-                    </div>
-                    <p *ngIf="templateName.invalid && (templateName.dirty || templateName.touched)" class="mt-2 text-sm text-red-600">
-                      <span *ngIf="templateName.errors?.['required']">{{ 'Templates.TitleRequiredError' | translate }}</span>
-                      <span *ngIf="templateName.errors?.['maxlength']">{{ 'Templates.TitleMaxLengthError' | translate }}</span>
-                    </p>
-                    <p class="field-info col-span-3">
-                      {{ 'Templates.TitleInfo' | translate }}
-                    </p>
-
-                    <!-- Alias -->
-                    <div class="text-base font-medium text-gray-900" aria-hidden="true">
-                      {{ 'Templates.AliasLabel' | translate }}
-                    </div>
-                    <label for="templateAlias" class="hidden">
-                      {{ 'Templates.AliasLabel' | translate }}
-                    </label>
-                    <div class="mt-1 flex rounded-sm">
-                      <input class="w-full"
-                             type="text"
-                             id="templateAlias"
-                             name="templateAlias"
-                             [(ngModel)]="template.alias"
-                             [placeholder]="'Templates.AliasPlaceholder' | translate"
-                             maxlength="64"
-                             #templateAlias="ngModel">
-                    </div>
-                    <p *ngIf="templateAlias.invalid && (templateAlias.dirty || templateAlias.touched)" class="mt-2 text-sm text-red-600">
-                      <span *ngIf="templateAlias.errors?.['maxlength']">{{ 'Templates.AliasMaxLengthError' | translate }}</span>
-                    </p>
-
-                    <!-- Message Type -->
-                    <div class="text-base font-medium text-gray-900 mt-3" aria-hidden="true">
-                      {{ 'Templates.MessageTypeLabel' | translate }}
-                    </div>
-                    <label for="templateType" class="hidden">
-                      {{ 'Templates.MessageTypeLabel' | translate }}
-                    </label>
-                    <div class="mt-1 flex rounded-sm">
-                      <lib-local-drop-down-menu id="templateType"
-                                                name="templateType"
-                                                class="w-full"
-                                                [options]="messageTypes"
-                                                [value]="selectedOption"
-                                                (change)="setType($event)">
-                      </lib-local-drop-down-menu>
-                    </div>
-                    <p class="field-info col-span-3"></p>
-
-                    <!-- Ignore User Preferences -->
-                    <dl>
-                      <div class="py-3 sm:grid sm:grid-cols-3">
-                        <dt class="text-sm font-medium text-gray-500">
-                          {{ 'Templates.IgnoreUserPreferencesLabel' | translate }}
-                        </dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                          <lib-toggle-button id="ignoreUserPreferences"
-                                             name="ignoreUserPreferences"
-                                             [(ngModel)]="template.ignoreUserPreferences"
-                                             [attr.true-label]="'Templates.Yes' | translate"
-                                             [attr.false-label]="'Templates.No' | translate">
-                          </lib-toggle-button>
-                        </dd>
+                        type="text"
+                        id="templateName"
+                        name="templateName"
+                        [(ngModel)]="template.name"
+                        placeholder="{{ 'Templates.TitlePlaceholder' | translate }}"
+                        required
+                        maxlength="256"
+                        #templateName="ngModel">
                       </div>
-                    </dl>
-                  </fieldset>
-                </form>
-              </div>
+                      @if (templateName.invalid && (templateName.dirty || templateName.touched)) {
+                        <p
+                          class="mt-2 text-sm text-red-600">
+                          @if (templateName.errors && templateName.errors['required']) {
+                            <span>{{ 'Templates.TitleRequiredError' | translate }}</span>
+                          }
+                          @if (templateName.errors!['maxlength']) {
+                            <span>{{ 'Templates.TitleMaxLengthError' | translate }}</span>
+                          }
+                        </p>
+                      }
+                      <p class="field-info col-span-3">{{ 'Templates.TitleInfo' | translate }}</p>
+                      <!-- Alias -->
+                      <div class="text-base font-medium text-gray-900"
+                        aria-hidden="true">
+                        {{ 'Templates.AliasLabel' | translate }}
+                      </div>
+                      <label for="templateAlias"
+                        class="hidden">
+                        {{ 'Templates.AliasLabel' | translate }}
+                      </label>
+                      <div class="mt-1 flex rounded-sm">
+                        <input class="w-full"
+                          type="text"
+                          id="templateAlias"
+                          name="templateAlias"
+                          [(ngModel)]="template.alias"
+                          placeholder="{{ 'Templates.AliasPlaceholder' | translate }}"
+                          maxlength="64"
+                          #templateAlias="ngModel">
+                        </div>
+                        @if (templateAlias.invalid && (templateAlias.dirty || templateAlias.touched)) {
+                          <p
+                            class="mt-2 text-sm text-red-600">
+                            @if (templateAlias.errors!['maxlength']) {
+                              <span>{{ 'Templates.AliasMaxLengthError' | translate }}</span>
+                            }
+                          </p>
+                        }
 
-              <app-campaign-content [data]="basicInfoData"
-                                    [content]="content"
-                                    #templateContent>
-              </app-campaign-content>
+                        <!-- Τύπος -->
+                        <div class="text-base font-medium text-gray-900 mt-3"
+                          aria-hidden="true">
+                          {{ 'Templates.MessageTypeLabel' | translate }}
+                        </div>
+                        <label for="templateType"
+                          class="hidden">
+                          {{ 'Templates.MessageTypeLabel' | translate }}
+                        </label>
+                        <div class="mt-1 flex rounded-sm">
+                          <lib-local-drop-down-menu id="templateType"
+                            name="templateType"
+                            class="w-full"
+                            [options]="messageTypes"
+                            [value]="selectedOption"
+                            (change)="setType($event)">
+                          </lib-local-drop-down-menu>
+                        </div>
+                        <p class="field-info col-span-3"></p>
+                        <dl>
+                          <div class="py-3 sm:grid sm:grid-cols-3">
+                            <dt class="text-sm font-medium text-gray-500">{{ 'Templates.IgnoreUserPreferencesLabel' | translate }}</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                              <lib-toggle-button id="ignoreUserPreferences" name="ignoreUserPreferences" [(ngModel)]="template.ignoreUserPreferences" [attr.true-label]="'Templates.Yes' | translate" [attr.false-label]="'Templates.No' | translate"></lib-toggle-button>
+                            </dd>
+                          </div>
+                        </dl>
+                      </fieldset>
+                    </form>
+                  </div>
+                  <app-campaign-content [data]="basicInfoData"
+                    [content]="content"
+                    #templateContent>
+                  </app-campaign-content>
+                </div>
+              </section>
             </div>
-          </section>
-        </div>
+          </div>
+        </main>
       </div>
-    </main>
-  </div>
-</lib-view-layout>
+    </lib-view-layout>

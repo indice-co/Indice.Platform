@@ -9,8 +9,9 @@ import { ListContactCreateComponent } from 'src/app/shared/components/list-conta
 import { AppLanguagesService } from '../../../../../shared/services/app-languages.service';
 
 @Component({
-  selector: 'app-campaign-recipients',
-  templateUrl: './campaign-recipients.component.html'
+    selector: 'app-campaign-recipients',
+    templateUrl: './campaign-recipients.component.html',
+    standalone: false
 })
 export class CampaignRecipientsComponent implements OnInit {
   @ViewChild('distributionListContactCreateComponent', { static: false }) public distributionListContactCreateComponent!: ListContactCreateComponent;

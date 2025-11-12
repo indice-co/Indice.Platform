@@ -2,7 +2,7 @@ import { AfterViewChecked, ChangeDetectorRef, Component, Inject, OnInit, ViewChi
 import { Router } from '@angular/router';
 
 import { HeaderMetaItem, Icons, LibStepperComponent, StepperType, ToasterService, ToastType } from '@indice/ng-components';
-import { StepSelectedEvent } from '@indice/ng-components/lib/controls/stepper/types/step-selected-event';
+import { StepSelectedEvent } from '@indice/ng-components';
 import { CampaignBasicInfoComponent } from './steps/basic-info/campaign-basic-info.component';
 import { CampaignContentComponent } from './steps/content/campaign-content.component';
 import { CampaignPreview } from './steps/preview/campaign-preview';
@@ -17,7 +17,8 @@ import { AppTranslatedToaster } from '../../../shared/services/app-translated-to
 
 @Component({
   selector: 'app-campaign-create',
-  templateUrl: './campaign-create.component.html'
+  templateUrl: './campaign-create.component.html',
+  standalone: false
 })
 export class CampaignCreateComponent implements OnInit, AfterViewChecked, OnDestroy {
   @ViewChild('createCampaignStepper', { static: true }) private _stepper!: LibStepperComponent;

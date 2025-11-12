@@ -9,8 +9,9 @@ import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toa
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-email-settings',
-  templateUrl: './email-settings.component.html'
+    selector: 'app-email-settings',
+    templateUrl: './email-settings.component.html',
+    standalone: false
 })
 export class EmailSettingsComponent extends BaseListComponent<MessageSender> implements OnInit, OnDestroy {
 

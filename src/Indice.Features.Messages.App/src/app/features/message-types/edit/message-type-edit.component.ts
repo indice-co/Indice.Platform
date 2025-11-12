@@ -7,8 +7,9 @@ import { MessagesApiClient, MessageType, MessageTypeClassification, UpdateMessag
 import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
 
 @Component({
-  selector: 'app-message-type-edit',
-  templateUrl: './message-type-edit.component.html'
+    selector: 'app-message-type-edit',
+    templateUrl: './message-type-edit.component.html',
+    standalone: false
 })
 export class MessageTypeEditComponent implements OnInit, AfterViewInit, OnDestroy {
   private _getTypeSubscription!: Subscription;

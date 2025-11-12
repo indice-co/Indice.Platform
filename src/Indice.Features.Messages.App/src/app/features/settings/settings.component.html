@@ -1,9 +1,11 @@
 <lib-view-layout [meta-items]="metaItems"
-                 [title]="'Settings.Title' | translate"
-                 #layout>
+  title="'Settings.Title' | translate"
+  #layout>
   <div class="min-h-full">
     <main class="flex flex-col w-full space-y-5">
-      <app-media-settings *ngIf="enableMediaLibrary"></app-media-settings>
+      @if (enableMediaLibrary) {
+        <app-media-settings></app-media-settings>
+      }
       <app-email-settings></app-email-settings>
     </main>
   </div>

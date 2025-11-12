@@ -8,7 +8,8 @@ import { AppLanguagesService } from 'src/app/shared/services/app-languages.servi
 
 @Component({
   selector: 'app-message-events',
-  templateUrl: './message-events.component.html'
+  templateUrl: './message-events.component.html',
+  standalone: false
 })
 export class MessageEventsComponent extends BaseListComponent<MessageEvent> implements OnInit, OnDestroy {
   constructor(

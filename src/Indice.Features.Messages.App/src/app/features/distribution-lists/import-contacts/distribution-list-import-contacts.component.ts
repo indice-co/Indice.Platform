@@ -7,8 +7,9 @@ import { ToasterService, ToastType } from "@indice/ng-components";
 import { AppTranslatedToaster } from "../../../shared/services/app-translated-toaster";
 
 @Component({
-  selector: 'app-distribution-list-import-contacts',
-  templateUrl: './distribution-list-import-contacts.component.html'
+    selector: 'app-distribution-list-import-contacts',
+    templateUrl: './distribution-list-import-contacts.component.html',
+    standalone: false
 })
 export class DistributionListImportContactsComponent implements OnInit, AfterViewInit {
   @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;

@@ -6,8 +6,9 @@ import { MediaSetting, UpdateMediaSettingRequest } from 'src/app/core/services/m
 import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
 
 @Component({
-  selector: 'app-media-setting-edit',
-  templateUrl: './media-setting-edit.component.html'
+    selector: 'app-media-setting-edit',
+    templateUrl: './media-setting-edit.component.html',
+    standalone: false
 })
 export class MediaSettingEditComponent implements OnInit, AfterViewInit {
   private _mediaSettingKey: string = '';

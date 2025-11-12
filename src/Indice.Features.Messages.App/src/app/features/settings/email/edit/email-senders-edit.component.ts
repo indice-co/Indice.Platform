@@ -6,8 +6,9 @@ import { SettingsStore } from '../../settings-store.service';
 import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
 
 @Component({
-  selector: 'app-email-senders-edit',
-  templateUrl: './email-senders-edit.component.html'
+    selector: 'app-email-senders-edit',
+    templateUrl: './email-senders-edit.component.html',
+    standalone: false
 })
 export class EmailSendersEditComponent implements OnInit, AfterViewInit {
   private _messageSenderId: string = '';

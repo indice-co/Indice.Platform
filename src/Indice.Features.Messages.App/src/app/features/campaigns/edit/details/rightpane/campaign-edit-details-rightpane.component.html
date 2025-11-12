@@ -1,12 +1,13 @@
 <lib-side-view-layout [title]="'Campaigns.EditCampaignTitle' | translate"
-                      [ok-close-dialog]="false"
-                      [ok-label]="'Campaigns.Save' | translate"
-                      [cancel-label]="'Campaigns.Close' | translate"
-                      (ok)="submitButton.nativeElement.click()"
-                      [disabled]="!editCampaignForm.valid || submitInProgress"
-                      #sideViewLayout>
+  [ok-close-dialog]="false"
+  [ok-label]="'Campaigns.Save' | translate"
+  [cancel-label]="'Campaigns.Close' | translate"
+  (ok)="submitButton.nativeElement.click()"
+  [disabled]="!editCampaignForm.valid || submitInProgress"
+  #sideViewLayout>
   <div class="mt-4">
-    <form #editCampaignForm="ngForm" (ngSubmit)="onSubmit()">
+    <form #editCampaignForm="ngForm"
+      (ngSubmit)="onSubmit()">
       <div class="px-4 space-y-2 pb-4">
         <div class="grid grid-cols-4 gap-4">
           <div class="col-span-4">
@@ -14,147 +15,163 @@
           </div>
         </div>
       </div>
-      <button type="submit" [style.visibility]="'hidden'" #submitBtn>Submit</button>
+      <button type="submit"
+        [style.visibility]="'hidden'"
+        #submitBtn>
+        Submit
+      </button>
     </form>
   </div>
 </lib-side-view-layout>
-
 <ng-template #editTitleTemplate>
-  <label for="campaignTitle" class="field-label">
+  <label for="campaignTitle"
+    class="field-label">
     {{ 'Campaigns.TitleLabelRequired' | translate }}
   </label>
   <div class="mt-1 flex rounded-sm">
     <input class="w-full"
-           type="text"
-           name="campaignTitle"
-           id="campaignTitle"
-           [(ngModel)]="model.title"
-           [placeholder]="'Campaigns.TitlePlaceholder' | translate"
-           required
-           maxlength="128"
-           #campaignTitle="ngModel">
-  </div>
-  <p *ngIf="campaignTitle.invalid && (campaignTitle.dirty || campaignTitle.touched)" class="mt-2 text-sm text-red-600">
-    <span *ngIf="campaignTitle.errors!['required']">{{ 'Campaigns.TitleRequiredError' | translate }}</span>
-    <span *ngIf="campaignTitle.errors!['maxlength']">{{ 'Campaigns.TitleMaxLengthError' | translate }}</span>
-  </p>
-  <p class="field-info col-span-3">{{ 'Campaigns.TitleInfo' | translate }}</p>
-</ng-template>
-
-<ng-template #editTypeTemplate>
-  <label for="campaignType" class="field-label">
-    {{ 'Campaigns.TypeLabel' | translate }}
-  </label>
-  <div class="mt-1 flex rounded-sm">
-    <lib-local-drop-down-menu id="campaignType"
-                              name="campaignType"
-                              class="w-full"
-                              [value]="selectedTypeId"
-                              [options]="messageTypes"
-                              (change)="typeSelectionChanged($event)">
-    </lib-local-drop-down-menu>
-  </div>
-  <p class="field-info col-span-3">{{ 'Campaigns.TypeInfo' | translate }}</p>
-</ng-template>
-
-<ng-template #editSenderTemplate>
-  <label for="messageSender" class="field-label">
-    {{ 'Campaigns.SenderLabel' | translate }}
-  </label>
-  <div class="mt-1 flex rounded-sm">
-    <lib-local-drop-down-menu id="messageSender"
-                              name="messageSender"
-                              class="w-full"
-                              [value]="selectedSenderId"
-                              [options]="messageSenders"
-                              (change)="senderSelectionChanged($event)">
-    </lib-local-drop-down-menu>
-  </div>
-  <p class="field-info col-span-3">{{ 'Campaigns.SenderInfo' | translate }}</p>
-</ng-template>
-
-<ng-template #editActivePeriodTemplate>
-  <label for="campaignStart" class="field-label">
-    {{ 'Campaigns.StartDateLabel' | translate }}
-  </label>
-  <div class="mt-1 flex rounded-sm">
-    <input class="w-full"
-           type="datetime-local"
-           name="campaignStart"
-           id="campaignStart"
-           (input)="onCampaignStartInput($event)"
-           [value]="activePeriodFrom"
-           [min]="now | date: 'yyyy-MM-ddTHH:mm'"
-           [max]="model.activePeriod?.to | date: 'yyyy-MM-ddTHH:mm'">
-  </div>
-  <p class="field-info">{{ 'Campaigns.StartDateInfo' | translate }}</p>
-
-  <label for="campaignEnd" class="field-label">
-    {{ 'Campaigns.EndDateLabel' | translate }}
-  </label>
-  <div class="mt-1 flex rounded-sm">
-    <input class="w-full"
-           type="datetime-local"
-           name="campaignEnd"
-           id="campaignEnd"
-           (input)="onCampaignEndInput($event)"
-           [value]="activePeriodTo"
-           [min]="model.activePeriod?.from | date: 'yyyy-MM-ddTHH:mm'"
-           [readonly]="!model.activePeriod?.from">
-  </div>
-  <p class="field-info">{{ 'Campaigns.EndDateInfo' | translate }}</p>
-</ng-template>
-
-<ng-template #editCtaTemplate>
-  <label for="ctaText" class="field-label">
-    {{ 'Campaigns.CallToActionTextLabel' | translate }}
-  </label>
-  <div class="mt-1 flex rounded-sm" *ngIf="model.actionLink">
-    <input class="w-full"
-           type="text"
-           name="ctaText"
-           id="ctaText"
-           [(ngModel)]="model.actionLink.text"
-           maxlength="128"
-           #campaignCtaText="ngModel">
-  </div>
-  <p class="field-info">{{ 'Campaigns.CallToActionTextInfo' | translate }}</p>
-
-  <label for="ctaLink" class="field-label">
-    {{ 'Campaigns.CallToActionLinkLabel' | translate }}
-  </label>
-  <ng-container *ngIf="model.actionLink">
+      type="text"
+      name="campaignTitle"
+      id="campaignTitle"
+      [(ngModel)]="model.title"
+      [placeholder]="'Campaigns.TitlePlaceholder' | translate"
+      required
+      maxlength="128"
+      #campaignTitle="ngModel">
+    </div>
+    @if (campaignTitle.invalid && (campaignTitle.dirty || campaignTitle.touched)) {
+      <p
+        class="mt-2 text-sm text-red-600">
+        @if (campaignTitle.errors!['required']) {
+          <span>{{ 'Campaigns.TitleRequiredError' | translate }}</span>
+        }
+        @if (campaignTitle.errors!['maxlength']) {
+          <span>{{ 'Campaigns.TitleMaxLengthError' | translate }}</span>
+        }
+      </p>
+    }
+    <p class="field-info col-span-3">{{ 'Campaigns.TitleInfo' | translate }}</p>
+  </ng-template>
+  <ng-template #editTypeTemplate>
+    <label for="campaignType"
+      class="field-label">
+      {{ 'Campaigns.TypeLabel' | translate }}
+    </label>
+    <div class="mt-1 flex rounded-sm">
+      <lib-local-drop-down-menu id="campaignType"
+        name="campaignType"
+        class="w-full"
+        [value]="selectedTypeId"
+        [options]="messageTypes"
+        (change)="typeSelectionChanged($event)">
+      </lib-local-drop-down-menu>
+    </div>
+    <p class="field-info col-span-3">{{ 'Campaigns.TypeInfo' | translate }}</p>
+  </ng-template>
+  <ng-template #editSenderTemplate>
+    <label for="messageSender"
+      class="field-label">
+      {{ 'Campaigns.SenderLabel' | translate }}
+    </label>
+    <div class="mt-1 flex rounded-sm">
+      <lib-local-drop-down-menu id="messageSender"
+        name="messageSender"
+        class="w-full"
+        [value]="selectedSenderId"
+        [options]="messageSenders"
+        (change)="senderSelectionChanged($event)">
+      </lib-local-drop-down-menu>
+    </div>
+    <p class="field-info col-span-3">{{ 'Campaigns.SenderInfo' | translate }}</p>
+  </ng-template>
+  <ng-template #editActivePeriodTemplate>
+    <label for="campaignStart"
+      class="field-label">
+      {{ 'Campaigns.StartDateLabel' | translate }}
+    </label>
     <div class="mt-1 flex rounded-sm">
       <input class="w-full"
-             type="text"
-             name="ctaLink"
-             id="ctaLink"
-             [(ngModel)]="model.actionLink.href"
-             maxlength="2048"
-             pattern="https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)(\/?)*$"
-             #campaignCtaLink="ngModel">
-    </div>
-    <p *ngIf="campaignCtaLink.invalid && (campaignCtaLink.dirty || campaignCtaLink.touched)"
-       class="mt-2 text-sm text-red-600">
-      <span *ngIf="campaignCtaLink.errors!['pattern']">{{ 'Campaigns.CallToActionLinkInvalidError' | translate }}</span>
-    </p>
-    <p class="field-info">{{ 'Campaigns.CallToActionLinkInfo' | translate }}</p>
-  </ng-container>
-</ng-template>
-
-<ng-template #editListTemplate>
-  <div class="col-span-4">
-    <label for="campaignDistributionList" class="field-label">
-      {{ 'Campaigns.DistributionListLabel' | translate }}
-    </label>
-    <lib-combobox id="campaignDistributionList"
-                  [items]="distributionLists"
-                  [busy]="distributionListsLoading"
-                  (onSearch)="onDistributionListsSearch($event)"
-                  (onItemSelected)="onDistributionListSelected($event)"
-                  [multiple]="false"
-                  #distributionListCombobox>
-    </lib-combobox>
-    <p class="field-info col-span-3">{{ 'Campaigns.DistributionListInfo' | translate }}</p>
-  </div>
-</ng-template>
+        type="datetime-local"
+        name="campaignStart"
+        id="campaignStart"
+        (input)="onCampaignStartInput($event)"
+        [value]="activePeriodFrom"
+        [min]="now | date: 'yyyy-MM-ddTHH:mm'"
+        [max]="model.activePeriod?.to | date: 'yyyy-MM-ddTHH:mm'">
+      </div>
+      <p class="field-info">{{ 'Campaigns.StartDateInfo' | translate }}</p>
+      <label for="campaignEnd"
+        class="field-label">
+        {{ 'Campaigns.EndDateLabel' | translate }}
+      </label>
+      <div class="mt-1 flex rounded-sm">
+        <input class="w-full"
+          type="datetime-local"
+          name="campaignEnd"
+          id="campaignEnd"
+          (input)="onCampaignEndInput($event)"
+          [value]="activePeriodTo"
+          [min]="model.activePeriod?.from | date: 'yyyy-MM-ddTHH:mm'"
+          [readonly]="!model.activePeriod?.from">
+        </div>
+        <p class="field-info">{{ 'Campaigns.EndDateInfo' | translate }}</p>
+      </ng-template>
+      <ng-template #editCtaTemplate>
+        <label for="ctaText"
+          class="field-label">
+          {{ 'Campaigns.CallToActionTextLabel' | translate }}
+        </label>
+        @if (model.actionLink) {
+          <div class="mt-1 flex rounded-sm"
+            >
+            <input class="w-full"
+              type="text"
+              name="ctaText"
+              id="ctaText"
+              [(ngModel)]="model.actionLink.text"
+              maxlength="128"
+              #campaignCtaText="ngModel">
+            </div>
+          }
+          <p class="field-info">{{ 'Campaigns.CallToActionTextInfo' | translate }}</p>
+          <label for="ctaLink"
+            class="field-label">
+            {{ 'Campaigns.CallToActionLinkLabel' | translate }}
+          </label>
+          @if (model.actionLink) {
+            <div class="mt-1 flex rounded-sm">
+              <input class="w-full"
+                type="text"
+                name="ctaLink"
+                id="ctaLink"
+                [(ngModel)]="model.actionLink.href"
+                maxlength="2048"
+                pattern="https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)(\/?)*$"
+                #campaignCtaLink="ngModel">
+              </div>
+              @if (campaignCtaLink.invalid && (campaignCtaLink.dirty || campaignCtaLink.touched)) {
+                <p
+                  class="mt-2 text-sm text-red-600">
+                  @if (campaignCtaLink.errors!['pattern']) {
+                    <span>{{ 'Campaigns.CallToActionLinkInvalidError' | translate }}</span>
+                  }
+                </p>
+              }
+              <p class="field-info">{{ 'Campaigns.CallToActionLinkInfo' | translate }}</p>
+            }
+          </ng-template>
+          <ng-template #editListTemplate>
+            <div class="col-span-4">
+              <label for="campaignDistributionList"
+              class="field-label">{{ 'Campaigns.DistributionListLabel' | translate }}</label>
+              <lib-combobox id="campaignDistributionList"
+                [items]="distributionLists"
+                [busy]="distributionListsLoading"
+                (onSearch)="onDistributionListsSearch($event)"
+                (onItemSelected)="onDistributionListSelected($event)"
+                [multiple]="false"
+                #distributionListCombobox>
+              </lib-combobox>
+              <p class="field-info col-span-3">{{ 'Campaigns.DistributionListInfo' | translate }}</p>
+            </div>
+          </ng-template>

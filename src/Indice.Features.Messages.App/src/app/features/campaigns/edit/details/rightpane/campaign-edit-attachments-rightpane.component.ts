@@ -10,8 +10,9 @@ import { Subscription } from 'rxjs';
 import { AppTranslatedToaster } from '../../../../../shared/services/app-translated-toaster';
 
 @Component({
-  selector: 'app-campaign-edit-attachments-rightpane',
-  templateUrl: './campaign-edit-attachments-rightpane.component.html'
+    selector: 'app-campaign-edit-attachments-rightpane',
+    templateUrl: './campaign-edit-attachments-rightpane.component.html',
+    standalone: false
 })
 export class CampaignAttachmentsEditRightpaneComponent implements OnInit, OnDestroy {
 

@@ -7,8 +7,9 @@ import { RecipientMetrics, MessagesApiClient, Recipient, RecipientResultSet } fr
 import { AppLanguagesService } from 'src/app/shared/services/app-languages.service';
 
 @Component({
-  selector: 'app-campaign-messages',
-  templateUrl: './campaign-messages.component.html'
+    selector: 'app-campaign-messages',
+    templateUrl: './campaign-messages.component.html',
+    standalone: false
 })
 export class CampaignMessagesComponent extends BaseListComponent<Recipient> implements OnInit, OnDestroy {
   public _campaignId: string | undefined;

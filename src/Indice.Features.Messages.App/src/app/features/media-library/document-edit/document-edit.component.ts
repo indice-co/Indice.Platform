@@ -10,8 +10,9 @@ import { FileUtilitiesService } from 'src/app/shared/services/file-utilities.ser
 import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster'; // replaced ToasterService
 
 @Component({
-  selector: 'app-document-edit',
-  templateUrl: './document-edit.component.html'
+    selector: 'app-document-edit',
+    templateUrl: './document-edit.component.html',
+    standalone: false
 })
 export class DocumentEditComponent implements OnInit {
   @ViewChild('layout', { static: true }) private _layout!: ViewLayoutComponent;

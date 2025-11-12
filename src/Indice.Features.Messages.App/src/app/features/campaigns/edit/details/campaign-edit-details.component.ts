@@ -12,8 +12,9 @@ import { combineLatest } from 'rxjs';
 import { AppTranslatedToaster } from '../../../../shared/services/app-translated-toaster';
 
 @Component({
-  selector: 'app-campaign-details-edit',
-  templateUrl: './campaign-edit-details.component.html'
+    selector: 'app-campaign-details-edit',
+    templateUrl: './campaign-edit-details.component.html',
+    standalone: false
 })
 export class CampaignDetailsEditComponent implements OnInit {
   private _campaignId: string | undefined;

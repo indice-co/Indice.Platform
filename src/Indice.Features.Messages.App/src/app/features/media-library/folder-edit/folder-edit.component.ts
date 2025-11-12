@@ -9,8 +9,9 @@ import { TranslateService } from '@ngx-translate/core';
 import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
 
 @Component({
-  selector: 'app-folder-edit',
-  templateUrl: './folder-edit.component.html'
+    selector: 'app-folder-edit',
+    templateUrl: './folder-edit.component.html',
+    standalone: false
 })
 export class FolderEditComponent implements OnInit, OnDestroy {
 

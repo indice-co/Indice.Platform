@@ -7,8 +7,9 @@ import { Contact, ContactResultSet, MessagesApiClient } from 'src/app/core/servi
 import { AppLanguagesService } from 'src/app/shared/services/app-languages.service';
 
 @Component({
-  selector: 'app-contacts',
-  templateUrl: './contacts-list.component.html'
+    selector: 'app-contacts',
+    templateUrl: './contacts-list.component.html',
+    standalone: false
 })
 export class ContactsListComponent extends BaseListComponent<Contact> implements OnInit {
   constructor(

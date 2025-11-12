@@ -10,8 +10,9 @@ import { combineLatest, Subscription } from 'rxjs';
 import { AppTranslatedToaster } from '../../../../shared/services/app-translated-toaster';
 
 @Component({
-  selector: 'app-campaign-content-edit',
-  templateUrl: './campaign-edit-content.component.html'
+    selector: 'app-campaign-content-edit',
+    templateUrl: './campaign-edit-content.component.html',
+    standalone: false
 })
 export class CampaignContentEditComponent implements OnInit, OnDestroy {
   @ViewChild('contentStep', { static: false }) public _contentComponent: CampaignContentComponent | undefined;

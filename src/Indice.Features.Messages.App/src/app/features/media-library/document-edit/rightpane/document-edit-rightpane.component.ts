@@ -11,8 +11,9 @@ import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toa
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-document-edit-rightpane',
-  templateUrl: './document-edit-rightpane.component.html'
+    selector: 'app-document-edit-rightpane',
+    templateUrl: './document-edit-rightpane.component.html',
+    standalone: false
 })
 export class DocumentEditRightpaneComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('editNameTemplate', { static: true }) public editNameTemplate!: TemplateRef<any>;

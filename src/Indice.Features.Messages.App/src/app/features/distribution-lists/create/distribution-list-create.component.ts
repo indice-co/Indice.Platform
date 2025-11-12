@@ -8,8 +8,9 @@ import { catchError, EMPTY, finalize, map, of, switchMap } from 'rxjs';
 import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
 
 @Component({
-  selector: 'app-distribution-list-create',
-  templateUrl: './distribution-list-create.component.html'
+    selector: 'app-distribution-list-create',
+    templateUrl: './distribution-list-create.component.html',
+    standalone: false
 })
 export class DistributionListCreateComponent implements OnInit, AfterViewInit {
   @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;

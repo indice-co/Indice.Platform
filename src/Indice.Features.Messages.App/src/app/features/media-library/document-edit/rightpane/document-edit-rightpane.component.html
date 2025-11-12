@@ -1,12 +1,13 @@
 <lib-side-view-layout [title]="'MediaLibrary.EditFileDialogTitle' | translate"
-                      [ok-close-dialog]="false"
-                      [ok-label]="'MediaLibrary.Save' | translate"
-                      [cancel-label]="'MediaLibrary.Close' | translate"
-                      (ok)="submitButton.nativeElement.click()"
-                      [disabled]="!editFileForm.valid || submitInProgress"
-                      #sideViewLayout>
+  [ok-close-dialog]="false"
+  [ok-label]="'MediaLibrary.Save' | translate"
+  [cancel-label]="'MediaLibrary.Close' | translate"
+  (ok)="submitButton.nativeElement.click()"
+  [disabled]="!editFileForm.valid || submitInProgress"
+  #sideViewLayout>
   <div class="mt-4">
-    <form #editFileForm="ngForm" (ngSubmit)="onSubmit()">
+    <form #editFileForm="ngForm"
+      (ngSubmit)="onSubmit()">
       <div class="px-4 space-y-2 pb-4">
         <div class="grid grid-cols-4 gap-4">
           <div class="col-span-4">
@@ -14,73 +15,73 @@
           </div>
         </div>
       </div>
-      <button type="submit" [style.visibility]="'hidden'" #submitBtn>Submit</button>
+      <button type="submit"
+        [style.visibility]="'hidden'"
+        #submitBtn>
+        Submit
+      </button>
     </form>
   </div>
 </lib-side-view-layout>
-
 <ng-template #editNameTemplate>
-  <label for="documentName" class="field-label">
+  <label for="documentName"
+    class="field-label">
     {{ 'MediaLibrary.FileNameLabelRequired' | translate }}
   </label>
   <div class="mt-1 flex rounded-sm">
     <input class="w-full"
-           type="text"
-           name="documentName"
-           id="documentName"
-           [(ngModel)]="model.name"
-           [placeholder]="'MediaLibrary.FileNamePlaceholder' | translate"
-           maxlength="256"
-           required
-           #documentName="ngModel">
-  </div>
-  <p *ngIf="documentName.invalid && (documentName.dirty || documentName.touched)"
-     class="mt-2 text-sm text-red-600">
-    <span *ngIf="documentName.errors?.['required']">
-      {{ 'MediaLibrary.FileNameRequiredError' | translate }}
-    </span>
-    <span *ngIf="documentName.errors?.['maxlength']">
-      {{ 'MediaLibrary.FileNameMaxLengthError' | translate }}
-    </span>
-  </p>
-  <p class="field-info col-span-3">
-    {{ 'MediaLibrary.FileNameInfo' | translate }}
-  </p>
-</ng-template>
-
-<ng-template #editDescriptionTemplate>
-  <label for="documentDescription" class="field-label">
-    {{ 'MediaLibrary.FileDescriptionLabel' | translate }}
-  </label>
-  <div class="mt-1 flex rounded-sm">
-    <input class="w-full"
-           type="text"
-           name="documentDescription"
-           id="documentDescription"
-           [(ngModel)]="model.description"
-           [placeholder]="'MediaLibrary.FileDescriptionPlaceholder' | translate"
-           maxlength="512"
-           #documentDescription="ngModel">
-  </div>
-  <p class="field-info col-span-3">
-    {{ 'MediaLibrary.FileDescriptionInfo' | translate }}
-  </p>
-</ng-template>
-
-<ng-template #editFolderTemplate>
-  <label for="folder" class="field-label">
-    {{ 'MediaLibrary.FileFolderLabel' | translate }}
-  </label>
-  <div class="mt-1 flex rounded-sm">
-    <lib-local-drop-down-menu id="folder"
-                              name="folder"
-                              class="w-full"
-                              [value]="selectedFolderId"
-                              [options]="folders"
-                              (change)="folderSelectionChanged($event)">
-    </lib-local-drop-down-menu>
-  </div>
-  <p class="field-info col-span-3">
-    {{ 'MediaLibrary.FileFolderInfo' | translate }}
-  </p>
-</ng-template>
+      type="text"
+      name="documentName"
+      id="documentName"
+      [(ngModel)]="model.name"
+      placeholder="{{ 'MediaLibrary.FileNamePlaceholder' | translate }}"
+      maxlength="256"
+      required
+      #documentName="ngModel">
+    </div>
+    @if (documentName.invalid && (documentName.dirty || documentName.touched)) {
+      <p
+        class="mt-2 text-sm text-red-600">
+        @if (documentName.errors!['required']) {
+          <span>{{ 'MediaLibrary.FileNameRequiredError' | translate }}</span>
+        }
+        @if (documentName.errors!['maxlength']) {
+          <span>{{ 'MediaLibrary.FileNameMaxLengthError' | translate }}</span>
+        }
+      </p>
+    }
+    <p class="field-info col-span-3">{{ 'MediaLibrary.FileNameInfo' | translate }}</p>
+  </ng-template>
+  <ng-template #editDescriptionTemplate>
+    <label for="documentDescription"
+      class="field-label">
+      {{ 'MediaLibrary.FileDescriptionLabel' | translate }}
+    </label>
+    <div class="mt-1 flex rounded-sm">
+      <input class="w-full"
+        type="text"
+        name="documentDescription"
+        id="documentDescription"
+        [(ngModel)]="model.description"
+        placeholder="{{ 'MediaLibrary.FileDescriptionPlaceholder' | translate }}"
+        maxlength="512"
+        #documentDescription="ngModel">
+      </div>
+      <p class="field-info col-span-3">{{ 'MediaLibrary.FileDescriptionInfo' | translate }}</p>
+    </ng-template>
+    <ng-template #editFolderTemplate>
+      <label for="folder"
+        class="field-label">
+        {{ 'MediaLibrary.FileFolderLabel' | translate }}
+      </label>
+      <div class="mt-1 flex rounded-sm">
+        <lib-local-drop-down-menu id="folder"
+          name="folder"
+          class="w-full"
+          [value]="selectedFolderId"
+          [options]="folders"
+          (change)="folderSelectionChanged($event)">
+        </lib-local-drop-down-menu>
+      </div>
+      <p class="field-info col-span-3">{{ 'MediaLibrary.FileFolderInfo' | translate }}</p>
+    </ng-template>

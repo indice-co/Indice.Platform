@@ -11,8 +11,9 @@ import { Subject, combineLatest } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-campaign-details-edit',
-  templateUrl: './template-edit-details.component.html'
+    selector: 'app-campaign-details-edit',
+    templateUrl: './template-edit-details.component.html',
+    standalone: false
 })
 export class TemplateDetailsEditComponent implements OnInit, OnDestroy {
   private _templateId: string | undefined;

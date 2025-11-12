@@ -1,15 +1,14 @@
 <lib-side-view-layout [title]="'Campaigns.EditAttachmentsTitle' | translate"
-                      [ok-close-dialog]="false"
-                      [ok-label]="'Campaigns.Save' | translate"
-                      [cancel-label]="'Campaigns.Close' | translate"
-                      (ok)="onSubmit()"
-                      [disabled]="isLoading || !attachmentChanged"
-                      #sideViewLayout>
+  [ok-close-dialog]="false"
+  [ok-label]="'Campaigns.Save' | translate"
+  [cancel-label]="'Campaigns.Close' | translate"
+  (ok)="onSubmit()"
+  [disabled]="isLoading || !attachmentChanged"
+  #sideViewLayout>
   <div class="mt-4">
     <div class="px-4 space-y-2 pb-4">
       <div class="grid grid-cols-4 gap-4">
         <div class="col-span-4 py-5">
-          <!-- Granular attachment usage sentence -->
           <span class="mt-1 max-w-2xl text-sm text-gray-500">
             {{ 'Campaigns.AttachmentsUsagePrefix' | translate }}
             <strong>{{ 'Campaigns.ChannelInbox' | translate }}</strong>
@@ -17,14 +16,11 @@
             <strong>{{ 'Campaigns.ChannelEmail' | translate }}</strong>
             {{ 'Campaigns.AttachmentsUsageSuffix' | translate }}
           </span>
-          <div class="mt-10" *ngIf="!isLoading">
-            <app-file-upload #fileUploadComponent
-                             [extendedView]="true"
-                             [existingFile]="campaignAttachment"
-                             [maxSize]="6*1024*1024"
-                             (fileChange)="onFileChange($event)">
-            </app-file-upload>
-          </div>
+          @if (!isLoading) {
+            <div class="mt-10">
+              <app-file-upload #fileUploadComponent [extendedView]="true" [existingFile]="campaignAttachment" [maxSize]="6*1024*1024" (fileChange)="onFileChange($event)"></app-file-upload>
+            </div>
+          }
         </div>
       </div>
     </div>

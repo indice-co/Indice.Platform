@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Net;
 using System.Text.RegularExpressions;
 using Azure.Storage.Blobs;
 using Indice.AspNetCore.Configuration;
@@ -7,10 +8,12 @@ using Indice.AspNetCore.Middleware;
 using Indice.AspNetCore.TagHelpers;
 using Indice.Configuration;
 using Indice.Services;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -233,6 +236,53 @@ public static class ServiceCollectionExtensions
     /// <returns></returns>
     public static IServiceCollection AddLimitUpload(this IServiceCollection services, IConfiguration configuration) {
         services.Configure<LimitUploadOptions>(configuration);
+        return services;
+    }
+
+    /// <summary>
+    /// Configures the application to process forwarded headers when running behind a proxy, using settings from the
+    /// specified configuration.
+    /// </summary>
+    /// <remarks>This method enables support for processing X-Forwarded-* headers based on configuration
+    /// values, which is required when the application is deployed behind reverse proxies or load balancers. If proxy
+    /// support is not enabled in the configuration, no changes are made to the service collection.
+    /// Reads the following configuration values: 
+    /// <strong>Proxy:Enabled</strong> (bool), 
+    /// <strong>Proxy:KnownNetworks</strong> (string comma delimited), 
+    /// <strong>Proxy:KnownProxies</strong> (string comma delimited), 
+    /// <strong>Proxy:ForwardLimit</strong> (int)
+    /// </remarks>
+    /// <param name="services">The service collection to which the forwarded headers configuration will be added.</param>
+    /// <param name="configuration">The configuration source containing proxy and forwarded headers settings.</param>
+    /// <returns>The same <see cref="IServiceCollection"/> instance so that additional calls can be chained.</returns>
+    public static IServiceCollection AddProxyForwardedHeaders(this IServiceCollection services, IConfiguration configuration) {
+        var proxyEnabled = configuration.ProxyEnabled();
+        if (!proxyEnabled) {
+            return services;
+        }
+        services.Configure<ForwardedHeadersOptions>(options => {
+            options.KnownNetworks.Clear();
+            options.KnownProxies.Clear();
+            var forwardLimit = configuration.GetProxyForwardLimit();
+            var knownNetworks = configuration.GetProxyKnownNetworks();
+            var knownProxies = configuration.GetProxyKnownProxies();
+            options.ForwardedHeaders = ForwardedHeaders.All;
+            options.ForwardLimit = forwardLimit == 0
+                ? null
+                : forwardLimit;
+
+            foreach (var entry in knownNetworks) {
+                if (AspNetCore.HttpOverrides.IPNetwork.TryParse(entry, out var network)) {
+                    options.KnownNetworks.Add(network);
+                }
+            }
+
+            foreach (var entry in knownProxies) {
+                if (IPAddress.TryParse(entry, out var ip)) {
+                    options.KnownProxies.Add(ip);
+                }
+            }
+        });
         return services;
     }
 }

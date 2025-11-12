@@ -10,8 +10,9 @@ import { AppLanguagesService } from 'src/app/shared/services/app-languages.servi
 import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
 
 @Component({
-  selector: 'app-message-types',
-  templateUrl: './message-types.component.html'
+    selector: 'app-message-types',
+    templateUrl: './message-types.component.html',
+    standalone: false
 })
 export class MessageTypesComponent extends BaseListComponent<MessageType> implements OnInit, OnDestroy {
   constructor(

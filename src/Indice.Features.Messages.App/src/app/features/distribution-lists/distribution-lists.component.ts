@@ -10,8 +10,9 @@ import { AppLanguagesService } from 'src/app/shared/services/app-languages.servi
 import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
 
 @Component({
-  selector: 'app-distribution-lists',
-  templateUrl: './distribution-lists.component.html'
+    selector: 'app-distribution-lists',
+    templateUrl: './distribution-lists.component.html',
+    standalone: false
 })
 export class DistributionListsComponent extends BaseListComponent<DistributionList> implements OnInit, OnDestroy {
   constructor(

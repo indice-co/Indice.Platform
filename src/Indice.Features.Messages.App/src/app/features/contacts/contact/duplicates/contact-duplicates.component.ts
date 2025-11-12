@@ -10,7 +10,7 @@ import { AppTranslatedToaster } from '../../../../shared/services/app-translated
 @Component({
   selector: 'app-contact-duplicates',
   templateUrl: './contact-duplicates.component.html',
-  styles: ['']
+  standalone: false
 })
 export class ContactDuplicatesComponent implements OnInit, AfterViewInit, OnDestroy {
   private _getContactSubscription!: Subscription;

@@ -18,9 +18,10 @@ import { AppLanguagesService } from 'src/app/shared/services/app-languages.servi
 // codew mirror
 
 @Component({
-  selector: 'app-campaign-content',
-  templateUrl: './campaign-content.component.html',
-  styleUrl: './campaign-content.component.scss'
+    selector: 'app-campaign-content',
+    templateUrl: './campaign-content.component.html',
+    styleUrl: './campaign-content.component.css',
+    standalone: false
 })
 //https://github.com/acrodata/code-editor/blob/main/projects/dev-app/src/app/home/home.component.ts
 export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChecked {
