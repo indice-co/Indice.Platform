@@ -1,4 +1,5 @@
 ﻿@page "/login/mfa/onboarding"
+@using Indice.Features.Identity.Core.Models
 
 @model BaseMfaOnboardingModel
 
@@ -11,6 +12,22 @@
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;
 }
+@functions {
+    public string GetIconFromAuthenticationMethod(AuthenticationMethod method)
+    {
+        return method.DisplayName.ToLowerInvariant() switch
+        {
+            "viber" => "fa-brands fa-viber",
+            "sms" => "fa-regular fa-message",
+            "email" => "fa-regular fa-envelope",
+            "authenticatorapp" => "fa-solid fa-shield-halved",
+            "trusteddevice" => "fa-solid fa-mobile-screen",
+            "fido2" => "fa-solid fa-fingerprint",
+            "code" => "fa-solid fa-square-binary",
+            _ => "fa-regular fa-message"
+        };
+    }
+}
 
 <div class="sign-in m-auto">
     <h1>
@@ -22,7 +39,7 @@
     </h1>
     <div id="authentication-methods" class="list-group">
         <!-- ko foreach: authenticationMethods -->
-        <a href="javascript:void(0)" data-sbind="event: { click: $parent.methodSelected }, css: { selected: selected }" class="list-group-item list-group-item-action">
+        <a href="javascript:void(0)" data-sbind="event: { click: $parent.methodSelected }, css: { active: selected }" class="list-group-item list-group-item-action">
             <div class="d-flex w-100 justify-content-between">
                 <h5 class="mb-1" data-sbind="text: displayName"></h5>
             </div>
