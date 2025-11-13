@@ -31,7 +31,8 @@
 
     &.development, &.dev {
         span {
-            background: $text-color;
+            background: $blue;
+            color: $color-white;
         }
     }
 
@@ -45,7 +46,7 @@
     &.pre, &.staging, &.stage {
         span {
             background: $color-black;
-            color: #FFFFFF;
+            color: $color-white;
         }
     }
 }

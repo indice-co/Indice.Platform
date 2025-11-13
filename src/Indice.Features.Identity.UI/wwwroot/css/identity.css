@@ -2235,7 +2235,8 @@ body.anonymous .navbar {
 }
 
 .ribbon.development span, .ribbon.dev span {
-    background: #3f3e3e;
+    background: #256aba;
+    color: #FFFFFF;
 }
 
 .ribbon.sandbox span, .ribbon.test span, .ribbon.uat span {
