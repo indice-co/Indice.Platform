@@ -1063,4 +1063,7 @@
   <data name="Mfa_PageHeader" xml:space="preserve">
     <value>Autenticazione multifattoriale</value>
   </data>
+  <data name="ForgotPassword_Request_Sent_Disclaimer" xml:space="preserve">
+    <value>Se esiste un account associato a quella email, ti invieremo le istruzioni per reimpostare la password. Per favore, controlla la tua casella di posta.</value>
+  </data>
 </root>

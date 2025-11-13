@@ -1177,6 +1177,15 @@ namespace Indice.Features.Identity.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to If an account with that email exists, we&apos;ll send password reset instructions. Please check your inbox..
+        /// </summary>
+        public static string ForgotPassword_Request_Sent_Disclaimer {
+            get {
+                return ResourceManager.GetString("ForgotPassword_Request_Sent_Disclaimer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Request sent.
         /// </summary>
         public static string ForgotPassword_RequestSent {
