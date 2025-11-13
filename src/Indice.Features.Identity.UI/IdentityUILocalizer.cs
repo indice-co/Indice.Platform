@@ -331,6 +331,8 @@ public class IdentityUILocalizer
     public virtual HtmlString ForgotPassword_PageTitle => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPassword_PageTitle));
     /// <summary>Gets the message indicating that a password reset request has been sent successfully.</summary>
     public virtual HtmlString ForgotPassword_Request_Sent => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPassword_RequestSent));
+    /// <summary>Gets the message indicating that a password reset request has been sent successfully.</summary>
+    public virtual HtmlString ForgotPassword_Request_Sent_Disclaimer => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPassword_Request_Sent_Disclaimer));
     /// <summary>Gets the label text for resending the password reset email.</summary>
     public virtual HtmlString ForgotPassword_Resend => new HtmlString(string.Format(CultureInfo.CurrentUICulture, IdentityLabels.ForgotPassword_Resend));
     /// <summary>Gets the label text for the Send button on the Forgot Password page.</summary>

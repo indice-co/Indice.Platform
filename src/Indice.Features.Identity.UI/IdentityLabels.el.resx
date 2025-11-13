@@ -1063,4 +1063,7 @@
   <data name="Mfa_PageHeader" xml:space="preserve">
     <value>Επιπρόσθετος έλεγχος ταυτότητας</value>
   </data>
+  <data name="ForgotPassword_Request_Sent_Disclaimer" xml:space="preserve">
+    <value>Αν υπάρχει λογαριασμός με αυτό το email, θα σας στείλουμε οδηγίες επαναφοράς κωδικού. Παρακαλούμε ελέγξτε τα εισερχόμενά σας.</value>
+  </data>
 </root>

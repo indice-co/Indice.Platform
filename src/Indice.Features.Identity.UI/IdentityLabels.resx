@@ -1062,4 +1062,7 @@
   <data name="Mfa_PageHeader" xml:space="preserve">
     <value>Multifactor Authentication</value>
   </data>
+  <data name="ForgotPassword_Request_Sent_Disclaimer" xml:space="preserve">
+    <value>If an account with that email exists, we'll send password reset instructions. Please check your inbox.</value>
+  </data>
 </root>
