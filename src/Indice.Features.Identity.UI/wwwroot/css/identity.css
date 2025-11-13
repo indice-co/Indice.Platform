@@ -2234,13 +2234,18 @@ body.anonymous .navbar {
     transform: rotate(45deg);
 }
 
-.ribbon.development span {
+.ribbon.development span, .ribbon.dev span {
     background: #3f3e3e;
 }
 
-.ribbon.sandbox span {
+.ribbon.sandbox span, .ribbon.test span, .ribbon.uat span {
     background: #e87a16;
     color: #222222;
+}
+
+.ribbon.pre span, .ribbon.staging span, .ribbon.stage span {
+    background: #222222;
+    color: #FFFFFF;
 }
 
 /*@include phone {

@@ -29,16 +29,23 @@
         transform: rotate(45deg);
     }
 
-    &.development {
+    &.development, &.dev {
         span {
             background: $text-color;
         }
     }
 
-    &.sandbox {
+    &.sandbox, &.test, &.uat {
         span {
             background: $ribbon-orange;
             color: $color-black;
+        }
+    }
+
+    &.pre, &.staging, &.stage {
+        span {
+            background: $color-black;
+            color: #FFFFFF;
         }
     }
 }
