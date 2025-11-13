@@ -2,6 +2,7 @@
 @plugin "@tailwindcss/forms";
 @import "../node_modules/@indice/ng-components/src/styles.css";
 @import "../node_modules/highlight.js/styles/github.css";
+
 :root {
   --ng-progress-color: #ffc107;
 }
@@ -10,40 +11,52 @@
   .btn-info {
     @apply inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500;
   }
+
   .btn-success {
     @apply inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-green-500;
   }
+
   .btn-warning {
     @apply inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-yellow-500;
   }
+
   .btn-error {
     @apply inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-red-500;
   }
+
   .panels-with-border-container {
     @apply border-t border-b border-gray-200 mt-4;
   }
+
   .vertical-navigation-link-base {
     @apply flex items-center px-3 py-2 text-sm font-medium rounded-md;
   }
+
   .vertical-navigation-link {
     @apply text-gray-600 hover:bg-gray-50 hover:text-gray-900;
   }
+
   .vertical-navigation-link-active {
     @apply text-gray-900 bg-gray-200;
   }
+
   .basic-modal-close {
     @apply inline-flex items-center justify-center px-4 py-2 border border-transparent font-medium rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-gray-500 sm:text-sm;
   }
+
   .basic-modal-accept {
     @apply inline-flex items-center justify-center px-4 py-2 border border-transparent font-medium rounded-md focus:outline-none focus:ring-1 focus:ring-offset-1 sm:text-sm;
   }
+
   .basic-modal-accept-error {
     @apply text-red-700 bg-red-100 hover:bg-red-200 focus:ring-red-500;
   }
+
   .basic-modal-accept-success {
     @apply text-green-700 bg-green-100 hover:bg-green-200 focus:ring-green-500;
   }
 }
+
 .dropdown-selected-text {
   align-items: center;
 }
@@ -188,7 +201,8 @@ textarea.code-editor:focus {
   line-height: 1rem;
 }
 
-.small .list-checkmark, .small .list-dash {
+.small .list-checkmark,
+.small .list-dash {
   font-size: 1.5rem;
 }
 
@@ -237,142 +251,39 @@ textarea.code-editor:focus {
   overflow: clip;
   height: 6px;
   margin: 4px;
-
-  .mini-bar {
-    height: 6px;
-    background-color: #e5e7eb;
-    height: 100%; /* This is important */
-  }
-
-  .mini-bar-fill {
-    @apply bg-indigo-500;
-    height: 100%; /* This is important */
-
-
-    &.System {
-      @apply bg-indigo-500;
-    }
-
-    &.Commercial {
-      @apply bg-purple-500;
-    }
-
-    &.Info {
-      @apply bg-blue-400;
-    }
-
-    &.Success {
-      @apply bg-green-500;
-    }
-
-    &.Error {
-      @apply bg-red-400;
-    }
-
-    &.Warning {
-      @apply bg-yellow-400;
-    }
-  }
 }
 
-/*tailwind rules*/
-:root {
-  --ng-progress-color: #ffc107;
+.mini-bar-chart .mini-bar {
+  height: 6px;
+  background-color: #e5e7eb;
+  height: 100%;
 }
 
-.dropdown-selected-text {
-  align-items: center;
+.mini-bar-chart .mini-bar-fill {
+  @apply bg-indigo-500;
+  height: 100%;
 }
 
-.toggle-button-container-inner-true {
-  opacity: 0;
+.mini-bar-chart .mini-bar-fill.System {
+  @apply bg-indigo-500;
 }
 
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
+.mini-bar-chart .mini-bar-fill.Commercial {
+  @apply bg-purple-500;
 }
 
-textarea.code-editor {
-  background: #f4f4f4;
-  border: 1px solid #ddd;
-  border-left: 3px solid #f36d33;
-  color: #666;
-  page-break-inside: avoid;
-  font-family: monospace;
-  font-size: 15px;
-  line-height: 1.6;
-  max-width: 100%;
-  overflow: auto;
-  padding: 1em 1.5em;
-  display: block;
-  word-wrap: break-word;
+.mini-bar-chart .mini-bar-fill.Info {
+  @apply bg-blue-400;
 }
 
-  textarea.code-editor:focus {
-    outline: none;
-  }
-
-.field-info {
-  margin-top: 0.2rem !important;
-  padding-top: 0.2rem !important;
+.mini-bar-chart .mini-bar-fill.Success {
+  @apply bg-green-500;
 }
 
-.modal-content {
-  padding: 0.5rem;
-  border: none;
+.mini-bar-chart .mini-bar-fill.Error {
+  @apply bg-red-400;
 }
 
-.modal-actions-container {
-  display: flex;
-  flex-shrink: 0;
-  justify-content: flex-end;
-  --tw-bg-opacity: 1;
-  background-color: rgba(243, 244, 246, var(--tw-bg-opacity));
-  padding-left: 1rem;
-  padding-right: 1rem;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-}
-
-.text-center {
-  text-align: center;
-}
-
-.tox-promotion {
-  display: none !important;
-}
-
-.tox-tinymce {
-  border-radius: 0px !important;
-  border-width: thin !important;
-}
-
-.inset-ring {
-  --tw-inset-ring-shadow: inset 0 0 0 1px var(--tw-inset-ring-color, currentcolor);
-  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-}
-
-.inset-ring-gray-200 {
-  --tw-inset-ring-color: var(--color-gray-200);
-}
-
-.badge.alias {
-  border-color: transparent;
-}
-
-.small .list-checkmark, .list-dash {
-  font-size: 1.5rem;
-}
-
-.media-image-preview {
-  max-height: 300px;
-  margin: auto;
+.mini-bar-chart .mini-bar-fill.Warning {
+  @apply bg-yellow-400;
 }
