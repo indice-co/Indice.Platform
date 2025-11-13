@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalService, ToasterService, ToastType } from '@indice/ng-components';
+import { APP_LANGUAGES, ModalService, ToasterService, ToastType } from '@indice/ng-components';
 
 import { CampaignDetails, MessageSender, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
@@ -28,7 +28,7 @@ export class CampaignDetailsEditComponent implements OnInit {
     private _modalService: ModalService,
     private _api: MessagesApiClient,
     private _httpClient: HttpClient,
-    private _lang: AppLanguagesService
+    @Inject(APP_LANGUAGES) private _lang: AppLanguagesService
   ) { }
 
   public campaign: CampaignDetails | undefined;

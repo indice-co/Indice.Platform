@@ -1,6 +1,6 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, OnInit, ViewChild, OnDestroy, Inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HeaderMetaItem, Icons, ViewLayoutComponent } from '@indice/ng-components';
+import { APP_LANGUAGES, HeaderMetaItem, Icons, ViewLayoutComponent } from '@indice/ng-components';
 import { CampaignDetails } from 'src/app/core/services/messages-api.service';
 import { CampaignEditStore } from './campaign-edit-store.service';
 import { AppLanguagesService } from 'src/app/shared/services/app-languages.service';
@@ -22,7 +22,7 @@ export class CampaignEditComponent implements OnInit, AfterViewChecked, OnDestro
     private _campaignStore: CampaignEditStore,
     private _router: Router,
     private _changeDetector: ChangeDetectorRef,
-    private _lang: AppLanguagesService
+    @Inject(APP_LANGUAGES) private _lang: AppLanguagesService
   ) { }
 
   public submitInProgress = false;

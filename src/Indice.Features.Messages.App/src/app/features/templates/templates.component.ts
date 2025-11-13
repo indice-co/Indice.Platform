@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, RouterViewAction, ToastType, ViewAction } from '@indice/ng-components';
+import { APP_LANGUAGES, BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, RouterViewAction, ToastType, ViewAction } from '@indice/ng-components';
 import { Observable, combineLatest, Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 import { MessagesApiClient, Template, TemplateListItemResultSet } from 'src/app/core/services/messages-api.service';
@@ -21,7 +21,8 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
     private _api: MessagesApiClient,
     @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster,
     private _modalService: ModalService,
-    private _languages: AppLanguagesService
+    @Inject(APP_LANGUAGES) private _lang: AppLanguagesService
+
   ) {
     super(route, _router);
     this.view = ListViewType.Table;
@@ -44,7 +45,7 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
 
     // Reactive translation of sort option labels.
     const sortKeys = this.sortOptions.map(o => o.text);
-    combineLatest(sortKeys.map(k => this._languages.translateKey(k)))
+    combineLatest(sortKeys.map(k => this._lang.translateKey(k)))
       .pipe(takeUntil(this._destroy$))
       .subscribe(translated => {
         this.sortOptions = this.sortOptions.map((o, i) => new MenuOption(translated[i] || o.text, o.value));
@@ -67,8 +68,8 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
     const messageKey = 'Templates.DeleteConfirmMessage';
     const params = { name: template.name };
     combineLatest([
-      this._languages.translateKey(titleKey),
-      this._languages.translateKey(messageKey, params)
+      this._lang.translateKey(titleKey),
+      this._lang.translateKey(messageKey, params)
     ]).pipe(takeUntil(this._destroy$))
       .subscribe(([title, message]) => {
         const modal = this._modalService.show(BasicModalComponent, {

@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { MenuOption, ToastType } from '@indice/ng-components';
+import { APP_LANGUAGES, MenuOption, ToastType } from '@indice/ng-components';
 import { EMPTY, Subscription, catchError, map, Subject, combineLatest, takeUntil } from 'rxjs';
 
 import { MessageTypeResultSet, MessagesApiClient, Template } from 'src/app/core/services/messages-api.service';
@@ -23,7 +23,7 @@ export class TemplateDetailsEditRightpaneComponent implements OnInit, AfterViewI
     private _activatedRoute: ActivatedRoute,
     private _changeDetector: ChangeDetectorRef,
     private _api: MessagesApiClient,
-    private _languages: AppLanguagesService,
+    @Inject(APP_LANGUAGES) private _lang: AppLanguagesService,
     @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster
   ) { }
 
@@ -49,7 +49,7 @@ export class TemplateDetailsEditRightpaneComponent implements OnInit, AfterViewI
       });
 
     // Reactive translation for the placeholder option
-    combineLatest([this._languages.translateKey('Templates.SelectPlaceholder')])
+    combineLatest([this._lang.translateKey('Templates.SelectPlaceholder')])
       .pipe(takeUntil(this._destroy$))
       .subscribe(([placeholder]) => {
         if (this.messageTypes.length > 0) {

@@ -1,6 +1,6 @@
-import { Component, ElementRef, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, OnDestroy, Inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { ToastType } from '@indice/ng-components';
+import { APP_LANGUAGES, ToastType } from '@indice/ng-components';
 import { finalize } from 'rxjs/operators';
 import { FileParameter, CampaignDetails } from 'src/app/core/services/messages-api.service';
 import { FileUploadComponent, IAttachment } from 'src/app/shared/components/file-upload/file-upload.component';
@@ -31,7 +31,7 @@ export class CampaignAttachmentsEditRightpaneComponent implements OnInit, OnDest
     private _campaignStore: CampaignEditStore,
     private _toaster: AppTranslatedToaster,
     private _router: Router,
-    private _lang: AppLanguagesService // injected language service
+    @Inject(APP_LANGUAGES) private _lang: AppLanguagesService
   ) { }
 
   ngOnInit(): void {

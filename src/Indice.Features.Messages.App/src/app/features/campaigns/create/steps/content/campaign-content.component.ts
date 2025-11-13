@@ -1,9 +1,9 @@
-import { AfterViewChecked, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewChecked, Component, Inject, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { AbstractControl, FormGroup, FormControl, Validators, FormBuilder, FormArray } from '@angular/forms';
 
 import Handlebars from "handlebars";
 import * as app from 'src/app/core/models/settings';
-import { LibTabComponent, LibTabGroupComponent, MenuOption, SidePaneComponent } from '@indice/ng-components';
+import { APP_LANGUAGES, LibTabComponent, LibTabGroupComponent, MenuOption, SidePaneComponent } from '@indice/ng-components';
 import { Hyperlink, MessageChannelKind, MessageContent, MessageSender, MessageSenderResultSet } from 'src/app/core/services/messages-api.service';
 import { ValidationService } from 'src/app/core/services/validation.service';
 import { UtilitiesService } from 'src/app/shared/utilities.service';
@@ -49,7 +49,7 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
     private _formBuilder: FormBuilder,
     private _store: SettingsStore,
     private _fileUtilitiesService: FileUtilitiesService,
-    private _lang: AppLanguagesService // for sender placeholder localization (component not templated)
+    @Inject(APP_LANGUAGES) private _lang: AppLanguagesService
   ) { }
 
   // Input & Output parameters

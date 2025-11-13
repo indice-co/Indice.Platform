@@ -3,7 +3,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDest
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
-import { ComboboxComponent, MenuOption, ToastType } from '@indice/ng-components';
+import { APP_LANGUAGES, ComboboxComponent, MenuOption, ToastType } from '@indice/ng-components';
 import { Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CampaignDetails, DistributionList, DistributionListResultSet, Hyperlink, MessagesApiClient, MessageSender, MessageSenderResultSet, MessageType, MessageTypeResultSet, Period } from 'src/app/core/services/messages-api.service';
@@ -40,7 +40,7 @@ export class CampaignDetailsEditRightpaneComponent implements OnInit, AfterViewI
     private _api: MessagesApiClient,
     private _datePipe: DatePipe,
     private _settingsStore: SettingsStore,
-    private _lang: AppLanguagesService // injected language service
+    @Inject(APP_LANGUAGES) private _lang: AppLanguagesService
   ) { }
 
   @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;

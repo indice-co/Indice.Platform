@@ -1,9 +1,9 @@
-import { Component, EventEmitter, forwardRef, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Inject, Input, OnInit, Output } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Subject, combineLatest } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { MenuOption } from '@indice/ng-components';
+import { APP_LANGUAGES, MenuOption } from '@indice/ng-components';
 import { AppLanguagesService } from '../../services/app-languages.service';
 
 @Component({
@@ -22,7 +22,7 @@ export class LocalDropDownMenuComponent implements OnInit, ControlValueAccessor 
   private _expanded = false;
   private readonly destroy$ = new Subject<void>();
 
-  constructor(private appLanguages: AppLanguagesService) { }
+  constructor(@Inject(APP_LANGUAGES) private _lang: AppLanguagesService) { }
 
   @Input() public options: MenuOption[] = [];
   @Input() public value: MenuOption | null = null;
@@ -41,7 +41,7 @@ export class LocalDropDownMenuComponent implements OnInit, ControlValueAccessor 
   public ngOnInit(): void {
     // Dynamically translate placeholder, fallback already set.
     combineLatest([
-      this.appLanguages.translateKey(this.placeholder)
+      this._lang.translateKey(this.placeholder)
     ])
       .pipe(takeUntil(this.destroy$))
       .subscribe(([translatedPlaceholder]) => {

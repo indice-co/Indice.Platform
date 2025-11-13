@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { ModalService, ToastType } from '@indice/ng-components';
+import { APP_LANGUAGES, ModalService, ToastType } from '@indice/ng-components';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
 import { MessagesApiClient, Template } from 'src/app/core/services/messages-api.service';
 import { TemplateEditStore } from '../template-edit-store.service';
@@ -25,7 +25,7 @@ export class TemplateDetailsEditComponent implements OnInit, OnDestroy {
     private _router: Router,
     @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster,
     private _activatedRoute: ActivatedRoute,
-    private _languages: AppLanguagesService
+    @Inject(APP_LANGUAGES) private _lang: AppLanguagesService
   ) { }
 
   public template: Template | undefined;
@@ -50,8 +50,8 @@ export class TemplateDetailsEditComponent implements OnInit, OnDestroy {
     const messageKey = 'Templates.DeleteConfirmMessage';
     const params = { name: this.template?.name };
     combineLatest([
-      this._languages.translateKey(titleKey),
-      this._languages.translateKey(messageKey, params)
+      this._lang.translateKey(titleKey),
+      this._lang.translateKey(messageKey, params)
     ]).pipe(takeUntil(this._destroy$))
       .subscribe(([title, message]) => {
         const modal = this._modalService.show(BasicModalComponent, {

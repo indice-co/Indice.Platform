@@ -1,7 +1,7 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, ToastType, ViewAction } from '@indice/ng-components';
+import { APP_LANGUAGES, BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, ToastType, ViewAction } from '@indice/ng-components';
 import { combineLatest, Observable, Subject, Subscription } from 'rxjs';
 import { map, take, takeUntil } from 'rxjs/operators';
 import { Contact, ContactResultSet, DistributionList, MessagesApiClient } from 'src/app/core/services/messages-api.service';
@@ -28,7 +28,7 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
         private _api: MessagesApiClient,
         private _modalService: ModalService,
         private _activatedRoute: ActivatedRoute,
-        private _lang: AppLanguagesService,
+        @Inject(APP_LANGUAGES) private _lang: AppLanguagesService,
         @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster
 
     ) {

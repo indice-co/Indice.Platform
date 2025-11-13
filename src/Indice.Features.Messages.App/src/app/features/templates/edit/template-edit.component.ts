@@ -1,7 +1,7 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { HeaderMetaItem, ViewLayoutComponent } from '@indice/ng-components';
+import { APP_LANGUAGES, HeaderMetaItem, ViewLayoutComponent } from '@indice/ng-components';
 import { Template } from 'src/app/core/services/messages-api.service';
 import { TemplateEditStore } from './template-edit-store.service';
 import { AppLanguagesService } from '../../../shared/services/app-languages.service';
@@ -21,7 +21,7 @@ export class TemplateEditComponent implements OnInit, AfterViewChecked, OnDestro
     private _activatedRoute: ActivatedRoute,
     private _changeDetector: ChangeDetectorRef,
     private _templateStore: TemplateEditStore,
-    private _lang: AppLanguagesService
+    @Inject(APP_LANGUAGES) private _lang: AppLanguagesService
   ) { }
 
   public submitInProgress = false;

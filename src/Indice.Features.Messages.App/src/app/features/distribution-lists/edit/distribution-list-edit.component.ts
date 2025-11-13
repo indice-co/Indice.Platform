@@ -1,7 +1,7 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { HeaderMetaItem, ViewLayoutComponent } from '@indice/ng-components';
+import { APP_LANGUAGES, HeaderMetaItem, ViewLayoutComponent } from '@indice/ng-components';
 import { DistributionList } from 'src/app/core/services/messages-api.service';
 import { DistributionListEditStore } from './distribution-list-edit-store.service';
 import { AppLanguagesService } from '../../../shared/services/app-languages.service';
@@ -21,7 +21,7 @@ export class DistributionListEditComponent implements OnInit, AfterViewChecked {
         private _activatedRoute: ActivatedRoute,
         private _changeDetector: ChangeDetectorRef,
         private _distributionListStore: DistributionListEditStore,
-        private _lang: AppLanguagesService
+        @Inject(APP_LANGUAGES) private _lang: AppLanguagesService
     ) { }
     private $destroy = new Subject<void>();
     public submitInProgress = false;

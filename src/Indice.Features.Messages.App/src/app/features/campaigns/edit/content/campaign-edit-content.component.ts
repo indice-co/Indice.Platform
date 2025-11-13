@@ -1,6 +1,6 @@
 import { Component, HostListener, Inject, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import {  ToastType } from '@indice/ng-components';
+import {  APP_LANGUAGES, ToastType } from '@indice/ng-components';
 
 import { CampaignDetails, Hyperlink, MessageContent } from 'src/app/core/services/messages-api.service';
 import { CampaignContentComponent } from '../../create/steps/content/campaign-content.component';
@@ -22,7 +22,7 @@ export class CampaignContentEditComponent implements OnInit, OnDestroy {
     private _campaignStore: CampaignEditStore,
     private _activatedRoute: ActivatedRoute,
     @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster,
-    private _lang: AppLanguagesService // injected language service
+    @Inject(APP_LANGUAGES) private _lang: AppLanguagesService
   ) { }
 
   public basicInfoData: any = {};

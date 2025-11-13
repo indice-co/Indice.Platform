@@ -55,7 +55,7 @@ public static class MessageFeatureExtensions
             options.GroupName = apiOptions.InboxGroupName;
             options.AnalyticsOptions = apiOptions.AnalyticsOptions;
         }).AddTranslationGraph(options => {
-            options.DefaultTranslationsBaseName = "TranslationsApi";
+            options.DefaultTranslationsBaseName = "Messages.Ui.TranslationApi";
             options.DefaultTranslationsLocation = "Indice.Features.Messages.AspNetCore";
         });
     }

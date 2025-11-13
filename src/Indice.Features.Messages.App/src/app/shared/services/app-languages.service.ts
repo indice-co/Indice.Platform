@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { IAppLanguagesService, MenuOption } from '@indice/ng-components';
-import { Observable, Subject, of, take, } from 'rxjs';
+import { Observable, of, take, } from 'rxjs';
 import { AuthService } from '@indice/ng-auth';
 
 @Injectable({
@@ -12,23 +12,28 @@ export class AppLanguagesService implements IAppLanguagesService {
     new MenuOption('EN', 'EN', 'English'),
     new MenuOption('EL', 'EL', 'Ελληνικά')
   ];
-  private destroy$ = new Subject<void>();
 
   constructor(private translate: TranslateService, @Inject(AuthService) protected _authService: AuthService) {
 
     this.translate.addLangs(this._languages.map(l => l.value.toLowerCase()));
     this.default = this._languages[0].value.toLowerCase();
     this.options = of(this._languages);
-    this.selected = this.default = this._languages[0].value;
-    this.translate.use(this.default!);
+    //this.selected = this.default = this._languages[0].value;
+    //this.translate.use(this.default!);
+    console.log("This was constructed")
 
     _authService.isLoggedIn().pipe(take(1)).subscribe((result) =>
     {
       if (result == true) {
         const userLocale = _authService.getCurrentUser().profile.locale;
         if (userLocale && this._languages.map(x => x.text).includes(userLocale.toUpperCase())) {
+          console.log("Using selected locale");
           this.setSelected(userLocale)
         }
+      }
+      else {
+        console.log("No locale found");
+        this.setSelected(this.default!);
       }
     });
 
@@ -45,6 +50,6 @@ export class AppLanguagesService implements IAppLanguagesService {
   }
 
   public translateKey(key?: string, parameters?: any): Observable<string> {
-    return this.translate.stream(key || '', parameters);
+    return this.translate.get(key || '', parameters);
   }
 }

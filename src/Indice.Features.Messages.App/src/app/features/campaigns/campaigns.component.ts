@@ -1,7 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, RouterViewAction, ViewAction } from '@indice/ng-components';
+import { APP_LANGUAGES, BaseListComponent, IAppLanguagesService, Icons, IResultSet, ListViewType, MenuOption, RouterViewAction, ViewAction } from '@indice/ng-components';
 import { Observable, combineLatest, Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 import { Campaign, CampaignResultSet, MessagesApiClient, MessageTypeResultSet } from 'src/app/core/services/messages-api.service';
@@ -19,7 +19,7 @@ export class CampaignsComponent extends BaseListComponent<Campaign> implements O
     route: ActivatedRoute,
     router: Router,
     private _api: MessagesApiClient,
-    private _lang: AppLanguagesService
+    @Inject(APP_LANGUAGES) private _lang: AppLanguagesService
   ) {
     super(route, router);
     this.view = ListViewType.Table;

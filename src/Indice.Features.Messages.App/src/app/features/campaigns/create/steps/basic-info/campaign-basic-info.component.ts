@@ -1,8 +1,8 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, ViewChild, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, ViewChild, OnDestroy, Inject } from '@angular/core';
 import { AbstractControl, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 
-import { MenuOption } from '@indice/ng-components';
+import { APP_LANGUAGES, MenuOption } from '@indice/ng-components';
 import { lastValueFrom, combineLatest, Subscription } from 'rxjs';
 import { MessagesApiClient, MessageTypeResultSet, TemplateListItemResultSet } from 'src/app/core/services/messages-api.service';
 import { EnhancedComboboxComponent } from '@indice/ng-components';
@@ -18,7 +18,7 @@ export class CampaignBasicInfoComponent implements OnInit, OnDestroy {
     private _api: MessagesApiClient,
     private _datePipe: DatePipe,
     private _changeDetector: ChangeDetectorRef,
-    private _lang: AppLanguagesService // inject language service
+    @Inject(APP_LANGUAGES) private _lang: AppLanguagesService
   ) { }
 
   // Input & Output parameters

@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ViewAction } from '@indice/ng-components';
+import { APP_LANGUAGES, BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ViewAction } from '@indice/ng-components';
 import { Observable, combineLatest, Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 import { Contact, ContactResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
@@ -16,7 +16,7 @@ export class ContactsListComponent extends BaseListComponent<Contact> implements
     route: ActivatedRoute,
     private readonly _router: Router,
     private readonly _api: MessagesApiClient,
-    private readonly _languages: AppLanguagesService
+    @Inject(APP_LANGUAGES) private _lang: AppLanguagesService
   ) {
     super(route, _router);
     this.view = ListViewType.Table;
@@ -45,7 +45,7 @@ export class ContactsListComponent extends BaseListComponent<Contact> implements
     super.ngOnInit();
     // Reactive translation of sort option labels.
     const sortKeys = this.sortOptions.map(o => o.text);
-    combineLatest(sortKeys.map(k => this._languages.translateKey(k)))
+    combineLatest(sortKeys.map(k => this._lang.translateKey(k)))
       .pipe(takeUntil(this._destroy$))
       .subscribe(translated => {
         this.sortOptions = this.sortOptions.map((o, i) => new MenuOption(translated[i] || o.text, o.value));

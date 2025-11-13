@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ViewAction } from '@indice/ng-components';
+import { APP_LANGUAGES, BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ViewAction } from '@indice/ng-components';
 import { Observable, Subject, combineLatest } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 import { MessagesApiClient, MessageEvent, MessageEventResultSet, MessageChannelKind } from 'src/app/core/services/messages-api.service';
@@ -16,7 +16,7 @@ export class MessageEventsComponent extends BaseListComponent<MessageEvent> impl
     route: ActivatedRoute,
     private _router: Router,
     private _api: MessagesApiClient,
-    private _languages: AppLanguagesService
+    @Inject(APP_LANGUAGES) private _lang: AppLanguagesService
   ) {
     super(route, _router);
     this.view = ListViewType.Table;
@@ -41,7 +41,7 @@ export class MessageEventsComponent extends BaseListComponent<MessageEvent> impl
     super.ngOnInit();
     // Observe & update sort option labels reactively.
     const sortKeys = this.sortOptions.map(o => o.text);
-    combineLatest(sortKeys.map(k => this._languages.translateKey(k)))
+    combineLatest(sortKeys.map(k => this._lang.translateKey(k)))
       .pipe(takeUntil(this._destroy$))
       .subscribe(translated => {
         this.sortOptions = this.sortOptions.map((o, i) => new MenuOption(translated[i] || o.text, o.value));

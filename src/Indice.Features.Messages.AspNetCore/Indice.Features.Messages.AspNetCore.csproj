@@ -24,10 +24,10 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Update="Resources\TranslationsApi.el.resx">
+    <EmbeddedResource Update="Resources\Messages.Ui.TranslationApi.el.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Update="Resources\TranslationsApi.resx">
+    <EmbeddedResource Update="Resources\Messages.Ui.TranslationApi.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>

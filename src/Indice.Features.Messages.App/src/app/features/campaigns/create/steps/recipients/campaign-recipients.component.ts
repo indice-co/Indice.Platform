@@ -1,7 +1,7 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { AbstractControl, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 
-import { MenuOption, SidePaneComponent } from '@indice/ng-components';
+import { APP_LANGUAGES, MenuOption, SidePaneComponent } from '@indice/ng-components';
 import { map } from 'rxjs/operators';
 import { settings } from 'src/app/core/models/settings';
 import { Contact, DistributionListResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
@@ -16,7 +16,7 @@ import { AppLanguagesService } from '../../../../../shared/services/app-language
 export class CampaignRecipientsComponent implements OnInit {
   @ViewChild('distributionListContactCreateComponent', { static: false }) public distributionListContactCreateComponent!: ListContactCreateComponent;
   @ViewChild('rightPane', { static: false }) public rightPaneComponent!: SidePaneComponent;
-  constructor(private _api: MessagesApiClient, private _lang: AppLanguagesService) { }
+  constructor(private _api: MessagesApiClient, @Inject(APP_LANGUAGES) private _lang: AppLanguagesService) { }
 
   // Form Controls
   public get sendVia(): AbstractControl { return this.form.get('sendVia')!; }

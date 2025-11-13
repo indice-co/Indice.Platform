@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, ToastType, ViewAction } from '@indice/ng-components';
+import { APP_LANGUAGES, BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, ToastType, ViewAction } from '@indice/ng-components';
 import { Observable, Subject, combineLatest } from 'rxjs';
 import { map, take, takeUntil } from 'rxjs/operators';
 import { DistributionList, DistributionListResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
@@ -21,7 +21,7 @@ export class DistributionListsComponent extends BaseListComponent<DistributionLi
     private _api: MessagesApiClient,
     @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster,
     private _modalService: ModalService,
-    private _lang: AppLanguagesService
+    @Inject(APP_LANGUAGES) private _lang: AppLanguagesService
   ) {
     super(route, _router);
     this.view = ListViewType.Table;
@@ -32,7 +32,6 @@ export class DistributionListsComponent extends BaseListComponent<DistributionLi
     // Fallback: use translation key as initial label.
     this.sortOptions = [new MenuOption('DistributionLists.SortNameOption', 'name')];
   }
-
   public newItemLink: string | null = 'create-distribution-list';
   public full = true;
 

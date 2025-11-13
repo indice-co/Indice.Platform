@@ -1,7 +1,7 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { HeaderMetaItem, Icons, MenuOption, ToastType } from '@indice/ng-components';
+import { APP_LANGUAGES, HeaderMetaItem, Icons, MenuOption, ToastType } from '@indice/ng-components';
 import { CreateTemplateRequest, MessageContent, MessagesApiClient, MessageTypeResultSet } from 'src/app/core/services/messages-api.service';
 import { CampaignContentComponent } from '../../campaigns/create/steps/content/campaign-content.component';
 import { catchError, EMPTY, Subject, combineLatest } from 'rxjs';
@@ -25,7 +25,8 @@ export class TemplateCreateComponent implements OnInit, AfterViewChecked, OnDest
     private _api: MessagesApiClient,
     @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster,
     private _router: Router,
-    private _languages: AppLanguagesService
+    @Inject(APP_LANGUAGES) private _lang: AppLanguagesService
+
   ) {
     this.template.messageTypeId = '';
   }
@@ -52,7 +53,7 @@ export class TemplateCreateComponent implements OnInit, AfterViewChecked, OnDest
       this.metaItems[0].text,
       this.selectedOption.text
     ];
-    combineLatest(keysToTranslate.map(k => this._languages.translateKey(k!)))
+    combineLatest(keysToTranslate.map(k => this._lang.translateKey(k!)))
       .pipe(takeUntil(this._destroy$))
       .subscribe(translated => {
         this.metaItems = [

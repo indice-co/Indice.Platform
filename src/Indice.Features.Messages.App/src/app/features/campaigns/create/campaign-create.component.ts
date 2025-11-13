@@ -1,7 +1,7 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, Inject, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { HeaderMetaItem, Icons, LibStepperComponent, StepperType, ToasterService, ToastType } from '@indice/ng-components';
+import { APP_LANGUAGES, HeaderMetaItem, Icons, LibStepperComponent, StepperType, ToasterService, ToastType } from '@indice/ng-components';
 import { StepSelectedEvent } from '@indice/ng-components';
 import { CampaignBasicInfoComponent } from './steps/basic-info/campaign-basic-info.component';
 import { CampaignContentComponent } from './steps/content/campaign-content.component';
@@ -33,7 +33,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked, OnDest
     private _router: Router,
     private _changeDetector: ChangeDetectorRef,
     @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster,
-    private _lang: AppLanguagesService // added
+    @Inject(APP_LANGUAGES) private _lang: AppLanguagesService
   ) { }
 
   public now: Date = new Date();

@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, ToastType, ViewAction } from '@indice/ng-components';
+import { APP_LANGUAGES, BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, ToastType, ViewAction } from '@indice/ng-components';
 import { Observable, Subject, combineLatest } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 import { MessagesApiClient, MessageType, MessageTypeResultSet } from 'src/app/core/services/messages-api.service';
@@ -21,7 +21,7 @@ export class MessageTypesComponent extends BaseListComponent<MessageType> implem
     private _api: MessagesApiClient,
     @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster,
     private _modalService: ModalService,
-    private _languages: AppLanguagesService
+    @Inject(APP_LANGUAGES) private _lang: AppLanguagesService
   ) {
     super(route, _router);
     this.view = ListViewType.Table;
@@ -42,7 +42,7 @@ export class MessageTypesComponent extends BaseListComponent<MessageType> implem
     super.ngOnInit();
     // Reactive translation of sort options.
     const sortKeys = this.sortOptions.map(o => o.text);
-    combineLatest(sortKeys.map(k => this._languages.translateKey(k)))
+    combineLatest(sortKeys.map(k => this._lang.translateKey(k)))
       .pipe(takeUntil(this._destroy$))
       .subscribe(translated => {
         this.sortOptions = this.sortOptions.map((o, i) => new MenuOption(translated[i] || o.text, o.value));
@@ -65,8 +65,8 @@ export class MessageTypesComponent extends BaseListComponent<MessageType> implem
     const messageKey = 'MessageTypes.DeleteConfirmMessage';
     const params = { name: type.name };
     combineLatest([
-      this._languages.translateKey(titleKey),
-      this._languages.translateKey(messageKey, params)
+      this._lang.translateKey(titleKey),
+      this._lang.translateKey(messageKey, params)
     ])
       .pipe(takeUntil(this._destroy$))
       .subscribe(([title, message]) => {
