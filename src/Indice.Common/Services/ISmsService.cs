@@ -1,4 +1,6 @@
 ﻿using System.Diagnostics;
+using System.Security.Cryptography;
+using System.Text;
 using System.Web;
 
 namespace Indice.Services;
@@ -73,7 +75,7 @@ public enum WebHookStrategy
 }
 
 /// <summary>Settings for configuring webhook delivery reports.</summary>
-public class WebHookSettings<T> where T : 
+public class WebHookSettings
 {
     /// <summary>The base URL for the webhook endpoint.</summary>
     public string? BaseUrl { get; set; }
@@ -84,57 +86,72 @@ public class WebHookSettings<T> where T :
     /// <summary>The signature method used for webhook security.</summary>
     public string? SignatureMethod { get; set; }
 
-    /// <summary>Custom query string parameters to append when using QueryString strategy.</summary>
-    public Dictionary<string, string>? QueryStringParameters { get; set; }
+    /// <summary>The signature signing algorithm. Possible values are:<c>md5</c>, <c>hmac-md5</c>, <c>hmac-sha1</c>, <c>hmac-sha256</c>, <c>hmac-sha512</c>. Default is hmac-sha256. If no hashing is required leave empty</summary>
+    public string? HashingAlgorithm { get; set; }
 
     /// <summary>Custom URL builder function used when Strategy is set to Custom.</summary>
     /// <remarks>
-    /// This function receives the BaseUrl and should return the fully constructed URL.
+    /// This function receives the BaseUrl and an optional dictionary of parameters, and should return the fully constructed URL.
     /// Only used when Strategy is set to <see cref="WebHookStrategy.Custom"/>.
     /// </remarks>
-    public Func<string, string>? CustomUrlBuilder { get; set; }
+    public Func<string, IDictionary<string, string>?, string>? CustomUrlBuilder { get; set; }
 
     /// <summary>QueryString builder function used when Strategy is set to QueryString.</summary>
     /// <remarks>
-    /// This function receives the BaseUrl and should return the fully constructed URL.
+    /// This function receives the BaseUrl and an optional dictionary of parameters, and should return the fully constructed URL.
     /// Only used when Strategy is set to <see cref="WebHookStrategy.QueryString"/>.
     /// </remarks>
-    public Func<string, string>? QueryStringUrlBuilder { get; set; }
+    public Func<string, IDictionary<string, string>?, string>? QueryStringUrlBuilder { get; set; }
 
     /// <summary>Builds the report URL based on the configured strategy.</summary>
+    /// <param name="parameters">Optional dictionary of parameters for URL construction.</param>
     /// <returns>The constructed report URL, or null if BaseUrl is not set.</returns>
     /// <exception cref="InvalidOperationException">Thrown when Strategy is Custom but UrlBuilder is not set.</exception>
-    public string? BuildUrl() {
+    public string? BuildUrl(IDictionary<string, string>? parameters = null) {
         if (string.IsNullOrWhiteSpace(BaseUrl)) {
             return null;
         }
 
         return Strategy switch {
             WebHookStrategy.Static => BaseUrl,
-            WebHookStrategy.QueryString => BuildUrlWithQueryString(),
-            WebHookStrategy.Custom => BuildUrlWithCustomBuilder(),
+            WebHookStrategy.QueryString => BuildUrlWithQueryString(parameters),
+            WebHookStrategy.Custom => BuildUrlWithCustomBuilder(parameters),
             _ => BaseUrl
         };
     }
 
-    private string BuildUrlWithQueryString() {
+    private string BuildUrlWithQueryString(IDictionary<string, string>? parameters) {
         if (QueryStringUrlBuilder == null) {
             throw new InvalidOperationException(
-                "UrlBuilder must be set when using Custom strategy. " +
-                "Please provide a custom URL builder function or use a different strategy.");
+                "UrlBuilder must be set when using QueryString strategy. " +
+                "Please provide a query string URL builder function or use a different strategy.");
         }
 
-        return QueryStringUrlBuilder(BaseUrl!);
+        return QueryStringUrlBuilder(BaseUrl!, parameters);
     }
 
-    private string BuildUrlWithCustomBuilder() {
-        if (QueryStringUrlBuilder == null) {
+    private string BuildUrlWithCustomBuilder(IDictionary<string, string>? parameters) {
+        if (CustomUrlBuilder == null) {
             throw new InvalidOperationException(
                 "UrlBuilder must be set when using Custom strategy. " +
                 "Please provide a custom URL builder function or use a different strategy.");
         }
 
-        return QueryStringUrlBuilder(BaseUrl!);
+        return CustomUrlBuilder(BaseUrl!, parameters);
+    }
+    /// <summary>Generates a hash for the given query string and key using the specified hashing algorithm.</summary>
+    public string GenerateHash(string query, string key) {
+        if(string.IsNullOrWhiteSpace(HashingAlgorithm)) return query;
+
+        var hash = HashingAlgorithm.ToLower() switch {
+            "md5" => MD5.HashData(Encoding.UTF8.GetBytes($"{query}{key}")),
+            "hmac-md5" => HMACMD5.HashData(Encoding.UTF8.GetBytes(key), Encoding.UTF8.GetBytes(query)),
+            "hmac-sha1" => HMACSHA1.HashData(Encoding.UTF8.GetBytes(key), Encoding.UTF8.GetBytes(query)),
+            "hmac-sha256" => HMACSHA256.HashData(Encoding.UTF8.GetBytes(key), Encoding.UTF8.GetBytes(query)),
+            "hmac-sha512" => HMACSHA512.HashData(Encoding.UTF8.GetBytes(key), Encoding.UTF8.GetBytes(query)),
+            _ => HMACSHA256.HashData(Encoding.UTF8.GetBytes(key), Encoding.UTF8.GetBytes(query)),
+        };
+        return Convert.ToHexString(hash);
     }
 }
 
