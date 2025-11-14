@@ -122,7 +122,6 @@ public static class WebApplicationBuilderExtensions
         return authBuilder;
     }
 
-
     /// <summary>
     /// Adds api authorization defaults
     /// </summary>
@@ -153,35 +152,7 @@ public static class WebApplicationBuilderExtensions
     /// <strong>Proxy:KnownProxies</strong> (string comma delimited), 
     /// <strong>Proxy:ForwardLimit</strong> (int)</remarks>
     public static WebApplicationBuilder AddProxyDefaults(this WebApplicationBuilder builder) {
-        var proxyEnabled = builder.Configuration.ProxyEnabled();
-        if (!proxyEnabled) {
-            return builder;
-        }
-
-        builder.Services.Configure<ForwardedHeadersOptions>(options => {
-            options.KnownNetworks.Clear();
-            options.KnownProxies.Clear();
-            var forwardLimit = builder.Configuration.GetProxyForwardLimit();
-            var knownNetworks = builder.Configuration.GetProxyKnownNetworks();
-            var knownProxies = builder.Configuration.GetProxyKnownProxies();
-            options.ForwardedHeaders = ForwardedHeaders.All;
-            options.ForwardLimit = forwardLimit == 0
-                ? null
-                : forwardLimit;
-
-            foreach (var entry in knownNetworks) {
-                if (HttpOverrides.IPNetwork.TryParse(entry, out var network)) {
-                    options.KnownNetworks.Add(network);
-                }
-            }
-
-            foreach (var entry in knownProxies) {
-                if (IPAddress.TryParse(entry, out var ip)) {
-                    options.KnownProxies.Add(ip);
-                }
-            }
-        });
-
+        builder.Services.AddProxyForwardedHeaders(builder.Configuration);
         return builder;
     }
 }

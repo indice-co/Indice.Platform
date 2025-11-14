@@ -7,8 +7,9 @@ import { tap } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-folder-edit',
-  templateUrl: './folder-edit.component.html'
+    selector: 'app-folder-edit',
+    templateUrl: './folder-edit.component.html',
+    standalone: false
 })
 export class FolderEditComponent implements OnInit {
 

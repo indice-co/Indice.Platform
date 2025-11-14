@@ -7,8 +7,9 @@ import { MessageTypeResultSet, MessagesApiClient, Template } from 'src/app/core/
 import { TemplateEditStore } from '../../template-edit-store.service';
 
 @Component({
-  selector: 'app-campaign-details-edit-rightpane',
-  templateUrl: './template-edit-details-rightpane.component.html'
+    selector: 'app-campaign-details-edit-rightpane',
+    templateUrl: './template-edit-details-rightpane.component.html',
+    standalone: false
 })
 export class TemplateDetailsEditRightpaneComponent implements OnInit, AfterViewInit, OnDestroy {
   private _updateTemplateSubscription: Subscription | undefined;

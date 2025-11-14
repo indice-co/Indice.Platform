@@ -7,7 +7,8 @@ import { TemplateEditStore } from './template-edit-store.service';
 
 @Component({
     selector: 'app-template-edit',
-    templateUrl: './template-edit.component.html'
+    templateUrl: './template-edit.component.html',
+    standalone: false
 })
 export class TemplateEditComponent implements OnInit, AfterViewChecked {
     @ViewChild('layout', { static: true }) private _layout!: ViewLayoutComponent;

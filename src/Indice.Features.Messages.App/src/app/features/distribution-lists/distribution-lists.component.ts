@@ -9,7 +9,8 @@ import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic
 
 @Component({
     selector: 'app-distribution-lists',
-    templateUrl: './distribution-lists.component.html'
+    templateUrl: './distribution-lists.component.html',
+    standalone: false
 })
 export class DistributionListsComponent extends BaseListComponent<DistributionList> implements OnInit {
     constructor(

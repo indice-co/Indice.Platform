@@ -7,8 +7,9 @@ import { MediaLibraryStore } from '../../media-library-store.service';
 import { FileUtilitiesService } from 'src/app/shared/services/file-utilities.service';
 
 @Component({
-  selector: 'app-folder-view',
-  templateUrl: './folder-view.component.html'
+    selector: 'app-folder-view',
+    templateUrl: './folder-view.component.html',
+    standalone: false
 })
 export class FolderViewComponent implements OnInit {
 

@@ -3,8 +3,9 @@ import { Router } from '@angular/router';
 import { FolderTree } from 'src/app/core/services/media-api.service';
 
 @Component({
-  selector: 'app-tree-breadcrumb-item',
-  templateUrl: './tree-breadcrumb-item.component.html'
+    selector: 'app-tree-breadcrumb-item',
+    templateUrl: './tree-breadcrumb-item.component.html',
+    standalone: false
 })
 export class TreeBreadcrumbItemComponent implements OnInit {
 

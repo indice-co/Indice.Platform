@@ -6,8 +6,9 @@ import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic
 import { MediaLibraryStore } from '../../media-library-store.service';
 
 @Component({
-  selector: 'app-list-view',
-  templateUrl: './list-view.component.html'
+    selector: 'app-list-view',
+    templateUrl: './list-view.component.html',
+    standalone: false
 })
 export class ListViewComponent implements OnInit {
 

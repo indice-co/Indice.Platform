@@ -1063,4 +1063,7 @@
   <data name="Mfa_PageHeader" xml:space="preserve">
     <value>多要素認証</value>
   </data>
+  <data name="ForgotPassword_Request_Sent_Disclaimer" xml:space="preserve">
+    <value>そのメールアドレスに関連するアカウントが存在する場合、パスワード再設定の手順をお送りします。受信箱をご確認ください。</value>
+  </data>
 </root>

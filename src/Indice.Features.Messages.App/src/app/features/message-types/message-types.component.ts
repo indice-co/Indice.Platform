@@ -9,7 +9,8 @@ import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic
 
 @Component({
     selector: 'app-message-types',
-    templateUrl: './message-types.component.html'
+    templateUrl: './message-types.component.html',
+    standalone: false
 })
 export class MessageTypesComponent extends BaseListComponent<MessageType> implements OnInit {
     constructor(

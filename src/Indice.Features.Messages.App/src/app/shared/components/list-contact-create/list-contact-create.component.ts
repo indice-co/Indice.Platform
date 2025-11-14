@@ -5,8 +5,9 @@ import { settings } from 'src/app/core/models/settings';
 import { MessagesApiClient, ContactResultSet, Contact } from 'src/app/core/services/messages-api.service';
 
 @Component({
-  selector: 'app-list-contact-create',
-  templateUrl: './list-contact-create.component.html'
+    selector: 'app-list-contact-create',
+    templateUrl: './list-contact-create.component.html',
+    standalone: false
 })
 export class ListContactCreateComponent implements AfterViewInit {
 

@@ -5,7 +5,8 @@ import { IShellConfig, SHELL_CONFIG } from '@indice/ng-components';
 
 @Component({
     selector: 'app-logout',
-    templateUrl: './logout.component.html'
+    templateUrl: './logout.component.html',
+    standalone: false
 })
 export class LogOutComponent implements OnInit {
     constructor(

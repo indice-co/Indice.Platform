@@ -9,8 +9,9 @@ import { catchError } from 'rxjs/operators';
 import { EMPTY } from 'rxjs';
 
 @Component({
-  selector: 'app-template-content-edit',
-  templateUrl: './template-edit-content.component.html'
+    selector: 'app-template-content-edit',
+    templateUrl: './template-edit-content.component.html',
+    standalone: false
 })
 export class TemplateContentEditComponent implements OnInit {
   @ViewChild('contentStep', { static: false }) public _contentComponent: CampaignContentComponent | undefined;

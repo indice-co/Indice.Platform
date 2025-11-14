@@ -8,8 +8,9 @@ import { MessagesApiClient, MessageTypeResultSet, TemplateListItemResultSet } fr
 import { EnhancedComboboxComponent } from '@indice/ng-components';
 
 @Component({
-  selector: 'app-campaign-basic-info',
-  templateUrl: './campaign-basic-info.component.html'
+    selector: 'app-campaign-basic-info',
+    templateUrl: './campaign-basic-info.component.html',
+    standalone: false
 })
 export class CampaignBasicInfoComponent implements OnInit {
   constructor(

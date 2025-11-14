@@ -2,7 +2,8 @@ import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild }
 
 @Component({
     selector: 'app-multi-file-upload',
-    templateUrl: './multi-file-upload.component.html'
+    templateUrl: './multi-file-upload.component.html',
+    standalone: false
 })
 export class MultiFileUploadComponent implements OnInit {
     @ViewChild('fileInput', { static: false }) public _fileInput: ElementRef | undefined;

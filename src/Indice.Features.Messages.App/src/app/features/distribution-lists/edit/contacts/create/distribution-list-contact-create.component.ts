@@ -6,8 +6,9 @@ import { Contact, CreateDistributionListContactRequest, MessagesApiClient } from
 import { ListContactCreateComponent } from 'src/app/shared/components/list-contact-create/list-contact-create.component';
 
 @Component({
-  selector: 'app-distribution-list-contact-create',
-  templateUrl: './distribution-list-contact-create.component.html'
+    selector: 'app-distribution-list-contact-create',
+    templateUrl: './distribution-list-contact-create.component.html',
+    standalone: false
 })
 export class DistributionListContactCreateComponent implements OnInit, AfterViewInit {
   @ViewChild('distributionListContactCreateComponent', { static: false }) public distributionListContactCreateComponent!: ListContactCreateComponent;
