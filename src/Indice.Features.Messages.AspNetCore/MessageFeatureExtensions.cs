@@ -17,7 +17,9 @@ using Indice.Features.Messages.Core.Services.Validators;
 using Indice.Serialization;
 using Indice.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -57,7 +59,8 @@ public static class MessageFeatureExtensions
         }).AddTranslationGraph(options => {
             options.DefaultTranslationsBaseName = "Messages.Ui.TranslationApi";
             options.DefaultTranslationsLocation = "Indice.Features.Messages.AspNetCore";
-            options.DefaultEndpointRoutePattern = $"/messagesUiTranslation.{{lang:culture}}.json";
+            options.DefaultEndpointRoutePattern = apiOptions.PathPrefix.TrimEnd('/') + "/msg-i18n.{lang:culture}.json";
+            options.ConfigureCachePolicy = new Action<OutputCachePolicyBuilder>(policy => { policy.Expire(TimeSpan.FromHours(24)).SetAuthorized().SetAutoTag(); });
         });
     }
 

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.Builder;
 /// <summary>Configuration extensions on <seealso cref="IEndpointRouteBuilder "/>.</summary>
@@ -41,7 +42,7 @@ public static class MessageEndpointExtensions
         routes.MapTemplates();
         routes.MapAnalytics();
         routes.MapSend();
-        routes.MapTranslationGraph();
+        var translationRoute = routes.MapTranslationGraph();
         return routes;
     }
 }

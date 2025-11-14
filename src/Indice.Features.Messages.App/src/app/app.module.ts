@@ -95,13 +95,11 @@ import { NgProgressbar } from 'ngx-progressbar';
 import { progressInterceptor, NgProgressHttp } from 'ngx-progressbar/http';
 import { ContactDuplicatesComponent } from './features/contacts/contact/duplicates/contact-duplicates.component';
 import { MessageEventsComponent } from './features/events/message-events.component';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateModule, TranslateLoader, provideTranslateService } from '@ngx-translate/core';
+import { provideTranslateHttpLoader, TRANSLATE_HTTP_LOADER_CONFIG } from '@ngx-translate/http-loader';
 import { ApiTranslateLoader } from './shared/services/api-translate-loader'; 
 
 registerLocaleData(localeGreek);
-export function ApiLoaderFactory(http: HttpClient) {
-  return new ApiTranslateLoader(http);
-}
 
 const providers: Provider[] = [
   DatePipe,
@@ -123,7 +121,14 @@ const providers: Provider[] = [
       lineNumbers: true,
     }
   },
+  {
+    provide: TRANSLATE_HTTP_LOADER_CONFIG, useFactory: () => { prefix: `${app.settings.api_url}/messagesUiTranslation.` }},
+  provideTranslateService({
+    loader: provideTranslateHttpLoader({ prefix: `${app.settings.api_url}/msg-i18n.`, useHttpBackend: true}),
+      fallbackLang: 'en'
+    }),
   { provide: APP_LANGUAGES, useClass: AppLanguagesService }
+  
 ]
 
 if (app.settings.tenantId) {
@@ -226,11 +231,11 @@ if (app.settings.tenantId) {
   ],
   providers: [
     ...providers,
-    {
+    /*{
       provide: TranslateLoader,
-      useFactory: ApiLoaderFactory,
-      deps: [HttpClient],
-    },
+      useClass: ApiTranslateLoader,
+      deps: [HttpClient, MESSAGES_API_BASE_URL],
+    },*/
     provideHttpClient(withInterceptors([progressInterceptor]))
   ],
   bootstrap: [AppComponent]

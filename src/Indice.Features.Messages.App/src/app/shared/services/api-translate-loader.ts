@@ -13,9 +13,9 @@ export class ApiTranslateLoader implements TranslateLoader {
   private baseUrl: string;
   protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
-  constructor(@Inject(HttpClient) http: HttpClient, @Inject(String) baseUrl?: string) {
+  constructor(@Inject(HttpClient) http: HttpClient, @Inject(String) baseUrl: string) {
     this.http = http;
-    this.baseUrl = baseUrl ?? "https://localhost:2001/";
+    this.baseUrl = baseUrl;
   }
 
 
@@ -23,7 +23,7 @@ export class ApiTranslateLoader implements TranslateLoader {
   //for them to be rendered
   //because we dont want to have the mainting here - but in a resx file in the backend
   getTranslation(lang: string): Observable<Record<string, any>> {
-    const url = this.baseUrl + `messagesUiTranslation.${lang}.json`;
+    const url = this.baseUrl + `/messagesUiTranslation.${lang}.json`;
     return this.http.get<Record<string, any>>(url).pipe(
       catchError(err => {
         console.error(`Error loading language "${lang}"`, err);
