@@ -121,13 +121,9 @@ const providers: Provider[] = [
     useValue: {
       fullLibraryLoader: () => import('highlight.js'),
       lineNumbers: true,
-      coreLibraryLoader: () => import('highlight.js/lib/core'),
-      languages: {
-        json: () => import('highlight.js/lib/languages/json')
-      }
     }
   },
-  { provide: APP_LANGUAGES, useClass: AppLanguagesService },
+  { provide: APP_LANGUAGES, useClass: AppLanguagesService }
 ]
 
 if (app.settings.tenantId) {
