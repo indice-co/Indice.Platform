@@ -2,8 +2,6 @@
 @inject IOptions<IdentityUIOptions> UIOptions
 @inject UserManager<User> UserManager
 @inject IdentityUILocalizer Localizer
-@inject IConfiguration configuration
-
 
 @{
     Layout = "_LayoutEmail.cshtml";
@@ -14,7 +12,6 @@
 	var subject = Model?.Subject ?? Localizer.EmailRegister_Subject(settings.ApplicationName!);
     var userName = Model?.UserName ?? UserManager.GetUserName(User);
     var confirmationLink = Model?.Url ?? throw new InvalidOperationException("Confirmation link cannot be null.");
-    var policy = configuration.GetIdentityOption<MfaPolicy?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Policy");
 }
 
 @section preheader {
