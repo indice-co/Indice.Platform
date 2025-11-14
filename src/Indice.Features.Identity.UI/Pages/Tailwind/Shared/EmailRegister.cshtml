@@ -10,7 +10,7 @@
 
 @{
     var settings = GeneralSettings.Value;
-	var subject = Model?.Subject ?? Localizer.EmailRegister_Subject(settings.ApplicationName!);
+    var subject = Model?.Subject ?? Localizer.EmailRegister_Subject(settings.ApplicationName!);
     var userName = Model?.UserName ?? UserManager.GetUserName(User);
     var confirmationLink = Model?.Url ?? throw new InvalidOperationException("Confirmation link cannot be null.");
 }
@@ -32,10 +32,13 @@
     @Localizer.EmailRegister_Body_Welcome(settings.ApplicationName!)
     <br />
     <br />
-    @Localizer.EmailRegister_Body_ConfirmEmail
-    <a style="color:#@UIOptions.Value.EmailLinkColorHex" href="@confirmationLink">@Localizer.Email_Preheader_Here</a>.
-    <br />
-    <br />
+    @if (!UIOptions.Value.AutomaticSigninAfterRegister)
+    {
+        @Localizer.EmailRegister_Body_ConfirmEmail
+        <a style="color:#@UIOptions.Value.EmailLinkColorHex" href="@confirmationLink">@Localizer.Email_Preheader_Here</a>
+        <br />
+        <br />
+    }
     @Localizer.EmailRegister_Body_IgnoreNotice
     <br />
     <br />

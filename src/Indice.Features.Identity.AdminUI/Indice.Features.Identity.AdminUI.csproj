@@ -12,7 +12,7 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="$(SpaDistFolder)\**\*" Exclude="$(SpaDistFolder)\**\index.html" />
+    <EmbeddedResource Include="$(SpaDistFolder)\**\*" Exclude="$(SpaDistFolder)\**\index.html;$(SpaDistFolder)\**\3rdpartylicenses.txt;$(SpaDistFolder)\**\prerendered-routes.json" />
     <EmbeddedResource Include="$(SpaProjectName)\index.html" />
   </ItemGroup>
   <ItemGroup>
