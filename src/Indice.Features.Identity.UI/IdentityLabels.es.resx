@@ -201,7 +201,7 @@
   <data name="ChangePassword_PageHeader" xml:space="preserve">
     <value>Cambiar contraseña</value>
   </data>
-  <data name="ChangePassword_NewPassword_FieldLabel" xml:space="preserve">
+  <data name="ChangePassword_Newpassword_FieldLabel" xml:space="preserve">
     <value>Nueva contraseña</value>
   </data>
   <data name="ChangePassword_OldPassword_FieldLabel" xml:space="preserve">
@@ -1062,5 +1062,8 @@
   </data>
   <data name="Mfa_PageHeader" xml:space="preserve">
     <value>Autenticación multifactor</value>
+  </data>
+  <data name="ForgotPassword_Request_Sent_Disclaimer" xml:space="preserve">
+    <value>Si existe una cuenta asociada a ese correo electrónico, te enviaremos instrucciones para restablecer la contraseña. Por favor, revisa tu bandeja de entrada.</value>
   </data>
 </root>

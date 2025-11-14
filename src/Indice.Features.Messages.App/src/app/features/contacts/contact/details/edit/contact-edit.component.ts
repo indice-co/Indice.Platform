@@ -7,8 +7,9 @@ import { Contact, MessagesApiClient, UpdateContactRequest } from 'src/app/core/s
 
 
 @Component({
-  selector: 'app-contact-edit',
-  templateUrl: './contact-edit.component.html'
+    selector: 'app-contact-edit',
+    templateUrl: './contact-edit.component.html',
+    standalone: false
 })
 export class ContactEditComponent implements OnInit, AfterViewInit, OnDestroy {
   private _getContactSubscription!: Subscription;

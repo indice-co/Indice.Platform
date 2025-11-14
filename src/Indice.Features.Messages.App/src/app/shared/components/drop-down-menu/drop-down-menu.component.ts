@@ -7,10 +7,11 @@ import { MenuOption } from '@indice/ng-components';
     selector: 'lib-local-drop-down-menu',
     templateUrl: './drop-down-menu.component.html',
     providers: [{
-        provide: NG_VALUE_ACCESSOR,
-        useExisting: forwardRef(() => LocalDropDownMenuComponent),
-        multi: true
-    }]
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => LocalDropDownMenuComponent),
+            multi: true
+        }],
+    standalone: false
 })
 export class LocalDropDownMenuComponent implements OnInit, ControlValueAccessor {
     private _onChange$: any | undefined = undefined;

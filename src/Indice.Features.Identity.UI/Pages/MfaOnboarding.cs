@@ -43,6 +43,7 @@ public abstract class BaseMfaOnboardingModel : BasePageModel
         Input.ReturnUrl = returnUrl;
         View.ReturnUrl = returnUrl;
         View.AuthenticationMethods = await AuthenticationMethodProvider.GetAllMethodsAsync();
+        Input.SelectedAuthenticationMethod = View.AuthenticationMethods.First().Type;
         return Page();
     }
 

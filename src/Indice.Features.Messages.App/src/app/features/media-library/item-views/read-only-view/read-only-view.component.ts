@@ -5,8 +5,9 @@ import { ToastType, ToasterService } from '@indice/ng-components';
 import { FileUtilitiesService } from 'src/app/shared/services/file-utilities.service';
 
 @Component({
-  selector: 'app-read-only-view',
-  templateUrl: './read-only-view.component.html'
+    selector: 'app-read-only-view',
+    templateUrl: './read-only-view.component.html',
+    standalone: false
 })
 export class ReadOnlyViewComponent implements OnInit {
 

@@ -6,8 +6,9 @@ import { catchError, EMPTY, Subscription } from 'rxjs';
 import { MessagesApiClient, MessageType, MessageTypeClassification, UpdateMessageTypeRequest } from 'src/app/core/services/messages-api.service';
 
 @Component({
-  selector: 'app-message-type-edit',
-  templateUrl: './message-type-edit.component.html'
+    selector: 'app-message-type-edit',
+    templateUrl: './message-type-edit.component.html',
+    standalone: false
 })
 export class MessageTypeEditComponent implements OnInit, AfterViewInit, OnDestroy {
   private _getTypeSubscription!: Subscription;

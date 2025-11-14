@@ -1,13 +1,13 @@
 <lib-side-view-layout title="Επεξεργασία καμπάνιας"
-                      [ok-close-dialog]="false"
-                      [ok-label]="'Αποθήκευση'"
-                      [cancel-label]="'Κλείσιμο'"
-                      (ok)="submitButton.nativeElement.click()"
-                      [disabled]="!editCampaignForm.valid || submitInProgress"
-                      #sideViewLayout>
+  [ok-close-dialog]="false"
+  [ok-label]="'Αποθήκευση'"
+  [cancel-label]="'Κλείσιμο'"
+  (ok)="submitButton.nativeElement.click()"
+  [disabled]="!editCampaignForm.valid || submitInProgress"
+  #sideViewLayout>
   <div class="mt-4">
     <form #editCampaignForm="ngForm"
-          (ngSubmit)="onSubmit()">
+      (ngSubmit)="onSubmit()">
       <div class="px-4 space-y-2 pb-4">
         <div class="grid grid-cols-4 gap-4">
           <div class="col-span-4">
@@ -16,8 +16,8 @@
         </div>
       </div>
       <button type="submit"
-              [style.visibility]="'hidden'"
-              #submitBtn>
+        [style.visibility]="'hidden'"
+        #submitBtn>
         Submit
       </button>
     </form>
@@ -25,70 +25,80 @@
 </lib-side-view-layout>
 <ng-template #editNameTemplate>
   <label for="templateName"
-         class="field-label">
+    class="field-label">
     Τίτλος (*)
   </label>
   <div class="mt-1 flex rounded-sm">
     <input class="w-full"
-           type="text"
-           name="templateName"
-           id="templateName"
-           [(ngModel)]="model.name"
-           placeholder="Το όνομα του προτύπου..."
-           required
-           maxlength="256"
-           #templateName="ngModel">
-  </div>
-  <p *ngIf="templateName.invalid && (templateName.dirty || templateName.touched)"
-     class="mt-2 text-sm text-red-600">
-    <span *ngIf="templateName.errors!['required']">Παρακαλώ συμπληρώστε ένα τίτλο.</span>
-    <span *ngIf="templateName.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο τίτλο.</span>
-  </p>
-  <p class="field-info col-span-3">Η ονομασία η οποία θα εμφανίζεται για την καμπάνια.</p>
-  <label for="templateAlias"
-         class="field-label">
-    Alias
-  </label>
-  <div class="mt-1 flex rounded-sm">
-    <input class="w-full"
-           type="text"
-           name="templateAlias"
-           id="templateAlias"
-           [(ngModel)]="model.alias"
-           placeholder="Το alias του προτύπου..."
-           maxlength="64"
-           #templateAlias="ngModel">
-  </div>
-  <p *ngIf="templateAlias.invalid && (templateAlias.dirty || templateAlias.touched)"
-     class="mt-2 text-sm text-red-600">
-    <span *ngIf="templateAlias.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο alias.</span>
-  </p>
-</ng-template>
-
-
-<ng-template #editUserPreferenceTemplate>
-  <dl>
-    <div class="py-3 sm:grid sm:grid-cols-3">
-      <dt class="text-sm font-medium text-gray-500">Παράβλεψη ρυθμίσεων επικοινωνίας επαφών</dt>
-      <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-        <lib-toggle-button id="ignoreUserPreferences" name="ignoreUserPreferences" [(ngModel)]="model.ignoreUserPreferences" true-label="Ναι" false-label="Όχι"></lib-toggle-button>
-      </dd>
+      type="text"
+      name="templateName"
+      id="templateName"
+      [(ngModel)]="model.name"
+      placeholder="Το όνομα του προτύπου..."
+      required
+      maxlength="256"
+      #templateName="ngModel">
     </div>
-  </dl>
-</ng-template>
+    @if (templateName.invalid && (templateName.dirty || templateName.touched)) {
+      <p
+        class="mt-2 text-sm text-red-600">
+        @if (templateName.errors!['required']) {
+          <span>Παρακαλώ συμπληρώστε ένα τίτλο.</span>
+        }
+        @if (templateName.errors!['maxlength']) {
+          <span>Παρακαλώ συμπληρώστε ένα μικρότερο τίτλο.</span>
+        }
+      </p>
+    }
+    <p class="field-info col-span-3">Η ονομασία η οποία θα εμφανίζεται για την καμπάνια.</p>
+    <label for="templateAlias"
+      class="field-label">
+      Alias
+    </label>
+    <div class="mt-1 flex rounded-sm">
+      <input class="w-full"
+        type="text"
+        name="templateAlias"
+        id="templateAlias"
+        [(ngModel)]="model.alias"
+        placeholder="Το alias του προτύπου..."
+        maxlength="64"
+        #templateAlias="ngModel">
+      </div>
+      @if (templateAlias.invalid && (templateAlias.dirty || templateAlias.touched)) {
+        <p
+          class="mt-2 text-sm text-red-600">
+          @if (templateAlias.errors!['maxlength']) {
+            <span>Παρακαλώ συμπληρώστε ένα μικρότερο alias.</span>
+          }
+        </p>
+      }
+    </ng-template>
 
 
-<ng-template #editMessageType>
-  <dl>
-      <dt class="text-sm font-medium text-gray-500">Τύπος μηνύματος</dt>
-      <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-        <lib-local-drop-down-menu id="templateType"
-                                  name="templateType"
-                                  class="w-full"
-                                  [options]="messageTypes"
-                                  [value]="selectedOption"
-                                  (change)="setType($event)">
-        </lib-local-drop-down-menu>
-      </dd>
-  </dl>
-</ng-template>
+    <ng-template #editUserPreferenceTemplate>
+      <dl>
+        <div class="py-3 sm:grid sm:grid-cols-3">
+          <dt class="text-sm font-medium text-gray-500">Παράβλεψη ρυθμίσεων επικοινωνίας επαφών</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <lib-toggle-button id="ignoreUserPreferences" name="ignoreUserPreferences" [(ngModel)]="model.ignoreUserPreferences" true-label="Ναι" false-label="Όχι"></lib-toggle-button>
+          </dd>
+        </div>
+      </dl>
+    </ng-template>
+
+
+    <ng-template #editMessageType>
+      <dl>
+        <dt class="text-sm font-medium text-gray-500">Τύπος μηνύματος</dt>
+        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+          <lib-local-drop-down-menu id="templateType"
+            name="templateType"
+            class="w-full"
+            [options]="messageTypes"
+            [value]="selectedOption"
+            (change)="setType($event)">
+          </lib-local-drop-down-menu>
+        </dd>
+      </dl>
+    </ng-template>

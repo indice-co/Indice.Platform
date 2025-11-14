@@ -1,35 +1,38 @@
 <div class="p-1 modal-content" [ngClass]="{ 'modal-wide': class === 'html' }">
-    <h2 class="modal-title pull-left">{{ title }}</h2>
-    <hr class="mb-2">
-    <div class="pt-5 pb-5 sm:pt-0">
-        <dl class="space-y-8 sm:space-y-6">
-            <div>
-                <dd class="mt-1 text-sm text-gray-900 sm:col-span-2">
-                    <!-- If coming from email (we set type to success) treat body as HTML -->
-                    <div *ngIf="class === 'html'; else plainBody" [innerHTML]="message | safe: 'html'"></div>
-                    <ng-template #plainBody>
-                        <p>{{ message }}</p>
-                    </ng-template>
-                </dd>
-            </div>
-        </dl>
-    </div>
-    <div class="modal-actions-container mt-2"
-         role="group">
-        <button type="button"
-                class="basic-modal-close"
-                (click)="answer(false)">
-            Κλείσιμο
-        </button>
-        &nbsp;
-        <button *ngIf="acceptText" type="button"
-                class="basic-modal-accept"
+  <h2 class="modal-title pull-left">{{ title }}</h2>
+  <hr class="mb-2">
+  <div class="pt-5 pb-5 sm:pt-0">
+    <dl class="space-y-8 sm:space-y-6">
+      <div>
+        <dd class="mt-1 text-sm text-gray-900 sm:col-span-2">
+          <!-- If coming from email (we set type to success) treat body as HTML -->
+          @if (class === 'html') {
+            <div [innerHTML]="message | safe: 'html'"></div>
+          } @else {
+            <p>{{ message }}</p>
+          }
+        </dd>
+      </div>
+    </dl>
+  </div>
+  <div class="modal-actions-container mt-2"
+    role="group">
+    <button type="button"
+      class="basic-modal-close"
+      (click)="answer(false)">
+      Κλείσιμο
+    </button>
+    &nbsp;
+    @if (acceptText) {
+      <button type="button"
+        class="basic-modal-accept"
                 [ngClass]="{ 
                     'basic-modal-accept-error': type === 'error', 
                     'basic-modal-accept-success': type === 'success' 
                 }"
-                (click)="answer(true)">
-            {{ acceptText }}
-        </button>
-    </div>
+        (click)="answer(true)">
+        {{ acceptText }}
+      </button>
+    }
+  </div>
 </div>

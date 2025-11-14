@@ -3,7 +3,8 @@ import { ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: 'app-http-status',
-    templateUrl: './http-status.component.html'
+    templateUrl: './http-status.component.html',
+    standalone: false
 })
 export class HttpStatusComponent implements OnInit {
     constructor(private route: ActivatedRoute) { }

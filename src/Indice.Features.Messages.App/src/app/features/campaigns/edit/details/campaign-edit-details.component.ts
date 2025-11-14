@@ -10,7 +10,8 @@ import { settings } from 'src/app/core/models/settings';
 
 @Component({
     selector: 'app-campaign-details-edit',
-    templateUrl: './campaign-edit-details.component.html'
+    templateUrl: './campaign-edit-details.component.html',
+    standalone: false
 })
 export class CampaignDetailsEditComponent implements OnInit {
     private _campaignId: string | undefined;

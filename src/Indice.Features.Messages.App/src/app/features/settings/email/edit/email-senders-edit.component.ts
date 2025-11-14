@@ -5,8 +5,9 @@ import { MessagesApiClient, UpdateMessageSenderRequest, MessageSender } from 'sr
 import { SettingsStore } from '../../settings-store.service';
 
 @Component({
-  selector: 'app-email-senders-edit',
-  templateUrl: './email-senders-edit.component.html'
+    selector: 'app-email-senders-edit',
+    templateUrl: './email-senders-edit.component.html',
+    standalone: false
 })
 export class EmailSendersEditComponent implements OnInit, AfterViewInit {
   private _messageSenderId: string = '';

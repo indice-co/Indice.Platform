@@ -7,7 +7,8 @@ import { CampaignEditStore } from './campaign-edit-store.service';
 
 @Component({
     selector: 'app-campaign-edit',
-    templateUrl: './campaign-edit.component.html'
+    templateUrl: './campaign-edit.component.html',
+    standalone: false
 })
 export class CampaignEditComponent implements OnInit, AfterViewChecked {
     @ViewChild('layout', { static: true }) private _layout!: ViewLayoutComponent;
