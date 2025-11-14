@@ -96,7 +96,7 @@ import { progressInterceptor, NgProgressHttp } from 'ngx-progressbar/http';
 import { ContactDuplicatesComponent } from './features/contacts/contact/duplicates/contact-duplicates.component';
 import { MessageEventsComponent } from './features/events/message-events.component';
 import { TranslateModule, provideTranslateService } from '@ngx-translate/core';
-import { provideTranslateHttpLoader, TRANSLATE_HTTP_LOADER_CONFIG } from '@ngx-translate/http-loader';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
 registerLocaleData(localeGreek);
 
