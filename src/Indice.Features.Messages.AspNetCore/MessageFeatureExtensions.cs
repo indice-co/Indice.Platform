@@ -57,6 +57,7 @@ public static class MessageFeatureExtensions
         }).AddTranslationGraph(options => {
             options.DefaultTranslationsBaseName = "Messages.Ui.TranslationApi";
             options.DefaultTranslationsLocation = "Indice.Features.Messages.AspNetCore";
+            options.DefaultEndpointRoutePattern = $"/messagesUiTranslation.{{lang:culture}}.json";
         });
     }
 
