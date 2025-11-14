@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Package">
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
-    <SpaProjectName>messages-app</SpaProjectName>
+    <SpaProjectName>browser</SpaProjectName>
     <SpaSourceFolder>..\Indice.Features.Messages.App</SpaSourceFolder>
     <SpaDistFolder>$(SpaSourceFolder)\dist\messages-app</SpaDistFolder>
     <PackageReadmeFile>CHANGELOG.md</PackageReadmeFile>
@@ -14,10 +14,6 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(SpaDistFolder)\**\*" Exclude="$(SpaDistFolder)\**\index.html;$(SpaDistFolder)\**\3rdpartylicenses.txt;$(SpaDistFolder)\**\prerendered-routes.json" />
-    <Compile Remove="messages-app\**" />
-    <EmbeddedResource Remove="messages-app\**" />
-    <None Remove="messages-app\**" />
-    <EmbeddedResource Remove="messages-app\index.html" />
     <EmbeddedResource Include="$(SpaProjectName)\index.html" />
     <None Include="CHANGELOG.md" Pack="true" PackagePath="\" />
   </ItemGroup>
