@@ -97,7 +97,6 @@ import { ContactDuplicatesComponent } from './features/contacts/contact/duplicat
 import { MessageEventsComponent } from './features/events/message-events.component';
 import { TranslateModule, TranslateLoader, provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader, TRANSLATE_HTTP_LOADER_CONFIG } from '@ngx-translate/http-loader';
-import { ApiTranslateLoader } from './shared/services/api-translate-loader'; 
 
 registerLocaleData(localeGreek);
 
