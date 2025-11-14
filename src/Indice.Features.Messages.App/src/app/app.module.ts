@@ -1,6 +1,6 @@
 import { LOCALE_ID, NgModule, Provider } from '@angular/core';
 import { CommonModule, DatePipe, JsonPipe, registerLocaleData } from '@angular/common';
-import { HttpClientModule, HTTP_INTERCEPTORS, withInterceptors, provideHttpClient, HttpClient } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS, withInterceptors, provideHttpClient } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -95,7 +95,7 @@ import { NgProgressbar } from 'ngx-progressbar';
 import { progressInterceptor, NgProgressHttp } from 'ngx-progressbar/http';
 import { ContactDuplicatesComponent } from './features/contacts/contact/duplicates/contact-duplicates.component';
 import { MessageEventsComponent } from './features/events/message-events.component';
-import { TranslateModule, TranslateLoader, provideTranslateService } from '@ngx-translate/core';
+import { TranslateModule, provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader, TRANSLATE_HTTP_LOADER_CONFIG } from '@ngx-translate/http-loader';
 
 registerLocaleData(localeGreek);
@@ -120,10 +120,8 @@ const providers: Provider[] = [
       lineNumbers: true,
     }
   },
-  {
-    provide: TRANSLATE_HTTP_LOADER_CONFIG, useFactory: () => { prefix: `${app.settings.api_url}/messagesUiTranslation.` }},
   provideTranslateService({
-    loader: provideTranslateHttpLoader({ prefix: `${app.settings.api_url}/msg-i18n.`, useHttpBackend: true}),
+    loader: provideTranslateHttpLoader({ prefix: `${app.settings.api_url}/msg-i18n.`, useHttpBackend: true }),
       fallbackLang: 'en'
     }),
   { provide: APP_LANGUAGES, useClass: AppLanguagesService }

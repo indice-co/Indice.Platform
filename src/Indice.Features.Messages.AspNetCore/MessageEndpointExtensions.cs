@@ -41,7 +41,7 @@ public static class MessageEndpointExtensions
         routes.MapTemplates();
         routes.MapAnalytics();
         routes.MapSend();
-        var translationRoute = routes.MapTranslationGraph();
+        routes.MapTranslationGraph();
         return routes;
     }
 }

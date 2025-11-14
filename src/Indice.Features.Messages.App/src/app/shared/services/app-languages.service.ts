@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { IAppLanguagesService, MenuOption } from '@indice/ng-components';
-import { Observable, of, take, takeUntil, } from 'rxjs';
+import { Observable, of, take } from 'rxjs';
 import { AuthService } from '@indice/ng-auth';
 
 @Injectable({
