@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-
-import { APP_LANGUAGES, BaseListComponent, IAppLanguagesService, Icons, IResultSet, ListViewType, MenuOption, RouterViewAction, ViewAction } from '@indice/ng-components';
+import { APP_LANGUAGES, BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, RouterViewAction, ViewAction } from '@indice/ng-components';
 import { Observable, combineLatest, Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 import { Campaign, CampaignResultSet, MessagesApiClient, MessageTypeResultSet } from 'src/app/core/services/messages-api.service';

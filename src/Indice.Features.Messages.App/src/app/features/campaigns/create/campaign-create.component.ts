@@ -1,7 +1,6 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, Inject, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-
-import { APP_LANGUAGES, HeaderMetaItem, Icons, LibStepperComponent, StepperType, ToasterService, ToastType } from '@indice/ng-components';
+import { APP_LANGUAGES, HeaderMetaItem, Icons, LibStepperComponent, StepperType, ToastType } from '@indice/ng-components';
 import { StepSelectedEvent } from '@indice/ng-components';
 import { CampaignBasicInfoComponent } from './steps/basic-info/campaign-basic-info.component';
 import { CampaignContentComponent } from './steps/content/campaign-content.component';

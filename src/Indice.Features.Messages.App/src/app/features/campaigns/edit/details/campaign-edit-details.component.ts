@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { APP_LANGUAGES, ModalService, ToasterService, ToastType } from '@indice/ng-components';
+import { APP_LANGUAGES, ModalService, ToastType } from '@indice/ng-components';
 
 import { CampaignDetails, MessageSender, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
