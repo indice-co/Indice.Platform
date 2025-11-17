@@ -28,4 +28,6 @@ public class SecurityNotificationModel
     public string? DisplayName { get; set; }
     /// <summary>The email subject.</summary>
     public string? Subject { get; set; }
+    /// <summary>The email description.</summary>
+    public string? Description { get; set; }
 }

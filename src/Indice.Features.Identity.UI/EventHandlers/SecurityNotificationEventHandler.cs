@@ -37,10 +37,9 @@ public class SecurityNotificationEventHandler : IPlatformEventHandler<SecurityNo
         if (string.IsNullOrWhiteSpace(@event.User.Email)) {
             return; // No email to send notification to.
         }
-        var subject = _messageDescriber.SecurityEventSubject(@event.Activity);
         await _emailService.SendAsync(email => {
             email.To(@event.User.Email)
-                .WithSubject(subject)
+                .WithSubject(@event.Subject!)
                 .WithData(new SecurityNotificationModel {
                     User = @event.User,
                     Location = @event.Location,
@@ -48,7 +47,8 @@ public class SecurityNotificationEventHandler : IPlatformEventHandler<SecurityNo
                     Client = @event.Client,
                     Device = @event.Device,
                     DisplayName = @event.User.UserName,
-                    Subject = subject
+                    Subject = @event.Subject,
+                    Description = @event.Description
                 })
                 .UsingTemplate("EmailSecurityNotification");
 

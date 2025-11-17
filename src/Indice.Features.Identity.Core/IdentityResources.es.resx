@@ -214,7 +214,7 @@
     <value>¡Bienvenido al servicio {0}!</value>
   </data>
   <data name="PasswordChangedEventSubject" xml:space="preserve">
-    <value>Cambio de contraseña</value>
+    <value>Su contraseña ha sido cambiada</value>
   </data>
   <data name="SecurityNotificationDefaultSubject" xml:space="preserve">
     <value>Notificación de seguridad para {0}</value>
@@ -407,5 +407,14 @@
   </data>
   <data name="UI_Validator_VerifyPhone_Code_FieldName" xml:space="preserve">
     <value>Código</value>
+  </data>
+  <data name="AccountLockedEventSubject" xml:space="preserve">
+    <value>Su cuenta ha sido bloqueada temporalmente</value>
+  </data>
+  <data name="AccountLockedEventDescription" xml:space="preserve">
+    <value>Su cuenta ha sido bloqueada temporalmente debido a múltiples intentos de inicio de sesión fallidos. Este bloqueo es una medida de seguridad para proteger su información. Por favor, inténtelo de nuevo más tarde.</value>
+  </data>
+  <data name="PasswordChangedEventDescription" xml:space="preserve">
+    <value>Su contraseña ha sido cambiada exitosamente.</value>
   </data>
 </root>

@@ -1,4 +1,5 @@
-﻿using Humanizer;
+﻿using System.Diagnostics;
+using Humanizer;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Grants;
@@ -253,5 +254,16 @@ public class IdentityMessageDescriber
     public virtual string UI_Validator_VerifyPhone_PhoneNumber_InvalidFormat => IdentityResources.UI_Validator_VerifyPhone_PhoneNumber_InvalidFormat;
     /// <summary>Gets the field name used for validating the "Code" input in the Verify Phone UI.</summary>
     public virtual string UI_Validator_VerifyPhone_Code_FieldName => IdentityResources.UI_Validator_VerifyPhone_Code_FieldName;
+    #endregion
+
+    #region Platform Events
+    /// <summary>User successfully changed their password.</summary>
+    public virtual string PasswordChangedSubject => IdentityResources.PasswordChangedEventSubject;
+    /// <summary>User successfully changed their password description.</summary>
+    public virtual string PasswordChangedDescription => IdentityResources.PasswordChangedEventDescription;
+    /// <summary>Account is temporarily locked out subject.</summary>
+    public virtual string AccountLockedSubject => IdentityResources.AccountLockedEventSubject;
+    /// <summary>Account is temporarily locked out description.</summary>
+    public virtual string AccountLockedDescription => IdentityResources.AccountLockedEventDescription;
     #endregion
 }

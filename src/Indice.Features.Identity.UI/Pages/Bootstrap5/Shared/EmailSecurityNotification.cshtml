@@ -16,10 +16,20 @@
 		@(Model.Subject ?? Localizer.EmailSecurity_Subject.Value)
     </h1>
 }
+
 <p style="font-family: 'Century Gothic', Arial, sans-serif, Helvetica, Arial, sans-serif; font-size: 12px;">
     @Localizer.EmailSecurity_Body_Hi @(Model.DisplayName ?? Model.UserName ?? string.Empty),
     <br /><br />
-    @Localizer.EmailSecurity_Body_EventOccurred<br /><br />
+    @if(!string.IsNullOrWhiteSpace(Model.Description))
+    {
+        @Model.Description
+    }
+    else
+    {
+        @Localizer.EmailSecurity_Body_EventOccurred
+    }
+    <br /><br />
+    @Localizer.EmailSecurity_Body_ContactSupport<br /><br />
     <strong>@Localizer.EmailSecurity_Body_EventDetails</strong><br />
     <ul>
         <li>@Localizer.EmailSecurity_Body_EventTime: @Model.TimeStamp.LocalDateTime.ToString("f")</li>
@@ -40,6 +50,5 @@
     </ul>
 </p>
 <p style="font-family: 'Century Gothic', Arial, sans-serif, Helvetica, Arial, sans-serif; font-size: 12px;">
-    @Localizer.EmailSecurity_Body_ContactSupport<br /><br />
     @Localizer.Email_Body_Sincerely, @Localizer.Email_Body_Organization(settings.Organization!)
 </p>
