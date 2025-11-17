@@ -4,6 +4,7 @@ import { Router } from "@angular/router";
 import { AbstractControl, UntypedFormControl, UntypedFormGroup } from "@angular/forms";
 import { IAttachment } from "src/app/shared/components/file-upload/file-upload.component";
 import { ToasterService, ToastType } from "@indice/ng-components";
+import { AppTranslatedToaster } from "../../../shared/services/app-translated-toaster";
 
 @Component({
     selector: 'app-distribution-list-import-contacts',
@@ -24,7 +25,7 @@ export class DistributionListImportContactsComponent implements OnInit, AfterVie
   constructor(
       private _api: MessagesApiClient,
       private _router: Router,
-      @Inject(ToasterService) private _toaster: ToasterService
+    @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster
     ) {}
 
   public ngOnInit(): void {
@@ -44,16 +45,16 @@ export class DistributionListImportContactsComponent implements OnInit, AfterVie
           console.error('Failed to import contacts in distribution list.', err);
           this._toaster.show(
             ToastType.Error,
-            'Σφάλμα εισαγωγής επαφών',
-            'Παρουσιάστηκε πρόβλημα κατά την εισαγωγή επαφών στην λίστα διανομής.'
+            'DistributionLists.EditImportContactsErrorTitle',
+            'DistributionLists.EditImportContactsErrorMessage'
           );
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists', this._distributionListId, 'distribution-list-contacts']));
         },
         next: () => {
           this._toaster.show(
             ToastType.Success,
-            'Επιτυχής εισαγωγή επαφών',
-            'Οι επαφές αποθηκεύτηκαν επιτυχώς στην λίστα διανομής.'
+            'DistributionLists.EditImportContactsSuccessTitle',
+            'DistributionLists.ImportContactsSuccessMessage'
           );
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists', this._distributionListId, 'distribution-list-contacts']));
         }

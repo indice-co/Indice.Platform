@@ -64,106 +64,107 @@ const routes: Routes = [
   {
     path: 'not-found', component: HttpStatusComponent, data: {
       code: '404',
-      title: 'Άγνωστη σελίδα',
-      message: 'Η σελίδα που ζητήσατε δεν βρέθηκε',
+      title: 'Unknown page',
+      message: 'The page you requested was not found',
       shell: CommonAppShellConfig
     }
   },
   {
     path: 'forbidden', component: HttpStatusComponent, data: {
       code: '403',
-      title: 'Μη εξουσιοδοτημένη πρόσβαση',
-      message: 'Παρακαλώ επικοινωνήστε με την υποστήριξη',
+      title: 'Unauthorized access',
+      message: 'Please contact support',
       shell: CommonAppShellConfig
     }
   },
   {
     path: '', canActivate: [AuthGuardService], children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: 'dashboard', component: DashboardComponent, data: { breadcrumb: { title: 'Αρχική', isHome: true } } },
+      { path: 'dashboard', component: DashboardComponent, data: { breadcrumb: { title: 'Home', isHome: true } } },
       {
         path: 'campaigns',
-        data: { breadcrumb: { title: 'Καμπάνιες' } },
+        data: { breadcrumb: { title: 'Campaigns' } },
         children: [
           { path: '', component: CampaignsComponent, pathMatch: 'full' },
-          { path: 'add-campaign', component: CampaignCreateComponent, data: { breadcrumb: { title: 'Δημιουργία' } } },
+          { path: 'add-campaign', component: CampaignCreateComponent, data: { breadcrumb: { title: 'Create' } } },
           {
             path: ':campaignId', component: CampaignEditComponent,
-            data: { breadcrumb: { title: 'Επεξεργασία' } },
+            data: { breadcrumb: { title: 'Edit' } },
             children: [
               { path: '', redirectTo: 'campaign-details', pathMatch: 'full' },
-              { path: 'campaign-details', component: CampaignDetailsEditComponent, data: { breadcrumb: { title: 'Βασικές Πληροφορίες' } } },
-              { path: 'campaign-content', component: CampaignContentEditComponent, data: { breadcrumb: { title: 'Περιεχόμενο' } } },
-              { path: 'campaign-reports', component: CampaignReportsComponent, data: { breadcrumb: { title: 'Αναφορές' } } },
-              { path: 'campaign-messages', component: CampaignMessagesComponent, data: { breadcrumb: { title: 'Ιστορικό' } } },
+              { path: 'campaign-details', component: CampaignDetailsEditComponent, data: { breadcrumb: { title: 'Basic Information' } } },
+              { path: 'campaign-content', component: CampaignContentEditComponent, data: { breadcrumb: { title: 'Content' } } },
+              { path: 'campaign-reports', component: CampaignReportsComponent, data: { breadcrumb: { title: 'Reports' } } },
+              { path: 'campaign-messages', component: CampaignMessagesComponent, data: { breadcrumb: { title: 'History' } } },
               // { path: 'campaign-message-timeline/:messageId', component: CampaignMessageTimelineComponent, data: { breadcrumb: { title: 'Timeline' } } }
-              { path: 'campaign-message-timeline', 
-                data: { breadcrumb: { title: 'Timeline' } } ,
-              children: [
-                { 
-                    path: ':contactId', 
-                    data: { breadcrumb: { title: 'Πληροφορίες αποστολής' } },
+              {
+                path: 'campaign-message-timeline',
+                data: { breadcrumb: { title: 'Timeline' } },
+                children: [
+                  {
+                    path: ':contactId',
+                    data: { breadcrumb: { title: 'Delivery Information' } },
                     component: CampaignMessageTimelineComponent
-                }
-              ]
+                  }
+                ]
               }
             ]
           },
         ]
       },
-      { path: 'message-types', component: MessageTypesComponent, data: { breadcrumb: { title: 'Τύποι Μηνυμάτων' } } },
+      { path: 'message-types', component: MessageTypesComponent, data: { breadcrumb: { title: 'Message Types' } } },
       {
         path: 'distribution-lists',
-        data: { breadcrumb: { title: 'Λίστες Διανομής' } },
+        data: { breadcrumb: { title: 'Distribution Lists' } },
         children: [
           { path: '', component: DistributionListsComponent, pathMatch: 'full' },
           {
             path: ':distributionListId', component: DistributionListEditComponent,
-            data: { breadcrumb: { title: 'Επεξεργασία' } },
+            data: { breadcrumb: { title: 'Edit' } },
             children: [
               { path: '', redirectTo: 'distribution-list-details', pathMatch: 'full' },
-              { path: 'distribution-list-details', component: DistributionListDetailsEditComponent, data: { breadcrumb: { title: 'Βασικές Πληροφορίες' } } },
-              { path: 'distribution-list-contacts', component: DistributionListContactsComponent, data: { breadcrumb: { title: 'Επαφές' } } }
+              { path: 'distribution-list-details', component: DistributionListDetailsEditComponent, data: { breadcrumb: { title: 'Basic Information' } } },
+              { path: 'distribution-list-contacts', component: DistributionListContactsComponent, data: { breadcrumb: { title: 'Contacts' } } }
             ]
           },
         ]
       }, {
         path: 'contacts',
-        data: { breadcrumb: { title: 'Επαφές' } },
+        data: { breadcrumb: { title: 'Contacts' } },
         children: [
           { path: '', component: ContactsListComponent, pathMatch: 'full' },
           {
             path: ':contactId', component: ContactComponent,
-            data: { breadcrumb: { title: 'Επεξεργασία' } },
+            data: { breadcrumb: { title: 'Edit' } },
             children: [
               { path: '', redirectTo: 'contact-details', pathMatch: 'full' },
-              { path: 'contact-details', component: ContactDetailsComponent, data: { breadcrumb: { title: 'Βασικές πληροφορίες' } } },
-              { path: 'contact-campaigns', component: ContactCampaignsComponent, data: { breadcrumb: { title: 'Καμπάνιες' } } },
-              { path: 'contact-preferences', component: ContactPreferencesComponent, data: { breadcrumb: { title: 'Στοιχεία επικοινωνίας' } } }
+              { path: 'contact-details', component: ContactDetailsComponent, data: { breadcrumb: { title: 'Basic Information' } } },
+              { path: 'contact-campaigns', component: ContactCampaignsComponent, data: { breadcrumb: { title: 'Campaigns' } } },
+              { path: 'contact-preferences', component: ContactPreferencesComponent, data: { breadcrumb: { title: 'Communication Details' } } }
             ]
           },
         ]
       },
       {
         path: 'templates',
-        data: { breadcrumb: { title: 'Πρότυπα' } },
+        data: { breadcrumb: { title: 'Templates' } },
         children: [
           { path: '', component: TemplatesComponent, pathMatch: 'full' },
-          { path: 'add-template', component: TemplateCreateComponent, data: { breadcrumb: { title: 'Δημιουργία' } } },
+          { path: 'add-template', component: TemplateCreateComponent, data: { breadcrumb: { title: 'Create' } } },
           {
             path: ':templateId', component: TemplateEditComponent,
-            data: { breadcrumb: { title: 'Επεξεργασία' } },
+            data: { breadcrumb: { title: 'Edit' } },
             children: [
               { path: '', redirectTo: 'template-details', pathMatch: 'full' },
-              { path: 'template-details', component: TemplateDetailsEditComponent, data: { breadcrumb: { title: 'Βασικές Πληροφορίες' } } },
-              { path: 'template-content', component: TemplateContentEditComponent, data: { breadcrumb: { title: 'Περιεχόμενο' } } }
+              { path: 'template-details', component: TemplateDetailsEditComponent, data: { breadcrumb: { title: 'Basic Information' } } },
+              { path: 'template-content', component: TemplateContentEditComponent, data: { breadcrumb: { title: 'Content' } } }
             ]
           },
         ]
       },
       {
         path: 'settings',
-        data: { breadcrumb: { title: 'Ρυθμίσεις' } },
+        data: { breadcrumb: { title: 'Settings' } },
         component: SettingsComponent
       }, {
         path: 'message-events',
@@ -172,17 +173,17 @@ const routes: Routes = [
       },
       {
         path: 'media',
-        data: { breadcrumb: { title: 'Αρχεία' } },
+        data: { breadcrumb: { title: 'Files' } },
         children: [
           { path: '', component: MediaLibraryComponent, pathMatch: 'full' },
-          { path: 'root', redirectTo: '', pathMatch: 'full', data: { breadcrumb: { title: 'Αρχεία' } } },
+          { path: 'root', redirectTo: '', pathMatch: 'full', data: { breadcrumb: { title: 'Files' } } },
           {
             path: ':folderId', component: MediaLibraryComponent,
-            data: { breadcrumb: { title: 'Φάκελος' } }
+            data: { breadcrumb: { title: 'Folder' } }
           },
           {
             path: ':folderId/:documentId', component: DocumentEditComponent,
-            data: { breadcrumb: { title: 'Επεξεργασία' } }
+            data: { breadcrumb: { title: 'Edit' } }
           },
         ]
       },
@@ -212,8 +213,8 @@ const routes: Routes = [
   {
     path: '**', component: HttpStatusComponent, data: {
       code: '404',
-      title: 'Άγνωστη σελίδα',
-      message: 'Η σελίδα που ζητήσατε δεν βρέθηκε',
+      title: 'Unknown page',
+      message: 'The page you requested was not found',
       shell: CommonAppShellConfig
     }
   }

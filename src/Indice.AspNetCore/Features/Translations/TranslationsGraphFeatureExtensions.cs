@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
-using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
 
 namespace Microsoft.AspNetCore.Routing;
 
@@ -31,6 +33,8 @@ public static class TranslationsGraphFeatureExtensions
             o.DefaultTranslationsLocation = options.DefaultTranslationsLocation;
             o.DefaultEndpointRoutePattern = options.DefaultEndpointRoutePattern;
             o.Resources.AddRange(options.Resources);
+            o.ExcludeFromDescription = options.ExcludeFromDescription;
+            o.ConfigureCachePolicy = options.ConfigureCachePolicy;
         });
         return services;
     }
@@ -49,8 +53,8 @@ public static class TranslationsGraphFeatureExtensions
             var operationName = "GetTranslations";
             if (counter > 0) {
                 operationName += counter;
-            } 
-            routes.MapGet(endpoint.Key, (string lang, IStringLocalizerFactory factory) => {
+            }
+            var translationRouteHandler = routes.MapGet(endpoint.Key, (string lang, IStringLocalizerFactory factory) => {
                 var culture = new System.Globalization.CultureInfo(lang);
                 var strings = endpoint.SelectMany(x => factory.Create(x.TranslationsBaseName, x.TranslationsLocation).GetAllStrings(culture, includeParentCultures: true));
                 return TypedResults.Ok(strings.ToObjectGraph());
@@ -58,6 +62,12 @@ public static class TranslationsGraphFeatureExtensions
             .WithDescription($"Get translations aggregate for {endpoint.First().TranslationsBaseName}")
             .WithName(operationName);
             counter++;
+            if (options.ExcludeFromDescription) {
+                translationRouteHandler.ExcludeFromDescription();
+            }
+            if(options.ConfigureCachePolicy != null) {
+                translationRouteHandler.CacheOutput(options.ConfigureCachePolicy);
+            }
         }
         return routes;
     }
@@ -87,7 +97,15 @@ public class TranslationsGraphOptions
     /// </summary>
     [StringSyntax("Route")]
     public string DefaultEndpointRoutePattern { get; set; } = "/translations.{lang:culture}.json";
+    /// <summary>
+    /// Decides whether to enable swagger/openapi documentation for the endpoint
+    /// </summary>
+    public bool ExcludeFromDescription { get; set; } = true;
 
+    /// <summary>
+    /// Optional cache policy for the endpoint
+    /// </summary>
+    public Action<OutputCachePolicyBuilder>? ConfigureCachePolicy { get; set; }
     /// <summary>
     /// Encapsulates the settings needed to run an enpoint
     /// </summary>

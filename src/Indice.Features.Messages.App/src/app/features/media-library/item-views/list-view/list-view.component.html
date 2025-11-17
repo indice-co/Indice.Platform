@@ -10,7 +10,7 @@
               [page-size]="size"
               (pageChanged)="loadContent($event, this.size)"
               (pageSizeChanged)="loadContent(1, $event)">
-              <lib-list-column title="ΟΝΟΜΑ">
+              <lib-list-column [title]="'MediaLibrary.NameColumn' | translate">
                 <ng-template let-item>
                   @if (item.type === ItemType.Folder || item.type === ItemType.Button) {
                     <div
@@ -19,7 +19,7 @@
                       <span
                         class="max-w-[300px] text-ellipsis overflow-hidden text-slate-800 underline font-bold cursor-pointer"
                         (click)="goToFolder(item.id)">
-                        {{ item.name || '-' }}
+                        {{ item.name || ('MediaLibrary.EmptyValueIndicator' | translate) }}
                       </span>
                     </div>
                   }
@@ -27,32 +27,32 @@
                     <div class="flex flex-row space-x-5">
                       <i class="ms-Icon ms-Icon--FileImage"></i>
                       <span class="max-w-[300px] text-ellipsis overflow-hidden">
-                        {{ item.name || '-' }}
+                        {{ item.name || ('MediaLibrary.EmptyValueIndicator' | translate) }}
                       </span>
                     </div>
                   }
                 </ng-template>
               </lib-list-column>
-              <lib-list-column title="ΤΥΠΟΣ">
+              <lib-list-column [title]="'MediaLibrary.TypeColumn' | translate">
                 <ng-template let-item>
                   @if (item.type !== ItemType.Button) {
                     <div
                       class="max-w-[200px] text-ellipsis overflow-hidden">
-                      {{ item.contentType || '-' }}
+                      {{ item.contentType || ('MediaLibrary.EmptyValueIndicator' | translate) }}
                     </div>
                   }
                 </ng-template>
               </lib-list-column>
-              <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ ΑΠΟ">
+              <lib-list-column [title]="'MediaLibrary.CreatedByColumn' | translate">
                 <ng-template let-item>
                   @if (item.type !== ItemType.Button) {
                     <span>
-                      {{ item.createdBy || '-' }}
+                      {{ item.createdBy || ('MediaLibrary.EmptyValueIndicator' | translate) }}
                     </span>
                   }
                 </ng-template>
               </lib-list-column>
-              <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ">
+              <lib-list-column [title]="'MediaLibrary.CreatedAtColumn' | translate">
                 <ng-template let-item>
                   @if (item.type !== ItemType.Button) {
                     <span>
@@ -61,10 +61,10 @@
                   }
                 </ng-template>
               </lib-list-column>
-              <lib-list-column title="ΕΝΕΡΓΕΙΕΣ">
+              <lib-list-column [title]="'MediaLibrary.ActionsColumn' | translate">
                 <ng-template let-item>
                   @if (item.type !== ItemType.Button) {
-                    <button title="Επεξεργασία τύπου" (click)="item.type === ItemType.File ? editFile(item) : editFolder(item)"
+                    <button [title]="'MediaLibrary.EditItemTitle' | translate" (click)="item.type === ItemType.File ? editFile(item) : editFolder(item)"
                       class="inline-flex items-center justify-center px-4 py-2 font-medium rounded-md sm:text-sm">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
                         fill="currentColor">
@@ -75,7 +75,7 @@
                             clip-rule="evenodd" />
                           </svg>
                         </button>
-                        <button type="button" (click)="item.type === ItemType.File ? deleteFile(item) : deleteFolder(item)"
+                        <button type="button" [title]="'MediaLibrary.DeleteItemTitle' | translate" (click)="item.type === ItemType.File ? deleteFile(item) : deleteFolder(item)"
                           class="inline-flex items-center justify-center px-4 py-2 font-medium rounded-md sm:text-sm">
                           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
                             fill="currentColor">

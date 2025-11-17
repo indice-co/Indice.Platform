@@ -4,7 +4,7 @@
       <div class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
         <div class="sm:col-span-1">
           <h2 id="applicant-information-title" class="text-lg leading-6 font-medium text-gray-900">
-            Στοιχεία επαφής
+            {{ 'Campaigns.ContactInfoHeader' | translate }}
           </h2>
         </div>
       </div>
@@ -12,37 +12,37 @@
     <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
       <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
         <div class="sm:col-span-1">
-          <dt class="text-sm font-medium text-gray-500">Προσφώνηση</dt>
-          <dd class="mt-1 text-sm text-gray-900">{{ campaignTimeline?.recipient?.salutation || '-' }}</dd>
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.SalutationLabel' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900">{{ campaignTimeline?.recipient?.salutation || ('Campaigns.EmptyValueIndicator' | translate) }}</dd>
         </div>
         <div class="sm:col-span-1">
-          <dt class="text-sm font-medium text-gray-500">Όνομα Εμφάνισης</dt>
-          <dd class="mt-1 text-sm text-gray-900">{{ campaignTimeline?.recipient?.fullName || '-' }}</dd>
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.DisplayNameLabel' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900">{{ campaignTimeline?.recipient?.fullName || ('Campaigns.EmptyValueIndicator' | translate) }}</dd>
         </div>
         <div class="sm:col-span-1">
-          <dt class="text-sm font-medium text-gray-500">Όνομα</dt>
-          <dd class="mt-1 text-sm text-gray-900">{{ campaignTimeline?.recipient?.firstName || '-' }}</dd>
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.FirstNameLabel' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900">{{ campaignTimeline?.recipient?.firstName || ('Campaigns.EmptyValueIndicator' | translate) }}</dd>
         </div>
         <div class="sm:col-span-1">
-          <dt class="text-sm font-medium text-gray-500">Επώνυμο</dt>
-          <dd class="mt-1 text-sm text-gray-900">{{ campaignTimeline?.recipient?.lastName || '-' }}</dd>
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.LastNameLabel' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900">{{ campaignTimeline?.recipient?.lastName || ('Campaigns.EmptyValueIndicator' | translate) }}</dd>
         </div>
         <div class="sm:col-span-1">
-          <dt class="text-sm font-medium text-gray-500">Email</dt>
-          <dd class="mt-1 text-sm text-gray-900">{{ campaignTimeline?.recipient?.email || '-' }}</dd>
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.EmailLabel' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900">{{ campaignTimeline?.recipient?.email || ('Campaigns.EmptyValueIndicator' | translate) }}</dd>
         </div>
         <div class="sm:col-span-1">
-          <dt class="text-sm font-medium text-gray-500">Τηλέφωνο</dt>
-          <dd class="mt-1 text-sm text-gray-900">{{ campaignTimeline?.recipient?.phoneNumber || '-' }}</dd>
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.PhoneLabel' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900">{{ campaignTimeline?.recipient?.phoneNumber || ('Campaigns.EmptyValueIndicator' | translate) }}</dd>
         </div>
         <div class="sm:col-span-1">
-          <dt class="text-sm font-medium text-gray-500">Κωδικός επαφής</dt>
-          <dd class="mt-1 text-sm text-gray-900">{{ campaignTimeline?.recipient?.id || '-' }}</dd>
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.ContactCodeLabel' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900">{{ campaignTimeline?.recipient?.id || ('Campaigns.EmptyValueIndicator' | translate) }}</dd>
         </div>
         <div class="sm:col-span-1">
-          <dt class="text-sm font-medium text-gray-500">Ενημερώθηκε στις</dt>
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.UpdatedAtLabel' | translate }}</dt>
           <dd class="mt-1 text-sm text-gray-900">
-            {{ campaignTimeline?.recipient?.updatedAt === undefined ? '-' :
+            {{ campaignTimeline?.recipient?.updatedAt === undefined ? ('Campaigns.EmptyValueIndicator' | translate) :
             (campaignTimeline?.recipient?.updatedAt | date: 'medium') }}
           </dd>
         </div>
@@ -55,31 +55,31 @@
 <section aria-labelledby="timeline-title" class="mt-10">
   <div class="bg-white shadow sm:rounded-lg">
     <div class="px-4 py-5 sm:px-6">
-      <h2 id="timeline-title" class="text-lg leading-6 font-medium text-gray-900">Προεπισκόπηση
+      <h2 id="timeline-title" class="text-lg leading-6 font-medium text-gray-900">{{ 'Campaigns.PreviewHeader' | translate }}
         <!-- <div class="flex items-center space-x-1"> -->
         <span [ngClass]="{ 'text-green-500 cursor-pointer': campaignTimeline?.content.email }"
-          class="ml-1 text-gray-400" title="Email" (click)="openEmailContent('email')">
+          class="ml-1 text-gray-400" [title]="'Campaigns.ChannelEmail' | translate" (click)="openEmailContent('email')">
           <i class="ms-Icon ms-Icon--Accounts"></i>
         </span>
 
         <span [ngClass]="{ 'text-green-500 cursor-pointer': campaignTimeline?.content.sms }" class="ml-1 text-gray-400"
-          title="SMS" (click)="openEmailContent('sms')">
+          [title]="'Campaigns.ChannelSms' | translate" (click)="openEmailContent('sms')">
           <i class="ms-Icon ms-Icon--Chat"></i>
         </span>
 
         <span [ngClass]="{ 'text-green-500 cursor-pointer': campaignTimeline?.content.inbox }" class="ml-1 text-gray-400"
-          title="Inbox" (click)="openEmailContent('inbox')">
+          [title]="'Campaigns.ChannelInbox' | translate" (click)="openEmailContent('inbox')">
           <i class="ms-Icon ms-Icon--Inbox"></i>
         </span>
 
         <span [ngClass]="{ 'text-green-500 cursor-pointer': campaignTimeline?.content.pushNotification }"
-          class="ml-1 text-gray-400" title="Push Notification" (click)="openEmailContent('pushNotification')">
+          class="ml-1 text-gray-400" [title]="'Campaigns.ChannelPushNotification' | translate" (click)="openEmailContent('pushNotification')">
           <i class="ms-Icon ms-Icon--CellPhone"></i>
         </span>
       </h2>
     </div>
     <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
-      <h2 id="timeline-title" class="text-lg leading-6 font-medium text-gray-900 mb-2">Ιστορικό</h2>
+      <h2 id="timeline-title" class="text-lg leading-6 font-medium text-gray-900 mb-2">{{ 'Campaigns.HistoryHeader' | translate }}</h2>
       <ol class="relative border-s border-gray-200 dark:border-gray-700">
         @for (event of campaignTimeline?.events; track event) {
           <li class="mb-10 ms-8">

@@ -1,7 +1,7 @@
-<lib-side-view-layout title="Δημιουργία νέου τύπου"
+﻿<lib-side-view-layout [title]="'MessageTypes.CreateDialogTitle' | translate"
   [ok-close-dialog]="false"
-  [ok-label]="'Δημιουργία'"
-  [cancel-label]="'Κλείσιμο'"
+  [ok-label]="'MessageTypes.Create' | translate"
+  [cancel-label]="'MessageTypes.Close' | translate"
   (ok)="submitButton.nativeElement.click()"
   [disabled]="!messageTypeForm.valid || submitInProgress"
   #sideViewLayout>
@@ -13,14 +13,14 @@
           <!-- Όνομα -->
           <div class="col-span-4">
             <label for="messageTypeName"
-            class="field-label">Όνομα (*)</label>
+            class="field-label">{{ 'MessageTypes.NameLabelRequired' | translate }}</label>
             <div class="flex rounded-sm">
               <input class="w-full"
                 type="text"
                 name="messageTypeName"
                 id="messageTypeName"
                 [(ngModel)]="model.name"
-                placeholder="Το όνομα του τύπου..."
+                placeholder="{{ 'MessageTypes.NamePlaceholder' | translate }}"
                 maxlength="128"
                 required
                 #messageTypeName="ngModel">
@@ -29,26 +29,26 @@
                 <p
                   class="mt-2 text-sm text-red-600">
                   @if (messageTypeName.errors!['required']) {
-                    <span>Παρακαλώ συμπληρώστε ένα όνομα.</span>
+                    <span>{{ 'MessageTypes.NameRequiredError' | translate }}</span>
                   }
                   @if (messageTypeName.errors!['maxlength']) {
-                    <span>Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</span>
+                    <span>{{ 'MessageTypes.NameMaxLengthError' | translate }}</span>
                   }
                 </p>
               }
-              <p class="field-info col-span-3">Η ονομασία η οποία θα εμφανίζεται o τύπος της καμπάνιας.</p>
+              <p class="field-info col-span-3">{{ 'MessageTypes.NameInfo' | translate }}</p>
             </div>
             <!-- Alias -->
             <div class="col-span-4">
               <label for="messageTypeAlias"
-              class="field-label">Alias</label>
+              class="field-label">{{ 'MessageTypes.AliasLabel' | translate }}</label>
               <div class="flex rounded-sm">
                 <input class="w-full"
                   type="text"
                   name="messageTypeAlias"
                   id="messageTypeAlias"
                   [(ngModel)]="model.alias"
-                  placeholder="Το alias του τύπου..."
+                  placeholder="{{ 'MessageTypes.AliasPlaceholder' | translate }}"
                   maxlength="64"
                   #messageTypeAlias="ngModel">
                 </div>
@@ -56,7 +56,7 @@
                   <p
                     class="mt-2 text-sm text-red-600">
                     @if (messageTypeAlias.errors!['maxlength']) {
-                      <span>Παρακαλώ συμπληρώστε ένα μικρότερο alias.</span>
+                      <span>{{ 'MessageTypes.AliasMaxLengthError' | translate }}</span>
                     }
                   </p>
                 }
@@ -64,7 +64,7 @@
               <div class="col-span-4">
                 <label for="classificationType"
                   class="field-label">
-                  Κατηγοριοποίηση
+                  {{ 'MessageTypes.ClassificationLabel' | translate }}
                   <span class="dot dot-{{model.classification}}"></span>
                 </label>
                 <select id="classificationType"
@@ -81,7 +81,7 @@
                   <p
                     class="mt-2 text-sm text-red-600">
                     @if (classificationType.errors!['required']) {
-                      <span>Παρακαλώ επιλέξετε μια απο τις τιμές.</span>
+                      <span>{{ 'MessageTypes.ClassificationRequiredError' | translate }}</span>
                     }
                   </p>
                 }

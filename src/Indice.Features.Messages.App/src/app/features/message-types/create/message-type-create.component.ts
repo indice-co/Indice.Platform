@@ -1,9 +1,10 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { ToasterService, ToastType } from '@indice/ng-components';
+import { ToastType } from '@indice/ng-components';
 import { catchError, EMPTY } from 'rxjs';
 import { CreateMessageTypeRequest, MessagesApiClient, MessageType, MessageTypeClassification } from 'src/app/core/services/messages-api.service';
+import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
 
 @Component({
     selector: 'app-message-type-create',
@@ -17,7 +18,7 @@ export class MessageTypeCreateComponent implements OnInit, AfterViewInit {
     private _changeDetector: ChangeDetectorRef,
     private _api: MessagesApiClient,
     private _router: Router,
-    @Inject(ToasterService) private _toaster: ToasterService
+    @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster
   ) { }
 
   public submitInProgress = false;
@@ -42,7 +43,7 @@ export class MessageTypeCreateComponent implements OnInit, AfterViewInit {
       .subscribe({
         next: (messageType: MessageType) => {
           this.submitInProgress = false;
-          this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Ο τύπος με όνομα '${messageType.name}' δημιουργήθηκε με επιτυχία.`);
+          this._toaster.show(ToastType.Success, 'MessageTypes.CreateSuccessTitle', 'MessageTypes.CreateSuccessMessage', undefined, { name: messageType.name });
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['message-types']));
         }
       });

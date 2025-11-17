@@ -1,4 +1,4 @@
-<lib-view-layout [title]="'Τύποι Μηνυμάτων'"
+﻿<lib-view-layout [title]="'MessageTypes.Title' | translate"
   [busy]="!items"
   [actions]="actions"
   [meta-items]="metaItems"
@@ -16,9 +16,9 @@
     (pageSizeChanged)="pageSizeChanged($event)"
     (sortChanged)="sortChanged($event)"
     (sortdirChanged)="sortdirChanged($event)">
-    <lib-list-column title="ΟΝΟΜΑ">
+    <lib-list-column [title]="'MessageTypes.NameColumn' | translate">
       <ng-template let-item>
-        <a title="Επεξεργασία τύπου"
+        <a [title]="'MessageTypes.EditTypeTitle' | translate"
           [routerLinkActive]="['']"
           [routerLinkActiveOptions]="{ exact: true }"
           [routerLink]="['', { outlets: { rightpane: ['edit-message-type', item.id] } }]"
@@ -27,15 +27,15 @@
         </a>
       </ng-template>
     </lib-list-column>
-    <lib-list-column title="ALIAS">
+    <lib-list-column [title]="'MessageTypes.AliasColumn' | translate">
       <ng-template let-item>@if (item.alias) {
-        <span class="badge alias">{{ item.alias || '-' }}</span>
+        <span class="badge alias">{{ item.alias || ('MessageTypes.EmptyValueIndicator' | translate) }}</span>
       }</ng-template>
     </lib-list-column>
-    <lib-list-column title="ΚΑΤΗΓΟΡΙΑ" [full-width]="true">
+    <lib-list-column [title]="'MessageTypes.CategoryColumn' | translate" [full-width]="true">
       <ng-template let-item><span class="message-type-badge {{item.classification}}">{{item.classification}}</span></ng-template>
     </lib-list-column>
-    <lib-list-column title="ΕΝΕΡΓΕΙΕΣ">
+    <lib-list-column [title]="'MessageTypes.ActionsColumn' | translate">
       <ng-template let-item>
         <!--<a title="Επεξεργασία τύπου"
         [routerLinkActive]="['']"
@@ -52,7 +52,7 @@
             clip-rule="evenodd" />
           </svg>
         </a>-->
-        <button title="Διαγραφή τύπου"
+        <button [title]="'MessageTypes.DeleteTypeTitle' | translate"
           type="button"
           (click)="deleteConfirmation(item)"
           class="inline-flex items-center justify-center px-4 py-0 font-medium rounded-md sm:text-sm">

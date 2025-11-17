@@ -2,14 +2,14 @@
   <div class="px-4 space-y-2 pb-4 mt-4">
     <!-- Τίτλος -->
     <fieldset>
-      <legend class="sr-only">Τίτλος</legend>
+      <legend class="sr-only">{{ 'Campaigns.TitleLabel' | translate }}</legend>
       <div class="text-base font-medium text-gray-900"
         aria-hidden="true">
-        Τίτλος (*)
+        {{ 'Campaigns.TitleLabelRequired' | translate }}
       </div>
       <label for="campaignTitle"
         class="hidden">
-        Τίτλος (*)
+        {{ 'Campaigns.TitleLabelRequired' | translate }}
       </label>
       <div class="mt-1 flex rounded-sm">
         <input class="w-full"
@@ -17,32 +17,32 @@
           name="campaignTitle"
           id="campaignTitle"
           formControlName="title"
-          placeholder="Ο τίτλος της καμπάνιας...">
+          [placeholder]="'Campaigns.TitlePlaceholder' | translate">
         </div>
         @if (title.invalid && (title.dirty || title.touched)) {
           <p
             class="mt-2 text-sm text-red-600">
             @if (title.errors!['required']) {
-              <span>Παρακαλώ συμπληρώστε ένα τίτλο.</span>
+              <span>{{ 'Campaigns.TitleRequiredError' | translate }}</span>
             }
             @if (title.errors!['maxlength']) {
-              <span>Παρακαλώ συμπληρώστε ένα μικρότερο τίτλο.</span>
+              <span>{{ 'Campaigns.TitleMaxLengthError' | translate }}</span>
             }
           </p>
         }
-        <p class="field-info col-span-3">Η ονομασία η οποία θα εμφανίζεται για την καμπάνια.</p>
+        <p class="field-info col-span-3">{{ 'Campaigns.TitleInfo' | translate }}</p>
       </fieldset>
       <!-- Τύπος -->
       <fieldset>
-        <legend class="sr-only">Τύπος</legend>
+        <legend class="sr-only">{{ 'Campaigns.TypeLabel' | translate }}</legend>
         <div class="text-base font-medium text-gray-900"
           aria-hidden="true">
-          Τύπος
+          {{ 'Campaigns.TypeLabel' | translate }}
         </div>
         <label for="campaignType"
           class="hidden"
           aria-hidden="true">
-          Τύπος
+          {{ 'Campaigns.TypeLabel' | translate }}
         </label>
         <div class="mt-1 flex rounded-sm">
           <lib-enhanced-combobox id="campaignType"
@@ -58,17 +58,17 @@
             (onShowMore)="onMessageTypesShowMore()"
             [equalityPredicate]="equalityPredicate"
             [selectedItemsFilter]="messageTypesFilter"
-            placeholder="Επιλέξτε τύπο..."
+            [placeholder]="'Campaigns.TypePlaceholder' | translate"
             #typeCombobox>
           </lib-enhanced-combobox>
         </div>
       </fieldset>
       <!-- Διάρκεια -->
       <fieldset>
-        <legend class="sr-only">Διάρκεια</legend>
+        <legend class="sr-only">{{ 'Campaigns.DurationLabel' | translate }}</legend>
         <div class="text-base font-medium text-gray-900"
           aria-hidden="true">
-          Διάρκεια
+          {{ 'Campaigns.DurationLabel' | translate }}
         </div>
         <div class="grid grid-cols-2 gap-4">
           <!-- Από -->
@@ -76,7 +76,7 @@
             <label for="campaignStart"
               class="hidden"
               aria-hidden="true">
-              Ημ. Έναρξης
+              {{ 'Campaigns.StartDateLabel' | translate }}
             </label>
             <div class="mt-1 flex rounded-sm col-span-3">
               <input class="w-full"
@@ -88,14 +88,14 @@
                 [min]="now | date: 'yyyy-MM-ddTHH:mm'"
                 [max]="to.value | date: 'yyyy-MM-ddTHH:mm'">
               </div>
-              <p class="field-info">Η ημέρα και ώρα έναρξης της καμπάνιας</p>
+              <p class="field-info">{{ 'Campaigns.StartDateInfo' | translate }}</p>
             </div>
             <!-- Έως -->
             <div class="col-span-2 sm:col-span-1">
               <label for="campaignEnd"
                 class="hidden"
                 aria-hidden="true">
-                Ημ. Λήξης
+                {{ 'Campaigns.EndDateLabel' | translate }}
               </label>
               <div class="mt-1 flex rounded-sm col-span-3">
                 <input class="w-full"
@@ -107,16 +107,16 @@
                   [min]="from.value | date: 'yyyy-MM-ddTHH:mm'"
                   [readonly]="!from.value">
                 </div>
-                <p class="field-info">Η ημέρα και ώρα λήξης της καμπάνιας</p>
+                <p class="field-info">{{ 'Campaigns.EndDateInfo' | translate }}</p>
               </div>
             </div>
           </fieldset>
           <!-- Call to action -->
           <fieldset>
-            <legend class="sr-only">Call to action</legend>
+            <legend class="sr-only">{{ 'Campaigns.CallToActionSectionLabel' | translate }}</legend>
             <div class="text-base font-medium text-gray-900"
               aria-hidden="true">
-              Call to action
+              {{ 'Campaigns.CallToActionSectionLabel' | translate }}
             </div>
             <div class="grid grid-cols-2 gap-4">
               <!-- Call to action κείμενο -->
@@ -124,7 +124,7 @@
                 <label for="campaignClickToActionText"
                   class="hidden"
                   aria-hidden="true">
-                  Call-to-action
+                  {{ 'Campaigns.CallToActionTextLabel' | translate }}
                 </label>
                 <div class="mt-1 flex rounded-sm">
                   <input class="w-full"
@@ -132,16 +132,16 @@
                     name="campaignClickToActionText"
                     id="campaignClickToActionText"
                     formControlName="actionLinkText"
-                    placeholder="Πατήστε εδώ για να...">
+                    [placeholder]="'Campaigns.CallToActionTextPlaceholder' | translate">
                   </div>
-                  <p class="field-info">Κείμενο υπερσυνδέσμου</p>
+                  <p class="field-info">{{ 'Campaigns.CallToActionTextInfo' | translate }}</p>
                 </div>
                 <!-- Call to action σύνδεσμος -->
                 <div class="col-span-2 sm:col-span-1">
                   <label for="campaignClickToActionLink"
                     class="hidden"
                     aria-hidden="true">
-                    Call-to-action σύνδεσμος
+                    {{ 'Campaigns.CallToActionLinkLabel' | translate }}
                   </label>
                   <div class="mt-1 flex rounded-sm">
                     <input class="w-full"
@@ -149,14 +149,14 @@
                       name="campaignClickToActionLink"
                       id="campaignClickToActionLink"
                       formControlName="actionLinkHref"
-                      placeholder="https://example.com">
+                      [placeholder]="'Campaigns.CallToActionLinkPlaceholder' | translate">
                     </div>
-                    <p class="field-info">URL υπερσυνδέσμου</p>
+                    <p class="field-info">{{ 'Campaigns.CallToActionLinkInfo' | translate }}</p>
                     @if (actionLinkHref.invalid && (actionLinkHref.dirty || actionLinkHref.touched)) {
                       <p
                         class="mt-2 text-sm text-red-600">
                         @if (actionLinkHref.errors!['pattern']) {
-                          <span>Παρακαλώ συμπληρώστε έναν έγκυρο σύνδεσμο.</span>
+                          <span>{{ 'Campaigns.CallToActionLinkInvalidError' | translate }}</span>
                         }
                       </p>
                     }
@@ -165,10 +165,10 @@
               </fieldset>
               <!-- Χρήση template -->
               <fieldset>
-                <legend class="sr-only">Χρήση template</legend>
+                <legend class="sr-only">{{ 'Campaigns.TemplateUsageLabel' | translate }}</legend>
                 <div class="text-base font-medium text-gray-900"
                   aria-hidden="true">
-                  Χρήση template
+                  {{ 'Campaigns.TemplateUsageLabel' | translate }}
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                   <div class="col-span-2 sm:col-span-1">
@@ -182,7 +182,7 @@
                         class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
                         <label for="template-no"
                           class="ml-3 block text-sm font-medium text-gray-700">
-                          Όχι
+                          {{ 'Campaigns.TemplateUsageNoOption' | translate }}
                         </label>
                         <input id="template-yes"
                           name="needsTemplate"
@@ -193,7 +193,7 @@
                           class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 ml-4">
                           <label for="template-yes"
                             class="ml-3 block text-sm font-medium text-gray-700">
-                            Ναι
+                            {{ 'Campaigns.TemplateUsageYesOption' | translate }}
                           </label>
                         </div>
                       </div>
@@ -202,7 +202,7 @@
                         <label for="template"
                           class="hidden"
                           aria-hidden="true">
-                          Template id
+                          {{ 'Campaigns.TemplateIdLabel' | translate }}
                         </label>
                         <div class="flex rounded-sm">
                           <lib-enhanced-combobox id="template"
@@ -218,7 +218,7 @@
                             (onShowMore)="onTemplatesShowMore()"
                             [equalityPredicate]="equalityPredicate"
                             [selectedItemsFilter]="templatesFilter"
-                            placeholder="Επιλέξτε template..."
+                            [placeholder]="'Campaigns.TemplatePlaceholder' | translate"
                             #templateCombobox>
                           </lib-enhanced-combobox>
                         </div>
@@ -226,7 +226,7 @@
                           <p
                             class="mt-2 text-sm text-red-600">
                             @if (template.errors!['required']) {
-                              <span>Παρακαλώ επιλέξτε ένα template.</span>
+                              <span>{{ 'Campaigns.TemplateRequiredError' | translate }}</span>
                             }
                           </p>
                         }
@@ -255,28 +255,28 @@
                   <div class="flex items-center space-x-1">
                     @if (item.channels && item.channels.includes('Email')) {
                       <span
-                        class="ml-1 text-gray-400" title="Email">
+                        class="ml-1 text-gray-400" [title]="'Campaigns.ChannelEmail' | translate">
                         <i class="ms-Icon ms-Icon--Accounts"></i>
                       </span>
                     }
 
                     @if (item.channels && item.channels.includes('SMS')) {
                       <span
-                        class="ml-1 text-gray-400" title="SMS">
+                        class="ml-1 text-gray-400" [title]="'Campaigns.ChannelSms' | translate">
                         <i class="ms-Icon ms-Icon--Chat"></i>
                       </span>
                     }
 
                     @if (item.channels && item.channels.includes('Inbox')) {
                       <span
-                        class="ml-1 text-gray-400" title="Inbox">
+                        class="ml-1 text-gray-400" [title]="'Campaigns.ChannelInbox' | translate">
                         <i class="ms-Icon ms-Icon--Inbox"></i>
                       </span>
                     }
 
                     @if (item.channels && item.channels.includes('PushNotification')) {
                       <span
-                        class="ml-1 text-gray-400" title="Push Notification">
+                        class="ml-1 text-gray-400" [title]="'Campaigns.ChannelPushNotification' | translate">
                         <i class="ms-Icon ms-Icon--CellPhone"></i>
                       </span>
                     }

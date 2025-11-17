@@ -1,11 +1,11 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, SecurityContext, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ToasterService, ToastType } from '@indice/ng-components';
+import { ToastType } from '@indice/ng-components';
 import { catchError, map, Observable, of, startWith, Subscription } from 'rxjs';
 import { Contact, ContactResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { settings } from '../../../../core/models/settings';
 import { DomSanitizer } from '@angular/platform-browser';
-
+import { AppTranslatedToaster } from '../../../../shared/services/app-translated-toaster';
 
 @Component({
   selector: 'app-contact-duplicates',
@@ -25,7 +25,7 @@ export class ContactDuplicatesComponent implements OnInit, AfterViewInit, OnDest
     private _router: Router,
     private _activatedRoute: ActivatedRoute,
     private sanitizer: DomSanitizer,
-    @Inject(ToasterService) private _toaster: ToasterService
+    @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster
   ) { }
 
   @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
@@ -34,7 +34,6 @@ export class ContactDuplicatesComponent implements OnInit, AfterViewInit, OnDest
   duplicatesState$!: Observable<{
     loading: boolean; contacts: ContactResultSet | null}>;
   loader = true;
-
 
   public ngOnInit(): void {
     this._contactId = this._activatedRoute.snapshot.params['contactId'];
@@ -45,7 +44,7 @@ export class ContactDuplicatesComponent implements OnInit, AfterViewInit, OnDest
 
     this.duplicatesState$ = this._api.getDuplicateContacts(this._contactId).pipe(
       map(contact => ({ loading: false, contacts: contact })),
-      startWith({ loading: true, contacts: null }), 
+      startWith({ loading: true, contacts: null }),
       catchError(() => of({ loading: false, contacts: null }))
     );
     this.mergedContactsIds = new Set<string>();
@@ -73,7 +72,7 @@ export class ContactDuplicatesComponent implements OnInit, AfterViewInit, OnDest
       .subscribe({
         next: () => {
           this.submitInProgress = false;
-          this._toaster.show(ToastType.Success, 'Επιτυχής συγχόνευση', `Τα διπλότυπα της επαφής '${safeName}' συγχονεύτηκαν με επιτυχία.`);
+          this._toaster.show(ToastType.Success, 'Contacts.MergeDuplicatesSuccessTitle', 'Contacts.MergeDuplicatesSuccessMessage', undefined, { name: safeName });
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['contacts', this._contactId, 'contact-details']));
         }
       });

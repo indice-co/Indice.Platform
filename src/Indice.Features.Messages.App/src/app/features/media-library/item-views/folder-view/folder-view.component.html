@@ -8,15 +8,15 @@
 @if (folderContent) {
   <div  class="flex flex-row items-center flex-wrap max-w-[1500px]">
     @if (folderContent?.id) {
-      <div class="h-40 w-40 flex flex-col cursor-pointer bg-white rounded-lg mt-5 mr-5" (click)="goToFolder(folderContent.parentId)">
+      <div class="h-40 w-40 flex flex-col cursor-pointer bg-white rounded-lg mt-5 mr-5" (click)="goToFolder(folderContent.parentId)" [title]="'MediaLibrary.ParentFolderTitle' | translate">
         <div class="text-5xl text-gray-600 w-full h-32 text-center">
           <i class="ms-Icon ms-Icon--MoveToFolder mt-5"></i>
         </div>
-        <span class="w-40 h-8 text-ellipsis overflow-hidden text-center whitespace-nowrap">...</span>
+        <span class="w-40 h-8 text-ellipsis overflow-hidden text-center whitespace-nowrap">{{ 'MediaLibrary.ParentFolderLabel' | translate }}</span>
       </div>
     }
     @for (folder of folderContent?.folders; track folder) {
-      <div class="h-40 w-40 flex flex-col items-center justify-center cursor-pointer bg-white rounded-lg mr-5 mt-5 relative group" (click)="goToFolder(folder.id)">
+      <div class="h-40 w-40 flex flex-col items-center justify-center cursor-pointer bg-white rounded-lg mr-5 mt-5 relative group" (click)="goToFolder(folder.id)" [title]="folder.name">
         <div class="text-5xl text-gray-600 w-full h-28 text-center">
           <i class="ms-Icon ms-Icon--OpenFolderHorizontal mt-5"></i>
         </div>
@@ -34,26 +34,26 @@
           </div>
         </div>
         <div class="flex flex-row items-center absolute top-2 right-2 space-x-2">
-          <div class="hidden group-hover:flex cursor-pointer w-7 h-7 hover:bg-gray-600 bg-gray-100 items-center justify-center rounded-md text-gray-600 hover:text-gray-100" (click)="$event.stopPropagation(); editFolder(folder);">
+          <div class="hidden group-hover:flex cursor-pointer w-7 h-7 hover:bg-gray-600 bg-gray-100 items-center justify-center rounded-md text-gray-600 hover:text-gray-100" (click)="$event.stopPropagation(); editFolder(folder);" [title]="'MediaLibrary.EditFolderTitle' | translate">
             <i class="ms-Icon ms-Icon--Edit"></i>
           </div>
-          <div class="hidden group-hover:flex hover:bg-red-600 cursor-pointer w-7 h-7 bg-gray-100 items-center justify-center rounded-md text-red-600 hover:text-gray-100" (click)="$event.stopPropagation(); deleteFolder(folder);">
+          <div class="hidden group-hover:flex hover:bg-red-600 cursor-pointer w-7 h-7 bg-gray-100 items-center justify-center rounded-md text-red-600 hover:text-gray-100" (click)="$event.stopPropagation(); deleteFolder(folder);" [title]="'MediaLibrary.DeleteFolderTitle' | translate">
             <i class="ms-Icon ms-Icon--Delete"></i>
           </div>
         </div>
       </div>
     }
     @for (file of folderContent?.files; track file) {
-      <div class="h-40 w-40 flex flex-col items-center justify-center cursor-pointer bg-white rounded-lg mr-5 mt-5 relative group" (click)="editFile(file)">
+      <div class="h-40 w-40 flex flex-col items-center justify-center cursor-pointer bg-white rounded-lg mr-5 mt-5 relative group" (click)="editFile(file)" [title]="file.name">
         <div class="h-28 w-full p-2">
           <img class="h-full w-full object-contain" [src]="getImageUrl(file, 128)" onerror="'../../../../assets/images/no-image-icon.png'"/>
         </div>
         <span class="w-36 text-ellipsis overflow-hidden text-center whitespace-nowrap">{{file.name}}</span>
         <div class="flex flex-row items-center absolute top-2 right-2 space-x-2">
-          <div class="hidden group-hover:flex cursor-pointer w-7 h-7 hover:bg-gray-500 bg-gray-100 items-center justify-center rounded-md text-gray-500 hover:text-gray-100" (click)="$event.stopPropagation(); copyToClipboard(file)">
+          <div class="hidden group-hover:flex cursor-pointer w-7 h-7 hover:bg-gray-500 bg-gray-100 items-center justify-center rounded-md text-gray-500 hover:text-gray-100" (click)="$event.stopPropagation(); copyToClipboard(file)" [title]="'MediaLibrary.CopyLinkTitle' | translate">
             <i class="ms-Icon ms-Icon--Copy"></i>
           </div>
-          <div class="hidden group-hover:flex cursor-pointer w-7 h-7 hover:bg-red-600 bg-gray-100 items-center justify-center rounded-md text-red-600 hover:text-gray-100" (click)="$event.stopPropagation(); deleteFile(file);">
+          <div class="hidden group-hover:flex cursor-pointer w-7 h-7 hover:bg-red-600 bg-gray-100 items-center justify-center rounded-md text-red-600 hover:text-gray-100" (click)="$event.stopPropagation(); deleteFile(file);" [title]="'MediaLibrary.DeleteFileTitle' | translate">
             <i class="ms-Icon ms-Icon--Delete"></i>
           </div>
         </div>

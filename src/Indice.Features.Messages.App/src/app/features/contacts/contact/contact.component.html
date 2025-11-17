@@ -23,7 +23,7 @@
                                   stroke-linejoin="round"
                                   d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          <span class="truncate">Βασικές πληροφορίες</span>
+                          <span class="truncate">{{ 'Contacts.BasicInformation' | translate }}</span>
                         </a>
                         <a [routerLink]="['contact-campaigns']"
                            routerLinkActive="vertical-navigation-link-active"
@@ -36,7 +36,7 @@
                                stroke-width="2">
                             <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
                           </svg>
-                          <span class="truncate">Καμπάνιες</span>
+                          <span class="truncate">{{ 'Contacts.Campaigns' | translate }}</span>
                         </a>
                         <a *ngIf="(contact$ | async)?.recipientId"
                            [routerLink]="['contact-preferences']"
@@ -50,7 +50,7 @@
                                stroke-width="2">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7.75 4H19M7.75 4a2.25 2.25 0 0 1-4.5 0m4.5 0a2.25 2.25 0 0 0-4.5 0M1 4h2.25m13.5 6H19m-2.25 0a2.25 2.25 0 0 1-4.5 0m4.5 0a2.25 2.25 0 0 0-4.5 0M1 10h11.25m-4.5 6H19M7.75 16a2.25 2.25 0 0 1-4.5 0m4.5 0a2.25 2.25 0 0 0-4.5 0M1 16h2.25"></path>
                           </svg>
-                          <span class="truncate">Ρυθμίσεις επικοινωνίας</span>
+                          <span class="truncate">{{ 'Contacts.CommunicationSettings' | translate }}</span>
                         </a>
                       </nav>
                     </div>
@@ -61,4 +61,4 @@
             </div>
         </main>
     </div>
-  </lib-view-layout>
+</lib-view-layout>

@@ -2,8 +2,8 @@
   <div class="px-4 space-y-2 pb-4 mt-4">
     <fieldset>
       <div class="mx-auto w-auto xl:w-[1200px] mb-3">
-        <legend class="sr-only">Αποστολή προς</legend>
-        <div class="text-base font-medium text-gray-900 col-span-2" aria-hidden="true">Αποστολή προς</div>
+        <legend class="sr-only">{{ 'Campaigns.RecipientsSendToLabelRequired' | translate }}</legend>
+        <div class="text-base font-medium text-gray-900 col-span-2" aria-hidden="true">{{ 'Campaigns.RecipientsSendToLabelRequired' | translate }}</div>
       </div>
       <div class="flex flex-row md:justify-center md:gap-10">
         <div class="w-full flex flex-col mt-1 space-y-2 xl:w-80">
@@ -13,38 +13,38 @@
               formControlName="sendVia"
               class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
               <label for="distribution-list"
-                class="ml-3 block text-sm font-medium text-gray-700">Λίστα
-              διανομής</label>
+                class="ml-3 block text-sm font-medium text-gray-700">{{ 'Campaigns.RecipientsSendViaDistributionListOption' | translate }}
+              </label>
             </div>
             <div class="flex items-center">
               <input id="recipient-ids" name="sendVia" type="radio" value="recipient-ids"
                 (change)="onSendViaChanged($event)" formControlName="sendVia"
                 class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
                 <label for="recipient-ids"
-                  class="ml-3 block text-sm font-medium text-gray-700">Λίστα
-                κωδικών</label>
+                  class="ml-3 block text-sm font-medium text-gray-700">{{ 'Campaigns.RecipientsSendViaRecipientIdsOption' | translate }}
+                </label>
               </div>
               <div class="flex items-center">
                 <input id="recipients" name="sendVia" type="radio" value="recipients"
                   (change)="onSendViaChanged($event)" formControlName="sendVia"
                   class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
                   <label for="recipients"
-                    class="ml-3 block text-sm font-medium text-gray-700">Λίστα
-                  παραληπτών</label>
+                    class="ml-3 block text-sm font-medium text-gray-700">{{ 'Campaigns.RecipientsSendViaRecipientsOption' | translate }}
+                  </label>
                 </div>
                 <div class="flex items-center">
                   <input id="user-base" name="sendVia" type="radio" value="user-base"
                     (change)="onSendViaChanged($event)" formControlName="sendVia"
                     class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
                     <label for="user-base"
-                    class="ml-3 block text-sm font-medium text-gray-700">Όλους</label>
+                    class="ml-3 block text-sm font-medium text-gray-700">{{ 'Campaigns.RecipientsSendViaAllOption' | translate }}</label>
                   </div>
                 </div>
                 <div class="w-full xl:w-96">
                   @if (sendVia.value === 'distribution-list') {
                     <div>
                       <label for="distributionList" class="hidden"
-                      aria-hidden="true">distribution list id</label>
+                      aria-hidden="true">{{ 'Campaigns.DistributionListIdLabel' | translate }}</label>
                       <div class="flex rounded-sm">
                         <lib-local-drop-down-menu id="distributionList" name="distributionList"
                           class="w-full" formControlName="distributionList"
@@ -57,13 +57,13 @@
                   @if (sendVia.value === 'recipient-ids') {
                     <div>
                       <label for="recipientIds" class="hidden"
-                      aria-hidden="true">Τύπος</label>
+                      aria-hidden="true">{{ 'Campaigns.RecipientIdsLabel' | translate }}</label>
                       <div class="mt-1 flex rounded-sm">
                         <textarea id="recipientIds" name="recipientIds" rows="6" class="w-full"
                           formControlName="recipientIds"
-                        placeholder="Η λίστα χρηστών της καμπάνιας...&#10;κωδικός_χρήστη_1&#10;κωδικός_χρήστη_2"></textarea>
+                        placeholder="{{ 'Campaigns.RecipientIdsPlaceholder' | translate }}"></textarea>
                       </div>
-                      <p class="field-info">{{ recipientsCount }} παραλήπτες</p>
+                      <p class="field-info">{{ recipientsCount }} {{ 'Campaigns.RecipientsCountSuffix' | translate }}</p>
                     </div>
                   }
                   @if (sendVia.value === 'recipients') {
@@ -71,7 +71,7 @@
                       @if (!recipients.value || recipients.value.length < 1) {
                         <div
                           class="flex items-center space-x-5">
-                          <p class="field-info">Δεν έχετε προσθέσει παραλήπτες στη λίστα.
+                          <p class="field-info">{{ 'Campaigns.NoRecipientsInfo' | translate }}
                           </p>
                           <button class="h-10 w-10 rounded-full border-black border" (click)="openSidePane()">
                             <i class="ms-Icon ms-Icon--Add"></i>
@@ -94,7 +94,7 @@
                               </div>
                               @if (recipients.value.length > 4) {
                                 <div class="flex items-end ml-0">
-                                  <span>...</span>
+                                  <span>{{ 'Campaigns.RecipientsOverflowIndicator' | translate }}</span>
                                   <div class="h-10 w-10 rounded-full bg-white border-black border text-xs flex items-center justify-center">
                                     {{recipients.value.length - 4}}
                                   </div>
@@ -104,7 +104,7 @@
                                 <i class="ms-Icon ms-Icon--Edit"></i>
                               </button>
                             </div>
-                            <p class="field-info">Έχετε προσθέσει {{recipients.value.length}} παραλήπτες.</p>
+                            <p class="field-info">{{ 'Campaigns.AddedRecipientsInfoPrefix' | translate }} {{recipients.value.length}} {{ 'Campaigns.RecipientsCountSuffix' | translate }}</p>
                           </div>
                         }
                       </div>
@@ -113,8 +113,8 @@
                       <p
                         class="mt-2 text-sm text-red-600">
                         @if (distributionList.errors!['required']) {
-                          <span>Παρακαλώ επιλέξτε μία λίστα
-                          διανομής.</span>
+                          <span>{{ 'Campaigns.DistributionListRequiredError' | translate }}
+                          </span>
                         }
                       </p>
                     }
@@ -122,8 +122,8 @@
                       <p
                         class="mt-2 text-sm text-red-600">
                         @if (recipientIds.errors!['required']) {
-                          <span>Παρακαλώ εισάγετε τουλάχιστον
-                          ένα κωδικό.</span>
+                          <span>{{ 'Campaigns.RecipientIdsRequiredError' | translate }}
+                          </span>
                         }
                       </p>
                     }
@@ -131,8 +131,8 @@
                       <p
                         class="mt-2 text-sm text-red-600">
                         @if (recipients.errors!['required']) {
-                          <span>Παρακαλώ προσθέστε τουλάχιστον
-                          ένα παραλήπτη.</span>
+                          <span>{{ 'Campaigns.RecipientsRequiredError' | translate }}
+                          </span>
                         }
                       </p>
                     }
@@ -149,10 +149,10 @@
               <div class="side-view-layout-actions-container">
                 <button type="button" class="side-view-layout-action-button-cancel"
                   (click)="distributionListContactCreateComponent.cancel()">
-                  Κλείσιμο
+                  {{ 'Campaigns.Close' | translate }}
                 </button>
                 <button class="side-view-layout-action-button-submit" (click)="distributionListContactCreateComponent.submit()">
-                  Προσθήκη
+                  {{ 'Campaigns.Add' | translate }}
                 </button>
               </div>
             </div>

@@ -5,7 +5,7 @@
         <div class="sm:col-span-1">
           <h2 id="applicant-information-title"
             class="text-lg leading-6 font-medium text-gray-900">
-            Στοιχεία Επικοινωνίας
+            {{ 'Contacts.CommunicationDetailsHeader' | translate }}
           </h2>
         </div>
       </div>
@@ -13,23 +13,23 @@
     <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
       <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
         <div class="sm:col-span-1">
-          <dt class="text-sm font-medium text-gray-500">Γλώσσα επικοινωνίας</dt>
-          <dd class="mt-1 text-sm text-gray-900">{{ recepientPreference?.locale || '-' }}</dd>
+          <dt class="text-sm font-medium text-gray-500">{{ 'Contacts.CommunicationLanguageLabel' | translate }}</dt>
+          <dd class="mt-1 text-sm text-gray-900">{{ recepientPreference?.locale || ('Contacts.EmptyValueIndicator' | translate) }}</dd>
         </div>
         <div class="sm:col-span-1">
           <dt class="text-sm font-medium text-gray-500"></dt>
           <dd class="mt-1 text-sm text-gray-900"></dd>
         </div>
         <div class="sm:col-span-1">
-          <dt class="text-sm font-medium text-gray-500">Αποδοχή επικοινωνίας</dt>
+          <dt class="text-sm font-medium text-gray-500">{{ 'Contacts.CommunicationConsentLabel' | translate }}</dt>
           <dd class="mt-1 text-sm text-gray-900">
             <span [innerHtml]="recepientPreference?.consentCommercial | beautifyBoolean"></span>
           </dd>
         </div>
         <div class="sm:col-span-1">
-          <dt class="text-sm font-medium text-gray-500">Ημερομηνία αποδοχής επικοινωνίας</dt>
+          <dt class="text-sm font-medium text-gray-500">{{ 'Contacts.CommunicationConsentDateLabel' | translate }}</dt>
           <dd class="mt-1 text-sm text-gray-900">
-            {{ (recepientPreference?.consentCommercialDate | date: 'medium') }}
+            {{ recepientPreference?.consentCommercialDate ? (recepientPreference?.consentCommercialDate | date: 'medium') : ('Contacts.EmptyValueIndicator' | translate) }}
           </dd>
         </div>
       </dl>
@@ -39,19 +39,19 @@
         <thead class="list-view-thead">
           <tr>
             <th scope="col" class="list-view-th">
-              Τύποι Μηνυμάτων
+              {{ 'Contacts.MessageTypesColumn' | translate }}
             </th>
-            <th scope="col" class="list-view-th"><span class="mr-1 align-middle"><i class="ms-Icon ms-Icon--Accounts"></i></span>Email</th>
-            <th scope="col" class="list-view-th"><span class="mr-1 align-middle"><i class="ms-Icon ms-Icon--Chat"></i></span>Sms</th>
-            <th scope="col" class="list-view-th"><span class="mr-1 align-middle"><i class="ms-Icon ms-Icon--CellPhone"></i></span>Push Nofication</th>
-            <th scope="col" class="list-view-th"><span class="mr-1 align-middle"><i class="ms-Icon ms-Icon--Inbox"></i></span>Inbox</th>
+            <th scope="col" class="list-view-th"><span class="mr-1 align-middle"><i class="ms-Icon ms-Icon--Accounts"></i></span>{{ 'Contacts.ChannelEmail' | translate }}</th>
+            <th scope="col" class="list-view-th"><span class="mr-1 align-middle"><i class="ms-Icon ms-Icon--Chat"></i></span>{{ 'Contacts.ChannelSms' | translate }}</th>
+            <th scope="col" class="list-view-th"><span class="mr-1 align-middle"><i class="ms-Icon ms-Icon--CellPhone"></i></span>{{ 'Contacts.ChannelPushNotification' | translate }}</th>
+            <th scope="col" class="list-view-th"><span class="mr-1 align-middle"><i class="ms-Icon ms-Icon--Inbox"></i></span>{{ 'Contacts.ChannelInbox' | translate }}</th>
           </tr>
         </thead>
         @if (recepientPreference?.defaultChannels) {
           <tbody class="list-view-tbody">
             <tr class="list-view-tr">
               <td class="list-view-td">
-                <span class="text-sm"><i class="mr-2 dot"></i> Default Settings</span>
+                <span class="text-sm"><i class="mr-2 dot"></i> {{ 'Contacts.DefaultSettingsRowLabel' | translate }}</span>
               </td>
               <td class="list-view-td">
                 <span [innerHtml]="CheckReceivePreference(recepientPreference?.defaultChannels!, ContactChannelKindEnum.Email) | beautifyBoolean"></span>
@@ -74,7 +74,7 @@
               <tr
                 class="list-view-tr">
                 <td class="list-view-td">
-                  <span class="text-sm" title="{{preference.messageType?.classification}}"><i class="mr-2 dot dot-{{preference.messageType?.classification}}"></i> {{preference.messageType?.name}}</span>
+                  <span class="text-sm" title="{{preference.messageType?.classification}}"><i class="mr-2 dot dot-{{preference.messageType?.classification}}"></i> {{preference.messageType?.name || ('Contacts.EmptyValueIndicator' | translate)}}</span>
                 </td>
                 <td class="list-view-td">
                   <span [innerHtml]="CheckReceivePreference(preference.channels!, ContactChannelKindEnum.Email) | beautifyBoolean"></span>

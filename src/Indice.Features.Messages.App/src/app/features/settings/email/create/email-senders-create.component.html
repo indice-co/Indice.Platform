@@ -1,7 +1,7 @@
-<lib-side-view-layout title="Δημιουργία νέου αποστολέα"
+﻿<lib-side-view-layout [title]="'Settings.CreateSenderDialogTitle' | translate"
   [ok-close-dialog]="false"
-  [ok-label]="'Δημιουργία'"
-  [cancel-label]="'Κλείσιμο'"
+  [ok-label]="'Settings.Create' | translate"
+  [cancel-label]="'Settings.Close' | translate"
   (ok)="submitButton.nativeElement.click()"
   [disabled]="!messageSenderForm.valid || submitInProgress"
   #sideViewLayout>
@@ -13,14 +13,14 @@
           <!-- Διεύθυνση -->
           <div class="col-span-4">
             <label for="messageSender"
-            class="field-label">Διεύθυνση (*)</label>
+            class="field-label">{{ 'Settings.SenderAddressLabelRequired' | translate }}</label>
             <div class="flex rounded-sm">
               <input class="w-full"
                 type="text"
                 name="messageSender"
                 id="messageSender"
                 [(ngModel)]="model.sender"
-                placeholder="Η διεύθυνση του αποστολέα..."
+                placeholder="{{ 'Settings.SenderAddressPlaceholder' | translate }}"
                 maxlength="128"
                 #messageSender="ngModel"
                 required>
@@ -29,26 +29,26 @@
                 <p
                   class="mt-2 text-sm text-red-600">
                   @if (messageSender.errors!['required']) {
-                    <span>Παρακαλώ συμπληρώστε μία διεύθυνση.</span>
+                    <span>{{ 'Settings.SenderAddressRequiredError' | translate }}</span>
                   }
                   @if (messageSender.errors!['maxlength']) {
-                    <span>Παρακαλώ συμπληρώστε μία μικρότερη διεύθυνση.</span>
+                    <span>{{ 'Settings.SenderAddressMaxLengthError' | translate }}</span>
                   }
                 </p>
               }
-              <p class="field-info col-span-3">Η διεύθυνση του αποστολέα του Email.</p>
+              <p class="field-info col-span-3">{{ 'Settings.SenderAddressInfo' | translate }}</p>
             </div>
             <!-- Όνομα -->
             <div class="col-span-4">
               <label for="messageSenderName"
-              class="field-label">Όνομα (*)</label>
+              class="field-label">{{ 'Settings.SenderDisplayNameLabelRequired' | translate }}</label>
               <div class="flex rounded-sm">
                 <input class="w-full"
                   type="text"
                   name="messageSenderName"
                   id="messageSenderName"
                   [(ngModel)]="model.displayName"
-                  placeholder="Το όνομα του αποστολέα..."
+                  placeholder="{{ 'Settings.SenderDisplayNamePlaceholder' | translate }}"
                   maxlength="128"
                   #messageSenderName="ngModel"
                   required>
@@ -57,14 +57,14 @@
                   <p
                     class="mt-2 text-sm text-red-600">
                     @if (messageSenderName.errors!['required']) {
-                      <span>Παρακαλώ συμπληρώστε ένα όνομα.</span>
+                      <span>{{ 'Settings.SenderDisplayNameRequiredError' | translate }}</span>
                     }
                     @if (messageSenderName.errors!['maxlength']) {
-                      <span>Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</span>
+                      <span>{{ 'Settings.SenderDisplayNameMaxLengthError' | translate }}</span>
                     }
                   </p>
                 }
-                <p class="field-info col-span-3">Η ονομασία με την οποία θα εμφανίζεται o αποστολέας του Email.</p>
+                <p class="field-info col-span-3">{{ 'Settings.SenderDisplayNameInfo' | translate }}</p>
               </div>
             </div>
           </div>

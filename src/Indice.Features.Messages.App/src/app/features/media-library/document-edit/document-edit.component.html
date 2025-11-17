@@ -1,4 +1,4 @@
-
+﻿
 <ng-template #editIcon
   let-action>
   <svg xmlns="http://www.w3.org/2000/svg"
@@ -24,9 +24,9 @@
                 <div class="sm:col-span-1">
                   <h2 id="information-title"
                     class="text-lg leading-6 font-medium text-gray-900">
-                    Βασικές Πληροφορίες
+                    {{ 'MediaLibrary.BasicInformationHeader' | translate }}
                   </h2>
-                  <p class="mt-1 max-w-2xl text-sm text-gray-500">Οι βασικές πληροφορίες του αρχείου.</p>
+                  <p class="mt-1 max-w-2xl text-sm text-gray-500">{{ 'MediaLibrary.BasicInformationDescription' | translate }}</p>
                 </div>
                 <div class="sm:col-span-1">
                   <div class="mx-auto md:flex md:items-center md:justify-between md:space-x-5">
@@ -34,11 +34,11 @@
                     <div class="flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-3">
                       <button type="button"
                         class="side-view-layout-action-button-submit" (click)="preview()">
-                        Προεπισκόπηση
+                        {{ 'MediaLibrary.Preview' | translate }}
                       </button>
                       <button type="button"
                         class="side-view-layout-action-button-submit" (click)="download()">
-                        Λήψη Αρχείου
+                        {{ 'MediaLibrary.DownloadFile' | translate }}
                       </button>
                     </div>
                   </div>
@@ -49,35 +49,35 @@
               <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
                 <div class="sm:col-span-1">
                   <dt class="text-sm font-medium text-gray-500">
-                    Τίτλος
+                    {{ 'MediaLibrary.TitleLabel' | translate }}
                     <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editName' }"></ng-container>
                   </dt>
-                  <dd class="mt-1 text-sm text-gray-900">{{ file?.name }}</dd>
+                  <dd class="mt-1 text-sm text-gray-900">{{ file?.name || ('MediaLibrary.EmptyValueIndicator' | translate) }}</dd>
                 </div>
                 <div class="sm:col-span-1 group">
                   <dt class="text-sm font-medium text-gray-500">
-                    Τοποθεσία
+                    {{ 'MediaLibrary.LocationLabel' | translate }}
                   </dt>
                   <dd class="mt-1 text-sm text-gray-900 flex items-center space-x-2">
-                    <span class="truncate">{{ file?.path }}</span>
-                    <div class="hidden group-hover:flex cursor-pointer w-5 h-5 hover:bg-gray-500 bg-gray-100 items-center justify-center rounded-md text-gray-500 hover:text-gray-100" (click)="$event.stopPropagation(); file && copyToClipboard(file)">
+                    <span class="truncate">{{ file?.path || ('MediaLibrary.EmptyValueIndicator' | translate) }}</span>
+                    <div class="hidden group-hover:flex cursor-pointer w-5 h-5 hover:bg-gray-500 bg-gray-100 items-center justify-center rounded-md text-gray-500 hover:text-gray-100" (click)="$event.stopPropagation(); file && copyToClipboard(file)" [title]="'MediaLibrary.CopyLinkTitle' | translate">
                       <i class="ms-Icon ms-Icon--Copy"></i>
                     </div>
                   </dd>
                 </div>
                 <div class="sm:col-span-1">
                   <dt class="text-sm font-medium text-gray-500">
-                    Περιγραφή
+                    {{ 'MediaLibrary.DescriptionLabel' | translate }}
                     <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editDescription' }"></ng-container>
                   </dt>
-                  <dd class="mt-1 text-sm text-gray-900">{{ file?.description || '-' }}</dd>
+                  <dd class="mt-1 text-sm text-gray-900">{{ file?.description || ('MediaLibrary.EmptyValueIndicator' | translate) }}</dd>
                 </div>
                 <div class="sm:col-span-1">
                   <dt class="text-sm font-medium text-gray-500">
-                    Φάκελος
+                    {{ 'MediaLibrary.FolderLabel' | translate }}
                     <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editParentFolder' }"></ng-container>
                   </dt>
-                  <dd class="mt-1 text-sm text-gray-900">{{ parentFolderName || '-' }}</dd>
+                  <dd class="mt-1 text-sm text-gray-900">{{ parentFolderName || ('MediaLibrary.EmptyValueIndicator' | translate) }}</dd>
                 </div>
                 <!--<div class="sm:col-span-1">
                 <dt class="text-sm font-medium text-gray-500">
@@ -87,39 +87,39 @@
               </div>-->
               <div class="sm:col-span-1">
                 <dt class="text-sm font-medium text-gray-500">
-                  Τύπος
+                  {{ 'MediaLibrary.TypeLabel' | translate }}
                 </dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ file?.contentType || '-' }}</dd>
+                <dd class="mt-1 text-sm text-gray-900">{{ file?.contentType || ('MediaLibrary.EmptyValueIndicator' | translate) }}</dd>
               </div>
               <div class="sm:col-span-1">
                 <dt class="text-sm font-medium text-gray-500">
-                  Μέγεθος
+                  {{ 'MediaLibrary.SizeLabel' | translate }}
                 </dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ file?.contentSize || '-' }} </dd>
+                <dd class="mt-1 text-sm text-gray-900">{{ file?.contentSize || ('MediaLibrary.EmptyValueIndicator' | translate) }} </dd>
               </div>
               <div class="sm:col-span-1">
                 <dt class="text-sm font-medium text-gray-500">
-                  Δημιουργήθηκε από
+                  {{ 'MediaLibrary.CreatedByLabel' | translate }}
                 </dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ file?.createdBy || '-' }}</dd>
+                <dd class="mt-1 text-sm text-gray-900">{{ file?.createdBy || ('MediaLibrary.EmptyValueIndicator' | translate) }}</dd>
               </div>
               <div class="sm:col-span-1">
                 <dt class="text-sm font-medium text-gray-500">
-                  Δημιουργήθηκε στις
+                  {{ 'MediaLibrary.CreatedAtLabel' | translate }}
                 </dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ file?.createdAt ? (file?.createdAt | date: 'medium') : '-' }}</dd>
+                <dd class="mt-1 text-sm text-gray-900">{{ file?.createdAt ? (file?.createdAt | date: 'medium') : ('MediaLibrary.EmptyValueIndicator' | translate) }}</dd>
               </div>
               <div class="sm:col-span-1">
                 <dt class="text-sm font-medium text-gray-500">
-                  Τροποποιήθηκε από
+                  {{ 'MediaLibrary.UpdatedByLabel' | translate }}
                 </dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ file?.updatedBy || '-' }}</dd>
+                <dd class="mt-1 text-sm text-gray-900">{{ file?.updatedBy || ('MediaLibrary.EmptyValueIndicator' | translate) }}</dd>
               </div>
               <div class="sm:col-span-1">
                 <dt class="text-sm font-medium text-gray-500">
-                  Τροποποιήθηκε στις
+                  {{ 'MediaLibrary.UpdatedAtLabel' | translate }}
                 </dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ file?.updatedAt ? (file?.updatedAt | date: 'medium') : '-' }}</dd>
+                <dd class="mt-1 text-sm text-gray-900">{{ file?.updatedAt ? (file?.updatedAt | date: 'medium') : ('MediaLibrary.EmptyValueIndicator' | translate) }}</dd>
               </div>
             </dl>
           </div>
@@ -132,7 +132,7 @@
               [src]="file?.permaLink"
               [alt]="file?.description || file?.name"
               (load)="originalWidth = $event.target.naturalWidth; originalHeight = $event.target.naturalHeight"/>
-              <p class="text-center text-sm text-gray-900">Size: {{ originalWidth }} x {{ originalHeight }} px </p>
+              <p class="text-center text-sm text-gray-900">{{ 'MediaLibrary.ImageDimensionsPrefix' | translate }} {{ originalWidth }} x {{ originalHeight }} {{ 'MediaLibrary.PixelsSuffix' | translate }} </p>
             </div>
           </section>
         }

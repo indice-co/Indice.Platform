@@ -3,31 +3,31 @@
     <dl>
       <form [formGroup]="form">
         <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">Δημοσιευμένη</dt>
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.PublishedLabel' | translate }}</dt>
           <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-            <lib-toggle-button id="published" name="published" [(value)]="model.published" true-label="Ναι" false-label="Όχι"></lib-toggle-button>
+            <lib-toggle-button id="published" name="published" [(value)]="model.published" text-true="{{ 'Campaigns.Yes' | translate }}" text-false="{{ 'Campaigns.No' | translate }}"></lib-toggle-button>
           </dd>
         </div>
         <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">Παράβλεψη ρυθμίσεων επικοινωνίας επαφής</dt>
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.IgnoreUserPreferencesLabel' | translate }}</dt>
           <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-            <lib-toggle-button id="ignoreUserPreferences" name="ignoreUserPreferences" [(value)]="model.ignoreUserPreferences" true-label="Ναι" false-label="Όχι"></lib-toggle-button>
+            <lib-toggle-button id="ignoreUserPreferences" name="ignoreUserPreferences" [(value)]="model.ignoreUserPreferences" text-true="{{ 'Campaigns.Yes' | translate }}" text-false="{{ 'Campaigns.No' | translate }}"></lib-toggle-button>
           </dd>
         </div>
         <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">Τίτλος</dt>
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.TitleLabel' | translate }}</dt>
           <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
             <b>{{ data.title }}</b>
           </dd>
         </div>
         <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">Τύπος</dt>
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.TypeLabel' | translate }}</dt>
           <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-            <b>{{ data.type || '-' }}</b>
+            <b>{{ data.type || ('Campaigns.EmptyValueIndicator' | translate) }}</b>
           </dd>
         </div>
         <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">Διάρκεια</dt>
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.DurationLabel' | translate }}</dt>
           <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
             <span>
               <b>{{ data.period?.from ? (data.period?.from | date: 'medium') : '' }} - </b>
@@ -39,13 +39,13 @@
             }
             @if (!data.period?.to) {
               <span class="text-lg">
-                <b>∞</b>
+                <b>{{ 'Campaigns.InfiniteSymbol' | translate }}</b>
               </span>
             }
           </dd>
         </div>
         <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">Call to action</dt>
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.CallToActionSectionLabel' | translate }}</dt>
           <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
             @if (data.actionLink?.text && data.actionLink?.href) {
               <a target="_blank" class="text-blue-600 hover:text-blue-500" [href]="data.actionLink?.href">
@@ -56,20 +56,20 @@
               <span>{{ data.actionLink?.text }}</span>
             }
             @if (!data.actionLink?.text && !data.actionLink?.href) {
-              <span>-</span>
+              <span>{{ 'Campaigns.EmptyValueIndicator' | translate }}</span>
             }
           </dd>
         </div>
         <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">Template</dt>
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.TemplateLabel' | translate }}</dt>
           <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-            <b>{{ data.template || '-' }}</b>
+            <b>{{ data.template || ('Campaigns.EmptyValueIndicator' | translate) }}</b>
           </dd>
         </div>
         <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-          <dt class="text-sm font-medium text-gray-500">Λίστα διανομής</dt>
+          <dt class="text-sm font-medium text-gray-500">{{ 'Campaigns.DistributionListLabel' | translate }}</dt>
           <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-            <b>{{ data.distributionList || '-' }}</b>
+            <b>{{ data.distributionList || ('Campaigns.EmptyValueIndicator' | translate) }}</b>
           </dd>
         </div>
       </form>

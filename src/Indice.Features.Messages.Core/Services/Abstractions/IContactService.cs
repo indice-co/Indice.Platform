@@ -48,7 +48,7 @@ public interface IContactService
     /// <summary>Updates an existing campaign.</summary>
     /// <param name="recipientId">The id of the recipient.</param>
     /// <param name="request">The data for the communication preferences.</param>
-    Task UpdatePreference(string recipientId, UpdatPreferenceRequest request);
+    Task UpdatePreference(string recipientId, UpdatePreferenceRequest request);
     /// <summary>Updates an existing campaign.</summary>
     /// <param name="recipientId">The id of the recipient.</param>
     /// <param name="preference">The data for the communication preferences.</param>

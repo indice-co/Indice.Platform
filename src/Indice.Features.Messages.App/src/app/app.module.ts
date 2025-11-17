@@ -1,6 +1,6 @@
 import { LOCALE_ID, NgModule, Provider } from '@angular/core';
 import { CommonModule, DatePipe, JsonPipe, registerLocaleData } from '@angular/common';
-import { HTTP_INTERCEPTORS, withInterceptors, provideHttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS, withInterceptors, provideHttpClient } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -95,6 +95,9 @@ import { NgProgressbar } from 'ngx-progressbar';
 import { progressInterceptor, NgProgressHttp } from 'ngx-progressbar/http';
 import { ContactDuplicatesComponent } from './features/contacts/contact/duplicates/contact-duplicates.component';
 import { MessageEventsComponent } from './features/events/message-events.component';
+import { TranslateModule, provideTranslateService } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+
 registerLocaleData(localeGreek);
 
 const providers: Provider[] = [
@@ -115,13 +118,14 @@ const providers: Provider[] = [
     useValue: {
       fullLibraryLoader: () => import('highlight.js'),
       lineNumbers: true,
-      coreLibraryLoader: () => import('highlight.js/lib/core'),
-      languages: {
-        json: () => import('highlight.js/lib/languages/json')
-      }
     }
   },
-  { provide: APP_LANGUAGES, useClass: AppLanguagesService },
+  provideTranslateService({
+    loader: provideTranslateHttpLoader({ prefix: `${app.settings.api_url}/msg-i18n.`, useHttpBackend: true }),
+      fallbackLang: 'en'
+    }),
+  { provide: APP_LANGUAGES, useClass: AppLanguagesService }
+  
 ]
 
 if (app.settings.tenantId) {
@@ -219,10 +223,16 @@ if (app.settings.tenantId) {
     IndiceComponentsModule.forRoot(),
     NgProgressbar,
     NgProgressHttp,
+    TranslateModule.forRoot(),
     ReactiveFormsModule
   ],
   providers: [
     ...providers,
+    /*{
+      provide: TranslateLoader,
+      useClass: ApiTranslateLoader,
+      deps: [HttpClient, MESSAGES_API_BASE_URL],
+    },*/
     provideHttpClient(withInterceptors([progressInterceptor]))
   ],
   bootstrap: [AppComponent]

@@ -1,7 +1,7 @@
-<lib-side-view-layout title="Επεξεργασία λίστας"
+<lib-side-view-layout title="{{ 'DistributionLists.EditList' | translate }}"
   [ok-close-dialog]="false"
-  [ok-label]="'Αποθήκευση'"
-  [cancel-label]="'Κλείσιμο'"
+  [ok-label]="'DistributionLists.Save' | translate"
+  [cancel-label]="'DistributionLists.CancelLabel' | translate"
   (ok)="submitButton.nativeElement.click()"
   [disabled]="!editCampaignForm.valid || submitInProgress"
   #sideViewLayout>
@@ -18,7 +18,7 @@
       <button type="submit"
         [style.visibility]="'hidden'"
         #submitBtn>
-        Submit
+        {{ 'DistributionLists.Submit' | translate }}
       </button>
     </form>
   </div>
@@ -26,7 +26,7 @@
 <ng-template #editNameTemplate>
   <label for="listName"
     class="field-label">
-    Τίτλος (*)
+    {{ 'DistributionLists.ListTitleLabel' | translate }}
   </label>
   <div class="mt-1 flex rounded-sm">
     <input class="w-full"
@@ -34,7 +34,7 @@
       name="listName"
       id="listName"
       [(ngModel)]="model.name"
-      placeholder="Το όνομα της λίστας..."
+      placeholder="{{ 'DistributionLists.ListNamePlaceholder' | translate }}"
       required
       #listName="ngModel">
     </div>
@@ -42,17 +42,17 @@
       <p
         class="mt-2 text-sm text-red-600">
         @if (listName.errors!['required']) {
-          <span>Παρακαλώ συμπληρώστε ένα τίτλο.</span>
+          <span>{{ 'DistributionLists.ListNameRequired' | translate }}</span>
         }
         @if (listName.errors!['maxlength']) {
-          <span>Παρακαλώ συμπληρώστε ένα μικρότερο τίτλο.</span>
+          <span>{{ 'DistributionLists.ListNameMaxLength' | translate }}</span>
         }
       </p>
     }
-    <p class="field-info col-span-3">Η ονομασία με την οποία θα εμφανίζεται η λίστα.</p>
+    <p class="field-info col-span-3">{{ 'DistributionLists.ListInfo' | translate }}</p>
     <label for="listAlias"
       class="field-label">
-      Alias
+      {{ 'DistributionLists.AliasLabel' | translate }}
     </label>
     <div class="mt-1 flex rounded-sm">
       <input class="w-full"
@@ -60,15 +60,15 @@
         name="listAlias"
         id="listAlias"
         [(ngModel)]="model.alias"
-        placeholder="Το alias της λίστας..."
+        placeholder="{{ 'DistributionLists.AliasPlaceholder' | translate }}"
         required
-        #listName="ngModel">
+        #listAlias="ngModel">
       </div>
-      @if (listName.invalid && (listName.dirty || listName.touched)) {
+      @if (listAlias.invalid && (listAlias.dirty || listAlias.touched)) {
         <p
           class="mt-2 text-sm text-red-600">
-          @if (listName.errors!['maxlength']) {
-            <span>Παρακαλώ συμπληρώστε ένα μικρότερο alias.</span>
+          @if (listAlias.errors!['maxlength']) {
+            <span>{{ 'DistributionLists.AliasMaxLength' | translate }}</span>
           }
         </p>
       }

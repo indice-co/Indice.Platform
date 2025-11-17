@@ -2,10 +2,10 @@
   <div class="px-4 space-y-2 pb-4">
     <fieldset>
       <lib-tab-group (tabChanged)="onContentTabChanged($event)" #tabGroup>
-        <lib-tab labelText="Edit">
+        <lib-tab [labelText]="'Campaigns.EditTabLabel' | translate">
           <ng-template libTabLabel>
             <span class="inline-flex items-center">
-              <button class="px-2" type="button" title="Επεξεργασία">
+              <button class="px-2" type="button" [title]="'Campaigns.EditTabTitle' | translate">
                 <svg xmlns="http://www.w3.org/2000/svg"
                   class="h-4 w-4 stroke-slate-400 transition group-hover:rotate-[-4deg] group-hover:stroke-slate-600"
                   fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -17,12 +17,12 @@
             </ng-template>
             <div class="px-4 space-y-2 pb-4 mt-4">
               <fieldset>
-                <legend class="sr-only">Κανάλια επικοινωνίας (*)</legend>
+                <legend class="sr-only">{{ 'Campaigns.CommunicationChannelsLabelRequired' | translate }}</legend>
                 <div class="text-base font-medium text-gray-900" aria-hidden="true">
-                  Κανάλια επικοινωνίας (*)
+                  {{ 'Campaigns.CommunicationChannelsLabelRequired' | translate }}
                 </div>
                 <label for="campaignType" class="hidden" aria-hidden="true">
-                  Κανάλια επικοινωνίας (*)
+                  {{ 'Campaigns.CommunicationChannelsLabelRequired' | translate }}
                 </label>
                 <div class="grid grid-cols-2 gap-4">
                   <div class="col-span-2 sm:col-span-1">
@@ -39,10 +39,10 @@
                                                     'ms-Icon--CellPhone': channel.key === 'pushNotification',
                                                     'ms-Icon--Inbox': channel.key === 'inbox'
                                                    }"></i>
-                              </span> {{ channel.value.name }}
+                              </span> {{ channel.value.name | translate }}
                             </label>
                             <p [id]="'channel-' + i + '-description'" class="text-gray-500">
-                              {{ channel.value.description }}
+                              {{ channel.value.description | translate }}
                             </p>
                           </div>
                           <div class="ml-3 flex items-center h-5">
@@ -64,10 +64,8 @@
               </div>
             </lib-tab>
             @for (contentForm of channelsContent.controls; track contentForm; let i = $index) {
-              <lib-tab [labelText]="getChannelState(contentForm.value.channel).name"
-                >
-                <ng-template let-tab
-                  libTabLabel>
+              <lib-tab [labelText]="getChannelState(contentForm.value.channel).name">
+                <ng-template let-tab libTabLabel>
                   <div class="inline-flex items-center">
                     <span class="mr-1 align-middle">
                         <i class="ms-Icon ms-Icon--Accounts" [ngClass]="{
@@ -77,7 +75,7 @@
                           'ms-Icon--Inbox': tab.labelText === 'Inbox'
                          }"></i>
                     </span>
-                    <span>{{tab.labelText}}</span>
+                    <span>{{ tab.labelText | translate }}</span>
                   </div>
                 </ng-template>
                 <ng-container *ngTemplateOutlet="contentTemplate; context: { $implicit: contentForm }"></ng-container>
@@ -87,11 +85,11 @@
         </fieldset>
         <div class="grid grid-cols-2 gap-4" [ngClass]="{ 'hidden': hideMetadata }">
           <div class="col-span-2 sm:col-span-1">
-            <!-- Μεταδεδομένα -->
+            <!-- Metadata -->
             <fieldset>
-              <legend class="sr-only">Μεταδεδομένα</legend>
-              <div class="text-base font-medium text-gray-900" aria-hidden="true">Μεταδεδομένα</div>
-              <label for="campaignMetadata" class="hidden" aria-hidden="true">Μεταδεδομένα</label>
+              <legend class="sr-only">{{ 'Campaigns.MetadataLabel' | translate }}</legend>
+              <div class="text-base font-medium text-gray-900" aria-hidden="true">{{ 'Campaigns.MetadataLabel' | translate }}</div>
+              <label for="campaignMetadata" class="hidden" aria-hidden="true">{{ 'Campaigns.MetadataLabel' | translate }}</label>
               <div class="mt-1 flex rounded-sm">
                 <code-editor #campaignMetadata
                   name="campaignMetadata"
@@ -101,7 +99,7 @@
                   (ngModelChange)="onCampaignMetadataInput($event)"
                   [theme]="'dark'"
                   [setup]="'basic'"
-                  [placeholder]="'Επιπρόσθετα δεδομένα της καμπάνιας σε JSON μορφή'"
+                  [placeholder]="'Campaigns.MetadataPlaceholder' | translate"
                   [indentWithTab]="false"
                   [indentUnit]="''"
                   [lineWrapping]="true"
@@ -112,19 +110,18 @@
                 @if (data.invalid && (data.dirty || data.touched)) {
                   <p class="mt-2 text-sm text-red-600">
                     @if (data.errors && data.errors['invalidJson']) {
-                      <span>Η μορφή του JSON δεν είναι
-                      έγκυρη.</span>
+                      <span>{{ 'Campaigns.MetadataInvalidJsonError' | translate }}</span>
                     }
                   </p>
                 }
               </fieldset>
             </div>
             <div class="col-span-2 sm:col-span-1">
-              <!-- Sample Payload -->
+              <!-- Message Data -->
               <fieldset>
-                <legend class="sr-only">Δεδομένα μηνύματος</legend>
-                <div class="text-base font-medium text-gray-900" aria-hidden="true">Δεδομένα μηνύματος</div>
-                <label for="campaignSamplePayload" class="hidden" aria-hidden="true">Δεδομένα μηνύματος</label>
+                <legend class="sr-only">{{ 'Campaigns.MessageDataLabel' | translate }}</legend>
+                <div class="text-base font-medium text-gray-900" aria-hidden="true">{{ 'Campaigns.MessageDataLabel' | translate }}</div>
+                <label for="campaignSamplePayload" class="hidden" aria-hidden="true">{{ 'Campaigns.MessageDataLabel' | translate }}</label>
                 <div class="mt-2 flex rounded-sm border">
                   <pre>
                     <code [highlight]="samplePayload | json"
@@ -142,14 +139,14 @@
         <div class="space-y-2 pb-4 mt-4" [formGroup]="contentForm">
           @if (contentForm.controls['channel'].value == 'email') {
             <fieldset>
-              <legend class="sr-only">Αποστολέας (*)</legend>
+              <legend class="sr-only">{{ 'Campaigns.SenderLabelRequired' | translate }}</legend>
               <div class="text-base font-medium text-gray-900" aria-hidden="true">
-                Αποστολέας (*)
+                {{ 'Campaigns.SenderLabelRequired' | translate }}
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <div class="col-span-2 sm:col-span-1">
                   <label for="sender" class="hidden" aria-hidden="true">
-                    Αποστολέας (*)
+                    {{ 'Campaigns.SenderLabelRequired' | translate }}
                   </label>
                   <lib-local-drop-down-menu id="messageSender" name="messageSender" class="w-full"
                     [value]="selectedSenderId" [options]="messageSenders"
@@ -160,33 +157,32 @@
             </fieldset>
           }
           <fieldset>
-            <legend class="sr-only">Θέμα (*)</legend>
+            <legend class="sr-only">{{ 'Campaigns.SubjectLabelRequired' | translate }}</legend>
             <div class="text-base font-medium text-gray-900" aria-hidden="true">
-              Θέμα (*)
+              {{ 'Campaigns.SubjectLabelRequired' | translate }}
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div class="col-span-2 sm:col-span-1">
                 <label for="subject" class="hidden" aria-hidden="true">
-                  Θέμα (*)
+                  {{ 'Campaigns.SubjectLabelRequired' | translate }}
                 </label>
                 <div class="mt-1 flex rounded-sm col-span-3">
                   <input class="w-full"
                     type="text" name="subject" id="subject" formControlName="subject"
-                    placeholder="Το θέμα του μήνυματος" (input)="onSubjectInput(contentForm)">
+                    [placeholder]="'Campaigns.SubjectPlaceholder' | translate" (input)="onSubjectInput(contentForm)">
                   </div>
                   @if (contentForm.controls['subject'].invalid && (contentForm.controls['subject'].dirty || contentForm.controls['subject'].touched)) {
                     <p
                       class="mt-2 text-sm text-red-600">
                       @if (contentForm.controls['subject'].errors!['required']) {
-                        <span>Παρακαλώ συμπληρώστε το
-                        θέμα.</span>
+                        <span>{{ 'Campaigns.SubjectRequiredError' | translate }}</span>
                       }
                     </p>
                   }
                 </div>
                 <div class="mt-1 col-span-2 sm:col-span-1 border border-dashed">
                   <label class="hidden" aria-hidden="true">
-                    Προεπισκόπηση
+                    {{ 'Campaigns.PreviewLabel' | translate }}
                   </label>
                   <div class="flex rounded-sm col-span-3">
                     <p>{{ subjectPreview }}</p>
@@ -195,16 +191,16 @@
               </div>
             </fieldset>
             <fieldset>
-              <legend class="sr-only">Σώμα (*)</legend>
+              <legend class="sr-only">{{ 'Campaigns.BodyLabelRequired' | translate }}</legend>
               <div class="flex items-center space-x-5">
                 <div class="text-base font-medium text-gray-900" aria-hidden="true">
-                  Σώμα (*)
+                  {{ 'Campaigns.BodyLabelRequired' | translate }}
                 </div>
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <div class="col-span-2 md:col-span-1">
                   <label for="body" class="hidden" aria-hidden="true">
-                    Σώμα (*)
+                    {{ 'Campaigns.BodyLabelRequired' | translate }}
                   </label>
                   <code-editor [id]="'codemirror-editor-'+contentForm.controls['channel'].value"
                     [style.height]="'50vh'"
@@ -213,7 +209,7 @@
                     (ngModelChange)="onBodyInputValue($event, contentForm.controls['channel'].value)"
                     [theme]="'dark'"
                     [setup]="'basic'"
-                    [placeholder]="'Το σώμα του μηνύματος'"
+                    [placeholder]="'Campaigns.BodyPlaceholder' | translate"
                     [indentWithTab]="false"
                     [indentUnit]="''"
                     [lineWrapping]="true"
@@ -225,8 +221,7 @@
                         class="mt-2 text-sm text-red-600">
                         @if (contentForm.controls['body'].errors!['required']) {
                           <span>
-                            Παρακαλώ συμπληρώστε το σώμα του
-                            μηνύματος.
+                            {{ 'Campaigns.BodyRequiredError' | translate }}
                           </span>
                         }
                       </p>
@@ -234,7 +229,7 @@
                   </div>
                   <div class="mt-2 col-span-2 sm:col-span-1 border border-dashed">
                     <label class="hidden" aria-hidden="true">
-                      Προεπισκόπηση
+                      {{ 'Campaigns.PreviewLabel' | translate }}
                     </label>
                     <div class="flex rounded-sm col-span-3">
                       <iframe class="w-full" [srcdoc]="bodyPreview | safe: 'html'" style="height: 50vh;">
@@ -252,7 +247,7 @@
               <div class="side-view-layout-container-inner">
                 <div class="side-view-layout-header-margins">
                   <div class="side-view-layout-header-container">
-                    <h2 id="slide-over-title" class="side-view-layout-header-title"> Βιβλιοθήκη Αρχείων </h2>
+                    <h2 id="slide-over-title" class="side-view-layout-header-title"> {{ 'Campaigns.FileLibraryHeader' | translate }} </h2>
                     <div class="side-view-layout-close-button-container">
                       <button class="side-view-layout-close-button" (click)="mediaLibraryView.selectedFile = undefined;closeSidePane();">
                         <i class="ms-Icon ms-Icon--ChromeClose"></i>
@@ -261,8 +256,8 @@
                   </div>
                 </div>
                 <div class="side-view-layout-content-container pt-5 space-y-5">
-                  <span>Μπορείτε να επιλέξετε ένα υπάρχον αρχείο μέσω της <strong>Βιβλιοθήκης Αρχείων</strong>
-                  <button type="button" class="p-2" title="Μετάβαση" (click)="openMediaLibraryInNewTab()">
+                  <span>{{ 'Campaigns.FileLibraryIntroPrefix' | translate }} <strong>{{ 'Campaigns.FileLibraryHeader' | translate }}</strong>
+                  <button type="button" class="p-2" [title]="'Campaigns.NavigateActionTitle' | translate" (click)="openMediaLibraryInNewTab()">
                     <i class="ms-Icon ms-Icon--OpenInNewTab"></i>
                   </button>:
                 </span>
@@ -273,10 +268,10 @@
             </div>
             <div class="side-view-layout-actions-container">
               <button type="button" class="side-view-layout-action-button-cancel" (click)="mediaLibraryView.selectedFile = undefined;closeSidePane();">
-                Κλείσιμο
+                {{ 'Campaigns.Close' | translate }}
               </button>
               <button class="side-view-layout-action-button-submit" [disabled]="!mediaLibraryView.selectedFile" (click)="addToTextArea(mediaLibraryView.selectedFile)">
-                Προσθήκη
+                {{ 'Campaigns.Add' | translate }}
               </button>
             </div>
           </div>

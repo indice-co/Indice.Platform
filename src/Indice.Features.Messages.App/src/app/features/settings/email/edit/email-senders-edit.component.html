@@ -1,7 +1,7 @@
-<lib-side-view-layout title="Επεξεργασία αποστολέα"
+﻿<lib-side-view-layout [title]="'Settings.EditSenderDialogTitle' | translate"
   [ok-close-dialog]="false"
-  [ok-label]="'Αποθήκευση'"
-  [cancel-label]="'Κλείσιμο'"
+  [ok-label]="'Settings.Save' | translate"
+  [cancel-label]="'Settings.Close' | translate"
   (ok)="submitButton.nativeElement.click()"
   [disabled]="!messageSenderForm.valid || submitInProgress"
   #sideViewLayout>
@@ -14,15 +14,15 @@
           <div class="col-span-4">
             <label for="messageSenderName"
               class="field-label">
-              Αποστολέας (*)
+              {{ 'Settings.SenderAddressLabelRequired' | translate }}
             </label>
             <div class="flex rounded-sm">
               <input class="w-full"
                 type="text"
                 name="messageSender"
-                id="messageSendeρ"
+                id="messageSender"
                 [(ngModel)]="model.sender"
-                placeholder="Το όνομα του αποστολέα..."
+                placeholder="{{ 'Settings.SenderAddressPlaceholder' | translate }}"
                 maxlength="128"
                 required
                 #messageSender="ngModel">
@@ -31,20 +31,20 @@
                 <p
                   class="mt-2 text-sm text-red-600">
                   @if (messageSender.errors!['required']) {
-                    <span>Παρακαλώ συμπληρώστε μία διεύθυνση.</span>
+                    <span>{{ 'Settings.SenderAddressRequiredError' | translate }}</span>
                   }
                   @if (messageSender.errors!['maxlength']) {
-                    <span>Παρακαλώ συμπληρώστε μία μικρότερη διεύθυνση.</span>
+                    <span>{{ 'Settings.SenderAddressMaxLengthError' | translate }}</span>
                   }
                 </p>
               }
-              <p class="field-info col-span-3">Η διεύθυνση του αποστολέα του Email.</p>
+              <p class="field-info col-span-3">{{ 'Settings.SenderAddressInfo' | translate }}</p>
             </div>
             <!-- Όνομα -->
             <div class="col-span-4">
               <label for="messageSenderName"
                 class="field-label">
-                Όνομα (*)
+                {{ 'Settings.SenderDisplayNameLabelRequired' | translate }}
               </label>
               <div class="flex rounded-sm">
                 <input class="w-full"
@@ -52,7 +52,7 @@
                   name="messageSenderName"
                   id="messageSenderName"
                   [(ngModel)]="model.displayName"
-                  placeholder="Το όνομα του αποστολέα..."
+                  placeholder="{{ 'Settings.SenderDisplayNamePlaceholder' | translate }}"
                   maxlength="128"
                   required
                   #messageSenderName="ngModel">
@@ -61,22 +61,22 @@
                   <p
                     class="mt-2 text-sm text-red-600">
                     @if (messageSenderName.errors!['required']) {
-                      <span>Παρακαλώ συμπληρώστε ένα όνομα.</span>
+                      <span>{{ 'Settings.SenderDisplayNameRequiredError' | translate }}</span>
                     }
                     @if (messageSenderName.errors!['maxlength']) {
-                      <span>Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</span>
+                      <span>{{ 'Settings.SenderDisplayNameMaxLengthError' | translate }}</span>
                     }
                   </p>
                 }
-                <p class="field-info col-span-3">Η ονομασία με την οποία θα εμφανίζεται o αποστολέας του Email.</p>
+                <p class="field-info col-span-3">{{ 'Settings.SenderDisplayNameInfo' | translate }}</p>
               </div>
               <div class="col-span-4 flex flex-row justify-between items-center">
                 <div>
                   <label for="messageSenderName"
                     class="field-label">
-                    Προκαθορισμένος Αποστολέας
+                    {{ 'Settings.DefaultSenderCheckboxLabel' | translate }}
                   </label>
-                  <p class="field-info col-span-3">Επιλέξετε εφόσον επιθυμείτε να εμφανίζεται ως ο προκαθοριμσένος αποστολέας.</p>
+                  <p class="field-info col-span-3">{{ 'Settings.DefaultSenderCheckboxInfo' | translate }}</p>
                 </div>
                 <div class="ml-3 flex items-center h-5">
                   <input [id]="'sender'"

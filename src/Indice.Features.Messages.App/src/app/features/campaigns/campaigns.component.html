@@ -1,4 +1,4 @@
-<lib-view-layout [title]="'Καμπάνιες'"
+﻿<lib-view-layout [title]="'Campaigns.Title' | translate"
   [busy]="!items"
   [actions]="actions"
   [meta-items]="metaItems"
@@ -28,9 +28,9 @@
     </ng-container>
 
 
-    <lib-list-column title="ΤΙΤΛΟΣ">
+    <lib-list-column [title]="'Campaigns.ItemTitle' | translate">
       <ng-template let-item>
-        <a title="Λεπτομέρειες"
+        <a [title]="'Campaigns.Details' | translate"
           [routerLink]="[item.id]"
           class="text-blue-600">
           {{ item.title }}
@@ -38,7 +38,7 @@
       </ng-template>
     </lib-list-column>
 
-    <lib-list-column title="Channels">
+    <lib-list-column [title]="'Campaigns.Channels' | translate">
       <ng-template let-item>
         <div class="flex items-center space-x-1" title="{{item.messageChannelKind?.join(', ')}}">
           <span [ngClass]="{ 'text-green-500': item.messageChannelKind.includes('Email') }"
@@ -63,21 +63,21 @@
         </div>
       </ng-template>
     </lib-list-column>
-    <lib-list-column title="Type">
+    <lib-list-column [title]="'Campaigns.Type' | translate">
       <ng-template let-item>@if (item.type) {
         <span title="{{item.type?.classification}}" class="message-type-badge {{item.type?.classification}}">{{ item.type?.name || '-'  }}</span>
       }</ng-template>
     </lib-list-column>
-    <lib-list-column title="ΑΠΟ">
+    <lib-list-column [title]="'Campaigns.From' | translate">
       <ng-template let-item>{{ item.activePeriod?.from ? (item.activePeriod.from | date: 'medium') : '-' }}</ng-template>
     </lib-list-column>
-    <lib-list-column title="ΕΩΣ">
+    <lib-list-column [title]="'Campaigns.To' | translate">
       <ng-template let-item>{{ item.activePeriod?.to ? (item.activePeriod.to | date: 'medium') : '-' }}</ng-template>
     </lib-list-column>
-    <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ ΑΠΟ">
+    <lib-list-column [title]="'Campaigns.CreatedBy' | translate">
       <ng-template let-item>{{ item.createdBy }}</ng-template>
     </lib-list-column>
-    <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ">
+    <lib-list-column [title]="'Campaigns.CreatedAt' | translate">
       <ng-template let-item>{{ item.createdAt | date: 'medium' }}</ng-template>
     </lib-list-column>
     <!--<lib-list-column title="ΤΡΟΠΟΠΟΙΗΘΗΚΕ ΑΠΟ">
@@ -86,7 +86,7 @@
   <lib-list-column title="ΤΡΟΠΟΠΟΙΗΘΗΚΕ">
     <ng-template let-item>{{ !item.updatedAt ? '-' : (item.updatedAt | date: 'medium') }}</ng-template>
   </lib-list-column>-->
-  <lib-list-column title="ΔΗΜΟΣΙΕΥΜΕΝΗ"
+  <lib-list-column [title]="'Campaigns.Published' | translate"
     [full-width]="true">
     <ng-template let-item>
       <span [innerHtml]="item.published | beautifyBoolean"></span>

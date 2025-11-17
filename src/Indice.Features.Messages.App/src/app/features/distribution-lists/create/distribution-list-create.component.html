@@ -1,7 +1,7 @@
-<lib-side-view-layout title="Δημιουργία νέας λίστας"
+<lib-side-view-layout title="{{ 'DistributionLists.CreateTitle' | translate }}"
   [ok-close-dialog]="false"
-  [ok-label]="'Δημιουργία'"
-  [cancel-label]="'Κλείσιμο'"
+  [ok-label]="'DistributionLists.Create' | translate"
+  [cancel-label]="'DistributionLists.CancelLabel' | translate"
   (ok)="submitButton.nativeElement.click()"
   [disabled]="!distributionListForm.valid || submitInProgress"
   #sideViewLayout>
@@ -10,17 +10,17 @@
       (ngSubmit)="onSubmit()">
       <div class="px-4 space-y-2 pb-4">
         <div class="grid grid-cols-4 gap-4">
-          <!-- Όνομα -->
+          <!-- ????? -->
           <div class="col-span-4">
             <label for="distributionListName"
-            class="field-label">Όνομα (*)</label>
+            class="field-label">{{ 'DistributionLists.NameLabelRequired' | translate }}</label>
             <div class="mt-1 flex rounded-sm">
               <input class="w-full"
                 type="text"
                 name="distributionListName"
                 id="distributionListName"
                 [(ngModel)]="model.name"
-                placeholder="Το όνομα της λίστας..."
+                placeholder="{{ 'DistributionLists.NamePlaceholder' | translate }}"
                 maxlength="128"
                 required
                 #distributionListName="ngModel">
@@ -29,35 +29,35 @@
                 <p
                   class="mt-2 text-sm text-red-600">
                   @if (distributionListName.errors!['required']) {
-                    <span>Παρακαλώ συμπληρώστε ένα όνομα.</span>
+                    <span>{{ 'DistributionLists.NameRequiredError' | translate }}</span>
                   }
                   @if (distributionListName.errors!['maxlength']) {
-                    <span>Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</span>
+                    <span>{{ 'DistributionLists.NameMaxLengthError' | translate }}</span>
                   }
                 </p>
               }
-              <p class="field-info col-span-3">Η ονομασία με την οποία θα εμφανίζεται η λίστα διανομής.</p>
+              <p class="field-info col-span-3">{{ 'DistributionLists.NameInfo' | translate }}</p>
             </div>
             <!-- Alias -->
             <div class="col-span-4">
               <label for="distributionListAlias"
-              class="field-label">Alias (*)</label>
+              class="field-label">{{ 'DistributionLists.AliasLabelRequired' | translate }}</label>
               <div class="mt-1 flex rounded-sm">
                 <input class="w-full"
                   type="text"
                   name="distributionListAlias"
                   id="distributionListAlias"
                   [(ngModel)]="model.alias"
-                  placeholder="Το Alias της λίστας..."
+                  placeholder="{{ 'DistributionLists.AliasPlaceholder' | translate }}"
                   maxlength="64"
                   required
-                  #distributionListName="ngModel">
+                  #distributionListAlias="ngModel">
                 </div>
-                @if (distributionListName.invalid && (distributionListName.dirty || distributionListName.touched)) {
+                @if (distributionListAlias.invalid && (distributionListAlias.dirty || distributionListAlias.touched)) {
                   <p
                     class="mt-2 text-sm text-red-600">
-                    @if (distributionListName.errors!['maxlength']) {
-                      <span>Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</span>
+                    @if (distributionListAlias.errors!['maxlength']) {
+                      <span>{{ 'DistributionLists.AliasMaxLengthError' | translate }}</span>
                     }
                   </p>
                 }
@@ -67,7 +67,7 @@
               <div class="col-span-4">
                 <label for="distributionListAttachment"
                   class="field-label">
-                  Μαζική εισαγωγή επαφών στην λίστα διανομής (αρχείο CSV)
+                  {{ 'DistributionLists.CsvImportLabel' | translate }}
                 </label>
                 <div class="mt-5">
                   <app-file-upload #fileUploadComponent
@@ -82,7 +82,7 @@
           <button type="submit"
             [style.visibility]="'hidden'"
             #submitBtn>
-            Submit
+            {{ 'DistributionLists.Submit' | translate }}
           </button>
         </form>
       </div>

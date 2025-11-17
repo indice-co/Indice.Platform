@@ -1,7 +1,7 @@
-<lib-side-view-layout title="Επεξεργασία αρχείου"
+<lib-side-view-layout [title]="'MediaLibrary.EditFileDialogTitle' | translate"
   [ok-close-dialog]="false"
-  [ok-label]="'Αποθήκευση'"
-  [cancel-label]="'Κλείσιμο'"
+  [ok-label]="'MediaLibrary.Save' | translate"
+  [cancel-label]="'MediaLibrary.Close' | translate"
   (ok)="submitButton.nativeElement.click()"
   [disabled]="!editFileForm.valid || submitInProgress"
   #sideViewLayout>
@@ -26,7 +26,7 @@
 <ng-template #editNameTemplate>
   <label for="documentName"
     class="field-label">
-    Όνομα (*)
+    {{ 'MediaLibrary.FileNameLabelRequired' | translate }}
   </label>
   <div class="mt-1 flex rounded-sm">
     <input class="w-full"
@@ -34,7 +34,8 @@
       name="documentName"
       id="documentName"
       [(ngModel)]="model.name"
-      placeholder="Το όνομα του αρχείου..."
+      placeholder="{{ 'MediaLibrary.FileNamePlaceholder' | translate }}"
+      maxlength="256"
       required
       #documentName="ngModel">
     </div>
@@ -42,19 +43,19 @@
       <p
         class="mt-2 text-sm text-red-600">
         @if (documentName.errors!['required']) {
-          <span>Παρακαλώ συμπληρώστε ένα όνομα.</span>
+          <span>{{ 'MediaLibrary.FileNameRequiredError' | translate }}</span>
         }
         @if (documentName.errors!['maxlength']) {
-          <span>Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</span>
+          <span>{{ 'MediaLibrary.FileNameMaxLengthError' | translate }}</span>
         }
       </p>
     }
-    <p class="field-info col-span-3">Το όνομα με το οποίο θα εμφανίζεται το αρχείο.</p>
+    <p class="field-info col-span-3">{{ 'MediaLibrary.FileNameInfo' | translate }}</p>
   </ng-template>
   <ng-template #editDescriptionTemplate>
     <label for="documentDescription"
       class="field-label">
-      Περιγραφή
+      {{ 'MediaLibrary.FileDescriptionLabel' | translate }}
     </label>
     <div class="mt-1 flex rounded-sm">
       <input class="w-full"
@@ -62,16 +63,16 @@
         name="documentDescription"
         id="documentDescription"
         [(ngModel)]="model.description"
-        placeholder="Η περιγραφή του αρχείου..."
-        required
+        placeholder="{{ 'MediaLibrary.FileDescriptionPlaceholder' | translate }}"
+        maxlength="512"
         #documentDescription="ngModel">
       </div>
-      <p class="field-info col-span-3">Σύντομη περιγραφή του αρχείου.</p>
+      <p class="field-info col-span-3">{{ 'MediaLibrary.FileDescriptionInfo' | translate }}</p>
     </ng-template>
     <ng-template #editFolderTemplate>
       <label for="folder"
         class="field-label">
-        Φάκελος
+        {{ 'MediaLibrary.FileFolderLabel' | translate }}
       </label>
       <div class="mt-1 flex rounded-sm">
         <lib-local-drop-down-menu id="folder"
@@ -82,5 +83,5 @@
           (change)="folderSelectionChanged($event)">
         </lib-local-drop-down-menu>
       </div>
-      <p class="field-info col-span-3">Ο φάκελος που περιέχει το αρχείο.</p>
+      <p class="field-info col-span-3">{{ 'MediaLibrary.FileFolderInfo' | translate }}</p>
     </ng-template>

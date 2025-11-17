@@ -1,4 +1,4 @@
-<lib-view-layout title="Δημιουργία Προτύπου"
+﻿<lib-view-layout [title]="'Templates.CreateTemplateDialogTitle' | translate"
   [meta-items]="metaItems">
   <div class="min-h-full">
     <main>
@@ -9,7 +9,7 @@
             class="side-view-layout-action-button-submit"
             (click)="saveTemplate()"
             [disabled]="!templateContent.form.valid || !templateForm.form.valid || saveInProgress">
-            Αποθήκευση
+            {{ 'Templates.Save' | translate }}
           </button>
         </div>
       </div>
@@ -20,14 +20,14 @@
               <div class="px-4 space-y-2 mt-4">
                 <form #templateForm="ngForm">
                   <fieldset>
-                    <legend class="sr-only">Τίτλος</legend>
+                    <legend class="sr-only">{{ 'Templates.TitleLabelRequired' | translate }}</legend>
                     <div class="text-base font-medium text-gray-900"
                       aria-hidden="true">
-                      Όνομα (*)
+                      {{ 'Templates.TitleLabelRequired' | translate }}
                     </div>
                     <label for="templateName"
                       class="hidden">
-                      Όνομα (*)
+                      {{ 'Templates.TitleLabelRequired' | translate }}
                     </label>
                     <div class="mt-1 flex rounded-sm">
                       <input class="w-full"
@@ -35,7 +35,7 @@
                         id="templateName"
                         name="templateName"
                         [(ngModel)]="template.name"
-                        placeholder="Το όνομα του προτύπου..."
+                        placeholder="{{ 'Templates.TitlePlaceholder' | translate }}"
                         required
                         maxlength="256"
                         #templateName="ngModel">
@@ -44,22 +44,22 @@
                         <p
                           class="mt-2 text-sm text-red-600">
                           @if (templateName.errors && templateName.errors['required']) {
-                            <span>Παρακαλώ συμπληρώστε ένα όνομα.</span>
+                            <span>{{ 'Templates.TitleRequiredError' | translate }}</span>
                           }
                           @if (templateName.errors!['maxlength']) {
-                            <span>Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</span>
+                            <span>{{ 'Templates.TitleMaxLengthError' | translate }}</span>
                           }
                         </p>
                       }
-                      <p class="field-info col-span-3">Η ονομασία η οποία θα εμφανίζεται το πρότυπο.</p>
+                      <p class="field-info col-span-3">{{ 'Templates.TitleInfo' | translate }}</p>
                       <!-- Alias -->
                       <div class="text-base font-medium text-gray-900"
                         aria-hidden="true">
-                        Alias
+                        {{ 'Templates.AliasLabel' | translate }}
                       </div>
                       <label for="templateAlias"
                         class="hidden">
-                        Alias
+                        {{ 'Templates.AliasLabel' | translate }}
                       </label>
                       <div class="mt-1 flex rounded-sm">
                         <input class="w-full"
@@ -67,7 +67,7 @@
                           id="templateAlias"
                           name="templateAlias"
                           [(ngModel)]="template.alias"
-                          placeholder="Το alias του προτύπου..."
+                          placeholder="{{ 'Templates.AliasPlaceholder' | translate }}"
                           maxlength="64"
                           #templateAlias="ngModel">
                         </div>
@@ -75,7 +75,7 @@
                           <p
                             class="mt-2 text-sm text-red-600">
                             @if (templateAlias.errors!['maxlength']) {
-                              <span>Παρακαλώ συμπληρώστε ένα μικρότερο alias.</span>
+                              <span>{{ 'Templates.AliasMaxLengthError' | translate }}</span>
                             }
                           </p>
                         }
@@ -83,11 +83,11 @@
                         <!-- Τύπος -->
                         <div class="text-base font-medium text-gray-900 mt-3"
                           aria-hidden="true">
-                          Τύπος
+                          {{ 'Templates.MessageTypeLabel' | translate }}
                         </div>
                         <label for="templateType"
                           class="hidden">
-                          Τύπος
+                          {{ 'Templates.MessageTypeLabel' | translate }}
                         </label>
                         <div class="mt-1 flex rounded-sm">
                           <lib-local-drop-down-menu id="templateType"
@@ -101,9 +101,9 @@
                         <p class="field-info col-span-3"></p>
                         <dl>
                           <div class="py-3 sm:grid sm:grid-cols-3">
-                            <dt class="text-sm font-medium text-gray-500">Παράβλεψη ρυθμίσεων επικοινωνίας επαφών</dt>
+                            <dt class="text-sm font-medium text-gray-500">{{ 'Templates.IgnoreUserPreferencesLabel' | translate }}</dt>
                             <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                              <lib-toggle-button id="ignoreUserPreferences" name="ignoreUserPreferences" [(ngModel)]="template.ignoreUserPreferences" true-label="Ναι" false-label="Όχι"></lib-toggle-button>
+                              <lib-toggle-button id="ignoreUserPreferences" name="ignoreUserPreferences" [(ngModel)]="template.ignoreUserPreferences" [attr.true-label]="'Templates.Yes' | translate" [attr.false-label]="'Templates.No' | translate"></lib-toggle-button>
                             </dd>
                           </div>
                         </dl>

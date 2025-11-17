@@ -18,7 +18,7 @@ export class ContactDetailsComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly _activatedRoute: ActivatedRoute,
-    private readonly _contactService: ContactService
+    private readonly _contactService: ContactService,
   ) {
     this.contact$ = _contactService.contact$;
 }

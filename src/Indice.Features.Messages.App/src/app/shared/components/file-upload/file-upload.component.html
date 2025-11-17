@@ -4,7 +4,7 @@
       <label class="overflow-hidden text-black text-ellipsis whitespace-pre text-sm">{{file.title}}</label>
       <button type="button" (click)="removeFile()"
         class="cursor-pointer bg-white text-red-500 rounded-md inline-flex ml-1">
-        <span class="sr-only">Remove</span>
+        <span class="sr-only">{{ 'Shared.RemoveActionLabel' | translate }}</span>
         <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
           aria-hidden="true">
           <path fill-rule="evenodd"
@@ -17,7 +17,7 @@
     @if (!file) {
       <div class="flex justify-center pr-3">
         <label class="overflow-hidden text-black text-ellipsis whitespace-pre text-sm">
-          Δεν έχετε προσθέσει κάποιο επισυναπτόμενο αρχείο.
+          {{ 'Shared.NoAttachmentInfo' | translate }}
         </label>
       </div>
     }
@@ -29,7 +29,7 @@
       (change)="onFilesAdded()"
       [accept]="accept" />
       @if (!file) {
-        <button title="Προσθήκη επισυναπτόμενου αρχείου" type="button" class="pl-3 py-2 border-0 border-l border-gray-300"
+        <button [title]="'Shared.AddAttachmentButtonTitle' | translate" type="button" class="pl-3 py-2 border-0 border-l border-gray-300"
           (click)="clickElement()">
           <svg class="text-gray-400 flex-shrink-0 -ml-1 mr-3 h-6 w-6"
             xmlns="http://www.w3.org/2000/svg"
@@ -45,15 +45,15 @@
     </div>
     @if (sizeLimitReached) {
       <p class="mt-2 text-sm text-red-600">
-        Το μέγεθος του αρχείου είναι μεγαλύτερο από το επιτρεπτό ({{maxSizeText}}).
+        {{ 'Shared.FileSizeLimitExceeded' | translate:{size: maxSizeText} }}
       </p>
     }
     @if (extendedView && !sizeLimitReached && file) {
       <div class="space-y-3 pb-4 mt-4 ">
         <fieldset>
-          <legend class="sr-only">Τίτλος</legend>
+          <legend class="sr-only">{{ 'Shared.AttachmentTitleLabel' | translate }}</legend>
           <div class="text-sm font-medium text-gray-500" aria-hidden="true">
-            Τίτλος
+            {{ 'Shared.AttachmentTitleLabel' | translate }}
           </div>
           <div class="mt-1 text-sm text-gray-900">
             {{file.title}}
@@ -61,18 +61,18 @@
         </fieldset>
         <fieldset class="flex flex-row gap-4">
           <div>
-            <legend class="sr-only">Τύπος</legend>
+            <legend class="sr-only">{{ 'Shared.AttachmentTypeLabel' | translate }}</legend>
             <div class="text-sm font-medium text-gray-500" aria-hidden="true">
-              Τύπος
+              {{ 'Shared.AttachmentTypeLabel' | translate }}
             </div>
             <div class="mt-1 text-sm text-gray-900">
               {{file.contentType}}
             </div>
           </div>
           <div>
-            <legend class="sr-only">Μέγεθος</legend>
+            <legend class="sr-only">{{ 'Shared.AttachmentSizeLabel' | translate }}</legend>
             <div class="text-sm font-medium text-gray-500" aria-hidden="true">
-              Μέγεθος
+              {{ 'Shared.AttachmentSizeLabel' | translate }}
             </div>
             <div class="mt-1 text-sm text-gray-900">
               {{file.sizeText}}

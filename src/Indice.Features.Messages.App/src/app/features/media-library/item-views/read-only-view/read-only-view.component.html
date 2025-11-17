@@ -6,7 +6,7 @@
     (pageChanged)="loadContent($event, this.size)"
     (pageSizeChanged)="loadContent(1, $event)">
   </lib-pager>
-  <button type="button" class="p-2" title="ανανέωση στοιχείων" (click)="loadContent(page, size)">
+  <button type="button" class="p-2" [title]="'MediaLibrary.RefreshTitle' | translate" (click)="loadContent(page, size)">
     <i class="ms-Icon ms-Icon--Refresh"></i>
   </button>
 </div>
@@ -17,7 +17,7 @@
         <div class="text-5xl text-gray-600 w-full h-24 text-center">
           <i class="ms-Icon ms-Icon--MoveToFolder mt-5"></i>
         </div>
-        <span class="w-32 h-6 text-ellipsis overflow-hidden text-center whitespace-nowrap">...</span>
+        <span class="w-32 h-6 text-ellipsis overflow-hidden text-center whitespace-nowrap">{{ 'MediaLibrary.ParentFolderLabel' | translate }}</span>
       </div>
     }
     @for (folder of folderContent?.folders; track folder) {
@@ -26,7 +26,7 @@
           <i class="ms-Icon ms-Icon--OpenFolderHorizontal mt-5"></i>
         </div>
         <div class="flex flex-col mb-1">
-          <span class="w-24 text-ellipsis overflow-hidden text-center whitespace-nowrap text-sm">{{folder.name}}</span>
+          <span class="w-24 text-ellipsis overflow-hidden text-center whitespace-nowrap text-sm" [title]="folder.name">{{folder.name}}</span>
           <div class="flex flex-row space-x-2 justify-end">
             <div class="flex flex-row items-center space-x-1">
               <i class="ms-Icon ms-Icon--OpenFolderHorizontal text-slate-800 text-xs"></i>
@@ -48,15 +48,15 @@
         <div class="h-20 w-full p-2">
           <img class="h-full w-full object-contain" [src]="getImageUrl(file)" onerror="'../../../../assets/images/no-image-icon.png'"/>
         </div>
-        <span class="w-28 text-ellipsis overflow-hidden text-center whitespace-nowrap text-sm">{{file.name}}</span>
+        <span class="w-28 text-ellipsis overflow-hidden text-center whitespace-nowrap text-sm" [title]="file.name">{{file.name}}</span>
         <div class="flex flex-row items-center absolute top-2 right-2 space-x-2">
           <div class="flex cursor-pointer w-7 h-7 hover:bg-gray-500 bg-gray-100 items-center justify-center rounded-md text-gray-500 hover:text-gray-100"
-            title="Αντιγραφή συνδέσμου"
+            [title]="'MediaLibrary.CopyLinkTitle' | translate"
             (click)="$event.stopPropagation(); copyToClipboard(file)">
             <i class="ms-Icon ms-Icon--Copy"></i>
           </div>
           <div class="flex cursor-pointer w-7 h-7 hover:bg-gray-500 bg-gray-100 items-center justify-center rounded-md text-gray-500 hover:text-gray-100"
-            title="Άνοιγμα σε νέα καρτέλα"
+            [title]="'MediaLibrary.OpenInNewTabTitle' | translate"
             (click)="$event.stopPropagation(); openInNewTab(file)">
             <i class="ms-Icon ms-Icon--OpenInNewTab"></i>
           </div>

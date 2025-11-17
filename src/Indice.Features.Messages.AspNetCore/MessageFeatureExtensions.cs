@@ -1,8 +1,6 @@
 ﻿using System.Security.Claims;
 using System.Text.Json.Serialization;
 using FluentValidation;
-using Indice.AspNetCore.Filters;
-using Indice.AspNetCore.Swagger;
 using Indice.Events;
 using Indice.Features.Media.AspNetCore;
 using Indice.Features.Media.AspNetCore.Services.Hosting;
@@ -17,12 +15,14 @@ using Indice.Features.Messages.Core.Services.Validators;
 using Indice.Serialization;
 using Indice.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -53,6 +53,11 @@ public static class MessageFeatureExtensions
             options.UserClaimType = apiOptions.UserClaimType;
             options.GroupName = apiOptions.InboxGroupName;
             options.AnalyticsOptions = apiOptions.AnalyticsOptions;
+        }).AddTranslationGraph(options => {
+            options.DefaultTranslationsBaseName = "Messages.Ui.TranslationApi";
+            options.DefaultTranslationsLocation = "Indice.Features.Messages.AspNetCore";
+            options.DefaultEndpointRoutePattern = apiOptions.PathPrefix.TrimEnd('/') + "/msg-i18n.{lang:culture}.json";
+            options.ConfigureCachePolicy = new Action<OutputCachePolicyBuilder>(policy => { policy.Expire(TimeSpan.FromHours(24)).SetAuthorized().SetAutoTag(); });
         });
     }
 
@@ -184,7 +189,6 @@ public static class MessageFeatureExtensions
         Action<IServiceProvider, DbContextOptionsBuilder> sqlServerConfiguration = (serviceProvider, builder) => builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("MessagesDb"));
         services.AddDbContext<CampaignsDbContext>(baseOptions.ConfigureDbContext ?? sqlServerConfiguration);
         services.AddHostedService<DbInitializerHostedService>();
-
         return services;
     }
 

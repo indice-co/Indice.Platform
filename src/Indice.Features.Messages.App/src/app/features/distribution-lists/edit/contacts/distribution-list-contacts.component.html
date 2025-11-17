@@ -1,4 +1,4 @@
-<lib-view-layout [title]="'Επαφές Λίστας'"
+<lib-view-layout [title]="'DistributionLists.ContactsTitle' | translate"
                  [busy]="!items"
                  [actions]="actions"
                  [meta-items]="metaItems"
@@ -16,31 +16,31 @@
                  (pageSizeChanged)="pageSizeChanged($event)"
                  (sortChanged)="sortChanged($event)"
                  (sortdirChanged)="sortdirChanged($event)">
-    <lib-list-column title="ΟΝΟΜΑ">
+    <lib-list-column title="{{ 'DistributionLists.Name' | translate }}">
       <ng-template let-item>
         <a href="#"
            [routerLinkActive]="['']"
-            [routerLinkActiveOptions]="{ exact: true }"
-            [routerLink]="['', { outlets: { rightpane: ['edit-contact', item.id] } }]"
+           [routerLinkActiveOptions]="{ exact: true }"
+           [routerLink]="['', { outlets: { rightpane: ['edit-contact', item.id] } }]"
            class="text-blue-600">
           {{ item.fullName? item.fullName: '-' }}
         </a>
       </ng-template>
     </lib-list-column>
-    <lib-list-column title="e-mail">
+    <lib-list-column title="{{ 'DistributionLists.Email' | translate }}">
       <ng-template let-item>{{ item.email }}</ng-template>
     </lib-list-column>
-    <lib-list-column title="Τηλέφωνο">
+    <lib-list-column title="{{ 'DistributionLists.Phone' | translate }}">
       <ng-template let-item>{{ item.phoneNumber }}</ng-template>
     </lib-list-column>
-    <lib-list-column title="Κωδικός επαφής">
-      <ng-template let-item><span *ngIf="item.recipientId" class="badge alias">{{ item.recipientId }} <span title="{{item.resolved ? 'Resolved' : 'unknown' }}" class="small" [innerHtml]="item.resolved | beautifyBoolean"></span></span></ng-template>
+    <lib-list-column title="{{ 'DistributionLists.ContactCode' | translate }}">
+      <ng-template let-item><span *ngIf="item.recipientId" class="badge alias">{{ item.recipientId }} <span title="{{item.resolved ? ('DistributionLists.Resolved' | translate) : ('DistributionLists.Unknown' | translate) }}" class="small" [innerHtml]="item.resolved | beautifyBoolean"></span></span></ng-template>
     </lib-list-column>
-    <lib-list-column title="ΤΡΟΠΟΠΟΙΗΘΗΚΕ"
+    <lib-list-column title="{{ 'DistributionLists.UpdatedAt' | translate }}"
                      [full-width]="true">
       <ng-template let-item>{{ !item.updatedAt ? '-' : (item.updatedAt | date: 'medium') }}</ng-template>
     </lib-list-column>
-    <lib-list-column title="ΕΝΕΡΓΕΙΕΣ">
+    <lib-list-column title="{{ 'DistributionLists.Actions' | translate }}">
       <ng-template let-item>
         <button type="button"
                 (click)="deleteConfirmation(item)"
