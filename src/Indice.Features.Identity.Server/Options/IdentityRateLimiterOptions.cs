@@ -32,7 +32,9 @@ public class RateLimiterEndpointRule
     /// <summary>Default configuration for <see cref="RateLimiterEndpointRule"/>.</summary>
     public static RateLimiterEndpointRule Default(string? policyName = null) => policyName switch {
         "secure-page" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
+        "forgot-password" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
         "login" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
+        "register" => new() { PermitLimit = 5, Window = TimeSpan.FromSeconds(1), HttpMethod = "POST" },
         _ => new()
     };
 
