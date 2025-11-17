@@ -103,7 +103,7 @@ public static partial class IdentityEndpoints
             public static readonly string ChangePhoneNumberConfirmation = Endpoints[15];
             public static readonly string PublicPage = Endpoints[16];
             public static readonly string RegisterPage = Endpoints[17];
-            public static readonly string ForgotPasswordpage = Endpoints[18];
+            public static readonly string ForgotPasswordPage = Endpoints[18];
             public static readonly string LoginPage = Endpoints[19];
         }
     }
