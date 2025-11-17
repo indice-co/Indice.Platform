@@ -1,4 +1,5 @@
 ﻿using Indice.Extensions;
+using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Manager;
 using Indice.Features.Identity.Server.Manager.Models;
@@ -42,7 +43,7 @@ public static class PictureApi
              .WithParameterValidation<ImageUploadRequest>()
              .Accepts<ImageUploadRequest>("multipart/form-data")
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes)
-             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.UploadPicture);
+             .RequireRateLimiting(RateLimiterPolicies.UploadPicture);
 
         group.MapDelete("my/account/picture", PictureHandlers.ClearMyPicture)
              .WithName(nameof(PictureHandlers.ClearMyPicture))

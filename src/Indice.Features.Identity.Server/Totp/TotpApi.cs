@@ -1,4 +1,5 @@
-﻿using Indice.Features.Identity.Server;
+﻿using Indice.Features.Identity.Core;
+using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Totp;
 using Indice.Features.Identity.Server.Totp.Models;
 using Indice.Security;
@@ -26,7 +27,7 @@ public static class TotpApi
                            .ProducesProblem(StatusCodes.Status401Unauthorized)
                            .ProducesProblem(StatusCodes.Status403Forbidden)
                            .ProducesProblem(StatusCodes.Status500InternalServerError)
-                           .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.Totp);
+                           .RequireRateLimiting(RateLimiterPolicies.Totp);
 
         var allowedScopes = new[] { options.ApiScope, IdentityEndpoints.SubScopes.Totp }.FilterOutNulls().ToArray();
         group.AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
