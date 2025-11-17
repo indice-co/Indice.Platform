@@ -78,7 +78,9 @@ public static partial class IdentityEndpoints
             "my/account/email/change-confirmation",
             "my/account/phone-number/change-confirmation",
             "secure-page", // this is the generic policy name for any public Razor Pages that require throttling
-            "login" 
+            "register",
+            "forgot-password",
+            "login"
     };
 
         public static class Policies
