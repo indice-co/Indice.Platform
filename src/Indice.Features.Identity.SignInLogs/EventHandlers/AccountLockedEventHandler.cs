@@ -60,6 +60,8 @@ public sealed class AccountLockedEventHandler : IPlatformEventHandler<AccountLoc
         var user = await _signInManager.UserManager.FindByIdAsync(@event.User.Id);
         var deviceId = await _signInManager.GetMfaDeviceIdentifierAsync(user!);
         var ipLocation = _ipAddressLocator.GetLocationMetadata(_httpContextAccessor?.HttpContext?.Connection?.RemoteIpAddress!);
+        var claims = await userManager.GetClaimsAsync(user!);
+        var userLocale = claims.FirstOrDefault(c => c.Type == BasicClaimTypes.Locale)?.Value;
 
         UserDevice? device = null;
         if (!deviceId.IsEmpty) {
@@ -74,6 +76,7 @@ public sealed class AccountLockedEventHandler : IPlatformEventHandler<AccountLoc
             Device = device is not null ? UserDeviceEventContext.InitializeFromUserDevice(device) : null,
             Client = client is not null ? ClientEventContext.InitializeFromClient(client) : null,
             TimeStamp = DateTimeOffset.UtcNow,
+            Locale = userLocale
         });
     }
 }

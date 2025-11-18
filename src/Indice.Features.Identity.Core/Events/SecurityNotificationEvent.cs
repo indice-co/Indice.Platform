@@ -33,4 +33,6 @@ public class SecurityNotificationEvent : IPlatformEvent
     public string? Subject { get; set; }
     /// <summary>The translated Body of the message.</summary>
     public string? Description { get; set; } = null;
+    /// <summary>The users preferred locale</summary>
+    public string? Locale { get; set; }
 }

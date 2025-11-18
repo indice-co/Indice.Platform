@@ -1,5 +1,4 @@
-﻿using Indice.Features.Identity.Core.Data.Models;
-using Indice.Features.Identity.Core.Events.Models;
+﻿using Indice.Features.Identity.Core.Events.Models;
 using Indice.Features.GeoIP;
 
 namespace Indice.Features.Identity.Core.Models;
@@ -30,6 +29,4 @@ public class SecurityNotificationModel
     public string? Subject { get; set; }
     /// <summary>The email description.</summary>
     public string? Description { get; set; }
-    /// <summary>The user locale.</summary>
-    public string? Locale { get; set; }
 }

@@ -1,14 +1,9 @@
-﻿using System.Globalization;
-using System.Security.Claims;
-using Humanizer;
-using Indice.Events;
+﻿using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.SignInLogs.Events;
 using Indice.Localization;
-using Indice.Security;
 using Indice.Services;
-using Microsoft.Extensions.Configuration;
 
 namespace Indice.Features.Identity.UI.EventHandlers;
 
@@ -41,9 +36,7 @@ public class SecurityNotificationEventHandler : IPlatformEventHandler<SecurityNo
         if (string.IsNullOrWhiteSpace(@event.User.Email)) {
             return; // No email to send notification to.
         }
-        var userLocale = @event.User.Claims.FirstOrDefault(x => x.Type == BasicClaimTypes.Locale)?.Value;
-
-        using (new TemporaryCulture(userLocale)) {
+        using (new TemporaryCulture(@event.Locale)) {
             var subject = _messageDescriber.SecurityEventSubject(@event.Activity);
             var description = _messageDescriber.SecurityEventDescription(@event.Activity);
             await _emailService.SendAsync(email => {
@@ -58,7 +51,6 @@ public class SecurityNotificationEventHandler : IPlatformEventHandler<SecurityNo
                         DisplayName = @event.User.UserName,
                         Subject = subject,
                         Description = description,
-                        Locale = userLocale
                     })
                     .UsingTemplate("EmailSecurityNotification");
             });
