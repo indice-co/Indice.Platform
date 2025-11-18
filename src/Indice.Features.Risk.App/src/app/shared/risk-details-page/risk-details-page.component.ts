@@ -8,7 +8,8 @@ import { Location } from '@angular/common';
 @Component({
     selector: 'app-risk-details-page',
     templateUrl: './risk-details-page.component.html',
-    styleUrls: ['./risk-details-page.component.scss']
+    styleUrls: ['./risk-details-page.component.scss'],
+    standalone: false
 })
 
 export class RiskDetailsPageComponent implements OnInit {

@@ -13,6 +13,7 @@ import { DataService } from 'src/app/core/services/data.service';
 @Component({
     selector: 'app-risk-events',
     templateUrl: './risk-events.component.html',
+    standalone: false
 })
 export class RiskEventsComponent extends BaseListComponent<RiskEvent> implements OnInit {
     newItemLink: string;

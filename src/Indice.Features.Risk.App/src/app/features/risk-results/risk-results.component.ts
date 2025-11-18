@@ -14,7 +14,8 @@ import { trim } from 'lodash';
 
 @Component({
     selector: 'app-risk-results',
-    templateUrl: './risk-results.component.html'
+    templateUrl: './risk-results.component.html',
+    standalone: false
 })
 export class RiskResultsComponent extends BaseListComponent<DbAggregateRuleExecutionResult> implements OnInit {
     newItemLink: string;
