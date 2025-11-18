@@ -47,6 +47,14 @@
           },
           "configurations": {
             "production": {
+              "optimization": {
+                "scripts": true,
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": false
+                },
+                "fonts": true
+              },
               "budgets": [
                 {
                   "type": "initial",
@@ -80,7 +88,14 @@
                   "with": "src/environments/environment.template.ts"
                 }
               ],
-              "optimization": true,
+              "optimization": {
+                "scripts": true,
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": false
+                },
+                "fonts": true
+              },
               "outputHashing": "all",
               "sourceMap": false,
               "namedChunks": false,
