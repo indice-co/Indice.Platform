@@ -214,7 +214,7 @@
     <value>Benvenuto su {0}! Conferma la tua email per iniziare.</value>
   </data>
   <data name="PasswordChangedEventSubject" xml:space="preserve">
-    <value>La tua password è stata cambiata</value>
+    <value>La tua password è stata modificata</value>
   </data>
   <data name="SecurityNotificationDefaultSubject" xml:space="preserve">
     <value>Notifica di sicurezza {0}</value>
@@ -407,5 +407,14 @@
   </data>
   <data name="UI_Validator_VerifyPhone_Code_FieldName" xml:space="preserve">
     <value>&#x8;Codice</value>
+  </data>
+  <data name="AccountLockedEventSubject" xml:space="preserve">
+    <value>Il tuo account è stato temporaneamente bloccato</value>
+  </data>
+  <data name="AccountLockedEventDescription" xml:space="preserve">
+    <value>Il tuo account è stato temporaneamente bloccato a causa di molteplici tentativi di accesso non riusciti. Questo blocco è una misura di sicurezza per proteggere le tue informazioni. Si prega di riprovare più tardi.</value>
+  </data>
+  <data name="PasswordChangedEventDescription" xml:space="preserve">
+    <value>La tua password è stata modificata con successo.</value>
   </data>
 </root>
