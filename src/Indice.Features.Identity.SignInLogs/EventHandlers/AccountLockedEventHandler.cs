@@ -74,9 +74,9 @@ public sealed class AccountLockedEventHandler : IPlatformEventHandler<AccountLoc
             client = await _clientStore.FindClientByIdAsync(clientId);
         }
         //Add subject and body to the event
-        var subject = _messageDescriber.PasswordChangedSubject;
-        var description = _messageDescriber.PasswordChangedDescription;
-        await _platformEvents.Publish(new SecurityNotificationEvent(nameof(PasswordChangedEvent), UserEventContext.InitializeFromUser(user!), ipLocation, subject) {
+        var subject = _messageDescriber.AccountLockedSubject;
+        var description = _messageDescriber.AccountLockedDescription;
+        await _platformEvents.Publish(new SecurityNotificationEvent(nameof(AccountLockedEvent), UserEventContext.InitializeFromUser(user!), ipLocation, subject) {
             Device = device is not null ? UserDeviceEventContext.InitializeFromUserDevice(device) : null,
             Client = client is not null ? ClientEventContext.InitializeFromClient(client) : null,
             TimeStamp = DateTimeOffset.UtcNow,
