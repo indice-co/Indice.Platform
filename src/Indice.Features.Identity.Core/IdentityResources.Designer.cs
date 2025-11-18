@@ -61,6 +61,24 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Your account has been temporarily locked due to multiple unsuccessful login attempts. This lock is a security measure to protect your information. Please try again later..
+        /// </summary>
+        internal static string AccountLockedEventDescription {
+            get {
+                return ResourceManager.GetString("AccountLockedEventDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your account has been temporarily locked.
+        /// </summary>
+        internal static string AccountLockedEventSubject {
+            get {
+                return ResourceManager.GetString("AccountLockedEventSubject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to A confirmation email has been sent to the address below..
         /// </summary>
         internal static string AddEmailConfirmationEmailSend {
@@ -367,7 +385,16 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Your password was changed.
+        ///   Looks up a localized string similar to Your password has been successfully changed..
+        /// </summary>
+        internal static string PasswordChangedEventDescription {
+            get {
+                return ResourceManager.GetString("PasswordChangedEventDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your Password has been Changed.
         /// </summary>
         internal static string PasswordChangedEventSubject {
             get {

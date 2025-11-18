@@ -1,4 +1,5 @@
-﻿using Humanizer;
+﻿using System.Diagnostics;
+using Humanizer;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Grants;
@@ -82,7 +83,16 @@ public class IdentityMessageDescriber
     public virtual string SecurityEventSubject(string activity) =>
         activity switch {
             nameof(PasswordChangedEvent) => IdentityResources.PasswordChangedEventSubject,
+            nameof(AccountLockedEvent) => IdentityResources.AccountLockedEventSubject,
             _ => string.Format(IdentityResources.Culture, IdentityResources.SecurityNotificationDefaultSubject, activity.Replace("Event", "").Humanize())
+        };
+
+    /// <summary>Security event descriptions.</summary>
+    public virtual string SecurityEventDescription(string activity) =>
+        activity switch {
+            nameof(PasswordChangedEvent) => IdentityResources.PasswordChangedEventDescription,
+            nameof(AccountLockedEvent) => IdentityResources.AccountLockedEventDescription,
+            _ => string.Empty
         };
 
     /// <summary>Add email page validation empty email</summary>
