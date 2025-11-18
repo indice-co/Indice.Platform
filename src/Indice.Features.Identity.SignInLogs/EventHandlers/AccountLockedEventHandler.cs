@@ -23,21 +23,19 @@ namespace Indice.Features.Identity.SignInLogs.EventHandlers;
 /// <summary>An event that is raised when a user is locked out.</summary>
 public sealed class AccountLockedEventHandler : IPlatformEventHandler<AccountLockedEvent>
 {
-    private readonly IEventService _eventService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ExtendedSignInManager<User> _signInManager;
     private readonly IClientStore _clientStore;
     private readonly IPAddressLocator _ipAddressLocator;
     private readonly IPlatformEventService _platformEvents;
 
-    /// <summary>Creates a new instance of <see cref="UserPasswordLoginEventHandler"/>.</summary>
+    /// <summary>Creates a new instance of <see cref="AccountLockedEventHandler"/>.</summary>
     /// <param name="eventService">Interface for the event service.</param>
     /// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>, if one is available.</param>
     /// <param name="signInManager">The signin manager used to facilitate the discovery of the current device.</param>
     /// <param name="clientStore">Retrieval of client configuration.</param>
     /// <param name="ipAddressLocator">The ip locator service</param>
     /// <param name="platformEvents">Platform event service</param>
-    /// <param name="messageDescriber">Provides the various messages used throughout Indice packages.</param>
     public AccountLockedEventHandler(
         IEventService eventService,
         IHttpContextAccessor httpContextAccessor,
@@ -45,7 +43,6 @@ public sealed class AccountLockedEventHandler : IPlatformEventHandler<AccountLoc
         IClientStore clientStore,
         IPAddressLocator ipAddressLocator,
         IPlatformEventService platformEvents) {
-        _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));

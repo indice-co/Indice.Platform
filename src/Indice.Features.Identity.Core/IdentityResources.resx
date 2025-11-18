@@ -456,8 +456,7 @@
     <value>Your account has been temporarily locked</value>
   </data>
   <data name="AccountLockedEventDescription" xml:space="preserve">
-    <value>Your account has been temporarily locked due to multiple unsuccessful login attempts. This lock is a security measure to protect your information. Please try again later.
-</value>
+    <value>Your account has been temporarily locked due to multiple unsuccessful login attempts. This lock is a security measure to protect your information. Please try again later.</value>
   </data>
   <data name="PasswordChangedEventDescription" xml:space="preserve">
     <value>Your password has been successfully changed.</value>

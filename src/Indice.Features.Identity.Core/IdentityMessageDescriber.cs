@@ -89,11 +89,11 @@ public class IdentityMessageDescriber
 
     /// <summary>Security event descriptions.</summary>
     public virtual string SecurityEventDescription(string activity) =>
-    activity switch {
-        nameof(PasswordChangedEvent) => IdentityResources.PasswordChangedEventDescription,
-        nameof(AccountLockedEvent) => IdentityResources.AccountLockedEventDescription,
-        _ => string.Empty
-    };
+        activity switch {
+            nameof(PasswordChangedEvent) => IdentityResources.PasswordChangedEventDescription,
+            nameof(AccountLockedEvent) => IdentityResources.AccountLockedEventDescription,
+            _ => string.Empty
+        };
 
     /// <summary>Add email page validation empty email</summary>
     public virtual string AddEmailValidationEmailEmpty => IdentityResources.AddEmailValidationEmailEmpty;

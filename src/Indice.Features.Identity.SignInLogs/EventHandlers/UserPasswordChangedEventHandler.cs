@@ -23,14 +23,13 @@ namespace Indice.Features.Identity.SignInLogs.EventHandlers;
 /// <summary>An event that is raised when a user successfully changes their password.</summary>
 public sealed class UserPasswordChangedEventHandler : IPlatformEventHandler<PasswordChangedEvent>
 {
-    private readonly IEventService _eventService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ExtendedSignInManager<User> _signInManager;
     private readonly IClientStore _clientStore;
     private readonly IPAddressLocator _ipAddressLocator;
     private readonly IPlatformEventService _platformEvents;
 
-    /// <summary>Creates a new instance of <see cref="UserPasswordLoginEventHandler"/>.</summary>
+    /// <summary>Creates a new instance of <see cref="UserPasswordChangedEventHandler"/>.</summary>
     /// <param name="eventService">Interface for the event service.</param>
     /// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>, if one is available.</param>
     /// <param name="signInManager">The signin manager used to facilitate the discovery of the current device.</param>
@@ -44,7 +43,6 @@ public sealed class UserPasswordChangedEventHandler : IPlatformEventHandler<Pass
         IClientStore clientStore,
         IPAddressLocator ipAddressLocator,
         IPlatformEventService platformEvents) {
-        _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
@@ -71,7 +69,7 @@ public sealed class UserPasswordChangedEventHandler : IPlatformEventHandler<Pass
         if (!string.IsNullOrWhiteSpace(clientId)) {
             client = await _clientStore.FindClientByIdAsync(clientId);
         }
-        await _platformEvents.Publish(new SecurityNotificationEvent(nameof(PasswordChangedEvent), UserEventContext.InitializeFromUser(user!), ipLocation) { 
+        await _platformEvents.Publish(new SecurityNotificationEvent(nameof(PasswordChangedEvent), UserEventContext.InitializeFromUser(user!), ipLocation) {
             Device = device is not null ? UserDeviceEventContext.InitializeFromUserDevice(device) : null,
             Client = client is not null ? ClientEventContext.InitializeFromClient(client) : null,
             TimeStamp = DateTimeOffset.UtcNow,

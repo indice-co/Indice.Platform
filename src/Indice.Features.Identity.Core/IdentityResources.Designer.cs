@@ -61,8 +61,7 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Your account has been temporarily locked due to multiple unsuccessful login attempts. This lock is a security measure to protect your information. Please try again later.
-        ///.
+        ///   Looks up a localized string similar to Your account has been temporarily locked due to multiple unsuccessful login attempts. This lock is a security measure to protect your information. Please try again later..
         /// </summary>
         internal static string AccountLockedEventDescription {
             get {

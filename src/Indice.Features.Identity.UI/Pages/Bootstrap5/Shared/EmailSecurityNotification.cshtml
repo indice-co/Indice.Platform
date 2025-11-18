@@ -20,7 +20,7 @@
 <p style="font-family: 'Century Gothic', Arial, sans-serif, Helvetica, Arial, sans-serif; font-size: 12px;">
     @Localizer.EmailSecurity_Body_Hi @(Model.DisplayName ?? Model.UserName ?? string.Empty),
     <br /><br />
-    @if(!string.IsNullOrWhiteSpace(Model.Description))
+    @if (!string.IsNullOrWhiteSpace(Model.Description))
     {
         @Model.Description
     }
