@@ -415,6 +415,6 @@
     <value>複数回のログイン試行が失敗したため、アカウントが一時的にロックされました。このロックは、お客様の情報を保護するためのセキュリティ対策です。後ほど再度お試しください。</value>
   </data>
   <data name="PasswordChangedEventDescription" xml:space="preserve">
-    <value>パスワードが正常に変更されました.</value>
+    <value>パスワードが正常に変更されました。</value>
   </data>
 </root>

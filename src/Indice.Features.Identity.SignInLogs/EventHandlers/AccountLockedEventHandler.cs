@@ -66,14 +66,14 @@ public sealed class AccountLockedEventHandler : IPlatformEventHandler<AccountLoc
 
         UserDevice? device = null;
         if (!deviceId.IsEmpty) {
-            // If the device id is available polulate data.
+            // If the device id is available populate data.
             device = await userManager.GetDeviceByIdAsync(user!, deviceId.Value!);
         }
         Client? client = null;
         if (!string.IsNullOrWhiteSpace(clientId)) {
             client = await _clientStore.FindClientByIdAsync(clientId);
         }
-        //Add subject and body to the event
+        //Add subject and body to the event.
         var subject = _messageDescriber.AccountLockedSubject;
         var description = _messageDescriber.AccountLockedDescription;
         await _platformEvents.Publish(new SecurityNotificationEvent(nameof(AccountLockedEvent), UserEventContext.InitializeFromUser(user!), ipLocation, subject) {

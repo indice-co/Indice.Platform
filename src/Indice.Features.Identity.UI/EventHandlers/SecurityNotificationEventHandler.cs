@@ -39,7 +39,7 @@ public class SecurityNotificationEventHandler : IPlatformEventHandler<SecurityNo
         }
         await _emailService.SendAsync(email => {
             email.To(@event.User.Email)
-                .WithSubject(@event.Subject!)
+                .WithSubject(@event.Subject)
                 .WithData(new SecurityNotificationModel {
                     User = @event.User,
                     Location = @event.Location,
