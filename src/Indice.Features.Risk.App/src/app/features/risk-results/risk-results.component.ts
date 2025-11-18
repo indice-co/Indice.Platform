@@ -1,8 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '@indice/ng-auth';
-import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, RouterViewAction, ViewAction } from '@indice/ng-components';
-import { FilterClause, SearchOption } from '@indice/ng-components/lib/controls/advanced-search/models';
+import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, RouterViewAction, ViewAction, FilterClause, SearchOption } from '@indice/ng-components';
 import { User } from 'oidc-client-ts';
 import { Observable, Subscription } from 'rxjs';
 import { map, take, tap } from 'rxjs/operators';
