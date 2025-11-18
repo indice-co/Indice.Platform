@@ -27,7 +27,7 @@
                 @if (tempData?.DisableForm == true || !string.IsNullOrEmpty(tempData?.NextStepUrl))
                 {
                     <div class="col-span-6 flex flex-col">
-                        <a class="btn btn-primary no-underline" href="@tempData.NextStepUrl">Labels.AddEmail_Next</a>
+                        <a class="btn btn-primary no-underline" href="@tempData.NextStepUrl">@Localizer.AddEmail_Next</a>
                     </div>
                 }
             </div>
