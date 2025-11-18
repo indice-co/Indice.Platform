@@ -83,8 +83,17 @@ public class IdentityMessageDescriber
     public virtual string SecurityEventSubject(string activity) =>
         activity switch {
             nameof(PasswordChangedEvent) => IdentityResources.PasswordChangedEventSubject,
+            nameof(AccountLockedEvent) => IdentityResources.AccountLockedEventSubject,
             _ => string.Format(IdentityResources.Culture, IdentityResources.SecurityNotificationDefaultSubject, activity.Replace("Event", "").Humanize())
         };
+
+    /// <summary>Security event descriptions.</summary>
+    public virtual string SecurityEventDescription(string activity) =>
+    activity switch {
+        nameof(PasswordChangedEvent) => IdentityResources.PasswordChangedEventDescription,
+        nameof(AccountLockedEvent) => IdentityResources.AccountLockedEventDescription,
+        _ => string.Empty
+    };
 
     /// <summary>Add email page validation empty email</summary>
     public virtual string AddEmailValidationEmailEmpty => IdentityResources.AddEmailValidationEmailEmpty;
@@ -254,16 +263,5 @@ public class IdentityMessageDescriber
     public virtual string UI_Validator_VerifyPhone_PhoneNumber_InvalidFormat => IdentityResources.UI_Validator_VerifyPhone_PhoneNumber_InvalidFormat;
     /// <summary>Gets the field name used for validating the "Code" input in the Verify Phone UI.</summary>
     public virtual string UI_Validator_VerifyPhone_Code_FieldName => IdentityResources.UI_Validator_VerifyPhone_Code_FieldName;
-    #endregion
-
-    #region Platform Events
-    /// <summary>User successfully changed their password.</summary>
-    public virtual string PasswordChangedSubject => IdentityResources.PasswordChangedEventSubject;
-    /// <summary>User successfully changed their password description.</summary>
-    public virtual string PasswordChangedDescription => IdentityResources.PasswordChangedEventDescription;
-    /// <summary>Account is temporarily locked out subject.</summary>
-    public virtual string AccountLockedSubject => IdentityResources.AccountLockedEventSubject;
-    /// <summary>Account is temporarily locked out description.</summary>
-    public virtual string AccountLockedDescription => IdentityResources.AccountLockedEventDescription;
     #endregion
 }

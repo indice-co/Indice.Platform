@@ -29,7 +29,6 @@ public sealed class AccountLockedEventHandler : IPlatformEventHandler<AccountLoc
     private readonly IClientStore _clientStore;
     private readonly IPAddressLocator _ipAddressLocator;
     private readonly IPlatformEventService _platformEvents;
-    private readonly IdentityMessageDescriber _messageDescriber;
 
     /// <summary>Creates a new instance of <see cref="UserPasswordLoginEventHandler"/>.</summary>
     /// <param name="eventService">Interface for the event service.</param>
@@ -45,15 +44,13 @@ public sealed class AccountLockedEventHandler : IPlatformEventHandler<AccountLoc
         ExtendedSignInManager<User> signInManager,
         IClientStore clientStore,
         IPAddressLocator ipAddressLocator,
-        IPlatformEventService platformEvents,
-        IdentityMessageDescriber messageDescriber) {
+        IPlatformEventService platformEvents) {
         _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
         _ipAddressLocator = ipAddressLocator ?? throw new ArgumentNullException(nameof(ipAddressLocator));
         _platformEvents = platformEvents ?? throw new ArgumentNullException(nameof(platformEvents));
-        _messageDescriber = messageDescriber ?? throw new ArgumentNullException(nameof(messageDescriber));
     }
 
     /// <inheritdoc />
@@ -73,14 +70,10 @@ public sealed class AccountLockedEventHandler : IPlatformEventHandler<AccountLoc
         if (!string.IsNullOrWhiteSpace(clientId)) {
             client = await _clientStore.FindClientByIdAsync(clientId);
         }
-        //Add subject and body to the event.
-        var subject = _messageDescriber.AccountLockedSubject;
-        var description = _messageDescriber.AccountLockedDescription;
-        await _platformEvents.Publish(new SecurityNotificationEvent(nameof(AccountLockedEvent), UserEventContext.InitializeFromUser(user!), ipLocation, subject) {
+        await _platformEvents.Publish(new SecurityNotificationEvent(nameof(AccountLockedEvent), UserEventContext.InitializeFromUser(user!), ipLocation) {
             Device = device is not null ? UserDeviceEventContext.InitializeFromUserDevice(device) : null,
             Client = client is not null ? ClientEventContext.InitializeFromClient(client) : null,
             TimeStamp = DateTimeOffset.UtcNow,
-            Description = description
         });
     }
 }

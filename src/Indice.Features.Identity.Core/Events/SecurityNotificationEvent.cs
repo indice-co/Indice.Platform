@@ -12,11 +12,10 @@ namespace Indice.Features.Identity.SignInLogs.Events;
 public class SecurityNotificationEvent : IPlatformEvent
 {
     /// <summary>Initializes a new instance of the <see cref="SecurityNotificationEvent"/> class.</summary>
-    public SecurityNotificationEvent(string activity, UserEventContext user, IPAddressLocation location, string subject) {
+    public SecurityNotificationEvent(string activity, UserEventContext user, IPAddressLocation location) {
         Activity = activity ?? throw new ArgumentNullException(nameof(activity));
         User = user ?? throw new ArgumentNullException(nameof(user));
         Location = location ?? throw new ArgumentNullException(nameof(user));
-        Subject = subject ?? throw new ArgumentNullException(nameof(subject));
     }
     /// <summary>The activty that triggered the security notification.</summary>
     public string Activity { get; set; } = null!;
@@ -31,7 +30,7 @@ public class SecurityNotificationEvent : IPlatformEvent
     /// <summary>Gets or sets the timestamp indicating when the event occurred.</summary>
     public DateTimeOffset TimeStamp { get; set; } = DateTimeOffset.UtcNow;
     /// <summary>The translated Subject of the message.</summary>
-    public string Subject { get; set; }
+    public string? Subject { get; set; }
     /// <summary>The translated Body of the message.</summary>
     public string? Description { get; set; } = null;
 }

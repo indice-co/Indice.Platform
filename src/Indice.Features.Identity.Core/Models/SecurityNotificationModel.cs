@@ -30,4 +30,6 @@ public class SecurityNotificationModel
     public string? Subject { get; set; }
     /// <summary>The email description.</summary>
     public string? Description { get; set; }
+    /// <summary>The user locale.</summary>
+    public string? Locale { get; set; }
 }
