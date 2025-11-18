@@ -23,6 +23,9 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
+            "allowedCommonJsDependencies": [
+              "handlebars"
+            ],
             "outputPath": {
               "base": "dist/messages-app"
             },
