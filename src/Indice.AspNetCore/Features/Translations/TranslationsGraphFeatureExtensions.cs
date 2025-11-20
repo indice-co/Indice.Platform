@@ -60,7 +60,7 @@ public static class TranslationsGraphFeatureExtensions
                 return TypedResults.Ok(strings.ToObjectGraph());
             })
             .WithDescription($"Get translations aggregate for {endpoint.First().TranslationsBaseName}")
-            .WithName(operationName);
+            .WithName(operationName).WithTags("Translations");
             counter++;
             if (options.ExcludeFromDescription) {
                 translationRouteHandler.ExcludeFromDescription();
@@ -69,9 +69,26 @@ public static class TranslationsGraphFeatureExtensions
                 translationRouteHandler.CacheOutput(options.ConfigureCachePolicy);
             }
         }
+        MapAvailableLanguages(routes);
+        return routes;
+    }
+    /// <summary>
+    /// Maps the available languages for translation.
+    /// </summary>
+    /// <param name="routes">The endpoint route builder</param>
+    /// <returns>The builder for further configureation</returns>
+    public static IEndpointRouteBuilder MapAvailableLanguages(this IEndpointRouteBuilder routes) {
+        routes.MapGet("/translations/available-languages", (IOptions<RequestLocalizationOptions>? localizationOptions) => {
+       
+            var availableLanguages = localizationOptions?.Value?.SupportedCultures?.Select(x => new KeyValuePair<string,string>( x.Name, x.NativeName )).ToList();
+            return TypedResults.Ok(availableLanguages);
+        })
+        .WithDescription("Get available languages for translations")
+        .WithName("GetAvailableLanguages").WithTags("Translations");
         return routes;
     }
 }
+
 
 /// <summary>
 /// Translation json options. Will be used to configure <see cref="TranslationsGraphFeatureExtensions"/>

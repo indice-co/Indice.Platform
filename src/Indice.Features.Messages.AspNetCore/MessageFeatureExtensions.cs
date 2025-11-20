@@ -58,6 +58,11 @@ public static class MessageFeatureExtensions
             options.DefaultTranslationsLocation = "Indice.Features.Messages.AspNetCore";
             options.DefaultEndpointRoutePattern = apiOptions.PathPrefix.TrimEnd('/') + "/msg-i18n.{lang:culture}.json";
             options.ConfigureCachePolicy = new Action<OutputCachePolicyBuilder>(policy => { policy.Expire(TimeSpan.FromHours(24)).SetAuthorized().SetAutoTag(); });
+        }).Configure<RequestLocalizationOptions>(options => {
+            var supportedCultures = new[] { "en", "el" };
+            options.SetDefaultCulture("en")
+                   .AddSupportedCultures(supportedCultures)
+                   .AddSupportedUICultures(supportedCultures);
         });
     }
 
