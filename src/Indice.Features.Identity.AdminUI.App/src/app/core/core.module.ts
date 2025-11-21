@@ -1,12 +1,18 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { CommonModule, registerLocaleData } from '@angular/common';
+import { CommonModule, registerLocaleData, DATE_PIPE_DEFAULT_OPTIONS } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { NgModule, LOCALE_ID } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import localeGreek from '@angular/common/locales/el';
+import localeSpanish from '@angular/common/locales/es';
+import localeItaly from '@angular/common/locales/it';
+import localeJapanese from '@angular/common/locales/ja';
 import localeEn from '@angular/common/locales/en-GB';
 registerLocaleData(localeGreek);
+registerLocaleData(localeSpanish);
+registerLocaleData(localeItaly);
+registerLocaleData(localeJapanese);
 registerLocaleData(localeEn);
 
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
