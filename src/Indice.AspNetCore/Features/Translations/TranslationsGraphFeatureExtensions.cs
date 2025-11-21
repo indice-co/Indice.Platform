@@ -37,7 +37,7 @@ public static class TranslationsGraphFeatureExtensions
             o.Resources.AddRange(options.Resources);
             o.ExcludeFromDescription = options.ExcludeFromDescription;
             o.ConfigureCachePolicy = options.ConfigureCachePolicy;
-            o.AvailableLanguagesRoute = options.AvailableLanguagesRoute;
+            o.AvailableLanguagesRoutePattern = options.AvailableLanguagesRoutePattern;
         });
         return services;
     }
@@ -92,7 +92,7 @@ public static class TranslationsGraphFeatureExtensions
     private static IEndpointRouteBuilder MapAvailableLanguages(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<TranslationsGraphOptions>>().Value;
         var localizationOptions = routes.ServiceProvider.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value;
-        var availableLanguagesRouteHandler = routes.MapGet(options.AvailableLanguagesRoute, () => {
+        var availableLanguagesRouteHandler = routes.MapGet(options.AvailableLanguagesRoutePattern, () => {
             var availableLanguages = localizationOptions?.SupportedCultures?.Select(x => new UiLocale() {
                 Lang = x.Name,
                 NativeName = x.NativeName,
@@ -140,7 +140,7 @@ public class TranslationsGraphOptions
     /// The route for the available languages endpoint
     /// </summary>
     [StringSyntax("Route")]
-    public string AvailableLanguagesRoute { get; set; } = "/languages";
+    public string AvailableLanguagesRoutePattern { get; set; } = "/languages";
     /// <summary>
     /// Decides whether to enable swagger/openapi documentation for the endpoint
     /// </summary>
