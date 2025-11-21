@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using Indice.AspNetCore.Features.Translations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Builder.Extensions;
 using Microsoft.AspNetCore.Http;
@@ -87,8 +88,11 @@ public static class TranslationsGraphFeatureExtensions
     /// <returns>The builder for further configureation</returns>
     public static IEndpointRouteBuilder MapAvailableLanguages(this IEndpointRouteBuilder routes) {
         routes.MapGet("/translations/available-languages", (IOptions<RequestLocalizationOptions>? localizationOptions) => {
-       
-            var availableLanguages = localizationOptions?.Value?.SupportedCultures?.Select(x => new KeyValuePair<string,string>( x.Name, x.NativeName )).ToList();
+            var availableLanguages = localizationOptions?.Value?.SupportedCultures?.Select(x => new UiLocale() {
+                Lang = x.Name,
+                NativeName = x.NativeName,
+                EnglishName = x.EnglishName,
+            }).ToList();
             return TypedResults.Ok(availableLanguages);
         })
         .WithDescription("Get available languages for translations")
