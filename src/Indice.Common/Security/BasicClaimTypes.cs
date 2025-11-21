@@ -17,9 +17,15 @@ public static class BasicClaimTypes
     public const string Subject = "sub";
     /// <summary> User email.</summary>
     public const string Email = "email";
+    /// <summary>"true" if the End-User's e-mail address has been verified; otherwise "false".</summary>
+    ///  <remarks>When this Claim Value is "true", this means that the OP took affirmative steps to ensure that this e-mail address was controlled by the End-User at the time the verification was performed. The means by which an e-mail address is verified is context-specific, and dependent upon the trust framework or contractual agreements within which the parties are operating.</remarks>
+    public const string EmailVerified = "email_verified";
     /// End-User's preferred telephone number. E.164 (https://www.itu.int/rec/T-REC-E.164/e) is RECOMMENDED as the format of this Claim, for example, +1 (425) 555-1212 or
     /// +56 (2) 687 2400. If the phone number contains an extension, it is RECOMMENDED that the extension be represented using the RFC 3966 [RFC3966] extension syntax, for example, +1 (604) 555-1234;ext=5678.
     public const string PhoneNumber = "phone_number";
+    /// <summary>True if the End-User's phone number has been verified; otherwise false. When this Claim Value is true, this means that the OP took affirmative steps to ensure that this phone number was controlled by the End-User at the time the verification was performed.</summary>
+    /// <remarks>The means by which a phone number is verified is context-specific, and dependent upon the trust framework or contractual agreements within which the parties are operating. When true, the phone_number Claim MUST be in E.164 format and any extensions MUST be represented in RFC 3966 format.</remarks>
+    public const string PhoneNumberVerified = "phone_number_verified";
     /// <summary>User last name.</summary>
     public const string FamilyName = "family_name";
     /// <summary>User first name.</summary>
