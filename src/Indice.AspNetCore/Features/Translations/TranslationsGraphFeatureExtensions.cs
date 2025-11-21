@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Builder.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
@@ -38,13 +39,20 @@ public static class TranslationsGraphFeatureExtensions
         });
         return services;
     }
+    /// <summary>
+    /// Adds the Translations endpoints.
+    /// </summary>
+    /// <param name="routes">The endpoint route builder</param>
+    /// <returns>The builder for further configureation</returns
+    public static IEndpointRouteBuilder MapTranslations(this IEndpointRouteBuilder routes) {
+        return routes.MapTranslationGraph().MapAvailableLanguages();
+    }
 
     /// <summary>
     /// Maps the Json Translations endpoint.
     /// </summary>
     /// <param name="routes">The endpoint route builder</param>
     /// <returns>The builder for further configureation</returns>
-    
     public static IEndpointRouteBuilder MapTranslationGraph(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<TranslationsGraphOptions>>().Value;
         var endpoints = options.GetEndpoints();
@@ -69,9 +77,9 @@ public static class TranslationsGraphFeatureExtensions
                 translationRouteHandler.CacheOutput(options.ConfigureCachePolicy);
             }
         }
-        MapAvailableLanguages(routes);
         return routes;
     }
+
     /// <summary>
     /// Maps the available languages for translation.
     /// </summary>
