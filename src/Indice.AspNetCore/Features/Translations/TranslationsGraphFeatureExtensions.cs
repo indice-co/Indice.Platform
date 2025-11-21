@@ -37,6 +37,7 @@ public static class TranslationsGraphFeatureExtensions
             o.Resources.AddRange(options.Resources);
             o.ExcludeFromDescription = options.ExcludeFromDescription;
             o.ConfigureCachePolicy = options.ConfigureCachePolicy;
+            o.AvailableLanguagesRoute = options.AvailableLanguagesRoute;
         });
         return services;
     }
@@ -47,6 +48,16 @@ public static class TranslationsGraphFeatureExtensions
     /// <param name="routes">The endpoint route builder</param>
     /// <returns>The builder for further configureation</returns>
     public static IEndpointRouteBuilder MapTranslationGraph(this IEndpointRouteBuilder routes) {
+        routes.MapGraphs().MapAvailableLanguages();
+        return routes;
+    }
+
+    /// <summary>
+    /// Maps the Json Translations endpoint.
+    /// </summary>
+    /// <param name="routes">The endpoint route builder</param>
+    /// <returns>The builder for further configureation</returns>
+    private static IEndpointRouteBuilder MapGraphs(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<TranslationsGraphOptions>>().Value;
         var endpoints = options.GetEndpoints();
         int counter = 0;
@@ -66,11 +77,10 @@ public static class TranslationsGraphFeatureExtensions
             if (options.ExcludeFromDescription) {
                 translationRouteHandler.ExcludeFromDescription();
             }
-            if(options.ConfigureCachePolicy != null) {
+            if (options.ConfigureCachePolicy != null) {
                 translationRouteHandler.CacheOutput(options.ConfigureCachePolicy);
             }
         }
-        routes.MapAvailableLanguages();
         return routes;
     }
 
@@ -79,9 +89,11 @@ public static class TranslationsGraphFeatureExtensions
     /// </summary>
     /// <param name="routes">The endpoint route builder</param>
     /// <returns>The builder for further configureation</returns>
-    public static IEndpointRouteBuilder MapAvailableLanguages(this IEndpointRouteBuilder routes) {
-        routes.MapGet("/translations/available-languages", (IOptions<RequestLocalizationOptions>? localizationOptions) => {
-            var availableLanguages = localizationOptions?.Value?.SupportedCultures?.Select(x => new UiLocale() {
+    private static IEndpointRouteBuilder MapAvailableLanguages(this IEndpointRouteBuilder routes) {
+        var options = routes.ServiceProvider.GetRequiredService<IOptions<TranslationsGraphOptions>>().Value;
+        var localizationOptions = routes.ServiceProvider.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value;
+        var availableLanguagesRouteHandler = routes.MapGet(options.AvailableLanguagesRoute, () => {
+            var availableLanguages = localizationOptions?.SupportedCultures?.Select(x => new UiLocale() {
                 Lang = x.Name,
                 NativeName = x.NativeName,
                 EnglishName = x.EnglishName,
@@ -90,10 +102,15 @@ public static class TranslationsGraphFeatureExtensions
         })
         .WithDescription("Get available languages for translations")
         .WithName("GetAvailableLanguages").WithTags("Translations");
+        if (options.ExcludeFromDescription) {
+            availableLanguagesRouteHandler.ExcludeFromDescription();
+        }
+        if (options.ConfigureCachePolicy != null) {
+            availableLanguagesRouteHandler.CacheOutput(options.ConfigureCachePolicy);
+        }
         return routes;
     }
 }
-
 
 /// <summary>
 /// Translation json options. Will be used to configure <see cref="TranslationsGraphFeatureExtensions"/>
@@ -119,6 +136,11 @@ public class TranslationsGraphOptions
     /// </summary>
     [StringSyntax("Route")]
     public string DefaultEndpointRoutePattern { get; set; } = "/translations.{lang:culture}.json";
+    /// <summary>
+    /// The route for the available languages endpoint
+    /// </summary>
+    [StringSyntax("Route")]
+    public string AvailableLanguagesRoute { get; set; } = "/languages";
     /// <summary>
     /// Decides whether to enable swagger/openapi documentation for the endpoint
     /// </summary>
