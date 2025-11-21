@@ -40,14 +40,6 @@ public static class TranslationsGraphFeatureExtensions
         });
         return services;
     }
-    /// <summary>
-    /// Adds the Translations endpoints.
-    /// </summary>
-    /// <param name="routes">The endpoint route builder</param>
-    /// <returns>The builder for further configureation</returns
-    public static IEndpointRouteBuilder MapTranslations(this IEndpointRouteBuilder routes) {
-        return routes.MapTranslationGraph().MapAvailableLanguages();
-    }
 
     /// <summary>
     /// Maps the Json Translations endpoint.
@@ -78,6 +70,7 @@ public static class TranslationsGraphFeatureExtensions
                 translationRouteHandler.CacheOutput(options.ConfigureCachePolicy);
             }
         }
+        routes.MapAvailableLanguages();
         return routes;
     }
 
