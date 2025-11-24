@@ -32,16 +32,10 @@ public class DbCaseAccessRule
     }
     public static Expression<Func<DbCaseAccessRule, bool>> RuleMatchPredicate(Guid caseId, Guid caseTypeId, Guid checkpointTypeId) {
         return x =>
-                // rule on caseId only
-                (x.RuleCaseId == caseId && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == null) ||
-                // rule on caseId and checkpointTypeId only
-                (x.RuleCaseId == caseId && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == checkpointTypeId) ||
-                // rule on caseTypeId only
-                (x.RuleCaseId == null && x.RuleCaseTypeId == caseTypeId && x.RuleCheckpointTypeId == null) ||
-                // rule on checkpointTypeId only
-                (x.RuleCaseId == null && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == checkpointTypeId) ||
-                // rule on caseTypeId and checkpointTypeId only
-                (x.RuleCaseId == null && x.RuleCaseTypeId == caseTypeId && x.RuleCheckpointTypeId == checkpointTypeId);
+                        (x.RuleCaseId == caseId && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == null) ||
+                        (x.RuleCaseId == null && x.RuleCaseTypeId == caseTypeId && x.RuleCheckpointTypeId == null) ||
+                        (x.RuleCaseId == null && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == checkpointTypeId) ||
+                        (x.RuleCaseId == caseId && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == checkpointTypeId);
     }
 }
 #pragma warning restore 1591
