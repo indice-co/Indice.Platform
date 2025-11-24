@@ -164,13 +164,13 @@ internal static class AdminCasesHandlers
             .FirstOrDefaultAsync();
 
         if (@case == null) {
-            TypedResults.Ok();
+            return TypedResults.NotFound();
         }
 
         // Get List of Available Actions from Workflow
         var actions = await workflowManager.GetActionsByCaseId(caseId) as AvailableActions;
         if (actions is null) {
-            return TypedResults.NotFound();
+            return TypedResults.Ok(new CaseActions());
         }
 
         var assignedToId = @case!.AssignedToId;
@@ -280,7 +280,7 @@ internal static class AdminCasesHandlers
         var pdfOptions = new PdfOptions(@case.CaseType.Config);
         return await casePdfService.HtmlToPdfAsync(template, pdfOptions, @case);
     }
-    
+
     /// <summary>Publish the latest version of Data.</summary>
     /// <param name="caseId"></param>
     /// <param name="adminCaseService"></param>
