@@ -6,7 +6,7 @@
 public class UiLocale
 {
     /// <summary>
-    /// The 2-letter name of the language
+    /// The culture name of the language
     /// </summary>
     public string? Lang { get; set; }
     /// <summary>
@@ -14,7 +14,7 @@ public class UiLocale
     /// </summary>
     public string? NativeName { get; set; }
     /// <summary>
-    /// The english name for the language
+    /// The English name for the language
     /// </summary>
     public string? EnglishName { get; set; }
 }

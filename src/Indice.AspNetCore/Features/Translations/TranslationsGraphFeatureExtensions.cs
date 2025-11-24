@@ -2,7 +2,6 @@
 using System.Reflection;
 using Indice.AspNetCore.Features.Translations;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Builder.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
@@ -46,7 +45,7 @@ public static class TranslationsGraphFeatureExtensions
     /// Maps the Json Translations endpoint.
     /// </summary>
     /// <param name="routes">The endpoint route builder</param>
-    /// <returns>The builder for further configureation</returns>
+    /// <returns>The builder for further configuration</returns>
     public static IEndpointRouteBuilder MapTranslationGraph(this IEndpointRouteBuilder routes) {
         routes.MapGraphs().MapAvailableLanguages();
         return routes;
@@ -56,7 +55,7 @@ public static class TranslationsGraphFeatureExtensions
     /// Maps the Json Translations endpoint.
     /// </summary>
     /// <param name="routes">The endpoint route builder</param>
-    /// <returns>The builder for further configureation</returns>
+    /// <returns>The builder for further configuration</returns>
     private static IEndpointRouteBuilder MapGraphs(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<TranslationsGraphOptions>>().Value;
         var endpoints = options.GetEndpoints();
@@ -88,7 +87,7 @@ public static class TranslationsGraphFeatureExtensions
     /// Maps the available languages for translation.
     /// </summary>
     /// <param name="routes">The endpoint route builder</param>
-    /// <returns>The builder for further configureation</returns>
+    /// <returns>The builder for further configuration</returns>
     private static IEndpointRouteBuilder MapAvailableLanguages(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<TranslationsGraphOptions>>().Value;
         var localizationOptions = routes.ServiceProvider.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value;
