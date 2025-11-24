@@ -212,22 +212,32 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                                     .Where(x => x.RuleCaseId == @case.Id && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == null)
                                     .Select(x => x.AccessLevel)
                                     .Any()
+
                      let CaseTypeCondition = DbContext.CaseAccessRules
                                     .Where(accessMatch)
                                     .Where(x => x.RuleCaseId == null && x.RuleCaseTypeId == @case.CaseTypeId && x.RuleCheckpointTypeId == null)
                                     .Select(x => x.AccessLevel)
                                     .Any()
+
                      let CheckpointIdACondition = DbContext.CaseAccessRules
                                     .Where(accessMatch)
                                     .Where(x => x.RuleCaseId == null && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId)
                                     .Select(x => x.AccessLevel)
                                     .Any()
+
                      let caseCheckpointIdCondition = DbContext.CaseAccessRules
                                     .Where(accessMatch)
                                     .Where(x => x.RuleCaseId == @case.Id && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId)
                                     .Select(x => x.AccessLevel)
                                     .Any()
-                     where (caseAccessCondition || CaseTypeCondition || CheckpointIdACondition || caseCheckpointIdCondition)
+
+                     let caseCaseTypeIdCheckpointTypeIdCondition = DbContext.CaseAccessRules
+                                     .Where(accessMatch)
+                                     .Where(x => x.RuleCaseId == null && x.RuleCaseTypeId == @case.CaseTypeId && x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId)
+                                     .Select(x => x.AccessLevel)
+                                     .Any()
+
+                     where (caseAccessCondition || CaseTypeCondition || CheckpointIdACondition || caseCheckpointIdCondition || caseCaseTypeIdCheckpointTypeIdCondition)
 
                      select new CasePartial {
                          Id = @case.Id,
