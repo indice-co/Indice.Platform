@@ -45,7 +45,6 @@ public abstract class BasePasswordExpiredModel : BasePageModel
     /// <summary>Extended validation password expired page GET handler.</summary>
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
-        await Task.CompletedTask;
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         var message = user.LastSignInDate is null ?
             UserManager.MessageDescriber.PasswordInitMessage :

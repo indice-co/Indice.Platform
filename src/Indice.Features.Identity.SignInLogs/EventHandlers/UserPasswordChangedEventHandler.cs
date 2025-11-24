@@ -63,12 +63,14 @@ public sealed class UserPasswordChangedEventHandler : IPlatformEventHandler<Pass
 
         UserDevice? device = null;
         if (!deviceId.IsEmpty) {
-            // If the device id is available polulate data.
+            // If the device id is available populate data.
             device = await userManager.GetDeviceByIdAsync(user!, deviceId.Value!);
         }
         if (device is null) {
             var userAgentHeader = _httpContextAccessor?.HttpContext?.Request.Headers[HeaderNames.UserAgent];
-            device = UserDevice.FromUserAgent(userAgentHeader!, deviceId, user.Id, 1);
+            if (!string.IsNullOrWhiteSpace(userAgentHeader)) {
+                device = UserDevice.FromUserAgent(userAgentHeader!, deviceId, user.Id, 0);
+            }
         }
         Client? client = null;
         if (!string.IsNullOrWhiteSpace(clientId)) {
