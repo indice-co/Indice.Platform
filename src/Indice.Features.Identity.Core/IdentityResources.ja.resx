@@ -417,4 +417,7 @@
   <data name="PasswordChangedEventDescription" xml:space="preserve">
     <value>パスワードが正常に変更されました。</value>
   </data>
+  <data name="PasswordInitMessage" xml:space="preserve">
+    <value>続行するには、新しいパスワードを選択してください。</value>
+  </data>
 </root>

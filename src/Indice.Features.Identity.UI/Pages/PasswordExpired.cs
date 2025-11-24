@@ -46,8 +46,12 @@ public abstract class BasePasswordExpiredModel : BasePageModel
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         await Task.CompletedTask;
+        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        var message = user.LastSignInDate is null ?
+            UserManager.MessageDescriber.PasswordInitMessage :
+            UserManager.MessageDescriber.PasswordExpiredMessage;
         TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
-            Alert = AlertModel.Info(UserManager.MessageDescriber.PasswordExpiredMessage)
+            Alert = AlertModel.Info(message)
         });
         Input.ReturnUrl = returnUrl;
         return Page();

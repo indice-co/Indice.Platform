@@ -123,6 +123,10 @@ public class IdentityMessageDescriber
     public virtual string PasswordChangedSuccessfully => IdentityResources.PasswordChangedSuccessfully;
     /// <summary>Password expired message.</summary>
     public virtual string PasswordExpiredMessage => IdentityResources.PasswordExpiredMessage;
+
+    /// <summary>Choose Password message for new users.</summary>
+    public virtual string PasswordInitMessage => IdentityResources.PasswordInitMessage;
+    
     /// <summary>Profile external login added success message.</summary>
     public virtual string ProfileExternalLoginAddedSuccessMessage => IdentityResources.ProfileExternalLoginAddedSuccessMessage;
     /// <summary>Registration phone confriamtion message prompt</summary>

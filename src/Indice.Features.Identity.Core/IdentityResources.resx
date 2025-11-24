@@ -461,4 +461,7 @@
   <data name="PasswordChangedEventDescription" xml:space="preserve">
     <value>Your password has been successfully changed.</value>
   </data>
+  <data name="PasswordInitMessage" xml:space="preserve">
+    <value>Please choose your new password to continue.</value>
+  </data>
 </root>
