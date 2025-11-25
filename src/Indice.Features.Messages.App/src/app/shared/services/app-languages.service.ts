@@ -74,7 +74,7 @@ export class AppLanguagesService implements IAppLanguagesService {
   }
 
   public translateKey(key?: string, parameters?: any): Observable<string> {
-    return this.translate.get(key || '', parameters);
+    return this.translate.stream(key || '', parameters);
   }
 
   ngOnDestroy(): void {
