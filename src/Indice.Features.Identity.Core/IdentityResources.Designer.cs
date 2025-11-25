@@ -423,9 +423,9 @@ namespace Indice.Features.Identity.Core {
         /// <summary>
         ///   Looks up a localized string similar to Please choose your new password to continue..
         /// </summary>
-        internal static string PasswordExpiredNewUserMessage {
+        internal static string PasswordExpiredFirstTimeUserMessage {
             get {
-                return ResourceManager.GetString("PasswordExpiredNewUserMessage", resourceCulture);
+                return ResourceManager.GetString("PasswordExpiredFirstTimeUserMessage", resourceCulture);
             }
         }
         
