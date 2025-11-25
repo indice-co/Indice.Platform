@@ -1,10 +1,11 @@
 import { Inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { IAppLanguagesService, MenuOption } from '@indice/ng-components';
-import { catchError, distinctUntilChanged, map, Observable, of, take, tap } from 'rxjs';
+import { catchError, distinctUntilChanged, map, Observable, of, switchMap, take, tap } from 'rxjs';
 import { AuthService } from '@indice/ng-auth';
 import { HttpClient } from '@angular/common/http';
 import { MESSAGES_API_BASE_URL } from '../../core/services/messages-api.service';
+import { User } from 'oidc-client-ts';
 
 @Injectable({
   providedIn: 'root'
@@ -38,30 +39,28 @@ export class AppLanguagesService implements IAppLanguagesService {
           this.translate.addLangs(this._languages.map(l => l.value.toLowerCase()));
           this.default = this._languages[0]?.value.toLowerCase();
           this.options = of(this._languages);
-        })
+        }),
+        switchMap(langs => this._authService.user$)
       )
-      .subscribe(() =>
-        this.setLocale());
+      .subscribe((user) =>
+        this.setLocale(user));
   }
 
-  private setLocale(): void {
-    this._authService.user$
-      .subscribe((user) => {
-        if (user && user.profile) {
-          const userLocale = user.profile.locale;
-          if (userLocale && this._languages.map(x => x.text).includes(userLocale.toUpperCase())) {
-            this.setSelected(userLocale);
-          }
-          else {
-            if (!this.selected) this.setSelected(this.default!);
-          }
+  private setLocale(user: User | null) : void {
+      if (user && user.profile) {
+        const userLocale = user.profile.locale;
+        if (userLocale && this._languages.map(x => x.text).includes(userLocale.toUpperCase())) {
+          this.setSelected(userLocale);
         }
         else {
-          if (!this.selected) {
-            this.setSelected(this.default!);
-          }
+          if (!this.selected) this.setSelected(this.default!);
         }
-      });
+      }
+      else {
+        if (!this.selected) {
+          this.setSelected(this.default!);
+        }
+      }
   }
 
   public setSelected(lang: string): void {
