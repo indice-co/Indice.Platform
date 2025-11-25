@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { IAppLanguagesService, MenuOption } from '@indice/ng-components';
-import { catchError, distinctUntilChanged, map, Observable, of, switchMap, take, tap } from 'rxjs';
+import { catchError, map, Observable, of, switchMap, take, tap } from 'rxjs';
 import { AuthService } from '@indice/ng-auth';
 import { HttpClient } from '@angular/common/http';
 import { MESSAGES_API_BASE_URL } from '../../core/services/messages-api.service';
