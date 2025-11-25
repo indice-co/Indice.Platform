@@ -37,10 +37,10 @@ export class AppLanguagesService implements IAppLanguagesService {
         }),
         tap(languages => {
           this._languages = languages;
-          this.translate.addLangs(this._languages.map(l => l.value.toLowerCase()));
           if (!languages || languages.length === 0) {
             this._languages = [new MenuOption('EN', 'EN', 'English')];
           }
+          this.translate.addLangs(this._languages.map(l => l.value.toLowerCase()));
           this.default = this._languages[0]?.value.toLowerCase();
           this.options = of(this._languages);
         }),
