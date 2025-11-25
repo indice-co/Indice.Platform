@@ -417,7 +417,7 @@
   <data name="PasswordChangedEventDescription" xml:space="preserve">
     <value>Ο κωδικός πρόσβασής σας έχει αλλάξει επιτυχώς.</value>
   </data>
-  <data name="PasswordInitMessage" xml:space="preserve">
+  <data name="PasswordExpiredNewUserMessage" xml:space="preserve">
     <value>Παρακαλώ επιλέξτε το νέο σας κωδικό πρόσβασης για να συνεχίσετε.</value>
   </data>
 </root>

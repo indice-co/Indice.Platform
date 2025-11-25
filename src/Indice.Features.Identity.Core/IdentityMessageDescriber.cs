@@ -125,7 +125,7 @@ public class IdentityMessageDescriber
     public virtual string PasswordExpiredMessage => IdentityResources.PasswordExpiredMessage;
 
     /// <summary>Choose Password message for new users.</summary>
-    public virtual string PasswordInitMessage => IdentityResources.PasswordInitMessage;
+    public virtual string PasswordExpiredNewUserMessage => IdentityResources.PasswordExpiredNewUserMessage;
     
     /// <summary>Profile external login added success message.</summary>
     public virtual string ProfileExternalLoginAddedSuccessMessage => IdentityResources.ProfileExternalLoginAddedSuccessMessage;

@@ -47,7 +47,7 @@ public abstract class BasePasswordExpiredModel : BasePageModel
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         var message = user.LastSignInDate is null ?
-            UserManager.MessageDescriber.PasswordInitMessage :
+            UserManager.MessageDescriber.PasswordExpiredNewUserMessage :
             UserManager.MessageDescriber.PasswordExpiredMessage;
         TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
             Alert = AlertModel.Info(message)
