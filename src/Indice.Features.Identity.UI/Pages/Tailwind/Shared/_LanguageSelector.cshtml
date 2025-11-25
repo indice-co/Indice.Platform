@@ -67,18 +67,17 @@
 
 
 <script csp-nonce>
-    !function () {
-        const icon = document.getElementById("dropdownIcon_@htmlUniqueId")
+    (function () {
+        const icon = document.getElementById("dropdownIcon_@htmlUniqueId");
         const dropdown = document.getElementById("dropdown_@htmlUniqueId");
-        const config = { attributes: true, childList: false, subtree: false };
-
+        const config = { attributes: true, attributeFilter: ['class'] };
         // Create an observer instance linked to a callback function
-        const observer = new MutationObserver((mutationList, observer) => {
+        const observer = new MutationObserver(() => {
             dropdown.classList.contains("block")
                 ? icon.classList.remove("rotate-180")
                 : icon.classList.add("rotate-180");
         });
         // Start observing the target node for configured mutations
         observer.observe(dropdown, config);
-    }();
+    })();
 </script>
