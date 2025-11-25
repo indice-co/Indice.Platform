@@ -50,8 +50,6 @@ export class AppLanguagesService implements IAppLanguagesService {
         if (user && user.profile) {
           const userLocale = user.profile.locale;
           if (userLocale && this._languages.map(x => x.text).includes(userLocale.toUpperCase())) {
-            console.log("Setting Users default locale");
-
             this.setSelected(userLocale);
           }
           else {
@@ -76,7 +74,7 @@ export class AppLanguagesService implements IAppLanguagesService {
   }
 }
 
-// The 
+// The user interface for a locale
 export interface UiLocale {
   lang: string;
   nativeName: string;
