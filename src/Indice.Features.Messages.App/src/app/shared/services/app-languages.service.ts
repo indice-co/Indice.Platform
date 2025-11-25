@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { IAppLanguagesService, MenuOption } from '@indice/ng-components';
-import { catchError, map, Observable, of, take, tap } from 'rxjs';
+import { catchError, distinctUntilChanged, map, Observable, of, take, tap } from 'rxjs';
 import { AuthService } from '@indice/ng-auth';
 import { HttpClient } from '@angular/common/http';
 import { MESSAGES_API_BASE_URL } from '../../core/services/messages-api.service';
@@ -43,20 +43,27 @@ export class AppLanguagesService implements IAppLanguagesService {
       .subscribe(() =>
         this.setLocale());
   }
+
   private setLocale(): void {
-    this._authService.loadUser().pipe(take(1)).subscribe((result) => {
-      if (result !== null) {
-        const userLocale = this._authService.getCurrentUser().profile.locale;
-        if (userLocale && this._languages.map(x => x.text).includes(userLocale.toUpperCase())) {
-          console.log("Using user locale");
-          this.setSelected(userLocale)
+    this._authService.user$
+      .subscribe((user) => {
+        if (user && user.profile) {
+          const userLocale = user.profile.locale;
+          if (userLocale && this._languages.map(x => x.text).includes(userLocale.toUpperCase())) {
+            console.log("Setting Users default locale");
+
+            this.setSelected(userLocale);
+          }
+          else {
+            if (!this.selected) this.setSelected(this.default!);
+          }
         }
-      }
-      else {
-        console.log("No locale found");
-        this.setSelected(this.default!);
-      }
-    });
+        else {
+          if (!this.selected) {
+            this.setSelected(this.default!);
+          }
+        }
+      });
   }
 
   public setSelected(lang: string): void {
