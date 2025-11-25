@@ -17,7 +17,6 @@ public enum CasesAccessLevel
     Administer = 2
 }
 
-
 /// <summary>This authorization requirement specifies that an endpoint must be accessible only to Messaging tool managers.</summary>
 public class CasesSystemAccessRequirement : IAuthorizationRequirement
 {
@@ -54,6 +53,5 @@ public class CasesRecordsAccessLevelRequirement : IAuthorizationRequirement
 public class CasesOwnerAccessRequirement : IAuthorizationRequirement
 {
     /// <summary>Creates a new instance of <see cref="CasesOwnerAccessRequirement"/>.</summary>
-    public CasesOwnerAccessRequirement() {
-    }
+    public CasesOwnerAccessRequirement() { }
 }
