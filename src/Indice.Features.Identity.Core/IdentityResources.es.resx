@@ -417,4 +417,7 @@
   <data name="PasswordChangedEventDescription" xml:space="preserve">
     <value>Su contraseña ha sido cambiada exitosamente.</value>
   </data>
+  <data name="PasswordExpiredFirstTimeUserMessage" xml:space="preserve">
+    <value>Por favor, elija su nueva contraseña para continuar.</value>
+  </data>
 </root>
