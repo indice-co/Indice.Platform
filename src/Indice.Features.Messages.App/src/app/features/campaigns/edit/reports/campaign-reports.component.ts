@@ -3,9 +3,10 @@ import { CampaignDetailsMetrics, MessagesApiClient } from '../../../../core/serv
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
-  selector: 'app-campaign-reports',
-  templateUrl: './campaign-reports.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-campaign-reports',
+    templateUrl: './campaign-reports.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 
 export class CampaignReportsComponent implements OnInit {

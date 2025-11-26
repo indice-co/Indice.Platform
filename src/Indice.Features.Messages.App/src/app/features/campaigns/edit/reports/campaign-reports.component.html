@@ -1,38 +1,42 @@
-<section aria-labelledby="applicant-information-title">
+<section aria-labelledby="campaign-reports-title">
   <div class="bg-white shadow sm:rounded-lg">
     <div class="px-4 py-5 sm:px-6">
-      <h2 id="applicant-information-title" class="text-lg leading-6 font-medium text-gray-900">
-        Αναφορές
+      <h2 id="campaign-reports-title" class="text-lg leading-6 font-medium text-gray-900">
+        {{ 'Campaigns.ReportsHeader' | translate }}
       </h2>
-      <p class="mt-1 mb-1 max-w-2xl text-sm text-gray-500">Διαγράμματα που αφορούν την καμπάνια.</p>
+      <p class="mt-1 mb-1 max-w-2xl text-sm text-gray-500">
+        {{ 'Campaigns.ReportsDescription' | translate }}
+      </p>
 
       <dl class="mt-5 grid grid-cols-1 divide-gray-200 overflow-hidden rounded-lg bg-white shadow-sm md:grid-cols-3 md:divide-x md:divide-y-0 dark:divide-white/10 dark:bg-gray-800/75 dark:shadow-none dark:inset-ring dark:inset-ring-white/10">
         <div class="px-4 py-5 sm:p-6">
-
           <dt class="text-base font-normal text-gray-900 dark:text-gray-100">
-            Total recipient reach
+            {{ 'Campaigns.TotalRecipientReachLabel' | translate }}
           </dt>
           <dd class="mt-1 flex items-baseline justify-between md:block lg:flex">
             <div class="flex items-baseline text-2xl font-semibold text-indigo-600 dark:text-indigo-400">
               {{ counters?.recipient?.reached || 0 }}
-              <span class="ml-2 text-sm font-medium text-gray-500 dark:text-gray-400">out of <span class="text-gray-700">{{counters?.recipient?.total}}</span> total</span>
+              <span class="ml-2 text-sm font-medium text-gray-500 dark:text-gray-400">
+                {{ 'Campaigns.OutOfConnector' | translate }}
+                <span class="text-gray-700">{{ counters?.recipient?.total }}</span>
+                {{ 'Campaigns.TotalSuffix' | translate }}
+              </span>
             </div>
 
-            <div title="Avg Reachability" class="inline-flex items-baseline rounded-full bg-green-100 px-2.5 py-0.5 text-sm font-medium text-green-800 md:mt-2 lg:mt-0 dark:bg-green-400/10 dark:text-green-400">
-
-              <span class="sr-only"> Avg Reachability </span>
+            <div [title]="'Campaigns.AvgReachabilityLabel' | translate"
+                 class="inline-flex items-baseline rounded-full bg-green-100 px-2.5 py-0.5 text-sm font-medium text-green-800 md:mt-2 lg:mt-0 dark:bg-green-400/10 dark:text-green-400">
+              <span class="sr-only">{{ 'Campaigns.AvgReachabilityLabel' | translate }}</span>
               {{ counters?.recipient?.coverage | percent:'1.0-1' }}
             </div>
           </dd>
         </div>
       </dl>
+
       <div class="cards-deck-2 mt-8">
         <div class="card">
           <div class="card-body" style="position:relative">
             <h4 class="mt-0 header-title mb-4">
-              <span>
-                Total messages sent
-              </span>
+              <span>{{ 'Campaigns.TotalMessagesSentLabel' | translate }}</span>
               <span class="flex items-baseline text-2xl font-semibold text-indigo-600 dark:text-indigo-400">
                 {{ counters?.recipient?.totalMessages }}
               </span>

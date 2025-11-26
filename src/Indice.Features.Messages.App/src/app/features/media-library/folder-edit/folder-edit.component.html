@@ -1,55 +1,60 @@
-<lib-side-view-layout title="Επεξεργασία φακέλου" [ok-close-dialog]="false" [ok-label]="'Αποθήκευση'"
-    [cancel-label]="'Κλείσιμο'" (ok)="submitButton.nativeElement.click()"
-    [disabled]="!messageTypeForm.valid || submitInProgress" #sideViewLayout>
-    <div class="mt-4">
-        <form #messageTypeForm="ngForm" (ngSubmit)="onSubmit()">
-            <div class="px-4 space-y-2 pb-4">
-                <div class="grid grid-cols-4 gap-1">
-                    <!-- Όνομα -->
-                    <div class="col-span-4">
-                        <label for="folderName" class="field-label">Όνομα (*)</label>
-                        <div class="flex rounded-sm">
-                            <input class="w-full"
-                                   type="text" name="folderName" id="folderName" [(ngModel)]="model.name"
-                                   placeholder="Το όνομα του φακέλου..." maxlength="128" required #folderName="ngModel">
-                        </div>
-                        <p *ngIf="folderName.invalid && (folderName.dirty || folderName.touched)"
-                            class="mt-2 text-sm text-red-600">
-                            <span *ngIf="folderName.errors!['required']">Παρακαλώ συμπληρώστε ένα όνομα.</span>
-                            <span *ngIf="folderName.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο
-                                όνομα.</span>
-                        </p>
-                        <p class="field-info col-span-3">Η ονομασία με την οποία θα εμφανίζεται o φάκελος.</p>
-                    </div>
-
-                    <!-- Περιγραφή -->
-                    <div class="col-span-4">
-                        <label for="folderDescription" class="field-label">Περιγραφή</label>
-                        <div class="flex rounded-sm">
-                            <input class="w-full"
-                                   type="text" name="folderDescription" id="folderDescription"
-                                [(ngModel)]="model.description" placeholder="Η περιγραφή του φακέλου..." maxlength="512"
-                                #folderDescription="ngModel">
-                        </div>
-
-                        <p class="field-info col-span-3">Σύντομη περιγραφή των περιεχομένων του φακέλου.</p>
-                    </div>
-
-                    <!-- Parent Folder -->
-                    <div class="col-span-4">
-                        <label for="parentFolder" class="field-label">
-                            Φάκελος
-                        </label>
-                        <div class="mt-1 flex rounded-sm">
-                            <lib-local-drop-down-menu id="parentFolder" name="parentFolder" class="w-full" [value]="parentFolderId"
-                                [options]="folders" (change)="parentFolderSelectionChanged($event)">
-                            </lib-local-drop-down-menu>
-                        </div>
-                        <p class="field-info col-span-3">Ο φάκελος που περιέχει τον υποφάκελο.</p>
-                    </div>
-                </div>
+﻿<lib-side-view-layout [title]="'MediaLibrary.EditFolderDialogTitle' | translate" [ok-close-dialog]="false" [ok-label]="'MediaLibrary.Save' | translate"
+  [cancel-label]="'MediaLibrary.Close' | translate" (ok)="submitButton.nativeElement.click()"
+  [disabled]="!messageTypeForm.valid || submitInProgress" #sideViewLayout>
+  <div class="mt-4">
+    <form #messageTypeForm="ngForm" (ngSubmit)="onSubmit()">
+      <div class="px-4 space-y-2 pb-4">
+        <div class="grid grid-cols-4 gap-1">
+          <!-- Όνομα -->
+          <div class="col-span-4">
+            <label for="folderName" class="field-label">{{ 'MediaLibrary.FolderNameLabelRequired' | translate }}</label>
+            <div class="flex rounded-sm">
+              <input class="w-full"
+                type="text" name="folderName" id="folderName" [(ngModel)]="model.name"
+                placeholder="{{ 'MediaLibrary.FolderNamePlaceholder' | translate }}" maxlength="128" required #folderName="ngModel">
+              </div>
+              @if (folderName.invalid && (folderName.dirty || folderName.touched)) {
+                <p
+                  class="mt-2 text-sm text-red-600">
+                  @if (folderName.errors!['required']) {
+                    <span>{{ 'MediaLibrary.FolderNameRequiredError' | translate }}</span>
+                  }
+                  @if (folderName.errors!['maxlength']) {
+                    <span>{{ 'MediaLibrary.FolderNameMaxLengthError' | translate }}</span>
+                  }
+                </p>
+              }
+              <p class="field-info col-span-3">{{ 'MediaLibrary.FolderNameInfo' | translate }}</p>
             </div>
-            <button type="submit" [style.visibility]="'hidden'" #submitBtn>Submit</button>
+
+            <!-- Περιγραφή -->
+            <div class="col-span-4">
+              <label for="folderDescription" class="field-label">{{ 'MediaLibrary.FolderDescriptionLabel' | translate }}</label>
+              <div class="flex rounded-sm">
+                <input class="w-full"
+                  type="text" name="folderDescription" id="folderDescription"
+                  [(ngModel)]="model.description" placeholder="{{ 'MediaLibrary.FolderDescriptionPlaceholder' | translate }}" maxlength="512"
+                  #folderDescription="ngModel">
+                </div>
+
+                <p class="field-info col-span-3">{{ 'MediaLibrary.FolderDescriptionInfo' | translate }}</p>
+              </div>
+
+              <!-- Parent Folder -->
+              <div class="col-span-4">
+                <label for="parentFolder" class="field-label">
+                  {{ 'MediaLibrary.ParentFolderSelectLabel' | translate }}
+                </label>
+                <div class="mt-1 flex rounded-sm">
+                  <lib-local-drop-down-menu id="parentFolder" name="parentFolder" class="w-full" [value]="parentFolderId"
+                    [options]="folders" (change)="parentFolderSelectionChanged($event)">
+                  </lib-local-drop-down-menu>
+                </div>
+                <p class="field-info col-span-3">{{ 'MediaLibrary.ParentFolderInfo' | translate }}</p>
+              </div>
+            </div>
+          </div>
+          <button type="submit" [style.visibility]="'hidden'" #submitBtn>Submit</button>
         </form>
-    </div>
-</lib-side-view-layout>
+      </div>
+    </lib-side-view-layout>

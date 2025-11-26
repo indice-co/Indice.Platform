@@ -6,8 +6,9 @@ import { Contact } from 'src/app/core/services/messages-api.service';
 import { ContactService } from '../contact.service';
 
 @Component({
-  selector: 'app-contact-details',
-  templateUrl: './contact-details.component.html'
+    selector: 'app-contact-details',
+    templateUrl: './contact-details.component.html',
+    standalone: false
 })
 export class ContactDetailsComponent implements OnInit, OnDestroy {
 
@@ -17,7 +18,7 @@ export class ContactDetailsComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly _activatedRoute: ActivatedRoute,
-    private readonly _contactService: ContactService
+    private readonly _contactService: ContactService,
   ) {
     this.contact$ = _contactService.contact$;
 }

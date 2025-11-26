@@ -1,9 +1,9 @@
-<lib-view-layout [title]="'Καλώς ήλθατε,'" [meta-items]="metaItems" *ngIf="(metrics$ | async) as metrics">
+<lib-view-layout [title]="'DashBoard.Welcome' | translate" [meta-items]="metaItems" *ngIf="(metrics$ | async) as metrics">
   <div class="cards-deck-4">
     <!--<lib-kpi-tile title="Καμπανιες" [busy]="!loaded" [kpi]="counters?.campaignsCount"
                   (tile-action)="navigate('/campaigns')"></lib-kpi-tile>
     <lib-kpi-tile title="Ενεργες" [busy]="!loaded" [kpi]="counters?.campaignsPublishedCount"
-                  (tile-action)="navigate('/campaigns')"></lib-kpi-tile>-->
+    (tile-action)="navigate('/campaigns')"></lib-kpi-tile>-->
     <!-- <ng-container *ngIf="counters?.campaignsByType">
       <lib-kpi-tile *ngFor="let entry of counters?.campaignsByType | keyvalue"
                     [title]="entry.key"
@@ -14,34 +14,38 @@
   </div>
   <dl class="mt-5 grid grid-cols-1 divide-gray-200 overflow-hidden rounded-lg bg-white shadow-sm md:grid-cols-3 md:divide-x md:divide-y-0 dark:divide-white/10 dark:bg-gray-800/75 dark:shadow-none dark:inset-ring dark:inset-ring-white/10">
     <div class="px-4 py-5 sm:p-6">
-      <dt class="text-base font-normal text-gray-900 dark:text-gray-100">Todays Campaigns</dt>
+      <dt class="text-base font-normal text-gray-900 dark:text-gray-100">{{ 'DashBoard.TodaysCampaigns' | translate }}</dt>
       <dd class="mt-1 flex items-baseline justify-between md:block lg:flex">
         <div class="flex items-baseline text-2xl font-semibold text-indigo-600 dark:text-indigo-400">
           {{ metrics?.campaign?.totalToday >= 0 ? metrics?.campaign?.totalToday : '-'}}
-          <span class="ml-2 text-sm font-medium text-gray-500 dark:text-gray-400"><span class="text-gray-700">new</span> out of <span class="text-gray-700">{{metrics?.campaign?.total >= 0 ? metrics?.campaign?.total : '-'}}</span></span>
+          <span class="ml-2 text-sm font-medium text-gray-500 dark:text-gray-400">
+            <span class="text-gray-700">{{ 'DashBoard.NewLabel' | translate }}</span>
+            {{ 'DashBoard.OutOf' | translate }}
+            <span class="text-gray-700">{{metrics?.campaign?.total >= 0 ? metrics?.campaign?.total : '-'}}</span>
+          </span>
         </div>
 
         <div *ngIf="metrics?.campaign?.trend"
              [ngClass]="{ 'text-green-800 bg-green' : (metrics?.campaign?.trend >=0), 'bg-red-100 text-red-800': (metrics?.campaign?.trend < 0) }"
              class="inline-flex items-baseline rounded-full px-2.5 py-0.5 text-sm font-medium md:mt-2 lg:mt-0"
-             title="{{metrics?.campaign?.totalToday}} total campaigns today">
-          <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="mr-0.5 -ml-1 size-5 shrink-0 self-center">
-            <path *ngIf="(metrics?.campaign?.trend >=0)" d="M10 17a.75.75 0 0 1-.75-.75V5.612L5.29 9.77a.75.75 0 0 1-1.08-1.04l5.25-5.5a.75.75 0 0 1 1.08 0l5.25 5.5a.75.75 0 1 1-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0 1 10 17Z" clip-rule="evenodd" fill-rule="evenodd"></path>
-            <path *ngIf="(metrics?.campaign?.trend <=0)" d="M10 3a.75.75 0 0 1 .75.75v10.638l3.96-4.158a.75.75 0 1 1 1.08 1.04l-5.25 5.5a.75.75 0 0 1-1.08 0l-5.25-5.5a.75.75 0 1 1 1.08-1.04l3.96 4.158V3.75A.75.75 0 0 1 10 3Z" clip-rule="evenodd" fill-rule="evenodd"></path>
-          </svg>
-          <span class="sr-only"> Increased by </span>
+             title="{{metrics?.campaign?.totalToday}} {{ 'DashBoard.TotalCampaignsToday' | translate }}">
+          <svg ...>...</svg>
+          <span class="sr-only">{{ 'DashBoard.IncreasedBySr' | translate }}</span>
           {{ metrics?.campaign?.trend | percent:'1.0-1' }}
         </div>
       </dd>
     </div>
     <div class="px-4 py-5 sm:p-6">
-      <dt class="text-base font-normal text-gray-900 dark:text-gray-100">Registered Contacts</dt>
+      <dt class="text-base font-normal text-gray-900 dark:text-gray-100">{{ 'DashBoard.RegisteredContacts' | translate }}</dt>
       <dd class="mt-1 flex items-baseline justify-between md:block lg:flex">
         <div class="flex items-baseline text-2xl font-semibold text-indigo-600 dark:text-indigo-400">
           {{ metrics?.contact?.known >= 0 ? metrics?.contact?.known : '-'}}
-          <span class="ml-2 text-sm font-medium text-gray-500 dark:text-gray-400">out of <span class="text-gray-700">{{metrics?.contact?.total >= 0 ? metrics?.contact?.total : '-'}}</span> total</span>
+          <span class="ml-2 text-sm font-medium text-gray-500 dark:text-gray-400">
+            {{ 'DashBoard.OutOf' | translate }}
+            <span class="text-gray-700">{{metrics?.contact?.total >= 0 ? metrics?.contact?.total : '-'}}</span>
+            {{ 'DashBoard.TotalLabel' | translate }}
+          </span>
         </div>
-
         <!--<div class="inline-flex items-baseline rounded-full bg-green-100 px-2.5 py-0.5 text-sm font-medium text-green-800 md:mt-2 lg:mt-0 dark:bg-green-400/10 dark:text-green-400">
           <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="mr-0.5 -ml-1 size-5 shrink-0 self-center text-green-500 dark:text-green-400">
             <path d="M10 17a.75.75 0 0 1-.75-.75V5.612L5.29 9.77a.75.75 0 0 1-1.08-1.04l5.25-5.5a.75.75 0 0 1 1.08 0l5.25 5.5a.75.75 0 1 1-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0 1 10 17Z" clip-rule="evenodd" fill-rule="evenodd"></path>
@@ -52,19 +56,19 @@
       </dd>
     </div>
     <div class="px-4 py-5 sm:p-6">
-
-      <dt class="text-base font-normal text-gray-900 dark:text-gray-100">
-        Total recipient reach
-      </dt>
+      <dt class="text-base font-normal text-gray-900 dark:text-gray-100">{{ 'DashBoard.TotalRecipientReach' | translate }}</dt>
       <dd class="mt-1 flex items-baseline justify-between md:block lg:flex">
         <div class="flex items-baseline text-2xl font-semibold text-indigo-600 dark:text-indigo-400">
           {{ metrics?.recipient?.reached || 0 }}
-          <span class="ml-2 text-sm font-medium text-gray-500 dark:text-gray-400">out of <span class="text-gray-700">{{metrics?.recipient?.total}}</span> total</span>
+          <span class="ml-2 text-sm font-medium text-gray-500 dark:text-gray-400">
+            {{ 'DashBoard.OutOf' | translate }}
+            <span class="text-gray-700">{{metrics?.recipient?.total}}</span>
+            {{ 'DashBoard.TotalLabel' | translate }}
+          </span>
         </div>
 
-        <div title="Avg Reachability" class="inline-flex items-baseline rounded-full bg-green-100 px-2.5 py-0.5 text-sm font-medium text-green-800 md:mt-2 lg:mt-0 dark:bg-green-400/10 dark:text-green-400">
-
-          <span class="sr-only"> Avg Reachability </span>
+        <div [title]="'DashBoard.AvgReachability' | translate" class="inline-flex items-baseline rounded-full bg-green-100 px-2.5 py-0.5 text-sm font-medium text-green-800 md:mt-2 lg:mt-0 dark:bg-green-400/10 dark:text-green-400">
+          <span class="sr-only">{{ 'DashBoard.AvgReachability' | translate }}</span>
           {{ metrics?.recipient?.coverage | percent:'1.0-1' }}
         </div>
       </dd>
@@ -75,7 +79,7 @@
     <div class="card">
       <div class="card-body">
         <h4 class="mt-0 header-title mb-4" *ngIf="(eventSeries$ | async) as series">
-          Channel dispatches last {{ series.count - 1 }} days
+          {{ 'DashBoard.ChannelDispatchesLastDays' | translate:{ days: series.count - 1 } }}
           <span class="flex items-baseline text-2xl font-semibold text-indigo-600 dark:text-indigo-400">
             {{ series.summary?.total }}
           </span>
@@ -93,9 +97,7 @@
     <div class="card">
       <div class="card-body" style="position:relative">
         <h4 class="mt-0 header-title mb-4">
-          <span>
-            Total channel deliveries
-          </span>
+          <span>{{ 'DashBoard.TotalChannelDeliveries' | translate }}</span>
           <span class="flex items-baseline text-2xl font-semibold text-indigo-600 dark:text-indigo-400">
             {{ metrics?.recipient?.totalMessages }}
           </span>
@@ -110,9 +112,7 @@ maintainAspectRatio: false
     <div class="card">
       <div class="card-body" style="position:relative">
         <h4 class="mt-0 header-title mb-4">
-          <span>
-            Message recipients today
-          </span>
+          <span>{{ 'DashBoard.MessageRecipientsToday' | translate }}</span>
           <span class="flex items-baseline text-2xl font-semibold text-indigo-600 dark:text-indigo-400">
             {{ metrics?.perTypeToday | sum:'total' }}
           </span>

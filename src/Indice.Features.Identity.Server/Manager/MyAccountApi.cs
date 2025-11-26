@@ -1,4 +1,5 @@
-﻿using Indice.Features.Identity.Core.Data.Models;
+﻿using Indice.Features.Identity.Core;
+using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Manager;
 using Indice.Features.Identity.Server.Manager.Models;
@@ -32,56 +33,56 @@ public static class MyAccountApi
              .WithName(nameof(MyAccountHandlers.UpdateEmail))
              .WithSummary("Updates the email of the current user.")
              .WithParameterValidation<UpdateUserEmailRequest>()
-             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.UpdateEmail)
+             .RequireRateLimiting(RateLimiterPolicies.UpdateEmail)
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/email/confirmation", MyAccountHandlers.ConfirmEmail)
              .WithName(nameof(MyAccountHandlers.ConfirmEmail))
              .WithSummary("Confirms the email address of a given user.")
              .WithParameterValidation<ConfirmEmailRequest>()
-             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.EmailConfirmation)
+             .RequireRateLimiting(RateLimiterPolicies.EmailConfirmation)
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/phone-number", MyAccountHandlers.UpdatePhoneNumber)
              .WithName(nameof(MyAccountHandlers.UpdatePhoneNumber))
              .WithSummary("Requests a phone number change for the current user.")
              .WithParameterValidation<UpdateUserPhoneNumberRequest>()
-             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.UpdatePhoneNumber)
+             .RequireRateLimiting(RateLimiterPolicies.UpdatePhoneNumber)
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/phone-number/confirmation", MyAccountHandlers.ConfirmPhoneNumber)
              .WithName(nameof(MyAccountHandlers.ConfirmPhoneNumber))
              .WithSummary("Confirms the phone number of the user, using the OTP token.")
              .WithParameterValidation<ConfirmPhoneNumberRequest>()
-             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.PhoneNumberConfirmation)
+             .RequireRateLimiting(RateLimiterPolicies.PhoneNumberConfirmation)
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/email/change", MyAccountHandlers.EmailChange)
              .WithName(nameof(MyAccountHandlers.EmailChange))
              .WithSummary("Request email change for the current user.")
              .WithParameterValidation<ChangeUserEmailRequest>()
-             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.ChangeEmail)
+             .RequireRateLimiting(RateLimiterPolicies.ChangeEmail)
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/email/change-confirmation", MyAccountHandlers.ConfirmEmailChange)
              .WithName(nameof(MyAccountHandlers.ConfirmEmailChange))
              .WithSummary("Confirms the email address change of the current user and saves.")
              .WithParameterValidation<ConfirmEmailChangeRequest>()
-             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.EmailChangeConfirmation)
+             .RequireRateLimiting(RateLimiterPolicies.EmailChangeConfirmation)
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/phone-number/change", MyAccountHandlers.PhoneNumberChange)
              .WithName(nameof(MyAccountHandlers.PhoneNumberChange))
              .WithSummary("Requests phone number change for the current user.")
              .WithParameterValidation<ChangeUserPhoneNumberRequest>()
-             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.ChangePhoneNumber)
+             .RequireRateLimiting(RateLimiterPolicies.ChangePhoneNumber)
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/phone-number/change-confirmation", MyAccountHandlers.ConfirmPhoneNumberChange)
              .WithName(nameof(MyAccountHandlers.ConfirmPhoneNumberChange))
              .WithSummary("Confirms the phone number change via OTP for the current user and saves.")
              .WithParameterValidation<ConfirmPhoneNumberChangeRequest>()
-             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.ChangePhoneNumberConfirmation)
+             .RequireRateLimiting(RateLimiterPolicies.ChangePhoneNumberConfirmation)
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes).WithOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.MapPut("my/account/block", MyAccountHandlers.BlockAccount)
@@ -107,14 +108,14 @@ public static class MyAccountApi
              .WithSummary("Generates a password reset token and sends it to the user via email.")
              .WithParameterValidation<ForgotPasswordRequest>()
              .AllowAnonymous()
-             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.ForgotPassword);
+             .RequireRateLimiting(RateLimiterPolicies.ForgotPassword);
 
         group.MapPut("account/forgot-password/confirmation", MyAccountHandlers.ForgotPasswordConfirmation)
              .WithName(nameof(MyAccountHandlers.ForgotPasswordConfirmation))
              .WithSummary("Changes the password of the user confirming the code received during forgot password process.")
              .WithParameterValidation<ForgotPasswordConfirmationRequest>()
              .AllowAnonymous()
-             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.ForgotPasswordConfirmation);
+             .RequireRateLimiting(RateLimiterPolicies.ForgotPasswordConfirmation);
 
         group.MapPut("my/account/password-expiration-policy", MyAccountHandlers.UpdatePasswordExpirationPolicy)
              .WithName(nameof(MyAccountHandlers.UpdatePasswordExpirationPolicy))
@@ -175,7 +176,7 @@ public static class MyAccountApi
              .WithName(nameof(MyAccountHandlers.GetPasswordOptions))
              .WithSummary("Gets the password options that are applied when the user creates an account.")
              .AllowAnonymous()
-             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.PasswordOptions);
+             .RequireRateLimiting(RateLimiterPolicies.PasswordOptions);
 
         group.MapPost("account/username-exists", MyAccountHandlers.CheckUserNameExists)
              .WithName(nameof(MyAccountHandlers.CheckUserNameExists))
@@ -183,14 +184,14 @@ public static class MyAccountApi
              .WithParameterValidation<ValidateUserNameRequest>()
              .ProducesProblem(StatusCodes.Status410Gone)
              .AllowAnonymous()
-             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.UserNameExists);
+             .RequireRateLimiting(RateLimiterPolicies.UserNameExists);
 
         group.MapPost("account/validate-password", MyAccountHandlers.ValidatePassword)
              .WithName(nameof(MyAccountHandlers.ValidatePassword))
              .WithSummary($"Validates a user's password against one or more configured {nameof(IPasswordValidator<User>)}.")
              .WithParameterValidation<ValidatePasswordRequest>()
              .AllowAnonymous()
-             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.ValidatePassword);
+             .RequireRateLimiting(RateLimiterPolicies.ValidatePassword);
 
         group.MapPost("account/register", MyAccountHandlers.Register)
              .WithName(nameof(MyAccountHandlers.Register))
@@ -202,7 +203,7 @@ public static class MyAccountApi
              .WithName(nameof(MyAccountHandlers.GetSupportedCallingCodes))
              .WithSummary("Retrieves the supported calling codes.")
              .AllowAnonymous()
-             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.CallingCodes);
+             .RequireRateLimiting(RateLimiterPolicies.CallingCodes);
 
         return group;
     }

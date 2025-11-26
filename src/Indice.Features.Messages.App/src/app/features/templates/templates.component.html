@@ -1,105 +1,114 @@
-<lib-view-layout title="Πρότυπα"
-                 [busy]="!items"
-                 [actions]="actions"
-                 [meta-items]="metaItems"
-                 (onAction)="actionHandler($event)"
-                 (onSearch)="searchChanged($event)">
+<lib-view-layout [title]="'Templates.Title' | translate"
+  [busy]="!items"
+  [actions]="actions"
+  [meta-items]="metaItems"
+  (onAction)="actionHandler($event)"
+  (onSearch)="searchChanged($event)">
   <lib-list-view [items]="items"
-                 [page]="page"
-                 [page-size]="pageSize"
-                 [count]="count"
-                 [sort-options]="sortOptions"
-                 [sort]="sort"
-                 [sort-dir]="sortdir"
-                 [busy]="!items"
-                 (pageChanged)="pageChanged($event)"
-                 (pageSizeChanged)="pageSizeChanged($event)"
-                 (sortChanged)="sortChanged($event)"
-                 (sortdirChanged)="sortdirChanged($event)">
-    <lib-list-column title="ΟΝΟΜΑ">
+    [page]="page"
+    [page-size]="pageSize"
+    [count]="count"
+    [sort-options]="sortOptions"
+    [sort]="sort"
+    [sort-dir]="sortdir"
+    [busy]="!items"
+    (pageChanged)="pageChanged($event)"
+    (pageSizeChanged)="pageSizeChanged($event)"
+    (sortChanged)="sortChanged($event)"
+    (sortdirChanged)="sortdirChanged($event)">
+    <lib-list-column [title]="'Templates.NameColumn' | translate">
       <ng-template let-item>
         <a href="#"
-           [routerLink]="[item.id]"
-           class="text-blue-600">
+          [routerLink]="[item.id]"
+          class="text-blue-600"
+          [title]="'Templates.EditTemplateTitle' | translate">
           {{ item.name }}
         </a>
 
       </ng-template>
     </lib-list-column>
-    <lib-list-column title="ALIAS">
-      <ng-template let-item><span  *ngIf="item.alias" class="badge alias">{{ item.alias || '-' }}</span></ng-template>
+    <lib-list-column [title]="'Templates.AliasColumn' | translate">
+      <ng-template let-item>@if (item.alias) {
+        <span  class="badge alias">{{ item.alias || ('Templates.EmptyValueIndicator' | translate) }}</span>
+      }</ng-template>
     </lib-list-column>
-    <lib-list-column title="Channels">
+    <lib-list-column [title]="'Templates.ChannelsColumn' | translate">
       <ng-template let-item>
         <div class="flex items-center space-x-1" title="{{item.channels?.join(', ')}}">
           <span [ngClass]="{ 'text-green-500': item.channels.includes('Email') }"
-                class="ml-1 text-gray-400">
+            class="ml-1 text-gray-400"
+            [title]="'Templates.ChannelEmail' | translate">
             <i class="ms-Icon ms-Icon--Accounts"></i>
           </span>
 
           <span [ngClass]="{ 'text-green-500': item.channels.includes('SMS') }"
-                class="ml-1 text-gray-400">
+            class="ml-1 text-gray-400"
+            [title]="'Templates.ChannelSms' | translate">
             <i class="ms-Icon ms-Icon--Chat"></i>
           </span>
 
           <span [ngClass]="{ 'text-green-500': item.channels.includes('Inbox') }"
-                class="ml-1 text-gray-400">
+            class="ml-1 text-gray-400"
+            [title]="'Templates.ChannelInbox' | translate">
             <i class="ms-Icon ms-Icon--Inbox"></i>
           </span>
 
           <span [ngClass]="{ 'text-green-500': item.channels.includes('PushNotification') }"
-                class="ml-1 text-gray-400">
+            class="ml-1 text-gray-400"
+            [title]="'Templates.ChannelPushNotification' | translate">
             <i class="ms-Icon ms-Icon--CellPhone"></i>
           </span>
         </div>
       </ng-template>
     </lib-list-column>
-    <lib-list-column title="ΤΥΠΟΣ ΜΥΝΗΜΑΤΟΣ">
+    <lib-list-column [title]="'Templates.MessageTypeColumn' | translate">
       <ng-template let-item>
-        <span *ngIf="item.messageType" title="{{item.messageType?.classification}}" class="message-type-badge {{item.messageType?.classification}}">
-          {{ item.messageType?.name || '-' }}
-        </span>
+        @if (item.messageType) {
+          <span [title]="item.messageType?.classification" class="message-type-badge {{item.messageType?.classification}}">
+            {{ item.messageType?.name || ('Templates.EmptyValueIndicator' | translate) }}
+          </span>
+        }
       </ng-template>
     </lib-list-column>
-    <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ">
-      <ng-template let-item>{{ item.createdAt | date: 'medium' }}</ng-template>
+    <lib-list-column [title]="'Templates.CreatedAtColumn' | translate">
+      <ng-template let-item>{{ item.createdAt ? (item.createdAt | date: 'medium') : ('Templates.EmptyValueIndicator' | translate) }}</ng-template>
     </lib-list-column>
-    <lib-list-column title="ΤΡΟΠΟΠΟΙΗΘΗΚΕ ΑΠΟ">
-      <ng-template let-item>{{ item.updatedBy || '-' }}</ng-template>
+    <lib-list-column [title]="'Templates.UpdatedByColumn' | translate">
+      <ng-template let-item>{{ item.updatedBy || ('Templates.EmptyValueIndicator' | translate) }}</ng-template>
     </lib-list-column>
-    <lib-list-column title="ΤΡΟΠΟΠΟΙΗΘΗΚΕ"
-                     [full-width]="true">
-      <ng-template let-item>{{ !item.updatedAt ? '-' : (item.updatedAt | date: 'medium') }}</ng-template>
+    <lib-list-column [title]="'Templates.UpdatedAtColumn' | translate"
+      [full-width]="true">
+      <ng-template let-item>{{ item.updatedAt ? (item.updatedAt | date: 'medium') : ('Templates.EmptyValueIndicator' | translate) }}</ng-template>
     </lib-list-column>
     <!--<lib-list-column title="ΕΝΕΡΓΕΙΕΣ">
     <ng-template let-item>
       <a href="#"
-         [routerLink]="[item.id]"
-         class="nav-link-profile"
-         class="inline-flex items-center justify-center px-4 py-2 font-medium rounded-md sm:text-sm">
+        [routerLink]="[item.id]"
+        class="nav-link-profile"
+        class="inline-flex items-center justify-center px-4 py-2 font-medium rounded-md sm:text-sm">
         <svg xmlns="http://www.w3.org/2000/svg"
-             class="h-5 w-5"
-             viewBox="0 0 20 20"
-             fill="currentColor">
+          class="h-5 w-5"
+          viewBox="0 0 20 20"
+          fill="currentColor">
           <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
           <path fill-rule="evenodd"
-                d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
-                clip-rule="evenodd" />
-        </svg>
-      </a>
-      <button type="button"
-              (click)="deleteConfirmation(item)"
-              class="inline-flex items-center justify-center px-4 py-2 font-medium rounded-md sm:text-sm">
-        <svg xmlns="http://www.w3.org/2000/svg"
-             class="h-5 w-5"
-             viewBox="0 0 20 20"
-             fill="currentColor">
-          <path fill-rule="evenodd"
-                d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                clip-rule="evenodd" />
-        </svg>
-      </button>
-    </ng-template>
-  </lib-list-column>-->
-  </lib-list-view>
-</lib-view-layout>
+            d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
+            clip-rule="evenodd" />
+          </svg>
+        </a>
+        <button type="button"
+          (click)="deleteConfirmation(item)"
+          class="inline-flex items-center justify-center px-4 py-2 font-medium rounded-md sm:text-sm">
+          <svg xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            viewBox="0 0 20 20"
+            fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+              clip-rule="evenodd" />
+            </svg>
+          </button>
+        </ng-template>
+      </lib-list-column>-->
+    </lib-list-view>
+  </lib-view-layout>

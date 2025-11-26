@@ -51,6 +51,5 @@ public class CasesRecordsAccessLevelRequirement : IAuthorizationRequirement
 public class CasesOwnerAccessRequirement : IAuthorizationRequirement
 {
     /// <summary>Creates a new instance of <see cref="CasesOwnerAccessRequirement"/>.</summary>
-    public CasesOwnerAccessRequirement() {
-    }
+    public CasesOwnerAccessRequirement() { }
 }

@@ -6,8 +6,9 @@ import { ContactPreference, ContactChannelOption, ContactChannelKind, Contact, M
 import { ContactService } from '../contact.service';
 
 @Component({
-  selector: 'app-contact-preferences',
-  templateUrl: './contact-preferences.component.html'
+    selector: 'app-contact-preferences',
+    templateUrl: './contact-preferences.component.html',
+    standalone: false
 })
 export class ContactPreferencesComponent implements OnInit, OnDestroy {
 

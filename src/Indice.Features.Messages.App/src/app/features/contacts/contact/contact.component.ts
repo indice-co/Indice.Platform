@@ -7,8 +7,9 @@ import { Contact } from 'src/app/core/services/messages-api.service';
 import { ContactService } from './contact.service';
 
 @Component({
-  selector: 'app-contact',
-  templateUrl: './contact.component.html'
+    selector: 'app-contact',
+    templateUrl: './contact.component.html',
+    standalone: false
 })
 export class ContactComponent implements OnInit, AfterViewChecked, OnDestroy {
   @ViewChild('layout', { static: true }) private _layout!: ViewLayoutComponent;

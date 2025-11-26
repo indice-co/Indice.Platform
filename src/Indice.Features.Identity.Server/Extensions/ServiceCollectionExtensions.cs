@@ -411,7 +411,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         var identityRateLimiterOptions = new IdentityRateLimiterOptions();
         configuration.GetSection(IdentityRateLimiterOptions.SectionName).Bind(identityRateLimiterOptions);
         services.AddRateLimiter(rateLimiterOptions => {
-            foreach (var endpoint in IdentityEndpoints.RateLimiter.Endpoints) {
+            foreach (var endpoint in RateLimiterPolicies.All) {
                 var endpointOptions = identityRateLimiterOptions.Rules.FirstOrDefault(rule => rule.Endpoint == endpoint) ?? RateLimiterEndpointRule.Default(endpoint);
                 rateLimiterOptions.AddPolicy(endpoint, context => {
                     if (!endpointOptions.CanLimitHttpMethod(context.Request.Method)) {

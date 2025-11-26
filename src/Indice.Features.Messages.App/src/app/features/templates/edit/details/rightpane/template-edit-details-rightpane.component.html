@@ -1,7 +1,8 @@
-<lib-side-view-layout title="Επεξεργασία καμπάνιας"
+.\..\..\AppData\Local\Temp\TFSTemp\vctmp19464_519056.template-edit-details-rightpane.component.2cfe7e3c.Result.html
+<lib-side-view-layout [title]="'Templates.EditTemplateDialogTitle' | translate"
                       [ok-close-dialog]="false"
-                      [ok-label]="'Αποθήκευση'"
-                      [cancel-label]="'Κλείσιμο'"
+                      [ok-label]="'Templates.Save' | translate"
+                      [cancel-label]="'Templates.Close' | translate"
                       (ok)="submitButton.nativeElement.click()"
                       [disabled]="!editCampaignForm.valid || submitInProgress"
                       #sideViewLayout>
@@ -23,10 +24,11 @@
     </form>
   </div>
 </lib-side-view-layout>
+
 <ng-template #editNameTemplate>
   <label for="templateName"
          class="field-label">
-    Τίτλος (*)
+    {{ 'Templates.TitleLabelRequired' | translate }}
   </label>
   <div class="mt-1 flex rounded-sm">
     <input class="w-full"
@@ -34,20 +36,25 @@
            name="templateName"
            id="templateName"
            [(ngModel)]="model.name"
-           placeholder="Το όνομα του προτύπου..."
+           placeholder="{{ 'Templates.TitlePlaceholder' | translate }}"
            required
            maxlength="256"
            #templateName="ngModel">
   </div>
-  <p *ngIf="templateName.invalid && (templateName.dirty || templateName.touched)"
-     class="mt-2 text-sm text-red-600">
-    <span *ngIf="templateName.errors!['required']">Παρακαλώ συμπληρώστε ένα τίτλο.</span>
-    <span *ngIf="templateName.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο τίτλο.</span>
-  </p>
-  <p class="field-info col-span-3">Η ονομασία η οποία θα εμφανίζεται για την καμπάνια.</p>
+  @if (templateName.invalid && (templateName.dirty || templateName.touched)) {
+    <p class="mt-2 text-sm text-red-600">
+      @if (templateName.errors!['required']) {
+        <span>{{ 'Templates.TitleRequiredError' | translate }}</span>
+      }
+      @if (templateName.errors!['maxlength']) {
+        <span>{{ 'Templates.TitleMaxLengthError' | translate }}</span>
+      }
+    </p>
+  }
+  <p class="field-info col-span-3">{{ 'Templates.TitleInfo' | translate }}</p>
   <label for="templateAlias"
          class="field-label">
-    Alias
+    {{ 'Templates.AliasLabel' | translate }}
   </label>
   <div class="mt-1 flex rounded-sm">
     <input class="w-full"
@@ -55,23 +62,26 @@
            name="templateAlias"
            id="templateAlias"
            [(ngModel)]="model.alias"
-           placeholder="Το alias του προτύπου..."
+           placeholder="{{ 'Templates.AliasPlaceholder' | translate }}"
            maxlength="64"
            #templateAlias="ngModel">
   </div>
-  <p *ngIf="templateAlias.invalid && (templateAlias.dirty || templateAlias.touched)"
-     class="mt-2 text-sm text-red-600">
-    <span *ngIf="templateAlias.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο alias.</span>
-  </p>
+  @if (templateAlias.invalid && (templateAlias.dirty || templateAlias.touched)) {
+    <p class="mt-2 text-sm text-red-600">
+      @if (templateAlias.errors!['maxlength']) {
+        <span>{{ 'Templates.AliasMaxLengthError' | translate }}</span>
+      }
+    </p>
+  }
 </ng-template>
 
 
 <ng-template #editUserPreferenceTemplate>
   <dl>
     <div class="py-3 sm:grid sm:grid-cols-3">
-      <dt class="text-sm font-medium text-gray-500">Παράβλεψη ρυθμίσεων επικοινωνίας επαφών</dt>
+      <dt class="text-sm font-medium text-gray-500">{{ 'Templates.IgnoreUserPreferencesLabel' | translate }}</dt>
       <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-        <lib-toggle-button id="ignoreUserPreferences" name="ignoreUserPreferences" [(ngModel)]="model.ignoreUserPreferences" true-label="Ναι" false-label="Όχι"></lib-toggle-button>
+        <lib-toggle-button id="ignoreUserPreferences" name="ignoreUserPreferences" [(ngModel)]="model.ignoreUserPreferences" [attr.true-label]="'Templates.Yes' | translate" [attr.false-label]="'Templates.No' | translate"></lib-toggle-button>
       </dd>
     </div>
   </dl>
@@ -80,7 +90,7 @@
 
 <ng-template #editMessageType>
   <dl>
-      <dt class="text-sm font-medium text-gray-500">Τύπος μηνύματος</dt>
+      <dt class="text-sm font-medium text-gray-500">{{ 'Templates.MessageTypeLabel' | translate }}</dt>
       <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
         <lib-local-drop-down-menu id="templateType"
                                   name="templateType"

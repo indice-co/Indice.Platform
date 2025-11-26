@@ -19,7 +19,7 @@ namespace Indice.Features.Identity.Core {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class IdentityResources {
@@ -57,6 +57,24 @@ namespace Indice.Features.Identity.Core {
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your account has been temporarily locked due to multiple unsuccessful login attempts. This lock is a security measure to protect your information. Please try again later..
+        /// </summary>
+        internal static string AccountLockedEventDescription {
+            get {
+                return ResourceManager.GetString("AccountLockedEventDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your account has been temporarily locked.
+        /// </summary>
+        internal static string AccountLockedEventSubject {
+            get {
+                return ResourceManager.GetString("AccountLockedEventSubject", resourceCulture);
             }
         }
         
@@ -367,7 +385,16 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Your password was changed.
+        ///   Looks up a localized string similar to Your password has been successfully changed..
+        /// </summary>
+        internal static string PasswordChangedEventDescription {
+            get {
+                return ResourceManager.GetString("PasswordChangedEventDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your Password has been Changed.
         /// </summary>
         internal static string PasswordChangedEventSubject {
             get {
@@ -390,6 +417,15 @@ namespace Indice.Features.Identity.Core {
         internal static string PasswordExpiredMessage {
             get {
                 return ResourceManager.GetString("PasswordExpiredMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please choose your new password to continue..
+        /// </summary>
+        internal static string PasswordExpiredFirstTimeUserMessage {
+            get {
+                return ResourceManager.GetString("PasswordExpiredFirstTimeUserMessage", resourceCulture);
             }
         }
         

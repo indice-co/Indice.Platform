@@ -3,7 +3,6 @@
 @inject UserManager<User> UserManager
 @inject IdentityUILocalizer Localizer
 
-
 @{
     Layout = "_LayoutEmail.cshtml";
 }
@@ -32,10 +31,13 @@
     @Localizer.EmailRegister_Body_Welcome(settings.ApplicationName!)
     <br />
     <br />
-    @Localizer.EmailRegister_Body_ConfirmEmail
-    <a style="color:#@UIOptions.Value.EmailLinkColorHex" href="@confirmationLink">@Localizer.Email_Preheader_Here</a>.
-    <br />
-    <br />
+    @if (!UIOptions.Value.AutomaticSigninAfterRegister)
+    {
+        @Localizer.EmailRegister_Body_ConfirmEmail
+        <a style="color:#@UIOptions.Value.EmailLinkColorHex" href="@confirmationLink">@Localizer.Email_Preheader_Here</a>
+        <br />
+        <br />
+    }
     @Localizer.EmailRegister_Body_IgnoreNotice
     <br />
     <br />

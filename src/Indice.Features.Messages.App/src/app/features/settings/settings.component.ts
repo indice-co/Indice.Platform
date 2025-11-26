@@ -4,8 +4,9 @@ import { settings } from 'src/app/core/models/settings';
 import { CampaignDetails } from 'src/app/core/services/messages-api.service';
 
 @Component({
-  selector: 'app-settings',
-  templateUrl: './settings.component.html'
+    selector: 'app-settings',
+    templateUrl: './settings.component.html',
+    standalone: false
 })
 export class SettingsComponent implements OnInit {
 

@@ -1,14 +1,15 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { ToasterService, ToastType } from '@indice/ng-components';
+import { ToastType } from '@indice/ng-components';
 import { Subscription } from 'rxjs';
 import { Contact, MessagesApiClient, UpdateContactRequest } from 'src/app/core/services/messages-api.service';
-
+import { AppTranslatedToaster } from 'src/app/shared/services/app-translated-toaster';
 
 @Component({
-  selector: 'app-contact-edit',
-  templateUrl: './contact-edit.component.html'
+    selector: 'app-contact-edit',
+    templateUrl: './contact-edit.component.html',
+    standalone: false
 })
 export class ContactEditComponent implements OnInit, AfterViewInit, OnDestroy {
   private _getContactSubscription!: Subscription;
@@ -20,7 +21,7 @@ export class ContactEditComponent implements OnInit, AfterViewInit, OnDestroy {
     private _api: MessagesApiClient,
     private _router: Router,
     private _activatedRoute: ActivatedRoute,
-    @Inject(ToasterService) private _toaster: ToasterService
+    @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster
   ) { }
 
   @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
@@ -51,7 +52,7 @@ export class ContactEditComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe({
         next: () => {
           this.submitInProgress = false;
-          this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η επαφή '${this.model.fullName || this.model.email}' ενημερώθηκε με επιτυχία.`);
+          this._toaster.show(ToastType.Success, 'Contacts.UpdateSuccessTitle','Contacts.UpdateSuccessMessage',undefined,{ name: this.model.fullName || this.model.email });
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['contacts', this._contactId, 'contact-details']));
         }
       });

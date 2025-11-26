@@ -10,8 +10,9 @@ export interface IPreviewModel {
 }
 
 @Component({
-  selector: 'app-campaign-preview',
-  templateUrl: './campaign-preview.component.html'
+    selector: 'app-campaign-preview',
+    templateUrl: './campaign-preview.component.html',
+    standalone: false
 })
 export class CampaignPreviewComponent implements OnInit {
   constructor() { }

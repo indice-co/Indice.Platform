@@ -3,8 +3,9 @@ import { SettingsStore } from '../settings-store.service';
 import { MediaSetting } from 'src/app/core/services/media-api.service';
 
 @Component({
-  selector: 'app-media-settings',
-  templateUrl: './media-settings.component.html'
+    selector: 'app-media-settings',
+    templateUrl: './media-settings.component.html',
+    standalone: false
 })
 export class MediaSettingsComponent implements OnInit {
 

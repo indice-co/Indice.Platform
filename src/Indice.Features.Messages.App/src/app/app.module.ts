@@ -95,6 +95,9 @@ import { NgProgressbar } from 'ngx-progressbar';
 import { progressInterceptor, NgProgressHttp } from 'ngx-progressbar/http';
 import { ContactDuplicatesComponent } from './features/contacts/contact/duplicates/contact-duplicates.component';
 import { MessageEventsComponent } from './features/events/message-events.component';
+import { TranslateModule, provideTranslateService } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+
 registerLocaleData(localeGreek);
 
 const providers: Provider[] = [
@@ -113,14 +116,16 @@ const providers: Provider[] = [
   {
     provide: HIGHLIGHT_OPTIONS,
     useValue: {
-      lineNumbers: false,
-      coreLibraryLoader: () => import('highlight.js/lib/core'),
-      languages: {
-        json: () => import('highlight.js/lib/languages/json')
-      }
+      fullLibraryLoader: () => import('highlight.js'),
+      lineNumbers: true,
     }
   },
-  { provide: APP_LANGUAGES, useClass: AppLanguagesService },
+  provideTranslateService({
+    loader: provideTranslateHttpLoader({ prefix: `${app.settings.api_url}/msg-i18n.`, useHttpBackend: true }),
+      fallbackLang: 'en'
+    }),
+  { provide: APP_LANGUAGES, useClass: AppLanguagesService }
+  
 ]
 
 if (app.settings.tenantId) {
@@ -132,6 +137,8 @@ if (app.settings.tenantId) {
     AppComponent,
     BasicModalComponent,
     BeautifyBooleanPipe,
+    CampaignAttachmentsComponent,
+    CampaignAttachmentsEditRightpaneComponent,
     CampaignBasicInfoComponent,
     CampaignContentComponent,
     CampaignContentEditComponent,
@@ -139,12 +146,20 @@ if (app.settings.tenantId) {
     CampaignDetailsEditComponent,
     CampaignDetailsEditRightpaneComponent,
     CampaignEditComponent,
+    CampaignMessagesComponent,
+    CampaignMessageTimelineComponent,
     CampaignPreviewComponent,
     CampaignRecipientsComponent,
     CampaignReportsComponent,
-    CampaignMessagesComponent,
-    CampaignMessageTimelineComponent,
     CampaignsComponent,
+    ContactCampaignsComponent,
+    ContactComponent,
+    ContactCreateComponent,
+    ContactDetailsComponent,
+    ContactDuplicatesComponent,
+    ContactEditComponent,
+    ContactPreferencesComponent,
+    ContactsListComponent,
     DashboardComponent,
     DistributionListContactCreateComponent,
     DistributionListContactEditComponent,
@@ -153,25 +168,39 @@ if (app.settings.tenantId) {
     DistributionListDetailsEditComponent,
     DistributionListDetailsEditRightpaneComponent,
     DistributionListEditComponent,
-    DistributionListsComponent,
     DistributionListImportContactsComponent,
-    ContactsListComponent,
-    ContactComponent,
-    ContactDetailsComponent,
-    ContactCampaignsComponent,
-    ContactEditComponent,
-    ContactPreferencesComponent,
-    ContactCreateComponent,
-    ContactDuplicatesComponent,
+    DistributionListsComponent,
+    DocumentEditComponent,
+    DocumentEditRightpaneComponent,
+    DocumentUploadComponent,
+    DoughnutChartComponent,
+    EmailSendersCreateComponent,
+    EmailSendersEditComponent,
+    EmailSettingsComponent,
+    FileUploadComponent,
+    FolderCreateComponent,
+    FolderEditComponent,
+    FolderViewComponent,
     HomeComponent,
+    HttpStatusComponent,
+    LineChartComponent,
+    ListContactCreateComponent,
+    ListViewComponent,
     LocalDropDownMenuComponent,
     LogOutComponent,
+    MediaLibraryComponent,
+    MediaSettingEditComponent,
+    MediaSettingsComponent,
+    MessageEventsComponent,
     MessageTypeCreateComponent,
     MessageTypeEditComponent,
     MessageTypesComponent,
+    MultiFileUploadComponent,
     PageIllustrationComponent,
     RadioButtonsListComponent,
+    ReadOnlyViewComponent,
     SafePipe,
+    SettingsComponent,
     SumPipe,
     TemplateContentEditComponent,
     TemplateCreateComponent,
@@ -179,49 +208,31 @@ if (app.settings.tenantId) {
     TemplateDetailsEditRightpaneComponent,
     TemplateEditComponent,
     TemplatesComponent,
-    ListContactCreateComponent,
-    HttpStatusComponent,
-    FileUploadComponent,
-    MultiFileUploadComponent,
-    CampaignAttachmentsComponent,
-    CampaignAttachmentsEditRightpaneComponent,
-    SettingsComponent,
-    EmailSettingsComponent,
-    EmailSendersCreateComponent,
-    EmailSendersEditComponent,
-    MediaLibraryComponent,
     TreeBreadcrumbComponent,
     TreeBreadcrumbItemComponent,
-    FolderCreateComponent,
-    DocumentUploadComponent,
-    FolderViewComponent,
-    DocumentEditComponent,
-    DocumentEditRightpaneComponent,
-    FolderEditComponent,
-    ListViewComponent,
-    ReadOnlyViewComponent,
-    MediaSettingsComponent,
-    MediaSettingEditComponent,
-    DoughnutChartComponent,
-    LineChartComponent,
-    MessageEventsComponent
   ],
   imports: [
     AppRoutingModule,
     BrowserModule,
+    CodeEditorModule,
     CommonModule,
     FormsModule,
     HighlightModule,
     HttpClientModule,
     IndiceAuthModule,
     IndiceComponentsModule.forRoot(),
-    ReactiveFormsModule,
-    CodeEditorModule,
     NgProgressbar,
-    NgProgressHttp
+    NgProgressHttp,
+    TranslateModule.forRoot(),
+    ReactiveFormsModule
   ],
   providers: [
     ...providers,
+    /*{
+      provide: TranslateLoader,
+      useClass: ApiTranslateLoader,
+      deps: [HttpClient, MESSAGES_API_BASE_URL],
+    },*/
     provideHttpClient(withInterceptors([progressInterceptor]))
   ],
   bootstrap: [AppComponent]

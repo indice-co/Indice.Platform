@@ -1,8 +1,7 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, Inject, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-
-import { HeaderMetaItem, Icons, LibStepperComponent, StepperType, ToasterService, ToastType } from '@indice/ng-components';
-import { StepSelectedEvent } from '@indice/ng-components/lib/controls/stepper/types/step-selected-event';
+import { APP_LANGUAGES, HeaderMetaItem, Icons, LibStepperComponent, StepperType, ToastType } from '@indice/ng-components';
+import { StepSelectedEvent } from '@indice/ng-components';
 import { CampaignBasicInfoComponent } from './steps/basic-info/campaign-basic-info.component';
 import { CampaignContentComponent } from './steps/content/campaign-content.component';
 import { CampaignPreview } from './steps/preview/campaign-preview';
@@ -11,13 +10,16 @@ import { CampaignRecipientsComponent } from './steps/recipients/campaign-recipie
 import { CreateCampaignRequest, MessagesApiClient, Period, Hyperlink, MessageContent, Template, CreateCampaignResult } from 'src/app/core/services/messages-api.service';
 import { CampaignAttachmentsComponent } from './steps/attachments/campaign-attachments.component';
 import { catchError, map, mergeMap } from 'rxjs/operators';
-import { EMPTY, of } from 'rxjs';
+import { EMPTY, of, combineLatest, Subscription } from 'rxjs';
+import { AppLanguagesService } from 'src/app/shared/services/app-languages.service'; // added
+import { AppTranslatedToaster } from '../../../shared/services/app-translated-toaster';
 
 @Component({
   selector: 'app-campaign-create',
-  templateUrl: './campaign-create.component.html'
+  templateUrl: './campaign-create.component.html',
+  standalone: false
 })
-export class CampaignCreateComponent implements OnInit, AfterViewChecked {
+export class CampaignCreateComponent implements OnInit, AfterViewChecked, OnDestroy {
   @ViewChild('createCampaignStepper', { static: true }) private _stepper!: LibStepperComponent;
   @ViewChild('basicInfoStep', { static: true }) private _basicInfoStep!: CampaignBasicInfoComponent;
   @ViewChild('contentStep', { static: true }) private _contentStep!: CampaignContentComponent;
@@ -29,7 +31,8 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
     private _api: MessagesApiClient,
     private _router: Router,
     private _changeDetector: ChangeDetectorRef,
-    @Inject(ToasterService) private _toaster: ToasterService
+    @Inject(AppTranslatedToaster) private _toaster: AppTranslatedToaster,
+    @Inject(APP_LANGUAGES) private _lang: AppLanguagesService
   ) { }
 
   public now: Date = new Date();
@@ -43,24 +46,38 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
   public content: { [key: string]: MessageContent; } | undefined;
   public hasTemplateLoaded: boolean = false;
 
+  // Track transient subscriptions for cleanup
+  private _transientSubs: Subscription[] = [];
+
   public get okLabel(): string {
     return this._stepper.currentStep?.isLast
       ? this._previewStep.model.published === true
-        ? 'Αποθήκευση & Δημοσίευση'
-        : 'Αποθήκευση'
-      : 'Επόμενο';
+        ? 'Campaigns.SaveAndPublish'
+        : 'Campaigns.Save'
+      : 'Campaigns.Next';
   }
 
   public ngOnInit(): void {
-    this.metaItems = [{
-      key: 'info',
-      icon: Icons.Details,
-      text: 'Ακολουθήστε τα παρακάτω βήματα για να δημιουργήσετε ένα νέο campaign.'
-    }];
+    const metaSub = combineLatest([
+      this._lang.translateKey('Campaigns.CreateWizardIntro')
+    ]).subscribe(([intro]) => {
+      this.metaItems = [{
+        key: 'info',
+        icon: Icons.Details,
+        text: intro || 'Campaigns.CreateWizardIntro' // fallback key
+      }];
+    });
+    this._transientSubs.push(metaSub);
+
   }
 
   public ngAfterViewChecked(): void {
     this._changeDetector.detectChanges();
+  }
+
+  public ngOnDestroy(): void {
+    // Ensure any outstanding transient subscriptions are disposed
+    this._transientSubs.forEach(s => s.unsubscribe());
   }
 
   public onTemplateSelected(templateId: string | undefined): void {
@@ -84,15 +101,17 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
           return EMPTY;
         }),
         mergeMap((result: CreateCampaignResult) => {
-        return this._attachmentsStep.attachment.value && result.campaignId
-          ? this._api.uploadCampaignAttachment(result.campaignId, this._attachmentsStep.attachment.value).pipe(map(() => result))
-          : of(result)
-      }))
+          return this._attachmentsStep.attachment.value && result.campaignId
+            ? this._api.uploadCampaignAttachment(result.campaignId, this._attachmentsStep.attachment.value).pipe(map(() => result))
+            : of(result);
+        }))
       .subscribe({
         next: (campaign: CreateCampaignResult) => {
           this.submitInProgress = false;
           this._router.navigate(['campaigns', campaign.campaignId]);
-          this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η καμπάνια με τίτλο '${data.title}' δημιουργήθηκε με επιτυχία.`);
+
+          // Localized toast using combineLatest; unsubscribe immediately after emission
+          this._toaster.show(ToastType.Success, 'Campaigns.CreateSuccessTitle', 'Campaigns.CreateSuccessMessage', undefined, {title: data.title});
         }
       });
   }
@@ -143,7 +162,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
       published: this._previewStep.model.published,
       ignoreUserPreferences: this._previewStep.model.ignoreUserPreferences,
       title: this._basicInfoStep.title.value,
-      data:  JSON.parse(this._contentStep.data.value || '{}'),
+      data: JSON.parse(this._contentStep.data.value || '{}'),
       mediaBaseHref: this._contentStep.additionalData.mediaBaseHref,
       typeId: this._basicInfoStep.type.value?.id || undefined,
       recipientIds: this._recipientsStep.recipientIds.value ? this._recipientsStep.recipientIds.value.split('\n') : null,
@@ -158,7 +177,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
         title: item.subject,
         sender: item.sender,
         body: item.body
-      })
+      });
     }
     data.content = content;
     return data;

@@ -4,8 +4,9 @@ import { FileParameter } from 'src/app/core/services/messages-api.service';
 import { IAttachment } from 'src/app/shared/components/file-upload/file-upload.component';
 
 @Component({
-  selector: 'app-campaign-attachments',
-  templateUrl: './campaign-attachments.component.html'
+    selector: 'app-campaign-attachments',
+    templateUrl: './campaign-attachments.component.html',
+    standalone: false
 })
 export class CampaignAttachmentsComponent implements OnInit {
   constructor() { }

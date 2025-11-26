@@ -5,8 +5,9 @@ import { ModalService } from '@indice/ng-components';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
 
 @Component({
-  selector: 'app-campaign-message-timeline',
-  templateUrl: './campaign-message-timeline.component.html'
+    selector: 'app-campaign-message-timeline',
+    templateUrl: './campaign-message-timeline.component.html',
+    standalone: false
 })
 export class CampaignMessageTimelineComponent implements OnInit {
   public _campaignId: string | undefined;

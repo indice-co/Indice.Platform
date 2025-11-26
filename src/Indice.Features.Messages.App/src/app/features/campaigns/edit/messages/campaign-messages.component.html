@@ -1,54 +1,76 @@
-<lib-view-layout [title]="'Παραλήπτες'" [busy]="!items" [actions]="actions" [meta-items]="metaItems"
-  (onAction)="actionHandler($event)" (onSearch)="searchChanged($event)">
-  <lib-list-view [items]="items" [page]="page" [page-size]="pageSize" [count]="count" [sort-options]="sortOptions"
-    [sort]="sort" [sort-dir]="sortdir" [busy]="!items" (pageChanged)="pageChanged($event)"
-    (pageSizeChanged)="pageSizeChanged($event)" (sortChanged)="sortChanged($event)"
-    (sortdirChanged)="sortdirChanged($event)">
-    <lib-list-column title="ID ΜΗΝΥΜΑΤΟΣ">
+<lib-view-layout [title]="'Campaigns.RecipientsTitle' | translate"
+                 [busy]="!items"
+                 [actions]="actions"
+                 [meta-items]="metaItems"
+                 (onAction)="actionHandler($event)"
+                 (onSearch)="searchChanged($event)">
+  <lib-list-view [items]="items"
+                 [page]="page"
+                 [page-size]="pageSize"
+                 [count]="count"
+                 [sort-options]="sortOptions"
+                 [sort]="sort"
+                 [sort-dir]="sortdir"
+                 [busy]="!items"
+                 (pageChanged)="pageChanged($event)"
+                 (pageSizeChanged)="pageSizeChanged($event)"
+                 (sortChanged)="sortChanged($event)"
+                 (sortdirChanged)="sortdirChanged($event)">
+
+    <lib-list-column [title]="'Campaigns.MessageIdColumn' | translate">
       <ng-template let-item>
-        <a title="Λεπτομέρειες αποστολών"
-            [routerLink]="['/campaigns/'+_campaignId+'/campaign-message-timeline/'+item.contact.id]" 
-            class="text-blue-600">
+        <a [title]="'Campaigns.DeliveryDetailsTitle' | translate"
+           [routerLink]="['/campaigns/' + _campaignId + '/campaign-message-timeline/' + item.contact.id]"
+           class="text-blue-600">
           {{ item.contact.id }}
         </a>
       </ng-template>
     </lib-list-column>
-    <lib-list-column title="Channels">
+
+    <lib-list-column [title]="'Campaigns.ChannelsColumn' | translate">
       <ng-template let-item>
         <div class="flex items-center space-x-1">
           <span [ngClass]="{ 'text-green-500': item.channels.includes('Email') }"
-                class="ml-1 text-gray-400" title="Email">
+                class="ml-1 text-gray-400"
+                [title]="'Campaigns.ChannelEmail' | translate">
             <i class="ms-Icon ms-Icon--Accounts"></i>
           </span>
-
           <span [ngClass]="{ 'text-green-500': item.channels.includes('SMS') }"
-                class="ml-1 text-gray-400" title="SMS">
+                class="ml-1 text-gray-400"
+                [title]="'Campaigns.ChannelSms' | translate">
             <i class="ms-Icon ms-Icon--Chat"></i>
           </span>
-
           <span [ngClass]="{ 'text-green-500': item.channels.includes('Inbox') }"
-                class="ml-1 text-gray-400" title="Inbox">
+                class="ml-1 text-gray-400"
+                [title]="'Campaigns.ChannelInbox' | translate">
             <i class="ms-Icon ms-Icon--Inbox"></i>
           </span>
-
           <span [ngClass]="{ 'text-green-500': item.channels.includes('PushNotification') }"
-                class="ml-1 text-gray-400" title="Push Notification">
+                class="ml-1 text-gray-400"
+                [title]="'Campaigns.ChannelPushNotification' | translate">
             <i class="ms-Icon ms-Icon--CellPhone"></i>
           </span>
         </div>
       </ng-template>
     </lib-list-column>
-    <lib-list-column title="email">
+
+    <lib-list-column [title]="'Campaigns.EmailColumn' | translate">
       <ng-template let-item>{{ item.contact.email }}</ng-template>
     </lib-list-column>
-    <lib-list-column title="Τηλεφωνο">
+
+    <lib-list-column [title]="'Campaigns.PhoneColumn' | translate">
       <ng-template let-item>{{ item.contact.phoneNumber }}</ng-template>
     </lib-list-column>
-    <lib-list-column title="recipientId">
+
+    <lib-list-column [title]="'Campaigns.RecipientIdColumn' | translate">
       <ng-template let-item>{{ item.contact.recipientId }}</ng-template>
     </lib-list-column>
-    <lib-list-column title="Ημερομηνια" [full-width]="true">
-      <ng-template let-item>{{ item.createdOn ? (item.createdOn | date: 'medium') : '-' }}</ng-template>
+
+    <lib-list-column [title]="'Campaigns.DateColumn' | translate" [full-width]="true">
+      <ng-template let-item>
+        {{ item.createdOn ? (item.createdOn | date:'medium') : ('Campaigns.EmptyValueIndicator' | translate) }}
+      </ng-template>
     </lib-list-column>
+
   </lib-list-view>
 </lib-view-layout>
