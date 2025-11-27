@@ -4,7 +4,7 @@ using Indice.Types;
 using Microsoft.Net.Http.Headers;
 using UAParser;
 
-namespace Indice.Features.Identity.Core.Types;
+namespace Indice.Features.GeoIP.UserAgent;
 
 /// <summary>Models a user agent (browser) type, extracting various useful information.</summary>
 public class UserAgent
@@ -30,7 +30,7 @@ public class UserAgent
     /// <returns>A configured <see cref="Parser"/> instance.</returns>
     private static Parser CreateParser() {
         var assembly = Assembly.GetExecutingAssembly();
-        const string resourceName = "Indice.Features.Identity.Core.Types.regexes.yaml";
+        const string resourceName = "Indice.Features.GeoIP.UserAgent.regexes.yaml";
 
         using var stream = assembly.GetManifestResourceStream(resourceName);
         if (stream is null)
@@ -119,6 +119,9 @@ public class UserAgent
             case string x when x.Contains("iPhone", StringComparison.OrdinalIgnoreCase):
                 devicePlatform = DevicePlatform.iOS;
                 break;
+            case string x when x.Contains("iOS", StringComparison.OrdinalIgnoreCase):
+                devicePlatform = DevicePlatform.iOS;
+                break;
             case string x when x.Contains("Android", StringComparison.OrdinalIgnoreCase):
                 devicePlatform = DevicePlatform.Android;
                 break;
@@ -126,6 +129,9 @@ public class UserAgent
                 devicePlatform = DevicePlatform.Windows;
                 break;
             case string x when x.Contains("Linux", StringComparison.OrdinalIgnoreCase):
+                devicePlatform = DevicePlatform.Linux;
+                break;
+            case string x when x.Contains("Ubuntu", StringComparison.OrdinalIgnoreCase):
                 devicePlatform = DevicePlatform.Linux;
                 break;
             case string x when x.Contains("Mac", StringComparison.OrdinalIgnoreCase):
