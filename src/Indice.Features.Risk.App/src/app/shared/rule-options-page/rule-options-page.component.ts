@@ -6,7 +6,8 @@ import { ToasterService, ToastType } from "@indice/ng-components";
 @Component({
     selector: 'app-rule-options-page',
     templateUrl: './rule-options-page.component.html',
-    styleUrls: ['./rule-options-page.component.scss']
+    styleUrls: ['./rule-options-page.component.css'],
+    standalone: false
 })
 
 export class RuleOptionsPageComponent implements OnInit {
