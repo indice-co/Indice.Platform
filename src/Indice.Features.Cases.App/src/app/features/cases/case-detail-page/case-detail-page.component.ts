@@ -97,7 +97,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
       .getContactData(caseDetails.ownerId ?? "", caseDetails.caseType?.code ?? "")
       .pipe(
         map(contactData => {
-          caseDetails.data = contactData;
+          caseDetails.data = contactData.formData;
           return caseDetails;
         }));
 
