@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { AuthHttpInterceptor, AuthService, AUTH_SETTINGS, IndiceAuthModule } from '@indice/ng-auth';
 import { APP_LINKS, IndiceComponentsModule, ModalService, SHELL_CONFIG } from '@indice/ng-components';
@@ -19,35 +19,29 @@ import { RiskDetailsPageComponent } from './shared/risk-details-page/risk-detail
 import { RulesListComponent } from './features/rules-list/rules-list.component';
 import { RuleOptionsPageComponent } from './shared/rule-options-page/rule-options-page.component';
 
-@NgModule({
-  declarations: [
-    AppComponent,
-    RiskEventsComponent,
-    RiskResultsComponent,
-    HomeComponent,
-    RiskDetailsPageComponent,
-    RulesListComponent,
-    RuleOptionsPageComponent
-  ],
-  imports: [
-    NgxJsonViewerModule,
-    AppRoutingModule,
-    BrowserModule,
-    CommonModule,
-    FormsModule,
-    HttpClientModule,
-    IndiceAuthModule.forRoot(),
-    IndiceComponentsModule.forRoot()
-  ],
-  providers: [
-    ModalService,
-    AuthService,
-    { provide: APP_LINKS, useFactory: (authService: AuthService) => new AppLinks(authService), deps: [AuthService] },
-    { provide: AUTH_SETTINGS, useFactory: () => app.settings.auth_settings },
-    { provide: RISK_API_BASE_URL, useFactory: () => app.settings.api_url },
-    { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
-    { provide: SHELL_CONFIG, useFactory: () => new ShellConfig() }
-  ],
-  bootstrap: [AppComponent]
-})
+@NgModule({ declarations: [
+        AppComponent,
+        RiskEventsComponent,
+        RiskResultsComponent,
+        HomeComponent,
+        RiskDetailsPageComponent,
+        RulesListComponent,
+        RuleOptionsPageComponent
+    ],
+    bootstrap: [AppComponent], imports: [NgxJsonViewerModule,
+        AppRoutingModule,
+        BrowserModule,
+        CommonModule,
+        FormsModule,
+        IndiceAuthModule.forRoot(),
+        IndiceComponentsModule.forRoot()], providers: [
+        ModalService,
+        AuthService,
+        { provide: APP_LINKS, useFactory: (authService: AuthService) => new AppLinks(authService), deps: [AuthService] },
+        { provide: AUTH_SETTINGS, useFactory: () => app.settings.auth_settings },
+        { provide: RISK_API_BASE_URL, useFactory: () => app.settings.api_url },
+        { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
+        { provide: SHELL_CONFIG, useFactory: () => new ShellConfig() },
+        provideHttpClient(withInterceptorsFromDi())
+    ] })
 export class AppModule { }
