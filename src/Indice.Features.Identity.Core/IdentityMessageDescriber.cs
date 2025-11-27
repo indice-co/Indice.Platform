@@ -1,4 +1,5 @@
-﻿using Humanizer;
+﻿using System.Diagnostics;
+using Humanizer;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Grants;
@@ -82,7 +83,16 @@ public class IdentityMessageDescriber
     public virtual string SecurityEventSubject(string activity) =>
         activity switch {
             nameof(PasswordChangedEvent) => IdentityResources.PasswordChangedEventSubject,
+            nameof(AccountLockedEvent) => IdentityResources.AccountLockedEventSubject,
             _ => string.Format(IdentityResources.Culture, IdentityResources.SecurityNotificationDefaultSubject, activity.Replace("Event", "").Humanize())
+        };
+
+    /// <summary>Security event descriptions.</summary>
+    public virtual string SecurityEventDescription(string activity) =>
+        activity switch {
+            nameof(PasswordChangedEvent) => IdentityResources.PasswordChangedEventDescription,
+            nameof(AccountLockedEvent) => IdentityResources.AccountLockedEventDescription,
+            _ => string.Empty
         };
 
     /// <summary>Add email page validation empty email</summary>
@@ -113,6 +123,10 @@ public class IdentityMessageDescriber
     public virtual string PasswordChangedSuccessfully => IdentityResources.PasswordChangedSuccessfully;
     /// <summary>Password expired message.</summary>
     public virtual string PasswordExpiredMessage => IdentityResources.PasswordExpiredMessage;
+
+    /// <summary>Choose Password message for new users.</summary>
+    public virtual string PasswordExpiredFirstTimeUserMessage => IdentityResources.PasswordExpiredFirstTimeUserMessage;
+    
     /// <summary>Profile external login added success message.</summary>
     public virtual string ProfileExternalLoginAddedSuccessMessage => IdentityResources.ProfileExternalLoginAddedSuccessMessage;
     /// <summary>Registration phone confriamtion message prompt</summary>

@@ -92,6 +92,7 @@ public static class SignInLogFeatureExtensions
             builder.Services.TryAddScoped<ISignInGuard<TUser>, SignInGuard<TUser>>();
         }
         services.AddPlatformEventHandler<PasswordChangedEvent, UserPasswordChangedEventHandler>();
+        services.AddPlatformEventHandler<AccountLockedEvent, AccountLockedEventHandler>();
         return builder;
     }
 

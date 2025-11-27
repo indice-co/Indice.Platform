@@ -113,7 +113,7 @@ internal static class WorkflowManagerHandler
         return TypedResults.NoContent();
     }
     
-    public static async Task<AvailableActions> GetActionsByCaseId(
+    public static async Task<Ok<AvailableActions>> GetActionsByCaseId(
         Guid caseId,
         IBookmarkFinder bookmarkFinder,
         IWorkflowInstanceStore workflowInstanceStore
@@ -134,12 +134,12 @@ internal static class WorkflowManagerHandler
             caseId.ToString()
         )).Select(x => x.Bookmark as AwaitApprovalBookmark).ToList();
 
-        return new AvailableActions {
+        return TypedResults.Ok(new AvailableActions {
             AssignmentBookmarks = assignmentBookmarks,
             EditBookmarks = editBookmarks,
             ApprovalBookmarks = approvalBookmarks,
             CustomActions = await GetCustomActions(caseId, bookmarkFinder, workflowInstanceStore)
-        };
+        });
     }
 
     public static async Task<IEnumerable<string>> GetRejectReasonsByCaseId(Guid caseId, IWorkflowInstanceStore workflowInstanceStore) {

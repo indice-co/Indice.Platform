@@ -214,7 +214,7 @@
     <value>Welcome to {0}! Please confirm your email to get started.</value>
   </data>
   <data name="PasswordChangedEventSubject" xml:space="preserve">
-    <value>Your password was changed</value>
+    <value>Your Password has been Changed</value>
   </data>
   <data name="SecurityNotificationDefaultSubject" xml:space="preserve">
     <value>Security Notification {0}</value>
@@ -451,5 +451,17 @@
   <data name="UI_Validator_VerifyPhone_Code_FieldName" xml:space="preserve">
     <value>Code</value>
     <comment>UI Validators</comment>
+  </data>
+  <data name="AccountLockedEventSubject" xml:space="preserve">
+    <value>Your account has been temporarily locked</value>
+  </data>
+  <data name="AccountLockedEventDescription" xml:space="preserve">
+    <value>Your account has been temporarily locked due to multiple unsuccessful login attempts. This lock is a security measure to protect your information. Please try again later.</value>
+  </data>
+  <data name="PasswordChangedEventDescription" xml:space="preserve">
+    <value>Your password has been successfully changed.</value>
+  </data>
+  <data name="PasswordExpiredFirstTimeUserMessage" xml:space="preserve">
+    <value>Please choose your new password to continue.</value>
   </data>
 </root>

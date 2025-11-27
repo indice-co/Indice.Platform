@@ -19,7 +19,6 @@ using Indice.Features.Identity.Core.Extensions;
 using Indice.Features.Identity.Core.ImpossibleTravel;
 using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.Core.PasswordValidation;
-using Indice.Features.Identity.Core.Types;
 using Indice.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
