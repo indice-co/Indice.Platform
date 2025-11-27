@@ -114,7 +114,7 @@ public class IdentityMessageDescriber
     /// <summary>Mfa onboarding AddPhone Validation success message</summary>
     public virtual string MfaAddPhoneSuccessMessage => IdentityResources.MfaAddPhoneSuccessMessage;
     /// <summary>Mfa onboarding AddPhone Validation already confirmed</summary>
-    public virtual string MfaAddPhoneValidationPhoneAlreadyConfirmed => IdentityResources.MfaAddPhoneValidationPhoneAlreadyConfirmed;
+    public virtual string MfaAddPhoneValidationPhoneAlreadyConfirmed => IdentityResources.MfaAddPhoneValidationPhoneAlreadyConfirmed; 
     /// <summary>Mfa onboarding AddPhone Validation missing phone</summary>
     public virtual string MfaVerifyPhoneValidationMissingPhone => IdentityResources.MfaVerifyPhoneValidationMissingPhone;
     /// <summary>Mfa onboarding verfication success message</summary>

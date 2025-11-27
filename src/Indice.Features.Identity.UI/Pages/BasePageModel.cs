@@ -171,6 +171,17 @@ public abstract class BasePageModel : PageModel
         await smsService.SendAsync(phoneNumber, identityMessageDescriber.PhoneVerificationSmsSubject, identityMessageDescriber.PhoneVerificationSmsBody(code));
     }
 
+    /// <summary>Generates a TOTP code and sends it to the email address of the specified user.</summary>
+    /// <param name="user">The user instance.</param>
+    /// <param name="emailAddress">The phone number.</param>
+    public virtual async Task SendVerificationEmailAsync(User user, string emailAddress, string purpose) {
+        var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var code = await userManager.GenerateUserTokenAsync(user, TokenOptions.DefaultEmailProvider, purpose);
+        var emailService = ServiceProvider.GetRequiredService<IEmailService>();
+        var identityMessageDescriber = ServiceProvider.GetRequiredService<IdentityMessageDescriber>();
+        await emailService.SendAsync(emailAddress, identityMessageDescriber.PhoneVerificationSmsSubject, identityMessageDescriber.PhoneVerificationSmsBody(code));
+    }
+
     /// <summary>
     /// Attempts to complete the login process and returns an appropriate action result based on the sign-in outcome and
     /// authentication context. 
