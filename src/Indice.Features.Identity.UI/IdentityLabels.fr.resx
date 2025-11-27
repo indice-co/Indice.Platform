@@ -724,10 +724,10 @@
     <value>Enregistrer</value>
   </data>
   <data name="MfaOnBoardingVerifyPhone_PageTitle" xml:space="preserve">
-    <value>Verifier le numero de telephone</value>
+    <value>Vérifier le numero de telephone</value>
   </data>
   <data name="MfaOnBoardingVerifyPhone_PageHeader" xml:space="preserve">
-    <value>Verifier le numero de telephone</value>
+    <value>Vérifier le numero de telephone</value>
   </data>
   <data name="PasswordExpired_PageTitle" xml:space="preserve">
     <value>Changer le mot de passe</value>
