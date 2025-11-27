@@ -250,7 +250,7 @@
     <value>pour vous connecter ou revenir en arriere.</value>
   </data>
   <data name="ConfirmEmail_Verify" xml:space="preserve">
-    <value>Verifier</value>
+    <value>Vérifier</value>
   </data>
   <data name="ConfirmEmail_VerifyingEmail" xml:space="preserve">
     <value>Verification de votre e-mail.</value>
